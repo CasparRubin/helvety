@@ -6,7 +6,7 @@ export default function Home() {
       <div className="max-w-5xl mx-auto px-6 py-20">
         <header className="mb-24 text-center">
           <Image
-            src="/logo.svg"
+            src="/logo_whiteBg.svg"
             alt="Helvety logo"
             width={4000}
             height={1000}

@@ -27,16 +27,16 @@ export const metadata: Metadata = {
     description: "Swiss Software and Apparel",
     images: [
       {
-        url: "/v2509051310_100px.png",
+        url: "/Identifier_whiteBg.png",
       },
     ],
   },
   icons: {
     icon: [
-      { url: "/v2509051310_100px.png", type: "image/png", sizes: "100x100" },
-      { url: "/Identifier.svg", type: "image/svg+xml" },
+      { url: "/Identifier_whiteBg.png", type: "image/png" },
+      { url: "/Identifier_whiteBg.svg", type: "image/svg+xml" },
     ],
-    apple: "/v2509051310_100px.png",
+    apple: "/Identifier_whiteBg.png",
   },
 };
 
