@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+export const revalidate = 60 * 60 * 24; // keep contact page cached daily
+
 export const metadata: Metadata = {
   title: "Contact - Helvety",
   description: "Hidden contact page for Helvety",

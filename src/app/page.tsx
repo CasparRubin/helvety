@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+export const revalidate = 60 * 60 * 24; // cache statically for a day
+
 export default function Home() {
   return (
     <main className="min-h-screen">
@@ -8,9 +10,10 @@ export default function Home() {
           <Image
             src="/logo_whiteBg.svg"
             alt="Helvety logo"
-            width={4000}
-            height={1000}
-            className="w-full h-auto mb-24"
+            width={1200}
+            height={300}
+            className="w-full max-w-3xl h-auto mb-24 mx-auto"
+            sizes="(max-width: 768px) 90vw, (max-width: 1280px) 70vw, 960px"
             priority
           />
           <div className="space-y-2">
