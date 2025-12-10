@@ -91,49 +91,42 @@ export default function Home() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 pt-24 pb-20">
-        <div className="w-full text-center">
+      <section className="relative min-h-screen flex items-center justify-center px-6 py-24">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-10 text-center">
           <motion.div
             key={`logo-${animationKey}`}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-12 logo-glow-wrapper"
+            className="logo-glow-wrapper flex justify-center"
           >
             <Image
               src="/logo_whiteBg.svg"
               alt="Helvety logo"
               width={1200}
               height={300}
-              className="mx-auto mb-12 h-auto w-[90vw] max-w-6xl"
+              className="mx-auto h-auto w-[90vw] max-w-6xl"
               sizes="(max-width: 768px) 95vw, (max-width: 1280px) 90vw, 1400px"
               priority
               fetchPriority="high"
             />
           </motion.div>
-          
-          <div className="max-w-6xl mx-auto w-full">
-            <motion.div
-              key={`content-${animationKey}`}
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-              className="space-y-6"
-            >
-            <motion.div variants={fadeInUp}>
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight mb-4">
-                Software and Apparel
-              </h1>
-            </motion.div>
-            
+
+          <motion.div
+            key={`content-${animationKey}`}
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            className="flex w-full flex-col items-center gap-8"
+          >
             <motion.div variants={fadeInUp}>
               <p className="text-lg md:text-xl text-muted-foreground">
                 Made in{" "}
                 <span className="text-[#FF0000] font-medium">Switzerland</span>
               </p>
             </motion.div>
-
-            <motion.div variants={fadeInUp} className="pt-8">
+            
+            <motion.div variants={fadeInUp}>
               <Button
                 asChild
                 variant="outline"
@@ -144,7 +137,6 @@ export default function Home() {
               </Button>
             </motion.div>
           </motion.div>
-          </div>
         </div>
 
         {/* Gradient overlay for depth */}
