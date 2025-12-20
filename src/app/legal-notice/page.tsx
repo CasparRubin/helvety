@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 
 export default function LegalNotice() {
   return (
@@ -14,7 +15,17 @@ export default function LegalNotice() {
 
           <div>
             <p className="font-medium text-foreground mb-1">Owner</p>
-            <p>Caspar Camille Rubin</p>
+            <p>
+              <a
+                href="https://casparrubin.ch"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground hover:underline transition-colors inline-flex items-center gap-1"
+              >
+                Caspar Camille Rubin
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </p>
             <p>Helvety by Rubin</p>
             <p>Holeestrasse 116</p>
             <p>4054 Basel</p>
