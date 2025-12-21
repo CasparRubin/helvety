@@ -448,7 +448,7 @@ export function HelvetyPdf() {
       }
 
       const pdfBytes = await mergedPdf.save()
-      const blob = new Blob([pdfBytes], { type: "application/pdf" })
+      const blob = new Blob([pdfBytes as BlobPart], { type: "application/pdf" })
 
       const dateStr = formatTimestamp()
       const filename = `helvety-pdf_${dateStr}.pdf`

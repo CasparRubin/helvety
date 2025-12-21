@@ -207,7 +207,7 @@ export function PdfPageGrid({
             ariaLabel: isDeleted ? `Restore page ${unifiedPageNumber}` : `Delete page ${unifiedPageNumber}`,
             title: isDeleted ? "Restore" : "Delete",
             disabled: isProcessing,
-            variant: isDeleted ? "destructive" : "secondary",
+            variant: (isDeleted ? "destructive" : "secondary") as "destructive" | "secondary",
           },
           // Rotate buttons
           {
