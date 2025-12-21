@@ -1,11 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { PdfPageThumbnail } from "@/components/pdf-page-thumbnail"
-import { PdfActionButtons } from "@/components/pdf-action-buttons"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
-import { addOklchAlpha } from "@/lib/pdf-colors"
 import { 
   ChevronUpIcon, 
   ChevronDownIcon, 
@@ -18,20 +13,13 @@ import {
   Download
 } from "lucide-react"
 
-interface PdfFile {
-  id: string
-  file: File
-  url: string
-  pageCount: number
-  color: string
-}
+import { PdfPageThumbnail } from "@/components/pdf-page-thumbnail"
+import { PdfActionButtons } from "@/components/pdf-action-buttons"
+import { Badge } from "@/components/ui/badge"
 
-interface UnifiedPage {
-  id: string
-  fileId: string
-  originalPageNumber: number
-  unifiedPageNumber: number
-}
+import { cn } from "@/lib/utils"
+import { addOklchAlpha } from "@/lib/pdf-colors"
+import type { PdfFile, UnifiedPage } from "@/lib/types"
 
 interface PdfPageGridProps {
   pdfFiles: PdfFile[]
@@ -219,7 +207,7 @@ export function PdfPageGrid({
             ariaLabel: isDeleted ? `Restore page ${unifiedPageNumber}` : `Delete page ${unifiedPageNumber}`,
             title: isDeleted ? "Restore" : "Delete",
             disabled: isProcessing,
-            variant: (isDeleted ? "destructive" : "secondary") as "destructive" | "secondary",
+            variant: isDeleted ? "destructive" : "secondary",
           },
           // Rotate buttons
           {

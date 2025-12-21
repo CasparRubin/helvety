@@ -1,7 +1,10 @@
 "use client"
 
+import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { Github, Info } from "lucide-react"
+
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,16 +20,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Github, Info } from "lucide-react"
-import { useState, useEffect } from "react"
 
 const ABOUT_SEEN_KEY = "helvety-pdf-about-seen"
 
 export function Navbar() {
-  const [isAboutOpen, setIsAboutOpen] = useState(false)
+  const [isAboutOpen, setIsAboutOpen] = React.useState(false)
 
   // Check on mount if user has seen the about dialog
-  useEffect(() => {
+  React.useEffect(() => {
     if (typeof window !== "undefined") {
       const hasSeenAbout = localStorage.getItem(ABOUT_SEEN_KEY)
       if (!hasSeenAbout) {

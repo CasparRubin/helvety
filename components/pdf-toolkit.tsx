@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Download, Loader2, Trash2, X, Upload } from "lucide-react"
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,19 +14,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { cn } from "@/lib/utils"
-import { addOklchAlpha } from "@/lib/pdf-colors"
-import { Download, Loader2, Trash2, X, Upload } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
 
-interface PdfFile {
-  id: string
-  file: File
-  url: string
-  pageCount: number
-  color: string
-}
+import { cn } from "@/lib/utils"
+import { addOklchAlpha } from "@/lib/pdf-colors"
+import type { PdfFile } from "@/lib/types"
 
 interface PdfToolkitProps {
   pdfFiles: PdfFile[]
@@ -169,7 +164,7 @@ export function PdfToolkit({
               </div>
               <Slider
                 id="column-slider"
-                min={2}
+                min={3}
                 max={10}
                 step={1}
                 value={[columns]}

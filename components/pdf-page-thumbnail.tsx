@@ -47,6 +47,8 @@ export function PdfPageThumbnail({
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const [documentReady, setDocumentReady] = React.useState(false)
   const [workerReady, setWorkerReady] = React.useState(false)
+  const [pageWidth, setPageWidth] = React.useState<number>(400)
+  const containerRef = React.useRef<HTMLDivElement>(null)
 
   // Initialize PDF.js worker once on client side (shared across all instances)
   // Returns a Promise that resolves when the worker is ready
@@ -104,6 +106,53 @@ export function PdfPageThumbnail({
     }
   }, [initializeWorker])
 
+  // Measure container width and update page width dynamically
+  // This ensures PDF pages always display at full width regardless of column count,
+  // with height automatically adjusting to maintain proper aspect ratio
+  React.useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const updateWidth = () => {
+      const rect = container.getBoundingClientRect()
+      // Calculate available width accounting for any padding/borders
+      const computedStyle = window.getComputedStyle(container)
+      const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0
+      const paddingRight = parseFloat(computedStyle.paddingRight) || 0
+      const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0
+      const borderRight = parseFloat(computedStyle.borderRightWidth) || 0
+      
+      const availableWidth = rect.width - paddingLeft - paddingRight - borderLeft - borderRight
+      
+      // Use a minimum width to prevent issues with very small containers
+      const calculatedWidth = Math.max(availableWidth, 100)
+      setPageWidth(calculatedWidth)
+    }
+
+    // Initial measurement
+    updateWidth()
+
+    // Use ResizeObserver if available, fallback to window resize
+    let resizeObserver: ResizeObserver | null = null
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        updateWidth()
+      })
+      resizeObserver.observe(container)
+    } else {
+      // Fallback to window resize event
+      window.addEventListener("resize", updateWidth)
+    }
+
+    return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+      } else {
+        window.removeEventListener("resize", updateWidth)
+      }
+    }
+  }, [])
+
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -151,8 +200,9 @@ export function PdfPageThumbnail({
   return (
     <div className={cn("relative flex flex-col items-center gap-2", className)}>
       <div 
+        ref={containerRef}
         className={cn(
-          "relative w-full aspect-[3/4] overflow-hidden flex items-center justify-center"
+          "relative w-full min-h-0 flex items-center justify-center"
         )}
       >
         {loading && (
@@ -192,8 +242,9 @@ export function PdfPageThumbnail({
           >
             {documentReady && workerReady && (
               <Page
+                key={`${pageNumber}-${pageWidth}-${rotation || 0}`}
                 pageNumber={pageNumber}
-                width={400}
+                width={pageWidth}
                 renderTextLayer={false}
                 renderAnnotationLayer={false}
                 rotate={rotation}

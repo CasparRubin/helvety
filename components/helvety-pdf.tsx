@@ -2,31 +2,19 @@
 
 import * as React from "react"
 import { PDFDocument, degrees } from "pdf-lib"
+import { Upload, Download, Loader2, AlertCircle, X } from "lucide-react"
+
 import { PdfPageGrid } from "@/components/pdf-page-grid"
 import { PdfToolkit } from "@/components/pdf-toolkit"
 import { Button } from "@/components/ui/button"
+
 import { cn, formatTimestamp } from "@/lib/utils"
 import { getPdfColor } from "@/lib/pdf-colors"
-import { Upload, File, Download, Loader2, AlertCircle, X } from "lucide-react"
+import type { PdfFile, UnifiedPage } from "@/lib/types"
 
 // Timeout constants (in milliseconds)
 const BLOB_URL_CLEANUP_DELAY = 100
 const ERROR_AUTO_DISMISS_DELAY = 8000
-
-interface PdfFile {
-  id: string
-  file: File
-  url: string
-  pageCount: number
-  color: string
-}
-
-interface UnifiedPage {
-  id: string // Unique ID for this page in unified array
-  fileId: string // Which file this page belongs to
-  originalPageNumber: number // Original page number in the file (1-based)
-  unifiedPageNumber: number // Position in unified array (1-based)
-}
 
 export function HelvetyPdf() {
   const [pdfFiles, setPdfFiles] = React.useState<PdfFile[]>([])
@@ -341,7 +329,7 @@ export function HelvetyPdf() {
           // Get original page rotation and combine with user rotation
           const originalPage = pdf.getPage(pageIndex)
           const rotationObj = originalPage.getRotation()
-          const originalRotation = (rotationObj && typeof rotationObj === 'object' && 'angle' in rotationObj) 
+          const originalRotation = (rotationObj !== null && typeof rotationObj === 'object' && 'angle' in rotationObj) 
             ? rotationObj.angle 
             : (typeof rotationObj === 'number' ? rotationObj : 0)
           const totalRotation = normalizeRotation(originalRotation + rotation)
@@ -353,7 +341,7 @@ export function HelvetyPdf() {
       }
 
       const pdfBytes = await newPdf.save()
-      const blob = new Blob([pdfBytes as BlobPart], { type: "application/pdf" })
+      const blob = new Blob([pdfBytes], { type: "application/pdf" })
 
       const baseName = file.file.name.replace(/\.pdf$/i, "")
       const dateStr = formatTimestamp()
@@ -433,7 +421,7 @@ export function HelvetyPdf() {
               // Get original page rotation and combine with user rotation
               const originalPage = pdf.getPage(pageIndex)
               const rotationObj = originalPage.getRotation()
-              const originalRotation = (rotationObj && typeof rotationObj === 'object' && 'angle' in rotationObj) 
+              const originalRotation = (rotationObj !== null && typeof rotationObj === 'object' && 'angle' in rotationObj) 
                 ? rotationObj.angle 
                 : (typeof rotationObj === 'number' ? rotationObj : 0)
               const totalRotation = normalizeRotation(originalRotation + rotation)
@@ -460,7 +448,7 @@ export function HelvetyPdf() {
       }
 
       const pdfBytes = await mergedPdf.save()
-      const blob = new Blob([pdfBytes as BlobPart], { type: "application/pdf" })
+      const blob = new Blob([pdfBytes], { type: "application/pdf" })
 
       const dateStr = formatTimestamp()
       const filename = `helvety-pdf_${dateStr}.pdf`
