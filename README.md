@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Helvety PDF
 
-## Getting Started
+A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files without any server-side processing. All file processing happens entirely in your browser.
 
-First, run the development server:
+**App:** [pdf.helvety.com](https://pdf.helvety.com)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Privacy First
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**100% Client-Side Processing** - This application processes all PDFs entirely in your browser. No files are uploaded to any server. No user data is collected. No file information is transmitted.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Your files never leave your device
+- No server uploads or processing
+- No data collection or tracking
+- Complete privacy and security
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+- **Client-side PDF processing** - All operations happen in your browser
+- **PDF page thumbnails preview** - Visual preview of all pages before processing
+- **Drag & drop reordering** - Easily rearrange pages by dragging thumbnails
+- **Page rotation** - Rotate individual pages by 90° increments
+- **Page deletion** - Remove unwanted pages from your PDFs
+- **Page extraction** - Extract individual pages as separate PDF files
+- **Multi-file merging** - Combine multiple PDF files into one
+- **Drag & drop upload** - Intuitive file upload interface
+- **Dark mode support** - Comfortable viewing in any lighting condition
 
-To learn more about Next.js, take a look at the following resources:
+## How It Works
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Upload PDFs** - Drag and drop or click to browse and select multiple PDF files
+2. **Preview & Manage** - See thumbnails of all pages, reorder by dragging, rotate, or delete pages as needed
+3. **Extract Pages** (optional) - Extract individual pages as separate PDF files
+4. **Merge & Download** - Click the download button to combine all PDFs with your modifications
+5. **Download** - Your processed PDF downloads automatically with a timestamped filename
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All steps happen entirely in your browser. No data is sent to any server.
 
-## Deploy on Vercel
+## Developer
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This application is developed and maintained by **Helvety**, a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com).
+
+## License & Usage
+
+This repository is public for transparency purposes only—all code is open for inspection so users can verify its behavior.
+
+**No license is granted; this is the default "All rights reserved" status.** You may view the code, but you cannot reuse, redistribute, or sell it without explicit permission. All rights are retained by the author.
