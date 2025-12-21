@@ -24,34 +24,15 @@ export function getPdfColor(fileIndex: number): string {
 }
 
 /**
- * Get CSS classes for applying PDF color as a border
+ * Add alpha channel to an oklch color string
+ * @param color - oklch color string (e.g., "oklch(0.65 0.22 25)")
+ * @param alpha - Alpha value between 0 and 1 (default: 0.15)
+ * @returns oklch color string with alpha channel (e.g., "oklch(0.65 0.22 25 / 0.15)")
  */
-export function getPdfColorBorderClass(color: string): string {
-  return `border-l-4`
-}
-
-/**
- * Get inline style for PDF color border
- */
-export function getPdfColorBorderStyle(color: string): { borderLeftColor: string } {
-  return {
-    borderLeftColor: color,
-  }
-}
-
-/**
- * Get CSS classes for applying PDF color as a subtle background
- */
-export function getPdfColorBgClass(): string {
-  return `bg-opacity-5`
-}
-
-/**
- * Get inline style for PDF color background
- */
-export function getPdfColorBgStyle(color: string): { backgroundColor: string } {
-  return {
-    backgroundColor: `${color}15`, // Add alpha channel for subtlety
-  }
+export function addOklchAlpha(color: string, alpha: number = 0.15): string {
+  // oklch format: oklch(L C H) or oklch(L C H / alpha)
+  // Remove existing alpha if present, then add new one
+  const withoutAlpha = color.replace(/\s*\/\s*[\d.]+\)$/, ')')
+  return `${withoutAlpha.replace(/\)$/, '')} / ${alpha})`
 }
 

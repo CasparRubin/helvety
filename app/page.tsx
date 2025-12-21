@@ -1,7 +1,5 @@
-import { PdfManager } from "@/components/pdf-manager";
-
-export const dynamic = "force-dynamic";
+import { HelvetyPdf } from "@/components/helvety-pdf";
 
 export default function Page() {
-  return <PdfManager />;
+  return <HelvetyPdf />;
 }

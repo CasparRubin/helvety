@@ -28,6 +28,7 @@ A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract 
 - **Page extraction** - Extract individual pages as separate PDF files
 - **Multi-file merging** - Combine multiple PDF files into one
 - **Drag & drop upload** - Intuitive file upload interface
+- **Customizable grid layout** - Adjust pages per row (2-10) for optimal viewing
 - **Dark mode support** - Comfortable viewing in any lighting condition
 
 ## How It Works
@@ -67,7 +68,7 @@ helvety-pdf/
 ├── components/            # React components
 │   ├── ui/               # shadcn/ui component library
 │   ├── navbar.tsx         # Navigation bar
-│   ├── pdf-manager.tsx    # Main PDF management component
+│   ├── helvety-pdf.tsx    # Main PDF management component
 │   ├── pdf-page-grid.tsx  # PDF page grid layout
 │   ├── pdf-page-thumbnail.tsx  # Individual page thumbnail
 │   ├── pdf-action-buttons.tsx   # Action buttons for PDF operations

@@ -15,7 +15,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
+import { addOklchAlpha } from "@/lib/pdf-colors"
 import { Download, Loader2, Trash2, X, Upload } from "lucide-react"
+import { Slider } from "@/components/ui/slider"
+import { Label } from "@/components/ui/label"
 
 interface PdfFile {
   id: string
@@ -35,6 +38,8 @@ interface PdfToolkitProps {
   onRemoveFile: (fileId: string) => void
   onAddFiles: () => void
   isProcessing: boolean
+  columns?: number
+  onColumnsChange?: (columns: number) => void
 }
 
 export function PdfToolkit({
@@ -47,7 +52,24 @@ export function PdfToolkit({
   onRemoveFile,
   onAddFiles,
   isProcessing,
+  columns,
+  onColumnsChange,
 }: PdfToolkitProps) {
+  const [showColumnSlider, setShowColumnSlider] = React.useState(false)
+
+  // Detect if screen width shows more than 1 column (>= 1231px)
+  React.useEffect(() => {
+    const checkScreenWidth = () => {
+      setShowColumnSlider(window.innerWidth >= 1231)
+    }
+
+    // Check on mount
+    checkScreenWidth()
+
+    // Listen for resize events
+    window.addEventListener("resize", checkScreenWidth)
+    return () => window.removeEventListener("resize", checkScreenWidth)
+  }, [])
   return (
     <div className={cn(
       "flex",
@@ -132,6 +154,32 @@ export function PdfToolkit({
           </div>
         </div>
 
+        {/* Display - Column Slider (only show when screen width >= 1231px and files are uploaded) */}
+        {pdfFiles.length > 0 && showColumnSlider && columns !== undefined && onColumnsChange && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold">Display</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="column-slider" className="text-sm">
+                  Pages per row
+                </Label>
+                <span className="text-xs text-muted-foreground">
+                  {columns} {columns === 1 ? "page" : "pages"}
+                </span>
+              </div>
+              <Slider
+                id="column-slider"
+                min={2}
+                max={10}
+                step={1}
+                value={[columns]}
+                onValueChange={(value) => onColumnsChange(value[0])}
+                className="w-full"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Statistics */}
         {pdfFiles.length > 0 && (
           <div className="space-y-3">
@@ -177,7 +225,7 @@ export function PdfToolkit({
                     "group"
                   )}
                   style={{
-                    backgroundColor: file.color.replace(/\)$/, ' / 0.15)')
+                    backgroundColor: addOklchAlpha(file.color, 0.15)
                   }}
                 >
                   <div

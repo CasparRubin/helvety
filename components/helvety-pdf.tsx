@@ -9,6 +9,10 @@ import { cn, formatTimestamp } from "@/lib/utils"
 import { getPdfColor } from "@/lib/pdf-colors"
 import { Upload, File, Download, Loader2, AlertCircle, X } from "lucide-react"
 
+// Timeout constants (in milliseconds)
+const BLOB_URL_CLEANUP_DELAY = 100
+const ERROR_AUTO_DISMISS_DELAY = 8000
+
 interface PdfFile {
   id: string
   file: File
@@ -24,7 +28,7 @@ interface UnifiedPage {
   unifiedPageNumber: number // Position in unified array (1-based)
 }
 
-export function PdfManager() {
+export function HelvetyPdf() {
   const [pdfFiles, setPdfFiles] = React.useState<PdfFile[]>([])
   const [unifiedPages, setUnifiedPages] = React.useState<UnifiedPage[]>([])
   const [pageOrder, setPageOrder] = React.useState<number[]>([]) // Array of unified page numbers in current order
@@ -33,10 +37,61 @@ export function PdfManager() {
   const [isDragging, setIsDragging] = React.useState(false)
   const [isProcessing, setIsProcessing] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [columns, setColumns] = React.useState<number | undefined>(undefined)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const errorTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
+
+  // Get default column count based on screen size
+  const getDefaultColumns = (): number => {
+    if (typeof window === "undefined") return 2
+    const width = window.innerWidth
+    if (width >= 1655) return 3
+    if (width >= 1231) return 2
+    return 1
+  }
+
+  // Initialize columns from localStorage or default based on screen size
+  React.useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const stored = localStorage.getItem("helvety-pdf-columns")
+    if (stored) {
+      const parsed = parseInt(stored, 10)
+      if (!isNaN(parsed) && parsed >= 2 && parsed <= 10) {
+        setColumns(parsed)
+        return
+      }
+    }
+
+    // No stored value, use default based on screen size
+    setColumns(getDefaultColumns())
+  }, [])
+
+  // Handle window resize to update default if no localStorage value exists
+  React.useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const handleResize = () => {
+      const stored = localStorage.getItem("helvety-pdf-columns")
+      if (!stored) {
+        // Only update if no stored value exists
+        setColumns(getDefaultColumns())
+      }
+    }
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
+  // Handle column change and persist to localStorage
+  const handleColumnsChange = (newColumns: number) => {
+    setColumns(newColumns)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("helvety-pdf-columns", newColumns.toString())
+    }
+  }
 
   // Normalize rotation angle to 0, 90, 180, or 270
   const normalizeRotation = (angle: number): number => {
@@ -277,11 +332,13 @@ export function PdfManager() {
       const [copiedPage] = await newPdf.copyPages(pdf, [pageIndex])
       newPdf.addPage(copiedPage)
 
-      // Apply rotation if any
+      // Apply rotation if user has rotated this page
+      // Combine original page rotation with user-applied rotation
       const rotation = pageRotations[unifiedPageNumber] || 0
       if (rotation !== 0) {
         const newPage = newPdf.getPage(0)
         try {
+          // Get original page rotation and combine with user rotation
           const originalPage = pdf.getPage(pageIndex)
           const rotationObj = originalPage.getRotation()
           const originalRotation = (rotationObj && typeof rotationObj === 'object' && 'angle' in rotationObj) 
@@ -290,12 +347,13 @@ export function PdfManager() {
           const totalRotation = normalizeRotation(originalRotation + rotation)
           newPage.setRotation(degrees(totalRotation))
         } catch {
+          // If we can't read original rotation, just apply user rotation
           newPage.setRotation(degrees(rotation))
         }
       }
 
       const pdfBytes = await newPdf.save()
-      const blob = new Blob([pdfBytes as BlobPart], { type: "application/pdf" })
+      const blob = new Blob([pdfBytes], { type: "application/pdf" })
 
       const baseName = file.file.name.replace(/\.pdf$/i, "")
       const dateStr = formatTimestamp()
@@ -312,7 +370,7 @@ export function PdfManager() {
       
       setTimeout(() => {
         URL.revokeObjectURL(blobUrl)
-      }, 100)
+      }, BLOB_URL_CLEANUP_DELAY)
 
       setError(null)
     } catch (err) {
@@ -366,11 +424,13 @@ export function PdfManager() {
           const [copiedPage] = await mergedPdf.copyPages(pdf, [pageIndex])
           mergedPdf.addPage(copiedPage)
 
-          // Apply rotation
+          // Apply rotation if user has rotated this page
+          // Combine original page rotation with user-applied rotation
           const rotation = pageRotations[unifiedPageNum] || 0
           if (rotation !== 0) {
             const newPage = mergedPdf.getPage(mergedPdf.getPageCount() - 1)
             try {
+              // Get original page rotation and combine with user rotation
               const originalPage = pdf.getPage(pageIndex)
               const rotationObj = originalPage.getRotation()
               const originalRotation = (rotationObj && typeof rotationObj === 'object' && 'angle' in rotationObj) 
@@ -379,6 +439,7 @@ export function PdfManager() {
               const totalRotation = normalizeRotation(originalRotation + rotation)
               newPage.setRotation(degrees(totalRotation))
             } catch {
+              // If we can't read original rotation, just apply user rotation
               newPage.setRotation(degrees(rotation))
             }
           }
@@ -415,7 +476,7 @@ export function PdfManager() {
       
       setTimeout(() => {
         URL.revokeObjectURL(blobUrl)
-      }, 100)
+      }, BLOB_URL_CLEANUP_DELAY)
 
       setError(null)
     } catch (err) {
@@ -436,7 +497,8 @@ export function PdfManager() {
     }
   }
 
-  // Auto-dismiss non-critical errors after 8 seconds
+  // Auto-dismiss non-critical errors after a delay
+  // Critical errors (file loading/processing failures) remain visible until dismissed
   React.useEffect(() => {
     if (error && !isProcessing) {
       const isCriticalError = error.includes("Can't process") || error.includes("Can't load") || error.includes("Can't extract") || error.includes("Download failed")
@@ -444,7 +506,7 @@ export function PdfManager() {
       if (!isCriticalError) {
         errorTimeoutRef.current = setTimeout(() => {
           setError(null)
-        }, 8000)
+        }, ERROR_AUTO_DISMISS_DELAY)
       }
 
       return () => {
@@ -517,6 +579,7 @@ export function PdfManager() {
               onResetRotation={handleResetRotation}
               onExtract={handleExtractPage}
               isProcessing={isProcessing}
+              columns={columns}
             />
           )}
 
@@ -568,6 +631,8 @@ export function PdfManager() {
         onRemoveFile={handleRemoveFile}
         onAddFiles={() => fileInputRef.current?.click()}
         isProcessing={isProcessing}
+        columns={columns}
+        onColumnsChange={handleColumnsChange}
       />
     </div>
   )

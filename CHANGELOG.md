@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page extraction as separate PDF files
 - Multi-file PDF merging
 - Drag & drop file upload interface
+- Customizable grid layout with adjustable pages per row (2-10 columns)
+- Grid column preference persistence in localStorage
 - Dark mode support with theme switching
 - Privacy-first architecture with no server-side processing
 - No data collection or tracking

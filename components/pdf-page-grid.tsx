@@ -5,6 +5,7 @@ import { PdfPageThumbnail } from "@/components/pdf-page-thumbnail"
 import { PdfActionButtons } from "@/components/pdf-action-buttons"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { addOklchAlpha } from "@/lib/pdf-colors"
 import { 
   ChevronUpIcon, 
   ChevronDownIcon, 
@@ -44,6 +45,7 @@ interface PdfPageGridProps {
   onResetRotation: (unifiedPageNumber: number) => void
   onExtract: (unifiedPageNumber: number) => void
   isProcessing: boolean
+  columns?: number
 }
 
 export function PdfPageGrid({
@@ -58,6 +60,7 @@ export function PdfPageGrid({
   onResetRotation,
   onExtract,
   isProcessing,
+  columns,
 }: PdfPageGridProps) {
   const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null)
@@ -143,8 +146,21 @@ export function PdfPageGrid({
     return null
   }
 
+  // Use dynamic columns if provided, otherwise fall back to CSS classes
+  const gridStyle = columns
+    ? {
+        gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+        marginTop: 0,
+        paddingTop: 0,
+      }
+    : { marginTop: 0, paddingTop: 0 }
+
+  const gridClassName = columns
+    ? "grid gap-6"
+    : "grid grid-cols-1 grid-cols-2-at-1230 grid-cols-3-at-1655 gap-6"
+
   return (
-    <div className="grid grid-cols-1 grid-cols-2-at-1230 grid-cols-3-at-1655 gap-6" style={{ marginTop: 0, paddingTop: 0 }}>
+    <div className={gridClassName} style={gridStyle}>
       {pageOrder.map((unifiedPageNumber, index) => {
         const page = getPageInfo(unifiedPageNumber)
         if (!page) return null
@@ -245,7 +261,7 @@ export function PdfPageGrid({
 
         const containerStyle = fileInfo?.color 
           ? { 
-              backgroundColor: fileInfo.color.replace(/\)$/, ' / 0.15)')
+              backgroundColor: addOklchAlpha(fileInfo.color, 0.15)
             } 
           : undefined
 

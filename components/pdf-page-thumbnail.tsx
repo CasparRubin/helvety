@@ -15,6 +15,11 @@ const Page = dynamic(
   { ssr: false }
 )
 
+// Timeout constants (in milliseconds)
+const WORKER_INIT_DELAY = 100
+const DOCUMENT_READY_DELAY = 500
+const RENDER_RETRY_DELAY = 1000
+
 // Shared Promise for worker initialization (resolves when worker is ready)
 let workerInitPromise: Promise<void> | null = null
 
@@ -64,7 +69,7 @@ export function PdfPageThumbnail({
         return new Promise<void>((resolve) => {
           setTimeout(() => {
             resolve()
-          }, 100)
+          }, WORKER_INIT_DELAY)
         })
       })
       .catch((err) => {
@@ -110,11 +115,12 @@ export function PdfPageThumbnail({
       clearTimeout(timeoutRef.current)
     }
     // Add a delay to ensure worker message handler is fully initialized
-    // This prevents "messageHandler is null" errors
+    // This prevents "messageHandler is null" errors that can occur if
+    // the page tries to render before the worker is fully ready
     timeoutRef.current = setTimeout(() => {
       setDocumentReady(true)
       timeoutRef.current = null
-    }, 300)
+    }, DOCUMENT_READY_DELAY)
   }
 
   // Cleanup timeout on unmount
@@ -146,7 +152,7 @@ export function PdfPageThumbnail({
     <div className={cn("relative flex flex-col items-center gap-2", className)}>
       <div 
         className={cn(
-          "relative w-full aspect-[3/4] bg-muted overflow-hidden border border-border flex items-center justify-center"
+          "relative w-full aspect-[3/4] overflow-hidden flex items-center justify-center"
         )}
       >
         {loading && (
@@ -194,8 +200,24 @@ export function PdfPageThumbnail({
                 className="!scale-100"
                 onRenderError={(error) => {
                   console.error("Page render error:", error)
-                  setError(true)
-                  setErrorMessage("Failed to render page")
+                  // Check if it's a messageHandler error - if so, retry after a delay
+                  // This handles race conditions where the worker isn't fully ready
+                  const errorMessage = error?.message || String(error)
+                  if (errorMessage.includes("messageHandler") || errorMessage.includes("sendWithPromise")) {
+                    // Reset documentReady and retry after a longer delay
+                    setDocumentReady(false)
+                    if (timeoutRef.current) {
+                      clearTimeout(timeoutRef.current)
+                    }
+                    timeoutRef.current = setTimeout(() => {
+                      setDocumentReady(true)
+                      timeoutRef.current = null
+                    }, RENDER_RETRY_DELAY)
+                  } else {
+                    // For other errors, show error state
+                    setError(true)
+                    setErrorMessage("Failed to render page")
+                  }
                 }}
               />
             )}
