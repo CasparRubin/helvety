@@ -37,7 +37,7 @@ All steps happen entirely in your browser. No data is sent to any server.
 
 ## Developer
 
-This application is developed and maintained by **Helvety**, a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
+This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
 
 For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com).
 
