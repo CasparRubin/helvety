@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Privacy-first architecture with no server-side processing
 - No data collection or tracking
 
+### Fixed
+
+- Fixed race condition where thumbnails for subsequent pages of the first uploaded file would show loading indicators indefinitely. Replaced module-level flags with Promise-based worker initialization to ensure all components are properly notified when the PDF.js worker is ready.
+
 ### Technical
 
 - Built with Next.js 16.1.0 and React 19.2.3

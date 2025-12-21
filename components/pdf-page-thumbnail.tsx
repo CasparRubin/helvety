@@ -15,9 +15,8 @@ const Page = dynamic(
   { ssr: false }
 )
 
-// Track if worker has been initialized (module-level flag)
-let workerInitialized = false
-let workerInitializing = false
+// Shared Promise for worker initialization (resolves when worker is ready)
+let workerInitPromise: Promise<void> | null = null
 
 interface PdfPageThumbnailProps {
   fileUrl: string
@@ -42,31 +41,63 @@ export function PdfPageThumbnail({
   const [error, setError] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const [documentReady, setDocumentReady] = React.useState(false)
-  const [workerReady, setWorkerReady] = React.useState(workerInitialized)
+  const [workerReady, setWorkerReady] = React.useState(false)
 
-  // Set up PDF.js worker once on client side (shared across all instances)
-  React.useEffect(() => {
-    if (typeof window !== "undefined" && !workerInitialized && !workerInitializing) {
-      workerInitializing = true
-      import("react-pdf").then((mod) => {
+  // Initialize PDF.js worker once on client side (shared across all instances)
+  // Returns a Promise that resolves when the worker is ready
+  const initializeWorker = React.useCallback((): Promise<void> => {
+    if (typeof window === "undefined") {
+      return Promise.reject(new Error("Window is not available"))
+    }
+
+    // If worker is already initialized, return resolved promise
+    if (workerInitPromise) {
+      return workerInitPromise
+    }
+
+    // Create and cache the initialization Promise
+    workerInitPromise = import("react-pdf")
+      .then((mod) => {
         // Use local worker file from public folder (version matches react-pdf's pdfjs-dist)
         mod.pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs"
         // Wait a bit to ensure worker is fully initialized
-        setTimeout(() => {
-          workerInitialized = true
-          workerInitializing = false
-          setWorkerReady(true)
-        }, 100)
-      }).catch((err) => {
-        console.error("Failed to initialize PDF worker:", err)
-        setError(true)
-        setErrorMessage("Unable to load PDF viewer. Please refresh the page and try again.")
-        workerInitializing = false
+        return new Promise<void>((resolve) => {
+          setTimeout(() => {
+            resolve()
+          }, 100)
+        })
       })
-    } else if (workerInitialized) {
-      setWorkerReady(true)
-    }
+      .catch((err) => {
+        // Reset promise on error so it can be retried
+        workerInitPromise = null
+        console.error("Failed to initialize PDF worker:", err)
+        throw err
+      })
+
+    return workerInitPromise
   }, [])
+
+  // Set up PDF.js worker - all components await the same Promise
+  React.useEffect(() => {
+    let isMounted = true
+
+    initializeWorker()
+      .then(() => {
+        if (isMounted) {
+          setWorkerReady(true)
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setError(true)
+          setErrorMessage("Unable to load PDF viewer. Please refresh the page and try again.")
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [initializeWorker])
 
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
