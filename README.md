@@ -9,9 +9,7 @@ A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract 
 
 **App:** [pdf.helvety.com](https://pdf.helvety.com)
 
-## Privacy First
-
-**100% Client-Side Processing** - All PDF processing happens entirely in your browser. Your files never leave your device, and no data is collected or transmitted.
+**Privacy First** - 100% Client-Side Processing. All PDF processing happens entirely in your browser. Your files never leave your device, and no data is collected or transmitted.
 
 ## Features
 
@@ -23,8 +21,8 @@ A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract 
 - **Page extraction** - Extract individual pages as separate PDF files
 - **Multi-file merging** - Combine multiple PDF files into one
 - **Drag & drop upload** - Intuitive file upload interface
-- **Customizable grid layout** - Adjust pages per row (3-6) for optimal viewing
-- **Dark mode support** - Comfortable viewing in any lighting condition
+- **Customizable grid layout** - Adjust pages per row to accommodate different page sizes
+- **Dark & Light mode support** - Comfortable viewing in any lighting condition
 
 ## How It Works
 
