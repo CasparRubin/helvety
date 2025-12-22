@@ -11,12 +11,7 @@ A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract 
 
 ## Privacy First
 
-**100% Client-Side Processing** - This application processes all PDFs entirely in your browser. No files are uploaded to any server. No user data is collected. No file information is transmitted.
-
-- Your files never leave your device
-- No server uploads or processing
-- No data collection or tracking
-- Complete privacy and security
+**100% Client-Side Processing** - All PDF processing happens entirely in your browser. Your files never leave your device, and no data is collected or transmitted.
 
 ## Features
 
@@ -35,11 +30,7 @@ A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract 
 
 1. **Upload PDFs** - Drag and drop or click to browse and select multiple PDF files
 2. **Preview & Manage** - See thumbnails of all pages, reorder by dragging, rotate, or delete pages as needed
-3. **Extract Pages** (optional) - Extract individual pages as separate PDF files
-4. **Merge & Download** - Click the download button to combine all PDFs with your modifications
-5. **Download** - Your processed PDF downloads automatically with a timestamped filename
-
-All steps happen entirely in your browser. No data is sent to any server.
+3. **Download** - Your processed PDF downloads automatically with a timestamped filename
 
 ## Tech Stack
 
