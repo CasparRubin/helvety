@@ -106,3 +106,19 @@ export const SCREEN_BREAKPOINTS = {
   TABLET: 1230,
 } as const
 
+/**
+ * PDF rendering delays and configuration
+ */
+export const PDF_RENDER = {
+  /** Delay after worker initialization before allowing document load (ms) */
+  WORKER_INIT_DELAY: 100,
+  /** Delay after document load before allowing page render (ms) */
+  DOCUMENT_READY_DELAY: 500,
+  /** Delay between render retry attempts (ms) */
+  RENDER_RETRY_DELAY: 1000,
+  /** Additional delay before page render after document ready (ms) */
+  PAGE_RENDER_DELAY: 200,
+  /** Distance in pixels from viewport before unmounting thumbnails */
+  UNMOUNT_DISTANCE: 500,
+} as const
+

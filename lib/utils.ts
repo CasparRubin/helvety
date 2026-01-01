@@ -34,15 +34,15 @@ export function formatTimestamp(): string {
  * 
  * @param func - The function to debounce
  * @param wait - The number of milliseconds to delay
- * @returns A debounced version of the function
+ * @returns A debounced version of the function with a cancel method
  */
 export function debounce<T extends (...args: unknown[]) => void>(
   func: T,
   wait: number
-): (...args: Parameters<T>) => void {
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
   let timeout: ReturnType<typeof setTimeout> | null = null
 
-  return function executedFunction(...args: Parameters<T>) {
+  const debounced = function executedFunction(...args: Parameters<T>) {
     const later = () => {
       timeout = null
       func(...args)
@@ -53,4 +53,13 @@ export function debounce<T extends (...args: unknown[]) => void>(
     }
     timeout = setTimeout(later, wait)
   }
+
+  debounced.cancel = () => {
+    if (timeout) {
+      clearTimeout(timeout)
+      timeout = null
+    }
+  }
+
+  return debounced
 }

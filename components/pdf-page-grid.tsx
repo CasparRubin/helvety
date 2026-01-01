@@ -117,17 +117,42 @@ export function PdfPageGrid({
     handleMoveDown(index)
   }
 
+  // Create memoized maps for O(1) lookups instead of O(n) Array.find()
+  const pageInfoMap = React.useMemo(() => {
+    const map = new Map<number, UnifiedPage>()
+    unifiedPages.forEach(page => {
+      map.set(page.unifiedPageNumber, page)
+    })
+    return map
+  }, [unifiedPages])
+
+  const fileInfoMap = React.useMemo(() => {
+    const map = new Map<string, PdfFile>()
+    pdfFiles.forEach(file => {
+      map.set(file.id, file)
+    })
+    return map
+  }, [pdfFiles])
+
+  const fileUrlMap = React.useMemo(() => {
+    const map = new Map<string, string>()
+    pdfFiles.forEach(file => {
+      map.set(file.id, file.url)
+    })
+    return map
+  }, [pdfFiles])
+
   // Get page info for display
   const getPageInfo = (unifiedPageNumber: number) => {
-    return unifiedPages.find(p => p.unifiedPageNumber === unifiedPageNumber)
+    return pageInfoMap.get(unifiedPageNumber)
   }
 
   const getFileUrl = (fileId: string) => {
-    return pdfFiles.find(f => f.id === fileId)?.url
+    return fileUrlMap.get(fileId)
   }
 
   const getFileInfo = (fileId: string) => {
-    return pdfFiles.find(f => f.id === fileId)
+    return fileInfoMap.get(fileId)
   }
 
   if (pageOrder.length === 0) {
@@ -157,6 +182,7 @@ export function PdfPageGrid({
         if (!fileUrl) return null
 
         const fileInfo = getFileInfo(page.fileId)
+        if (!fileInfo) return null
         const isDeleted = deletedPages.has(unifiedPageNumber)
         const rotation = pageRotations[unifiedPageNumber] || 0
         const hasRotation = rotation !== 0
@@ -247,16 +273,23 @@ export function PdfPageGrid({
           },
         ]
 
-        const containerStyle = fileInfo?.color 
+        const containerStyle = fileInfo.color 
           ? { 
               backgroundColor: addOklchAlpha(fileInfo.color, 0.15)
             } 
           : undefined
 
+        const pageDescriptionId = `page-${unifiedPageNumber}-description`
+        const pageLabel = `Page ${unifiedPageNumber}${fileInfo.file.name ? ` from ${fileInfo.file.name}` : ''}${isDeleted ? ' (deleted)' : ''}${hasRotation ? ` (rotated ${rotation}°)` : ''}`
+
         return (
           <div
             key={`${page.id}-${index}`}
             draggable
+            role="button"
+            tabIndex={0}
+            aria-label={pageLabel}
+            aria-describedby={pageDescriptionId}
             onDragStart={() => handleDragStart(index)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDragLeave={handleDragLeave}
@@ -275,13 +308,16 @@ export function PdfPageGrid({
                 fileUrl={fileUrl}
                 pageNumber={page.originalPageNumber}
                 rotation={rotation}
-                pdfColor={fileInfo?.color}
-                pdfFileName={fileInfo?.file.name}
+                pdfColor={fileInfo.color}
+                pdfFileName={fileInfo.file.name}
                 finalPageNumber={finalPageNumber}
-                fileType={fileInfo?.type}
+                fileType={fileInfo.type}
                 totalPages={pageOrder.length}
               />
-              <div className="mt-2 flex flex-wrap justify-center gap-1">
+              <div id={pageDescriptionId} className="sr-only">
+                {`Page ${page.originalPageNumber} of ${fileInfo.file.name}. ${isDeleted ? 'Marked for deletion. ' : ''}${hasRotation ? `Rotated ${rotation} degrees. ` : ''}${finalPageNumber !== null ? `Will be page ${finalPageNumber} in final PDF.` : ''}`}
+              </div>
+              <div className="mt-2 flex flex-wrap justify-center gap-1" aria-hidden="true">
                 {isDeleted && (
                   <Badge variant="destructive" className="text-xs">
                     Deleted

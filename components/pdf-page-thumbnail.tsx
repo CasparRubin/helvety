@@ -9,7 +9,8 @@ import {
   THUMBNAIL_QUALITY, 
   THUMBNAIL_DIMENSIONS, 
   INTERSECTION_OBSERVER,
-  QUALITY_UPGRADE 
+  QUALITY_UPGRADE,
+  PDF_RENDER
 } from "@/lib/constants"
 
 // Dynamically import react-pdf to avoid SSR issues
@@ -22,10 +23,6 @@ const Page = dynamic(
   { ssr: false }
 )
 
-// Timeout constants (in milliseconds)
-const WORKER_INIT_DELAY = 100
-const DOCUMENT_READY_DELAY = 500
-const RENDER_RETRY_DELAY = 1000
 
 // Shared Promise for worker initialization (resolves when worker is ready)
 let workerInitPromise: Promise<void> | null = null
@@ -44,8 +41,15 @@ class PageErrorBoundary extends React.Component<
     return { hasError: true }
   }
 
-  componentDidCatch(error: Error) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     const errorMessage = error?.message || String(error)
+    console.error('PageErrorBoundary caught an error:', {
+      error,
+      errorInfo,
+      errorMessage,
+      componentStack: errorInfo.componentStack,
+    })
+    
     if (errorMessage.includes("messageHandler") || errorMessage.includes("sendWithPromise")) {
       this.props.onError()
     }
@@ -74,7 +78,7 @@ interface PdfPageThumbnailProps {
   pdfColor?: string
   pdfFileName?: string
   finalPageNumber?: number | null
-  fileType?: 'pdf' | 'image'
+  fileType: 'pdf' | 'image'
   totalPages?: number
 }
 
@@ -110,6 +114,15 @@ export function PdfPageThumbnail({
   /**
    * Calculates optimal device pixel ratio based on screen size, container width, and total pages.
    * Reduces quality on smaller screens and when many pages are loaded to save memory.
+   * 
+   * The calculation applies multiple factors:
+   * - Base DPR from screen size (mobile/tablet/desktop)
+   * - Reduction for large document sets (50+, 100+, 200+ pages)
+   * - Reduction for smaller container widths (< 300px, < 200px)
+   * - Final value is clamped between MIN_DPR and MAX_DPR
+   * 
+   * @param containerWidth - The width of the container in pixels
+   * @returns The calculated device pixel ratio, clamped between MIN_DPR and MAX_DPR
    */
   const calculateOptimalDPR = React.useCallback((containerWidth: number): number => {
     // Base DPR from screen size
@@ -138,8 +151,16 @@ export function PdfPageThumbnail({
     )
   }, [screenSize, totalPages])
 
-  // Initialize PDF.js worker once on client side (shared across all instances)
-  // Returns a Promise that resolves when the worker is ready
+  /**
+   * Initializes the PDF.js worker once on the client side (shared across all instances).
+   * Uses a module-level promise to ensure only one worker is initialized.
+   * 
+   * The worker is configured to use a local worker file from the public folder,
+   * which matches the version of pdfjs-dist used by react-pdf.
+   * 
+   * @returns A Promise that resolves when the worker is ready, or rejects on error
+   * @throws Error if window is not available (SSR environment)
+   */
   const initializeWorker = React.useCallback((): Promise<void> => {
     if (typeof window === "undefined") {
       return Promise.reject(new Error("Window is not available"))
@@ -159,7 +180,7 @@ export function PdfPageThumbnail({
         return new Promise<void>((resolve) => {
           setTimeout(() => {
             resolve()
-          }, WORKER_INIT_DELAY)
+          }, PDF_RENDER.WORKER_INIT_DELAY)
         })
       })
       .catch((err) => {
@@ -287,8 +308,8 @@ export function PdfPageThumbnail({
           const viewportBottom = viewportHeight
           
           // Check if element is far above or below viewport
-          const isFarAbove = rect.bottom < viewportTop - 500
-          const isFarBelow = rect.top > viewportBottom + 500
+          const isFarAbove = rect.bottom < viewportTop - PDF_RENDER.UNMOUNT_DISTANCE
+          const isFarBelow = rect.top > viewportBottom + PDF_RENDER.UNMOUNT_DISTANCE
           
           if (isFarAbove || isFarBelow) {
             setShouldUnmount(true)
@@ -369,6 +390,7 @@ export function PdfPageThumbnail({
     }
 
     return () => {
+      debouncedUpdateWidth.cancel()
       if (resizeObserver) {
         resizeObserver.disconnect()
       } else {
@@ -397,8 +419,8 @@ export function PdfPageThumbnail({
       setTimeout(() => {
         setPageRenderReady(true)
         timeoutRef.current = null
-      }, 200)
-    }, DOCUMENT_READY_DELAY)
+      }, PDF_RENDER.PAGE_RENDER_DELAY)
+    }, PDF_RENDER.DOCUMENT_READY_DELAY)
   }
 
   // Cleanup timeout on unmount
@@ -523,10 +545,10 @@ export function PdfPageThumbnail({
                           if (timeoutRef.current) {
                             clearTimeout(timeoutRef.current)
                           }
-                          timeoutRef.current = setTimeout(() => {
-                            setPageRenderReady(true)
-                            timeoutRef.current = null
-                          }, RENDER_RETRY_DELAY * (renderRetryCountRef.current + 1))
+                            timeoutRef.current = setTimeout(() => {
+                              setPageRenderReady(true)
+                              timeoutRef.current = null
+                            }, PDF_RENDER.RENDER_RETRY_DELAY * (renderRetryCountRef.current + 1))
                         } else {
                           setError(true)
                           setErrorMessage("Failed to render page")
@@ -558,7 +580,7 @@ export function PdfPageThumbnail({
                             timeoutRef.current = setTimeout(() => {
                               setPageRenderReady(true)
                               timeoutRef.current = null
-                            }, RENDER_RETRY_DELAY * (renderRetryCountRef.current + 1))
+                            }, PDF_RENDER.RENDER_RETRY_DELAY * (renderRetryCountRef.current + 1))
                           } else {
                             // For other errors or after max retries, show error state
                             setError(true)

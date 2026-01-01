@@ -27,16 +27,18 @@ function getDefaultColumns(): number {
 export function useColumns(): [number | undefined, (columns: number) => void] {
   const [columns, setColumns] = React.useState<number | undefined>(undefined)
 
-  // Initialize columns from localStorage or default based on screen size
-  React.useEffect(() => {
-    if (typeof window === "undefined") return
+  /**
+   * Calculates the appropriate column count based on screen size and localStorage.
+   * Extracted to eliminate duplication between initialization and resize handlers.
+   */
+  const calculateColumns = React.useCallback((): number => {
+    if (typeof window === "undefined") return COLUMNS.DEFAULT_MEDIUM
 
     const width = window.innerWidth
     
     // Always force 1 column on small screens (< MULTI_COLUMN), regardless of localStorage
     if (width < BREAKPOINTS.MULTI_COLUMN) {
-      setColumns(COLUMNS.DEFAULT_SMALL)
-      return
+      return COLUMNS.DEFAULT_SMALL
     }
 
     // On large screens (>= MULTI_COLUMN), use localStorage if available
@@ -44,45 +46,30 @@ export function useColumns(): [number | undefined, (columns: number) => void] {
     if (stored) {
       const parsed = parseInt(stored, 10)
       if (!isNaN(parsed) && parsed >= COLUMNS.MIN && parsed <= COLUMNS.MAX) {
-        setColumns(parsed)
-        return
+        return parsed
       }
     }
 
     // No stored value, use default based on screen size
-    setColumns(getDefaultColumns())
+    return getDefaultColumns()
   }, [])
+
+  // Initialize columns from localStorage or default based on screen size
+  React.useEffect(() => {
+    setColumns(calculateColumns())
+  }, [calculateColumns])
 
   // Handle window resize to update columns based on screen size
   React.useEffect(() => {
     if (typeof window === "undefined") return
 
     const handleResize = () => {
-      const width = window.innerWidth
-      
-      // Always force 1 column on small screens (< MULTI_COLUMN), regardless of localStorage
-      if (width < BREAKPOINTS.MULTI_COLUMN) {
-        setColumns(COLUMNS.DEFAULT_SMALL)
-        return
-      }
-
-      // On large screens (>= MULTI_COLUMN), restore from localStorage if available
-      const stored = localStorage.getItem(STORAGE_KEYS.COLUMNS)
-      if (stored) {
-        const parsed = parseInt(stored, 10)
-        if (!isNaN(parsed) && parsed >= COLUMNS.MIN && parsed <= COLUMNS.MAX) {
-          setColumns(parsed)
-          return
-        }
-      }
-
-      // No stored value, use default based on screen size
-      setColumns(getDefaultColumns())
+      setColumns(calculateColumns())
     }
 
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
-  }, [])
+  }, [calculateColumns])
 
   // Handle column change and persist to localStorage
   const handleColumnsChange = React.useCallback((newColumns: number) => {

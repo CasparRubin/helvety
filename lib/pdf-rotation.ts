@@ -24,13 +24,14 @@ function isRotationObject(value: unknown): value is { angle: number } {
  * Handles both number and object formats.
  * 
  * @param rotationValue - The rotation value from PDFPage.getRotation()
- * @returns The rotation angle in degrees
+ * @returns The rotation angle in degrees, or 0 if the value is invalid or NaN
  */
 function extractRotationAngle(rotationValue: unknown): number {
   if (isRotationObject(rotationValue)) {
-    return rotationValue.angle
+    const angle = rotationValue.angle
+    return typeof angle === 'number' && !isNaN(angle) ? angle : 0
   }
-  if (typeof rotationValue === 'number') {
+  if (typeof rotationValue === 'number' && !isNaN(rotationValue)) {
     return rotationValue
   }
   return 0

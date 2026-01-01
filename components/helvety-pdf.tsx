@@ -44,10 +44,10 @@ export function HelvetyPdf() {
    * 
    * @param fileId - The unique identifier of the file
    * @param file - The File object to load if not cached
-   * @param fileType - Optional file type ('pdf' | 'image') to determine loading strategy
+   * @param fileType - File type ('pdf' | 'image') to determine loading strategy
    * @returns A promise that resolves to the PDFDocument
    */
-  const getCachedPdf = React.useCallback(async (fileId: string, file: File, fileType?: 'pdf' | 'image'): Promise<PDFDocument> => {
+  const getCachedPdf = React.useCallback(async (fileId: string, file: File, fileType: 'pdf' | 'image'): Promise<PDFDocument> => {
     if (pdfCacheRef.current.has(fileId)) {
       const cached = pdfCacheRef.current.get(fileId)!
       if (process.env.NODE_ENV === 'development') {
@@ -360,9 +360,7 @@ export function HelvetyPdf() {
     setError(null)
 
     try {
-      // Ensure we have the file type - default to 'pdf' if not set (for backwards compatibility)
-      const fileType = file.type || (file.file.type === 'application/pdf' ? 'pdf' : 'image')
-      const pdf = await getCachedPdf(file.id, file.file, fileType)
+      const pdf = await getCachedPdf(file.id, file.file, file.type)
       const pageIndex = page.originalPageNumber - 1
       const newPdf = await extractPageFromPdf(pdf, pageIndex)
 
@@ -372,7 +370,7 @@ export function HelvetyPdf() {
         const newPage = newPdf.getPage(0)
         const originalPage = pdf.getPage(pageIndex)
         // Pass isImage flag to handle dimension swapping for rotated images
-        await applyPageRotation(originalPage, newPage, rotation, fileType === 'image')
+        await applyPageRotation(originalPage, newPage, rotation, file.type === 'image')
       }
 
       const pdfBytes = await newPdf.save()
@@ -440,9 +438,7 @@ export function HelvetyPdf() {
 
             try {
               // Get cached PDF (for images, this is the converted PDF)
-              // Ensure we have the file type - default to 'pdf' if not set (for backwards compatibility)
-              const fileType = file.type || (file.file.type === 'application/pdf' ? 'pdf' : 'image')
-              const pdf = await getCachedPdf(file.id, file.file, fileType)
+              const pdf = await getCachedPdf(file.id, file.file, file.type)
               const pageIndex = page.originalPageNumber - 1
               const [copiedPage] = await mergedPdf.copyPages(pdf, [pageIndex])
               mergedPdf.addPage(copiedPage)
@@ -453,7 +449,7 @@ export function HelvetyPdf() {
                 const newPage = mergedPdf.getPage(mergedPdf.getPageCount() - 1)
                 const originalPage = pdf.getPage(pageIndex)
                 // Pass isImage flag to handle dimension swapping for rotated images
-                await applyPageRotation(originalPage, newPage, rotation, fileType === 'image')
+                await applyPageRotation(originalPage, newPage, rotation, file.type === 'image')
               }
             } catch (err) {
               console.error('Error processing page:', err)

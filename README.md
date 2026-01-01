@@ -69,7 +69,8 @@ helvety-pdf/
 │   ├── theme-provider.tsx # Theme context provider
 │   └── theme-switcher.tsx # Dark/light mode switcher
 ├── hooks/                 # Custom React hooks
-│   └── use-columns.ts     # Column layout management hook
+│   ├── use-columns.ts     # Column layout management hook
+│   └── use-screen-size.ts # Screen size detection hook
 ├── lib/                   # Utility functions
 │   ├── constants.ts       # Application constants
 │   ├── file-download.ts   # File download utilities

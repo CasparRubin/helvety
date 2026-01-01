@@ -8,7 +8,7 @@ export interface PdfFile {
   url: string
   pageCount: number
   color: string
-  type?: 'pdf' | 'image' // Optional field to track source file type
+  type: 'pdf' | 'image' // Required field to track source file type
 }
 
 export interface UnifiedPage {

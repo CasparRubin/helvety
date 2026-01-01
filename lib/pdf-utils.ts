@@ -1,4 +1,17 @@
 import { PDFDocument } from "pdf-lib"
+import type { PdfFile } from "./types"
+
+/**
+ * Determines the file type from a File object or PdfFile.
+ * 
+ * @param file - The File object to check
+ * @param pdfFile - Optional PdfFile object that may already have type information
+ * @returns 'pdf' if the file is a PDF, 'image' otherwise
+ */
+export function getFileType(file: File, pdfFile?: PdfFile): 'pdf' | 'image' {
+  if (pdfFile?.type) return pdfFile.type
+  return file.type === 'application/pdf' ? 'pdf' : 'image'
+}
 
 /**
  * Loads a PDF document from a File object.
