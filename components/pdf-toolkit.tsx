@@ -38,7 +38,7 @@ interface PdfToolkitProps {
   onColumnsChange?: (columns: number) => void
 }
 
-export function PdfToolkit({
+function PdfToolkitComponent({
   pdfFiles,
   totalPages,
   deletedCount,
@@ -258,4 +258,7 @@ export function PdfToolkit({
     </div>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders
+export const PdfToolkit = React.memo(PdfToolkitComponent)
 

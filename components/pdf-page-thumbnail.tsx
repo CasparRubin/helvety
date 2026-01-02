@@ -5,6 +5,7 @@ import { cn, debounce } from "@/lib/utils"
 import { FileTextIcon, AlertCircle } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useScreenSize } from "@/hooks/use-screen-size"
+import { logger } from "@/lib/logger"
 import { 
   THUMBNAIL_QUALITY, 
   THUMBNAIL_DIMENSIONS, 
@@ -43,7 +44,7 @@ class PageErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     const errorMessage = error?.message || String(error)
-    console.error('PageErrorBoundary caught an error:', {
+    logger.error('PageErrorBoundary caught an error:', {
       error,
       errorInfo,
       errorMessage,
@@ -82,7 +83,7 @@ interface PdfPageThumbnailProps {
   totalPages?: number
 }
 
-export function PdfPageThumbnail({ 
+function PdfPageThumbnailComponent({ 
   fileUrl, 
   pageNumber, 
   className, 
@@ -186,7 +187,7 @@ export function PdfPageThumbnail({
       .catch((err) => {
         // Reset promise on error so it can be retried
         workerInitPromise = null
-        console.error("Failed to initialize PDF worker:", err)
+        logger.error("Failed to initialize PDF worker:", err)
         throw err
       })
 
@@ -348,7 +349,7 @@ export function PdfPageThumbnail({
     const container = containerRef.current
     if (!container) return
 
-    const updateWidth = () => {
+    const updateWidth = (): void => {
       const rect = container.getBoundingClientRect()
       // Calculate available width accounting for any padding/borders
       const computedStyle = window.getComputedStyle(container)
@@ -379,21 +380,30 @@ export function PdfPageThumbnail({
 
     // Use ResizeObserver if available, fallback to window resize
     let resizeObserver: ResizeObserver | null = null
+    let usingResizeObserver = false
+    
     if (typeof ResizeObserver !== "undefined") {
       resizeObserver = new ResizeObserver(() => {
         debouncedUpdateWidth()
       })
       resizeObserver.observe(container)
+      usingResizeObserver = true
     } else {
       // Fallback to window resize event
       window.addEventListener("resize", debouncedUpdateWidth)
     }
 
-    return () => {
+    return (): void => {
+      // Cancel any pending debounced calls
       debouncedUpdateWidth.cancel()
-      if (resizeObserver) {
+      
+      // Clean up ResizeObserver or window event listener
+      if (usingResizeObserver && resizeObserver) {
         resizeObserver.disconnect()
+        resizeObserver = null
       } else {
+        // For window resize, we need to remove the listener
+        // Note: This works because we cancel the debounce first
         window.removeEventListener("resize", debouncedUpdateWidth)
       }
     }
@@ -433,7 +443,7 @@ export function PdfPageThumbnail({
   }, [])
 
   function onDocumentLoadError(error: Error) {
-    console.error("PDF load error:", error)
+    logger.error("PDF load error:", error)
     setLoading(false)
     setError(true)
     setDocumentReady(false)
@@ -566,7 +576,7 @@ export function PdfPageThumbnail({
                         devicePixelRatio={isHighQuality ? devicePixelRatio : devicePixelRatio * 0.75}
                         renderMode="canvas"
                         onRenderError={(error) => {
-                          console.error("Page render error:", error)
+                          logger.error("Page render error:", error)
                           // Check if it's a messageHandler error - if so, retry after a delay
                           // This handles race conditions where the worker isn't fully ready
                           const errorMessage = error?.message || String(error)
@@ -616,4 +626,7 @@ export function PdfPageThumbnail({
     </div>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders when props haven't changed
+export const PdfPageThumbnail = React.memo(PdfPageThumbnailComponent)
 

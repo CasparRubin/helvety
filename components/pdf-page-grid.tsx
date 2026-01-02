@@ -36,7 +36,7 @@ interface PdfPageGridProps {
   columns?: number
 }
 
-export function PdfPageGrid({
+function PdfPageGridComponent({
   pdfFiles,
   unifiedPages,
   pageOrder,
@@ -49,26 +49,26 @@ export function PdfPageGrid({
   onExtract,
   isProcessing,
   columns,
-}: PdfPageGridProps) {
+}: PdfPageGridProps): React.JSX.Element | null {
   const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null)
 
-  const handleDragStart = (index: number) => {
+  const handleDragStart = React.useCallback((index: number): void => {
     setDraggedIndex(index)
-  }
+  }, [])
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = React.useCallback((e: React.DragEvent, index: number): void => {
     e.preventDefault()
     if (draggedIndex !== null && draggedIndex !== index) {
       setDragOverIndex(index)
     }
-  }
+  }, [draggedIndex])
 
-  const handleDragLeave = () => {
+  const handleDragLeave = React.useCallback((): void => {
     setDragOverIndex(null)
-  }
+  }, [])
 
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+  const handleDrop = React.useCallback((e: React.DragEvent, dropIndex: number): void => {
     e.preventDefault()
     if (draggedIndex === null || draggedIndex === dropIndex) {
       setDraggedIndex(null)
@@ -84,38 +84,38 @@ export function PdfPageGrid({
 
     setDraggedIndex(null)
     setDragOverIndex(null)
-  }
+  }, [onReorder])
 
-  const handleDragEnd = () => {
+  const handleDragEnd = React.useCallback((): void => {
     setDraggedIndex(null)
     setDragOverIndex(null)
-  }
+  }, [])
 
-  const handleMoveUp = (index: number) => {
+  const handleMoveUp = React.useCallback((index: number): void => {
     if (index === 0) return
     const newOrder = [...pageOrder]
     const temp = newOrder[index]
     newOrder[index] = newOrder[index - 1]
     newOrder[index - 1] = temp
     onReorder(newOrder)
-  }
+  }, [onReorder])
 
-  const handleMoveDown = (index: number) => {
+  const handleMoveDown = React.useCallback((index: number): void => {
     if (index === pageOrder.length - 1) return
     const newOrder = [...pageOrder]
     const temp = newOrder[index]
     newOrder[index] = newOrder[index + 1]
     newOrder[index + 1] = temp
     onReorder(newOrder)
-  }
+  }, [onReorder])
 
-  const handleMoveLeft = (index: number) => {
+  const handleMoveLeft = React.useCallback((index: number): void => {
     handleMoveUp(index)
-  }
+  }, [handleMoveUp])
 
-  const handleMoveRight = (index: number) => {
+  const handleMoveRight = React.useCallback((index: number): void => {
     handleMoveDown(index)
-  }
+  }, [handleMoveDown])
 
   // Create memoized maps for O(1) lookups instead of O(n) Array.find()
   const pageInfoMap = React.useMemo(() => {
@@ -173,7 +173,12 @@ export function PdfPageGrid({
     : "grid grid-cols-1 grid-cols-2-at-1230 grid-cols-3-at-1655 gap-6"
 
   return (
-    <div className={gridClassName} style={gridStyle}>
+    <div 
+      className={gridClassName} 
+      style={gridStyle}
+      role="list"
+      aria-label="PDF pages grid"
+    >
       {pageOrder.map((unifiedPageNumber, index) => {
         const page = getPageInfo(unifiedPageNumber)
         if (!page) return null
@@ -283,7 +288,7 @@ export function PdfPageGrid({
         const pageLabel = `Page ${unifiedPageNumber}${fileInfo.file.name ? ` from ${fileInfo.file.name}` : ''}${isDeleted ? ' (deleted)' : ''}${hasRotation ? ` (rotated ${rotation}°)` : ''}`
 
         return (
-          <div
+          <article
             key={`${page.id}-${index}`}
             draggable
             role="button"
@@ -295,8 +300,19 @@ export function PdfPageGrid({
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, index)}
             onDragEnd={handleDragEnd}
+            onKeyDown={(e) => {
+              // Keyboard navigation for drag and drop
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                // Focus management for keyboard users
+                if (e.key === 'Enter') {
+                  // Could trigger a context menu or action panel
+                }
+              }
+            }}
             className={cn(
               "relative group border border-border p-4 transition-all flex gap-4",
+              "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
               draggedIndex === index && "opacity-50",
               dragOverIndex === index && "ring-2 ring-primary ring-offset-2",
               isDeleted && "opacity-50"
@@ -333,10 +349,13 @@ export function PdfPageGrid({
             <div className="flex-shrink-0">
               <PdfActionButtons actions={actions} showGrip={true} />
             </div>
-          </div>
+          </article>
         )
       })}
     </div>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders
+export const PdfPageGrid = React.memo(PdfPageGridComponent)
 

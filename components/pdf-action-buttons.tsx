@@ -28,7 +28,7 @@ interface PdfActionButtonsProps {
   className?: string
 }
 
-export function PdfActionButtons({ actions, showGrip = false, className }: PdfActionButtonsProps) {
+function PdfActionButtonsComponent({ actions, showGrip = false, className }: PdfActionButtonsProps): React.JSX.Element {
   return (
     <TooltipProvider>
       <div className={cn("flex flex-col items-center gap-1.5", className)}>
@@ -76,4 +76,7 @@ export function PdfActionButtons({ actions, showGrip = false, className }: PdfAc
     </TooltipProvider>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders
+export const PdfActionButtons = React.memo(PdfActionButtonsComponent)
 

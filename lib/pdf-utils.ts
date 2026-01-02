@@ -1,4 +1,7 @@
+// External libraries
 import { PDFDocument } from "pdf-lib"
+
+// Types
 import type { PdfFile } from "./types"
 
 /**

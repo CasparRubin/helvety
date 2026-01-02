@@ -20,13 +20,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Separator } from "@/components/ui/separator"
 
 export function Navbar() {
   const [isAboutOpen, setIsAboutOpen] = React.useState(false)
-
-  const handleAboutClose = (open: boolean) => {
-    setIsAboutOpen(open)
-  }
+  const versionString = process.env.NEXT_PUBLIC_BUILD_VERSION || "v.0.000000.0000 - Experimental"
 
   return (
     <>
@@ -57,9 +55,15 @@ export function Navbar() {
                 priority
               />
             </a>
-            <Link href="/" className="text-xl font-black tracking-tight hover:opacity-80 transition-opacity">
-              PDF
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/" className="text-xl font-black tracking-tight hover:opacity-80 transition-opacity">
+                PDF
+              </Link>
+              <Separator orientation="vertical" className="h-4 hidden sm:block" />
+              <span className="text-xs font-normal text-muted-foreground/60 hidden sm:inline">
+                {versionString}
+              </span>
+            </div>
           </div>
           <TooltipProvider>
             <div className="flex items-center space-x-4">
@@ -106,7 +110,7 @@ export function Navbar() {
         </div>
       </nav>
 
-      <Dialog open={isAboutOpen} onOpenChange={handleAboutClose}>
+      <Dialog open={isAboutOpen} onOpenChange={setIsAboutOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>About</DialogTitle>

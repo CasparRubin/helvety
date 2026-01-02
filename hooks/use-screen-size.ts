@@ -6,12 +6,20 @@ import { SCREEN_BREAKPOINTS } from "@/lib/constants"
  */
 export type ScreenSize = "mobile" | "tablet" | "desktop"
 
+interface UseScreenSizeReturn {
+  screenSize: ScreenSize
+  width: number
+  isMobile: boolean
+  isTablet: boolean
+  isDesktop: boolean
+}
+
 /**
  * Custom hook to detect screen size category and provide responsive utilities.
  * 
  * @returns Object containing screen size category, width, and utility functions
  */
-export function useScreenSize() {
+export function useScreenSize(): UseScreenSizeReturn {
   const [screenSize, setScreenSize] = React.useState<ScreenSize>("desktop")
   const [width, setWidth] = React.useState<number>(0)
 

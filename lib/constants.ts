@@ -122,3 +122,25 @@ export const PDF_RENDER = {
   UNMOUNT_DISTANCE: 500,
 } as const
 
+/**
+ * File upload limits and validation
+ */
+export const FILE_LIMITS = {
+  /** Maximum file size in bytes (100MB) */
+  MAX_FILE_SIZE: 100 * 1024 * 1024,
+  /** Maximum number of files that can be uploaded */
+  MAX_FILES: 50,
+  /** Minimum delay between uploads in milliseconds */
+  UPLOAD_RATE_LIMIT: 100,
+} as const
+
+/**
+ * Operation timeouts (in milliseconds)
+ */
+export const TIMEOUTS = {
+  /** Timeout for PDF operations (60 seconds) */
+  OPERATION_TIMEOUT: 60000,
+  /** Timeout for file loading operations (30 seconds) */
+  FILE_LOAD_TIMEOUT: 30000,
+} as const
+
