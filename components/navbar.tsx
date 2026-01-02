@@ -21,27 +21,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const ABOUT_SEEN_KEY = "helvety-pdf-about-seen"
-
 export function Navbar() {
   const [isAboutOpen, setIsAboutOpen] = React.useState(false)
 
-  // Check on mount if user has seen the about dialog
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hasSeenAbout = localStorage.getItem(ABOUT_SEEN_KEY)
-      if (!hasSeenAbout) {
-        setIsAboutOpen(true)
-      }
-    }
-  }, [])
-
   const handleAboutClose = (open: boolean) => {
     setIsAboutOpen(open)
-    // When dialog is closed, save that user has seen it
-    if (!open && typeof window !== "undefined") {
-      localStorage.setItem(ABOUT_SEEN_KEY, "true")
-    }
   }
 
   return (
