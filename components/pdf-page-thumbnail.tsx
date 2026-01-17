@@ -11,7 +11,8 @@ import {
   THUMBNAIL_QUALITY, 
   THUMBNAIL_DIMENSIONS, 
   INTERSECTION_OBSERVER,
-  PDF_RENDER
+  PDF_RENDER,
+  ROTATION_ANGLES
 } from "@/lib/constants"
 
 // Dynamically import react-pdf to avoid SSR issues
@@ -113,8 +114,6 @@ function PdfPageThumbnailComponent({
   const {
     isHighQuality,
     setIsHighQuality,
-    qualityUpgradeTimeoutRef,
-    qualityUpgradeIdleCallbackRef,
   } = useProgressiveQuality({
     isVisible,
     shouldUnmount,
@@ -222,7 +221,7 @@ function PdfPageThumbnailComponent({
           setWorkerReady(true)
         }
       })
-      .catch((err) => {
+      .catch(() => {
         if (isMounted) {
           setError(true)
           setErrorMessage("Unable to load PDF viewer. Please refresh the page and try again.")
@@ -250,7 +249,7 @@ function PdfPageThumbnailComponent({
       timeoutRef.current = null
     }
     // Quality upgrade cleanup is handled by the hook
-  }, [fileUrl])
+  }, [fileUrl, setIsHighQuality])
 
   // Intersection Observer for lazy loading and memory management
   // Unloads thumbnails far off-screen to free memory
@@ -362,7 +361,8 @@ function PdfPageThumbnailComponent({
 
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function onDocumentLoadSuccess(_: { numPages: number }) {
     setLoading(false)
     setError(false)
     setErrorMessage(null)
@@ -411,7 +411,7 @@ function PdfPageThumbnailComponent({
   }
 
   // For images rotated 90/270 degrees, adjust container to prevent clipping
-  const isImageRotated = fileType === 'image' && (rotation === 90 || rotation === 270)
+  const isImageRotated = fileType === 'image' && (rotation === ROTATION_ANGLES.QUARTER || rotation === ROTATION_ANGLES.THREE_QUARTER)
   
   return (
     <div className={cn("relative flex flex-col items-center gap-2", className)}>
@@ -454,6 +454,7 @@ function PdfPageThumbnailComponent({
             fileType === 'image' ? (
               // Render images using native img tag
               // For 90/270 degree rotations, we need to swap dimensions to prevent clipping
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={fileUrl}
                 alt={`Page ${pageNumber}`}
@@ -461,8 +462,8 @@ function PdfPageThumbnailComponent({
                 style={{
                   transform: rotation ? `rotate(${rotation}deg)` : undefined,
                   // For 90/270 rotations, swap width/height to prevent clipping
-                  width: (rotation === 90 || rotation === 270) ? 'auto' : '100%',
-                  height: (rotation === 90 || rotation === 270) ? '100%' : 'auto',
+                  width: (rotation === ROTATION_ANGLES.QUARTER || rotation === ROTATION_ANGLES.THREE_QUARTER) ? 'auto' : '100%',
+                  height: (rotation === ROTATION_ANGLES.QUARTER || rotation === ROTATION_ANGLES.THREE_QUARTER) ? '100%' : 'auto',
                   maxWidth: '100%',
                   maxHeight: '100%',
                 }}

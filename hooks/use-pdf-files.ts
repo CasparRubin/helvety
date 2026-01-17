@@ -8,7 +8,7 @@ import { PDFDocument } from "pdf-lib"
 import { getPdfColor } from "@/lib/pdf-colors"
 import { formatPdfError } from "@/lib/pdf-errors"
 import { loadFileWithPreview, convertImageToPdf, loadPdfFromFile } from "@/lib/pdf-utils"
-import { validateFileType, validateFileSize, isPdfFile, isImageFile } from "@/lib/file-validation"
+import { validateFileType, validateFileSize, isPdfFile } from "@/lib/file-validation"
 import { logger } from "@/lib/logger"
 import { FILE_LIMITS } from "@/lib/constants"
 
@@ -85,8 +85,8 @@ export function usePdfFiles(): UsePdfFilesReturn {
    * @returns A promise that resolves to the PDFDocument
    */
   const getCachedPdf = React.useCallback(async (fileId: string, file: File, fileType: 'pdf' | 'image'): Promise<PDFDocument> => {
-    if (pdfCacheRef.current.has(fileId)) {
-      const cached = pdfCacheRef.current.get(fileId)!
+    const cached = pdfCacheRef.current.get(fileId)
+    if (cached) {
       logger.log(`Retrieved cached PDF for ${fileType} file:`, file.name, 'with ID:', fileId)
       return cached
     }
@@ -168,7 +168,6 @@ export function usePdfFiles(): UsePdfFilesReturn {
 
       // Determine file type after validation
       const isPdf = isPdfFile(file)
-      const isImage = isImageFile(file)
 
       if (pdfFiles.some((pf) => pf.file.name === file.name && pf.file.size === file.size)) {
         validationErrors.push(`'${file.name}' is already added.`)
@@ -251,12 +250,6 @@ export function usePdfFiles(): UsePdfFilesReturn {
       setUnifiedPages([])
       setPageOrder([])
     }
-  }, [pdfFiles])
-
-  // Debug function to check cache state
-  React.useEffect(() => {
-    logger.log('PDF Cache size:', pdfCacheRef.current.size)
-    logger.log('PDF Files:', pdfFiles.map(f => ({ id: f.id, name: f.file.name, type: f.type })))
   }, [pdfFiles])
 
   const removeFile = React.useCallback((fileId: string): void => {

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { QUALITY_UPGRADE, PDF_RENDER } from "@/lib/constants"
+import { QUALITY_UPGRADE } from "@/lib/constants"
 
 interface UseProgressiveQualityParams {
   isVisible: boolean

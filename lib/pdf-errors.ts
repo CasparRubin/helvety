@@ -20,6 +20,8 @@ export interface PdfErrorInfo {
   retryable: boolean
 }
 
+import { ERROR_LIMITS } from "./constants"
+
 /**
  * Sanitizes error messages to prevent XSS and remove sensitive information.
  * Removes HTML tags, script content, and limits message length.
@@ -36,9 +38,8 @@ function sanitizeErrorMessage(message: string): string {
     .trim()
   
   // Limit message length to prevent UI issues
-  const maxLength = 500
-  if (sanitized.length > maxLength) {
-    sanitized = sanitized.substring(0, maxLength - 3) + '...'
+  if (sanitized.length > ERROR_LIMITS.MAX_MESSAGE_LENGTH) {
+    sanitized = sanitized.substring(0, ERROR_LIMITS.MAX_MESSAGE_LENGTH - ERROR_LIMITS.TRUNCATE_SUFFIX_LENGTH) + '...'
   }
   
   return sanitized

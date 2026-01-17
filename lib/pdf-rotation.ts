@@ -1,4 +1,5 @@
-import { PDFPage, PDFDocument, degrees } from "pdf-lib"
+import { PDFPage, degrees } from "pdf-lib"
+import { ROTATION_ANGLES } from "./constants"
 
 /**
  * Normalizes a rotation angle to 0, 90, 180, or 270 degrees.
@@ -7,9 +8,9 @@ import { PDFPage, PDFDocument, degrees } from "pdf-lib"
  * @returns Normalized angle (0, 90, 180, or 270)
  */
 export function normalizeRotation(angle: number): number {
-  let normalized = angle % 360
-  if (normalized < 0) normalized += 360
-  return Math.round(normalized / 90) * 90 % 360
+  let normalized = angle % ROTATION_ANGLES.FULL
+  if (normalized < 0) normalized += ROTATION_ANGLES.FULL
+  return Math.round(normalized / ROTATION_ANGLES.INCREMENT) * ROTATION_ANGLES.INCREMENT % ROTATION_ANGLES.FULL
 }
 
 /**
@@ -64,7 +65,7 @@ export async function applyPageRotation(
     const totalRotation = normalizeRotation(originalRotation + userRotation)
     
     // For images, when rotating 90 or 270 degrees, we need to swap page dimensions
-    if (isImage && (userRotation === 90 || userRotation === 270)) {
+    if (isImage && (userRotation === ROTATION_ANGLES.QUARTER || userRotation === ROTATION_ANGLES.THREE_QUARTER)) {
       const { width, height } = targetPage.getSize()
       // Swap dimensions for 90/270 degree rotations
       targetPage.setSize(height, width)
@@ -73,7 +74,7 @@ export async function applyPageRotation(
     targetPage.setRotation(degrees(totalRotation))
   } catch {
     // If we can't read original rotation, just apply user rotation
-    if (isImage && (userRotation === 90 || userRotation === 270)) {
+    if (isImage && (userRotation === ROTATION_ANGLES.QUARTER || userRotation === ROTATION_ANGLES.THREE_QUARTER)) {
       const { width, height } = targetPage.getSize()
       targetPage.setSize(height, width)
     }

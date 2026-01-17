@@ -49,7 +49,6 @@ export function HelvetyPdf(): React.JSX.Element {
     unifiedPages,
     pageOrder,
     setPageOrder,
-    pdfCacheRef,
     validateAndAddFiles: validateAndAddFilesBase,
     removeFile,
     clearAll: clearAllFiles,
@@ -125,9 +124,6 @@ export function HelvetyPdf(): React.JSX.Element {
     setError(null)
   }, [clearAllFiles, setError])
 
-  // Memoize page order length to avoid recalculating in callback
-  const pageOrderLength = React.useMemo(() => pageOrder.length, [pageOrder.length])
-
   // Page deletion toggle
   const handleToggleDelete = React.useCallback((unifiedPageNumber: number): void => {
     setDeletedPages((prev) => {
@@ -136,7 +132,7 @@ export function HelvetyPdf(): React.JSX.Element {
         newSet.delete(unifiedPageNumber)
       } else {
         // Prevent deleting all pages
-        const totalPages = pageOrderLength
+        const totalPages = pageOrder.length
         const deletedCount = newSet.size
         if (totalPages - deletedCount <= 1) {
           setError("Cannot delete all pages. At least one page must remain.")
@@ -147,7 +143,7 @@ export function HelvetyPdf(): React.JSX.Element {
       return newSet
     })
     setError(null)
-  }, [pageOrderLength, setError])
+  }, [pageOrder.length, setError])
 
   // Page rotation
   const handleRotatePage = React.useCallback((unifiedPageNumber: number, angle: number): void => {

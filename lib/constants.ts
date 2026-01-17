@@ -144,3 +144,41 @@ export const TIMEOUTS = {
   FILE_LOAD_TIMEOUT: 30000,
 } as const
 
+/**
+ * Rotation angle constants (in degrees)
+ */
+export const ROTATION_ANGLES = {
+  /** No rotation */
+  NONE: 0,
+  /** 90 degree rotation (quarter turn clockwise) */
+  QUARTER: 90,
+  /** 180 degree rotation (half turn) */
+  HALF: 180,
+  /** 270 degree rotation (three-quarter turn clockwise, or quarter turn counter-clockwise) */
+  THREE_QUARTER: 270,
+  /** Full rotation (360 degrees) */
+  FULL: 360,
+  /** Standard rotation increment for user actions */
+  INCREMENT: 90,
+} as const
+
+/**
+ * Error message limits
+ */
+export const ERROR_LIMITS = {
+  /** Maximum length for error messages before truncation */
+  MAX_MESSAGE_LENGTH: 500,
+  /** Characters to show when truncating (for "...") */
+  TRUNCATE_SUFFIX_LENGTH: 3,
+} as const
+
+/**
+ * Critical error patterns that should not be auto-dismissed
+ */
+export const CRITICAL_ERROR_PATTERNS = [
+  "Can't process",
+  "Can't load",
+  "Can't extract",
+  "Download failed",
+] as const
+

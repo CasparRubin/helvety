@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { addOklchAlpha } from "@/lib/pdf-colors"
 import { createPageMap, createFileMap, createFileUrlMap } from "@/lib/pdf-lookup-utils"
+import { ROTATION_ANGLES } from "@/lib/constants"
 
 // Types
 import type { PdfFile, UnifiedPage } from "@/lib/types"
@@ -134,7 +135,7 @@ function PdfPageGridComponent({
   const finalPageNumberMap = React.useMemo(() => {
     const map = new Map<number, number | null>()
     let finalPageNum = 0
-    pageOrder.forEach((unifiedPageNumber, index) => {
+    pageOrder.forEach((unifiedPageNumber) => {
       if (!deletedPages.has(unifiedPageNumber)) {
         finalPageNum++
         map.set(unifiedPageNumber, finalPageNum)
@@ -246,14 +247,14 @@ function PdfPageGridComponent({
           // Rotate buttons
           {
             icon: <RotateCw className="h-4 w-4" />,
-            onClick: () => onRotate(unifiedPageNumber, 90),
+            onClick: () => onRotate(unifiedPageNumber, ROTATION_ANGLES.INCREMENT),
             ariaLabel: `Rotate page ${unifiedPageNumber} 90° clockwise`,
             title: "Rotate 90° clockwise",
             disabled: isProcessing,
           },
           {
             icon: <RotateCcw className="h-4 w-4" />,
-            onClick: () => onRotate(unifiedPageNumber, -90),
+            onClick: () => onRotate(unifiedPageNumber, -ROTATION_ANGLES.INCREMENT),
             ariaLabel: `Rotate page ${unifiedPageNumber} 90° counter-clockwise`,
             title: "Rotate 90° counter-clockwise",
             disabled: isProcessing,
@@ -381,14 +382,12 @@ export const PdfPageGrid = React.memo(PdfPageGridComponent, (prevProps, nextProp
     return false
   }
 
-  // Check if deleted pages changed
+  // Check if deleted pages changed (optimized: check size first, then iterate once)
+  if (prevProps.deletedPages.size !== nextProps.deletedPages.size) {
+    return false
+  }
   for (const pageNum of prevProps.deletedPages) {
     if (!nextProps.deletedPages.has(pageNum)) {
-      return false
-    }
-  }
-  for (const pageNum of nextProps.deletedPages) {
-    if (!prevProps.deletedPages.has(pageNum)) {
       return false
     }
   }

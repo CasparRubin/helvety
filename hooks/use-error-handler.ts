@@ -1,5 +1,5 @@
 import * as React from "react"
-import { DELAYS } from "@/lib/constants"
+import { DELAYS, CRITICAL_ERROR_PATTERNS } from "@/lib/constants"
 
 interface UseErrorHandlerReturn {
   error: string | null
@@ -32,10 +32,8 @@ export function useErrorHandler(isProcessing: boolean): UseErrorHandlerReturn {
    */
   React.useEffect(() => {
     if (error && !isProcessing) {
-      const isCriticalError = error.includes("Can't process") || 
-                             error.includes("Can't load") || 
-                             error.includes("Can't extract") || 
-                             error.includes("Download failed")
+      // Check if error matches any critical error pattern
+      const isCriticalError = CRITICAL_ERROR_PATTERNS.some(pattern => error.includes(pattern))
       
       if (!isCriticalError) {
         errorTimeoutRef.current = setTimeout(() => {
