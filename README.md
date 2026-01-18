@@ -75,6 +75,7 @@ helvety-pdf/
 │   ├── use-columns.ts     # Column layout management hook
 │   ├── use-drag-drop.ts   # Drag and drop functionality hook
 │   ├── use-error-handler.ts # Error handling hook
+│   ├── use-mobile.ts      # Mobile device detection hook
 │   ├── use-page-drag-drop.ts # Page drag and drop functionality hook
 │   ├── use-pdf-files.ts   # PDF file management hook
 │   ├── use-pdf-processing.ts # PDF processing operations hook
@@ -98,7 +99,7 @@ helvety-pdf/
 │   ├── pdf-loading.ts     # PDF loading utilities
 │   ├── pdf-lookup-utils.ts # PDF lookup utilities
 │   ├── pdf-rotation.ts    # PDF page rotation utilities
-│   ├── pdf-utils.ts       # PDF loading and extraction
+│   ├── pdf-utils.ts       # PDF utility functions - main entry point and re-exports
 │   ├── timeout-utils.ts  # Timeout utility functions
 │   ├── types.ts           # TypeScript type definitions
 │   ├── utils.ts           # General utility functions

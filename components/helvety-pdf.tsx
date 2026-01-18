@@ -168,6 +168,14 @@ export function HelvetyPdf(): React.JSX.Element {
     setError(null)
   }, [setError])
 
+  // Handle click on empty drop zone to open file picker
+  const handleEmptyZoneClick = React.useCallback((e: React.MouseEvent<HTMLElement>): void => {
+    // Only trigger file picker when no files are present
+    if (pdfFiles.length === 0 && fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }, [pdfFiles.length])
+
   return (
     <div 
       className={cn(
@@ -194,22 +202,23 @@ export function HelvetyPdf(): React.JSX.Element {
             dragDrop.isDragging
               ? "border-2 border-dashed border-primary bg-primary/5"
               : pdfFiles.length === 0
-              ? "border-2 border-dashed border-border"
+              ? "border-2 border-dashed border-border cursor-pointer"
               : "border-0"
           )}
-          aria-label="File drop zone and page canvas"
+          onClick={handleEmptyZoneClick}
+          aria-label={pdfFiles.length === 0 ? "File drop zone and page canvas. Click to select files." : "File drop zone and page canvas"}
           aria-live="polite"
           aria-describedby="drop-zone-description"
         >
           <span id="drop-zone-description" className="sr-only">
-            Drag and drop PDF files or images here, or use the upload button in the toolbar to add files.
-            {pdfFiles.length > 0 && ` Currently displaying ${pageOrder.length} page${pageOrder.length !== 1 ? 's' : ''}.`}
+            {pdfFiles.length === 0 
+              ? "Drag and drop PDF files or images here, click to select files, or use the upload button in the toolbar to add files."
+              : `Drag and drop PDF files or images here, or use the upload button in the toolbar to add files. Currently displaying ${pageOrder.length} page${pageOrder.length !== 1 ? 's' : ''}.`}
           </span>
           {/* Empty State - Drag and Drop Zone */}
           {pdfFiles.length === 0 && (
             <div className={cn(
-              "absolute inset-0 flex flex-col items-center justify-center gap-4 p-12",
-              "pointer-events-none"
+              "absolute inset-0 flex flex-col items-center justify-center gap-4 p-12"
             )}>
               <div className="flex flex-col items-center gap-2 text-center">
                 <Upload className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
