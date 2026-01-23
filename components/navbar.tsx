@@ -143,7 +143,7 @@ export function Navbar() {
       </nav>
 
       <Dialog open={isAboutOpen && shouldShowDialog} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto [&>button:first-child]:hidden">
+        <DialogContent className="max-w-xl max-h-[70vh] overflow-y-auto [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>About</DialogTitle>
           </DialogHeader>
