@@ -67,6 +67,7 @@ helvety-pdf/
 │   ├── helvety-pdf.tsx    # Main PDF management component
 │   ├── pdf-page-grid.tsx  # PDF page grid layout
 │   ├── pdf-page-thumbnail.tsx  # Individual page thumbnail
+│   ├── pdf-image-thumbnail.tsx # Image thumbnail component
 │   ├── pdf-action-buttons.tsx   # Action buttons for PDF operations
 │   ├── pdf-toolkit.tsx    # PDF toolkit utilities
 │   ├── theme-provider.tsx # Theme context provider
@@ -78,6 +79,7 @@ helvety-pdf/
 │   ├── use-mobile.ts      # Mobile device detection hook
 │   ├── use-page-drag-drop.ts # Page drag and drop functionality hook
 │   ├── use-pdf-files.ts   # PDF file management hook
+│   ├── use-pdf-page-state.ts # Page state management hook (deletions, rotations)
 │   ├── use-pdf-processing.ts # PDF processing operations hook
 │   ├── use-progressive-quality.ts # Progressive quality rendering hook
 │   └── use-screen-size.ts # Screen size detection hook
@@ -109,6 +111,17 @@ helvety-pdf/
 │   └── *.svg              # Logo and branding assets
 └── [config files]         # Configuration files (Next.js, TypeScript, etc.)
 ```
+
+## Architecture & Performance
+
+This application is built with performance and code quality in mind:
+
+- **LRU Cache Strategy** - Uses Least Recently Used (LRU) cache eviction for optimal memory management
+- **Batch Processing** - Processes PDF pages in adaptive batches (3-10 pages) to prevent UI blocking
+- **Optimized Memoization** - Smart memoization with early short-circuiting for efficient re-renders
+- **Type Safety** - Comprehensive TypeScript types with explicit return types throughout
+- **Error Handling** - Centralized error handling with detailed context and recovery strategies
+- **Code Organization** - Modular architecture with extracted utilities and reusable components
 
 ## Developer
 
