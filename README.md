@@ -5,11 +5,11 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images without any server-side processing. All file processing happens entirely in your browser.
+A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images with client-side processing (hosting provider may collect connection metadata). All file processing happens entirely in your browser.
 
 **App:** [pdf.helvety.com](https://pdf.helvety.com)
 
-**Privacy First** - 100% Client-Side Processing. All file processing happens entirely in your browser. Your files never leave your device, and no data is collected or transmitted.
+**Privacy First** - 100% Client-Side Processing. All file processing happens entirely in your browser. The application does not collect or transmit your file data (hosting provider may collect connection metadata - see Privacy Policy).
 
 ## Features
 
@@ -76,23 +76,32 @@ helvety-pdf/
 │   ├── use-columns.ts     # Column layout management hook
 │   ├── use-drag-drop.ts   # Drag and drop functionality hook
 │   ├── use-error-handler.ts # Error handling hook
+│   ├── use-imagebitmap-memory.ts # ImageBitmap memory monitoring hook
 │   ├── use-mobile.ts      # Mobile device detection hook
 │   ├── use-page-drag-drop.ts # Page drag and drop functionality hook
 │   ├── use-pdf-files.ts   # PDF file management hook
 │   ├── use-pdf-page-state.ts # Page state management hook (deletions, rotations)
 │   ├── use-pdf-processing.ts # PDF processing operations hook
+│   ├── use-pdf-rendering.ts # PDF page rendering hook with ImageBitmap caching
+│   ├── use-pdf-worker.ts  # PDF worker management hook
 │   ├── use-progressive-quality.ts # Progressive quality rendering hook
-│   └── use-screen-size.ts # Screen size detection hook
+│   ├── use-screen-size.ts # Screen size detection hook
+│   ├── use-thumbnail-intersection.ts # Thumbnail intersection observer hook
+│   └── use-virtual-scrolling.ts # Virtual scrolling hook
 ├── lib/                   # Utility functions
 │   ├── batch-processing.ts # Batch processing utilities
 │   ├── blob-url-utils.ts  # Blob URL management utilities
+│   ├── comparison-utils.ts # Comparison utility functions
 │   ├── constants.ts       # Application constants
 │   ├── error-formatting.ts # Error formatting utilities
 │   ├── error-handler.ts   # Error handling utilities
+│   ├── feature-detection.ts # Browser feature detection utilities
 │   ├── file-download.ts   # File download utilities
 │   ├── file-processing.ts # File processing utilities
 │   ├── file-validation.ts # File validation utilities
+│   ├── imagebitmap-cache.ts # ImageBitmap LRU cache implementation
 │   ├── logger.ts          # Logging utilities
+│   ├── memory-utils.ts    # Memory monitoring utilities
 │   ├── page-actions.tsx   # Page action components
 │   ├── pdf-colors.ts      # PDF color utilities
 │   ├── pdf-conversion.ts  # PDF conversion utilities
@@ -100,8 +109,11 @@ helvety-pdf/
 │   ├── pdf-extraction.ts  # PDF extraction utilities
 │   ├── pdf-loading.ts     # PDF loading utilities
 │   ├── pdf-lookup-utils.ts # PDF lookup utilities
+│   ├── pdf-rendering-worker.ts # PDF rendering worker utilities
 │   ├── pdf-rotation.ts    # PDF page rotation utilities
 │   ├── pdf-utils.ts       # PDF utility functions - main entry point and re-exports
+│   ├── performance-utils.ts # Performance benchmarking utilities
+│   ├── thumbnail-dpr.ts   # Thumbnail device pixel ratio utilities
 │   ├── timeout-utils.ts  # Timeout utility functions
 │   ├── types.ts           # TypeScript type definitions
 │   ├── utils.ts           # General utility functions

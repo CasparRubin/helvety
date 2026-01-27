@@ -7,7 +7,7 @@ export const metadata = {
   description: "Terms of Service for Helvety PDF",
 };
 
-export default function TermsPage() {
+export default function TermsPage(): React.JSX.Element {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-6">
@@ -116,7 +116,7 @@ export default function TermsPage() {
             YOU ARE SOLELY RESPONSIBLE FOR ALL DATA, CONTENT, AND INFORMATION THAT YOU UPLOAD, CREATE, STORE, OR TRANSMIT THROUGH THE SERVICE.
           </p>
           <p className="mb-2">
-            <strong>Important:</strong> The Service does not store, collect, or retain any personal data such as email addresses, names, or user registration information. All file processing occurs locally in your browser, and no files or personal data are transmitted to or stored on any server.
+            <strong>Important:</strong> The Service does not store, collect, or retain any personal data such as email addresses, names, or user registration information. All file processing occurs locally in your browser. The Helvety PDF application does not transmit or store your file data. However, hosting infrastructure may collect connection metadata as described in Section 10.
           </p>
           <p className="mb-2">Helvety makes no guarantees, representations, or warranties regarding:</p>
           <ul className="list-disc pl-6 mb-2">

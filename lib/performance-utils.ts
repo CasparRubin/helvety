@@ -205,7 +205,13 @@ export function measureSync<T>(
  * @param name - Operation name
  * @returns Statistics or null if no measurements
  */
-export function getPerformanceStats(name: string) {
+export function getPerformanceStats(name: string): {
+  count: number
+  average: number
+  min: number
+  max: number
+  total: number
+} | null {
   return metrics.getStats(name)
 }
 

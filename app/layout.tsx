@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     default: "Helvety PDF | Comprehensive PDF Tool | Private and Secure",
     template: "%s | Helvety PDF",
   },
-  description: "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Your files never leave your device. Private, secure, and free.",
+  description: "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Private, secure, and free.",
   keywords: ["Helvety PDF", "PDF merge", "PDF reorder", "PDF delete", "PDF rotate", "PDF extract", "client-side PDF", "privacy PDF tool", "secure PDF", "browser PDF", "PDF editor"],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     url: "https://pdf.helvety.com",
     siteName: "Helvety PDF",
     title: "Helvety PDF | Comprehensive PDF Tool | Private and Secure",
-    description: "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Your files never leave your device.",
+    description: "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",
@@ -84,7 +84,7 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>): React.JSX.Element {
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">

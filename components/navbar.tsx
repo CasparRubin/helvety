@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Separator } from "@/components/ui/separator"
 
-export function Navbar() {
+export function Navbar(): React.JSX.Element {
   const pathname = usePathname()
   const [isAboutOpen, setIsAboutOpen] = React.useState(true)
   const [hasAcknowledged, setHasAcknowledged] = React.useState(false)
@@ -172,6 +172,16 @@ export function Navbar() {
                 >
                   Privacy Policy
                 </Link>
+                <span className="text-muted-foreground">•</span>
+                <a
+                  href="https://github.com/CasparRubin/helvety-pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  GitHub
+                </a>
               </div>
               <div className="flex items-start gap-2">
                 <Checkbox

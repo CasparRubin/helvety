@@ -87,12 +87,4 @@ export function useImageBitmapMemory(config: MemoryMonitoringConfig = {}): void 
       }
     }
   }, [checkInterval, memoryThreshold, cacheThreshold])
-
-  // Cleanup on unmount
-  React.useEffect(() => {
-    return () => {
-      // Don't clear cache on unmount - let it persist across component remounts
-      // The cache is a singleton and will be cleaned up by memory monitoring
-    }
-  }, [])
 }

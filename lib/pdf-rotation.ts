@@ -36,6 +36,15 @@ export async function applyPageRotation(
   userRotation: number,
   isImage: boolean = false
 ): Promise<void> {
+  // Validate inputs
+  if (!targetPage || typeof targetPage.setRotation !== 'function') {
+    throw new Error('Invalid targetPage provided. Expected a PDFPage instance.')
+  }
+
+  if (!Number.isFinite(userRotation)) {
+    throw new Error(`Invalid rotation angle: ${userRotation}. Must be a finite number.`)
+  }
+
   if (userRotation === 0) {
     return
   }

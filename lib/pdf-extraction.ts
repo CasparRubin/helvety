@@ -22,6 +22,20 @@ export async function extractPageFromPdf(
   pdf: PDFDocument,
   pageIndex: number
 ): Promise<PDFDocument> {
+  // Validate inputs
+  if (!pdf || typeof pdf.getPageCount !== 'function') {
+    throw new Error('Invalid PDF document provided. Expected a PDFDocument instance.')
+  }
+
+  if (!Number.isInteger(pageIndex) || pageIndex < 0) {
+    throw new Error(`Invalid page index: ${pageIndex}. Must be a non-negative integer.`)
+  }
+
+  const pageCount = pdf.getPageCount()
+  if (pageIndex >= pageCount) {
+    throw new Error(`Page index ${pageIndex} is out of bounds. PDF has ${pageCount} page(s).`)
+  }
+
   const newPdf = await PDFDocument.create()
   const [copiedPage] = await newPdf.copyPages(pdf, [pageIndex])
   newPdf.addPage(copiedPage)

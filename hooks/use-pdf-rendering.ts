@@ -145,12 +145,12 @@ export function usePdfRendering(): UsePdfRenderingReturn {
     const activeRenders = activeRendersRef.current
     return () => {
       // Cancel all active renders
-      for (const [id, controller] of activeRenders) {
+      for (const [, controller] of activeRenders) {
         controller.abort()
-        cancelRender(id)
       }
+      activeRenders.clear()
     }
-  }, [cancelRender])
+  }, [])
 
   return {
     renderPage,

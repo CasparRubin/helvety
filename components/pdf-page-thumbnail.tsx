@@ -53,7 +53,7 @@ function PdfPageThumbnailComponent({
   finalPageNumber,
   fileType,
   totalPages = 1
-}: PdfPageThumbnailProps) {
+}: PdfPageThumbnailProps): React.JSX.Element {
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
@@ -270,6 +270,7 @@ function PdfPageThumbnailComponent({
       }, PDF_RENDER.PAGE_RENDER_DELAY)
     }, PDF_RENDER.DOCUMENT_READY_DELAY)
     // Store timeout ID in ref for cleanup
+    // eslint-disable-next-line react-hooks/immutability -- Refs are mutable by design
     timeoutRef.current = timeoutId
   }, [])
 
@@ -282,7 +283,6 @@ function PdfPageThumbnailComponent({
         clearTimeout(currentTimeout)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   /**
@@ -415,6 +415,7 @@ function PdfPageThumbnailComponent({
                           const timeoutId = setTimeout(() => {
                             setPageRenderReady(true)
                           }, PDF_RENDER.RENDER_RETRY_DELAY * (renderRetryCountRef.current + 1))
+                          // eslint-disable-next-line react-hooks/immutability -- Refs are mutable by design
                           timeoutRef.current = timeoutId
                         } else {
                           setError(true)
@@ -449,6 +450,7 @@ function PdfPageThumbnailComponent({
                             const timeoutId = setTimeout(() => {
                               setPageRenderReady(true)
                             }, PDF_RENDER.RENDER_RETRY_DELAY * (renderRetryCountRef.current + 1))
+                            // eslint-disable-next-line react-hooks/immutability -- Refs are mutable by design
                             timeoutRef.current = timeoutId
                           } else {
                             // For other errors or after max retries, show error state

@@ -83,6 +83,11 @@ export interface BatchProcessOptions {
  * ```
  */
 export function calculateBatchSize(totalItems: number): number {
+  // Validate input
+  if (!Number.isInteger(totalItems) || totalItems < 0) {
+    throw new Error(`Invalid totalItems: ${totalItems}. Must be a non-negative integer.`)
+  }
+
   if (totalItems <= 10) {
     return 10
   }
@@ -110,6 +115,11 @@ export function calculateBatchSize(totalItems: number): number {
  * ```
  */
 export function yieldToBrowser(timeout: number = 100): Promise<void> {
+  // Validate input
+  if (!Number.isFinite(timeout) || timeout < 0) {
+    throw new Error(`Invalid timeout: ${timeout}. Must be a non-negative finite number.`)
+  }
+
   return new Promise<void>((resolve: () => void) => {
     if ('requestIdleCallback' in window && typeof window.requestIdleCallback === 'function') {
       window.requestIdleCallback(() => resolve(), { timeout })

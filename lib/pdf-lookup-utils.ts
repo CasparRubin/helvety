@@ -24,8 +24,15 @@ import type { PdfFile, UnifiedPage } from "./types"
  * ```
  */
 export function createPageMap(unifiedPages: ReadonlyArray<UnifiedPage>): Map<number, UnifiedPage> {
+  if (!Array.isArray(unifiedPages)) {
+    throw new Error('Invalid unifiedPages parameter. Expected an array.')
+  }
+
   const map = new Map<number, UnifiedPage>()
   unifiedPages.forEach(page => {
+    if (!page || typeof page.unifiedPageNumber !== 'number') {
+      throw new Error('Invalid page object in unifiedPages array. Missing unifiedPageNumber.')
+    }
     map.set(page.unifiedPageNumber, page)
   })
   return map
@@ -49,8 +56,15 @@ export function createPageMap(unifiedPages: ReadonlyArray<UnifiedPage>): Map<num
  * ```
  */
 export function createFileMap(pdfFiles: ReadonlyArray<PdfFile>): Map<string, PdfFile> {
+  if (!Array.isArray(pdfFiles)) {
+    throw new Error('Invalid pdfFiles parameter. Expected an array.')
+  }
+
   const map = new Map<string, PdfFile>()
   pdfFiles.forEach(file => {
+    if (!file || typeof file.id !== 'string' || file.id.trim().length === 0) {
+      throw new Error('Invalid file object in pdfFiles array. Missing or invalid id.')
+    }
     map.set(file.id, file)
   })
   return map
@@ -74,8 +88,18 @@ export function createFileMap(pdfFiles: ReadonlyArray<PdfFile>): Map<string, Pdf
  * ```
  */
 export function createFileUrlMap(pdfFiles: ReadonlyArray<PdfFile>): Map<string, string> {
+  if (!Array.isArray(pdfFiles)) {
+    throw new Error('Invalid pdfFiles parameter. Expected an array.')
+  }
+
   const map = new Map<string, string>()
   pdfFiles.forEach(file => {
+    if (!file || typeof file.id !== 'string' || file.id.trim().length === 0) {
+      throw new Error('Invalid file object in pdfFiles array. Missing or invalid id.')
+    }
+    if (typeof file.url !== 'string') {
+      throw new Error(`Invalid file object in pdfFiles array. Missing or invalid url for file ${file.id}.`)
+    }
     map.set(file.id, file.url)
   })
   return map

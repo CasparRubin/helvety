@@ -62,7 +62,7 @@ function PdfToolkitComponent({
 
   // Detect if screen width shows more than 1 column (>= MULTI_COLUMN)
   React.useEffect(() => {
-    const checkScreenWidth = () => {
+    const checkScreenWidth = (): void => {
       setShowColumnSlider(window.innerWidth >= BREAKPOINTS.MULTI_COLUMN)
     }
 

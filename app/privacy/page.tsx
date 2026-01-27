@@ -7,7 +7,7 @@ export const metadata = {
   description: "Privacy Policy for Helvety PDF",
 };
 
-export default function PrivacyPage() {
+export default function PrivacyPage(): React.JSX.Element {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-6">
@@ -50,10 +50,12 @@ export default function PrivacyPage() {
           </p>
           <ul className="list-disc pl-6 mb-2">
             <li>All PDF and image files you upload are processed locally in your browser</li>
-            <li>No files, data, or content are transmitted to any server</li>
-            <li>No files, data, or content are stored on any server</li>
+            <li>The Helvety PDF application does not transmit or store your file data</li>
             <li>All processing occurs on your device using your device&apos;s resources</li>
           </ul>
+          <p className="mb-2">
+            <strong>Important:</strong> While the Helvety PDF application itself does not transmit or store your file data, please note that hosting infrastructure (Vercel) may collect connection metadata, IP addresses, request logs, and other information as described in Section 5.
+          </p>
           <p>
             However, you acknowledge that even with client-side processing, there may be risks associated with using web-based applications, and Helvety makes no guarantees regarding the security, privacy, or confidentiality of your data.
           </p>

@@ -11,7 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-export function ThemeSwitcher() {
+export function ThemeSwitcher(): React.JSX.Element {
   const { setTheme, theme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
@@ -19,7 +19,7 @@ export function ThemeSwitcher() {
     setMounted(true)
   }, [])
 
-  const toggleTheme = () => {
+  const toggleTheme = (): void => {
     if (theme === "system") {
       // If system, toggle based on resolved theme
       setTheme((resolvedTheme ?? "light") === "dark" ? "light" : "dark")

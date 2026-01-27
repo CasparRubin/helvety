@@ -123,6 +123,19 @@ export async function processFile(
   pdfCache: Map<string, PDFDocument>,
   isMobile: boolean = false
 ): Promise<ProcessFileResult> {
+  // Validate inputs
+  if (!file || !(file instanceof File)) {
+    return { error: 'Invalid file provided. Expected a File object.' }
+  }
+
+  if (!Number.isInteger(fileIndex) || fileIndex < 0) {
+    return { error: `Invalid file index: ${fileIndex}. Must be a non-negative integer.` }
+  }
+
+  if (!pdfCache || !(pdfCache instanceof Map)) {
+    return { error: 'Invalid PDF cache provided. Expected a Map instance.' }
+  }
+
   const isPdf = determineFileType(file) === 'pdf'
   let url: string | null = null
 

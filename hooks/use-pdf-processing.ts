@@ -77,6 +77,12 @@ export function usePdfProcessing({
    * ```
    */
   const extractPage = React.useCallback(async (unifiedPageNumber: number): Promise<void> => {
+    // Validate input
+    if (!Number.isInteger(unifiedPageNumber) || unifiedPageNumber < 1) {
+      onError(`Invalid page number: ${unifiedPageNumber}. Page number must be a positive integer.`)
+      return
+    }
+
     if (pdfFiles.length === 0 || unifiedPages.length === 0) {
       onError("No files loaded. Please add at least one file before extracting a page.")
       return
@@ -110,6 +116,13 @@ export function usePdfProcessing({
       )
       
       const pageIndex = page.originalPageNumber - 1
+      
+      // Validate page index is within bounds
+      if (pageIndex < 0 || pageIndex >= pdf.getPageCount()) {
+        onError(`Page index ${pageIndex} is out of bounds for file '${file.file.name}' (has ${pdf.getPageCount()} pages).`)
+        return
+      }
+
       const newPdf = await withTimeout(
         extractPageFromPdf(pdf, pageIndex),
         TIMEOUTS.OPERATION_TIMEOUT,
