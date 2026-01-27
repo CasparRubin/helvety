@@ -6,15 +6,20 @@ import { FileTextIcon, AlertCircle } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useScreenSize } from "@/hooks/use-screen-size"
 import { useProgressiveQuality } from "@/hooks/use-progressive-quality"
+import { usePdfRendering } from "@/hooks/use-pdf-rendering"
+import { usePdfWorker } from "@/hooks/use-pdf-worker"
+import { useThumbnailIntersection } from "@/hooks/use-thumbnail-intersection"
 import { logger } from "@/lib/logger"
 import { 
-  THUMBNAIL_QUALITY, 
   THUMBNAIL_DIMENSIONS, 
-  INTERSECTION_OBSERVER,
   PDF_RENDER,
   ROTATION_ANGLES
 } from "@/lib/constants"
+import { calculateOptimalDPR } from "@/lib/thumbnail-dpr"
 import { PdfImageThumbnail } from "@/components/pdf-image-thumbnail"
+import { PdfImageBitmapThumbnail } from "@/components/pdf-imagebitmap-thumbnail"
+import { PageErrorBoundary } from "@/components/pdf-page-error-boundary"
+import { getImageBitmapCache } from "@/lib/imagebitmap-cache"
 
 // Dynamically import react-pdf to avoid SSR issues
 const Document = dynamic(
@@ -25,53 +30,6 @@ const Page = dynamic(
   () => import("react-pdf").then((mod) => mod.Page),
   { ssr: false }
 )
-
-
-// Shared Promise for worker initialization (resolves when worker is ready)
-let workerInitPromise: Promise<void> | null = null
-
-// Error Boundary component to catch render-time errors
-class PageErrorBoundary extends React.Component<
-  { children: React.ReactNode; onError: () => void; retryKey: number },
-  { hasError: boolean }
-> {
-  constructor(props: { children: React.ReactNode; onError: () => void; retryKey: number }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    const errorMessage = error?.message || String(error)
-    logger.error('PageErrorBoundary caught an error:', {
-      error,
-      errorInfo,
-      errorMessage,
-      componentStack: errorInfo.componentStack,
-    })
-    
-    if (errorMessage.includes("messageHandler") || errorMessage.includes("sendWithPromise")) {
-      this.props.onError()
-    }
-  }
-
-  componentDidUpdate(prevProps: { retryKey: number }) {
-    // Reset error state when retry key changes (indicating a retry)
-    if (prevProps.retryKey !== this.props.retryKey && this.state.hasError) {
-      this.setState({ hasError: false })
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return null
-    }
-    return this.props.children
-  }
-}
 
 interface PdfPageThumbnailProps {
   fileUrl: string
@@ -101,15 +59,22 @@ function PdfPageThumbnailComponent({
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const [documentReady, setDocumentReady] = React.useState(false)
   const [pageRenderReady, setPageRenderReady] = React.useState(false)
-  const [workerReady, setWorkerReady] = React.useState(false)
   const [pageWidth, setPageWidth] = React.useState<number>(400)
-  const [isVisible, setIsVisible] = React.useState(false)
-  const [shouldUnmount, setShouldUnmount] = React.useState(false)
   const [devicePixelRatio, setDevicePixelRatio] = React.useState(1.0)
+  const [imageBitmap, setImageBitmap] = React.useState<ImageBitmap | null>(null)
+  const [useImageBitmap, setUseImageBitmap] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const thumbnailRef = React.useRef<HTMLDivElement>(null)
   const renderRetryCountRef = React.useRef(0)
   const { screenSize } = useScreenSize()
+  
+  // PDF rendering hook for ImageBitmap rendering
+  const pdfRendering = usePdfRendering()
+  
+  // PDF worker initialization
+  const { workerReady, error: workerError } = usePdfWorker(fileType)
+  
+  // Intersection observer for visibility management
+  const { isVisible, shouldUnmount, thumbnailRef } = useThumbnailIntersection()
   
   // Progressive quality management
   const {
@@ -121,118 +86,22 @@ function PdfPageThumbnailComponent({
     fileType,
   })
 
-  /**
-   * Calculates optimal device pixel ratio based on screen size, container width, and total pages.
-   * Reduces quality on smaller screens and when many pages are loaded to save memory.
-   * 
-   * The calculation applies multiple factors:
-   * - Base DPR from screen size (mobile/tablet/desktop)
-   * - Reduction for large document sets (50+, 100+, 200+ pages)
-   * - Reduction for smaller container widths (< 300px, < 200px)
-   * - Final value is clamped between MIN_DPR and MAX_DPR
-   * 
-   * @param containerWidth - The width of the container in pixels
-   * @returns The calculated device pixel ratio, clamped between MIN_DPR and MAX_DPR
-   */
-  const calculateOptimalDPR = React.useCallback((containerWidth: number): number => {
-    // Base DPR from screen size
-    let baseDPR: number
-    if (screenSize === "mobile") {
-      baseDPR = THUMBNAIL_QUALITY.MOBILE_DPR
-    } else if (screenSize === "tablet") {
-      baseDPR = THUMBNAIL_QUALITY.TABLET_DPR
-    } else {
-      baseDPR = THUMBNAIL_QUALITY.DESKTOP_DPR
-    }
-
-    // Reduce further if many pages (memory pressure)
-    if (totalPages > 50) baseDPR *= 0.9
-    if (totalPages > 100) baseDPR *= 0.85
-    if (totalPages > 200) baseDPR *= 0.8
-
-    // Reduce slightly for smaller containers
-    if (containerWidth < 300) baseDPR *= 0.9
-    if (containerWidth < 200) baseDPR *= 0.85
-
-    // Cap at min and max
-    return Math.max(
-      THUMBNAIL_QUALITY.MIN_DPR,
-      Math.min(baseDPR, THUMBNAIL_QUALITY.MAX_DPR)
-    )
-  }, [screenSize, totalPages])
-
-  /**
-   * Initializes the PDF.js worker once on the client side (shared across all instances).
-   * Uses a module-level promise to ensure only one worker is initialized.
-   * 
-   * The worker is configured to use a local worker file from the public folder,
-   * which is automatically kept in sync with the installed pdfjs-dist version via
-   * the postinstall script in package.json.
-   * 
-   * @returns A Promise that resolves when the worker is ready, or rejects on error
-   * @throws Error if window is not available (SSR environment)
-   */
-  const initializeWorker = React.useCallback((): Promise<void> => {
-    if (typeof window === "undefined") {
-      return Promise.reject(new Error("Window is not available"))
-    }
-
-    // If worker is already initialized, return resolved promise
-    if (workerInitPromise) {
-      return workerInitPromise
-    }
-
-    // Create and cache the initialization Promise
-    workerInitPromise = import("react-pdf")
-      .then((mod) => {
-        // Use local worker file from public folder (updated to match pdfjs-dist version)
-        // The worker file should be copied from node_modules/pdfjs-dist/build/pdf.worker.min.mjs
-        // to public/pdf.worker.min.mjs to ensure version matching
-        mod.pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs"
-        // Wait a bit to ensure worker is fully initialized
-        return new Promise<void>((resolve) => {
-          setTimeout(() => {
-            resolve()
-          }, PDF_RENDER.WORKER_INIT_DELAY)
-        })
-      })
-      .catch((err) => {
-        // Reset promise on error so it can be retried
-        workerInitPromise = null
-        logger.error("Failed to initialize PDF worker:", err)
-        throw err
-      })
-
-    return workerInitPromise
-  }, [])
-
-  // Set up PDF.js worker - all components await the same Promise (only for PDFs)
+  // Handle worker initialization errors
   React.useEffect(() => {
-    // Skip worker initialization for images
-    if (fileType === 'image') {
-      setWorkerReady(true) // Set to true so rendering can proceed
-      return
+    if (workerError) {
+      setError(true)
+      setErrorMessage(workerError)
     }
+  }, [workerError])
 
-    let isMounted = true
-
-    initializeWorker()
-      .then(() => {
-        if (isMounted) {
-          setWorkerReady(true)
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setError(true)
-          setErrorMessage("Unable to load PDF viewer. Please refresh the page and try again.")
-        }
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [initializeWorker, fileType])
+  // Calculate optimal DPR callback
+  const calculateDPR = React.useCallback((containerWidth: number): number => {
+    return calculateOptimalDPR({
+      screenSize,
+      containerWidth,
+      totalPages,
+    })
+  }, [screenSize, totalPages])
 
   // Reset states when fileUrl changes (new file loaded)
   React.useEffect(() => {
@@ -241,9 +110,9 @@ function PdfPageThumbnailComponent({
     setErrorMessage(null)
     setDocumentReady(false)
     setPageRenderReady(false)
-    setIsVisible(false)
-    setShouldUnmount(false)
     setIsHighQuality(false)
+    setImageBitmap(null)
+    setUseImageBitmap(false)
     renderRetryCountRef.current = 0
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
@@ -252,46 +121,57 @@ function PdfPageThumbnailComponent({
     // Quality upgrade cleanup is handled by the hook
   }, [fileUrl, setIsHighQuality])
 
-  // Intersection Observer for lazy loading and memory management
-  // Unloads thumbnails far off-screen to free memory
+  // Check cache for ImageBitmap when visible
+  // For Phase 1, we check cache but don't actively convert canvas to ImageBitmap yet
+  // The infrastructure is in place for future enhancement
   React.useEffect(() => {
-    const element = thumbnailRef.current
-    if (!element) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-          setShouldUnmount(false)
-        } else {
-          // Unmount when far off-screen to free memory
-          // Calculate distance from viewport
-          const rect = entry.boundingClientRect
-          const viewportHeight = window.innerHeight
-          const viewportTop = 0
-          const viewportBottom = viewportHeight
-          
-          // Check if element is far above or below viewport
-          const isFarAbove = rect.bottom < viewportTop - PDF_RENDER.UNMOUNT_DISTANCE
-          const isFarBelow = rect.top > viewportBottom + PDF_RENDER.UNMOUNT_DISTANCE
-          
-          if (isFarAbove || isFarBelow) {
-            setShouldUnmount(true)
-          }
-        }
-      },
-      { 
-        rootMargin: INTERSECTION_OBSERVER.LOAD_MARGIN,
-        threshold: INTERSECTION_OBSERVER.THRESHOLD
-      }
-    )
-
-    observer.observe(element)
-
-    return () => {
-      observer.unobserve(element)
+    if (
+      fileType !== 'pdf' ||
+      !isVisible ||
+      shouldUnmount ||
+      !pdfRendering.isWorkerRenderingAvailable ||
+      !fileUrl ||
+      pageWidth === 0
+    ) {
+      return
     }
-  }, [])
+
+    // Check cache for existing ImageBitmap
+    const cacheKey = `${fileUrl}:${pageNumber}:${pageWidth}:${isHighQuality ? devicePixelRatio : devicePixelRatio * 0.75}:${rotation || 0}`
+    const cache = getImageBitmapCache()
+    const cached = cache.get(cacheKey)
+    
+    if (cached) {
+      setImageBitmap(cached)
+      setUseImageBitmap(true)
+      setLoading(false)
+      setError(false)
+    } else {
+      // For now, use canvas rendering (fallback)
+      // Future: Convert canvas to ImageBitmap after render
+      setUseImageBitmap(false)
+    }
+  }, [
+    fileUrl,
+    pageNumber,
+    pageWidth,
+    devicePixelRatio,
+    rotation,
+    isVisible,
+    shouldUnmount,
+    isHighQuality,
+    fileType,
+    pdfRendering,
+  ])
+
+  // Cleanup ImageBitmap on unmount
+  React.useEffect(() => {
+    return () => {
+      if (imageBitmap) {
+        imageBitmap.close()
+      }
+    }
+  }, [imageBitmap])
 
   // Measure container width and update page width dynamically
   // This ensures pages (PDFs and images) always display at full width regardless of column count,
@@ -319,7 +199,7 @@ function PdfPageThumbnailComponent({
       setPageWidth(calculatedWidth)
       
       // Update DPR when width changes
-      const optimalDPR = calculateOptimalDPR(calculatedWidth)
+      const optimalDPR = calculateDPR(calculatedWidth)
       setDevicePixelRatio(optimalDPR)
     }
 
@@ -358,7 +238,7 @@ function PdfPageThumbnailComponent({
         window.removeEventListener("resize", debouncedUpdateWidth)
       }
     }
-  }, [calculateOptimalDPR])
+  }, [calculateDPR])
 
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -370,7 +250,7 @@ function PdfPageThumbnailComponent({
    * 
    * @param _loadInfo - Document load information containing numPages (unused but required by react-pdf)
    */
-  function onDocumentLoadSuccess(_loadInfo: { numPages: number }): void {
+  const onDocumentLoadSuccess = React.useCallback((_loadInfo: { numPages: number }): void => {
     setLoading(false)
     setError(false)
     setErrorMessage(null)
@@ -382,23 +262,27 @@ function PdfPageThumbnailComponent({
     // Add a delay to ensure worker message handler is fully initialized
     // This prevents "messageHandler is null" errors that can occur if
     // the page tries to render before the worker is fully ready
-    timeoutRef.current = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setDocumentReady(true)
       // Add an additional delay before allowing page render to ensure messageHandler is ready
       setTimeout(() => {
         setPageRenderReady(true)
-        timeoutRef.current = null
       }, PDF_RENDER.PAGE_RENDER_DELAY)
     }, PDF_RENDER.DOCUMENT_READY_DELAY)
-  }
+    // Store timeout ID in ref for cleanup
+    timeoutRef.current = timeoutId
+  }, [])
 
   // Cleanup timeout on unmount
   React.useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+      // Read ref value directly in cleanup - refs are stable and don't need to be dependencies
+      const currentTimeout = timeoutRef.current
+      if (currentTimeout) {
+        clearTimeout(currentTimeout)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   /**
@@ -480,8 +364,24 @@ function PdfPageThumbnailComponent({
                   setErrorMessage("Unable to load image")
                 }}
               />
+            ) : useImageBitmap && imageBitmap ? (
+              // Render PDFs using ImageBitmap (optimized path)
+              <PdfImageBitmapThumbnail
+                imageBitmap={imageBitmap}
+                pageNumber={pageNumber}
+                rotation={rotation}
+                onLoad={() => {
+                  setLoading(false)
+                  setError(false)
+                }}
+                onError={() => {
+                  setLoading(false)
+                  setError(true)
+                  setErrorMessage("Unable to render page")
+                }}
+              />
             ) : (
-              // Render PDFs using react-pdf
+              // Render PDFs using react-pdf (fallback)
               workerReady && !shouldUnmount ? (
                 <Document
                   key={fileUrl}
@@ -507,13 +407,15 @@ function PdfPageThumbnailComponent({
                         if (renderRetryCountRef.current < 3) {
                           setPageRenderReady(false)
                           renderRetryCountRef.current += 1
+                          // Clear any existing timeout
                           if (timeoutRef.current) {
                             clearTimeout(timeoutRef.current)
                           }
-                            timeoutRef.current = setTimeout(() => {
-                              setPageRenderReady(true)
-                              timeoutRef.current = null
-                            }, PDF_RENDER.RENDER_RETRY_DELAY * (renderRetryCountRef.current + 1))
+                          // Set new timeout and store ID
+                          const timeoutId = setTimeout(() => {
+                            setPageRenderReady(true)
+                          }, PDF_RENDER.RENDER_RETRY_DELAY * (renderRetryCountRef.current + 1))
+                          timeoutRef.current = timeoutId
                         } else {
                           setError(true)
                           setErrorMessage("Failed to render page")
@@ -539,13 +441,15 @@ function PdfPageThumbnailComponent({
                             // Reset states and retry after a longer delay
                             setPageRenderReady(false)
                             renderRetryCountRef.current += 1
+                            // Clear any existing timeout
                             if (timeoutRef.current) {
                               clearTimeout(timeoutRef.current)
                             }
-                            timeoutRef.current = setTimeout(() => {
+                            // Set new timeout and store ID
+                            const timeoutId = setTimeout(() => {
                               setPageRenderReady(true)
-                              timeoutRef.current = null
                             }, PDF_RENDER.RENDER_RETRY_DELAY * (renderRetryCountRef.current + 1))
+                            timeoutRef.current = timeoutId
                           } else {
                             // For other errors or after max retries, show error state
                             setError(true)

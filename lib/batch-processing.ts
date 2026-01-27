@@ -37,8 +37,9 @@
  */
 
 // Internal utilities
-import { TIMEOUTS } from "./constants"
+import { TIMEOUTS, PROCESSING } from "./constants"
 import { withTimeout } from "./timeout-utils"
+import { shouldYieldToBrowser, isMemoryPressureHigh } from "./memory-utils"
 
 /**
  * Result of processing a single item in a batch.
@@ -116,6 +117,80 @@ export function yieldToBrowser(timeout: number = 100): Promise<void> {
       setTimeout(() => resolve(), 0)
     }
   })
+}
+
+/**
+ * Yields to browser if memory pressure is high or if explicitly requested.
+ * Uses memory monitoring to determine if yielding is needed.
+ * 
+ * @param fileSizeBytes - Optional file size in bytes (for adaptive yielding)
+ * @param isMobile - Whether device is mobile (default: false)
+ * @param forceYield - Force yielding even if memory seems OK (default: false)
+ * @returns Promise that resolves when yielding is complete (or skipped)
+ * 
+ * @example
+ * ```typescript
+ * // Yield if memory pressure is high
+ * await yieldToBrowserIfNeeded(file.size, isMobile)
+ * ```
+ */
+export async function yieldToBrowserIfNeeded(
+  fileSizeBytes?: number,
+  isMobile: boolean = false,
+  forceYield: boolean = false
+): Promise<void> {
+  // Always yield if forced
+  if (forceYield) {
+    const yieldInterval = isMobile 
+      ? PROCESSING.MOBILE_YIELD_INTERVAL 
+      : PROCESSING.YIELD_INTERVAL
+    await yieldToBrowser(yieldInterval)
+    return
+  }
+
+  // Check if yielding is recommended
+  if (shouldYieldToBrowser(fileSizeBytes)) {
+    const yieldInterval = isMobile 
+      ? PROCESSING.MOBILE_YIELD_INTERVAL 
+      : PROCESSING.YIELD_INTERVAL
+    await yieldToBrowser(yieldInterval)
+    return
+  }
+
+  // Check memory pressure
+  const memoryPressure = isMemoryPressureHigh(85)
+  if (memoryPressure === true) {
+    // Use longer yield when memory pressure is high
+    await yieldToBrowser(isMobile ? PROCESSING.MOBILE_YIELD_INTERVAL * 2 : PROCESSING.YIELD_INTERVAL * 2)
+    return
+  }
+
+  // No yielding needed
+}
+
+/**
+ * Calculates adaptive yield interval based on file size and device type.
+ * Larger files and mobile devices get more frequent yielding.
+ * 
+ * @param fileSizeBytes - Size of file being processed
+ * @param isMobile - Whether device is mobile
+ * @returns Recommended yield interval in milliseconds
+ */
+export function calculateYieldInterval(fileSizeBytes: number, isMobile: boolean): number {
+  const baseInterval = isMobile 
+    ? PROCESSING.MOBILE_YIELD_INTERVAL 
+    : PROCESSING.YIELD_INTERVAL
+
+  // More frequent yielding for very large files
+  if (fileSizeBytes > PROCESSING.VERY_LARGE_FILE_THRESHOLD) {
+    return Math.floor(baseInterval * 0.5) // Half the interval
+  }
+  
+  if (fileSizeBytes > PROCESSING.LARGE_FILE_THRESHOLD) {
+    return Math.floor(baseInterval * 0.75) // 75% of interval
+  }
+
+  return baseInterval
 }
 
 /**

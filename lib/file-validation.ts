@@ -5,7 +5,7 @@
  */
 
 // Internal utilities
-import { FILE_LIMITS } from "./constants"
+// Note: FILE_LIMITS removed - no file size limits
 
 /**
  * PDF magic number (file signature): %PDF
@@ -320,7 +320,8 @@ export function validateFileType(file: File): Readonly<{ valid: boolean; error?:
 }
 
 /**
- * Validates file size against limits.
+ * Validates file size - only checks if file is empty.
+ * No maximum size limit - users can try any size file.
  * 
  * @param file - The file to validate
  * @returns Object with validation result and error message if invalid
@@ -330,15 +331,6 @@ export function validateFileSize(file: File): Readonly<{ valid: boolean; error?:
     return {
       valid: false,
       error: `'${file.name}' is empty.`,
-    }
-  }
-  
-  if (file.size > FILE_LIMITS.MAX_FILE_SIZE) {
-    const maxSizeMB = (FILE_LIMITS.MAX_FILE_SIZE / (1024 * 1024)).toFixed(0)
-    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2)
-    return {
-      valid: false,
-      error: `'${file.name}' is too large (${fileSizeMB} MB). Maximum file size is ${maxSizeMB} MB.`,
     }
   }
   

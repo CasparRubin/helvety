@@ -20,6 +20,7 @@ import { useDragDrop } from "@/hooks/use-drag-drop"
 import { usePdfFiles } from "@/hooks/use-pdf-files"
 import { usePdfProcessing } from "@/hooks/use-pdf-processing"
 import { usePdfPageState } from "@/hooks/use-pdf-page-state"
+import { useImageBitmapMemory } from "@/hooks/use-imagebitmap-memory"
 
 /**
  * Main PDF toolkit component.
@@ -76,6 +77,9 @@ export function HelvetyPdf(): React.JSX.Element {
 
   // Drag and drop
   const dragDrop = useDragDrop()
+
+  // ImageBitmap memory monitoring and cleanup
+  useImageBitmapMemory()
 
   // Extract stable error setter to avoid unnecessary re-renders
   const setError = errorHandler.setError

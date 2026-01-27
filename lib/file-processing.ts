@@ -8,13 +8,15 @@ import { PDFDocument } from "pdf-lib"
 
 // Internal utilities
 import { safeRevokeObjectURL } from "./blob-url-utils"
-import { CACHE_LIMITS } from "./constants"
+import { CACHE_LIMITS, PROCESSING } from "./constants"
 import { createPdfErrorInfo, PdfErrorType } from "./pdf-errors"
 import { getPdfColor } from "./pdf-colors"
 import { loadFileWithPreview } from "./pdf-utils"
 import { determineFileType } from "./validation-utils"
 import { logger } from "./logger"
 import { ERROR_TEMPLATES } from "./error-formatting"
+import { yieldToBrowser } from "./batch-processing"
+import { getRecommendedCacheLimit, shouldYieldToBrowser } from "./memory-utils"
 
 // Types
 import type { PdfFile } from "./types"
@@ -80,16 +82,23 @@ export function generateFileId(): string {
  * - Evicts oldest accessed entry when cache limit is reached
  * - Provides better cache hit rates than FIFO by keeping frequently used items
  * - Access order is updated when items are retrieved from cache
+ * - Uses mobile-specific cache limits when isMobile is true
+ * 
+ * Browser yielding:
+ * - Yields to browser before processing large files
+ * - Yields more frequently on mobile devices
+ * - Adapts yielding based on memory pressure
  * 
  * @param file - The file to process
  * @param fileIndex - The index of the file (used for color assignment)
  * @param pdfCache - The PDF cache map to use for storing loaded PDFs
+ * @param isMobile - Whether the device is mobile (default: false)
  * @returns Object containing the processed PdfFile or an error message
  * 
  * @example
  * ```typescript
  * import { logger } from "./logger"
- * const result = await processFile(file, 0, pdfCache)
+ * const result = await processFile(file, 0, pdfCache, true)
  * if ('error' in result) {
  *   logger.error('Processing failed:', result.error)
  * } else {
@@ -101,7 +110,7 @@ export function generateFileId(): string {
  * ```typescript
  * // Process multiple files
  * for (let i = 0; i < files.length; i++) {
- *   const result = await processFile(files[i], i, pdfCache)
+ *   const result = await processFile(files[i], i, pdfCache, isMobile)
  *   if ('pdfFile' in result) {
  *     pdfFiles.push(result.pdfFile)
  *   }
@@ -111,12 +120,25 @@ export function generateFileId(): string {
 export async function processFile(
   file: File,
   fileIndex: number,
-  pdfCache: Map<string, PDFDocument>
+  pdfCache: Map<string, PDFDocument>,
+  isMobile: boolean = false
 ): Promise<ProcessFileResult> {
   const isPdf = determineFileType(file) === 'pdf'
   let url: string | null = null
 
   try {
+    // Yield to browser before processing large files or if memory pressure is high
+    const fileSize = file.size
+    const isLargeFile = fileSize > PROCESSING.LARGE_FILE_THRESHOLD
+    const shouldYield = isMobile || isLargeFile || shouldYieldToBrowser(fileSize)
+    
+    if (shouldYield) {
+      const yieldInterval = isMobile 
+        ? PROCESSING.MOBILE_YIELD_INTERVAL 
+        : PROCESSING.YIELD_INTERVAL
+      await yieldToBrowser(yieldInterval)
+    }
+
     const { pdf, url: previewUrl, fileType } = await loadFileWithPreview(file, isPdf)
     url = previewUrl
 
@@ -131,10 +153,17 @@ export async function processFile(
       return { error: `'${file.name}' has no pages.` }
     }
 
+    // Use mobile-specific cache limit
+    const cacheLimit = getRecommendedCacheLimit(
+      CACHE_LIMITS.MAX_CACHED_PDFS,
+      CACHE_LIMITS.MOBILE_MAX_CACHED_PDFS,
+      isMobile
+    )
+
     const fileId = generateFileId()
-    evictLRUEntry(pdfCache, CACHE_LIMITS.MAX_CACHED_PDFS)
+    evictLRUEntry(pdfCache, cacheLimit)
     pdfCache.set(fileId, pdf)
-    logger.log(`Cached PDF for ${fileType} file: "${file.name}" (ID: ${fileId}, cache size: ${pdfCache.size}/${CACHE_LIMITS.MAX_CACHED_PDFS})`)
+    logger.log(`Cached PDF for ${fileType} file: "${file.name}" (ID: ${fileId}, cache size: ${pdfCache.size}/${cacheLimit})`)
 
     const color = getPdfColor(fileIndex)
 

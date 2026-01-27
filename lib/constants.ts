@@ -126,8 +126,6 @@ export const PDF_RENDER = {
  * File upload limits and validation
  */
 export const FILE_LIMITS = {
-  /** Maximum file size in bytes (100MB) */
-  MAX_FILE_SIZE: 100 * 1024 * 1024,
   /** Maximum number of files that can be uploaded */
   MAX_FILES: 50,
   /** Minimum delay between uploads in milliseconds */
@@ -138,8 +136,24 @@ export const FILE_LIMITS = {
  * Cache management limits
  */
 export const CACHE_LIMITS = {
-  /** Maximum number of PDF documents to cache in memory */
+  /** Maximum number of PDF documents to cache in memory (desktop) */
   MAX_CACHED_PDFS: 50,
+  /** Maximum number of PDF documents to cache in memory (mobile) */
+  MOBILE_MAX_CACHED_PDFS: 20,
+} as const
+
+/**
+ * File processing configuration
+ */
+export const PROCESSING = {
+  /** Time between browser yields during file processing (ms) */
+  YIELD_INTERVAL: 50,
+  /** Time between browser yields on mobile (ms) - more frequent for better responsiveness */
+  MOBILE_YIELD_INTERVAL: 25,
+  /** File size threshold for considering a file "large" (for adaptive yielding, not blocking) */
+  LARGE_FILE_THRESHOLD: 10 * 1024 * 1024, // 10MB
+  /** Very large file threshold (for more aggressive yielding) */
+  VERY_LARGE_FILE_THRESHOLD: 50 * 1024 * 1024, // 50MB
 } as const
 
 /**
@@ -198,5 +212,31 @@ export const FILENAME_LIMITS = {
   MAX_LENGTH: 200,
   /** Default filename when sanitization results in empty or invalid name */
   DEFAULT_NAME: "download",
+} as const
+
+/**
+ * ImageBitmap cache configuration
+ */
+export const IMAGEBITMAP_CACHE = {
+  /** Maximum number of ImageBitmap entries to cache (desktop) */
+  MAX_CACHED_IMAGES: 50,
+  /** Maximum number of ImageBitmap entries to cache (mobile) */
+  MOBILE_MAX_CACHED_IMAGES: 20,
+  /** Maximum memory for ImageBitmap cache in bytes (200MB) */
+  MAX_MEMORY_BYTES: 200 * 1024 * 1024,
+  /** Maximum memory for ImageBitmap cache on mobile in bytes (100MB) */
+  MOBILE_MAX_MEMORY_BYTES: 100 * 1024 * 1024,
+} as const
+
+/**
+ * Rendering configuration
+ */
+export const RENDERING = {
+  /** Timeout for worker rendering operations (ms) */
+  WORKER_RENDER_TIMEOUT: 30000,
+  /** Delay before retrying failed worker renders (ms) */
+  WORKER_RETRY_DELAY: 1000,
+  /** Maximum retry attempts for worker rendering */
+  MAX_WORKER_RETRIES: 3,
 } as const
 

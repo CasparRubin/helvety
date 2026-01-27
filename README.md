@@ -1,7 +1,7 @@
 # Helvety PDF
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.3-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-19.2.3-61DAFB?style=flat-square&logo=react)
+![Next.js](https://img.shields.io/badge/Next.js-16.1.5-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
@@ -35,8 +35,8 @@ A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract 
 
 This project is built with modern web technologies:
 
-- **[Next.js 16.1.3](https://nextjs.org/)** - React framework with App Router
-- **[React 19.2.3](https://react.dev/)** - UI library
+- **[Next.js 16.1.5](https://nextjs.org/)** - React framework with App Router
+- **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[pdf-lib](https://pdf-lib.js.org/)** - PDF manipulation and creation
 - **[pdfjs-dist](https://mozilla.github.io/pdf.js/)** - PDF rendering engine

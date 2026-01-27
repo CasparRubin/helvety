@@ -5,7 +5,7 @@
 
 // Internal utilities
 import { FILE_LIMITS } from "./constants"
-import { validateFileType, validateFileSize, isPdfFile } from "./file-validation"
+import { validateFileType, isPdfFile } from "./file-validation"
 
 // Types
 import type { PdfFile } from "./types"
@@ -51,9 +51,9 @@ export function validateFiles(
       continue
     }
 
-    const sizeValidation = validateFileSize(file)
-    if (!sizeValidation.valid) {
-      errors.push(sizeValidation.error || `'${file.name}' has an invalid file size.`)
+    // Only check if file is empty, no size limit
+    if (file.size === 0) {
+      errors.push(`'${file.name}' is empty.`)
       continue
     }
 

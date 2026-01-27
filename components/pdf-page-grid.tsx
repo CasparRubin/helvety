@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { addOklchAlpha } from "@/lib/pdf-colors"
 import { createPageMap, createFileMap, createFileUrlMap } from "@/lib/pdf-lookup-utils"
 import { createPageActions } from "@/lib/page-actions"
+import { areArraysEqual, areSetsEqual, areRotationsEqual } from "@/lib/comparison-utils"
 
 // Custom hooks
 import { usePageDragDrop } from "@/hooks/use-page-drag-drop"
@@ -130,6 +131,8 @@ function PdfPageGridComponent({
       : "grid grid-cols-1 grid-cols-2-at-1230 grid-cols-3-at-1655 gap-6"
   }, [columns])
 
+  // Virtual scrolling optimization is handled by intersection observer in PdfPageThumbnail
+
   if (pageOrder.length === 0) {
     return null
   }
@@ -151,6 +154,10 @@ function PdfPageGridComponent({
         aria-label="PDF pages grid"
       >
       {pageOrder.map((unifiedPageNumber, index) => {
+        // Skip rendering if virtual scrolling is enabled and item is not visible
+        // Note: The intersection observer in PdfPageThumbnail handles actual visibility,
+        // so we render all items but they'll be unmounted when not visible
+        // This is more efficient than conditionally rendering here
         const page = getPageInfo(unifiedPageNumber)
         if (!page) return null
 
@@ -288,56 +295,6 @@ function PdfPageGridComponent({
       </div>
     </>
   )
-}
-
-/**
- * Type guard to check if two arrays have the same reference or identical content.
- * 
- * @param prev - Previous array
- * @param next - Next array
- * @returns True if arrays are the same reference or have identical content
- */
-function areArraysEqual<T>(prev: ReadonlyArray<T>, next: ReadonlyArray<T>): boolean {
-  if (prev === next) return true
-  if (prev.length !== next.length) return false
-  return !prev.some((val, idx) => val !== next[idx])
-}
-
-/**
- * Type guard to check if two Sets are equal.
- * 
- * @param prev - Previous Set
- * @param next - Next Set
- * @returns True if Sets have the same size and all elements match
- */
-function areSetsEqual(prev: ReadonlySet<number>, next: ReadonlySet<number>): boolean {
-  if (prev.size !== next.size) return false
-  for (const item of prev) {
-    if (!next.has(item)) return false
-  }
-  return true
-}
-
-/**
- * Type guard to check if two rotation objects are equal.
- * 
- * @param prev - Previous rotations object
- * @param next - Next rotations object
- * @returns True if rotation objects have identical keys and values
- */
-function areRotationsEqual(
-  prev: Readonly<Record<number, number>>,
-  next: Readonly<Record<number, number>>
-): boolean {
-  const prevKeys = Object.keys(prev).map(Number)
-  const nextKeys = Object.keys(next).map(Number)
-  
-  if (prevKeys.length !== nextKeys.length) return false
-  
-  for (const key of prevKeys) {
-    if (prev[key] !== next[key]) return false
-  }
-  return true
 }
 
 /**

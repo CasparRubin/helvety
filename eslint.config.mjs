@@ -28,6 +28,21 @@ const eslintConfig = defineConfig([
           destructuredArrayIgnorePattern: "^_",
         },
       ],
+      // Code quality rules - warn level for gradual adoption
+      // Encourage explicit return types for better type safety and documentation
+      // Note: Other rules like prefer-readonly, prefer-nullish-coalescing, and
+      // prefer-optional-chain require type-aware linting which isn't configured
+      // in the current Next.js ESLint setup. These patterns are still encouraged
+      // in code reviews and can be enabled if type-aware linting is configured.
+      "@typescript-eslint/explicit-function-return-type": [
+        "warn",
+        {
+          allowExpressions: true,
+          allowTypedFunctionExpressions: true,
+          allowHigherOrderFunctions: true,
+          allowDirectConstAssertionInArrowFunctions: true,
+        },
+      ],
     },
   },
 ]);

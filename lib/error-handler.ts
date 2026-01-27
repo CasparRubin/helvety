@@ -146,7 +146,7 @@ export async function withErrorHandling<T>(
  * }
  * ```
  */
-function isErrorDefined(error: unknown): error is Error | string | object {
+export function isErrorDefined(error: unknown): error is Error | string | object {
   return error !== null && error !== undefined
 }
 
