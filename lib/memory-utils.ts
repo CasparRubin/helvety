@@ -92,42 +92,6 @@ export function isMemoryPressureHigh(threshold: number = 80): boolean | null {
 }
 
 /**
- * Gets available memory estimate (if available).
- * 
- * @returns Available memory in bytes or null if not available
- */
-export function getAvailableMemory(): number | null {
-  const memory = getMemoryInfo()
-  if (!memory?.jsHeapSizeLimit || !memory.usedJSHeapSize) {
-    return null
-  }
-
-  return memory.jsHeapSizeLimit - memory.usedJSHeapSize
-}
-
-/**
- * Checks if there's enough memory available for processing a file of given size.
- * Uses heuristics since exact memory requirements are hard to predict.
- * 
- * @param fileSizeBytes - Size of the file in bytes
- * @param safetyMultiplier - Multiplier for safety margin (default: 3x - PDFs need more memory than file size)
- * @returns True if likely enough memory, false if likely not enough, null if can't determine
- */
-export function hasEnoughMemory(
-  fileSizeBytes: number,
-  safetyMultiplier: number = 3
-): boolean | null {
-  const available = getAvailableMemory()
-  if (available === null) {
-    return null // Can't determine, let it try
-  }
-
-  // PDF processing typically needs 2-4x the file size in memory
-  const estimatedNeeded = fileSizeBytes * safetyMultiplier
-  return available >= estimatedNeeded
-}
-
-/**
  * Gets recommended cache limit based on available memory.
  * 
  * @param defaultLimit - Default cache limit
@@ -179,28 +143,6 @@ export function shouldYieldToBrowser(fileSizeBytes?: number): boolean {
   }
 
   return false
-}
-
-/**
- * Estimates memory usage of an ImageBitmap in bytes.
- * 
- * @param imageBitmap - The ImageBitmap to estimate
- * @returns Estimated memory size in bytes (width * height * 4 for RGBA)
- */
-export function estimateImageBitmapSize(imageBitmap: ImageBitmap): number {
-  return imageBitmap.width * imageBitmap.height * 4
-}
-
-/**
- * Gets total estimated memory usage from ImageBitmap cache.
- * 
- * @param cacheStats - Cache statistics from ImageBitmapCache.getStats()
- * @returns Total memory usage in bytes
- */
-export function getImageBitmapCacheMemoryUsage(cacheStats: {
-  memoryBytes: number
-}): number {
-  return cacheStats.memoryBytes
 }
 
 /**

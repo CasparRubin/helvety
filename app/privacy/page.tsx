@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText, Scale, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const metadata = {
   title: "Privacy Policy",
@@ -9,29 +10,20 @@ export const metadata = {
 
 export default function PrivacyPage(): React.JSX.Element {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-6">
-        <Link href="/">
-          <Button variant="ghost" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Button>
-        </Link>
-      </div>
-
-      <div className="prose prose-sm max-w-none dark:prose-invert">
+    <div className="w-full h-full flex flex-col lg:flex-row gap-4 container mx-auto overflow-hidden p-4">
+      {/* Main Content Area - Scrollable */}
+      <div className="flex-1 min-w-0 min-h-0 relative order-last lg:order-first">
+        <ScrollArea className="h-full w-full">
+          <div className="prose prose-sm max-w-none dark:prose-invert p-4">
         <div className="mb-8 p-4 border border-destructive/50 bg-destructive/5 rounded-lg">
           <h2 className="text-xl font-bold mb-4">Important Notice</h2>
-          <p className="mb-4">
-            <strong>This is an experimental service provided &quot;AS IS&quot; with NO WARRANTIES.</strong> By using this service, you acknowledge that you use it entirely at your own risk. Helvety assumes NO LIABILITY for data loss, security breaches, service interruptions, or any other damages. You are solely responsible for your data and its backups.
-          </p>
           <p className="mb-0">
-            ⚠️ <strong>YOU MUST READ THE COMPLETE PRIVACY POLICY BELOW TO USE THIS SERVICE.</strong> By using this service, you acknowledge that you have read, understood, and agree to be bound by all terms, disclaimers, and limitations set forth in the complete Privacy Policy.
+            <strong>This is an experimental service provided &quot;AS IS&quot; with NO WARRANTIES.</strong> By using this service, you acknowledge that you use it entirely at your own risk. Helvety assumes NO LIABILITY for data loss, security breaches, service interruptions, or any other damages. You are solely responsible for your data and its backups.
           </p>
         </div>
 
         <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
-        <p className="text-muted-foreground mb-8">Last updated: January 27, 2026</p>
+        <p className="text-muted-foreground mb-8">Last updated: January 30, 2026</p>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
@@ -44,7 +36,31 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">2. Client-Side Processing</h2>
+          <h2 className="text-2xl font-semibold mb-4">2. Data Controller</h2>
+          <p className="mb-2">
+            The data controller responsible for this Service is:
+          </p>
+          <div className="pl-4 mb-2">
+            <p className="mb-1"><strong>Helvety by Rubin</strong></p>
+            <p className="mb-1">Holeestrasse 116</p>
+            <p className="mb-1">4054 Basel, Switzerland</p>
+            <p className="mb-1">
+              Email:{" "}
+              <a href="mailto:contact@helvety.com" className="text-primary hover:underline">
+                contact@helvety.com
+              </a>
+            </p>
+          </div>
+          <p>
+            For complete company information, please refer to our{" "}
+            <a href="https://helvety.com/legal-notice" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              Legal Notice (Impressum)
+            </a>.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">3. Client-Side Processing</h2>
           <p className="mb-2">
             <strong>All file processing happens entirely in your browser on your device.</strong> The Service is designed to operate as a client-side application, meaning:
           </p>
@@ -62,7 +78,7 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">3. Information We Do NOT Collect</h2>
+          <h2 className="text-2xl font-semibold mb-4">4. Information We Do NOT Collect</h2>
           <p className="mb-2">The Service is designed with privacy in mind. We do NOT collect, store, transmit, or analyze:</p>
           <ul className="list-disc pl-6 mb-2">
             <li>Any PDF files or images you upload</li>
@@ -89,7 +105,7 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">4. NO WARRANTIES REGARDING PRIVACY OR DATA PROTECTION</h2>
+          <h2 className="text-2xl font-semibold mb-4">5. NO WARRANTIES REGARDING PRIVACY OR DATA PROTECTION</h2>
           <p className="font-semibold mb-2">
             HELVETY MAKES NO WARRANTIES, REPRESENTATIONS, OR GUARANTEES REGARDING THE PRIVACY, SECURITY, CONFIDENTIALITY, OR PROTECTION OF YOUR DATA, INFORMATION, OR CONTENT.
           </p>
@@ -108,7 +124,7 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">5. Third-Party Services and Dependencies</h2>
+          <h2 className="text-2xl font-semibold mb-4">6. Third-Party Services and Dependencies</h2>
           <p className="mb-2">
             The Service may use, integrate with, or depend on third-party services, technologies, or infrastructure, including but not limited to:
           </p>
@@ -148,7 +164,38 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">6. Browser Storage and Local Data</h2>
+          <h2 className="text-2xl font-semibold mb-4">7. International Data Transfers</h2>
+          <p className="mb-2">
+            While the Service is designed to process files locally in your browser, connection metadata and related data may be transferred internationally through our hosting infrastructure.
+          </p>
+          <p className="mb-2 font-semibold">
+            Transfers to the United States:
+          </p>
+          <p className="mb-2">
+            Vercel, Inc. is a company based in the United States. Although our Vercel deployment is configured with geolocation set to Switzerland, certain data (such as IP addresses, request logs, and connection metadata) may be processed or stored in the United States or other countries where Vercel operates infrastructure.
+          </p>
+          <p className="mb-2 font-semibold">
+            Safeguards for International Transfers:
+          </p>
+          <ul className="list-disc pl-6 mb-2">
+            <li>Vercel is certified under the EU-US Data Privacy Framework (DPF), which provides a mechanism for lawful data transfers from the EU, UK, and Switzerland to the United States</li>
+            <li>Vercel utilizes EU Standard Contractual Clauses (SCCs) and the UK Addendum as additional transfer mechanisms</li>
+            <li>Vercel maintains ISO 27001:2022 certification and SOC 2 Type 2 attestation</li>
+          </ul>
+          <p>
+            For more information about Vercel&apos;s data protection practices, please refer to{" "}
+            <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              Vercel&apos;s Privacy Policy
+            </a>{" "}
+            and{" "}
+            <a href="https://vercel.com/legal/dpa" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              Data Processing Agreement
+            </a>.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">8. Browser Storage and Local Data</h2>
           <p className="mb-2">
             The Service may use browser storage mechanisms (such as localStorage) to maintain minimal UI preferences, such as your preferred column layout setting. <strong>No personal data, emails, names, or user information is stored.</strong>
           </p>
@@ -170,7 +217,7 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">7. Experimental Nature and No Guarantees</h2>
+          <h2 className="text-2xl font-semibold mb-4">9. Experimental Nature and No Guarantees</h2>
           <p className="font-semibold mb-2">
             THE SERVICE IS PROVIDED IN AN EXPERIMENTAL AND ALPHA STAGE.
           </p>
@@ -183,7 +230,7 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">8. LIMITATION OF LIABILITY</h2>
+          <h2 className="text-2xl font-semibold mb-4">10. LIMITATION OF LIABILITY</h2>
           <p className="font-semibold mb-2">
             TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, HELVETY SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES ARISING FROM OR RELATED TO:
           </p>
@@ -202,7 +249,39 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">9. Your Responsibilities</h2>
+          <h2 className="text-2xl font-semibold mb-4">11. Your Rights Under Swiss Law</h2>
+          <p className="mb-2">
+            Under the Swiss Federal Act on Data Protection (FADP), you have the following rights regarding your personal data:
+          </p>
+          <ul className="list-disc pl-6 mb-2">
+            <li><strong>Right of Access:</strong> You have the right to request information about whether we process your personal data and, if so, what data we hold about you.</li>
+            <li><strong>Right to Rectification:</strong> You have the right to request correction of inaccurate personal data concerning you.</li>
+            <li><strong>Right to Deletion:</strong> You have the right to request deletion or destruction of your personal data under certain circumstances.</li>
+            <li><strong>Right to Data Portability:</strong> You have the right to receive your personal data in a commonly used, machine-readable format.</li>
+            <li><strong>Right to Object:</strong> You have the right to object to the processing of your personal data under certain circumstances.</li>
+          </ul>
+          <p className="mb-2">
+            <strong>How to Exercise Your Rights:</strong> Since the Service does not collect, store, or process personal data (all file processing occurs locally in your browser), there is typically no personal data held by Helvety to access, rectify, or delete. However, if you believe we hold any personal data about you or wish to exercise any of these rights, please contact us at{" "}
+            <a href="mailto:contact@helvety.com" className="text-primary hover:underline">
+              contact@helvety.com
+            </a>.
+          </p>
+          <p className="mb-2">
+            <strong>For localStorage data:</strong> You can clear any locally stored preferences (such as column layout settings) directly through your browser settings by clearing site data for this website.
+          </p>
+          <p className="mb-2 font-semibold">
+            Right to Lodge a Complaint:
+          </p>
+          <p>
+            If you believe that the processing of your personal data violates the Swiss Federal Act on Data Protection, you have the right to lodge a complaint with the Swiss Federal Data Protection and Information Commissioner (FDPIC):{" "}
+            <a href="https://www.edoeb.admin.ch" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              www.edoeb.admin.ch
+            </a>
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">12. Your Responsibilities</h2>
           <p className="font-semibold mb-2">YOU ARE SOLELY RESPONSIBLE FOR YOUR USE OF THE SERVICE AND ALL RISKS ASSOCIATED THEREWITH.</p>
           <p className="mb-2">You acknowledge and agree that:</p>
           <ul className="list-disc pl-6 mb-2">
@@ -217,7 +296,7 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">10. Open Source and Transparency</h2>
+          <h2 className="text-2xl font-semibold mb-4">13. Open Source and Transparency</h2>
           <p className="mb-2">
             The Service is open source, and the source code is publicly available. You can review the source code to understand how the Service works and verify our privacy and security claims. However, you acknowledge that:
           </p>
@@ -230,7 +309,7 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">11. Changes to This Privacy Policy</h2>
+          <h2 className="text-2xl font-semibold mb-4">14. Changes to This Privacy Policy</h2>
           <p className="mb-2">
             Helvety reserves the right to modify this Privacy Policy at any time, in its sole discretion, without prior notice. Your continued use of the Service after any such modifications constitutes your acceptance of the modified Privacy Policy.
           </p>
@@ -240,21 +319,21 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">12. No Legal Advice</h2>
+          <h2 className="text-2xl font-semibold mb-4">15. No Legal Advice</h2>
           <p>
             This Privacy Policy is provided for informational purposes only and does not constitute legal advice. You should consult with a qualified legal professional if you have questions about privacy laws, data protection regulations, or your rights and obligations regarding data privacy.
           </p>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">13. Governing Law</h2>
+          <h2 className="text-2xl font-semibold mb-4">16. Governing Law</h2>
           <p>
             This Privacy Policy shall be governed by and construed in accordance with the laws of Switzerland, without regard to its conflict of law provisions. However, you acknowledge that privacy laws may vary by jurisdiction, and Helvety makes no guarantees regarding compliance with any specific privacy laws or regulations.
           </p>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">14. Contact Information</h2>
+          <h2 className="text-2xl font-semibold mb-4">17. Contact Information</h2>
           <p className="mb-2">
             If you have any questions about this Privacy Policy, please contact us at:{" "}
             <a href="mailto:contact@helvety.com" className="text-primary hover:underline">
@@ -267,7 +346,7 @@ export default function PrivacyPage(): React.JSX.Element {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">15. Acknowledgment</h2>
+          <h2 className="text-2xl font-semibold mb-4">18. Acknowledgment</h2>
           <p className="font-semibold">
             BY USING THE SERVICE, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY ALL TERMS AND CONDITIONS SET FORTH IN THIS PRIVACY POLICY, INCLUDING ALL DISCLAIMERS, LIMITATIONS OF LIABILITY, AND WAIVERS OF RIGHTS.
           </p>
@@ -276,16 +355,78 @@ export default function PrivacyPage(): React.JSX.Element {
           </p>
         </section>
 
-        <div className="mt-8 pt-8 border-t">
-          <Link href="/terms" className="text-primary hover:underline">
-            Terms of Service
-          </Link>
-          <span className="mx-2">•</span>
-          <Link href="/" className="text-primary hover:underline">
-            Back to Home
-          </Link>
-        </div>
+          </div>
+        </ScrollArea>
       </div>
+
+      {/* Navigation Panel - Fixed */}
+      <aside className="order-first lg:order-last flex-shrink-0">
+        {/* Mobile: Horizontal compact bar */}
+        <div className="lg:hidden w-full bg-muted/30 border border-border/50 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <Link href="/">
+              <Button variant="outline" size="default">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to App
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/terms">
+                <Button variant="ghost" size="default">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Terms
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop: Vertical panel */}
+        <div className="hidden lg:flex w-80 flex-shrink-0 flex-col gap-6 h-full max-h-full">
+          <div className="bg-muted/30 border border-border/50 p-6 flex flex-col gap-6">
+            {/* Navigation */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Navigation</h3>
+              <div className="space-y-2">
+                <Link href="/" className="block">
+                  <Button variant="default" className="w-full" size="lg">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to App
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Legal</h3>
+              <div className="space-y-2">
+                <Link href="/terms" className="block">
+                  <Button variant="outline" className="w-full justify-start" size="lg">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Terms of Service
+                  </Button>
+                </Link>
+                <div className="flex items-center gap-2 p-2 rounded-md border border-primary bg-primary/10">
+                  <Scale className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">Privacy Policy</span>
+                </div>
+                <a
+                  href="https://helvety.com/legal-notice"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Button variant="outline" className="w-full justify-start" size="lg">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Helvety Legal Notice
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }

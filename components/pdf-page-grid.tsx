@@ -167,8 +167,13 @@ function PdfPageGridComponent({
         const fileInfo = getFileInfo(page.fileId)
         if (!fileInfo) return null
         const isDeleted = deletedPages.has(unifiedPageNumber)
-        const rotation = pageRotations[unifiedPageNumber] || 0
-        const hasRotation = rotation !== 0
+        // Get inherent rotation from PDF metadata and user-applied rotation
+        const inherentRotation = fileInfo.inherentRotations?.[page.originalPageNumber] ?? 0
+        const userRotation = pageRotations[unifiedPageNumber] ?? 0
+        // Combine inherent + user rotation for display (react-pdf's rotate prop replaces inherent rotation)
+        const effectiveRotation = (inherentRotation + userRotation) % 360
+        // User has rotated if they've applied any rotation different from 0
+        const hasUserRotation = userRotation !== 0
         const finalPageNumber = getFinalPageNumber(unifiedPageNumber)
 
         // Create actions using utility function
@@ -177,8 +182,8 @@ function PdfPageGridComponent({
           unifiedPageNumber,
           totalPages: pageOrder.length,
           isDeleted,
-          hasRotation,
-          rotation,
+          hasRotation: hasUserRotation,
+          rotation: userRotation,
           isProcessing,
           onMoveUp: handleMoveUp,
           onMoveDown: handleMoveDown,
@@ -197,7 +202,7 @@ function PdfPageGridComponent({
           : undefined
 
         const pageDescriptionId = `page-${unifiedPageNumber}-description`
-        const pageLabel = `Page ${unifiedPageNumber}${fileInfo.file.name ? ` from ${fileInfo.file.name}` : ''}${isDeleted ? ' (deleted)' : ''}${hasRotation ? ` (rotated ${rotation}°)` : ''}. Use arrow keys to move page up, down, left, or right. Press Tab to access action buttons.`
+        const pageLabel = `Page ${unifiedPageNumber}${fileInfo.file.name ? ` from ${fileInfo.file.name}` : ''}${isDeleted ? ' (deleted)' : ''}${hasUserRotation ? ` (rotated ${userRotation}°)` : ''}. Use arrow keys to move page up, down, left, or right. Press Tab to access action buttons.`
 
         return (
           <article
@@ -263,7 +268,7 @@ function PdfPageGridComponent({
               <PdfPageThumbnail
                 fileUrl={fileUrl}
                 pageNumber={page.originalPageNumber}
-                rotation={rotation}
+                rotation={effectiveRotation}
                 pdfColor={fileInfo.color}
                 pdfFileName={fileInfo.file.name}
                 finalPageNumber={finalPageNumber}
@@ -271,7 +276,7 @@ function PdfPageGridComponent({
                 totalPages={pageOrder.length}
               />
               <div id={pageDescriptionId} className="sr-only">
-                {`Page ${page.originalPageNumber} of ${fileInfo.file.name}. ${isDeleted ? 'Marked for deletion. ' : ''}${hasRotation ? `Rotated ${rotation} degrees. ` : ''}${finalPageNumber !== null ? `Will be page ${finalPageNumber} in final PDF.` : ''}`}
+                {`Page ${page.originalPageNumber} of ${fileInfo.file.name}. ${isDeleted ? 'Marked for deletion. ' : ''}${hasUserRotation ? `Rotated ${userRotation} degrees. ` : ''}${finalPageNumber !== null ? `Will be page ${finalPageNumber} in final PDF.` : ''}`}
               </div>
               <div className="mt-2 flex flex-wrap justify-center gap-1" aria-hidden="true">
                 {isDeleted && (
@@ -279,9 +284,9 @@ function PdfPageGridComponent({
                     Deleted
                   </Badge>
                 )}
-                {hasRotation && (
+                {hasUserRotation && (
                   <Badge variant="default" className="text-xs">
-                    {rotation}°
+                    {userRotation}°
                   </Badge>
                 )}
               </div>

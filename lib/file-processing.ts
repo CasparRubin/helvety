@@ -152,7 +152,7 @@ export async function processFile(
       await yieldToBrowser(yieldInterval)
     }
 
-    const { pdf, url: previewUrl, fileType } = await loadFileWithPreview(file, isPdf)
+    const { pdf, url: previewUrl, fileType, inherentRotations } = await loadFileWithPreview(file, isPdf)
     url = previewUrl
 
     if (!url) {
@@ -187,6 +187,8 @@ export async function processFile(
       pageCount: count,
       color,
       type: fileType,
+      // Only include inherentRotations if there are any non-zero rotations
+      ...(Object.keys(inherentRotations).length > 0 && { inherentRotations }),
     }
 
     url = null

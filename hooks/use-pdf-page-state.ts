@@ -92,7 +92,9 @@ export function usePdfPageState(pageOrder: ReadonlyArray<number>): UsePdfPageSta
     []
   )
 
-  // Reset rotation for a specific page
+  // Reset user-applied rotation for a specific page
+  // After reset, the page will display at its inherent rotation (from PDF metadata)
+  // since effectiveRotation = inherentRotation + userRotation and userRotation becomes 0
   const resetRotation = React.useCallback(
     (unifiedPageNumber: number, onError: (error: string | null) => void): void => {
       setPageRotations((prev) => {
@@ -105,7 +107,8 @@ export function usePdfPageState(pageOrder: ReadonlyArray<number>): UsePdfPageSta
     []
   )
 
-  // Reset all page state (deletions and rotations)
+  // Reset all page state (deletions and user-applied rotations)
+  // After reset, all pages will display at their inherent rotations (from PDF metadata)
   const resetAll = React.useCallback((onError: (error: string | null) => void): void => {
     setDeletedPages(new Set())
     setPageRotations({})

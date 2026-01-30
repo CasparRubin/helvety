@@ -4,11 +4,12 @@
 import * as React from "react"
 
 // External libraries
-import { Upload, AlertCircle, X } from "lucide-react"
+import { Upload } from "lucide-react"
 
 // Internal components
 import { PdfPageGrid } from "@/components/pdf-page-grid"
 import { PdfToolkit } from "@/components/pdf-toolkit"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 // Internal utilities
 import { cn } from "@/lib/utils"
@@ -140,9 +141,10 @@ export function HelvetyPdf(): React.JSX.Element {
   return (
     <div 
       className={cn(
-        "w-full min-h-screen py-4 md:py-6 lg:py-8",
-        "flex flex-col lg:flex-row gap-6",
-        "container mx-auto px-4"
+        "w-full h-full",
+        "flex flex-col lg:flex-row gap-4",
+        "container mx-auto overflow-hidden",
+        "p-4"
       )}
       onDragEnter={dragDrop.handleDragEnter}
       onDragOver={dragDrop.handleDragOver}
@@ -151,125 +153,106 @@ export function HelvetyPdf(): React.JSX.Element {
       role="region"
       aria-label="PDF toolkit workspace"
     >
-      {/* Main Canvas Area */}
+      {/* Main Canvas Area - Scrollable */}
       <div className={cn(
-        "flex-1 w-full",
-        "relative"
+        "flex-1 min-w-0 min-h-0",
+        "relative",
+        "order-last lg:order-first"
       )}>
-        {/* Unified Drag and Drop Zone / Canvas */}
-        <section
-          className={cn(
-            "relative w-full min-h-[400px] transition-colors",
-            dragDrop.isDragging
-              ? "border-2 border-dashed border-primary bg-primary/5"
-              : pdfFiles.length === 0
-              ? "border-2 border-dashed border-border cursor-pointer"
-              : "border-0"
-          )}
-          onClick={handleEmptyZoneClick}
-          aria-label={pdfFiles.length === 0 ? "File drop zone and page canvas. Click to select files." : "File drop zone and page canvas"}
-          aria-live="polite"
-          aria-describedby="drop-zone-description"
-        >
-          <span id="drop-zone-description" className="sr-only">
-            {pdfFiles.length === 0 
-              ? "Drag and drop PDF files or images here, click to select files, or use the upload button in the toolbar to add files."
-              : `Drag and drop PDF files or images here, or use the upload button in the toolbar to add files. Currently displaying ${pageOrder.length} page${pageOrder.length !== 1 ? 's' : ''}.`}
-          </span>
-          {/* Empty State - Drag and Drop Zone */}
-          {pdfFiles.length === 0 && (
-            <div className={cn(
-              "absolute inset-0 flex flex-col items-center justify-center gap-4 p-12"
-            )}>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <Upload className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
-                <div>
-                  <p className="text-sm font-medium" role="heading" aria-level={2}>
-                    Drag and drop PDF files or images here
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Or use the panel {columns === 1 ? "on the top" : "on the right"} to add your files
-                  </p>
+        <ScrollArea className="h-full w-full">
+          {/* Unified Drag and Drop Zone / Canvas */}
+          <section
+            className={cn(
+              "relative w-full min-h-[calc(100dvh-6rem)] transition-colors",
+              dragDrop.isDragging
+                ? "border-2 border-dashed border-primary bg-primary/5"
+                : pdfFiles.length === 0
+                ? "border-2 border-dashed border-border cursor-pointer"
+                : "border-0"
+            )}
+            onClick={handleEmptyZoneClick}
+            aria-label={pdfFiles.length === 0 ? "File drop zone and page canvas. Click to select files." : "File drop zone and page canvas"}
+            aria-live="polite"
+            aria-describedby="drop-zone-description"
+          >
+            <span id="drop-zone-description" className="sr-only">
+              {pdfFiles.length === 0 
+                ? "Drag and drop PDF files or images here, click to select files, or use the upload button in the toolbar to add files."
+                : `Drag and drop PDF files or images here, or use the upload button in the toolbar to add files. Currently displaying ${pageOrder.length} page${pageOrder.length !== 1 ? 's' : ''}.`}
+            </span>
+            {/* Empty State - Drag and Drop Zone */}
+            {pdfFiles.length === 0 && (
+              <div className={cn(
+                "absolute inset-0 flex flex-col items-center justify-center gap-4 p-12"
+              )}>
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <Upload className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
+                  <div>
+                    <p className="text-sm font-medium" role="heading" aria-level={2}>
+                      Drag and drop PDF files or images here
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Or use the panel {columns === 1 ? "on the top" : "on the right"} to add your files
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Pages Grid - displays PDF pages and images */}
-          {pdfFiles.length > 0 && unifiedPages.length > 0 && (
-            <PdfPageGrid
-              pdfFiles={pdfFiles}
-              unifiedPages={unifiedPages}
-              pageOrder={pageOrder}
-              deletedPages={pageState.deletedPages}
-              pageRotations={pageState.pageRotations}
-              onReorder={setPageOrder}
-              onToggleDelete={handleToggleDelete}
-              onRotate={handleRotatePage}
-              onResetRotation={handleResetRotation}
-              onExtract={pdfProcessing.extractPage}
-              isProcessing={isProcessing}
-              columns={columns}
+            {/* Pages Grid - displays PDF pages and images */}
+            {pdfFiles.length > 0 && unifiedPages.length > 0 && (
+              <PdfPageGrid
+                pdfFiles={pdfFiles}
+                unifiedPages={unifiedPages}
+                pageOrder={pageOrder}
+                deletedPages={pageState.deletedPages}
+                pageRotations={pageState.pageRotations}
+                onReorder={setPageOrder}
+                onToggleDelete={handleToggleDelete}
+                onRotate={handleRotatePage}
+                onResetRotation={handleResetRotation}
+                onExtract={pdfProcessing.extractPage}
+                isProcessing={isProcessing}
+                columns={columns}
+              />
+            )}
+
+            {/* Hidden File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf,image/*"
+              multiple
+              onChange={handleFileInput}
+              className="hidden"
+              aria-label="Upload PDF files or images"
+              aria-describedby="file-input-description"
             />
-          )}
-
-          {/* Hidden File Input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/pdf,image/*"
-            multiple
-            onChange={handleFileInput}
-            className="hidden"
-            aria-label="Upload PDF files or images"
-            aria-describedby="file-input-description"
-          />
-          <span id="file-input-description" className="sr-only">
-            Select PDF files or images to add to the workspace. Supports multiple file selection.
-          </span>
-        </section>
-
-        {/* Error Message */}
-        {errorHandler.error && (
-          <div 
-            role="alert"
-            className="mt-4 rounded-md bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 text-sm flex items-start gap-3"
-          >
-            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" aria-hidden="true" />
-            <div className="flex-1 min-w-0">
-              {errorHandler.error.includes('\n') ? (
-                <div className="whitespace-pre-line">{errorHandler.error}</div>
-              ) : (
-                <p>{errorHandler.error}</p>
-              )}
-            </div>
-            <button
-              onClick={errorHandler.dismissError}
-              className="flex-shrink-0 rounded-sm opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2 transition-opacity"
-              aria-label="Dismiss error"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
+            <span id="file-input-description" className="sr-only">
+              Select PDF files or images to add to the workspace. Supports multiple file selection.
+            </span>
+          </section>
+        </ScrollArea>
       </div>
 
-      {/* Toolkit Panel - Always Visible */}
-      <aside aria-label="PDF toolkit controls">
+      {/* Toolkit Panel - Non-scrolling, always visible */}
+      <aside 
+        aria-label="PDF toolkit controls" 
+        className="order-first lg:order-last flex-shrink-0"
+      >
         <PdfToolkit
-        pdfFiles={pdfFiles}
-        totalPages={pageOrder.length}
-        deletedCount={pageState.deletedCount}
-        rotatedCount={pageState.rotatedCount}
-        onDownload={pdfProcessing.downloadMerged}
-        onClearAll={handleClearAll}
-        onRemoveFile={handleRemoveFile}
-        onAddFiles={() => fileInputRef.current?.click()}
-        isProcessing={isProcessing}
-        columns={columns}
-        onColumnsChange={handleColumnsChange}
-      />
+          pdfFiles={pdfFiles}
+          totalPages={pageOrder.length}
+          deletedCount={pageState.deletedCount}
+          rotatedCount={pageState.rotatedCount}
+          onDownload={pdfProcessing.downloadMerged}
+          onClearAll={handleClearAll}
+          onRemoveFile={handleRemoveFile}
+          onAddFiles={() => fileInputRef.current?.click()}
+          isProcessing={isProcessing}
+          columns={columns}
+          onColumnsChange={handleColumnsChange}
+        />
       </aside>
     </div>
   )

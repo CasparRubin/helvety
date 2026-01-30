@@ -6,10 +6,9 @@ import * as React from "react"
 // Next.js
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 
 // External libraries
-import { Github, Info } from "lucide-react"
+import { Github, Info, FileText, Scale, Building2 } from "lucide-react"
 
 // Internal components
 import { ThemeSwitcher } from "@/components/theme-switcher"
@@ -20,8 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
 import {
   Tooltip,
   TooltipContent,
@@ -31,31 +28,12 @@ import {
 import { Separator } from "@/components/ui/separator"
 
 export function Navbar(): React.JSX.Element {
-  const pathname = usePathname()
-  const [isAboutOpen, setIsAboutOpen] = React.useState(true)
-  const [hasAcknowledged, setHasAcknowledged] = React.useState(false)
+  const [isAboutOpen, setIsAboutOpen] = React.useState(false)
   const versionString = process.env.NEXT_PUBLIC_BUILD_VERSION ?? "v.0.000000.0000 - Experimental"
 
-  // Only show dialog on main page, not on terms/privacy pages
-  const shouldShowDialog = pathname === "/"
-
-  // Ensure dialog opens on every page load/refresh (only on main page)
-  React.useEffect(() => {
-    if (shouldShowDialog) {
-      setIsAboutOpen(true)
-      setHasAcknowledged(false)
-    } else {
-      setIsAboutOpen(false)
-    }
-  }, [shouldShowDialog])
-
-  // Handle dialog open change - only allow opening, prevent closing via outside click or ESC
+  // Handle dialog open change - allow normal opening and closing
   const handleOpenChange = React.useCallback((open: boolean) => {
-    // Only allow opening, ignore attempts to close
-    if (open) {
-      setIsAboutOpen(true)
-    }
-    // If open is false, do nothing - this prevents closing via outside click or ESC
+    setIsAboutOpen(open)
   }, [])
 
   return (
@@ -118,6 +96,27 @@ export function Navbar(): React.JSX.Element {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <a
+                    href="https://helvety.com/legal-notice"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Legal Notice (Impressum)"
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9"
+                    >
+                      <Building2 className="h-4 w-4" />
+                    </Button>
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Legal Notice</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a
                     href="https://github.com/CasparRubin/helvety-pdf"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -142,70 +141,72 @@ export function Navbar(): React.JSX.Element {
         </div>
       </nav>
 
-      <Dialog open={isAboutOpen && shouldShowDialog} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-xl max-h-[70vh] overflow-y-auto [&>button]:hidden">
+      <Dialog open={isAboutOpen} onOpenChange={handleOpenChange}>
+        <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-xl max-h-[70vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>About</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <div className="text-sm text-muted-foreground">
-              <ul className="list-disc pl-5 space-y-1">
+          <div className="space-y-6 pt-4">
+            {/* How It Works */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">How It Works</h3>
+              <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
                 <li>All processing happens in your browser</li>
                 <li>Performance depends on your device</li>
                 <li>Large datasets or filesizes might crash the app</li>
               </ul>
             </div>
-            <div className="flex flex-col gap-3 pt-3 border-t">
-              <div className="flex items-center gap-3 text-sm">
+
+            {/* Legal */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Legal</h3>
+              <div className="space-y-2">
                 <Link
                   href="/terms"
-                  className="text-primary hover:underline"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={() => setIsAboutOpen(false)}
+                  className="flex items-start gap-3 p-3 rounded-md border border-border hover:bg-muted/50 transition-colors"
                 >
-                  Terms
+                  <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium">Terms of Service</p>
+                    <p className="text-xs text-muted-foreground">Usage terms, disclaimers, and limitations</p>
+                  </div>
                 </Link>
-                <span className="text-muted-foreground">•</span>
                 <Link
                   href="/privacy"
-                  className="text-primary hover:underline"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={() => setIsAboutOpen(false)}
+                  className="flex items-start gap-3 p-3 rounded-md border border-border hover:bg-muted/50 transition-colors"
                 >
-                  Privacy Policy
+                  <Scale className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium">Privacy Policy</p>
+                    <p className="text-xs text-muted-foreground">How your data is handled and protected</p>
+                  </div>
                 </Link>
-                <span className="text-muted-foreground">•</span>
                 <a
-                  href="https://github.com/CasparRubin/helvety-pdf"
+                  href="https://helvety.com/legal-notice"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={() => setIsAboutOpen(false)}
+                  className="flex items-start gap-3 p-3 rounded-md border border-border hover:bg-muted/50 transition-colors"
                 >
-                  GitHub
+                  <Building2 className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium">Legal Notice</p>
+                    <p className="text-xs text-muted-foreground">Company information and contact details</p>
+                  </div>
                 </a>
               </div>
-              <div className="flex items-start gap-2">
-                <Checkbox
-                  id="acknowledge-terms"
-                  checked={hasAcknowledged}
-                  onCheckedChange={(checked) => setHasAcknowledged(checked === true)}
-                  className="mt-0.5"
-                />
-                <Label
-                  htmlFor="acknowledge-terms"
-                  className="text-sm font-normal cursor-pointer flex-1"
-                >
-                  I have read and understood the Terms and Privacy Policy
-                </Label>
-              </div>
-              <div className="flex justify-end">
-                <Button 
-                  variant="default"
-                  onClick={() => setIsAboutOpen(false)}
-                  disabled={!hasAcknowledged}
-                >
-                  Access App
-                </Button>
-              </div>
+            </div>
+
+            {/* Close Button */}
+            <div className="flex justify-end pt-2">
+              <Button 
+                variant="default"
+                onClick={() => setIsAboutOpen(false)}
+              >
+                Close
+              </Button>
             </div>
           </div>
         </DialogContent>

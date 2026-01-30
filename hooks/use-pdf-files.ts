@@ -7,7 +7,7 @@ import type { PDFDocument } from "pdf-lib"
 // Internal utilities
 import { convertImageToPdf } from "@/lib/pdf-conversion"
 import { loadPdfFromFile } from "@/lib/pdf-loading"
-import { validateFiles } from "@/lib/validation-utils"
+import { validateFiles, generateUniqueFileName } from "@/lib/validation-utils"
 import { formatValidationErrors } from "@/lib/error-formatting"
 import { processFile } from "@/lib/file-processing"
 import { safeRevokeObjectURL } from "@/lib/blob-url-utils"
@@ -275,10 +275,21 @@ export function usePdfFiles(): UsePdfFilesReturn {
     // Process all files and collect results
     const pdfFilesToAdd: PdfFile[] = []
     const validationErrors: string[] = []
+    // Track names used in this batch to handle duplicates within the same upload
+    const usedNamesInBatch = new Set<string>()
 
     for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i]
+      let file = fileArray[i]
       const fileIndex = currentPdfFiles.length + pdfFilesToAdd.length
+
+      // Generate unique filename if this is a duplicate
+      const uniqueName = generateUniqueFileName(file.name, currentPdfFiles, usedNamesInBatch)
+      if (uniqueName !== file.name) {
+        // Create a new File object with the unique name
+        file = new File([file], uniqueName, { type: file.type })
+        logger.log(`Renamed duplicate file '${fileArray[i].name}' to '${uniqueName}'`)
+      }
+      usedNamesInBatch.add(uniqueName)
 
       // Yield to browser before processing (important for large files and mobile)
       await yieldToBrowserIfNeeded(file.size, isMobile, i > 0)

@@ -16,6 +16,8 @@ export interface PdfFile {
   readonly pageCount: number
   readonly color: string
   readonly type: 'pdf' | 'image'
+  /** Maps original page number (1-based) to inherent rotation angle from PDF metadata */
+  readonly inherentRotations?: Readonly<Record<number, number>>
 }
 
 /**

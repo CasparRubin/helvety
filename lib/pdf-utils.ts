@@ -3,31 +3,17 @@
  * Re-exports functions from specialized modules for backward compatibility.
  */
 
-import { loadPdfFromFile } from "./pdf-loading"
+import { loadPdfFromFile, getPageRotations } from "./pdf-loading"
 import { convertImageToPdf } from "./pdf-conversion"
-import type { PdfFile } from "./types"
-
-/**
- * Determines the file type from a File object or PdfFile.
- * 
- * @param file - The File object to check
- * @param pdfFile - Optional PdfFile object that may already have type information
- * @returns 'pdf' if the file is a PDF, 'image' otherwise
- */
-export function getFileType(file: File, pdfFile?: PdfFile | null): 'pdf' | 'image' {
-  if (pdfFile?.type) {
-    return pdfFile.type
-  }
-  return file.type === 'application/pdf' ? 'pdf' : 'image'
-}
 
 /**
  * Loads a file (PDF or image) and creates a blob URL for preview.
  * For images, converts them to PDF. For PDFs, loads them directly.
+ * Also extracts inherent page rotations from PDF metadata.
  * 
  * @param file - The file to load (PDF or image)
  * @param isPdf - Whether the file is a PDF (true) or image (false)
- * @returns Promise that resolves to an object containing the PDF document, blob URL, and file type
+ * @returns Promise that resolves to an object containing the PDF document, blob URL, file type, and inherent rotations
  * @throws Error if the file cannot be loaded or converted
  */
 export async function loadFileWithPreview(
@@ -37,27 +23,33 @@ export async function loadFileWithPreview(
   pdf: Awaited<ReturnType<typeof loadPdfFromFile>>
   url: string
   fileType: 'pdf' | 'image'
+  inherentRotations: Record<number, number>
 }> {
   let pdf: Awaited<ReturnType<typeof loadPdfFromFile>>
   let fileType: 'pdf' | 'image'
   let blob: Blob
+  let inherentRotations: Record<number, number> = {}
 
   if (isPdf) {
     blob = new Blob([file], { type: "application/pdf" })
     pdf = await loadPdfFromFile(file)
     fileType = 'pdf'
+    // Extract inherent rotations from PDF pages
+    inherentRotations = getPageRotations(pdf)
   } else {
     blob = new Blob([file], { type: file.type })
     pdf = await convertImageToPdf(file)
     fileType = 'image'
+    // Images converted to PDF have no inherent rotation
+    inherentRotations = {}
   }
 
   const url = URL.createObjectURL(blob)
 
-  return { pdf, url, fileType }
+  return { pdf, url, fileType, inherentRotations }
 }
 
 // Re-export functions from specialized modules for backward compatibility
-export { loadPdfFromFile } from "./pdf-loading"
+export { loadPdfFromFile, getPageRotations } from "./pdf-loading"
 export { convertImageToPdf } from "./pdf-conversion"
 export { extractPageFromPdf } from "./pdf-extraction"

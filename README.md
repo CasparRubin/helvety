@@ -1,11 +1,13 @@
 # Helvety PDF
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.5-black?style=flat-square&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=flat-square&logo=typescript)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
 ## Screenshots
+
+### Desktop
 
 **Dark Mode**
 ![Upload interface in dark mode](./public/screenshots/1%20-%20Dark%20mode.png)
@@ -13,11 +15,22 @@
 **Light Mode**
 ![Upload interface in light mode](./public/screenshots/2%20-%20Light%20mode.png)
 
-**Editor - Delete, Sort & Rotate**
-![PDF editor showing page thumbnails with delete, sort, and rotate controls](./public/screenshots/3%20-%20Editor%20-%20Delete%20Sort%20Rotate.png)
+**Dark Mode - Functionality**
+![PDF editor showing page thumbnails with editing controls in dark mode](./public/screenshots/5%20-%20Dark%20mode%20Functionality.png)
 
-**Pages per Row Slider**
-![Customizable grid layout with pages per row slider](./public/screenshots/4%20-%20Pages%20per%20Row%20Slider.png)
+**Light Mode - Functionality**
+![PDF editor showing page thumbnails with editing controls in light mode](./public/screenshots/6%20-%20Light%20mode%20Functionality.png)
+
+### Mobile
+
+**Dark Mode Mobile**
+![Mobile upload interface in dark mode](./public/screenshots/3%20-%20Dark%20mode%20mobile.png)
+
+**Light Mode Mobile**
+![Mobile upload interface in light mode](./public/screenshots/4%20-%20Light%20mode%20mobile.png)
+
+**Dark Mode Mobile - Functionality**
+![Mobile PDF editor showing page thumbnails with editing controls](./public/screenshots/7%20-%20Dark%20mode%20Mobile%20Functionality.png)
 
 A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images with client-side processing (hosting provider may collect connection metadata). All file processing happens entirely in your browser.
 
@@ -49,7 +62,7 @@ A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract 
 
 This project is built with modern web technologies:
 
-- **[Next.js 16.1.5](https://nextjs.org/)** - React framework with App Router
+- **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[pdf-lib](https://pdf-lib.js.org/)** - PDF manipulation and creation
@@ -76,7 +89,6 @@ helvety-pdf/
 │   └── sitemap.ts         # Sitemap configuration
 ├── components/            # React components
 │   ├── ui/               # shadcn/ui component library
-│   ├── error-boundary.tsx # Error boundary component
 │   ├── navbar.tsx         # Navigation bar
 │   ├── helvety-pdf.tsx    # Main PDF management component
 │   ├── pdf-action-buttons.tsx   # Action buttons for PDF operations
@@ -102,8 +114,7 @@ helvety-pdf/
 │   ├── use-pdf-worker.ts  # PDF worker management hook
 │   ├── use-progressive-quality.ts # Progressive quality rendering hook
 │   ├── use-screen-size.ts # Screen size detection hook
-│   ├── use-thumbnail-intersection.ts # Thumbnail intersection observer hook
-│   └── use-virtual-scrolling.ts # Virtual scrolling hook
+│   └── use-thumbnail-intersection.ts # Thumbnail intersection observer hook
 ├── lib/                   # Utility functions
 │   ├── batch-processing.ts # Batch processing utilities
 │   ├── blob-url-utils.ts  # Blob URL management utilities
@@ -125,16 +136,16 @@ helvety-pdf/
 │   ├── pdf-extraction.ts  # PDF extraction utilities
 │   ├── pdf-loading.ts     # PDF loading utilities
 │   ├── pdf-lookup-utils.ts # PDF lookup utilities
-│   ├── pdf-rendering-worker.ts # PDF rendering worker utilities
 │   ├── pdf-rotation.ts    # PDF page rotation utilities
 │   ├── pdf-utils.ts       # PDF utility functions - main entry point and re-exports
 │   ├── thumbnail-dpr.ts   # Thumbnail device pixel ratio utilities
-│   ├── timeout-utils.ts  # Timeout utility functions
+│   ├── timeout-utils.ts   # Timeout utility functions
 │   ├── types.ts           # TypeScript type definitions
 │   ├── utils.ts           # General utility functions
 │   └── validation-utils.ts # Validation utility functions
 ├── public/                # Static assets
 │   ├── pdf.worker.min.mjs # PDF.js worker file (auto-synced via postinstall script)
+│   ├── pdf-rendering-worker.js # Custom PDF rendering worker
 │   └── *.svg              # Logo and branding assets
 └── [config files]         # Configuration files (Next.js, TypeScript, etc.)
 ```

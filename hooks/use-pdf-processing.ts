@@ -129,15 +129,18 @@ export function usePdfProcessing({
         "Extracting page timed out. Please try again."
       )
 
-      // Apply rotation if user has rotated this page
+      // Apply combined rotation (inherent + user-applied)
       // Read from ref to ensure we have the latest rotation state, avoiding stale closure issues
-      const rotation = pageRotationsRef.current[unifiedPageNumber] || 0
-      if (rotation !== 0) {
+      const inherentRotation = file.inherentRotations?.[page.originalPageNumber] ?? 0
+      const userRotation = pageRotationsRef.current[unifiedPageNumber] ?? 0
+      const totalRotation = (inherentRotation + userRotation) % 360
+      
+      if (totalRotation !== 0) {
         const newPage = newPdf.getPage(0)
         const originalPage = pdf.getPage(pageIndex)
         // Pass isImage flag to handle dimension swapping for rotated images
         await withTimeout(
-          applyPageRotation(originalPage, newPage, rotation, file.type === 'image'),
+          applyPageRotation(originalPage, newPage, totalRotation, file.type === 'image'),
           TIMEOUTS.OPERATION_TIMEOUT,
           "Applying rotation timed out. Please try again."
         )
@@ -266,15 +269,18 @@ export function usePdfProcessing({
                   const [copiedPage] = await mergedPdf.copyPages(pdf, [pageIndex])
                   mergedPdf.addPage(copiedPage)
 
-                  // Apply rotation if user has rotated this page
+                  // Apply combined rotation (inherent + user-applied)
                   // Use captured rotations snapshot to ensure consistency across all pages in the export
-                  const rotation = currentRotations[unifiedPageNum] || 0
-                  if (rotation !== 0) {
+                  const inherentRotation = file.inherentRotations?.[page.originalPageNumber] ?? 0
+                  const userRotation = currentRotations[unifiedPageNum] ?? 0
+                  const totalRotation = (inherentRotation + userRotation) % 360
+                  
+                  if (totalRotation !== 0) {
                     const newPage = mergedPdf.getPage(mergedPdf.getPageCount() - 1)
                     const originalPage = pdf.getPage(pageIndex)
                     // Pass isImage flag to handle dimension swapping for rotated images
                     await withTimeout(
-                      applyPageRotation(originalPage, newPage, rotation, file.type === 'image'),
+                      applyPageRotation(originalPage, newPage, totalRotation, file.type === 'image'),
                       TIMEOUTS.OPERATION_TIMEOUT,
                       `Applying rotation to page ${unifiedPageNum} timed out after ${TIMEOUTS.OPERATION_TIMEOUT}ms.`
                     )

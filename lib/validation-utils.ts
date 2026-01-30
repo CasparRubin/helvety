@@ -57,10 +57,8 @@ export function validateFiles(
       continue
     }
 
-    if (isDuplicateFile(file, existingFiles)) {
-      errors.push(`'${file.name}' is already added.`)
-      continue
-    }
+    // Note: Duplicate files are now allowed - they will be renamed automatically
+    // in the upload handler (use-pdf-files.ts) with suffixes like _2, _3, etc.
   }
 
   return {
@@ -81,6 +79,50 @@ export function isDuplicateFile(file: File, existingFiles: ReadonlyArray<PdfFile
   return existingFiles.some(
     (pf) => pf.file.name === file.name && pf.file.size === file.size
   )
+}
+
+/**
+ * Generates a unique filename by appending a suffix (_2, _3, etc.) if the name already exists.
+ * Checks against both existing files and names already used in the current batch.
+ * 
+ * @param fileName - The original filename to make unique
+ * @param existingFiles - Array of already uploaded files
+ * @param usedNames - Set of names already used in the current batch (optional)
+ * @returns A unique filename, either the original or with a suffix appended
+ * 
+ * @example
+ * ```typescript
+ * // If "report.pdf" already exists:
+ * generateUniqueFileName("report.pdf", existingFiles) // returns "report_2.pdf"
+ * // If "report_2.pdf" also exists:
+ * generateUniqueFileName("report.pdf", existingFiles) // returns "report_3.pdf"
+ * ```
+ */
+export function generateUniqueFileName(
+  fileName: string,
+  existingFiles: ReadonlyArray<PdfFile>,
+  usedNames: Set<string> = new Set()
+): string {
+  const existingNames = new Set(existingFiles.map(f => f.file.name))
+  
+  // Combine existing names with names used in current batch
+  const allUsedNames = new Set([...existingNames, ...usedNames])
+  
+  if (!allUsedNames.has(fileName)) {
+    return fileName
+  }
+  
+  const lastDotIndex = fileName.lastIndexOf('.')
+  const baseName = lastDotIndex > 0 ? fileName.slice(0, lastDotIndex) : fileName
+  const extension = lastDotIndex > 0 ? fileName.slice(lastDotIndex) : ''
+  
+  let counter = 2
+  let newName = `${baseName}_${counter}${extension}`
+  while (allUsedNames.has(newName)) {
+    counter++
+    newName = `${baseName}_${counter}${extension}`
+  }
+  return newName
 }
 
 /**

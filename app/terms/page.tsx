@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText, Scale, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const metadata = {
   title: "Terms of Service",
@@ -9,29 +10,20 @@ export const metadata = {
 
 export default function TermsPage(): React.JSX.Element {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-6">
-        <Link href="/">
-          <Button variant="ghost" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Button>
-        </Link>
-      </div>
-
-      <div className="prose prose-sm max-w-none dark:prose-invert">
+    <div className="w-full h-full flex flex-col lg:flex-row gap-4 container mx-auto overflow-hidden p-4">
+      {/* Main Content Area - Scrollable */}
+      <div className="flex-1 min-w-0 min-h-0 relative order-last lg:order-first">
+        <ScrollArea className="h-full w-full">
+          <div className="prose prose-sm max-w-none dark:prose-invert p-4">
         <div className="mb-8 p-4 border border-destructive/50 bg-destructive/5 rounded-lg">
           <h2 className="text-xl font-bold mb-4">Important Notice</h2>
-          <p className="mb-4">
-            <strong>This is an experimental service provided &quot;AS IS&quot; with NO WARRANTIES.</strong> By using this service, you acknowledge that you use it entirely at your own risk. Helvety assumes NO LIABILITY for data loss, security breaches, service interruptions, or any other damages. You are solely responsible for your data and its backups.
-          </p>
           <p className="mb-0">
-            ⚠️ <strong>YOU MUST READ THE COMPLETE TERMS OF SERVICE BELOW TO USE THIS SERVICE.</strong> By using this service, you acknowledge that you have read, understood, and agree to be bound by all terms, disclaimers, and limitations set forth in the complete Terms of Service.
+            <strong>This is an experimental service provided &quot;AS IS&quot; with NO WARRANTIES.</strong> By using this service, you acknowledge that you use it entirely at your own risk. Helvety assumes NO LIABILITY for data loss, security breaches, service interruptions, or any other damages. You are solely responsible for your data and its backups.
           </p>
         </div>
 
         <h1 className="text-3xl font-bold mb-4">Terms of Service</h1>
-        <p className="text-muted-foreground mb-8">Last updated: January 27, 2026</p>
+        <p className="text-muted-foreground mb-8">Last updated: January 30, 2026</p>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
@@ -246,7 +238,7 @@ export default function TermsPage(): React.JSX.Element {
           </p>
           <p className="font-semibold">FOR USERS IN THE EUROPEAN UNION:</p>
           <p>
-            If you are a consumer in the European Union, you may have rights under EU consumer protection legislation, including but not limited to Directive 2011/83/EU on consumer rights. However, you acknowledge that the experimental nature of the Service and the comprehensive disclaimers contained herein may limit or exclude certain consumer protection rights. Nothing in these Terms affects your statutory rights as a consumer to the extent such rights cannot be excluded by law.
+            If you are a consumer in the European Union, you may have rights under EU legislation, including but not limited to the General Data Protection Regulation (GDPR, Regulation 2016/679) and Directive 2011/83/EU on consumer rights. However, you acknowledge that the experimental nature of the Service and the comprehensive disclaimers contained herein may limit or exclude certain consumer protection rights. Nothing in these Terms affects your statutory rights as a consumer to the extent such rights cannot be excluded by law.
           </p>
         </section>
 
@@ -314,25 +306,78 @@ export default function TermsPage(): React.JSX.Element {
           </p>
         </section>
 
-        <div className="mt-8 pt-8 border-t">
-          <Link href="/privacy" className="text-primary hover:underline">
-            Privacy Policy
-          </Link>
-          <span className="mx-2">•</span>
-          <a
-            href="https://helvety.com/legal-notice"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
-            Helvety (Legal Notice)
-          </a>
-          <span className="mx-2">•</span>
-          <Link href="/" className="text-primary hover:underline">
-            Back to Home
-          </Link>
-        </div>
+          </div>
+        </ScrollArea>
       </div>
+
+      {/* Navigation Panel - Fixed */}
+      <aside className="order-first lg:order-last flex-shrink-0">
+        {/* Mobile: Horizontal compact bar */}
+        <div className="lg:hidden w-full bg-muted/30 border border-border/50 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <Link href="/">
+              <Button variant="outline" size="default">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to App
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/privacy">
+                <Button variant="ghost" size="default">
+                  <Scale className="h-4 w-4 mr-2" />
+                  Privacy
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop: Vertical panel */}
+        <div className="hidden lg:flex w-80 flex-shrink-0 flex-col gap-6 h-full max-h-full">
+          <div className="bg-muted/30 border border-border/50 p-6 flex flex-col gap-6">
+            {/* Navigation */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Navigation</h3>
+              <div className="space-y-2">
+                <Link href="/" className="block">
+                  <Button variant="default" className="w-full" size="lg">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to App
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Legal</h3>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 p-2 rounded-md border border-primary bg-primary/10">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">Terms of Service</span>
+                </div>
+                <Link href="/privacy" className="block">
+                  <Button variant="outline" className="w-full justify-start" size="lg">
+                    <Scale className="h-4 w-4 mr-2" />
+                    Privacy Policy
+                  </Button>
+                </Link>
+                <a
+                  href="https://helvety.com/legal-notice"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Button variant="outline" className="w-full justify-start" size="lg">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Helvety Legal Notice
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }

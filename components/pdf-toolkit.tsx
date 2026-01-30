@@ -45,6 +45,9 @@ interface PdfToolkitProps {
   readonly onColumnsChange?: (columns: number) => void
 }
 
+/** Tailwind lg breakpoint in pixels */
+const LG_BREAKPOINT = 1024
+
 function PdfToolkitComponent({
   pdfFiles,
   totalPages,
@@ -59,11 +62,13 @@ function PdfToolkitComponent({
   onColumnsChange,
 }: PdfToolkitProps): React.JSX.Element {
   const [showColumnSlider, setShowColumnSlider] = React.useState(false)
+  const [isStackedLayout, setIsStackedLayout] = React.useState(false)
 
-  // Detect if screen width shows more than 1 column (>= MULTI_COLUMN)
+  // Detect screen width for responsive behavior
   React.useEffect(() => {
     const checkScreenWidth = (): void => {
       setShowColumnSlider(window.innerWidth >= BREAKPOINTS.MULTI_COLUMN)
+      setIsStackedLayout(window.innerWidth < LG_BREAKPOINT)
     }
 
     // Check on mount
@@ -73,20 +78,96 @@ function PdfToolkitComponent({
     window.addEventListener("resize", checkScreenWidth)
     return () => window.removeEventListener("resize", checkScreenWidth)
   }, [])
+
+  // Stacked layout: compact buttons only (mobile/tablet)
+  if (isStackedLayout) {
+    return (
+      <div className="w-full flex-shrink-0">
+        <div className="bg-muted/30 border border-border/50 p-3">
+          <div className="flex items-center justify-between gap-2">
+            {/* Left side: Add Files, Clear All */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                onClick={onAddFiles}
+                disabled={isProcessing}
+                variant="outline"
+                size="default"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {pdfFiles.length === 0 ? "Add Files" : "Add More"}
+              </Button>
+              {pdfFiles.length > 0 && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      disabled={isProcessing || pdfFiles.length === 0}
+                      variant="outline"
+                      size="default"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Clear All
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Clear All Files?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will remove all files and pages from the canvas. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={onClearAll}
+                        variant="destructive"
+                      >
+                        Clear All
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </div>
+
+            {/* Right side: Download */}
+            {pdfFiles.length > 0 && (
+              <Button
+                onClick={onDownload}
+                disabled={isProcessing || pdfFiles.length === 0}
+                size="default"
+                aria-label={isProcessing ? "Processing PDF, please wait" : `Download merged PDF with ${totalPages} page${totalPages !== 1 ? 's' : ''}`}
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Desktop layout: full panel (only shown on lg+ screens)
   return (
     <div className={cn(
       "flex",
-      "w-full lg:w-80 flex-shrink-0",
+      "w-80 flex-shrink-0",
       "flex-col gap-6",
-      "lg:sticky lg:top-24 lg:self-start",
-      "lg:h-[calc(100vh-8rem)]",
-      "order-first lg:order-none"
+      "h-full max-h-full"
     )}>
       <div className={cn(
-        "bg-muted/30 border border-border/50 p-4 lg:p-6",
-        "flex flex-col gap-4 lg:gap-6",
-        "lg:overflow-y-auto",
-        "max-h-[60vh] lg:max-h-none overflow-y-auto"
+        "bg-muted/30 border border-border/50 p-6",
+        "flex flex-col gap-6",
+        "overflow-y-auto flex-1"
       )}>
         {/* Actions - Always at top */}
         <div className="space-y-3">
