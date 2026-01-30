@@ -21,20 +21,26 @@ export function isMobileDevice(): boolean {
 /**
  * React hook to detect if the current device is mobile.
  * 
- * @returns True if device is mobile (width < 768px)
+ * Uses SSR-safe initialization: defaults to false on server and during
+ * initial client render, then updates to the actual value in useEffect.
+ * 
+ * @returns True if device is mobile (width < 768px), false during SSR
  */
 export function useIsMobile(): boolean {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+  // Initialize with false for SSR safety - will be updated in useEffect
+  const [isMobile, setIsMobile] = React.useState<boolean>(false)
 
   React.useEffect(() => {
+    // Set initial value immediately
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
     const onChange = (): void => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
     mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
-  return !!isMobile
+  return isMobile
 }

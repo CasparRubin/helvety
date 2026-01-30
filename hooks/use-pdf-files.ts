@@ -327,6 +327,24 @@ export function usePdfFiles(): UsePdfFilesReturn {
     pdfFilesRef.current = pdfFiles
   }, [pdfFiles])
 
+  // Cleanup on unmount to prevent memory leaks
+  React.useEffect(() => {
+    // Capture refs at effect creation time to avoid stale closure in cleanup
+    const cacheRef = pdfCacheRef
+    const filesRef = pdfFilesRef
+    
+    return () => {
+      // Clear PDF cache on unmount
+      cacheRef.current.clear()
+      logger.log('PDF cache cleared on unmount')
+      
+      // Revoke all blob URLs for current files
+      filesRef.current.forEach((file: PdfFile) => {
+        safeRevokeObjectURL(file.url)
+      })
+    }
+  }, [])
+
   // Update unified pages when files change
   React.useEffect(() => {
     if (pdfFiles.length > 0) {

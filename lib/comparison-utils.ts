@@ -4,6 +4,49 @@
  */
 
 /**
+ * Compares two arrays of objects by their 'id' property.
+ * More efficient than deep comparison when only identity matters.
+ * 
+ * @param prev - Previous array of objects with id property
+ * @param next - Next array of objects with id property
+ * @returns True if arrays have same length and all ids match in order
+ * 
+ * @example
+ * ```typescript
+ * const files1 = [{ id: 'a', name: 'file1' }, { id: 'b', name: 'file2' }]
+ * const files2 = [{ id: 'a', name: 'file1-modified' }, { id: 'b', name: 'file2' }]
+ * areArraysEqualById(files1, files2) // true (same ids)
+ * ```
+ */
+export function areArraysEqualById<T extends { id: string }>(
+  prev: ReadonlyArray<T>,
+  next: ReadonlyArray<T>
+): boolean {
+  if (prev === next) return true
+  if (prev.length !== next.length) return false
+  return prev.every((item, i) => item.id === next[i].id)
+}
+
+/**
+ * Checks if two objects are shallowly equal.
+ * Compares all own enumerable properties.
+ * 
+ * @param prev - Previous object
+ * @param next - Next object
+ * @returns True if objects have same keys and values (shallow comparison)
+ */
+export function shallowEqual<T extends Record<string, unknown>>(prev: T, next: T): boolean {
+  if (prev === next) return true
+  
+  const prevKeys = Object.keys(prev)
+  const nextKeys = Object.keys(next)
+  
+  if (prevKeys.length !== nextKeys.length) return false
+  
+  return prevKeys.every(key => prev[key] === next[key])
+}
+
+/**
  * Checks if two arrays have the same reference or identical content.
  * 
  * @param prev - Previous array

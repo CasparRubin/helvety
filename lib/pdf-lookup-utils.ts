@@ -5,6 +5,7 @@
  */
 
 import type { PdfFile, UnifiedPage } from "./types"
+import { validateArray } from "./validation-utils"
 
 /**
  * Creates a map of unified page numbers to UnifiedPage objects for O(1) lookups.
@@ -24,9 +25,7 @@ import type { PdfFile, UnifiedPage } from "./types"
  * ```
  */
 export function createPageMap(unifiedPages: ReadonlyArray<UnifiedPage>): Map<number, UnifiedPage> {
-  if (!Array.isArray(unifiedPages)) {
-    throw new Error('Invalid unifiedPages parameter. Expected an array.')
-  }
+  validateArray(unifiedPages, 'unifiedPages')
 
   const map = new Map<number, UnifiedPage>()
   unifiedPages.forEach(page => {
@@ -56,9 +55,7 @@ export function createPageMap(unifiedPages: ReadonlyArray<UnifiedPage>): Map<num
  * ```
  */
 export function createFileMap(pdfFiles: ReadonlyArray<PdfFile>): Map<string, PdfFile> {
-  if (!Array.isArray(pdfFiles)) {
-    throw new Error('Invalid pdfFiles parameter. Expected an array.')
-  }
+  validateArray(pdfFiles, 'pdfFiles')
 
   const map = new Map<string, PdfFile>()
   pdfFiles.forEach(file => {
@@ -88,9 +85,7 @@ export function createFileMap(pdfFiles: ReadonlyArray<PdfFile>): Map<string, Pdf
  * ```
  */
 export function createFileUrlMap(pdfFiles: ReadonlyArray<PdfFile>): Map<string, string> {
-  if (!Array.isArray(pdfFiles)) {
-    throw new Error('Invalid pdfFiles parameter. Expected an array.')
-  }
+  validateArray(pdfFiles, 'pdfFiles')
 
   const map = new Map<string, string>()
   pdfFiles.forEach(file => {

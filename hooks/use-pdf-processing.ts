@@ -9,7 +9,7 @@ import { formatTimestamp } from "@/lib/utils"
 import { createPdfErrorInfo } from "@/lib/pdf-errors"
 import { handleError } from "@/lib/error-handler"
 import { downloadBlob } from "@/lib/file-download"
-import { applyPageRotation } from "@/lib/pdf-rotation"
+import { applyPageRotation, createRotatedImagePage, needsContentTransform, normalizeRotation } from "@/lib/pdf-rotation"
 import { extractPageFromPdf } from "@/lib/pdf-extraction"
 import { createPageMap, createFileMap } from "@/lib/pdf-lookup-utils"
 import { calculateBatchSize, yieldToBrowser } from "@/lib/batch-processing"
@@ -54,6 +54,9 @@ export function usePdfProcessing({
 }: UsePdfProcessingParams): UsePdfProcessingReturn {
   const [isProcessing, setIsProcessing] = React.useState(false)
   
+  // Track mounted state to prevent state updates after unmount
+  const isMountedRef = React.useRef(true)
+  
   // Use ref to store latest pageRotations to avoid stale closure issues
   // This ensures we always read the most current rotation state, even during rapid updates
   const pageRotationsRef = React.useRef<Readonly<Record<number, number>>>(pageRotations)
@@ -63,11 +66,20 @@ export function usePdfProcessing({
     pageRotationsRef.current = pageRotations
   }, [pageRotations])
 
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
   /**
    * Extracts a single page from a file (PDF or image) and downloads it as a new PDF.
    * 
-   * Applies user-applied rotation to the extracted page. For images, the page is
-   * already converted to a PDF, so extraction works identically to PDF pages.
+   * Applies user-applied rotation to the extracted page. For images with 90°/270°
+   * rotation, uses content transformation to properly handle landscape-to-portrait
+   * conversions without white space. For PDFs and 180° rotations, uses standard
+   * rotation metadata.
    * 
    * @param unifiedPageNumber - The unified page number to extract
    * @throws {Error} If no files are loaded, page is not found, or file cannot be loaded
@@ -104,7 +116,9 @@ export function usePdfProcessing({
       return
     }
 
-    setIsProcessing(true)
+    if (isMountedRef.current) {
+      setIsProcessing(true)
+    }
     onError(null)
 
     try {
@@ -123,27 +137,48 @@ export function usePdfProcessing({
         return
       }
 
-      const newPdf = await withTimeout(
-        extractPageFromPdf(pdf, pageIndex),
-        TIMEOUTS.OPERATION_TIMEOUT,
-        "Extracting page timed out. Please try again."
-      )
-
-      // Apply combined rotation (inherent + user-applied)
+      // Calculate combined rotation (inherent + user-applied)
       // Read from ref to ensure we have the latest rotation state, avoiding stale closure issues
       const inherentRotation = file.inherentRotations?.[page.originalPageNumber] ?? 0
       const userRotation = pageRotationsRef.current[unifiedPageNumber] ?? 0
       const totalRotation = (inherentRotation + userRotation) % 360
+      const normalizedTotalRotation = normalizeRotation(totalRotation)
       
-      if (totalRotation !== 0) {
-        const newPage = newPdf.getPage(0)
-        const originalPage = pdf.getPage(pageIndex)
-        // Pass isImage flag to handle dimension swapping for rotated images
+      // For images with 90/270 rotation, use content transformation instead of metadata rotation
+      // This properly handles landscape-to-portrait conversions without white space
+      const isImage = file.type === 'image'
+      const useContentTransform = isImage && needsContentTransform(normalizedTotalRotation)
+      
+      let newPdf: PDFDocument
+      
+      if (useContentTransform && normalizedTotalRotation !== 0) {
+        // For images needing content transformation, create a new PDF with properly rotated content
+        newPdf = await PDFDocument.create()
+        const sourcePage = pdf.getPage(pageIndex)
+        
         await withTimeout(
-          applyPageRotation(originalPage, newPage, totalRotation, file.type === 'image'),
+          createRotatedImagePage(newPdf, sourcePage, normalizedTotalRotation),
           TIMEOUTS.OPERATION_TIMEOUT,
-          "Applying rotation timed out. Please try again."
+          "Rotating image timed out. Please try again."
         )
+      } else {
+        // For PDFs or images with 0/180 rotation, use the standard extraction flow
+        newPdf = await withTimeout(
+          extractPageFromPdf(pdf, pageIndex),
+          TIMEOUTS.OPERATION_TIMEOUT,
+          "Extracting page timed out. Please try again."
+        )
+        
+        // Apply rotation metadata if needed (works for PDFs and 180° image rotation)
+        if (totalRotation !== 0) {
+          const newPage = newPdf.getPage(0)
+          const originalPage = pdf.getPage(pageIndex)
+          await withTimeout(
+            applyPageRotation(originalPage, newPage, totalRotation, isImage),
+            TIMEOUTS.OPERATION_TIMEOUT,
+            "Applying rotation timed out. Please try again."
+          )
+        }
       }
 
       const pdfBytes = await withTimeout(
@@ -162,9 +197,13 @@ export function usePdfProcessing({
 
       onError(null)
     } catch (err) {
-      handleError(err, "Can't extract page:", onError)
+      if (isMountedRef.current) {
+        handleError(err, "Can't extract page:", onError)
+      }
     } finally {
-      setIsProcessing(false)
+      if (isMountedRef.current) {
+        setIsProcessing(false)
+      }
     }
   }, [pdfFiles, unifiedPages, getCachedPdf, onError])
 
@@ -173,13 +212,15 @@ export function usePdfProcessing({
    * and downloads it.
    * 
    * Pages are merged in the order specified by pageOrder, excluding deleted pages.
-   * User-applied rotations are preserved in the merged PDF. Images are already converted
-   * to PDF pages, so they are handled identically to PDF pages.
+   * User-applied rotations are preserved in the merged PDF. For images with 90°/270°
+   * rotation, uses content transformation to properly handle landscape-to-portrait
+   * conversions without white space. For PDFs and 180° rotations, uses standard
+   * rotation metadata.
    * 
-   * Uses batch processing to prevent UI blocking: processes pages in batches of 3-10
-   * (depending on total page count), yielding to the browser between batches to keep
-   * the UI responsive. Smaller batches are used for large documents to maintain
-   * responsiveness, while larger batches improve throughput for smaller documents.
+   * Uses batch processing to prevent UI blocking: processes pages sequentially within
+   * batches of 3-10 (depending on total page count), yielding to the browser between
+   * batches to keep the UI responsive. Sequential processing within batches ensures
+   * pages are added in the correct order as displayed in the UI.
    * 
    * @throws {Error} If no files are loaded, all pages are deleted, or processing fails
    * @example
@@ -199,7 +240,9 @@ export function usePdfProcessing({
       return
     }
 
-    setIsProcessing(true)
+    if (isMountedRef.current) {
+      setIsProcessing(true)
+    }
     onError(null)
 
     try {
@@ -230,91 +273,92 @@ export function usePdfProcessing({
         const batch = activePages.slice(i, i + BATCH_SIZE)
         const batchNumber = Math.floor(i / BATCH_SIZE) + 1
         
-        try {
-          // Process all pages in the current batch in parallel
-          // Each page is loaded, copied, and rotated (if needed) within the batch
-          // Use a longer timeout for entire batch (allows for multiple pages)
-          const batchTimeout = Math.min(
-            TIMEOUTS.OPERATION_TIMEOUT * batch.length, // Scale timeout with batch size
-            TIMEOUTS.OPERATION_TIMEOUT * 3 // Cap at 3x single operation timeout
-          )
-          
-          await withTimeout(
-            Promise.allSettled(
-              batch.map(async (unifiedPageNum: number) => {
-                const page = pageMap.get(unifiedPageNum)
-                if (!page) {
-                  throw new Error(`Page ${unifiedPageNum} not found in unified pages. Available pages: ${Array.from(pageMap.keys()).join(', ')}`)
-                }
+        // Process pages sequentially within each batch to maintain correct order
+        // Pages must be added to the merged PDF in the exact order they appear in the UI
+        // Parallel processing would cause race conditions where pages complete out of order
+        for (const unifiedPageNum of batch) {
+          const page = pageMap.get(unifiedPageNum)
+          if (!page) {
+            batchErrors.push({ pageNum: unifiedPageNum, error: `Page ${unifiedPageNum} not found in unified pages.` })
+            logger.error(`Page ${unifiedPageNum} not found in batch ${batchNumber}`)
+            continue
+          }
 
-                const file = fileMap.get(page.fileId)
-                if (!file) {
-                  throw new Error(`File not found for page ${unifiedPageNum} (fileId: ${page.fileId}). Available files: ${Array.from(fileMap.keys()).join(', ')}`)
-                }
+          const file = fileMap.get(page.fileId)
+          if (!file) {
+            batchErrors.push({ pageNum: unifiedPageNum, error: `File not found for page ${unifiedPageNum} (fileId: ${page.fileId}).` })
+            logger.error(`File not found for page ${unifiedPageNum} in batch ${batchNumber}`)
+            continue
+          }
 
-                // Validate file has required properties
-                if (!file.id || !file.file || !file.type) {
-                  throw new Error(`Invalid file data for page ${unifiedPageNum} (fileId: ${file.id || 'missing'}, fileName: ${file.file?.name || 'missing'}, type: ${file.type || 'missing'})`)
-                }
+          // Validate file has required properties
+          if (!file.id || !file.file || !file.type) {
+            batchErrors.push({ pageNum: unifiedPageNum, error: `Invalid file data for page ${unifiedPageNum}` })
+            logger.error(`Invalid file data for page ${unifiedPageNum} in batch ${batchNumber}`)
+            continue
+          }
 
-                try {
-                  // Get cached PDF (for images, this is the converted PDF)
-                  // Each page operation has its own timeout for better error isolation
-                  const pdf = await withTimeout(
-                    getCachedPdf(file.id, file.file, file.type),
-                    TIMEOUTS.FILE_LOAD_TIMEOUT,
-                    `Loading file '${file.file.name}' for page ${unifiedPageNum} timed out after ${TIMEOUTS.FILE_LOAD_TIMEOUT}ms.`
-                  )
-                  const pageIndex = page.originalPageNumber - 1
-                  const [copiedPage] = await mergedPdf.copyPages(pdf, [pageIndex])
-                  mergedPdf.addPage(copiedPage)
+          try {
+            // Get cached PDF (for images, this is the converted PDF)
+            const pdf = await withTimeout(
+              getCachedPdf(file.id, file.file, file.type),
+              TIMEOUTS.FILE_LOAD_TIMEOUT,
+              `Loading file '${file.file.name}' for page ${unifiedPageNum} timed out after ${TIMEOUTS.FILE_LOAD_TIMEOUT}ms.`
+            )
+            const pageIndex = page.originalPageNumber - 1
 
-                  // Apply combined rotation (inherent + user-applied)
-                  // Use captured rotations snapshot to ensure consistency across all pages in the export
-                  const inherentRotation = file.inherentRotations?.[page.originalPageNumber] ?? 0
-                  const userRotation = currentRotations[unifiedPageNum] ?? 0
-                  const totalRotation = (inherentRotation + userRotation) % 360
-                  
-                  if (totalRotation !== 0) {
-                    const newPage = mergedPdf.getPage(mergedPdf.getPageCount() - 1)
-                    const originalPage = pdf.getPage(pageIndex)
-                    // Pass isImage flag to handle dimension swapping for rotated images
-                    await withTimeout(
-                      applyPageRotation(originalPage, newPage, totalRotation, file.type === 'image'),
-                      TIMEOUTS.OPERATION_TIMEOUT,
-                      `Applying rotation to page ${unifiedPageNum} timed out after ${TIMEOUTS.OPERATION_TIMEOUT}ms.`
-                    )
-                  }
-                } catch (err) {
-                  const errorInfo = createPdfErrorInfo(err, `Can't process page ${unifiedPageNum} from '${file.file.name}':`)
-                  logger.error('Error processing page:', errorInfo)
-                  logger.error('File details:', { id: file.id, name: file.file.name, type: file.type, pageNum: unifiedPageNum })
-                  throw errorInfo // Throw the error info object to preserve error type
-                }
-              })
-            ),
-            batchTimeout,
-            `Processing batch ${batchNumber}/${totalBatches} (pages ${i + 1}-${Math.min(i + BATCH_SIZE, activePages.length)}) timed out after ${batchTimeout}ms. Try processing fewer pages at once.`
-          ).then((results) => {
-            // Collect errors from failed pages but continue processing
-            results.forEach((result, idx) => {
-              if (result.status === 'rejected') {
-                const pageNum = batch[idx]
-                const errorMessage = result.reason instanceof Error ? result.reason.message : String(result.reason)
-                batchErrors.push({ pageNum, error: errorMessage })
-                logger.error(`Page ${pageNum} failed in batch ${batchNumber}:`, errorMessage)
-              }
-            })
+            // Calculate combined rotation (inherent + user-applied)
+            // Use captured rotations snapshot to ensure consistency across all pages in the export
+            const inherentRotation = file.inherentRotations?.[page.originalPageNumber] ?? 0
+            const userRotation = currentRotations[unifiedPageNum] ?? 0
+            const totalRotation = (inherentRotation + userRotation) % 360
+            const normalizedTotalRotation = normalizeRotation(totalRotation)
             
-            // If all pages in batch failed, throw error
-            if (results.every(r => r.status === 'rejected')) {
-              throw new Error(`All pages in batch ${batchNumber} failed. First error: ${results[0].status === 'rejected' ? results[0].reason : 'unknown'}`)
+            // For images with 90/270 rotation, use content transformation instead of metadata rotation
+            // This properly handles landscape-to-portrait conversions without white space
+            const isImage = file.type === 'image'
+            const useContentTransform = isImage && needsContentTransform(normalizedTotalRotation)
+            
+            if (useContentTransform && normalizedTotalRotation !== 0) {
+              // For images needing content transformation, create a rotated page directly
+              const sourcePage = pdf.getPage(pageIndex)
+              await withTimeout(
+                createRotatedImagePage(mergedPdf, sourcePage, normalizedTotalRotation),
+                TIMEOUTS.OPERATION_TIMEOUT,
+                `Rotating image page ${unifiedPageNum} timed out after ${TIMEOUTS.OPERATION_TIMEOUT}ms.`
+              )
+            } else {
+              // For PDFs or images with 0/180 rotation, use the standard copy flow
+              const [copiedPage] = await mergedPdf.copyPages(pdf, [pageIndex])
+              mergedPdf.addPage(copiedPage)
+              
+              // Apply rotation metadata if needed (works for PDFs and 180° image rotation)
+              if (totalRotation !== 0) {
+                const newPage = mergedPdf.getPage(mergedPdf.getPageCount() - 1)
+                const originalPage = pdf.getPage(pageIndex)
+                await withTimeout(
+                  applyPageRotation(originalPage, newPage, totalRotation, isImage),
+                  TIMEOUTS.OPERATION_TIMEOUT,
+                  `Applying rotation to page ${unifiedPageNum} timed out after ${TIMEOUTS.OPERATION_TIMEOUT}ms.`
+                )
+              }
             }
-          })
-
-        } catch (err) {
-          // Batch-level timeout or all pages failed
-          const errorInfo = createPdfErrorInfo(err, `Batch ${batchNumber}/${totalBatches} processing failed:`)
+          } catch (err) {
+            const errorInfo = createPdfErrorInfo(err, `Can't process page ${unifiedPageNum} from '${file.file.name}':`)
+            logger.error('Error processing page:', errorInfo)
+            logger.error('File details:', { id: file.id, name: file.file.name, type: file.type, pageNum: unifiedPageNum })
+            batchErrors.push({ pageNum: unifiedPageNum, error: errorInfo.message })
+          }
+        }
+        
+        // Check if all pages in batch failed
+        const batchPageNums = new Set(batch)
+        const failedInBatch = batchErrors.filter(e => batchPageNums.has(e.pageNum)).length
+        if (failedInBatch === batch.length) {
+          const errorInfo = createPdfErrorInfo(
+            new Error(`All pages in batch ${batchNumber} failed.`),
+            `Batch ${batchNumber}/${totalBatches} processing failed:`
+          )
           logger.error('Batch processing error:', errorInfo)
           throw errorInfo
         }
@@ -345,12 +389,18 @@ export function usePdfProcessing({
 
       downloadBlob(blob, filename, DELAYS.BLOB_URL_CLEANUP)
 
-      onError(null)
+      if (isMountedRef.current) {
+        onError(null)
+      }
     } catch (err) {
       // Standardized error handling - handleError already sets appropriate error message
-      handleError(err, "Download failed:", onError)
+      if (isMountedRef.current) {
+        handleError(err, "Download failed:", onError)
+      }
     } finally {
-      setIsProcessing(false)
+      if (isMountedRef.current) {
+        setIsProcessing(false)
+      }
     }
   }, [pdfFiles, unifiedPages, pageOrder, deletedPages, getCachedPdf, onError])
 

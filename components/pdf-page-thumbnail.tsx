@@ -490,4 +490,3 @@ function PdfPageThumbnailComponent({
 
 // Memoize component to prevent unnecessary re-renders when props haven't changed
 export const PdfPageThumbnail = React.memo(PdfPageThumbnailComponent)
-

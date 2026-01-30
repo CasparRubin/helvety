@@ -6,6 +6,7 @@
 // Internal utilities
 import { PROCESSING } from "./constants"
 import { shouldYieldToBrowser, isMemoryPressureHigh } from "./memory-utils"
+import { validateNonNegativeInteger } from "./validation-utils"
 
 /**
  * Calculates optimal batch size based on total number of items.
@@ -16,9 +17,7 @@ import { shouldYieldToBrowser, isMemoryPressureHigh } from "./memory-utils"
  * @returns Optimal batch size (3-10 depending on total items)
  */
 export function calculateBatchSize(totalItems: number): number {
-  if (!Number.isInteger(totalItems) || totalItems < 0) {
-    throw new Error(`Invalid totalItems: ${totalItems}. Must be a non-negative integer.`)
-  }
+  validateNonNegativeInteger(totalItems, 'totalItems')
 
   if (totalItems <= 10) return 10
   if (totalItems <= 50) return 8
@@ -36,7 +35,7 @@ export function calculateBatchSize(totalItems: number): number {
  */
 export function yieldToBrowser(timeout: number = 100): Promise<void> {
   if (!Number.isFinite(timeout) || timeout < 0) {
-    throw new Error(`Invalid timeout: ${timeout}. Must be a non-negative finite number.`)
+    throw new Error(`Invalid timeout: ${timeout}. Must be a non-negative number.`)
   }
 
   return new Promise<void>((resolve: () => void) => {

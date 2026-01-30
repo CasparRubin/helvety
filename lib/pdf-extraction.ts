@@ -6,6 +6,9 @@
 // External libraries
 import { PDFDocument } from "pdf-lib"
 
+// Internal utilities
+import { validateNonNegativeInteger } from "./validation-utils"
+
 /**
  * Extracts a page from a PDF document and creates a new PDF with that page.
  * 
@@ -24,12 +27,10 @@ export async function extractPageFromPdf(
 ): Promise<PDFDocument> {
   // Validate inputs
   if (!pdf || typeof pdf.getPageCount !== 'function') {
-    throw new Error('Invalid PDF document provided. Expected a PDFDocument instance.')
+    throw new Error('Invalid PDF document provided. Expected a PDFDocument instance with getPageCount method.')
   }
 
-  if (!Number.isInteger(pageIndex) || pageIndex < 0) {
-    throw new Error(`Invalid page index: ${pageIndex}. Must be a non-negative integer.`)
-  }
+  validateNonNegativeInteger(pageIndex, 'page index')
 
   const pageCount = pdf.getPageCount()
   if (pageIndex >= pageCount) {

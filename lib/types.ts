@@ -64,3 +64,46 @@ export interface FileSizeValidation {
   readonly error?: string
 }
 
+/**
+ * Generic result type for operations that can succeed or fail.
+ * Provides a consistent pattern for error handling across the codebase.
+ * 
+ * @template T - The type of the success data
+ * @template E - The type of the error (defaults to string)
+ */
+export type Result<T, E = string> =
+  | { readonly success: true; readonly data: T }
+  | { readonly success: false; readonly error: E }
+
+/**
+ * Result type for file processing operations.
+ * Used by processFile and related functions.
+ */
+export type ProcessFileResult =
+  | { readonly pdfFile: PdfFile }
+  | { readonly error: string }
+
+/**
+ * Validation result for file validation operations.
+ * 
+ * @property valid - Whether all files passed validation
+ * @property errors - Array of error messages for invalid files
+ */
+export interface FileValidationResult {
+  readonly valid: boolean
+  readonly errors: ReadonlyArray<string>
+}
+
+/**
+ * Memory information from the Performance API (if available).
+ * Chrome/Edge specific - not available in all browsers.
+ */
+export interface MemoryInfo {
+  /** Total JS heap size limit (bytes) */
+  readonly jsHeapSizeLimit?: number
+  /** Total allocated heap size (bytes) */
+  readonly totalJSHeapSize?: number
+  /** Used JS heap size (bytes) */
+  readonly usedJSHeapSize?: number
+}
+

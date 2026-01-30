@@ -19,7 +19,7 @@ import { yieldToBrowser } from "./batch-processing"
 import { getRecommendedCacheLimit, shouldYieldToBrowser } from "./memory-utils"
 
 // Types
-import type { PdfFile } from "./types"
+import type { PdfFile, ProcessFileResult } from "./types"
 
 /**
  * Evicts least recently used entry from cache using LRU (Least Recently Used) strategy.
@@ -56,13 +56,6 @@ function evictLRUEntry(cache: Map<string, PDFDocument>, maxSize: number): string
   }
   return undefined
 }
-
-/**
- * Result type for file processing operations.
- */
-type ProcessFileResult = 
-  | { readonly pdfFile: PdfFile }
-  | { readonly error: string }
 
 /**
  * Generates a unique ID using timestamp and random string.

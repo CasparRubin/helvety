@@ -8,17 +8,71 @@ import { FILE_LIMITS } from "./constants"
 import { validateFileType, isPdfFile } from "./file-validation"
 
 // Types
-import type { PdfFile } from "./types"
+import type { PdfFile, FileValidationResult } from "./types"
+
+// Re-export for backward compatibility
+export type { FileValidationResult }
 
 /**
- * Validation result for file validation operations.
+ * Validates that a value is a non-negative integer.
+ * Throws an error if validation fails.
  * 
- * @property valid - Whether all files passed validation
- * @property errors - Array of error messages for invalid files
+ * @param value - The value to validate
+ * @param paramName - Name of the parameter for error messages
+ * @throws {Error} If value is not a non-negative integer
  */
-export interface FileValidationResult {
-  valid: boolean
-  errors: string[]
+export function validateNonNegativeInteger(value: unknown, paramName: string): asserts value is number {
+  if (!Number.isInteger(value) || (value as number) < 0) {
+    throw new Error(`Invalid ${paramName}: ${value}. Must be a non-negative integer.`)
+  }
+}
+
+/**
+ * Validates that a value is an instance of a specific class.
+ * Throws an error if validation fails.
+ * 
+ * @param value - The value to validate
+ * @param constructor - The constructor/class to check against
+ * @param paramName - Name of the parameter for error messages
+ * @throws {Error} If value is not an instance of the specified class
+ */
+export function validateInstance<T>(
+  value: unknown,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor: new (...args: any[]) => T,
+  paramName: string
+): asserts value is T {
+  if (!(value instanceof constructor)) {
+    throw new Error(`Invalid ${paramName} provided. Expected a ${constructor.name} instance.`)
+  }
+}
+
+/**
+ * Validates that a value is an array.
+ * Throws an error if validation fails.
+ * 
+ * @param value - The value to validate
+ * @param paramName - Name of the parameter for error messages
+ * @throws {Error} If value is not an array
+ */
+export function validateArray(value: unknown, paramName: string): asserts value is unknown[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`Invalid ${paramName} parameter. Expected an array.`)
+  }
+}
+
+/**
+ * Validates that a number is finite.
+ * Throws an error if validation fails.
+ * 
+ * @param value - The value to validate
+ * @param paramName - Name of the parameter for error messages
+ * @throws {Error} If value is not a finite number
+ */
+export function validateFiniteNumber(value: unknown, paramName: string): asserts value is number {
+  if (!Number.isFinite(value)) {
+    throw new Error(`Invalid ${paramName}: ${value}. Must be a finite number.`)
+  }
 }
 
 /**

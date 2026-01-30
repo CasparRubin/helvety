@@ -3,17 +3,11 @@
  * Helps detect memory pressure and adapt processing accordingly.
  */
 
-/**
- * Memory information from the Performance API (if available).
- */
-interface MemoryInfo {
-  /** Total JS heap size limit (bytes) */
-  readonly jsHeapSizeLimit?: number
-  /** Total allocated heap size (bytes) */
-  readonly totalJSHeapSize?: number
-  /** Used JS heap size (bytes) */
-  readonly usedJSHeapSize?: number
-}
+// Internal utilities
+import { PROCESSING } from "./constants"
+
+// Types
+import type { MemoryInfo } from "./types"
 
 /**
  * Extended Performance interface with memory information (Chrome/Edge specific).
@@ -138,7 +132,7 @@ export function shouldYieldToBrowser(fileSizeBytes?: number): boolean {
   }
 
   // Yield for very large files even if memory seems OK
-  if (fileSizeBytes && fileSizeBytes > 50 * 1024 * 1024) { // 50MB
+  if (fileSizeBytes && fileSizeBytes > PROCESSING.VERY_LARGE_FILE_THRESHOLD) {
     return true
   }
 

@@ -6,6 +6,7 @@ import * as React from "react"
 // Internal components
 import { PdfPageThumbnail } from "@/components/pdf-page-thumbnail"
 import { PdfActionButtons } from "@/components/pdf-action-buttons"
+import { PageErrorBoundary } from "@/components/pdf-page-error-boundary"
 import { Badge } from "@/components/ui/badge"
 
 // Internal utilities
@@ -50,6 +51,9 @@ function PdfPageGridComponent({
   isProcessing,
   columns,
 }: PdfPageGridProps): React.JSX.Element | null {
+  // Track error boundary retry keys for each page
+  const errorRetryKeysRef = React.useRef<Map<number, number>>(new Map())
+
   // Use drag-and-drop hook for cleaner code organization
   const dragDrop = usePageDragDrop({
     pageOrder,
@@ -57,23 +61,23 @@ function PdfPageGridComponent({
     announcementId: 'page-reorder-announcement',
   })
 
-  const handleMoveUp = React.useCallback((index: number): void => {
-    if (index === 0) return
+  // Shared swap logic for moving pages up/down
+  const swapPages = React.useCallback((index: number, direction: 'up' | 'down'): void => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= pageOrder.length) return
+    
     const newOrder = [...pageOrder]
-    const temp = newOrder[index]
-    newOrder[index] = newOrder[index - 1]
-    newOrder[index - 1] = temp
+    ;[newOrder[index], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[index]]
     onReorder(newOrder)
   }, [pageOrder, onReorder])
 
+  const handleMoveUp = React.useCallback((index: number): void => {
+    swapPages(index, 'up')
+  }, [swapPages])
+
   const handleMoveDown = React.useCallback((index: number): void => {
-    if (index === pageOrder.length - 1) return
-    const newOrder = [...pageOrder]
-    const temp = newOrder[index]
-    newOrder[index] = newOrder[index + 1]
-    newOrder[index + 1] = temp
-    onReorder(newOrder)
-  }, [pageOrder, onReorder])
+    swapPages(index, 'down')
+  }, [swapPages])
 
 
   // Create memoized maps for O(1) lookups instead of O(n) Array.find()
@@ -265,16 +269,25 @@ function PdfPageGridComponent({
             style={containerStyle}
           >
             <div className="flex-1 min-w-0">
-              <PdfPageThumbnail
-                fileUrl={fileUrl}
-                pageNumber={page.originalPageNumber}
-                rotation={effectiveRotation}
-                pdfColor={fileInfo.color}
-                pdfFileName={fileInfo.file.name}
-                finalPageNumber={finalPageNumber}
-                fileType={fileInfo.type}
-                totalPages={pageOrder.length}
-              />
+              <PageErrorBoundary
+                retryKey={errorRetryKeysRef.current.get(unifiedPageNumber) ?? 0}
+                onError={() => {
+                  // Increment retry key to trigger re-render
+                  const currentKey = errorRetryKeysRef.current.get(unifiedPageNumber) ?? 0
+                  errorRetryKeysRef.current.set(unifiedPageNumber, currentKey + 1)
+                }}
+              >
+                <PdfPageThumbnail
+                  fileUrl={fileUrl}
+                  pageNumber={page.originalPageNumber}
+                  rotation={effectiveRotation}
+                  pdfColor={fileInfo.color}
+                  pdfFileName={fileInfo.file.name}
+                  finalPageNumber={finalPageNumber}
+                  fileType={fileInfo.type}
+                  totalPages={pageOrder.length}
+                />
+              </PageErrorBoundary>
               <div id={pageDescriptionId} className="sr-only">
                 {`Page ${page.originalPageNumber} of ${fileInfo.file.name}. ${isDeleted ? 'Marked for deletion. ' : ''}${hasUserRotation ? `Rotated ${userRotation} degrees. ` : ''}${finalPageNumber !== null ? `Will be page ${finalPageNumber} in final PDF.` : ''}`}
               </div>
