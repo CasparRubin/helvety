@@ -79,8 +79,6 @@ helvety-pdf/
 │   ├── icon.svg           # App icon
 │   ├── layout.tsx         # Root layout component
 │   ├── page.tsx           # Main page component
-│   ├── privacy/           # Privacy policy page
-│   ├── terms/             # Terms of service page
 │   ├── robots.ts          # Robots.txt configuration
 │   └── sitemap.ts         # Sitemap configuration
 ├── components/            # React components
