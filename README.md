@@ -10,27 +10,26 @@
 ### Desktop
 
 **Dark Mode**
-![Upload interface in dark mode](./public/screenshots/1%20-%20Dark%20mode.png)
+
+![Desktop upload interface in dark mode](./public/screenshots/Dark%20mode.png)
 
 **Light Mode**
-![Upload interface in light mode](./public/screenshots/2%20-%20Light%20mode.png)
 
-**Dark Mode - Functionality**
-![PDF editor showing page thumbnails with editing controls in dark mode](./public/screenshots/5%20-%20Dark%20mode%20Functionality.png)
+![Desktop upload interface in light mode](./public/screenshots/Light%20mode.png)
 
-**Light Mode - Functionality**
-![PDF editor showing page thumbnails with editing controls in light mode](./public/screenshots/6%20-%20Light%20mode%20Functionality.png)
+**Dark Mode - Editor**
+
+![Desktop PDF editor with page thumbnails and editing controls in dark mode](./public/screenshots/Dark%20mode%20Functionality.png)
+
+**Light Mode - Editor**
+
+![Desktop PDF editor with page thumbnails and editing controls in light mode](./public/screenshots/Light%20mode%20Functionality.png)
 
 ### Mobile
 
-**Dark Mode Mobile**
-![Mobile upload interface in dark mode](./public/screenshots/3%20-%20Dark%20mode%20mobile.png)
+**Dark Mode - Editor**
 
-**Light Mode Mobile**
-![Mobile upload interface in light mode](./public/screenshots/4%20-%20Light%20mode%20mobile.png)
-
-**Dark Mode Mobile - Functionality**
-![Mobile PDF editor showing page thumbnails with editing controls](./public/screenshots/7%20-%20Dark%20mode%20Mobile%20Functionality.png)
+![Mobile PDF editor with page thumbnails and editing controls](./public/screenshots/Dark%20mode%20Mobile%20Functionality.png)
 
 A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images with client-side processing (hosting provider may collect connection metadata). All file processing happens entirely in your browser.
 
