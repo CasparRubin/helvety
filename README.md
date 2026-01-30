@@ -20,6 +20,24 @@ Your one-stop shop for Helvety software, subscriptions, and apparel. Browse and 
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 - **App Switcher** - Navigate between Helvety ecosystem apps
 
+## Security & Authentication
+
+This application implements a modern, passwordless authentication system with end-to-end encryption:
+
+### Authentication Flow
+
+- **Magic Links** - Passwordless sign-in via email (rate-limited to 2 requests/minute)
+- **Passkey Authentication** - Sign in using your phone with Face ID, Touch ID, or fingerprint via WebAuthn
+- **Unified Stepper UI** - Clear progress indicator through the authentication flow
+
+### End-to-End Encryption
+
+User data is protected with client-side encryption using the WebAuthn PRF extension:
+
+- **Passkey-derived keys** - Encryption keys are derived from your passkey using the PRF extension
+- **Zero-knowledge** - The server never sees your encryption key; all encryption/decryption happens in the browser
+- **Device-bound security** - Your passkey (stored on your phone) is the only way to decrypt your data
+
 ## Tech Stack
 
 This project is built with modern web technologies:
@@ -28,6 +46,7 @@ This project is built with modern web technologies:
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript with strict configuration
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
+- **[SimpleWebAuthn](https://simplewebauthn.dev/)** - WebAuthn/passkey implementation
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
@@ -40,36 +59,46 @@ This project is built with modern web technologies:
 ```
 helvety-store/
 ├── app/                        # Next.js App Router
+│   ├── actions/                # Server actions
+│   │   ├── auth-actions.ts     # Authentication actions
+│   │   ├── encryption-actions.ts # Encryption parameter management
+│   │   └── passkey-auth-actions.ts # WebAuthn passkey operations
 │   ├── auth/                   # Auth routes
-│   │   └── callback/           # OAuth callback handler
-│   ├── login/                  # Login page
+│   │   └── callback/           # Magic link & OAuth callback
+│   ├── login/                  # Login page with passkey support
 │   ├── globals.css             # Global styles
-│   ├── icon.svg                # App icon
 │   ├── layout.tsx              # Root layout component
-│   ├── page.tsx                # Main page component
-│   ├── robots.ts               # Robots.txt configuration
-│   └── sitemap.ts              # Sitemap configuration
+│   └── page.tsx                # Main page (with encryption gate)
 ├── components/                 # React components
 │   ├── ui/                     # shadcn/ui component library
+│   ├── auth-stepper.tsx        # Unified auth flow progress indicator
+│   ├── encryption-gate.tsx     # Ensures encryption is set up/unlocked
+│   ├── encryption-setup.tsx    # Passkey & encryption setup wizard
+│   ├── encryption-unlock.tsx   # Unlock encryption with passkey
 │   ├── app-switcher.tsx        # Helvety ecosystem app switcher
 │   ├── navbar.tsx              # Navigation bar
 │   ├── providers.tsx           # App providers wrapper
 │   ├── theme-provider.tsx      # Theme context provider
 │   └── theme-switcher.tsx      # Dark/light mode switcher
 ├── hooks/                      # Custom React hooks
+│   └── use-encryption.ts       # Encryption state hook
 ├── lib/                        # Utility functions
 │   ├── config/                 # Configuration files
-│   │   └── version.ts          # Build version
+│   ├── crypto/                 # Encryption utilities
+│   │   ├── encryption.ts       # Core encryption functions
+│   │   ├── encryption-context.tsx # Encryption React context
+│   │   ├── key-storage.ts      # Secure key caching
+│   │   ├── passkey.ts          # WebAuthn passkey helpers
+│   │   └── prf-key-derivation.ts # PRF-based key derivation
 │   ├── supabase/               # Supabase client utilities
+│   │   ├── admin.ts            # Admin client (server-side)
 │   │   ├── client.ts           # Browser client
 │   │   └── server.ts           # Server client
 │   ├── types/                  # Type definitions
 │   └── utils.ts                # General utility functions
 ├── public/                     # Static assets
-│   └── *.svg                   # Logo and branding assets
 ├── scripts/                    # Build scripts
-│   └── generate-version.js     # Version generation script
-└── [config files]              # Configuration files (Next.js, TypeScript, etc.)
+└── [config files]              # Configuration files
 ```
 
 ## Developer

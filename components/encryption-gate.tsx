@@ -1,9 +1,11 @@
 'use client'
 
 import { Loader2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useState, useMemo, type ReactNode } from 'react'
 
 import { getEncryptionParams } from '@/app/actions/encryption-actions'
+import { type AuthFlowType } from '@/components/auth-stepper'
 import { EncryptionSetup } from '@/components/encryption-setup'
 import { EncryptionUnlock } from '@/components/encryption-unlock'
 import { useEncryptionContext, type PRFKeyParams } from '@/lib/crypto'
@@ -29,11 +31,15 @@ type EncryptionStatus =
  */
 export function EncryptionGate({ userId, userEmail, children }: EncryptionGateProps) {
   const { isUnlocked, isLoading: contextLoading, checkEncryptionState } = useEncryptionContext()
+  const searchParams = useSearchParams()
   
   const [hasCheckedParams, setHasCheckedParams] = useState(false)
   const [passkeyParams, setPasskeyParams] = useState<PRFKeyParams | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [manualUnlock, setManualUnlock] = useState(false)
+
+  // Get flow type from URL params (passed from login -> callback -> here)
+  const flowType: AuthFlowType = (searchParams.get('flow') as AuthFlowType) ?? 'new_user'
 
   // Check encryption state on mount
   useEffect(() => {
@@ -90,7 +96,7 @@ export function EncryptionGate({ userId, userEmail, children }: EncryptionGatePr
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
+      <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Loading encryption...</p>
@@ -101,7 +107,7 @@ export function EncryptionGate({ userId, userEmail, children }: EncryptionGatePr
 
   if (status === 'error') {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center p-4">
+      <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <div className="text-center">
           <p className="text-destructive">{error ?? 'An error occurred'}</p>
           <button 
@@ -117,10 +123,11 @@ export function EncryptionGate({ userId, userEmail, children }: EncryptionGatePr
 
   if (status === 'needs_setup') {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center p-4">
+      <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <EncryptionSetup 
           userId={userId} 
           userEmail={userEmail}
+          flowType={flowType}
           onComplete={handleSetupComplete} 
         />
       </div>
@@ -129,10 +136,11 @@ export function EncryptionGate({ userId, userEmail, children }: EncryptionGatePr
 
   if (status === 'needs_unlock' && passkeyParams) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center p-4">
+      <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <EncryptionUnlock 
           userId={userId} 
-          passkeyParams={passkeyParams} 
+          passkeyParams={passkeyParams}
+          flowType={flowType}
           onUnlock={handleUnlock}
         />
       </div>

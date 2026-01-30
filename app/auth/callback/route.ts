@@ -14,6 +14,16 @@ export async function GET(request: Request) {
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type')
   const next = searchParams.get('next') ?? '/'
+  const flow = searchParams.get('flow') // Preserve flow type for stepper UI
+
+  // Build redirect URL with flow param if present
+  const buildRedirectUrl = (path: string) => {
+    const url = new URL(path, origin)
+    if (flow) {
+      url.searchParams.set('flow', flow)
+    }
+    return url.toString()
+  }
 
   // Handle PKCE flow (code exchange)
   if (code) {
@@ -21,7 +31,7 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      return NextResponse.redirect(buildRedirectUrl(next))
     }
     
     console.error('Auth callback error (code exchange):', error)
@@ -37,7 +47,7 @@ export async function GET(request: Request) {
     })
     
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      return NextResponse.redirect(buildRedirectUrl(next))
     }
     
     console.error('Auth callback error (token hash):', error)

@@ -1,7 +1,34 @@
 /**
  * Entity type definitions for helvety-store
- * User/auth related types for encryption
+ * User/auth related types for encryption and authentication
  */
+
+// =============================================================================
+// AUTHENTICATION TYPES
+// =============================================================================
+
+/**
+ * User's WebAuthn authentication credential (stored in DB)
+ * Used for passkey-based passwordless authentication
+ */
+export interface UserAuthCredential {
+  id: string
+  user_id: string
+  /** Base64url-encoded credential ID from WebAuthn */
+  credential_id: string
+  /** Base64url-encoded COSE public key for signature verification */
+  public_key: string
+  /** Signature counter to detect cloned credentials */
+  counter: number
+  /** Transport hints for credential (e.g., ['hybrid']) */
+  transports: string[]
+  /** Device type: 'singleDevice' (hardware key) or 'multiDevice' (synced passkey) */
+  device_type: string | null
+  /** Whether the credential is cloud-synced */
+  backed_up: boolean
+  created_at: string
+  last_used_at: string | null
+}
 
 // =============================================================================
 // ENCRYPTION KEY TYPES
