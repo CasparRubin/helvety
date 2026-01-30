@@ -169,7 +169,7 @@ export function Navbar() {
               <DialogHeader className="pr-8">
                 <DialogTitle>About</DialogTitle>
                 <DialogDescription className="pt-2">
-                  A secure, end-to-end encrypted password manager. Your data stays private.
+                  Your one-stop shop for Helvety software, subscriptions, and apparel.
                 </DialogDescription>
               </DialogHeader>
               <>

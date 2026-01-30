@@ -1,22 +1,22 @@
 # Helvety Store
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black?style=flat-square&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
 > **Note:** This application is currently in alpha.
 
-A secure, end-to-end encrypted password manager with passkey authentication. Your data stays private with zero-knowledge architecture.
+Your one-stop shop for Helvety software, subscriptions, and apparel. Browse and purchase official Helvety products designed in Switzerland.
 
-**App:** [store.helvety.com](https://store.helvety.com)
+**Store:** [store.helvety.com](https://store.helvety.com)
 
 ## Features
 
-- **End-to-end encryption (E2EE)** - All sensitive data is encrypted client-side before storage
-- **Passkey authentication** - Passwordless login using WebAuthn/FIDO2 standards
-- **PRF key derivation** - Encryption keys derived from passkey PRF extension
-- **Zero-knowledge architecture** - Server never has access to your unencrypted data
+- **Software & Subscriptions** - Purchase and manage Helvety software licenses and subscriptions
+- **Apparel** - Browse and order official Helvety merchandise
+- **Secure checkout** - Safe and secure payment processing
+- **Account management** - Manage your purchases and subscriptions
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 - **App Switcher** - Navigate between Helvety ecosystem apps
 
@@ -24,11 +24,10 @@ A secure, end-to-end encrypted password manager with passkey authentication. You
 
 This project is built with modern web technologies:
 
-- **[Next.js 16.1.1](https://nextjs.org/)** - React framework with App Router
+- **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
 - **[React 19.2.4](https://react.dev/)** - UI library
-- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript with strict configuration
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
-- **[SimpleWebAuthn](https://simplewebauthn.dev/)** - WebAuthn/Passkey implementation
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
@@ -41,9 +40,6 @@ This project is built with modern web technologies:
 ```
 helvety-store/
 ├── app/                        # Next.js App Router
-│   ├── actions/                # Server actions
-│   │   ├── auth-actions.ts     # Authentication actions
-│   │   └── encryption-actions.ts # Encryption-related actions
 │   ├── auth/                   # Auth routes
 │   │   └── callback/           # OAuth callback handler
 │   ├── login/                  # Login page
@@ -56,34 +52,18 @@ helvety-store/
 ├── components/                 # React components
 │   ├── ui/                     # shadcn/ui component library
 │   ├── app-switcher.tsx        # Helvety ecosystem app switcher
-│   ├── encryption-gate.tsx     # Encryption state gate component
-│   ├── encryption-setup.tsx    # Initial encryption setup
-│   ├── encryption-unlock.tsx   # Unlock encrypted vault
 │   ├── navbar.tsx              # Navigation bar
 │   ├── providers.tsx           # App providers wrapper
 │   ├── theme-provider.tsx      # Theme context provider
 │   └── theme-switcher.tsx      # Dark/light mode switcher
 ├── hooks/                      # Custom React hooks
-│   └── use-encryption.ts       # Encryption state hook
 ├── lib/                        # Utility functions
 │   ├── config/                 # Configuration files
 │   │   └── version.ts          # Build version
-│   ├── crypto/                 # Cryptography modules
-│   │   ├── encoding.ts         # Encoding utilities
-│   │   ├── encryption-context.tsx # Encryption React context
-│   │   ├── encryption.ts       # Core encryption functions
-│   │   ├── key-storage.ts      # Key storage utilities
-│   │   ├── passkey.ts          # Passkey/WebAuthn utilities
-│   │   ├── prf-key-derivation.ts # PRF key derivation
-│   │   └── types.ts            # Crypto type definitions
 │   ├── supabase/               # Supabase client utilities
-│   │   ├── client-factory.ts   # Client factory
 │   │   ├── client.ts           # Browser client
 │   │   └── server.ts           # Server client
 │   ├── types/                  # Type definitions
-│   ├── env-validation.ts       # Environment validation
-│   ├── logger.ts               # Logging utilities
-│   ├── navigation-helpers.ts   # Navigation utilities
 │   └── utils.ts                # General utility functions
 ├── public/                     # Static assets
 │   └── *.svg                   # Logo and branding assets
@@ -91,16 +71,6 @@ helvety-store/
 │   └── generate-version.js     # Version generation script
 └── [config files]              # Configuration files (Next.js, TypeScript, etc.)
 ```
-
-## Security Architecture
-
-The application uses a zero-knowledge security model:
-
-1. **Authentication** - Users authenticate via passkeys (WebAuthn)
-2. **Key Derivation** - Encryption keys are derived from the passkey's PRF extension
-3. **Client-side Encryption** - All sensitive data is encrypted in the browser before transmission
-4. **Secure Storage** - Only encrypted data is stored on the server
-5. **Decryption** - Data is decrypted client-side only when the user authenticates
 
 ## Developer
 

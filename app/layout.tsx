@@ -37,11 +37,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://store.helvety.com"),
   title: {
-    default: "Helvety Store | Secure Password Manager",
+    default: "Helvety Store | Software, Subscriptions & Apparel",
     template: "%s | Helvety Store",
   },
-  description: "Secure, end-to-end encrypted password manager by Helvety. Your data stays private.",
-  keywords: ["Helvety Store", "password manager", "secure", "encrypted", "E2EE", "privacy"],
+  description: "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+  keywords: ["Helvety Store", "software", "subscriptions", "apparel", "Swiss", "shop", "merchandise"],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
   publisher: "Helvety",
@@ -54,13 +54,13 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://store.helvety.com",
     siteName: "Helvety Store",
-    title: "Helvety Store | Secure Password Manager",
-    description: "Secure, end-to-end encrypted password manager by Helvety.",
+    title: "Helvety Store | Software, Subscriptions & Apparel",
+    description: "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
   },
   twitter: {
     card: "summary",
-    title: "Helvety Store | Secure Password Manager",
-    description: "Secure, end-to-end encrypted password manager by Helvety.",
+    title: "Helvety Store | Software, Subscriptions & Apparel",
+    description: "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
   },
   robots: {
     index: true,

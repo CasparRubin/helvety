@@ -2,20 +2,24 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import importPlugin from "eslint-plugin-import";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import tseslint from "typescript-eslint";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // Type-aware linting and import ordering configuration
   {
-    files: ["**/*.ts", "**/*.tsx"],
-    plugins: {
-      import: importPlugin,
-    },
+    files: ["**/*.ts", "**/*.tsx", "**/*.mts"],
     languageOptions: {
+      parser: tseslint.parser,
       parserOptions: {
-        project: "./tsconfig.json",
-        tsconfigRootDir: import.meta.dirname || process.cwd(),
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
+    },
+    plugins: {
+      "@typescript-eslint": tseslint.plugin,
+      import: importPlugin,
     },
     settings: {
       "import/resolver": {
@@ -25,30 +29,24 @@ const eslintConfig = defineConfig([
       },
     },
     rules: {
-      // React 19 specific rules
+      // React rules
       "react-hooks/exhaustive-deps": "warn",
       "react/no-unescaped-entities": "error",
       "react/jsx-key": "error",
       "react/no-array-index-key": "warn",
-      
+
       // Import organization
-      // Enforces the following import order:
-      // 1. External packages (react, next, etc.)
-      // 2. Internal modules (@/lib, @/components, @/app, @/hooks)
-      // 3. Type imports (import type ...)
-      // 4. Relative imports (./, ../)
-      // Within each group, imports are alphabetically sorted
       "import/order": [
         "error",
         {
           groups: [
-            "builtin", // Node.js built-in modules
-            "external", // External packages
-            "internal", // Internal modules (configured via pathGroups)
-            "parent", // Parent imports
-            "sibling", // Sibling imports
-            "index", // Index imports
-            "type", // Type imports
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+            "type",
           ],
           pathGroups: [
             {
@@ -65,23 +63,43 @@ const eslintConfig = defineConfig([
           },
         },
       ],
-      "import/no-unresolved": "off", // TypeScript handles this
+      "import/no-unresolved": "off",
       "import/no-duplicates": "error",
-      "no-unused-vars": "off", // Handled by TypeScript
+
+      // TypeScript rules - underscore ignore pattern
+      "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
         },
       ],
-      
-      // TypeScript specific rules
-      "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+
+      // Type-aware rules
+      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          checksVoidReturn: {
+            attributes: false,
+          },
+        },
+      ],
+      "@typescript-eslint/await-thenable": "error",
       "@typescript-eslint/prefer-nullish-coalescing": "warn",
       "@typescript-eslint/prefer-optional-chain": "warn",
-      "@typescript-eslint/no-floating-promises": "warn",
-      
+      "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+      "@typescript-eslint/consistent-type-imports": [
+        "warn",
+        {
+          prefer: "type-imports",
+          fixStyle: "separate-type-imports",
+        },
+      ],
+
       // Code quality
       "prefer-const": "error",
       "no-var": "error",
@@ -91,15 +109,12 @@ const eslintConfig = defineConfig([
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
-  // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
-    "next-env.d.ts",
-    // Project-level ignores
     "node_modules/**",
+    "next-env.d.ts",
     "public/**",
   ]),
 ]);
