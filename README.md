@@ -74,6 +74,40 @@ Subscribe at [store.helvety.com](https://store.helvety.com/products/helvety-pdf)
 2. **Preview & Manage** - See thumbnails of all pages, reorder by dragging, rotate, or delete pages as needed
 3. **Download** - Your processed PDF downloads automatically with a timestamped filename
 
+## Security & Authentication
+
+This application implements a modern, passwordless authentication system with end-to-end encryption:
+
+### Authentication Flow
+
+**New Users:**
+
+1. Enter email → Receive magic link (rate-limited to 2 requests/minute)
+2. Click link → Setup passkey on your phone (Face ID, Touch ID, or fingerprint)
+3. Sign in with passkey to activate encryption
+
+**Returning Users:**
+
+1. Enter email → Passkey detected → Direct passkey authentication (no email needed)
+
+### End-to-End Encryption
+
+User data is protected with client-side encryption using the WebAuthn PRF extension:
+
+- **Passkey-derived keys** - Encryption keys are derived from your passkey using the PRF extension
+- **Zero-knowledge** - The server never sees your encryption key; all encryption/decryption happens in the browser
+- **Device-bound security** - Your passkey (stored on your phone) is the only way to decrypt your data
+
+### Browser Requirements
+
+Passkey encryption requires a modern browser with WebAuthn PRF support:
+
+- Google Chrome 128+
+- Microsoft Edge 128+
+- Safari 18+
+
+**Note:** Firefox is not currently supported for authentication due to limited PRF extension support.
+
 ## Tech Stack
 
 This project is built with modern web technologies:

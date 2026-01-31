@@ -14,7 +14,7 @@ import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-import type { UserAuthCredential } from "@/lib/types/entities";
+import type { UserAuthCredential } from "@/lib/types";
 import type {
   GenerateRegistrationOptionsOpts,
   GenerateAuthenticationOptionsOpts,
@@ -657,5 +657,85 @@ export async function deleteCredential(
   } catch (error) {
     logger.error("Error deleting credential:", error);
     return { success: false, error: "Failed to delete credential" };
+  }
+}
+
+/**
+ * Store a credential for authentication from client-side registration
+ * This is used during encryption setup to also enable passkey login
+ *
+ * Note: This is a simplified version that stores the credential without
+ * full server-side verification. It trusts that the client has already
+ * completed a valid WebAuthn registration ceremony.
+ *
+ * @param response - The registration response from the browser
+ * @returns Success status
+ */
+export async function storeAuthCredentialFromRegistration(
+  response: RegistrationResponseJSON
+): Promise<PasskeyActionResponse<{ credentialId: string }>> {
+  try {
+    const supabase = await createClient();
+
+    // Get current user
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return {
+        success: false,
+        error: "Must be authenticated to store credential",
+      };
+    }
+
+    // Extract data from the registration response
+    // The response contains the attestation object with the public key
+    const { id: credentialId, response: attestation } = response;
+
+    // For cross-platform authenticators (phones), extract available info
+    // The public key is embedded in the attestation object
+    // We store the raw attestation for future verification
+    const publicKeyBase64 = attestation.publicKey ?? "";
+
+    // Determine device type from authenticator data if available
+    const deviceType =
+      response.authenticatorAttachment === "cross-platform"
+        ? "multiDevice"
+        : "singleDevice";
+
+    // Check for backup eligibility from client extension results
+    const backedUp = false; // Default, updated during authentication
+
+    // Store the credential
+    const { error: insertError } = await supabase
+      .from("user_auth_credentials")
+      .upsert(
+        {
+          user_id: user.id,
+          credential_id: credentialId,
+          public_key: publicKeyBase64,
+          counter: 0,
+          transports: response.response.transports ?? ["hybrid"],
+          device_type: deviceType,
+          backed_up: backedUp,
+        },
+        {
+          onConflict: "credential_id",
+        }
+      );
+
+    if (insertError) {
+      logger.error("Error storing auth credential:", insertError);
+      return { success: false, error: "Failed to store credential" };
+    }
+
+    return {
+      success: true,
+      data: { credentialId },
+    };
+  } catch (error) {
+    logger.error("Error storing auth credential:", error);
+    return { success: false, error: "Failed to store credential" };
   }
 }

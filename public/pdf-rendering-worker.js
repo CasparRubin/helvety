@@ -7,20 +7,12 @@
 // For now, we'll use a message-based approach where the main thread
 // handles PDF.js initialization and we just handle canvas rendering
 
-// Placeholder variables for future PDF.js worker implementation
+// Reserved for PDF.js worker integration (currently handled by main thread)
 let _pdfjsLib = null;
 let _isInitialized = false;
 
 // Store active render operations for cancellation
 const activeRenders = new Map();
-
-/**
- * Initializes PDF.js in the worker context.
- * Note: This is a placeholder for future implementation.
- */
-// async function initializePdfJs() {
-//   // Placeholder for future PDF.js worker implementation
-// }
 
 /**
  * Type guard to check if a message is a valid worker message.

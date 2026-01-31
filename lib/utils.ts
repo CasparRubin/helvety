@@ -15,7 +15,7 @@ export function cn(...inputs: ClassValue[]): string {
  * Formats the current date and time as a timestamp string.
  * Format: YYYYMMDD-HHMMSS
  *
- * @returns Timestamp string (e.g., "20240115-143022")
+ * @returns Timestamp string (e.g., "20260131-143022")
  */
 export function formatTimestamp(): string {
   const now = new Date();

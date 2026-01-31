@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { EncryptionGate } from "@/components/encryption-gate";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import { PageClient } from "./page-client";
@@ -7,6 +8,7 @@ import { PageClient } from "./page-client";
 /**
  * Main page - server component with auth protection
  * Redirects to login if not authenticated
+ * Wraps content in EncryptionGate to enforce passkey setup
  */
 export default async function Page(): Promise<React.JSX.Element> {
   // Server-side auth check
@@ -20,5 +22,9 @@ export default async function Page(): Promise<React.JSX.Element> {
     redirect("/login");
   }
 
-  return <PageClient />;
+  return (
+    <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
+      <PageClient />
+    </EncryptionGate>
+  );
 }

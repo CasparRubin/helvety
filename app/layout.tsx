@@ -6,6 +6,7 @@ import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { EncryptionProvider } from "@/lib/crypto";
 import "./globals.css";
 
 import type { Metadata, Viewport } from "next";
@@ -127,13 +128,15 @@ export default function RootLayout({
         >
           <AuthTokenHandler />
           <TooltipProvider>
-            <AuthProvider>
-              <div className="flex h-screen flex-col overflow-hidden">
-                <Navbar />
-                <main className="flex-1 overflow-hidden">{children}</main>
-              </div>
-              <Toaster />
-            </AuthProvider>
+            <EncryptionProvider>
+              <AuthProvider>
+                <div className="flex h-screen flex-col overflow-hidden">
+                  <Navbar />
+                  <main className="flex-1 overflow-hidden">{children}</main>
+                </div>
+                <Toaster />
+              </AuthProvider>
+            </EncryptionProvider>
           </TooltipProvider>
         </ThemeProvider>
       </body>
