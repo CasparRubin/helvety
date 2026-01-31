@@ -499,21 +499,21 @@ export async function hasPasskeyCredentials(
     const adminClient = createAdminClient()
     const normalizedEmail = email.toLowerCase().trim()
     
-    // Try to query auth.users directly via the database
-    // This is more efficient than listing all users
+    // Try to query auth.users directly via the database (optimization)
+    // Note: This typically fails as auth.users is not exposed via PostgREST by default
     const { data: authUser, error: authError } = await adminClient
       .from('auth.users')
       .select('id')
       .eq('email', normalizedEmail)
       .single()
     
-    // If direct query doesn't work (table not exposed), fall back to listing
+    // Fallback to Admin API - this is the standard Supabase approach
     if (authError) {
-      // Fall back: list users and find by email
-      // This is less efficient but works
+      // Use Admin API to list users and find by email
+      // Note: For user bases >1000, this would need pagination
       const { data: listData, error: listError } = await adminClient.auth.admin.listUsers({
         page: 1,
-        perPage: 1000, // Reasonable limit
+        perPage: 1000,
       })
       
       if (listError) {

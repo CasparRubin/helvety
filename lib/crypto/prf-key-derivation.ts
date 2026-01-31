@@ -128,10 +128,9 @@ export async function unlockPRFEncryption(
  * - iOS 18+, macOS 15.4+
  * - Android 14+
  * - Chrome 128+, Edge 128+
+ * - Firefox 139+ (desktop only; Android not supported)
  * - Hardware security keys (YubiKey 5+)
  * - Cross-device (phone via QR code) on supported phones
- * 
- * Not supported: Firefox (as of Jan 2026)
  */
 export async function isPRFSupported(): Promise<boolean> {
   // Check if WebAuthn is available
@@ -146,17 +145,20 @@ export async function isPRFSupported(): Promise<boolean> {
   // platform authenticator PRF support, not cross-device (phone) PRF support.
   // Cross-device PRF works on Chrome/Edge 128+ regardless of platform support.
 
-  // Check browser - Firefox doesn't support PRF
-  const isFirefox = navigator.userAgent.includes('Firefox')
-  if (isFirefox) {
-    return false
-  }
-
-  // Check for Chrome/Edge 128+ or Safari 18+
   const ua = navigator.userAgent
   const edgeMatch = ua.match(/Edg\/(\d+)/)
   const chromeMatch = ua.match(/Chrome\/(\d+)/)
   const safariMatch = ua.match(/Version\/(\d+).*Safari/)
+  const firefoxMatch = ua.match(/Firefox\/(\d+)/)
+
+  // Check Firefox - supports PRF on desktop from version 139+ (not on Android)
+  if (firefoxMatch?.[1]) {
+    const isAndroid = ua.includes('Android')
+    if (isAndroid) {
+      return false // Firefox for Android doesn't support PRF
+    }
+    return parseInt(firefoxMatch[1]) >= 139
+  }
 
   // Check Edge first (Edge UA contains both "Chrome" and "Edg")
   if (edgeMatch?.[1]) {
@@ -193,19 +195,31 @@ export async function getPRFSupportInfo(): Promise<PRFSupportInfo> {
   }
 
   const ua = navigator.userAgent
-  const isFirefox = ua.includes('Firefox')
-
-  if (isFirefox) {
-    return {
-      supported: false,
-      reason: 'Firefox does not support the PRF extension yet',
-      browserInfo: 'Firefox',
-    }
-  }
-
   const chromeMatch = ua.match(/Chrome\/(\d+)/)
   const safariMatch = ua.match(/Version\/(\d+).*Safari/)
   const edgeMatch = ua.match(/Edg\/(\d+)/)
+  const firefoxMatch = ua.match(/Firefox\/(\d+)/)
+
+  // Check Firefox first
+  if (firefoxMatch?.[1]) {
+    const version = parseInt(firefoxMatch[1])
+    const isAndroid = ua.includes('Android')
+    if (isAndroid) {
+      return {
+        supported: false,
+        reason: 'Firefox for Android does not support the PRF extension',
+        browserInfo: `Firefox for Android ${version}`,
+      }
+    }
+    if (version < 139) {
+      return {
+        supported: false,
+        reason: `Firefox ${version} detected. PRF requires Firefox 139 or later.`,
+        browserInfo: `Firefox ${version}`,
+      }
+    }
+    return { supported: true, browserInfo: `Firefox ${version}` }
+  }
 
   // Check Edge first (Edge UA contains both "Chrome" and "Edg")
   if (edgeMatch?.[1]) {

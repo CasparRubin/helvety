@@ -85,16 +85,23 @@ helvety-store/
 ├── lib/                        # Utility functions
 │   ├── config/                 # Configuration files
 │   ├── crypto/                 # Encryption utilities
+│   │   ├── encoding.ts         # Base64 encoding utilities
 │   │   ├── encryption.ts       # Core encryption functions
 │   │   ├── encryption-context.tsx # Encryption React context
+│   │   ├── index.ts            # Crypto module exports
 │   │   ├── key-storage.ts      # Secure key caching
 │   │   ├── passkey.ts          # WebAuthn passkey helpers
-│   │   └── prf-key-derivation.ts # PRF-based key derivation
+│   │   ├── prf-key-derivation.ts # PRF-based key derivation
+│   │   └── types.ts            # Crypto type definitions
 │   ├── supabase/               # Supabase client utilities
 │   │   ├── admin.ts            # Admin client (server-side)
+│   │   ├── client-factory.ts   # Supabase client factory
 │   │   ├── client.ts           # Browser client
 │   │   └── server.ts           # Server client
 │   ├── types/                  # Type definitions
+│   ├── env-validation.ts       # Environment variable validation
+│   ├── logger.ts               # Logging utilities
+│   ├── navigation-helpers.ts   # Navigation utility functions
 │   └── utils.ts                # General utility functions
 ├── public/                     # Static assets
 ├── scripts/                    # Build scripts

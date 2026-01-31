@@ -11,10 +11,10 @@ import type { SupabaseClient } from '@supabase/supabase-js'
  * This key has full access to the database, bypassing RLS
  */
 function getServiceRoleKey(): string {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const key = process.env.SUPABASE_SECRET_KEY
   if (!key) {
     throw new Error(
-      'SUPABASE_SERVICE_ROLE_KEY is not set. ' +
+      'SUPABASE_SECRET_KEY is not set. ' +
       'This key is required for admin operations like creating sessions. ' +
       'Add it to your .env.local file (never commit this key to git).'
     )
