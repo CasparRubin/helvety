@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 
 import type { Metadata } from "next";
@@ -11,12 +12,12 @@ export const metadata: Metadata = {
 
 export default function ImpressumPage() {
   return (
-    <main className="min-h-screen py-12 px-6">
-      <div className="max-w-3xl mx-auto">
+    <main className="min-h-screen px-6 py-12">
+      <div className="mx-auto max-w-3xl">
         <div className="mb-8">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Home
             </Link>
           </Button>
@@ -24,7 +25,7 @@ export default function ImpressumPage() {
 
         <article className="space-y-10">
           <header>
-            <h1 className="text-3xl font-bold mb-2">Impressum</h1>
+            <h1 className="mb-2 text-3xl font-bold">Impressum</h1>
             <p className="text-muted-foreground text-sm">
               Impressum gemäss Art. 3 UWG / Legal Notice pursuant to Swiss
               Unfair Competition Act
@@ -33,39 +34,39 @@ export default function ImpressumPage() {
 
           {/* Company Information */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Company Information</h2>
-            <div className="p-6 border border-border bg-card space-y-4">
+            <h2 className="mb-4 text-xl font-semibold">Company Information</h2>
+            <div className="border-border bg-card space-y-4 border p-6">
               <div>
-                <p className="font-medium text-foreground">Helvety by Rubin</p>
+                <p className="text-foreground font-medium">Helvety by Rubin</p>
                 <p className="text-muted-foreground">
                   Einzelfirma (Sole Proprietorship)
                 </p>
               </div>
 
               <div>
-                <p className="font-medium text-foreground mb-1">Owner</p>
+                <p className="text-foreground mb-1 font-medium">Owner</p>
                 <p className="text-muted-foreground">
                   <a
                     href="https://casparrubin.ch"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors inline-flex items-center gap-1"
+                    className="hover:text-foreground inline-flex items-center gap-1 transition-colors"
                   >
                     Caspar Camille Rubin
-                    <ExternalLink className="w-3 h-3" />
+                    <ExternalLink className="h-3 w-3" />
                   </a>
                 </p>
               </div>
 
               <div>
-                <p className="font-medium text-foreground mb-1">Address</p>
+                <p className="text-foreground mb-1 font-medium">Address</p>
                 <p className="text-muted-foreground">Holeestrasse 116</p>
                 <p className="text-muted-foreground">4054 Basel</p>
                 <p className="text-muted-foreground">Switzerland</p>
               </div>
 
               <div>
-                <p className="font-medium text-foreground mb-1">Contact</p>
+                <p className="text-foreground mb-1 font-medium">Contact</p>
                 <p className="text-muted-foreground">
                   Email:{" "}
                   <a
@@ -85,23 +86,31 @@ export default function ImpressumPage() {
                   </a>
                 </p>
               </div>
+
+              <div>
+                <p className="text-foreground mb-1 font-medium">Registration</p>
+                <p className="text-muted-foreground">
+                  Registered in the Commercial Register of Basel-Stadt
+                </p>
+                <p className="text-muted-foreground">UID: CHE-356.266.592</p>
+              </div>
             </div>
           </section>
 
           {/* Business Activity */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Business Activity</h2>
-            <p className="text-sm text-muted-foreground">
-              Helvety by Rubin develops and sells software, software-as-a-service
-              (SaaS) subscriptions, and apparel. All products are designed and/or
-              developed in Switzerland.
+            <h2 className="mb-4 text-xl font-semibold">Business Activity</h2>
+            <p className="text-muted-foreground text-sm">
+              Helvety by Rubin develops and sells software,
+              software-as-a-service (SaaS) subscriptions, and apparel. All
+              products are designed and/or developed in Switzerland.
             </p>
           </section>
 
           {/* Trademark */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Trademark</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="mb-4 text-xl font-semibold">Trademark</h2>
+            <p className="text-muted-foreground text-sm">
               The Helvety brand is a registered Swiss trademark. All rights
               reserved.
             </p>
@@ -109,44 +118,47 @@ export default function ImpressumPage() {
 
           {/* Disclaimer */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Disclaimer</h2>
+            <h2 className="mb-4 text-xl font-semibold">Disclaimer</h2>
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium mb-2">
+                <h3 className="mb-2 text-lg font-medium">
                   Liability for Content
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   The content of this website has been created with the greatest
                   possible care. However, we cannot guarantee the accuracy,
                   completeness, or timeliness of the content. As a service
-                  provider, we are responsible for our own content on these pages
-                  in accordance with general laws. However, we are not obligated
-                  to monitor transmitted or stored third-party information or to
-                  investigate circumstances that indicate illegal activity.
+                  provider, we are responsible for our own content on these
+                  pages in accordance with general laws. However, we are not
+                  obligated to monitor transmitted or stored third-party
+                  information or to investigate circumstances that indicate
+                  illegal activity.
                 </p>
               </div>
 
               <div>
-                <h3 className="text-lg font-medium mb-2">Liability for Links</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="mb-2 text-lg font-medium">
+                  Liability for Links
+                </h3>
+                <p className="text-muted-foreground text-sm">
                   Our website may contain links to external third-party websites
                   over whose content we have no influence. Therefore, we cannot
                   accept any liability for this third-party content. The
                   respective provider or operator of the linked pages is always
                   responsible for the content of the linked pages. The linked
-                  pages were checked for possible legal violations at the time of
-                  linking. Illegal content was not recognizable at the time of
-                  linking. Permanent monitoring of the content of the linked
+                  pages were checked for possible legal violations at the time
+                  of linking. Illegal content was not recognizable at the time
+                  of linking. Permanent monitoring of the content of the linked
                   pages is not reasonable without concrete evidence of a legal
-                  violation. Upon notification of violations, we will remove such
-                  links immediately.
+                  violation. Upon notification of violations, we will remove
+                  such links immediately.
                 </p>
               </div>
 
               <div>
-                <h3 className="text-lg font-medium mb-2">Copyright</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="mb-2 text-lg font-medium">Copyright</h3>
+                <p className="text-muted-foreground text-sm">
                   The content and works created by the site operators on these
                   pages are subject to Swiss copyright law. Reproduction,
                   editing, distribution, and any kind of use outside the limits
@@ -160,45 +172,46 @@ export default function ImpressumPage() {
 
           {/* Dispute Resolution */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Dispute Resolution</h2>
-            <p className="text-sm text-muted-foreground mb-4">
+            <h2 className="mb-4 text-xl font-semibold">Dispute Resolution</h2>
+            <p className="text-muted-foreground mb-4 text-sm">
               The European Commission provides a platform for online dispute
               resolution (ODR):{" "}
               <a
                 href="https://ec.europa.eu/consumers/odr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:text-foreground transition-colors"
+                className="hover:text-foreground underline transition-colors"
               >
                 https://ec.europa.eu/consumers/odr
               </a>
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               We are not obligated and generally not willing to participate in
-              dispute resolution proceedings before a consumer arbitration board.
+              dispute resolution proceedings before a consumer arbitration
+              board.
             </p>
           </section>
 
           {/* Applicable Law */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="mb-4 text-xl font-semibold">
               Applicable Law and Jurisdiction
             </h2>
-            <p className="text-sm text-muted-foreground">
-              This Impressum and any disputes arising from or in connection
-              with this website are governed by Swiss law. The exclusive place of
+            <p className="text-muted-foreground text-sm">
+              This Impressum and any disputes arising from or in connection with
+              this website are governed by Swiss law. The exclusive place of
               jurisdiction is Basel-Stadt, Switzerland.
             </p>
           </section>
 
           {/* Related Documents */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Related Documents</h2>
-            <ul className="text-sm text-muted-foreground space-y-2">
+            <h2 className="mb-4 text-xl font-semibold">Related Documents</h2>
+            <ul className="text-muted-foreground space-y-2 text-sm">
               <li>
                 <Link
                   href="/terms"
-                  className="underline hover:text-foreground transition-colors"
+                  className="hover:text-foreground underline transition-colors"
                 >
                   Terms of Service
                 </Link>
@@ -207,7 +220,7 @@ export default function ImpressumPage() {
               <li>
                 <Link
                   href="/privacy"
-                  className="underline hover:text-foreground transition-colors"
+                  className="hover:text-foreground underline transition-colors"
                 >
                   Privacy Policy
                 </Link>
@@ -217,9 +230,9 @@ export default function ImpressumPage() {
           </section>
 
           {/* Last Updated */}
-          <footer className="pt-8 border-t border-border">
-            <p className="text-xs text-muted-foreground text-center">
-              Last updated: January 30, 2026
+          <footer className="border-border border-t pt-8">
+            <p className="text-muted-foreground text-center text-xs">
+              Last updated: January 31, 2026
             </p>
           </footer>
         </article>

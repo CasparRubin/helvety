@@ -1,27 +1,28 @@
-import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import localFont from "next/font/local";
 import "./globals.css";
 
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
+import type { Metadata, Viewport } from "next";
+
 // Local Public Sans variable font - no network fetch during build
 const publicSans = localFont({
   src: [
     {
-      path: '../../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2',
-      style: 'normal',
+      path: "../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2",
+      style: "normal",
     },
     {
-      path: '../../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-italic.woff2',
-      style: 'italic',
+      path: "../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-italic.woff2",
+      style: "italic",
     },
   ],
-  variable: '--font-sans',
-  display: 'swap',
+  variable: "--font-sans",
+  display: "swap",
 });
 
 export const viewport: Viewport = {
@@ -41,7 +42,13 @@ export const metadata: Metadata = {
     template: "%s | Helvety",
   },
   description: "Helvety. Swiss Engineering.",
-  keywords: ["Helvety", "Swiss software", "Swiss apparel", "Switzerland", "software development"],
+  keywords: [
+    "Helvety",
+    "Swiss software",
+    "Swiss apparel",
+    "Switzerland",
+    "software development",
+  ],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
   publisher: "Helvety",
@@ -102,9 +109,7 @@ export default function RootLayout({
         >
           <TooltipProvider>
             <Navbar />
-            <div className="w-full max-w-[2000px] mx-auto">
-              {children}
-            </div>
+            <div className="mx-auto w-full max-w-[2000px]">{children}</div>
           </TooltipProvider>
         </ThemeProvider>
         <Analytics />

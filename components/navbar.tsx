@@ -1,27 +1,13 @@
-"use client"
+"use client";
 
-import { Building2, FileText, Scale, Menu, Github, Info } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useState } from "react"
+import { Building2, FileText, Scale, Menu, Github, Info } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
-import { AppSwitcher } from "@/components/app-switcher"
-import { ThemeSwitcher } from "@/components/theme-switcher"
-import { VERSION } from "@/lib/config/version"
-import { Button } from "@/components/ui/button"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { AppSwitcher } from "@/components/app-switcher";
+import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -30,26 +16,40 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { VERSION } from "@/lib/config/version";
 
 export function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
     { href: "/impressum", label: "Impressum", icon: Building2 },
     { href: "/privacy", label: "Privacy", icon: Scale },
     { href: "/terms", label: "Terms", icon: FileText },
-  ]
+  ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         {/* App Switcher + Logo */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <AppSwitcher currentApp="Home" />
           <Link
             href="/"
-            className="flex items-center gap-3 shrink-0 hover:opacity-80 transition-opacity"
+            className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
             aria-label="Go to home"
           >
             <Image
@@ -57,7 +57,7 @@ export function Navbar() {
               alt="Helvety"
               width={120}
               height={30}
-              className="h-8 w-auto hidden sm:block"
+              className="hidden h-8 w-auto sm:block"
               priority
             />
             <Image
@@ -69,20 +69,18 @@ export function Navbar() {
               priority
             />
           </Link>
-          <span className="text-xl font-black tracking-tight shrink-0">
+          <span className="shrink-0 text-xl font-black tracking-tight">
             by Rubin
           </span>
         </div>
 
         {/* Navigation Links */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex shrink-0 items-center gap-2">
           {/* Desktop navigation links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
               <Button key={link.href} variant="ghost" size="sm" asChild>
-                <Link href={link.href}>
-                  {link.label}
-                </Link>
+                <Link href={link.href}>{link.label}</Link>
               </Button>
             ))}
           </div>
@@ -112,7 +110,7 @@ export function Navbar() {
               </DialogHeader>
               <>
                 <div className="border-t" />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   {VERSION || "Unknown build time"}
                 </p>
               </>
@@ -159,36 +157,26 @@ export function Navbar() {
               <SheetHeader>
                 <SheetTitle>Navigation</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-2 mt-6">
+              <nav className="mt-6 flex flex-col gap-2">
                 {navLinks.map((link) => {
-                  const Icon = link.icon
+                  const Icon = link.icon;
                   return (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                      className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Icon className="h-4 w-4" />
                       {link.label}
                     </Link>
-                  )
+                  );
                 })}
-                <a
-                  href="https://github.com/CasparRubin/helvety.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Github className="h-4 w-4" />
-                  GitHub
-                </a>
               </nav>
             </SheetContent>
           </Sheet>
         </div>
       </div>
     </nav>
-  )
+  );
 }

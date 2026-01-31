@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const fadeInUp = {
@@ -37,13 +37,17 @@ export default function Home() {
           <motion.div
             initial={isFirefox ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
             animate={isFirefox ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-            transition={isFirefox ? { 
-              duration: 0.6, 
-              ease: "easeOut" 
-            } : { 
-              duration: 0.8, 
-              ease: "easeOut"
-            }}
+            transition={
+              isFirefox
+                ? {
+                    duration: 0.6,
+                    ease: "easeOut",
+                  }
+                : {
+                    duration: 0.8,
+                    ease: "easeOut",
+                  }
+            }
             className="logo-glow-wrapper flex justify-center"
           >
             <Image
@@ -65,15 +69,16 @@ export default function Home() {
             className="flex w-full flex-col items-center gap-8"
           >
             <motion.div variants={fadeInUp}>
-              <p className="text-sm md:text-base text-muted-foreground">
-                <span className="text-[#FF0000] font-medium">Swiss</span> Engineering
+              <p className="text-muted-foreground text-sm md:text-base">
+                <span className="font-medium text-[#FF0000]">Swiss</span>{" "}
+                Engineering
               </p>
             </motion.div>
           </motion.div>
         </div>
 
         {/* Gradient overlay for depth */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-background to-background/80" />
+        <div className="from-background via-background to-background/80 absolute inset-0 -z-10 bg-gradient-to-b" />
       </section>
     </main>
   );

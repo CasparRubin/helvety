@@ -35,27 +35,28 @@ This project is built with modern web technologies:
 
 ```
 helvety.com/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── globals.css         # Global styles
-│   │   ├── icon.svg            # App icon
-│   │   ├── layout.tsx          # Root layout component
-│   │   ├── page.tsx            # Main page component
-│   │   ├── impressum/          # Impressum page
-│   │   ├── privacy/            # Privacy policy page
-│   │   ├── terms/              # Terms of service page
-│   │   ├── robots.ts           # Robots.txt configuration
-│   │   └── sitemap.ts          # Sitemap configuration
-│   ├── components/             # React components
-│   │   ├── ui/                 # shadcn/ui component library
-│   │   ├── app-switcher.tsx    # Helvety ecosystem app switcher
-│   │   ├── navbar.tsx          # Navigation bar
-│   │   ├── theme-provider.tsx  # Theme context provider
-│   │   └── theme-switcher.tsx  # Dark/light mode switcher
-│   └── lib/                    # Utility functions
-│       ├── config/             # Configuration files
-│       │   └── version.ts      # Build version
-│       └── utils.ts            # General utility functions
+├── app/                        # Next.js App Router
+│   ├── globals.css             # Global styles
+│   ├── icon.svg                # App icon
+│   ├── layout.tsx              # Root layout component
+│   ├── page.tsx                # Main page component
+│   ├── error.tsx               # Error boundary
+│   ├── impressum/              # Impressum page
+│   ├── privacy/                # Privacy policy page
+│   ├── terms/                  # Terms of service page
+│   ├── robots.ts               # Robots.txt configuration
+│   └── sitemap.ts              # Sitemap configuration
+├── components/                 # React components
+│   ├── ui/                     # shadcn/ui component library
+│   │   └── index.ts            # Barrel exports
+│   ├── app-switcher.tsx        # Helvety ecosystem app switcher
+│   ├── navbar.tsx              # Navigation bar
+│   ├── theme-provider.tsx      # Theme context provider
+│   └── theme-switcher.tsx      # Dark/light mode switcher
+├── lib/                        # Utility functions
+│   ├── config/                 # Configuration files
+│   │   └── version.ts          # Build version
+│   └── utils.ts                # General utility functions
 ├── public/                     # Static assets
 │   └── *.svg                   # Logo and branding assets
 ├── scripts/                    # Build scripts
@@ -71,6 +72,8 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-This repository is public for transparency purposes only—all code is open for inspection so users can verify its behavior.
+This repository is public for transparency purposes only. All code is open for inspection so users can verify its behavior.
 
-**No license is granted; this is the default "All rights reserved" status.** You may view the code, but you cannot reuse, redistribute, or sell it without explicit permission. All rights are retained by the author.
+**All Rights Reserved.** No license is granted. You may view the code, but you may not copy, reuse, redistribute, modify, or sell it without explicit written permission.
+
+See [LICENSE](./LICENSE) for full terms.
