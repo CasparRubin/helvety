@@ -237,7 +237,7 @@ export default function TermsPage() {
               In accordance with Swiss law (UWG/LCD), we provide the following information about the technical steps leading to the conclusion of a contract:
             </p>
 
-            <h3 className="text-lg font-medium mb-3">5.1 Contract Formation Steps</h3>
+            <h3 className="text-lg font-medium mb-3">8.1 Contract Formation Steps</h3>
             <p className="text-sm text-muted-foreground mb-4">
               The ordering process consists of the following steps:
             </p>
@@ -255,7 +255,7 @@ export default function TermsPage() {
               <strong className="text-foreground">Contract Formation:</strong> Your order constitutes an offer to purchase. A binding contract is formed when we send you an order confirmation email. We reserve the right to reject orders at our discretion (e.g., due to stock unavailability, pricing errors, or suspected fraud).
             </p>
 
-            <h3 className="text-lg font-medium mb-3">5.2 Error Detection and Correction</h3>
+            <h3 className="text-lg font-medium mb-3">8.2 Error Detection and Correction</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Before submitting your order, you have the opportunity to detect and correct input errors:
             </p>
@@ -267,7 +267,7 @@ export default function TermsPage() {
               <li>If you notice an error after submitting your order, contact us immediately at contact@helvety.com.</li>
             </ul>
 
-            <h3 className="text-lg font-medium mb-3">5.3 Order Confirmation</h3>
+            <h3 className="text-lg font-medium mb-3">8.3 Order Confirmation</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Upon successful submission of your order, you will receive:
             </p>
