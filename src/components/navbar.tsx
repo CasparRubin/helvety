@@ -107,7 +107,7 @@ export function Navbar() {
               <DialogHeader className="pr-8">
                 <DialogTitle>About</DialogTitle>
                 <DialogDescription className="pt-2">
-                  The main Helvety website. Software and apparel, designed and developed in Switzerland.
+                  The main Helvety website. Swiss Engineering.
                 </DialogDescription>
               </DialogHeader>
               <>

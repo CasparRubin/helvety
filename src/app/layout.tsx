@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     default: "Helvety | Software and Apparel | Designed in Switzerland",
     template: "%s | Helvety",
   },
-  description: "Helvety creates software and apparel, designed and developed in Switzerland.",
+  description: "Helvety. Swiss Engineering.",
   keywords: ["Helvety", "Swiss software", "Swiss apparel", "Switzerland", "software development"],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -51,12 +51,12 @@ export const metadata: Metadata = {
     url: "https://helvety.com",
     siteName: "Helvety",
     title: "Helvety | Software and Apparel | Designed in Switzerland",
-    description: "Helvety creates software and apparel, designed and developed in Switzerland.",
+    description: "Helvety. Swiss Engineering.",
   },
   twitter: {
     card: "summary",
     title: "Helvety | Software and Apparel | Designed in Switzerland",
-    description: "Helvety creates software and apparel, designed and developed in Switzerland.",
+    description: "Helvety. Swiss Engineering.",
     images: [
       {
         url: "/Identifier_whiteBg.png",
