@@ -1,6 +1,5 @@
 /**
  * Static product data for helvety-store
- * This will eventually be moved to a database
  */
 
 import type {
@@ -185,8 +184,8 @@ Install it once in your SharePoint App Catalog and give all users instant access
     tiers: [
       {
         id: "helvety-spo-explorer-basic-monthly",
-        name: "Basic",
-        price: 25000,
+        name: "Solo",
+        price: 75000,
         currency: "CHF",
         interval: "monthly",
         features: [
@@ -199,8 +198,8 @@ Install it once in your SharePoint App Catalog and give all users instant access
       },
       {
         id: "helvety-spo-explorer-enterprise-monthly",
-        name: "Enterprise",
-        price: 50000,
+        name: "Supported",
+        price: 125000,
         currency: "CHF",
         interval: "monthly",
         highlighted: true,

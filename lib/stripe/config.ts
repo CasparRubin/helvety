@@ -15,9 +15,9 @@ export const STRIPE_PRICE_IDS = {
   "helvety-pdf-pro-monthly":
     process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID,
   "helvety-spo-explorer-basic-monthly":
-    process.env.STRIPE_HELVETY_SPO_EXPLORER_BASIC_MONTHLY_PRICE_ID,
+    process.env.STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID,
   "helvety-spo-explorer-enterprise-monthly":
-    process.env.STRIPE_HELVETY_SPO_EXPLORER_ENTERPRISE_MONTHLY_PRICE_ID,
+    process.env.STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID,
 } as const;
 
 /**
@@ -31,16 +31,16 @@ export const PRICE_ID_TO_PRODUCT = {
     name: "Helvety PDF Pro",
     type: "subscription" as const,
   },
-  [process.env.STRIPE_HELVETY_SPO_EXPLORER_BASIC_MONTHLY_PRICE_ID ?? ""]: {
+  [process.env.STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID ?? ""]: {
     productId: "helvety-spo-explorer",
     tierId: "helvety-spo-explorer-basic-monthly",
-    name: "Helvety SPO Explorer Basic",
+    name: "Helvety SPO Explorer Solo",
     type: "subscription" as const,
   },
-  [process.env.STRIPE_HELVETY_SPO_EXPLORER_ENTERPRISE_MONTHLY_PRICE_ID ?? ""]: {
+  [process.env.STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID ?? ""]: {
     productId: "helvety-spo-explorer",
     tierId: "helvety-spo-explorer-enterprise-monthly",
-    name: "Helvety SPO Explorer Enterprise",
+    name: "Helvety SPO Explorer Supported",
     type: "subscription" as const,
   },
 } as const;
