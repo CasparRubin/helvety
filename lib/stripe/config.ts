@@ -14,8 +14,8 @@
 export const STRIPE_PRICE_IDS = {
   'helvety-pdf-pro-monthly': process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID,
   // Add more price IDs as needed:
-  // 'helvety-explorer-standard': process.env.STRIPE_HELVETY_EXPLORER_STANDARD_PRICE_ID,
-  // 'helvety-explorer-enterprise': process.env.STRIPE_HELVETY_EXPLORER_ENTERPRISE_PRICE_ID,
+  // 'helvety-spo-explorer-basic-monthly': process.env.STRIPE_HELVETY_SPO_EXPLORER_BASIC_MONTHLY_PRICE_ID,
+  // 'helvety-spo-explorer-enterprise-monthly': process.env.STRIPE_HELVETY_SPO_EXPLORER_ENTERPRISE_MONTHLY_PRICE_ID,
 } as const
 
 /**

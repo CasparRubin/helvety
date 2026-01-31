@@ -75,10 +75,7 @@ export function MediaGallery({ items, className }: MediaGalleryProps) {
       {/* Gallery Grid */}
       <div
         className={cn(
-          'grid gap-4',
-          validItems.length === 1 && 'grid-cols-1',
-          validItems.length === 2 && 'grid-cols-1 sm:grid-cols-2',
-          validItems.length >= 3 && 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+          'grid gap-2 grid-cols-3',
           className
         )}
       >

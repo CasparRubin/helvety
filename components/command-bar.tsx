@@ -5,11 +5,10 @@
  * Provides contextual actions below the navbar based on the current page
  */
 
-import { ArrowLeft, Globe, Github, CreditCard } from 'lucide-react'
+import { ArrowLeft, Globe, Github } from 'lucide-react'
 import Link from 'next/link'
 
 import { ProductFilters, type FilterType } from '@/components/products'
-import { SubscriptionsSheet } from '@/components/subscriptions-sheet'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
@@ -79,15 +78,8 @@ function CatalogActions({ filter, onFilterChange, counts }: CatalogActionsProps)
         />
       </div>
 
-      {/* Right side - My Subscriptions */}
-      <SubscriptionsSheet
-        trigger={
-          <Button variant="outline" size="sm">
-            <CreditCard className="size-4" />
-            <span className="hidden sm:inline">My Subscriptions</span>
-          </Button>
-        }
-      />
+      {/* Right side - empty, subscriptions panel is always visible */}
+      <div />
     </>
   )
 }

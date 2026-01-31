@@ -3,6 +3,7 @@ import localFont from "next/font/local"
 
 import { Navbar } from "@/components/navbar"
 import { Providers } from "@/components/providers"
+import { SubscriptionsPanel } from "@/components/subscriptions-panel"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -110,8 +111,11 @@ async function NavbarWrapper({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <div className="w-full max-w-[2000px] mx-auto">
-        {children}
+      <div className="w-full max-w-[2000px] mx-auto flex">
+        <main className="flex-1 min-w-0">
+          {children}
+        </main>
+        <SubscriptionsPanel />
       </div>
     </>
   );

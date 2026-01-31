@@ -19,13 +19,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Separator } from "@/components/ui/separator"
 import {
   Sheet,
   SheetContent,
@@ -51,6 +52,7 @@ export function Navbar() {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const [subscriptionsSheetOpen, setSubscriptionsSheetOpen] = useState(false)
 
   useEffect(() => {
@@ -213,37 +215,57 @@ export function Navbar() {
 
           {isAuthenticated && (
             <>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+              <Popover open={profileOpen} onOpenChange={setProfileOpen}>
+                <PopoverTrigger asChild>
                   <Button variant="ghost" size="icon">
                     <User className="h-5 w-5" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">Account</p>
-                      {userEmail && (
-                        <p className="text-xs text-muted-foreground truncate max-w-[200px]">
-                          {userEmail}
-                        </p>
-                      )}
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80">
+                  <PopoverHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                        <User className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <PopoverTitle>Account</PopoverTitle>
+                        {userEmail && (
+                          <PopoverDescription className="truncate">
+                            {userEmail}
+                          </PopoverDescription>
+                        )}
+                      </div>
                     </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setSubscriptionsSheetOpen(true)}>
-                    <CreditCard className="h-4 w-4" />
-                    My Subscriptions
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} variant="destructive">
-                    <LogOut className="h-4 w-4" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </PopoverHeader>
+                  <Separator />
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setProfileOpen(false)
+                        setSubscriptionsSheetOpen(true)
+                      }}
+                    >
+                      <CreditCard className="h-4 w-4" />
+                      My Subscriptions
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setProfileOpen(false)
+                        handleLogout()
+                      }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
 
-              {/* Subscriptions sheet - controlled from dropdown */}
+              {/* Subscriptions sheet - accessible from profile popover */}
               <SubscriptionsSheet
                 open={subscriptionsSheetOpen}
                 onOpenChange={setSubscriptionsSheetOpen}

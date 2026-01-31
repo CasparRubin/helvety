@@ -93,7 +93,11 @@ Note: While your files never leave your device, the hosting provider may collect
   },
   software: {
     downloadUrl: 'https://pdf.helvety.com',
-    requirements: ['Modern web browser (Chrome, Firefox, Safari, Edge)'],
+    requirements: [
+      'Google Chrome 90+',
+      'Microsoft Edge 90+',
+      'Safari 14+',
+    ],
     licenseType: 'subscription',
   },
   media: {
@@ -142,83 +146,135 @@ Note: While your files never leave your device, the hosting provider may collect
 }
 
 /**
- * Helvety Explorer - SharePoint Online Extension
+ * Helvety SPO Explorer - SharePoint Online Extension
  */
 export const helvetyExplorer: SoftwareProduct = {
-  id: 'helvety-explorer',
-  slug: 'helvety-explorer',
-  name: 'Helvety Explorer',
+  id: 'helvety-spo-explorer',
+  slug: 'helvety-spo-explorer',
+  name: 'Helvety SPO Explorer',
   shortDescription:
-    'A clean, modern, and fast SharePoint navigation extension. Easily browse all your SharePoint sites with customizable, searchable navigation.',
-  description: `Helvety Explorer is a SharePoint Online Extension that transforms how you navigate your Microsoft 365 environment.
+    'A privacy-focused SharePoint site navigator. Browse, search, and favorite all your accessible sites with a lightning-fast interface. All preferences stored locally - no external data collection.',
+  description: `Helvety SPO Explorer is a privacy-focused SharePoint Framework (SPFx) application customizer that transforms how you navigate your Microsoft 365 environment.
 
-Install it once in your global app catalog and give all users instant access to a clean, modern, and lightning-fast navigation experience. Browse all SharePoint sites you have access to with a customizable, searchable interface that makes finding your content effortless.`,
+Privacy First - All data processing happens client-side. User preferences (favorites and settings) are stored locally in the browser's localStorage. The application does not collect or transmit user data to external servers.
+
+Key Features:
+• Site Discovery - Automatically fetches and displays all SharePoint sites you have access to
+• Real-time Search - Search across site titles, descriptions, and URLs with highlighted matches
+• Favorites Management - Mark frequently used sites as favorites for quick access
+• Quick Access Menu - Dropdown menu from the navbar button showing your favorite sites
+• Settings Panel - Customize display preferences including URL display, descriptions, and tab behavior
+
+The extension seamlessly adapts to SharePoint's light and dark themes, with full keyboard navigation and accessibility support. Performance is optimized with 5-minute caching and efficient React rendering.
+
+Install it once in your SharePoint App Catalog and give all users instant access to a clean, modern navigation experience.`,
   type: 'software',
   category: 'integrations',
   status: 'available',
   icon: 'LayoutGrid',
   features: [
-    'Clean, modern navigation interface',
-    'Lightning-fast site search',
-    'Shows all accessible SharePoint sites',
-    'Fully customizable appearance',
-    'Easy global app catalog installation',
-    'Works across your entire tenant',
-    'Responsive design for all devices',
-    'Regular updates and improvements',
+    'Site Discovery - auto-fetch all accessible sites',
+    'Real-time search with highlighted matches',
+    'Favorites management',
+    'Quick access dropdown menu',
+    'Customizable settings panel',
+    'SharePoint theme awareness (light/dark)',
+    'Performance optimized with caching',
+    'Full keyboard navigation and accessibility',
+    'Easy SharePoint App Catalog installation',
   ],
   pricing: {
     hasFreeTier: false,
     hasYearlyPricing: false,
     tiers: [
       {
-        id: 'helvety-explorer-standard',
-        name: 'Standard',
-        price: 9900,
+        id: 'helvety-spo-explorer-basic-monthly',
+        name: 'Basic',
+        price: 25000,
         currency: 'CHF',
-        interval: 'one-time',
+        interval: 'monthly',
         features: [
           'Full extension features',
-          '1 year of updates',
-          'Documentation',
-          'Email support',
-          'Single tenant license',
+          'All sites navigation',
+          'Favorites and quick access',
+          'Settings customization',
+          'Updates included with subscription',
         ],
       },
       {
-        id: 'helvety-explorer-enterprise',
+        id: 'helvety-spo-explorer-enterprise-monthly',
         name: 'Enterprise',
-        price: 29900,
+        price: 50000,
         currency: 'CHF',
-        interval: 'one-time',
+        interval: 'monthly',
         highlighted: true,
         features: [
           'Full extension features',
-          'Lifetime updates',
+          'All sites navigation',
+          'Favorites and quick access',
+          'Settings customization',
+          'Updates included with subscription',
           'Priority support',
-          'Custom branding assistance',
-          'Unlimited tenant license',
-          'Deployment support',
+          'Dedicated setup assistance',
         ],
       },
     ],
   },
   links: {
-    github: 'https://github.com/AugiLabs/helvety-explorer',
+    github: 'https://github.com/CasparRubin/helvety-spo-explorer',
   },
   software: {
     fileFormat: 'sppkg',
     requirements: [
       'SharePoint Online',
       'Microsoft 365 subscription',
-      'Global app catalog access (for installation)',
+      'SharePoint Administrator role (for installation)',
     ],
-    licenseType: 'perpetual',
+    licenseType: 'subscription',
+  },
+  media: {
+    screenshots: [
+      {
+        src: 'https://raw.githubusercontent.com/CasparRubin/helvety-spo-explorer/main/public/screenshots/1%20-%20SplitButton.png',
+        alt: 'Helvety SPO Explorer - Navigation bar with split button in light theme',
+        type: 'image',
+      },
+      {
+        src: 'https://raw.githubusercontent.com/CasparRubin/helvety-spo-explorer/main/public/screenshots/2%20-%20Panel.png',
+        alt: 'Helvety SPO Explorer - Sites panel displaying available sites in light theme',
+        type: 'image',
+      },
+      {
+        src: 'https://raw.githubusercontent.com/CasparRubin/helvety-spo-explorer/main/public/screenshots/3%20-%20Settings.png',
+        alt: 'Helvety SPO Explorer - Settings panel for customizing display preferences',
+        type: 'image',
+      },
+      {
+        src: 'https://raw.githubusercontent.com/CasparRubin/helvety-spo-explorer/main/public/screenshots/4%20-%20Search.png',
+        alt: 'Helvety SPO Explorer - Search functionality with highlighted matches',
+        type: 'image',
+      },
+      {
+        src: 'https://raw.githubusercontent.com/CasparRubin/helvety-spo-explorer/main/public/screenshots/5%20-%20QuickAccessFavorites.png',
+        alt: 'Helvety SPO Explorer - Quick access dropdown menu showing favorite sites',
+        type: 'image',
+      },
+      {
+        src: 'https://raw.githubusercontent.com/CasparRubin/helvety-spo-explorer/main/public/screenshots/6%20-%20DarkThemeSplitButton.png',
+        alt: 'Helvety SPO Explorer - Navigation bar with split button in dark theme',
+        type: 'image',
+      },
+      {
+        src: 'https://raw.githubusercontent.com/CasparRubin/helvety-spo-explorer/main/public/screenshots/7%20-%20DarkThemePanel.png',
+        alt: 'Helvety SPO Explorer - Sites panel displaying available sites in dark theme',
+        type: 'image',
+      },
+    ],
   },
   metadata: {
     targetAudience: ['SharePoint administrators', 'IT departments', 'Microsoft 365 users'],
     platforms: ['SharePoint Online', 'Microsoft 365'],
-    keywords: ['sharepoint', 'navigation', 'explorer', 'microsoft 365', 'sites'],
+    keywords: ['sharepoint', 'navigation', 'explorer', 'microsoft 365', 'sites', 'privacy'],
     featured: true,
     sortOrder: 2,
   },
