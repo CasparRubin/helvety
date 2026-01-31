@@ -16,12 +16,14 @@ import {
   ChevronDown,
   Info,
   Loader2,
+  RotateCcw,
   type LucideIcon,
 } from 'lucide-react'
 import { useParams, notFound, useSearchParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 
+import { getUserSubscriptions, reactivateSubscription } from '@/app/actions/subscription-actions'
 import { CommandBar } from '@/components/command-bar'
 import {
   ProductBadge,
@@ -47,7 +49,7 @@ import { isSoftwareProduct } from '@/lib/types/products'
 import { cn } from '@/lib/utils'
 
 import type { PricingTier } from '@/lib/types/products'
-import type { CreateCheckoutResponse } from '@/lib/types/entities'
+import type { CreateCheckoutResponse, Subscription } from '@/lib/types/entities'
 
 
 // Icon mapping for products
@@ -67,6 +69,26 @@ export default function ProductDetailPage() {
   const product = getProductBySlug(slug)
 
   const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null)
+  const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>([])
+
+  /**
+   * Fetch user subscriptions
+   */
+  const fetchSubscriptions = useCallback(async () => {
+    try {
+      const result = await getUserSubscriptions()
+      if (result.success && result.data) {
+        setUserSubscriptions(result.data)
+      }
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error)
+    }
+  }, [])
+
+  // Fetch subscriptions on mount
+  useEffect(() => {
+    fetchSubscriptions()
+  }, [fetchSubscriptions])
 
   // Handle checkout success/cancelled state from URL params
   useEffect(() => {
@@ -77,6 +99,8 @@ export default function ProductDetailPage() {
         description: 'Your subscription is now active.',
         duration: 5000,
       })
+      // Refresh subscriptions after successful checkout
+      fetchSubscriptions()
       // Clean up URL
       window.history.replaceState({}, '', `/products/${slug}`)
     } else if (checkoutStatus === 'cancelled') {
@@ -161,15 +185,26 @@ export default function ProductDetailPage() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-6">
-                {monthlyTiers.map((tier) => (
-                  <PricingCard
-                    key={tier.id}
-                    tier={tier}
-                    selected={selectedTier?.id === tier.id}
-                    onSelect={() => handleTierSelect(tier)}
-                    productSlug={slug}
-                  />
-                ))}
+                {monthlyTiers.map((tier) => {
+                  // Find subscription for this tier
+                  const tierSubscription = userSubscriptions.find(
+                    (sub) => 
+                      sub.tier_id === tier.id &&
+                      (sub.status === 'active' || sub.status === 'trialing')
+                  ) ?? null
+
+                  return (
+                    <PricingCard
+                      key={tier.id}
+                      tier={tier}
+                      selected={selectedTier?.id === tier.id}
+                      onSelect={() => handleTierSelect(tier)}
+                      productSlug={slug}
+                      userSubscription={tierSubscription}
+                      onReactivate={fetchSubscriptions}
+                    />
+                  )
+                })}
               </div>
             </section>
           </div>
@@ -243,6 +278,8 @@ interface PricingCardProps {
   selected: boolean
   onSelect: () => void
   productSlug: string
+  userSubscription?: Subscription | null
+  onReactivate?: () => void
 }
 
 // Tier IDs that have Stripe checkout enabled
@@ -251,12 +288,21 @@ const CHECKOUT_ENABLED_TIERS = [
   // Add more tier IDs here as they are configured in Stripe
 ]
 
-function PricingCard({ tier, selected, onSelect, productSlug }: PricingCardProps) {
+function PricingCard({ tier, selected, onSelect, productSlug, userSubscription, onReactivate }: PricingCardProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [isReactivating, setIsReactivating] = useState(false)
   const isRecurring = tier.interval === 'monthly' || tier.interval === 'yearly'
   const intervalLabel = isRecurring ? '/month' : tier.interval === 'one-time' ? 'one-time' : ''
   // Check checkout eligibility based on tier ID (stable between server/client)
   const hasPaidCheckout = !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id)
+
+  // Subscription state checks
+  const hasActiveSubscription = userSubscription && 
+    (userSubscription.status === 'active' || userSubscription.status === 'trialing') &&
+    !userSubscription.cancel_at_period_end
+  const isPendingCancellation = userSubscription &&
+    (userSubscription.status === 'active' || userSubscription.status === 'trialing') &&
+    userSubscription.cancel_at_period_end
 
   const formatPrice = (cents: number) => {
     if (cents === 0) return 'Free'
@@ -264,9 +310,52 @@ function PricingCard({ tier, selected, onSelect, productSlug }: PricingCardProps
   }
 
   /**
+   * Handle reactivate subscription
+   */
+  const handleReactivate = async () => {
+    if (!userSubscription) return
+
+    setIsReactivating(true)
+
+    try {
+      const result = await reactivateSubscription(userSubscription.id)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to reactivate subscription')
+      }
+
+      toast.success('Subscription reactivated', {
+        description: 'Your subscription will continue as normal.',
+      })
+
+      onReactivate?.()
+    } catch (error) {
+      console.error('Reactivate subscription error:', error)
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to reactivate subscription. Please try again.'
+      )
+    } finally {
+      setIsReactivating(false)
+    }
+  }
+
+  /**
    * Handle checkout for paid tiers via Stripe
    */
   const handleCheckout = async () => {
+    // Handle reactivation
+    if (isPendingCancellation) {
+      handleReactivate()
+      return
+    }
+
+    // Already subscribed - do nothing
+    if (hasActiveSubscription) {
+      return
+    }
+
     if (tier.isFree || !hasPaidCheckout) {
       onSelect()
       return
@@ -311,13 +400,32 @@ function PricingCard({ tier, selected, onSelect, productSlug }: PricingCardProps
     <div
       className={cn(
         "relative flex w-80 flex-col rounded-2xl border bg-card px-6 py-8 text-center transition-all duration-200",
-        selected && "border-primary ring-2 ring-primary",
-        tier.highlighted && !selected && "border-primary shadow-xl",
-        !tier.highlighted && !selected && "hover:border-primary/50 hover:shadow-lg"
+        hasActiveSubscription && "border-green-500 ring-2 ring-green-500 bg-green-500/5",
+        isPendingCancellation && "border-amber-500 ring-2 ring-amber-500 bg-amber-500/5",
+        !hasActiveSubscription && !isPendingCancellation && selected && "border-primary ring-2 ring-primary",
+        !hasActiveSubscription && !isPendingCancellation && tier.highlighted && !selected && "border-primary shadow-xl",
+        !hasActiveSubscription && !isPendingCancellation && !tier.highlighted && !selected && "hover:border-primary/50 hover:shadow-lg"
       )}
     >
-      {/* Popular badge */}
-      {tier.highlighted && (
+      {/* Current Plan badge */}
+      {hasActiveSubscription && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="rounded-full bg-green-500 px-3 py-1 text-xs font-medium text-white shadow-md flex items-center gap-1">
+            <Check className="size-3" />
+            Current Plan
+          </span>
+        </div>
+      )}
+      {/* Canceling badge */}
+      {isPendingCancellation && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-medium text-white shadow-md">
+            Canceling
+          </span>
+        </div>
+      )}
+      {/* Popular badge - only show if not subscribed */}
+      {tier.highlighted && !hasActiveSubscription && !isPendingCancellation && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
           <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground shadow-md">
             Popular
@@ -392,14 +500,32 @@ function PricingCard({ tier, selected, onSelect, productSlug }: PricingCardProps
       {!tier.isFree && (
         <Button
           className="mt-6 w-full"
-          variant={tier.highlighted ? 'default' : 'outline'}
+          variant={
+            hasActiveSubscription 
+              ? 'outline' 
+              : isPendingCancellation 
+                ? 'default' 
+                : tier.highlighted 
+                  ? 'default' 
+                  : 'outline'
+          }
           onClick={handleCheckout}
-          disabled={isLoading || !hasPaidCheckout}
+          disabled={isLoading || isReactivating || !hasPaidCheckout || !!hasActiveSubscription}
         >
-          {isLoading ? (
+          {isLoading || isReactivating ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Processing...
+              {isReactivating ? 'Reactivating...' : 'Processing...'}
+            </>
+          ) : hasActiveSubscription ? (
+            <>
+              <Check className="mr-2 size-4" />
+              Current Plan
+            </>
+          ) : isPendingCancellation ? (
+            <>
+              <RotateCcw className="mr-2 size-4" />
+              Reactivate
             </>
           ) : hasPaidCheckout ? (
             'Subscribe Now'

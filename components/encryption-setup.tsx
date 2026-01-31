@@ -1,6 +1,6 @@
 'use client'
 
-import { Fingerprint, ShieldCheck, AlertTriangle, Loader2, Smartphone } from 'lucide-react'
+import { Fingerprint, ShieldCheck, AlertTriangle, Loader2, Smartphone, CheckCircle2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 
@@ -33,13 +33,23 @@ interface EncryptionSetupProps {
   onComplete?: () => void
 }
 
-/** Setup step for tracking progress through the two-step flow */
-type SetupStep = 'initial' | 'registering' | 'verifying' | 'complete'
+/** Setup step for tracking progress through the flow */
+type SetupStep = 'initial' | 'registering' | 'ready_to_sign_in' | 'signing_in' | 'complete'
+
+/** Data stored after registration, needed for sign-in step */
+interface RegistrationData {
+  credentialId: string
+  prfParams: { prfSalt: string; version: number }
+}
 
 /**
  * Component for setting up encryption with passkey
  * Uses WebAuthn PRF extension to derive encryption keys from device biometrics
  * Also registers the passkey for authentication (passwordless login)
+ * 
+ * Flow: initial → registering → ready_to_sign_in → signing_in → complete
+ * 1. User clicks "Set Up with Phone" → creates passkey on phone
+ * 2. User clicks "Sign In with Phone" → authenticates to derive encryption key
  */
 export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new_user', onComplete }: EncryptionSetupProps) {
   const router = useRouter()
@@ -54,6 +64,7 @@ export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new
   const [isLoading, setIsLoading] = useState(false)
   const [isCheckingSupport, setIsCheckingSupport] = useState(true)
   const [setupStep, setSetupStep] = useState<SetupStep>('initial')
+  const [registrationData, setRegistrationData] = useState<RegistrationData | null>(null)
   const setupInProgressRef = useRef(false)
 
   // Get the current auth step for the stepper
@@ -68,14 +79,16 @@ export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new
     void checkSupport()
   }, [checkPRFSupport])
 
-  // Reset to initial state (used when cancelling during step 1)
+  // Reset to initial state (used when cancelling during registration)
   const resetSetup = () => {
     setSetupStep('initial')
+    setRegistrationData(null)
     setIsLoading(false)
     setError('')
     setupInProgressRef.current = false
   }
 
+  // Step 1: Handle passkey registration only
   const handleSetup = async () => {
     // Prevent double submission
     if (setupInProgressRef.current) return
@@ -90,7 +103,7 @@ export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new
       // Generate PRF params for encryption
       const prfParams = generatePRFParams()
 
-      // Step 1: Generate server-side registration options for auth
+      // Generate server-side registration options for auth
       const serverOptions = await generatePasskeyRegistrationOptions(origin)
       if (!serverOptions.success || !serverOptions.data) {
         setError(serverOptions.error || 'Failed to generate registration options')
@@ -98,7 +111,6 @@ export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new
         return
       }
 
-      // Step 2: Register passkey with both auth challenge and PRF
       // Show registering step UI before triggering WebAuthn
       setSetupStep('registering')
       
@@ -138,7 +150,7 @@ export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new
         return
       }
 
-      // Step 3: Verify and store credential for authentication (server-side)
+      // Verify and store credential for authentication (server-side)
       const verifyResult = await verifyPasskeyRegistration(regResult.response, origin)
       if (!verifyResult.success) {
         // Log but don't fail - encryption is more important
@@ -146,54 +158,80 @@ export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new
         // Continue with encryption setup
       }
 
-      // Step 4: Authenticate to get PRF output (required for encryption key)
-      // Show verifying step UI before triggering WebAuthn again
-      setSetupStep('verifying')
-      
+      // Store registration data for the sign-in step
+      setRegistrationData({
+        credentialId: regResult.credentialId,
+        prfParams: { prfSalt: prfParams.prfSalt, version: PRF_VERSION },
+      })
+
+      // Move to ready_to_sign_in state - user must click button to proceed
+      setSetupStep('ready_to_sign_in')
+      setIsLoading(false)
+      setupInProgressRef.current = false
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred'
+      setError(message)
+      resetSetup()
+    }
+  }
+
+  // Step 2: Handle sign-in to complete encryption setup
+  const handleSignIn = async () => {
+    if (!registrationData) {
+      setError('Registration data not found. Please start over.')
+      resetSetup()
+      return
+    }
+
+    setError('')
+    setIsLoading(true)
+    setSetupStep('signing_in')
+
+    try {
       let authResult
       try {
         authResult = await authenticatePasskeyWithEncryption(
-          [regResult.credentialId],
-          prfParams.prfSalt
+          [registrationData.credentialId],
+          registrationData.prfParams.prfSalt
         )
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to authenticate for encryption'
-        // Check if user cancelled - they can retry just step 2 since passkey is already created
+        // Check if user cancelled - they can retry since passkey is already created
         if (err instanceof Error && err.name === 'NotAllowedError') {
-          setError('Verification was cancelled. Your passkey was created - please verify to complete setup.')
+          setError('Sign in was cancelled. Please try again.')
         } else {
           setError(message)
         }
-        // Stay on verifying step so user can retry
+        // Go back to ready_to_sign_in so user can retry
+        setSetupStep('ready_to_sign_in')
         setIsLoading(false)
-        setupInProgressRef.current = false
         return
       }
 
       if (!authResult.prfOutput) {
         setError('Failed to get encryption key from passkey. Please try again.')
+        setSetupStep('ready_to_sign_in')
         setIsLoading(false)
-        setupInProgressRef.current = false
         return
       }
 
-      // Step 5: Derive master key from PRF output
-      const masterKey = await deriveKeyFromPRF(authResult.prfOutput, prfParams)
+      // Derive master key from PRF output
+      const masterKey = await deriveKeyFromPRF(authResult.prfOutput, registrationData.prfParams)
 
-      // Step 6: Cache the master key
+      // Cache the master key
       await storeMasterKey(userId, masterKey)
 
-      // Step 7: Save encryption params to database
+      // Save encryption params to database
       const saveResult = await savePasskeyParams({
-        prf_salt: prfParams.prfSalt,
-        credential_id: regResult.credentialId,
-        version: PRF_VERSION,
+        prf_salt: registrationData.prfParams.prfSalt,
+        credential_id: registrationData.credentialId,
+        version: registrationData.prfParams.version,
       })
 
       if (!saveResult.success) {
         setError(saveResult.error ?? 'Failed to save passkey settings')
+        setSetupStep('ready_to_sign_in')
         setIsLoading(false)
-        setupInProgressRef.current = false
         return
       }
 
@@ -209,17 +247,9 @@ export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new
     } catch (err) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred'
       setError(message)
+      setSetupStep('ready_to_sign_in')
       setIsLoading(false)
-      setupInProgressRef.current = false
     }
-  }
-
-  // Retry verification step (when user cancelled during step 2)
-  const handleRetryVerification = async () => {
-    // This would need the stored regResult and prfParams
-    // For simplicity, we'll reset and start over
-    // A more sophisticated implementation could cache these values
-    resetSetup()
   }
 
   // Show loading while checking PRF support
@@ -275,8 +305,8 @@ export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new
     )
   }
 
-  // Show step-specific UI when in registering or verifying state
-  if (setupStep === 'registering' || setupStep === 'verifying') {
+  // Show registering state - waiting for passkey creation
+  if (setupStep === 'registering') {
     return (
       <div className="flex flex-col items-center w-full max-w-md">
         <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
@@ -284,73 +314,134 @@ export function EncryptionSetup({ userId, userEmail: _userEmail, flowType = 'new
           <CardHeader className="space-y-1">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-primary" />
-              <CardTitle>
-                {setupStep === 'registering' ? 'Create Passkey' : 'Verify Encryption'}
-              </CardTitle>
+              <CardTitle>Create Passkey</CardTitle>
             </div>
             <CardDescription>
-              {setupStep === 'registering' 
-                ? 'Save the passkey to your phone'
-                : 'Authenticate to activate encryption'
-              }
+              Save the passkey to your phone
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-lg border p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  {isLoading ? (
-                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                  ) : (
-                    <Fingerprint className="h-5 w-5 text-primary" />
-                  )}
+                  <Loader2 className="h-5 w-5 text-primary animate-spin" />
                 </div>
                 <div>
-                  <p className="font-medium">
-                    {setupStep === 'registering' ? 'Scan QR Code' : 'Scan Again'}
-                  </p>
+                  <p className="font-medium">Scan QR Code</p>
                   <p className="text-sm text-muted-foreground">
-                    {setupStep === 'registering' 
-                      ? 'Use your phone to scan the QR code'
-                      : 'Scan once more to complete setup'
-                    }
+                    Use your phone to scan the QR code
                   </p>
                 </div>
               </div>
               
               <div className="pt-2 border-t">
                 <p className="text-sm text-muted-foreground">
-                  {setupStep === 'registering' 
-                    ? 'Scan the QR code with your phone and save the passkey using Face ID or fingerprint.'
-                    : 'Scan the QR code again with your phone to verify and activate encryption.'
-                  }
+                  Scan the QR code with your phone and save the passkey using Face ID or fingerprint.
                 </p>
               </div>
             </div>
 
             {error && (
-              <div className="space-y-2">
-                <p className="text-sm text-destructive">{error}</p>
-                {setupStep === 'verifying' && !isLoading && (
-                  <Button 
-                    onClick={handleRetryVerification} 
-                    variant="outline"
-                    className="w-full"
-                    size="sm"
-                  >
-                    Start Over
-                  </Button>
-                )}
-              </div>
+              <p className="text-sm text-destructive">{error}</p>
             )}
 
-            {isLoading && (
-              <div className="flex items-center justify-center py-2">
+            <div className="flex items-center justify-center py-2">
+              <p className="text-sm text-muted-foreground">
+                Waiting for your phone...
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Show ready_to_sign_in state - passkey created, waiting for user to click sign in
+  if (setupStep === 'ready_to_sign_in') {
+    return (
+      <div className="flex flex-col items-center w-full max-w-md">
+        <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
+        <Card className="w-full">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              <CardTitle>Passkey Created</CardTitle>
+            </div>
+            <CardDescription>
+              Now sign in with your passkey to complete setup
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg border border-green-500/50 bg-green-500/10 p-3">
+              <p className="text-sm text-green-600 dark:text-green-400">
+                Your passkey has been saved to your phone. Sign in once more to activate encryption.
+              </p>
+            </div>
+
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
+
+            <Button 
+              onClick={handleSignIn} 
+              className="w-full" 
+              disabled={isLoading}
+              size="lg"
+            >
+              <Smartphone className="mr-2 h-4 w-4" />
+              Sign In with Phone
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Show signing_in state - waiting for passkey authentication
+  if (setupStep === 'signing_in') {
+    return (
+      <div className="flex flex-col items-center w-full max-w-md">
+        <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
+        <Card className="w-full">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <CardTitle>Sign In</CardTitle>
+            </div>
+            <CardDescription>
+              Authenticate with your passkey to complete setup
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg border p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                  <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                </div>
+                <div>
+                  <p className="font-medium">Scan QR Code</p>
+                  <p className="text-sm text-muted-foreground">
+                    Use your phone to scan the QR code
+                  </p>
+                </div>
+              </div>
+              
+              <div className="pt-2 border-t">
                 <p className="text-sm text-muted-foreground">
-                  Waiting for your phone...
+                  Scan the QR code with your phone and authenticate using Face ID or fingerprint.
                 </p>
               </div>
+            </div>
+
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
             )}
+
+            <div className="flex items-center justify-center py-2">
+              <p className="text-sm text-muted-foreground">
+                Waiting for your phone...
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

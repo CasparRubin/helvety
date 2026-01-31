@@ -19,8 +19,8 @@ interface StepConfig {
 const FLOW_STEPS: Record<AuthFlowType, StepConfig[]> = {
   new_user: [
     { id: 'email', label: 'Email' },
-    { id: 'create_passkey', label: 'Create Passkey' },
-    { id: 'verify_encryption', label: 'Verify' },
+    { id: 'create_passkey', label: 'Setup Passkey' },
+    { id: 'verify_encryption', label: 'Sign In' },
   ],
   returning_user: [
     { id: 'email', label: 'Email' },
@@ -97,12 +97,13 @@ export function AuthStepper({ flowType, currentStep, className }: AuthStepperPro
 /**
  * Helper to determine the current auth step based on setup state
  */
-export function getSetupStep(setupStep: 'initial' | 'registering' | 'verifying' | 'complete'): AuthStep {
+export function getSetupStep(setupStep: 'initial' | 'registering' | 'ready_to_sign_in' | 'signing_in' | 'complete'): AuthStep {
   switch (setupStep) {
     case 'initial':
     case 'registering':
       return 'create_passkey'
-    case 'verifying':
+    case 'ready_to_sign_in':
+    case 'signing_in':
     case 'complete':
       return 'verify_encryption'
     default:

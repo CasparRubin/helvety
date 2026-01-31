@@ -26,8 +26,14 @@ This application implements a modern, passwordless authentication system with en
 
 ### Authentication Flow
 
-- **Magic Links** - Passwordless sign-in via email (rate-limited to 2 requests/minute)
-- **Passkey Authentication** - Sign in using your phone with Face ID, Touch ID, or fingerprint via WebAuthn
+**New Users:**
+1. Enter email → Receive magic link (rate-limited to 2 requests/minute)
+2. Click link → Setup passkey on your phone (Face ID, Touch ID, or fingerprint)
+3. Sign in with passkey to activate encryption
+
+**Returning Users:**
+1. Enter email → Passkey detected → Direct passkey authentication (no email needed)
+
 - **Unified Stepper UI** - Clear progress indicator through the authentication flow
 
 ### End-to-End Encryption

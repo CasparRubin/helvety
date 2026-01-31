@@ -1,11 +1,12 @@
 "use client"
 
-import { LogOut, ShieldCheck, User, Building2, Scale, FileText, Menu, Github, Info } from "lucide-react"
+import { LogOut, ShieldCheck, User, Building2, Scale, FileText, Menu, Github, Info, CreditCard } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
 import { AppSwitcher } from "@/components/app-switcher"
+import { SubscriptionsSheet } from "@/components/subscriptions-sheet"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { Button } from "@/components/ui/button"
 import {
@@ -50,6 +51,7 @@ export function Navbar() {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [subscriptionsSheetOpen, setSubscriptionsSheetOpen] = useState(false)
 
   useEffect(() => {
     const getUser = async () => {
@@ -210,30 +212,43 @@ export function Navbar() {
           <ThemeSwitcher />
 
           {isAuthenticated && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">Account</p>
-                    {userEmail && (
-                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">
-                        {userEmail}
-                      </p>
-                    )}
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} variant="destructive">
-                  <LogOut className="h-4 w-4" />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">Account</p>
+                      {userEmail && (
+                        <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                          {userEmail}
+                        </p>
+                      )}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setSubscriptionsSheetOpen(true)}>
+                    <CreditCard className="h-4 w-4" />
+                    My Subscriptions
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} variant="destructive">
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Subscriptions sheet - controlled from dropdown */}
+              <SubscriptionsSheet
+                open={subscriptionsSheetOpen}
+                onOpenChange={setSubscriptionsSheetOpen}
+              />
+            </>
           )}
 
           {/* Mobile burger menu */}

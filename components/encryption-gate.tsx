@@ -1,11 +1,9 @@
 'use client'
 
 import { Loader2 } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
 import { useEffect, useState, useMemo, type ReactNode } from 'react'
 
 import { getEncryptionParams } from '@/app/actions/encryption-actions'
-import { type AuthFlowType } from '@/components/auth-stepper'
 import { EncryptionSetup } from '@/components/encryption-setup'
 import { EncryptionUnlock } from '@/components/encryption-unlock'
 import { useEncryptionContext, type PRFKeyParams } from '@/lib/crypto'
@@ -31,15 +29,11 @@ type EncryptionStatus =
  */
 export function EncryptionGate({ userId, userEmail, children }: EncryptionGateProps) {
   const { isUnlocked, isLoading: contextLoading, checkEncryptionState } = useEncryptionContext()
-  const searchParams = useSearchParams()
   
   const [hasCheckedParams, setHasCheckedParams] = useState(false)
   const [passkeyParams, setPasskeyParams] = useState<PRFKeyParams | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [manualUnlock, setManualUnlock] = useState(false)
-
-  // Get flow type from URL params (passed from login -> callback -> here)
-  const flowType: AuthFlowType = (searchParams.get('flow') as AuthFlowType) ?? 'new_user'
 
   // Check encryption state on mount
   useEffect(() => {
@@ -127,7 +121,6 @@ export function EncryptionGate({ userId, userEmail, children }: EncryptionGatePr
         <EncryptionSetup 
           userId={userId} 
           userEmail={userEmail}
-          flowType={flowType}
           onComplete={handleSetupComplete} 
         />
       </div>
@@ -140,7 +133,6 @@ export function EncryptionGate({ userId, userEmail, children }: EncryptionGatePr
         <EncryptionUnlock 
           userId={userId} 
           passkeyParams={passkeyParams}
-          flowType={flowType}
           onUnlock={handleUnlock}
         />
       </div>

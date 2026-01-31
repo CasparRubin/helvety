@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 
 import { createClient } from '@/lib/supabase/server'
 
+import type { EmailOtpType } from '@supabase/supabase-js'
+
 /**
  * Auth callback route for handling Supabase magic links and OAuth
  * 
@@ -14,16 +16,6 @@ export async function GET(request: Request) {
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type')
   const next = searchParams.get('next') ?? '/'
-  const flow = searchParams.get('flow') // Preserve flow type for stepper UI
-
-  // Build redirect URL with flow param if present
-  const buildRedirectUrl = (path: string) => {
-    const url = new URL(path, origin)
-    if (flow) {
-      url.searchParams.set('flow', flow)
-    }
-    return url.toString()
-  }
 
   // Handle PKCE flow (code exchange)
   if (code) {
@@ -31,7 +23,7 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error) {
-      return NextResponse.redirect(buildRedirectUrl(next))
+      return NextResponse.redirect(new URL(next, origin))
     }
     
     console.error('Auth callback error (code exchange):', error)
@@ -39,15 +31,16 @@ export async function GET(request: Request) {
   }
 
   // Handle token hash (email OTP verification link)
+  // Supports all Supabase email types: magiclink, signup, recovery, invite, email_change
   if (token_hash && type) {
     const supabase = await createClient()
     const { error } = await supabase.auth.verifyOtp({
       token_hash,
-      type: type as 'email' | 'magiclink',
+      type: type as EmailOtpType,
     })
     
     if (!error) {
-      return NextResponse.redirect(buildRedirectUrl(next))
+      return NextResponse.redirect(new URL(next, origin))
     }
     
     console.error('Auth callback error (token hash):', error)

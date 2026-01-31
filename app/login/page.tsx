@@ -118,11 +118,11 @@ function LoginContent() {
       setHasPasskey(userHasPasskey)
       
       if (userHasPasskey) {
-        // Returning user - go directly to passkey authentication (mandatory)
+        // Returning user - go directly to passkey authentication (no email needed)
         setIsLoading(false)
         await handlePasskeyAuth()
       } else {
-        // New user - send magic link for email verification
+        // New user or user without passkey - send magic link to authenticate
         await sendMagicLink(normalizedEmail)
         setIsLoading(false)
       }
@@ -132,7 +132,7 @@ function LoginContent() {
     }
   }
 
-  // Send magic link for email verification (new users only)
+  // Send magic link for authentication (creates user if new)
   const sendMagicLink = async (userEmail: string) => {
     // Rate limit: max 2 requests per minute
     const now = Date.now()
@@ -147,8 +147,8 @@ function LoginContent() {
     // Track this request
     magicLinkTimestamps.current = [...recentRequests, now]
 
-    // New user flow - magic link is for email verification only
-    const redirectTo = `${window.location.origin}/auth/callback?flow=new_user`
+    // Magic link flow - creates user if new, logs in if existing
+    const redirectTo = `${window.location.origin}/auth/callback`
 
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email: userEmail,
@@ -313,7 +313,7 @@ function LoginContent() {
               </form>
             )}
 
-            {/* Check email step (new users only - for email verification) */}
+            {/* Check email step - waiting for user to click magic link */}
             {step === 'check_email' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-center py-4">

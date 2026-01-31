@@ -7,9 +7,10 @@
  */
 
 import { useState } from 'react'
-import { Check, Sparkles, Loader2 } from 'lucide-react'
+import { Check, Sparkles, Loader2, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { reactivateSubscription } from '@/app/actions/subscription-actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,7 +20,7 @@ import { formatPrice, getIntervalShortLabel } from '@/lib/utils/pricing'
 import { FeatureList } from './feature-list'
 
 import type { PricingTier } from '@/lib/types/products'
-import type { CreateCheckoutResponse } from '@/lib/types/entities'
+import type { CreateCheckoutResponse, Subscription } from '@/lib/types/entities'
 
 
 interface PricingCardProps {
@@ -37,6 +38,10 @@ interface PricingCardProps {
   disabled?: boolean
   /** Product slug for redirect URLs */
   productSlug?: string
+  /** User's existing subscription for this tier (if any) */
+  userSubscription?: Subscription | null
+  /** Callback when subscription is reactivated */
+  onReactivate?: () => void
 }
 
 // Tier IDs that have Stripe checkout enabled
@@ -54,12 +59,23 @@ export function PricingCard({
   ctaText,
   disabled = false,
   productSlug,
+  userSubscription,
+  onReactivate,
 }: PricingCardProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [isReactivating, setIsReactivating] = useState(false)
   const isRecurring = tier.interval === 'monthly' || tier.interval === 'yearly'
   const intervalLabel = getIntervalShortLabel(tier.interval)
   // Check checkout eligibility based on tier ID (stable between server/client)
   const hasPaidCheckout = !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id)
+
+  // Subscription state checks
+  const hasActiveSubscription = userSubscription && 
+    (userSubscription.status === 'active' || userSubscription.status === 'trialing') &&
+    !userSubscription.cancel_at_period_end
+  const isPendingCancellation = userSubscription &&
+    (userSubscription.status === 'active' || userSubscription.status === 'trialing') &&
+    userSubscription.cancel_at_period_end
 
   // Calculate monthly equivalent for yearly plans
   const monthlyEquivalent =
@@ -69,9 +85,43 @@ export function PricingCard({
 
   const getCtaText = () => {
     if (ctaText) return ctaText
+    if (hasActiveSubscription) return 'Current Plan'
+    if (isPendingCancellation) return 'Reactivate'
     if (tier.isFree) return 'Get Started'
     if (isRecurring) return 'Subscribe'
     return 'Buy Now'
+  }
+
+  /**
+   * Handle reactivate subscription
+   */
+  const handleReactivate = async () => {
+    if (!userSubscription) return
+
+    setIsReactivating(true)
+
+    try {
+      const result = await reactivateSubscription(userSubscription.id)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to reactivate subscription')
+      }
+
+      toast.success('Subscription reactivated', {
+        description: 'Your subscription will continue as normal.',
+      })
+
+      onReactivate?.()
+    } catch (error) {
+      console.error('Reactivate subscription error:', error)
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to reactivate subscription. Please try again.'
+      )
+    } finally {
+      setIsReactivating(false)
+    }
   }
 
   /**
@@ -122,9 +172,17 @@ export function PricingCard({
   }
 
   /**
-   * Handle button click - either custom onSelect or checkout
+   * Handle button click - either custom onSelect, checkout, or reactivate
    */
   const handleClick = () => {
+    if (isPendingCancellation) {
+      handleReactivate()
+      return
+    }
+    if (hasActiveSubscription) {
+      // Already subscribed - button should be disabled anyway
+      return
+    }
     if (onSelect) {
       onSelect(tier)
     } else if (hasPaidCheckout) {
@@ -136,12 +194,32 @@ export function PricingCard({
     <Card
       className={cn(
         'relative flex flex-col',
-        tier.highlighted && 'ring-2 ring-primary',
-        selected && 'ring-2 ring-primary bg-primary/5',
+        tier.highlighted && !hasActiveSubscription && 'ring-2 ring-primary',
+        hasActiveSubscription && 'ring-2 ring-green-500 bg-green-500/5',
+        isPendingCancellation && 'ring-2 ring-amber-500 bg-amber-500/5',
+        selected && !hasActiveSubscription && !isPendingCancellation && 'ring-2 ring-primary bg-primary/5',
         className
       )}
     >
-      {tier.highlighted && (
+      {/* Current Plan badge */}
+      {hasActiveSubscription && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <Badge className="gap-1 bg-green-500 hover:bg-green-500">
+            <Check className="size-3" />
+            Current Plan
+          </Badge>
+        </div>
+      )}
+      {/* Canceling badge */}
+      {isPendingCancellation && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <Badge variant="secondary" className="gap-1">
+            Canceling
+          </Badge>
+        </div>
+      )}
+      {/* Recommended badge - only show if not subscribed */}
+      {tier.highlighted && !hasActiveSubscription && !isPendingCancellation && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
           <Badge className="gap-1">
             <Sparkles className="size-3" />
@@ -150,7 +228,7 @@ export function PricingCard({
         </div>
       )}
 
-      <CardHeader className={cn(tier.highlighted && 'pt-4')}>
+      <CardHeader className={cn((tier.highlighted || hasActiveSubscription || isPendingCancellation) && 'pt-4')}>
         <CardTitle className="flex items-center justify-between">
           <span>{tier.name}</span>
           {tier.isFree && (
@@ -186,14 +264,32 @@ export function PricingCard({
       <CardFooter>
         <Button
           className="w-full"
-          variant={tier.highlighted ? 'default' : 'outline'}
+          variant={
+            hasActiveSubscription 
+              ? 'outline' 
+              : isPendingCancellation 
+                ? 'default' 
+                : tier.highlighted 
+                  ? 'default' 
+                  : 'outline'
+          }
           onClick={handleClick}
-          disabled={disabled || isLoading}
+          disabled={disabled || isLoading || isReactivating || !!hasActiveSubscription}
         >
-          {isLoading ? (
+          {isLoading || isReactivating ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Processing...
+              {isReactivating ? 'Reactivating...' : 'Processing...'}
+            </>
+          ) : hasActiveSubscription ? (
+            <>
+              <Check className="size-4" />
+              Current Plan
+            </>
+          ) : isPendingCancellation ? (
+            <>
+              <RotateCcw className="size-4" />
+              Reactivate
             </>
           ) : selected ? (
             <>
@@ -217,6 +313,10 @@ interface PricingCardsProps {
   disabled?: boolean
   /** Product slug for checkout redirect URLs */
   productSlug?: string
+  /** User's subscriptions (to check if already subscribed) */
+  userSubscriptions?: Subscription[]
+  /** Callback when a subscription is reactivated */
+  onReactivate?: () => void
 }
 
 export function PricingCards({
@@ -226,7 +326,20 @@ export function PricingCards({
   selectedTierId,
   disabled = false,
   productSlug,
+  userSubscriptions = [],
+  onReactivate,
 }: PricingCardsProps) {
+  /**
+   * Find user's subscription for a specific tier
+   */
+  const getSubscriptionForTier = (tierId: string): Subscription | null => {
+    return userSubscriptions.find(
+      (sub) => 
+        sub.tier_id === tierId &&
+        (sub.status === 'active' || sub.status === 'trialing')
+    ) ?? null
+  }
+
   return (
     <div
       className={cn(
@@ -245,6 +358,8 @@ export function PricingCards({
           showMonthlyEquivalent={tier.interval === 'yearly'}
           disabled={disabled}
           productSlug={productSlug}
+          userSubscription={getSubscriptionForTier(tier.id)}
+          onReactivate={onReactivate}
         />
       ))}
     </div>
