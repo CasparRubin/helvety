@@ -1,67 +1,67 @@
-import * as React from "react"
+import * as React from "react";
 
-import { SCREEN_BREAKPOINTS } from "@/lib/constants"
+import { SCREEN_BREAKPOINTS } from "@/lib/constants";
 
 /**
  * Screen size category
  */
-export type ScreenSize = "mobile" | "tablet" | "desktop"
+export type ScreenSize = "mobile" | "tablet" | "desktop";
 
 interface UseScreenSizeReturn {
-  readonly screenSize: ScreenSize
-  readonly width: number
-  readonly isMobile: boolean
-  readonly isTablet: boolean
-  readonly isDesktop: boolean
+  readonly screenSize: ScreenSize;
+  readonly width: number;
+  readonly isMobile: boolean;
+  readonly isTablet: boolean;
+  readonly isDesktop: boolean;
 }
 
 /**
  * Custom hook to detect screen size category and provide responsive utilities.
- * 
+ *
  * @returns Object containing screen size category, width, and utility functions
  */
 export function useScreenSize(): UseScreenSizeReturn {
-  const [screenSize, setScreenSize] = React.useState<ScreenSize>("desktop")
-  const [width, setWidth] = React.useState<number>(0)
+  const [screenSize, setScreenSize] = React.useState<ScreenSize>("desktop");
+  const [width, setWidth] = React.useState<number>(0);
 
   React.useEffect(() => {
-    if (typeof window === "undefined") return
+    if (typeof window === "undefined") return;
 
     const updateScreenSize = (): void => {
-      const w = window.innerWidth
-      setWidth(w)
-      
+      const w = window.innerWidth;
+      setWidth(w);
+
       if (w < SCREEN_BREAKPOINTS.MOBILE) {
-        setScreenSize("mobile")
+        setScreenSize("mobile");
       } else if (w < SCREEN_BREAKPOINTS.TABLET) {
-        setScreenSize("tablet")
+        setScreenSize("tablet");
       } else {
-        setScreenSize("desktop")
+        setScreenSize("desktop");
       }
-    }
+    };
 
     // Initial update
-    updateScreenSize()
+    updateScreenSize();
 
     // Listen for resize events
-    window.addEventListener("resize", updateScreenSize)
-    
+    window.addEventListener("resize", updateScreenSize);
+
     // Use ResizeObserver if available for more accurate updates
-    let resizeObserver: ResizeObserver | null = null
+    let resizeObserver: ResizeObserver | null = null;
     if (typeof ResizeObserver !== "undefined") {
       resizeObserver = new ResizeObserver(() => {
-        updateScreenSize()
-      })
-      resizeObserver.observe(document.body)
+        updateScreenSize();
+      });
+      resizeObserver.observe(document.body);
     }
 
     return () => {
-      window.removeEventListener("resize", updateScreenSize)
+      window.removeEventListener("resize", updateScreenSize);
       if (resizeObserver) {
-        resizeObserver.disconnect()
+        resizeObserver.disconnect();
       }
-    }
-  }, [])
+    };
+  }, []);
 
   return {
     screenSize,
@@ -69,6 +69,5 @@ export function useScreenSize(): UseScreenSizeReturn {
     isMobile: screenSize === "mobile",
     isTablet: screenSize === "tablet",
     isDesktop: screenSize === "desktop",
-  }
+  };
 }
-

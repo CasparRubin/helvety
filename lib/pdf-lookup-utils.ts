@@ -4,17 +4,17 @@
  * O(n) Array.find() operations to O(1) Map lookups.
  */
 
-import { validateArray } from "./validation-utils"
+import { validateArray } from "./validation-utils";
 
-import type { PdfFile, UnifiedPage } from "./types"
+import type { PdfFile, UnifiedPage } from "./types";
 
 /**
  * Creates a map of unified page numbers to UnifiedPage objects for O(1) lookups.
  * Converts O(n) Array.find() operations to O(1) Map lookups for better performance.
- * 
+ *
  * @param unifiedPages - Array of unified pages to convert to a map
  * @returns Map from unified page number to UnifiedPage object
- * 
+ *
  * @example
  * ```typescript
  * import { logger } from "./logger"
@@ -25,26 +25,30 @@ import type { PdfFile, UnifiedPage } from "./types"
  * }
  * ```
  */
-export function createPageMap(unifiedPages: ReadonlyArray<UnifiedPage>): Map<number, UnifiedPage> {
-  validateArray(unifiedPages, 'unifiedPages')
+export function createPageMap(
+  unifiedPages: ReadonlyArray<UnifiedPage>
+): Map<number, UnifiedPage> {
+  validateArray(unifiedPages, "unifiedPages");
 
-  const map = new Map<number, UnifiedPage>()
-  unifiedPages.forEach(page => {
-    if (!page || typeof page.unifiedPageNumber !== 'number') {
-      throw new Error('Invalid page object in unifiedPages array. Missing unifiedPageNumber.')
+  const map = new Map<number, UnifiedPage>();
+  unifiedPages.forEach((page) => {
+    if (!page || typeof page.unifiedPageNumber !== "number") {
+      throw new Error(
+        "Invalid page object in unifiedPages array. Missing unifiedPageNumber."
+      );
     }
-    map.set(page.unifiedPageNumber, page)
-  })
-  return map
+    map.set(page.unifiedPageNumber, page);
+  });
+  return map;
 }
 
 /**
  * Creates a map of file IDs to PdfFile objects for O(1) lookups.
  * Converts O(n) Array.find() operations to O(1) Map lookups for better performance.
- * 
+ *
  * @param pdfFiles - Array of PDF files to convert to a map
  * @returns Map from file ID to PdfFile object
- * 
+ *
  * @example
  * ```typescript
  * import { logger } from "./logger"
@@ -55,26 +59,30 @@ export function createPageMap(unifiedPages: ReadonlyArray<UnifiedPage>): Map<num
  * }
  * ```
  */
-export function createFileMap(pdfFiles: ReadonlyArray<PdfFile>): Map<string, PdfFile> {
-  validateArray(pdfFiles, 'pdfFiles')
+export function createFileMap(
+  pdfFiles: ReadonlyArray<PdfFile>
+): Map<string, PdfFile> {
+  validateArray(pdfFiles, "pdfFiles");
 
-  const map = new Map<string, PdfFile>()
-  pdfFiles.forEach(file => {
-    if (!file || typeof file.id !== 'string' || file.id.trim().length === 0) {
-      throw new Error('Invalid file object in pdfFiles array. Missing or invalid id.')
+  const map = new Map<string, PdfFile>();
+  pdfFiles.forEach((file) => {
+    if (!file || typeof file.id !== "string" || file.id.trim().length === 0) {
+      throw new Error(
+        "Invalid file object in pdfFiles array. Missing or invalid id."
+      );
     }
-    map.set(file.id, file)
-  })
-  return map
+    map.set(file.id, file);
+  });
+  return map;
 }
 
 /**
  * Creates a map of file IDs to blob URLs for O(1) lookups.
  * Converts O(n) Array.find() operations to O(1) Map lookups for better performance.
- * 
+ *
  * @param pdfFiles - Array of PDF files to extract URLs from
  * @returns Map from file ID to blob URL string
- * 
+ *
  * @example
  * ```typescript
  * const urlMap = createFileUrlMap(pdfFiles)
@@ -85,19 +93,24 @@ export function createFileMap(pdfFiles: ReadonlyArray<PdfFile>): Map<string, Pdf
  * }
  * ```
  */
-export function createFileUrlMap(pdfFiles: ReadonlyArray<PdfFile>): Map<string, string> {
-  validateArray(pdfFiles, 'pdfFiles')
+export function createFileUrlMap(
+  pdfFiles: ReadonlyArray<PdfFile>
+): Map<string, string> {
+  validateArray(pdfFiles, "pdfFiles");
 
-  const map = new Map<string, string>()
-  pdfFiles.forEach(file => {
-    if (!file || typeof file.id !== 'string' || file.id.trim().length === 0) {
-      throw new Error('Invalid file object in pdfFiles array. Missing or invalid id.')
+  const map = new Map<string, string>();
+  pdfFiles.forEach((file) => {
+    if (!file || typeof file.id !== "string" || file.id.trim().length === 0) {
+      throw new Error(
+        "Invalid file object in pdfFiles array. Missing or invalid id."
+      );
     }
-    if (typeof file.url !== 'string') {
-      throw new Error(`Invalid file object in pdfFiles array. Missing or invalid url for file ${file.id}.`)
+    if (typeof file.url !== "string") {
+      throw new Error(
+        `Invalid file object in pdfFiles array. Missing or invalid url for file ${file.id}.`
+      );
     }
-    map.set(file.id, file.url)
-  })
-  return map
+    map.set(file.id, file.url);
+  });
+  return map;
 }
-

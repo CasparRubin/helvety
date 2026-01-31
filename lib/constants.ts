@@ -10,7 +10,7 @@ export const BREAKPOINTS = {
   MULTI_COLUMN: 1231,
   /** Minimum width for three-column layout */
   THREE_COLUMN: 1655,
-} as const
+} as const;
 
 /**
  * Column configuration
@@ -28,7 +28,7 @@ export const COLUMNS = {
   DEFAULT_MEDIUM: 2,
   /** Default number of columns for large screens */
   DEFAULT_LARGE: 3,
-} as const
+} as const;
 
 /**
  * Timeout delays (in milliseconds)
@@ -38,7 +38,7 @@ export const DELAYS = {
   BLOB_URL_CLEANUP: 100,
   /** Delay before auto-dismissing non-critical errors */
   ERROR_AUTO_DISMISS: 8000,
-} as const
+} as const;
 
 /**
  * LocalStorage keys
@@ -46,7 +46,7 @@ export const DELAYS = {
 export const STORAGE_KEYS = {
   /** Key for storing column preference */
   COLUMNS: "helvety-pdf-columns",
-} as const
+} as const;
 
 /**
  * Thumbnail quality configuration
@@ -62,7 +62,7 @@ export const THUMBNAIL_QUALITY = {
   MAX_DPR: 1.5,
   /** Minimum device pixel ratio */
   MIN_DPR: 0.5,
-} as const
+} as const;
 
 /**
  * Thumbnail dimension limits
@@ -72,7 +72,7 @@ export const THUMBNAIL_DIMENSIONS = {
   MAX_WIDTH: 800,
   /** Minimum thumbnail width in pixels */
   MIN_WIDTH: 100,
-} as const
+} as const;
 
 /**
  * Intersection Observer configuration
@@ -84,7 +84,7 @@ export const INTERSECTION_OBSERVER = {
   UNLOAD_MARGIN: "-100px",
   /** Threshold for intersection detection */
   THRESHOLD: 0.01,
-} as const
+} as const;
 
 /**
  * Progressive quality loading delays
@@ -94,7 +94,7 @@ export const QUALITY_UPGRADE = {
   DELAY: 1000,
   /** Delay after scroll stops before upgrading quality (ms) */
   SCROLL_DEBOUNCE: 500,
-} as const
+} as const;
 
 /**
  * Screen size breakpoints for quality calculation
@@ -104,7 +104,7 @@ export const SCREEN_BREAKPOINTS = {
   MOBILE: 768,
   /** Tablet breakpoint (below this is tablet, above is desktop) */
   TABLET: 1230,
-} as const
+} as const;
 
 /**
  * PDF rendering delays and configuration
@@ -120,7 +120,7 @@ export const PDF_RENDER = {
   PAGE_RENDER_DELAY: 200,
   /** Distance in pixels from viewport before unmounting thumbnails */
   UNMOUNT_DISTANCE: 500,
-} as const
+} as const;
 
 /**
  * File upload limits and validation
@@ -130,7 +130,7 @@ export const FILE_LIMITS = {
   MAX_FILES: 50,
   /** Minimum delay between uploads in milliseconds */
   UPLOAD_RATE_LIMIT: 100,
-} as const
+} as const;
 
 /**
  * Cache management limits
@@ -140,7 +140,7 @@ export const CACHE_LIMITS = {
   MAX_CACHED_PDFS: 50,
   /** Maximum number of PDF documents to cache in memory (mobile) */
   MOBILE_MAX_CACHED_PDFS: 20,
-} as const
+} as const;
 
 /**
  * File processing configuration
@@ -154,7 +154,7 @@ export const PROCESSING = {
   LARGE_FILE_THRESHOLD: 10 * 1024 * 1024, // 10MB
   /** Very large file threshold (for more aggressive yielding) */
   VERY_LARGE_FILE_THRESHOLD: 50 * 1024 * 1024, // 50MB
-} as const
+} as const;
 
 /**
  * Operation timeouts (in milliseconds)
@@ -164,7 +164,7 @@ export const TIMEOUTS = {
   OPERATION_TIMEOUT: 60000,
   /** Timeout for file loading operations (30 seconds) */
   FILE_LOAD_TIMEOUT: 30000,
-} as const
+} as const;
 
 /**
  * Rotation angle constants (in degrees)
@@ -182,7 +182,7 @@ export const ROTATION_ANGLES = {
   FULL: 360,
   /** Standard rotation increment for user actions */
   INCREMENT: 90,
-} as const
+} as const;
 
 /**
  * Error message limits
@@ -192,7 +192,7 @@ export const ERROR_LIMITS = {
   MAX_MESSAGE_LENGTH: 500,
   /** Characters to show when truncating (for "...") */
   TRUNCATE_SUFFIX_LENGTH: 3,
-} as const
+} as const;
 
 /**
  * Critical error patterns that should not be auto-dismissed
@@ -202,7 +202,7 @@ export const CRITICAL_ERROR_PATTERNS = [
   "Can't load",
   "Can't extract",
   "Download failed",
-] as const
+] as const;
 
 /**
  * Filename constraints for file downloads
@@ -212,7 +212,7 @@ export const FILENAME_LIMITS = {
   MAX_LENGTH: 200,
   /** Default filename when sanitization results in empty or invalid name */
   DEFAULT_NAME: "download",
-} as const
+} as const;
 
 /**
  * ImageBitmap cache configuration
@@ -226,7 +226,7 @@ export const IMAGEBITMAP_CACHE = {
   MAX_MEMORY_BYTES: 200 * 1024 * 1024,
   /** Maximum memory for ImageBitmap cache on mobile in bytes (100MB) */
   MOBILE_MAX_MEMORY_BYTES: 100 * 1024 * 1024,
-} as const
+} as const;
 
 /**
  * Rendering configuration
@@ -238,5 +238,4 @@ export const RENDERING = {
   WORKER_RETRY_DELAY: 1000,
   /** Maximum retry attempts for worker rendering */
   MAX_WORKER_RETRIES: 3,
-} as const
-
+} as const;

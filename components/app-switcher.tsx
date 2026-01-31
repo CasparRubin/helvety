@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import { Grip, Home, FileText, ShoppingBag } from "lucide-react"
-import { useState } from "react"
+import { Grip, Home, FileText, ShoppingBag } from "lucide-react";
+import { useState } from "react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 const apps = [
   { name: "Home", href: "https://helvety.com", icon: Home },
   { name: "Store", href: "https://store.helvety.com", icon: ShoppingBag },
   { name: "PDF", href: "https://pdf.helvety.com", icon: FileText },
-]
+];
 
 interface AppSwitcherProps {
-  currentApp?: string
+  currentApp?: string;
 }
 
 export function AppSwitcher({ currentApp }: AppSwitcherProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -50,16 +50,16 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
         <SheetHeader>
           <SheetTitle>Helvety Ecosystem</SheetTitle>
         </SheetHeader>
-        <div className="grid grid-cols-3 gap-2 mt-6">
+        <div className="mt-6 grid grid-cols-3 gap-2">
           {apps.map((app) => {
-            const Icon = app.icon
-            const isCurrent = currentApp === app.name
+            const Icon = app.icon;
+            const isCurrent = currentApp === app.name;
             return (
               <a
                 key={app.name}
                 href={app.href}
                 className={cn(
-                  "flex flex-col items-center gap-2 p-3 rounded-lg transition-colors text-center",
+                  "flex flex-col items-center gap-2 rounded-lg p-3 text-center transition-colors",
                   isCurrent
                     ? "bg-accent text-accent-foreground"
                     : "hover:bg-accent"
@@ -69,10 +69,10 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
                 <Icon className="h-6 w-6" />
                 <span className="text-xs font-medium">{app.name}</span>
               </a>
-            )
+            );
           })}
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

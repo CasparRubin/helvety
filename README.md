@@ -42,7 +42,7 @@ Helvety PDF offers a free Basic tier with essential features, and a Pro subscrip
 - **PDF and image support** - Upload PDF files and images (PNG, JPEG, WebP, GIF, etc.)
 - **Page thumbnails preview** - Visual preview of all pages before processing
 - **Drag & drop reordering** - Easily rearrange pages by dragging thumbnails
-- **Page rotation** - Rotate individual pages by 90° increments *(Pro)*
+- **Page rotation** - Rotate individual pages by 90° increments _(Pro)_
 - **Page deletion** - Remove unwanted pages from your documents
 - **Page extraction** - Extract individual pages as separate PDF files
 - **Multi-file merging** - Combine multiple PDF files and images into one PDF
@@ -54,17 +54,17 @@ Helvety PDF offers a free Basic tier with essential features, and a Pro subscrip
 
 Helvety PDF offers a free Basic tier and a paid Pro subscription:
 
-| Feature | Basic (Free) | Pro (CHF 4.95/month) |
-|---------|--------------|----------------------|
-| Files | Max 2 files | Unlimited |
-| Pages | Max 5 pages | Unlimited |
-| Merge files | Yes | Yes |
-| Split files | Yes | Yes |
-| Reorder pages | Yes | Yes |
-| Delete pages | Yes | Yes |
-| Extract pages | Yes | Yes |
-| Rotate pages | - | Yes |
-| Client-side processing | Yes | Yes |
+| Feature                | Basic (Free) | Pro (CHF 4.95/month) |
+| ---------------------- | ------------ | -------------------- |
+| Files                  | Max 2 files  | Unlimited            |
+| Pages                  | Max 5 pages  | Unlimited            |
+| Merge files            | Yes          | Yes                  |
+| Split files            | Yes          | Yes                  |
+| Reorder pages          | Yes          | Yes                  |
+| Delete pages           | Yes          | Yes                  |
+| Extract pages          | Yes          | Yes                  |
+| Rotate pages           | -            | Yes                  |
+| Client-side processing | Yes          | Yes                  |
 
 Subscribe at [store.helvety.com](https://store.helvety.com/products/helvety-pdf)
 
@@ -110,6 +110,7 @@ helvety-pdf/
 │   └── sitemap.ts         # Sitemap configuration
 ├── components/            # React components
 │   ├── ui/               # shadcn/ui component library
+│   │   └── index.ts      # Barrel exports
 │   ├── app-switcher.tsx   # Helvety ecosystem app switcher
 │   ├── auth-provider.tsx  # Authentication context provider
 │   ├── auth-stepper.tsx   # Authentication flow stepper
@@ -126,6 +127,7 @@ helvety-pdf/
 │   ├── theme-switcher.tsx # Dark/light mode switcher
 │   └── upgrade-prompt.tsx # Pro upgrade prompt dialog
 ├── hooks/                 # Custom React hooks
+│   ├── index.ts           # Barrel exports
 │   ├── use-columns.ts     # Column layout management
 │   ├── use-drag-drop.ts   # Drag and drop functionality
 │   ├── use-error-handler.ts # Error handling
@@ -155,7 +157,8 @@ helvety-pdf/
 │   │   └── server.ts      # Server client
 │   ├── types/             # Type definitions
 │   │   ├── entities.ts    # Entity types
-│   │   ├── index.ts       # Type exports
+│   │   ├── index.ts       # Barrel exports
+│   │   ├── pdf.ts         # PDF-specific types
 │   │   └── subscription.ts # Subscription types and limits
 │   ├── batch-processing.ts # Batch processing utilities
 │   ├── blob-url-utils.ts  # Blob URL management
@@ -167,7 +170,6 @@ helvety-pdf/
 │   ├── logger.ts          # Logging utilities
 │   ├── page-actions.tsx   # Page action components
 │   ├── pdf-utils.ts       # PDF utilities (main entry point)
-│   ├── types.ts           # Legacy type definitions
 │   └── utils.ts           # General utilities
 ├── public/                # Static assets
 │   ├── pdf.worker.min.mjs # PDF.js worker file
@@ -195,6 +197,10 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-This repository is public for transparency purposes only—all code is open for inspection so users can verify its behavior.
+This repository is public for transparency purposes only. All code is open for inspection so users can verify its behavior.
 
-**No license is granted; this is the default "All rights reserved" status.** You may view the code, but you cannot reuse, redistribute, or sell it without explicit permission. All rights are retained by the author.
+**All Rights Reserved.** No license is granted. You may view the code, but you may not copy, reuse, redistribute, modify, or sell it without explicit written permission.
+
+Purchasing a subscription grants access to use the hosted service only—subscriptions do not grant any rights to the source code.
+
+See [LICENSE](./LICENSE) for full terms.

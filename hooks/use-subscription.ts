@@ -1,71 +1,75 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from "react";
 
-import { getUserTier, getCurrentUser } from '@/app/actions/subscription-actions'
-import { 
-  TIER_LIMITS, 
-  type SubscriptionTier, 
+import {
+  getUserTier,
+  getCurrentUser,
+} from "@/app/actions/subscription-actions";
+import { logger } from "@/lib/logger";
+import {
+  TIER_LIMITS,
+  type SubscriptionTier,
   type TierLimits,
   type SubscriptionContextValue,
-} from '@/lib/types/subscription'
+} from "@/lib/types/subscription";
 
 /**
  * Hook to get the current user's subscription status and tier limits
- * 
+ *
  * @returns Subscription context value with tier info and limits
  */
 export function useSubscription(): SubscriptionContextValue {
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [tier, setTier] = useState<SubscriptionTier>('free')
-  const [limits, setLimits] = useState<TierLimits>(TIER_LIMITS.free)
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [tier, setTier] = useState<SubscriptionTier>("free");
+  const [limits, setLimits] = useState<TierLimits>(TIER_LIMITS.free);
 
   const refresh = useCallback(async () => {
-    setIsLoading(true)
-    
+    setIsLoading(true);
+
     try {
       // Get current user
-      const userResult = await getCurrentUser()
-      
+      const userResult = await getCurrentUser();
+
       if (!userResult.success || !userResult.data) {
-        setIsAuthenticated(false)
-        setUserEmail(null)
-        setTier('free')
-        setLimits(TIER_LIMITS.free)
-        setIsLoading(false)
-        return
+        setIsAuthenticated(false);
+        setUserEmail(null);
+        setTier("free");
+        setLimits(TIER_LIMITS.free);
+        setIsLoading(false);
+        return;
       }
 
-      setIsAuthenticated(true)
-      setUserEmail(userResult.data.email)
+      setIsAuthenticated(true);
+      setUserEmail(userResult.data.email);
 
       // Get subscription tier
-      const tierResult = await getUserTier()
-      
+      const tierResult = await getUserTier();
+
       if (tierResult.success && tierResult.data) {
-        setTier(tierResult.data.tier)
-        setLimits(tierResult.data.limits)
+        setTier(tierResult.data.tier);
+        setLimits(tierResult.data.limits);
       } else {
         // Default to free tier on error
-        setTier('free')
-        setLimits(TIER_LIMITS.free)
+        setTier("free");
+        setLimits(TIER_LIMITS.free);
       }
     } catch (error) {
-      console.error('Error fetching subscription:', error)
+      logger.error("Error fetching subscription:", error);
       // Default to free tier on error
-      setTier('free')
-      setLimits(TIER_LIMITS.free)
+      setTier("free");
+      setLimits(TIER_LIMITS.free);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   // Initial fetch
   useEffect(() => {
-    void refresh()
-  }, [refresh])
+    void refresh();
+  }, [refresh]);
 
   return {
     isLoading,
@@ -73,7 +77,7 @@ export function useSubscription(): SubscriptionContextValue {
     userEmail,
     tier,
     limits,
-    isPro: tier === 'pro',
+    isPro: tier === "pro",
     refresh,
-  }
+  };
 }

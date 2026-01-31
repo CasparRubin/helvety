@@ -3,22 +3,22 @@
  * Catches render-time errors and provides retry functionality.
  */
 
-import * as React from "react"
+import * as React from "react";
 
-import { logger } from "@/lib/logger"
+import { logger } from "@/lib/logger";
 
 interface PageErrorBoundaryProps {
   /** Child components to render */
-  readonly children: React.ReactNode
+  readonly children: React.ReactNode;
   /** Callback when error occurs */
-  readonly onError: () => void
+  readonly onError: () => void;
   /** Key to force retry by changing */
-  readonly retryKey: number
+  readonly retryKey: number;
 }
 
 interface PageErrorBoundaryState {
   /** Whether an error has occurred */
-  readonly hasError: boolean
+  readonly hasError: boolean;
 }
 
 /**
@@ -30,40 +30,43 @@ export class PageErrorBoundary extends React.Component<
   PageErrorBoundaryState
 > {
   constructor(props: PageErrorBoundaryProps) {
-    super(props)
-    this.state = { hasError: false }
+    super(props);
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError(): PageErrorBoundaryState {
-    return { hasError: true }
+    return { hasError: true };
   }
 
   override componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    const errorMessage = error?.message || String(error)
-    logger.error('PageErrorBoundary caught an error:', {
+    const errorMessage = error?.message || String(error);
+    logger.error("PageErrorBoundary caught an error:", {
       error,
       errorInfo,
       errorMessage,
       componentStack: errorInfo.componentStack,
-    })
-    
+    });
+
     // Trigger retry for PDF.js worker message handler errors
-    if (errorMessage.includes("messageHandler") || errorMessage.includes("sendWithPromise")) {
-      this.props.onError()
+    if (
+      errorMessage.includes("messageHandler") ||
+      errorMessage.includes("sendWithPromise")
+    ) {
+      this.props.onError();
     }
   }
 
   override componentDidUpdate(prevProps: PageErrorBoundaryProps): void {
     // Reset error state when retry key changes (indicating a retry)
     if (prevProps.retryKey !== this.props.retryKey && this.state.hasError) {
-      this.setState({ hasError: false })
+      this.setState({ hasError: false });
     }
   }
 
   override render(): React.ReactNode {
     if (this.state.hasError) {
-      return null
+      return null;
     }
-    return this.props.children
+    return this.props.children;
   }
 }

@@ -1,14 +1,14 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createBrowserClient } from "@supabase/ssr";
 
-import { getSupabaseUrl, getSupabaseKey } from '@/lib/env-validation'
+import { getSupabaseUrl, getSupabaseKey } from "@/lib/env-validation";
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Singleton instance of the Supabase client for browser usage.
  * This prevents creating multiple client instances, improving performance.
  */
-let browserClient: SupabaseClient | null = null
+let browserClient: SupabaseClient | null = null;
 
 /**
  * Creates or returns the existing Supabase browser client instance.
@@ -26,12 +26,12 @@ let browserClient: SupabaseClient | null = null
 export function createClient(): SupabaseClient {
   // Return existing client if available (singleton pattern)
   if (browserClient) {
-    return browserClient
+    return browserClient;
   }
 
-  const supabaseUrl = getSupabaseUrl()
-  const supabaseKey = getSupabaseKey()
+  const supabaseUrl = getSupabaseUrl();
+  const supabaseKey = getSupabaseKey();
 
-  browserClient = createBrowserClient(supabaseUrl, supabaseKey)
-  return browserClient
+  browserClient = createBrowserClient(supabaseUrl, supabaseKey);
+  return browserClient;
 }

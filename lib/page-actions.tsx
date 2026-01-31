@@ -3,26 +3,26 @@
  * Extracted from components to improve code organization and reusability.
  */
 
-import { 
-  ChevronUpIcon, 
-  ChevronDownIcon, 
-  ChevronLeftIcon, 
+import {
+  ChevronUpIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
   ChevronRightIcon,
   Trash2,
   RotateCw,
   RotateCcw,
   RefreshCw,
-  Download
-} from "lucide-react"
+  Download,
+} from "lucide-react";
 
-import { ROTATION_ANGLES } from "./constants"
+import { ROTATION_ANGLES } from "./constants";
 
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
 /**
  * Action button configuration.
  * Matches the ActionButton interface from pdf-action-buttons.tsx
- * 
+ *
  * @property icon - React node for the button icon
  * @property onClick - Click handler function
  * @property ariaLabel - Accessibility label for screen readers
@@ -33,14 +33,14 @@ import type { ReactNode } from "react"
  * @property variant - Optional button variant style
  */
 export interface PageAction {
-  icon: ReactNode
-  onClick: () => void
-  ariaLabel: string
-  title?: string
-  description?: string
-  disabled?: boolean
-  className?: string
-  variant?: "destructive" | "secondary" | "default" | "outline" | "ghost"
+  icon: ReactNode;
+  onClick: () => void;
+  ariaLabel: string;
+  title?: string;
+  description?: string;
+  disabled?: boolean;
+  className?: string;
+  variant?: "destructive" | "secondary" | "default" | "outline" | "ghost";
 }
 
 /**
@@ -48,32 +48,34 @@ export interface PageAction {
  * Contains all callbacks and state needed to generate action buttons.
  */
 export interface CreatePageActionsParams {
-  index: number
-  unifiedPageNumber: number
-  totalPages: number
-  isDeleted: boolean
-  hasRotation: boolean
-  rotation: number
-  isProcessing: boolean
+  index: number;
+  unifiedPageNumber: number;
+  totalPages: number;
+  isDeleted: boolean;
+  hasRotation: boolean;
+  rotation: number;
+  isProcessing: boolean;
   /** Whether rotation is allowed (Pro feature) */
-  canRotate?: boolean
-  onMoveUp: (index: number) => void
-  onMoveDown: (index: number) => void
-  onMoveLeft: (index: number) => void
-  onMoveRight: (index: number) => void
-  onToggleDelete: (unifiedPageNumber: number) => void
-  onRotate: (unifiedPageNumber: number, angle: number) => void
-  onResetRotation: (unifiedPageNumber: number) => void
-  onExtract: (unifiedPageNumber: number) => void
+  canRotate?: boolean;
+  onMoveUp: (index: number) => void;
+  onMoveDown: (index: number) => void;
+  onMoveLeft: (index: number) => void;
+  onMoveRight: (index: number) => void;
+  onToggleDelete: (unifiedPageNumber: number) => void;
+  onRotate: (unifiedPageNumber: number, angle: number) => void;
+  onResetRotation: (unifiedPageNumber: number) => void;
+  onExtract: (unifiedPageNumber: number) => void;
 }
 
 /**
  * Creates an array of action button configurations for a page.
- * 
+ *
  * @param params - Parameters for creating actions
  * @returns Array of action button configurations
  */
-export function createPageActions(params: CreatePageActionsParams): PageAction[] {
+export function createPageActions(
+  params: CreatePageActionsParams
+): PageAction[] {
   const {
     index,
     unifiedPageNumber,
@@ -90,7 +92,7 @@ export function createPageActions(params: CreatePageActionsParams): PageAction[]
     onRotate,
     onResetRotation,
     onExtract,
-  } = params
+  } = params;
 
   return [
     // Reorder buttons
@@ -128,9 +130,15 @@ export function createPageActions(params: CreatePageActionsParams): PageAction[]
     },
     // Delete button
     {
-      icon: isDeleted ? <RefreshCw className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />,
+      icon: isDeleted ? (
+        <RefreshCw className="h-4 w-4" />
+      ) : (
+        <Trash2 className="h-4 w-4" />
+      ),
       onClick: () => onToggleDelete(unifiedPageNumber),
-      ariaLabel: isDeleted ? `Restore page ${unifiedPageNumber}` : `Delete page ${unifiedPageNumber}`,
+      ariaLabel: isDeleted
+        ? `Restore page ${unifiedPageNumber}`
+        : `Delete page ${unifiedPageNumber}`,
       title: isDeleted ? "Restore" : "Delete",
       disabled: isProcessing,
       variant: isDeleted ? "destructive" : "secondary",
@@ -140,14 +148,16 @@ export function createPageActions(params: CreatePageActionsParams): PageAction[]
       ? [
           {
             icon: <RotateCw className="h-4 w-4" />,
-            onClick: () => onRotate(unifiedPageNumber, ROTATION_ANGLES.INCREMENT),
+            onClick: () =>
+              onRotate(unifiedPageNumber, ROTATION_ANGLES.INCREMENT),
             ariaLabel: `Rotate page ${unifiedPageNumber} 90° clockwise`,
             title: "Rotate 90° clockwise",
             disabled: isProcessing,
           },
           {
             icon: <RotateCcw className="h-4 w-4" />,
-            onClick: () => onRotate(unifiedPageNumber, -ROTATION_ANGLES.INCREMENT),
+            onClick: () =>
+              onRotate(unifiedPageNumber, -ROTATION_ANGLES.INCREMENT),
             ariaLabel: `Rotate page ${unifiedPageNumber} 90° counter-clockwise`,
             title: "Rotate 90° counter-clockwise",
             disabled: isProcessing,
@@ -157,7 +167,8 @@ export function createPageActions(params: CreatePageActionsParams): PageAction[]
           // Show disabled rotate button with upgrade hint for non-Pro users
           {
             icon: <RotateCw className="h-4 w-4" />,
-            onClick: () => onRotate(unifiedPageNumber, ROTATION_ANGLES.INCREMENT),
+            onClick: () =>
+              onRotate(unifiedPageNumber, ROTATION_ANGLES.INCREMENT),
             ariaLabel: "Upgrade to Pro for rotation",
             title: "Pro feature",
             description: "Upgrade to rotate pages",
@@ -185,5 +196,5 @@ export function createPageActions(params: CreatePageActionsParams): PageAction[]
       title: "Extract as single PDF",
       disabled: isProcessing,
     },
-  ]
+  ];
 }

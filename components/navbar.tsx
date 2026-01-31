@@ -1,20 +1,32 @@
-"use client"
+"use client";
 
 // Next.js
-import { Github, Building2, Scale, FileText, Menu, Info, LogOut, Crown, User, ShoppingBag, Check } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import {
+  Github,
+  Building2,
+  Scale,
+  FileText,
+  Menu,
+  Info,
+  LogOut,
+  Crown,
+  User,
+  ShoppingBag,
+  Check,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // External libraries
 
 // Internal components
-import { AppSwitcher } from "@/components/app-switcher"
-import { useSubscriptionContext } from "@/components/auth-provider"
-import { ThemeSwitcher } from "@/components/theme-switcher"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { AppSwitcher } from "@/components/app-switcher";
+import { useSubscriptionContext } from "@/components/auth-provider";
+import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -23,20 +35,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/dialog";
 import {
   Popover,
   PopoverContent,
@@ -44,39 +43,57 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { Separator } from "@/components/ui/separator"
-import { VERSION } from "@/lib/config/version"
-import { createClient } from "@/lib/supabase/client"
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { VERSION } from "@/lib/config/version";
+import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
-  const router = useRouter()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [profileOpen, setProfileOpen] = useState(false)
-  const { isAuthenticated, userEmail, isPro, isLoading } = useSubscriptionContext()
-  const supabase = createClient()
+  const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const { isAuthenticated, userEmail, isPro, isLoading } =
+    useSubscriptionContext();
+  const supabase = createClient();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
   const navLinks = [
-    { href: "https://helvety.com/impressum", label: "Impressum", icon: Building2 },
+    {
+      href: "https://helvety.com/impressum",
+      label: "Impressum",
+      icon: Building2,
+    },
     { href: "https://helvety.com/privacy", label: "Privacy", icon: Scale },
     { href: "https://helvety.com/terms", label: "Terms", icon: FileText },
-  ]
+  ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <AppSwitcher currentApp="PDF" />
           <a
             href="https://helvety.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 shrink-0 hover:opacity-80 transition-opacity"
+            className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
             aria-label="Visit Helvety.com"
           >
             <Image
@@ -84,7 +101,7 @@ export function Navbar() {
               alt="Helvety"
               width={120}
               height={30}
-              className="h-8 w-auto hidden sm:block"
+              className="hidden h-8 w-auto sm:block"
               priority
             />
             <Image
@@ -96,20 +113,19 @@ export function Navbar() {
               priority
             />
           </a>
-          <Link href="/" className="text-xl font-black tracking-tight hover:opacity-80 transition-opacity">
-              PDF
-            </Link>
+          <Link
+            href="/"
+            className="text-xl font-black tracking-tight transition-opacity hover:opacity-80"
+          >
+            PDF
+          </Link>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex shrink-0 items-center gap-2">
           {/* Desktop navigation links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
               <Button key={link.href} variant="ghost" size="sm" asChild>
-                <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={link.href} target="_blank" rel="noopener noreferrer">
                   {link.label}
                 </a>
               </Button>
@@ -136,12 +152,14 @@ export function Navbar() {
               <DialogHeader className="pr-8">
                 <DialogTitle>About</DialogTitle>
                 <DialogDescription className="pt-2">
-                  A comprehensive PDF tool for merging, reordering, rotating, and extracting pages. All processing happens locally in your browser - private and secure.
+                  A comprehensive PDF tool for merging, reordering, rotating,
+                  and extracting pages. All processing happens locally in your
+                  browser - private and secure.
                 </DialogDescription>
               </DialogHeader>
               <>
                 <div className="border-t" />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   {VERSION || "Unknown build time"}
                 </p>
               </>
@@ -187,10 +205,10 @@ export function Navbar() {
               <PopoverContent align="end" className="w-80">
                 <PopoverHeader>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                      <User className="h-5 w-5 text-primary" />
+                    <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                      <User className="text-primary h-5 w-5" />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <PopoverTitle>Account</PopoverTitle>
                       {userEmail && (
                         <PopoverDescription className="truncate">
@@ -207,39 +225,50 @@ export function Navbar() {
                     <Badge variant={isPro ? "default" : "secondary"}>
                       {isPro ? (
                         <>
-                          <Crown className="h-3 w-3 mr-1" />
+                          <Crown className="mr-1 h-3 w-3" />
                           Pro
                         </>
                       ) : (
-                        'Basic'
+                        "Basic"
                       )}
                     </Badge>
                   </div>
                   {!isPro && (
-                    <div className="rounded-lg border bg-muted/50 p-3">
-                      <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
+                    <div className="bg-muted/50 rounded-lg border p-3">
+                      <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
                         <Crown className="h-4 w-4" />
                         Upgrade to Pro
                       </h4>
-                      <ul className="space-y-1 mb-3">
+                      <ul className="mb-3 space-y-1">
                         {[
-                          'Unlimited file uploads',
-                          'Unlimited pages',
-                          'Rotate pages',
-                          'All merge & split features',
-                          'Client-side processing',
-                          'Priority support',
+                          "Unlimited file uploads",
+                          "Unlimited pages",
+                          "Rotate pages",
+                          "All merge & split features",
+                          "Client-side processing",
+                          "Priority support",
                         ].map((feature) => (
-                          <li key={feature} className="flex items-center gap-2 text-xs">
-                            <Check className="h-3 w-3 text-primary shrink-0" />
+                          <li
+                            key={feature}
+                            className="flex items-center gap-2 text-xs"
+                          >
+                            <Check className="text-primary h-3 w-3 shrink-0" />
                             {feature}
                           </li>
                         ))}
                       </ul>
-                      <p className="text-xs text-muted-foreground mb-3">
-                        Only <span className="font-medium text-foreground">CHF 4.95/month</span>
+                      <p className="text-muted-foreground mb-3 text-xs">
+                        Only{" "}
+                        <span className="text-foreground font-medium">
+                          CHF 4.95/month
+                        </span>
                       </p>
-                      <Button variant="default" className="w-full justify-start" size="sm" asChild>
+                      <Button
+                        variant="default"
+                        className="w-full justify-start"
+                        size="sm"
+                        asChild
+                      >
                         <a
                           href="https://store.helvety.com/products/helvety-pdf"
                           target="_blank"
@@ -254,7 +283,11 @@ export function Navbar() {
                 </div>
                 <Separator />
                 <div className="flex flex-col gap-2">
-                  <Button variant="outline" className="w-full justify-start" asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    asChild
+                  >
                     <a
                       href="https://store.helvety.com"
                       target="_blank"
@@ -268,8 +301,8 @@ export function Navbar() {
                     variant="destructive"
                     className="w-full justify-start"
                     onClick={() => {
-                      setProfileOpen(false)
-                      void handleLogout()
+                      setProfileOpen(false);
+                      void handleLogout();
                     }}
                   >
                     <LogOut className="h-4 w-4" />
@@ -292,57 +325,65 @@ export function Navbar() {
               <SheetHeader>
                 <SheetTitle>Navigation</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-2 mt-6">
+              <nav className="mt-6 flex flex-col gap-2">
                 {/* User info section in mobile menu */}
                 {isAuthenticated && !isLoading && (
                   <>
-                    <div className="px-3 py-2 border-b mb-2">
+                    <div className="mb-2 border-b px-3 py-2">
                       <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground truncate">{userEmail}</span>
+                        <User className="text-muted-foreground h-4 w-4" />
+                        <span className="text-muted-foreground truncate text-sm">
+                          {userEmail}
+                        </span>
                       </div>
                       <div className="mt-2">
                         <Badge variant={isPro ? "default" : "secondary"}>
                           {isPro ? (
                             <>
-                              <Crown className="h-3 w-3 mr-1" />
+                              <Crown className="mr-1 h-3 w-3" />
                               Pro
                             </>
                           ) : (
-                            'Basic'
+                            "Basic"
                           )}
                         </Badge>
                       </div>
                     </div>
                     {!isPro && (
-                      <div className="px-3 py-2 rounded-lg border bg-muted/50">
-                        <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
+                      <div className="bg-muted/50 rounded-lg border px-3 py-2">
+                        <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
                           <Crown className="h-4 w-4" />
                           Upgrade to Pro
                         </h4>
-                        <ul className="space-y-1 mb-3">
+                        <ul className="mb-3 space-y-1">
                           {[
-                            'Unlimited file uploads',
-                            'Unlimited pages',
-                            'Rotate pages',
-                            'All merge & split features',
-                            'Client-side processing',
-                            'Priority support',
+                            "Unlimited file uploads",
+                            "Unlimited pages",
+                            "Rotate pages",
+                            "All merge & split features",
+                            "Client-side processing",
+                            "Priority support",
                           ].map((feature) => (
-                            <li key={feature} className="flex items-center gap-2 text-xs">
-                              <Check className="h-3 w-3 text-primary shrink-0" />
+                            <li
+                              key={feature}
+                              className="flex items-center gap-2 text-xs"
+                            >
+                              <Check className="text-primary h-3 w-3 shrink-0" />
                               {feature}
                             </li>
                           ))}
                         </ul>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Only <span className="font-medium text-foreground">CHF 4.95/month</span>
+                        <p className="text-muted-foreground mb-3 text-xs">
+                          Only{" "}
+                          <span className="text-foreground font-medium">
+                            CHF 4.95/month
+                          </span>
                         </p>
                         <a
                           href="https://store.helvety.com/products/helvety-pdf"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 w-full py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                          className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-md py-2 text-sm font-medium transition-colors"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <ShoppingBag className="h-4 w-4" />
@@ -353,38 +394,28 @@ export function Navbar() {
                   </>
                 )}
                 {navLinks.map((link) => {
-                  const Icon = link.icon
+                  const Icon = link.icon;
                   return (
                     <a
                       key={link.href}
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                      className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Icon className="h-4 w-4" />
                       {link.label}
                     </a>
-                  )
+                  );
                 })}
-                <a
-                  href="https://github.com/CasparRubin/helvety-pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Github className="h-4 w-4" />
-                  GitHub
-                </a>
                 {/* Logout button in mobile menu */}
                 {isAuthenticated && !isLoading && (
                   <button
-                    className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors text-destructive w-full text-left"
+                    className="hover:bg-accent text-destructive flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
                     onClick={() => {
-                      setMobileMenuOpen(false)
-                      void handleLogout()
+                      setMobileMenuOpen(false);
+                      void handleLogout();
                     }}
                   >
                     <LogOut className="h-4 w-4" />
@@ -397,5 +428,5 @@ export function Navbar() {
         </div>
       </div>
     </nav>
-  )
+  );
 }

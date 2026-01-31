@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useTheme } from "next-themes"
-import * as React from "react"
-import { Toaster as Sonner, type ToasterProps } from "sonner"
+import { useTheme } from "next-themes";
+import * as React from "react";
+import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps): React.JSX.Element => {
-  const { theme = "system" } = useTheme()
+  const { theme = "system" } = useTheme();
 
   return (
     <Sonner
@@ -14,7 +14,7 @@ const Toaster = ({ ...props }: ToasterProps): React.JSX.Element => {
       position="top-center"
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };

@@ -5,99 +5,101 @@
 
 /**
  * Checks if OffscreenCanvas is supported in the current browser.
- * 
+ *
  * @returns True if OffscreenCanvas is supported, false otherwise
  */
 export function isOffscreenCanvasSupported(): boolean {
-  if (typeof window === 'undefined') {
-    return false
+  if (typeof window === "undefined") {
+    return false;
   }
-  
-  return typeof OffscreenCanvas !== 'undefined' && typeof Worker !== 'undefined'
+
+  return (
+    typeof OffscreenCanvas !== "undefined" && typeof Worker !== "undefined"
+  );
 }
 
 /**
  * Checks if ImageBitmap is supported in the current browser.
- * 
+ *
  * @returns True if ImageBitmap is supported, false otherwise
  */
 export function isImageBitmapSupported(): boolean {
-  if (typeof window === 'undefined') {
-    return false
+  if (typeof window === "undefined") {
+    return false;
   }
-  
-  return typeof ImageBitmap !== 'undefined'
+
+  return typeof ImageBitmap !== "undefined";
 }
 
 /**
  * Checks if WebGL is supported in the current browser.
- * 
+ *
  * @returns True if WebGL is supported, false otherwise
  */
 export function isWebGLSupported(): boolean {
-  if (typeof window === 'undefined') {
-    return false
+  if (typeof window === "undefined") {
+    return false;
   }
-  
+
   try {
-    const canvas = document.createElement('canvas')
+    const canvas = document.createElement("canvas");
     return !!(
-      canvas.getContext('webgl') ?? 
-      canvas.getContext('experimental-webgl') ??
-      canvas.getContext('webgl2')
-    )
+      canvas.getContext("webgl") ??
+      canvas.getContext("experimental-webgl") ??
+      canvas.getContext("webgl2")
+    );
   } catch {
-    return false
+    return false;
   }
 }
 
 /**
  * Checks if WebGL2 is supported in the current browser.
- * 
+ *
  * @returns True if WebGL2 is supported, false otherwise
  */
 export function isWebGL2Supported(): boolean {
-  if (typeof window === 'undefined') {
-    return false
+  if (typeof window === "undefined") {
+    return false;
   }
-  
+
   try {
-    const canvas = document.createElement('canvas')
-    return !!canvas.getContext('webgl2')
+    const canvas = document.createElement("canvas");
+    return !!canvas.getContext("webgl2");
   } catch {
-    return false
+    return false;
   }
 }
 
 /**
  * Checks if transferControlToOffscreen is supported for canvas elements.
- * 
+ *
  * @returns True if transferControlToOffscreen is supported, false otherwise
  */
 export function isTransferControlToOffscreenSupported(): boolean {
-  if (typeof window === 'undefined') {
-    return false
+  if (typeof window === "undefined") {
+    return false;
   }
-  
+
   try {
-    const canvas = document.createElement('canvas')
-    return typeof canvas.transferControlToOffscreen === 'function'
+    const canvas = document.createElement("canvas");
+    return typeof canvas.transferControlToOffscreen === "function";
   } catch {
-    return false
+    return false;
   }
 }
 
 /**
  * Checks if createImageBitmap is supported in the current browser.
- * 
+ *
  * @returns True if createImageBitmap is supported, false otherwise
  */
 export function isCreateImageBitmapSupported(): boolean {
-  if (typeof window === 'undefined') {
-    return false
+  if (typeof window === "undefined") {
+    return false;
   }
-  
-  return typeof createImageBitmap !== 'undefined'
+
+  return typeof createImageBitmap !== "undefined";
 }
 
 /**
@@ -105,24 +107,24 @@ export function isCreateImageBitmapSupported(): boolean {
  */
 export interface RenderingCapabilities {
   /** Whether OffscreenCanvas is supported */
-  readonly offscreenCanvas: boolean
+  readonly offscreenCanvas: boolean;
   /** Whether ImageBitmap is supported */
-  readonly imageBitmap: boolean
+  readonly imageBitmap: boolean;
   /** Whether createImageBitmap is supported */
-  readonly createImageBitmap: boolean
+  readonly createImageBitmap: boolean;
   /** Whether WebGL is supported */
-  readonly webgl: boolean
+  readonly webgl: boolean;
   /** Whether WebGL2 is supported */
-  readonly webgl2: boolean
+  readonly webgl2: boolean;
   /** Whether transferControlToOffscreen is supported */
-  readonly transferControlToOffscreen: boolean
+  readonly transferControlToOffscreen: boolean;
   /** Whether worker rendering can be used (requires OffscreenCanvas + ImageBitmap) */
-  readonly canUseWorkerRendering: boolean
+  readonly canUseWorkerRendering: boolean;
 }
 
 /**
  * Determines the best rendering strategy based on available browser features.
- * 
+ *
  * @returns Object indicating which rendering strategies are available
  */
 export function getRenderingCapabilities(): RenderingCapabilities {
@@ -134,8 +136,9 @@ export function getRenderingCapabilities(): RenderingCapabilities {
     webgl2: isWebGL2Supported(),
     transferControlToOffscreen: isTransferControlToOffscreenSupported(),
     // Best strategy: OffscreenCanvas + ImageBitmap
-    canUseWorkerRendering: isOffscreenCanvasSupported() && isImageBitmapSupported(),
-  }
+    canUseWorkerRendering:
+      isOffscreenCanvasSupported() && isImageBitmapSupported(),
+  };
 }
 
 // NOTE: getRenderingCapabilitiesDescription was removed as it was unused.

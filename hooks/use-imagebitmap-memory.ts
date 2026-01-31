@@ -3,92 +3,103 @@
  * Automatically cleans up cache when memory pressure is detected.
  */
 
-import * as React from "react"
+import * as React from "react";
 
-import { getImageBitmapCache } from "@/lib/imagebitmap-cache"
-import { logger } from "@/lib/logger"
-import { isMemoryPressureHigh, getMemoryUsagePercent , isImageBitmapCacheMemoryHigh } from "@/lib/memory-utils"
+import { getImageBitmapCache } from "@/lib/imagebitmap-cache";
+import { logger } from "@/lib/logger";
+import {
+  isMemoryPressureHigh,
+  getMemoryUsagePercent,
+  isImageBitmapCacheMemoryHigh,
+} from "@/lib/memory-utils";
 
 /**
  * Configuration for memory monitoring.
  */
 interface MemoryMonitoringConfig {
   /** Check interval in milliseconds (default: 5000) */
-  checkInterval?: number
+  checkInterval?: number;
   /** Memory pressure threshold percentage (default: 80%) */
-  memoryThreshold?: number
+  memoryThreshold?: number;
   /** Cache memory threshold percentage (default: 85%) */
-  cacheThreshold?: number
+  cacheThreshold?: number;
 }
 
 /**
  * Custom hook for monitoring ImageBitmap memory usage.
  * Automatically cleans up cache when memory pressure is detected.
- * 
+ *
  * @param config - Memory monitoring configuration
  */
-export function useImageBitmapMemory(config: MemoryMonitoringConfig = {}): void {
+export function useImageBitmapMemory(
+  config: MemoryMonitoringConfig = {}
+): void {
   const {
     checkInterval = 5000,
     memoryThreshold = 80,
     cacheThreshold = 85,
-  } = config
+  } = config;
 
-  const cacheRef = React.useRef(getImageBitmapCache())
+  const cacheRef = React.useRef(getImageBitmapCache());
 
   React.useEffect(() => {
-    const cache = cacheRef.current
-    let intervalId: ReturnType<typeof setInterval> | null = null
-    let checkCount = 0
-    const LOG_INTERVAL = 5 // Log every 5 checks (25 seconds with default 5s interval)
+    const cache = cacheRef.current;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let checkCount = 0;
+    const LOG_INTERVAL = 5; // Log every 5 checks (25 seconds with default 5s interval)
 
     const checkMemory = (): void => {
       try {
-        checkCount++
+        checkCount++;
 
         // Check system memory pressure
-        const systemMemoryHigh = isMemoryPressureHigh(memoryThreshold)
+        const systemMemoryHigh = isMemoryPressureHigh(memoryThreshold);
         if (systemMemoryHigh === true) {
-          logger.warn('System memory pressure detected, clearing ImageBitmap cache')
-          cache.clear()
-          return
+          logger.warn(
+            "System memory pressure detected, clearing ImageBitmap cache"
+          );
+          cache.clear();
+          return;
         }
 
         // Check cache memory usage
-        const stats = cache.getStats()
-        const cacheMemoryHigh = isImageBitmapCacheMemoryHigh(stats, cacheThreshold)
-        
+        const stats = cache.getStats();
+        const cacheMemoryHigh = isImageBitmapCacheMemoryHigh(
+          stats,
+          cacheThreshold
+        );
+
         if (cacheMemoryHigh) {
           logger.warn(
             `ImageBitmap cache memory high (${Math.round(stats.memoryUsagePercent)}%), clearing cache`
-          )
-          cache.clear()
-          return
+          );
+          cache.clear();
+          return;
         }
 
         // Log memory stats periodically (every LOG_INTERVAL checks)
         if (checkCount % LOG_INTERVAL === 0) {
-          const systemMemory = getMemoryUsagePercent()
+          const systemMemory = getMemoryUsagePercent();
           logger.log(
-            `Memory stats - System: ${systemMemory !== null ? `${Math.round(systemMemory)  }%` : 'N/A'}, ` +
-            `Cache: ${Math.round(stats.memoryUsagePercent)}% (${Math.round(stats.memoryBytes / 1024 / 1024)}MB/${Math.round(stats.maxMemoryBytes / 1024 / 1024)}MB)`
-          )
+            `Memory stats - System: ${systemMemory !== null ? `${Math.round(systemMemory)}%` : "N/A"}, ` +
+              `Cache: ${Math.round(stats.memoryUsagePercent)}% (${Math.round(stats.memoryBytes / 1024 / 1024)}MB/${Math.round(stats.maxMemoryBytes / 1024 / 1024)}MB)`
+          );
         }
       } catch (error) {
-        logger.error('Error checking ImageBitmap memory:', error)
+        logger.error("Error checking ImageBitmap memory:", error);
       }
-    }
+    };
 
     // Start monitoring
-    intervalId = setInterval(checkMemory, checkInterval)
+    intervalId = setInterval(checkMemory, checkInterval);
 
     // Initial check
-    checkMemory()
+    checkMemory();
 
     return (): void => {
       if (intervalId) {
-        clearInterval(intervalId)
+        clearInterval(intervalId);
       }
-    }
-  }, [checkInterval, memoryThreshold, cacheThreshold])
+    };
+  }, [checkInterval, memoryThreshold, cacheThreshold]);
 }

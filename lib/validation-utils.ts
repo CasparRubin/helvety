@@ -4,33 +4,38 @@
  */
 
 // Internal utilities
-import { FILE_LIMITS } from "./constants"
-import { validateFileType, isPdfFile } from "./file-validation"
+import { FILE_LIMITS } from "./constants";
+import { validateFileType, isPdfFile } from "./file-validation";
 
 // Types
-import type { PdfFile, FileValidationResult } from "./types"
+import type { PdfFile, FileValidationResult } from "./types";
 
 // Re-export for backward compatibility
-export type { FileValidationResult }
+export type { FileValidationResult };
 
 /**
  * Validates that a value is a non-negative integer.
  * Throws an error if validation fails.
- * 
+ *
  * @param value - The value to validate
  * @param paramName - Name of the parameter for error messages
  * @throws {Error} If value is not a non-negative integer
  */
-export function validateNonNegativeInteger(value: unknown, paramName: string): asserts value is number {
+export function validateNonNegativeInteger(
+  value: unknown,
+  paramName: string
+): asserts value is number {
   if (!Number.isInteger(value) || (value as number) < 0) {
-    throw new Error(`Invalid ${paramName}: ${value}. Must be a non-negative integer.`)
+    throw new Error(
+      `Invalid ${paramName}: ${value}. Must be a non-negative integer.`
+    );
   }
 }
 
 /**
  * Validates that a value is an instance of a specific class.
  * Throws an error if validation fails.
- * 
+ *
  * @param value - The value to validate
  * @param constructor - The constructor/class to check against
  * @param paramName - Name of the parameter for error messages
@@ -43,42 +48,50 @@ export function validateInstance<T>(
   paramName: string
 ): asserts value is T {
   if (!(value instanceof constructor)) {
-    throw new Error(`Invalid ${paramName} provided. Expected a ${constructor.name} instance.`)
+    throw new Error(
+      `Invalid ${paramName} provided. Expected a ${constructor.name} instance.`
+    );
   }
 }
 
 /**
  * Validates that a value is an array.
  * Throws an error if validation fails.
- * 
+ *
  * @param value - The value to validate
  * @param paramName - Name of the parameter for error messages
  * @throws {Error} If value is not an array
  */
-export function validateArray(value: unknown, paramName: string): asserts value is unknown[] {
+export function validateArray(
+  value: unknown,
+  paramName: string
+): asserts value is unknown[] {
   if (!Array.isArray(value)) {
-    throw new Error(`Invalid ${paramName} parameter. Expected an array.`)
+    throw new Error(`Invalid ${paramName} parameter. Expected an array.`);
   }
 }
 
 /**
  * Validates that a number is finite.
  * Throws an error if validation fails.
- * 
+ *
  * @param value - The value to validate
  * @param paramName - Name of the parameter for error messages
  * @throws {Error} If value is not a finite number
  */
-export function validateFiniteNumber(value: unknown, paramName: string): asserts value is number {
+export function validateFiniteNumber(
+  value: unknown,
+  paramName: string
+): asserts value is number {
   if (!Number.isFinite(value)) {
-    throw new Error(`Invalid ${paramName}: ${value}. Must be a finite number.`)
+    throw new Error(`Invalid ${paramName}: ${value}. Must be a finite number.`);
   }
 }
 
 /**
  * Validates multiple files for upload.
  * Performs type, size, and duplicate checks.
- * 
+ *
  * @param files - Array of files to validate
  * @param existingFiles - Array of already uploaded files to check for duplicates
  * @returns Validation result with errors array
@@ -87,28 +100,30 @@ export function validateFiles(
   files: ReadonlyArray<File>,
   existingFiles: ReadonlyArray<PdfFile>
 ): FileValidationResult {
-  const errors: string[] = []
-  
-  const currentFileCount = existingFiles.length
-  const newFileCount = files.length
+  const errors: string[] = [];
+
+  const currentFileCount = existingFiles.length;
+  const newFileCount = files.length;
   if (currentFileCount + newFileCount > FILE_LIMITS.MAX_FILES) {
     errors.push(
       `Cannot add ${newFileCount} file(s). Maximum ${FILE_LIMITS.MAX_FILES} files allowed. You currently have ${currentFileCount} file(s).`
-    )
-    return { valid: false, errors }
+    );
+    return { valid: false, errors };
   }
 
   for (const file of files) {
-    const typeValidation = validateFileType(file)
+    const typeValidation = validateFileType(file);
     if (!typeValidation.valid) {
-      errors.push(typeValidation.error ?? `'${file.name}' is not a supported file type.`)
-      continue
+      errors.push(
+        typeValidation.error ?? `'${file.name}' is not a supported file type.`
+      );
+      continue;
     }
 
     // Only check if file is empty, no size limit
     if (file.size === 0) {
-      errors.push(`'${file.name}' is empty.`)
-      continue
+      errors.push(`'${file.name}' is empty.`);
+      continue;
     }
 
     // Note: Duplicate files are now allowed - they will be renamed automatically
@@ -118,32 +133,35 @@ export function validateFiles(
   return {
     valid: errors.length === 0,
     errors,
-  }
+  };
 }
 
 /**
  * Checks if a file is a duplicate of an existing file.
  * Compares both filename and file size to detect duplicates.
- * 
+ *
  * @param file - The file to check for duplicates
  * @param existingFiles - Array of existing files to check against
  * @returns True if the file is a duplicate (same name and size), false otherwise
  */
-export function isDuplicateFile(file: File, existingFiles: ReadonlyArray<PdfFile>): boolean {
+export function isDuplicateFile(
+  file: File,
+  existingFiles: ReadonlyArray<PdfFile>
+): boolean {
   return existingFiles.some(
     (pf) => pf.file.name === file.name && pf.file.size === file.size
-  )
+  );
 }
 
 /**
  * Generates a unique filename by appending a suffix (_2, _3, etc.) if the name already exists.
  * Checks against both existing files and names already used in the current batch.
- * 
+ *
  * @param fileName - The original filename to make unique
  * @param existingFiles - Array of already uploaded files
  * @param usedNames - Set of names already used in the current batch (optional)
  * @returns A unique filename, either the original or with a suffix appended
- * 
+ *
  * @example
  * ```typescript
  * // If "report.pdf" already exists:
@@ -157,35 +175,36 @@ export function generateUniqueFileName(
   existingFiles: ReadonlyArray<PdfFile>,
   usedNames: Set<string> = new Set()
 ): string {
-  const existingNames = new Set(existingFiles.map(f => f.file.name))
-  
+  const existingNames = new Set(existingFiles.map((f) => f.file.name));
+
   // Combine existing names with names used in current batch
-  const allUsedNames = new Set([...existingNames, ...usedNames])
-  
+  const allUsedNames = new Set([...existingNames, ...usedNames]);
+
   if (!allUsedNames.has(fileName)) {
-    return fileName
+    return fileName;
   }
-  
-  const lastDotIndex = fileName.lastIndexOf('.')
-  const baseName = lastDotIndex > 0 ? fileName.slice(0, lastDotIndex) : fileName
-  const extension = lastDotIndex > 0 ? fileName.slice(lastDotIndex) : ''
-  
-  let counter = 2
-  let newName = `${baseName}_${counter}${extension}`
+
+  const lastDotIndex = fileName.lastIndexOf(".");
+  const baseName =
+    lastDotIndex > 0 ? fileName.slice(0, lastDotIndex) : fileName;
+  const extension = lastDotIndex > 0 ? fileName.slice(lastDotIndex) : "";
+
+  let counter = 2;
+  let newName = `${baseName}_${counter}${extension}`;
   while (allUsedNames.has(newName)) {
-    counter++
-    newName = `${baseName}_${counter}${extension}`
+    counter++;
+    newName = `${baseName}_${counter}${extension}`;
   }
-  return newName
+  return newName;
 }
 
 /**
  * Determines the file type (PDF or image) from a File object.
  * Uses synchronous validation for performance.
- * 
+ *
  * @param file - The file to check
  * @returns 'pdf' if the file is a PDF, 'image' if it's an image file
  */
-export function determineFileType(file: File): 'pdf' | 'image' {
-  return isPdfFile(file) ? 'pdf' : 'image'
+export function determineFileType(file: File): "pdf" | "image" {
+  return isPdfFile(file) ? "pdf" : "image";
 }

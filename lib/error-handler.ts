@@ -4,24 +4,24 @@
  */
 
 // Internal utilities
-import { logger } from "./logger"
-import { createPdfErrorInfo, type PdfErrorInfo } from "./pdf-errors"
+import { logger } from "./logger";
+import { createPdfErrorInfo, type PdfErrorInfo } from "./pdf-errors";
 
 /**
  * Error handler callback type for setting errors in components.
  */
-export type ErrorSetter = (error: string | null) => void
+export type ErrorSetter = (error: string | null) => void;
 
 /**
  * Handles an error by creating structured error info and calling the error setter.
  * This is the standard way to handle errors throughout the application.
- * 
+ *
  * @param error - The error to handle (can be Error, string, or unknown)
  * @param context - Context string for the error (e.g., "Can't load 'filename.pdf':")
  * @param onError - Callback function to set the error message
  * @param logError - Whether to log the error (default: true)
  * @returns The created error info, or null if error was null/undefined
- * 
+ *
  * @example
  * ```typescript
  * try {
@@ -38,27 +38,27 @@ export function handleError(
   logError: boolean = true
 ): PdfErrorInfo | null {
   if (error === null || error === undefined) {
-    onError(null)
-    return null
+    onError(null);
+    return null;
   }
 
-  const errorInfo = createPdfErrorInfo(error, context)
-  
+  const errorInfo = createPdfErrorInfo(error, context);
+
   if (logError) {
-    logger.error('Error handled:', errorInfo)
+    logger.error("Error handled:", errorInfo);
   }
-  
-  onError(errorInfo.message)
-  return errorInfo
+
+  onError(errorInfo.message);
+  return errorInfo;
 }
 
 /**
  * Type guard to check if an error is not null or undefined.
  * Provides a more specific type than the generic NonNullable check.
- * 
+ *
  * @param error - The error to check (can be Error, string, or unknown)
  * @returns True if error is not null or undefined, narrowing the type to Error | string | object
- * 
+ *
  * @example
  * ```typescript
  * if (isErrorDefined(error)) {
@@ -67,6 +67,8 @@ export function handleError(
  * }
  * ```
  */
-export function isErrorDefined(error: unknown): error is Error | string | object {
-  return error !== null && error !== undefined
+export function isErrorDefined(
+  error: unknown
+): error is Error | string | object {
+  return error !== null && error !== undefined;
 }

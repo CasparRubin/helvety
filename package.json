@@ -1,19 +1,21 @@
 {
   "name": "helvety-pdf",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
-    "generate-version": "node scripts/generate-version.js",
-    "dev": "npm run generate-version && next dev",
-    "build": "npm run generate-version && next build",
+    "dev": "node scripts/generate-version.js && next dev",
+    "build": "node scripts/generate-version.js && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "postinstall": "node -e \"require('fs').copyFileSync('node_modules/pdfjs-dist/build/pdf.worker.min.mjs', 'public/pdf.worker.min.mjs')\""
-  },
-  "engines": {
-    "node": ">=18.0.0"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
@@ -50,15 +52,19 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^25",
-    "@types/react": "^19.2.10",
+    "@types/node": "^25.1.0",
+    "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "^16.1.6",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.54.0"
   },
   "overrides": {
     "pdfjs-dist": "^5.4.530",

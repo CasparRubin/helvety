@@ -1,7 +1,16 @@
-"use client"
+"use client";
 
-import { Download, Loader2, Trash2, X, Upload, Crown, Check, ShoppingBag } from "lucide-react"
-import * as React from "react"
+import {
+  Download,
+  Loader2,
+  Trash2,
+  X,
+  Upload,
+  Crown,
+  Check,
+  ShoppingBag,
+} from "lucide-react";
+import * as React from "react";
 
 import {
   AlertDialog,
@@ -13,42 +22,42 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { BREAKPOINTS, COLUMNS } from "@/lib/constants"
-import { addOklchAlpha } from "@/lib/pdf-colors"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { BREAKPOINTS, COLUMNS } from "@/lib/constants";
+import { addOklchAlpha } from "@/lib/pdf-colors";
+import { cn } from "@/lib/utils";
 
-import type { PdfFile } from "@/lib/types"
-import type { SubscriptionTier, TierLimits } from "@/lib/types/subscription"
+import type { PdfFile } from "@/lib/types";
+import type { SubscriptionTier, TierLimits } from "@/lib/types/subscription";
 
 interface PdfToolkitProps {
-  readonly pdfFiles: ReadonlyArray<PdfFile>
-  readonly totalPages: number
-  readonly deletedCount: number
-  readonly rotatedCount: number
-  readonly onDownload: () => void
-  readonly onClearAll: () => void
-  readonly onRemoveFile: (fileId: string) => void
-  readonly onAddFiles: () => void
-  readonly isProcessing: boolean
-  readonly columns?: number
-  readonly onColumnsChange?: (columns: number) => void
+  readonly pdfFiles: ReadonlyArray<PdfFile>;
+  readonly totalPages: number;
+  readonly deletedCount: number;
+  readonly rotatedCount: number;
+  readonly onDownload: () => void;
+  readonly onClearAll: () => void;
+  readonly onRemoveFile: (fileId: string) => void;
+  readonly onAddFiles: () => void;
+  readonly isProcessing: boolean;
+  readonly columns?: number;
+  readonly onColumnsChange?: (columns: number) => void;
   /** Current subscription tier */
-  readonly tier?: SubscriptionTier
+  readonly tier?: SubscriptionTier;
   /** Current tier limits */
-  readonly limits?: TierLimits
+  readonly limits?: TierLimits;
   /** Whether more files can be added */
-  readonly canAddMoreFiles?: boolean
+  readonly canAddMoreFiles?: boolean;
   /** Remaining file slots */
-  readonly remainingFileSlots?: number
+  readonly remainingFileSlots?: number;
 }
 
 /** Tailwind lg breakpoint in pixels */
-const LG_BREAKPOINT = 1024
+const LG_BREAKPOINT = 1024;
 
 function PdfToolkitComponent({
   pdfFiles,
@@ -67,30 +76,30 @@ function PdfToolkitComponent({
   canAddMoreFiles = true,
   remainingFileSlots = Infinity,
 }: PdfToolkitProps): React.JSX.Element {
-  const isPro = tier === 'pro'
-  const [showColumnSlider, setShowColumnSlider] = React.useState(false)
-  const [isStackedLayout, setIsStackedLayout] = React.useState(false)
+  const isPro = tier === "pro";
+  const [showColumnSlider, setShowColumnSlider] = React.useState(false);
+  const [isStackedLayout, setIsStackedLayout] = React.useState(false);
 
   // Detect screen width for responsive behavior
   React.useEffect(() => {
     const checkScreenWidth = (): void => {
-      setShowColumnSlider(window.innerWidth >= BREAKPOINTS.MULTI_COLUMN)
-      setIsStackedLayout(window.innerWidth < LG_BREAKPOINT)
-    }
+      setShowColumnSlider(window.innerWidth >= BREAKPOINTS.MULTI_COLUMN);
+      setIsStackedLayout(window.innerWidth < LG_BREAKPOINT);
+    };
 
     // Check on mount
-    checkScreenWidth()
+    checkScreenWidth();
 
     // Listen for resize events
-    window.addEventListener("resize", checkScreenWidth)
-    return () => window.removeEventListener("resize", checkScreenWidth)
-  }, [])
+    window.addEventListener("resize", checkScreenWidth);
+    return () => window.removeEventListener("resize", checkScreenWidth);
+  }, []);
 
   // Stacked layout: compact buttons only (mobile/tablet)
   if (isStackedLayout) {
     return (
       <div className="w-full flex-shrink-0">
-        <div className="bg-muted/30 border border-border/50 p-3">
+        <div className="bg-muted/30 border-border/50 border p-3">
           <div className="flex items-center justify-between gap-2">
             {/* Left side: Add Files, Clear All */}
             <div className="flex flex-wrap items-center gap-2">
@@ -100,7 +109,7 @@ function PdfToolkitComponent({
                 variant="outline"
                 size="default"
               >
-                <Upload className="h-4 w-4 mr-2" />
+                <Upload className="mr-2 h-4 w-4" />
                 {pdfFiles.length === 0 ? "Add Files" : "Add More"}
               </Button>
               {pdfFiles.length > 0 && (
@@ -111,7 +120,7 @@ function PdfToolkitComponent({
                       variant="outline"
                       size="default"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
+                      <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
                   </AlertDialogTrigger>
@@ -119,7 +128,8 @@ function PdfToolkitComponent({
                     <AlertDialogHeader>
                       <AlertDialogTitle>Clear All Files?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will remove all files and pages from the canvas. This action cannot be undone.
+                        This will remove all files and pages from the canvas.
+                        This action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -142,16 +152,20 @@ function PdfToolkitComponent({
                 onClick={onDownload}
                 disabled={isProcessing || pdfFiles.length === 0}
                 size="default"
-                aria-label={isProcessing ? "Processing PDF, please wait" : `Download merged PDF with ${totalPages} page${totalPages !== 1 ? 's' : ''}`}
+                aria-label={
+                  isProcessing
+                    ? "Processing PDF, please wait"
+                    : `Download merged PDF with ${totalPages} page${totalPages !== 1 ? "s" : ""}`
+                }
               >
                 {isProcessing ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Processing...
                   </>
                 ) : (
                   <>
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="mr-2 h-4 w-4" />
                     Download
                   </>
                 )}
@@ -160,22 +174,26 @@ function PdfToolkitComponent({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Desktop layout: full panel (only shown on lg+ screens)
   return (
-    <div className={cn(
-      "flex",
-      "w-80 flex-shrink-0",
-      "flex-col gap-6",
-      "h-full max-h-full"
-    )}>
-      <div className={cn(
-        "bg-muted/30 border border-border/50 p-6",
-        "flex flex-col gap-6",
-        "overflow-y-auto flex-1"
-      )}>
+    <div
+      className={cn(
+        "flex",
+        "w-80 flex-shrink-0",
+        "flex-col gap-6",
+        "h-full max-h-full"
+      )}
+    >
+      <div
+        className={cn(
+          "bg-muted/30 border-border/50 border p-6",
+          "flex flex-col gap-6",
+          "flex-1 overflow-y-auto"
+        )}
+      >
         {/* Actions - Always at top */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold">Actions</h3>
@@ -186,16 +204,20 @@ function PdfToolkitComponent({
                 disabled={isProcessing || pdfFiles.length === 0}
                 className="w-full"
                 size="lg"
-                aria-label={isProcessing ? "Processing PDF, please wait" : `Download merged PDF with ${totalPages} page${totalPages !== 1 ? 's' : ''}`}
+                aria-label={
+                  isProcessing
+                    ? "Processing PDF, please wait"
+                    : `Download merged PDF with ${totalPages} page${totalPages !== 1 ? "s" : ""}`
+                }
               >
                 {isProcessing ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Processing...
                   </>
                 ) : (
                   <>
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="mr-2 h-4 w-4" />
                     Download PDF
                   </>
                 )}
@@ -208,14 +230,19 @@ function PdfToolkitComponent({
               className="w-full"
               size="lg"
             >
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload className="mr-2 h-4 w-4" />
               {pdfFiles.length === 0 ? "Add Files" : "Add More Files"}
             </Button>
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-muted-foreground text-center text-xs">
               {!canAddMoreFiles && limits ? (
-                <span className="text-destructive">File limit reached ({limits.maxFiles} files)</span>
+                <span className="text-destructive">
+                  File limit reached ({limits.maxFiles} files)
+                </span>
               ) : remainingFileSlots !== Infinity && remainingFileSlots <= 2 ? (
-                <span>{remainingFileSlots} file{remainingFileSlots !== 1 ? 's' : ''} remaining</span>
+                <span>
+                  {remainingFileSlots} file{remainingFileSlots !== 1 ? "s" : ""}{" "}
+                  remaining
+                </span>
               ) : (
                 "PDF files and images are supported"
               )}
@@ -229,7 +256,7 @@ function PdfToolkitComponent({
                     className="w-full"
                     size="lg"
                   >
-                    <Trash2 className="h-4 w-4 mr-2" />
+                    <Trash2 className="mr-2 h-4 w-4" />
                     Clear All
                   </Button>
                 </AlertDialogTrigger>
@@ -237,7 +264,8 @@ function PdfToolkitComponent({
                   <AlertDialogHeader>
                     <AlertDialogTitle>Clear All Files?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will remove all files and pages from the canvas. This action cannot be undone.
+                      This will remove all files and pages from the canvas. This
+                      action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -256,30 +284,35 @@ function PdfToolkitComponent({
         </div>
 
         {/* Display - Column Slider (only show when screen width >= 1231px and files are uploaded) */}
-        {pdfFiles.length > 0 && showColumnSlider && columns !== undefined && onColumnsChange && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Display</h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="column-slider" className="text-sm">
-                  Pages per row
-                </Label>
-                <span className="text-xs text-muted-foreground">
-                  {columns} {columns === 1 ? "page" : "pages"}
-                </span>
+        {pdfFiles.length > 0 &&
+          showColumnSlider &&
+          columns !== undefined &&
+          onColumnsChange && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Display</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="column-slider" className="text-sm">
+                    Pages per row
+                  </Label>
+                  <span className="text-muted-foreground text-xs">
+                    {columns} {columns === 1 ? "page" : "pages"}
+                  </span>
+                </div>
+                <Slider
+                  id="column-slider"
+                  min={COLUMNS.SLIDER_MIN}
+                  max={COLUMNS.MAX}
+                  step={1}
+                  value={[columns]}
+                  onValueChange={(value) =>
+                    onColumnsChange(value[0] ?? COLUMNS.SLIDER_MIN)
+                  }
+                  className="w-full"
+                />
               </div>
-              <Slider
-                id="column-slider"
-                min={COLUMNS.SLIDER_MIN}
-                max={COLUMNS.MAX}
-                step={1}
-                value={[columns]}
-                onValueChange={(value) => onColumnsChange(value[0] ?? COLUMNS.SLIDER_MIN)}
-                className="w-full"
-              />
             </div>
-          </div>
-        )}
+          )}
 
         {/* Statistics with tier-based limits */}
         {pdfFiles.length > 0 && columns !== 1 && (
@@ -292,7 +325,9 @@ function PdfToolkitComponent({
                   <div className="flex items-center gap-1">
                     <Badge variant="secondary">{totalPages}</Badge>
                     {limits && limits.maxPages !== Infinity && (
-                      <span className="text-xs text-muted-foreground">/ {limits.maxPages}</span>
+                      <span className="text-muted-foreground text-xs">
+                        / {limits.maxPages}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -302,7 +337,9 @@ function PdfToolkitComponent({
                 <div className="flex items-center gap-1">
                   <Badge variant="secondary">{pdfFiles.length}</Badge>
                   {limits && limits.maxFiles !== Infinity && (
-                    <span className="text-xs text-muted-foreground">/ {limits.maxFiles}</span>
+                    <span className="text-muted-foreground text-xs">
+                      / {limits.maxFiles}
+                    </span>
                   )}
                 </div>
               </div>
@@ -326,55 +363,59 @@ function PdfToolkitComponent({
         {tier && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Your Plan</h3>
-            <div className="rounded-lg border bg-muted/50 p-3 space-y-3">
+            <div className="bg-muted/50 space-y-3 rounded-lg border p-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm">Current Plan</span>
                 {isPro ? (
                   <Badge variant="default">
-                    <Crown className="h-3 w-3 mr-1" />
+                    <Crown className="mr-1 h-3 w-3" />
                     Pro
                   </Badge>
                 ) : (
-                  <Badge variant="secondary">{limits?.name ?? 'Basic'}</Badge>
+                  <Badge variant="secondary">{limits?.name ?? "Basic"}</Badge>
                 )}
               </div>
               {/* Show limits and upgrade prompt only for non-Pro users */}
               {!isPro && (
                 <>
                   {limits && (
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <p>Max {limits.maxFiles} files, {limits.maxPages} pages</p>
+                    <div className="text-muted-foreground space-y-1 text-xs">
+                      <p>
+                        Max {limits.maxFiles} files, {limits.maxPages} pages
+                      </p>
                       {!limits.canRotate && <p>Rotation not available</p>}
                     </div>
                   )}
                   <div className="border-t pt-3">
-                    <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
+                    <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
                       <Crown className="h-4 w-4" />
                       Upgrade to Pro
                     </h4>
-                    <ul className="space-y-1 mb-3">
+                    <ul className="mb-3 space-y-1">
                       {[
-                        'Unlimited file uploads',
-                        'Unlimited pages',
-                        'Rotate pages',
-                        'All merge & split features',
-                        'Client-side processing',
-                        'Priority support',
+                        "Unlimited file uploads",
+                        "Unlimited pages",
+                        "Rotate pages",
+                        "All merge & split features",
+                        "Client-side processing",
+                        "Priority support",
                       ].map((feature) => (
-                        <li key={feature} className="flex items-center gap-2 text-xs">
-                          <Check className="h-3 w-3 text-primary shrink-0" />
+                        <li
+                          key={feature}
+                          className="flex items-center gap-2 text-xs"
+                        >
+                          <Check className="text-primary h-3 w-3 shrink-0" />
                           {feature}
                         </li>
                       ))}
                     </ul>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Only <span className="font-medium text-foreground">CHF 4.95/month</span>
+                    <p className="text-muted-foreground mb-3 text-xs">
+                      Only{" "}
+                      <span className="text-foreground font-medium">
+                        CHF 4.95/month
+                      </span>
                     </p>
-                    <Button
-                      size="sm"
-                      className="w-full"
-                      asChild
-                    >
+                    <Button size="sm" className="w-full" asChild>
                       <a
                         href="https://store.helvety.com/products/helvety-pdf"
                         target="_blank"
@@ -400,30 +441,33 @@ function PdfToolkitComponent({
                 <div
                   key={file.id}
                   className={cn(
-                    "flex items-center gap-2 p-2 rounded-md",
-                    "border border-border",
+                    "flex items-center gap-2 rounded-md p-2",
+                    "border-border border",
                     "group"
                   )}
                   style={{
-                    backgroundColor: addOklchAlpha(file.color, 0.15)
+                    backgroundColor: addOklchAlpha(file.color, 0.15),
                   }}
                 >
                   <div
-                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    className="h-3 w-3 flex-shrink-0 rounded-full"
                     style={{ backgroundColor: file.color }}
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate" title={file.file.name}>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="truncate text-xs font-medium"
+                      title={file.file.name}
+                    >
                       {file.file.name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {file.pageCount} {file.pageCount === 1 ? "page" : "pages"}
                     </p>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
                     onClick={() => onRemoveFile(file.id)}
                     disabled={isProcessing}
                     aria-label={`Remove ${file.file.name}`}
@@ -437,7 +481,7 @@ function PdfToolkitComponent({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -459,40 +503,40 @@ function arePropsEqual(
     prevProps.canAddMoreFiles !== nextProps.canAddMoreFiles ||
     prevProps.remainingFileSlots !== nextProps.remainingFileSlots
   ) {
-    return false // Props changed, re-render
+    return false; // Props changed, re-render
   }
 
   // Compare limits object
   if (prevProps.limits !== nextProps.limits) {
     if (!prevProps.limits || !nextProps.limits) {
-      return false
+      return false;
     }
     if (
       prevProps.limits.maxFiles !== nextProps.limits.maxFiles ||
       prevProps.limits.maxPages !== nextProps.limits.maxPages ||
       prevProps.limits.canRotate !== nextProps.limits.canRotate
     ) {
-      return false
+      return false;
     }
   }
 
   // Compare array length first (fast check)
   if (prevProps.pdfFiles.length !== nextProps.pdfFiles.length) {
-    return false // Array length changed, re-render
+    return false; // Array length changed, re-render
   }
 
   // Compare array reference (if reference is same, array hasn't changed)
   if (prevProps.pdfFiles !== nextProps.pdfFiles) {
     // Deep comparison only if references differ
     // Check if any file changed by comparing IDs (more efficient than deep object comparison)
-    const prevIds = new Set(prevProps.pdfFiles.map(f => f.id))
-    const nextIds = new Set(nextProps.pdfFiles.map(f => f.id))
+    const prevIds = new Set(prevProps.pdfFiles.map((f) => f.id));
+    const nextIds = new Set(nextProps.pdfFiles.map((f) => f.id));
     if (prevIds.size !== nextIds.size) {
-      return false
+      return false;
     }
     for (const id of prevIds) {
       if (!nextIds.has(id)) {
-        return false
+        return false;
       }
     }
   }
@@ -505,9 +549,8 @@ function arePropsEqual(
     prevProps.onRemoveFile === nextProps.onRemoveFile &&
     prevProps.onAddFiles === nextProps.onAddFiles &&
     prevProps.onColumnsChange === nextProps.onColumnsChange
-  )
+  );
 }
 
 // Memoize component to prevent unnecessary re-renders
-export const PdfToolkit = React.memo(PdfToolkitComponent, arePropsEqual)
-
+export const PdfToolkit = React.memo(PdfToolkitComponent, arePropsEqual);
