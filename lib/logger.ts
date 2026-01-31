@@ -1,10 +1,10 @@
 /**
  * Centralized logging utility
- * 
+ *
  * LOGGING STRATEGY:
  * - Development: All log levels (log, warn, info, debug, error) are output to console
  * - Production: Only error logs are output (with sanitization), other levels are suppressed
- * 
+ *
  * RATIONALE:
  * - Errors are critical and need to be logged in production for monitoring/debugging
  * - Other log levels (log, warn, info, debug) are primarily for development debugging
@@ -12,15 +12,19 @@
  * - This reduces production log noise while maintaining error visibility
  */
 
-const isDevelopment = process.env.NODE_ENV === 'development'
+const isDevelopment = process.env.NODE_ENV === "development";
 
 /**
  * Error tracking service interface
  * Allows integration with services like Sentry, LogRocket, etc.
  */
 interface ErrorTrackingService {
-  captureException(error: Error, context?: Record<string, unknown>): void
-  captureMessage(message: string, level?: 'error' | 'warning' | 'info', context?: Record<string, unknown>): void
+  captureException(error: Error, context?: Record<string, unknown>): void;
+  captureMessage(
+    message: string,
+    level?: "error" | "warning" | "info",
+    context?: Record<string, unknown>
+  ): void;
 }
 
 /**
@@ -32,10 +36,10 @@ function safeInternalErrorLog(...args: unknown[]): void {
   // Direct console.error is necessary here to prevent infinite loops
   // if the error tracking service fails and tries to log through logger.error
   if (isDevelopment) {
-    console.error('[Logger Internal Error]', ...args)
+    console.error("[Logger Internal Error]", ...args);
   } else {
     // In production, still log but with a clear marker
-    console.error('[Logger Internal Error]', ...args)
+    console.error("[Logger Internal Error]", ...args);
   }
 }
 
@@ -44,36 +48,40 @@ function safeInternalErrorLog(...args: unknown[]): void {
  * Currently a no-op, but can be extended to integrate with actual services
  */
 class ErrorTracker implements ErrorTrackingService {
-  private service: ErrorTrackingService | null = null
+  private service: ErrorTrackingService | null = null;
 
   /**
    * Initialize error tracking service
    * Call this method to set up integration with services like Sentry
    */
   init(service: ErrorTrackingService): void {
-    this.service = service
+    this.service = service;
   }
 
   captureException(error: Error, context?: Record<string, unknown>): void {
     if (this.service) {
       try {
-        this.service.captureException(error, context)
+        this.service.captureException(error, context);
       } catch (e) {
         // Use safe internal logger to avoid circular dependency
         // Cannot use logger.error here as it would call errorTracker again
-        safeInternalErrorLog('Error tracking failed:', e)
+        safeInternalErrorLog("Error tracking failed:", e);
       }
     }
   }
 
-  captureMessage(message: string, level: 'error' | 'warning' | 'info' = 'error', context?: Record<string, unknown>): void {
+  captureMessage(
+    message: string,
+    level: "error" | "warning" | "info" = "error",
+    context?: Record<string, unknown>
+  ): void {
     if (this.service) {
       try {
-        this.service.captureMessage(message, level, context)
+        this.service.captureMessage(message, level, context);
       } catch (e) {
         // Use safe internal logger to avoid circular dependency
         // Cannot use logger.error here as it would call errorTracker again
-        safeInternalErrorLog('Error tracking failed:', e)
+        safeInternalErrorLog("Error tracking failed:", e);
       }
     }
   }
@@ -83,155 +91,162 @@ class ErrorTracker implements ErrorTrackingService {
  * Global error tracker instance
  * Initialize with: errorTracker.init(yourService)
  */
-export const errorTracker = new ErrorTracker()
+export const errorTracker = new ErrorTracker();
 
 /**
  * Type guard to check if a value is a record-like object
  */
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /**
  * Sensitive keys that should be redacted from logs
  */
 const SENSITIVE_KEYS = new Set([
-  'password',
-  'secret',
-  'token',
-  'key',
-  'api_key',
-  'apikey',
-  'auth',
-  'authorization',
-  'credential',
-  'private',
-])
+  "password",
+  "secret",
+  "token",
+  "key",
+  "api_key",
+  "apikey",
+  "auth",
+  "authorization",
+  "credential",
+  "private",
+]);
 
 /**
  * Check if a key is sensitive and should be redacted
  */
 function isSensitiveKey(key: string): boolean {
-  const lowerKey = key.toLowerCase()
-  return SENSITIVE_KEYS.has(lowerKey) || 
-    Array.from(SENSITIVE_KEYS).some(sensitive => lowerKey.includes(sensitive))
+  const lowerKey = key.toLowerCase();
+  return (
+    SENSITIVE_KEYS.has(lowerKey) ||
+    Array.from(SENSITIVE_KEYS).some((sensitive) => lowerKey.includes(sensitive))
+  );
 }
 
 /**
  * Recursively sanitizes an object by removing sensitive keys
  * Handles nested objects and arrays
  */
-function sanitizeObject(obj: Record<string, unknown>, depth: number = 0): Record<string, unknown> {
+function sanitizeObject(
+  obj: Record<string, unknown>,
+  depth: number = 0
+): Record<string, unknown> {
   // Prevent infinite recursion (max depth of 10)
   if (depth > 10) {
-    return {}
+    return {};
   }
 
-  const sanitized: Record<string, unknown> = {}
-  
+  const sanitized: Record<string, unknown> = {};
+
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       // Skip sensitive keys
       if (isSensitiveKey(key)) {
-        continue
+        continue;
       }
 
-      const value = obj[key]
-      
+      const value = obj[key];
+
       // Skip functions - they cannot be serialized and may cause errors
-      if (typeof value === 'function') {
-        continue
+      if (typeof value === "function") {
+        continue;
       }
-      
+
       // Recursively sanitize nested objects
       if (isRecord(value)) {
-        sanitized[key] = sanitizeObject(value, depth + 1)
+        sanitized[key] = sanitizeObject(value, depth + 1);
       }
       // Recursively sanitize arrays containing objects
       else if (Array.isArray(value)) {
         sanitized[key] = value
-          .filter(item => typeof item !== 'function') // Remove functions from arrays
-          .map(item => {
+          .filter((item) => typeof item !== "function") // Remove functions from arrays
+          .map((item) => {
             if (isRecord(item)) {
-              return sanitizeObject(item, depth + 1)
+              return sanitizeObject(item, depth + 1);
             }
-            return item
-          })
+            return item;
+          });
       }
       // Keep primitive values and other types as-is
       else {
-        sanitized[key] = value
+        sanitized[key] = value;
       }
     }
   }
-  
-  return sanitized
+
+  return sanitized;
 }
 
 export const logger = {
   log: (...args: unknown[]): void => {
     if (isDevelopment) {
       // eslint-disable-next-line no-console -- Intentional: logger utility for development debugging
-      console.log(...args)
+      console.log(...args);
     }
   },
-  
+
   error: (...args: unknown[]): void => {
     if (isDevelopment) {
-      console.error(...args)
+      console.error(...args);
     } else {
       // In production, sanitize errors before logging
       // Uses recursive sanitization to handle nested objects and arrays
-      const sanitizedArgs = args.map(arg => {
+      const sanitizedArgs = args.map((arg) => {
         if (isRecord(arg)) {
-          return sanitizeObject(arg)
+          return sanitizeObject(arg);
         }
         // Handle arrays that might contain sensitive objects
         if (Array.isArray(arg)) {
-          return arg.map(item => {
+          return arg.map((item) => {
             if (isRecord(item)) {
-              return sanitizeObject(item)
+              return sanitizeObject(item);
             }
-            return item
-          })
+            return item;
+          });
         }
-        return arg
-      })
-      console.error(...sanitizedArgs)
+        return arg;
+      });
+      console.error(...sanitizedArgs);
     }
 
     // Send to error tracking service (works in both dev and prod)
-    const firstArg = args[0]
+    const firstArg = args[0];
     if (firstArg instanceof Error) {
-      const context = args.length > 1 && isRecord(args[1]) 
-        ? sanitizeObject(args[1])
-        : undefined
-      errorTracker.captureException(firstArg, context)
-    } else if (typeof firstArg === 'string') {
-      const context = args.length > 1 && isRecord(args[1])
-        ? sanitizeObject(args[1])
-        : undefined
-      errorTracker.captureMessage(firstArg, 'error', context)
+      const context =
+        args.length > 1 && isRecord(args[1])
+          ? sanitizeObject(args[1])
+          : undefined;
+      errorTracker.captureException(firstArg, context);
+    } else if (typeof firstArg === "string") {
+      const context =
+        args.length > 1 && isRecord(args[1])
+          ? sanitizeObject(args[1])
+          : undefined;
+      errorTracker.captureMessage(firstArg, "error", context);
     }
   },
-  
+
   warn: (...args: unknown[]): void => {
     if (isDevelopment) {
-      console.warn(...args)
+      console.warn(...args);
     }
   },
-  
+
   info: (...args: unknown[]): void => {
     if (isDevelopment) {
       // eslint-disable-next-line no-console -- Intentional: logger utility for development debugging
-      console.info(...args)
+      console.info(...args);
     }
   },
-  
+
   debug: (...args: unknown[]): void => {
     if (isDevelopment) {
       // eslint-disable-next-line no-console -- Intentional: logger utility for development debugging
-      console.debug(...args)
+      console.debug(...args);
     }
   },
-}
+};

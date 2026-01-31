@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import { type ReactNode } from 'react'
+import { type ReactNode } from "react";
 
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { EncryptionProvider } from '@/lib/crypto'
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { EncryptionProvider } from "@/lib/crypto";
 
 interface ProvidersProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 /**
@@ -16,9 +16,7 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <TooltipProvider>
-      <EncryptionProvider>
-        {children}
-      </EncryptionProvider>
+      <EncryptionProvider>{children}</EncryptionProvider>
     </TooltipProvider>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Pricing card component
@@ -6,49 +6,59 @@
  * Integrates with Stripe Checkout for paid tiers
  */
 
-import { useState } from 'react'
-import { Check, Sparkles, Loader2, RotateCcw } from 'lucide-react'
-import { toast } from 'sonner'
+import { Check, Sparkles, Loader2, RotateCcw } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-import { reactivateSubscription } from '@/app/actions/subscription-actions'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import { formatPrice, getIntervalShortLabel } from '@/lib/utils/pricing'
+import { reactivateSubscription } from "@/app/actions/subscription-actions";
+import { DigitalContentConsentDialog } from "@/components/digital-content-consent-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { logger } from "@/lib/logger";
+import { cn } from "@/lib/utils";
+import { formatPrice, getIntervalShortLabel } from "@/lib/utils/pricing";
 
-import { FeatureList } from './feature-list'
+import { FeatureList } from "./feature-list";
 
-import type { PricingTier } from '@/lib/types/products'
-import type { CreateCheckoutResponse, Subscription } from '@/lib/types/entities'
-
+import type {
+  CreateCheckoutResponse,
+  Subscription,
+} from "@/lib/types/entities";
+import type { PricingTier } from "@/lib/types/products";
 
 interface PricingCardProps {
-  tier: PricingTier
-  className?: string
+  tier: PricingTier;
+  className?: string;
   /** Show monthly equivalent for yearly tiers */
-  showMonthlyEquivalent?: boolean
+  showMonthlyEquivalent?: boolean;
   /** Action when CTA is clicked (overrides default checkout behavior) */
-  onSelect?: (tier: PricingTier) => void
+  onSelect?: (tier: PricingTier) => void;
   /** Whether the tier is currently selected */
-  selected?: boolean
+  selected?: boolean;
   /** Custom CTA text */
-  ctaText?: string
+  ctaText?: string;
   /** Whether the CTA should be disabled */
-  disabled?: boolean
+  disabled?: boolean;
   /** Product slug for redirect URLs */
-  productSlug?: string
+  productSlug?: string;
   /** User's existing subscription for this tier (if any) */
-  userSubscription?: Subscription | null
+  userSubscription?: Subscription | null;
   /** Callback when subscription is reactivated */
-  onReactivate?: () => void
+  onReactivate?: () => void;
 }
 
 // Tier IDs that have Stripe checkout enabled
 const CHECKOUT_ENABLED_TIERS = [
-  'helvety-pdf-pro-monthly',
+  "helvety-pdf-pro-monthly",
   // Add more tier IDs here as they are configured in Stripe
-]
+];
 
 export function PricingCard({
   tier,
@@ -62,67 +72,73 @@ export function PricingCard({
   userSubscription,
   onReactivate,
 }: PricingCardProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isReactivating, setIsReactivating] = useState(false)
-  const isRecurring = tier.interval === 'monthly' || tier.interval === 'yearly'
-  const intervalLabel = getIntervalShortLabel(tier.interval)
+  const [isLoading, setIsLoading] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
+  const isRecurring = tier.interval === "monthly" || tier.interval === "yearly";
+  const intervalLabel = getIntervalShortLabel(tier.interval);
   // Check checkout eligibility based on tier ID (stable between server/client)
-  const hasPaidCheckout = !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id)
+  const hasPaidCheckout =
+    !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id);
 
   // Subscription state checks
-  const hasActiveSubscription = userSubscription && 
-    (userSubscription.status === 'active' || userSubscription.status === 'trialing') &&
-    !userSubscription.cancel_at_period_end
-  const isPendingCancellation = userSubscription &&
-    (userSubscription.status === 'active' || userSubscription.status === 'trialing') &&
-    userSubscription.cancel_at_period_end
+  const hasActiveSubscription =
+    userSubscription &&
+    (userSubscription.status === "active" ||
+      userSubscription.status === "trialing") &&
+    !userSubscription.cancel_at_period_end;
+  const isPendingCancellation =
+    userSubscription &&
+    (userSubscription.status === "active" ||
+      userSubscription.status === "trialing") &&
+    userSubscription.cancel_at_period_end;
 
   // Calculate monthly equivalent for yearly plans
   const monthlyEquivalent =
-    showMonthlyEquivalent && tier.interval === 'yearly'
+    showMonthlyEquivalent && tier.interval === "yearly"
       ? Math.round(tier.price / 12)
-      : null
+      : null;
 
   const getCtaText = () => {
-    if (ctaText) return ctaText
-    if (hasActiveSubscription) return 'Current Plan'
-    if (isPendingCancellation) return 'Reactivate'
-    if (tier.isFree) return 'Get Started'
-    if (isRecurring) return 'Subscribe'
-    return 'Buy Now'
-  }
+    if (ctaText) return ctaText;
+    if (hasActiveSubscription) return "Current Plan";
+    if (isPendingCancellation) return "Reactivate";
+    if (tier.isFree) return "Get Started";
+    if (isRecurring) return "Subscribe";
+    return "Buy Now";
+  };
 
   /**
    * Handle reactivate subscription
    */
   const handleReactivate = async () => {
-    if (!userSubscription) return
+    if (!userSubscription) return;
 
-    setIsReactivating(true)
+    setIsReactivating(true);
 
     try {
-      const result = await reactivateSubscription(userSubscription.id)
+      const result = await reactivateSubscription(userSubscription.id);
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to reactivate subscription')
+        throw new Error(result.error ?? "Failed to reactivate subscription");
       }
 
-      toast.success('Subscription reactivated', {
-        description: 'Your subscription will continue as normal.',
-      })
+      toast.success("Subscription reactivated", {
+        description: "Your subscription will continue as normal.",
+      });
 
-      onReactivate?.()
+      onReactivate?.();
     } catch (error) {
-      console.error('Reactivate subscription error:', error)
+      logger.error("Reactivate subscription error:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Failed to reactivate subscription. Please try again.'
-      )
+          : "Failed to reactivate subscription. Please try again."
+      );
     } finally {
-      setIsReactivating(false)
+      setIsReactivating(false);
     }
-  }
+  };
 
   /**
    * Handle checkout for paid tiers via Stripe
@@ -131,73 +147,89 @@ export function PricingCard({
     if (tier.isFree || !hasPaidCheckout) {
       // For free tiers or non-checkout tiers, just call onSelect
       if (onSelect) {
-        onSelect(tier)
+        onSelect(tier);
       }
-      return
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
+      const response = await fetch("/api/checkout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           tierId: tier.id,
-          successUrl: productSlug ? `/products/${productSlug}?checkout=success` : undefined,
-          cancelUrl: productSlug ? `/products/${productSlug}?checkout=cancelled` : undefined,
+          successUrl: productSlug
+            ? `/products/${productSlug}?checkout=success`
+            : undefined,
+          cancelUrl: productSlug
+            ? `/products/${productSlug}?checkout=cancelled`
+            : undefined,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create checkout session')
+        const errorData = await response.json();
+        throw new Error(errorData.error ?? "Failed to create checkout session");
       }
 
-      const data: CreateCheckoutResponse = await response.json()
+      const data: CreateCheckoutResponse = await response.json();
 
       // Redirect to Stripe Checkout
-      window.location.href = data.checkoutUrl
+      window.location.href = data.checkoutUrl;
     } catch (error) {
-      console.error('Checkout error:', error)
+      logger.error("Checkout error:", error);
       toast.error(
-        error instanceof Error 
-          ? error.message 
-          : 'Failed to start checkout. Please try again.'
-      )
-      setIsLoading(false)
+        error instanceof Error
+          ? error.message
+          : "Failed to start checkout. Please try again."
+      );
+      setIsLoading(false);
     }
-  }
+  };
 
   /**
    * Handle button click - either custom onSelect, checkout, or reactivate
+   * For paid digital products, shows consent dialog first (EU consumer law requirement)
    */
   const handleClick = () => {
     if (isPendingCancellation) {
-      handleReactivate()
-      return
+      void handleReactivate();
+      return;
     }
     if (hasActiveSubscription) {
       // Already subscribed - button should be disabled anyway
-      return
+      return;
     }
     if (onSelect) {
-      onSelect(tier)
+      onSelect(tier);
     } else if (hasPaidCheckout) {
-      handleCheckout()
+      // Show consent dialog for digital content purchases (EU requirement)
+      setShowConsentDialog(true);
     }
-  }
+  };
+
+  /**
+   * Handle consent dialog confirmation - proceed to checkout
+   */
+  const handleConsentConfirm = () => {
+    void handleCheckout();
+  };
 
   return (
     <Card
       className={cn(
-        'relative flex flex-col',
-        tier.highlighted && !hasActiveSubscription && 'ring-2 ring-primary',
-        hasActiveSubscription && 'ring-2 ring-green-500 bg-green-500/5',
-        isPendingCancellation && 'ring-2 ring-amber-500 bg-amber-500/5',
-        selected && !hasActiveSubscription && !isPendingCancellation && 'ring-2 ring-primary bg-primary/5',
+        "relative flex flex-col",
+        tier.highlighted && !hasActiveSubscription && "ring-primary ring-2",
+        hasActiveSubscription && "bg-green-500/5 ring-2 ring-green-500",
+        isPendingCancellation && "bg-amber-500/5 ring-2 ring-amber-500",
+        selected &&
+          !hasActiveSubscription &&
+          !isPendingCancellation &&
+          "ring-primary bg-primary/5 ring-2",
         className
       )}
     >
@@ -228,7 +260,13 @@ export function PricingCard({
         </div>
       )}
 
-      <CardHeader className={cn((tier.highlighted || hasActiveSubscription || isPendingCancellation) && 'pt-4')}>
+      <CardHeader
+        className={cn(
+          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- Boolean OR is intentional
+          (tier.highlighted || hasActiveSubscription || isPendingCancellation) &&
+            "pt-4"
+        )}
+      >
         <CardTitle className="flex items-center justify-between">
           <span>{tier.name}</span>
           {tier.isFree && (
@@ -251,8 +289,9 @@ export function PricingCard({
             )}
           </div>
           {monthlyEquivalent && (
-            <p className="text-sm text-muted-foreground">
-              {formatPrice(monthlyEquivalent, tier.currency)}/month billed annually
+            <p className="text-muted-foreground text-sm">
+              {formatPrice(monthlyEquivalent, tier.currency)}/month billed
+              annually
             </p>
           )}
         </div>
@@ -265,21 +304,23 @@ export function PricingCard({
         <Button
           className="w-full"
           variant={
-            hasActiveSubscription 
-              ? 'outline' 
-              : isPendingCancellation 
-                ? 'default' 
-                : tier.highlighted 
-                  ? 'default' 
-                  : 'outline'
+            hasActiveSubscription
+              ? "outline"
+              : isPendingCancellation
+                ? "default"
+                : tier.highlighted
+                  ? "default"
+                  : "outline"
           }
           onClick={handleClick}
-          disabled={disabled || isLoading || isReactivating || !!hasActiveSubscription}
+          disabled={
+            disabled || isLoading || isReactivating || !!hasActiveSubscription
+          }
         >
           {isLoading || isReactivating ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              {isReactivating ? 'Reactivating...' : 'Processing...'}
+              {isReactivating ? "Reactivating..." : "Processing..."}
             </>
           ) : hasActiveSubscription ? (
             <>
@@ -301,22 +342,31 @@ export function PricingCard({
           )}
         </Button>
       </CardFooter>
+
+      {/* EU Digital Content Consent Dialog */}
+      <DigitalContentConsentDialog
+        open={showConsentDialog}
+        onOpenChange={setShowConsentDialog}
+        onConfirm={handleConsentConfirm}
+        isLoading={isLoading}
+        productName={tier.name}
+      />
     </Card>
-  )
+  );
 }
 
 interface PricingCardsProps {
-  tiers: PricingTier[]
-  className?: string
-  onSelect?: (tier: PricingTier) => void
-  selectedTierId?: string
-  disabled?: boolean
+  tiers: PricingTier[];
+  className?: string;
+  onSelect?: (tier: PricingTier) => void;
+  selectedTierId?: string;
+  disabled?: boolean;
   /** Product slug for checkout redirect URLs */
-  productSlug?: string
+  productSlug?: string;
   /** User's subscriptions (to check if already subscribed) */
-  userSubscriptions?: Subscription[]
+  userSubscriptions?: Subscription[];
   /** Callback when a subscription is reactivated */
-  onReactivate?: () => void
+  onReactivate?: () => void;
 }
 
 export function PricingCards({
@@ -333,19 +383,21 @@ export function PricingCards({
    * Find user's subscription for a specific tier
    */
   const getSubscriptionForTier = (tierId: string): Subscription | null => {
-    return userSubscriptions.find(
-      (sub) => 
-        sub.tier_id === tierId &&
-        (sub.status === 'active' || sub.status === 'trialing')
-    ) ?? null
-  }
+    return (
+      userSubscriptions.find(
+        (sub) =>
+          sub.tier_id === tierId &&
+          (sub.status === "active" || sub.status === "trialing")
+      ) ?? null
+    );
+  };
 
   return (
     <div
       className={cn(
-        'grid gap-6',
-        tiers.length === 2 && 'md:grid-cols-2',
-        tiers.length >= 3 && 'md:grid-cols-2 lg:grid-cols-3',
+        "grid gap-6",
+        tiers.length === 2 && "md:grid-cols-2",
+        tiers.length >= 3 && "md:grid-cols-2 lg:grid-cols-3",
         className
       )}
     >
@@ -355,7 +407,7 @@ export function PricingCards({
           tier={tier}
           onSelect={onSelect}
           selected={selectedTierId === tier.id}
-          showMonthlyEquivalent={tier.interval === 'yearly'}
+          showMonthlyEquivalent={tier.interval === "yearly"}
           disabled={disabled}
           productSlug={productSlug}
           userSubscription={getSubscriptionForTier(tier.id)}
@@ -363,5 +415,5 @@ export function PricingCards({
         />
       ))}
     </div>
-  )
+  );
 }

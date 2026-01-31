@@ -3,6 +3,7 @@ import importPlugin from "eslint-plugin-import";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import tseslint from "typescript-eslint";
+import eslintConfigPrettier from "eslint-config-prettier";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -117,6 +118,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "public/**",
   ]),
+  eslintConfigPrettier,
 ]);
 
 export default eslintConfig;

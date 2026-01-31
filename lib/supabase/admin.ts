@@ -1,32 +1,32 @@
-import "server-only"
+import "server-only";
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 
-import { getSupabaseUrl } from '@/lib/env-validation'
+import { getSupabaseUrl } from "@/lib/env-validation";
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Get the service role key from environment
  * This key has full access to the database, bypassing RLS
  */
 function getServiceRoleKey(): string {
-  const key = process.env.SUPABASE_SECRET_KEY
+  const key = process.env.SUPABASE_SECRET_KEY;
   if (!key) {
     throw new Error(
-      'SUPABASE_SECRET_KEY is not set. ' +
-      'This key is required for admin operations like creating sessions. ' +
-      'Add it to your .env.local file (never commit this key to git).'
-    )
+      "SUPABASE_SECRET_KEY is not set. " +
+        "This key is required for admin operations like creating sessions. " +
+        "Add it to your .env.local file (never commit this key to git)."
+    );
   }
-  return key
+  return key;
 }
 
 /**
  * Singleton instance of the Supabase admin client
  * Uses service role key for full database access (bypasses RLS)
  */
-let adminClient: SupabaseClient | null = null
+let adminClient: SupabaseClient | null = null;
 
 /**
  * Creates or returns the existing Supabase admin client instance.
@@ -42,18 +42,18 @@ let adminClient: SupabaseClient | null = null
  */
 export function createAdminClient(): SupabaseClient {
   if (adminClient) {
-    return adminClient
+    return adminClient;
   }
 
-  const supabaseUrl = getSupabaseUrl()
-  const serviceRoleKey = getServiceRoleKey()
+  const supabaseUrl = getSupabaseUrl();
+  const serviceRoleKey = getServiceRoleKey();
 
   adminClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
     },
-  })
+  });
 
-  return adminClient
+  return adminClient;
 }

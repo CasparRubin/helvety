@@ -3,5 +3,5 @@
  * Re-exports all type definitions for convenient importing
  */
 
-export * from './entities'
-export * from './products'
+export * from "./entities";
+export * from "./products";

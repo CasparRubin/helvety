@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Subscription card component
@@ -12,52 +12,61 @@ import {
   ExternalLink,
   Check,
   Clock,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { getProductById } from '@/lib/data/products'
-import { cn } from '@/lib/utils'
-import { formatPrice } from '@/lib/utils/pricing'
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getProductById } from "@/lib/data/products";
+import { cn } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils/pricing";
 
-import type { Subscription, SubscriptionStatus } from '@/lib/types/entities'
+import type { Subscription, SubscriptionStatus } from "@/lib/types/entities";
 
 interface SubscriptionCardProps {
-  subscription: Subscription
-  onCancel?: (subscription: Subscription) => void
-  onReactivate?: (subscription: Subscription) => void
-  isLoading?: boolean
+  subscription: Subscription;
+  onCancel?: (subscription: Subscription) => void;
+  onReactivate?: (subscription: Subscription) => void;
+  isLoading?: boolean;
 }
 
 /**
  * Get status badge variant and label
  */
-function getStatusInfo(status: SubscriptionStatus, cancelAtPeriodEnd: boolean): {
-  variant: 'default' | 'secondary' | 'destructive' | 'outline'
-  label: string
-  icon: typeof Check
+function getStatusInfo(
+  status: SubscriptionStatus,
+  cancelAtPeriodEnd: boolean
+): {
+  variant: "default" | "secondary" | "destructive" | "outline";
+  label: string;
+  icon: typeof Check;
 } {
   if (cancelAtPeriodEnd) {
-    return { variant: 'secondary', label: 'Canceling', icon: Clock }
+    return { variant: "secondary", label: "Canceling", icon: Clock };
   }
 
   switch (status) {
-    case 'active':
-      return { variant: 'default', label: 'Active', icon: Check }
-    case 'trialing':
-      return { variant: 'secondary', label: 'Trial', icon: Clock }
-    case 'past_due':
-      return { variant: 'destructive', label: 'Past Due', icon: AlertCircle }
-    case 'canceled':
-      return { variant: 'outline', label: 'Canceled', icon: AlertCircle }
-    case 'unpaid':
-      return { variant: 'destructive', label: 'Unpaid', icon: AlertCircle }
-    case 'paused':
-      return { variant: 'secondary', label: 'Paused', icon: Clock }
+    case "active":
+      return { variant: "default", label: "Active", icon: Check };
+    case "trialing":
+      return { variant: "secondary", label: "Trial", icon: Clock };
+    case "past_due":
+      return { variant: "destructive", label: "Past Due", icon: AlertCircle };
+    case "canceled":
+      return { variant: "outline", label: "Canceled", icon: AlertCircle };
+    case "unpaid":
+      return { variant: "destructive", label: "Unpaid", icon: AlertCircle };
+    case "paused":
+      return { variant: "secondary", label: "Paused", icon: Clock };
     default:
-      return { variant: 'outline', label: status, icon: AlertCircle }
+      return { variant: "outline", label: status, icon: AlertCircle };
   }
 }
 
@@ -65,12 +74,12 @@ function getStatusInfo(status: SubscriptionStatus, cancelAtPeriodEnd: boolean): 
  * Format date for display
  */
 function formatDate(dateString: string | null): string {
-  if (!dateString) return 'N/A'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+  if (!dateString) return "N/A";
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export function SubscriptionCard({
@@ -79,17 +88,23 @@ export function SubscriptionCard({
   onReactivate,
   isLoading = false,
 }: SubscriptionCardProps) {
-  const product = getProductById(subscription.product_id)
-  const tier = product?.pricing.tiers.find((t) => t.id === subscription.tier_id)
-  
-  const productName = product?.name ?? 'Unknown Product'
-  const tierName = tier?.name ?? 'Unknown Tier'
-  const statusInfo = getStatusInfo(subscription.status, subscription.cancel_at_period_end)
-  const StatusIcon = statusInfo.icon
+  const product = getProductById(subscription.product_id);
+  const tier = product?.pricing.tiers.find(
+    (t) => t.id === subscription.tier_id
+  );
 
-  const isActive = subscription.status === 'active' || subscription.status === 'trialing'
-  const canCancel = isActive && !subscription.cancel_at_period_end
-  const canReactivate = isActive && subscription.cancel_at_period_end
+  const productName = product?.name ?? "Unknown Product";
+  const tierName = tier?.name ?? "Unknown Tier";
+  const statusInfo = getStatusInfo(
+    subscription.status,
+    subscription.cancel_at_period_end
+  );
+  const StatusIcon = statusInfo.icon;
+
+  const isActive =
+    subscription.status === "active" || subscription.status === "trialing";
+  const canCancel = isActive && !subscription.cancel_at_period_end;
+  const canReactivate = isActive && subscription.cancel_at_period_end;
 
   return (
     <Card className="relative">
@@ -97,7 +112,7 @@ export function SubscriptionCard({
         <div className="flex items-start justify-between gap-2">
           <div className="space-y-1">
             <CardTitle className="text-lg">{productName}</CardTitle>
-            <p className="text-sm text-muted-foreground">{tierName}</p>
+            <p className="text-muted-foreground text-sm">{tierName}</p>
           </div>
           <Badge variant={statusInfo.variant} className="shrink-0">
             <StatusIcon className="size-3" data-icon="inline-start" />
@@ -113,11 +128,11 @@ export function SubscriptionCard({
             <span className="text-2xl font-bold">
               {formatPrice(tier.price, tier.currency, { showCents: false })}
             </span>
-            {tier.interval === 'monthly' && (
-              <span className="text-sm text-muted-foreground">/month</span>
+            {tier.interval === "monthly" && (
+              <span className="text-muted-foreground text-sm">/month</span>
             )}
-            {tier.interval === 'yearly' && (
-              <span className="text-sm text-muted-foreground">/year</span>
+            {tier.interval === "yearly" && (
+              <span className="text-muted-foreground text-sm">/year</span>
             )}
           </div>
         )}
@@ -125,11 +140,13 @@ export function SubscriptionCard({
         {/* Period dates */}
         <div className="space-y-1.5 text-sm">
           {subscription.current_period_end && (
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-2">
               <Calendar className="size-4 shrink-0" />
               <span>
                 {subscription.cancel_at_period_end ? (
-                  <>Access until: {formatDate(subscription.current_period_end)}</>
+                  <>
+                    Access until: {formatDate(subscription.current_period_end)}
+                  </>
                 ) : (
                   <>Renews: {formatDate(subscription.current_period_end)}</>
                 )}
@@ -142,9 +159,9 @@ export function SubscriptionCard({
         {subscription.cancel_at_period_end && (
           <div className="rounded-md bg-amber-500/10 p-3 text-sm text-amber-600 dark:text-amber-400">
             <div className="flex items-start gap-2">
-              <AlertCircle className="size-4 shrink-0 mt-0.5" />
+              <AlertCircle className="mt-0.5 size-4 shrink-0" />
               <p>
-                Your subscription will end on{' '}
+                Your subscription will end on{" "}
                 <strong>{formatDate(subscription.current_period_end)}</strong>.
                 You can reactivate it before then to keep your access.
               </p>
@@ -172,7 +189,10 @@ export function SubscriptionCard({
             size="sm"
             onClick={() => onCancel(subscription)}
             disabled={isLoading}
-            className={cn('flex-1', !canReactivate && 'text-destructive hover:text-destructive')}
+            className={cn(
+              "flex-1",
+              !canReactivate && "text-destructive hover:text-destructive"
+            )}
           >
             Cancel
           </Button>
@@ -191,7 +211,7 @@ export function SubscriptionCard({
         )}
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 /**
@@ -217,5 +237,5 @@ export function SubscriptionCardSkeleton() {
         <Skeleton className="h-9 w-full" />
       </CardFooter>
     </Card>
-  )
+  );
 }

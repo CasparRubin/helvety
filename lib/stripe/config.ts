@@ -12,25 +12,38 @@
  * Add new products here as they are created in Stripe
  */
 export const STRIPE_PRICE_IDS = {
-  'helvety-pdf-pro-monthly': process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID,
-  // Add more price IDs as needed:
-  // 'helvety-spo-explorer-basic-monthly': process.env.STRIPE_HELVETY_SPO_EXPLORER_BASIC_MONTHLY_PRICE_ID,
-  // 'helvety-spo-explorer-enterprise-monthly': process.env.STRIPE_HELVETY_SPO_EXPLORER_ENTERPRISE_MONTHLY_PRICE_ID,
-} as const
+  "helvety-pdf-pro-monthly":
+    process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID,
+  "helvety-spo-explorer-basic-monthly":
+    process.env.STRIPE_HELVETY_SPO_EXPLORER_BASIC_MONTHLY_PRICE_ID,
+  "helvety-spo-explorer-enterprise-monthly":
+    process.env.STRIPE_HELVETY_SPO_EXPLORER_ENTERPRISE_MONTHLY_PRICE_ID,
+} as const;
 
 /**
  * Mapping of Stripe Price IDs back to internal product/tier info
  * Used by webhooks to identify what was purchased
  */
 export const PRICE_ID_TO_PRODUCT = {
-  [process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID ?? '']: {
-    productId: 'helvety-pdf',
-    tierId: 'helvety-pdf-pro-monthly',
-    name: 'Helvety PDF Pro',
-    type: 'subscription' as const,
+  [process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID ?? ""]: {
+    productId: "helvety-pdf",
+    tierId: "helvety-pdf-pro-monthly",
+    name: "Helvety PDF Pro",
+    type: "subscription" as const,
   },
-  // Add more mappings as needed
-} as const
+  [process.env.STRIPE_HELVETY_SPO_EXPLORER_BASIC_MONTHLY_PRICE_ID ?? ""]: {
+    productId: "helvety-spo-explorer",
+    tierId: "helvety-spo-explorer-basic-monthly",
+    name: "Helvety SPO Explorer Basic",
+    type: "subscription" as const,
+  },
+  [process.env.STRIPE_HELVETY_SPO_EXPLORER_ENTERPRISE_MONTHLY_PRICE_ID ?? ""]: {
+    productId: "helvety-spo-explorer",
+    tierId: "helvety-spo-explorer-enterprise-monthly",
+    name: "Helvety SPO Explorer Enterprise",
+    type: "subscription" as const,
+  },
+} as const;
 
 // =============================================================================
 // CHECKOUT CONFIGURATION
@@ -40,22 +53,26 @@ export const PRICE_ID_TO_PRODUCT = {
  * Get Stripe Price ID for a given tier
  */
 export function getStripePriceId(tierId: string): string | undefined {
-  return STRIPE_PRICE_IDS[tierId as keyof typeof STRIPE_PRICE_IDS]
+  return STRIPE_PRICE_IDS[tierId as keyof typeof STRIPE_PRICE_IDS];
 }
 
 /**
  * Get product info from a Stripe Price ID
  */
 export function getProductFromPriceId(priceId: string) {
-  return PRICE_ID_TO_PRODUCT[priceId]
+  return PRICE_ID_TO_PRODUCT[priceId];
 }
 
 /**
  * Check if a tier ID is a subscription (vs one-time purchase)
  */
 export function isSubscriptionTier(tierId: string): boolean {
-  const subscriptionTiers = ['helvety-pdf-pro-monthly']
-  return subscriptionTiers.includes(tierId)
+  const subscriptionTiers = [
+    "helvety-pdf-pro-monthly",
+    "helvety-spo-explorer-basic-monthly",
+    "helvety-spo-explorer-enterprise-monthly",
+  ];
+  return subscriptionTiers.includes(tierId);
 }
 
 /**
@@ -63,8 +80,8 @@ export function isSubscriptionTier(tierId: string): boolean {
  */
 export const CHECKOUT_CONFIG = {
   // URLs for checkout redirects
-  successUrl: '/products/{slug}?checkout=success',
-  cancelUrl: '/products/{slug}?checkout=cancelled',
+  successUrl: "/products/{slug}?checkout=success",
+  cancelUrl: "/products/{slug}?checkout=cancelled",
 
   // Subscription settings
   subscriptionSettings: {
@@ -75,11 +92,11 @@ export const CHECKOUT_CONFIG = {
   },
 
   // Payment method types to accept
-  paymentMethodTypes: ['card'] as const,
+  paymentMethodTypes: ["card"] as const,
 
   // Allowed countries for billing
-  allowedCountries: ['CH', 'DE', 'AT', 'FR', 'IT', 'LI'] as const,
-} as const
+  allowedCountries: ["CH", "DE", "AT", "FR", "IT", "LI"] as const,
+} as const;
 
 // =============================================================================
 // WEBHOOK CONFIGURATION
@@ -89,15 +106,15 @@ export const CHECKOUT_CONFIG = {
  * Stripe webhook events we handle
  */
 export const HANDLED_WEBHOOK_EVENTS = [
-  'checkout.session.completed',
-  'customer.subscription.created',
-  'customer.subscription.updated',
-  'customer.subscription.deleted',
-  'invoice.paid',
-  'invoice.payment_failed',
-] as const
+  "checkout.session.completed",
+  "customer.subscription.created",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+  "invoice.paid",
+  "invoice.payment_failed",
+] as const;
 
-export type HandledWebhookEvent = (typeof HANDLED_WEBHOOK_EVENTS)[number]
+export type HandledWebhookEvent = (typeof HANDLED_WEBHOOK_EVENTS)[number];
 
 /**
  * Check if a webhook event type is one we handle
@@ -105,5 +122,5 @@ export type HandledWebhookEvent = (typeof HANDLED_WEBHOOK_EVENTS)[number]
 export function isHandledWebhookEvent(
   eventType: string
 ): eventType is HandledWebhookEvent {
-  return HANDLED_WEBHOOK_EVENTS.includes(eventType as HandledWebhookEvent)
+  return HANDLED_WEBHOOK_EVENTS.includes(eventType as HandledWebhookEvent);
 }

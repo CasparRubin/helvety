@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
-import * as React from "react"
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import * as React from "react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
 
 export function ThemeSwitcher() {
-  const { setTheme, theme, resolvedTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
+  const { setTheme, theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const toggleTheme = (): void => {
     if (theme === "system") {
       // If system, toggle based on resolved theme
-      setTheme((resolvedTheme ?? "light") === "dark" ? "light" : "dark")
+      setTheme((resolvedTheme ?? "light") === "dark" ? "light" : "dark");
     } else {
       // Toggle between light and dark
-      setTheme(theme === "light" ? "dark" : "light")
+      setTheme(theme === "light" ? "dark" : "light");
     }
-  }
+  };
 
   if (!mounted) {
     return (
@@ -42,11 +42,11 @@ export function ThemeSwitcher() {
           <p>Toggle theme</p>
         </TooltipContent>
       </Tooltip>
-    )
+    );
   }
 
   // Show icon based on resolved theme (what user actually sees)
-  const isDark = (resolvedTheme ?? "light") === "dark"
+  const isDark = (resolvedTheme ?? "light") === "dark";
 
   return (
     <Tooltip>
@@ -58,11 +58,7 @@ export function ThemeSwitcher() {
           onClick={toggleTheme}
           aria-label="Toggle theme"
         >
-          {isDark ? (
-            <Sun className="h-4 w-4" />
-          ) : (
-            <Moon className="h-4 w-4" />
-          )}
+          {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           <span className="sr-only">Toggle theme</span>
         </Button>
       </TooltipTrigger>
@@ -70,5 +66,5 @@ export function ThemeSwitcher() {
         <p>Toggle theme</p>
       </TooltipContent>
     </Tooltip>
-  )
+  );
 }

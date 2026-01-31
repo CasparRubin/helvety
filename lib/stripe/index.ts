@@ -2,7 +2,7 @@
  * Stripe module exports
  */
 
-export { stripe, verifyStripeConfig } from './client'
+export { stripe, verifyStripeConfig } from "./client";
 export {
   STRIPE_PRICE_IDS,
   PRICE_ID_TO_PRODUCT,
@@ -12,5 +12,5 @@ export {
   getProductFromPriceId,
   isSubscriptionTier,
   isHandledWebhookEvent,
-} from './config'
-export type { HandledWebhookEvent } from './config'
+} from "./config";
+export type { HandledWebhookEvent } from "./config";

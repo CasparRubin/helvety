@@ -1,30 +1,30 @@
-import "./globals.css"
-import localFont from "next/font/local"
+import "./globals.css";
+import localFont from "next/font/local";
 
-import { Navbar } from "@/components/navbar"
-import { Providers } from "@/components/providers"
-import { SubscriptionsPanel } from "@/components/subscriptions-panel"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/sonner"
-import { TooltipProvider } from "@/components/ui/tooltip"
+import { Navbar } from "@/components/navbar";
+import { Providers } from "@/components/providers";
+import { SubscriptionsPanel } from "@/components/subscriptions-panel";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-import type { Metadata, Viewport } from "next"
+import type { Metadata, Viewport } from "next";
 
 // Local Public Sans variable font - no network fetch during build
 const publicSans = localFont({
   src: [
     {
-      path: '../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2',
-      style: 'normal',
+      path: "../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2",
+      style: "normal",
     },
     {
-      path: '../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-italic.woff2',
-      style: 'italic',
+      path: "../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-italic.woff2",
+      style: "italic",
     },
   ],
-  variable: '--font-sans',
-  display: 'swap',
-})
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -42,8 +42,17 @@ export const metadata: Metadata = {
     default: "Helvety Store | Software, Subscriptions & Apparel",
     template: "%s | Helvety Store",
   },
-  description: "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
-  keywords: ["Helvety Store", "software", "subscriptions", "apparel", "Swiss", "shop", "merchandise"],
+  description:
+    "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+  keywords: [
+    "Helvety Store",
+    "software",
+    "subscriptions",
+    "apparel",
+    "Swiss",
+    "shop",
+    "merchandise",
+  ],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
   publisher: "Helvety",
@@ -57,12 +66,14 @@ export const metadata: Metadata = {
     url: "https://store.helvety.com",
     siteName: "Helvety Store",
     title: "Helvety Store | Software, Subscriptions & Apparel",
-    description: "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+    description:
+      "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
   },
   twitter: {
     card: "summary",
     title: "Helvety Store | Software, Subscriptions & Apparel",
-    description: "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+    description:
+      "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
   },
   robots: {
     index: true,
@@ -111,10 +122,8 @@ async function NavbarWrapper({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <div className="w-full max-w-[2000px] mx-auto flex">
-        <main className="flex-1 min-w-0">
-          {children}
-        </main>
+      <div className="mx-auto flex w-full max-w-[2000px]">
+        <main className="min-w-0 flex-1">{children}</main>
         <SubscriptionsPanel />
       </div>
     </>

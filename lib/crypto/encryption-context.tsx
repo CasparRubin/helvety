@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   createContext,
@@ -6,7 +6,7 @@ import {
   useState,
   useCallback,
   type ReactNode,
-} from 'react'
+} from "react";
 
 import {
   storeMasterKey,
@@ -14,13 +14,13 @@ import {
   deleteMasterKey,
   clearAllKeys,
   isStorageAvailable,
-} from '@/lib/crypto'
+} from "@/lib/crypto";
 
 import {
   isPasskeySupported,
   registerPasskeyWithEncryption,
   authenticatePasskeyWithEncryption,
-} from './passkey'
+} from "./passkey";
 import {
   generatePRFParams,
   deriveKeyFromPRF,
@@ -28,22 +28,21 @@ import {
   getPRFSupportInfo,
   type PRFKeyParams,
   type PRFSupportInfo,
-} from './prf-key-derivation'
-
+} from "./prf-key-derivation";
 
 interface EncryptionState {
   /** Whether encryption is unlocked (master key available) */
-  isUnlocked: boolean
+  isUnlocked: boolean;
   /** Whether we're currently loading/checking encryption state */
-  isLoading: boolean
+  isLoading: boolean;
   /** The master key (null if locked) */
-  masterKey: CryptoKey | null
+  masterKey: CryptoKey | null;
   /** Error message if something went wrong */
-  error: string | null
+  error: string | null;
   /** Whether passkey/PRF is supported on this device */
-  prfSupported: boolean | null
+  prfSupported: boolean | null;
   /** Detailed PRF support info */
-  prfSupportInfo: PRFSupportInfo | null
+  prfSupportInfo: PRFSupportInfo | null;
 }
 
 interface EncryptionContextValue extends EncryptionState {
@@ -54,7 +53,7 @@ interface EncryptionContextValue extends EncryptionState {
   initializePasskeyEncryption: (
     userId: string,
     userEmail: string
-  ) => Promise<{ params: PRFKeyParams; credentialId: string } | null>
+  ) => Promise<{ params: PRFKeyParams; credentialId: string } | null>;
 
   /**
    * Unlock encryption with passkey (PRF-based)
@@ -64,29 +63,29 @@ interface EncryptionContextValue extends EncryptionState {
     userId: string,
     prfParams: PRFKeyParams,
     credentialIds?: string[]
-  ) => Promise<boolean>
+  ) => Promise<boolean>;
 
   /**
    * Lock encryption (clear master key)
    * Call this on logout
    */
-  lockEncryption: (userId: string) => Promise<void>
+  lockEncryption: (userId: string) => Promise<void>;
 
   /**
    * Check if encryption is set up for a user
    */
-  checkEncryptionState: (userId: string) => Promise<void>
+  checkEncryptionState: (userId: string) => Promise<void>;
 
   /**
    * Check PRF/passkey support
    */
-  checkPRFSupport: () => Promise<void>
+  checkPRFSupport: () => Promise<void>;
 }
 
-const EncryptionContext = createContext<EncryptionContextValue | null>(null)
+const EncryptionContext = createContext<EncryptionContextValue | null>(null);
 
 interface EncryptionProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function EncryptionProvider({ children }: EncryptionProviderProps) {
@@ -97,7 +96,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
     error: null,
     prfSupported: null,
     prfSupportInfo: null,
-  })
+  });
 
   /**
    * Check PRF/passkey support
@@ -107,75 +106,79 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
       setState((prev) => ({
         ...prev,
         prfSupported: false,
-        prfSupportInfo: { supported: false, reason: 'WebAuthn not supported' },
-      }))
-      return
+        prfSupportInfo: { supported: false, reason: "WebAuthn not supported" },
+      }));
+      return;
     }
 
-    const supported = await isPRFSupported()
-    const info = await getPRFSupportInfo()
-    
+    const supported = await isPRFSupported();
+    const info = await getPRFSupportInfo();
+
     setState((prev) => ({
       ...prev,
       prfSupported: supported,
       prfSupportInfo: info,
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Check if we have a cached master key
    */
-  const checkEncryptionState = useCallback(async (userId: string) => {
-    if (!isStorageAvailable()) {
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: 'IndexedDB not available - encryption requires a modern browser',
-      }))
-      return
-    }
-
-    setState((prev) => ({ ...prev, isLoading: true, error: null }))
-
-    try {
-      // Also check PRF support while we're at it
-      void checkPRFSupport()
-
-      const cachedKey = await getMasterKey(userId)
-      if (cachedKey) {
+  const checkEncryptionState = useCallback(
+    async (userId: string) => {
+      if (!isStorageAvailable()) {
         setState((prev) => ({
           ...prev,
-          isUnlocked: true,
           isLoading: false,
-          masterKey: cachedKey,
-          error: null,
-        }))
-      } else {
+          error:
+            "IndexedDB not available - encryption requires a modern browser",
+        }));
+        return;
+      }
+
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      try {
+        // Also check PRF support while we're at it
+        void checkPRFSupport();
+
+        const cachedKey = await getMasterKey(userId);
+        if (cachedKey) {
+          setState((prev) => ({
+            ...prev,
+            isUnlocked: true,
+            isLoading: false,
+            masterKey: cachedKey,
+            error: null,
+          }));
+        } else {
+          setState((prev) => ({
+            ...prev,
+            isUnlocked: false,
+            isLoading: false,
+            masterKey: null,
+            error: null,
+          }));
+        }
+      } catch {
         setState((prev) => ({
           ...prev,
           isUnlocked: false,
           isLoading: false,
           masterKey: null,
-          error: null,
-        }))
+          error: "Failed to check encryption state",
+        }));
       }
-    } catch {
-      setState((prev) => ({
-        ...prev,
-        isUnlocked: false,
-        isLoading: false,
-        masterKey: null,
-        error: 'Failed to check encryption state',
-      }))
-    }
-  }, [checkPRFSupport])
+    },
+    [checkPRFSupport]
+  );
 
   /**
    * Lock encryption (clear keys)
    */
   const lockEncryption = useCallback(async (userId: string) => {
-    await deleteMasterKey(userId)
-    await clearAllKeys()
+    await deleteMasterKey(userId);
+    await clearAllKeys();
 
     setState((prev) => ({
       ...prev,
@@ -183,12 +186,12 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
       isLoading: false,
       masterKey: null,
       error: null,
-    }))
-  }, [])
+    }));
+  }, []);
 
   /**
    * Initialize encryption with passkey (PRF-based)
-   * 
+   *
    * Flow:
    * 1. Register passkey (PRF only returns 'enabled' status, not output)
    * 2. Immediately authenticate with the new passkey to get PRF output
@@ -199,40 +202,41 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
       userId: string,
       userEmail: string
     ): Promise<{ params: PRFKeyParams; credentialId: string } | null> => {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }))
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
         // Check PRF support first
-        const supported = await isPRFSupported()
+        const supported = await isPRFSupported();
         if (!supported) {
-          const info = await getPRFSupportInfo()
+          const info = await getPRFSupportInfo();
           setState((prev) => ({
             ...prev,
             isLoading: false,
-            error: info.reason ?? 'PRF extension not supported on this device',
+            error: info.reason ?? "PRF extension not supported on this device",
             prfSupported: false,
             prfSupportInfo: info,
-          }))
-          return null
+          }));
+          return null;
         }
 
         // Generate PRF params
-        const params = generatePRFParams()
+        const params = generatePRFParams();
 
         // Step 1: Register passkey with PRF extension
         const regResult = await registerPasskeyWithEncryption(
           userId,
           userEmail,
           params.prfSalt
-        )
+        );
 
         if (!regResult.prfEnabled) {
           setState((prev) => ({
             ...prev,
             isLoading: false,
-            error: 'Your authenticator does not support encryption. Please try a different device or security key.',
-          }))
-          return null
+            error:
+              "Your authenticator does not support encryption. Please try a different device or security key.",
+          }));
+          return null;
         }
 
         // Step 2: Immediately authenticate to get PRF output
@@ -240,22 +244,23 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
         const authResult = await authenticatePasskeyWithEncryption(
           [regResult.credentialId], // Only allow the credential we just created
           params.prfSalt
-        )
+        );
 
         if (!authResult.prfOutput) {
           setState((prev) => ({
             ...prev,
             isLoading: false,
-            error: 'Failed to get encryption key from passkey. Please try again.',
-          }))
-          return null
+            error:
+              "Failed to get encryption key from passkey. Please try again.",
+          }));
+          return null;
         }
 
         // Step 3: Derive master key from PRF output
-        const masterKey = await deriveKeyFromPRF(authResult.prfOutput, params)
+        const masterKey = await deriveKeyFromPRF(authResult.prfOutput, params);
 
         // Cache the master key
-        await storeMasterKey(userId, masterKey)
+        await storeMasterKey(userId, masterKey);
 
         setState((prev) => ({
           ...prev,
@@ -263,22 +268,24 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
           isLoading: false,
           masterKey,
           error: null,
-        }))
+        }));
 
-        return { params, credentialId: regResult.credentialId }
+        return { params, credentialId: regResult.credentialId };
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : 'Failed to initialize passkey encryption'
+          error instanceof Error
+            ? error.message
+            : "Failed to initialize passkey encryption";
         setState((prev) => ({
           ...prev,
           isLoading: false,
           error: message,
-        }))
-        return null
+        }));
+        return null;
       }
     },
     []
-  )
+  );
 
   /**
    * Unlock encryption with passkey (PRF-based)
@@ -289,29 +296,29 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
       prfParams: PRFKeyParams,
       credentialIds?: string[]
     ): Promise<boolean> => {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }))
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
         // Authenticate with passkey and get PRF output
         const result = await authenticatePasskeyWithEncryption(
           credentialIds,
           prfParams.prfSalt
-        )
+        );
 
         if (!result.prfEnabled || !result.prfOutput) {
           setState((prev) => ({
             ...prev,
             isLoading: false,
-            error: 'PRF output not received during authentication',
-          }))
-          return false
+            error: "PRF output not received during authentication",
+          }));
+          return false;
         }
 
         // Derive master key from PRF output
-        const masterKey = await deriveKeyFromPRF(result.prfOutput, prfParams)
+        const masterKey = await deriveKeyFromPRF(result.prfOutput, prfParams);
 
         // Cache the master key
-        await storeMasterKey(userId, masterKey)
+        await storeMasterKey(userId, masterKey);
 
         setState((prev) => ({
           ...prev,
@@ -319,22 +326,24 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
           isLoading: false,
           masterKey,
           error: null,
-        }))
+        }));
 
-        return true
+        return true;
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : 'Failed to unlock with passkey'
+          error instanceof Error
+            ? error.message
+            : "Failed to unlock with passkey";
         setState((prev) => ({
           ...prev,
           isLoading: false,
           error: message,
-        }))
-        return false
+        }));
+        return false;
       }
     },
     []
-  )
+  );
 
   const value: EncryptionContextValue = {
     ...state,
@@ -343,24 +352,24 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
     lockEncryption,
     checkEncryptionState,
     checkPRFSupport,
-  }
+  };
 
   return (
     <EncryptionContext.Provider value={value}>
       {children}
     </EncryptionContext.Provider>
-  )
+  );
 }
 
 /**
  * Hook to access encryption context
  */
 export function useEncryptionContext(): EncryptionContextValue {
-  const context = useContext(EncryptionContext)
+  const context = useContext(EncryptionContext);
   if (!context) {
     throw new Error(
-      'useEncryptionContext must be used within an EncryptionProvider'
-    )
+      "useEncryptionContext must be used within an EncryptionProvider"
+    );
   }
-  return context
+  return context;
 }

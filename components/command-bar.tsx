@@ -1,49 +1,49 @@
-'use client'
+"use client";
 
 /**
  * Command bar component
  * Provides contextual actions below the navbar based on the current page
  */
 
-import { ArrowLeft, Globe, Github } from 'lucide-react'
-import Link from 'next/link'
+import { ArrowLeft, Globe, Github } from "lucide-react";
+import Link from "next/link";
 
-import { ProductFilters, type FilterType } from '@/components/products'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
+import { ProductFilters, type FilterType } from "@/components/products";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
-import type { ProductLinks } from '@/lib/types/products'
+import type { ProductLinks } from "@/lib/types/products";
 
 interface CommandBarBaseProps {
-  className?: string
+  className?: string;
 }
 
 interface CatalogCommandBarProps extends CommandBarBaseProps {
-  variant: 'catalog'
-  filter: FilterType
-  onFilterChange: (filter: FilterType) => void
-  counts?: Record<FilterType, number>
+  variant: "catalog";
+  filter: FilterType;
+  onFilterChange: (filter: FilterType) => void;
+  counts?: Record<FilterType, number>;
 }
 
 interface ProductDetailCommandBarProps extends CommandBarBaseProps {
-  variant: 'product-detail'
-  productName: string
-  links?: ProductLinks
+  variant: "product-detail";
+  productName: string;
+  links?: ProductLinks;
 }
 
-type CommandBarProps = CatalogCommandBarProps | ProductDetailCommandBarProps
+type CommandBarProps = CatalogCommandBarProps | ProductDetailCommandBarProps;
 
 export function CommandBar(props: CommandBarProps) {
   return (
     <div
       className={cn(
-        'sticky top-16 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
+        "bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-16 z-40 w-full border-b backdrop-blur",
         props.className
       )}
     >
       <div className="container mx-auto flex h-12 items-center justify-between px-4">
-        {props.variant === 'catalog' ? (
+        {props.variant === "catalog" ? (
           <CatalogActions
             filter={props.filter}
             onFilterChange={props.onFilterChange}
@@ -57,16 +57,20 @@ export function CommandBar(props: CommandBarProps) {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 interface CatalogActionsProps {
-  filter: FilterType
-  onFilterChange: (filter: FilterType) => void
-  counts?: Record<FilterType, number>
+  filter: FilterType;
+  onFilterChange: (filter: FilterType) => void;
+  counts?: Record<FilterType, number>;
 }
 
-function CatalogActions({ filter, onFilterChange, counts }: CatalogActionsProps) {
+function CatalogActions({
+  filter,
+  onFilterChange,
+  counts,
+}: CatalogActionsProps) {
   return (
     <>
       {/* Left side - Filters */}
@@ -81,16 +85,19 @@ function CatalogActions({ filter, onFilterChange, counts }: CatalogActionsProps)
       {/* Right side - empty, subscriptions panel is always visible */}
       <div />
     </>
-  )
+  );
 }
 
 interface ProductDetailActionsProps {
-  productName: string
-  links?: ProductLinks
+  productName: string;
+  links?: ProductLinks;
 }
 
-function ProductDetailActions({ productName, links }: ProductDetailActionsProps) {
-  const hasLinks = Boolean(links?.website) || Boolean(links?.github)
+function ProductDetailActions({
+  productName,
+  links,
+}: ProductDetailActionsProps) {
+  const hasLinks = Boolean(links?.website) || Boolean(links?.github);
 
   return (
     <>
@@ -103,7 +110,7 @@ function ProductDetailActions({ productName, links }: ProductDetailActionsProps)
           </Link>
         </Button>
         <Separator orientation="vertical" className="mx-2 h-5" />
-        <span className="text-sm font-medium text-muted-foreground truncate max-w-[200px] sm:max-w-none">
+        <span className="text-muted-foreground max-w-[200px] truncate text-sm font-medium sm:max-w-none">
           {productName}
         </span>
       </div>
@@ -130,5 +137,5 @@ function ProductDetailActions({ productName, links }: ProductDetailActionsProps)
         </div>
       )}
     </>
-  )
+  );
 }

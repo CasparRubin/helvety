@@ -1,14 +1,25 @@
-"use client"
+"use client";
 
-import { LogOut, ShieldCheck, User, Building2, Scale, FileText, Menu, Github, Info, CreditCard } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useEffect, useState } from "react"
+import {
+  LogOut,
+  ShieldCheck,
+  User,
+  Building2,
+  Scale,
+  FileText,
+  Menu,
+  Github,
+  Info,
+  CreditCard,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-import { AppSwitcher } from "@/components/app-switcher"
-import { SubscriptionsSheet } from "@/components/subscriptions-sheet"
-import { ThemeSwitcher } from "@/components/theme-switcher"
-import { Button } from "@/components/ui/button"
+import { AppSwitcher } from "@/components/app-switcher";
+import { SubscriptionsSheet } from "@/components/subscriptions-sheet";
+import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -17,7 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Popover,
   PopoverContent,
@@ -25,67 +36,73 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { VERSION } from "@/lib/config/version"
-import { useEncryptionContext } from "@/lib/crypto/encryption-context"
-import { useNavigation } from "@/lib/navigation-helpers"
-import { createClient } from "@/lib/supabase/client"
+} from "@/components/ui/tooltip";
+import { VERSION } from "@/lib/config/version";
+import { useEncryptionContext } from "@/lib/crypto/encryption-context";
+import { useNavigation } from "@/lib/navigation-helpers";
+import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
-  const { navigate } = useNavigation()
-  const { isUnlocked } = useEncryptionContext()
-  const supabase = createClient()
-  const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [profileOpen, setProfileOpen] = useState(false)
-  const [subscriptionsSheetOpen, setSubscriptionsSheetOpen] = useState(false)
+  const { navigate } = useNavigation();
+  const { isUnlocked } = useEncryptionContext();
+  const supabase = createClient();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [subscriptionsSheetOpen, setSubscriptionsSheetOpen] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUserEmail(user?.email ?? null)
-      setIsAuthenticated(!!user)
-    }
-    void getUser()
-  }, [supabase.auth])
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUserEmail(user?.email ?? null);
+      setIsAuthenticated(!!user);
+    };
+    void getUser();
+  }, [supabase.auth]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    await supabase.auth.signOut();
     // Navigate to login page (prefetching handled by navigate)
-    navigate("/login", { immediate: true })
-  }
+    navigate("/login", { immediate: true });
+  };
 
   const footerLinks = [
-    { href: "https://helvety.com/impressum", label: "Impressum", icon: Building2 },
+    {
+      href: "https://helvety.com/impressum",
+      label: "Impressum",
+      icon: Building2,
+    },
     { href: "https://helvety.com/privacy", label: "Privacy", icon: Scale },
     { href: "https://helvety.com/terms", label: "Terms", icon: FileText },
-  ]
+  ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <AppSwitcher currentApp="Store" />
           <a
             href="https://helvety.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 shrink-0 hover:opacity-80 transition-opacity"
+            className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
             aria-label="Visit Helvety.com"
           >
             <Image
@@ -93,7 +110,7 @@ export function Navbar() {
               alt="Helvety"
               width={120}
               height={30}
-              className="h-8 w-auto hidden sm:block"
+              className="hidden h-8 w-auto sm:block"
               priority
             />
             <Image
@@ -107,21 +124,21 @@ export function Navbar() {
           </a>
           <Link
             href="/"
-            className="text-xl font-black tracking-tight hover:opacity-80 transition-opacity shrink-0"
+            className="shrink-0 text-xl font-black tracking-tight transition-opacity hover:opacity-80"
             aria-label="Go to STORE home"
           >
             STORE
           </Link>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex shrink-0 items-center gap-2">
           {/* E2EE indicator - only show when encryption is unlocked */}
           {isUnlocked && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
               {/* Mobile: icon with tooltip */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="md:hidden cursor-default">
+                    <div className="cursor-default md:hidden">
                       <ShieldCheck className="h-4 w-4 text-green-500" />
                     </div>
                   </TooltipTrigger>
@@ -131,7 +148,7 @@ export function Navbar() {
                 </Tooltip>
               </TooltipProvider>
               {/* Desktop: icon + text */}
-              <div className="hidden md:flex items-center gap-1.5">
+              <div className="hidden items-center gap-1.5 md:flex">
                 <ShieldCheck className="h-4 w-4 text-green-500" />
                 <span>End-to-end encrypted</span>
               </div>
@@ -139,14 +156,10 @@ export function Navbar() {
           )}
 
           {/* Desktop navigation links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden items-center gap-1 md:flex">
             {footerLinks.map((link) => (
               <Button key={link.href} variant="ghost" size="sm" asChild>
-                <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={link.href} target="_blank" rel="noopener noreferrer">
                   {link.label}
                 </a>
               </Button>
@@ -173,12 +186,13 @@ export function Navbar() {
               <DialogHeader className="pr-8">
                 <DialogTitle>About</DialogTitle>
                 <DialogDescription className="pt-2">
-                  Your one-stop shop for Helvety software, subscriptions, and apparel.
+                  Your one-stop shop for Helvety software, subscriptions, and
+                  apparel.
                 </DialogDescription>
               </DialogHeader>
               <>
                 <div className="border-t" />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   {VERSION || "Unknown build time"}
                 </p>
               </>
@@ -224,10 +238,10 @@ export function Navbar() {
                 <PopoverContent align="end" className="w-80">
                   <PopoverHeader>
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                        <User className="h-5 w-5 text-primary" />
+                      <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                        <User className="text-primary h-5 w-5" />
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <PopoverTitle>Account</PopoverTitle>
                         {userEmail && (
                           <PopoverDescription className="truncate">
@@ -243,8 +257,8 @@ export function Navbar() {
                       variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
-                        setProfileOpen(false)
-                        setSubscriptionsSheetOpen(true)
+                        setProfileOpen(false);
+                        setSubscriptionsSheetOpen(true);
                       }}
                     >
                       <CreditCard className="h-4 w-4" />
@@ -254,8 +268,8 @@ export function Navbar() {
                       variant="destructive"
                       className="w-full justify-start"
                       onClick={() => {
-                        setProfileOpen(false)
-                        handleLogout()
+                        setProfileOpen(false);
+                        void handleLogout();
                       }}
                     >
                       <LogOut className="h-4 w-4" />
@@ -285,39 +299,29 @@ export function Navbar() {
               <SheetHeader>
                 <SheetTitle>Navigation</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-2 mt-6">
+              <nav className="mt-6 flex flex-col gap-2">
                 {/* Navigation links */}
                 {footerLinks.map((link) => {
-                  const Icon = link.icon
+                  const Icon = link.icon;
                   return (
                     <a
                       key={link.href}
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                      className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Icon className="h-4 w-4" />
                       {link.label}
                     </a>
-                  )
+                  );
                 })}
-                <a
-                  href="https://github.com/CasparRubin/helvety-store"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Github className="h-4 w-4" />
-                  GitHub
-                </a>
               </nav>
             </SheetContent>
           </Sheet>
         </div>
       </div>
     </nav>
-  )
+  );
 }

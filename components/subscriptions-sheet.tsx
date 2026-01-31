@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Subscriptions sheet component
@@ -6,19 +6,28 @@
  * Allows cancellation and reactivation of subscriptions
  */
 
-import { useState, useEffect, useCallback } from 'react'
-import { CreditCard, ExternalLink, Loader2, Package, RefreshCw } from 'lucide-react'
-import { toast } from 'sonner'
+import {
+  CreditCard,
+  ExternalLink,
+  Loader2,
+  Package,
+  RefreshCw,
+} from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 
 import {
   getUserSubscriptions,
   reactivateSubscription,
   getCustomerPortalUrl,
-} from '@/app/actions/subscription-actions'
-import { CancelSubscriptionDialog } from '@/components/cancel-subscription-dialog'
-import { SubscriptionCard, SubscriptionCardSkeleton } from '@/components/subscription-card'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+} from "@/app/actions/subscription-actions";
+import { CancelSubscriptionDialog } from "@/components/cancel-subscription-dialog";
+import {
+  SubscriptionCard,
+  SubscriptionCardSkeleton,
+} from "@/components/subscription-card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -27,17 +36,18 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
+} from "@/components/ui/sheet";
+import { logger } from "@/lib/logger";
 
-import type { Subscription } from '@/lib/types/entities'
+import type { Subscription } from "@/lib/types/entities";
 
 interface SubscriptionsSheetProps {
   /** Custom trigger element */
-  trigger?: React.ReactNode
+  trigger?: React.ReactNode;
   /** Controlled open state */
-  open?: boolean
+  open?: boolean;
   /** Controlled open state change handler */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function SubscriptionsSheet({
@@ -46,135 +56,139 @@ export function SubscriptionsSheet({
   onOpenChange: controlledOnOpenChange,
 }: SubscriptionsSheetProps) {
   // Internal state for uncontrolled mode
-  const [internalOpen, setInternalOpen] = useState(false)
-  
-  // Use controlled or uncontrolled state
-  const isControlled = controlledOpen !== undefined
-  const open = isControlled ? controlledOpen : internalOpen
-  const setOpen = isControlled ? controlledOnOpenChange! : setInternalOpen
+  const [internalOpen, setInternalOpen] = useState(false);
 
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
-  const [portalLoading, setPortalLoading] = useState(false)
+  // Use controlled or uncontrolled state
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? controlledOnOpenChange! : setInternalOpen;
+
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   // Cancel dialog state
-  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
-  const [subscriptionToCancel, setSubscriptionToCancel] = useState<Subscription | null>(null)
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [subscriptionToCancel, setSubscriptionToCancel] =
+    useState<Subscription | null>(null);
 
   /**
    * Fetch user subscriptions
    */
-  const fetchSubscriptions = useCallback(async (showRefreshIndicator = false) => {
-    if (showRefreshIndicator) {
-      setIsRefreshing(true)
-    } else {
-      setIsLoading(true)
-    }
-
-    try {
-      const result = await getUserSubscriptions()
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch subscriptions')
+  const fetchSubscriptions = useCallback(
+    async (showRefreshIndicator = false) => {
+      if (showRefreshIndicator) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
       }
 
-      setSubscriptions(result.data ?? [])
-    } catch (error) {
-      console.error('Error fetching subscriptions:', error)
-      toast.error('Failed to load subscriptions')
-    } finally {
-      setIsLoading(false)
-      setIsRefreshing(false)
-    }
-  }, [])
+      try {
+        const result = await getUserSubscriptions();
+
+        if (!result.success) {
+          throw new Error(result.error ?? "Failed to fetch subscriptions");
+        }
+
+        setSubscriptions(result.data ?? []);
+      } catch (error) {
+        logger.error("Error fetching subscriptions:", error);
+        toast.error("Failed to load subscriptions");
+      } finally {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
+    },
+    []
+  );
 
   // Fetch subscriptions when sheet opens
   useEffect(() => {
     if (open) {
-      fetchSubscriptions()
+      void fetchSubscriptions();
     }
-  }, [open, fetchSubscriptions])
+  }, [open, fetchSubscriptions]);
 
   /**
    * Handle cancel subscription click
    */
   const handleCancelClick = (subscription: Subscription) => {
-    setSubscriptionToCancel(subscription)
-    setCancelDialogOpen(true)
-  }
+    setSubscriptionToCancel(subscription);
+    setCancelDialogOpen(true);
+  };
 
   /**
    * Handle reactivate subscription
    */
   const handleReactivate = async (subscription: Subscription) => {
-    setActionLoadingId(subscription.id)
+    setActionLoadingId(subscription.id);
 
     try {
-      const result = await reactivateSubscription(subscription.id)
+      const result = await reactivateSubscription(subscription.id);
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to reactivate subscription')
+        throw new Error(result.error ?? "Failed to reactivate subscription");
       }
 
-      toast.success('Subscription reactivated', {
-        description: 'Your subscription will continue as normal.',
-      })
+      toast.success("Subscription reactivated", {
+        description: "Your subscription will continue as normal.",
+      });
 
       // Refresh subscriptions
-      await fetchSubscriptions(true)
+      await fetchSubscriptions(true);
     } catch (error) {
-      console.error('Reactivate subscription error:', error)
+      logger.error("Reactivate subscription error:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Failed to reactivate subscription. Please try again.'
-      )
+          : "Failed to reactivate subscription. Please try again."
+      );
     } finally {
-      setActionLoadingId(null)
+      setActionLoadingId(null);
     }
-  }
+  };
 
   /**
    * Handle open billing portal
    */
   const handleOpenPortal = async () => {
-    setPortalLoading(true)
+    setPortalLoading(true);
 
     try {
-      const result = await getCustomerPortalUrl(window.location.href)
+      const result = await getCustomerPortalUrl(window.location.href);
 
       if (!result.success || !result.data) {
-        throw new Error(result.error || 'Failed to open billing portal')
+        throw new Error(result.error ?? "Failed to open billing portal");
       }
 
-      window.location.href = result.data
+      window.location.href = result.data;
     } catch (error) {
-      console.error('Open portal error:', error)
+      logger.error("Open portal error:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Failed to open billing portal. Please try again.'
-      )
-      setPortalLoading(false)
+          : "Failed to open billing portal. Please try again."
+      );
+      setPortalLoading(false);
     }
-  }
+  };
 
   /**
    * Handle successful cancellation
    */
   const handleCancelSuccess = () => {
-    fetchSubscriptions(true)
-  }
+    void fetchSubscriptions(true);
+  };
 
   // Filter active subscriptions (not canceled)
   const activeSubscriptions = subscriptions.filter(
-    (sub) => sub.status !== 'canceled' && sub.status !== 'incomplete_expired'
-  )
+    (sub) => sub.status !== "canceled" && sub.status !== "incomplete_expired"
+  );
 
   // Check if user has any subscriptions (for portal button)
-  const hasSubscriptions = subscriptions.length > 0
+  const hasSubscriptions = subscriptions.length > 0;
 
   return (
     <>
@@ -194,7 +208,7 @@ export function SubscriptionsSheet({
           <Separator className="my-2" />
 
           {/* Subscriptions list */}
-          <div className="flex-1 overflow-y-auto py-2 -mx-4 px-4">
+          <div className="-mx-4 flex-1 overflow-y-auto px-4 py-2">
             {isLoading ? (
               // Loading skeletons
               <div className="space-y-4">
@@ -204,12 +218,15 @@ export function SubscriptionsSheet({
             ) : activeSubscriptions.length === 0 ? (
               // Empty state
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="rounded-full bg-muted p-4 mb-4">
-                  <Package className="size-8 text-muted-foreground" />
+                <div className="bg-muted mb-4 rounded-full p-4">
+                  <Package className="text-muted-foreground size-8" />
                 </div>
-                <h3 className="text-lg font-medium mb-1">No active subscriptions</h3>
-                <p className="text-sm text-muted-foreground max-w-[250px]">
-                  Browse our products to find a subscription that fits your needs.
+                <h3 className="mb-1 text-lg font-medium">
+                  No active subscriptions
+                </h3>
+                <p className="text-muted-foreground max-w-[250px] text-sm">
+                  Browse our products to find a subscription that fits your
+                  needs.
                 </p>
               </div>
             ) : (
@@ -223,7 +240,9 @@ export function SubscriptionsSheet({
                     onClick={() => fetchSubscriptions(true)}
                     disabled={isRefreshing}
                   >
-                    <RefreshCw className={`size-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    <RefreshCw
+                      className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
+                    />
                     Refresh
                   </Button>
                 </div>
@@ -275,5 +294,5 @@ export function SubscriptionsSheet({
         onSuccess={handleCancelSuccess}
       />
     </>
-  )
+  );
 }

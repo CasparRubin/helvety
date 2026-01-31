@@ -15,6 +15,10 @@ Your one-stop shop for Helvety software, subscriptions, and apparel. Browse and 
 - **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout
 - **Subscription Management** - Manage active subscriptions, cancel, or reactivate
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
+- **Dashboard** - Manage your tenants and software downloads
+- **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer licensing
+- **Download Management** - Access and download purchased software packages
+- **License Validation** - API for validating tenant licenses across Helvety products
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 - **App Switcher** - Navigate between Helvety ecosystem apps
 
@@ -25,11 +29,13 @@ This application implements a modern, passwordless authentication system with en
 ### Authentication Flow
 
 **New Users:**
+
 1. Enter email → Receive magic link (rate-limited to 2 requests/minute)
 2. Click link → Setup passkey on your phone (Face ID, Touch ID, or fingerprint)
 3. Sign in with passkey to activate encryption
 
 **Returning Users:**
+
 1. Enter email → Passkey detected → Direct passkey authentication (no email needed)
 
 - **Unified Stepper UI** - Clear progress indicator through the authentication flow
@@ -66,15 +72,26 @@ helvety-store/
 ├── app/                        # Next.js App Router
 │   ├── actions/                # Server actions
 │   │   ├── auth-actions.ts     # Authentication actions
+│   │   ├── download-actions.ts # Software download management
 │   │   ├── encryption-actions.ts # Encryption parameter management
 │   │   ├── passkey-auth-actions.ts # WebAuthn passkey operations
-│   │   └── subscription-actions.ts # Subscription management
+│   │   ├── subscription-actions.ts # Subscription management
+│   │   └── tenant-actions.ts   # Tenant registration for licensing
 │   ├── api/                    # API routes
 │   │   ├── checkout/           # Stripe Checkout session creation
+│   │   ├── downloads/          # Software package downloads
+│   │   │   └── [packageId]/    # Dynamic download routes
+│   │   ├── license/            # License validation
+│   │   │   └── validate/       # Tenant license validation endpoint
 │   │   ├── subscriptions/      # User subscription queries
+│   │   ├── tenants/            # Tenant management
+│   │   │   └── [id]/           # Individual tenant operations
 │   │   └── webhooks/stripe/    # Stripe webhook handler
 │   ├── auth/                   # Auth routes
 │   │   └── callback/           # Magic link & OAuth callback
+│   ├── dashboard/              # User dashboard
+│   │   ├── downloads/          # Download management page
+│   │   └── tenants/            # Tenant registration page
 │   ├── login/                  # Login page with passkey support
 │   ├── products/               # Product catalog
 │   │   └── [slug]/             # Product detail pages
@@ -93,6 +110,11 @@ helvety-store/
 │   ├── config/                 # Configuration files
 │   ├── crypto/                 # Encryption utilities
 │   ├── data/                   # Static product data
+│   ├── license/                # License validation utilities
+│   │   ├── index.ts            # License module exports
+│   │   └── validation.ts       # License validation logic
+│   ├── packages/               # Software package configuration
+│   │   └── config.ts           # Package definitions and metadata
 │   ├── stripe/                 # Stripe client and config
 │   │   ├── client.ts           # Stripe SDK initialization
 │   │   ├── config.ts           # Price IDs and product mappings
@@ -117,6 +139,10 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-This repository is public for transparency. All code is open for inspection so users can verify its behavior.
+This repository is public for transparency purposes only. All code is open for inspection so users can verify its behavior.
 
-**No license is granted; this is the default "All rights reserved" status.** You may view the code, but you cannot reuse, redistribute, or sell it without explicit permission. All rights are retained by the author.
+**All Rights Reserved.** No license is granted. You may view the code, but you may not copy, reuse, redistribute, modify, or sell it without explicit written permission.
+
+Purchasing a subscription grants access to use the hosted service only—subscriptions do not grant any rights to the source code.
+
+See [LICENSE](./LICENSE) for full terms.

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * Product detail client component
@@ -18,39 +18,46 @@ import {
   Loader2,
   RotateCcw,
   type LucideIcon,
-} from 'lucide-react'
-import { notFound, useSearchParams } from 'next/navigation'
-import { useState, useEffect, useCallback } from 'react'
-import { toast } from 'sonner'
+} from "lucide-react";
+import { notFound, useSearchParams } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 
-import { getUserSubscriptions, reactivateSubscription } from '@/app/actions/subscription-actions'
-import { CommandBar } from '@/components/command-bar'
+import {
+  getUserSubscriptions,
+  reactivateSubscription,
+} from "@/app/actions/subscription-actions";
+import { CommandBar } from "@/components/command-bar";
+import { DigitalContentConsentDialog } from "@/components/digital-content-consent-dialog";
 import {
   ProductBadge,
   StatusBadge,
   FeatureList,
   MediaGallery,
-} from '@/components/products'
-import { Button } from '@/components/ui/button'
+} from "@/components/products";
+import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { getProductBySlug } from '@/lib/data/products'
-import { isSoftwareProduct } from '@/lib/types/products'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/tooltip";
+import { getProductBySlug } from "@/lib/data/products";
+import { logger } from "@/lib/logger";
+import { isSoftwareProduct } from "@/lib/types/products";
+import { cn } from "@/lib/utils";
 
-import type { PricingTier } from '@/lib/types/products'
-import type { CreateCheckoutResponse, Subscription } from '@/lib/types/entities'
-
+import type {
+  CreateCheckoutResponse,
+  Subscription,
+} from "@/lib/types/entities";
+import type { PricingTier } from "@/lib/types/products";
 
 // Icon mapping for products
 const iconMap: Record<string, LucideIcon> = {
@@ -59,76 +66,80 @@ const iconMap: Record<string, LucideIcon> = {
   Cloud,
   Download,
   Package,
-}
+};
 
 interface ProductDetailClientProps {
-  slug: string
+  slug: string;
 }
 
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
 
-  const product = getProductBySlug(slug)
+  const product = getProductBySlug(slug);
 
-  const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null)
-  const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>([])
+  const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
+  const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>(
+    []
+  );
 
   /**
    * Fetch user subscriptions
    */
   const fetchSubscriptions = useCallback(async () => {
     try {
-      const result = await getUserSubscriptions()
+      const result = await getUserSubscriptions();
       if (result.success && result.data) {
-        setUserSubscriptions(result.data)
+        setUserSubscriptions(result.data);
       }
     } catch (error) {
-      console.error('Error fetching subscriptions:', error)
+      logger.error("Error fetching subscriptions:", error);
     }
-  }, [])
+  }, []);
 
   // Fetch subscriptions on mount
   useEffect(() => {
-    fetchSubscriptions()
-  }, [fetchSubscriptions])
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Data fetching on mount is a valid pattern
+    void fetchSubscriptions();
+  }, [fetchSubscriptions]);
 
   // Handle checkout success/cancelled state from URL params
   useEffect(() => {
-    const checkoutStatus = searchParams.get('checkout')
-    
-    if (checkoutStatus === 'success') {
-      toast.success('Payment successful! Thank you for your purchase.', {
-        description: 'Your subscription is now active.',
+    const checkoutStatus = searchParams.get("checkout");
+
+    if (checkoutStatus === "success") {
+      toast.success("Payment successful! Thank you for your purchase.", {
+        description: "Your subscription is now active.",
         duration: 5000,
-      })
+      });
       // Refresh subscriptions after successful checkout
-      fetchSubscriptions()
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Data fetching after checkout is valid
+      void fetchSubscriptions();
       // Clean up URL
-      window.history.replaceState({}, '', `/products/${slug}`)
-    } else if (checkoutStatus === 'cancelled') {
-      toast.info('Checkout cancelled', {
-        description: 'No payment was made. You can try again anytime.',
+      window.history.replaceState({}, "", `/products/${slug}`);
+    } else if (checkoutStatus === "cancelled") {
+      toast.info("Checkout cancelled", {
+        description: "No payment was made. You can try again anytime.",
         duration: 4000,
-      })
+      });
       // Clean up URL
-      window.history.replaceState({}, '', `/products/${slug}`)
+      window.history.replaceState({}, "", `/products/${slug}`);
     }
-  }, [searchParams, slug, fetchSubscriptions])
+  }, [searchParams, slug, fetchSubscriptions]);
 
   if (!product) {
-    notFound()
+    notFound();
   }
 
-  const Icon = product.icon ? iconMap[product.icon] ?? FileText : FileText
+  const Icon = product.icon ? (iconMap[product.icon] ?? FileText) : FileText;
 
   // Get monthly tiers only (filter out yearly tiers)
   const monthlyTiers = product.pricing.tiers.filter(
-    (tier) => tier.interval !== 'yearly'
-  )
+    (tier) => tier.interval !== "yearly"
+  );
 
   const handleTierSelect = (tier: PricingTier) => {
-    setSelectedTier(tier)
-  }
+    setSelectedTier(tier);
+  };
 
   return (
     <>
@@ -141,7 +152,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
         {/* Product Header */}
         <div className="mb-12">
           <div className="flex items-start gap-4">
-            <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <div className="bg-primary/10 text-primary flex size-16 shrink-0 items-center justify-center rounded-xl">
               <Icon className="size-8" />
             </div>
             <div className="space-y-2">
@@ -150,11 +161,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                   {product.name}
                 </h1>
                 <ProductBadge type={product.type} />
-                {product.status !== 'available' && (
+                {product.status !== "available" && (
                   <StatusBadge status={product.status} />
                 )}
               </div>
-              <p className="max-w-2xl text-lg text-muted-foreground">
+              <p className="text-muted-foreground max-w-2xl text-lg">
                 {product.shortDescription}
               </p>
             </div>
@@ -169,8 +180,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             <section>
               <h2 className="mb-4 text-xl font-semibold">About</h2>
               <div className="prose prose-neutral dark:prose-invert max-w-none">
-                {product.description.split('\n\n').map((paragraph, index) => (
-                  <p key={index} className="text-muted-foreground">
+                {product.description.split("\n\n").map((paragraph) => (
+                  <p
+                    key={paragraph.slice(0, 50)}
+                    className="text-muted-foreground"
+                  >
                     {paragraph}
                   </p>
                 ))}
@@ -182,18 +196,19 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             <section>
               <div className="mb-6">
                 <h2 className="text-xl font-semibold">Pricing</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="text-muted-foreground mt-1 text-sm">
                   Choose the plan that works best for you
                 </p>
               </div>
               <div className="flex flex-wrap gap-6">
                 {monthlyTiers.map((tier) => {
                   // Find subscription for this tier
-                  const tierSubscription = userSubscriptions.find(
-                    (sub) => 
-                      sub.tier_id === tier.id &&
-                      (sub.status === 'active' || sub.status === 'trialing')
-                  ) ?? null
+                  const tierSubscription =
+                    userSubscriptions.find(
+                      (sub) =>
+                        sub.tier_id === tier.id &&
+                        (sub.status === "active" || sub.status === "trialing")
+                    ) ?? null;
 
                   return (
                     <PricingCard
@@ -205,7 +220,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                       userSubscription={tierSubscription}
                       onReactivate={fetchSubscriptions}
                     />
-                  )
+                  );
                 })}
               </div>
             </section>
@@ -213,7 +228,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
 
           {/* Right Sidebar - Features & Requirements */}
           <div className="space-y-6">
-            <div className="sticky top-32 z-10 space-y-6 rounded-xl border bg-card p-6 shadow-sm">
+            <div className="bg-card sticky top-32 z-10 space-y-6 rounded-xl border p-6 shadow-sm">
               {/* Features */}
               <section>
                 <h2 className="mb-4 text-lg font-semibold">Features</h2>
@@ -226,10 +241,10 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                   <Separator />
                   <section>
                     <h2 className="mb-4 text-lg font-semibold">Requirements</h2>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      {product.software.requirements.map((req: string, index: number) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                    <ul className="text-muted-foreground space-y-2 text-sm">
+                      {product.software.requirements.map((req: string) => (
+                        <li key={req} className="flex items-start gap-2">
+                          <Check className="text-primary mt-0.5 size-4 shrink-0" />
                           <span>{req}</span>
                         </li>
                       ))}
@@ -240,179 +255,228 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             </div>
 
             {/* Media (Screencaptures & Screenshots) - Collapsible */}
-            {product.media && (product.media.screencaptures?.length || product.media.screenshots?.length) && (
-              <div className="rounded-xl border bg-card p-6 shadow-sm">
-                <Collapsible defaultOpen={false}>
-                  <CollapsibleTrigger className="flex w-full items-center justify-between hover:opacity-80 transition-opacity">
-                    <h2 className="text-lg font-semibold">Media</h2>
-                    <ChevronDown className="size-5 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="mt-4 space-y-6">
-                      {/* Screencaptures */}
-                      {product.media.screencaptures && product.media.screencaptures.length > 0 && (
-                        <div>
-                          <h3 className="mb-3 text-sm font-medium text-muted-foreground">Screencaptures</h3>
-                          <MediaGallery items={product.media.screencaptures} />
-                        </div>
-                      )}
-                      {/* Screenshots */}
-                      {product.media.screenshots && product.media.screenshots.length > 0 && (
-                        <div>
-                          <h3 className="mb-3 text-sm font-medium text-muted-foreground">Screenshots</h3>
-                          <MediaGallery items={product.media.screenshots} />
-                        </div>
-                      )}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
-            )}
+            {product.media &&
+              ((product.media.screencaptures?.length ?? 0) > 0 ||
+                (product.media.screenshots?.length ?? 0) > 0) && (
+                <div className="bg-card rounded-xl border p-6 shadow-sm">
+                  <Collapsible defaultOpen={false}>
+                    <CollapsibleTrigger className="flex w-full items-center justify-between transition-opacity hover:opacity-80">
+                      <h2 className="text-lg font-semibold">Media</h2>
+                      <ChevronDown className="text-muted-foreground size-5 transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="mt-4 space-y-6">
+                        {/* Screencaptures */}
+                        {product.media.screencaptures &&
+                          product.media.screencaptures.length > 0 && (
+                            <div>
+                              <h3 className="text-muted-foreground mb-3 text-sm font-medium">
+                                Screencaptures
+                              </h3>
+                              <MediaGallery
+                                items={product.media.screencaptures}
+                              />
+                            </div>
+                          )}
+                        {/* Screenshots */}
+                        {product.media.screenshots &&
+                          product.media.screenshots.length > 0 && (
+                            <div>
+                              <h3 className="text-muted-foreground mb-3 text-sm font-medium">
+                                Screenshots
+                              </h3>
+                              <MediaGallery items={product.media.screenshots} />
+                            </div>
+                          )}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
+              )}
           </div>
         </div>
       </div>
     </>
-  )
+  );
 }
 
 interface PricingCardProps {
-  tier: PricingTier
-  selected: boolean
-  onSelect: () => void
-  productSlug: string
-  userSubscription?: Subscription | null
-  onReactivate?: () => void
+  tier: PricingTier;
+  selected: boolean;
+  onSelect: () => void;
+  productSlug: string;
+  userSubscription?: Subscription | null;
+  onReactivate?: () => void;
 }
 
 // Tier IDs that have Stripe checkout enabled
 const CHECKOUT_ENABLED_TIERS = [
-  'helvety-pdf-pro-monthly',
-  // Add more tier IDs here as they are configured in Stripe
-]
+  "helvety-pdf-pro-monthly",
+  "helvety-spo-explorer-basic-monthly",
+  "helvety-spo-explorer-enterprise-monthly",
+];
 
-function PricingCard({ tier, selected, onSelect, productSlug, userSubscription, onReactivate }: PricingCardProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isReactivating, setIsReactivating] = useState(false)
-  const isRecurring = tier.interval === 'monthly' || tier.interval === 'yearly'
-  const intervalLabel = isRecurring ? '/month' : tier.interval === 'one-time' ? 'one-time' : ''
+function PricingCard({
+  tier,
+  selected,
+  onSelect,
+  productSlug,
+  userSubscription,
+  onReactivate,
+}: PricingCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
+  const isRecurring = tier.interval === "monthly" || tier.interval === "yearly";
+  const intervalLabel = isRecurring
+    ? "/month"
+    : tier.interval === "one-time"
+      ? "one-time"
+      : "";
   // Check checkout eligibility based on tier ID (stable between server/client)
-  const hasPaidCheckout = !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id)
+  const hasPaidCheckout =
+    !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id);
 
   // Subscription state checks
-  const hasActiveSubscription = userSubscription && 
-    (userSubscription.status === 'active' || userSubscription.status === 'trialing') &&
-    !userSubscription.cancel_at_period_end
-  const isPendingCancellation = userSubscription &&
-    (userSubscription.status === 'active' || userSubscription.status === 'trialing') &&
-    userSubscription.cancel_at_period_end
+  const hasActiveSubscription =
+    userSubscription &&
+    (userSubscription.status === "active" ||
+      userSubscription.status === "trialing") &&
+    !userSubscription.cancel_at_period_end;
+  const isPendingCancellation =
+    userSubscription &&
+    (userSubscription.status === "active" ||
+      userSubscription.status === "trialing") &&
+    userSubscription.cancel_at_period_end;
 
   const formatPrice = (cents: number) => {
-    if (cents === 0) return 'Free'
-    return `CHF ${(cents / 100).toFixed(2).replace('.00', '')}`
-  }
+    if (cents === 0) return "Free";
+    return `CHF ${(cents / 100).toFixed(2).replace(".00", "")}`;
+  };
 
   /**
    * Handle reactivate subscription
    */
   const handleReactivate = async () => {
-    if (!userSubscription) return
+    if (!userSubscription) return;
 
-    setIsReactivating(true)
+    setIsReactivating(true);
 
     try {
-      const result = await reactivateSubscription(userSubscription.id)
+      const result = await reactivateSubscription(userSubscription.id);
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to reactivate subscription')
+        throw new Error(result.error ?? "Failed to reactivate subscription");
       }
 
-      toast.success('Subscription reactivated', {
-        description: 'Your subscription will continue as normal.',
-      })
+      toast.success("Subscription reactivated", {
+        description: "Your subscription will continue as normal.",
+      });
 
-      onReactivate?.()
+      onReactivate?.();
     } catch (error) {
-      console.error('Reactivate subscription error:', error)
+      logger.error("Reactivate subscription error:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Failed to reactivate subscription. Please try again.'
-      )
+          : "Failed to reactivate subscription. Please try again."
+      );
     } finally {
-      setIsReactivating(false)
+      setIsReactivating(false);
     }
-  }
+  };
 
   /**
-   * Handle checkout for paid tiers via Stripe
+   * Handle button click - shows consent dialog for digital products
    */
-  const handleCheckout = async () => {
+  const handleButtonClick = () => {
     // Handle reactivation
     if (isPendingCancellation) {
-      handleReactivate()
-      return
+      void handleReactivate();
+      return;
     }
 
     // Already subscribed - do nothing
     if (hasActiveSubscription) {
-      return
+      return;
     }
 
     if (tier.isFree || !hasPaidCheckout) {
-      onSelect()
-      return
+      onSelect();
+      return;
     }
 
-    setIsLoading(true)
+    // Show consent dialog for digital content purchases (EU requirement)
+    setShowConsentDialog(true);
+  };
+
+  /**
+   * Handle checkout for paid tiers via Stripe (called after consent)
+   */
+  const handleCheckout = async () => {
+    setIsLoading(true);
 
     try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
+      const response = await fetch("/api/checkout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           tierId: tier.id,
           successUrl: `/products/${productSlug}?checkout=success`,
           cancelUrl: `/products/${productSlug}?checkout=cancelled`,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create checkout session')
+        const errorData = await response.json();
+        throw new Error(errorData.error ?? "Failed to create checkout session");
       }
 
-      const data: CreateCheckoutResponse = await response.json()
+      const data: CreateCheckoutResponse = await response.json();
 
       // Redirect to Stripe Checkout
-      window.location.href = data.checkoutUrl
+      window.location.href = data.checkoutUrl;
     } catch (error) {
-      console.error('Checkout error:', error)
+      logger.error("Checkout error:", error);
       toast.error(
-        error instanceof Error 
-          ? error.message 
-          : 'Failed to start checkout. Please try again.'
-      )
-      setIsLoading(false)
+        error instanceof Error
+          ? error.message
+          : "Failed to start checkout. Please try again."
+      );
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div
       className={cn(
-        "relative flex w-80 flex-col rounded-2xl border bg-card px-6 py-8 text-center transition-all duration-200",
-        hasActiveSubscription && "border-green-500 ring-2 ring-green-500 bg-green-500/5",
-        isPendingCancellation && "border-amber-500 ring-2 ring-amber-500 bg-amber-500/5",
-        !hasActiveSubscription && !isPendingCancellation && selected && "border-primary ring-2 ring-primary",
-        !hasActiveSubscription && !isPendingCancellation && tier.highlighted && !selected && "border-primary shadow-xl",
-        !hasActiveSubscription && !isPendingCancellation && !tier.highlighted && !selected && "hover:border-primary/50 hover:shadow-lg"
+        "bg-card relative flex w-80 flex-col rounded-2xl border px-6 py-8 text-center transition-all duration-200",
+        hasActiveSubscription &&
+          "border-green-500 bg-green-500/5 ring-2 ring-green-500",
+        isPendingCancellation &&
+          "border-amber-500 bg-amber-500/5 ring-2 ring-amber-500",
+        !hasActiveSubscription &&
+          !isPendingCancellation &&
+          selected &&
+          "border-primary ring-primary ring-2",
+        !hasActiveSubscription &&
+          !isPendingCancellation &&
+          tier.highlighted &&
+          !selected &&
+          "border-primary shadow-xl",
+        !hasActiveSubscription &&
+          !isPendingCancellation &&
+          !tier.highlighted &&
+          !selected &&
+          "hover:border-primary/50 hover:shadow-lg"
       )}
     >
       {/* Current Plan badge */}
       {hasActiveSubscription && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="rounded-full bg-green-500 px-3 py-1 text-xs font-medium text-white shadow-md flex items-center gap-1">
+          <span className="flex items-center gap-1 rounded-full bg-green-500 px-3 py-1 text-xs font-medium text-white shadow-md">
             <Check className="size-3" />
             Current Plan
           </span>
@@ -429,7 +493,7 @@ function PricingCard({ tier, selected, onSelect, productSlug, userSubscription, 
       {/* Popular badge - only show if not subscribed */}
       {tier.highlighted && !hasActiveSubscription && !isPendingCancellation && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground shadow-md">
+          <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-medium shadow-md">
             Popular
           </span>
         </div>
@@ -446,7 +510,7 @@ function PricingCard({ tier, selected, onSelect, productSlug, userSubscription, 
           </span>
         </div>
         {intervalLabel && tier.price > 0 && (
-          <p className="mt-1 text-sm text-muted-foreground">{intervalLabel}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{intervalLabel}</p>
         )}
       </div>
 
@@ -455,22 +519,23 @@ function PricingCard({ tier, selected, onSelect, productSlug, userSubscription, 
 
       {/* Features */}
       <ul className="flex-1 space-y-3 text-left">
-        {tier.features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-2">
+        {tier.features.map((feature) => (
+          <li key={feature} className="flex items-start gap-2">
             <Check className="mt-0.5 size-4 shrink-0 text-green-500" />
             <span className="text-sm">{feature}</span>
-            {feature === 'Only limited by your device' && (
+            {feature === "Only limited by your device" && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="mt-0.5 size-4 shrink-0 cursor-help text-muted-foreground hover:text-foreground" />
+                    <Info className="text-muted-foreground hover:text-foreground mt-0.5 size-4 shrink-0 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-xs text-left">
                     <p className="text-sm">
-                      Helvety PDF processes everything directly in your browser. 
-                      This means performance depends on your device&apos;s RAM and CPU. 
-                      The Pro plan has no artificial limits. Your device&apos;s hardware 
-                      capabilities will naturally determine what&apos;s possible.
+                      Helvety PDF processes everything directly in your browser.
+                      This means performance depends on your device&apos;s RAM
+                      and CPU. The Pro plan has no artificial limits. Your
+                      device&apos;s hardware capabilities will naturally
+                      determine what&apos;s possible.
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -482,12 +547,12 @@ function PricingCard({ tier, selected, onSelect, productSlug, userSubscription, 
 
       {/* Limits info */}
       {tier.limits && Object.keys(tier.limits).length > 0 && (
-        <div className="mt-5 rounded-lg bg-muted/50 p-3 text-left">
-          <ul className="space-y-1 text-xs text-muted-foreground">
+        <div className="bg-muted/50 mt-5 rounded-lg p-3 text-left">
+          <ul className="text-muted-foreground space-y-1 text-xs">
             {tier.limits.maxFiles !== undefined && (
               <li>
                 {tier.limits.maxFiles === -1
-                  ? '✓ Unlimited files'
+                  ? "✓ Unlimited files"
                   : `Up to ${tier.limits.maxFiles} files`}
               </li>
             )}
@@ -503,21 +568,26 @@ function PricingCard({ tier, selected, onSelect, productSlug, userSubscription, 
         <Button
           className="mt-6 w-full"
           variant={
-            hasActiveSubscription 
-              ? 'outline' 
-              : isPendingCancellation 
-                ? 'default' 
-                : tier.highlighted 
-                  ? 'default' 
-                  : 'outline'
+            hasActiveSubscription
+              ? "outline"
+              : isPendingCancellation
+                ? "default"
+                : tier.highlighted
+                  ? "default"
+                  : "outline"
           }
-          onClick={handleCheckout}
-          disabled={isLoading || isReactivating || !hasPaidCheckout || !!hasActiveSubscription}
+          onClick={handleButtonClick}
+          disabled={
+            isLoading ||
+            isReactivating ||
+            !hasPaidCheckout ||
+            !!hasActiveSubscription
+          }
         >
           {isLoading || isReactivating ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              {isReactivating ? 'Reactivating...' : 'Processing...'}
+              {isReactivating ? "Reactivating..." : "Processing..."}
             </>
           ) : hasActiveSubscription ? (
             <>
@@ -530,12 +600,21 @@ function PricingCard({ tier, selected, onSelect, productSlug, userSubscription, 
               Reactivate
             </>
           ) : hasPaidCheckout ? (
-            'Subscribe Now'
+            "Subscribe Now"
           ) : (
-            'Coming Soon'
+            "Coming Soon"
           )}
         </Button>
       )}
+
+      {/* EU Digital Content Consent Dialog */}
+      <DigitalContentConsentDialog
+        open={showConsentDialog}
+        onOpenChange={setShowConsentDialog}
+        onConfirm={handleCheckout}
+        isLoading={isLoading}
+        productName={tier.name}
+      />
     </div>
-  )
+  );
 }

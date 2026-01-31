@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import { Fingerprint, Lock, Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { Fingerprint, Lock, Loader2 } from "lucide-react";
+import { useState } from "react";
 
-import { AuthStepper, type AuthFlowType } from '@/components/auth-stepper'
-import { Button } from '@/components/ui/button'
+import { AuthStepper, type AuthFlowType } from "@/components/auth-stepper";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { useEncryptionContext, type PRFKeyParams } from '@/lib/crypto'
+} from "@/components/ui/card";
+import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
 interface EncryptionUnlockProps {
-  userId: string
+  userId: string;
   /** PRF-based params for passkey unlock */
-  passkeyParams: PRFKeyParams
+  passkeyParams: PRFKeyParams;
   /** Flow type for the stepper */
-  flowType?: AuthFlowType
-  onUnlock?: () => void
+  flowType?: AuthFlowType;
+  onUnlock?: () => void;
 }
 
 /**
@@ -30,45 +30,46 @@ interface EncryptionUnlockProps {
 export function EncryptionUnlock({
   userId,
   passkeyParams,
-  flowType = 'returning_user',
+  flowType = "returning_user",
   onUnlock,
 }: EncryptionUnlockProps) {
-  const { unlockWithPasskey } = useEncryptionContext()
-  
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const { unlockWithPasskey } = useEncryptionContext();
+
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleUnlock = async () => {
-    setError('')
-    setIsLoading(true)
+    setError("");
+    setIsLoading(true);
 
     try {
-      const success = await unlockWithPasskey(userId, passkeyParams)
-      
+      const success = await unlockWithPasskey(userId, passkeyParams);
+
       if (!success) {
-        setError('Failed to authenticate with passkey')
-        setIsLoading(false)
-        return
+        setError("Failed to authenticate with passkey");
+        setIsLoading(false);
+        return;
       }
 
       // Success
       if (onUnlock) {
-        onUnlock()
+        onUnlock();
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to unlock encryption'
-      setError(message)
-      setIsLoading(false)
+      const message =
+        err instanceof Error ? err.message : "Failed to unlock encryption";
+      setError(message);
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-md">
+    <div className="flex w-full max-w-md flex-col items-center">
       <AuthStepper flowType={flowType} currentStep="sign_in" />
       <Card className="w-full">
         <CardHeader className="space-y-1">
           <div className="flex items-center gap-2">
-            <Lock className="h-5 w-5 text-primary" />
+            <Lock className="text-primary h-5 w-5" />
             <CardTitle>Unlock Your Data</CardTitle>
           </div>
           <CardDescription>
@@ -76,29 +77,27 @@ export function EncryptionUnlock({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg border p-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+          <div className="flex items-center gap-3 rounded-lg border p-4">
+            <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
               {isLoading ? (
-                <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                <Loader2 className="text-primary h-5 w-5 animate-spin" />
               ) : (
-                <Fingerprint className="h-5 w-5 text-primary" />
+                <Fingerprint className="text-primary h-5 w-5" />
               )}
             </div>
             <div>
               <p className="font-medium">Passkey Authentication</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Scan the QR code with your phone
               </p>
             </div>
           </div>
 
-          {error && (
-            <p className="text-sm text-destructive">{error}</p>
-          )}
+          {error && <p className="text-destructive text-sm">{error}</p>}
 
-          <Button 
-            onClick={handleUnlock} 
-            className="w-full" 
+          <Button
+            onClick={handleUnlock}
+            className="w-full"
             disabled={isLoading}
             size="lg"
           >
@@ -116,12 +115,12 @@ export function EncryptionUnlock({
           </Button>
 
           {isLoading && (
-            <p className="text-xs text-center text-muted-foreground">
+            <p className="text-muted-foreground text-center text-xs">
               Waiting for your phone...
             </p>
           )}
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

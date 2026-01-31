@@ -6,36 +6,36 @@ const nextConfig: NextConfig = {
 
   // Security headers
   async headers() {
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    
+    const isDevelopment = process.env.NODE_ENV === "development";
+
     // Build headers array
     const headers = [
       {
-        key: 'X-DNS-Prefetch-Control',
-        value: 'on'
+        key: "X-DNS-Prefetch-Control",
+        value: "on",
       },
       {
-        key: 'X-Frame-Options',
-        value: 'SAMEORIGIN'
+        key: "X-Frame-Options",
+        value: "SAMEORIGIN",
       },
       {
-        key: 'X-Content-Type-Options',
-        value: 'nosniff'
+        key: "X-Content-Type-Options",
+        value: "nosniff",
       },
       {
-        key: 'X-XSS-Protection',
-        value: '1; mode=block'
+        key: "X-XSS-Protection",
+        value: "1; mode=block",
       },
       {
-        key: 'Referrer-Policy',
-        value: 'strict-origin-when-cross-origin'
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
       },
       {
-        key: 'Permissions-Policy',
-        value: 'camera=(), microphone=(), geolocation=()'
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=()",
       },
       {
-        key: 'Content-Security-Policy',
+        key: "Content-Security-Policy",
         value: [
           "default-src 'self'",
           "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
@@ -49,51 +49,48 @@ const nextConfig: NextConfig = {
           "form-action 'self'",
           "frame-ancestors 'self'",
           ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
-        ].join('; ')
+        ].join("; "),
       },
     ];
 
     // Production-only security headers
     if (!isDevelopment) {
       headers.push({
-        key: 'Strict-Transport-Security',
-        value: 'max-age=63072000; includeSubDomains; preload'
+        key: "Strict-Transport-Security",
+        value: "max-age=63072000; includeSubDomains; preload",
       });
       headers.push({
-        key: 'Cross-Origin-Opener-Policy',
-        value: 'same-origin'
+        key: "Cross-Origin-Opener-Policy",
+        value: "same-origin",
       });
       headers.push({
-        key: 'Cross-Origin-Embedder-Policy',
-        value: 'require-corp'
+        key: "Cross-Origin-Embedder-Policy",
+        value: "require-corp",
       });
     }
 
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers,
       },
-    ]
+    ];
   },
 
   // Image optimization
   images: {
-    formats: ['image/avif', 'image/webp'],
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '**.supabase.co',
+        protocol: "https",
+        hostname: "**.supabase.co",
       },
     ],
   },
 
   // Experimental features for better performance
   experimental: {
-    optimizePackageImports: [
-      'lucide-react',
-      'sonner',
-    ],
+    optimizePackageImports: ["lucide-react", "sonner"],
   },
 };
 

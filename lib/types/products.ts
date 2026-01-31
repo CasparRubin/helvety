@@ -13,7 +13,7 @@
  * - software: One-time purchase downloadable software
  * - physical: Physical goods that require shipping
  */
-export type ProductType = 'saas' | 'software' | 'physical'
+export type ProductType = "saas" | "software" | "physical";
 
 /**
  * Billing interval for pricing
@@ -22,22 +22,22 @@ export type ProductType = 'saas' | 'software' | 'physical'
  * - lifetime: One-time purchase with perpetual access
  * - one-time: Single purchase (for software/physical)
  */
-export type BillingInterval = 'monthly' | 'yearly' | 'lifetime' | 'one-time'
+export type BillingInterval = "monthly" | "yearly" | "lifetime" | "one-time";
 
 /**
  * Product category for filtering and organization
  */
 export type ProductCategory =
-  | 'productivity'
-  | 'developer-tools'
-  | 'utilities'
-  | 'integrations'
-  | 'other'
+  | "productivity"
+  | "developer-tools"
+  | "utilities"
+  | "integrations"
+  | "other";
 
 /**
  * Product availability status
  */
-export type ProductStatus = 'available' | 'coming-soon' | 'discontinued'
+export type ProductStatus = "available" | "coming-soon" | "discontinued";
 
 // =============================================================================
 // PRICING TYPES
@@ -48,25 +48,25 @@ export type ProductStatus = 'available' | 'coming-soon' | 'discontinued'
  */
 export interface PricingTier {
   /** Unique identifier for this tier */
-  id: string
+  id: string;
   /** Display name (e.g., "Free", "Pro", "Enterprise") */
-  name: string
+  name: string;
   /** Price in smallest currency unit (cents for USD/EUR) */
-  price: number
+  price: number;
   /** ISO 4217 currency code */
-  currency: string
+  currency: string;
   /** Billing interval */
-  interval: BillingInterval
+  interval: BillingInterval;
   /** Features included in this tier */
-  features: string[]
+  features: string[];
   /** Whether this tier should be visually highlighted as recommended */
-  highlighted?: boolean
+  highlighted?: boolean;
   /** Stripe Price ID for checkout (populated when Stripe is integrated) */
-  stripePriceId?: string
+  stripePriceId?: string;
   /** Maximum usage limits if applicable */
-  limits?: Record<string, number | string>
+  limits?: Record<string, number | string>;
   /** Whether this is a free tier */
-  isFree?: boolean
+  isFree?: boolean;
 }
 
 /**
@@ -74,13 +74,13 @@ export interface PricingTier {
  */
 export interface ProductPricing {
   /** Available pricing tiers */
-  tiers: PricingTier[]
+  tiers: PricingTier[];
   /** Whether the product has a free tier */
-  hasFreeTier: boolean
+  hasFreeTier: boolean;
   /** Whether yearly pricing is available (typically with discount) */
-  hasYearlyPricing: boolean
+  hasYearlyPricing: boolean;
   /** Discount percentage for yearly vs monthly (e.g., 20 for 20% off) */
-  yearlyDiscountPercent?: number
+  yearlyDiscountPercent?: number;
 }
 
 // =============================================================================
@@ -92,11 +92,11 @@ export interface ProductPricing {
  */
 export interface MediaItem {
   /** URL to the media file */
-  src: string
+  src: string;
   /** Alt text for accessibility */
-  alt: string
+  alt: string;
   /** Type of media */
-  type: 'image' | 'gif' | 'video'
+  type: "image" | "gif" | "video";
 }
 
 /**
@@ -104,9 +104,9 @@ export interface MediaItem {
  */
 export interface ProductMedia {
   /** Screenshot images */
-  screenshots?: MediaItem[]
+  screenshots?: MediaItem[];
   /** Screen recordings (GIFs or videos) */
-  screencaptures?: MediaItem[]
+  screencaptures?: MediaItem[];
 }
 
 // =============================================================================
@@ -118,41 +118,41 @@ export interface ProductMedia {
  */
 export interface Product {
   /** Unique identifier */
-  id: string
+  id: string;
   /** URL-friendly slug */
-  slug: string
+  slug: string;
   /** Display name */
-  name: string
+  name: string;
   /** Short description for cards/listings */
-  shortDescription: string
+  shortDescription: string;
   /** Full description with details */
-  description: string
+  description: string;
   /** Product type */
-  type: ProductType
+  type: ProductType;
   /** Category for filtering */
-  category: ProductCategory
+  category: ProductCategory;
   /** Current availability status */
-  status: ProductStatus
+  status: ProductStatus;
   /** Icon identifier (lucide icon name or custom) */
-  icon?: string
+  icon?: string;
   /** Product image URL */
-  image?: string
+  image?: string;
   /** Hero/banner image URL */
-  heroImage?: string
+  heroImage?: string;
   /** Key features list */
-  features: string[]
+  features: string[];
   /** Pricing configuration */
-  pricing: ProductPricing
+  pricing: ProductPricing;
   /** External links */
-  links?: ProductLinks
+  links?: ProductLinks;
   /** Media assets (screenshots, screencaptures) */
-  media?: ProductMedia
+  media?: ProductMedia;
   /** Additional metadata */
-  metadata?: ProductMetadata
+  metadata?: ProductMetadata;
   /** Creation timestamp */
-  createdAt?: string
+  createdAt?: string;
   /** Last update timestamp */
-  updatedAt?: string
+  updatedAt?: string;
 }
 
 /**
@@ -160,15 +160,15 @@ export interface Product {
  */
 export interface ProductLinks {
   /** Link to product website/landing page */
-  website?: string
+  website?: string;
   /** Link to documentation */
-  docs?: string
+  docs?: string;
   /** Link to demo/trial */
-  demo?: string
+  demo?: string;
   /** Link to GitHub/source code */
-  github?: string
+  github?: string;
   /** Link to support/help */
-  support?: string
+  support?: string;
 }
 
 /**
@@ -176,19 +176,19 @@ export interface ProductLinks {
  */
 export interface ProductMetadata {
   /** Target audience/use case */
-  targetAudience?: string[]
+  targetAudience?: string[];
   /** Supported platforms */
-  platforms?: string[]
+  platforms?: string[];
   /** Version number */
-  version?: string
+  version?: string;
   /** Release date */
-  releaseDate?: string
+  releaseDate?: string;
   /** SEO keywords */
-  keywords?: string[]
+  keywords?: string[];
   /** Whether the product is featured */
-  featured?: boolean
+  featured?: boolean;
   /** Sort order for display */
-  sortOrder?: number
+  sortOrder?: number;
 }
 
 // =============================================================================
@@ -200,31 +200,31 @@ export interface ProductMetadata {
  */
 export interface PhysicalProductDetails {
   /** Weight in grams */
-  weight?: number
+  weight?: number;
   /** Dimensions in cm */
   dimensions?: {
-    length: number
-    width: number
-    height: number
-  }
+    length: number;
+    width: number;
+    height: number;
+  };
   /** Available stock quantity */
-  stockQuantity?: number
+  stockQuantity?: number;
   /** Whether product is in stock */
-  inStock: boolean
+  inStock: boolean;
   /** Shipping information */
   shipping?: {
-    freeShipping: boolean
-    estimatedDays: number
-    restrictions?: string[]
-  }
+    freeShipping: boolean;
+    estimatedDays: number;
+    restrictions?: string[];
+  };
 }
 
 /**
  * Physical product type extending base product
  */
 export interface PhysicalProduct extends Product {
-  type: 'physical'
-  physical: PhysicalProductDetails
+  type: "physical";
+  physical: PhysicalProductDetails;
 }
 
 // =============================================================================
@@ -236,23 +236,23 @@ export interface PhysicalProduct extends Product {
  */
 export interface SoftwareProductDetails {
   /** Download URL (populated after purchase) */
-  downloadUrl?: string
+  downloadUrl?: string;
   /** File size in bytes */
-  fileSize?: number
+  fileSize?: number;
   /** File format/type */
-  fileFormat?: string
+  fileFormat?: string;
   /** System requirements */
-  requirements?: string[]
+  requirements?: string[];
   /** License type */
-  licenseType?: 'perpetual' | 'subscription' | 'per-seat'
+  licenseType?: "perpetual" | "subscription" | "per-seat";
 }
 
 /**
  * Software product type extending base product
  */
 export interface SoftwareProduct extends Product {
-  type: 'software'
-  software: SoftwareProductDetails
+  type: "software";
+  software: SoftwareProductDetails;
 }
 
 // =============================================================================
@@ -264,21 +264,21 @@ export interface SoftwareProduct extends Product {
  */
 export interface SaaSProductDetails {
   /** URL to access the application */
-  appUrl?: string
+  appUrl?: string;
   /** Trial period in days (0 = no trial) */
-  trialDays?: number
+  trialDays?: number;
   /** Whether credit card is required for trial */
-  trialRequiresCard?: boolean
+  trialRequiresCard?: boolean;
   /** API access included */
-  hasApiAccess?: boolean
+  hasApiAccess?: boolean;
 }
 
 /**
  * SaaS product type extending base product
  */
 export interface SaaSProduct extends Product {
-  type: 'saas'
-  saas: SaaSProductDetails
+  type: "saas";
+  saas: SaaSProductDetails;
 }
 
 // =============================================================================
@@ -288,7 +288,11 @@ export interface SaaSProduct extends Product {
 /**
  * Union type for all product variants
  */
-export type AnyProduct = Product | PhysicalProduct | SoftwareProduct | SaaSProduct
+export type AnyProduct =
+  | Product
+  | PhysicalProduct
+  | SoftwareProduct
+  | SaaSProduct;
 
 // =============================================================================
 // FILTER & QUERY TYPES
@@ -299,19 +303,19 @@ export type AnyProduct = Product | PhysicalProduct | SoftwareProduct | SaaSProdu
  */
 export interface ProductFilters {
   /** Filter by product type */
-  type?: ProductType | 'all'
+  type?: ProductType | "all";
   /** Filter by category */
-  category?: ProductCategory | 'all'
+  category?: ProductCategory | "all";
   /** Filter by status */
-  status?: ProductStatus
+  status?: ProductStatus;
   /** Search query */
-  search?: string
+  search?: string;
   /** Only show featured products */
-  featured?: boolean
+  featured?: boolean;
   /** Sort field */
-  sortBy?: 'name' | 'price' | 'createdAt' | 'sortOrder'
+  sortBy?: "name" | "price" | "createdAt" | "sortOrder";
   /** Sort direction */
-  sortOrder?: 'asc' | 'desc'
+  sortOrder?: "asc" | "desc";
 }
 
 // =============================================================================
@@ -321,20 +325,24 @@ export interface ProductFilters {
 /**
  * Type guard to check if product is a physical product
  */
-export function isPhysicalProduct(product: Product): product is PhysicalProduct {
-  return product.type === 'physical' && 'physical' in product
+export function isPhysicalProduct(
+  product: Product
+): product is PhysicalProduct {
+  return product.type === "physical" && "physical" in product;
 }
 
 /**
  * Type guard to check if product is a software product
  */
-export function isSoftwareProduct(product: Product): product is SoftwareProduct {
-  return product.type === 'software' && 'software' in product
+export function isSoftwareProduct(
+  product: Product
+): product is SoftwareProduct {
+  return product.type === "software" && "software" in product;
 }
 
 /**
  * Type guard to check if product is a SaaS product
  */
 export function isSaaSProduct(product: Product): product is SaaSProduct {
-  return product.type === 'saas' && 'saas' in product
+  return product.type === "saas" && "saas" in product;
 }

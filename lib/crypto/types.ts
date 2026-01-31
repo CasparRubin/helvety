@@ -8,11 +8,11 @@
  */
 export interface EncryptedData {
   /** Base64-encoded initialization vector */
-  iv: string
+  iv: string;
   /** Base64-encoded ciphertext */
-  ciphertext: string
+  ciphertext: string;
   /** Encryption version for future compatibility */
-  version: number
+  version: number;
 }
 
 /**
@@ -21,9 +21,9 @@ export interface EncryptedData {
  */
 export interface PRFKeyParams {
   /** Base64-encoded PRF salt for HKDF */
-  prfSalt: string
+  prfSalt: string;
   /** Version for future compatibility */
-  version: number
+  version: number;
 }
 
 /**
@@ -31,21 +31,21 @@ export interface PRFKeyParams {
  */
 export interface StoredPasskey {
   /** Unique credential ID (base64url encoded) */
-  credentialId: string
+  credentialId: string;
   /** User ID this passkey belongs to */
-  userId: string
+  userId: string;
   /** Public key for verification (base64url encoded) */
-  publicKey: string
+  publicKey: string;
   /** Signature counter for replay protection */
-  counter: number
+  counter: number;
   /** Authenticator AAGUID */
-  aaguid?: string
+  aaguid?: string;
   /** User-friendly name for this passkey */
-  name?: string
+  name?: string;
   /** When this passkey was registered */
-  createdAt: Date
+  createdAt: Date;
   /** When this passkey was last used */
-  lastUsedAt?: Date
+  lastUsedAt?: Date;
 }
 
 /**
@@ -54,11 +54,11 @@ export interface StoredPasskey {
  */
 export interface WrappedKey {
   /** Base64-encoded wrapped key */
-  wrappedKey: string
+  wrappedKey: string;
   /** Base64-encoded IV used for wrapping */
-  iv: string
+  iv: string;
   /** Key version for rotation support */
-  version: number
+  version: number;
 }
 
 /**
@@ -66,28 +66,28 @@ export interface WrappedKey {
  */
 export interface StoredKeyEntry {
   /** Unit ID this key belongs to */
-  unitId: number
+  unitId: number;
   /** The CryptoKey object (non-extractable) */
-  key: CryptoKey
+  key: CryptoKey;
   /** When this key was cached */
-  cachedAt: number
+  cachedAt: number;
 }
 
 /**
  * Error types for crypto operations
  */
 export enum CryptoErrorType {
-  KEY_DERIVATION_FAILED = 'KEY_DERIVATION_FAILED',
-  ENCRYPTION_FAILED = 'ENCRYPTION_FAILED',
-  DECRYPTION_FAILED = 'DECRYPTION_FAILED',
-  KEY_NOT_FOUND = 'KEY_NOT_FOUND',
-  STORAGE_ERROR = 'STORAGE_ERROR',
-  KEY_WRAP_FAILED = 'KEY_WRAP_FAILED',
-  KEY_UNWRAP_FAILED = 'KEY_UNWRAP_FAILED',
-  PASSKEY_NOT_SUPPORTED = 'PASSKEY_NOT_SUPPORTED',
-  PRF_NOT_SUPPORTED = 'PRF_NOT_SUPPORTED',
-  PASSKEY_REGISTRATION_FAILED = 'PASSKEY_REGISTRATION_FAILED',
-  PASSKEY_AUTHENTICATION_FAILED = 'PASSKEY_AUTHENTICATION_FAILED',
+  KEY_DERIVATION_FAILED = "KEY_DERIVATION_FAILED",
+  ENCRYPTION_FAILED = "ENCRYPTION_FAILED",
+  DECRYPTION_FAILED = "DECRYPTION_FAILED",
+  KEY_NOT_FOUND = "KEY_NOT_FOUND",
+  STORAGE_ERROR = "STORAGE_ERROR",
+  KEY_WRAP_FAILED = "KEY_WRAP_FAILED",
+  KEY_UNWRAP_FAILED = "KEY_UNWRAP_FAILED",
+  PASSKEY_NOT_SUPPORTED = "PASSKEY_NOT_SUPPORTED",
+  PRF_NOT_SUPPORTED = "PRF_NOT_SUPPORTED",
+  PASSKEY_REGISTRATION_FAILED = "PASSKEY_REGISTRATION_FAILED",
+  PASSKEY_AUTHENTICATION_FAILED = "PASSKEY_AUTHENTICATION_FAILED",
 }
 
 /**
@@ -99,7 +99,7 @@ export class CryptoError extends Error {
     message: string,
     public override cause?: Error
   ) {
-    super(message)
-    this.name = 'CryptoError'
+    super(message);
+    this.name = "CryptoError";
   }
 }

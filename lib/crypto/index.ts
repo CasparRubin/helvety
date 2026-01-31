@@ -1,9 +1,9 @@
 /**
  * E2EE Crypto Module - Public API
- * 
+ *
  * This module provides end-to-end encryption for user data.
  * All encryption/decryption happens client-side; the server never sees plaintext.
- * 
+ *
  * Uses passkey-based (PRF) key derivation for secure, passwordless encryption.
  */
 
@@ -14,9 +14,9 @@ export type {
   StoredPasskey,
   WrappedKey,
   StoredKeyEntry,
-} from './types'
+} from "./types";
 
-export { CryptoError, CryptoErrorType } from './types'
+export { CryptoError, CryptoErrorType } from "./types";
 
 // Encryption
 export {
@@ -29,7 +29,7 @@ export {
   isEncryptedData,
   encryptFields,
   decryptFields,
-} from './encryption'
+} from "./encryption";
 
 // Key Storage
 export {
@@ -41,7 +41,7 @@ export {
   deleteUnitKey,
   clearAllKeys,
   isStorageAvailable,
-} from './key-storage'
+} from "./key-storage";
 
 // Encoding Utilities
 export {
@@ -49,13 +49,10 @@ export {
   base64Decode,
   generateSalt,
   generateIV,
-} from './encoding'
+} from "./encoding";
 
 // Context
-export {
-  EncryptionProvider,
-  useEncryptionContext,
-} from './encryption-context'
+export { EncryptionProvider, useEncryptionContext } from "./encryption-context";
 
 // PRF Key Derivation (Passkey-based)
 export {
@@ -67,8 +64,11 @@ export {
   isPRFSupported,
   getPRFSupportInfo,
   PRF_VERSION,
-} from './prf-key-derivation'
-export type { PRFKeyParams as PRFKeyParamsType, PRFSupportInfo } from './prf-key-derivation'
+} from "./prf-key-derivation";
+export type {
+  PRFKeyParams as PRFKeyParamsType,
+  PRFSupportInfo,
+} from "./prf-key-derivation";
 
 // Passkey Operations
 export {
@@ -81,9 +81,9 @@ export {
   authenticateWithPasskey,
   registerPasskeyWithEncryption,
   authenticatePasskeyWithEncryption,
-} from './passkey'
+} from "./passkey";
 export type {
   RPConfig,
   PasskeyRegistrationResult,
   PasskeyAuthenticationResult,
-} from './passkey'
+} from "./passkey";
