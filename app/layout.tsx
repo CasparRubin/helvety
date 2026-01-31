@@ -1,6 +1,7 @@
 import "./globals.css";
 import localFont from "next/font/local";
 
+import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { SubscriptionsPanel } from "@/components/subscriptions-panel";
@@ -105,6 +106,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <AuthTokenHandler />
           <TooltipProvider>
             <Providers>
               <NavbarWrapper>{children}</NavbarWrapper>
