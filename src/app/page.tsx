@@ -65,7 +65,7 @@ export default function Home() {
             className="flex w-full flex-col items-center gap-8"
           >
             <motion.div variants={fadeInUp}>
-              <p className="text-xs md:text-sm text-muted-foreground">
+              <p className="text-sm md:text-base text-muted-foreground">
                 <span className="text-[#FF0000] font-medium">Swiss</span> Engineering
               </p>
             </motion.div>
