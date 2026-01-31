@@ -45,7 +45,7 @@ function LoginContent() {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: reading from URL params on mount
       setError('Authentication failed. Please try again.')
     } else if (authError === 'missing_params' && !hasHashTokens) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: reading from URL params on mount
+       
       setError('Invalid authentication link.')
     }
   }, [searchParams])

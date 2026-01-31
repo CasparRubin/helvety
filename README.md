@@ -13,10 +13,10 @@ Your one-stop shop for Helvety software, subscriptions, and apparel. Browse and 
 
 ## Features
 
-- **Software & Subscriptions** - Purchase and manage Helvety software licenses and subscriptions
-- **Apparel** - Browse and order official Helvety merchandise
-- **Secure checkout** - Safe and secure payment processing
-- **Account management** - Manage your purchases and subscriptions
+- **Product Catalog** - Browse Helvety software products with detailed descriptions and pricing
+- **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout
+- **Subscription Management** - Manage active subscriptions, cancel, or reactivate
+- **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 - **App Switcher** - Navigate between Helvety ecosystem apps
 
@@ -53,6 +53,7 @@ This project is built with modern web technologies:
 - **[Lucide React](https://lucide.dev/)** - Icon library
 - **[Zod](https://zod.dev/)** - TypeScript-first schema validation
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
+- **[Stripe](https://stripe.com/)** - Payment processing and subscription management
 
 ## Project Structure
 
@@ -62,47 +63,43 @@ helvety-store/
 │   ├── actions/                # Server actions
 │   │   ├── auth-actions.ts     # Authentication actions
 │   │   ├── encryption-actions.ts # Encryption parameter management
-│   │   └── passkey-auth-actions.ts # WebAuthn passkey operations
+│   │   ├── passkey-auth-actions.ts # WebAuthn passkey operations
+│   │   └── subscription-actions.ts # Subscription management
+│   ├── api/                    # API routes
+│   │   ├── checkout/           # Stripe Checkout session creation
+│   │   ├── subscriptions/      # User subscription queries
+│   │   └── webhooks/stripe/    # Stripe webhook handler
 │   ├── auth/                   # Auth routes
 │   │   └── callback/           # Magic link & OAuth callback
 │   ├── login/                  # Login page with passkey support
+│   ├── products/               # Product catalog
+│   │   └── [slug]/             # Product detail pages
 │   ├── globals.css             # Global styles
 │   ├── layout.tsx              # Root layout component
-│   └── page.tsx                # Main page (with encryption gate)
+│   └── page.tsx                # Main page
 ├── components/                 # React components
+│   ├── products/               # Product display components
 │   ├── ui/                     # shadcn/ui component library
-│   ├── auth-stepper.tsx        # Unified auth flow progress indicator
-│   ├── encryption-gate.tsx     # Ensures encryption is set up/unlocked
-│   ├── encryption-setup.tsx    # Passkey & encryption setup wizard
-│   ├── encryption-unlock.tsx   # Unlock encryption with passkey
 │   ├── app-switcher.tsx        # Helvety ecosystem app switcher
 │   ├── navbar.tsx              # Navigation bar
-│   ├── providers.tsx           # App providers wrapper
-│   ├── theme-provider.tsx      # Theme context provider
 │   └── theme-switcher.tsx      # Dark/light mode switcher
 ├── hooks/                      # Custom React hooks
 │   └── use-encryption.ts       # Encryption state hook
 ├── lib/                        # Utility functions
 │   ├── config/                 # Configuration files
 │   ├── crypto/                 # Encryption utilities
-│   │   ├── encoding.ts         # Base64 encoding utilities
-│   │   ├── encryption.ts       # Core encryption functions
-│   │   ├── encryption-context.tsx # Encryption React context
-│   │   ├── index.ts            # Crypto module exports
-│   │   ├── key-storage.ts      # Secure key caching
-│   │   ├── passkey.ts          # WebAuthn passkey helpers
-│   │   ├── prf-key-derivation.ts # PRF-based key derivation
-│   │   └── types.ts            # Crypto type definitions
+│   ├── data/                   # Static product data
+│   ├── stripe/                 # Stripe client and config
+│   │   ├── client.ts           # Stripe SDK initialization
+│   │   ├── config.ts           # Price IDs and product mappings
+│   │   └── index.ts            # Stripe module exports
 │   ├── supabase/               # Supabase client utilities
-│   │   ├── admin.ts            # Admin client (server-side)
-│   │   ├── client-factory.ts   # Supabase client factory
-│   │   ├── client.ts           # Browser client
-│   │   └── server.ts           # Server client
 │   ├── types/                  # Type definitions
-│   ├── env-validation.ts       # Environment variable validation
-│   ├── logger.ts               # Logging utilities
-│   ├── navigation-helpers.ts   # Navigation utility functions
-│   └── utils.ts                # General utility functions
+│   │   ├── entities.ts         # User, subscription, purchase types
+│   │   └── products.ts         # Product type definitions
+│   └── utils/                  # Utility functions
+├── supabase/                   # Database migrations
+│   └── migrations/             # SQL migration files
 ├── public/                     # Static assets
 ├── scripts/                    # Build scripts
 └── [config files]              # Configuration files
@@ -116,6 +113,6 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-This repository is public for transparency purposes only—all code is open for inspection so users can verify its behavior.
+This repository is public for transparency. All code is open for inspection so users can verify its behavior.
 
 **No license is granted; this is the default "All rights reserved" status.** You may view the code, but you cannot reuse, redistribute, or sell it without explicit permission. All rights are retained by the author.

@@ -4,7 +4,9 @@
  */
 
 import { base64Encode, base64Decode, generateIV } from './encoding'
-import { EncryptedData, CryptoError, CryptoErrorType } from './types'
+import { CryptoError, CryptoErrorType } from './types'
+
+import type { EncryptedData} from './types';
 
 /** Current encryption version */
 const ENCRYPTION_VERSION = 1

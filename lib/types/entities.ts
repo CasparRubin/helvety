@@ -50,6 +50,146 @@ export interface UserPasskeyParams {
 }
 
 // =============================================================================
+// USER PROFILE TYPES
+// =============================================================================
+
+/**
+ * User profile (central identity across all Helvety apps)
+ */
+export interface UserProfile {
+  id: string
+  stripe_customer_id: string | null
+  display_name: string | null
+  email: string
+  created_at: string
+  updated_at: string
+}
+
+// =============================================================================
+// SUBSCRIPTION TYPES
+// =============================================================================
+
+/**
+ * Valid subscription statuses (matches Stripe subscription statuses)
+ */
+export type SubscriptionStatus =
+  | 'active'
+  | 'canceled'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'past_due'
+  | 'trialing'
+  | 'unpaid'
+  | 'paused'
+
+/**
+ * User subscription record
+ */
+export interface Subscription {
+  id: string
+  user_id: string
+  stripe_subscription_id: string | null
+  stripe_price_id: string
+  product_id: string
+  tier_id: string
+  status: SubscriptionStatus
+  current_period_start: string | null
+  current_period_end: string | null
+  cancel_at_period_end: boolean
+  canceled_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+/**
+ * One-time purchase record
+ */
+export interface Purchase {
+  id: string
+  user_id: string
+  stripe_payment_intent_id: string | null
+  stripe_price_id: string
+  product_id: string
+  tier_id: string
+  amount_paid: number
+  currency: string
+  created_at: string
+}
+
+/**
+ * Subscription event types for audit log
+ */
+export type SubscriptionEventType =
+  | 'subscription.created'
+  | 'subscription.updated'
+  | 'subscription.canceled'
+  | 'subscription.renewed'
+  | 'subscription.payment_failed'
+  | 'purchase.completed'
+  | 'checkout.completed'
+
+/**
+ * Subscription event record (audit log)
+ */
+export interface SubscriptionEvent {
+  id: string
+  subscription_id: string | null
+  purchase_id: string | null
+  user_id: string
+  event_type: string
+  stripe_event_id: string | null
+  metadata: Record<string, unknown> | null
+  created_at: string
+}
+
+/**
+ * Subscription with related info for display
+ */
+export interface SubscriptionWithProduct extends Subscription {
+  product_name?: string
+  tier_name?: string
+}
+
+/**
+ * User's subscription summary (for quick access checks)
+ */
+export interface UserSubscriptionSummary {
+  userId: string
+  activeSubscriptions: {
+    productId: string
+    tierId: string
+    status: SubscriptionStatus
+    currentPeriodEnd: string | null
+  }[]
+  purchases: {
+    productId: string
+    tierId: string
+    purchasedAt: string
+  }[]
+}
+
+// =============================================================================
+// CHECKOUT TYPES
+// =============================================================================
+
+/**
+ * Request to create a checkout session
+ */
+export interface CreateCheckoutRequest {
+  tierId: string
+  successUrl?: string
+  cancelUrl?: string
+}
+
+/**
+ * Response from creating a checkout session
+ */
+export interface CreateCheckoutResponse {
+  checkoutUrl: string
+  sessionId: string
+}
+
+// =============================================================================
 // SERVER ACTION TYPES
 // =============================================================================
 

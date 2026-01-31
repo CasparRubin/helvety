@@ -3,7 +3,9 @@
  * Manages encryption keys in IndexedDB for session persistence
  */
 
-import { CryptoError, CryptoErrorType, StoredKeyEntry } from './types'
+import { CryptoError, CryptoErrorType } from './types'
+
+import type { StoredKeyEntry } from './types';
 
 const DB_NAME = 'helvety-crypto'
 const DB_VERSION = 1

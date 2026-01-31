@@ -9,6 +9,15 @@ import { AppSwitcher } from "@/components/app-switcher"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { Button } from "@/components/ui/button"
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -29,15 +38,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import { VERSION } from "@/lib/config/version"
 import { useEncryptionContext } from "@/lib/crypto/encryption-context"
 import { useNavigation } from "@/lib/navigation-helpers"
@@ -66,7 +66,7 @@ export function Navbar() {
     navigate("/login", { immediate: true })
   }
 
-  const navLinks = [
+  const footerLinks = [
     { href: "https://helvety.com/impressum", label: "Impressum", icon: Building2 },
     { href: "https://helvety.com/privacy", label: "Privacy", icon: Scale },
     { href: "https://helvety.com/terms", label: "Terms", icon: FileText },
@@ -136,7 +136,7 @@ export function Navbar() {
 
           {/* Desktop navigation links */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {footerLinks.map((link) => (
               <Button key={link.href} variant="ghost" size="sm" asChild>
                 <a
                   href={link.href}
@@ -249,7 +249,8 @@ export function Navbar() {
                 <SheetTitle>Navigation</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-2 mt-6">
-                {navLinks.map((link) => {
+                {/* Navigation links */}
+                {footerLinks.map((link) => {
                   const Icon = link.icon
                   return (
                     <a

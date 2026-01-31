@@ -1,0 +1,252 @@
+'use client'
+
+/**
+ * Pricing card component
+ * Displays a single pricing tier with features and CTA
+ * Integrates with Stripe Checkout for paid tiers
+ */
+
+import { useState } from 'react'
+import { Check, Sparkles, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
+import { formatPrice, getIntervalShortLabel } from '@/lib/utils/pricing'
+
+import { FeatureList } from './feature-list'
+
+import type { PricingTier } from '@/lib/types/products'
+import type { CreateCheckoutResponse } from '@/lib/types/entities'
+
+
+interface PricingCardProps {
+  tier: PricingTier
+  className?: string
+  /** Show monthly equivalent for yearly tiers */
+  showMonthlyEquivalent?: boolean
+  /** Action when CTA is clicked (overrides default checkout behavior) */
+  onSelect?: (tier: PricingTier) => void
+  /** Whether the tier is currently selected */
+  selected?: boolean
+  /** Custom CTA text */
+  ctaText?: string
+  /** Whether the CTA should be disabled */
+  disabled?: boolean
+  /** Product slug for redirect URLs */
+  productSlug?: string
+}
+
+// Tier IDs that have Stripe checkout enabled
+const CHECKOUT_ENABLED_TIERS = [
+  'helvety-pdf-pro-monthly',
+  // Add more tier IDs here as they are configured in Stripe
+]
+
+export function PricingCard({
+  tier,
+  className,
+  showMonthlyEquivalent = false,
+  onSelect,
+  selected = false,
+  ctaText,
+  disabled = false,
+  productSlug,
+}: PricingCardProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const isRecurring = tier.interval === 'monthly' || tier.interval === 'yearly'
+  const intervalLabel = getIntervalShortLabel(tier.interval)
+  // Check checkout eligibility based on tier ID (stable between server/client)
+  const hasPaidCheckout = !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id)
+
+  // Calculate monthly equivalent for yearly plans
+  const monthlyEquivalent =
+    showMonthlyEquivalent && tier.interval === 'yearly'
+      ? Math.round(tier.price / 12)
+      : null
+
+  const getCtaText = () => {
+    if (ctaText) return ctaText
+    if (tier.isFree) return 'Get Started'
+    if (isRecurring) return 'Subscribe'
+    return 'Buy Now'
+  }
+
+  /**
+   * Handle checkout for paid tiers via Stripe
+   */
+  const handleCheckout = async () => {
+    if (tier.isFree || !hasPaidCheckout) {
+      // For free tiers or non-checkout tiers, just call onSelect
+      if (onSelect) {
+        onSelect(tier)
+      }
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tierId: tier.id,
+          successUrl: productSlug ? `/products/${productSlug}?checkout=success` : undefined,
+          cancelUrl: productSlug ? `/products/${productSlug}?checkout=cancelled` : undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create checkout session')
+      }
+
+      const data: CreateCheckoutResponse = await response.json()
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.checkoutUrl
+    } catch (error) {
+      console.error('Checkout error:', error)
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to start checkout. Please try again.'
+      )
+      setIsLoading(false)
+    }
+  }
+
+  /**
+   * Handle button click - either custom onSelect or checkout
+   */
+  const handleClick = () => {
+    if (onSelect) {
+      onSelect(tier)
+    } else if (hasPaidCheckout) {
+      handleCheckout()
+    }
+  }
+
+  return (
+    <Card
+      className={cn(
+        'relative flex flex-col',
+        tier.highlighted && 'ring-2 ring-primary',
+        selected && 'ring-2 ring-primary bg-primary/5',
+        className
+      )}
+    >
+      {tier.highlighted && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <Badge className="gap-1">
+            <Sparkles className="size-3" />
+            Recommended
+          </Badge>
+        </div>
+      )}
+
+      <CardHeader className={cn(tier.highlighted && 'pt-4')}>
+        <CardTitle className="flex items-center justify-between">
+          <span>{tier.name}</span>
+          {tier.isFree && (
+            <Badge variant="secondary" className="ml-2">
+              Free
+            </Badge>
+          )}
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent className="flex-1 space-y-6">
+        {/* Price */}
+        <div className="space-y-1">
+          <div className="flex items-baseline gap-1">
+            <span className="text-4xl font-bold tracking-tight">
+              {formatPrice(tier.price, tier.currency, { showCents: false })}
+            </span>
+            {isRecurring && intervalLabel && (
+              <span className="text-muted-foreground">/{intervalLabel}</span>
+            )}
+          </div>
+          {monthlyEquivalent && (
+            <p className="text-sm text-muted-foreground">
+              {formatPrice(monthlyEquivalent, tier.currency)}/month billed annually
+            </p>
+          )}
+        </div>
+
+        {/* Features */}
+        <FeatureList features={tier.features} variant="compact" />
+      </CardContent>
+
+      <CardFooter>
+        <Button
+          className="w-full"
+          variant={tier.highlighted ? 'default' : 'outline'}
+          onClick={handleClick}
+          disabled={disabled || isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Processing...
+            </>
+          ) : selected ? (
+            <>
+              <Check className="size-4" />
+              Selected
+            </>
+          ) : (
+            getCtaText()
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
+  )
+}
+
+interface PricingCardsProps {
+  tiers: PricingTier[]
+  className?: string
+  onSelect?: (tier: PricingTier) => void
+  selectedTierId?: string
+  disabled?: boolean
+  /** Product slug for checkout redirect URLs */
+  productSlug?: string
+}
+
+export function PricingCards({
+  tiers,
+  className,
+  onSelect,
+  selectedTierId,
+  disabled = false,
+  productSlug,
+}: PricingCardsProps) {
+  return (
+    <div
+      className={cn(
+        'grid gap-6',
+        tiers.length === 2 && 'md:grid-cols-2',
+        tiers.length >= 3 && 'md:grid-cols-2 lg:grid-cols-3',
+        className
+      )}
+    >
+      {tiers.map((tier) => (
+        <PricingCard
+          key={tier.id}
+          tier={tier}
+          onSelect={onSelect}
+          selected={selectedTierId === tier.id}
+          showMonthlyEquivalent={tier.interval === 'yearly'}
+          disabled={disabled}
+          productSlug={productSlug}
+        />
+      ))}
+    </div>
+  )
+}

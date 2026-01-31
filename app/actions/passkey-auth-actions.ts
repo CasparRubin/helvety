@@ -10,9 +10,9 @@ import {
 } from '@simplewebauthn/server'
 import { cookies } from 'next/headers'
 
+import { logger } from '@/lib/logger'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/logger'
 
 import type { UserAuthCredential } from '@/lib/types'
 import type {
