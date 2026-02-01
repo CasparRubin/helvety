@@ -18,6 +18,12 @@ import type { NextRequest } from "next/server";
 // GET /api/tenants/[id] - Get a specific tenant
 // =============================================================================
 
+/**
+ *
+ * @param _request
+ * @param root0
+ * @param root0.params
+ */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -74,6 +80,12 @@ export async function GET(
 // PATCH /api/tenants/[id] - Update tenant display name
 // =============================================================================
 
+/**
+ *
+ * @param request
+ * @param root0
+ * @param root0.params
+ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -131,6 +143,12 @@ export async function PATCH(
 // DELETE /api/tenants/[id] - Remove a tenant
 // =============================================================================
 
+/**
+ *
+ * @param _request
+ * @param root0
+ * @param root0.params
+ */
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

@@ -11,12 +11,22 @@ import { ProductCard } from "./product-card";
 
 import type { Product } from "@/lib/types/products";
 
+/**
+ *
+ */
 interface ProductGridProps {
   products: Product[];
   className?: string;
   columns?: 1 | 2 | 3 | 4;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.products
+ * @param root0.className
+ * @param root0.columns
+ */
 export function ProductGrid({
   products,
   className,
@@ -42,6 +52,9 @@ export function ProductGrid({
   );
 }
 
+/**
+ *
+ */
 function ProductGridEmpty() {
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
@@ -56,12 +69,22 @@ function ProductGridEmpty() {
   );
 }
 
+/**
+ *
+ */
 interface ProductGridSkeletonProps {
   count?: number;
   columns?: 1 | 2 | 3 | 4;
   className?: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.count
+ * @param root0.columns
+ * @param root0.className
+ */
 export function ProductGridSkeleton({
   count = 6,
   columns = 3,
@@ -84,6 +107,9 @@ export function ProductGridSkeleton({
   );
 }
 
+/**
+ *
+ */
 function ProductCardSkeleton() {
   return (
     <div className="bg-card flex flex-col rounded-lg border p-6 shadow-xs">

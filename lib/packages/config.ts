@@ -7,6 +7,9 @@
 // PACKAGE DEFINITIONS
 // =============================================================================
 
+/**
+ *
+ */
 export interface PackageInfo {
   /** Display version shown to users */
   version: string;
@@ -46,6 +49,7 @@ export const PACKAGE_CONFIG: Record<string, PackageInfo> = {
 
 /**
  * Get package info by package ID
+ * @param packageId
  */
 export function getPackageInfo(packageId: string): PackageInfo | undefined {
   return PACKAGE_CONFIG[packageId];
@@ -53,6 +57,8 @@ export function getPackageInfo(packageId: string): PackageInfo | undefined {
 
 /**
  * Check if a tier is allowed to download a package
+ * @param packageId
+ * @param tierId
  */
 export function isTierAllowedForPackage(
   packageId: string,

@@ -69,10 +69,18 @@ const iconMap: Record<string, LucideIcon> = {
   Package,
 };
 
+/**
+ *
+ */
 interface ProductDetailClientProps {
   slug: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.slug
+ */
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -316,6 +324,9 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   );
 }
 
+/**
+ *
+ */
 interface PricingCardProps {
   tier: PricingTier;
   selected: boolean;
@@ -332,6 +343,16 @@ const CHECKOUT_ENABLED_TIERS = [
   "helvety-spo-explorer-enterprise-monthly",
 ];
 
+/**
+ *
+ * @param root0
+ * @param root0.tier
+ * @param root0.selected
+ * @param root0.onSelect
+ * @param root0.productSlug
+ * @param root0.userSubscription
+ * @param root0.onReactivate
+ */
 function PricingCard({
   tier,
   selected,

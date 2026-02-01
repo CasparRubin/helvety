@@ -51,6 +51,7 @@ export const PRICE_ID_TO_PRODUCT = {
 
 /**
  * Get Stripe Price ID for a given tier
+ * @param tierId
  */
 export function getStripePriceId(tierId: string): string | undefined {
   return STRIPE_PRICE_IDS[tierId as keyof typeof STRIPE_PRICE_IDS];
@@ -58,6 +59,7 @@ export function getStripePriceId(tierId: string): string | undefined {
 
 /**
  * Get product info from a Stripe Price ID
+ * @param priceId
  */
 export function getProductFromPriceId(priceId: string) {
   return PRICE_ID_TO_PRODUCT[priceId];
@@ -65,6 +67,7 @@ export function getProductFromPriceId(priceId: string) {
 
 /**
  * Check if a tier ID is a subscription (vs one-time purchase)
+ * @param tierId
  */
 export function isSubscriptionTier(tierId: string): boolean {
   const subscriptionTiers = [
@@ -114,10 +117,14 @@ export const HANDLED_WEBHOOK_EVENTS = [
   "invoice.payment_failed",
 ] as const;
 
+/**
+ *
+ */
 export type HandledWebhookEvent = (typeof HANDLED_WEBHOOK_EVENTS)[number];
 
 /**
  * Check if a webhook event type is one we handle
+ * @param eventType
  */
 export function isHandledWebhookEvent(
   eventType: string

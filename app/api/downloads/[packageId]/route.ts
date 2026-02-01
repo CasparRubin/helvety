@@ -20,6 +20,12 @@ import type { NextRequest } from "next/server";
 // GET /api/downloads/[packageId] - Download package
 // =============================================================================
 
+/**
+ *
+ * @param _request
+ * @param root0
+ * @param root0.params
+ */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ packageId: string }> }

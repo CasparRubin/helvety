@@ -55,6 +55,9 @@ import { VERSION } from "@/lib/config/version";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 import { createClient } from "@/lib/supabase/client";
 
+/**
+ *
+ */
 export function Navbar() {
   const { isUnlocked } = useEncryptionContext();
   const supabase = createClient();

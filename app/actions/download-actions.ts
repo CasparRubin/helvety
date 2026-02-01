@@ -16,6 +16,9 @@ import type { ActionResponse } from "@/lib/types/entities";
 // TYPES
 // =============================================================================
 
+/**
+ *
+ */
 export interface PackageDownloadInfo {
   /** Signed URL for downloading the package (expires in 60 seconds) */
   downloadUrl: string;

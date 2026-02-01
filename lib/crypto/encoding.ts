@@ -5,6 +5,7 @@
 
 /**
  * Encode a Uint8Array to base64 string
+ * @param data
  */
 export function base64Encode(data: Uint8Array): string {
   // Convert Uint8Array to binary string
@@ -18,6 +19,7 @@ export function base64Encode(data: Uint8Array): string {
 
 /**
  * Decode a base64 string to Uint8Array
+ * @param base64
  */
 export function base64Decode(base64: string): Uint8Array {
   // Use atob for base64 decoding
@@ -46,6 +48,7 @@ export function generateIV(): Uint8Array {
 
 /**
  * Concatenate multiple Uint8Arrays
+ * @param {...any} buffers
  */
 export function concatBuffers(...buffers: Uint8Array[]): Uint8Array {
   const totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
@@ -60,6 +63,8 @@ export function concatBuffers(...buffers: Uint8Array[]): Uint8Array {
 
 /**
  * Compare two Uint8Arrays in constant time to prevent timing attacks
+ * @param a
+ * @param b
  */
 export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) {

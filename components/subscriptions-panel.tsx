@@ -42,6 +42,9 @@ import { cn } from "@/lib/utils";
 
 import type { Subscription } from "@/lib/types/entities";
 
+/**
+ *
+ */
 export function SubscriptionsPanel() {
   const supabase = createClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -114,6 +117,7 @@ export function SubscriptionsPanel() {
 
   /**
    * Handle cancel subscription click
+   * @param subscription
    */
   const handleCancelClick = (subscription: Subscription) => {
     setSubscriptionToCancel(subscription);
@@ -122,6 +126,7 @@ export function SubscriptionsPanel() {
 
   /**
    * Handle reactivate subscription
+   * @param subscription
    */
   const handleReactivate = async (subscription: Subscription) => {
     setActionLoadingId(subscription.id);

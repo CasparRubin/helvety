@@ -5,30 +5,51 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ *
+ * @param root0
+ */
 function TooltipProvider({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function Tooltip({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function TooltipTrigger({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function TooltipPortal({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Portal>) {
   return <TooltipPrimitive.Portal data-slot="tooltip-portal" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function TooltipContent({
   className,
   ...props

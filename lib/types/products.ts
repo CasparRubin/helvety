@@ -324,6 +324,7 @@ export interface ProductFilters {
 
 /**
  * Type guard to check if product is a physical product
+ * @param product
  */
 export function isPhysicalProduct(
   product: Product
@@ -333,6 +334,7 @@ export function isPhysicalProduct(
 
 /**
  * Type guard to check if product is a software product
+ * @param product
  */
 export function isSoftwareProduct(
   product: Product
@@ -342,6 +344,7 @@ export function isSoftwareProduct(
 
 /**
  * Type guard to check if product is a SaaS product
+ * @param product
  */
 export function isSaaSProduct(product: Product): product is SaaSProduct {
   return product.type === "saas" && "saas" in product;

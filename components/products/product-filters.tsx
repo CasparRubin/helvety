@@ -12,8 +12,14 @@ import { cn } from "@/lib/utils";
 
 import type { ProductType } from "@/lib/types/products";
 
+/**
+ *
+ */
 export type FilterType = ProductType | "all";
 
+/**
+ *
+ */
 interface ProductFiltersProps {
   value: FilterType;
   onChange: (value: FilterType) => void;
@@ -32,6 +38,14 @@ const filterOptions: {
   { value: "physical", label: "Physical", icon: Package },
 ];
 
+/**
+ *
+ * @param root0
+ * @param root0.value
+ * @param root0.onChange
+ * @param root0.className
+ * @param root0.counts
+ */
 export function ProductFilters({
   value,
   onChange,
@@ -74,12 +88,22 @@ export function ProductFilters({
   );
 }
 
+/**
+ *
+ */
 interface ProductFiltersCompactProps {
   value: FilterType;
   onChange: (value: FilterType) => void;
   className?: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.value
+ * @param root0.onChange
+ * @param root0.className
+ */
 export function ProductFiltersCompact({
   value,
   onChange,

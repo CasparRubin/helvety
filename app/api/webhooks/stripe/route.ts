@@ -27,6 +27,10 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 // POST /api/webhooks/stripe - Handle Stripe webhooks
 // =============================================================================
 
+/**
+ *
+ * @param request
+ */
 export async function POST(request: NextRequest) {
   if (!webhookSecret) {
     logger.error("STRIPE_WEBHOOK_SECRET is not configured");
@@ -123,6 +127,7 @@ export async function POST(request: NextRequest) {
 /**
  * Handle checkout.session.completed
  * Links Stripe customer to user and creates initial subscription record
+ * @param session
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const supabase = createAdminClient();
@@ -136,6 +141,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     logger.info(`Guest checkout completed: ${session.id}`);
 
     // Log the event without user association for now
+    // Guest checkout events can be linked to users later via customer_email in metadata
     await supabase.from("subscription_events").insert({
       event_type: "checkout.completed",
       stripe_event_id: `checkout_${session.id}`,
@@ -146,8 +152,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         subscription_id: subscriptionId,
         tier_id: session.metadata?.tier_id,
         product_id: session.metadata?.product_id,
+        is_guest_checkout: true,
       },
-      user_id: null as unknown as string, // Will need to link later
+      // user_id is nullable for guest checkouts - will be linked when user signs up
+      user_id: null as string | null,
     });
     return;
   }
@@ -181,6 +189,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
 /**
  * Handle customer.subscription.created and customer.subscription.updated
+ * @param subscription
  */
 async function handleSubscriptionUpsert(subscription: Stripe.Subscription) {
   const supabase = createAdminClient();
@@ -212,6 +221,8 @@ async function handleSubscriptionUpsert(subscription: Stripe.Subscription) {
 
 /**
  * Upsert subscription record
+ * @param subscription
+ * @param userId
  */
 async function upsertSubscription(
   subscription: Stripe.Subscription,
@@ -291,6 +302,7 @@ async function upsertSubscription(
 
 /**
  * Handle customer.subscription.deleted
+ * @param subscription
  */
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const supabase = createAdminClient();
@@ -338,6 +350,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
 /**
  * Handle invoice.paid - subscription renewal
+ * @param invoice
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const supabase = createAdminClient();
@@ -406,6 +419,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 
 /**
  * Handle invoice.payment_failed
+ * @param invoice
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const supabase = createAdminClient();

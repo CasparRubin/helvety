@@ -12,6 +12,7 @@ import { logger } from "./logger";
  *
  * This validation is intentionally lenient to avoid breaking valid setups while
  * still catching obvious mistakes (like empty keys or obviously wrong values).
+ * @param key
  */
 function validateAnonKey(key: string): boolean {
   if (!key || typeof key !== "string") {
@@ -88,6 +89,7 @@ const envSchema = z.object({
     }),
 });
 
+/** Validated environment variable types */
 type Env = z.infer<typeof envSchema>;
 
 let validatedEnv: Env | null = null;

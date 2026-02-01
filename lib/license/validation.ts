@@ -185,6 +185,7 @@ export async function validateTenantLicense(
 
 /**
  * Get the maximum number of tenants allowed for a tier
+ * @param tierId
  */
 export function getMaxTenantsForTier(tierId: string): number {
   return TIER_FEATURES[tierId]?.maxTenants ?? 1;
@@ -192,6 +193,7 @@ export function getMaxTenantsForTier(tierId: string): number {
 
 /**
  * Get features for a tier
+ * @param tierId
  */
 export function getFeaturesForTier(tierId: string): string[] {
   return TIER_FEATURES[tierId]?.features ?? ["basic_navigation"];

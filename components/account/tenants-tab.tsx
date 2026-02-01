@@ -59,6 +59,9 @@ import { logger } from "@/lib/logger";
 
 import type { LicensedTenantWithSubscription } from "@/lib/types/entities";
 
+/**
+ *
+ */
 interface SpoSubscription {
   id: string;
   tier_id: string;
@@ -68,6 +71,9 @@ interface SpoSubscription {
   maxTenants: number;
 }
 
+/**
+ *
+ */
 export function TenantsTab() {
   const [tenants, setTenants] = React.useState<
     LicensedTenantWithSubscription[]
@@ -103,6 +109,9 @@ export function TenantsTab() {
     void loadData();
   }, []);
 
+  /**
+   *
+   */
   async function loadData() {
     setIsLoading(true);
     try {
@@ -131,6 +140,10 @@ export function TenantsTab() {
     }
   }
 
+  /**
+   *
+   * @param e
+   */
   async function handleAddTenant(e: React.FormEvent) {
     e.preventDefault();
 
@@ -177,6 +190,9 @@ export function TenantsTab() {
     }
   }
 
+  /**
+   *
+   */
   async function handleConfirmDelete() {
     if (!tenantToDelete) return;
 
@@ -205,16 +221,27 @@ export function TenantsTab() {
     }
   }
 
+  /**
+   *
+   * @param tenant
+   */
   function startEditing(tenant: LicensedTenantWithSubscription) {
     setEditingTenantId(tenant.id);
     setEditDisplayName(tenant.display_name ?? tenant.tenant_id);
   }
 
+  /**
+   *
+   */
   function cancelEditing() {
     setEditingTenantId(null);
     setEditDisplayName("");
   }
 
+  /**
+   *
+   * @param tenantId
+   */
   async function saveEdit(tenantId: string) {
     setIsSavingEdit(true);
     try {
@@ -242,12 +269,20 @@ export function TenantsTab() {
     }
   }
 
+  /**
+   *
+   * @param tierId
+   */
   function getTierDisplayName(tierId: string): string {
     if (tierId.includes("enterprise")) return "Enterprise";
     if (tierId.includes("basic")) return "Basic";
     return tierId;
   }
 
+  /**
+   *
+   * @param status
+   */
   function getStatusBadge(status: string) {
     switch (status) {
       case "active":

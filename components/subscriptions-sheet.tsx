@@ -42,6 +42,9 @@ import { logger } from "@/lib/logger";
 
 import type { Subscription } from "@/lib/types/entities";
 
+/**
+ *
+ */
 interface SubscriptionsSheetProps {
   /** Custom trigger element */
   trigger?: React.ReactNode;
@@ -51,6 +54,13 @@ interface SubscriptionsSheetProps {
   onOpenChange?: (open: boolean) => void;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.trigger
+ * @param root0.open
+ * @param root0.onOpenChange
+ */
 export function SubscriptionsSheet({
   trigger,
   open: controlledOpen,
@@ -116,6 +126,7 @@ export function SubscriptionsSheet({
 
   /**
    * Handle cancel subscription click
+   * @param subscription
    */
   const handleCancelClick = (subscription: Subscription) => {
     setSubscriptionToCancel(subscription);
@@ -124,6 +135,7 @@ export function SubscriptionsSheet({
 
   /**
    * Handle reactivate subscription
+   * @param subscription
    */
   const handleReactivate = async (subscription: Subscription) => {
     setActionLoadingId(subscription.id);

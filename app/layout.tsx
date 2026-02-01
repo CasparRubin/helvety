@@ -92,6 +92,11 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ *
+ * @param root0
+ * @param root0.children
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -119,6 +124,11 @@ export default function RootLayout({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.children
+ */
 async function NavbarWrapper({ children }: { children: React.ReactNode }) {
   // Always show navbar
   return (

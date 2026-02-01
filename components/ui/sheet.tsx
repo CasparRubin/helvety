@@ -7,28 +7,49 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/**
+ *
+ * @param root0
+ */
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function SheetTrigger({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
   return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function SheetClose({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Close>) {
   return <SheetPrimitive.Close data-slot="sheet-close" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function SheetPortal({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Portal>) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function SheetOverlay({
   className,
   ...props
@@ -45,6 +66,14 @@ function SheetOverlay({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.children
+ * @param root0.side
+ * @param root0.showCloseButton
+ */
 function SheetContent({
   className,
   children,
@@ -85,6 +114,11 @@ function SheetContent({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -95,6 +129,11 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -105,6 +144,11 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function SheetTitle({
   className,
   ...props
@@ -118,6 +162,11 @@ function SheetTitle({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function SheetDescription({
   className,
   ...props

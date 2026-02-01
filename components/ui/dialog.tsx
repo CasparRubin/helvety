@@ -7,30 +7,51 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/**
+ *
+ * @param root0
+ */
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>): React.JSX.Element {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function DialogTrigger({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Trigger>): React.JSX.Element {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function DialogPortal({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>): React.JSX.Element {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function DialogClose({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Close>): React.JSX.Element {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function DialogOverlay({
   className,
   ...props
@@ -47,6 +68,13 @@ function DialogOverlay({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.children
+ * @param root0.showCloseButton
+ */
 function DialogContent({
   className,
   children,
@@ -84,6 +112,11 @@ function DialogContent({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function DialogHeader({
   className,
   ...props
@@ -97,6 +130,13 @@ function DialogHeader({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.showCloseButton
+ * @param root0.children
+ */
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -124,6 +164,11 @@ function DialogFooter({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function DialogTitle({
   className,
   ...props
@@ -137,6 +182,11 @@ function DialogTitle({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function DialogDescription({
   className,
   ...props

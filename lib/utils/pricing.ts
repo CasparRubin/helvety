@@ -36,6 +36,8 @@ const currencies: Record<string, CurrencyConfig> = {
  * @param priceInCents - Price in smallest currency unit (cents)
  * @param currency - ISO 4217 currency code
  * @param options - Formatting options
+ * @param options.showCents
+ * @param options.compact
  */
 export function formatPrice(
   priceInCents: number,
@@ -85,6 +87,9 @@ export function formatPrice(
 
 /**
  * Format price with interval (e.g., "€4.99/month")
+ * @param priceInCents
+ * @param currency
+ * @param interval
  */
 export function formatPriceWithInterval(
   priceInCents: number,
@@ -113,6 +118,7 @@ export function formatPriceWithInterval(
 
 /**
  * Calculate monthly equivalent price for yearly subscriptions
+ * @param yearlyPriceInCents
  */
 export function getMonthlyEquivalent(yearlyPriceInCents: number): number {
   return Math.round(yearlyPriceInCents / 12);
@@ -120,6 +126,8 @@ export function getMonthlyEquivalent(yearlyPriceInCents: number): number {
 
 /**
  * Calculate savings percentage between monthly and yearly
+ * @param monthlyPriceInCents
+ * @param yearlyPriceInCents
  */
 export function calculateYearlySavings(
   monthlyPriceInCents: number,
@@ -132,6 +140,7 @@ export function calculateYearlySavings(
 
 /**
  * Get the starting price for a product (lowest non-free tier)
+ * @param pricing
  */
 export function getStartingPrice(pricing: ProductPricing): PricingTier | null {
   const nonFreeTiers = pricing.tiers.filter(
@@ -152,6 +161,8 @@ export function getStartingPrice(pricing: ProductPricing): PricingTier | null {
 
 /**
  * Normalize price to monthly equivalent
+ * @param priceInCents
+ * @param interval
  */
 function normalizeToMonthly(
   priceInCents: number,
@@ -177,6 +188,8 @@ function normalizeToMonthly(
 
 /**
  * Get tiers filtered by billing interval
+ * @param pricing
+ * @param interval
  */
 export function getTiersByInterval(
   pricing: ProductPricing,
@@ -192,6 +205,7 @@ export function getTiersByInterval(
 
 /**
  * Get the free tier if available
+ * @param pricing
  */
 export function getFreeTier(pricing: ProductPricing): PricingTier | undefined {
   return pricing.tiers.find((tier) => tier.isFree === true || tier.price === 0);
@@ -199,6 +213,7 @@ export function getFreeTier(pricing: ProductPricing): PricingTier | undefined {
 
 /**
  * Get the highlighted/recommended tier
+ * @param tiers
  */
 export function getHighlightedTier(
   tiers: PricingTier[]
@@ -208,6 +223,7 @@ export function getHighlightedTier(
 
 /**
  * Check if a tier is a subscription (recurring)
+ * @param tier
  */
 export function isSubscriptionTier(tier: PricingTier): boolean {
   return tier.interval === "monthly" || tier.interval === "yearly";
@@ -215,6 +231,7 @@ export function isSubscriptionTier(tier: PricingTier): boolean {
 
 /**
  * Check if a tier is a one-time purchase
+ * @param tier
  */
 export function isOneTimeTier(tier: PricingTier): boolean {
   return tier.interval === "one-time" || tier.interval === "lifetime";
@@ -226,6 +243,7 @@ export function isOneTimeTier(tier: PricingTier): boolean {
 
 /**
  * Get human-readable interval label
+ * @param interval
  */
 export function getIntervalLabel(interval: BillingInterval): string {
   const labels: Record<BillingInterval, string> = {
@@ -239,6 +257,7 @@ export function getIntervalLabel(interval: BillingInterval): string {
 
 /**
  * Get billing interval short label
+ * @param interval
  */
 export function getIntervalShortLabel(interval: BillingInterval): string {
   const labels: Record<BillingInterval, string> = {
@@ -252,6 +271,8 @@ export function getIntervalShortLabel(interval: BillingInterval): string {
 
 /**
  * Format price as "starting from" display
+ * @param pricing
+ * @param currency
  */
 export function formatStartingFrom(
   pricing: ProductPricing,

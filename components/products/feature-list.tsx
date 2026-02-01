@@ -7,12 +7,22 @@ import { Check, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ *
+ */
 interface FeatureListProps {
   features: string[];
   className?: string;
   variant?: "default" | "compact";
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.features
+ * @param root0.className
+ * @param root0.variant
+ */
 export function FeatureList({
   features,
   className,
@@ -47,12 +57,22 @@ export function FeatureList({
   );
 }
 
+/**
+ *
+ */
 interface FeatureComparisonProps {
   included: string[];
   excluded?: string[];
   className?: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.included
+ * @param root0.excluded
+ * @param root0.className
+ */
 export function FeatureComparison({
   included,
   excluded = [],

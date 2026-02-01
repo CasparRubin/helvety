@@ -20,12 +20,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 
+/**
+ *
+ */
 interface UserData {
   id: string;
   email: string;
   createdAt: string;
 }
 
+/**
+ *
+ */
 export function ProfileTab() {
   // User state
   const [user, setUser] = React.useState<UserData | null>(null);
@@ -41,6 +47,9 @@ export function ProfileTab() {
     void loadUserData();
   }, []);
 
+  /**
+   *
+   */
   async function loadUserData() {
     setIsLoadingUser(true);
     try {
@@ -58,6 +67,10 @@ export function ProfileTab() {
     }
   }
 
+  /**
+   *
+   * @param e
+   */
   async function handleEmailChange(e: React.FormEvent) {
     e.preventDefault();
     setEmailError(null);
@@ -90,6 +103,10 @@ export function ProfileTab() {
     }
   }
 
+  /**
+   *
+   * @param dateString
+   */
   function formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",

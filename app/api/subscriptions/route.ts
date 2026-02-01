@@ -18,6 +18,10 @@ import type { NextRequest } from "next/server";
 // GET /api/subscriptions - Get current user's subscriptions
 // =============================================================================
 
+/**
+ *
+ * @param request
+ */
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerComponentClient();
@@ -103,6 +107,10 @@ export async function GET(request: NextRequest) {
 // GET /api/subscriptions/check - Quick check for specific product access
 // =============================================================================
 
+/**
+ *
+ * @param request
+ */
 export async function HEAD(request: NextRequest) {
   try {
     const supabase = await createServerComponentClient();

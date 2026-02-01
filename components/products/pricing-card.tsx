@@ -34,6 +34,9 @@ import type {
 } from "@/lib/types/entities";
 import type { PricingTier } from "@/lib/types/products";
 
+/**
+ *
+ */
 interface PricingCardProps {
   tier: PricingTier;
   className?: string;
@@ -61,6 +64,20 @@ const CHECKOUT_ENABLED_TIERS = [
   // Add more tier IDs here as they are configured in Stripe
 ];
 
+/**
+ *
+ * @param root0
+ * @param root0.tier
+ * @param root0.className
+ * @param root0.showMonthlyEquivalent
+ * @param root0.onSelect
+ * @param root0.selected
+ * @param root0.ctaText
+ * @param root0.disabled
+ * @param root0.productSlug
+ * @param root0.userSubscription
+ * @param root0.onReactivate
+ */
 export function PricingCard({
   tier,
   className,
@@ -362,6 +379,9 @@ export function PricingCard({
   );
 }
 
+/**
+ *
+ */
 interface PricingCardsProps {
   tiers: PricingTier[];
   className?: string;
@@ -376,6 +396,18 @@ interface PricingCardsProps {
   onReactivate?: () => void;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.tiers
+ * @param root0.className
+ * @param root0.onSelect
+ * @param root0.selectedTierId
+ * @param root0.disabled
+ * @param root0.productSlug
+ * @param root0.userSubscriptions
+ * @param root0.onReactivate
+ */
 export function PricingCards({
   tiers,
   className,
@@ -388,6 +420,7 @@ export function PricingCards({
 }: PricingCardsProps) {
   /**
    * Find user's subscription for a specific tier
+   * @param tierId
    */
   const getSubscriptionForTier = (tierId: string): Subscription | null => {
     return (

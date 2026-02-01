@@ -15,11 +15,20 @@ import { cn } from "@/lib/utils";
 
 import type { MediaItem } from "@/lib/types/products";
 
+/**
+ *
+ */
 interface MediaGalleryProps {
   items: MediaItem[];
   className?: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.items
+ * @param root0.className
+ */
 export function MediaGallery({ items, className }: MediaGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
@@ -163,12 +172,22 @@ export function MediaGallery({ items, className }: MediaGalleryProps) {
   );
 }
 
+/**
+ *
+ */
 interface MediaThumbnailProps {
   item: MediaItem;
   onClick: () => void;
   onError: () => void;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.item
+ * @param root0.onClick
+ * @param root0.onError
+ */
 function MediaThumbnail({ item, onClick, onError }: MediaThumbnailProps) {
   const [hasError, setHasError] = useState(false);
 

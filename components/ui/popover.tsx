@@ -5,18 +5,33 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ *
+ * @param root0
+ */
 function Popover({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function PopoverTrigger({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
   return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.align
+ * @param root0.sideOffset
+ */
 function PopoverContent({
   className,
   align = "center",
@@ -39,12 +54,21 @@ function PopoverContent({
   );
 }
 
+/**
+ *
+ * @param root0
+ */
 function PopoverAnchor({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {
   return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -55,6 +79,11 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function PopoverTitle({ className, ...props }: React.ComponentProps<"h2">) {
   return (
     <div
@@ -65,6 +94,11 @@ function PopoverTitle({ className, ...props }: React.ComponentProps<"h2">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function PopoverDescription({
   className,
   ...props

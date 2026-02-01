@@ -15,10 +15,16 @@ import { cn } from "@/lib/utils";
 
 import type { ProductLinks } from "@/lib/types/products";
 
+/**
+ *
+ */
 interface CommandBarBaseProps {
   className?: string;
 }
 
+/**
+ *
+ */
 interface CatalogCommandBarProps extends CommandBarBaseProps {
   variant: "catalog";
   filter: FilterType;
@@ -26,14 +32,24 @@ interface CatalogCommandBarProps extends CommandBarBaseProps {
   counts?: Record<FilterType, number>;
 }
 
+/**
+ *
+ */
 interface ProductDetailCommandBarProps extends CommandBarBaseProps {
   variant: "product-detail";
   productName: string;
   links?: ProductLinks;
 }
 
+/**
+ *
+ */
 type CommandBarProps = CatalogCommandBarProps | ProductDetailCommandBarProps;
 
+/**
+ *
+ * @param props
+ */
 export function CommandBar(props: CommandBarProps) {
   return (
     <div
@@ -60,12 +76,22 @@ export function CommandBar(props: CommandBarProps) {
   );
 }
 
+/**
+ *
+ */
 interface CatalogActionsProps {
   filter: FilterType;
   onFilterChange: (filter: FilterType) => void;
   counts?: Record<FilterType, number>;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.filter
+ * @param root0.onFilterChange
+ * @param root0.counts
+ */
 function CatalogActions({
   filter,
   onFilterChange,
@@ -88,11 +114,20 @@ function CatalogActions({
   );
 }
 
+/**
+ *
+ */
 interface ProductDetailActionsProps {
   productName: string;
   links?: ProductLinks;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.productName
+ * @param root0.links
+ */
 function ProductDetailActions({
   productName,
   links,

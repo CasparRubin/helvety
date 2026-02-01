@@ -30,6 +30,9 @@ import { formatPrice } from "@/lib/utils/pricing";
 
 import type { Subscription, SubscriptionStatus } from "@/lib/types/entities";
 
+/**
+ *
+ */
 interface SubscriptionCardProps {
   subscription: Subscription;
   onCancel?: (subscription: Subscription) => void;
@@ -39,6 +42,8 @@ interface SubscriptionCardProps {
 
 /**
  * Get status badge variant and label
+ * @param status
+ * @param cancelAtPeriodEnd
  */
 function getStatusInfo(
   status: SubscriptionStatus,
@@ -72,6 +77,7 @@ function getStatusInfo(
 
 /**
  * Format date for display
+ * @param dateString
  */
 function formatDate(dateString: string | null): string {
   if (!dateString) return "N/A";
@@ -82,6 +88,14 @@ function formatDate(dateString: string | null): string {
   });
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.subscription
+ * @param root0.onCancel
+ * @param root0.onReactivate
+ * @param root0.isLoading
+ */
 export function SubscriptionCard({
   subscription,
   onCancel,

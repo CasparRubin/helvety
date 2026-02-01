@@ -25,6 +25,9 @@ import { logger } from "@/lib/logger";
 
 import type { Subscription } from "@/lib/types/entities";
 
+/**
+ *
+ */
 interface CancelSubscriptionDialogProps {
   subscription: Subscription | null;
   open: boolean;
@@ -34,6 +37,7 @@ interface CancelSubscriptionDialogProps {
 
 /**
  * Format date for display
+ * @param dateString
  */
 function formatDate(dateString: string | null): string {
   if (!dateString) return "N/A";
@@ -45,6 +49,14 @@ function formatDate(dateString: string | null): string {
   });
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.subscription
+ * @param root0.open
+ * @param root0.onOpenChange
+ * @param root0.onSuccess
+ */
 export function CancelSubscriptionDialog({
   subscription,
   open,

@@ -40,10 +40,18 @@ import { PACKAGE_CONFIG } from "@/lib/packages/config";
 
 import type { Subscription } from "@/lib/types/entities";
 
+/**
+ *
+ */
 interface SubscriptionsTabProps {
   onNavigateToTenants?: () => void;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.onNavigateToTenants
+ */
 export function SubscriptionsTab({ onNavigateToTenants }: SubscriptionsTabProps) {
   // Subscriptions state
   const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
@@ -70,6 +78,10 @@ export function SubscriptionsTab({ onNavigateToTenants }: SubscriptionsTabProps)
     void loadSpoTenantCount();
   }, []);
 
+  /**
+   *
+   * @param showRefreshIndicator
+   */
   async function loadSubscriptions(showRefreshIndicator = false) {
     if (showRefreshIndicator) {
       setIsRefreshing(true);
@@ -93,6 +105,9 @@ export function SubscriptionsTab({ onNavigateToTenants }: SubscriptionsTabProps)
     }
   }
 
+  /**
+   *
+   */
   async function loadSpoTenantCount() {
     try {
       const result = await getSpoExplorerSubscriptions();
@@ -108,6 +123,10 @@ export function SubscriptionsTab({ onNavigateToTenants }: SubscriptionsTabProps)
     }
   }
 
+  /**
+   *
+   * @param subscription
+   */
   async function handleReactivate(subscription: Subscription) {
     setActionLoadingId(subscription.id);
 
@@ -137,15 +156,25 @@ export function SubscriptionsTab({ onNavigateToTenants }: SubscriptionsTabProps)
     }
   }
 
+  /**
+   *
+   * @param subscription
+   */
   function handleCancelClick(subscription: Subscription) {
     setSubscriptionToCancel(subscription);
     setCancelDialogOpen(true);
   }
 
+  /**
+   *
+   */
   function handleCancelSuccess() {
     void loadSubscriptions(true);
   }
 
+  /**
+   *
+   */
   async function handleOpenPortal() {
     setPortalLoading(true);
 
@@ -169,6 +198,9 @@ export function SubscriptionsTab({ onNavigateToTenants }: SubscriptionsTabProps)
     }
   }
 
+  /**
+   *
+   */
   async function handleDownload() {
     setIsDownloading(true);
     try {

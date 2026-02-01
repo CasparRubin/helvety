@@ -49,6 +49,7 @@ export async function getCurrentUser(): Promise<
  * Update user email address
  * Supabase will send a confirmation email to the new address
  * The user must confirm both the old and new email addresses
+ * @param newEmail
  */
 export async function updateUserEmail(
   newEmail: string

@@ -10,6 +10,15 @@
  * - Other log levels (log, warn, info, debug) are primarily for development debugging
  * - Production error logs are sanitized to prevent exposure of sensitive data
  * - This reduces production log noise while maintaining error visibility
+ *
+ * SECURITY NOTES (for auditors):
+ * - Sensitive keys (passwords, tokens, secrets) are automatically redacted from logged objects
+ * - String messages may contain identifiers (user IDs, subscription IDs) for debugging
+ * - These identifiers are UUIDs/internal IDs, not personal data (no emails, names, etc.)
+ * - Info/warn/debug logs containing identifiers are suppressed in production
+ * - Only error logs are output in production, and only for critical debugging
+ * - Access to production logs should be restricted at the infrastructure level
+ *   (e.g., Vercel logs, cloud provider logging services)
  */
 
 const isDevelopment = process.env.NODE_ENV === "development";
@@ -31,6 +40,7 @@ interface ErrorTrackingService {
  * Safe internal logger for error tracking failures
  * Uses console directly to avoid circular dependencies when error tracking itself fails
  * This is only used internally and never exposed to prevent bypassing the main logger
+ * @param {...any} args
  */
 function safeInternalErrorLog(...args: unknown[]): void {
   // Direct console.error is necessary here to prevent infinite loops
@@ -53,6 +63,7 @@ class ErrorTracker implements ErrorTrackingService {
   /**
    * Initialize error tracking service
    * Call this method to set up integration with services like Sentry
+   * @param service
    */
   init(service: ErrorTrackingService): void {
     this.service = service;
@@ -95,6 +106,7 @@ export const errorTracker = new ErrorTracker();
 
 /**
  * Type guard to check if a value is a record-like object
+ * @param value
  */
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -118,6 +130,7 @@ const SENSITIVE_KEYS = new Set([
 
 /**
  * Check if a key is sensitive and should be redacted
+ * @param key
  */
 function isSensitiveKey(key: string): boolean {
   const lowerKey = key.toLowerCase();
@@ -130,6 +143,8 @@ function isSensitiveKey(key: string): boolean {
 /**
  * Recursively sanitizes an object by removing sensitive keys
  * Handles nested objects and arrays
+ * @param obj
+ * @param depth
  */
 function sanitizeObject(
   obj: Record<string, unknown>,

@@ -162,6 +162,7 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
 /**
  * Delete the master key from IndexedDB
  * Call this on logout or when the user wants to lock encryption
+ * @param userId
  */
 export async function deleteMasterKey(userId: string): Promise<void> {
   try {
@@ -198,6 +199,8 @@ export async function deleteMasterKey(userId: string): Promise<void> {
 
 /**
  * Store a unit key in IndexedDB
+ * @param unitId
+ * @param key
  */
 export async function storeUnitKey(
   unitId: number,
@@ -247,6 +250,7 @@ export async function storeUnitKey(
 
 /**
  * Retrieve a unit key from IndexedDB
+ * @param unitId
  */
 export async function getUnitKey(unitId: number): Promise<CryptoKey | null> {
   try {
@@ -297,6 +301,7 @@ export async function getUnitKey(unitId: number): Promise<CryptoKey | null> {
 
 /**
  * Delete a unit key from IndexedDB
+ * @param unitId
  */
 export async function deleteUnitKey(unitId: number): Promise<void> {
   try {

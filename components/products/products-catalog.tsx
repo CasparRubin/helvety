@@ -13,6 +13,9 @@ import { getAllProducts, getFilteredProducts } from "@/lib/data/products";
 import { type FilterType } from "./product-filters";
 import { ProductGrid } from "./product-grid";
 
+/**
+ *
+ */
 export function ProductsCatalog() {
   const [filter, setFilter] = useState<FilterType>("all");
 

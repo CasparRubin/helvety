@@ -2,16 +2,51 @@
 
 import "server-only";
 
+import { z } from "zod";
+
 import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 
 import type { UserPasskeyParams } from "@/lib/types";
 
+/** Response type for encryption-related server actions */
 export type EncryptionActionResponse<T = void> = {
   success: boolean;
   data?: T;
   error?: string;
 };
+
+// ============================================================================
+// Input Validation Schemas
+// ============================================================================
+
+/**
+ * Validation schema for passkey params
+ * Security: Validates input to prevent malformed or malicious data
+ */
+const PasskeyParamsSchema = z.object({
+  // Base64-encoded PRF salt (typically 32 bytes = ~44 chars in base64)
+  prf_salt: z
+    .string()
+    .min(1, "PRF salt is required")
+    .max(1024, "PRF salt too long")
+    .regex(/^[A-Za-z0-9+/=]+$/, "PRF salt must be valid base64"),
+  // Base64url-encoded credential ID (variable length, typically 32-64 bytes)
+  credential_id: z
+    .string()
+    .min(1, "Credential ID is required")
+    .max(1024, "Credential ID too long")
+    .regex(
+      /^[A-Za-z0-9_-]+$/,
+      "Credential ID must be valid base64url (no padding)"
+    ),
+  // Version number for the PRF key derivation
+  version: z
+    .number()
+    .int("Version must be an integer")
+    .positive("Version must be positive")
+    .max(100, "Version number too large"),
+});
 
 // ============================================================================
 // Passkey-based encryption (PRF)
@@ -20,6 +55,10 @@ export type EncryptionActionResponse<T = void> = {
 /**
  * Save user's passkey encryption params (PRF salt and credential ID)
  *
+ * Security: Input is validated using Zod schema to prevent malformed
+ * or malicious data from being stored.
+ *
+ * @param params - The passkey parameters object
  * @param params.prf_salt - Base64-encoded PRF salt for HKDF
  * @param params.credential_id - Base64url-encoded credential ID
  * @param params.version - PRF version number
@@ -30,6 +69,17 @@ export async function savePasskeyParams(params: {
   version: number;
 }): Promise<EncryptionActionResponse> {
   try {
+    // Validate input parameters
+    const validationResult = PasskeyParamsSchema.safeParse(params);
+    if (!validationResult.success) {
+      logger.warn("Invalid passkey params:", validationResult.error.format());
+      return {
+        success: false,
+        error: "Invalid passkey parameters",
+      };
+    }
+    const validatedParams = validationResult.data;
+
     const supabase = await createClient();
 
     // Get current user
@@ -45,9 +95,9 @@ export async function savePasskeyParams(params: {
     const { error } = await supabase.from("user_passkey_params").upsert(
       {
         user_id: user.id,
-        prf_salt: params.prf_salt,
-        credential_id: params.credential_id,
-        version: params.version,
+        prf_salt: validatedParams.prf_salt,
+        credential_id: validatedParams.credential_id,
+        version: validatedParams.version,
       },
       {
         onConflict: "user_id",

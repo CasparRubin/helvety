@@ -39,11 +39,20 @@ const iconMap: Record<string, LucideIcon> = {
   Package,
 };
 
+/**
+ *
+ */
 interface ProductCardProps {
   product: Product;
   className?: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.product
+ * @param root0.className
+ */
 export function ProductCard({ product, className }: ProductCardProps) {
   const Icon = product.icon ? (iconMap[product.icon] ?? FileText) : FileText;
   const priceDisplay = formatStartingFrom(

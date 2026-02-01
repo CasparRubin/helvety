@@ -90,6 +90,7 @@ export async function getUserPurchases(): Promise<ActionResponse<Purchase[]>> {
 
 /**
  * Check if user has an active subscription for a specific product
+ * @param productId
  */
 export async function hasActiveSubscription(
   productId: string
@@ -198,6 +199,7 @@ export async function getUserSubscriptionSummary(): Promise<
 
 /**
  * Cancel a subscription at period end
+ * @param subscriptionId
  */
 export async function cancelSubscription(
   subscriptionId: string
@@ -251,6 +253,7 @@ export async function cancelSubscription(
 
 /**
  * Reactivate a subscription that was scheduled for cancellation
+ * @param subscriptionId
  */
 export async function reactivateSubscription(
   subscriptionId: string
@@ -311,6 +314,7 @@ export async function reactivateSubscription(
 
 /**
  * Get Stripe Customer Portal URL for managing subscription
+ * @param returnUrl
  */
 export async function getCustomerPortalUrl(
   returnUrl?: string

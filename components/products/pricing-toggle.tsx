@@ -8,8 +8,14 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+/**
+ *
+ */
 export type BillingPeriod = "monthly" | "yearly";
 
+/**
+ *
+ */
 interface PricingToggleProps {
   value: BillingPeriod;
   onChange: (value: BillingPeriod) => void;
@@ -17,6 +23,14 @@ interface PricingToggleProps {
   className?: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.value
+ * @param root0.onChange
+ * @param root0.yearlyDiscountPercent
+ * @param root0.className
+ */
 export function PricingToggle({
   value,
   onChange,

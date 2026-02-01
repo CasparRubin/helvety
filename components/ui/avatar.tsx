@@ -5,6 +5,12 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.size
+ */
 function Avatar({
   className,
   size = "default",
@@ -25,6 +31,11 @@ function Avatar({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AvatarImage({
   className,
   ...props
@@ -41,6 +52,11 @@ function AvatarImage({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AvatarFallback({
   className,
   ...props
@@ -57,6 +73,11 @@ function AvatarFallback({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -73,6 +94,11 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -86,6 +112,11 @@ function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AvatarGroupCount({
   className,
   ...props

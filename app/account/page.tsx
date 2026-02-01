@@ -12,6 +12,9 @@ export const metadata = {
   description: "Manage your account settings and subscriptions",
 };
 
+/**
+ *
+ */
 function AccountLoading() {
   return (
     <div className="container max-w-4xl py-8">
@@ -27,6 +30,9 @@ function AccountLoading() {
   );
 }
 
+/**
+ *
+ */
 export default async function AccountPage() {
   // Server-side auth check
   const supabase = await createClient();

@@ -15,7 +15,7 @@ Your one-stop shop for Helvety software, subscriptions, and apparel. Browse and 
 - **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout
 - **Subscription Management** - Manage active subscriptions, cancel, or reactivate
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
-- **Dashboard** - Manage your tenants and software downloads
+- **Account Management** - Manage your tenants, software downloads, and profile settings
 - **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer licensing
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
@@ -98,6 +98,7 @@ helvety-store/
 │       └── test.yml            # Automated testing
 ├── app/                        # Next.js App Router
 │   ├── actions/                # Server actions
+│   │   ├── account-actions.ts  # User profile management
 │   │   ├── auth-actions.ts     # Authentication response types
 │   │   ├── download-actions.ts # Software download management
 │   │   ├── encryption-actions.ts # Encryption parameter management
@@ -115,9 +116,9 @@ helvety-store/
 │   │   └── webhooks/stripe/    # Stripe webhook handler
 │   ├── auth/                   # Auth routes
 │   │   └── callback/           # Session establishment callback
-│   ├── dashboard/              # User dashboard
-│   │   ├── downloads/          # Download management page
-│   │   └── tenants/            # Tenant registration page
+│   ├── account/                # User account management
+│   │   ├── account-client.tsx  # Account dashboard client component
+│   │   └── page.tsx            # Account page (profile, tenants, downloads)
 │   ├── products/               # Product catalog
 │   │   └── [slug]/             # Product detail pages
 │   ├── globals.css             # Global styles
@@ -162,6 +163,107 @@ helvety-store/
 ├── playwright.config.ts        # Playwright E2E configuration
 └── [config files]              # Other configuration files
 ```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18.17 or later
+- npm 9 or later
+- A Supabase project (for authentication and database)
+- A Stripe account (for payment processing)
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/helvety/helvety-store.git
+   cd helvety-store
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables (see [Environment Variables](#environment-variables) below)
+
+4. Run the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Environment Variables
+
+Copy `env.template` to `.env.local` and fill in the required values:
+
+```bash
+cp env.template .env.local
+```
+
+### Required Variables
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_PROJECT_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/publishable key (safe for browser) |
+| `SUPABASE_SECRET_KEY` | Supabase service role key (server-only, never expose to client) |
+| `NEXT_PUBLIC_APP_URL` | Public URL of the app (e.g., `http://localhost:3000`) |
+| `STRIPE_SECRET_KEY` | Stripe secret key (server-only) |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (safe for browser) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
+| `STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID` | Stripe price ID for Helvety PDF Pro |
+| `STRIPE_HELVETY_SPO_EXPLORER_*_PRICE_ID` | Stripe price IDs for SPO Explorer tiers |
+
+See `env.template` for the full list with descriptions.
+
+## Configuration
+
+### Supabase Setup
+
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Run the database migrations from `supabase/migrations/`
+3. Configure Row Level Security (RLS) policies for all tables
+4. Enable the required auth providers
+
+### Stripe Setup
+
+1. Create a Stripe account at [stripe.com](https://stripe.com)
+2. Create products and prices in the Stripe Dashboard
+3. Configure the webhook endpoint: `https://your-domain.com/api/webhooks/stripe`
+4. Add the price IDs to your environment variables
+
+### Authentication
+
+Authentication is handled by the centralized Helvety Auth service. Ensure `auth.helvety.com` is configured and running.
+
+## Testing
+
+This project uses Vitest for unit tests and Playwright for end-to-end tests.
+
+```bash
+# Run unit tests in watch mode
+npm run test
+
+# Run unit tests once
+npm run test:run
+
+# Run with coverage
+npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E tests with UI
+npm run test:e2e:ui
+```
+
+See `__tests__/README.md` for testing patterns and conventions.
 
 ## Developer
 

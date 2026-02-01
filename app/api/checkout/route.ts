@@ -1,11 +1,15 @@
 /**
  * Stripe Checkout API Route
  * Creates checkout sessions for subscription purchases
+ *
+ * Security: successUrl and cancelUrl parameters are validated to prevent
+ * open redirect attacks. Only relative paths starting with "/" are allowed.
  */
 
 import { NextResponse } from "next/server";
 
 import { logger } from "@/lib/logger";
+import { isValidRelativePath } from "@/lib/redirect-validation";
 import {
   stripe,
   getStripePriceId,
@@ -26,6 +30,10 @@ import type Stripe from "stripe";
 // POST /api/checkout - Create a Stripe Checkout Session
 // =============================================================================
 
+/**
+ *
+ * @param request
+ */
 export async function POST(request: NextRequest) {
   try {
     // Parse request body
@@ -111,12 +119,19 @@ export async function POST(request: NextRequest) {
       "http://localhost:3000";
     const productSlug = productInfo.productId; // e.g., 'helvety-pdf'
 
-    const resolvedSuccessUrl = successUrl
-      ? `${baseUrl}${successUrl}`
+    // Security: Validate custom URLs to prevent open redirect attacks
+    // Only relative paths starting with "/" are allowed
+    const validatedSuccessUrl =
+      successUrl && isValidRelativePath(successUrl) ? successUrl : null;
+    const validatedCancelUrl =
+      cancelUrl && isValidRelativePath(cancelUrl) ? cancelUrl : null;
+
+    const resolvedSuccessUrl = validatedSuccessUrl
+      ? `${baseUrl}${validatedSuccessUrl}`
       : `${baseUrl}${CHECKOUT_CONFIG.successUrl.replace("{slug}", productSlug)}`;
 
-    const resolvedCancelUrl = cancelUrl
-      ? `${baseUrl}${cancelUrl}`
+    const resolvedCancelUrl = validatedCancelUrl
+      ? `${baseUrl}${validatedCancelUrl}`
       : `${baseUrl}${CHECKOUT_CONFIG.cancelUrl.replace("{slug}", productSlug)}`;
 
     // Create checkout session based on product type

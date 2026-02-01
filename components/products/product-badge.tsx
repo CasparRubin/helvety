@@ -10,6 +10,9 @@ import { cn } from "@/lib/utils";
 
 import type { ProductType, ProductStatus } from "@/lib/types/products";
 
+/**
+ *
+ */
 interface ProductBadgeProps {
   type: ProductType;
   className?: string;
@@ -44,6 +47,13 @@ const typeConfig: Record<
   },
 };
 
+/**
+ *
+ * @param root0
+ * @param root0.type
+ * @param root0.className
+ * @param root0.showIcon
+ */
 export function ProductBadge({
   type,
   className,
@@ -60,6 +70,9 @@ export function ProductBadge({
   );
 }
 
+/**
+ *
+ */
 interface StatusBadgeProps {
   status: ProductStatus;
   className?: string;
@@ -89,6 +102,12 @@ const statusConfig: Record<
   },
 };
 
+/**
+ *
+ * @param root0
+ * @param root0.status
+ * @param root0.className
+ */
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = statusConfig[status];
 

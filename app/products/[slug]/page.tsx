@@ -5,10 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 
 import { ProductDetailClient } from "./product-detail-client";
 
+/**
+ *
+ */
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.params
+ */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   // Server-side auth check
   const supabase = await createClient();

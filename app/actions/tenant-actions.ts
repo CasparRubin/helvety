@@ -167,6 +167,7 @@ export async function getSpoExplorerSubscriptions(): Promise<
 
 /**
  * Register a new tenant
+ * @param request
  */
 export async function registerTenant(
   request: RegisterTenantRequest
@@ -298,6 +299,8 @@ export async function registerTenant(
 
 /**
  * Update a tenant's display name
+ * @param tenantId
+ * @param displayName
  */
 export async function updateTenant(
   tenantId: string,
@@ -337,6 +340,7 @@ export async function updateTenant(
 
 /**
  * Remove a tenant
+ * @param tenantId
  */
 export async function removeTenant(
   tenantId: string

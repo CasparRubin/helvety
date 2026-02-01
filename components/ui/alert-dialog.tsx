@@ -6,12 +6,20 @@ import * as React from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/**
+ *
+ * @param root0
+ */
 function AlertDialog({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ */
 function AlertDialogTrigger({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {
@@ -20,6 +28,10 @@ function AlertDialogTrigger({
   );
 }
 
+/**
+ *
+ * @param root0
+ */
 function AlertDialogPortal({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) {
@@ -28,6 +40,11 @@ function AlertDialogPortal({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AlertDialogOverlay({
   className,
   ...props
@@ -44,6 +61,11 @@ function AlertDialogOverlay({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AlertDialogContent({
   className,
   ...props
@@ -63,6 +85,11 @@ function AlertDialogContent({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AlertDialogHeader({
   className,
   ...props
@@ -76,6 +103,11 @@ function AlertDialogHeader({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AlertDialogFooter({
   className,
   ...props
@@ -92,6 +124,11 @@ function AlertDialogFooter({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AlertDialogTitle({
   className,
   ...props
@@ -105,6 +142,11 @@ function AlertDialogTitle({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AlertDialogDescription({
   className,
   ...props
@@ -118,6 +160,11 @@ function AlertDialogDescription({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AlertDialogAction({
   className,
   ...props
@@ -130,6 +177,11 @@ function AlertDialogAction({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function AlertDialogCancel({
   className,
   ...props

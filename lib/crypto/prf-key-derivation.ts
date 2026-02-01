@@ -17,6 +17,13 @@ export const PRF_VERSION = 1;
 const PRF_SALT_LENGTH = 32;
 
 /**
+ * HKDF info string for cross-app compatibility
+ * This is shared across all Helvety apps (pdf, store, auth, etc.)
+ * IMPORTANT: Changing this value will break key derivation for all existing users!
+ */
+const HKDF_INFO = "helvety-e2ee-v1";
+
+/**
  * PRF-based key parameters stored in the database
  */
 export interface PRFKeyParams {
@@ -40,6 +47,7 @@ export function generatePRFParams(): PRFKeyParams {
 
 /**
  * Get the PRF salt as Uint8Array for use in WebAuthn options
+ * @param params
  */
 export function getPRFSaltBytes(params: PRFKeyParams): Uint8Array {
   return base64Decode(params.prfSalt);
@@ -68,7 +76,7 @@ export async function deriveKeyFromPRF(
 
     // Use PRF salt for HKDF salt, and add app-specific info
     const salt = base64Decode(params.prfSalt);
-    const info = new TextEncoder().encode("helvety-e2ee-v1");
+    const info = new TextEncoder().encode(HKDF_INFO);
 
     // Derive AES-256-GCM key using HKDF
     return await crypto.subtle.deriveKey(
@@ -182,6 +190,7 @@ export interface PRFSupportInfo {
   browserInfo?: string;
 }
 
+/** Get detailed PRF support information for UI display */
 export async function getPRFSupportInfo(): Promise<PRFSupportInfo> {
   if (typeof window === "undefined") {
     return { supported: false, reason: "Not in browser environment" };

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getLoginUrl } from "@/lib/auth-redirect";
 import { logger } from "@/lib/logger";
+import { getSafeRelativePath } from "@/lib/redirect-validation";
 import { createClient } from "@/lib/supabase/server";
 
 import type { EmailOtpType } from "@supabase/supabase-js";
@@ -14,13 +15,19 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  *
  * Note: Primary authentication now happens via auth.helvety.com.
  * This callback handles session establishment from cross-subdomain cookies.
+ *
+ * Security: The `next` parameter is validated to prevent open redirect attacks.
+ * Only relative paths starting with "/" are allowed.
+ *
+ * @param request - The incoming request
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type");
-  const next = searchParams.get("next") ?? "/";
+  // Validate next parameter to prevent open redirect attacks
+  const next = getSafeRelativePath(searchParams.get("next"), "/");
 
   // Get auth service URL with redirect back to this app
   const authErrorUrl = getLoginUrl(origin);

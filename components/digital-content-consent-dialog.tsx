@@ -25,6 +25,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
+/**
+ *
+ */
 interface DigitalContentConsentDialogProps {
   /** Whether the dialog is open */
   open: boolean;
@@ -38,6 +41,15 @@ interface DigitalContentConsentDialogProps {
   productName?: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.open
+ * @param root0.onOpenChange
+ * @param root0.onConfirm
+ * @param root0.isLoading
+ * @param root0.productName
+ */
 export function DigitalContentConsentDialog({
   open,
   onOpenChange,

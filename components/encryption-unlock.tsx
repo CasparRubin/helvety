@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/card";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
+/**
+ *
+ */
 interface EncryptionUnlockProps {
   userId: string;
   /** PRF-based params for passkey unlock */
@@ -23,6 +26,10 @@ interface EncryptionUnlockProps {
 /**
  * Component for unlocking encryption with passkey
  * Shown to users who have set up passkey encryption but need to unlock
+ * @param root0
+ * @param root0.userId
+ * @param root0.passkeyParams
+ * @param root0.onUnlock
  */
 export function EncryptionUnlock({
   userId,

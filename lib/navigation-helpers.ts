@@ -49,6 +49,7 @@ export function useNavigation() {
    *
    * @param href - The route to navigate to
    * @param options - Optional configuration
+   * @param options.immediate
    */
   const navigate = (href: string, options?: { immediate?: boolean }) => {
     // Always prefetch before navigation for better perceived performance

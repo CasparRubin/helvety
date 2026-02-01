@@ -18,14 +18,43 @@ import type { NextRequest } from "next/server";
 // =============================================================================
 
 /**
- * Simple in-memory rate limiter
- * In production, consider using Redis or a dedicated rate limiting service
+ * Simple in-memory rate limiter for license validation requests
+ *
+ * IMPORTANT LIMITATIONS (for security auditors):
+ *
+ * 1. Per-Instance Only: This rate limiter uses an in-memory Map, which means
+ *    it only tracks requests within a single serverless function instance.
+ *    On Vercel/serverless, multiple instances may run concurrently, so
+ *    the effective rate limit may be higher than configured.
+ *
+ * 2. No Persistence: Rate limit state is lost when the function instance
+ *    restarts or scales down.
+ *
+ * 3. Memory Growth: The Map grows with unique tenant IDs. The periodic cleanup
+ *    (every 60s) prevents unbounded growth, but high cardinality could cause
+ *    temporary memory pressure.
+ *
+ * For a more robust solution, consider:
+ * - Upstash Redis for distributed rate limiting
+ * - Vercel Edge Config for configuration
+ * - Cloudflare Rate Limiting at the edge
+ *
+ * Current approach is acceptable because:
+ * - License validation is low-value abuse target (returns boolean, no sensitive data)
+ * - Per-instance limiting still provides protection against single-source abuse
+ * - Infrastructure-level rate limiting (Vercel/Cloudflare) provides additional protection
  */
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 100; // 100 requests per minute per tenant
 
+/**
+ * Check if a tenant has exceeded the rate limit
+ *
+ * @param tenantId - The tenant ID to check
+ * @returns true if within limit, false if exceeded
+ */
 function checkRateLimit(tenantId: string): boolean {
   const now = Date.now();
   const key = tenantId.toLowerCase();
@@ -62,6 +91,31 @@ setInterval(() => {
 
 /**
  * CORS headers for SharePoint domains
+ *
+ * SECURITY RATIONALE (for auditors):
+ *
+ * This endpoint allows CORS from any *.sharepoint.com subdomain because:
+ *
+ * 1. Purpose: This API is called by the Helvety SPO Explorer extension running
+ *    inside SharePoint Online. Each customer has their own tenant subdomain
+ *    (e.g., contoso.sharepoint.com, fabrikam.sharepoint.com).
+ *
+ * 2. Why not allowlist specific domains: We cannot predict all customer tenant
+ *    domains in advance. New customers can purchase and use the extension
+ *    without us knowing their SharePoint domain.
+ *
+ * 3. Security controls in place:
+ *    - Endpoint only returns license validity (boolean) - no sensitive data
+ *    - Tenant ID is validated against registered licenses in the database
+ *    - Rate limiting prevents abuse
+ *    - No authentication cookies are sent (simple CORS request)
+ *
+ * 4. Accepted risk: Any SharePoint site can call this API. The worst case is
+ *    an attacker learns whether a specific tenant has a valid license, which
+ *    is low-value information.
+ *
+ * @param origin - The request origin header
+ * @returns CORS headers to include in the response
  */
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const headers: Record<string, string> = {
@@ -90,6 +144,10 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
 // OPTIONS - CORS Preflight
 // =============================================================================
 
+/**
+ *
+ * @param request
+ */
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
 
@@ -103,6 +161,10 @@ export async function OPTIONS(request: NextRequest) {
 // GET /api/license/validate - Validate tenant license
 // =============================================================================
 
+/**
+ *
+ * @param request
+ */
 export async function GET(request: NextRequest) {
   const origin = request.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);

@@ -308,6 +308,7 @@ export function getAllProducts(): Product[] {
 
 /**
  * Get a product by its slug
+ * @param slug
  */
 export function getProductBySlug(slug: string): Product | undefined {
   return products.find((product) => product.slug === slug);
@@ -315,6 +316,7 @@ export function getProductBySlug(slug: string): Product | undefined {
 
 /**
  * Get a product by its ID
+ * @param id
  */
 export function getProductById(id: string): Product | undefined {
   return products.find((product) => product.id === id);
@@ -322,6 +324,7 @@ export function getProductById(id: string): Product | undefined {
 
 /**
  * Get products filtered by criteria
+ * @param filters
  */
 export function getFilteredProducts(filters: ProductFilters): Product[] {
   let filtered = [...products];

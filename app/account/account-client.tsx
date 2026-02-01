@@ -8,8 +8,14 @@ import { getSpoExplorerSubscriptions } from "@/app/actions/tenant-actions";
 import { ProfileTab, SubscriptionsTab, TenantsTab } from "@/components/account";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+/**
+ *
+ */
 type TabValue = "profile" | "subscriptions" | "tenants";
 
+/**
+ *
+ */
 export function AccountClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -24,6 +30,9 @@ export function AccountClient() {
     React.useState(true);
 
   React.useEffect(() => {
+    /**
+     *
+     */
     async function checkSpoSubscription() {
       try {
         const result = await getSpoExplorerSubscriptions();

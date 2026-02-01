@@ -28,6 +28,9 @@ const SPO_EXPLORER_PRODUCT_ID = "helvety-spo-explorer";
 // GET /api/tenants - List user's registered tenants
 // =============================================================================
 
+/**
+ *
+ */
 export async function GET() {
   try {
     const supabase = await createServerComponentClient();
@@ -84,6 +87,10 @@ export async function GET() {
 // POST /api/tenants - Register a new tenant
 // =============================================================================
 
+/**
+ *
+ * @param request
+ */
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerComponentClient();
