@@ -1,11 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+import { render, screen, userEvent } from "@/__tests__/utils/test-utils";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
-// Mock next-themes with controllable state
+// Mock next-themes with controllable state for testing different theme scenarios
+// This overrides the global mock in vitest.setup.ts to allow per-test control
 const mockSetTheme = vi.fn();
 let mockTheme = "light";
 let mockResolvedTheme = "light";
@@ -17,12 +16,8 @@ vi.mock("next-themes", () => ({
     resolvedTheme: mockResolvedTheme,
     themes: ["light", "dark", "system"],
   }),
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
-
-// Wrapper with TooltipProvider
-function TestWrapper({ children }: { children: React.ReactNode }) {
-  return <TooltipProvider>{children}</TooltipProvider>;
-}
 
 describe("ThemeSwitcher", () => {
   beforeEach(() => {
@@ -32,13 +27,13 @@ describe("ThemeSwitcher", () => {
   });
 
   it("should render the theme toggle button", () => {
-    render(<ThemeSwitcher />, { wrapper: TestWrapper });
+    render(<ThemeSwitcher />);
     const button = screen.getByRole("button", { name: /toggle theme/i });
     expect(button).toBeInTheDocument();
   });
 
   it("should have accessible label", () => {
-    render(<ThemeSwitcher />, { wrapper: TestWrapper });
+    render(<ThemeSwitcher />);
     expect(screen.getByLabelText(/toggle theme/i)).toBeInTheDocument();
   });
 
@@ -47,7 +42,7 @@ describe("ThemeSwitcher", () => {
     mockTheme = "light";
     mockResolvedTheme = "light";
 
-    render(<ThemeSwitcher />, { wrapper: TestWrapper });
+    render(<ThemeSwitcher />);
     const button = screen.getByRole("button", { name: /toggle theme/i });
 
     await user.click(button);
@@ -59,7 +54,7 @@ describe("ThemeSwitcher", () => {
     mockTheme = "dark";
     mockResolvedTheme = "dark";
 
-    render(<ThemeSwitcher />, { wrapper: TestWrapper });
+    render(<ThemeSwitcher />);
     const button = screen.getByRole("button", { name: /toggle theme/i });
 
     await user.click(button);
@@ -71,7 +66,7 @@ describe("ThemeSwitcher", () => {
     mockTheme = "system";
     mockResolvedTheme = "dark";
 
-    render(<ThemeSwitcher />, { wrapper: TestWrapper });
+    render(<ThemeSwitcher />);
     const button = screen.getByRole("button", { name: /toggle theme/i });
 
     await user.click(button);
@@ -79,7 +74,7 @@ describe("ThemeSwitcher", () => {
   });
 
   it("should have screen reader text", () => {
-    render(<ThemeSwitcher />, { wrapper: TestWrapper });
+    render(<ThemeSwitcher />);
     expect(screen.getByText("Toggle theme")).toBeInTheDocument();
   });
 });

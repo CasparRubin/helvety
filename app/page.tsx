@@ -19,6 +19,9 @@ const staggerContainer = {
   },
 };
 
+/**
+ *
+ */
 export default function Home() {
   const [isFirefox, setIsFirefox] = useState(false);
 

@@ -6,6 +6,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
+/**
+ *
+ */
 interface EncryptionUnlockProps {
   userId: string;
   /** PRF-based params for passkey unlock */

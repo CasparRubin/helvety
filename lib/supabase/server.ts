@@ -1,58 +1,28 @@
 import "server-only";
 
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-
-import { getSupabaseUrl, getSupabaseKey } from "@/lib/env-validation";
+import { createServerComponentClient } from "./client-factory";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * Get cookie domain for cross-subdomain session sharing
- * In production, uses .helvety.com to share sessions across subdomains
- */
-function getCookieDomain(): string | undefined {
-  if (process.env.NODE_ENV === "production") {
-    return ".helvety.com";
-  }
-  return undefined;
-}
-
-/**
- * Creates a Supabase server client with cookie handling for Server Components.
+ * Creates a Supabase client for use in Server Components, Server Actions, and Route Handlers.
+ * This is the standard way to create a client in server-side Next.js code.
+ *
+ * PERFORMANCE NOTES:
+ * - Creates a new client instance per request (required for proper cookie handling)
+ * - Each request needs its own cookie context for session management
+ * - Client creation is lightweight, so multiple calls within the same action are acceptable
+ * - For better performance within a single action, consider reusing the client instance
+ *
+ * SECURITY NOTES:
+ * - This client uses the anon/publishable key (same as client-side)
+ * - All database operations are protected by Row Level Security (RLS) policies
+ * - Server-side code can perform additional authorization checks before operations
+ * - Use this for server components and server actions that need database access
+ * - Never use service role key in this client - it bypasses RLS
  *
  * @returns Promise that resolves to a Supabase client instance
  */
 export async function createClient(): Promise<SupabaseClient> {
-  const supabaseUrl = getSupabaseUrl();
-  const supabaseKey = getSupabaseKey();
-  const cookieStore = await cookies();
-  const cookieDomain = getCookieDomain();
-
-  return createServerClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(
-        cookiesToSet: Array<{
-          name: string;
-          value: string;
-          options?: Record<string, unknown>;
-        }>
-      ): void {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            const cookieOptions = {
-              ...options,
-              ...(cookieDomain && { domain: cookieDomain }),
-            } as Parameters<typeof cookieStore.set>[2];
-            cookieStore.set(name, value, cookieOptions);
-          });
-        } catch {
-          // The `setAll` method was called from a Server Component.
-        }
-      },
-    },
-  });
+  return createServerComponentClient();
 }

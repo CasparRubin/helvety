@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: "Privacy Policy for Helvety - How we handle your data",
 };
 
+/**
+ *
+ */
 export default function PrivacyPage() {
   return (
     <main className="min-h-screen px-6 py-12">
@@ -335,8 +338,7 @@ export default function PrivacyPage() {
 
             <h3 className="mb-3 text-lg font-medium">2.7 Encryption Data</h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              For services that offer end-to-end encryption (such as Helvety
-              PDF), we store:
+              For services that offer end-to-end encryption, we store:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>

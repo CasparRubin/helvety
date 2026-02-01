@@ -27,6 +27,7 @@ import {
   type PRFSupportInfo,
 } from "./prf-key-derivation";
 
+/** Internal state for the encryption context */
 interface EncryptionState {
   /** Whether encryption is unlocked (master key available) */
   isUnlocked: boolean;
@@ -42,6 +43,7 @@ interface EncryptionState {
   prfSupportInfo: PRFSupportInfo | null;
 }
 
+/** Public API exposed by the encryption context */
 interface EncryptionContextValue extends EncryptionState {
   /**
    * Unlock encryption with passkey (PRF-based)
@@ -72,10 +74,15 @@ interface EncryptionContextValue extends EncryptionState {
 
 const EncryptionContext = createContext<EncryptionContextValue | null>(null);
 
+/** Props for the EncryptionProvider component */
 interface EncryptionProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Provider component for end-to-end encryption state management.
+ * Handles passkey-based encryption initialization, unlocking, and key management.
+ */
 export function EncryptionProvider({ children }: EncryptionProviderProps) {
   const [state, setState] = useState<EncryptionState>({
     isUnlocked: false,

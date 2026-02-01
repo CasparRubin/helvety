@@ -32,6 +32,9 @@ import {
 } from "@/components/ui/tooltip";
 import { VERSION } from "@/lib/config/version";
 
+/**
+ *
+ */
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

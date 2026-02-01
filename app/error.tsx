@@ -7,6 +7,9 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
 
+/**
+ *
+ */
 export default function GlobalError({
   error,
   reset,

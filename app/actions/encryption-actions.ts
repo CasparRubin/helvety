@@ -5,6 +5,7 @@ import "server-only";
 import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 
+/** Response type for encryption-related server actions */
 export type EncryptionActionResponse<T = void> = {
   success: boolean;
   data?: T;

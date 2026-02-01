@@ -36,13 +36,22 @@ const nextConfig: NextConfig = {
       },
       {
         key: "Content-Security-Policy",
+        // Note on 'unsafe-eval' and 'unsafe-inline':
+        // - 'unsafe-eval': May be required by some third-party libraries and
+        //   Next.js development mode. Could potentially be removed in production
+        //   but requires thorough testing.
+        // - 'unsafe-inline': Required for Next.js styled-jsx and some React patterns.
+        // XSS is mitigated through:
+        // - Strict React JSX escaping (no dangerouslySetInnerHTML)
+        // - Input validation on all user data
+        // - HTTPOnly cookies for authentication
         value: [
           "default-src 'self'",
           "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
           "style-src 'self' 'unsafe-inline'",
           "img-src 'self' data: https: blob:",
           "font-src 'self' data:",
-          "connect-src 'self'",
+          "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co",
           "frame-src 'self'",
           "object-src 'none'",
           "base-uri 'self'",
@@ -79,7 +88,7 @@ const nextConfig: NextConfig = {
 
   // Experimental features for better performance
   experimental: {
-    optimizePackageImports: ["lucide-react"],
+    optimizePackageImports: ["lucide-react", "sonner"],
   },
 };
 

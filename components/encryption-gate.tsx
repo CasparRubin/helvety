@@ -7,12 +7,18 @@ import { getEncryptionParams } from "@/app/actions/encryption-actions";
 import { EncryptionUnlock } from "@/components/encryption-unlock";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
+/**
+ *
+ */
 interface EncryptionGateProps {
   userId: string;
   userEmail: string;
   children: ReactNode;
 }
 
+/**
+ *
+ */
 type EncryptionStatus =
   | "loading"
   | "needs_setup"
@@ -70,6 +76,9 @@ export function EncryptionGate({
 
   // Check encryption state on mount
   useEffect(() => {
+    /**
+     *
+     */
     async function checkState() {
       try {
         // First check if we have a cached key

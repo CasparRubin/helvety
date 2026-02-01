@@ -16,6 +16,8 @@ The main Helvety website. Swiss Engineering.
 - **Legal pages** - Impressum, Privacy Policy, and Terms of Service
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
 - **Animated logo** - Subtle glow effect on the main logo
+- **End-to-End Encryption** - Client-side encryption using WebAuthn PRF extension
+- **Encryption Gate** - Secure access control requiring passkey-based decryption
 
 ## Tech Stack
 
@@ -33,15 +35,70 @@ This project is built with modern web technologies:
 - **[Vitest](https://vitest.dev/)** - Unit and integration testing
 - **[Playwright](https://playwright.dev/)** - End-to-end testing
 
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18.17 or later
+- npm 9 or later
+- A Supabase project (optional, for authentication features)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/helvety/helvety.com.git
+   cd helvety.com
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables (see [Environment Variables](#environment-variables) below)
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Environment Variables
+
+Copy `env.template` to `.env.local` (if available) and fill in the required values:
+
+### Optional Variables
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_PROJECT_URL` | Your Supabase project URL (for authentication features) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/publishable key (safe for browser) |
+| `SUPABASE_SECRET_KEY` | Supabase service role key (server-only, for server actions) |
+
+The website functions without Supabase credentials, but authentication and encryption features will be disabled.
+
+## Configuration
+
+### Authentication
+
+Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`). The main website uses cross-subdomain session cookies for SSO with other Helvety apps.
+
 ## Project Structure
 
 ```
 helvety.com/
 ├── __tests__/                  # Unit and integration tests
+│   ├── components/             # Component tests
+│   ├── lib/                    # Library tests
+│   └── utils/                  # Test utilities
 ├── .github/
 │   └── workflows/              # CI/CD workflows
 │       └── test.yml            # Automated testing
 ├── app/                        # Next.js App Router
+│   ├── actions/                # Server actions
+│   │   └── encryption-actions.ts # Encryption parameter management
 │   ├── globals.css             # Global styles
 │   ├── icon.svg                # App icon
 │   ├── layout.tsx              # Root layout component
@@ -53,16 +110,19 @@ helvety.com/
 │   ├── robots.ts               # Robots.txt configuration
 │   └── sitemap.ts              # Sitemap configuration
 ├── components/                 # React components
-│   ├── __tests__/              # Component tests
 │   ├── ui/                     # shadcn/ui component library
 │   │   └── index.ts            # Barrel exports
 │   ├── app-switcher.tsx        # Helvety ecosystem app switcher
+│   ├── encryption-gate.tsx     # Encryption setup/unlock gate
+│   ├── encryption-unlock.tsx   # Encryption passkey unlock
 │   ├── navbar.tsx              # Navigation bar
 │   ├── theme-provider.tsx      # Theme context provider
 │   └── theme-switcher.tsx      # Dark/light mode switcher
 ├── lib/                        # Utility functions
 │   ├── config/                 # Configuration files
 │   │   └── version.ts          # Build version
+│   ├── crypto/                 # Encryption utilities
+│   ├── types/                  # Type definitions
 │   └── utils.ts                # General utility functions
 ├── e2e/                        # End-to-end tests (Playwright)
 ├── public/                     # Static assets
@@ -74,6 +134,29 @@ helvety.com/
 ├── playwright.config.ts        # Playwright E2E configuration
 └── [config files]              # Other configuration files
 ```
+
+## Testing
+
+This project uses Vitest for unit tests and Playwright for end-to-end tests.
+
+```bash
+# Run unit tests in watch mode
+npm run test
+
+# Run unit tests once
+npm run test:run
+
+# Run with coverage
+npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E tests with UI
+npm run test:e2e:ui
+```
+
+See `__tests__/README.md` for testing patterns and conventions.
 
 ## Developer
 

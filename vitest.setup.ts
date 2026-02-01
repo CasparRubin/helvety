@@ -1,7 +1,9 @@
 import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
 
-// Mock Next.js navigation
+// =============================================================================
+// NEXT.JS MOCKS (all projects)
+// =============================================================================
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
@@ -9,13 +11,13 @@ vi.mock("next/navigation", () => ({
     prefetch: vi.fn(),
     back: vi.fn(),
     forward: vi.fn(),
+    refresh: vi.fn(),
   }),
   usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
   useParams: () => ({}),
 }));
 
-// Mock next-themes
 vi.mock("next-themes", () => ({
   useTheme: () => ({
     theme: "light",
@@ -25,3 +27,8 @@ vi.mock("next-themes", () => ({
   }),
   ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
+
+// =============================================================================
+// NOTE: This project (helvety.com) is a simple landing page and does not
+// require WebAuthn or Crypto mocks. Add them here if needed in the future.
+// =============================================================================
