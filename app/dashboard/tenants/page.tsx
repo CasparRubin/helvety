@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { getLoginUrl } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
 
 import { TenantsClient } from "./tenants-client";
@@ -16,9 +17,9 @@ export default async function TenantsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect to login if not authenticated
+  // Redirect to centralized auth service if not authenticated
   if (!user) {
-    redirect("/login");
+    redirect(getLoginUrl());
   }
 
   return <TenantsClient />;

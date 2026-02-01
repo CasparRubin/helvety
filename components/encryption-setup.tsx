@@ -15,12 +15,12 @@ import { savePasskeyParams } from "@/app/actions/encryption-actions";
 import {
   generatePasskeyRegistrationOptions,
   verifyPasskeyRegistration,
-} from "@/app/actions/passkey-auth-actions";
+} from "@/app/actions/encryption-passkey-actions";
 import {
   AuthStepper,
   getSetupStep,
   type AuthFlowType,
-} from "@/components/auth-stepper";
+} from "@/components/encryption-stepper";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -62,9 +62,12 @@ interface RegistrationData {
 }
 
 /**
- * Component for setting up encryption with passkey
+ * Component for setting up end-to-end encryption with passkey
  * Uses WebAuthn PRF extension to derive encryption keys from device biometrics
- * Also registers the passkey for authentication (passwordless login)
+ *
+ * Note: Authentication is handled by the centralized auth service (auth.helvety.com).
+ * This component only handles encryption key setup. The credential is stored in
+ * user_auth_credentials for cross-subdomain passkey sharing (registered to helvety.com RP ID).
  *
  * Flow: initial → registering → ready_to_sign_in → signing_in → complete
  * 1. User clicks "Set Up with Phone" → creates passkey on phone
@@ -182,14 +185,15 @@ export function EncryptionSetup({
         return;
       }
 
-      // Verify and store credential for authentication (server-side)
+      // Store credential in user_auth_credentials for cross-subdomain passkey sharing
+      // (allows auth.helvety.com to use this passkey for authentication)
       const verifyResult = await verifyPasskeyRegistration(
         regResult.response,
         origin
       );
       if (!verifyResult.success) {
-        // Log but don't fail - encryption is more important
-        console.warn("Failed to store auth credential:", verifyResult.error);
+        // Log but don't fail - encryption setup is the primary purpose
+        console.warn("Failed to store credential for sharing:", verifyResult.error);
         // Continue with encryption setup
       }
 

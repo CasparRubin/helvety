@@ -24,21 +24,28 @@ Your one-stop shop for Helvety software, subscriptions, and apparel. Browse and 
 
 ## Security & Authentication
 
-This application implements a modern, passwordless authentication system with end-to-end encryption:
+This application uses centralized authentication via [auth.helvety.com](https://auth.helvety.com) with end-to-end encryption:
 
 ### Authentication Flow
 
+Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **passkey-only authentication** — no email or password required:
+
 **New Users:**
 
-1. Enter email → Receive magic link (rate-limited to 2 requests/minute)
-2. Click link → Setup passkey on your phone (Face ID, Touch ID, or fingerprint)
-3. Sign in with passkey to activate encryption
+1. Redirected to auth.helvety.com → Click "Create Account"
+2. Scan QR code with phone → Verify with biometrics (Face ID/fingerprint)
+3. Account created → Session established → Redirected back to store
+4. Setup encryption passkey (for encrypting sensitive data)
 
 **Returning Users:**
 
-1. Enter email → Passkey detected → Direct passkey authentication (no email needed)
+1. Redirected to auth.helvety.com → Click "Sign In"
+2. Scan QR code → Verify with biometrics → Session created
+3. Redirected back → Unlock encryption with passkey
 
-- **Unified Stepper UI** - Clear progress indicator through the authentication flow
+Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
+
+**Privacy Note:** Helvety accounts do not require an email address. When you make a purchase, your email and billing information is collected by Stripe, not stored by Helvety.
 
 ### End-to-End Encryption
 
@@ -47,6 +54,7 @@ User data is protected with client-side encryption using the WebAuthn PRF extens
 - **Passkey-derived keys** - Encryption keys are derived from your passkey using the PRF extension
 - **Zero-knowledge** - The server never sees your encryption key; all encryption/decryption happens in the browser
 - **Device-bound security** - Your passkey (stored on your phone) is the only way to decrypt your data
+- **Cross-subdomain passkeys** - Encryption passkeys work across all Helvety apps (registered to `helvety.com` RP ID)
 
 ## Tech Stack
 
@@ -71,10 +79,10 @@ This project is built with modern web technologies:
 helvety-store/
 ├── app/                        # Next.js App Router
 │   ├── actions/                # Server actions
-│   │   ├── auth-actions.ts     # Authentication actions
+│   │   ├── auth-actions.ts     # Authentication response types
 │   │   ├── download-actions.ts # Software download management
 │   │   ├── encryption-actions.ts # Encryption parameter management
-│   │   ├── passkey-auth-actions.ts # WebAuthn passkey operations
+│   │   ├── encryption-passkey-actions.ts # Passkey operations for encryption
 │   │   ├── subscription-actions.ts # Subscription management
 │   │   └── tenant-actions.ts   # Tenant registration for licensing
 │   ├── api/                    # API routes
@@ -88,25 +96,29 @@ helvety-store/
 │   │   │   └── [id]/           # Individual tenant operations
 │   │   └── webhooks/stripe/    # Stripe webhook handler
 │   ├── auth/                   # Auth routes
-│   │   └── callback/           # Magic link & OAuth callback
+│   │   └── callback/           # Session establishment callback
 │   ├── dashboard/              # User dashboard
 │   │   ├── downloads/          # Download management page
 │   │   └── tenants/            # Tenant registration page
-│   ├── login/                  # Login page with passkey support
 │   ├── products/               # Product catalog
 │   │   └── [slug]/             # Product detail pages
 │   ├── globals.css             # Global styles
 │   ├── layout.tsx              # Root layout component
-│   └── page.tsx                # Main page
+│   └── page.tsx                # Main page (redirects to auth if unauthenticated)
 ├── components/                 # React components
 │   ├── products/               # Product display components
 │   ├── ui/                     # shadcn/ui component library
 │   ├── app-switcher.tsx        # Helvety ecosystem app switcher
+│   ├── encryption-gate.tsx     # Encryption setup/unlock gate
+│   ├── encryption-setup.tsx    # Encryption passkey setup
+│   ├── encryption-stepper.tsx  # Encryption flow progress indicator
+│   ├── encryption-unlock.tsx   # Encryption passkey unlock
 │   ├── navbar.tsx              # Navigation bar
 │   └── theme-switcher.tsx      # Dark/light mode switcher
 ├── hooks/                      # Custom React hooks
 │   └── use-encryption.ts       # Encryption state hook
 ├── lib/                        # Utility functions
+│   ├── auth-redirect.ts        # Auth service redirect utilities
 │   ├── config/                 # Configuration files
 │   ├── crypto/                 # Encryption utilities
 │   ├── data/                   # Static product data

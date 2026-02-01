@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { getLoginUrl } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
 
 import { ProductDetailClient } from "./product-detail-client";
@@ -15,9 +16,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect to login if not authenticated
+  // Redirect to centralized auth service if not authenticated
   if (!user) {
-    redirect("/login");
+    redirect(getLoginUrl());
   }
 
   const { slug } = await params;

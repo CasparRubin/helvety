@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { EncryptionGate } from "@/components/encryption-gate";
 import { ProductsCatalog } from "@/components/products";
+import { getLoginUrl } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function Home() {
@@ -10,9 +11,9 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect to login if not authenticated
+  // Redirect to centralized auth service if not authenticated
   if (!user) {
-    redirect("/login");
+    redirect(getLoginUrl());
   }
 
   return (

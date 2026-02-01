@@ -51,16 +51,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
-import { useNavigation } from "@/lib/navigation-helpers";
 import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
-  const { navigate } = useNavigation();
   const { isUnlocked } = useEncryptionContext();
   const supabase = createClient();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -71,16 +69,14 @@ export function Navbar() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      setUserEmail(user?.email ?? null);
       setIsAuthenticated(!!user);
     };
     void getUser();
   }, [supabase.auth]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    // Navigate to login page (prefetching handled by navigate)
-    navigate("/login", { immediate: true });
+  const handleLogout = () => {
+    // Redirect to centralized auth service for logout
+    redirectToLogout(window.location.origin);
   };
 
   const footerLinks = [
@@ -243,11 +239,7 @@ export function Navbar() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <PopoverTitle>Account</PopoverTitle>
-                        {userEmail && (
-                          <PopoverDescription className="truncate">
-                            {userEmail}
-                          </PopoverDescription>
-                        )}
+                        <PopoverDescription>Signed in</PopoverDescription>
                       </div>
                     </div>
                   </PopoverHeader>
@@ -269,7 +261,7 @@ export function Navbar() {
                       className="w-full justify-start"
                       onClick={() => {
                         setProfileOpen(false);
-                        void handleLogout();
+                        handleLogout();
                       }}
                     >
                       <LogOut className="h-4 w-4" />
