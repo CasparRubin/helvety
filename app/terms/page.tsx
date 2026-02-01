@@ -27,7 +27,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: January 31, 2026
+              Last updated: February 1, 2026
             </p>
           </header>
 
@@ -259,17 +259,18 @@ export default function TermsPage() {
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               To access certain features of the Services, you must create an
-              account. You agree to:
+              account. Account creation uses passkey authentication only—no
+              email address or personal information is required. You
+              authenticate using your device&apos;s biometrics (Face ID,
+              fingerprint, or PIN).
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              By creating an account, you agree to:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
-                Provide accurate, current, and complete information during
-                registration.
-              </li>
-              <li>Maintain and promptly update your account information.</li>
-              <li>
-                Maintain the security and confidentiality of your account
-                credentials.
+                Maintain the security of your passkey and the device(s) on which
+                it is stored.
               </li>
               <li>
                 Accept responsibility for all activities that occur under your
@@ -279,6 +280,14 @@ export default function TermsPage() {
                 Notify us immediately of any unauthorized use of your account.
               </li>
             </ul>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">Account Recovery:</strong>{" "}
+              Because accounts use passkey-only authentication with no email,
+              account recovery depends on your passkey being synced across your
+              devices (via iCloud Keychain, Google Password Manager, or similar
+              services). If you lose access to all devices with your passkey,
+              you may not be able to recover your account.
+            </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Age Requirement:</strong> You
               must be at least 18 years of age to create an account and use the
@@ -667,8 +676,10 @@ export default function TermsPage() {
             </p>
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
-                An immediate order confirmation email to the email address
-                associated with your account.
+                An immediate order confirmation email to the email address you
+                provided during checkout. Note: This email is collected by
+                Stripe during the purchase process, not by your Helvety account
+                (which does not require an email).
               </li>
               <li>
                 The confirmation includes: order number, itemized list of
@@ -676,9 +687,9 @@ export default function TermsPage() {
                 estimated delivery time (for physical products).
               </li>
               <li>
-                For digital products and SaaS subscriptions, access information
-                or download links will be provided in the confirmation or a
-                subsequent email.
+                For digital products and SaaS subscriptions, access is
+                automatically linked to your Helvety account. You can access
+                purchased features by signing in with your passkey.
               </li>
             </ul>
           </section>

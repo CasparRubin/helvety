@@ -27,7 +27,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: January 31, 2026
+              Last updated: February 1, 2026
             </p>
           </header>
 
@@ -208,12 +208,23 @@ export default function PrivacyPage() {
               2.1 Account Information
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              When you create an account, we collect:
+              When you create an account, we use passkey authentication
+              (biometrics via your device). We do not collect email addresses,
+              names, or other personal information during account registration.
+              We store only:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
-              <li>Email address (required for authentication)</li>
-              <li>Name (if provided)</li>
+              <li>
+                A unique internal identifier (UUID) generated automatically
+              </li>
+              <li>
+                Passkey credentials (public key and metadata for authentication)
+              </li>
             </ul>
+            <p className="text-muted-foreground mb-4 text-sm">
+              This privacy-focused approach means you can create and use a
+              Helvety account without providing any personal information.
+            </p>
 
             <h3 className="mb-3 text-lg font-medium">
               2.2 Order and Transaction Data
@@ -286,16 +297,19 @@ export default function PrivacyPage() {
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">Account Creation:</strong>{" "}
-                Providing your email address is a contractual requirement
-                necessary to create an account and use our Services. Without
-                this information, we cannot provide you with an account.
+                Creating an account requires only passkey authentication using
+                your device&apos;s biometrics (Face ID, fingerprint, or PIN). No
+                personal data such as email or name is required. A unique
+                identifier is generated automatically.
               </li>
               <li>
                 <strong className="text-foreground">Purchases:</strong>{" "}
-                Providing payment and billing information is a contractual
-                requirement to process your orders. Without this information, we
-                cannot complete your purchase. Payment processing is handled
-                securely by Stripe.
+                When you make a purchase, payment and billing information
+                (including email, name, and address) is collected directly by
+                our payment processor, Stripe. This information is required to
+                process your order and is subject to Stripe&apos;s privacy
+                policy. Helvety does not collect or store this information
+                directly.
               </li>
               <li>
                 <strong className="text-foreground">License Validation:</strong>{" "}
@@ -529,19 +543,24 @@ export default function PrivacyPage() {
           <section id="retention">
             <h2 className="mb-4 text-xl font-semibold">7. Data Retention</h2>
             <p className="text-muted-foreground mb-4 text-sm">
-              We retain your personal data only for as long as necessary to
-              fulfill the purposes for which it was collected:
+              We retain data only for as long as necessary to fulfill the
+              purposes for which it was collected:
             </p>
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">Account data:</strong>{" "}
-                Retained while your account is active and for up to 2 years
-                after account deletion for legal compliance.
+                Your account consists of an internal identifier (UUID) and
+                passkey credentials only—no email or personal information is
+                stored. This data is retained while your account is active and
+                for up to 2 years after account deletion for legal compliance.
               </li>
               <li>
                 <strong className="text-foreground">Transaction data:</strong>{" "}
-                Retained for 10 years as required by Swiss accounting and tax
-                laws (Art. 958f Swiss Code of Obligations).
+                Subscription and purchase records (linked to your account ID and
+                Stripe customer ID) are retained for 10 years as required by
+                Swiss accounting and tax laws (Art. 958f Swiss Code of
+                Obligations). Note that your email and billing details are
+                stored by Stripe, not by Helvety.
               </li>
               <li>
                 <strong className="text-foreground">

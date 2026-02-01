@@ -1,6 +1,6 @@
 "use client";
 
-import { Grip, Home, FileText, ShoppingBag } from "lucide-react";
+import { Grip, Home, FileText, ShoppingBag, KeyRound } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ const apps = [
   { name: "Home", href: "https://helvety.com", icon: Home },
   { name: "Store", href: "https://store.helvety.com", icon: ShoppingBag },
   { name: "PDF", href: "https://pdf.helvety.com", icon: FileText },
+  { name: "Auth", href: "https://auth.helvety.com", icon: KeyRound },
 ];
 
 interface AppSwitcherProps {
