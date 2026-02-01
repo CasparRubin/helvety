@@ -22,7 +22,6 @@ import {
 export function useSubscription(): SubscriptionContextValue {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [tier, setTier] = useState<SubscriptionTier>("free");
   const [limits, setLimits] = useState<TierLimits>(TIER_LIMITS.free);
 
@@ -35,7 +34,6 @@ export function useSubscription(): SubscriptionContextValue {
 
       if (!userResult.success || !userResult.data) {
         setIsAuthenticated(false);
-        setUserEmail(null);
         setTier("free");
         setLimits(TIER_LIMITS.free);
         setIsLoading(false);
@@ -43,7 +41,6 @@ export function useSubscription(): SubscriptionContextValue {
       }
 
       setIsAuthenticated(true);
-      setUserEmail(userResult.data.email);
 
       // Get subscription tier
       const tierResult = await getUserTier();
@@ -74,7 +71,6 @@ export function useSubscription(): SubscriptionContextValue {
   return {
     isLoading,
     isAuthenticated,
-    userEmail,
     tier,
     limits,
     isPro: tier === "pro",

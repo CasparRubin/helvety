@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getLoginUrl } from "@/lib/auth-redirect";
 import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,6 +11,9 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  *
  * This route is called when users click magic links or complete OAuth flows.
  * It exchanges the auth code for a session and redirects to the app.
+ *
+ * Note: Primary authentication now happens via auth.helvety.com.
+ * This callback handles session establishment from cross-subdomain cookies.
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -17,6 +21,9 @@ export async function GET(request: Request) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type");
   const next = searchParams.get("next") ?? "/";
+
+  // Get auth service URL with redirect back to this app
+  const authErrorUrl = getLoginUrl(origin);
 
   // Handle PKCE flow (code exchange)
   if (code) {
@@ -28,7 +35,7 @@ export async function GET(request: Request) {
     }
 
     logger.error("Auth callback error (code exchange):", error);
-    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+    return NextResponse.redirect(`${authErrorUrl}&error=auth_failed`);
   }
 
   // Handle token hash (email OTP verification link)
@@ -45,9 +52,9 @@ export async function GET(request: Request) {
     }
 
     logger.error("Auth callback error (token hash):", error);
-    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+    return NextResponse.redirect(`${authErrorUrl}&error=auth_failed`);
   }
 
-  // No valid auth params
-  return NextResponse.redirect(`${origin}/login?error=missing_params`);
+  // No valid auth params - redirect to auth service
+  return NextResponse.redirect(`${authErrorUrl}&error=missing_params`);
 }

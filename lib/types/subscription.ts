@@ -65,8 +65,6 @@ export interface SubscriptionContextValue {
   isLoading: boolean;
   /** Whether user is authenticated */
   isAuthenticated: boolean;
-  /** Current user's email */
-  userEmail: string | null;
   /** Current subscription tier */
   tier: SubscriptionTier;
   /** Current tier limits */

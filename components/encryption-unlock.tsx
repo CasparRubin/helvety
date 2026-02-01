@@ -3,7 +3,7 @@
 import { Fingerprint, Lock, Loader2 } from "lucide-react";
 import { useState } from "react";
 
-import { AuthStepper, type AuthFlowType } from "@/components/auth-stepper";
+import { AuthStepper, type AuthFlowType } from "@/components/encryption-stepper";
 import { Button } from "@/components/ui/button";
 import {
   Card,

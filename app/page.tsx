@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 
 import { EncryptionGate } from "@/components/encryption-gate";
+import { getLoginUrl } from "@/lib/auth-redirect";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import { PageClient } from "./page-client";
 
 /**
  * Main page - server component with auth protection
- * Redirects to login if not authenticated
+ * Redirects to centralized auth service if not authenticated
  * Wraps content in EncryptionGate to enforce passkey setup
  */
 export default async function Page(): Promise<React.JSX.Element> {
@@ -17,9 +18,9 @@ export default async function Page(): Promise<React.JSX.Element> {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect to login if not authenticated
+  // Redirect to centralized auth service if not authenticated
   if (!user) {
-    redirect("/login");
+    redirect(getLoginUrl());
   }
 
   return (

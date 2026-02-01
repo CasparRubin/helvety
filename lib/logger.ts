@@ -15,6 +15,85 @@
 const isDevelopment = process.env.NODE_ENV === "development";
 
 /**
+ * Error tracking service interface
+ * Allows integration with services like Sentry, LogRocket, etc.
+ */
+interface ErrorTrackingService {
+  captureException(error: Error, context?: Record<string, unknown>): void;
+  captureMessage(
+    message: string,
+    level?: "error" | "warning" | "info",
+    context?: Record<string, unknown>
+  ): void;
+}
+
+/**
+ * Safe internal logger for error tracking failures
+ * Uses console directly to avoid circular dependencies when error tracking itself fails
+ * This is only used internally and never exposed to prevent bypassing the main logger
+ */
+function safeInternalErrorLog(...args: unknown[]): void {
+  // Direct console.error is necessary here to prevent infinite loops
+  // if the error tracking service fails and tries to log through logger.error
+  if (isDevelopment) {
+    console.error("[Logger Internal Error]", ...args);
+  } else {
+    // In production, still log but with a clear marker
+    console.error("[Logger Internal Error]", ...args);
+  }
+}
+
+/**
+ * Error tracking service implementation
+ * Currently a no-op, but can be extended to integrate with actual services
+ */
+class ErrorTracker implements ErrorTrackingService {
+  private service: ErrorTrackingService | null = null;
+
+  /**
+   * Initialize error tracking service
+   * Call this method to set up integration with services like Sentry
+   */
+  init(service: ErrorTrackingService): void {
+    this.service = service;
+  }
+
+  captureException(error: Error, context?: Record<string, unknown>): void {
+    if (this.service) {
+      try {
+        this.service.captureException(error, context);
+      } catch (e) {
+        // Use safe internal logger to avoid circular dependency
+        // Cannot use logger.error here as it would call errorTracker again
+        safeInternalErrorLog("Error tracking failed:", e);
+      }
+    }
+  }
+
+  captureMessage(
+    message: string,
+    level: "error" | "warning" | "info" = "error",
+    context?: Record<string, unknown>
+  ): void {
+    if (this.service) {
+      try {
+        this.service.captureMessage(message, level, context);
+      } catch (e) {
+        // Use safe internal logger to avoid circular dependency
+        // Cannot use logger.error here as it would call errorTracker again
+        safeInternalErrorLog("Error tracking failed:", e);
+      }
+    }
+  }
+}
+
+/**
+ * Global error tracker instance
+ * Initialize with: errorTracker.init(yourService)
+ */
+export const errorTracker = new ErrorTracker();
+
+/**
  * Type guard to check if a value is a record-like object
  */
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -115,10 +194,12 @@ export const logger = {
       console.error(...args);
     } else {
       // In production, sanitize errors before logging
+      // Uses recursive sanitization to handle nested objects and arrays
       const sanitizedArgs = args.map((arg) => {
         if (isRecord(arg)) {
           return sanitizeObject(arg);
         }
+        // Handle arrays that might contain sensitive objects
         if (Array.isArray(arg)) {
           return arg.map((item) => {
             if (isRecord(item)) {
@@ -130,6 +211,22 @@ export const logger = {
         return arg;
       });
       console.error(...sanitizedArgs);
+    }
+
+    // Send to error tracking service (works in both dev and prod)
+    const firstArg = args[0];
+    if (firstArg instanceof Error) {
+      const context =
+        args.length > 1 && isRecord(args[1])
+          ? sanitizeObject(args[1])
+          : undefined;
+      errorTracker.captureException(firstArg, context);
+    } else if (typeof firstArg === "string") {
+      const context =
+        args.length > 1 && isRecord(args[1])
+          ? sanitizeObject(args[1])
+          : undefined;
+      errorTracker.captureMessage(firstArg, "error", context);
     }
   },
 

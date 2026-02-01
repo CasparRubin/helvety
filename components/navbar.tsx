@@ -16,10 +16,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-// External libraries
 
 // Internal components
 import { AppSwitcher } from "@/components/app-switcher";
@@ -58,20 +55,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
-import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
-  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const { isAuthenticated, userEmail, isPro, isLoading } =
-    useSubscriptionContext();
-  const supabase = createClient();
+  const { isAuthenticated, isPro, isLoading } = useSubscriptionContext();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
+  const handleLogout = () => {
+    // Redirect to centralized auth service for logout
+    redirectToLogout(window.location.origin);
   };
 
   const navLinks = [
@@ -210,11 +204,7 @@ export function Navbar() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <PopoverTitle>Account</PopoverTitle>
-                      {userEmail && (
-                        <PopoverDescription className="truncate">
-                          {userEmail}
-                        </PopoverDescription>
-                      )}
+                      <PopoverDescription>Signed in</PopoverDescription>
                     </div>
                   </div>
                 </PopoverHeader>
@@ -302,7 +292,7 @@ export function Navbar() {
                     className="w-full justify-start"
                     onClick={() => {
                       setProfileOpen(false);
-                      void handleLogout();
+                      handleLogout();
                     }}
                   >
                     <LogOut className="h-4 w-4" />
@@ -332,8 +322,8 @@ export function Navbar() {
                     <div className="mb-2 border-b px-3 py-2">
                       <div className="flex items-center gap-2">
                         <User className="text-muted-foreground h-4 w-4" />
-                        <span className="text-muted-foreground truncate text-sm">
-                          {userEmail}
+                        <span className="text-muted-foreground text-sm">
+                          Signed in
                         </span>
                       </div>
                       <div className="mt-2">
@@ -415,7 +405,7 @@ export function Navbar() {
                     className="hover:bg-accent text-destructive flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
                     onClick={() => {
                       setMobileMenuOpen(false);
-                      void handleLogout();
+                      handleLogout();
                     }}
                   >
                     <LogOut className="h-4 w-4" />

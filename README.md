@@ -76,19 +76,28 @@ Subscribe at [store.helvety.com](https://store.helvety.com/products/helvety-pdf)
 
 ## Security & Authentication
 
-This application implements a modern, passwordless authentication system with end-to-end encryption:
+This application uses centralized authentication via [auth.helvety.com](https://auth.helvety.com) with end-to-end encryption:
 
 ### Authentication Flow
 
+Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **passkey-only authentication** — no email or password required:
+
 **New Users:**
 
-1. Enter email → Receive magic link (rate-limited to 2 requests/minute)
-2. Click link → Setup passkey on your phone (Face ID, Touch ID, or fingerprint)
-3. Sign in with passkey to activate encryption
+1. Redirected to auth.helvety.com → Click "Create Account"
+2. Scan QR code with phone → Verify with biometrics (Face ID/fingerprint)
+3. Account created → Session established → Redirected back to PDF app
+4. Setup encryption passkey (for encrypting sensitive data)
 
 **Returning Users:**
 
-1. Enter email → Passkey detected → Direct passkey authentication (no email needed)
+1. Redirected to auth.helvety.com → Click "Sign In"
+2. Scan QR code → Verify with biometrics → Session created
+3. Redirected back → Unlock encryption with passkey
+
+Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
+
+**Privacy Note:** Helvety accounts do not require an email address. When you make a purchase, your email and billing information is collected by Stripe, not stored by Helvety.
 
 ### End-to-End Encryption
 
@@ -97,6 +106,7 @@ User data is protected with client-side encryption using the WebAuthn PRF extens
 - **Passkey-derived keys** - Encryption keys are derived from your passkey using the PRF extension
 - **Zero-knowledge** - The server never sees your encryption key; all encryption/decryption happens in the browser
 - **Device-bound security** - Your passkey (stored on your phone) is the only way to decrypt your data
+- **Cross-subdomain passkeys** - Encryption passkeys work across all Helvety apps (registered to `helvety.com` RP ID)
 
 ### Browser Requirements
 
@@ -106,7 +116,7 @@ Passkey encryption requires a modern browser with WebAuthn PRF support:
 - Microsoft Edge 128+
 - Safari 18+
 
-**Note:** Firefox is not currently supported for authentication due to limited PRF extension support.
+**Note:** Firefox is not currently supported for encryption passkeys due to limited PRF extension support.
 
 ## Tech Stack
 
@@ -131,14 +141,14 @@ This project is built with modern web technologies:
 helvety-pdf/
 ├── app/                    # Next.js App Router
 │   ├── actions/           # Server actions
-│   │   ├── passkey-auth-actions.ts # WebAuthn passkey authentication
+│   │   ├── encryption-actions.ts # Encryption parameter management
+│   │   ├── encryption-passkey-actions.ts # Passkey operations for encryption
 │   │   └── subscription-actions.ts # Subscription status queries
-│   ├── auth/callback/     # Auth callback route
-│   ├── login/             # Login page
+│   ├── auth/callback/     # Session establishment callback
 │   ├── globals.css        # Global styles
 │   ├── icon.svg           # App icon
 │   ├── layout.tsx         # Root layout component
-│   ├── page.tsx           # Main page component
+│   ├── page.tsx           # Main page (redirects to auth if unauthenticated)
 │   ├── page-client.tsx    # Client-side page component
 │   ├── robots.ts          # Robots.txt configuration
 │   └── sitemap.ts         # Sitemap configuration
@@ -147,7 +157,10 @@ helvety-pdf/
 │   │   └── index.ts      # Barrel exports
 │   ├── app-switcher.tsx   # Helvety ecosystem app switcher
 │   ├── auth-provider.tsx  # Authentication context provider
-│   ├── auth-stepper.tsx   # Authentication flow stepper
+│   ├── encryption-gate.tsx # Encryption setup/unlock gate
+│   ├── encryption-setup.tsx # Encryption passkey setup
+│   ├── encryption-stepper.tsx # Encryption flow progress indicator
+│   ├── encryption-unlock.tsx # Encryption passkey unlock
 │   ├── helvety-pdf.tsx    # Main PDF management component
 │   ├── navbar.tsx         # Navigation bar
 │   ├── pdf-action-buttons.tsx   # Action buttons for PDF operations
@@ -178,6 +191,7 @@ helvety-pdf/
 │   ├── use-subscription.ts # Subscription status hook
 │   └── use-thumbnail-intersection.ts # Thumbnail intersection observer
 ├── lib/                   # Utility functions
+│   ├── auth-redirect.ts   # Auth service redirect utilities
 │   ├── config/            # Configuration
 │   │   └── version.ts     # Build version info
 │   ├── crypto/            # Encryption utilities

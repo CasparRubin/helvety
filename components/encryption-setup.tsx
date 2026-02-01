@@ -15,12 +15,12 @@ import { savePasskeyParams } from "@/app/actions/encryption-actions";
 import {
   generatePasskeyRegistrationOptions,
   verifyPasskeyRegistration,
-} from "@/app/actions/passkey-auth-actions";
+} from "@/app/actions/encryption-passkey-actions";
 import {
   AuthStepper,
   getSetupStep,
   type AuthFlowType,
-} from "@/components/auth-stepper";
+} from "@/components/encryption-stepper";
 import { Button } from "@/components/ui/button";
 import {
   Card,

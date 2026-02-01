@@ -165,7 +165,6 @@ export async function getUserTier(): Promise<
 export async function getCurrentUser(): Promise<
   ActionResponse<{
     id: string;
-    email: string;
   } | null>
 > {
   try {
@@ -188,7 +187,6 @@ export async function getCurrentUser(): Promise<
       success: true,
       data: {
         id: user.id,
-        email: user.email ?? "",
       },
     };
   } catch (error) {

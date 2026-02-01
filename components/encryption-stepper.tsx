@@ -4,10 +4,10 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-/** Type of authentication flow */
+/** Type of authentication/encryption flow */
 export type AuthFlowType = "new_user" | "returning_user";
 
-/** Steps in the authentication flow */
+/** Steps in the encryption flow */
 export type AuthStep =
   | "email"
   | "create_passkey"
@@ -24,26 +24,44 @@ const FLOW_STEPS: Record<AuthFlowType, StepConfig[]> = {
   new_user: [
     { id: "email", label: "Email" },
     { id: "create_passkey", label: "Setup Passkey" },
-    { id: "verify_encryption", label: "Sign In" },
+    { id: "verify_encryption", label: "Verify" },
   ],
   returning_user: [
     { id: "email", label: "Email" },
-    { id: "sign_in", label: "Sign In" },
+    { id: "sign_in", label: "Unlock" },
   ],
 };
 
+/**
+ * Get the auth step based on setup step (used by encryption-setup)
+ */
+export function getSetupStep(
+  setupStep:
+    | "initial"
+    | "registering"
+    | "ready_to_sign_in"
+    | "signing_in"
+    | "complete"
+): AuthStep {
+  switch (setupStep) {
+    case "initial":
+    case "registering":
+      return "create_passkey";
+    case "ready_to_sign_in":
+    case "signing_in":
+    case "complete":
+      return "verify_encryption";
+  }
+}
+
 interface AuthStepperProps {
-  /** The type of flow (new user or returning user) */
   flowType: AuthFlowType;
-  /** The current step in the flow */
   currentStep: AuthStep;
-  /** Optional className for the container */
   className?: string;
 }
 
 /**
- * Unified stepper component for the authentication flow.
- * Shows progress through email -> passkey setup/sign-in steps.
+ * Stepper component for the encryption setup/unlock flow.
  */
 export function AuthStepper({
   flowType,
@@ -63,7 +81,6 @@ export function AuthStepper({
 
           return (
             <div key={step.id} className="flex items-center">
-              {/* Step circle and label */}
               <div className="flex flex-col items-center">
                 <div
                   className={cn(
@@ -90,7 +107,6 @@ export function AuthStepper({
                 </span>
               </div>
 
-              {/* Connector line */}
               {!isLast && (
                 <div
                   className={cn(
@@ -105,28 +121,4 @@ export function AuthStepper({
       </div>
     </div>
   );
-}
-
-/**
- * Helper to determine the current auth step based on setup state
- */
-export function getSetupStep(
-  setupStep:
-    | "initial"
-    | "registering"
-    | "ready_to_sign_in"
-    | "signing_in"
-    | "complete"
-): AuthStep {
-  switch (setupStep) {
-    case "initial":
-    case "registering":
-      return "create_passkey";
-    case "ready_to_sign_in":
-    case "signing_in":
-    case "complete":
-      return "verify_encryption";
-    default:
-      return "create_passkey";
-  }
 }

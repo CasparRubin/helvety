@@ -14,7 +14,6 @@ import {
 const SubscriptionContext = createContext<SubscriptionContextValue>({
   isLoading: true,
   isAuthenticated: false,
-  userEmail: null,
   tier: "free",
   limits: TIER_LIMITS.free,
   isPro: false,
