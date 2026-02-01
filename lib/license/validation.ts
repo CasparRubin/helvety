@@ -1,6 +1,6 @@
 /**
- * License validation logic for SPFx extension
- * Validates tenant licenses against subscriptions
+ * License validation logic for Helvety products
+ * Validates tenant licenses against product-specific subscriptions
  */
 
 import { logger } from "@/lib/logger";
@@ -61,14 +61,16 @@ const GRACE_PERIOD_STATUSES: SubscriptionStatus[] = ["past_due", "canceled"];
 // =============================================================================
 
 /**
- * Validates a tenant's license status
+ * Validates a tenant's license status for a specific product
  * This is called from the public API endpoint (no auth required)
  *
  * @param tenantId - The SharePoint tenant identifier (e.g., "contoso")
+ * @param productId - The product identifier (e.g., "helvety-spo-explorer")
  * @returns License validation response
  */
 export async function validateTenantLicense(
-  tenantId: string
+  tenantId: string,
+  productId: string
 ): Promise<LicenseValidationResponse> {
   try {
     const supabase = createAdminClient();
@@ -76,34 +78,39 @@ export async function validateTenantLicense(
     // Normalize tenant ID (lowercase, trim)
     const normalizedTenantId = tenantId.toLowerCase().trim();
 
-    // Look up the tenant and its subscription in one query
+    // Look up the tenant and its subscription for the specific product
+    // Using !inner join ensures we only get tenants with matching subscriptions
     const { data: tenant, error: tenantError } = await supabase
       .from("licensed_tenants")
       .select(
         `
         id,
         tenant_id,
-        subscription:subscriptions (
+        subscription:subscriptions!inner (
           id,
           tier_id,
           status,
           current_period_end,
-          cancel_at_period_end
+          cancel_at_period_end,
+          product_id
         )
       `
       )
       .eq("tenant_id", normalizedTenantId)
-      .single();
+      .eq("subscription.product_id", productId)
+      .maybeSingle();
 
     if (tenantError || !tenant) {
-      logger.debug(`Tenant not found: ${normalizedTenantId}`);
+      logger.debug(
+        `Tenant not found for product: ${normalizedTenantId} / ${productId}`
+      );
       return {
         valid: false,
         reason: "tenant_not_registered",
       };
     }
 
-    // TypeScript: subscription comes back as an array from the join, but we use .single()
+    // TypeScript: subscription comes back as an array from the join, but we use .maybeSingle()
     // so it should be a single object. Handle both cases.
     const subscription = Array.isArray(tenant.subscription)
       ? tenant.subscription[0]
@@ -111,7 +118,7 @@ export async function validateTenantLicense(
 
     if (!subscription) {
       logger.warn(
-        `Tenant ${normalizedTenantId} has no associated subscription`
+        `Tenant ${normalizedTenantId} has no associated subscription for product ${productId}`
       );
       return {
         valid: false,
@@ -146,7 +153,7 @@ export async function validateTenantLicense(
 
       if (new Date() <= gracePeriodEnd) {
         logger.info(
-          `Tenant ${normalizedTenantId} in grace period until ${gracePeriodEnd.toISOString()}`
+          `Tenant ${normalizedTenantId} (${productId}) in grace period until ${gracePeriodEnd.toISOString()}`
         );
         return {
           valid: true,

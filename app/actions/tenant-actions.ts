@@ -2,7 +2,7 @@
 
 /**
  * Server actions for tenant management
- * Manage licensed tenants for SPFx extension
+ * Manage licensed tenants for Helvety products
  */
 
 import { getMaxTenantsForTier } from "@/lib/license/validation";
@@ -244,15 +244,20 @@ export async function registerTenant(
       };
     }
 
-    // Check if tenant is already registered
+    // Check if tenant is already registered for this subscription
+    // Note: Same tenant can be registered for different subscriptions (different products)
     const { data: existingTenant } = await supabase
       .from("licensed_tenants")
       .select("id")
       .eq("tenant_id", normalizedTenantId)
-      .single();
+      .eq("subscription_id", subscriptionId)
+      .maybeSingle();
 
     if (existingTenant) {
-      return { success: false, error: "This tenant is already registered" };
+      return {
+        success: false,
+        error: "This tenant is already registered for this subscription",
+      };
     }
 
     // Create the tenant
@@ -273,7 +278,10 @@ export async function registerTenant(
       logger.error("Error creating tenant:", insertError);
 
       if (insertError.code === "23505") {
-        return { success: false, error: "This tenant is already registered" };
+        return {
+          success: false,
+          error: "This tenant is already registered for this subscription",
+        };
       }
 
       return { success: false, error: "Failed to register tenant" };

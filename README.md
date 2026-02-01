@@ -18,7 +18,7 @@ Your one-stop shop for Helvety software, subscriptions, and apparel. Browse and 
 - **Dashboard** - Manage your tenants and software downloads
 - **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer licensing
 - **Download Management** - Access and download purchased software packages
-- **License Validation** - API for validating tenant licenses across Helvety products
+- **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 - **App Switcher** - Navigate between Helvety ecosystem apps
 

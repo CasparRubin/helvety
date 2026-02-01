@@ -1,8 +1,8 @@
 /**
  * License Validation API Route
- * Public endpoint for SPFx extension to validate tenant licenses
+ * Public endpoint for Helvety products to validate tenant licenses
  *
- * GET /api/license/validate?tenant={tenantId}
+ * GET /api/license/validate?tenant={tenantId}&product={productId}
  */
 
 import { NextResponse } from "next/server";
@@ -108,9 +108,10 @@ export async function GET(request: NextRequest) {
   const corsHeaders = getCorsHeaders(origin);
 
   try {
-    // Get tenant ID from query params
+    // Get tenant ID and product ID from query params
     const { searchParams } = new URL(request.url);
     const tenantId = searchParams.get("tenant");
+    const productId = searchParams.get("product");
 
     if (!tenantId) {
       return NextResponse.json(
@@ -125,12 +126,39 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (!productId) {
+      return NextResponse.json(
+        {
+          valid: false,
+          reason: "missing_product_id",
+        } as LicenseValidationResponse,
+        {
+          status: 400,
+          headers: corsHeaders,
+        }
+      );
+    }
+
     // Validate tenant ID format (alphanumeric and hyphens only)
     if (!/^[a-zA-Z0-9-]+$/.test(tenantId)) {
       return NextResponse.json(
         {
           valid: false,
           reason: "invalid_tenant_id",
+        } as LicenseValidationResponse,
+        {
+          status: 400,
+          headers: corsHeaders,
+        }
+      );
+    }
+
+    // Validate product ID format (alphanumeric, hyphens, and underscores)
+    if (!/^[a-zA-Z0-9-_]+$/.test(productId)) {
+      return NextResponse.json(
+        {
+          valid: false,
+          reason: "invalid_product_id",
         } as LicenseValidationResponse,
         {
           status: 400,
@@ -157,8 +185,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Validate the license
-    const result = await validateTenantLicense(tenantId);
+    // Validate the license for the specific product
+    const result = await validateTenantLicense(tenantId, productId);
 
     // Set cache headers (cache valid responses for 1 hour)
     const cacheHeaders = result.valid
