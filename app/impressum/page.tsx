@@ -232,7 +232,7 @@ export default function ImpressumPage() {
           {/* Last Updated */}
           <footer className="border-border border-t pt-8">
             <p className="text-muted-foreground text-center text-xs">
-              Last updated: January 31, 2026
+              Last updated: February 1, 2026
             </p>
           </footer>
         </article>
