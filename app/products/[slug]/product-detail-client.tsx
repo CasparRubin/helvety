@@ -19,7 +19,7 @@ import {
   RotateCcw,
   type LucideIcon,
 } from "lucide-react";
-import { notFound, useSearchParams } from "next/navigation";
+import { notFound, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
@@ -48,6 +48,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { TOAST_DURATIONS } from "@/lib/constants";
 import { getProductBySlug } from "@/lib/data/products";
 import { logger } from "@/lib/logger";
 import { isSoftwareProduct } from "@/lib/types/products";
@@ -74,6 +75,7 @@ interface ProductDetailClientProps {
 
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const product = getProductBySlug(slug);
 
@@ -107,10 +109,24 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     const checkoutStatus = searchParams.get("checkout");
 
     if (checkoutStatus === "success") {
-      toast.success("Payment successful! Thank you for your purchase.", {
-        description: "Your subscription is now active.",
-        duration: 5000,
-      });
+      // Show product-specific success message
+      if (product?.id === "helvety-spo-explorer") {
+        // SPO Explorer: Guide users to register tenants
+        toast.success("Welcome to SPO Explorer!", {
+          description: "Register your SharePoint tenant to get started.",
+          action: {
+            label: "Register Tenant",
+            onClick: () => router.push("/account?tab=tenants"),
+          },
+          duration: TOAST_DURATIONS.SUCCESS * 2, // Extra long for actionable toast
+        });
+      } else {
+        // Default success message
+        toast.success("Payment successful! Thank you for your purchase.", {
+          description: "Your subscription is now active.",
+          duration: TOAST_DURATIONS.SUCCESS,
+        });
+      }
       // Refresh subscriptions after successful checkout
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Data fetching after checkout is valid
       void fetchSubscriptions();
@@ -119,12 +135,12 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     } else if (checkoutStatus === "cancelled") {
       toast.info("Checkout cancelled", {
         description: "No payment was made. You can try again anytime.",
-        duration: 4000,
+        duration: TOAST_DURATIONS.INFO,
       });
       // Clean up URL
       window.history.replaceState({}, "", `/products/${slug}`);
     }
-  }, [searchParams, slug, fetchSubscriptions]);
+  }, [searchParams, slug, fetchSubscriptions, product?.id, router]);
 
   if (!product) {
     notFound();
@@ -371,6 +387,7 @@ function PricingCard({
 
       toast.success("Subscription reactivated", {
         description: "Your subscription will continue as normal.",
+        duration: TOAST_DURATIONS.SUCCESS,
       });
 
       onReactivate?.();
@@ -379,7 +396,8 @@ function PricingCard({
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to reactivate subscription. Please try again."
+          : "Failed to reactivate subscription. Please try again.",
+        { duration: TOAST_DURATIONS.ERROR }
       );
     } finally {
       setIsReactivating(false);
@@ -443,7 +461,8 @@ function PricingCard({
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to start checkout. Please try again."
+          : "Failed to start checkout. Please try again.",
+        { duration: TOAST_DURATIONS.ERROR }
       );
       setIsLoading(false);
     }

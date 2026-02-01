@@ -68,7 +68,7 @@ export async function deriveKeyFromPRF(
 
     // Use PRF salt for HKDF salt, and add app-specific info
     const salt = base64Decode(params.prfSalt);
-    const info = new TextEncoder().encode("helvety-store-e2ee-v1");
+    const info = new TextEncoder().encode("helvety-e2ee-v1");
 
     // Derive AES-256-GCM key using HKDF
     return await crypto.subtle.deriveKey(

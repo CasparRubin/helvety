@@ -35,6 +35,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { TOAST_DURATIONS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -93,7 +94,9 @@ export function SubscriptionsPanel() {
         setSubscriptions(result.data ?? []);
       } catch (error) {
         logger.error("Error fetching subscriptions:", error);
-        toast.error("Failed to load subscriptions");
+        toast.error("Failed to load subscriptions", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
       } finally {
         setIsLoading(false);
         setIsRefreshing(false);
@@ -132,6 +135,7 @@ export function SubscriptionsPanel() {
 
       toast.success("Subscription reactivated", {
         description: "Your subscription will continue as normal.",
+        duration: TOAST_DURATIONS.SUCCESS,
       });
 
       // Refresh subscriptions
@@ -141,7 +145,8 @@ export function SubscriptionsPanel() {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to reactivate subscription. Please try again."
+          : "Failed to reactivate subscription. Please try again.",
+        { duration: TOAST_DURATIONS.ERROR }
       );
     } finally {
       setActionLoadingId(null);
@@ -167,7 +172,8 @@ export function SubscriptionsPanel() {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to open billing portal. Please try again."
+          : "Failed to open billing portal. Please try again.",
+        { duration: TOAST_DURATIONS.ERROR }
       );
       setPortalLoading(false);
     }

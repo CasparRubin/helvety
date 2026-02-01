@@ -10,14 +10,13 @@ import {
   Menu,
   Github,
   Info,
-  CreditCard,
+  Settings,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { AppSwitcher } from "@/components/app-switcher";
-import { SubscriptionsSheet } from "@/components/subscriptions-sheet";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import {
@@ -62,7 +61,6 @@ export function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [subscriptionsSheetOpen, setSubscriptionsSheetOpen] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -248,13 +246,12 @@ export function Navbar() {
                     <Button
                       variant="outline"
                       className="w-full justify-start"
-                      onClick={() => {
-                        setProfileOpen(false);
-                        setSubscriptionsSheetOpen(true);
-                      }}
+                      asChild
                     >
-                      <CreditCard className="h-4 w-4" />
-                      My Subscriptions
+                      <Link href="/account" onClick={() => setProfileOpen(false)}>
+                        <Settings className="h-4 w-4" />
+                        Account
+                      </Link>
                     </Button>
                     <Button
                       variant="destructive"
@@ -270,12 +267,6 @@ export function Navbar() {
                   </div>
                 </PopoverContent>
               </Popover>
-
-              {/* Subscriptions sheet - accessible from profile popover */}
-              <SubscriptionsSheet
-                open={subscriptionsSheetOpen}
-                onOpenChange={setSubscriptionsSheetOpen}
-              />
             </>
           )}
 

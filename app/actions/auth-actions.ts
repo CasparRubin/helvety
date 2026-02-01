@@ -10,6 +10,6 @@ export type AuthResponse = {
   error?: string;
 };
 
-// Note: Password-based login is not used in this app.
-// We use Supabase magic links via signInWithOtp on the client.
+// Note: Authentication is handled by the centralized auth service at auth.helvety.com.
+// This app receives sessions via shared cookies on the .helvety.com domain.
 // This file exports only the AuthResponse type for consistency.

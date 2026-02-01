@@ -3,7 +3,6 @@
 import { Fingerprint, Lock, Loader2 } from "lucide-react";
 import { useState } from "react";
 
-import { AuthStepper, type AuthFlowType } from "@/components/encryption-stepper";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,8 +17,6 @@ interface EncryptionUnlockProps {
   userId: string;
   /** PRF-based params for passkey unlock */
   passkeyParams: PRFKeyParams;
-  /** Flow type for the stepper */
-  flowType?: AuthFlowType;
   onUnlock?: () => void;
 }
 
@@ -30,7 +27,6 @@ interface EncryptionUnlockProps {
 export function EncryptionUnlock({
   userId,
   passkeyParams,
-  flowType = "returning_user",
   onUnlock,
 }: EncryptionUnlockProps) {
   const { unlockWithPasskey } = useEncryptionContext();
@@ -65,7 +61,6 @@ export function EncryptionUnlock({
 
   return (
     <div className="flex w-full max-w-md flex-col items-center">
-      <AuthStepper flowType={flowType} currentStep="sign_in" />
       <Card className="w-full">
         <CardHeader className="space-y-1">
           <div className="flex items-center gap-2">

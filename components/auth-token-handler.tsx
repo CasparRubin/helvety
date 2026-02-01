@@ -34,7 +34,7 @@ export function AuthTokenHandler() {
     }
 
     // Set the session from hash tokens
-    supabase.auth
+    void supabase.auth
       .setSession({
         access_token: accessToken,
         refresh_token: refreshToken,

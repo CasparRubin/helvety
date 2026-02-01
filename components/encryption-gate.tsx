@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState, useMemo, type ReactNode } from "react";
 
 import { getEncryptionParams } from "@/app/actions/encryption-actions";
-import { EncryptionSetup } from "@/components/encryption-setup";
 import { EncryptionUnlock } from "@/components/encryption-unlock";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
@@ -22,14 +21,40 @@ type EncryptionStatus =
   | "error";
 
 /**
+ * Get the auth URL for encryption setup
+ * Redirects to auth.helvety.com with the current URL as redirect_uri
+ */
+function getAuthSetupUrl(): string {
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const isDev =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
+
+  const authBaseUrl = isDev
+    ? "http://localhost:3002"
+    : "https://auth.helvety.com";
+
+  const url = new URL(authBaseUrl);
+  url.pathname = "/login";
+  url.searchParams.set("step", "encryption-setup");
+  if (currentUrl) {
+    url.searchParams.set("redirect_uri", currentUrl);
+  }
+
+  return url.toString();
+}
+
+/**
  * Gate component that ensures encryption is set up and unlocked
  * before rendering children.
  *
+ * If encryption is not set up, redirects to auth.helvety.com for setup.
  * Supports passkey-based encryption (PRF).
  */
 export function EncryptionGate({
   userId,
-  userEmail,
+  userEmail: _userEmail,
   children,
 }: EncryptionGateProps) {
   const {
@@ -98,10 +123,12 @@ export function EncryptionGate({
     setManualUnlock(true);
   };
 
-  // Handle setup complete
-  const handleSetupComplete = () => {
-    setManualUnlock(true);
-  };
+  // Redirect to auth for setup when needed
+  useEffect(() => {
+    if (status === "needs_setup") {
+      window.location.href = getAuthSetupUrl();
+    }
+  }, [status]);
 
   if (status === "loading") {
     return (
@@ -131,13 +158,15 @@ export function EncryptionGate({
   }
 
   if (status === "needs_setup") {
+    // Will redirect via useEffect above, show loading in the meantime
     return (
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
-        <EncryptionSetup
-          userId={userId}
-          userEmail={userEmail}
-          onComplete={handleSetupComplete}
-        />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground text-sm">
+            Redirecting to set up encryption...
+          </p>
+        </div>
       </div>
     );
   }

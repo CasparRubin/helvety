@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { TOAST_DURATIONS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { cn } from "@/lib/utils";
 import { formatPrice, getIntervalShortLabel } from "@/lib/utils/pricing";
@@ -125,6 +126,7 @@ export function PricingCard({
 
       toast.success("Subscription reactivated", {
         description: "Your subscription will continue as normal.",
+        duration: TOAST_DURATIONS.SUCCESS,
       });
 
       onReactivate?.();
@@ -133,7 +135,8 @@ export function PricingCard({
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to reactivate subscription. Please try again."
+          : "Failed to reactivate subscription. Please try again.",
+        { duration: TOAST_DURATIONS.ERROR }
       );
     } finally {
       setIsReactivating(false);
@@ -185,7 +188,8 @@ export function PricingCard({
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to start checkout. Please try again."
+          : "Failed to start checkout. Please try again.",
+        { duration: TOAST_DURATIONS.ERROR }
       );
       setIsLoading(false);
     }
@@ -262,8 +266,11 @@ export function PricingCard({
 
       <CardHeader
         className={cn(
-          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- Boolean OR is intentional
-          (tier.highlighted || hasActiveSubscription || isPendingCancellation) &&
+          /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- Boolean OR is intentional for boolean expression */
+          (tier.highlighted ||
+            hasActiveSubscription ||
+            isPendingCancellation) &&
+            /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
             "pt-4"
         )}
       >

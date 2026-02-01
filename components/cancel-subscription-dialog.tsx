@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { TOAST_DURATIONS } from "@/lib/constants";
 import { getProductById } from "@/lib/data/products";
 import { logger } from "@/lib/logger";
 
@@ -73,6 +74,7 @@ export function CancelSubscriptionDialog({
 
       toast.success("Subscription canceled", {
         description: `Your ${productName} subscription will end on ${formatDate(subscription.current_period_end)}.`,
+        duration: TOAST_DURATIONS.SUCCESS,
       });
 
       onSuccess();
@@ -82,7 +84,8 @@ export function CancelSubscriptionDialog({
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to cancel subscription. Please try again."
+          : "Failed to cancel subscription. Please try again.",
+        { duration: TOAST_DURATIONS.ERROR }
       );
     } finally {
       setIsLoading(false);
