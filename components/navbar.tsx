@@ -1,9 +1,17 @@
 "use client";
 
-import { Building2, FileText, Scale, Menu, Github, Info } from "lucide-react";
+import {
+  Building2,
+  FileText,
+  Scale,
+  Menu,
+  Github,
+  Info,
+  LogIn,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AppSwitcher } from "@/components/app-switcher";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -30,13 +38,56 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { redirectToLogin } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
+import { createClient } from "@/lib/supabase/client";
+
+import type { User } from "@supabase/supabase-js";
 
 /**
+ * Main navigation bar component for helvety.com
  *
+ * Features:
+ * - App switcher for navigating between Helvety ecosystem apps
+ * - Logo and branding
+ * - Navigation links (Impressum, Privacy, Terms)
+ * - About dialog with version info
+ * - GitHub link
+ * - Theme switcher (dark/light mode)
+ * - Login button (shown when user is not authenticated)
+ * - Mobile responsive with burger menu
  */
 export function Navbar() {
+  const supabase = createClient();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+      setIsLoading(false);
+    };
+    void getUser();
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase.auth]);
+
+  const handleLogin = () => {
+    redirectToLogin();
+  };
 
   const navLinks = [
     { href: "/impressum", label: "Impressum", icon: Building2 },
@@ -147,6 +198,14 @@ export function Navbar() {
           </TooltipProvider>
 
           <ThemeSwitcher />
+
+          {/* Login button - only show when not authenticated */}
+          {!user && !isLoading && (
+            <Button variant="default" size="sm" onClick={handleLogin}>
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign in
+            </Button>
+          )}
 
           {/* Mobile burger menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

@@ -10,9 +10,7 @@ export const metadata: Metadata = {
   description: "Terms of Service for Helvety - Software and Apparel",
 };
 
-/**
- *
- */
+/** Terms of Service page for Helvety */
 export default function TermsPage() {
   return (
     <main className="min-h-screen px-6 py-12">

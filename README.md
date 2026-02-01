@@ -63,11 +63,15 @@ This project is built with modern web technologies:
    npm run dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3003](http://localhost:3003) in your browser.
 
 ## Environment Variables
 
-Copy `env.template` to `.env.local` (if available) and fill in the required values:
+Copy `env.template` to `.env.local` and fill in the required values:
+
+```bash
+cp env.template .env.local
+```
 
 ### Optional Variables
 

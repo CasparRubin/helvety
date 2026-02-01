@@ -10,9 +10,7 @@ export const metadata: Metadata = {
   description: "Privacy Policy for Helvety - How we handle your data",
 };
 
-/**
- *
- */
+/** Privacy Policy page for Helvety */
 export default function PrivacyPage() {
   return (
     <main className="min-h-screen px-6 py-12">

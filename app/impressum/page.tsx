@@ -10,9 +10,7 @@ export const metadata: Metadata = {
   description: "Impressum for Helvety - Software and Apparel",
 };
 
-/**
- *
- */
+/** Legal notice / Impressum page for Helvety */
 export default function ImpressumPage() {
   return (
     <main className="min-h-screen px-6 py-12">
