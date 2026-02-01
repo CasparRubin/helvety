@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-Your one-stop shop for Helvety software, subscriptions, and apparel. Browse and purchase official Helvety products designed in Switzerland.
+Your one-stop shop for Helvety software and subscriptions. Browse and purchase official Helvety products designed in Switzerland.
 
 **Store:** [store.helvety.com](https://store.helvety.com)
 
@@ -21,6 +21,8 @@ Your one-stop shop for Helvety software, subscriptions, and apparel. Browse and 
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 - **App Switcher** - Navigate between Helvety ecosystem apps
+
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked from the navbar.
 
 ## Security & Authentication
 
@@ -88,183 +90,6 @@ This project is built with modern web technologies:
 - **[Vitest](https://vitest.dev/)** - Unit and integration testing
 - **[Playwright](https://playwright.dev/)** - End-to-end testing
 
-## Project Structure
-
-```
-helvety-store/
-├── __tests__/                  # Unit and integration tests
-├── .github/
-│   └── workflows/              # CI/CD workflows
-│       └── test.yml            # Automated testing
-├── app/                        # Next.js App Router
-│   ├── actions/                # Server actions
-│   │   ├── account-actions.ts  # User profile management
-│   │   ├── auth-actions.ts     # Authentication response types
-│   │   ├── download-actions.ts # Software download management
-│   │   ├── encryption-actions.ts # Encryption parameter management
-│   │   ├── subscription-actions.ts # Subscription management
-│   │   └── tenant-actions.ts   # Tenant registration for licensing
-│   ├── api/                    # API routes
-│   │   ├── checkout/           # Stripe Checkout session creation
-│   │   ├── downloads/          # Software package downloads
-│   │   │   └── [packageId]/    # Dynamic download routes
-│   │   ├── license/            # License validation
-│   │   │   └── validate/       # Tenant license validation endpoint
-│   │   ├── subscriptions/      # User subscription queries
-│   │   ├── tenants/            # Tenant management
-│   │   │   └── [id]/           # Individual tenant operations
-│   │   └── webhooks/stripe/    # Stripe webhook handler
-│   ├── auth/                   # Auth routes
-│   │   └── callback/           # Session establishment callback
-│   ├── account/                # User account management
-│   │   ├── account-client.tsx  # Account dashboard client component
-│   │   └── page.tsx            # Account page (profile, tenants, downloads)
-│   ├── products/               # Product catalog
-│   │   └── [slug]/             # Product detail pages
-│   ├── globals.css             # Global styles
-│   ├── layout.tsx              # Root layout component
-│   └── page.tsx                # Main page (redirects to auth if unauthenticated)
-├── components/                 # React components
-│   ├── products/               # Product display components
-│   ├── ui/                     # shadcn/ui component library
-│   ├── app-switcher.tsx        # Helvety ecosystem app switcher
-│   ├── encryption-gate.tsx     # Encryption setup/unlock gate
-│   ├── encryption-unlock.tsx   # Encryption passkey unlock
-│   ├── navbar.tsx              # Navigation bar
-│   └── theme-switcher.tsx      # Dark/light mode switcher
-├── hooks/                      # Custom React hooks
-│   └── use-encryption.ts       # Encryption state hook
-├── lib/                        # Utility functions
-│   ├── auth-redirect.ts        # Auth service redirect utilities
-│   ├── config/                 # Configuration files
-│   ├── crypto/                 # Encryption utilities
-│   ├── data/                   # Static product data
-│   ├── license/                # License validation utilities
-│   │   ├── index.ts            # License module exports
-│   │   └── validation.ts       # License validation logic
-│   ├── packages/               # Software package configuration
-│   │   └── config.ts           # Package definitions and metadata
-│   ├── stripe/                 # Stripe client and config
-│   │   ├── client.ts           # Stripe SDK initialization
-│   │   ├── config.ts           # Price IDs and product mappings
-│   │   └── index.ts            # Stripe module exports
-│   ├── supabase/               # Supabase client utilities
-│   ├── types/                  # Type definitions
-│   │   ├── entities.ts         # User, subscription, purchase types
-│   │   └── products.ts         # Product type definitions
-│   └── utils/                  # Utility functions
-├── e2e/                        # End-to-end tests (Playwright)
-├── supabase/                   # Database migrations
-│   └── migrations/             # SQL migration files
-├── public/                     # Static assets
-├── scripts/                    # Build scripts
-├── vitest.config.ts            # Vitest configuration
-├── vitest.setup.ts             # Test setup
-├── playwright.config.ts        # Playwright E2E configuration
-└── [config files]              # Other configuration files
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18.17 or later
-- npm 9 or later
-- A Supabase project (for authentication and database)
-- A Stripe account (for payment processing)
-
-### Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/helvety/helvety-store.git
-   cd helvety-store
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables (see [Environment Variables](#environment-variables) below)
-
-4. Run the development server:
-
-   ```bash
-   npm run dev
-   ```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## Environment Variables
-
-Copy `env.template` to `.env.local` and fill in the required values:
-
-```bash
-cp env.template .env.local
-```
-
-### Required Variables
-
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_PROJECT_URL` | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/publishable key (safe for browser) |
-| `SUPABASE_SECRET_KEY` | Supabase service role key (server-only, never expose to client) |
-| `NEXT_PUBLIC_APP_URL` | Public URL of the app (e.g., `http://localhost:3000`) |
-| `STRIPE_SECRET_KEY` | Stripe secret key (server-only) |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (safe for browser) |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
-| `STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID` | Stripe price ID for Helvety PDF Pro |
-| `STRIPE_HELVETY_SPO_EXPLORER_*_PRICE_ID` | Stripe price IDs for SPO Explorer tiers |
-
-See `env.template` for the full list with descriptions.
-
-## Configuration
-
-### Supabase Setup
-
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Run the database migrations from `supabase/migrations/`
-3. Configure Row Level Security (RLS) policies for all tables
-4. Enable the required auth providers
-
-### Stripe Setup
-
-1. Create a Stripe account at [stripe.com](https://stripe.com)
-2. Create products and prices in the Stripe Dashboard
-3. Configure the webhook endpoint: `https://your-domain.com/api/webhooks/stripe`
-4. Add the price IDs to your environment variables
-
-### Authentication
-
-Authentication is handled by the centralized Helvety Auth service. Ensure `auth.helvety.com` is configured and running.
-
-## Testing
-
-This project uses Vitest for unit tests and Playwright for end-to-end tests.
-
-```bash
-# Run unit tests in watch mode
-npm run test
-
-# Run unit tests once
-npm run test:run
-
-# Run with coverage
-npm run test:coverage
-
-# Run E2E tests
-npm run test:e2e
-
-# Run E2E tests with UI
-npm run test:e2e:ui
-```
-
-See `__tests__/README.md` for testing patterns and conventions.
-
 ## Developer
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
@@ -273,10 +98,20 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-This repository is public for transparency purposes only. All code is open for inspection so users can verify its behavior.
+> **This is NOT open source software.**
 
-**All Rights Reserved.** No license is granted. You may view the code, but you may not copy, reuse, redistribute, modify, or sell it without explicit written permission.
+This repository is public **for transparency purposes only** so users can verify the application's behavior and security.
 
-Purchasing a subscription grants access to use the hosted service only—subscriptions do not grant any rights to the source code.
+**All Rights Reserved.** No license is granted for any use of this code. You may:
+- View and inspect the code
 
-See [LICENSE](./LICENSE) for full terms.
+You may NOT:
+- Clone, copy, or download this code for any purpose
+- Modify, adapt, or create derivative works
+- Redistribute or share this code
+- Use this code in your own projects
+- Run this code locally or on your own servers
+
+**Purchasing a subscription grants access to use the hosted service at [store.helvety.com](https://store.helvety.com) only.** Subscriptions do not grant any rights to the source code.
+
+See [LICENSE](./LICENSE) for full legal terms.
