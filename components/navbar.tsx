@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  LogIn,
   LogOut,
   ShieldCheck,
   User,
@@ -50,13 +51,25 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { redirectToLogout } from "@/lib/auth-redirect";
+import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 import { createClient } from "@/lib/supabase/client";
 
 /**
+ * Main navigation bar component for helvety-store
  *
+ * Features:
+ * - App switcher for navigating between Helvety ecosystem apps
+ * - Logo and branding with "STORE" label
+ * - E2EE indicator (shown when encryption is unlocked)
+ * - Navigation links (Impressum, Privacy, Terms)
+ * - About dialog with version info
+ * - GitHub link
+ * - Theme switcher (dark/light mode)
+ * - Login button (shown when user is not authenticated)
+ * - Profile menu with account settings and logout (shown when authenticated)
+ * - Mobile responsive with burger menu
  */
 export function Navbar() {
   const { isUnlocked } = useEncryptionContext();
@@ -74,6 +87,10 @@ export function Navbar() {
     };
     void getUser();
   }, [supabase.auth]);
+
+  const handleLogin = () => {
+    redirectToLogin();
+  };
 
   const handleLogout = () => {
     // Redirect to centralized auth service for logout
@@ -223,6 +240,14 @@ export function Navbar() {
           </TooltipProvider>
 
           <ThemeSwitcher />
+
+          {/* Login button - only show when not authenticated */}
+          {!isAuthenticated && (
+            <Button variant="default" size="sm" onClick={handleLogin}>
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign in
+            </Button>
+          )}
 
           {isAuthenticated && (
             <>
