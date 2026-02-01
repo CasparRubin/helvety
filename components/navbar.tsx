@@ -8,6 +8,9 @@ import {
   Github,
   Info,
   LogIn,
+  LogOut,
+  User as UserIcon,
+  Settings,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,6 +29,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -38,7 +50,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { redirectToLogin } from "@/lib/auth-redirect";
+import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
 import { createClient } from "@/lib/supabase/client";
 
@@ -60,6 +72,7 @@ import type { User } from "@supabase/supabase-js";
 export function Navbar() {
   const supabase = createClient();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -87,6 +100,10 @@ export function Navbar() {
 
   const handleLogin = () => {
     redirectToLogin();
+  };
+
+  const handleLogout = () => {
+    redirectToLogout();
   };
 
   const navLinks = [
@@ -205,6 +222,60 @@ export function Navbar() {
               <LogIn className="mr-2 h-4 w-4" />
               Sign in
             </Button>
+          )}
+
+          {/* Profile menu - only show when authenticated */}
+          {user && !isLoading && (
+            <Popover open={profileOpen} onOpenChange={setProfileOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <UserIcon className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80">
+                <PopoverHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                      <UserIcon className="text-primary h-5 w-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <PopoverTitle>Account</PopoverTitle>
+                      <PopoverDescription className="truncate">
+                        {user.email ?? "Signed in"}
+                      </PopoverDescription>
+                    </div>
+                  </div>
+                </PopoverHeader>
+                <Separator />
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <a
+                      href="https://store.helvety.com/account"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Account
+                    </a>
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setProfileOpen(false);
+                      handleLogout();
+                    }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           )}
 
           {/* Mobile burger menu */}

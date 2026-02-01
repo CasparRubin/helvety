@@ -35,133 +35,6 @@ This project is built with modern web technologies:
 - **[Vitest](https://vitest.dev/)** - Unit and integration testing
 - **[Playwright](https://playwright.dev/)** - End-to-end testing
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18.17 or later
-- npm 9 or later
-- A Supabase project (optional, for authentication features)
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/helvety/helvety.com.git
-   cd helvety.com
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables (see [Environment Variables](#environment-variables) below)
-
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-5. Open [http://localhost:3003](http://localhost:3003) in your browser.
-
-## Environment Variables
-
-Copy `env.template` to `.env.local` and fill in the required values:
-
-```bash
-cp env.template .env.local
-```
-
-### Optional Variables
-
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_PROJECT_URL` | Your Supabase project URL (for authentication features) |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/publishable key (safe for browser) |
-| `SUPABASE_SECRET_KEY` | Supabase service role key (server-only, for server actions) |
-
-The website functions without Supabase credentials, but authentication and encryption features will be disabled.
-
-## Configuration
-
-### Authentication
-
-Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`). The main website uses cross-subdomain session cookies for SSO with other Helvety apps.
-
-## Project Structure
-
-```
-helvety.com/
-├── __tests__/                  # Unit and integration tests
-│   ├── components/             # Component tests
-│   ├── lib/                    # Library tests
-│   └── utils/                  # Test utilities
-├── .github/
-│   └── workflows/              # CI/CD workflows
-│       └── test.yml            # Automated testing
-├── app/                        # Next.js App Router
-│   ├── actions/                # Server actions
-│   │   └── encryption-actions.ts # Encryption parameter management
-│   ├── globals.css             # Global styles
-│   ├── icon.svg                # App icon
-│   ├── layout.tsx              # Root layout component
-│   ├── page.tsx                # Main page component
-│   ├── error.tsx               # Error boundary
-│   ├── impressum/              # Impressum page
-│   ├── privacy/                # Privacy policy page
-│   ├── terms/                  # Terms of service page
-│   ├── robots.ts               # Robots.txt configuration
-│   └── sitemap.ts              # Sitemap configuration
-├── components/                 # React components
-│   ├── ui/                     # shadcn/ui component library
-│   │   └── index.ts            # Barrel exports
-│   ├── app-switcher.tsx        # Helvety ecosystem app switcher
-│   ├── encryption-gate.tsx     # Encryption setup/unlock gate
-│   ├── encryption-unlock.tsx   # Encryption passkey unlock
-│   ├── navbar.tsx              # Navigation bar
-│   ├── theme-provider.tsx      # Theme context provider
-│   └── theme-switcher.tsx      # Dark/light mode switcher
-├── lib/                        # Utility functions
-│   ├── config/                 # Configuration files
-│   │   └── version.ts          # Build version
-│   ├── crypto/                 # Encryption utilities
-│   ├── types/                  # Type definitions
-│   └── utils.ts                # General utility functions
-├── e2e/                        # End-to-end tests (Playwright)
-├── public/                     # Static assets
-│   └── *.svg                   # Logo and branding assets
-├── scripts/                    # Build scripts
-│   └── generate-version.js    # Version generation script
-├── vitest.config.ts            # Vitest configuration
-├── vitest.setup.ts             # Test setup
-├── playwright.config.ts        # Playwright E2E configuration
-└── [config files]              # Other configuration files
-```
-
-## Testing
-
-This project uses Vitest for unit tests and Playwright for end-to-end tests.
-
-```bash
-# Run unit tests in watch mode
-npm run test
-
-# Run unit tests once
-npm run test:run
-
-# Run with coverage
-npm run test:coverage
-
-# Run E2E tests
-npm run test:e2e
-
-# Run E2E tests with UI
-npm run test:e2e:ui
-```
-
-See `__tests__/README.md` for testing patterns and conventions.
-
 ## Developer
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
@@ -170,8 +43,18 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-This repository is public for transparency purposes only. All code is open for inspection so users can verify its behavior.
+> **This is NOT open source software.**
 
-**All Rights Reserved.** No license is granted. You may view the code, but you may not copy, reuse, redistribute, modify, or sell it without explicit written permission.
+This repository is public **for transparency purposes only** so users can verify the application's behavior and security.
 
-See [LICENSE](./LICENSE) for full terms.
+**All Rights Reserved.** No license is granted for any use of this code. You may:
+- View and inspect the code
+
+You may NOT:
+- Clone, copy, or download this code for any purpose
+- Modify, adapt, or create derivative works
+- Redistribute or share this code
+- Use this code in your own projects
+- Run this code locally or on your own servers
+
+See [LICENSE](./LICENSE) for full legal terms.
