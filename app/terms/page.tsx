@@ -259,15 +259,16 @@ export default function TermsPage() {
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               To access certain features of the Services, you must create an
-              account. Account creation uses passkey authentication only—no
-              email address or personal information is required. You
-              authenticate using your device&apos;s biometrics (Face ID,
-              fingerprint, or PIN).
+              account. Account creation requires your email address and passkey
+              setup. You will receive a magic link via email to verify your
+              identity, then authenticate using your device&apos;s biometrics
+              (Face ID, fingerprint, or PIN) to set up your passkey.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               By creating an account, you agree to:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>Provide a valid email address that you have access to.</li>
               <li>
                 Maintain the security of your passkey and the device(s) on which
                 it is stored.
@@ -281,12 +282,22 @@ export default function TermsPage() {
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
-              <strong className="text-foreground">Account Recovery:</strong>{" "}
-              Because accounts use passkey-only authentication with no email,
-              account recovery depends on your passkey being synced across your
-              devices (via iCloud Keychain, Google Password Manager, or similar
-              services). If you lose access to all devices with your passkey,
-              you may not be able to recover your account.
+              <strong className="text-foreground">Account Recovery:</strong> If
+              you lose access to your passkey, you can request a new magic link
+              sent to your registered email address to re-authenticate and set
+              up a new passkey. We recommend keeping your passkey synced across
+              your devices via iCloud Keychain, Google Password Manager, or
+              similar services.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">Encryption Setup:</strong> For
+              services that support end-to-end encryption, you may be required
+              to set up an encryption passkey after authentication. This uses
+              the WebAuthn PRF (Pseudo-Random Function) extension to derive
+              encryption keys on your device. The encryption keys are never
+              transmitted to or stored on our servers. If you lose access to
+              your encryption passkey, encrypted data may become permanently
+              inaccessible.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Age Requirement:</strong> You
@@ -583,11 +594,44 @@ export default function TermsPage() {
             <h3 className="mb-3 text-lg font-medium">
               7.5 No Liability for User Content
             </h3>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               We do not endorse, support, represent, or guarantee the
               completeness, truthfulness, accuracy, or reliability of any User
               Content. We shall have no liability for any User Content uploaded
               or posted by users.
+            </p>
+
+            <h3 className="mb-3 text-lg font-medium">
+              7.6 Encrypted User Content
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              For services that implement end-to-end encryption:
+            </p>
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>
+                You are solely responsible for maintaining access to your
+                passkey. If you lose your passkey and cannot recover it through
+                account recovery, your encrypted data may become permanently
+                inaccessible.
+              </li>
+              <li>
+                We cannot recover or decrypt your encrypted data on your behalf.
+              </li>
+              <li>
+                We recommend keeping your passkey synced across devices using
+                your platform&apos;s passkey synchronization (iCloud Keychain,
+                Google Password Manager, etc.).
+              </li>
+              <li>
+                Encrypted data is protected by a zero-knowledge architecture; we
+                have no technical ability to access the plaintext content of
+                your encrypted data.
+              </li>
+            </ul>
+            <p className="text-muted-foreground text-sm">
+              End-to-end encryption requires a modern browser with WebAuthn PRF
+              support (Chrome 128+, Edge 128+, Safari 18+, Firefox 139+ desktop
+              only). Firefox for Android does not support encryption features.
             </p>
           </section>
 
@@ -677,9 +721,7 @@ export default function TermsPage() {
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
                 An immediate order confirmation email to the email address you
-                provided during checkout. Note: This email is collected by
-                Stripe during the purchase process, not by your Helvety account
-                (which does not require an email).
+                provided during checkout.
               </li>
               <li>
                 The confirmation includes: order number, itemized list of

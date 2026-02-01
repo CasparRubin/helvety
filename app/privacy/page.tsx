@@ -208,22 +208,31 @@ export default function PrivacyPage() {
               2.1 Account Information
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              When you create an account, we use passkey authentication
-              (biometrics via your device). We do not collect email addresses,
-              names, or other personal information during account registration.
-              We store only:
+              When you create an account, we collect your email address for
+              authentication purposes. We use a secure two-step authentication
+              process: first a magic link sent to your email, then passkey
+              verification (biometrics via your device). We store:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>
+                Your email address (used for authentication and account
+                recovery)
+              </li>
               <li>
                 A unique internal identifier (UUID) generated automatically
               </li>
               <li>
                 Passkey credentials (public key and metadata for authentication)
               </li>
+              <li>
+                Encryption passkey parameters (PRF salt values for deriving
+                encryption keys, for services with end-to-end encryption)
+              </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
-              This privacy-focused approach means you can create and use a
-              Helvety account without providing any personal information.
+              Your email address is used solely for authentication (sending
+              magic links) and important account notifications. We do not share
+              your email with third parties for marketing purposes.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -297,19 +306,19 @@ export default function PrivacyPage() {
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">Account Creation:</strong>{" "}
-                Creating an account requires only passkey authentication using
-                your device&apos;s biometrics (Face ID, fingerprint, or PIN). No
-                personal data such as email or name is required. A unique
+                Creating an account requires your email address (for magic link
+                authentication) and passkey setup using your device&apos;s
+                biometrics (Face ID, fingerprint, or PIN). Your email is
+                necessary for account verification and recovery. A unique
                 identifier is generated automatically.
               </li>
               <li>
-                <strong className="text-foreground">Purchases:</strong>{" "}
-                When you make a purchase, payment and billing information
-                (including email, name, and address) is collected directly by
-                our payment processor, Stripe. This information is required to
-                process your order and is subject to Stripe&apos;s privacy
-                policy. Helvety does not collect or store this information
-                directly.
+                <strong className="text-foreground">Purchases:</strong> When you
+                make a purchase, payment and billing information (including
+                email, name, and address) is collected directly by our payment
+                processor, Stripe. This information is required to process your
+                order and is subject to Stripe&apos;s privacy policy. Helvety
+                does not collect or store this information directly.
               </li>
               <li>
                 <strong className="text-foreground">License Validation:</strong>{" "}
@@ -323,6 +332,33 @@ export default function PrivacyPage() {
                 voluntary but necessary if you wish to receive a response.
               </li>
             </ul>
+
+            <h3 className="mb-3 text-lg font-medium">2.7 Encryption Data</h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              For services that offer end-to-end encryption (such as Helvety
+              PDF), we store:
+            </p>
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>
+                PRF parameters (Pseudo-Random Function extension data) used to
+                derive encryption keys from your passkey
+              </li>
+              <li>Encrypted data fields (where applicable)</li>
+            </ul>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">Important:</strong> Encryption
+              keys are derived client-side in your browser using the WebAuthn
+              PRF extension. We never have access to your actual encryption
+              keys. This zero-knowledge architecture means that even if our
+              servers were compromised, your encrypted data would remain
+              protected.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              <strong className="text-foreground">Browser Requirements:</strong>{" "}
+              End-to-end encryption requires a modern browser with WebAuthn PRF
+              support (Chrome 128+, Edge 128+, Safari 18+, Firefox 139+ desktop
+              only). Firefox for Android does not support the PRF extension.
+            </p>
           </section>
 
           {/* Section 3 */}
@@ -548,11 +584,11 @@ export default function PrivacyPage() {
             </p>
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
-                <strong className="text-foreground">Account data:</strong>{" "}
-                Your account consists of an internal identifier (UUID) and
-                passkey credentials only—no email or personal information is
-                stored. This data is retained while your account is active and
-                for up to 2 years after account deletion for legal compliance.
+                <strong className="text-foreground">Account data:</strong> Your
+                account consists of your email address, an internal identifier
+                (UUID), and passkey credentials. This data is retained while
+                your account is active and for up to 2 years after account
+                deletion for legal compliance.
               </li>
               <li>
                 <strong className="text-foreground">Transaction data:</strong>{" "}
@@ -821,6 +857,14 @@ export default function PrivacyPage() {
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>Encryption of data in transit (TLS/HTTPS)</li>
               <li>Encryption of data at rest</li>
+              <li>
+                Client-side end-to-end encryption using passkey-derived keys
+                (for applicable services)
+              </li>
+              <li>
+                Zero-knowledge architecture where encryption keys are never
+                transmitted to or stored on our servers
+              </li>
               <li>Secure authentication mechanisms</li>
               <li>
                 Access controls and authentication for administrative access
@@ -857,11 +901,47 @@ export default function PrivacyPage() {
                 actions taken
               </li>
             </ul>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               Our breach notification will include, where possible: a
               description of the nature of the breach, the likely consequences,
               the measures taken to address the breach, and contact information
               for further inquiries.
+            </p>
+
+            <h3 className="mb-3 text-lg font-medium">
+              11.2 End-to-End Encryption
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Certain Helvety services implement end-to-end encryption to
+              protect your data:
+            </p>
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>
+                Encryption keys are derived from your passkey using the WebAuthn
+                PRF (Pseudo-Random Function) extension
+              </li>
+              <li>
+                All encryption and decryption operations occur locally in your
+                browser
+              </li>
+              <li>
+                We store only PRF parameters (salt values) that allow your
+                device to re-derive the same key
+              </li>
+              <li>
+                We cannot decrypt your data as we never possess your encryption
+                key
+              </li>
+              <li>
+                Your passkey (stored on your device) is the only way to access
+                encrypted data
+              </li>
+            </ul>
+            <p className="text-muted-foreground text-sm">
+              This approach ensures that your encrypted data remains protected
+              even in the event of a data breach on our servers. Browser
+              requirements for end-to-end encryption: Chrome 128+, Edge 128+,
+              Safari 18+, Firefox 139+ (desktop only).
             </p>
           </section>
 

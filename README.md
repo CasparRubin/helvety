@@ -30,11 +30,17 @@ This project is built with modern web technologies:
 - **[Lucide React](https://lucide.dev/)** - Icon library
 - **[Framer Motion](https://www.framer.com/motion/)** - Animation library
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
+- **[Vitest](https://vitest.dev/)** - Unit and integration testing
+- **[Playwright](https://playwright.dev/)** - End-to-end testing
 
 ## Project Structure
 
 ```
 helvety.com/
+├── __tests__/                  # Unit and integration tests
+├── .github/
+│   └── workflows/              # CI/CD workflows
+│       └── test.yml            # Automated testing
 ├── app/                        # Next.js App Router
 │   ├── globals.css             # Global styles
 │   ├── icon.svg                # App icon
@@ -47,6 +53,7 @@ helvety.com/
 │   ├── robots.ts               # Robots.txt configuration
 │   └── sitemap.ts              # Sitemap configuration
 ├── components/                 # React components
+│   ├── __tests__/              # Component tests
 │   ├── ui/                     # shadcn/ui component library
 │   │   └── index.ts            # Barrel exports
 │   ├── app-switcher.tsx        # Helvety ecosystem app switcher
@@ -57,11 +64,15 @@ helvety.com/
 │   ├── config/                 # Configuration files
 │   │   └── version.ts          # Build version
 │   └── utils.ts                # General utility functions
+├── e2e/                        # End-to-end tests (Playwright)
 ├── public/                     # Static assets
 │   └── *.svg                   # Logo and branding assets
 ├── scripts/                    # Build scripts
 │   └── generate-version.js    # Version generation script
-└── [config files]              # Configuration files (Next.js, TypeScript, etc.)
+├── vitest.config.ts            # Vitest configuration
+├── vitest.setup.ts             # Test setup
+├── playwright.config.ts        # Playwright E2E configuration
+└── [config files]              # Other configuration files
 ```
 
 ## Developer
