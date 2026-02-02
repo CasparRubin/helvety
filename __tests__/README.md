@@ -10,8 +10,13 @@ __tests__/
 │   └── actions/          # Server action tests
 ├── components/           # Component tests
 ├── lib/                  # Library/utility tests
-│   ├── crypto/           # Encryption utility tests
-│   └── auth/             # Authentication utility tests (csrf, rate-limit, auth-errors, auth-guard)
+│   ├── utils/            # Utility tests
+│   │   └── pricing.test.ts
+│   ├── auth-errors.test.ts
+│   ├── auth-logger.test.ts
+│   ├── auth-redirect.test.ts
+│   ├── csrf.test.ts
+│   └── rate-limit.test.ts
 └── utils/                # Test utilities
     ├── test-utils.tsx    # Custom render with providers
     └── mock-factories.ts # Test data factories
@@ -20,7 +25,6 @@ __tests__/
 ## Test File Naming
 
 - Unit tests: `*.test.ts` or `*.test.tsx`
-- E2E tests: `*.spec.ts` (in `e2e/` directory)
 
 ## Running Tests
 
@@ -36,10 +40,6 @@ npm run test:coverage
 
 # Run specific test file
 npm run test -- path/to/file.test.ts
-
-# E2E tests
-npm run test:e2e
-npm run test:e2e:ui  # With Playwright UI
 ```
 
 ## Test Structure
@@ -67,6 +67,8 @@ Global mocks are defined in `vitest.setup.ts`:
 - `next-themes`
 - WebAuthn APIs
 - Crypto APIs
+- btoa/atob polyfills
+- Stripe API
 
 ### Test-Level Mocks
 

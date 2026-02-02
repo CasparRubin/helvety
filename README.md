@@ -100,7 +100,6 @@ This project is built with modern web technologies:
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 - **[Stripe](https://stripe.com/)** - Payment processing and subscription management
 - **[Vitest](https://vitest.dev/)** - Unit and integration testing
-- **[Playwright](https://playwright.dev/)** - End-to-end testing
 
 ## Developer
 
