@@ -4,3 +4,4 @@
  */
 
 export * from "./use-encryption";
+export * from "./use-auth-session";

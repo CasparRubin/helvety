@@ -10,6 +10,8 @@ __tests__/
 │   └── actions/          # Server action tests
 ├── components/           # Component tests
 ├── lib/                  # Library/utility tests
+│   ├── crypto/           # Encryption utility tests
+│   └── auth/             # Authentication utility tests (csrf, rate-limit, auth-errors, auth-guard)
 └── utils/                # Test utilities
     ├── test-utils.tsx    # Custom render with providers
     └── mock-factories.ts # Test data factories
