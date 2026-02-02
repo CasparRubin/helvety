@@ -10,9 +10,7 @@ test.describe("PDF App", () => {
     await page.goto("/");
 
     const themeButton = page.getByRole("button", { name: /toggle theme/i });
-    if (await themeButton.isVisible()) {
-      await expect(themeButton).toBeVisible();
-    }
+    await expect(themeButton).toBeVisible();
   });
 });
 
