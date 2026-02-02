@@ -1,23 +1,23 @@
 /**
  * Passkey Module
- * Handles WebAuthn passkey authentication with PRF extension for encryption
+ * Handles WebAuthn passkey registration and authentication with PRF extension
  *
- * This module provides the bridge between WebAuthn/passkeys and encryption.
- * It uses SimpleWebAuthn browser helpers for authentication only (not setup).
- * Setup is handled by auth.helvety.com.
+ * This module provides the bridge between WebAuthn/passkeys and both authentication
+ * and encryption. It uses SimpleWebAuthn browser helpers and integrates PRF extension
+ * for E2EE key derivation.
  */
 
 import {
+  startRegistration,
   startAuthentication,
   browserSupportsWebAuthn,
   platformAuthenticatorIsAvailable,
 } from "@simplewebauthn/browser";
 
-import { base64Encode, base64Decode } from "./encoding";
-import { CryptoError, CryptoErrorType } from "./types";
-
 import type {
+  PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
+  RegistrationResponseJSON,
   AuthenticationResponseJSON,
 } from "@simplewebauthn/browser";
 
@@ -29,7 +29,7 @@ export interface RPConfig {
   rpId: string;
   /** Human-readable name shown in passkey prompts */
   rpName: string;
-  /** Origin URL (e.g., 'https://helvety.com') */
+  /** Origin URL (e.g., 'https://auth.helvety.com') */
   origin: string;
 }
 
@@ -37,7 +37,8 @@ export interface RPConfig {
  * Get RP config based on the current browser location
  *
  * IMPORTANT: For centralized auth, we use 'helvety.com' as the rpId in production.
- * This allows passkeys registered on auth.helvety.com to work across all subdomains.
+ * This allows passkeys registered on auth.helvety.com to work across all subdomains
+ * (pdf.helvety.com, store.helvety.com, etc.)
  */
 export function getRPConfig(): RPConfig {
   const rpName = "Helvety";
@@ -47,7 +48,7 @@ export function getRPConfig(): RPConfig {
     return {
       rpId: "localhost",
       rpName,
-      origin: "http://localhost:3000",
+      origin: "http://localhost:3002",
     };
   }
 
@@ -79,101 +80,42 @@ export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
 }
 
 /**
- * Detect if running on a mobile device via user agent
- * This checks for actual mobile devices, not just screen width
+ * Crypto error types for passkey operations
  */
-export function isMobileDevice(): boolean {
-  if (typeof navigator === "undefined") return false;
-  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+export enum PasskeyErrorType {
+  NOT_SUPPORTED = "NOT_SUPPORTED",
+  CANCELLED = "CANCELLED",
+  ALREADY_EXISTS = "ALREADY_EXISTS",
+  SECURITY_ERROR = "SECURITY_ERROR",
+  UNKNOWN = "UNKNOWN",
 }
 
 /**
- * Check if platform authenticator supports PRF extension
- * Uses getClientCapabilities() on Chrome 133+, falls back to heuristics
- *
- * PRF is supported on:
- * - iOS 18+, macOS 15+ (Safari)
- * - Android 14+ (Chrome 128+)
- * - Windows 11 (Chrome/Edge 128+)
+ * Passkey error class
  */
-export async function getPlatformPRFSupport(): Promise<boolean> {
-  if (typeof window === "undefined" || !window.PublicKeyCredential) {
-    return false;
+export class PasskeyError extends Error {
+  constructor(
+    public type: PasskeyErrorType,
+    message: string,
+    public override cause?: Error
+  ) {
+    super(message);
+    this.name = "PasskeyError";
   }
-
-  // Modern API (Chrome 133+) - checks platform authenticator PRF support directly
-  if ("getClientCapabilities" in PublicKeyCredential) {
-    try {
-      const getClientCapabilities = (
-        PublicKeyCredential as typeof PublicKeyCredential & {
-          getClientCapabilities: () => Promise<Record<string, boolean>>;
-        }
-      ).getClientCapabilities;
-      const caps = await getClientCapabilities();
-      if (caps?.prf === true) return true;
-    } catch {
-      /* fall through to heuristics */
-    }
-  }
-
-  // Fallback heuristics based on known platform support
-  const ua = navigator.userAgent;
-
-  // iOS 18+ / macOS 15+ Safari supports PRF for platform authenticators
-  const safariMatch = ua.match(/Version\/(\d+).*Safari/);
-  if (safariMatch?.[1] && parseInt(safariMatch[1]) >= 18) {
-    // Safari on iOS/macOS with version 18+ supports PRF
-    return true;
-  }
-
-  // Android Chrome 128+ supports PRF for platform authenticators
-  if (/Android/.test(ua)) {
-    const chromeMatch = ua.match(/Chrome\/(\d+)/);
-    if (chromeMatch?.[1] && parseInt(chromeMatch[1]) >= 128) {
-      return true;
-    }
-  }
-
-  // Windows with Chrome/Edge 128+ may support PRF via Windows Hello
-  // But we can't reliably detect this, so we return false to be safe
-  // Users on Windows will use cross-device (QR code) flow
-
-  return false;
 }
 
 /**
- * Device capability information for passkey operations
+ * Passkey registration result with PRF output for encryption setup
  */
-export interface DeviceCapabilities {
-  /** Whether the device is a mobile device (phone/tablet) */
-  isMobile: boolean;
-  /** Whether a platform authenticator is available */
-  hasPlatformAuthenticator: boolean;
-  /** Whether the platform authenticator supports PRF extension */
-  platformSupportsPRF: boolean;
-  /** Whether to use platform authenticator for passkey operations */
-  usePlatformAuth: boolean;
-}
-
-/**
- * Get comprehensive device capabilities for passkey operations
- * This helps determine the best authentication flow for the current device
- */
-export async function getDeviceCapabilities(): Promise<DeviceCapabilities> {
-  const isMobile = isMobileDevice();
-  const hasPlatformAuthenticator = await isPlatformAuthenticatorAvailable();
-  const platformSupportsPRF = await getPlatformPRFSupport();
-
-  // Use platform auth on mobile devices with PRF support
-  // This allows Face ID, Touch ID, Fingerprint to work directly
-  const usePlatformAuth = isMobile && hasPlatformAuthenticator && platformSupportsPRF;
-
-  return {
-    isMobile,
-    hasPlatformAuthenticator,
-    platformSupportsPRF,
-    usePlatformAuth,
-  };
+export interface PasskeyRegistrationResult {
+  /** The WebAuthn registration response to send to server */
+  response: RegistrationResponseJSON;
+  /** Credential ID (base64url encoded) */
+  credentialId: string;
+  /** PRF output for deriving encryption key (if PRF supported) */
+  prfOutput?: ArrayBuffer;
+  /** Whether PRF was enabled during registration */
+  prfEnabled: boolean;
 }
 
 /**
@@ -191,21 +133,109 @@ export interface PasskeyAuthenticationResult {
 }
 
 /**
- * Generate authentication options for unlocking encryption with a passkey
+ * Base64 encode a Uint8Array
+ */
+function base64Encode(data: Uint8Array): string {
+  let binary = "";
+  for (let i = 0; i < data.length; i++) {
+    binary += String.fromCharCode(data[i]!);
+  }
+  return btoa(binary);
+}
+
+/**
+ * Base64 decode a string to Uint8Array
+ */
+function base64Decode(str: string): Uint8Array {
+  const binary = atob(str);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+/**
+ * Generate registration options for creating a new passkey
+ * This should be called on the server, but we provide client-side generation for simplicity
  *
- * Automatically detects device capabilities to determine whether to prefer:
- * - Platform authenticator (Face ID, Touch ID, Fingerprint) on mobile devices with PRF support
- * - Cross-platform authenticator (phone via QR code) on desktop or unsupported mobile
+ * @param userId - The user's ID
+ * @param userEmail - The user's email
+ * @param userName - The user's display name
+ * @param prfSalt - Optional PRF salt for encryption (base64 encoded)
+ */
+export function generateRegistrationOptions(
+  userId: string,
+  userEmail: string,
+  userName: string,
+  prfSalt?: string
+): PublicKeyCredentialCreationOptionsJSON {
+  const rpConfig = getRPConfig();
+
+  // Generate a random challenge
+  const challenge = base64Encode(crypto.getRandomValues(new Uint8Array(32)));
+
+  const options: PublicKeyCredentialCreationOptionsJSON = {
+    challenge,
+    rp: {
+      id: rpConfig.rpId,
+      name: rpConfig.rpName,
+    },
+    user: {
+      id: base64Encode(new TextEncoder().encode(userId)),
+      name: userEmail,
+      displayName: userName || userEmail,
+    },
+    pubKeyCredParams: [
+      { alg: -7, type: "public-key" }, // ES256
+      { alg: -257, type: "public-key" }, // RS256
+    ],
+    authenticatorSelection: {
+      // Force cross-platform authenticators only (phones via QR code)
+      // This excludes Windows Hello, Touch ID, and other platform authenticators
+      authenticatorAttachment: "cross-platform",
+      userVerification: "required",
+      residentKey: "required",
+      requireResidentKey: true,
+    },
+    timeout: 60000,
+    attestation: "none",
+  };
+
+  // Hint to prefer phone authenticators (hybrid) over security keys
+  (
+    options as PublicKeyCredentialCreationOptionsJSON & { hints?: string[] }
+  ).hints = ["hybrid"];
+
+  // Add PRF extension if salt provided
+  if (prfSalt) {
+    (
+      options as PublicKeyCredentialCreationOptionsJSON & {
+        extensions?: Record<string, unknown>;
+      }
+    ).extensions = {
+      prf: {
+        eval: {
+          first: base64Decode(prfSalt),
+        },
+      },
+    };
+  }
+
+  return options;
+}
+
+/**
+ * Generate authentication options for signing in with a passkey
  *
  * @param allowCredentials - Optional list of credential IDs to allow
  * @param prfSalt - PRF salt for encryption key derivation (base64 encoded)
  */
-export async function generateAuthenticationOptions(
+export function generateAuthenticationOptions(
   allowCredentials?: string[],
   prfSalt?: string
-): Promise<PublicKeyCredentialRequestOptionsJSON> {
+): PublicKeyCredentialRequestOptionsJSON {
   const rpConfig = getRPConfig();
-  const capabilities = await getDeviceCapabilities();
 
   // Generate a random challenge
   const challenge = base64Encode(crypto.getRandomValues(new Uint8Array(32)));
@@ -218,23 +248,19 @@ export async function generateAuthenticationOptions(
   };
 
   // Add allowed credentials if provided
-  // Include all transports for maximum flexibility - the browser will filter
-  // based on what's actually available for each credential
   if (allowCredentials && allowCredentials.length > 0) {
     options.allowCredentials = allowCredentials.map((id) => ({
       id,
       type: "public-key",
-      // Include all transports so credentials can be used from any source
-      transports: ["internal", "hybrid", "usb", "ble", "nfc"],
+      // Only hint hybrid (phone via QR) since we force cross-platform authenticators
+      transports: ["hybrid"],
     }));
   }
 
-  // Set hints based on device capabilities
-  // "client-device" hints to use the current device's authenticator
-  // "hybrid" hints to use cross-device flow (QR code)
+  // Hint to prefer phone authenticators over security keys
   (
     options as PublicKeyCredentialRequestOptionsJSON & { hints?: string[] }
-  ).hints = capabilities.usePlatformAuth ? ["client-device"] : ["hybrid"];
+  ).hints = ["hybrid"];
 
   // Add PRF extension if salt provided
   if (prfSalt) {
@@ -255,9 +281,63 @@ export async function generateAuthenticationOptions(
 }
 
 /**
+ * Register a new passkey with PRF extension for encryption
+ *
+ * Note: PRF output is only returned during authentication, not registration.
+ * Registration only tells us if PRF is enabled/supported by the authenticator.
+ *
+ * @param options - Registration options from server or generateRegistrationOptions
+ * @returns Registration result (prfEnabled indicates if PRF is supported)
+ */
+export async function registerPasskey(
+  options: PublicKeyCredentialCreationOptionsJSON
+): Promise<PasskeyRegistrationResult> {
+  try {
+    const response = await startRegistration({ optionsJSON: options });
+
+    // During registration, PRF only returns 'enabled' status, not actual output
+    // The actual PRF output is only available during authentication
+    const clientExtResults = response.clientExtensionResults as {
+      prf?: { enabled?: boolean };
+    };
+
+    // PRF is considered enabled if the extension was processed
+    // Note: Some authenticators return enabled:true, others just include the prf object
+    const prfEnabled = clientExtResults.prf !== undefined;
+
+    return {
+      response,
+      credentialId: response.id,
+      prfOutput: undefined, // PRF output only available during authentication
+      prfEnabled,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === "NotAllowedError") {
+        throw new PasskeyError(
+          PasskeyErrorType.CANCELLED,
+          "Passkey registration was cancelled or not allowed"
+        );
+      }
+      if (error.name === "InvalidStateError") {
+        throw new PasskeyError(
+          PasskeyErrorType.ALREADY_EXISTS,
+          "A passkey already exists for this account on this device"
+        );
+      }
+    }
+    throw new PasskeyError(
+      PasskeyErrorType.UNKNOWN,
+      "Failed to register passkey",
+      error instanceof Error ? error : undefined
+    );
+  }
+}
+
+/**
  * Authenticate with a passkey and get PRF output for encryption
  *
- * @param options - Authentication options from generateAuthenticationOptions
+ * @param options - Authentication options from server or generateAuthenticationOptions
  * @returns Authentication result with PRF output for encryption unlock
  */
 export async function authenticateWithPasskey(
@@ -283,20 +363,20 @@ export async function authenticateWithPasskey(
   } catch (error) {
     if (error instanceof Error) {
       if (error.name === "NotAllowedError") {
-        throw new CryptoError(
-          CryptoErrorType.PASSKEY_AUTHENTICATION_FAILED,
+        throw new PasskeyError(
+          PasskeyErrorType.CANCELLED,
           "Passkey authentication was cancelled or not allowed"
         );
       }
       if (error.name === "SecurityError") {
-        throw new CryptoError(
-          CryptoErrorType.PASSKEY_AUTHENTICATION_FAILED,
+        throw new PasskeyError(
+          PasskeyErrorType.SECURITY_ERROR,
           "Security error during passkey authentication"
         );
       }
     }
-    throw new CryptoError(
-      CryptoErrorType.PASSKEY_AUTHENTICATION_FAILED,
+    throw new PasskeyError(
+      PasskeyErrorType.UNKNOWN,
       "Failed to authenticate with passkey",
       error instanceof Error ? error : undefined
     );
@@ -304,7 +384,30 @@ export async function authenticateWithPasskey(
 }
 
 /**
- * Authenticate with passkey and get PRF output for encryption unlock
+ * Combined passkey registration and encryption setup
+ * Use this for new user onboarding
+ *
+ * @param userId - User's ID
+ * @param userEmail - User's email
+ * @param prfSalt - PRF salt for encryption (base64 encoded)
+ */
+export async function registerPasskeyWithEncryption(
+  userId: string,
+  userEmail: string,
+  prfSalt: string
+): Promise<PasskeyRegistrationResult> {
+  const options = generateRegistrationOptions(
+    userId,
+    userEmail,
+    userEmail,
+    prfSalt
+  );
+  return registerPasskey(options);
+}
+
+/**
+ * Combined passkey authentication and encryption unlock
+ * Use this for returning user sign-in
  *
  * @param credentialIds - Optional list of allowed credential IDs
  * @param prfSalt - PRF salt for encryption (base64 encoded)
@@ -313,130 +416,14 @@ export async function authenticatePasskeyWithEncryption(
   credentialIds?: string[],
   prfSalt?: string
 ): Promise<PasskeyAuthenticationResult> {
-  const options = await generateAuthenticationOptions(credentialIds, prfSalt);
+  const options = generateAuthenticationOptions(credentialIds, prfSalt);
   return authenticateWithPasskey(options);
 }
 
-/**
- * Check if the browser supports WebAuthn PRF extension
- */
-export async function isPRFSupported(): Promise<boolean> {
-  // Check if WebAuthn is available
-  if (typeof window === "undefined" || !window.PublicKeyCredential) {
-    return false;
-  }
-
-  const ua = navigator.userAgent;
-  const edgeMatch = ua.match(/Edg\/(\d+)/);
-  const chromeMatch = ua.match(/Chrome\/(\d+)/);
-  const safariMatch = ua.match(/Version\/(\d+).*Safari/);
-  const firefoxMatch = ua.match(/Firefox\/(\d+)/);
-
-  // Check Firefox - supports PRF on desktop from version 139+ (not on Android)
-  if (firefoxMatch?.[1]) {
-    const isAndroid = ua.includes("Android");
-    if (isAndroid) {
-      return false;
-    }
-    return parseInt(firefoxMatch[1]) >= 139;
-  }
-
-  // Check Edge first (Edge UA contains both "Chrome" and "Edg")
-  if (edgeMatch?.[1]) {
-    return parseInt(edgeMatch[1]) >= 128;
-  }
-  if (chromeMatch?.[1]) {
-    return parseInt(chromeMatch[1]) >= 128;
-  }
-  if (safariMatch?.[1]) {
-    return parseInt(safariMatch[1]) >= 18;
-  }
-
-  return true;
-}
-
-/**
- * Get detailed PRF support information for UI display
- */
-export interface PRFSupportInfo {
-  supported: boolean;
-  reason?: string;
-  browserInfo?: string;
-}
-
-/**
- *
- */
-export async function getPRFSupportInfo(): Promise<PRFSupportInfo> {
-  if (typeof window === "undefined") {
-    return { supported: false, reason: "Not in browser environment" };
-  }
-
-  if (!window.PublicKeyCredential) {
-    return { supported: false, reason: "WebAuthn not supported" };
-  }
-
-  const ua = navigator.userAgent;
-  const chromeMatch = ua.match(/Chrome\/(\d+)/);
-  const safariMatch = ua.match(/Version\/(\d+).*Safari/);
-  const edgeMatch = ua.match(/Edg\/(\d+)/);
-  const firefoxMatch = ua.match(/Firefox\/(\d+)/);
-
-  if (firefoxMatch?.[1]) {
-    const version = parseInt(firefoxMatch[1]);
-    const isAndroid = ua.includes("Android");
-    if (isAndroid) {
-      return {
-        supported: false,
-        reason: "Firefox for Android does not support the PRF extension",
-        browserInfo: `Firefox for Android ${version}`,
-      };
-    }
-    if (version < 139) {
-      return {
-        supported: false,
-        reason: `Firefox ${version} detected. PRF requires Firefox 139 or later.`,
-        browserInfo: `Firefox ${version}`,
-      };
-    }
-    return { supported: true, browserInfo: `Firefox ${version}` };
-  }
-
-  if (edgeMatch?.[1]) {
-    const version = parseInt(edgeMatch[1]);
-    if (version < 128) {
-      return {
-        supported: false,
-        reason: `Edge ${version} detected. PRF requires Edge 128 or later.`,
-        browserInfo: `Edge ${version}`,
-      };
-    }
-    return { supported: true, browserInfo: `Edge ${version}` };
-  }
-
-  if (chromeMatch?.[1]) {
-    const version = parseInt(chromeMatch[1]);
-    if (version < 128) {
-      return {
-        supported: false,
-        reason: `Chrome ${version} detected. PRF requires Chrome 128 or later.`,
-        browserInfo: `Chrome ${version}`,
-      };
-    }
-    return { supported: true, browserInfo: `Chrome ${version}` };
-  }
-
-  if (safariMatch?.[1]) {
-    const version = parseInt(safariMatch[1]);
-    if (version < 18) {
-      return {
-        supported: false,
-        reason: `Safari ${version} detected. PRF requires Safari 18 or later.`,
-        browserInfo: `Safari ${version}`,
-      };
-    }
-    return { supported: true, browserInfo: `Safari ${version}` };
-  }
-
-  return { supported: true, browserInfo: "Unknown browser" };
-}
+// Re-export PRF support utilities from the canonical location
+// to maintain backward compatibility for consumers of this module
+export {
+  isPRFSupported,
+  getPRFSupportInfo,
+  type PRFSupportInfo,
+} from "./prf-key-derivation";

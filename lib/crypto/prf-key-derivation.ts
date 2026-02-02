@@ -81,7 +81,7 @@ export async function deriveKeyFromPRF(
       {
         name: "HKDF",
         hash: "SHA-256",
-        salt: salt as Uint8Array<ArrayBuffer>,
+        salt,
         info,
       },
       keyMaterial,
