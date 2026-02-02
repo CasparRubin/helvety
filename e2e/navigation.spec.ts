@@ -43,12 +43,8 @@ test.describe("Theme Switching", () => {
     // Click to toggle
     await themeButton.click();
 
-    // Wait for theme change
-    await page.waitForTimeout(100);
-
-    // Verify class changed
-    const newClass = await htmlElement.getAttribute("class");
-    expect(newClass).not.toBe(initialClass);
+    // Wait for theme change by checking the class actually changed
+    await expect(htmlElement).not.toHaveAttribute("class", initialClass ?? "");
   });
 });
 
