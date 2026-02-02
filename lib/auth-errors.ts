@@ -19,8 +19,12 @@ export enum AuthErrorCode {
   CSRF_INVALID = "csrf_invalid",
   /** Passkey authentication failed */
   PASSKEY_FAILED = "passkey_failed",
+  /** Passkey registration failed */
+  PASSKEY_REGISTRATION_FAILED = "passkey_registration_failed",
   /** Passkey not supported by browser */
   PASSKEY_NOT_SUPPORTED = "passkey_not_supported",
+  /** PRF extension not supported */
+  PRF_NOT_SUPPORTED = "prf_not_supported",
   /** Encryption operation failed */
   ENCRYPTION_FAILED = "encryption_failed",
   /** Network or connectivity error */
@@ -33,6 +37,10 @@ export enum AuthErrorCode {
   FORBIDDEN = "forbidden",
   /** Invalid redirect URI */
   INVALID_REDIRECT = "invalid_redirect",
+  /** Magic link expired or invalid */
+  MAGIC_LINK_INVALID = "magic_link_invalid",
+  /** Email already in use */
+  EMAIL_IN_USE = "email_in_use",
   /** Generic server error */
   SERVER_ERROR = "server_error",
 }
@@ -54,16 +62,24 @@ export const AUTH_ERROR_MESSAGES: Record<AuthErrorCode, string> = {
     "Security validation failed. Please refresh the page and try again.",
   [AuthErrorCode.PASSKEY_FAILED]:
     "Passkey authentication failed. Please try again.",
+  [AuthErrorCode.PASSKEY_REGISTRATION_FAILED]:
+    "Failed to register passkey. Please try again.",
   [AuthErrorCode.PASSKEY_NOT_SUPPORTED]:
     "Your browser doesn't support passkeys. Please use a modern browser.",
+  [AuthErrorCode.PRF_NOT_SUPPORTED]:
+    "Your browser doesn't support secure encryption. Please use Chrome 128+, Safari 18+, or Edge 128+.",
   [AuthErrorCode.ENCRYPTION_FAILED]:
-    "Failed to unlock encryption. Please try again.",
+    "Failed to set up encryption. Please try again.",
   [AuthErrorCode.NETWORK_ERROR]:
     "Unable to connect. Please check your internet connection.",
   [AuthErrorCode.USER_NOT_FOUND]: "No account found with this email address.",
   [AuthErrorCode.UNAUTHORIZED]: "Please sign in to continue.",
   [AuthErrorCode.FORBIDDEN]: "You don't have permission to perform this action.",
   [AuthErrorCode.INVALID_REDIRECT]: "Invalid redirect destination.",
+  [AuthErrorCode.MAGIC_LINK_INVALID]:
+    "This sign-in link has expired or is invalid. Please request a new one.",
+  [AuthErrorCode.EMAIL_IN_USE]:
+    "An account with this email already exists. Please sign in instead.",
   [AuthErrorCode.SERVER_ERROR]:
     "Something went wrong. Please try again later.",
 };

@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 
 /**
  *
- * @param root0
  */
 function AlertDialog({
   ...props
@@ -18,7 +17,6 @@ function AlertDialog({
 
 /**
  *
- * @param root0
  */
 function AlertDialogTrigger({
   ...props
@@ -30,7 +28,6 @@ function AlertDialogTrigger({
 
 /**
  *
- * @param root0
  */
 function AlertDialogPortal({
   ...props
@@ -42,8 +39,6 @@ function AlertDialogPortal({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function AlertDialogOverlay({
   className,
@@ -63,8 +58,6 @@ function AlertDialogOverlay({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function AlertDialogContent({
   className,
@@ -87,8 +80,6 @@ function AlertDialogContent({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function AlertDialogHeader({
   className,
@@ -105,8 +96,6 @@ function AlertDialogHeader({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function AlertDialogFooter({
   className,
@@ -126,8 +115,6 @@ function AlertDialogFooter({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function AlertDialogTitle({
   className,
@@ -144,8 +131,6 @@ function AlertDialogTitle({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function AlertDialogDescription({
   className,
@@ -162,8 +147,6 @@ function AlertDialogDescription({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function AlertDialogAction({
   className,
@@ -179,8 +162,6 @@ function AlertDialogAction({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function AlertDialogCancel({
   className,

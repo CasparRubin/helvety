@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 
 /**
  *
- * @param root0
  */
 function Dialog({
   ...props
@@ -19,7 +18,6 @@ function Dialog({
 
 /**
  *
- * @param root0
  */
 function DialogTrigger({
   ...props
@@ -29,7 +27,6 @@ function DialogTrigger({
 
 /**
  *
- * @param root0
  */
 function DialogPortal({
   ...props
@@ -39,7 +36,6 @@ function DialogPortal({
 
 /**
  *
- * @param root0
  */
 function DialogClose({
   ...props
@@ -49,8 +45,6 @@ function DialogClose({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function DialogOverlay({
   className,
@@ -70,10 +64,6 @@ function DialogOverlay({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.children
- * @param root0.showCloseButton
  */
 function DialogContent({
   className,
@@ -114,8 +104,6 @@ function DialogContent({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function DialogHeader({
   className,
@@ -132,10 +120,6 @@ function DialogHeader({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.showCloseButton
- * @param root0.children
  */
 function DialogFooter({
   className,
@@ -166,8 +150,6 @@ function DialogFooter({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function DialogTitle({
   className,
@@ -184,8 +166,6 @@ function DialogTitle({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function DialogDescription({
   className,

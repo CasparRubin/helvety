@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 
 /**
  *
- * @param root0
  */
 function TooltipProvider({
   ...props
@@ -17,7 +16,6 @@ function TooltipProvider({
 
 /**
  *
- * @param root0
  */
 function Tooltip({
   ...props
@@ -27,7 +25,6 @@ function Tooltip({
 
 /**
  *
- * @param root0
  */
 function TooltipTrigger({
   ...props
@@ -37,7 +34,6 @@ function TooltipTrigger({
 
 /**
  *
- * @param root0
  */
 function TooltipPortal({
   ...props
@@ -47,8 +43,6 @@ function TooltipPortal({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function TooltipContent({
   className,

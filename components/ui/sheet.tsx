@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 
 /**
  *
- * @param root0
  */
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -17,7 +16,6 @@ function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
 
 /**
  *
- * @param root0
  */
 function SheetTrigger({
   ...props
@@ -27,7 +25,6 @@ function SheetTrigger({
 
 /**
  *
- * @param root0
  */
 function SheetClose({
   ...props
@@ -37,7 +34,6 @@ function SheetClose({
 
 /**
  *
- * @param root0
  */
 function SheetPortal({
   ...props
@@ -47,8 +43,6 @@ function SheetPortal({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function SheetOverlay({
   className,
@@ -68,11 +62,6 @@ function SheetOverlay({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.children
- * @param root0.side
- * @param root0.showCloseButton
  */
 function SheetContent({
   className,
@@ -116,8 +105,6 @@ function SheetContent({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -131,8 +118,6 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -146,8 +131,6 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function SheetTitle({
   className,
@@ -164,8 +147,6 @@ function SheetTitle({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function SheetDescription({
   className,

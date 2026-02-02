@@ -8,9 +8,6 @@ import { cn } from "@/lib/utils";
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.orientation
  */
 function Tabs({
   className,
@@ -47,9 +44,6 @@ const tabsListVariants = cva(
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.variant
  */
 function TabsList({
   className,
@@ -69,8 +63,6 @@ function TabsList({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function TabsTrigger({
   className,
@@ -93,8 +85,6 @@ function TabsTrigger({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function TabsContent({
   className,

@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 
 /**
  *
- * @param root0
  */
 function Popover({
   ...props
@@ -17,7 +16,6 @@ function Popover({
 
 /**
  *
- * @param root0
  */
 function PopoverTrigger({
   ...props
@@ -27,10 +25,6 @@ function PopoverTrigger({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.align
- * @param root0.sideOffset
  */
 function PopoverContent({
   className,
@@ -56,7 +50,6 @@ function PopoverContent({
 
 /**
  *
- * @param root0
  */
 function PopoverAnchor({
   ...props
@@ -66,8 +59,6 @@ function PopoverAnchor({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -81,8 +72,6 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function PopoverTitle({ className, ...props }: React.ComponentProps<"h2">) {
   return (
@@ -96,8 +85,6 @@ function PopoverTitle({ className, ...props }: React.ComponentProps<"h2">) {
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function PopoverDescription({
   className,

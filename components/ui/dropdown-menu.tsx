@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 
 /**
  *
- * @param root0
  */
 function DropdownMenu({
   ...props
@@ -18,7 +17,6 @@ function DropdownMenu({
 
 /**
  *
- * @param root0
  */
 function DropdownMenuPortal({
   ...props
@@ -30,7 +28,6 @@ function DropdownMenuPortal({
 
 /**
  *
- * @param root0
  */
 function DropdownMenuTrigger({
   ...props
@@ -45,10 +42,6 @@ function DropdownMenuTrigger({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.align
- * @param root0.sideOffset
  */
 function DropdownMenuContent({
   className,
@@ -74,7 +67,6 @@ function DropdownMenuContent({
 
 /**
  *
- * @param root0
  */
 function DropdownMenuGroup({
   ...props
@@ -86,10 +78,6 @@ function DropdownMenuGroup({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.inset
- * @param root0.variant
  */
 function DropdownMenuItem({
   className,
@@ -116,10 +104,6 @@ function DropdownMenuItem({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.children
- * @param root0.checked
  */
 function DropdownMenuCheckboxItem({
   className,
@@ -152,7 +136,6 @@ function DropdownMenuCheckboxItem({
 
 /**
  *
- * @param root0
  */
 function DropdownMenuRadioGroup({
   ...props
@@ -167,9 +150,6 @@ function DropdownMenuRadioGroup({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.children
  */
 function DropdownMenuRadioItem({
   className,
@@ -200,9 +180,6 @@ function DropdownMenuRadioItem({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.inset
  */
 function DropdownMenuLabel({
   className,
@@ -226,8 +203,6 @@ function DropdownMenuLabel({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function DropdownMenuSeparator({
   className,
@@ -244,8 +219,6 @@ function DropdownMenuSeparator({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function DropdownMenuShortcut({
   className,
@@ -265,7 +238,6 @@ function DropdownMenuShortcut({
 
 /**
  *
- * @param root0
  */
 function DropdownMenuSub({
   ...props
@@ -275,10 +247,6 @@ function DropdownMenuSub({
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.inset
- * @param root0.children
  */
 function DropdownMenuSubTrigger({
   className,
@@ -306,8 +274,6 @@ function DropdownMenuSubTrigger({
 
 /**
  *
- * @param root0
- * @param root0.className
  */
 function DropdownMenuSubContent({
   className,

@@ -57,10 +57,6 @@ function getAuthSetupUrl(): string {
  *
  * If encryption is not set up, redirects to auth.helvety.com for setup.
  * Supports passkey-based encryption (PRF).
- * @param root0
- * @param root0.userId
- * @param root0.userEmail
- * @param root0.children
  */
 export function EncryptionGate({
   userId,

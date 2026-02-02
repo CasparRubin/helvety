@@ -7,10 +7,6 @@ import { cn } from "@/lib/utils";
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.orientation
- * @param root0.decorative
  */
 function Separator({
   className,

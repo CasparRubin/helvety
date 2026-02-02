@@ -4,7 +4,6 @@ import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
 
 /**
  *
- * @param root0
  */
 function Collapsible({
   ...props
@@ -14,7 +13,6 @@ function Collapsible({
 
 /**
  *
- * @param root0
  */
 function CollapsibleTrigger({
   ...props
@@ -26,7 +24,6 @@ function CollapsibleTrigger({
 
 /**
  *
- * @param root0
  */
 function CollapsibleContent({
   ...props

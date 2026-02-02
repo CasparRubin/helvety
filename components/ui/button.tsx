@@ -43,11 +43,6 @@ const buttonVariants = cva(
 
 /**
  *
- * @param root0
- * @param root0.className
- * @param root0.variant
- * @param root0.size
- * @param root0.asChild
  */
 function Button({
   className,
@@ -58,7 +53,7 @@ function Button({
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
-  }) {
+  }): React.JSX.Element {
   const Comp = asChild ? Slot : "button";
 
   return (
