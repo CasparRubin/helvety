@@ -817,11 +817,17 @@ export default function TermsPage() {
               11.3 Physical Products (Apparel)
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              For customers in the European Union and Switzerland, you have the
-              right to withdraw from the purchase of Physical Products within 14
-              days of receiving the goods without giving any reason (in
-              accordance with EU Distance Selling Regulations and Swiss consumer
-              protection law).
+              <strong className="text-foreground">EU Customers:</strong> Under
+              EU consumer protection law (Consumer Rights Directive
+              2011/83/EU), you have a statutory right to withdraw from the
+              purchase of Physical Products within 14 days of receiving the
+              goods without giving any reason.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">Swiss Customers:</strong>{" "}
+              While Swiss law does not provide a statutory withdrawal right for
+              online purchases, we voluntarily extend the same 14-day withdrawal
+              policy to our Swiss customers as a gesture of goodwill.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               To exercise this right, you must inform us of your decision to

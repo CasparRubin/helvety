@@ -6,10 +6,16 @@ This document describes the testing patterns and conventions used in this projec
 
 ```
 __tests__/
+├── app/                  # Tests for app/ directory
+│   └── actions/          # Server action tests
 ├── components/           # Component tests
 ├── lib/                  # Library/utility tests
-│   ├── crypto/           # Encryption utility tests
-│   └── auth/             # Authentication utility tests (csrf, rate-limit, auth-errors)
+│   ├── auth-errors.test.ts
+│   ├── auth-logger.test.ts
+│   ├── csrf.test.ts
+│   ├── logger.test.ts
+│   ├── rate-limit.test.ts
+│   └── utils.test.ts
 └── utils/                # Test utilities
     ├── test-utils.tsx    # Custom render with providers
     └── mock-factories.ts # Test data factories
@@ -18,7 +24,6 @@ __tests__/
 ## Test File Naming
 
 - Unit tests: `*.test.ts` or `*.test.tsx`
-- E2E tests: `*.spec.ts` (in `e2e/` directory)
 
 ## Running Tests
 
@@ -34,10 +39,6 @@ npm run test:coverage
 
 # Run specific test file
 npm run test -- path/to/file.test.ts
-
-# E2E tests
-npm run test:e2e
-npm run test:e2e:ui  # With Playwright UI
 ```
 
 ## Test Structure
@@ -63,6 +64,7 @@ describe("ModuleName", () => {
 Global mocks are defined in `vitest.setup.ts`:
 - Next.js navigation (`useRouter`, `usePathname`, etc.)
 - `next-themes`
+- `server-only` module
 
 ### Test-Level Mocks
 

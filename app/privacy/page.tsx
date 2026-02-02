@@ -901,10 +901,17 @@ export default function PrivacyPage() {
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
-                Notify the relevant supervisory authority (Swiss FDPIC and/or
-                applicable EU data protection authorities) within 72 hours of
-                becoming aware of the breach, as required by Article 33 GDPR and
-                Swiss DSG
+                <strong className="text-foreground">For EU residents:</strong>{" "}
+                Notify the applicable EU data protection authority within 72
+                hours of becoming aware of the breach, as required by Article 33
+                GDPR
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  For Swiss residents:
+                </strong>{" "}
+                Notify the Swiss FDPIC as soon as possible after becoming aware
+                of the breach, as required by Article 24 nDSG
               </li>
               <li>
                 Notify affected individuals without undue delay if the breach is

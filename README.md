@@ -16,8 +16,6 @@ The main Helvety website. Swiss Engineering.
 - **Legal pages** - Impressum, Privacy Policy, and Terms of Service
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
 - **Animated logo** - Subtle glow effect on the main logo
-- **End-to-End Encryption** - Client-side encryption using WebAuthn PRF extension
-- **Encryption Gate** - Secure access control requiring passkey-based decryption
 
 ## Security Features
 
@@ -49,7 +47,6 @@ This project is built with modern web technologies:
 - **[Framer Motion](https://www.framer.com/motion/)** - Animation library
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 - **[Vitest](https://vitest.dev/)** - Unit and integration testing
-- **[Playwright](https://playwright.dev/)** - End-to-end testing
 
 ## Developer
 
