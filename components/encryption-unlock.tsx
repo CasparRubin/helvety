@@ -1,10 +1,17 @@
 "use client";
 
-import { Fingerprint, Lock, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Fingerprint, Lock, Loader2, Smartphone } from "lucide-react";
+import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
+import {
+  useEncryptionContext,
+  type PRFKeyParams,
+  getDeviceCapabilities,
+} from "@/lib/crypto";
+
+/** Authentication method based on device capabilities */
+type AuthMethod = "platform" | "hybrid" | "detecting";
 
 /**
  *
@@ -19,6 +26,7 @@ interface EncryptionUnlockProps {
 /**
  * Component for unlocking encryption with passkey
  * Shown to users who have set up passkey encryption but need to unlock
+ * Automatically detects device capabilities for context-aware messaging
  */
 export function EncryptionUnlock({
   userId,
@@ -29,6 +37,21 @@ export function EncryptionUnlock({
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [authMethod, setAuthMethod] = useState<AuthMethod>("detecting");
+
+  // Detect device capabilities on mount
+  useEffect(() => {
+    async function detectCapabilities() {
+      try {
+        const capabilities = await getDeviceCapabilities();
+        setAuthMethod(capabilities.usePlatformAuth ? "platform" : "hybrid");
+      } catch {
+        // Default to hybrid (QR code) if detection fails
+        setAuthMethod("hybrid");
+      }
+    }
+    void detectCapabilities();
+  }, []);
 
   const handleUnlock = async () => {
     setError("");
@@ -70,14 +93,20 @@ export function EncryptionUnlock({
           <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
             {isLoading ? (
               <Loader2 className="text-primary h-5 w-5 animate-spin" />
-            ) : (
+            ) : authMethod === "platform" ? (
               <Fingerprint className="text-primary h-5 w-5" />
+            ) : (
+              <Smartphone className="text-primary h-5 w-5" />
             )}
           </div>
           <div>
             <p className="font-medium">Passkey Authentication</p>
             <p className="text-muted-foreground text-sm">
-              Scan the QR code with your phone
+              {authMethod === "detecting"
+                ? "Detecting authentication method..."
+                : authMethod === "platform"
+                  ? "Use Face ID, Touch ID, or fingerprint"
+                  : "Scan the QR code with your phone"}
             </p>
           </div>
         </div>
@@ -105,7 +134,9 @@ export function EncryptionUnlock({
 
         {isLoading && (
           <p className="text-muted-foreground mt-2 text-center text-xs">
-            Waiting for your phone...
+            {authMethod === "platform"
+              ? "Waiting for authentication..."
+              : "Waiting for your phone..."}
           </p>
         )}
       </div>

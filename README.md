@@ -19,6 +19,22 @@ The main Helvety website. Swiss Engineering.
 - **End-to-End Encryption** - Client-side encryption using WebAuthn PRF extension
 - **Encryption Gate** - Secure access control requiring passkey-based decryption
 
+## Security Features
+
+This application implements comprehensive security hardening:
+
+- **Session Management** - Automatic session refresh via `proxy.ts` (Next.js 16 pattern)
+- **Server Layout Guards** - Authentication checks in Server Components (CVE-2025-29927 compliant)
+- **CSRF Protection** - Token-based protection with timing-safe comparison for state-changing operations
+- **Rate Limiting** - In-memory rate limiting to prevent brute force attacks
+- **Idle Timeout** - Automatic session expiration after 30 minutes of inactivity
+- **Security Headers** - Comprehensive CSP, HSTS, and other security headers
+- **Audit Logging** - Structured logging for authentication events
+
+### Cross-Subdomain SSO
+
+Sessions are shared across all `*.helvety.com` applications via cookie-based SSO. Authentication is handled centrally by [auth.helvety.com](https://auth.helvety.com).
+
 ## Tech Stack
 
 This project is built with modern web technologies:

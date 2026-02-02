@@ -79,6 +79,104 @@ export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
 }
 
 /**
+ * Detect if running on a mobile device via user agent
+ * This checks for actual mobile devices, not just screen width
+ */
+export function isMobileDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
+/**
+ * Check if platform authenticator supports PRF extension
+ * Uses getClientCapabilities() on Chrome 133+, falls back to heuristics
+ *
+ * PRF is supported on:
+ * - iOS 18+, macOS 15+ (Safari)
+ * - Android 14+ (Chrome 128+)
+ * - Windows 11 (Chrome/Edge 128+)
+ */
+export async function getPlatformPRFSupport(): Promise<boolean> {
+  if (typeof window === "undefined" || !window.PublicKeyCredential) {
+    return false;
+  }
+
+  // Modern API (Chrome 133+) - checks platform authenticator PRF support directly
+  if ("getClientCapabilities" in PublicKeyCredential) {
+    try {
+      const getClientCapabilities = (
+        PublicKeyCredential as typeof PublicKeyCredential & {
+          getClientCapabilities: () => Promise<Record<string, boolean>>;
+        }
+      ).getClientCapabilities;
+      const caps = await getClientCapabilities();
+      if (caps?.prf === true) return true;
+    } catch {
+      /* fall through to heuristics */
+    }
+  }
+
+  // Fallback heuristics based on known platform support
+  const ua = navigator.userAgent;
+
+  // iOS 18+ / macOS 15+ Safari supports PRF for platform authenticators
+  const safariMatch = ua.match(/Version\/(\d+).*Safari/);
+  if (safariMatch?.[1] && parseInt(safariMatch[1]) >= 18) {
+    // Safari on iOS/macOS with version 18+ supports PRF
+    return true;
+  }
+
+  // Android Chrome 128+ supports PRF for platform authenticators
+  if (/Android/.test(ua)) {
+    const chromeMatch = ua.match(/Chrome\/(\d+)/);
+    if (chromeMatch?.[1] && parseInt(chromeMatch[1]) >= 128) {
+      return true;
+    }
+  }
+
+  // Windows with Chrome/Edge 128+ may support PRF via Windows Hello
+  // But we can't reliably detect this, so we return false to be safe
+  // Users on Windows will use cross-device (QR code) flow
+
+  return false;
+}
+
+/**
+ * Device capability information for passkey operations
+ */
+export interface DeviceCapabilities {
+  /** Whether the device is a mobile device (phone/tablet) */
+  isMobile: boolean;
+  /** Whether a platform authenticator is available */
+  hasPlatformAuthenticator: boolean;
+  /** Whether the platform authenticator supports PRF extension */
+  platformSupportsPRF: boolean;
+  /** Whether to use platform authenticator for passkey operations */
+  usePlatformAuth: boolean;
+}
+
+/**
+ * Get comprehensive device capabilities for passkey operations
+ * This helps determine the best authentication flow for the current device
+ */
+export async function getDeviceCapabilities(): Promise<DeviceCapabilities> {
+  const isMobile = isMobileDevice();
+  const hasPlatformAuthenticator = await isPlatformAuthenticatorAvailable();
+  const platformSupportsPRF = await getPlatformPRFSupport();
+
+  // Use platform auth on mobile devices with PRF support
+  // This allows Face ID, Touch ID, Fingerprint to work directly
+  const usePlatformAuth = isMobile && hasPlatformAuthenticator && platformSupportsPRF;
+
+  return {
+    isMobile,
+    hasPlatformAuthenticator,
+    platformSupportsPRF,
+    usePlatformAuth,
+  };
+}
+
+/**
  * Passkey authentication result with PRF output for encryption unlock
  */
 export interface PasskeyAuthenticationResult {
@@ -95,14 +193,19 @@ export interface PasskeyAuthenticationResult {
 /**
  * Generate authentication options for unlocking encryption with a passkey
  *
+ * Automatically detects device capabilities to determine whether to prefer:
+ * - Platform authenticator (Face ID, Touch ID, Fingerprint) on mobile devices with PRF support
+ * - Cross-platform authenticator (phone via QR code) on desktop or unsupported mobile
+ *
  * @param allowCredentials - Optional list of credential IDs to allow
  * @param prfSalt - PRF salt for encryption key derivation (base64 encoded)
  */
-export function generateAuthenticationOptions(
+export async function generateAuthenticationOptions(
   allowCredentials?: string[],
   prfSalt?: string
-): PublicKeyCredentialRequestOptionsJSON {
+): Promise<PublicKeyCredentialRequestOptionsJSON> {
   const rpConfig = getRPConfig();
+  const capabilities = await getDeviceCapabilities();
 
   // Generate a random challenge
   const challenge = base64Encode(crypto.getRandomValues(new Uint8Array(32)));
@@ -115,19 +218,23 @@ export function generateAuthenticationOptions(
   };
 
   // Add allowed credentials if provided
+  // Include all transports for maximum flexibility - the browser will filter
+  // based on what's actually available for each credential
   if (allowCredentials && allowCredentials.length > 0) {
     options.allowCredentials = allowCredentials.map((id) => ({
       id,
       type: "public-key",
-      // Only hint hybrid (phone via QR) since we force cross-platform authenticators
-      transports: ["hybrid"],
+      // Include all transports so credentials can be used from any source
+      transports: ["internal", "hybrid", "usb", "ble", "nfc"],
     }));
   }
 
-  // Hint to prefer phone authenticators over security keys
+  // Set hints based on device capabilities
+  // "client-device" hints to use the current device's authenticator
+  // "hybrid" hints to use cross-device flow (QR code)
   (
     options as PublicKeyCredentialRequestOptionsJSON & { hints?: string[] }
-  ).hints = ["hybrid"];
+  ).hints = capabilities.usePlatformAuth ? ["client-device"] : ["hybrid"];
 
   // Add PRF extension if salt provided
   if (prfSalt) {
@@ -206,7 +313,7 @@ export async function authenticatePasskeyWithEncryption(
   credentialIds?: string[],
   prfSalt?: string
 ): Promise<PasskeyAuthenticationResult> {
-  const options = generateAuthenticationOptions(credentialIds, prfSalt);
+  const options = await generateAuthenticationOptions(credentialIds, prfSalt);
   return authenticateWithPasskey(options);
 }
 
