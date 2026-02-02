@@ -13,7 +13,7 @@
  *
  * SECURITY NOTES (for auditors):
  * - Sensitive keys (passwords, tokens, secrets) are automatically redacted from logged objects
- * - String messages may contain identifiers (user IDs, subscription IDs) for debugging
+ * - String messages may contain identifiers (user IDs, entity IDs) for debugging
  * - These identifiers are UUIDs/internal IDs, not personal data (no emails, names, etc.)
  * - Info/warn/debug logs containing identifiers are suppressed in production
  * - Only error logs are output in production, and only for critical debugging
@@ -106,7 +106,6 @@ export const errorTracker = new ErrorTracker();
 
 /**
  * Type guard to check if a value is a record-like object
- * @param value
  */
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -130,7 +129,6 @@ const SENSITIVE_KEYS = new Set([
 
 /**
  * Check if a key is sensitive and should be redacted
- * @param key
  */
 function isSensitiveKey(key: string): boolean {
   const lowerKey = key.toLowerCase();
@@ -143,8 +141,6 @@ function isSensitiveKey(key: string): boolean {
 /**
  * Recursively sanitizes an object by removing sensitive keys
  * Handles nested objects and arrays
- * @param obj
- * @param depth
  */
 function sanitizeObject(
   obj: Record<string, unknown>,

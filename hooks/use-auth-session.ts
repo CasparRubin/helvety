@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-import { redirectToLogout } from "@/lib/auth-redirect";
 import { logAuthEvent } from "@/lib/auth-logger";
+import { redirectToLogout } from "@/lib/auth-redirect";
+import { clearAllKeys } from "@/lib/crypto";
 import { SESSION_CONFIG } from "@/lib/session-config";
 import { createClient } from "@/lib/supabase/client";
-import { clearAllKeys } from "@/lib/crypto";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -114,7 +114,7 @@ export function useAuthSession(
         metadata: { reason: "idle_timeout", idleTimeMs: idleTime },
       });
       onSessionExpired?.();
-      handleSignOut();
+      void handleSignOut();
     }
   }, [user, enableIdleTimeout, idleTimeoutMs, onSessionExpired, handleSignOut]);
 
@@ -139,7 +139,7 @@ export function useAuthSession(
       }
     };
 
-    initializeAuth();
+    void initializeAuth();
 
     // Listen for auth state changes
     const {

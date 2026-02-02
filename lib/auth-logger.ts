@@ -186,7 +186,8 @@ export function logAuthEvent(
         ? console.error
         : logEntry.level === "warn"
           ? console.warn
-          : console.log;
+          : // eslint-disable-next-line no-console -- Logger module intentionally uses console.log
+            console.log;
     logFn(JSON.stringify({ ...logEntry, source: "auth" }));
   } else {
     // Human-readable format for development
@@ -199,8 +200,10 @@ export function logAuthEvent(
     };
 
     if (Object.keys(details).length > 0) {
+      // eslint-disable-next-line no-console -- Logger module intentionally uses console.log
       console.log(message, details);
     } else {
+      // eslint-disable-next-line no-console -- Logger module intentionally uses console.log
       console.log(message);
     }
   }

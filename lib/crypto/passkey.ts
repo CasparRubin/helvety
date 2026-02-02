@@ -2,8 +2,9 @@
  * Passkey Module
  * Handles WebAuthn passkey registration and authentication with PRF extension
  *
- * This module provides the bridge between WebAuthn/passkeys and encryption.
- * It uses SimpleWebAuthn browser helpers and integrates with Supabase for storage.
+ * This module provides the bridge between WebAuthn/passkeys and both authentication
+ * and encryption. It uses SimpleWebAuthn browser helpers and integrates PRF extension
+ * for E2EE key derivation.
  */
 
 import {
@@ -12,9 +13,6 @@ import {
   browserSupportsWebAuthn,
   platformAuthenticatorIsAvailable,
 } from "@simplewebauthn/browser";
-
-import { base64Encode, base64Decode } from "./encoding";
-import { CryptoError, CryptoErrorType } from "./types";
 
 import type {
   PublicKeyCredentialCreationOptionsJSON,
@@ -31,38 +29,79 @@ export interface RPConfig {
   rpId: string;
   /** Human-readable name shown in passkey prompts */
   rpName: string;
-  /** Origin URL (e.g., 'http://localhost:3000') */
+  /** Origin URL (e.g., 'https://auth.helvety.com') */
   origin: string;
 }
 
 /**
  * Get RP config based on the current browser location
  *
- * Note: The rpId MUST match the actual domain for WebAuthn security.
- * WebAuthn automatically uses the current domain, so no configuration needed.
- *
- * The rpName is the human-readable name shown in password managers.
+ * IMPORTANT: For centralized auth, we use 'helvety.com' as the rpId in production.
+ * This allows passkeys registered on auth.helvety.com to work across all subdomains
+ * (pdf.helvety.com, store.helvety.com, etc.)
  */
 export function getRPConfig(): RPConfig {
-  // Always use "Helvety Store" as the display name
-  const rpName = "Helvety Store";
+  const rpName = "Helvety";
 
   if (typeof window === "undefined") {
     // Server-side fallback (passkey operations should only happen client-side)
     return {
       rpId: "localhost",
       rpName,
-      origin: "http://localhost:3000",
+      origin: "http://localhost:3002",
     };
   }
 
-  // Client-side: Always use the current hostname
-  // WebAuthn requires rpId to match the actual domain
+  // In production, use the root domain for cross-subdomain passkey sharing
+  // In development, use localhost
+  const isDev =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+
   return {
-    rpId: window.location.hostname,
+    rpId: isDev ? "localhost" : "helvety.com",
     rpName,
     origin: window.location.origin,
   };
+}
+
+/**
+ * Check if the browser supports WebAuthn passkeys
+ */
+export function isPasskeySupported(): boolean {
+  return browserSupportsWebAuthn();
+}
+
+/**
+ * Check if a platform authenticator is available (Face ID, Touch ID, Windows Hello)
+ */
+export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
+  return platformAuthenticatorIsAvailable();
+}
+
+/**
+ * Crypto error types for passkey operations
+ */
+export enum PasskeyErrorType {
+  NOT_SUPPORTED = "NOT_SUPPORTED",
+  CANCELLED = "CANCELLED",
+  ALREADY_EXISTS = "ALREADY_EXISTS",
+  SECURITY_ERROR = "SECURITY_ERROR",
+  UNKNOWN = "UNKNOWN",
+}
+
+/**
+ * Passkey error class
+ */
+export class PasskeyError extends Error {
+  constructor(
+    public type: PasskeyErrorType,
+    message: string,
+    public override cause?: Error
+  ) {
+    super(message);
+    this.name = "PasskeyError";
+  }
 }
 
 /**
@@ -94,17 +133,26 @@ export interface PasskeyAuthenticationResult {
 }
 
 /**
- * Check if the browser supports WebAuthn passkeys
+ * Base64 encode a Uint8Array
  */
-export function isPasskeySupported(): boolean {
-  return browserSupportsWebAuthn();
+function base64Encode(data: Uint8Array): string {
+  let binary = "";
+  for (let i = 0; i < data.length; i++) {
+    binary += String.fromCharCode(data[i]!);
+  }
+  return btoa(binary);
 }
 
 /**
- * Check if a platform authenticator is available (Face ID, Touch ID, Windows Hello)
+ * Base64 decode a string to Uint8Array
  */
-export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
-  return platformAuthenticatorIsAvailable();
+function base64Decode(str: string): Uint8Array {
+  const binary = atob(str);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
 }
 
 /**
@@ -266,20 +314,20 @@ export async function registerPasskey(
   } catch (error) {
     if (error instanceof Error) {
       if (error.name === "NotAllowedError") {
-        throw new CryptoError(
-          CryptoErrorType.KEY_DERIVATION_FAILED,
+        throw new PasskeyError(
+          PasskeyErrorType.CANCELLED,
           "Passkey registration was cancelled or not allowed"
         );
       }
       if (error.name === "InvalidStateError") {
-        throw new CryptoError(
-          CryptoErrorType.KEY_DERIVATION_FAILED,
+        throw new PasskeyError(
+          PasskeyErrorType.ALREADY_EXISTS,
           "A passkey already exists for this account on this device"
         );
       }
     }
-    throw new CryptoError(
-      CryptoErrorType.KEY_DERIVATION_FAILED,
+    throw new PasskeyError(
+      PasskeyErrorType.UNKNOWN,
       "Failed to register passkey",
       error instanceof Error ? error : undefined
     );
@@ -315,20 +363,20 @@ export async function authenticateWithPasskey(
   } catch (error) {
     if (error instanceof Error) {
       if (error.name === "NotAllowedError") {
-        throw new CryptoError(
-          CryptoErrorType.KEY_DERIVATION_FAILED,
+        throw new PasskeyError(
+          PasskeyErrorType.CANCELLED,
           "Passkey authentication was cancelled or not allowed"
         );
       }
       if (error.name === "SecurityError") {
-        throw new CryptoError(
-          CryptoErrorType.KEY_DERIVATION_FAILED,
+        throw new PasskeyError(
+          PasskeyErrorType.SECURITY_ERROR,
           "Security error during passkey authentication"
         );
       }
     }
-    throw new CryptoError(
-      CryptoErrorType.KEY_DERIVATION_FAILED,
+    throw new PasskeyError(
+      PasskeyErrorType.UNKNOWN,
       "Failed to authenticate with passkey",
       error instanceof Error ? error : undefined
     );
@@ -371,3 +419,11 @@ export async function authenticatePasskeyWithEncryption(
   const options = generateAuthenticationOptions(credentialIds, prfSalt);
   return authenticateWithPasskey(options);
 }
+
+// Re-export PRF support utilities from the canonical location
+// to maintain backward compatibility for consumers of this module
+export {
+  isPRFSupported,
+  getPRFSupportInfo,
+  type PRFSupportInfo,
+} from "./prf-key-derivation";

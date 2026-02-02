@@ -27,7 +27,7 @@ export async function encrypt(
     const encoded = new TextEncoder().encode(data);
 
     const ciphertext = await crypto.subtle.encrypt(
-      { name: "AES-GCM", iv: iv as Uint8Array<ArrayBuffer> },
+      { name: "AES-GCM", iv },
       key,
       encoded
     );
@@ -62,9 +62,9 @@ export async function decrypt(
     const ciphertext = base64Decode(encrypted.ciphertext);
 
     const decrypted = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv: iv as Uint8Array<ArrayBuffer> },
+      { name: "AES-GCM", iv },
       key,
-      ciphertext as Uint8Array<ArrayBuffer>
+      ciphertext
     );
 
     return new TextDecoder().decode(decrypted);
@@ -117,7 +117,6 @@ export async function decryptObject<T extends object>(
 /**
  * Serialize encrypted data for database storage
  * Returns a JSON string that can be stored in a text column
- * @param data
  */
 export function serializeEncryptedData(data: EncryptedData): string {
   return JSON.stringify(data);
@@ -125,7 +124,6 @@ export function serializeEncryptedData(data: EncryptedData): string {
 
 /**
  * Parse encrypted data from database storage
- * @param serialized
  */
 export function parseEncryptedData(serialized: string): EncryptedData {
   try {
@@ -149,7 +147,6 @@ export function parseEncryptedData(serialized: string): EncryptedData {
 
 /**
  * Check if a value looks like encrypted data
- * @param value
  */
 export function isEncryptedData(value: unknown): value is EncryptedData {
   return (
@@ -167,9 +164,6 @@ export function isEncryptedData(value: unknown): value is EncryptedData {
 /**
  * Batch encrypt multiple fields of an object
  * Only encrypts string values, leaves other types unchanged
- * @param data
- * @param fieldsToEncrypt
- * @param key
  */
 export async function encryptFields<T extends Record<string, unknown>>(
   data: T,
@@ -199,9 +193,6 @@ export async function encryptFields<T extends Record<string, unknown>>(
 
 /**
  * Batch decrypt multiple fields of an object
- * @param data
- * @param fieldsToDecrypt
- * @param key
  */
 export async function decryptFields<T extends Record<string, unknown>>(
   data: Record<string, unknown>,
