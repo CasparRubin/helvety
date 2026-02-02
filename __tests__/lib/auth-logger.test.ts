@@ -105,10 +105,15 @@ describe("Auth Logger Module", () => {
           "logout",
           "session_refresh",
           "session_expired",
+          "encryption_setup_started",
+          "encryption_setup_success",
           "encryption_unlock",
           "encryption_lock",
+          "passkey_registration_started",
+          "passkey_registration_success",
           "passkey_auth_started",
           "passkey_auth_success",
+          "magic_link_sent",
         ];
 
         for (const event of infoEvents) {
@@ -121,8 +126,11 @@ describe("Auth Logger Module", () => {
       it("should use warn level for failure events", () => {
         const warnEvents: AuthEvent[] = [
           "login_failed",
+          "encryption_setup_failed",
           "encryption_failed",
+          "passkey_registration_failed",
           "passkey_auth_failed",
+          "magic_link_failed",
           "rate_limit_exceeded",
         ];
 

@@ -18,12 +18,20 @@ export type AuthEvent =
   | "logout"
   | "session_refresh"
   | "session_expired"
+  | "encryption_setup_started"
+  | "encryption_setup_success"
+  | "encryption_setup_failed"
   | "encryption_unlock"
   | "encryption_lock"
   | "encryption_failed"
+  | "passkey_registration_started"
+  | "passkey_registration_success"
+  | "passkey_registration_failed"
   | "passkey_auth_started"
   | "passkey_auth_success"
   | "passkey_auth_failed"
+  | "magic_link_sent"
+  | "magic_link_failed"
   | "rate_limit_exceeded"
   | "csrf_validation_failed"
   | "redirect_blocked";
@@ -56,12 +64,20 @@ const EVENT_LEVELS: Record<AuthEvent, LogLevel> = {
   logout: "info",
   session_refresh: "info",
   session_expired: "info",
+  encryption_setup_started: "info",
+  encryption_setup_success: "info",
+  encryption_setup_failed: "warn",
   encryption_unlock: "info",
   encryption_lock: "info",
   encryption_failed: "warn",
+  passkey_registration_started: "info",
+  passkey_registration_success: "info",
+  passkey_registration_failed: "warn",
   passkey_auth_started: "info",
   passkey_auth_success: "info",
   passkey_auth_failed: "warn",
+  magic_link_sent: "info",
+  magic_link_failed: "warn",
   rate_limit_exceeded: "warn",
   csrf_validation_failed: "error",
   redirect_blocked: "error",

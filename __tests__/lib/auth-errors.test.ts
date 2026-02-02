@@ -19,13 +19,17 @@ describe("Auth Errors Module", () => {
       expect(AuthErrorCode.RATE_LIMITED).toBe("rate_limited");
       expect(AuthErrorCode.CSRF_INVALID).toBe("csrf_invalid");
       expect(AuthErrorCode.PASSKEY_FAILED).toBe("passkey_failed");
+      expect(AuthErrorCode.PASSKEY_REGISTRATION_FAILED).toBe("passkey_registration_failed");
       expect(AuthErrorCode.PASSKEY_NOT_SUPPORTED).toBe("passkey_not_supported");
+      expect(AuthErrorCode.PRF_NOT_SUPPORTED).toBe("prf_not_supported");
       expect(AuthErrorCode.ENCRYPTION_FAILED).toBe("encryption_failed");
       expect(AuthErrorCode.NETWORK_ERROR).toBe("network_error");
       expect(AuthErrorCode.USER_NOT_FOUND).toBe("user_not_found");
       expect(AuthErrorCode.UNAUTHORIZED).toBe("unauthorized");
       expect(AuthErrorCode.FORBIDDEN).toBe("forbidden");
       expect(AuthErrorCode.INVALID_REDIRECT).toBe("invalid_redirect");
+      expect(AuthErrorCode.MAGIC_LINK_INVALID).toBe("magic_link_invalid");
+      expect(AuthErrorCode.EMAIL_IN_USE).toBe("email_in_use");
       expect(AuthErrorCode.SERVER_ERROR).toBe("server_error");
     });
   });
@@ -223,6 +227,28 @@ describe("Auth Errors Module", () => {
       if (!result.success) {
         expect(result.error.message).toBe("Email not found in database");
       }
+    });
+  });
+
+  describe("additional error codes", () => {
+    it("should have PASSKEY_REGISTRATION_FAILED error", () => {
+      const error = new AuthError(AuthErrorCode.PASSKEY_REGISTRATION_FAILED);
+      expect(error.userMessage).toContain("register passkey");
+    });
+
+    it("should have PRF_NOT_SUPPORTED error", () => {
+      const error = new AuthError(AuthErrorCode.PRF_NOT_SUPPORTED);
+      expect(error.userMessage).toContain("encryption");
+    });
+
+    it("should have MAGIC_LINK_INVALID error", () => {
+      const error = new AuthError(AuthErrorCode.MAGIC_LINK_INVALID);
+      expect(error.userMessage).toContain("link");
+    });
+
+    it("should have EMAIL_IN_USE error", () => {
+      const error = new AuthError(AuthErrorCode.EMAIL_IN_USE);
+      expect(error.userMessage).toContain("already exists");
     });
   });
 });
