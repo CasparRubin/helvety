@@ -9,20 +9,31 @@ Your one-stop shop for Helvety software and subscriptions. Browse and purchase o
 
 **Store:** [store.helvety.com](https://store.helvety.com)
 
+## Navigation
+
+The store has four main sections, linked from the store nav bar (below the top navbar) and from the profile dropdown in the top navbar on helvety.com and store.helvety.com (when signed in; shows your email and links to Products, Account, Subscriptions, Tenants, and Sign out):
+
+- **Products** (`/products`) – Product catalog with filters; product detail at `/products/[slug]`
+- **Account** (`/account`) – Profile and account settings
+- **Subscriptions** (`/subscriptions`) – View and manage active subscriptions
+- **Tenants** (`/tenants`) – Register and manage SharePoint tenant IDs for SPO Explorer
+
+The root path (`/`) redirects: unauthenticated users to auth; authenticated users to `/products`.
+
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer.
+
 ## Features
 
 - **Product Catalog** - Browse Helvety software products with detailed descriptions and pricing
-- **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout
-- **Subscription Management** - Manage active subscriptions, cancel, or reactivate
+- **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout. Before every purchase, a consent dialog is shown with two sections: (1) Terms & policy — links to Terms of Service and Privacy Policy plus a confirmation checkbox; (2) Digital content consent — EU withdrawal notice plus consent checkbox. Both confirmations are required on each purchase and are not saved.
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
-- **Account Management** - Manage your tenants, software downloads, and profile settings
-- **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer licensing
+- **Account Management** - Profile and account settings (Account page)
+- **Subscription Management** - View, cancel, or reactivate subscriptions (Subscriptions page)
+- **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer (Tenants page)
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
-- **App Switcher** - Navigate between Helvety ecosystem apps
-
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked from the navbar.
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF)
 
 ## Security & Authentication
 
@@ -75,7 +86,7 @@ Browser requirements for encryption:
 
 This application implements comprehensive security hardening:
 
-- **Session Management** - Automatic session refresh via `proxy.ts` (Next.js 16 pattern)
+- **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed)
 - **Server Layout Guards** - Authentication checks in Server Components (CVE-2025-29927 compliant)
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
@@ -100,6 +111,10 @@ This project is built with modern web technologies:
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 - **[Stripe](https://stripe.com/)** - Payment processing and subscription management
 - **[Vitest](https://vitest.dev/)** - Unit and integration testing
+
+**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, (for server-side) `SUPABASE_SECRET_KEY`, and the Stripe variables listed in the template. Node.js 20.9+ required.
+
+**Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, tests, and production build.
 
 ## Developer
 

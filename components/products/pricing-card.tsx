@@ -214,7 +214,7 @@ export function PricingCard({
 
   /**
    * Handle button click - either custom onSelect, checkout, or reactivate
-   * For paid digital products, shows consent dialog first (EU consumer law requirement)
+   * For paid digital products, shows pre-checkout dialog first (Terms & Policy + EU digital content consent)
    */
   const handleClick = () => {
     if (isPendingCancellation) {
@@ -228,13 +228,13 @@ export function PricingCard({
     if (onSelect) {
       onSelect(tier);
     } else if (hasPaidCheckout) {
-      // Show consent dialog for digital content purchases (EU requirement)
+      // Show pre-checkout dialog (Terms & Policy + EU digital content consent)
       setShowConsentDialog(true);
     }
   };
 
   /**
-   * Handle consent dialog confirmation - proceed to checkout
+   * Handle pre-checkout dialog confirmation - proceed to Stripe Checkout
    */
   const handleConsentConfirm = () => {
     void handleCheckout();
@@ -306,7 +306,9 @@ export function PricingCard({
         <div className="space-y-1">
           <div className="flex items-baseline gap-1">
             <span className="text-4xl font-bold tracking-tight">
-              {formatPrice(tier.price, tier.currency, { showCents: false })}
+              {formatPrice(tier.price, tier.currency, {
+                showCents: tier.price % 100 !== 0,
+              })}
             </span>
             {isRecurring && intervalLabel && (
               <span className="text-muted-foreground">/{intervalLabel}</span>
@@ -367,7 +369,7 @@ export function PricingCard({
         </Button>
       </CardFooter>
 
-      {/* EU Digital Content Consent Dialog */}
+      {/* Pre-checkout consent dialog (Terms & Policy + EU digital content) */}
       <DigitalContentConsentDialog
         open={showConsentDialog}
         onOpenChange={setShowConsentDialog}

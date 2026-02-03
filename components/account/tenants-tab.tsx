@@ -639,18 +639,6 @@ export function TenantsTab() {
         </CardContent>
       </Card>
 
-      {/* Help section */}
-      <Card className="bg-muted/50">
-        <CardContent className="py-4">
-          <p className="text-muted-foreground text-sm">
-            <strong>Need help?</strong> After registering a tenant, the SPO
-            Explorer extension will automatically validate the license when
-            users access SharePoint. License validation is cached for 1 hour to
-            ensure fast performance.
-          </p>
-        </CardContent>
-      </Card>
-
       {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={!!tenantToDelete}

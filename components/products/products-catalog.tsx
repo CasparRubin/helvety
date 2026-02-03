@@ -7,10 +7,10 @@
 
 import { useState, useMemo } from "react";
 
-import { CommandBar } from "@/components/command-bar";
 import { getAllProducts, getFilteredProducts } from "@/lib/data/products";
 
 import { type FilterType } from "./product-filters";
+import { ProductFilters } from "./product-filters";
 import { ProductGrid } from "./product-grid";
 
 /**
@@ -39,16 +39,20 @@ export function ProductsCatalog() {
   }, [filter, allProducts]);
 
   return (
-    <>
-      <CommandBar
-        variant="catalog"
-        filter={filter}
-        onFilterChange={setFilter}
-        counts={counts}
-      />
-      <div className="container mx-auto px-4 py-8">
-        <ProductGrid products={filteredProducts} columns={3} />
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight">Products</h1>
+        <p className="text-muted-foreground mt-1">
+          Browse software, subscriptions, and apparel from Helvety
+        </p>
       </div>
-    </>
+      <section className="mb-6">
+        <h2 className="text-muted-foreground mb-2 text-sm font-medium">
+          Product type
+        </h2>
+        <ProductFilters value={filter} onChange={setFilter} counts={counts} />
+      </section>
+      <ProductGrid products={filteredProducts} columns={3} />
+    </div>
   );
 }

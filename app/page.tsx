@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
 
-import { EncryptionGate } from "@/components/encryption-gate";
-import { ProductsCatalog } from "@/components/products";
 import { getLoginUrl } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- *
+ * Root route: redirect only.
+ * Not authenticated → auth (e.g. auth.helvety.com).
+ * Authenticated → /products.
+ * Keeps / clean for future use (e.g. landing, dashboard).
  */
 export default async function Home() {
   const supabase = await createClient();
@@ -14,16 +15,9 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect to centralized auth service if not authenticated
   if (!user) {
     redirect(getLoginUrl());
   }
 
-  return (
-    <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <main>
-        <ProductsCatalog />
-      </main>
-    </EncryptionGate>
-  );
+  redirect("/products");
 }

@@ -185,7 +185,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
       {
         id: "helvety-spo-explorer-basic-monthly",
         name: "Solo",
-        price: 75000,
+        price: 45000,
         currency: "CHF",
         interval: "monthly",
         features: [
@@ -199,7 +199,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
       {
         id: "helvety-spo-explorer-enterprise-monthly",
         name: "Supported",
-        price: 125000,
+        price: 65000,
         currency: "CHF",
         interval: "monthly",
         highlighted: true,

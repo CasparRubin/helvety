@@ -140,7 +140,9 @@ export function SubscriptionCard({
         {tier && (
           <div className="flex items-baseline gap-1">
             <span className="text-2xl font-bold">
-              {formatPrice(tier.price, tier.currency, { showCents: false })}
+              {formatPrice(tier.price, tier.currency, {
+                showCents: tier.price % 100 !== 0,
+              })}
             </span>
             {tier.interval === "monthly" && (
               <span className="text-muted-foreground text-sm">/month</span>

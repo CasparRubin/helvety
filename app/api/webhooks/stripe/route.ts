@@ -240,11 +240,19 @@ async function upsertSubscription(
   const priceId = item.price.id;
   const productInfo = getProductFromPriceId(priceId);
 
-  // Access subscription period dates (using type assertion for API version compatibility)
-  const subData = subscription as Stripe.Subscription & {
+  // Period: subscription-level (legacy) or first item (newer Stripe API)
+  const subWithPeriod = subscription as Stripe.Subscription & {
     current_period_start?: number;
     current_period_end?: number;
   };
+  const itemWithPeriod = item as {
+    current_period_start?: number;
+    current_period_end?: number;
+  };
+  const periodStart =
+    subWithPeriod.current_period_start ?? itemWithPeriod.current_period_start;
+  const periodEnd =
+    subWithPeriod.current_period_end ?? itemWithPeriod.current_period_end;
 
   // Upsert subscription record
   const { error } = await supabase.from("subscriptions").upsert(
@@ -259,11 +267,11 @@ async function upsertSubscription(
       tier_id:
         productInfo?.tierId ?? subscription.metadata?.tier_id ?? "unknown",
       status: subscription.status,
-      current_period_start: subData.current_period_start
-        ? new Date(subData.current_period_start * 1000).toISOString()
+      current_period_start: periodStart
+        ? new Date(periodStart * 1000).toISOString()
         : null,
-      current_period_end: subData.current_period_end
-        ? new Date(subData.current_period_end * 1000).toISOString()
+      current_period_end: periodEnd
+        ? new Date(periodEnd * 1000).toISOString()
         : null,
       cancel_at_period_end: subscription.cancel_at_period_end,
       canceled_at: subscription.canceled_at
@@ -379,23 +387,29 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     return;
   }
 
-  // Update subscription period
-  const subscription = (await stripe.subscriptions.retrieve(
-    subscriptionId
-  )) as Stripe.Subscription & {
+  // Update subscription period (subscription-level or first item for newer API)
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const firstItem = subscription.items?.data?.[0] as
+    | { current_period_start?: number; current_period_end?: number }
+    | undefined;
+  const subWithPeriod = subscription as Stripe.Subscription & {
     current_period_start?: number;
     current_period_end?: number;
   };
+  const periodStart =
+    subWithPeriod.current_period_start ?? firstItem?.current_period_start;
+  const periodEnd =
+    subWithPeriod.current_period_end ?? firstItem?.current_period_end;
 
   await supabase
     .from("subscriptions")
     .update({
       status: "active",
-      current_period_start: subscription.current_period_start
-        ? new Date(subscription.current_period_start * 1000).toISOString()
+      current_period_start: periodStart
+        ? new Date(periodStart * 1000).toISOString()
         : null,
-      current_period_end: subscription.current_period_end
-        ? new Date(subscription.current_period_end * 1000).toISOString()
+      current_period_end: periodEnd
+        ? new Date(periodEnd * 1000).toISOString()
         : null,
     })
     .eq("stripe_subscription_id", subscriptionId);

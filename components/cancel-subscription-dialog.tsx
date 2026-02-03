@@ -6,10 +6,13 @@
  */
 
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { cancelSubscription } from "@/app/actions/subscription-actions";
+import {
+  cancelSubscription,
+  getSubscriptionPeriodEnd,
+} from "@/app/actions/subscription-actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -64,6 +67,36 @@ export function CancelSubscriptionDialog({
   onSuccess,
 }: CancelSubscriptionDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [periodEndFromStripe, setPeriodEndFromStripe] = useState<string | null>(
+    null
+  );
+
+  // When dialog opens with missing period end, fetch from Stripe so we can show "access until"
+  useEffect(() => {
+    if (
+      !open ||
+      !subscription?.id ||
+      subscription.current_period_end != null ||
+      !subscription.stripe_subscription_id
+    ) {
+      setPeriodEndFromStripe(null);
+      return;
+    }
+    let cancelled = false;
+    void getSubscriptionPeriodEnd(subscription.id).then((result) => {
+      if (!cancelled && result.success && result.data) {
+        setPeriodEndFromStripe(result.data.current_period_end);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    open,
+    subscription?.id,
+    subscription?.current_period_end,
+    subscription?.stripe_subscription_id,
+  ]);
 
   if (!subscription) return null;
 
@@ -73,6 +106,9 @@ export function CancelSubscriptionDialog({
   );
   const productName = product?.name ?? "Unknown Product";
   const tierName = tier?.name ?? "Unknown Tier";
+
+  const displayPeriodEnd =
+    subscription.current_period_end ?? periodEndFromStripe;
 
   const handleCancel = async () => {
     setIsLoading(true);
@@ -85,7 +121,7 @@ export function CancelSubscriptionDialog({
       }
 
       toast.success("Subscription canceled", {
-        description: `Your ${productName} subscription will end on ${formatDate(subscription.current_period_end)}.`,
+        description: `Your ${productName} subscription will end on ${formatDate(displayPeriodEnd)}.`,
         duration: TOAST_DURATIONS.SUCCESS,
       });
 
@@ -129,7 +165,7 @@ export function CancelSubscriptionDialog({
                 <li>
                   You&apos;ll keep access until{" "}
                   <strong className="text-foreground">
-                    {formatDate(subscription.current_period_end)}
+                    {formatDate(displayPeriodEnd)}
                   </strong>
                 </li>
                 <li>No further charges will be made</li>

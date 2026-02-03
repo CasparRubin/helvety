@@ -2,9 +2,10 @@ import "./globals.css";
 import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
+import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
-import { SubscriptionsPanel } from "@/components/subscriptions-panel";
+import { StoreNav } from "@/components/store-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -93,9 +94,7 @@ export const metadata: Metadata = {
 };
 
 /**
- *
- * @param root0
- * @param root0.children
+ * Root layout: NavbarWrapper provides sticky header, scrollable main, sticky footer.
  */
 export default function RootLayout({
   children,
@@ -125,19 +124,21 @@ export default function RootLayout({
 }
 
 /**
- *
- * @param root0
- * @param root0.children
+ * Wraps content with sticky header (Navbar + StoreNav), scrollable main, sticky footer.
  */
 async function NavbarWrapper({ children }: { children: React.ReactNode }) {
-  // Always show navbar
   return (
-    <>
-      <Navbar />
-      <div className="mx-auto flex w-full max-w-[2000px]">
-        <main className="min-w-0 flex-1">{children}</main>
-        <SubscriptionsPanel />
+    <div className="flex min-h-screen flex-col">
+      <header className="shrink-0">
+        <Navbar />
+        <StoreNav />
+      </header>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-[2000px]">
+          <main className="min-w-0">{children}</main>
+        </div>
       </div>
-    </>
+      <Footer />
+    </div>
   );
 }

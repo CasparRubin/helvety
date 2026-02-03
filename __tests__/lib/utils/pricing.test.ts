@@ -56,8 +56,8 @@ describe("pricing utilities", () => {
 
   describe("formatPriceWithInterval", () => {
     it("should format monthly subscription", () => {
-      expect(formatPriceWithInterval(499, "CHF", "monthly")).toBe(
-        "4.99 CHF/month"
+      expect(formatPriceWithInterval(495, "CHF", "monthly")).toBe(
+        "4.95 CHF/month"
       );
     });
 
@@ -84,7 +84,7 @@ describe("pricing utilities", () => {
   describe("getMonthlyEquivalent", () => {
     it("should calculate monthly equivalent from yearly price", () => {
       expect(getMonthlyEquivalent(12000)).toBe(1000); // 120/12 = 10
-      expect(getMonthlyEquivalent(5988)).toBe(499); // 59.88/12 = 4.99
+      expect(getMonthlyEquivalent(5940)).toBe(495); // 59.40/12 = 4.95
     });
 
     it("should round to nearest integer", () => {

@@ -86,7 +86,7 @@ export function formatPrice(
 }
 
 /**
- * Format price with interval (e.g., "€4.99/month")
+ * Format price with interval (e.g., "4.95 CHF/month")
  * @param priceInCents
  * @param currency
  * @param interval

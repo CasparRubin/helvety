@@ -1,17 +1,17 @@
 "use client";
 
 import {
+  Building2,
   LogIn,
   LogOut,
-  ShieldCheck,
-  User,
-  Building2,
-  Scale,
-  FileText,
   Menu,
+  ShieldCheck,
+  User as UserIcon,
   Github,
   Info,
   Settings,
+  Package,
+  CreditCard,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,7 +27,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Popover,
@@ -56,37 +55,46 @@ import { VERSION } from "@/lib/config/version";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 import { createClient } from "@/lib/supabase/client";
 
+import type { User } from "@supabase/supabase-js";
+
 /**
  * Main navigation bar component for helvety-store
  *
  * Features:
  * - App switcher for navigating between Helvety ecosystem apps
  * - Logo and branding with "STORE" label
- * - E2EE indicator (shown when encryption is unlocked)
- * - Navigation links (Impressum, Privacy, Terms)
- * - About dialog with version info
- * - GitHub link
+ * - E2EE indicator, About dialog, GitHub link (in bar above 400px; in burger below 400px)
  * - Theme switcher (dark/light mode)
  * - Login button (shown when user is not authenticated)
- * - Profile menu with account settings and logout (shown when authenticated)
- * - Mobile responsive with burger menu
+ * - Profile menu with user email, links to Products, Account, Subscriptions, Tenants, and Sign out (shown when authenticated)
+ * - Burger menu below 400px: E2EE, About, GitHub to save icon space
  */
 export function Navbar() {
-  const { isUnlocked } = useEncryptionContext();
+  const { isUnlocked, isLoading } = useEncryptionContext();
   const supabase = createClient();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
       const {
-        data: { user },
+        data: { user: u },
       } = await supabase.auth.getUser();
-      setIsAuthenticated(!!user);
+      setUser(u ?? null);
     };
     void getUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
   }, [supabase.auth]);
+
+  const isAuthenticated = !!user;
 
   const handleLogin = () => {
     redirectToLogin();
@@ -96,16 +104,6 @@ export function Navbar() {
     // Redirect to centralized auth service for logout
     redirectToLogout(window.location.origin);
   };
-
-  const footerLinks = [
-    {
-      href: "https://helvety.com/impressum",
-      label: "Impressum",
-      icon: Building2,
-    },
-    { href: "https://helvety.com/privacy", label: "Privacy", icon: Scale },
-    { href: "https://helvety.com/terms", label: "Terms", icon: FileText },
-  ];
 
   return (
     <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
@@ -145,99 +143,89 @@ export function Navbar() {
           </Link>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {/* E2EE indicator - only show when encryption is unlocked */}
-          {isUnlocked && (
-            <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
-              {/* Mobile: icon with tooltip */}
+          {/* E2EE, About, GitHub - hidden below 400px (moved into burger) */}
+          <div className="hidden items-center gap-2 min-[401px]:flex">
+            {!isLoading && isUnlocked && (
+              <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-default md:hidden">
+                        <ShieldCheck className="h-4 w-4 text-green-500" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>End-to-end encrypted</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <div className="hidden items-center gap-1.5 md:flex">
+                  <ShieldCheck className="h-4 w-4 text-green-500" />
+                  <span>End-to-end encrypted</span>
+                </div>
+              </div>
+            )}
+
+            <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="cursor-default md:hidden">
-                      <ShieldCheck className="h-4 w-4 text-green-500" />
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={() => setAboutOpen(true)}
+                    >
+                      <Info className="h-4 w-4" />
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>End-to-end encrypted</p>
+                    <p>About</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              {/* Desktop: icon + text */}
-              <div className="hidden items-center gap-1.5 md:flex">
-                <ShieldCheck className="h-4 w-4 text-green-500" />
-                <span>End-to-end encrypted</span>
-              </div>
-            </div>
-          )}
+              <DialogContent>
+                <DialogHeader className="pr-8">
+                  <DialogTitle>About</DialogTitle>
+                  <DialogDescription className="pt-2">
+                    Your one-stop shop for Helvety software, subscriptions, and
+                    apparel.
+                  </DialogDescription>
+                </DialogHeader>
+                <>
+                  <div className="border-t" />
+                  <p className="text-muted-foreground text-xs">
+                    {VERSION || "Unknown build time"}
+                  </p>
+                </>
+                <DialogClose asChild>
+                  <Button variant="outline" className="w-full">
+                    Close
+                  </Button>
+                </DialogClose>
+              </DialogContent>
+            </Dialog>
 
-          {/* Desktop navigation links */}
-          <div className="hidden items-center gap-1 md:flex">
-            {footerLinks.map((link) => (
-              <Button key={link.href} variant="ghost" size="sm" asChild>
-                <a href={link.href} target="_blank" rel="noopener noreferrer">
-                  {link.label}
-                </a>
-              </Button>
-            ))}
-          </div>
-
-          {/* About button */}
-          <Dialog>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <DialogTrigger asChild>
+                  <a
+                    href="https://github.com/CasparRubin/helvety-store"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="View source code on GitHub"
+                  >
                     <Button variant="ghost" size="icon" className="h-9 w-9">
-                      <Info className="h-4 w-4" />
+                      <Github className="h-4 w-4" />
                     </Button>
-                  </DialogTrigger>
+                  </a>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>About</p>
+                  <p>View source code on GitHub</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <DialogContent>
-              <DialogHeader className="pr-8">
-                <DialogTitle>About</DialogTitle>
-                <DialogDescription className="pt-2">
-                  Your one-stop shop for Helvety software, subscriptions, and
-                  apparel.
-                </DialogDescription>
-              </DialogHeader>
-              <>
-                <div className="border-t" />
-                <p className="text-muted-foreground text-xs">
-                  {VERSION || "Unknown build time"}
-                </p>
-              </>
-              <DialogClose asChild>
-                <Button variant="outline" className="w-full">
-                  Close
-                </Button>
-              </DialogClose>
-            </DialogContent>
-          </Dialog>
-
-          {/* GitHub icon - always visible */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <a
-                  href="https://github.com/CasparRubin/helvety-store"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="View source code on GitHub"
-                >
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
-                    <Github className="h-4 w-4" />
-                  </Button>
-                </a>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>View source code on GitHub</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          </div>
 
           <ThemeSwitcher />
 
@@ -254,23 +242,38 @@ export function Navbar() {
               <Popover open={profileOpen} onOpenChange={setProfileOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
+                    <UserIcon className="h-5 w-5" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-80">
                   <PopoverHeader>
                     <div className="flex items-center gap-3">
                       <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
-                        <User className="text-primary h-5 w-5" />
+                        <UserIcon className="text-primary h-5 w-5" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <PopoverTitle>Account</PopoverTitle>
+                        <PopoverTitle className="truncate">
+                          {user?.email ?? "Account"}
+                        </PopoverTitle>
                         <PopoverDescription>Signed in</PopoverDescription>
                       </div>
                     </div>
                   </PopoverHeader>
                   <Separator />
                   <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <Link
+                        href="/products"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <Package className="h-4 w-4" />
+                        Products
+                      </Link>
+                    </Button>
                     <Button
                       variant="outline"
                       className="w-full justify-start"
@@ -284,6 +287,35 @@ export function Navbar() {
                         Account
                       </Link>
                     </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <Link
+                        href="/subscriptions"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <CreditCard className="h-4 w-4" />
+                        Subscriptions
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <Link
+                        href="/tenants"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <Building2 className="h-4 w-4" />
+                        Tenants
+                      </Link>
+                    </Button>
+                  </div>
+                  <Separator />
+                  <div className="flex flex-col gap-2">
                     <Button
                       variant="destructive"
                       className="w-full justify-start"
@@ -301,9 +333,9 @@ export function Navbar() {
             </>
           )}
 
-          {/* Mobile burger menu */}
+          {/* Burger menu - only below 400px */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild className="md:hidden">
+            <SheetTrigger asChild className="hidden max-[400px]:inline-flex">
               <Button variant="ghost" size="icon">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open menu</span>
@@ -311,26 +343,41 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent side="right">
               <SheetHeader>
-                <SheetTitle>Navigation</SheetTitle>
+                <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-2">
-                {/* Navigation links */}
-                {footerLinks.map((link) => {
-                  const Icon = link.icon;
-                  return (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {link.label}
-                    </a>
-                  );
-                })}
+                {!isLoading && isUnlocked && (
+                  <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <ShieldCheck className="h-4 w-4 shrink-0 text-green-500" />
+                    <span>End-to-end encrypted</span>
+                  </div>
+                )}
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setAboutOpen(true);
+                  }}
+                >
+                  <Info className="mr-2 h-4 w-4" />
+                  About
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  asChild
+                >
+                  <a
+                    href="https://github.com/CasparRubin/helvety-store"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Github className="mr-2 h-4 w-4" />
+                    View source on GitHub
+                  </a>
+                </Button>
               </nav>
             </SheetContent>
           </Sheet>

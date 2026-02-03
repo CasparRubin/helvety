@@ -212,31 +212,6 @@ export function ProfileTab() {
           )}
         </CardContent>
       </Card>
-
-      {/* Help Section */}
-      <Card className="bg-muted/50">
-        <CardContent className="py-4">
-          <p className="text-muted-foreground text-sm">
-            <strong>Need help?</strong> Contact us at{" "}
-            <a
-              href="mailto:contact@helvety.com"
-              className="text-primary hover:underline"
-            >
-              contact@helvety.com
-            </a>{" "}
-            or check our{" "}
-            <a
-              href="https://helvety.com/privacy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              privacy policy
-            </a>
-            .
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
 }

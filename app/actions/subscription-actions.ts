@@ -18,12 +18,20 @@ import type {
   SubscriptionStatus,
 } from "@/lib/types/entities";
 
+/** Stripe subscription shape with period fields (SDK type may omit these) */
+type StripeSubWithPeriod = {
+  current_period_end?: number;
+  current_period_start?: number;
+  items?: { data?: Array<{ current_period_start?: number; current_period_end?: number }> };
+};
+
 // =============================================================================
 // SUBSCRIPTION QUERIES
 // =============================================================================
 
 /**
- * Get all subscriptions for the current user
+ * Get all subscriptions for the current user.
+ * If current_period_end is missing in Supabase (e.g. old rows), fetches it from Stripe and backfills the DB.
  */
 export async function getUserSubscriptions(): Promise<
   ActionResponse<Subscription[]>
@@ -49,7 +57,55 @@ export async function getUserSubscriptions(): Promise<
       return { success: false, error: "Failed to fetch subscriptions" };
     }
 
-    return { success: true, data: data as Subscription[] };
+    const subscriptions = (data ?? []) as Subscription[];
+    const adminClient = createAdminClient();
+
+    for (const sub of subscriptions) {
+      if (
+        sub.current_period_end == null &&
+        sub.stripe_subscription_id != null
+      ) {
+        try {
+          const stripeSub = (await stripe.subscriptions.retrieve(
+            sub.stripe_subscription_id
+          )) as StripeSubWithPeriod;
+          // Period: subscription-level or first item (newer Stripe API)
+          const firstItem = stripeSub.items?.data?.[0] as
+            | { current_period_start?: number; current_period_end?: number }
+            | undefined;
+          const periodEndTs =
+            stripeSub.current_period_end ?? firstItem?.current_period_end;
+          const periodStartTs =
+            stripeSub.current_period_start ?? firstItem?.current_period_start;
+          const periodEnd =
+            periodEndTs != null
+              ? new Date(periodEndTs * 1000).toISOString()
+              : null;
+          const periodStart =
+            periodStartTs != null
+              ? new Date(periodStartTs * 1000).toISOString()
+              : null;
+
+          sub.current_period_end = periodEnd;
+          sub.current_period_start = periodStart ?? sub.current_period_start;
+
+          await adminClient
+            .from("subscriptions")
+            .update({
+              current_period_end: periodEnd,
+              ...(periodStart != null && { current_period_start: periodStart }),
+            })
+            .eq("id", sub.id);
+        } catch (stripeErr) {
+          logger.warn(
+            `Could not backfill period for subscription ${sub.id} from Stripe:`,
+            stripeErr
+          );
+        }
+      }
+    }
+
+    return { success: true, data: subscriptions };
   } catch (error) {
     logger.error("Error in getUserSubscriptions:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -248,6 +304,53 @@ export async function cancelSubscription(
   } catch (error) {
     logger.error("Error canceling subscription:", error);
     return { success: false, error: "Failed to cancel subscription" };
+  }
+}
+
+/**
+ * Fetch current_period_end from Stripe for a subscription (e.g. when Supabase has null).
+ * Used by the cancel dialog so "access until" always shows a date when possible.
+ * @param subscriptionId - Our subscriptions.id
+ */
+export async function getSubscriptionPeriodEnd(
+  subscriptionId: string
+): Promise<ActionResponse<{ current_period_end: string | null }>> {
+  try {
+    const supabase = await createServerComponentClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    const { data: row, error } = await supabase
+      .from("subscriptions")
+      .select("stripe_subscription_id")
+      .eq("id", subscriptionId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (error || !row?.stripe_subscription_id) {
+      return { success: false, error: "Subscription not found" };
+    }
+
+    const stripeSub = (await stripe.subscriptions.retrieve(
+      row.stripe_subscription_id
+    )) as StripeSubWithPeriod;
+    const firstItem = stripeSub.items?.data?.[0] as
+      | { current_period_end?: number }
+      | undefined;
+    const periodEndTs =
+      stripeSub.current_period_end ?? firstItem?.current_period_end;
+    const current_period_end =
+      periodEndTs != null ? new Date(periodEndTs * 1000).toISOString() : null;
+
+    return { success: true, data: { current_period_end } };
+  } catch (err) {
+    logger.error("Error fetching subscription period from Stripe:", err);
+    return { success: false, error: "Failed to load period end" };
   }
 }
 

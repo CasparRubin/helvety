@@ -17,8 +17,12 @@ import {
   Info,
   Loader2,
   RotateCcw,
+  ArrowLeft,
+  Globe,
+  Github,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { notFound, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
@@ -27,7 +31,6 @@ import {
   getUserSubscriptions,
   reactivateSubscription,
 } from "@/app/actions/subscription-actions";
-import { CommandBar } from "@/components/command-bar";
 import { DigitalContentConsentDialog } from "@/components/digital-content-consent-dialog";
 import {
   ProductBadge,
@@ -124,7 +127,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           description: "Register your SharePoint tenant to get started.",
           action: {
             label: "Register Tenant",
-            onClick: () => router.push("/account?tab=tenants"),
+            onClick: () => router.push("/tenants"),
           },
           duration: TOAST_DURATIONS.SUCCESS * 2, // Extra long for actionable toast
         });
@@ -165,162 +168,196 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     setSelectedTier(tier);
   };
 
+  const hasLinks =
+    Boolean(product.links?.website) || Boolean(product.links?.github);
+
   return (
-    <>
-      <CommandBar
-        variant="product-detail"
-        productName={product.name}
-        links={product.links}
-      />
-      <div className="container mx-auto px-4 py-8">
-        {/* Product Header */}
-        <div className="mb-12">
-          <div className="flex items-start gap-4">
-            <div className="bg-primary/10 text-primary flex size-16 shrink-0 items-center justify-center rounded-xl">
-              <Icon className="size-8" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                  {product.name}
-                </h1>
-                <ProductBadge type={product.type} />
-                {product.status !== "available" && (
-                  <StatusBadge status={product.status} />
-                )}
-              </div>
-              <p className="text-muted-foreground max-w-2xl text-lg">
-                {product.shortDescription}
-              </p>
-            </div>
+    <div className="container mx-auto px-4 py-8">
+      {/* Back + Product links */}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/products">
+            <ArrowLeft className="size-4" />
+            <span className="hidden sm:inline">Back to Products</span>
+          </Link>
+        </Button>
+        {hasLinks && product.links && (
+          <div className="flex items-center gap-1">
+            {product.links.website && (
+              <Button variant="ghost" size="sm" asChild>
+                <a
+                  href={product.links.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Globe className="size-4" />
+                  <span className="hidden sm:inline">Website</span>
+                </a>
+              </Button>
+            )}
+            {product.links.github && (
+              <Button variant="ghost" size="sm" asChild>
+                <a
+                  href={product.links.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Github className="size-4" />
+                  <span className="hidden sm:inline">GitHub</span>
+                </a>
+              </Button>
+            )}
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Two-column layout: Main Content + Features Sidebar */}
-        <div className="grid gap-12 lg:grid-cols-[1fr_400px]">
-          {/* Main Content */}
-          <div className="space-y-8">
-            {/* Description */}
-            <section>
-              <h2 className="mb-4 text-xl font-semibold">About</h2>
-              <div className="prose prose-neutral dark:prose-invert max-w-none">
-                {product.description.split("\n\n").map((paragraph) => (
-                  <p
-                    key={paragraph.slice(0, 50)}
-                    className="text-muted-foreground"
-                  >
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </section>
-
-            {/* Pricing Section */}
-            <Separator />
-            <section>
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold">Pricing</h2>
-                <p className="text-muted-foreground mt-1 text-sm">
-                  Choose the plan that works best for you
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-6">
-                {monthlyTiers.map((tier) => {
-                  // Find subscription for this tier
-                  const tierSubscription =
-                    userSubscriptions.find(
-                      (sub) =>
-                        sub.tier_id === tier.id &&
-                        (sub.status === "active" || sub.status === "trialing")
-                    ) ?? null;
-
-                  return (
-                    <PricingCard
-                      key={tier.id}
-                      tier={tier}
-                      selected={selectedTier?.id === tier.id}
-                      onSelect={() => handleTierSelect(tier)}
-                      productSlug={slug}
-                      userSubscription={tierSubscription}
-                      onReactivate={fetchSubscriptions}
-                    />
-                  );
-                })}
-              </div>
-            </section>
+      {/* Product Header */}
+      <div className="mb-12">
+        <div className="flex items-start gap-4">
+          <div className="bg-primary/10 text-primary flex size-16 shrink-0 items-center justify-center rounded-xl">
+            <Icon className="size-8" />
           </div>
-
-          {/* Right Sidebar - Features & Requirements */}
-          <div className="space-y-6">
-            <div className="bg-card sticky top-32 z-10 space-y-6 rounded-xl border p-6 shadow-sm">
-              {/* Features */}
-              <section>
-                <h2 className="mb-4 text-lg font-semibold">Features</h2>
-                <FeatureList features={product.features} />
-              </section>
-
-              {/* System Requirements */}
-              {isSoftwareProduct(product) && product.software?.requirements && (
-                <>
-                  <Separator />
-                  <section>
-                    <h2 className="mb-4 text-lg font-semibold">Requirements</h2>
-                    <ul className="text-muted-foreground space-y-2 text-sm">
-                      {product.software.requirements.map((req: string) => (
-                        <li key={req} className="flex items-start gap-2">
-                          <Check className="text-primary mt-0.5 size-4 shrink-0" />
-                          <span>{req}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                </>
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                {product.name}
+              </h1>
+              <ProductBadge type={product.type} />
+              {product.status !== "available" && (
+                <StatusBadge status={product.status} />
               )}
             </div>
-
-            {/* Media (Screencaptures & Screenshots) - Collapsible */}
-            {product.media &&
-              ((product.media.screencaptures?.length ?? 0) > 0 ||
-                (product.media.screenshots?.length ?? 0) > 0) && (
-                <div className="bg-card rounded-xl border p-6 shadow-sm">
-                  <Collapsible defaultOpen={false}>
-                    <CollapsibleTrigger className="flex w-full items-center justify-between transition-opacity hover:opacity-80">
-                      <h2 className="text-lg font-semibold">Media</h2>
-                      <ChevronDown className="text-muted-foreground size-5 transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="mt-4 space-y-6">
-                        {/* Screencaptures */}
-                        {product.media.screencaptures &&
-                          product.media.screencaptures.length > 0 && (
-                            <div>
-                              <h3 className="text-muted-foreground mb-3 text-sm font-medium">
-                                Screencaptures
-                              </h3>
-                              <MediaGallery
-                                items={product.media.screencaptures}
-                              />
-                            </div>
-                          )}
-                        {/* Screenshots */}
-                        {product.media.screenshots &&
-                          product.media.screenshots.length > 0 && (
-                            <div>
-                              <h3 className="text-muted-foreground mb-3 text-sm font-medium">
-                                Screenshots
-                              </h3>
-                              <MediaGallery items={product.media.screenshots} />
-                            </div>
-                          )}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </div>
-              )}
+            <p className="text-muted-foreground max-w-2xl text-lg">
+              {product.shortDescription}
+            </p>
           </div>
         </div>
       </div>
-    </>
+
+      {/* Two-column layout: Main Content + Features Sidebar */}
+      <div className="grid gap-12 lg:grid-cols-[1fr_400px]">
+        {/* Main Content */}
+        <div className="space-y-8">
+          {/* Description */}
+          <section>
+            <h2 className="mb-4 text-xl font-semibold">About</h2>
+            <div className="prose prose-neutral dark:prose-invert max-w-none">
+              {product.description.split("\n\n").map((paragraph) => (
+                <p
+                  key={paragraph.slice(0, 50)}
+                  className="text-muted-foreground"
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </section>
+
+          {/* Pricing Section */}
+          <Separator />
+          <section>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold">Pricing</h2>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Choose the plan that works best for you
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-6">
+              {monthlyTiers.map((tier) => {
+                // Find subscription for this tier
+                const tierSubscription =
+                  userSubscriptions.find(
+                    (sub) =>
+                      sub.tier_id === tier.id &&
+                      (sub.status === "active" || sub.status === "trialing")
+                  ) ?? null;
+
+                return (
+                  <PricingCard
+                    key={tier.id}
+                    tier={tier}
+                    selected={selectedTier?.id === tier.id}
+                    onSelect={() => handleTierSelect(tier)}
+                    productSlug={slug}
+                    userSubscription={tierSubscription}
+                    onReactivate={fetchSubscriptions}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        </div>
+
+        {/* Right Sidebar - Features & Requirements */}
+        <div className="space-y-6">
+          <div className="bg-card sticky top-32 z-10 space-y-6 rounded-xl border p-6 shadow-sm">
+            {/* Features */}
+            <section>
+              <h2 className="mb-4 text-lg font-semibold">Features</h2>
+              <FeatureList features={product.features} />
+            </section>
+
+            {/* System Requirements */}
+            {isSoftwareProduct(product) && product.software?.requirements && (
+              <>
+                <Separator />
+                <section>
+                  <h2 className="mb-4 text-lg font-semibold">Requirements</h2>
+                  <ul className="text-muted-foreground space-y-2 text-sm">
+                    {product.software.requirements.map((req: string) => (
+                      <li key={req} className="flex items-start gap-2">
+                        <Check className="text-primary mt-0.5 size-4 shrink-0" />
+                        <span>{req}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </>
+            )}
+          </div>
+
+          {/* Media (Screencaptures & Screenshots) - Collapsible */}
+          {product.media &&
+            ((product.media.screencaptures?.length ?? 0) > 0 ||
+              (product.media.screenshots?.length ?? 0) > 0) && (
+              <div className="bg-card rounded-xl border p-6 shadow-sm">
+                <Collapsible defaultOpen={false}>
+                  <CollapsibleTrigger className="flex w-full items-center justify-between transition-opacity hover:opacity-80">
+                    <h2 className="text-lg font-semibold">Media</h2>
+                    <ChevronDown className="text-muted-foreground size-5 transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="mt-4 space-y-6">
+                      {/* Screencaptures */}
+                      {product.media.screencaptures &&
+                        product.media.screencaptures.length > 0 && (
+                          <div>
+                            <h3 className="text-muted-foreground mb-3 text-sm font-medium">
+                              Screencaptures
+                            </h3>
+                            <MediaGallery
+                              items={product.media.screencaptures}
+                            />
+                          </div>
+                        )}
+                      {/* Screenshots */}
+                      {product.media.screenshots &&
+                        product.media.screenshots.length > 0 && (
+                          <div>
+                            <h3 className="text-muted-foreground mb-3 text-sm font-medium">
+                              Screenshots
+                            </h3>
+                            <MediaGallery items={product.media.screenshots} />
+                          </div>
+                        )}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -426,7 +463,7 @@ function PricingCard({
   };
 
   /**
-   * Handle button click - shows consent dialog for digital products
+   * Handle button click - shows pre-checkout dialog (Terms & Policy + EU consent) for paid digital products
    */
   const handleButtonClick = () => {
     // Handle reactivation
@@ -445,12 +482,12 @@ function PricingCard({
       return;
     }
 
-    // Show consent dialog for digital content purchases (EU requirement)
+    // Show pre-checkout dialog (Terms & Policy + EU digital content consent)
     setShowConsentDialog(true);
   };
 
   /**
-   * Handle checkout for paid tiers via Stripe (called after consent)
+   * Handle checkout for paid tiers via Stripe (called after Terms & Policy and EU consent)
    */
   const handleCheckout = async () => {
     setIsLoading(true);
@@ -647,7 +684,7 @@ function PricingCard({
         </Button>
       )}
 
-      {/* EU Digital Content Consent Dialog */}
+      {/* Pre-checkout consent dialog (Terms & Policy + EU digital content) */}
       <DigitalContentConsentDialog
         open={showConsentDialog}
         onOpenChange={setShowConsentDialog}
