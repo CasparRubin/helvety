@@ -28,7 +28,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 2, 2026
+              Last updated: February 2, 2025
             </p>
           </header>
 
@@ -818,10 +818,10 @@ export default function TermsPage() {
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">EU Customers:</strong> Under
-              EU consumer protection law (Consumer Rights Directive
-              2011/83/EU), you have a statutory right to withdraw from the
-              purchase of Physical Products within 14 days of receiving the
-              goods without giving any reason.
+              EU consumer protection law (Consumer Rights Directive 2011/83/EU),
+              you have a statutory right to withdraw from the purchase of
+              Physical Products within 14 days of receiving the goods without
+              giving any reason.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Swiss Customers:</strong>{" "}

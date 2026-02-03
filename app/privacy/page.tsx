@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 2, 2026
+              Last updated: February 2, 2025
             </p>
           </header>
 
@@ -877,9 +877,7 @@ export default function PrivacyPage() {
                 CSRF (Cross-Site Request Forgery) protection using secure token
                 validation
               </li>
-              <li>
-                Automatic session timeout after periods of inactivity
-              </li>
+              <li>Automatic session timeout after periods of inactivity</li>
               <li>
                 Security event logging for audit trails and incident response
               </li>

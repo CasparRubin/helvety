@@ -62,6 +62,7 @@ describe("ModuleName", () => {
 ### Global Mocks
 
 Global mocks are defined in `vitest.setup.ts`:
+
 - Next.js navigation (`useRouter`, `usePathname`, etc.)
 - `next-themes`
 - `server-only` module
@@ -81,7 +82,10 @@ vi.mock("@/lib/some-module", () => ({
 Use factories from `utils/mock-factories.ts`:
 
 ```typescript
-import { createMockUser, createMockSupabaseClient } from "@/__tests__/utils/mock-factories";
+import {
+  createMockUser,
+  createMockSupabaseClient,
+} from "@/__tests__/utils/mock-factories";
 
 const user = createMockUser({ email: "custom@example.com" });
 const client = createMockSupabaseClient();
@@ -107,7 +111,7 @@ For async operations:
 ```typescript
 it("should handle async", async () => {
   render(<MyComponent />);
-  
+
   await waitFor(() => {
     expect(screen.getByText("Loaded")).toBeInTheDocument();
   });
@@ -117,6 +121,7 @@ it("should handle async", async () => {
 ## Coverage Thresholds
 
 The project enforces these coverage thresholds:
+
 - Lines: 70%
 - Functions: 70%
 - Branches: 60%

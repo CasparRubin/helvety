@@ -329,9 +329,8 @@ describe("logger", () => {
       logger.error(error, { userId: "123", password: "secret" });
 
       expect(mockService.captureException).toHaveBeenCalled();
-      const capturedContext = mockService.captureException.mock.calls[0]?.[1] as
-        | Record<string, unknown>
-        | undefined;
+      const capturedContext = mockService.captureException.mock
+        .calls[0]?.[1] as Record<string, unknown> | undefined;
       expect(capturedContext?.userId).toBe("123");
       expect(capturedContext?.password).toBeUndefined();
     });
