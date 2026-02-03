@@ -51,6 +51,9 @@ function normalizeVersionDisplay(folderName: string): string {
 // RESOLVER
 // =============================================================================
 
+/**
+ * Result of resolving the latest version of a versioned package from storage.
+ */
 export interface ResolvedPackageVersion {
   /** Version string for display (e.g. "1.0.1.1") */
   version: string;
