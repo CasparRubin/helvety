@@ -7,6 +7,7 @@
 
 import { logger } from "@/lib/logger";
 import { getPackageInfo, isTierAllowedForPackage } from "@/lib/packages/config";
+import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
@@ -87,12 +88,21 @@ export async function getPackageDownloadUrl(
       };
     }
 
+    // Resolve path and version (for versioned packages, from storage; else from config)
+    const resolved =
+      packageInfo.storagePathPrefix ?
+        await resolveLatestPackageVersion(packageId)
+      : null;
+    const storagePath =
+      resolved?.storagePath ?? packageInfo.storagePath;
+    const version = resolved?.version ?? packageInfo.version;
+
     // Generate signed URL using admin client (has storage access)
     const adminClient = createAdminClient();
     const { data: signedUrlData, error: storageError } =
       await adminClient.storage
         .from("packages")
-        .createSignedUrl(packageInfo.storagePath, 60, {
+        .createSignedUrl(storagePath, 60, {
           download: packageInfo.filename, // Sets Content-Disposition header
         });
 
@@ -110,7 +120,7 @@ export async function getPackageDownloadUrl(
       data: {
         downloadUrl: signedUrlData.signedUrl,
         filename: packageInfo.filename,
-        version: packageInfo.version,
+        version,
       },
     };
   } catch (error) {
@@ -174,10 +184,17 @@ export async function getPackageMetadata(
       };
     }
 
+    // Resolve version from storage for versioned packages
+    const resolved =
+      packageInfo.storagePathPrefix ?
+        await resolveLatestPackageVersion(packageId)
+      : null;
+    const version = resolved?.version ?? packageInfo.version;
+
     return {
       success: true,
       data: {
-        version: packageInfo.version,
+        version,
         filename: packageInfo.filename,
         productName: packageInfo.productName,
       },

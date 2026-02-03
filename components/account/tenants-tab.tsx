@@ -362,7 +362,7 @@ export function TenantsTab() {
           className={
             subscriptions.length === 1
               ? "w-full"
-              : "grid gap-4 grid-cols-1 sm:grid-cols-2"
+              : "grid grid-cols-1 gap-4 sm:grid-cols-2"
           }
         >
           {subscriptions.map((sub) => (
@@ -384,19 +384,15 @@ export function TenantsTab() {
                     </div>
                     <span className="text-muted-foreground text-sm">
                       Tenants used{" "}
-                      <span className="font-medium text-foreground">
+                      <span className="text-foreground font-medium">
                         {sub.tenantCount} /{" "}
-                        {sub.maxTenants === -1
-                          ? "Unlimited"
-                          : sub.maxTenants}
+                        {sub.maxTenants === -1 ? "Unlimited" : sub.maxTenants}
                       </span>
                     </span>
                     {sub.current_period_end && (
                       <span className="text-muted-foreground text-sm">
                         Renews{" "}
-                        {new Date(
-                          sub.current_period_end
-                        ).toLocaleDateString()}
+                        {new Date(sub.current_period_end).toLocaleDateString()}
                       </span>
                     )}
                     {sub.maxTenants !== -1 && (
@@ -424,9 +420,7 @@ export function TenantsTab() {
                       </span>
                       <span className="font-medium">
                         {sub.tenantCount} /{" "}
-                        {sub.maxTenants === -1
-                          ? "Unlimited"
-                          : sub.maxTenants}
+                        {sub.maxTenants === -1 ? "Unlimited" : sub.maxTenants}
                       </span>
                     </div>
                     {sub.maxTenants !== -1 && (
@@ -442,9 +436,7 @@ export function TenantsTab() {
                     {sub.current_period_end && (
                       <p className="text-muted-foreground mt-2 text-xs">
                         Renews{" "}
-                        {new Date(
-                          sub.current_period_end
-                        ).toLocaleDateString()}
+                        {new Date(sub.current_period_end).toLocaleDateString()}
                       </p>
                     )}
                   </>
@@ -461,8 +453,7 @@ export function TenantsTab() {
           <div className="space-y-1.5">
             <CardTitle>Registered Tenants</CardTitle>
             <CardDescription>
-              These SharePoint tenants have access to the SPO Explorer
-              extension
+              These SharePoint tenants have access to the SPO Explorer extension
             </CardDescription>
           </div>
           <div className="flex shrink-0 gap-2">
@@ -477,9 +468,7 @@ export function TenantsTab() {
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button
-                  disabled={
-                    !hasAvailableSlots || subscriptions.length === 0
-                  }
+                  disabled={!hasAvailableSlots || subscriptions.length === 0}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Tenant

@@ -11,12 +11,17 @@
  *
  */
 export interface PackageInfo {
-  /** Display version shown to users */
+  /** Display version (fallback when storagePathPrefix is set and resolver fails) */
   version: string;
   /** Original filename for the download */
   filename: string;
-  /** Path in Supabase Storage (bucket: packages) */
+  /** Path in Supabase Storage (bucket: packages); used when storagePathPrefix is not set */
   storagePath: string;
+  /**
+   * When set, latest version is resolved at runtime by listing this folder in storage.
+   * Full path becomes: {storagePathPrefix}/{version}/{filename}
+   */
+  storagePathPrefix?: string;
   /** Product ID this package belongs to */
   productId: string;
   /** Human-readable product name */
@@ -26,14 +31,15 @@ export interface PackageInfo {
 }
 
 /**
- * Package configuration for all downloadable products
- * Update version and filename when uploading new packages to Supabase Storage
+ * Package configuration for all downloadable products.
+ * For versioned packages (storagePathPrefix set), version and path are resolved at runtime from storage.
  */
 export const PACKAGE_CONFIG: Record<string, PackageInfo> = {
   "spo-explorer": {
     version: "1.0.0.4",
     filename: "helvety-spo-explorer.sppkg",
     storagePath: "spo-explorer/helvety-spo-explorer.sppkg",
+    storagePathPrefix: "spfx/helvety-spo-explorer",
     productId: "helvety-spo-explorer",
     productName: "Helvety SPO Explorer",
     allowedTiers: [

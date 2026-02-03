@@ -11,6 +11,7 @@ import { NextResponse } from "next/server";
 
 import { logger } from "@/lib/logger";
 import { getPackageInfo, isTierAllowedForPackage } from "@/lib/packages/config";
+import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -83,12 +84,21 @@ export async function GET(
       );
     }
 
+    // Resolve path (and version for logging) for versioned packages
+    const resolved =
+      packageInfo.storagePathPrefix ?
+        await resolveLatestPackageVersion(packageId)
+      : null;
+    const storagePath =
+      resolved?.storagePath ?? packageInfo.storagePath;
+    const version = resolved?.version ?? packageInfo.version;
+
     // Generate signed URL using admin client
     const adminClient = createAdminClient();
     const { data: signedUrlData, error: storageError } =
       await adminClient.storage
         .from("packages")
-        .createSignedUrl(packageInfo.storagePath, 60, {
+        .createSignedUrl(storagePath, 60, {
           download: packageInfo.filename,
         });
 
@@ -101,7 +111,7 @@ export async function GET(
     }
 
     logger.info(
-      `Download initiated: user=${user.id}, package=${packageId}, version=${packageInfo.version}`
+      `Download initiated: user=${user.id}, package=${packageId}, version=${version}`
     );
 
     // Redirect to the signed URL

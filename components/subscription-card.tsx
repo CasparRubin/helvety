@@ -1,8 +1,10 @@
 "use client";
 
 /**
- * Subscription card component
- * Displays a single subscription with status indicators and action buttons
+ * Subscription card component.
+ * Displays a single subscription with status, price, period dates, and action buttons
+ * (Cancel/Reactivate/Open). Used in SubscriptionsSheet and similar contexts; the
+ * /subscriptions page uses a compact list in SubscriptionsTab instead.
  */
 
 import {
@@ -30,9 +32,7 @@ import { formatPrice } from "@/lib/utils/pricing";
 
 import type { Subscription, SubscriptionStatus } from "@/lib/types/entities";
 
-/**
- *
- */
+/** Props for SubscriptionCard. */
 interface SubscriptionCardProps {
   subscription: Subscription;
   onCancel?: (subscription: Subscription) => void;
@@ -89,12 +89,11 @@ function formatDate(dateString: string | null): string {
 }
 
 /**
- *
- * @param root0
- * @param root0.subscription
- * @param root0.onCancel
- * @param root0.onReactivate
- * @param root0.isLoading
+ * Renders a full subscription card (header, price, period, optional cancellation warning, footer actions).
+ * @param props.subscription - The subscription to display
+ * @param props.onCancel - Called when user requests cancellation
+ * @param props.onReactivate - Called when user reactivates a subscription set to cancel
+ * @param props.isLoading - Disables action buttons while an operation is in progress
  */
 export function SubscriptionCard({
   subscription,
@@ -230,9 +229,7 @@ export function SubscriptionCard({
   );
 }
 
-/**
- * Loading skeleton for subscription card
- */
+/** Loading skeleton matching SubscriptionCard layout. */
 export function SubscriptionCardSkeleton() {
   return (
     <Card>

@@ -30,7 +30,7 @@ function SubscriptionsLoading() {
 }
 
 /**
- * Subscriptions page: auth gate and subscriptions list.
+ * Subscriptions page: auth gate and compact subscriptions list (SubscriptionsTab).
  */
 export default async function SubscriptionsPage() {
   const supabase = await createClient();

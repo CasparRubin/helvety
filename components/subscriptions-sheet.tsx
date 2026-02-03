@@ -1,9 +1,10 @@
 "use client";
 
 /**
- * Subscriptions sheet component
- * Displays user's subscriptions in a slide-in panel
- * Allows cancellation and reactivation of subscriptions
+ * Subscriptions sheet component.
+ * Slide-in panel showing the user's subscriptions as full cards (SubscriptionCard).
+ * Supports cancel, reactivate, and link to billing portal. The dedicated /subscriptions
+ * page uses a compact list (SubscriptionsTab) instead of cards.
  */
 
 import {
@@ -42,9 +43,7 @@ import { logger } from "@/lib/logger";
 
 import type { Subscription } from "@/lib/types/entities";
 
-/**
- *
- */
+/** Props for SubscriptionsSheet. */
 interface SubscriptionsSheetProps {
   /** Custom trigger element */
   trigger?: React.ReactNode;
@@ -55,11 +54,10 @@ interface SubscriptionsSheetProps {
 }
 
 /**
- *
- * @param root0
- * @param root0.trigger
- * @param root0.open
- * @param root0.onOpenChange
+ * Renders a sheet that lists subscriptions as cards with cancel/reactivate actions.
+ * @param props.trigger - Optional custom trigger element
+ * @param props.open - Controlled open state
+ * @param props.onOpenChange - Controlled open state setter
  */
 export function SubscriptionsSheet({
   trigger,

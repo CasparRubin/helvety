@@ -15,7 +15,7 @@ The store has four main sections, linked from the store nav bar (below the top n
 
 - **Products** (`/products`) – Product catalog with filters; product detail at `/products/[slug]`
 - **Account** (`/account`) – Profile and account settings
-- **Subscriptions** (`/subscriptions`) – View and manage active subscriptions
+- **Subscriptions** (`/subscriptions`) – Compact list of active subscriptions; SPO Explorer rows link to Tenants
 - **Tenants** (`/tenants`) – Register and manage SharePoint tenant IDs for SPO Explorer
 
 The root path (`/`) redirects: unauthenticated users to auth; authenticated users to `/products`.
@@ -28,7 +28,7 @@ The root path (`/`) redirects: unauthenticated users to auth; authenticated user
 - **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout. Before every purchase, a consent dialog is shown with two sections: (1) Terms & policy — links to Terms of Service and Privacy Policy plus a confirmation checkbox; (2) Digital content consent — EU withdrawal notice plus consent checkbox. Both confirmations are required on each purchase and are not saved.
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
 - **Account Management** - Profile and account settings (Account page)
-- **Subscription Management** - View, cancel, or reactivate subscriptions (Subscriptions page)
+- **Subscription Management** - Compact list to view, cancel, or reactivate subscriptions; SPO Explorer subscriptions link to the Tenants page
 - **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer (Tenants page: compact subscription summary, Registered Tenants list with Add Tenant above it)
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)

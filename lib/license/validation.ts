@@ -64,6 +64,10 @@ const GRACE_PERIOD_STATUSES: SubscriptionStatus[] = ["past_due", "canceled"];
  * Validates a tenant's license status for a specific product
  * This is called from the public API endpoint (no auth required)
  *
+ * Uses createAdminClient() which bypasses RLS (service role). RLS on
+ * licensed_tenants and subscriptions only allows user_id = auth.uid(); the
+ * license API has no authenticated user, so it must use the admin client.
+ *
  * @param tenantId - The SharePoint tenant identifier (e.g., "contoso")
  * @param productId - The product identifier (e.g., "helvety-spo-explorer")
  * @returns License validation response
@@ -78,29 +82,15 @@ export async function validateTenantLicense(
     // Normalize tenant ID (lowercase, trim)
     const normalizedTenantId = tenantId.toLowerCase().trim();
 
-    // Look up the tenant and its subscription for the specific product
-    // Using !inner join ensures we only get tenants with matching subscriptions
-    const { data: tenant, error: tenantError } = await supabase
+    // Step 1: Get licensed_tenants rows for this tenant (subscription_id only – no embed).
+    // This guarantees we get subscription_id; PostgREST often omits it when embedding.
+    // A tenant can have multiple rows (one per product); we filter by product in step 2.
+    const { data: licensedRows, error: licensedError } = await supabase
       .from("licensed_tenants")
-      .select(
-        `
-        id,
-        tenant_id,
-        subscription:subscriptions!inner (
-          id,
-          tier_id,
-          status,
-          current_period_end,
-          cancel_at_period_end,
-          product_id
-        )
-      `
-      )
-      .eq("tenant_id", normalizedTenantId)
-      .eq("subscription.product_id", productId)
-      .maybeSingle();
+      .select("id, tenant_id, subscription_id")
+      .eq("tenant_id", normalizedTenantId);
 
-    if (tenantError || !tenant) {
+    if (licensedError || !licensedRows?.length) {
       logger.debug(
         `Tenant not found for product: ${normalizedTenantId} / ${productId}`
       );
@@ -110,15 +100,30 @@ export async function validateTenantLicense(
       };
     }
 
-    // TypeScript: subscription comes back as an array from the join, but we use .maybeSingle()
-    // so it should be a single object. Handle both cases.
-    const subscription = Array.isArray(tenant.subscription)
-      ? tenant.subscription[0]
-      : tenant.subscription;
-
-    if (!subscription) {
+    const subscriptionIds = licensedRows
+      .map((r) => (r as { subscription_id?: string }).subscription_id)
+      .filter(Boolean) as string[];
+    if (subscriptionIds.length === 0) {
       logger.warn(
-        `Tenant ${normalizedTenantId} has no associated subscription for product ${productId}`
+        `licensed_tenants rows for ${normalizedTenantId} have no subscription_id`
+      );
+      return {
+        valid: false,
+        reason: "subscription_inactive",
+      };
+    }
+
+    // Step 2: Get subscription for this product (must be one of the tenant's subscriptions)
+    const { data: subscription, error: subError } = await supabase
+      .from("subscriptions")
+      .select("id, tier_id, status, current_period_end, cancel_at_period_end, product_id")
+      .in("id", subscriptionIds)
+      .eq("product_id", productId)
+      .maybeSingle();
+
+    if (subError || !subscription) {
+      logger.warn(
+        `Tenant ${normalizedTenantId} subscription not found or wrong product: ${productId}`
       );
       return {
         valid: false,
@@ -129,7 +134,6 @@ export async function validateTenantLicense(
     const status = subscription.status as SubscriptionStatus;
     const tierConfig = TIER_FEATURES[subscription.tier_id];
 
-    // Check if subscription is active
     if (ACTIVE_STATUSES.includes(status)) {
       return {
         valid: true,

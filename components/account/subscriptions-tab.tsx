@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * Subscriptions tab: compact list of active subscriptions for the /subscriptions page.
+ * Renders one row per subscription (product, tier, status, price, renewal date, actions).
+ * SPO Explorer (SPFx) subscriptions show a link to /tenants and a Download button.
+ * Cancel/Reactivate and billing portal are supported. Uses SubscriptionCard only in
+ * other contexts (e.g. SubscriptionsSheet); this tab uses an inline list.
+ */
+
 import {
   CreditCard,
   ExternalLink,
@@ -8,12 +16,20 @@ import {
   Package,
   Download,
   Building2,
+  Calendar,
+  AlertCircle,
+  RotateCcw,
+  Check,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { getPackageDownloadUrl } from "@/app/actions/download-actions";
+import {
+  getPackageDownloadUrl,
+  getPackageMetadata,
+} from "@/app/actions/download-actions";
 import {
   getUserSubscriptions,
   reactivateSubscription,
@@ -21,10 +37,7 @@ import {
 } from "@/app/actions/subscription-actions";
 import { getSpoExplorerSubscriptions } from "@/app/actions/tenant-actions";
 import { CancelSubscriptionDialog } from "@/components/cancel-subscription-dialog";
-import {
-  SubscriptionCard,
-  SubscriptionCardSkeleton,
-} from "@/components/subscription-card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,27 +47,90 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TOAST_DURATIONS } from "@/lib/constants";
+import { getProductById } from "@/lib/data/products";
 import { logger } from "@/lib/logger";
-import { PACKAGE_CONFIG } from "@/lib/packages/config";
+import { formatPrice } from "@/lib/utils/pricing";
 
-import type { Subscription } from "@/lib/types/entities";
+import type { Subscription, SubscriptionStatus } from "@/lib/types/entities";
 
 /**
- *
+ * Status badge variant, label, and icon for the subscription list.
+ * @param status - Stripe subscription status
+ * @param cancelAtPeriodEnd - Whether the subscription is set to cancel at period end
  */
-interface SubscriptionsTabProps {
-  onNavigateToTenants?: () => void;
+function getStatusInfo(
+  status: SubscriptionStatus,
+  cancelAtPeriodEnd: boolean
+): {
+  variant: "default" | "secondary" | "destructive" | "outline";
+  label: string;
+  icon: typeof Check;
+} {
+  if (cancelAtPeriodEnd) {
+    return { variant: "secondary", label: "Canceling", icon: Clock };
+  }
+  switch (status) {
+    case "active":
+      return { variant: "default", label: "Active", icon: Check };
+    case "trialing":
+      return { variant: "secondary", label: "Trial", icon: Clock };
+    case "past_due":
+      return { variant: "destructive", label: "Past Due", icon: AlertCircle };
+    case "canceled":
+      return { variant: "outline", label: "Canceled", icon: AlertCircle };
+    case "unpaid":
+      return { variant: "destructive", label: "Unpaid", icon: AlertCircle };
+    case "paused":
+      return { variant: "secondary", label: "Paused", icon: Clock };
+    default:
+      return { variant: "outline", label: status, icon: AlertCircle };
+  }
+}
+
+/** Format ISO date string for list display (e.g. "Jan 15, 2026"). */
+function formatListDate(dateString: string | null): string {
+  if (!dateString) return "—";
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** Loading skeleton for the compact subscriptions list (matches list row layout). */
+function SubscriptionsListSkeleton() {
+  return (
+    <div className="divide-y rounded-md border">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="flex flex-wrap items-center gap-x-4 gap-y-2 px-3 py-2.5 sm:px-4"
+        >
+          <div className="min-w-0 flex-1 space-y-1.5 sm:flex sm:items-center sm:gap-4">
+            <div className="space-y-1">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+            <Skeleton className="h-5 w-14 shrink-0" />
+          </div>
+          <Skeleton className="h-4 w-12 shrink-0" />
+          <Skeleton className="h-4 w-24 shrink-0" />
+          <div className="flex shrink-0 gap-1.5">
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-8 w-16" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 /**
- *
- * @param root0
- * @param root0.onNavigateToTenants
+ * Renders the subscriptions tab: compact list of active subscriptions with actions and billing portal link.
  */
-export function SubscriptionsTab({
-  onNavigateToTenants,
-}: SubscriptionsTabProps) {
+export function SubscriptionsTab() {
   // Subscriptions state
   const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
   const [isLoadingSubscriptions, setIsLoadingSubscriptions] =
@@ -68,6 +144,10 @@ export function SubscriptionsTab({
 
   // Tenant count for SPO Explorer
   const [spoTenantCount, setSpoTenantCount] = React.useState(0);
+  // SPO Explorer package version (resolved from storage when user has access)
+  const [spoPackageVersion, setSpoPackageVersion] = React.useState<
+    string | null
+  >(null);
 
   // Cancel dialog state
   const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
@@ -80,9 +160,35 @@ export function SubscriptionsTab({
     void loadSpoTenantCount();
   }, []);
 
+  // Fetch SPO Explorer package version when user has an active SPO subscription
+  React.useEffect(() => {
+    const hasActiveSpo = subscriptions.some(
+      (sub) =>
+        sub.product_id === "helvety-spo-explorer" &&
+        sub.status !== "canceled" &&
+        sub.status !== "incomplete_expired"
+    );
+    if (!hasActiveSpo) {
+      setSpoPackageVersion(null);
+      return;
+    }
+    let cancelled = false;
+    void getPackageMetadata("spo-explorer").then((result) => {
+      if (cancelled) return;
+      if (result.success && result.data?.version) {
+        setSpoPackageVersion(result.data.version);
+      } else {
+        setSpoPackageVersion(null);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [subscriptions]);
+
   /**
-   *
-   * @param showRefreshIndicator
+   * Load user subscriptions from the API.
+   * @param showRefreshIndicator - If true, show refresh spinner instead of full loading state
    */
   async function loadSubscriptions(showRefreshIndicator = false) {
     if (showRefreshIndicator) {
@@ -107,9 +213,7 @@ export function SubscriptionsTab({
     }
   }
 
-  /**
-   *
-   */
+  /** Load total tenant count for SPO Explorer subscriptions (shown in Tenants link). */
   async function loadSpoTenantCount() {
     try {
       const result = await getSpoExplorerSubscriptions();
@@ -126,8 +230,8 @@ export function SubscriptionsTab({
   }
 
   /**
-   *
-   * @param subscription
+   * Reactivate a subscription that is set to cancel at period end.
+   * @param subscription - The subscription to reactivate
    */
   async function handleReactivate(subscription: Subscription) {
     setActionLoadingId(subscription.id);
@@ -159,24 +263,20 @@ export function SubscriptionsTab({
   }
 
   /**
-   *
-   * @param subscription
+   * Open the cancel-subscription dialog for the given subscription.
+   * @param subscription - The subscription to cancel
    */
   function handleCancelClick(subscription: Subscription) {
     setSubscriptionToCancel(subscription);
     setCancelDialogOpen(true);
   }
 
-  /**
-   *
-   */
+  /** Called after cancel dialog completes; reloads the subscriptions list. */
   function handleCancelSuccess() {
     void loadSubscriptions(true);
   }
 
-  /**
-   *
-   */
+  /** Open Stripe Customer Portal for payment methods and invoices. */
   async function handleOpenPortal() {
     setPortalLoading(true);
 
@@ -200,9 +300,7 @@ export function SubscriptionsTab({
     }
   }
 
-  /**
-   *
-   */
+  /** Start download of the SPO Explorer package (SPFx .sppkg). */
   async function handleDownload() {
     setIsDownloading(true);
     try {
@@ -234,7 +332,6 @@ export function SubscriptionsTab({
   );
 
   const hasSubscriptions = subscriptions.length > 0;
-  const spoPackageVersion = PACKAGE_CONFIG["spo-explorer"]?.version ?? "1.0.0";
 
   return (
     <div className="space-y-6">
@@ -265,10 +362,7 @@ export function SubscriptionsTab({
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoadingSubscriptions ? (
-            <div className="space-y-4">
-              <SubscriptionCardSkeleton />
-              <SubscriptionCardSkeleton />
-            </div>
+            <SubscriptionsListSkeleton />
           ) : activeSubscriptions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="bg-muted mb-4 rounded-full p-4">
@@ -285,45 +379,142 @@ export function SubscriptionsTab({
               </Button>
             </div>
           ) : (
-            <div className="space-y-4">
-              {activeSubscriptions.map((subscription) => (
-                <div key={subscription.id} className="space-y-3">
-                  <SubscriptionCard
-                    subscription={subscription}
-                    onCancel={handleCancelClick}
-                    onReactivate={handleReactivate}
-                    isLoading={actionLoadingId === subscription.id}
-                  />
-                  {/* SPO Explorer specific actions */}
-                  {subscription.product_id === "helvety-spo-explorer" &&
-                    (subscription.status === "active" ||
-                      subscription.status === "trialing") && (
-                      <div className="flex flex-wrap gap-2 pl-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleDownload}
-                          disabled={isDownloading}
-                        >
-                          {isDownloading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Download className="h-4 w-4" />
-                          )}
-                          Download v{spoPackageVersion}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={onNavigateToTenants}
-                        >
-                          <Building2 className="h-4 w-4" />
-                          Manage Tenants ({spoTenantCount})
-                        </Button>
+            <div className="divide-y rounded-md border">
+              {activeSubscriptions.map((subscription) => {
+                const product = getProductById(subscription.product_id);
+                const tier = product?.pricing.tiers.find(
+                  (t) => t.id === subscription.tier_id
+                );
+                const productName = product?.name ?? "Unknown Product";
+                const tierName = tier?.name ?? "Unknown Tier";
+                const statusInfo = getStatusInfo(
+                  subscription.status,
+                  subscription.cancel_at_period_end
+                );
+                const StatusIcon = statusInfo.icon;
+                const isActive =
+                  subscription.status === "active" ||
+                  subscription.status === "trialing";
+                const canCancel =
+                  isActive && !subscription.cancel_at_period_end;
+                const canReactivate =
+                  isActive && subscription.cancel_at_period_end;
+                const isSpfx =
+                  subscription.product_id === "helvety-spo-explorer" &&
+                  isActive;
+
+                return (
+                  <div
+                    key={subscription.id}
+                    className="flex flex-wrap items-center gap-x-4 gap-y-2 px-3 py-2.5 sm:px-4"
+                  >
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <p className="leading-tight font-medium">{productName}</p>
+                      <p className="text-muted-foreground text-sm">
+                        {tierName}
+                      </p>
+                    </div>
+                    {tier && (
+                      <div className="text-muted-foreground shrink-0 text-sm">
+                        {formatPrice(tier.price, tier.currency, {
+                          showCents: tier.price % 100 !== 0,
+                        })}
+                        {tier.interval === "monthly" && "/mo"}
+                        {tier.interval === "yearly" && "/yr"}
                       </div>
                     )}
-                </div>
-              ))}
+                    <Badge
+                      variant={statusInfo.variant}
+                      className="shrink-0 gap-1"
+                    >
+                      <StatusIcon className="size-3" />
+                      {statusInfo.label}
+                    </Badge>
+                    {subscription.current_period_end && (
+                      <div className="text-muted-foreground flex shrink-0 items-center gap-1.5 text-sm">
+                        <Calendar className="size-3.5" />
+                        {subscription.cancel_at_period_end
+                          ? `Ends ${formatListDate(subscription.current_period_end)}`
+                          : `Renews ${formatListDate(subscription.current_period_end)}`}
+                      </div>
+                    )}
+                    <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+                      {isSpfx && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-primary h-8 gap-1.5"
+                            asChild
+                          >
+                            <Link href="/tenants">
+                              <Building2 className="size-4" />
+                              Tenants
+                              {spoTenantCount > 0 && ` (${spoTenantCount})`}
+                            </Link>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleDownload}
+                            disabled={isDownloading}
+                            className="h-8 gap-1.5"
+                          >
+                            {isDownloading ? (
+                              <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                              <Download className="size-4" />
+                            )}
+                            {spoPackageVersion
+                              ? `Download v${spoPackageVersion}`
+                              : "Download"}
+                          </Button>
+                        </>
+                      )}
+                      {canReactivate && (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="h-8 gap-1"
+                          onClick={() => handleReactivate(subscription)}
+                          disabled={actionLoadingId === subscription.id}
+                        >
+                          <RotateCcw className="size-4" />
+                          Reactivate
+                        </Button>
+                      )}
+                      {product?.links?.website && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 gap-1"
+                          asChild
+                        >
+                          <a
+                            href={product.links.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink className="size-4" />
+                            Open
+                          </a>
+                        </Button>
+                      )}
+                      {canCancel && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive h-8"
+                          onClick={() => handleCancelClick(subscription)}
+                          disabled={actionLoadingId === subscription.id}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
 
