@@ -32,11 +32,11 @@ const Page = dynamic(() => import("react-pdf").then((mod) => mod.Page), {
   ssr: false,
 });
 
-/**
- *
- */
+/** Props for a single page thumbnail (PDF or image) in the grid. */
 interface PdfPageThumbnailProps {
   fileUrl: string;
+  /** Underlying File for PDFs; used for documentKey and for react-pdf when available. */
+  fileData?: File | null;
   pageNumber: number;
   className?: string;
   rotation?: number;
@@ -45,13 +45,14 @@ interface PdfPageThumbnailProps {
   finalPageNumber?: number | null;
   fileType: "pdf" | "image";
   totalPages?: number;
+  /** List position; included in Document key so it remounts on reorder and avoids cached detached buffer. */
+  listIndex?: number;
 }
 
-/**
- *
- */
+/** Renders a single page thumbnail using react-pdf (fallback), ImageBitmap cache, or image URL. */
 function PdfPageThumbnailComponent({
   fileUrl,
+  fileData,
   pageNumber,
   className,
   rotation,
@@ -60,7 +61,11 @@ function PdfPageThumbnailComponent({
   finalPageNumber,
   fileType,
   totalPages = 1,
+  listIndex = 0,
 }: PdfPageThumbnailProps): React.JSX.Element {
+  const documentKey = fileData
+    ? `${fileData.name}-${fileData.size}-${fileData.lastModified}`
+    : fileUrl;
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -267,27 +272,20 @@ function PdfPageThumbnailComponent({
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-      // Add a delay to ensure worker message handler is fully initialized
-      // This prevents "messageHandler is null" errors that can occur if
-      // the page tries to render before the worker is fully ready
+      // Delay so the pdf.js worker message handler is ready before we render the page.
       const timeoutId = setTimeout(() => {
         setDocumentReady(true);
-        // Add an additional delay before allowing page render to ensure messageHandler is ready
         setTimeout(() => {
           setPageRenderReady(true);
         }, PDF_RENDER.PAGE_RENDER_DELAY);
       }, PDF_RENDER.DOCUMENT_READY_DELAY);
-      // Store timeout ID in ref for cleanup
-
       timeoutRef.current = timeoutId;
     },
     []
   );
 
-  // Cleanup timeout on unmount
   React.useEffect(() => {
     return () => {
-      // Read ref value directly in cleanup - refs are stable and don't need to be dependencies
       const currentTimeout = timeoutRef.current;
       if (currentTimeout) {
         clearTimeout(currentTimeout);
@@ -329,6 +327,10 @@ function PdfPageThumbnailComponent({
     fileType === "image" &&
     (rotation === ROTATION_ANGLES.QUARTER ||
       rotation === ROTATION_ANGLES.THREE_QUARTER);
+
+  // When fileData exists, pass a new Blob so pdf.js reads fresh data (avoids worker cache returning a detached buffer). Otherwise pass the blob URL.
+  const pdfFile: Blob | string = fileData ? new Blob([fileData]) : fileUrl;
+  const canRenderPdfFallback = workerReady && !shouldUnmount;
 
   return (
     <div className={cn("relative flex flex-col items-center gap-2", className)}>
@@ -409,10 +411,10 @@ function PdfPageThumbnailComponent({
                 }}
               />
             ) : // Render PDFs using react-pdf (fallback)
-            workerReady && !shouldUnmount ? (
+            canRenderPdfFallback ? (
               <Document
-                key={fileUrl}
-                file={fileUrl}
+                key={`${documentKey}-${pageNumber}-${listIndex}`}
+                file={pdfFile}
                 onLoadSuccess={onDocumentLoadSuccess}
                 onLoadError={onDocumentLoadError}
                 loading={null}
@@ -476,8 +478,7 @@ function PdfPageThumbnailComponent({
                         renderMode="canvas"
                         onRenderError={(error) => {
                           logger.error("Page render error:", error);
-                          // Check if it's a messageHandler error - if so, retry after a delay
-                          // This handles race conditions where the worker isn't fully ready
+                          // Retry on worker messageHandler race; worker may not be ready yet.
                           const errorMessage = error?.message || String(error);
                           if (
                             (errorMessage.includes("messageHandler") ||

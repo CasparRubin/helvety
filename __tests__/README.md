@@ -6,11 +6,8 @@ This document describes the testing patterns and conventions used in this projec
 
 ```
 __tests__/
-├── app/                  # Tests for app/ directory
-│   └── actions/          # Server action tests
-├── components/           # Component tests
-├── lib/                  # Library/utility tests
-│   ├── crypto/           # Encryption utility tests
+├── lib/                  # Library and utility tests
+│   ├── crypto/
 │   │   ├── encoding.test.ts
 │   │   └── encryption.test.ts
 │   ├── auth-errors.test.ts
@@ -20,9 +17,10 @@ __tests__/
 │   ├── pdf-helpers.test.ts
 │   ├── rate-limit.test.ts
 │   └── validation-utils.test.ts
-└── utils/                # Test utilities
+└── utils/
     ├── test-utils.tsx    # Custom render with providers
-    └── mock-factories.ts # Test data factories
+    ├── mock-factories.ts # Test data factories
+    └── server-only-mock.ts
 ```
 
 ## Test File Naming

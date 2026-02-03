@@ -6,7 +6,6 @@ import * as React from "react";
 import { PdfPageGrid } from "@/components/pdf-page-grid";
 import { PdfToolkit } from "@/components/pdf-toolkit";
 import { useSubscriptionContext } from "@/components/subscription-provider";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { UpgradePrompt } from "@/components/upgrade-prompt";
 import { useColumns } from "@/hooks/use-columns";
 import { useDragDrop } from "@/hooks/use-drag-drop";
@@ -195,19 +194,24 @@ export function HelvetyPdf(): React.JSX.Element {
       role="region"
       aria-label="PDF toolkit workspace"
     >
-      {/* Main Canvas Area - Scrollable */}
+      {/* Main Canvas Area - same structure as right panel: outer h-full, inner flex-1 overflow-y-auto */}
       <div
         className={cn(
-          "min-h-0 min-w-0 flex-1",
+          "flex w-full flex-1 flex-col",
+          "h-full max-h-full min-h-0",
           "relative",
           "order-last lg:order-first"
         )}
       >
-        <ScrollArea className="h-full w-full">
-          {/* Unified Drag and Drop Zone / Canvas */}
+        <div
+          className={cn(
+            "bg-muted/30 border-border/50 flex min-h-0 flex-1 flex-col overflow-y-auto border p-6"
+          )}
+        >
+          {/* Unified Drag and Drop Zone / Canvas - min-h-full fills scroll container (same height as panel inner) */}
           <section
             className={cn(
-              "relative min-h-[calc(100dvh-6rem)] w-full transition-colors",
+              "relative min-h-full w-full transition-colors",
               dragDrop.isDragging
                 ? "border-primary bg-primary/5 border-2 border-dashed"
                 : pdfFiles.length === 0
@@ -293,7 +297,7 @@ export function HelvetyPdf(): React.JSX.Element {
               multiple file selection.
             </span>
           </section>
-        </ScrollArea>
+        </div>
       </div>
 
       {/* Toolkit Panel - Non-scrolling, always visible */}

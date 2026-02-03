@@ -23,9 +23,7 @@ import { cn } from "@/lib/utils";
 
 import type { PdfFile, UnifiedPage } from "@/lib/types";
 
-/**
- *
- */
+/** Props for the page grid: files, order, actions, and layout. */
 interface PdfPageGridProps {
   readonly pdfFiles: ReadonlyArray<PdfFile>;
   readonly unifiedPages: ReadonlyArray<UnifiedPage>;
@@ -43,9 +41,7 @@ interface PdfPageGridProps {
   readonly canRotate?: boolean;
 }
 
-/**
- *
- */
+/** Renders the list of page thumbnails with drag-drop reorder, actions, and accessibility. */
 function PdfPageGridComponent({
   pdfFiles,
   unifiedPages,
@@ -336,6 +332,9 @@ function PdfPageGridComponent({
                 >
                   <PdfPageThumbnail
                     fileUrl={fileUrl}
+                    fileData={
+                      fileInfo.type === "pdf" ? fileInfo.file : undefined
+                    }
                     pageNumber={page.originalPageNumber}
                     rotation={effectiveRotation}
                     pdfColor={fileInfo.color}
@@ -343,6 +342,7 @@ function PdfPageGridComponent({
                     finalPageNumber={finalPageNumber}
                     fileType={fileInfo.type}
                     totalPages={pageOrder.length}
+                    listIndex={index}
                   />
                 </PageErrorBoundary>
                 <div id={pageDescriptionId} className="sr-only">

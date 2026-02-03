@@ -133,7 +133,7 @@ Passkey encryption requires a modern browser with WebAuthn PRF support:
 
 This application implements comprehensive security hardening:
 
-- **Session Management** - Automatic session refresh via `proxy.ts` (Next.js 16 pattern)
+- **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed)
 - **Server Layout Guards** - Authentication checks in Server Components (CVE-2025-29927 compliant)
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
@@ -141,7 +141,9 @@ This application implements comprehensive security hardening:
 - **Audit Logging** - Structured logging for authentication and encryption events
 - **Security Headers** - CSP, HSTS, and other security headers
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked from the navbar.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer.
+
+**Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, tests, and production build.
 
 ## Tech Stack
 
@@ -153,13 +155,16 @@ This project is built with modern web technologies:
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
 - **[SimpleWebAuthn](https://simplewebauthn.dev/)** - WebAuthn/passkey authentication
 - **[pdf-lib](https://pdf-lib.js.org/)** - PDF manipulation and creation
-- **[pdfjs-dist](https://mozilla.github.io/pdf.js/)** - PDF rendering engine
+- **[react-pdf](https://www.npmjs.com/package/react-pdf)** - React components for PDF display
+- **[pdfjs-dist](https://mozilla.github.io/pdf.js/)** - PDF rendering engine (used by react-pdf)
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
 - **[Lucide React](https://lucide.dev/)** - Icon library
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 - **[Vitest](https://vitest.dev/)** - Unit and integration testing
+
+**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and (for server-side admin) `SUPABASE_SECRET_KEY`. Node.js 20.9+ required.
 
 ## Architecture & Performance
 

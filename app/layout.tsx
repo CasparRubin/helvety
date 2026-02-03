@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
+import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { SubscriptionProvider } from "@/components/subscription-provider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -113,7 +114,7 @@ export const metadata: Metadata = {
 };
 
 /**
- *
+ * Root layout: sticky header (Navbar), scrollable main (PDF toolkit), sticky footer (contact + legal links).
  */
 export default function RootLayout({
   children,
@@ -134,8 +135,13 @@ export default function RootLayout({
             <EncryptionProvider>
               <SubscriptionProvider>
                 <div className="flex h-screen flex-col overflow-hidden">
-                  <Navbar />
-                  <main className="flex-1 overflow-hidden">{children}</main>
+                  <header className="shrink-0">
+                    <Navbar />
+                  </header>
+                  <main className="min-h-0 flex-1 overflow-hidden">
+                    {children}
+                  </main>
+                  <Footer className="shrink-0" />
                 </div>
                 <Toaster />
               </SubscriptionProvider>

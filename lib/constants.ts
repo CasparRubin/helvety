@@ -50,8 +50,6 @@ export const COLUMNS = {
 export const DELAYS = {
   /** Delay before revoking blob URLs after download */
   BLOB_URL_CLEANUP: 100,
-  /** @deprecated Use TOAST_DURATIONS.ERROR instead */
-  ERROR_AUTO_DISMISS: 8000,
 } as const;
 
 /**

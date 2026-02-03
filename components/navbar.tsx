@@ -4,21 +4,22 @@
 import {
   Github,
   Building2,
-  Scale,
-  FileText,
   Menu,
   Info,
   LogIn,
   LogOut,
   Crown,
-  User,
+  User as UserIcon,
   ShoppingBag,
   Check,
   Settings,
+  Package,
+  CreditCard,
+  ShieldCheck,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Internal components
 import { AppSwitcher } from "@/components/app-switcher";
@@ -33,7 +34,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Popover,
@@ -59,6 +59,10 @@ import {
 } from "@/components/ui/tooltip";
 import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
+import { useEncryptionContext } from "@/lib/crypto/encryption-context";
+import { createClient } from "@/lib/supabase/client";
+
+import type { User } from "@supabase/supabase-js";
 
 /**
  * Main navigation bar component for helvety-pdf
@@ -66,18 +70,37 @@ import { VERSION } from "@/lib/config/version";
  * Features:
  * - App switcher for navigating between Helvety ecosystem apps
  * - Logo and branding with "PDF" label
- * - Navigation links (Impressum, Privacy, Terms)
- * - About dialog with version info
- * - GitHub link
+ * - E2EE indicator, About dialog, GitHub link (in bar above 400px; in burger below 400px)
  * - Theme switcher (dark/light mode)
  * - Login button (shown when user is not authenticated)
- * - Profile menu with subscription tier, upgrade prompt, and logout (shown when authenticated)
- * - Mobile responsive with burger menu including login and user info sections
+ * - Profile menu with user email, subscription tier, upgrade prompt, store links (Products, Account, Subscriptions, Tenants), and Sign out (shown when authenticated)
+ * - Burger menu below 400px: E2EE, About, GitHub plus login/user/upgrade/logout sections
  */
 export function Navbar() {
+  const { isUnlocked, isLoading: encryptionLoading } = useEncryptionContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const { isAuthenticated, isPro, isLoading } = useSubscriptionContext();
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user: u },
+      } = await supabase.auth.getUser();
+      setUser(u ?? null);
+    };
+    void getUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
 
   const handleLogin = () => {
     redirectToLogin();
@@ -87,16 +110,6 @@ export function Navbar() {
     // Redirect to centralized auth service for logout
     redirectToLogout(window.location.origin);
   };
-
-  const navLinks = [
-    {
-      href: "https://helvety.com/impressum",
-      label: "Impressum",
-      icon: Building2,
-    },
-    { href: "https://helvety.com/privacy", label: "Privacy", icon: Scale },
-    { href: "https://helvety.com/terms", label: "Terms", icon: FileText },
-  ];
 
   return (
     <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
@@ -135,76 +148,90 @@ export function Navbar() {
           </Link>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {/* Desktop navigation links */}
-          <div className="hidden items-center gap-1 md:flex">
-            {navLinks.map((link) => (
-              <Button key={link.href} variant="ghost" size="sm" asChild>
-                <a href={link.href} target="_blank" rel="noopener noreferrer">
-                  {link.label}
-                </a>
-              </Button>
-            ))}
-          </div>
+          {/* E2EE, About, GitHub - hidden below 400px (moved into burger) */}
+          <div className="hidden items-center gap-2 min-[401px]:flex">
+            {!encryptionLoading && isUnlocked && (
+              <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-default md:hidden">
+                        <ShieldCheck className="h-4 w-4 text-green-500" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>End-to-end encrypted</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <div className="hidden items-center gap-1.5 md:flex">
+                  <ShieldCheck className="h-4 w-4 text-green-500" />
+                  <span>End-to-end encrypted</span>
+                </div>
+              </div>
+            )}
 
-          {/* About button */}
-          <Dialog>
+            <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={() => setAboutOpen(true)}
+                    >
+                      <Info className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>About</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <DialogContent>
+                <DialogHeader className="pr-8">
+                  <DialogTitle>About</DialogTitle>
+                  <DialogDescription className="pt-2">
+                    A comprehensive PDF tool for merging, reordering, rotating,
+                    and extracting pages. All processing happens locally in your
+                    browser - private and secure.
+                  </DialogDescription>
+                </DialogHeader>
+                <>
+                  <div className="border-t" />
+                  <p className="text-muted-foreground text-xs">
+                    {VERSION || "Unknown build time"}
+                  </p>
+                </>
+                <DialogClose asChild>
+                  <Button variant="outline" className="w-full">
+                    Close
+                  </Button>
+                </DialogClose>
+              </DialogContent>
+            </Dialog>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <DialogTrigger asChild>
+                  <a
+                    href="https://github.com/CasparRubin/helvety-pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="View source code on GitHub"
+                  >
                     <Button variant="ghost" size="icon" className="h-9 w-9">
-                      <Info className="h-4 w-4" />
+                      <Github className="h-4 w-4" />
                     </Button>
-                  </DialogTrigger>
+                  </a>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>About</p>
+                  <p>View source code on GitHub</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <DialogContent>
-              <DialogHeader className="pr-8">
-                <DialogTitle>About</DialogTitle>
-                <DialogDescription className="pt-2">
-                  A comprehensive PDF tool for merging, reordering, rotating,
-                  and extracting pages. All processing happens locally in your
-                  browser - private and secure.
-                </DialogDescription>
-              </DialogHeader>
-              <>
-                <div className="border-t" />
-                <p className="text-muted-foreground text-xs">
-                  {VERSION || "Unknown build time"}
-                </p>
-              </>
-              <DialogClose asChild>
-                <Button variant="outline" className="w-full">
-                  Close
-                </Button>
-              </DialogClose>
-            </DialogContent>
-          </Dialog>
-
-          {/* GitHub icon - always visible */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <a
-                  href="https://github.com/CasparRubin/helvety-pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="View source code on GitHub"
-                >
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
-                    <Github className="h-4 w-4" />
-                  </Button>
-                </a>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>View source code on GitHub</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          </div>
 
           <ThemeSwitcher />
 
@@ -221,17 +248,19 @@ export function Navbar() {
             <Popover open={profileOpen} onOpenChange={setProfileOpen}>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
+                  <UserIcon className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-80">
                 <PopoverHeader>
                   <div className="flex items-center gap-3">
                     <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
-                      <User className="text-primary h-5 w-5" />
+                      <UserIcon className="text-primary h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <PopoverTitle>Account</PopoverTitle>
+                      <PopoverTitle className="truncate">
+                        {user?.email ?? "Account"}
+                      </PopoverTitle>
                       <PopoverDescription>Signed in</PopoverDescription>
                     </div>
                   </div>
@@ -307,6 +336,20 @@ export function Navbar() {
                     asChild
                   >
                     <a
+                      href="https://store.helvety.com/products"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Package className="h-4 w-4" />
+                      Products
+                    </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <a
                       href="https://store.helvety.com/account"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -321,14 +364,31 @@ export function Navbar() {
                     asChild
                   >
                     <a
-                      href="https://store.helvety.com"
+                      href="https://store.helvety.com/subscriptions"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <ShoppingBag className="h-4 w-4" />
-                      Helvety Store
+                      <CreditCard className="h-4 w-4" />
+                      Subscriptions
                     </a>
                   </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <a
+                      href="https://store.helvety.com/tenants"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Building2 className="h-4 w-4" />
+                      Tenants
+                    </a>
+                  </Button>
+                </div>
+                <Separator />
+                <div className="flex flex-col gap-2">
                   <Button
                     variant="destructive"
                     className="w-full justify-start"
@@ -345,9 +405,9 @@ export function Navbar() {
             </Popover>
           )}
 
-          {/* Mobile burger menu */}
+          {/* Burger menu - only below 400px */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild className="md:hidden">
+            <SheetTrigger asChild className="hidden max-[400px]:inline-flex">
               <Button variant="ghost" size="icon">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open menu</span>
@@ -355,9 +415,43 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent side="right">
               <SheetHeader>
-                <SheetTitle>Navigation</SheetTitle>
+                <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-2">
+                {/* E2EE, About, GitHub - in burger below 400px */}
+                {!encryptionLoading && isUnlocked && (
+                  <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <ShieldCheck className="h-4 w-4 shrink-0 text-green-500" />
+                    <span>End-to-end encrypted</span>
+                  </div>
+                )}
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setAboutOpen(true);
+                  }}
+                >
+                  <Info className="mr-2 h-4 w-4" />
+                  About
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  asChild
+                >
+                  <a
+                    href="https://github.com/CasparRubin/helvety-pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Github className="mr-2 h-4 w-4" />
+                    View source on GitHub
+                  </a>
+                </Button>
+                <Separator />
                 {/* Login button in mobile menu */}
                 {!isAuthenticated && !isLoading && (
                   <Button
@@ -377,7 +471,7 @@ export function Navbar() {
                   <>
                     <div className="mb-2 border-b px-3 py-2">
                       <div className="flex items-center gap-2">
-                        <User className="text-muted-foreground h-4 w-4" />
+                        <UserIcon className="text-muted-foreground h-4 w-4" />
                         <span className="text-muted-foreground text-sm">
                           Signed in
                         </span>
@@ -439,22 +533,6 @@ export function Navbar() {
                     )}
                   </>
                 )}
-                {navLinks.map((link) => {
-                  const Icon = link.icon;
-                  return (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {link.label}
-                    </a>
-                  );
-                })}
                 {/* Logout button in mobile menu */}
                 {isAuthenticated && !isLoading && (
                   <button
