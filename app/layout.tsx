@@ -3,7 +3,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 import "./globals.css";
 
+import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
+import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -94,7 +96,7 @@ export const metadata: Metadata = {
 };
 
 /**
- *
+ * Root layout: sticky header (Navbar), scrollable main, sticky footer (contact + legal links).
  */
 export default function RootLayout({
   children,
@@ -111,8 +113,19 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
-            <Navbar />
-            <div className="mx-auto w-full max-w-[2000px]">{children}</div>
+            <Providers>
+              <div className="flex min-h-screen flex-col">
+                <header className="shrink-0">
+                  <Navbar />
+                </header>
+                <div className="min-h-0 flex-1 overflow-y-auto">
+                  <div className="mx-auto w-full max-w-[2000px]">
+                    {children}
+                  </div>
+                </div>
+                <Footer />
+              </div>
+            </Providers>
           </TooltipProvider>
         </ThemeProvider>
         <Analytics />

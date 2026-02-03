@@ -6,9 +6,8 @@ This document describes the testing patterns and conventions used in this projec
 
 ```
 __tests__/
-├── app/                  # Tests for app/ directory
-│   └── actions/          # Server action tests
 ├── components/           # Component tests
+│   └── theme-switcher.test.tsx
 ├── lib/                  # Library/utility tests
 │   ├── auth-errors.test.ts
 │   ├── auth-logger.test.ts
@@ -18,7 +17,8 @@ __tests__/
 │   └── utils.test.ts
 └── utils/                # Test utilities
     ├── test-utils.tsx    # Custom render with providers
-    └── mock-factories.ts # Test data factories
+    ├── mock-factories.ts # Test data factories
+    └── server-only-mock.ts
 ```
 
 ## Test File Naming

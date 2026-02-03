@@ -11,9 +11,11 @@ The main Helvety website. Swiss Engineering.
 
 ## Features
 
-- **App Switcher** - Navigate between Helvety ecosystem apps (PDF, Store, and more)
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF)
+- **Sign in** - Sign in when not authenticated (centralized auth)
+- **Profile menu** - When signed in: user email, links to Store (Products, Account, Subscriptions, Tenants), Sign out
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
-- **Legal pages** - Impressum, Privacy Policy, and Terms of Service
+- **Legal pages** - Impressum, Privacy Policy, and Terms of Service (in the site footer)
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
 - **Animated logo** - Subtle glow effect on the main logo
 
@@ -21,7 +23,7 @@ The main Helvety website. Swiss Engineering.
 
 This application implements comprehensive security hardening:
 
-- **Session Management** - Automatic session refresh via `proxy.ts` (Next.js 16 pattern)
+- **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed)
 - **Server Layout Guards** - Authentication checks in Server Components (CVE-2025-29927 compliant)
 - **CSRF Protection** - Token-based protection with timing-safe comparison for state-changing operations
 - **Rate Limiting** - In-memory rate limiting to prevent brute force attacks
@@ -47,6 +49,10 @@ This project is built with modern web technologies:
 - **[Framer Motion](https://www.framer.com/motion/)** - Animation library
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 - **[Vitest](https://vitest.dev/)** - Unit and integration testing
+
+**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and (for server-side admin) `SUPABASE_SECRET_KEY`. Node.js 20.9+ required.
+
+**Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, tests, and production build.
 
 ## Developer
 

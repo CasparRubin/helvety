@@ -158,6 +158,25 @@ export default function ImpressumPage() {
               </div>
 
               <div>
+                <h3 className="mb-2 text-lg font-medium">
+                  Liability for Software and SaaS
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  Our software and SaaS products are provided without guarantee
+                  of uninterrupted or error-free operation and without
+                  obligation to provide updates. Detailed disclaimers and
+                  limitations are set out in our{" "}
+                  <Link
+                    href="/terms"
+                    className="hover:text-foreground underline transition-colors"
+                  >
+                    Terms of Service
+                  </Link>
+                  .
+                </p>
+              </div>
+
+              <div>
                 <h3 className="mb-2 text-lg font-medium">Copyright</h3>
                 <p className="text-muted-foreground text-sm">
                   The content and works created by the site operators on these
@@ -233,7 +252,7 @@ export default function ImpressumPage() {
           {/* Last Updated */}
           <footer className="border-border border-t pt-8">
             <p className="text-muted-foreground text-center text-xs">
-              Last updated: February 1, 2025
+              Last updated: February 3, 2026
             </p>
           </footer>
         </article>

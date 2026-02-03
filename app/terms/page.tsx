@@ -28,7 +28,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 2, 2025
+              Last updated: February 3, 2026
             </p>
           </header>
 
@@ -67,6 +67,16 @@ export default function TermsPage() {
                 >
                   Products and Services
                 </a>
+                <ul className="mt-1 ml-4 list-inside list-[circle] space-y-0.5">
+                  <li>
+                    <a
+                      href="#software-saas-no-warranties"
+                      className="hover:text-foreground transition-colors"
+                    >
+                      4.4 Software, Digital Products and SaaS – No Warranties
+                    </a>
+                  </li>
+                </ul>
               </li>
               <li>
                 <a
@@ -322,6 +332,12 @@ export default function TermsPage() {
 
             <h3 className="mb-3 text-lg font-medium">4.1 Software Licenses</h3>
             <p className="text-muted-foreground mb-4 text-sm">
+              Before completing a purchase of Digital Products, you must confirm
+              that you have read and understood these Terms, our Privacy Policy,
+              and (where applicable) the digital content consent presented at
+              checkout. This confirmation is required on every purchase.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
               Upon purchase of Digital Products, you are granted a limited,
               non-exclusive, non-transferable, revocable license to use the
               software for personal or internal business purposes only. You may
@@ -344,6 +360,40 @@ export default function TermsPage() {
               you are granted access rights only for the duration of your active
               subscription. Access may be revoked upon subscription termination
               or non-payment.
+            </p>
+
+            <h3
+              id="software-saas-no-warranties"
+              className="mb-3 text-lg font-medium"
+            >
+              4.4 Software, Digital Products and SaaS – No Warranties and No
+              Guarantees
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Digital Products and SaaS are provided &quot;as is&quot; and
+              &quot;as available&quot;. They may contain defects, errors, bugs,
+              or may not operate as intended. We do not guarantee uninterrupted
+              or error-free access, any particular uptime, or continuous
+              availability. Services may be temporarily unavailable due to
+              maintenance, third-party failures, or other reasons.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              We are not obligated to provide updates, upgrades, patches, new
+              versions, or new features. Any updates or improvements are at our
+              sole discretion. We do not guarantee compatibility with future
+              operating systems, browsers, or third-party products or services.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              You use our software and SaaS at your own risk. For important
+              data, you are responsible for keeping backups; we are not liable
+              for loss of data arising from use of our software or services.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Where applicable law (including Swiss and EU consumer law) grants
+              you mandatory rights (e.g. conformity with the contract, statutory
+              remedies), nothing in these Terms is intended to exclude or limit
+              those rights. The above disclaimers apply to the fullest extent
+              permitted by such law.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -932,6 +982,11 @@ export default function TermsPage() {
               <li>ACCURACY, RELIABILITY, OR COMPLETENESS OF CONTENT</li>
               <li>UNINTERRUPTED OR ERROR-FREE OPERATION</li>
             </ul>
+            <p className="text-muted-foreground mb-4 text-sm">
+              In particular, we do not warrant that our software, digital
+              products, or SaaS will be free of errors, bugs, or interruptions,
+              or that we will provide any updates or new versions.
+            </p>
 
             <h3 className="mb-3 text-lg font-medium">
               13.2 Limitation of Damages
@@ -974,6 +1029,12 @@ export default function TermsPage() {
               is at your sole risk. You assume full responsibility for all risks
               associated with your use of any products purchased through the
               Services.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Nothing in these Terms excludes or limits our liability for death
+              or personal injury caused by our negligence, fraud or wilful
+              misconduct, or for breach of such obligations as cannot lawfully
+              be limited under applicable law (e.g. Swiss mandatory provisions).
             </p>
 
             <h3 className="mb-3 text-lg font-medium">13.5 Force Majeure</h3>
