@@ -29,7 +29,7 @@ The root path (`/`) redirects: unauthenticated users to auth; authenticated user
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
 - **Account Management** - Profile and account settings (Account page)
 - **Subscription Management** - View, cancel, or reactivate subscriptions (Subscriptions page)
-- **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer (Tenants page)
+- **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer (Tenants page: compact subscription summary, Registered Tenants list with Add Tenant above it)
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition

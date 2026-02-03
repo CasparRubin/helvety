@@ -60,7 +60,7 @@ import { logger } from "@/lib/logger";
 import type { LicensedTenantWithSubscription } from "@/lib/types/entities";
 
 /**
- *
+ * SPO Explorer subscription summary for display (tier, status, tenant usage).
  */
 interface SpoSubscription {
   id: string;
@@ -72,7 +72,9 @@ interface SpoSubscription {
 }
 
 /**
- *
+ * Tenants tab: licensed tenants list, subscription summary, and add/remove tenant actions.
+ * Layout: page header, compact full-width subscription bar, then Registered Tenants card
+ * with Add Tenant and Refresh in the card header above the list.
  */
 export function TenantsTab() {
   const [tenants, setTenants] = React.useState<
@@ -109,9 +111,7 @@ export function TenantsTab() {
     void loadData();
   }, []);
 
-  /**
-   *
-   */
+  /** Load tenants and SPO Explorer subscriptions. */
   async function loadData() {
     setIsLoading(true);
     try {
@@ -141,8 +141,8 @@ export function TenantsTab() {
   }
 
   /**
-   *
-   * @param e
+   * Submit add-tenant form: register tenant and reload list.
+   * @param e - Form submit event
    */
   async function handleAddTenant(e: React.FormEvent) {
     e.preventDefault();
@@ -190,9 +190,7 @@ export function TenantsTab() {
     }
   }
 
-  /**
-   *
-   */
+  /** Confirm and perform tenant removal from delete dialog. */
   async function handleConfirmDelete() {
     if (!tenantToDelete) return;
 
@@ -222,25 +220,23 @@ export function TenantsTab() {
   }
 
   /**
-   *
-   * @param tenant
+   * Enter inline-edit mode for a tenant's display name.
+   * @param tenant - Tenant to edit
    */
   function startEditing(tenant: LicensedTenantWithSubscription) {
     setEditingTenantId(tenant.id);
     setEditDisplayName(tenant.display_name ?? tenant.tenant_id);
   }
 
-  /**
-   *
-   */
+  /** Exit inline-edit mode without saving. */
   function cancelEditing() {
     setEditingTenantId(null);
     setEditDisplayName("");
   }
 
   /**
-   *
-   * @param tenantId
+   * Save edited display name for a tenant.
+   * @param tenantId - Licensed tenant record id
    */
   async function saveEdit(tenantId: string) {
     setIsSavingEdit(true);
@@ -270,8 +266,8 @@ export function TenantsTab() {
   }
 
   /**
-   *
-   * @param tierId
+   * Map Stripe tier id to display label (e.g. Basic, Enterprise).
+   * @param tierId - Stripe price tier id
    */
   function getTierDisplayName(tierId: string): string {
     if (tierId.includes("enterprise")) return "Enterprise";
@@ -280,8 +276,8 @@ export function TenantsTab() {
   }
 
   /**
-   *
-   * @param status
+   * Render subscription status badge (Active, Trial, or raw status).
+   * @param status - Subscription status string
    */
   function getStatusBadge(status: string) {
     switch (status) {
@@ -329,121 +325,13 @@ export function TenantsTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight">
-            Licensed Tenants
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Manage SharePoint tenants for your SPO Explorer subscription
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => void loadData()}
-            title="Refresh"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                disabled={!hasAvailableSlots || subscriptions.length === 0}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Tenant
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <form onSubmit={handleAddTenant}>
-                <DialogHeader>
-                  <DialogTitle>Register a Tenant</DialogTitle>
-                  <DialogDescription>
-                    Add a SharePoint tenant to enable the SPO Explorer
-                    extension.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="tenantId">Tenant ID *</Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="tenantId"
-                        placeholder="contoso"
-                        value={newTenantId}
-                        onChange={(e) =>
-                          setNewTenantId(e.target.value.toLowerCase())
-                        }
-                        className="flex-1"
-                      />
-                      <span className="text-muted-foreground text-sm">
-                        .sharepoint.com
-                      </span>
-                    </div>
-                    <p className="text-muted-foreground text-xs">
-                      Enter the tenant name from your SharePoint URL (e.g.,
-                      &quot;contoso&quot; from contoso.sharepoint.com)
-                    </p>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="displayName">Display Name (optional)</Label>
-                    <Input
-                      id="displayName"
-                      placeholder="My Organization"
-                      value={newDisplayName}
-                      onChange={(e) => setNewDisplayName(e.target.value)}
-                    />
-                  </div>
-                  {subscriptions.length > 1 && (
-                    <div className="grid gap-2">
-                      <Label htmlFor="subscription">Subscription</Label>
-                      <select
-                        id="subscription"
-                        value={selectedSubscription}
-                        onChange={(e) =>
-                          setSelectedSubscription(e.target.value)
-                        }
-                        className="border-input bg-background flex h-10 w-full rounded-md border px-3 py-2 text-sm"
-                      >
-                        <option value="">Select a subscription</option>
-                        {subscriptions
-                          .filter(
-                            (s) =>
-                              s.maxTenants === -1 ||
-                              s.tenantCount < s.maxTenants
-                          )
-                          .map((sub) => (
-                            <option key={sub.id} value={sub.id}>
-                              {getTierDisplayName(sub.tier_id)} (
-                              {sub.tenantCount}/
-                              {sub.maxTenants === -1
-                                ? "Unlimited"
-                                : sub.maxTenants}{" "}
-                              tenants)
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsAddDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isAdding}>
-                    {isAdding ? "Registering..." : "Register Tenant"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">
+          Licensed Tenants
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Manage SharePoint tenants for your SPO Explorer subscription
+        </p>
       </div>
 
       {/* No subscriptions warning */}
@@ -468,42 +356,98 @@ export function TenantsTab() {
         </Card>
       )}
 
-      {/* Subscription summary */}
+      {/* Subscription summary – full-width compact */}
       {subscriptions.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div
+          className={
+            subscriptions.length === 1
+              ? "w-full"
+              : "grid gap-4 grid-cols-1 sm:grid-cols-2"
+          }
+        >
           {subscriptions.map((sub) => (
             <Card key={sub.id}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">
-                    {getTierDisplayName(sub.tier_id)}
-                  </CardTitle>
-                  {getStatusBadge(sub.status)}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Tenants used</span>
-                  <span className="font-medium">
-                    {sub.tenantCount} /{" "}
-                    {sub.maxTenants === -1 ? "Unlimited" : sub.maxTenants}
-                  </span>
-                </div>
-                {sub.maxTenants !== -1 && (
-                  <div className="bg-muted mt-2 h-2 overflow-hidden rounded-full">
-                    <div
-                      className="bg-primary h-full transition-all"
-                      style={{
-                        width: `${(sub.tenantCount / sub.maxTenants) * 100}%`,
-                      }}
-                    />
-                  </div>
-                )}
-                {sub.current_period_end && (
-                  <p className="text-muted-foreground mt-2 text-xs">
-                    Renews{" "}
-                    {new Date(sub.current_period_end).toLocaleDateString()}
-                  </p>
+              <CardContent
+                className={
+                  subscriptions.length === 1
+                    ? "flex flex-wrap items-center gap-x-6 gap-y-2 py-4"
+                    : "py-4"
+                }
+              >
+                {subscriptions.length === 1 ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">
+                        {getTierDisplayName(sub.tier_id)}
+                      </span>
+                      {getStatusBadge(sub.status)}
+                    </div>
+                    <span className="text-muted-foreground text-sm">
+                      Tenants used{" "}
+                      <span className="font-medium text-foreground">
+                        {sub.tenantCount} /{" "}
+                        {sub.maxTenants === -1
+                          ? "Unlimited"
+                          : sub.maxTenants}
+                      </span>
+                    </span>
+                    {sub.current_period_end && (
+                      <span className="text-muted-foreground text-sm">
+                        Renews{" "}
+                        {new Date(
+                          sub.current_period_end
+                        ).toLocaleDateString()}
+                      </span>
+                    )}
+                    {sub.maxTenants !== -1 && (
+                      <div className="bg-muted h-2 w-24 overflow-hidden rounded-full">
+                        <div
+                          className="bg-primary h-full transition-all"
+                          style={{
+                            width: `${(sub.tenantCount / sub.maxTenants) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between pb-2">
+                      <CardTitle className="text-base">
+                        {getTierDisplayName(sub.tier_id)}
+                      </CardTitle>
+                      {getStatusBadge(sub.status)}
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Tenants used
+                      </span>
+                      <span className="font-medium">
+                        {sub.tenantCount} /{" "}
+                        {sub.maxTenants === -1
+                          ? "Unlimited"
+                          : sub.maxTenants}
+                      </span>
+                    </div>
+                    {sub.maxTenants !== -1 && (
+                      <div className="bg-muted mt-2 h-2 overflow-hidden rounded-full">
+                        <div
+                          className="bg-primary h-full transition-all"
+                          style={{
+                            width: `${(sub.tenantCount / sub.maxTenants) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    )}
+                    {sub.current_period_end && (
+                      <p className="text-muted-foreground mt-2 text-xs">
+                        Renews{" "}
+                        {new Date(
+                          sub.current_period_end
+                        ).toLocaleDateString()}
+                      </p>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -513,11 +457,124 @@ export function TenantsTab() {
 
       {/* Tenants list */}
       <Card>
-        <CardHeader>
-          <CardTitle>Registered Tenants</CardTitle>
-          <CardDescription>
-            These SharePoint tenants have access to the SPO Explorer extension
-          </CardDescription>
+        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+          <div className="space-y-1.5">
+            <CardTitle>Registered Tenants</CardTitle>
+            <CardDescription>
+              These SharePoint tenants have access to the SPO Explorer
+              extension
+            </CardDescription>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => void loadData()}
+              title="Refresh"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  disabled={
+                    !hasAvailableSlots || subscriptions.length === 0
+                  }
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Tenant
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <form onSubmit={handleAddTenant}>
+                  <DialogHeader>
+                    <DialogTitle>Register a Tenant</DialogTitle>
+                    <DialogDescription>
+                      Add a SharePoint tenant to enable the SPO Explorer
+                      extension.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="tenantId">Tenant ID *</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="tenantId"
+                          placeholder="contoso"
+                          value={newTenantId}
+                          onChange={(e) =>
+                            setNewTenantId(e.target.value.toLowerCase())
+                          }
+                          className="flex-1"
+                        />
+                        <span className="text-muted-foreground text-sm">
+                          .sharepoint.com
+                        </span>
+                      </div>
+                      <p className="text-muted-foreground text-xs">
+                        Enter the tenant name from your SharePoint URL (e.g.,
+                        &quot;contoso&quot; from contoso.sharepoint.com)
+                      </p>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="displayName">
+                        Display Name (optional)
+                      </Label>
+                      <Input
+                        id="displayName"
+                        placeholder="My Organization"
+                        value={newDisplayName}
+                        onChange={(e) => setNewDisplayName(e.target.value)}
+                      />
+                    </div>
+                    {subscriptions.length > 1 && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="subscription">Subscription</Label>
+                        <select
+                          id="subscription"
+                          value={selectedSubscription}
+                          onChange={(e) =>
+                            setSelectedSubscription(e.target.value)
+                          }
+                          className="border-input bg-background flex h-10 w-full rounded-md border px-3 py-2 text-sm"
+                        >
+                          <option value="">Select a subscription</option>
+                          {subscriptions
+                            .filter(
+                              (s) =>
+                                s.maxTenants === -1 ||
+                                s.tenantCount < s.maxTenants
+                            )
+                            .map((sub) => (
+                              <option key={sub.id} value={sub.id}>
+                                {getTierDisplayName(sub.tier_id)} (
+                                {sub.tenantCount}/
+                                {sub.maxTenants === -1
+                                  ? "Unlimited"
+                                  : sub.maxTenants}{" "}
+                                tenants)
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsAddDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isAdding}>
+                      {isAdding ? "Registering..." : "Register Tenant"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           {tenants.length === 0 ? (
