@@ -116,7 +116,9 @@ export async function validateTenantLicense(
     // Step 2: Get subscription for this product (must be one of the tenant's subscriptions)
     const { data: subscription, error: subError } = await supabase
       .from("subscriptions")
-      .select("id, tier_id, status, current_period_end, cancel_at_period_end, product_id")
+      .select(
+        "id, tier_id, status, current_period_end, cancel_at_period_end, product_id"
+      )
       .in("id", subscriptionIds)
       .eq("product_id", productId)
       .maybeSingle();

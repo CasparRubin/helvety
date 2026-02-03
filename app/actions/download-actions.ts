@@ -89,12 +89,10 @@ export async function getPackageDownloadUrl(
     }
 
     // Resolve path and version (for versioned packages, from storage; else from config)
-    const resolved =
-      packageInfo.storagePathPrefix ?
-        await resolveLatestPackageVersion(packageId)
+    const resolved = packageInfo.storagePathPrefix
+      ? await resolveLatestPackageVersion(packageId)
       : null;
-    const storagePath =
-      resolved?.storagePath ?? packageInfo.storagePath;
+    const storagePath = resolved?.storagePath ?? packageInfo.storagePath;
     const version = resolved?.version ?? packageInfo.version;
 
     // Generate signed URL using admin client (has storage access)
@@ -185,9 +183,8 @@ export async function getPackageMetadata(
     }
 
     // Resolve version from storage for versioned packages
-    const resolved =
-      packageInfo.storagePathPrefix ?
-        await resolveLatestPackageVersion(packageId)
+    const resolved = packageInfo.storagePathPrefix
+      ? await resolveLatestPackageVersion(packageId)
       : null;
     const version = resolved?.version ?? packageInfo.version;
 

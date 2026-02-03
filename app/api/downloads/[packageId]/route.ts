@@ -85,12 +85,10 @@ export async function GET(
     }
 
     // Resolve path (and version for logging) for versioned packages
-    const resolved =
-      packageInfo.storagePathPrefix ?
-        await resolveLatestPackageVersion(packageId)
+    const resolved = packageInfo.storagePathPrefix
+      ? await resolveLatestPackageVersion(packageId)
       : null;
-    const storagePath =
-      resolved?.storagePath ?? packageInfo.storagePath;
+    const storagePath = resolved?.storagePath ?? packageInfo.storagePath;
     const version = resolved?.version ?? packageInfo.version;
 
     // Generate signed URL using admin client

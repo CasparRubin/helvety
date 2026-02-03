@@ -100,7 +100,9 @@ export async function resolveLatestPackageVersion(
     return null;
   }
 
-  versionCandidates.sort((a, b) => -compareVersionSegments(a.segments, b.segments));
+  versionCandidates.sort(
+    (a, b) => -compareVersionSegments(a.segments, b.segments)
+  );
   const latest = versionCandidates[0];
   if (!latest) return null;
 
