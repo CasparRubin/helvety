@@ -34,8 +34,8 @@ export function getLoginUrl(currentUrl?: string): string {
     // Server-side fallback
     redirectUri =
       process.env.NODE_ENV === "development"
-        ? "http://localhost:3001"
-        : "https://store.helvety.com";
+        ? "http://localhost:3000"
+        : "https://helvety.com";
   }
 
   return `${authBase}/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
@@ -53,8 +53,8 @@ export function getLogoutUrl(redirectUri?: string): string {
   const redirect =
     redirectUri ??
     (process.env.NODE_ENV === "development"
-      ? "http://localhost:3001"
-      : "https://store.helvety.com");
+      ? "http://localhost:3000"
+      : "https://helvety.com");
 
   return `${authBase}/logout?redirect_uri=${encodeURIComponent(redirect)}`;
 }

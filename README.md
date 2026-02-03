@@ -54,13 +54,13 @@ Authentication is handled by the centralized Helvety Auth service (`auth.helvety
 **Returning Users:**
 
 1. Redirected to auth.helvety.com → Enter email address
-2. Click magic link in email → Verify email ownership
+2. Sign in with passkey (no email sent; existing users with a passkey skip the magic link)
 3. Scan QR code → Verify with biometrics → Session created
 4. Redirected back → Unlock encryption with passkey
 
 Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
 
-**Privacy Note:** Your email address is used solely for authentication (magic links) and account recovery. We do not share your email with third parties for marketing purposes.
+**Privacy Note:** Your email address is used solely for authentication (magic links for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
 
 ### End-to-End Encryption
 
@@ -116,9 +116,13 @@ This project is built with modern web technologies:
 
 **Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, tests, and production build.
 
+**Development standards:** See `.cursor/rules/` for code organization, JSDoc, shared code patterns, after-change checklist (tests, comments, README, legal), and official-docs-first. When editing shared code, run sync from helvety.com (see that repo's README).
+
 ## Developer
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
+
+Vercel Analytics and Speed Insights are intentionally not used in this app; they are enabled only on [helvety.com](https://helvety.com) and [auth.helvety.com](https://auth.helvety.com).
 
 For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com).
 

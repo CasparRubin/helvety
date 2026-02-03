@@ -1,6 +1,8 @@
 /**
  * Stripe Webhook Handler
- * Processes Stripe webhook events for subscription lifecycle management
+ * Processes Stripe webhook events for subscription lifecycle management.
+ * Writes to subscription_events; subscription_id (FK to subscriptions.id) is set for
+ * subscription.created/updated/canceled/renewed/payment_failed; checkout.completed leaves it null.
  */
 
 import { headers } from "next/headers";
@@ -28,8 +30,9 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 // =============================================================================
 
 /**
- *
- * @param request
+ * Receives Stripe webhook events, verifies signature, deduplicates by stripe_event_id,
+ * and dispatches to the appropriate handler. Returns 200 on success or when event is duplicate/ignored.
+ * @param request - Request body must be raw (for signature verification)
  */
 export async function POST(request: NextRequest) {
   if (!webhookSecret) {
@@ -126,7 +129,9 @@ export async function POST(request: NextRequest) {
 
 /**
  * Handle checkout.session.completed
- * Links Stripe customer to user and creates initial subscription record
+ * Links Stripe customer to user (user_profiles), logs the event. The subscription row
+ * is created/updated by customer.subscription.created / customer.subscription.updated.
+ * checkout.completed does not set subscription_id (subscription row may not exist yet).
  * @param session
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
@@ -254,43 +259,48 @@ async function upsertSubscription(
   const periodEnd =
     subWithPeriod.current_period_end ?? itemWithPeriod.current_period_end;
 
-  // Upsert subscription record
-  const { error } = await supabase.from("subscriptions").upsert(
-    {
-      user_id: userId,
-      stripe_subscription_id: subscription.id,
-      stripe_price_id: priceId,
-      product_id:
-        productInfo?.productId ??
-        subscription.metadata?.product_id ??
-        "unknown",
-      tier_id:
-        productInfo?.tierId ?? subscription.metadata?.tier_id ?? "unknown",
-      status: subscription.status,
-      current_period_start: periodStart
-        ? new Date(periodStart * 1000).toISOString()
-        : null,
-      current_period_end: periodEnd
-        ? new Date(periodEnd * 1000).toISOString()
-        : null,
-      cancel_at_period_end: subscription.cancel_at_period_end,
-      canceled_at: subscription.canceled_at
-        ? new Date(subscription.canceled_at * 1000).toISOString()
-        : null,
-    },
-    {
-      onConflict: "stripe_subscription_id",
-    }
-  );
+  // Upsert subscription record and get our row id for the event log
+  const { data: upsertedSub, error } = await supabase
+    .from("subscriptions")
+    .upsert(
+      {
+        user_id: userId,
+        stripe_subscription_id: subscription.id,
+        stripe_price_id: priceId,
+        product_id:
+          productInfo?.productId ??
+          subscription.metadata?.product_id ??
+          "unknown",
+        tier_id:
+          productInfo?.tierId ?? subscription.metadata?.tier_id ?? "unknown",
+        status: subscription.status,
+        current_period_start: periodStart
+          ? new Date(periodStart * 1000).toISOString()
+          : null,
+        current_period_end: periodEnd
+          ? new Date(periodEnd * 1000).toISOString()
+          : null,
+        cancel_at_period_end: subscription.cancel_at_period_end,
+        canceled_at: subscription.canceled_at
+          ? new Date(subscription.canceled_at * 1000).toISOString()
+          : null,
+      },
+      {
+        onConflict: "stripe_subscription_id",
+      }
+    )
+    .select("id")
+    .single();
 
   if (error) {
     logger.error(`Failed to upsert subscription ${subscription.id}:`, error);
     throw error;
   }
 
-  // Log the event
+  // Log the event (subscription_id = our subscriptions.id for JOINs)
   await supabase.from("subscription_events").insert({
     user_id: userId,
+    subscription_id: upsertedSub?.id ?? null,
     event_type:
       subscription.status === "active"
         ? "subscription.created"
@@ -318,7 +328,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   // Update subscription status to canceled
   const { data: existingSub } = await supabase
     .from("subscriptions")
-    .select("user_id")
+    .select("id, user_id")
     .eq("stripe_subscription_id", subscription.id)
     .single();
 
@@ -343,9 +353,10 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     throw error;
   }
 
-  // Log the event
+  // Log the event (subscription_id = our subscriptions.id for JOINs)
   await supabase.from("subscription_events").insert({
     user_id: existingSub.user_id,
+    subscription_id: existingSub.id,
     event_type: "subscription.canceled",
     stripe_event_id: `sub_deleted_${subscription.id}_${Date.now()}`,
     metadata: {
@@ -373,10 +384,10 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     return;
   }
 
-  // Get the subscription to find user
+  // Get the subscription to find user and our row id
   const { data: sub } = await supabase
     .from("subscriptions")
-    .select("user_id")
+    .select("id, user_id")
     .eq("stripe_subscription_id", subscriptionId)
     .single();
 
@@ -414,9 +425,10 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     })
     .eq("stripe_subscription_id", subscriptionId);
 
-  // Log the renewal
+  // Log the renewal (subscription_id = our subscriptions.id for JOINs)
   await supabase.from("subscription_events").insert({
     user_id: sub.user_id,
+    subscription_id: sub.id,
     event_type: "subscription.renewed",
     stripe_event_id: `invoice_${invoice.id}`,
     metadata: {
@@ -448,10 +460,10 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     return;
   }
 
-  // Get the subscription to find user
+  // Get the subscription to find user and our row id
   const { data: sub } = await supabase
     .from("subscriptions")
-    .select("user_id")
+    .select("id, user_id")
     .eq("stripe_subscription_id", subscriptionId)
     .single();
 
@@ -470,9 +482,10 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     })
     .eq("stripe_subscription_id", subscriptionId);
 
-  // Log the failure
+  // Log the failure (subscription_id = our subscriptions.id for JOINs)
   await supabase.from("subscription_events").insert({
     user_id: sub.user_id,
+    subscription_id: sub.id,
     event_type: "subscription.payment_failed",
     stripe_event_id: `invoice_failed_${invoice.id}`,
     metadata: {

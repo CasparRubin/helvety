@@ -33,25 +33,11 @@ interface AppSwitcherProps {
 
 /**
  * App switcher component for navigating between Helvety ecosystem apps.
- * Displays a grid of available apps in a slide-out sheet (Home, Auth, Store, PDF).
- * Normal clicks use JS navigation (window.location.href) after closing the sheet
- * so navigation is not aborted when the sheet unmounts. Modifier keys and
- * middle-click still use the native link (e.g. open in new tab).
+ * Displays a grid of available apps in a slide-out sheet.
+ * Apps are listed in order: Home, Auth, Store, PDF.
  */
 export function AppSwitcher({ currentApp }: AppSwitcherProps) {
   const [open, setOpen] = useState(false);
-
-  const handleAppClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string
-  ) => {
-    if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) {
-      return;
-    }
-    e.preventDefault();
-    setOpen(false);
-    window.location.assign(href);
-  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -86,7 +72,7 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
                     ? "bg-accent text-accent-foreground"
                     : "hover:bg-accent"
                 )}
-                onClick={(e) => handleAppClick(e, app.href)}
+                onClick={() => setOpen(false)}
               >
                 <Icon className="h-6 w-6" />
                 <span className="text-xs font-medium">{app.name}</span>

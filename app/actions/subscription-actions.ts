@@ -22,7 +22,12 @@ import type {
 type StripeSubWithPeriod = {
   current_period_end?: number;
   current_period_start?: number;
-  items?: { data?: Array<{ current_period_start?: number; current_period_end?: number }> };
+  items?: {
+    data?: Array<{
+      current_period_start?: number;
+      current_period_end?: number;
+    }>;
+  };
 };
 
 // =============================================================================

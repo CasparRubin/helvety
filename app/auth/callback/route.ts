@@ -10,8 +10,9 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 /**
  * Auth callback route for handling Supabase magic links and OAuth
  *
- * This route is called when users click magic links or complete OAuth flows.
- * It exchanges the auth code for a session and redirects to the app.
+ * This route is called when users click email verification links (new users
+ * or existing users without a passkey) or complete OAuth flows. It exchanges
+ * the auth code for a session and redirects to the app.
  *
  * Note: Primary authentication now happens via auth.helvety.com.
  * This callback handles session establishment from cross-subdomain cookies.

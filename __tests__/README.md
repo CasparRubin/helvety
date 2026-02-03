@@ -139,3 +139,5 @@ The project enforces these coverage thresholds:
 4. **Reset mocks between tests** - Use `vi.clearAllMocks()` in `beforeEach`
 5. **Use screen queries** - Prefer `screen.getByRole` over `container.querySelector`
 6. **Avoid testing implementation details** - Don't test private methods or state directly
+
+When changing code, keep tests in sync with new or changed behavior (see `.cursor/rules/after-change-checklist.mdc`).

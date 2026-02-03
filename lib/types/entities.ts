@@ -128,7 +128,10 @@ export type SubscriptionEventType =
   | "checkout.completed";
 
 /**
- * Subscription event record (audit log)
+ * Subscription event record (audit log).
+ * subscription_id is set for subscription lifecycle events (created/updated/canceled/renewed/payment_failed)
+ * and references subscriptions.id for JOINs; null for checkout.completed. purchase_id is for future
+ * one-time purchase events (e.g. purchase.completed).
  */
 export interface SubscriptionEvent {
   id: string;

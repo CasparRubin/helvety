@@ -30,13 +30,13 @@ describe("auth-redirect", () => {
       });
 
       it("should return localhost auth URL with server-side fallback", async () => {
-        // Simulate server-side (no window)
+        // Simulate server-side (no window); shared auth-redirect falls back to main site origin
         // @ts-expect-error - intentionally setting window to undefined for testing
         global.window = undefined;
         const { getLoginUrl } = await import("@/lib/auth-redirect");
         const result = getLoginUrl();
         expect(result).toBe(
-          "http://localhost:3002/login?redirect_uri=http%3A%2F%2Flocalhost%3A3001"
+          "http://localhost:3002/login?redirect_uri=http%3A%2F%2Flocalhost%3A3000"
         );
       });
 
@@ -67,12 +67,13 @@ describe("auth-redirect", () => {
       });
 
       it("should return production auth URL with server-side fallback", async () => {
+        // Shared auth-redirect falls back to main site when no window
         // @ts-expect-error - intentionally setting window to undefined for testing
         global.window = undefined;
         const { getLoginUrl } = await import("@/lib/auth-redirect");
         const result = getLoginUrl();
         expect(result).toBe(
-          "https://auth.helvety.com/login?redirect_uri=https%3A%2F%2Fstore.helvety.com"
+          "https://auth.helvety.com/login?redirect_uri=https%3A%2F%2Fhelvety.com"
         );
       });
     });
@@ -97,7 +98,7 @@ describe("auth-redirect", () => {
         const { getLogoutUrl } = await import("@/lib/auth-redirect");
         const result = getLogoutUrl();
         expect(result).toBe(
-          "http://localhost:3002/logout?redirect_uri=http%3A%2F%2Flocalhost%3A3001"
+          "http://localhost:3002/logout?redirect_uri=http%3A%2F%2Flocalhost%3A3000"
         );
       });
     });
@@ -120,7 +121,7 @@ describe("auth-redirect", () => {
         const { getLogoutUrl } = await import("@/lib/auth-redirect");
         const result = getLogoutUrl();
         expect(result).toBe(
-          "https://auth.helvety.com/logout?redirect_uri=https%3A%2F%2Fstore.helvety.com"
+          "https://auth.helvety.com/logout?redirect_uri=https%3A%2F%2Fhelvety.com"
         );
       });
     });
