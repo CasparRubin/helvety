@@ -8,6 +8,7 @@ This document describes the testing patterns and conventions used in this projec
 __tests__/
 ├── app/                  # Tests for app/ directory
 │   └── actions/          # Server action tests
+│       └── account-actions.test.ts
 ├── lib/                  # Library/utility tests
 │   ├── utils/            # Utility tests
 │   │   └── pricing.test.ts
@@ -124,7 +125,7 @@ it("should handle async", async () => {
 
 ## Coverage Thresholds
 
-The project enforces these coverage thresholds:
+The project enforces these coverage thresholds (see `vitest.config.ts`):
 
 - Lines: 70%
 - Functions: 70%
