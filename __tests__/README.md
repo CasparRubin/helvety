@@ -126,7 +126,7 @@ it("should handle async", async () => {
 
 ## Coverage Thresholds
 
-The project enforces these coverage thresholds:
+The project enforces these coverage thresholds (see `vitest.config.ts`):
 
 - Lines: 70%
 - Functions: 70%
