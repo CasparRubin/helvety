@@ -276,7 +276,10 @@ export function Navbar() {
                       className="w-full justify-start"
                       asChild
                     >
-                      <Link href="/account" onClick={() => setProfileOpen(false)}>
+                      <Link
+                        href="/account"
+                        onClick={() => setProfileOpen(false)}
+                      >
                         <Settings className="h-4 w-4" />
                         Account
                       </Link>

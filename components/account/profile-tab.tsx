@@ -219,10 +219,10 @@ export function ProfileTab() {
           <p className="text-muted-foreground text-sm">
             <strong>Need help?</strong> Contact us at{" "}
             <a
-              href="mailto:support@helvety.com"
+              href="mailto:contact@helvety.com"
               className="text-primary hover:underline"
             >
-              support@helvety.com
+              contact@helvety.com
             </a>{" "}
             or check our{" "}
             <a

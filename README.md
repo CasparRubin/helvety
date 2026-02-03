@@ -114,9 +114,11 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 This repository is public **for transparency purposes only** so users can verify the application's behavior and security.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
+
 - View and inspect the code
 
 You may NOT:
+
 - Clone, copy, or download this code for any purpose
 - Modify, adapt, or create derivative works
 - Redistribute or share this code

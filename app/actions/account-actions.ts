@@ -72,7 +72,10 @@ export async function updateUserEmail(
 
     // Check if new email is same as current
     if (user.email?.toLowerCase() === newEmail.toLowerCase()) {
-      return { success: false, error: "New email must be different from current email" };
+      return {
+        success: false,
+        error: "New email must be different from current email",
+      };
     }
 
     // Update email - Supabase will send confirmation email
@@ -82,12 +85,12 @@ export async function updateUserEmail(
 
     if (error) {
       logger.error("Error updating email:", error);
-      
+
       // Handle common errors
       if (error.message.includes("already registered")) {
         return { success: false, error: "This email is already in use" };
       }
-      
+
       return { success: false, error: error.message };
     }
 

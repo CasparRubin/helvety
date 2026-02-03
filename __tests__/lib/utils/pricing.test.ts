@@ -209,9 +209,9 @@ describe("pricing utilities", () => {
 
     describe("isSubscriptionTier", () => {
       it("should return true for monthly tiers", () => {
-        expect(
-          isSubscriptionTier({ interval: "monthly" } as PricingTier)
-        ).toBe(true);
+        expect(isSubscriptionTier({ interval: "monthly" } as PricingTier)).toBe(
+          true
+        );
       });
 
       it("should return true for yearly tiers", () => {

@@ -349,7 +349,9 @@ export function TenantsTab() {
           </Button>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button disabled={!hasAvailableSlots || subscriptions.length === 0}>
+              <Button
+                disabled={!hasAvailableSlots || subscriptions.length === 0}
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Tenant
               </Button>
