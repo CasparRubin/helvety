@@ -28,7 +28,12 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 3, 2026
+              Last updated:{" "}
+              {new Date().toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
             </p>
           </header>
 
@@ -210,9 +215,11 @@ export default function PrivacyPage() {
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
               When you create an account, we collect your email address for
-              authentication purposes. We use a secure two-step authentication
-              process: first a magic link sent to your email, then passkey
-              verification (biometrics via your device). We store:
+              authentication purposes. We use a secure authentication process:
+              new users (and existing users without a passkey) receive a
+              verification link by email, then passkey setup or verification;
+              existing users with a passkey sign in directly with their passkey
+              (biometrics via your device). We store:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -231,9 +238,10 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
-              Your email address is used solely for authentication (sending
-              magic links) and important account notifications. We do not share
-              your email with third parties for marketing purposes.
+              Your email address is used solely for authentication (verification
+              links for new users, passkey for returning users) and important
+              account notifications. We do not share your email with third
+              parties for marketing purposes.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -307,11 +315,12 @@ export default function PrivacyPage() {
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">Account Creation:</strong>{" "}
-                Creating an account requires your email address (for magic link
-                authentication) and passkey setup using your device&apos;s
-                biometrics (Face ID, fingerprint, or PIN). Your email is
-                necessary for account verification and recovery. A unique
-                identifier is generated automatically.
+                Creating an account requires your email address (for
+                verification links when signing up or recovering access) and
+                passkey setup using your device&apos;s biometrics (Face ID,
+                fingerprint, or PIN). Your email is necessary for account
+                verification and recovery. A unique identifier is generated
+                automatically.
               </li>
               <li>
                 <strong className="text-foreground">Purchases:</strong> When you
@@ -803,11 +812,11 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
-              We use Vercel Analytics, a privacy-respecting analytics service
-              provided by Vercel Inc., to understand how our Services are used.
-              Vercel Analytics does not use cookies and does not track users
-              across websites. It collects anonymized usage data to help us
-              improve the Services.
+              We use Vercel Analytics on helvety.com and auth.helvety.com only
+              (not on store.helvety.com or pdf.helvety.com). It is a
+              privacy-respecting analytics service provided by Vercel Inc. that
+              does not use cookies and does not track users across websites. It
+              collects anonymized usage data to help us improve those services.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Essential cookies do not require consent under Swiss and EU law as
@@ -1001,7 +1010,8 @@ export default function PrivacyPage() {
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
-                Update the &quot;Last updated&quot; date at the top of this page
+                The &quot;Last updated&quot; date at the top of this page is
+                displayed automatically (no manual update needed)
               </li>
               <li>
                 Notify you via email (if you have an account) or through a

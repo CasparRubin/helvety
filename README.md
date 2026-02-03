@@ -54,6 +54,10 @@ This project is built with modern web technologies:
 
 **Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, tests, and production build.
 
+**Shared code sync:** This repo is the source of truth for code shared with helvety-auth, helvety-store, and helvety-pdf. After changing any file listed in `.cursor/rules/shared-code-patterns.mdc`, run `node scripts/sync-shared.js` from this repo to copy updates to the other three. Note: `lib/constants.ts` is not synced to helvety-pdf (that app keeps TOAST_DURATIONS plus PDF-specific constants). Then run format/lint/tests in each target repo.
+
+**Development standards:** Project rules live in `.cursor/rules/` (code organization, JSDoc, shared code patterns, after-change checklist, official-docs-first). These rule files are kept in sync across helvety.com, helvety-auth, helvety-pdf, and helvety-store. When changing code, also update tests, comments, README, and legal pages as needed (see `after-change-checklist.mdc`).
+
 ## Developer
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.

@@ -252,7 +252,12 @@ export default function ImpressumPage() {
           {/* Last Updated */}
           <footer className="border-border border-t pt-8">
             <p className="text-muted-foreground text-center text-xs">
-              Last updated: February 3, 2026
+              Last updated:{" "}
+              {new Date().toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
             </p>
           </footer>
         </article>
