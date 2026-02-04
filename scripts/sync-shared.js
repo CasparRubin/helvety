@@ -9,11 +9,10 @@
  *   - scripts/generate-version.js
  *   - lib/utils.ts, lib/logger.ts, lib/constants.ts (helvety-auth and helvety-store only; helvety-pdf keeps app-specific constants)
  *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/rate-limit.ts, lib/csrf.ts
+ *   - lib/auth-guard.ts (helvety-store and helvety-pdf only; helvety-auth keeps its own with local redirect)
+ *   - lib/redirect-validation.ts
  *   - lib/crypto/* (entire directory)
  *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
- *   - __tests__/utils/server-only-mock.ts
- *
- * Test mock-factories.ts is not synced (apps may add app-specific mocks).
  */
 const fs = require("fs");
 const path = require("path");
@@ -30,19 +29,25 @@ const FILES = [
   "lib/auth-errors.ts",
   "lib/auth-logger.ts",
   "lib/auth-redirect.ts",
+  "lib/auth-guard.ts",
+  "lib/redirect-validation.ts",
   "lib/rate-limit.ts",
   "lib/csrf.ts",
   "components/theme-provider.tsx",
   "components/theme-switcher.tsx",
   "components/app-switcher.tsx",
-  "__tests__/utils/server-only-mock.ts",
 ];
 
 const DIRS = ["lib/crypto"];
 
-/** Files to skip per target (e.g. helvety-pdf keeps its own lib/constants.ts with app-specific exports). */
+/**
+ * Files to skip per target
+ * - helvety-pdf keeps its own lib/constants.ts with app-specific exports
+ * - helvety-auth keeps its own lib/auth-guard.ts (redirects to local /login instead of auth service)
+ */
 const TARGET_SKIP_FILES = {
   "helvety-pdf": ["lib/constants.ts"],
+  "helvety-auth": ["lib/auth-guard.ts"],
 };
 
 function copyFile(srcRoot, destRoot, file, targetRepo) {
@@ -109,4 +114,4 @@ for (const repo of TARGET_REPOS) {
   console.log("");
 }
 
-console.log("Done. Run format/lint/tests in each repo after syncing.");
+console.log("Done. Run format/lint in each repo after syncing.");

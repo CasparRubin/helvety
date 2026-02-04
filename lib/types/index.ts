@@ -6,6 +6,16 @@
  */
 
 // =============================================================================
+// SHARED ENTITY TYPES
+// =============================================================================
+export type {
+  UserAuthCredential,
+  UserPasskeyParams,
+  UserProfile,
+  ActionResponse,
+} from "./entities";
+
+// =============================================================================
 // CRYPTO TYPES
 // =============================================================================
 export type {
@@ -17,22 +27,3 @@ export type {
 } from "@/lib/crypto/types";
 
 export { CryptoErrorType, CryptoError } from "@/lib/crypto/types";
-
-// =============================================================================
-// ENCRYPTION KEY TYPES
-// =============================================================================
-
-/**
- * User's passkey encryption parameters (stored in DB, not secret)
- * Used for PRF-based key derivation from passkeys
- */
-export interface UserPasskeyParams {
-  user_id: string;
-  /** Base64-encoded PRF salt for HKDF */
-  prf_salt: string;
-  /** Base64url-encoded credential ID */
-  credential_id: string;
-  /** PRF version for future compatibility */
-  version: number;
-  created_at: string;
-}
