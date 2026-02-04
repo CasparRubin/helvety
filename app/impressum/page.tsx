@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Impressum | Helvety",
-  description: "Impressum for Helvety - Software and Apparel",
+  description: "Impressum for Helvety - Software and Subscriptions",
 };
 
 /** Legal notice / Impressum page for Helvety */
@@ -102,9 +102,9 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Business Activity</h2>
             <p className="text-muted-foreground text-sm">
-              Helvety by Rubin develops and sells software,
-              software-as-a-service (SaaS) subscriptions, and apparel. All
-              products are designed and/or developed in Switzerland.
+              Helvety by Rubin develops and sells software and
+              software-as-a-service (SaaS) subscriptions. All products are
+              designed and developed in Switzerland.
             </p>
           </section>
 

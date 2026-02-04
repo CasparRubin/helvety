@@ -50,11 +50,11 @@ This project is built with modern web technologies:
 - **[Framer Motion](https://www.framer.com/motion/)** - Animation library
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 
-**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and (for server-side admin) `SUPABASE_SECRET_KEY`. Node.js 20.9+ required.
+**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`, and (for server-side admin) `SUPABASE_SECRET_KEY`. Node.js 20.9+ required.
 
 **Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, and production build.
 
-**Shared code sync:** This repo is the source of truth for code shared with helvety-auth, helvety-store, and helvety-pdf. Shared files include `lib/utils.ts`, `lib/logger.ts`, `lib/auth-*.ts`, `lib/rate-limit.ts`, `lib/csrf.ts`, `lib/redirect-validation.ts`, `lib/crypto/*`, `components/theme-*.tsx`, `components/app-switcher.tsx`, `proxy.ts`, and `scripts/generate-version.js`. After changing any shared file (see `.cursor/rules/shared-code-patterns.mdc` for full list), run `node scripts/sync-shared.js` from this repo to copy updates to the other three. Exceptions: `lib/constants.ts` is not synced to helvety-pdf (keeps PDF-specific constants); `lib/auth-guard.ts` is not synced to helvety-auth (uses local redirect). Then run format/lint in each target repo.
+**Shared code sync:** This repo is the source of truth for code shared with helvety-auth, helvety-store, and helvety-pdf. Run `node scripts/sync-shared.js` (or `--dry-run` to preview) to copy shared files. See `.cursor/rules/shared-code-patterns.mdc` for the full list. Exceptions: `lib/constants.ts` is not synced to helvety-pdf; `lib/auth-guard.ts` and `hooks/use-auth-session.ts` are not synced to helvety-auth. Run format/lint in each target repo after syncing.
 
 **Development standards:** Project rules live in `.cursor/rules/` (code organization, JSDoc, shared code patterns, after-change checklist, official-docs-first). These rule files are kept in sync across helvety.com, helvety-auth, helvety-pdf, and helvety-store. When changing code, also update comments, README, and legal pages as needed (see `after-change-checklist.mdc`).
 

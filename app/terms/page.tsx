@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Helvety",
-  description: "Terms of Service for Helvety - Software and Apparel",
+  description: "Terms of Service for Helvety - Software and Subscriptions",
 };
 
 /** Terms of Service page for Helvety */
