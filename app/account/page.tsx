@@ -7,7 +7,9 @@ import { createClient } from "@/lib/supabase/server";
 
 import { AccountClient } from "./account-client";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Account",
   description: "Manage your profile and account settings",
 };

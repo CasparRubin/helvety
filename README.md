@@ -112,7 +112,7 @@ This project is built with modern web technologies:
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 - **[Stripe](https://stripe.com/)** - Payment processing and subscription management
 
-**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, (for server-side) `SUPABASE_SECRET_KEY`, and the Stripe variables listed in the template. Node.js 20.9+ required.
+**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`, (for server-side) `SUPABASE_SECRET_KEY`, and the Stripe variables listed in the template. Node.js 20.9+ required.
 
 **Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, and production build.
 

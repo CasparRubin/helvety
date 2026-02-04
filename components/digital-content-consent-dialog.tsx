@@ -29,9 +29,7 @@ import { Separator } from "@/components/ui/separator";
 
 const LEGAL_BASE = "https://helvety.com";
 
-/**
- *
- */
+/** Props for the DigitalContentConsentDialog component */
 interface DigitalContentConsentDialogProps {
   /** Whether the dialog is open */
   open: boolean;
@@ -200,8 +198,8 @@ export function DigitalContentConsentDialog({
         </DialogFooter>
 
         <p className="text-muted-foreground text-center text-xs">
-          You must confirm that you have read and understood our Terms and
-          Privacy Policy above before proceeding.
+          You must confirm that you have read and understood the Terms of
+          Service and Privacy Policy above before proceeding.
         </p>
       </DialogContent>
     </Dialog>

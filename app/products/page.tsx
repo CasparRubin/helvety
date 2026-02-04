@@ -5,7 +5,9 @@ import { ProductsCatalog } from "@/components/products";
 import { getLoginUrl } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Products",
   description: "Browse software, subscriptions, and apparel from Helvety",
 };

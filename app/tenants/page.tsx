@@ -7,7 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Tenants",
   description: "Manage your licensed SharePoint tenants for SPO Explorer",
 };

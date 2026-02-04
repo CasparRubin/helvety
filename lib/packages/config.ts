@@ -7,9 +7,7 @@
 // PACKAGE DEFINITIONS
 // =============================================================================
 
-/**
- *
- */
+/** Configuration for a downloadable package product */
 export interface PackageInfo {
   /** Display version (fallback when storagePathPrefix is set and resolver fails) */
   version: string;
@@ -53,19 +51,12 @@ export const PACKAGE_CONFIG: Record<string, PackageInfo> = {
 // HELPER FUNCTIONS
 // =============================================================================
 
-/**
- * Get package info by package ID
- * @param packageId
- */
+/** Returns package info for the given package ID, or undefined if not found */
 export function getPackageInfo(packageId: string): PackageInfo | undefined {
   return PACKAGE_CONFIG[packageId];
 }
 
-/**
- * Check if a tier is allowed to download a package
- * @param packageId
- * @param tierId
- */
+/** Checks if a subscription tier is allowed to download a specific package */
 export function isTierAllowedForPackage(
   packageId: string,
   tierId: string
@@ -75,9 +66,7 @@ export function isTierAllowedForPackage(
   return packageInfo.allowedTiers.includes(tierId);
 }
 
-/**
- * Get all package IDs
- */
+/** Returns all available package IDs from the configuration */
 export function getAllPackageIds(): string[] {
   return Object.keys(PACKAGE_CONFIG);
 }
