@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { getProductById } from "@/lib/data/products";
 import { logger } from "@/lib/logger";
@@ -66,6 +67,9 @@ export function CancelSubscriptionDialog({
   onOpenChange,
   onSuccess,
 }: CancelSubscriptionDialogProps) {
+  // CSRF token for security
+  const csrfToken = useCSRF();
+
   const [isLoading, setIsLoading] = useState(false);
   const [periodEndFromStripe, setPeriodEndFromStripe] = useState<string | null>(
     null
@@ -114,7 +118,7 @@ export function CancelSubscriptionDialog({
     setIsLoading(true);
 
     try {
-      const result = await cancelSubscription(subscription.id);
+      const result = await cancelSubscription(subscription.id, csrfToken);
 
       if (!result.success) {
         throw new Error(result.error ?? "Failed to cancel subscription");

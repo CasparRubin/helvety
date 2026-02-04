@@ -68,6 +68,39 @@ function validateAnonKey(key: string): boolean {
 }
 
 /**
+ * Validates that a Stripe publishable key has the correct format
+ * Security: Ensures the key is a publishable key (pk_*), not a secret key
+ * @param key - The key to validate
+ */
+function validateStripePublishableKey(key: string): boolean {
+  if (!key || typeof key !== "string") {
+    return false;
+  }
+
+  const trimmedKey = key.trim();
+
+  // Must not be empty
+  if (trimmedKey.length === 0) {
+    return false;
+  }
+
+  // Must start with "pk_" (test or live publishable key)
+  if (
+    !trimmedKey.startsWith("pk_test_") &&
+    !trimmedKey.startsWith("pk_live_")
+  ) {
+    return false;
+  }
+
+  // Should have reasonable length (typically 100+ characters)
+  if (trimmedKey.length < 20) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Environment variable schema validation
  */
 const envSchema = z.object({
@@ -85,6 +118,15 @@ const envSchema = z.object({
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be a valid Supabase anon/publishable key. " +
         "WARNING: Do NOT use the service role key here - it should only be used server-side and never exposed to the client. " +
         "Get your anon/publishable key from: Supabase Dashboard > Project Settings > API > Project API keys > anon/public key or Publishable key",
+    }),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z
+    .string()
+    .min(1, "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is required")
+    .refine((key) => validateStripePublishableKey(key), {
+      message:
+        "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY must be a valid Stripe publishable key (starts with pk_test_ or pk_live_). " +
+        "WARNING: Never use the secret key (sk_*) here - it should only be used server-side. " +
+        "Get your publishable key from: Stripe Dashboard > Developers > API keys > Publishable key",
     }),
 });
 
@@ -111,6 +153,8 @@ export function getValidatedEnv(): Env {
       process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "",
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ?? "",
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ?? "",
   };
 
   // Development: Check if variables are missing before validation
@@ -125,6 +169,12 @@ export function getValidatedEnv(): Env {
       logger.warn(
         "⚠️  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is not set. " +
           "Please create a .env.local file with your Supabase publishable key."
+      );
+    }
+    if (!rawEnv.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+      logger.warn(
+        "⚠️  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set. " +
+          "Please create a .env.local file with your Stripe publishable key."
       );
     }
   }
@@ -208,6 +258,56 @@ export function getSupabaseKey(): string {
     // Remind developers about security (only log once to avoid spam)
     if (key && validateAnonKey(key) && !hasLoggedValidationSuccess) {
       hasLoggedValidationSuccess = true;
+    }
+  }
+
+  return key;
+}
+
+/**
+ * Gets Stripe publishable key with validation
+ * Security: Ensures the key is a publishable key (pk_*), not a secret key
+ *
+ * WARNING: This key will be exposed to the client. Only use the publishable key here.
+ * Never use the secret key (sk_*) in NEXT_PUBLIC_ environment variables.
+ */
+export function getStripePublishableKey(): string {
+  const env = getValidatedEnv();
+  const key = env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
+  // Additional runtime check (in case validation was bypassed)
+  if (!validateStripePublishableKey(key)) {
+    const errorMessage =
+      "SECURITY WARNING: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY does not appear to be a valid publishable key. " +
+      "Ensure you are using the publishable key (pk_*), not the secret key (sk_*). " +
+      "Secret keys should NEVER be exposed to the client.";
+
+    logger.error(errorMessage);
+
+    // In development, throw an error to prevent accidental deployment
+    if (process.env.NODE_ENV === "development") {
+      throw new Error(
+        `${errorMessage}\n\n` +
+          "This error is thrown in development to prevent security issues. " +
+          "Please check your .env.local file and ensure you're using the correct key.\n" +
+          "Get your publishable key from: Stripe Dashboard > Developers > API keys"
+      );
+    }
+  }
+
+  // Development warning for common mistakes
+  if (process.env.NODE_ENV === "development") {
+    // Check for accidental use of secret key
+    if (key.startsWith("sk_")) {
+      logger.error(
+        "❌  CRITICAL: Your NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is a SECRET KEY (sk_*). " +
+          "This will expose your secret key to the client! " +
+          "Please use the publishable key (pk_*) instead."
+      );
+      throw new Error(
+        "SECURITY ERROR: Secret key used as publishable key. " +
+          "Replace NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY with your publishable key (pk_*)."
+      );
     }
   }
 

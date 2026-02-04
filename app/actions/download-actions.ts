@@ -5,6 +5,8 @@
  * Validates subscription status and generates signed download URLs
  */
 
+import { z } from "zod";
+
 import { logger } from "@/lib/logger";
 import { getPackageInfo, isTierAllowedForPackage } from "@/lib/packages/config";
 import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
@@ -12,6 +14,23 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import type { ActionResponse } from "@/lib/types/entities";
+
+// =============================================================================
+// INPUT VALIDATION SCHEMAS
+// =============================================================================
+
+/**
+ * Package ID validation schema
+ * Package IDs are lowercase alphanumeric with hyphens
+ */
+const PackageIdSchema = z
+  .string()
+  .min(1, "Package ID is required")
+  .max(100, "Package ID too long")
+  .regex(
+    /^[a-z0-9-]+$/,
+    "Package ID must be lowercase alphanumeric with hyphens"
+  );
 
 // =============================================================================
 // TYPES
@@ -44,6 +63,12 @@ export async function getPackageDownloadUrl(
   packageId: string
 ): Promise<ActionResponse<PackageDownloadInfo>> {
   try {
+    // Validate input
+    const parseResult = PackageIdSchema.safeParse(packageId);
+    if (!parseResult.success) {
+      return { success: false, error: "Invalid package ID" };
+    }
+
     // Get package info
     const packageInfo = getPackageInfo(packageId);
     if (!packageInfo) {
@@ -140,6 +165,12 @@ export async function getPackageMetadata(
   ActionResponse<{ version: string; filename: string; productName: string }>
 > {
   try {
+    // Validate input
+    const parseResult = PackageIdSchema.safeParse(packageId);
+    if (!parseResult.success) {
+      return { success: false, error: "Invalid package ID" };
+    }
+
     const packageInfo = getPackageInfo(packageId);
     if (!packageInfo) {
       return { success: false, error: "Package not found" };

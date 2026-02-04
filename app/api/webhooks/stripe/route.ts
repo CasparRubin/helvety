@@ -11,6 +11,7 @@ import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import {
   stripe,
+  getStripeWebhookSecret,
   getProductFromPriceId,
   isHandledWebhookEvent,
 } from "@/lib/stripe";
@@ -18,12 +19,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { NextRequest } from "next/server";
 import type Stripe from "stripe";
-
-// =============================================================================
-// WEBHOOK SECRET
-// =============================================================================
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 // =============================================================================
 // POST /api/webhooks/stripe - Handle Stripe webhooks
@@ -35,8 +30,12 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
  * @param request - Request body must be raw (for signature verification)
  */
 export async function POST(request: NextRequest) {
-  if (!webhookSecret) {
-    logger.error("STRIPE_WEBHOOK_SECRET is not configured");
+  // Get validated webhook secret (throws if not configured or invalid format)
+  let webhookSecret: string;
+  try {
+    webhookSecret = getStripeWebhookSecret();
+  } catch (error) {
+    logger.error("STRIPE_WEBHOOK_SECRET validation failed:", error);
     return NextResponse.json(
       { error: "Webhook secret not configured" },
       { status: 500 }

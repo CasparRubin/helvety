@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { getProductById } from "@/lib/data/products";
 import { logger } from "@/lib/logger";
@@ -131,6 +132,9 @@ function SubscriptionsListSkeleton() {
  * Renders the subscriptions tab: compact list of active subscriptions with actions and billing portal link.
  */
 export function SubscriptionsTab() {
+  // CSRF token for security
+  const csrfToken = useCSRF();
+
   // Subscriptions state
   const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
   const [isLoadingSubscriptions, setIsLoadingSubscriptions] =
@@ -237,7 +241,7 @@ export function SubscriptionsTab() {
     setActionLoadingId(subscription.id);
 
     try {
-      const result = await reactivateSubscription(subscription.id);
+      const result = await reactivateSubscription(subscription.id, csrfToken);
 
       if (!result.success) {
         throw new Error(result.error ?? "Failed to reactivate subscription");

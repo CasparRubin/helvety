@@ -9,6 +9,7 @@ import { StoreNav } from "@/components/store-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { generateCSRFToken } from "@/lib/csrf";
 
 import type { Metadata, Viewport } from "next";
 
@@ -96,11 +97,14 @@ export const metadata: Metadata = {
 /**
  * Root layout: NavbarWrapper provides sticky header, scrollable main, sticky footer.
  */
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Generate CSRF token for the session
+  const csrfToken = await generateCSRFToken();
+
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
@@ -112,7 +116,7 @@ export default function RootLayout({
         >
           <AuthTokenHandler />
           <TooltipProvider>
-            <Providers>
+            <Providers csrfToken={csrfToken}>
               <NavbarWrapper>{children}</NavbarWrapper>
             </Providers>
           </TooltipProvider>

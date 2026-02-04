@@ -5,10 +5,26 @@
  * Handle user profile updates like email changes
  */
 
+import { z } from "zod";
+
+import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import type { ActionResponse } from "@/lib/types/entities";
+
+// =============================================================================
+// INPUT VALIDATION SCHEMAS
+// =============================================================================
+
+/**
+ * Email validation schema
+ */
+const EmailSchema = z
+  .string()
+  .min(1, "Email is required")
+  .max(254, "Email too long")
+  .email("Invalid email format");
 
 /**
  * Get current user profile information
@@ -49,16 +65,31 @@ export async function getCurrentUser(): Promise<
  * Update user email address
  * Supabase will send a confirmation email to the new address
  * The user must confirm both the old and new email addresses
- * @param newEmail
+ *
+ * @param newEmail - The new email address
+ * @param csrfToken - CSRF token for security validation
  */
 export async function updateUserEmail(
-  newEmail: string
+  newEmail: string,
+  csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
+    // Validate CSRF token (required)
+    try {
+      await requireCSRFToken(csrfToken);
+    } catch {
+      return {
+        success: false,
+        error: "Security validation failed. Please refresh and try again.",
+      };
+    }
+
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmail)) {
-      return { success: false, error: "Invalid email format" };
+    const parseResult = EmailSchema.safeParse(newEmail);
+    if (!parseResult.success) {
+      const errorMessage =
+        parseResult.error.issues[0]?.message ?? "Invalid email";
+      return { success: false, error: errorMessage };
     }
 
     const supabase = await createServerComponentClient();

@@ -2,7 +2,7 @@
  * Stripe module exports
  */
 
-export { stripe, verifyStripeConfig } from "./client";
+export { stripe, verifyStripeConfig, getStripeWebhookSecret } from "./client";
 export {
   STRIPE_PRICE_IDS,
   PRICE_ID_TO_PRODUCT,

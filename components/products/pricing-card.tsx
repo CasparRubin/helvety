@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { cn } from "@/lib/utils";
@@ -90,6 +91,9 @@ export function PricingCard({
   userSubscription,
   onReactivate,
 }: PricingCardProps) {
+  // CSRF token for security
+  const csrfToken = useCSRF();
+
   const [isLoading, setIsLoading] = useState(false);
   const [isReactivating, setIsReactivating] = useState(false);
   const [showConsentDialog, setShowConsentDialog] = useState(false);
@@ -135,7 +139,10 @@ export function PricingCard({
     setIsReactivating(true);
 
     try {
-      const result = await reactivateSubscription(userSubscription.id);
+      const result = await reactivateSubscription(
+        userSubscription.id,
+        csrfToken
+      );
 
       if (!result.success) {
         throw new Error(result.error ?? "Failed to reactivate subscription");

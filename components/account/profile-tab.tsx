@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 
@@ -30,9 +31,12 @@ interface UserData {
 }
 
 /**
- *
+ * Profile tab component for account settings
  */
 export function ProfileTab() {
+  // CSRF token for security
+  const csrfToken = useCSRF();
+
   // User state
   const [user, setUser] = React.useState<UserData | null>(null);
   const [isLoadingUser, setIsLoadingUser] = React.useState(true);
@@ -82,7 +86,7 @@ export function ProfileTab() {
 
     setIsChangingEmail(true);
     try {
-      const result = await updateUserEmail(newEmail.trim());
+      const result = await updateUserEmail(newEmail.trim(), csrfToken);
 
       if (!result.success) {
         setEmailError(result.error ?? "Failed to update email");

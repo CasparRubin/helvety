@@ -54,6 +54,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 
@@ -77,6 +78,9 @@ interface SpoSubscription {
  * with Add Tenant and Refresh in the card header above the list.
  */
 export function TenantsTab() {
+  // CSRF token for security
+  const csrfToken = useCSRF();
+
   const [tenants, setTenants] = React.useState<
     LicensedTenantWithSubscription[]
   >([]);
@@ -161,11 +165,14 @@ export function TenantsTab() {
 
     setIsAdding(true);
     try {
-      const result = await registerTenant({
-        tenantId: newTenantId.trim(),
-        displayName: newDisplayName.trim() || undefined,
-        subscriptionId: selectedSubscription,
-      });
+      const result = await registerTenant(
+        {
+          tenantId: newTenantId.trim(),
+          displayName: newDisplayName.trim() || undefined,
+          subscriptionId: selectedSubscription,
+        },
+        csrfToken
+      );
 
       if (result.success) {
         toast.success("Tenant registered successfully", {
@@ -196,7 +203,7 @@ export function TenantsTab() {
 
     setDeletingId(tenantToDelete.id);
     try {
-      const result = await removeTenant(tenantToDelete.id);
+      const result = await removeTenant(tenantToDelete.id, csrfToken);
 
       if (result.success) {
         toast.success("Tenant removed successfully", {
@@ -241,7 +248,11 @@ export function TenantsTab() {
   async function saveEdit(tenantId: string) {
     setIsSavingEdit(true);
     try {
-      const result = await updateTenant(tenantId, editDisplayName.trim());
+      const result = await updateTenant(
+        tenantId,
+        editDisplayName.trim(),
+        csrfToken
+      );
 
       if (result.success) {
         toast.success("Tenant updated successfully", {

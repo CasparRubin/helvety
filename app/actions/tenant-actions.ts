@@ -5,6 +5,9 @@
  * Manage licensed tenants for Helvety products
  */
 
+import { z } from "zod";
+
+import { requireCSRFToken } from "@/lib/csrf";
 import { getMaxTenantsForTier } from "@/lib/license/validation";
 import { logger } from "@/lib/logger";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
@@ -17,6 +20,45 @@ import type {
 } from "@/lib/types/entities";
 
 const SPO_EXPLORER_PRODUCT_ID = "helvety-spo-explorer";
+
+// =============================================================================
+// INPUT VALIDATION SCHEMAS
+// =============================================================================
+
+/**
+ * UUID validation schema
+ */
+const UUIDSchema = z.string().uuid("Invalid ID format");
+
+/**
+ * Tenant ID validation schema
+ * SharePoint tenant IDs are lowercase alphanumeric with hyphens
+ */
+const TenantIdSchema = z
+  .string()
+  .min(1, "Tenant ID is required")
+  .max(63, "Tenant ID too long")
+  .regex(
+    /^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$/,
+    "Tenant ID must be lowercase alphanumeric, may contain hyphens, and cannot start or end with a hyphen"
+  );
+
+/**
+ * Display name validation schema
+ */
+const DisplayNameSchema = z
+  .string()
+  .max(200, "Display name too long")
+  .optional();
+
+/**
+ * Register tenant request validation schema
+ */
+const RegisterTenantRequestSchema = z.object({
+  tenantId: TenantIdSchema,
+  displayName: DisplayNameSchema,
+  subscriptionId: UUIDSchema,
+});
 
 // =============================================================================
 // TENANT QUERIES
@@ -167,12 +209,34 @@ export async function getSpoExplorerSubscriptions(): Promise<
 
 /**
  * Register a new tenant
- * @param request
+ *
+ * @param request - The tenant registration request
+ * @param csrfToken - CSRF token for security validation
  */
 export async function registerTenant(
-  request: RegisterTenantRequest
+  request: RegisterTenantRequest,
+  csrfToken: string
 ): Promise<ActionResponse<LicensedTenant>> {
   try {
+    // Validate CSRF token (required)
+    try {
+      await requireCSRFToken(csrfToken);
+    } catch {
+      return {
+        success: false,
+        error: "Security validation failed. Please refresh and try again.",
+      };
+    }
+
+    // Validate input with Zod
+    const parseResult = RegisterTenantRequestSchema.safeParse(request);
+    if (!parseResult.success) {
+      const errorMessage =
+        parseResult.error.issues[0]?.message ?? "Invalid request";
+      logger.warn("Invalid tenant registration request:", parseResult.error);
+      return { success: false, error: errorMessage };
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },
@@ -182,27 +246,10 @@ export async function registerTenant(
       return { success: false, error: "Not authenticated" };
     }
 
-    const { tenantId, displayName, subscriptionId } = request;
+    const { tenantId, displayName, subscriptionId } = parseResult.data;
 
-    // Validate tenant ID
-    if (!tenantId || typeof tenantId !== "string") {
-      return { success: false, error: "Tenant ID is required" };
-    }
-
-    // Validate tenant ID format
+    // Normalize tenant ID (already validated by schema)
     const normalizedTenantId = tenantId.toLowerCase().trim();
-    if (!/^[a-zA-Z0-9-]+$/.test(normalizedTenantId)) {
-      return {
-        success: false,
-        error:
-          "Invalid tenant ID format. Only letters, numbers, and hyphens are allowed.",
-      };
-    }
-
-    // Validate subscription ID
-    if (!subscriptionId) {
-      return { success: false, error: "Subscription ID is required" };
-    }
 
     // Verify the subscription belongs to this user and is for SPO Explorer
     const { data: subscription, error: subError } = await supabase
@@ -299,14 +346,38 @@ export async function registerTenant(
 
 /**
  * Update a tenant's display name
- * @param tenantId
- * @param displayName
+ *
+ * @param tenantId - The tenant ID to update
+ * @param displayName - The new display name
+ * @param csrfToken - CSRF token for security validation
  */
 export async function updateTenant(
   tenantId: string,
-  displayName: string
+  displayName: string,
+  csrfToken: string
 ): Promise<ActionResponse<LicensedTenant>> {
   try {
+    // Validate CSRF token (required)
+    try {
+      await requireCSRFToken(csrfToken);
+    } catch {
+      return {
+        success: false,
+        error: "Security validation failed. Please refresh and try again.",
+      };
+    }
+
+    // Validate inputs
+    const tenantIdResult = UUIDSchema.safeParse(tenantId);
+    if (!tenantIdResult.success) {
+      return { success: false, error: "Invalid tenant ID" };
+    }
+
+    const displayNameResult = DisplayNameSchema.safeParse(displayName);
+    if (!displayNameResult.success) {
+      return { success: false, error: "Display name too long" };
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },
@@ -340,12 +411,31 @@ export async function updateTenant(
 
 /**
  * Remove a tenant
- * @param tenantId
+ *
+ * @param tenantId - The tenant ID to remove
+ * @param csrfToken - CSRF token for security validation
  */
 export async function removeTenant(
-  tenantId: string
+  tenantId: string,
+  csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
+    // Validate CSRF token (required)
+    try {
+      await requireCSRFToken(csrfToken);
+    } catch {
+      return {
+        success: false,
+        error: "Security validation failed. Please refresh and try again.",
+      };
+    }
+
+    // Validate input
+    const parseResult = UUIDSchema.safeParse(tenantId);
+    if (!parseResult.success) {
+      return { success: false, error: "Invalid tenant ID" };
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },

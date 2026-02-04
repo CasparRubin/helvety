@@ -5,6 +5,9 @@
  * Query and manage user subscriptions
  */
 
+import { z } from "zod";
+
+import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -17,6 +20,27 @@ import type {
   UserSubscriptionSummary,
   SubscriptionStatus,
 } from "@/lib/types/entities";
+
+// =============================================================================
+// INPUT VALIDATION SCHEMAS
+// =============================================================================
+
+/**
+ * UUID validation schema for subscription IDs
+ */
+const UUIDSchema = z.string().uuid("Invalid subscription ID format");
+
+/**
+ * Product ID validation schema
+ */
+const ProductIdSchema = z
+  .string()
+  .min(1, "Product ID is required")
+  .max(100, "Product ID too long")
+  .regex(
+    /^[a-z0-9-]+$/,
+    "Product ID must be lowercase alphanumeric with hyphens"
+  );
 
 /** Stripe subscription shape with period fields (SDK type may omit these) */
 type StripeSubWithPeriod = {
@@ -157,6 +181,12 @@ export async function hasActiveSubscription(
   productId: string
 ): Promise<ActionResponse<boolean>> {
   try {
+    // Validate input
+    const parseResult = ProductIdSchema.safeParse(productId);
+    if (!parseResult.success) {
+      return { success: false, error: "Invalid product ID" };
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },
@@ -260,12 +290,31 @@ export async function getUserSubscriptionSummary(): Promise<
 
 /**
  * Cancel a subscription at period end
- * @param subscriptionId
+ *
+ * @param subscriptionId - The subscription ID to cancel
+ * @param csrfToken - CSRF token for security validation
  */
 export async function cancelSubscription(
-  subscriptionId: string
+  subscriptionId: string,
+  csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
+    // Validate CSRF token (required)
+    try {
+      await requireCSRFToken(csrfToken);
+    } catch {
+      return {
+        success: false,
+        error: "Security validation failed. Please refresh and try again.",
+      };
+    }
+
+    // Validate input
+    const parseResult = UUIDSchema.safeParse(subscriptionId);
+    if (!parseResult.success) {
+      return { success: false, error: "Invalid subscription ID" };
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },
@@ -321,6 +370,12 @@ export async function getSubscriptionPeriodEnd(
   subscriptionId: string
 ): Promise<ActionResponse<{ current_period_end: string | null }>> {
   try {
+    // Validate input
+    const parseResult = UUIDSchema.safeParse(subscriptionId);
+    if (!parseResult.success) {
+      return { success: false, error: "Invalid subscription ID" };
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },
@@ -361,12 +416,31 @@ export async function getSubscriptionPeriodEnd(
 
 /**
  * Reactivate a subscription that was scheduled for cancellation
- * @param subscriptionId
+ *
+ * @param subscriptionId - The subscription ID to reactivate
+ * @param csrfToken - CSRF token for security validation
  */
 export async function reactivateSubscription(
-  subscriptionId: string
+  subscriptionId: string,
+  csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
+    // Validate CSRF token (required)
+    try {
+      await requireCSRFToken(csrfToken);
+    } catch {
+      return {
+        success: false,
+        error: "Security validation failed. Please refresh and try again.",
+      };
+    }
+
+    // Validate input
+    const parseResult = UUIDSchema.safeParse(subscriptionId);
+    if (!parseResult.success) {
+      return { success: false, error: "Invalid subscription ID" };
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },
@@ -422,7 +496,8 @@ export async function reactivateSubscription(
 
 /**
  * Get Stripe Customer Portal URL for managing subscription
- * @param returnUrl
+ *
+ * @param returnUrl - Optional URL to return to after portal session (defaults to /account)
  */
 export async function getCustomerPortalUrl(
   returnUrl?: string

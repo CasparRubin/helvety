@@ -38,6 +38,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 
@@ -64,6 +65,9 @@ export function SubscriptionsSheet({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
 }: SubscriptionsSheetProps) {
+  // CSRF token for security
+  const csrfToken = useCSRF();
+
   // Internal state for uncontrolled mode
   const [internalOpen, setInternalOpen] = useState(false);
 
@@ -139,7 +143,7 @@ export function SubscriptionsSheet({
     setActionLoadingId(subscription.id);
 
     try {
-      const result = await reactivateSubscription(subscription.id);
+      const result = await reactivateSubscription(subscription.id, csrfToken);
 
       if (!result.success) {
         throw new Error(result.error ?? "Failed to reactivate subscription");

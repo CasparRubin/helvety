@@ -51,6 +51,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { getProductBySlug } from "@/lib/data/products";
 import { logger } from "@/lib/logger";
@@ -398,6 +399,9 @@ function PricingCard({
   userSubscription,
   onReactivate,
 }: PricingCardProps) {
+  // CSRF token for security
+  const csrfToken = useCSRF();
+
   const [isLoading, setIsLoading] = useState(false);
   const [isReactivating, setIsReactivating] = useState(false);
   const [showConsentDialog, setShowConsentDialog] = useState(false);
@@ -437,7 +441,10 @@ function PricingCard({
     setIsReactivating(true);
 
     try {
-      const result = await reactivateSubscription(userSubscription.id);
+      const result = await reactivateSubscription(
+        userSubscription.id,
+        csrfToken
+      );
 
       if (!result.success) {
         throw new Error(result.error ?? "Failed to reactivate subscription");

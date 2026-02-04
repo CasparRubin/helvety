@@ -4,6 +4,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 
@@ -55,20 +56,36 @@ const PasskeyParamsSchema = z.object({
 /**
  * Save user's passkey encryption params (PRF salt and credential ID)
  *
- * Security: Input is validated using Zod schema to prevent malformed
- * or malicious data from being stored.
+ * Security:
+ * - CSRF token validation required
+ * - Input is validated using Zod schema to prevent malformed or malicious data
+ * - Requires authenticated user
  *
  * @param params - The passkey parameters object
  * @param params.prf_salt - Base64-encoded PRF salt for HKDF
  * @param params.credential_id - Base64url-encoded credential ID
  * @param params.version - PRF version number
+ * @param csrfToken - CSRF token for security validation
  */
-export async function savePasskeyParams(params: {
-  prf_salt: string;
-  credential_id: string;
-  version: number;
-}): Promise<EncryptionActionResponse> {
+export async function savePasskeyParams(
+  params: {
+    prf_salt: string;
+    credential_id: string;
+    version: number;
+  },
+  csrfToken: string
+): Promise<EncryptionActionResponse> {
   try {
+    // Validate CSRF token (required)
+    try {
+      await requireCSRFToken(csrfToken);
+    } catch {
+      return {
+        success: false,
+        error: "Security validation failed. Please refresh and try again.",
+      };
+    }
+
     // Validate input parameters
     const validationResult = PasskeyParamsSchema.safeParse(params);
     if (!validationResult.success) {
