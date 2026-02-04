@@ -5,7 +5,7 @@ import "server-only";
 import { z } from "zod";
 
 import { logAuthEvent } from "@/lib/auth-logger";
-import { validateCSRFToken } from "@/lib/csrf";
+import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 
@@ -58,15 +58,15 @@ const PasskeyParamsSchema = z.object({
  * Save user's passkey encryption params (PRF salt and credential ID)
  *
  * Security:
+ * - CSRF token validation required
  * - Input is validated using Zod schema to prevent malformed or malicious data
- * - Optional CSRF token validation for additional security
  * - Requires authenticated user
  *
  * @param params - The passkey parameters object
  * @param params.prf_salt - Base64-encoded PRF salt for HKDF
  * @param params.credential_id - Base64url-encoded credential ID
  * @param params.version - PRF version number
- * @param csrfToken - Optional CSRF token for additional security
+ * @param csrfToken - CSRF token for security validation
  */
 export async function savePasskeyParams(
   params: {
@@ -74,21 +74,20 @@ export async function savePasskeyParams(
     credential_id: string;
     version: number;
   },
-  csrfToken?: string
+  csrfToken: string
 ): Promise<EncryptionActionResponse> {
   try {
-    // Validate CSRF token if provided
-    if (csrfToken) {
-      const isValidCSRF = await validateCSRFToken(csrfToken);
-      if (!isValidCSRF) {
-        logAuthEvent("csrf_validation_failed", {
-          metadata: { action: "savePasskeyParams" },
-        });
-        return {
-          success: false,
-          error: "Security validation failed. Please refresh and try again.",
-        };
-      }
+    // Validate CSRF token (required)
+    try {
+      await requireCSRFToken(csrfToken);
+    } catch {
+      logAuthEvent("csrf_validation_failed", {
+        metadata: { action: "savePasskeyParams" },
+      });
+      return {
+        success: false,
+        error: "Security validation failed. Please refresh and try again.",
+      };
     }
 
     // Validate input parameters
