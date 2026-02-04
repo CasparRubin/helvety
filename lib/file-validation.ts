@@ -147,13 +147,15 @@ function getFileExtension(filename: string): string {
  * Validates if a file type is a valid PDF.
  * Checks MIME type, extension, and optionally magic number.
  *
+ * Security: Magic number validation is enabled by default to prevent MIME type spoofing.
+ *
  * @param file - The file to validate
- * @param checkMagicNumber - Whether to verify the PDF magic number (default: false for performance)
+ * @param checkMagicNumber - Whether to verify the PDF magic number (default: true for security)
  * @returns Promise that resolves to true if the file is a valid PDF, false otherwise
  */
 export async function isValidPdfFile(
   file: File,
-  checkMagicNumber: boolean = false
+  checkMagicNumber: boolean = true
 ): Promise<boolean> {
   const mimeType = file.type.toLowerCase();
   const extension = getFileExtension(file.name);
@@ -209,13 +211,15 @@ export function isValidPdfFileSync(file: File): boolean {
  * Validates if a file type is a valid image.
  * Checks MIME type, extension, and optionally magic number.
  *
+ * Security: Magic number validation is enabled by default to prevent MIME type spoofing.
+ *
  * @param file - The file to validate
- * @param checkMagicNumber - Whether to verify the image magic number (default: false for performance)
+ * @param checkMagicNumber - Whether to verify the image magic number (default: true for security)
  * @returns Promise that resolves to true if the file is a valid image, false otherwise
  */
 export async function isValidImageFile(
   file: File,
-  checkMagicNumber: boolean = false
+  checkMagicNumber: boolean = true
 ): Promise<boolean> {
   const mimeType = file.type.toLowerCase();
   const extension = getFileExtension(file.name);
