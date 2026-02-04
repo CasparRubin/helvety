@@ -1,7 +1,7 @@
 "use client";
 
 import { Fingerprint, Lock, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -36,8 +36,9 @@ export function EncryptionUnlock({
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const hasAttemptedAutoUnlock = useRef(false);
 
-  const handleUnlock = async () => {
+  const handleUnlock = useCallback(async () => {
     setError("");
     setIsLoading(true);
 
@@ -60,7 +61,20 @@ export function EncryptionUnlock({
       setError(message);
       setIsLoading(false);
     }
-  };
+  }, [unlockWithPasskey, userId, passkeyParams, onUnlock]);
+
+  // Auto-trigger passkey popup on mount
+  useEffect(() => {
+    if (!hasAttemptedAutoUnlock.current) {
+      hasAttemptedAutoUnlock.current = true;
+      // Use timeout to defer execution (avoids synchronous setState in effect)
+      const timer = setTimeout(() => {
+        void handleUnlock();
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [handleUnlock]);
 
   return (
     <div className="flex w-full max-w-md flex-col items-center">

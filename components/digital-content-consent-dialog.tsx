@@ -92,7 +92,7 @@ export function DigitalContentConsentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto">
           {/* Section 1: Terms & Policy */}
           <div className="space-y-3">
             <p className="text-muted-foreground text-center text-xs font-medium tracking-wider uppercase">

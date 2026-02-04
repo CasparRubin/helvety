@@ -3,6 +3,7 @@
  * Re-exports all server actions for convenient importing
  */
 
+export * from "./account-actions";
 export * from "./auth-actions";
 export * from "./download-actions";
 export * from "./encryption-actions";

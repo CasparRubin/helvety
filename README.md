@@ -87,7 +87,8 @@ Browser requirements for encryption:
 This application implements comprehensive security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed)
-- **Server Layout Guards** - Authentication checks in Server Components (CVE-2025-29927 compliant)
+- **Server Layout Guards** - Authentication checks in Server Components via `lib/auth-guard.ts` (CVE-2025-29927 compliant)
+- **Redirect URI Validation** - All redirect URIs validated against allowlist via `lib/redirect-validation.ts` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
 - **Idle Timeout** - Automatic session expiration after 30 minutes of inactivity
@@ -110,13 +111,12 @@ This project is built with modern web technologies:
 - **[Zod](https://zod.dev/)** - TypeScript-first schema validation
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 - **[Stripe](https://stripe.com/)** - Payment processing and subscription management
-- **[Vitest](https://vitest.dev/)** - Unit and integration testing
 
 **Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, (for server-side) `SUPABASE_SECRET_KEY`, and the Stripe variables listed in the template. Node.js 20.9+ required.
 
-**Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, tests, and production build.
+**Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, and production build.
 
-**Development standards:** See `.cursor/rules/` for code organization, JSDoc, shared code patterns, after-change checklist (tests, comments, README, legal), and official-docs-first. When editing shared code, run sync from helvety.com (see that repo's README).
+**Development standards:** See `.cursor/rules/` for code organization, JSDoc, shared code patterns, after-change checklist (comments, README, legal), and official-docs-first. When editing shared code, run sync from helvety.com (see that repo's README).
 
 ## Developer
 

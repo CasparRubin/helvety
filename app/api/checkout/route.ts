@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     const baseUrl =
       request.headers.get("origin") ??
       process.env.NEXT_PUBLIC_APP_URL ??
-      "http://localhost:3000";
+      "https://store.helvety.com";
     const productSlug = productInfo.productId; // e.g., 'helvety-pdf'
 
     // Security: Validate custom URLs to prevent open redirect attacks

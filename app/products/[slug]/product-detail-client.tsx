@@ -262,7 +262,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                 Choose the plan that works best for you
               </p>
             </div>
-            <div className="flex flex-wrap gap-6">
+            <div className="flex flex-wrap justify-center gap-6">
               {monthlyTiers.map((tier) => {
                 // Find subscription for this tier
                 const tierSubscription =

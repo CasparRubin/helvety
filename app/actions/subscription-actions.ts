@@ -453,7 +453,7 @@ export async function getCustomerPortalUrl(
       customer: profile.stripe_customer_id,
       return_url:
         returnUrl ??
-        `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/account`,
+        `${process.env.NEXT_PUBLIC_APP_URL ?? "https://store.helvety.com"}/account`,
     });
 
     return { success: true, data: portalSession.url };

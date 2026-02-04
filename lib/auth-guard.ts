@@ -11,7 +11,7 @@ import type { User } from "@supabase/supabase-js";
  * Server-side authentication guard for protected routes.
  *
  * Use this in Server Components or Server Actions to ensure the user is authenticated.
- * Redirects to the login page if not authenticated.
+ * Redirects to the auth service login page if not authenticated.
  *
  * IMPORTANT: Per CVE-2025-29927, authentication checks should be done in
  * Server Layout Guards or Route Handlers, NOT in proxy.ts.
@@ -22,9 +22,6 @@ import type { User } from "@supabase/supabase-js";
  *   await requireAuth();
  *   return <>{children}</>;
  * }
- *
- * @returns The authenticated user
- * @throws Redirects to login if not authenticated
  */
 export async function requireAuth(): Promise<User> {
   const supabase = await createClient();
@@ -34,6 +31,7 @@ export async function requireAuth(): Promise<User> {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
+    // Redirect to auth service login
     redirect(getLoginUrl());
   }
 
@@ -52,8 +50,6 @@ export async function requireAuth(): Promise<User> {
  * if (user) {
  *   // Show personalized content
  * }
- *
- * @returns The user if authenticated, null otherwise
  */
 export async function getOptionalUser(): Promise<User | null> {
   const supabase = await createClient();
@@ -68,8 +64,6 @@ export async function getOptionalUser(): Promise<User | null> {
  * Check if the current request is authenticated.
  *
  * Use this for conditional logic without getting the full user object.
- *
- * @returns true if authenticated, false otherwise
  */
 export async function isAuthenticated(): Promise<boolean> {
   const user = await getOptionalUser();
