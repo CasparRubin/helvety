@@ -7,18 +7,17 @@ import { getEncryptionParams } from "@/app/actions/encryption-actions";
 import { EncryptionUnlock } from "@/components/encryption-unlock";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
-/**
- *
- */
+/** Props for the EncryptionGate component */
 interface EncryptionGateProps {
+  /** The authenticated user's ID */
   userId: string;
+  /** The authenticated user's email address */
   userEmail: string;
+  /** Content to render when encryption is unlocked */
   children: ReactNode;
 }
 
-/**
- *
- */
+/** Encryption gate status states */
 type EncryptionStatus =
   | "loading"
   | "needs_setup"

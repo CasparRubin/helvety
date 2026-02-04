@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/card";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
-/**
- *
- */
+/** Props for the EncryptionUnlock component */
 interface EncryptionUnlockProps {
+  /** The authenticated user's ID */
   userId: string;
   /** PRF-based params for passkey unlock */
   passkeyParams: PRFKeyParams;
+  /** Callback when encryption is successfully unlocked */
   onUnlock?: () => void;
 }
 
