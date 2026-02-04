@@ -87,17 +87,23 @@ export async function getUserSubscriptions(): Promise<
     }
 
     const subscriptions = (data ?? []) as Subscription[];
-    const adminClient = createAdminClient();
 
-    for (const sub of subscriptions) {
-      if (
-        sub.current_period_end == null &&
-        sub.stripe_subscription_id != null
-      ) {
-        try {
+    // Identify subscriptions needing period backfill from Stripe
+    const subsNeedingBackfill = subscriptions.filter(
+      (sub) =>
+        sub.current_period_end == null && sub.stripe_subscription_id != null
+    );
+
+    // Batch fetch from Stripe in parallel (fixes N+1 query pattern)
+    if (subsNeedingBackfill.length > 0) {
+      const adminClient = createAdminClient();
+
+      const stripeResults = await Promise.allSettled(
+        subsNeedingBackfill.map(async (sub) => {
           const stripeSub = (await stripe.subscriptions.retrieve(
-            sub.stripe_subscription_id
+            sub.stripe_subscription_id!
           )) as StripeSubWithPeriod;
+
           // Period: subscription-level or first item (newer Stripe API)
           const firstItem = stripeSub.items?.data?.[0] as
             | { current_period_start?: number; current_period_end?: number }
@@ -106,29 +112,58 @@ export async function getUserSubscriptions(): Promise<
             stripeSub.current_period_end ?? firstItem?.current_period_end;
           const periodStartTs =
             stripeSub.current_period_start ?? firstItem?.current_period_start;
-          const periodEnd =
-            periodEndTs != null
-              ? new Date(periodEndTs * 1000).toISOString()
-              : null;
-          const periodStart =
-            periodStartTs != null
-              ? new Date(periodStartTs * 1000).toISOString()
-              : null;
 
+          return {
+            subId: sub.id,
+            periodEnd:
+              periodEndTs != null
+                ? new Date(periodEndTs * 1000).toISOString()
+                : null,
+            periodStart:
+              periodStartTs != null
+                ? new Date(periodStartTs * 1000).toISOString()
+                : null,
+          };
+        })
+      );
+
+      // Process results and update subscriptions in memory + database
+      for (let i = 0; i < stripeResults.length; i++) {
+        const result = stripeResults[i];
+        const sub = subsNeedingBackfill[i];
+
+        // Skip if result or sub is undefined (shouldn't happen, but satisfies TypeScript)
+        if (!result || !sub) continue;
+
+        if (result.status === "fulfilled") {
+          const { periodEnd, periodStart } = result.value;
+
+          // Update in-memory subscription
           sub.current_period_end = periodEnd;
           sub.current_period_start = periodStart ?? sub.current_period_start;
 
-          await adminClient
+          // Update database (fire and forget - don't block the response)
+          adminClient
             .from("subscriptions")
             .update({
               current_period_end: periodEnd,
-              ...(periodStart != null && { current_period_start: periodStart }),
+              ...(periodStart != null && {
+                current_period_start: periodStart,
+              }),
             })
-            .eq("id", sub.id);
-        } catch (stripeErr) {
+            .eq("id", sub.id)
+            .then(({ error }) => {
+              if (error) {
+                logger.warn(
+                  `Could not update period for subscription ${sub.id}:`,
+                  error
+                );
+              }
+            });
+        } else {
           logger.warn(
             `Could not backfill period for subscription ${sub.id} from Stripe:`,
-            stripeErr
+            result.reason
           );
         }
       }

@@ -2,13 +2,20 @@
  * Stripe Checkout API Route
  * Creates checkout sessions for subscription purchases
  *
- * Security: successUrl and cancelUrl parameters are validated to prevent
- * open redirect attacks. Only relative paths starting with "/" are allowed.
+ * Security:
+ * - CSRF token validation via X-CSRF-Token header
+ * - Input validation with Zod schema
+ * - Rate limiting to prevent abuse
+ * - successUrl and cancelUrl parameters are validated to prevent open redirect attacks
  */
 
 import { NextResponse } from "next/server";
 
+import { z } from "zod";
+
+import { validateCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { isValidRelativePath } from "@/lib/redirect-validation";
 import {
   stripe,
@@ -19,33 +26,97 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
-import type {
-  CreateCheckoutRequest,
-  CreateCheckoutResponse,
-} from "@/lib/types/entities";
+import type { CreateCheckoutResponse } from "@/lib/types/entities";
 import type { NextRequest } from "next/server";
 import type Stripe from "stripe";
+
+// =============================================================================
+// Input Validation Schema
+// =============================================================================
+
+/**
+ * Validation schema for checkout request
+ * Security: Validates tierId format and optional URL paths
+ */
+const CheckoutRequestSchema = z.object({
+  tierId: z
+    .string()
+    .min(1, "Tier ID is required")
+    .max(100, "Tier ID too long")
+    .regex(/^[a-z0-9-]+$/, "Tier ID must be lowercase alphanumeric with hyphens"),
+  successUrl: z.string().max(500).optional(),
+  cancelUrl: z.string().max(500).optional(),
+});
 
 // =============================================================================
 // POST /api/checkout - Create a Stripe Checkout Session
 // =============================================================================
 
 /**
+ * Get client IP for rate limiting
+ */
+function getClientIP(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "unknown"
+  );
+}
+
+/**
+ * Create a Stripe Checkout Session
  *
- * @param request
+ * Security:
+ * - CSRF token validation via X-CSRF-Token header
+ * - Input validation with Zod schema
+ * - Rate limiting by IP
+ *
+ * @param request - The incoming request
  */
 export async function POST(request: NextRequest) {
-  try {
-    // Parse request body
-    const body = (await request.json()) as CreateCheckoutRequest;
-    const { tierId, successUrl, cancelUrl } = body;
+  const clientIP = getClientIP(request);
 
-    if (!tierId) {
+  try {
+    // Rate limit by IP to prevent abuse
+    const rateLimit = checkRateLimit(
+      `checkout:ip:${clientIP}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+
+    if (!rateLimit.allowed) {
+      logger.warn(`Checkout rate limit exceeded for IP: ${clientIP}`);
       return NextResponse.json(
-        { error: "Missing required field: tierId" },
+        { error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.` },
+        { status: 429 }
+      );
+    }
+
+    // Validate CSRF token from header
+    const csrfToken = request.headers.get("X-CSRF-Token");
+    const isValidCsrf = await validateCSRFToken(csrfToken);
+
+    if (!isValidCsrf) {
+      logger.warn(`Invalid CSRF token for checkout from IP: ${clientIP}`);
+      return NextResponse.json(
+        { error: "Security validation failed. Please refresh and try again." },
+        { status: 403 }
+      );
+    }
+
+    // Parse and validate request body
+    const rawBody = await request.json();
+    const validationResult = CheckoutRequestSchema.safeParse(rawBody);
+
+    if (!validationResult.success) {
+      logger.warn("Invalid checkout request:", validationResult.error.format());
+      return NextResponse.json(
+        { error: "Invalid request parameters" },
         { status: 400 }
       );
     }
+
+    const { tierId, successUrl, cancelUrl } = validationResult.data;
 
     // Get Stripe Price ID for the tier
     const stripePriceId = getStripePriceId(tierId);
