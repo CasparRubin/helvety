@@ -166,7 +166,7 @@ This project is built with modern web technologies:
 - **[Lucide React](https://lucide.dev/)** - Icon library
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 
-**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and (for server-side admin) `SUPABASE_SECRET_KEY`. Node.js 20.9+ required.
+**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`, and (for server-side admin) `SUPABASE_SECRET_KEY`. Node.js 20.9+ required.
 
 ## Architecture & Performance
 

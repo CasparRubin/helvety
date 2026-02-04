@@ -7,7 +7,7 @@ export * from "./use-columns";
 export * from "./use-drag-drop";
 export * from "./use-error-handler";
 export * from "./use-imagebitmap-memory";
-export * from "./use-mobile";
+export * from "./use-is-mobile";
 export * from "./use-page-drag-drop";
 export * from "./use-pdf-files";
 export * from "./use-pdf-page-state";

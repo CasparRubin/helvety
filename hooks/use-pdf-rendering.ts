@@ -5,7 +5,7 @@
 
 import * as React from "react";
 
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { IMAGEBITMAP_CACHE } from "@/lib/constants";
 import { getRenderingCapabilities } from "@/lib/feature-detection";
 import { getImageBitmapCache, generateCacheKey } from "@/lib/imagebitmap-cache";
