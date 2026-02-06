@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /**
- * Sync shared code from this repo (helvety.com) to helvety-auth, helvety-store, helvety-pdf.
+ * Sync shared code from this repo (helvety.com) to helvety-auth, helvety-store, helvety-pdf, helvety-tasks.
  *
  * Source of truth: this repo. Run from helvety.com root: node scripts/sync-shared.js
  *
@@ -10,13 +10,13 @@
  * Synced paths (must match .cursor/rules/shared-code-patterns.mdc):
  *   - proxy.ts
  *   - scripts/generate-version.js
- *   - lib/utils.ts, lib/logger.ts, lib/constants.ts (helvety-auth and helvety-store only; helvety-pdf keeps app-specific constants)
+ *   - lib/utils.ts, lib/logger.ts, lib/constants.ts (helvety-auth, helvety-store, helvety-tasks only; helvety-pdf keeps app-specific constants)
  *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/rate-limit.ts, lib/csrf.ts
- *   - lib/auth-guard.ts (helvety-store and helvety-pdf only; helvety-auth keeps its own with local redirect)
+ *   - lib/auth-guard.ts (helvety-store, helvety-pdf, helvety-tasks only; helvety-auth keeps its own with local redirect)
  *   - lib/redirect-validation.ts
  *   - lib/types/entities.ts (shared entity types)
  *   - lib/crypto/* (entire directory)
- *   - hooks/use-auth-session.ts (helvety-store and helvety-pdf only; helvety-auth keeps its own)
+ *   - hooks/use-auth-session.ts (helvety-store, helvety-pdf, helvety-tasks only; helvety-auth keeps its own)
  *   - app/error.tsx (global error boundary)
  *   - app/not-found.tsx (global 404 page)
  *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
@@ -30,7 +30,12 @@ const args = process.argv.slice(2);
 const DRY_RUN = args.includes("--dry-run");
 
 const SOURCE_ROOT = path.join(__dirname, "..");
-const TARGET_REPOS = ["helvety-auth", "helvety-store", "helvety-pdf"];
+const TARGET_REPOS = [
+  "helvety-auth",
+  "helvety-store",
+  "helvety-pdf",
+  "helvety-tasks",
+];
 
 const FILES = [
   "proxy.ts",
@@ -65,6 +70,7 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
 const TARGET_SKIP_FILES = {
   "helvety-pdf": ["lib/constants.ts"],
   "helvety-auth": ["lib/auth-guard.ts", "hooks/use-auth-session.ts"],
+  "helvety-tasks": ["lib/constants.ts"],
 };
 
 // Track statistics for reporting

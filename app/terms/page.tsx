@@ -28,12 +28,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated:{" "}
-              {new Date().toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              Last updated: February 6, 2026
             </p>
           </header>
 
@@ -308,14 +303,16 @@ export default function TermsPage() {
               Google Password Manager, or similar services.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              <strong className="text-foreground">Encryption Setup:</strong> For
-              services that support end-to-end encryption, you may be required
-              to set up an encryption passkey after authentication. This uses
-              the WebAuthn PRF (Pseudo-Random Function) extension to derive
-              encryption keys on your device. The encryption keys are never
-              transmitted to or stored on our servers. If you lose access to
-              your encryption passkey, encrypted data may become permanently
-              inaccessible.
+              <strong className="text-foreground">Encryption Setup:</strong>{" "}
+              Helvety Tasks uses end-to-end encryption to protect your task
+              data. When using Helvety Tasks, you will be required to set up an
+              encryption passkey after authentication. This uses the WebAuthn
+              PRF (Pseudo-Random Function) extension to derive encryption keys
+              on your device. The encryption keys are never transmitted to or
+              stored on our servers. If you lose access to your encryption
+              passkey, encrypted data may become permanently inaccessible. Other
+              Helvety services (helvety.com, Helvety Auth, Helvety PDF, Helvety
+              Store) do not use end-to-end encryption.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Age Requirement:</strong> You
@@ -663,7 +660,7 @@ export default function TermsPage() {
               7.6 Encrypted User Content
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              For services that implement end-to-end encryption:
+              Helvety Tasks implements end-to-end encryption. For this service:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>

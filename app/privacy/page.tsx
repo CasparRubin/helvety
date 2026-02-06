@@ -28,12 +28,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated:{" "}
-              {new Date().toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              Last updated: February 6, 2026
             </p>
           </header>
 
@@ -234,7 +229,8 @@ export default function PrivacyPage() {
               </li>
               <li>
                 Encryption passkey parameters (PRF salt values for deriving
-                encryption keys, for services with end-to-end encryption)
+                encryption keys, for Helvety Tasks which uses end-to-end
+                encryption)
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -345,7 +341,8 @@ export default function PrivacyPage() {
 
             <h3 className="mb-3 text-lg font-medium">2.7 Encryption Data</h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              For services that offer end-to-end encryption, we store:
+              Helvety Tasks uses end-to-end encryption to protect your data. For
+              this service, we store:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -518,8 +515,15 @@ export default function PrivacyPage() {
                     <td className="border-border border-b p-3">USA</td>
                   </tr>
                   <tr>
-                    <td className="p-3">Resend Inc.</td>
-                    <td className="p-3">Transactional email delivery</td>
+                    <td className="border-border border-b p-3">Resend Inc.</td>
+                    <td className="border-border border-b p-3">
+                      Transactional email delivery
+                    </td>
+                    <td className="border-border border-b p-3">USA</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3">Upstash Inc.</td>
+                    <td className="p-3">Rate limiting</td>
                     <td className="p-3">USA</td>
                   </tr>
                 </tbody>
@@ -813,10 +817,11 @@ export default function PrivacyPage() {
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
               We use Vercel Analytics on helvety.com and auth.helvety.com only
-              (not on store.helvety.com or pdf.helvety.com). It is a
-              privacy-respecting analytics service provided by Vercel Inc. that
-              does not use cookies and does not track users across websites. It
-              collects anonymized usage data to help us improve those services.
+              (not on store.helvety.com, pdf.helvety.com, or tasks.helvety.com).
+              It is a privacy-respecting analytics service provided by Vercel
+              Inc. that does not use cookies and does not track users across
+              websites. It collects anonymized usage data to help us improve
+              those services.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Essential cookies do not require consent under Swiss and EU law as
@@ -940,8 +945,10 @@ export default function PrivacyPage() {
               11.2 End-to-End Encryption
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              Certain Helvety services implement end-to-end encryption to
-              protect your data:
+              Helvety Tasks implements end-to-end encryption to protect your
+              task data. Other Helvety services (helvety.com, Helvety Auth,
+              Helvety PDF, Helvety Store) do not use end-to-end encryption. For
+              Helvety Tasks:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>

@@ -2,19 +2,17 @@
 
 import { type ReactNode } from "react";
 
-import { EncryptionProvider } from "@/lib/crypto";
-
 /**
  * Client-side providers wrapper.
- * Includes EncryptionProvider so the navbar and other components can use useEncryptionContext().
+ * E2EE is only used by helvety-tasks; this app does not need EncryptionProvider.
  */
 interface ProvidersProps {
   children: ReactNode;
 }
 
 /**
- * Root client providers (EncryptionProvider) for the app.
+ * Root client providers for the app.
  */
 export function Providers({ children }: ProvidersProps) {
-  return <EncryptionProvider>{children}</EncryptionProvider>;
+  return <>{children}</>;
 }
