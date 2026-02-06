@@ -1,6 +1,6 @@
 /**
- * Entity type definitions for helvety-store
- * User/auth related types for encryption and authentication
+ * Entity type definitions shared across all Helvety apps
+ * These types represent database entities and are synced via sync-shared.js
  */
 
 // =============================================================================

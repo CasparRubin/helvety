@@ -4,7 +4,6 @@ import { type ReactNode } from "react";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CSRFProvider } from "@/hooks/use-csrf";
-import { EncryptionProvider } from "@/lib/crypto";
 
 /**
  * Props for the Providers component
@@ -18,14 +17,13 @@ interface ProvidersProps {
 
 /**
  * Client-side providers wrapper
- * Includes CSRFProvider, EncryptionProvider and any other client-only providers
+ * Includes CSRFProvider and any other client-only providers.
+ * E2EE is only used by helvety-tasks; this app does not need EncryptionProvider.
  */
 export function Providers({ children, csrfToken }: ProvidersProps) {
   return (
     <CSRFProvider csrfToken={csrfToken}>
-      <TooltipProvider>
-        <EncryptionProvider>{children}</EncryptionProvider>
-      </TooltipProvider>
+      <TooltipProvider>{children}</TooltipProvider>
     </CSRFProvider>
   );
 }

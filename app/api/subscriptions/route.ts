@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import type {
@@ -31,6 +32,22 @@ export async function GET(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Rate limit by user ID
+    const rateLimit = await checkRateLimit(
+      `subscriptions:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) },
+        }
+      );
     }
 
     // Optional product filter

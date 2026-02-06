@@ -18,7 +18,7 @@ The store has four main sections, linked from the store nav bar (below the top n
 - **Subscriptions** (`/subscriptions`) – Compact list of active subscriptions; SPO Explorer rows link to Tenants
 - **Tenants** (`/tenants`) – Register and manage SharePoint tenant IDs for SPO Explorer
 
-The root path (`/`) redirects: unauthenticated users to auth; authenticated users to `/products`.
+The root path (`/`) redirects all users to `/products`. No login is required to browse products.
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer.
 
@@ -33,54 +33,33 @@ The root path (`/`) redirects: unauthenticated users to auth; authenticated user
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF)
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks)
 
 ## Security & Authentication
 
-This application uses centralized authentication via [auth.helvety.com](https://auth.helvety.com) with end-to-end encryption:
-
 ### Authentication Flow
 
-Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** — no passwords required:
+Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** — no passwords required. **Login is optional for browsing** — users can view products without an account. Login is required for purchases, account management, subscriptions, and tenant management.
 
-**New Users:**
+**New Users (when signing in):**
 
-1. Redirected to auth.helvety.com → Enter email address
+1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
 2. Click magic link in email → Verify email ownership
 3. Scan QR code with phone → Verify with biometrics (Face ID/fingerprint)
 4. Passkey created → Verify passkey → Session established → Redirected back to store
-5. Setup encryption passkey (for encrypting sensitive data)
 
-**Returning Users:**
+**Returning Users (when signing in):**
 
-1. Redirected to auth.helvety.com → Enter email address
+1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
 2. Sign in with passkey (no email sent; existing users with a passkey skip the magic link)
 3. Scan QR code → Verify with biometrics → Session created
-4. Redirected back → Unlock encryption with passkey
+4. Redirected back to store
 
 Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
 
 **Privacy Note:** Your email address is used solely for authentication (magic links for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
 
-### End-to-End Encryption
-
-User data is protected with client-side encryption using the WebAuthn PRF extension:
-
-- **Centralized Setup** - Encryption is set up once via `auth.helvety.com` after initial passkey registration
-- **Passkey-derived keys** - Encryption keys are derived from your passkey using the PRF extension
-- **Zero-knowledge** - The server never sees your encryption key; all encryption/decryption happens in the browser
-- **Device-bound security** - Your passkey (stored on your phone) is the only way to decrypt your data
-- **Cross-subdomain passkeys** - Encryption passkeys work across all Helvety apps (registered to `helvety.com` RP ID)
-- **Unlock Flow** - When returning, users unlock encryption with their existing passkey
-
-Browser requirements for encryption:
-
-- Chrome 128+
-- Edge 128+
-- Safari 18+
-- Firefox 139+ (desktop only)
-
-**Note:** Firefox for Android does not support the PRF extension.
+**Note:** End-to-end encryption is not used in this app. E2EE is only used by [Helvety Tasks](https://tasks.helvety.com).
 
 ### Security Hardening
 
@@ -103,7 +82,6 @@ This project is built with modern web technologies:
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript with strict configuration
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
-- **[SimpleWebAuthn](https://simplewebauthn.dev/)** - WebAuthn/passkey implementation
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
@@ -111,12 +89,6 @@ This project is built with modern web technologies:
 - **[Zod](https://zod.dev/)** - TypeScript-first schema validation
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 - **[Stripe](https://stripe.com/)** - Payment processing and subscription management
-
-**Environment:** Copy `env.template` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`, (for server-side) `SUPABASE_SECRET_KEY`, and the Stripe variables listed in the template. Node.js 20.9+ required.
-
-**Pre-deployment:** Run `npm run predeploy` to run format check, type check, lint, and production build.
-
-**Development standards:** See `.cursor/rules/` for code organization, JSDoc, shared code patterns, after-change checklist (comments, README, legal), and official-docs-first. When editing shared code, run sync from helvety.com (see that repo's README).
 
 ## Developer
 

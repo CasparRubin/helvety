@@ -9,81 +9,10 @@ import { NextResponse } from "next/server";
 
 import { validateTenantLicense } from "@/lib/license/validation";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { LicenseValidationResponse } from "@/lib/types/entities";
 import type { NextRequest } from "next/server";
-
-// =============================================================================
-// RATE LIMITING (Simple in-memory implementation)
-// =============================================================================
-
-/**
- * Simple in-memory rate limiter for license validation requests
- *
- * IMPORTANT LIMITATIONS (for security auditors):
- *
- * 1. Per-Instance Only: This rate limiter uses an in-memory Map, which means
- *    it only tracks requests within a single serverless function instance.
- *    On Vercel/serverless, multiple instances may run concurrently, so
- *    the effective rate limit may be higher than configured.
- *
- * 2. No Persistence: Rate limit state is lost when the function instance
- *    restarts or scales down.
- *
- * 3. Memory Growth: The Map grows with unique tenant IDs. The periodic cleanup
- *    (every 60s) prevents unbounded growth, but high cardinality could cause
- *    temporary memory pressure.
- *
- * For a more robust solution, consider:
- * - Upstash Redis for distributed rate limiting
- * - Vercel Edge Config for configuration
- * - Cloudflare Rate Limiting at the edge
- *
- * Current approach is acceptable because:
- * - License validation is low-value abuse target (returns boolean, no sensitive data)
- * - Per-instance limiting still provides protection against single-source abuse
- * - Infrastructure-level rate limiting (Vercel/Cloudflare) provides additional protection
- */
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 100; // 100 requests per minute per tenant
-
-/**
- * Check if a tenant has exceeded the rate limit
- *
- * @param tenantId - The tenant ID to check
- * @returns true if within limit, false if exceeded
- */
-function checkRateLimit(tenantId: string): boolean {
-  const now = Date.now();
-  const key = tenantId.toLowerCase();
-
-  const entry = rateLimitMap.get(key);
-
-  if (!entry || now > entry.resetTime) {
-    // New window
-    rateLimitMap.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-
-  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return false;
-  }
-
-  entry.count++;
-  return true;
-}
-
-// Clean up old entries periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitMap) {
-    if (now > entry.resetTime) {
-      rateLimitMap.delete(key);
-    }
-  }
-}, RATE_LIMIT_WINDOW_MS);
 
 // =============================================================================
 // CORS CONFIGURATION
@@ -230,7 +159,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Check rate limit
-    if (!checkRateLimit(tenantId)) {
+    const rateLimit = await checkRateLimit(
+      `license:tenant:${tenantId.toLowerCase()}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
       logger.warn(`Rate limit exceeded for tenant: ${tenantId}`);
       return NextResponse.json(
         {

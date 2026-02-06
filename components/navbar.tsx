@@ -1,16 +1,13 @@
 "use client";
 
 import {
-  Building2,
   LogIn,
   LogOut,
   Menu,
-  ShieldCheck,
   User as UserIcon,
   Github,
   Info,
   Settings,
-  Package,
   CreditCard,
 } from "lucide-react";
 import Image from "next/image";
@@ -52,7 +49,6 @@ import {
 } from "@/components/ui/tooltip";
 import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
-import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 import { createClient } from "@/lib/supabase/client";
 
 import type { User } from "@supabase/supabase-js";
@@ -63,14 +59,13 @@ import type { User } from "@supabase/supabase-js";
  * Features:
  * - App switcher for navigating between Helvety ecosystem apps
  * - Logo and branding with "STORE" label
- * - E2EE indicator, About dialog, GitHub link (in bar above 400px; in burger below 400px)
+ * - About dialog, GitHub link (in bar above 400px; in burger below 400px)
  * - Theme switcher (dark/light mode)
  * - Login button (shown when user is not authenticated)
  * - Profile menu with user email, links to Products, Account, Subscriptions, Tenants, and Sign out (shown when authenticated)
- * - Burger menu below 400px: E2EE, About, GitHub to save icon space
+ * - Burger menu below 400px: About, GitHub to save icon space
  */
 export function Navbar() {
-  const { isUnlocked, isLoading } = useEncryptionContext();
   const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -144,27 +139,8 @@ export function Navbar() {
             </Link>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            {/* E2EE, About, GitHub - hidden below 400px (moved into burger) */}
+            {/* About, GitHub - hidden below 400px (moved into burger) */}
             <div className="hidden items-center gap-2 min-[401px]:flex">
-              {!isLoading && isUnlocked && (
-                <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="cursor-default md:hidden">
-                        <ShieldCheck className="h-4 w-4 text-green-500" />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>End-to-end encrypted</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <div className="hidden items-center gap-1.5 md:flex">
-                    <ShieldCheck className="h-4 w-4 text-green-500" />
-                    <span>End-to-end encrypted</span>
-                  </div>
-                </div>
-              )}
-
               <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -261,19 +237,6 @@ export function Navbar() {
                         asChild
                       >
                         <Link
-                          href="/products"
-                          onClick={() => setProfileOpen(false)}
-                        >
-                          <Package className="h-4 w-4" />
-                          Products
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        asChild
-                      >
-                        <Link
                           href="/account"
                           onClick={() => setProfileOpen(false)}
                         >
@@ -292,19 +255,6 @@ export function Navbar() {
                         >
                           <CreditCard className="h-4 w-4" />
                           Subscriptions
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        asChild
-                      >
-                        <Link
-                          href="/tenants"
-                          onClick={() => setProfileOpen(false)}
-                        >
-                          <Building2 className="h-4 w-4" />
-                          Tenants
                         </Link>
                       </Button>
                     </div>
@@ -340,12 +290,6 @@ export function Navbar() {
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <nav className="mt-6 flex flex-col gap-2 px-4">
-                  {!isLoading && isUnlocked && (
-                    <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
-                      <ShieldCheck className="h-4 w-4 shrink-0 text-green-500" />
-                      <span>End-to-end encrypted</span>
-                    </div>
-                  )}
                   <Button
                     variant="ghost"
                     className="w-full justify-start"

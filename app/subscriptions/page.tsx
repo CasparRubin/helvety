@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { SubscriptionsPageClient } from "@/app/subscriptions/subscriptions-page-client";
-import { EncryptionGate } from "@/components/encryption-gate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
@@ -33,6 +32,7 @@ function SubscriptionsLoading() {
 
 /**
  * Subscriptions page: auth gate and compact subscriptions list (SubscriptionsTab).
+ * Requires auth (no E2EE).
  */
 export default async function SubscriptionsPage() {
   const supabase = await createClient();
@@ -45,10 +45,8 @@ export default async function SubscriptionsPage() {
   }
 
   return (
-    <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <Suspense fallback={<SubscriptionsLoading />}>
-        <SubscriptionsPageClient />
-      </Suspense>
-    </EncryptionGate>
+    <Suspense fallback={<SubscriptionsLoading />}>
+      <SubscriptionsPageClient />
+    </Suspense>
   );
 }

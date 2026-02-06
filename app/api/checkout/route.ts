@@ -10,7 +10,6 @@
  */
 
 import { NextResponse } from "next/server";
-
 import { z } from "zod";
 
 import { validateCSRFToken } from "@/lib/csrf";
@@ -43,7 +42,10 @@ const CheckoutRequestSchema = z.object({
     .string()
     .min(1, "Tier ID is required")
     .max(100, "Tier ID too long")
-    .regex(/^[a-z0-9-]+$/, "Tier ID must be lowercase alphanumeric with hyphens"),
+    .regex(
+      /^[a-z0-9-]+$/,
+      "Tier ID must be lowercase alphanumeric with hyphens"
+    ),
   successUrl: z.string().max(500).optional(),
   cancelUrl: z.string().max(500).optional(),
 });
@@ -78,7 +80,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Rate limit by IP to prevent abuse
-    const rateLimit = checkRateLimit(
+    const rateLimit = await checkRateLimit(
       `checkout:ip:${clientIP}`,
       RATE_LIMITS.API.maxRequests,
       RATE_LIMITS.API.windowMs
@@ -87,7 +89,9 @@ export async function POST(request: NextRequest) {
     if (!rateLimit.allowed) {
       logger.warn(`Checkout rate limit exceeded for IP: ${clientIP}`);
       return NextResponse.json(
-        { error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.` },
+        {
+          error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+        },
         { status: 429 }
       );
     }

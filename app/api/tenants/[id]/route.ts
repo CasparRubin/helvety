@@ -9,7 +9,9 @@
 
 import { NextResponse } from "next/server";
 
+import { validateCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import type { NextRequest } from "next/server";
@@ -37,6 +39,22 @@ export async function GET(
 
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Rate limit by user ID
+    const rateLimit = await checkRateLimit(
+      `tenants:user:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) },
+        }
+      );
     }
 
     const { data: tenant, error } = await supabase
@@ -91,6 +109,18 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Validate CSRF token from header
+    const csrfToken = request.headers.get("X-CSRF-Token");
+    const isValidCsrf = await validateCSRFToken(csrfToken);
+
+    if (!isValidCsrf) {
+      logger.warn("Invalid CSRF token for tenant update");
+      return NextResponse.json(
+        { error: "Security validation failed. Please refresh and try again." },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const supabase = await createServerComponentClient();
     const {
@@ -99,6 +129,22 @@ export async function PATCH(
 
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Rate limit by user ID
+    const patchRateLimit = await checkRateLimit(
+      `tenants:user:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs
+    );
+    if (!patchRateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(patchRateLimit.retryAfter ?? 60) },
+        }
+      );
     }
 
     const body = await request.json();
@@ -150,10 +196,22 @@ export async function PATCH(
  * @param root0.params
  */
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Validate CSRF token from header
+    const csrfToken = request.headers.get("X-CSRF-Token");
+    const isValidCsrf = await validateCSRFToken(csrfToken);
+
+    if (!isValidCsrf) {
+      logger.warn("Invalid CSRF token for tenant deletion");
+      return NextResponse.json(
+        { error: "Security validation failed. Please refresh and try again." },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const supabase = await createServerComponentClient();
     const {
@@ -162,6 +220,22 @@ export async function DELETE(
 
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Rate limit by user ID
+    const deleteRateLimit = await checkRateLimit(
+      `tenants:user:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs
+    );
+    if (!deleteRateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(deleteRateLimit.retryAfter ?? 60) },
+        }
+      );
     }
 
     // First, verify the tenant belongs to this user

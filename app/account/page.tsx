@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { EncryptionGate } from "@/components/encryption-gate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
@@ -35,7 +34,7 @@ function AccountLoading() {
 
 /**
  * Account page for profile and settings management.
- * Requires auth and encryption unlock.
+ * Requires auth (no E2EE).
  */
 export default async function AccountPage() {
   // Server-side auth check
@@ -50,10 +49,8 @@ export default async function AccountPage() {
   }
 
   return (
-    <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <Suspense fallback={<AccountLoading />}>
-        <AccountClient />
-      </Suspense>
-    </EncryptionGate>
+    <Suspense fallback={<AccountLoading />}>
+      <AccountClient />
+    </Suspense>
   );
 }

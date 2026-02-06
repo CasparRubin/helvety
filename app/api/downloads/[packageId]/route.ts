@@ -12,6 +12,7 @@ import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { getPackageInfo, isTierAllowedForPackage } from "@/lib/packages/config";
 import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -50,6 +51,22 @@ export async function GET(
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
+      );
+    }
+
+    // Rate limit by user ID to prevent download URL abuse
+    const rateLimit = await checkRateLimit(
+      `downloads:user:${user.id}`,
+      RATE_LIMITS.DOWNLOADS.maxRequests,
+      RATE_LIMITS.DOWNLOADS.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many download requests. Please try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) },
+        }
       );
     }
 

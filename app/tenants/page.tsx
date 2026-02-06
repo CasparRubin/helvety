@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { TenantsPageClient } from "@/app/tenants/tenants-page-client";
-import { EncryptionGate } from "@/components/encryption-gate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
@@ -33,6 +32,7 @@ function TenantsLoading() {
 
 /**
  * Tenants page: auth gate and tenant management or empty state.
+ * Requires auth (no E2EE).
  */
 export default async function TenantsPage() {
   const supabase = await createClient();
@@ -45,10 +45,8 @@ export default async function TenantsPage() {
   }
 
   return (
-    <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <Suspense fallback={<TenantsLoading />}>
-        <TenantsPageClient />
-      </Suspense>
-    </EncryptionGate>
+    <Suspense fallback={<TenantsLoading />}>
+      <TenantsPageClient />
+    </Suspense>
   );
 }

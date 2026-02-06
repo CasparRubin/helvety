@@ -8,8 +8,10 @@
 
 import { NextResponse } from "next/server";
 
+import { validateCSRFToken } from "@/lib/csrf";
 import { getMaxTenantsForTier } from "@/lib/license/validation";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import type {
@@ -40,6 +42,22 @@ export async function GET() {
 
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Rate limit by user ID
+    const rateLimit = await checkRateLimit(
+      `tenants:user:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) },
+        }
+      );
     }
 
     // Get user's tenants with subscription info
@@ -93,6 +111,18 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Validate CSRF token from header
+    const csrfToken = request.headers.get("X-CSRF-Token");
+    const isValidCsrf = await validateCSRFToken(csrfToken);
+
+    if (!isValidCsrf) {
+      logger.warn("Invalid CSRF token for tenant registration");
+      return NextResponse.json(
+        { error: "Security validation failed. Please refresh and try again." },
+        { status: 403 }
+      );
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },
@@ -100,6 +130,22 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Rate limit by user ID
+    const rateLimit = await checkRateLimit(
+      `tenants:user:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) },
+        }
+      );
     }
 
     // Parse request body

@@ -1,6 +1,6 @@
 {
   "name": "helvety-store",
-  "version": "0.3.1",
+  "version": "1.0.0",
   "private": true,
   "license": "UNLICENSED",
   "engines": {
@@ -35,6 +35,8 @@
     "@simplewebauthn/server": "^13.2.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.3",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",
