@@ -5,7 +5,7 @@
  * Allows filtering products by type and category
  */
 
-import { Download, Package, LayoutGrid } from "lucide-react";
+import { MonitorCloud, Handbag, LayoutGrid } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -34,8 +34,8 @@ const filterOptions: {
   icon: typeof LayoutGrid;
 }[] = [
   { value: "all", label: "All Products", icon: LayoutGrid },
-  { value: "software", label: "Software", icon: Download },
-  { value: "physical", label: "Physical", icon: Package },
+  { value: "software", label: "Software", icon: MonitorCloud },
+  { value: "physical", label: "Physical", icon: Handbag },
 ];
 
 /**

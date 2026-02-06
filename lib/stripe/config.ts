@@ -118,7 +118,7 @@ export const HANDLED_WEBHOOK_EVENTS = [
 ] as const;
 
 /**
- *
+ * Union type of Stripe webhook events that are handled by this application.
  */
 export type HandledWebhookEvent = (typeof HANDLED_WEBHOOK_EVENTS)[number];
 
