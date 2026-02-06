@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 /**
- *
+ * Generates sitemap.xml with all public pages for search engines
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

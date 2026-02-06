@@ -494,7 +494,7 @@ export default function PrivacyPage() {
                   <tr>
                     <td className="border-border border-b p-3">Vercel Inc.</td>
                     <td className="border-border border-b p-3">
-                      Website hosting and delivery
+                      Website hosting, delivery, and privacy-focused analytics
                     </td>
                     <td className="border-border border-b p-3">USA</td>
                   </tr>
@@ -816,12 +816,36 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
-              We use Vercel Analytics on helvety.com and auth.helvety.com only
-              (not on store.helvety.com, pdf.helvety.com, or tasks.helvety.com).
-              It is a privacy-respecting analytics service provided by Vercel
-              Inc. that does not use cookies and does not track users across
-              websites. It collects anonymized usage data to help us improve
-              those services.
+              We use Vercel Analytics, a privacy-focused analytics service, to
+              understand how our Services are used. Vercel Analytics collects:
+            </p>
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>Page view counts and navigation patterns</li>
+              <li>Referrer URLs (how you arrived at our site)</li>
+              <li>Browser and device type</li>
+              <li>Country-level geographic location</li>
+              <li>
+                Performance metrics (on helvety.com only via Vercel Speed
+                Insights)
+              </li>
+            </ul>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Vercel Analytics does not use cookies and does not track
+              individual users across sessions. Data is aggregated and
+              anonymized. You can learn more at{" "}
+              <a
+                href="https://vercel.com/docs/analytics/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground underline transition-colors"
+              >
+                Vercel&apos;s Analytics Privacy Policy
+              </a>
+              .
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              We do not use any other analytics services, advertising trackers,
+              or cross-site tracking technologies.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Essential cookies do not require consent under Swiss and EU law as

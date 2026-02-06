@@ -1,6 +1,7 @@
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
+
 import "./globals.css";
 
 import { Footer } from "@/components/footer";
@@ -61,6 +62,14 @@ export const metadata: Metadata = {
     siteName: "Helvety",
     title: "Helvety | Software and Apparel | Designed in Switzerland",
     description: "Helvety. Swiss Engineering.",
+    images: [
+      {
+        url: "/Identifier_whiteBg.png",
+        width: 500,
+        height: 500,
+        alt: "Helvety",
+      },
+    ],
   },
   twitter: {
     card: "summary",
