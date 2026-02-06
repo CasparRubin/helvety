@@ -20,7 +20,8 @@ const staggerContainer = {
 };
 
 /**
- *
+ * Home page component displaying the Helvety hero section with animated logo.
+ * Includes Firefox-specific animation handling for compatibility.
  */
 export default function Home() {
   const [isFirefox, setIsFirefox] = useState(false);

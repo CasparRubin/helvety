@@ -66,11 +66,12 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
  * - helvety-pdf keeps its own lib/constants.ts with app-specific exports
  * - helvety-auth keeps its own lib/auth-guard.ts (redirects to local /login instead of auth service)
  * - helvety-auth keeps its own hooks/use-auth-session.ts (no redirect, idle timeout disabled)
+ * - helvety-tasks keeps its own lib/crypto/index.ts (re-exports task-encryption.ts functions)
  */
 const TARGET_SKIP_FILES = {
   "helvety-pdf": ["lib/constants.ts"],
   "helvety-auth": ["lib/auth-guard.ts", "hooks/use-auth-session.ts"],
-  "helvety-tasks": ["lib/constants.ts"],
+  "helvety-tasks": ["lib/crypto/index.ts"],
 };
 
 // Track statistics for reporting
@@ -168,7 +169,7 @@ function copyFile(srcRoot, destRoot, file, targetRepo) {
   }
 }
 
-function copyDirRecursive(srcRoot, destRoot, dir) {
+function copyDirRecursive(srcRoot, destRoot, dir, targetRepo) {
   const srcDir = path.join(srcRoot, dir);
   const destDir = path.join(destRoot, dir);
 
@@ -186,11 +187,19 @@ function copyDirRecursive(srcRoot, destRoot, dir) {
   for (const entry of entries) {
     const srcPath = path.join(srcDir, entry.name);
     const destPath = path.join(destDir, entry.name);
-    const relativePath = path.join(dir, entry.name);
+    const relativePath = path.join(dir, entry.name).replace(/\\/g, "/");
 
     if (entry.isDirectory()) {
-      copyDirRecursive(srcRoot, destRoot, relativePath);
+      copyDirRecursive(srcRoot, destRoot, relativePath, targetRepo);
     } else {
+      // Check if this file should be skipped for this target
+      const skipList = TARGET_SKIP_FILES[targetRepo];
+      if (skipList && skipList.includes(relativePath)) {
+        console.log(`  Skip (target-specific): ${relativePath}`);
+        stats.skipped++;
+        continue;
+      }
+
       // Check if target exists and differs
       if (fs.existsSync(destPath) && !filesAreIdentical(srcPath, destPath)) {
         console.log(`  Differs (will overwrite): ${relativePath}`);
@@ -229,7 +238,7 @@ function syncTo(targetRoot, targetRepo) {
     copyFile(SOURCE_ROOT, targetRoot, file, targetRepo);
   }
   for (const dir of DIRS) {
-    copyDirRecursive(SOURCE_ROOT, targetRoot, dir);
+    copyDirRecursive(SOURCE_ROOT, targetRoot, dir, targetRepo);
   }
 
   // Print summary for this repo
