@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
@@ -139,6 +140,7 @@ export default function RootLayout({
             </EncryptionProvider>
           </TooltipProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
