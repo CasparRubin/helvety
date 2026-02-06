@@ -59,15 +59,12 @@ export function ItemsDashboard({
     create: createConfig,
     remove: removeConfig,
     update: updateConfig,
-  } = useStageConfigs();
-  const { assignment, assign, unassign } = useStageAssignment("item", spaceId);
-  const {
-    stages,
-    isLoading: isLoadingStages,
-    create: createStage,
-    update: updateStage,
-    remove: removeStage,
-  } = useStages(assignment?.config_id ?? null);
+  } = useStageConfigs("item");
+  const { effectiveConfigId, assign, unassign } = useStageAssignment(
+    "item",
+    spaceId
+  );
+  const { stages } = useStages(effectiveConfigId);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -260,22 +257,10 @@ export function ItemsDashboard({
         onOpenChange={setIsConfiguratorOpen}
         entityType="item"
         configs={configs}
-        stages={stages}
-        assignedConfigId={assignment?.config_id ?? null}
-        isLoadingStages={isLoadingStages}
+        assignedConfigId={effectiveConfigId}
         onCreateConfig={async (name) => createConfig({ name })}
         onDeleteConfig={removeConfig}
         onUpdateConfig={async (id, name) => updateConfig(id, { name })}
-        onCreateStage={async (configId, name, color, sortOrder) =>
-          createStage({
-            config_id: configId,
-            name,
-            color,
-            sort_order: sortOrder,
-          })
-        }
-        onUpdateStage={async (id, updates) => updateStage(id, updates)}
-        onDeleteStage={removeStage}
         onAssignConfig={assign}
         onUnassignConfig={unassign}
       />

@@ -48,6 +48,13 @@ const HexColorSchema = z
   .nullable()
   .optional();
 
+// Lucide icon name validation (lowercase with hyphens, e.g., "check-circle")
+const IconNameSchema = z
+  .string()
+  .regex(/^[a-z][a-z0-9-]*$/)
+  .max(50)
+  .optional();
+
 const CreateStageConfigSchema = z.object({
   encrypted_name: EncryptedDataSchema,
 });
@@ -61,14 +68,18 @@ const CreateStageSchema = z.object({
   config_id: z.string().uuid(),
   encrypted_name: EncryptedDataSchema,
   color: HexColorSchema,
+  icon: IconNameSchema,
   sort_order: z.number().int().min(0).default(0),
+  default_rows_shown: z.number().int().min(0).max(1000).default(20),
 });
 
 const UpdateStageSchema = z.object({
   id: z.string().uuid(),
   encrypted_name: EncryptedDataSchema.optional(),
   color: HexColorSchema,
+  icon: IconNameSchema,
   sort_order: z.number().int().min(0).optional(),
+  default_rows_shown: z.number().int().min(0).max(1000).optional(),
 });
 
 const ReorderStagesSchema = z.array(
@@ -289,7 +300,9 @@ export async function createStage(
     config_id: string;
     encrypted_name: string;
     color?: string | null;
+    icon?: string;
     sort_order: number;
+    default_rows_shown?: number;
   },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
@@ -337,7 +350,9 @@ export async function createStage(
         user_id: user.id,
         encrypted_name: validatedData.encrypted_name,
         color: validatedData.color ?? null,
+        icon: validatedData.icon ?? "circle",
         sort_order: validatedData.sort_order,
+        default_rows_shown: validatedData.default_rows_shown,
       })
       .select("id")
       .single();
@@ -400,7 +415,9 @@ export async function updateStage(
     id: string;
     encrypted_name?: string;
     color?: string | null;
+    icon?: string;
     sort_order?: number;
+    default_rows_shown?: number;
   },
   csrfToken: string
 ): Promise<ActionResponse> {
@@ -436,8 +453,14 @@ export async function updateStage(
     if (validatedData.color !== undefined) {
       updateObj.color = validatedData.color;
     }
+    if (validatedData.icon !== undefined) {
+      updateObj.icon = validatedData.icon;
+    }
     if (validatedData.sort_order !== undefined) {
       updateObj.sort_order = validatedData.sort_order;
+    }
+    if (validatedData.default_rows_shown !== undefined) {
+      updateObj.default_rows_shown = validatedData.default_rows_shown;
     }
 
     const { error } = await supabase

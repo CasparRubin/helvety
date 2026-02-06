@@ -313,7 +313,9 @@ export async function encryptStageInput(
   config_id: string;
   encrypted_name: string;
   color: string | null;
+  icon: string;
   sort_order: number;
+  default_rows_shown: number;
 }> {
   const encryptedName = await encrypt(input.name, key);
 
@@ -321,7 +323,9 @@ export async function encryptStageInput(
     config_id: input.config_id,
     encrypted_name: serializeEncryptedData(encryptedName),
     color: input.color ?? null,
+    icon: input.icon ?? "circle",
     sort_order: input.sort_order ?? 0,
+    default_rows_shown: input.default_rows_shown ?? 20,
   };
 }
 
@@ -340,7 +344,9 @@ export async function decryptStageRow(
     user_id: row.user_id,
     name,
     color: row.color,
+    icon: row.icon,
     sort_order: row.sort_order,
+    default_rows_shown: row.default_rows_shown,
     created_at: row.created_at,
   };
 }
@@ -364,12 +370,16 @@ export async function encryptStageUpdate(
 ): Promise<{
   encrypted_name?: string;
   color?: string | null;
+  icon?: string;
   sort_order?: number;
+  default_rows_shown?: number;
 }> {
   const result: {
     encrypted_name?: string;
     color?: string | null;
+    icon?: string;
     sort_order?: number;
+    default_rows_shown?: number;
   } = {};
 
   if (update.name !== undefined) {
@@ -381,8 +391,16 @@ export async function encryptStageUpdate(
     result.color = update.color;
   }
 
+  if (update.icon !== undefined) {
+    result.icon = update.icon;
+  }
+
   if (update.sort_order !== undefined) {
     result.sort_order = update.sort_order;
+  }
+
+  if (update.default_rows_shown !== undefined) {
+    result.default_rows_shown = update.default_rows_shown;
   }
 
   return result;

@@ -1,23 +1,26 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 
 import {
   getStageAssignment,
   setStageAssignment,
   removeStageAssignment,
 } from "@/app/actions/stage-actions";
+import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";
 import { useCSRFToken } from "@/lib/csrf-client";
 
 import type { StageAssignment, EntityType } from "@/lib/types";
 
 /**
- *
+ * Return type for useStageAssignment hook
  */
 interface UseStageAssignmentReturn {
   /** The current stage assignment (if any) */
   assignment: StageAssignment | null;
+  /** The effective config ID - falls back to default if no assignment */
+  effectiveConfigId: string;
   /** Whether the assignment is being loaded */
   isLoading: boolean;
   /** Error message if something went wrong */
@@ -137,8 +140,14 @@ export function useStageAssignment(
     }
   }, [isUnlocked, refresh]);
 
+  // Always fall back to the default config for this entity type
+  const effectiveConfigId = useMemo(() => {
+    return assignment?.config_id ?? DEFAULT_STAGE_CONFIGS[entityType].id;
+  }, [assignment?.config_id, entityType]);
+
   return {
     assignment,
+    effectiveConfigId,
     isLoading,
     error,
     refresh,

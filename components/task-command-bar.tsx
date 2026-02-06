@@ -2,7 +2,7 @@
 
 /**
  * Task command bar - sticky toolbar below navbar
- * Contains navigation, action buttons (Stages, New), and optional delete
+ * Contains navigation, action buttons (Stage Configuration, New), and optional delete
  */
 
 import {
@@ -13,10 +13,9 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
-/**
- *
- */
+/** Props for the TaskCommandBar component. */
 interface TaskCommandBarProps {
   /** Callback for back navigation (if provided, shows back button) */
   onBack?: () => void;
@@ -49,34 +48,52 @@ export function TaskCommandBar({
         "bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 w-full border-b backdrop-blur"
       }
     >
-      <div className="container mx-auto px-4 py-2">
-        <div className="flex items-center justify-between gap-4">
-          {/* Left side: back button + action buttons */}
-          <div className="flex items-center gap-2">
-            {onBack && (
-              <Button variant="ghost" size="sm" onClick={onBack}>
-                <ArrowLeftIcon className="mr-1.5 size-4" />
-                <span className="hidden sm:inline">Back</span>
+      <div className="container mx-auto px-4 py-2 md:py-0">
+        <div className="grid grid-cols-2 gap-1 md:flex md:h-12 md:items-center md:gap-2">
+          {onBack && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                className="justify-center md:justify-start"
+              >
+                <ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />
+                <span>Back</span>
               </Button>
-            )}
-            <Button variant="outline" size="sm" onClick={onConfigureStages}>
-              <AlignVerticalSpaceAround className="mr-1.5 size-4" />
-              <span className="hidden sm:inline">Stages</span>
-            </Button>
-            <Button size="sm" onClick={onCreateClick}>
-              <PlusIcon className="mr-1.5 size-4" />
-              <span className="hidden sm:inline">{createLabel}</span>
-            </Button>
-          </div>
-
-          {/* Right side: delete button */}
+              <Separator
+                orientation="vertical"
+                className="hidden h-6 md:block"
+              />
+            </>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onConfigureStages}
+            className="justify-center md:justify-start"
+          >
+            <AlignVerticalSpaceAround className="mr-1.5 size-4 shrink-0" />
+            <span>Stage Configuration</span>
+          </Button>
+          <Button
+            size="sm"
+            onClick={onCreateClick}
+            className="justify-center md:justify-start"
+          >
+            <PlusIcon className="mr-1.5 size-4 shrink-0" />
+            <span>{createLabel}</span>
+          </Button>
           {onDelete && deleteLabel && (
-            <div className="flex shrink-0 items-center">
-              <Button variant="destructive" size="sm" onClick={onDelete}>
-                <Trash2Icon className="mr-1.5 size-4" />
-                <span className="hidden sm:inline">{deleteLabel}</span>
-              </Button>
-            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={onDelete}
+              className="justify-center md:ml-auto md:justify-start"
+            >
+              <Trash2Icon className="mr-1.5 size-4 shrink-0" />
+              <span>{deleteLabel}</span>
+            </Button>
           )}
         </div>
       </div>

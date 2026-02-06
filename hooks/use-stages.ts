@@ -10,6 +10,10 @@ import {
   reorderStages,
 } from "@/app/actions/stage-actions";
 import {
+  isDefaultConfigId,
+  getDefaultStages,
+} from "@/lib/config/default-stages";
+import {
   useEncryptionContext,
   encryptStageInput,
   encryptStageUpdate,
@@ -20,7 +24,7 @@ import { useCSRFToken } from "@/lib/csrf-client";
 import type { Stage, StageInput } from "@/lib/types";
 
 /**
- *
+ * Return type for useStages hook
  */
 interface UseStagesReturn {
   /** List of decrypted stages */
@@ -29,6 +33,8 @@ interface UseStagesReturn {
   isLoading: boolean;
   /** Error message if something went wrong */
   error: string | null;
+  /** Whether this is a default (read-only) config */
+  isDefaultConfig: boolean;
   /** Refresh stages from server */
   refresh: () => Promise<void>;
   /** Create a new stage */
@@ -45,6 +51,27 @@ interface UseStagesReturn {
 }
 
 /**
+ * Convert default stages to Stage format with placeholder user fields
+ */
+function convertDefaultStagesToStages(
+  configId: string,
+  defaultStages: ReturnType<typeof getDefaultStages>
+): Stage[] {
+  if (!defaultStages) return [];
+  return defaultStages.map((ds) => ({
+    id: ds.id,
+    config_id: configId,
+    user_id: "default",
+    name: ds.name,
+    color: ds.color,
+    icon: ds.icon,
+    sort_order: ds.sort_order,
+    default_rows_shown: ds.default_rows_shown,
+    created_at: new Date().toISOString(),
+  }));
+}
+
+/**
  * Hook to manage Stages within a specific StageConfig
  */
 export function useStages(configId: string | null): UseStagesReturn {
@@ -55,8 +82,27 @@ export function useStages(configId: string | null): UseStagesReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Check if this is a default config (read-only)
+  const isDefault = configId ? isDefaultConfigId(configId) : false;
+
   const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !configId) {
+    if (!configId) {
+      setStages([]);
+      setIsLoading(false);
+      return;
+    }
+
+    // Handle default configs - return hardcoded stages directly
+    if (isDefaultConfigId(configId)) {
+      const defaultStages = getDefaultStages(configId);
+      setStages(convertDefaultStagesToStages(configId, defaultStages));
+      setIsLoading(false);
+      setError(null);
+      return;
+    }
+
+    // User configs require encryption to be unlocked
+    if (!masterKey || !isUnlocked) {
       setStages([]);
       setIsLoading(false);
       return;
@@ -85,6 +131,12 @@ export function useStages(configId: string | null): UseStagesReturn {
 
   const create = useCallback(
     async (input: StageInput): Promise<{ id: string } | null> => {
+      // Prevent modifications on default configs
+      if (isDefault) {
+        setError("Cannot modify default configuration");
+        return null;
+      }
+
       if (!masterKey || !csrfToken) {
         setError("Encryption not unlocked");
         return null;
@@ -105,7 +157,7 @@ export function useStages(configId: string | null): UseStagesReturn {
         return null;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken, refresh, isDefault]
   );
 
   const update = useCallback(
@@ -113,6 +165,12 @@ export function useStages(configId: string | null): UseStagesReturn {
       id: string,
       input: Partial<Omit<StageInput, "config_id">>
     ): Promise<boolean> => {
+      // Prevent modifications on default configs
+      if (isDefault) {
+        setError("Cannot modify default configuration");
+        return false;
+      }
+
       if (!masterKey || !csrfToken) {
         setError("Encryption not unlocked");
         return false;
@@ -133,11 +191,17 @@ export function useStages(configId: string | null): UseStagesReturn {
         return false;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken, refresh, isDefault]
   );
 
   const remove = useCallback(
     async (id: string): Promise<boolean> => {
+      // Prevent modifications on default configs
+      if (isDefault) {
+        setError("Cannot modify default configuration");
+        return false;
+      }
+
       if (!csrfToken) {
         setError("CSRF token not available");
         return false;
@@ -157,11 +221,17 @@ export function useStages(configId: string | null): UseStagesReturn {
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken, refresh, isDefault]
   );
 
   const reorder = useCallback(
     async (updates: { id: string; sort_order: number }[]): Promise<boolean> => {
+      // Prevent modifications on default configs
+      if (isDefault) {
+        setError("Cannot modify default configuration");
+        return false;
+      }
+
       if (!csrfToken) {
         setError("CSRF token not available");
         return false;
@@ -183,11 +253,16 @@ export function useStages(configId: string | null): UseStagesReturn {
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken, refresh, isDefault]
   );
 
   useEffect(() => {
-    if (isUnlocked && masterKey && configId) {
+    if (!configId) {
+      setStages([]);
+      setIsLoading(false);
+      return;
+    }
+    if (isUnlocked && masterKey) {
       void refresh();
     }
   }, [isUnlocked, masterKey, configId, refresh]);
@@ -196,6 +271,7 @@ export function useStages(configId: string | null): UseStagesReturn {
     stages,
     isLoading,
     error,
+    isDefaultConfig: isDefault,
     refresh,
     create,
     update,

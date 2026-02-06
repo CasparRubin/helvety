@@ -51,15 +51,12 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
     create: createConfig,
     remove: removeConfig,
     update: updateConfig,
-  } = useStageConfigs();
-  const { assignment, assign, unassign } = useStageAssignment("space", unitId);
-  const {
-    stages,
-    isLoading: isLoadingStages,
-    create: createStage,
-    update: updateStage,
-    remove: removeStage,
-  } = useStages(assignment?.config_id ?? null);
+  } = useStageConfigs("space");
+  const { effectiveConfigId, assign, unassign } = useStageAssignment(
+    "space",
+    unitId
+  );
+  const { stages } = useStages(effectiveConfigId);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -254,22 +251,10 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
         onOpenChange={setIsConfiguratorOpen}
         entityType="space"
         configs={configs}
-        stages={stages}
-        assignedConfigId={assignment?.config_id ?? null}
-        isLoadingStages={isLoadingStages}
+        assignedConfigId={effectiveConfigId}
         onCreateConfig={async (name) => createConfig({ name })}
         onDeleteConfig={removeConfig}
         onUpdateConfig={async (id, name) => updateConfig(id, { name })}
-        onCreateStage={async (configId, name, color, sortOrder) =>
-          createStage({
-            config_id: configId,
-            name,
-            color,
-            sort_order: sortOrder,
-          })
-        }
-        onUpdateStage={async (id, updates) => updateStage(id, updates)}
-        onDeleteStage={removeStage}
         onAssignConfig={assign}
         onUnassignConfig={unassign}
       />

@@ -14,6 +14,11 @@ A private and secure task management app with end-to-end encryption. All your da
 - **End-to-end encryption** - All task data is encrypted client-side using your passkey; we never see your data
 - **Units, Spaces, and Items** - Hierarchical organization: Units (top-level containers) → Spaces (teams/projects) → Items (tasks)
 - **Stage management** - Create and manage reusable stage configurations for organizing items (e.g., To Do, In Progress, Done)
+  - **Default configurations** - Built-in stage setups for Units (Work/Home), Spaces (Upcoming/In Progress/Completed), and Items (full workflow from Backlog to Completed)
+  - **Custom configurations** - Create your own stage setups with custom names, colors, and Lucide icons
+  - **Color picker** - Choose from preset colors or use the custom color picker for any hex color
+  - **Icon support** - Each stage can have a Lucide icon for visual identification
+  - **Rows shown by default** - Control how many items are visible per stage (0 = collapsed, N = show N items with "Show all" link)
 - **Drag & drop reordering** - Easily rearrange items within and between stages
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition

@@ -157,6 +157,8 @@ export interface StageConfig {
   name: string;
   created_at: string;
   updated_at: string;
+  /** True for hardcoded default configs (not stored in DB) */
+  isDefault?: boolean;
 }
 
 /** Input for creating a StageConfig (plaintext, encrypted before sending) */
@@ -178,7 +180,11 @@ export interface StageRow {
   user_id: string;
   encrypted_name: string;
   color: string | null;
+  /** Lucide icon name (e.g., "circle", "check-circle") */
+  icon: string;
   sort_order: number;
+  /** Number of rows to show by default (0 = collapsed) */
+  default_rows_shown: number;
   created_at: string;
 }
 
@@ -189,7 +195,11 @@ export interface Stage {
   user_id: string;
   name: string;
   color: string | null;
+  /** Lucide icon name (e.g., "circle", "check-circle") */
+  icon: string;
   sort_order: number;
+  /** Number of rows to show by default (0 = collapsed) */
+  default_rows_shown: number;
   created_at: string;
 }
 
@@ -198,7 +208,11 @@ export interface StageInput {
   config_id: string;
   name: string;
   color?: string | null;
+  /** Lucide icon name (defaults to "circle" if not provided) */
+  icon?: string;
   sort_order?: number;
+  /** Number of rows to show by default (0 = collapsed, defaults to 20) */
+  default_rows_shown?: number;
 }
 
 // =============================================================================

@@ -71,28 +71,6 @@ export type {
   PRFSupportInfo,
 } from "./prf-key-derivation";
 
-// Task Encryption Helpers (helvety-tasks specific)
-export {
-  encryptUnitInput,
-  encryptUnitUpdate,
-  decryptUnitRow,
-  decryptUnitRows,
-  encryptSpaceInput,
-  encryptSpaceUpdate,
-  decryptSpaceRow,
-  decryptSpaceRows,
-  encryptItemInput,
-  encryptItemUpdate,
-  decryptItemRow,
-  decryptItemRows,
-  encryptStageConfigInput,
-  encryptStageConfigUpdate,
-  decryptStageConfigRows,
-  encryptStageInput,
-  encryptStageUpdate,
-  decryptStageRows,
-} from "./task-encryption";
-
 // Passkey Operations (Authentication only - setup is in auth.helvety.com)
 export {
   isPasskeySupported,
@@ -105,3 +83,32 @@ export {
   getPRFSupportInfo as getPasskeyPRFSupportInfo,
 } from "./passkey";
 export type { RPConfig, PasskeyAuthenticationResult } from "./passkey";
+
+// Task-specific Encryption (helvety-tasks only)
+export {
+  // Unit encryption
+  encryptUnitInput,
+  encryptUnitUpdate,
+  decryptUnitRow,
+  decryptUnitRows,
+  // Space encryption
+  encryptSpaceInput,
+  encryptSpaceUpdate,
+  decryptSpaceRow,
+  decryptSpaceRows,
+  // Item encryption
+  encryptItemInput,
+  encryptItemUpdate,
+  decryptItemRow,
+  decryptItemRows,
+  // StageConfig encryption
+  encryptStageConfigInput,
+  encryptStageConfigUpdate,
+  decryptStageConfigRow,
+  decryptStageConfigRows,
+  // Stage encryption
+  encryptStageInput,
+  encryptStageUpdate,
+  decryptStageRow,
+  decryptStageRows,
+} from "./task-encryption";

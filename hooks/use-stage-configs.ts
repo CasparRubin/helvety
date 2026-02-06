@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 
 import {
   getStageConfigs,
@@ -9,6 +9,10 @@ import {
   deleteStageConfig,
 } from "@/app/actions/stage-actions";
 import {
+  DEFAULT_STAGE_CONFIGS,
+  isDefaultConfigId,
+} from "@/lib/config/default-stages";
+import {
   useEncryptionContext,
   encryptStageConfigInput,
   encryptStageConfigUpdate,
@@ -16,13 +20,13 @@ import {
 } from "@/lib/crypto";
 import { useCSRFToken } from "@/lib/csrf-client";
 
-import type { StageConfig, StageConfigInput } from "@/lib/types";
+import type { StageConfig, StageConfigInput, EntityType } from "@/lib/types";
 
 /**
- *
+ * Return type for useStageConfigs hook
  */
 interface UseStageConfigsReturn {
-  /** List of decrypted stage configs */
+  /** List of decrypted stage configs (includes default for entity type) */
   configs: StageConfig[];
   /** Whether configs are being loaded */
   isLoading: boolean;
@@ -39,19 +43,52 @@ interface UseStageConfigsReturn {
 }
 
 /**
- * Hook to manage StageConfigs with automatic encryption/decryption
+ * Convert a default config to StageConfig format
  */
-export function useStageConfigs(): UseStageConfigsReturn {
+function getDefaultConfigAsStageConfig(entityType: EntityType): StageConfig {
+  const defaultConfig = DEFAULT_STAGE_CONFIGS[entityType];
+  return {
+    id: defaultConfig.id,
+    user_id: "default",
+    name: defaultConfig.name,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    isDefault: true,
+  };
+}
+
+/**
+ * Hook to manage StageConfigs with automatic encryption/decryption
+ * @param entityType - The entity type to get the relevant default config for
+ */
+export function useStageConfigs(
+  entityType?: EntityType
+): UseStageConfigsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
-  const [configs, setConfigs] = useState<StageConfig[]>([]);
+  const [userConfigs, setUserConfigs] = useState<StageConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Get the default config for the entity type
+  const defaultConfig = useMemo(() => {
+    return entityType ? getDefaultConfigAsStageConfig(entityType) : null;
+  }, [entityType]);
+
+  // Combine default config with user configs
+  const configs = useMemo(() => {
+    const result: StageConfig[] = [];
+    if (defaultConfig) {
+      result.push(defaultConfig);
+    }
+    result.push(...userConfigs);
+    return result;
+  }, [defaultConfig, userConfigs]);
+
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked) {
-      setConfigs([]);
+      setUserConfigs([]);
       setIsLoading(false);
       return;
     }
@@ -63,17 +100,17 @@ export function useStageConfigs(): UseStageConfigsReturn {
       const result = await getStageConfigs();
       if (!result.success || !result.data) {
         setError(result.error ?? "Failed to fetch stage configs");
-        setConfigs([]);
+        setUserConfigs([]);
         return;
       }
 
       const decrypted = await decryptStageConfigRows(result.data, masterKey);
-      setConfigs(decrypted);
+      setUserConfigs(decrypted);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch stage configs"
       );
-      setConfigs([]);
+      setUserConfigs([]);
     } finally {
       setIsLoading(false);
     }
@@ -108,6 +145,12 @@ export function useStageConfigs(): UseStageConfigsReturn {
 
   const update = useCallback(
     async (id: string, input: Partial<StageConfigInput>): Promise<boolean> => {
+      // Prevent modifications on default configs
+      if (isDefaultConfigId(id)) {
+        setError("Cannot modify default configuration");
+        return false;
+      }
+
       if (!masterKey || !csrfToken) {
         setError("Encryption not unlocked");
         return false;
@@ -135,6 +178,12 @@ export function useStageConfigs(): UseStageConfigsReturn {
 
   const remove = useCallback(
     async (id: string): Promise<boolean> => {
+      // Prevent modifications on default configs
+      if (isDefaultConfigId(id)) {
+        setError("Cannot delete default configuration");
+        return false;
+      }
+
       if (!csrfToken) {
         setError("CSRF token not available");
         return false;

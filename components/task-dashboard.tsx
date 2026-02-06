@@ -38,15 +38,12 @@ export function TaskDashboard() {
     create: createConfig,
     remove: removeConfig,
     update: updateConfig,
-  } = useStageConfigs();
-  const { assignment, assign, unassign } = useStageAssignment("unit", null);
-  const {
-    stages,
-    isLoading: isLoadingStages,
-    create: createStage,
-    update: updateStage,
-    remove: removeStage,
-  } = useStages(assignment?.config_id ?? null);
+  } = useStageConfigs("unit");
+  const { effectiveConfigId, assign, unassign } = useStageAssignment(
+    "unit",
+    null
+  );
+  const { stages } = useStages(effectiveConfigId);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -195,22 +192,10 @@ export function TaskDashboard() {
         onOpenChange={setIsConfiguratorOpen}
         entityType="unit"
         configs={configs}
-        stages={stages}
-        assignedConfigId={assignment?.config_id ?? null}
-        isLoadingStages={isLoadingStages}
+        assignedConfigId={effectiveConfigId}
         onCreateConfig={async (name) => createConfig({ name })}
         onDeleteConfig={removeConfig}
         onUpdateConfig={async (id, name) => updateConfig(id, { name })}
-        onCreateStage={async (configId, name, color, sortOrder) =>
-          createStage({
-            config_id: configId,
-            name,
-            color,
-            sort_order: sortOrder,
-          })
-        }
-        onUpdateStage={async (id, updates) => updateStage(id, updates)}
-        onDeleteStage={removeStage}
         onAssignConfig={assign}
         onUnassignConfig={unassign}
       />

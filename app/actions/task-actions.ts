@@ -103,7 +103,11 @@ const ReorderSchema = z.array(
   z.object({
     id: z.string().uuid(),
     sort_order: z.number().int().min(0),
-    stage_id: z.string().uuid().nullable().optional(),
+    // Accept both UUIDs (custom stages) and default stage IDs (e.g., "default-item-backlog")
+    stage_id: z
+      .union([z.string().uuid(), z.string().startsWith("default-")])
+      .nullable()
+      .optional(),
   })
 );
 

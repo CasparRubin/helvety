@@ -154,6 +154,15 @@ export function EncryptionGate({
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <div className="text-center">
           <p className="text-destructive">{error ?? "An error occurred"}</p>
+          <p className="text-muted-foreground mt-2 text-sm">
+            If this problem persists, contact us at{" "}
+            <a
+              href="mailto:contact@helvety.com"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              contact@helvety.com
+            </a>
+          </p>
           <button
             onClick={() => window.location.reload()}
             className="text-muted-foreground mt-4 text-sm hover:underline"

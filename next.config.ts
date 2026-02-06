@@ -2,6 +2,14 @@ import path from "path";
 
 import type { NextConfig } from "next";
 
+/**
+ * Next.js configuration for helvety-tasks (task management)
+ *
+ * CSP Note: This app uses a slightly relaxed CSP:
+ * - 'unsafe-eval' is only allowed in development (for Fast Refresh)
+ * - 'blob:' in script-src and 'worker-src' included for potential future use
+ * - turbopack root for proper module resolution
+ */
 const nextConfig: NextConfig = {
   // Enable compression
   compress: true,

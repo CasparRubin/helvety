@@ -5,13 +5,65 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
-import { useState } from "react";
+import * as LucideIcons from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
+import React, { useState } from "react";
 
 import type { Stage } from "@/lib/types";
 
+// =============================================================================
+// Helper: Convert kebab-case to PascalCase for Lucide icons
+// =============================================================================
+
 /**
- *
+ * Converts a kebab-case string to PascalCase.
+ * Used to transform icon names like "check-circle" to "CheckCircle" for Lucide.
+ */
+function toPascalCase(str: string): string {
+  return str
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+}
+
+// =============================================================================
+// Helper: Get Lucide icon component by name
+// =============================================================================
+
+/**
+ * Type for a Lucide icon component with optional className and style props.
+ */
+type LucideIconComponent = React.ComponentType<{
+  className?: string;
+  style?: React.CSSProperties;
+}>;
+
+/**
+ * Retrieves a Lucide icon component by its kebab-case name.
+ * Falls back to CircleIcon if the icon is not found.
+ */
+function getLucideIcon(iconName: string): LucideIconComponent {
+  const pascalName = toPascalCase(iconName);
+  const icons = LucideIcons as unknown as Record<string, LucideIconComponent>;
+  const IconComponent = icons[pascalName];
+  return IconComponent ?? CircleIcon;
+}
+
+/**
+ * Renders a stage icon by its kebab-case name.
+ * Uses React.createElement to avoid "component created during render" lint errors.
+ */
+function renderStageIcon(
+  iconName: string,
+  className?: string,
+  style?: React.CSSProperties
+): React.ReactElement {
+  const IconComponent = getLucideIcon(iconName);
+  return React.createElement(IconComponent, { className, style });
+}
+
+/**
+ * Props for the StageGroup component
  */
 interface StageGroupProps {
   stage: Stage;
@@ -25,6 +77,11 @@ interface StageGroupProps {
 /**
  * StageGroup - A collapsible group header for entities in a specific stage.
  * Acts as a droppable zone for DnD.
+ *
+ * Supports "rows shown by default" feature:
+ * - If default_rows_shown === 0: starts collapsed
+ * - If default_rows_shown > 0 && count > default_rows_shown: shows limited rows with "Show all" link
+ * - If default_rows_shown > 0 && count <= default_rows_shown: shows all rows
  */
 export function StageGroup({
   stage,
@@ -32,12 +89,32 @@ export function StageGroup({
   count,
   children,
 }: StageGroupProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Initialize collapsed state based on default_rows_shown (0 = collapsed by default)
+  const [isCollapsed, setIsCollapsed] = useState(
+    stage.default_rows_shown === 0
+  );
+  // Track whether user has clicked "Show all"
+  const [isShowingAll, setIsShowingAll] = useState(false);
 
   const { setNodeRef, isOver } = useDroppable({
     id: `stage-${stage.id}`,
     data: { type: "stage", stageId: stage.id },
   });
+
+  // Determine how many rows to show and whether to show "Show all" link
+  const childrenArray = React.Children.toArray(children);
+  const defaultRowsShown = stage.default_rows_shown;
+  const shouldLimitRows =
+    defaultRowsShown > 0 && count > defaultRowsShown && !isShowingAll;
+  const visibleChildren = shouldLimitRows
+    ? childrenArray.slice(0, defaultRowsShown)
+    : childrenArray;
+  const hiddenCount = shouldLimitRows ? count - defaultRowsShown : 0;
+
+  // IDs for visible entities only (for SortableContext)
+  const visibleEntityIds = shouldLimitRows
+    ? entityIds.slice(0, defaultRowsShown)
+    : entityIds;
 
   return (
     <div className="mb-2">
@@ -55,6 +132,11 @@ export function StageGroup({
         ) : (
           <ChevronDownIcon className="text-muted-foreground size-4 shrink-0" />
         )}
+
+        {/* Stage icon */}
+        {renderStageIcon(stage.icon, "size-4 shrink-0", {
+          color: stage.color ?? "var(--muted-foreground)",
+        })}
 
         {/* Color dot */}
         <span
@@ -83,11 +165,33 @@ export function StageGroup({
           }
         >
           <SortableContext
-            items={entityIds}
+            items={visibleEntityIds}
             strategy={verticalListSortingStrategy}
           >
-            {children}
+            {visibleChildren}
           </SortableContext>
+
+          {/* Show all link */}
+          {shouldLimitRows && (
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground w-full py-2 pl-4 text-left text-xs transition-colors"
+              onClick={() => setIsShowingAll(true)}
+            >
+              Show all ({hiddenCount} more)
+            </button>
+          )}
+
+          {/* Show less link when expanded */}
+          {isShowingAll && count > defaultRowsShown && defaultRowsShown > 0 && (
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground w-full py-2 pl-4 text-left text-xs transition-colors"
+              onClick={() => setIsShowingAll(false)}
+            >
+              Show less
+            </button>
+          )}
         </div>
       )}
     </div>
