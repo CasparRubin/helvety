@@ -2,6 +2,16 @@ import path from "path";
 
 import type { NextConfig } from "next";
 
+/**
+ * Next.js configuration for helvety-pdf (PDF tools)
+ *
+ * CSP Note: This app requires a RELAXED CSP for PDF.js functionality:
+ * - 'unsafe-eval' is ALWAYS allowed (PDF.js uses eval for font parsing)
+ * - 'blob:' in script-src for dynamic PDF content
+ * - 'worker-src' for PDF.js web workers
+ * - webpack canvas alias to prevent SSR errors
+ * - turbopack root for proper module resolution
+ */
 const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
