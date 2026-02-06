@@ -58,10 +58,11 @@ Note: While your files never leave your device, the hosting provider may collect
         isFree: true,
         features: [
           "Upload maximal 2 Files",
-          "Maximum 5 pages",
+          "Maximum 10 pages",
           "Merge Files",
           "Split Files",
           "Reorder pages",
+          "Rotate pages",
           "Client-side processing",
         ],
       },
