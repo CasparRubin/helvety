@@ -13,6 +13,12 @@ A private and secure task management app with end-to-end encryption. All your da
 
 - **End-to-end encryption** - All task data is encrypted client-side using your passkey; we never see your data
 - **Units, Spaces, and Items** - Hierarchical organization: Units (top-level containers) → Spaces (teams/projects) → Items (tasks)
+- **Rich text descriptions** - Full-featured editor for item descriptions with formatting toolbar
+  - Text formatting (bold, italic, underline, strikethrough)
+  - Headings (H1, H2, H3)
+  - Bullet and numbered lists
+  - Link support
+  - Auto-save with unsaved changes indicator
 - **Stage management** - Create and manage reusable stage configurations for organizing items (e.g., To Do, In Progress, Done)
   - **Default configurations** - Built-in stage setups for Units (Work/Home), Spaces (Upcoming/In Progress/Completed), and Items (full workflow from Backlog to Completed)
   - **Custom configurations** - Create your own stage setups with custom names, colors, and Lucide icons
@@ -98,6 +104,7 @@ This project is built with modern web technologies:
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
+- **[Tiptap](https://tiptap.dev/)** - Headless WYSIWYG rich text editor
 - **[dnd kit](https://dndkit.com/)** - Drag and drop toolkit for React
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library

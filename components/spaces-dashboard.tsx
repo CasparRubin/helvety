@@ -44,7 +44,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
   const router = useRouter();
   const { unit, isLoading: isLoadingUnit } = useUnit(unitId);
   const { remove: removeUnit } = useUnits();
-  const { spaces, isLoading, error, create, remove, reorder } =
+  const { spaces, isLoading, error, refresh, create, remove, reorder } =
     useSpaces(unitId);
   const {
     configs,
@@ -73,6 +73,16 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
   // Unit delete state (for deleting the parent unit from command bar)
   const [isUnitDeleteOpen, setIsUnitDeleteOpen] = useState(false);
   const [isDeletingUnit, setIsDeletingUnit] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Get the first stage (lowest sort_order) as the default for new entities
+  const defaultStageId =
+    stages.length > 0
+      ? stages.reduce(
+          (min, s) => (s.sort_order < min.sort_order ? s : min),
+          stages[0]!
+        ).id
+      : null;
 
   const handleCreate = useCallback(
     async (e: React.FormEvent) => {
@@ -85,6 +95,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
           unit_id: unitId,
           title: newTitle.trim(),
           description: newDescription.trim() || null,
+          stage_id: defaultStageId,
         });
 
         if (result) {
@@ -96,7 +107,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
         setIsCreating(false);
       }
     },
-    [newTitle, newDescription, create, unitId]
+    [newTitle, newDescription, create, unitId, defaultStageId]
   );
 
   const handleDeleteClick = useCallback((id: string, name: string) => {
@@ -140,6 +151,15 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
     }
   }, [removeUnit, unitId, router]);
 
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refresh]);
+
   return (
     <>
       <TaskCommandBar
@@ -147,6 +167,8 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
         onConfigureStages={() => setIsConfiguratorOpen(true)}
         onCreateClick={() => setIsCreateOpen(true)}
         createLabel="New Space"
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
         onDelete={handleDeleteUnit}
         deleteLabel="Delete Unit"
       />
@@ -180,8 +202,6 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
           onEntityClick={handleEntityClick}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
-          emptyTitle="No spaces yet"
-          emptyDescription="Create your first space to start organizing tasks within this unit."
         />
       </div>
 

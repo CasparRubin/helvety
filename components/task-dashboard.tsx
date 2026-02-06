@@ -32,7 +32,8 @@ import {
  */
 export function TaskDashboard() {
   const router = useRouter();
-  const { units, isLoading, error, create, remove, reorder } = useUnits();
+  const { units, isLoading, error, refresh, create, remove, reorder } =
+    useUnits();
   const {
     configs,
     create: createConfig,
@@ -56,6 +57,16 @@ export function TaskDashboard() {
     name: string | null;
   }>({ open: false, id: null, name: null });
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Get the first stage (lowest sort_order) as the default for new entities
+  const defaultStageId =
+    stages.length > 0
+      ? stages.reduce(
+          (min, s) => (s.sort_order < min.sort_order ? s : min),
+          stages[0]!
+        ).id
+      : null;
 
   const handleCreate = useCallback(
     async (e: React.FormEvent) => {
@@ -67,6 +78,7 @@ export function TaskDashboard() {
         const result = await create({
           title: newTitle.trim(),
           description: newDescription.trim() || null,
+          stage_id: defaultStageId,
         });
 
         if (result) {
@@ -78,7 +90,7 @@ export function TaskDashboard() {
         setIsCreating(false);
       }
     },
-    [newTitle, newDescription, create]
+    [newTitle, newDescription, create, defaultStageId]
   );
 
   const handleDeleteClick = useCallback((id: string, name: string) => {
@@ -103,12 +115,23 @@ export function TaskDashboard() {
     [router]
   );
 
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refresh]);
+
   return (
     <>
       <TaskCommandBar
         onConfigureStages={() => setIsConfiguratorOpen(true)}
         onCreateClick={() => setIsCreateOpen(true)}
         createLabel="New Unit"
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
       />
 
       <div className="container mx-auto px-4 py-8">
@@ -123,8 +146,6 @@ export function TaskDashboard() {
           onEntityClick={handleEntityClick}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
-          emptyTitle="No units yet"
-          emptyDescription="Create your first unit to start organizing your tasks. All your data is encrypted and only you can read it."
         />
       </div>
 

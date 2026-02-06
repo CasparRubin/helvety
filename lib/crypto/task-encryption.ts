@@ -42,7 +42,11 @@ import type {
 export async function encryptUnitInput(
   input: UnitInput,
   key: CryptoKey
-): Promise<{ encrypted_title: string; encrypted_description: string | null }> {
+): Promise<{
+  encrypted_title: string;
+  encrypted_description: string | null;
+  stage_id?: string | null;
+}> {
   const encryptedTitle = await encrypt(input.title, key);
 
   let encryptedDescription: string | null = null;
@@ -54,6 +58,7 @@ export async function encryptUnitInput(
   return {
     encrypted_title: serializeEncryptedData(encryptedTitle),
     encrypted_description: encryptedDescription,
+    stage_id: input.stage_id,
   };
 }
 
@@ -111,6 +116,7 @@ export async function encryptSpaceInput(
   unit_id: string;
   encrypted_title: string;
   encrypted_description: string | null;
+  stage_id?: string | null;
 }> {
   const encryptedTitle = await encrypt(input.title, key);
 
@@ -124,6 +130,7 @@ export async function encryptSpaceInput(
     unit_id: input.unit_id,
     encrypted_title: serializeEncryptedData(encryptedTitle),
     encrypted_description: encryptedDescription,
+    stage_id: input.stage_id,
   };
 }
 
@@ -181,6 +188,7 @@ export async function encryptItemInput(
   space_id: string;
   encrypted_title: string;
   encrypted_description: string | null;
+  stage_id?: string | null;
 }> {
   const encryptedTitle = await encrypt(input.title, key);
 
@@ -194,6 +202,7 @@ export async function encryptItemInput(
     space_id: input.space_id,
     encrypted_title: serializeEncryptedData(encryptedTitle),
     encrypted_description: encryptedDescription,
+    stage_id: input.stage_id,
   };
 }
 

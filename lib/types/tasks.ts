@@ -52,6 +52,8 @@ export interface Unit {
 export interface UnitInput {
   title: string;
   description: string | null;
+  /** Optional stage ID - can be a UUID (custom) or default stage ID (e.g., "default-unit-work") */
+  stage_id?: string | null;
 }
 
 // =============================================================================
@@ -92,6 +94,8 @@ export interface SpaceInput {
   unit_id: string;
   title: string;
   description: string | null;
+  /** Optional stage ID - can be a UUID (custom) or default stage ID (e.g., "default-space-upcoming") */
+  stage_id?: string | null;
 }
 
 // =============================================================================
@@ -132,6 +136,8 @@ export interface ItemInput {
   space_id: string;
   title: string;
   description: string | null;
+  /** Optional stage ID - can be a UUID (custom) or default stage ID (e.g., "default-item-backlog") */
+  stage_id?: string | null;
 }
 
 // =============================================================================

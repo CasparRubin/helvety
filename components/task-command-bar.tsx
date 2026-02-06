@@ -2,18 +2,20 @@
 
 /**
  * Task command bar - sticky toolbar below navbar
- * Contains navigation, action buttons (Stage Configuration, New), and optional delete
+ * Contains navigation, action buttons (Stage Configuration, New, Refresh), and optional delete
  */
 
 import {
   AlignVerticalSpaceAround,
   ArrowLeftIcon,
   PlusIcon,
+  RefreshCwIcon,
   Trash2Icon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 /** Props for the TaskCommandBar component. */
 interface TaskCommandBarProps {
@@ -25,6 +27,10 @@ interface TaskCommandBarProps {
   onCreateClick: () => void;
   /** Label for the create button - "New Unit", "New Space", "New Item" */
   createLabel: string;
+  /** Callback to refresh the data (if provided, shows refresh button) */
+  onRefresh?: () => void;
+  /** Whether a refresh operation is in progress */
+  isRefreshing?: boolean;
   /** Callback to delete the current entity (if provided, shows delete button) */
   onDelete?: () => void;
   /** Label for the delete button - "Delete Unit", "Delete Space" */
@@ -32,13 +38,15 @@ interface TaskCommandBarProps {
 }
 
 /**
- * Renders the task command bar with navigation, actions, and optional delete.
+ * Renders the task command bar with navigation, actions, refresh, and optional delete.
  */
 export function TaskCommandBar({
   onBack,
   onConfigureStages,
   onCreateClick,
   createLabel,
+  onRefresh,
+  isRefreshing,
   onDelete,
   deleteLabel,
 }: TaskCommandBarProps) {
@@ -84,6 +92,23 @@ export function TaskCommandBar({
             <PlusIcon className="mr-1.5 size-4 shrink-0" />
             <span>{createLabel}</span>
           </Button>
+          {onRefresh && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="justify-center md:justify-start"
+            >
+              <RefreshCwIcon
+                className={cn(
+                  "mr-1.5 size-4 shrink-0",
+                  isRefreshing && "animate-spin"
+                )}
+              />
+              <span>Refresh</span>
+            </Button>
+          )}
           {onDelete && deleteLabel && (
             <Button
               variant="destructive"

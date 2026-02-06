@@ -12,7 +12,7 @@ import {
   BoxIcon,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+import { getDescriptionPlainText } from "@/components/tiptap-editor";
 import { Button } from "@/components/ui/button";
 
 import type { Stage, EntityType } from "@/lib/types";
@@ -44,8 +44,8 @@ interface EntityRowProps {
 /**
  * EntityRow - A single row in the entity list/table.
  *
- * Desktop: drag handle, icon, title, description (subtle), stage badge, date, actions
- * Mobile: up/down arrows, icon, title, stage badge, actions
+ * Desktop: drag handle, icon (stage-colored), title, description (subtle), date, actions
+ * Mobile: up/down arrows, icon (stage-colored), title, actions
  */
 export function EntityRow({
   id,
@@ -126,7 +126,10 @@ export function EntityRow({
       </div>
 
       {/* Icon */}
-      <Icon className="text-primary size-4 shrink-0" />
+      <Icon
+        className="size-4 shrink-0"
+        style={stage?.color ? { color: stage.color } : undefined}
+      />
 
       {/* Title + Description (clickable area) */}
       <div
@@ -144,28 +147,10 @@ export function EntityRow({
         <span className="truncate font-medium">{title}</span>
         {description && (
           <span className="text-muted-foreground hidden truncate text-sm md:inline">
-            {description}
+            {getDescriptionPlainText(description)}
           </span>
         )}
       </div>
-
-      {/* Stage Badge */}
-      {stage && (
-        <Badge
-          variant="outline"
-          className="shrink-0"
-          style={
-            stage.color
-              ? {
-                  borderColor: stage.color,
-                  color: stage.color,
-                }
-              : undefined
-          }
-        >
-          {stage.name}
-        </Badge>
-      )}
 
       {/* Date (desktop only) */}
       <span className="text-muted-foreground hidden shrink-0 text-xs md:inline">

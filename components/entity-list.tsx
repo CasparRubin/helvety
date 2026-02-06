@@ -9,6 +9,7 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragOverEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -16,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Loader2Icon } from "lucide-react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { EntityRow } from "@/components/entity-row";
 import { StageGroup, UnstagedGroup } from "@/components/stage-group";
@@ -39,6 +40,7 @@ type AnyEntity = (Unit | Space | Item) & {
   stage_id: string | null;
   sort_order: number;
   created_at: string;
+  updated_at: string;
   id: string;
 };
 
@@ -62,9 +64,9 @@ interface EntityListProps {
   onEntityDelete?: (id: string, title: string) => void;
   /** Callback for batch reorder (drag-and-drop) */
   onReorder?: (updates: ReorderUpdate[]) => Promise<boolean>;
-  /** Empty state title */
+  /** Empty state title (only shown when no stages configured) */
   emptyTitle?: string;
-  /** Empty state description */
+  /** Empty state description (only shown when no stages configured) */
   emptyDescription?: string;
 }
 
@@ -72,8 +74,8 @@ interface EntityListProps {
  * EntityList - Generic list/table component for Units, Spaces, or Items.
  *
  * Features:
- * - Groups entities by stage (when stages are configured)
- * - Flat list fallback (when no stages)
+ * - Always shows stage groups when stages are configured (even with no entities)
+ * - Flat list fallback (when no stages configured)
  * - Drag-and-drop reordering within and between stages
  * - Desktop: drag handles, Mobile: up/down arrows
  * - Consistent row layout across all entity types
@@ -103,6 +105,33 @@ export function EntityList({
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
+  );
+
+  // Track which stage is being hovered during drag
+  const [hoveredStageId, setHoveredStageId] = useState<string | null>(null);
+
+  // Handle drag over to track hovered stage
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { over } = event;
+      if (!over) {
+        setHoveredStageId(null);
+        return;
+      }
+
+      // If over a stage directly
+      if (over.data?.current?.type === "stage") {
+        setHoveredStageId(over.data.current.stageId ?? "unstaged");
+        return;
+      }
+
+      // If over an entity, find which stage it belongs to
+      const overEntity = entities.find((e) => e.id === over.id);
+      if (overEntity) {
+        setHoveredStageId(overEntity.stage_id ?? "unstaged");
+      }
+    },
+    [entities]
   );
 
   // Build a stage map for quick lookup
@@ -146,6 +175,9 @@ export function EntityList({
   // Handle drag end
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
+      // Reset hovered stage when drag ends
+      setHoveredStageId(null);
+
       const { active, over } = event;
       if (!over || !onReorder) return;
       if (active.id === over.id) return;
@@ -287,8 +319,99 @@ export function EntityList({
         </div>
       )}
 
-      {/* Empty state */}
-      {entities.length === 0 ? (
+      {/* Stage groups - always shown when stages exist */}
+      {hasStages ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <div>
+            {stages.map((stage) => {
+              const stageEntities = groupedEntities?.get(stage.id) ?? [];
+              return (
+                <StageGroup
+                  key={stage.id}
+                  stage={stage}
+                  entityIds={stageEntities.map((e) => e.id)}
+                  count={stageEntities.length}
+                  isHighlighted={hoveredStageId === stage.id}
+                >
+                  {stageEntities
+                    .sort(
+                      (a, b) =>
+                        new Date(b.updated_at).getTime() -
+                        new Date(a.updated_at).getTime()
+                    )
+                    .map((entity, idx) => (
+                      <EntityRow
+                        key={entity.id}
+                        id={entity.id}
+                        title={entity.title}
+                        description={entity.description}
+                        createdAt={entity.created_at}
+                        entityType={entityType}
+                        stage={stageMap.get(entity.stage_id ?? "")}
+                        isFirst={idx === 0}
+                        isLast={idx === stageEntities.length - 1}
+                        onClick={() => onEntityClick?.(entity)}
+                        onDelete={
+                          onEntityDelete
+                            ? () => onEntityDelete(entity.id, entity.title)
+                            : undefined
+                        }
+                        onMoveUp={() => handleMoveUp(entity.id)}
+                        onMoveDown={() => handleMoveDown(entity.id)}
+                      />
+                    ))}
+                </StageGroup>
+              );
+            })}
+
+            {/* Unstaged entities */}
+            {(() => {
+              const unstagedEntities = groupedEntities?.get(null) ?? [];
+              if (unstagedEntities.length === 0) return null;
+              return (
+                <UnstagedGroup
+                  entityIds={unstagedEntities.map((e) => e.id)}
+                  count={unstagedEntities.length}
+                  isHighlighted={hoveredStageId === "unstaged"}
+                >
+                  {unstagedEntities
+                    .sort(
+                      (a, b) =>
+                        new Date(b.updated_at).getTime() -
+                        new Date(a.updated_at).getTime()
+                    )
+                    .map((entity, idx) => (
+                      <EntityRow
+                        key={entity.id}
+                        id={entity.id}
+                        title={entity.title}
+                        description={entity.description}
+                        createdAt={entity.created_at}
+                        entityType={entityType}
+                        isFirst={idx === 0}
+                        isLast={idx === unstagedEntities.length - 1}
+                        onClick={() => onEntityClick?.(entity)}
+                        onDelete={
+                          onEntityDelete
+                            ? () => onEntityDelete(entity.id, entity.title)
+                            : undefined
+                        }
+                        onMoveUp={() => handleMoveUp(entity.id)}
+                        onMoveDown={() => handleMoveDown(entity.id)}
+                      />
+                    ))}
+                </UnstagedGroup>
+              );
+            })()}
+          </div>
+        </DndContext>
+      ) : entities.length === 0 ? (
+        /* Empty state - only shown when no stages AND no entities */
         <div className="border-border flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
           <h3 className="mb-2 text-lg font-medium">{emptyTitle}</h3>
           <p className="text-muted-foreground text-center text-sm">
@@ -296,115 +419,39 @@ export function EntityList({
           </p>
         </div>
       ) : (
+        /* Flat list (no stages) */
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          {hasStages && groupedEntities ? (
-            // Grouped by stage
-            <div>
-              {stages.map((stage) => {
-                const stageEntities = groupedEntities.get(stage.id) ?? [];
-                return (
-                  <StageGroup
-                    key={stage.id}
-                    stage={stage}
-                    entityIds={stageEntities.map((e) => e.id)}
-                    count={stageEntities.length}
-                  >
-                    {stageEntities
-                      .sort((a, b) => a.sort_order - b.sort_order)
-                      .map((entity, idx) => (
-                        <EntityRow
-                          key={entity.id}
-                          id={entity.id}
-                          title={entity.title}
-                          description={entity.description}
-                          createdAt={entity.created_at}
-                          entityType={entityType}
-                          stage={stageMap.get(entity.stage_id ?? "")}
-                          isFirst={idx === 0}
-                          isLast={idx === stageEntities.length - 1}
-                          onClick={() => onEntityClick?.(entity)}
-                          onDelete={
-                            onEntityDelete
-                              ? () => onEntityDelete(entity.id, entity.title)
-                              : undefined
-                          }
-                          onMoveUp={() => handleMoveUp(entity.id)}
-                          onMoveDown={() => handleMoveDown(entity.id)}
-                        />
-                      ))}
-                  </StageGroup>
-                );
-              })}
-
-              {/* Unstaged entities */}
-              {(() => {
-                const unstagedEntities = groupedEntities.get(null) ?? [];
-                if (unstagedEntities.length === 0) return null;
-                return (
-                  <UnstagedGroup
-                    entityIds={unstagedEntities.map((e) => e.id)}
-                    count={unstagedEntities.length}
-                  >
-                    {unstagedEntities
-                      .sort((a, b) => a.sort_order - b.sort_order)
-                      .map((entity, idx) => (
-                        <EntityRow
-                          key={entity.id}
-                          id={entity.id}
-                          title={entity.title}
-                          description={entity.description}
-                          createdAt={entity.created_at}
-                          entityType={entityType}
-                          isFirst={idx === 0}
-                          isLast={idx === unstagedEntities.length - 1}
-                          onClick={() => onEntityClick?.(entity)}
-                          onDelete={
-                            onEntityDelete
-                              ? () => onEntityDelete(entity.id, entity.title)
-                              : undefined
-                          }
-                          onMoveUp={() => handleMoveUp(entity.id)}
-                          onMoveDown={() => handleMoveDown(entity.id)}
-                        />
-                      ))}
-                  </UnstagedGroup>
-                );
-              })()}
-            </div>
-          ) : (
-            // Flat list (no stages)
-            <div className="border-border divide-border overflow-hidden rounded-lg border">
-              <SortableContext
-                items={entityIds}
-                strategy={verticalListSortingStrategy}
-              >
-                {sortedEntities.map((entity, idx) => (
-                  <EntityRow
-                    key={entity.id}
-                    id={entity.id}
-                    title={entity.title}
-                    description={entity.description}
-                    createdAt={entity.created_at}
-                    entityType={entityType}
-                    isFirst={idx === 0}
-                    isLast={idx === sortedEntities.length - 1}
-                    onClick={() => onEntityClick?.(entity)}
-                    onDelete={
-                      onEntityDelete
-                        ? () => onEntityDelete(entity.id, entity.title)
-                        : undefined
-                    }
-                    onMoveUp={() => handleMoveUp(entity.id)}
-                    onMoveDown={() => handleMoveDown(entity.id)}
-                  />
-                ))}
-              </SortableContext>
-            </div>
-          )}
+          <div className="border-border divide-border overflow-hidden rounded-lg border">
+            <SortableContext
+              items={entityIds}
+              strategy={verticalListSortingStrategy}
+            >
+              {sortedEntities.map((entity, idx) => (
+                <EntityRow
+                  key={entity.id}
+                  id={entity.id}
+                  title={entity.title}
+                  description={entity.description}
+                  createdAt={entity.created_at}
+                  entityType={entityType}
+                  isFirst={idx === 0}
+                  isLast={idx === sortedEntities.length - 1}
+                  onClick={() => onEntityClick?.(entity)}
+                  onDelete={
+                    onEntityDelete
+                      ? () => onEntityDelete(entity.id, entity.title)
+                      : undefined
+                  }
+                  onMoveUp={() => handleMoveUp(entity.id)}
+                  onMoveDown={() => handleMoveDown(entity.id)}
+                />
+              ))}
+            </SortableContext>
+          </div>
         </DndContext>
       )}
     </div>

@@ -45,11 +45,17 @@ const EncryptedDataSchema = z
     { message: "Invalid encrypted data format" }
   );
 
+/** Schema for stage_id - accepts both UUIDs (custom stages) and default stage IDs */
+const StageIdSchema = z
+  .union([z.string().uuid(), z.string().startsWith("default-")])
+  .nullable()
+  .optional();
+
 /** Schema for creating a Unit */
 const CreateUnitSchema = z.object({
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
-  stage_id: z.string().uuid().nullable().optional(),
+  stage_id: StageIdSchema,
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -58,7 +64,7 @@ const UpdateUnitSchema = z.object({
   id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema.optional(),
   encrypted_description: EncryptedDataSchema.nullable().optional(),
-  stage_id: z.string().uuid().nullable().optional(),
+  stage_id: StageIdSchema,
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -67,7 +73,7 @@ const CreateSpaceSchema = z.object({
   unit_id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
-  stage_id: z.string().uuid().nullable().optional(),
+  stage_id: StageIdSchema,
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -76,7 +82,7 @@ const UpdateSpaceSchema = z.object({
   id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema.optional(),
   encrypted_description: EncryptedDataSchema.nullable().optional(),
-  stage_id: z.string().uuid().nullable().optional(),
+  stage_id: StageIdSchema,
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -85,7 +91,7 @@ const CreateItemSchema = z.object({
   space_id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
-  stage_id: z.string().uuid().nullable().optional(),
+  stage_id: StageIdSchema,
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -94,7 +100,7 @@ const UpdateItemSchema = z.object({
   id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema.optional(),
   encrypted_description: EncryptedDataSchema.nullable().optional(),
-  stage_id: z.string().uuid().nullable().optional(),
+  stage_id: StageIdSchema,
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -125,6 +131,7 @@ export async function createUnit(
   data: {
     encrypted_title: string;
     encrypted_description: string | null;
+    stage_id?: string | null;
   },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
@@ -165,6 +172,7 @@ export async function createUnit(
         user_id: user.id,
         encrypted_title: validatedData.encrypted_title,
         encrypted_description: validatedData.encrypted_description,
+        stage_id: validatedData.stage_id ?? null,
       })
       .select("id")
       .single();
@@ -403,6 +411,7 @@ export async function createSpace(
     unit_id: string;
     encrypted_title: string;
     encrypted_description: string | null;
+    stage_id?: string | null;
   },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
@@ -455,6 +464,7 @@ export async function createSpace(
         user_id: user.id,
         encrypted_title: validatedData.encrypted_title,
         encrypted_description: validatedData.encrypted_description,
+        stage_id: validatedData.stage_id ?? null,
       })
       .select("id")
       .single();
@@ -701,6 +711,7 @@ export async function createItem(
     space_id: string;
     encrypted_title: string;
     encrypted_description: string | null;
+    stage_id?: string | null;
   },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
@@ -753,6 +764,7 @@ export async function createItem(
         user_id: user.id,
         encrypted_title: validatedData.encrypted_title,
         encrypted_description: validatedData.encrypted_description,
+        stage_id: validatedData.stage_id ?? null,
       })
       .select("id")
       .single();

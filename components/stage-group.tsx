@@ -72,6 +72,8 @@ interface StageGroupProps {
   /** Count of entities */
   count: number;
   children: React.ReactNode;
+  /** Whether this stage is highlighted (e.g., during drag-over of child entities) */
+  isHighlighted?: boolean;
 }
 
 /**
@@ -88,6 +90,7 @@ export function StageGroup({
   entityIds,
   count,
   children,
+  isHighlighted = false,
 }: StageGroupProps) {
   // Initialize collapsed state based on default_rows_shown (0 = collapsed by default)
   const [isCollapsed, setIsCollapsed] = useState(
@@ -100,6 +103,9 @@ export function StageGroup({
     id: `stage-${stage.id}`,
     data: { type: "stage", stageId: stage.id },
   });
+
+  // Combine both signals - either direct isOver OR highlighted from parent
+  const showHighlight = isOver || isHighlighted;
 
   // Determine how many rows to show and whether to show "Show all" link
   const childrenArray = React.Children.toArray(children);
@@ -122,8 +128,13 @@ export function StageGroup({
       <button
         type="button"
         className={`hover:bg-muted/40 flex w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${
-          isOver ? "bg-primary/5 ring-primary/30 ring-2" : ""
+          showHighlight ? "bg-primary/5 ring-primary/30 ring-2" : ""
         }`}
+        style={
+          stage.color
+            ? { backgroundColor: `${stage.color}14` } // 8% opacity
+            : undefined
+        }
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         {/* Collapse chevron */}
@@ -156,11 +167,11 @@ export function StageGroup({
         <div
           ref={setNodeRef}
           className={`border-border ml-2 border-l-2 transition-colors ${
-            isOver ? "border-primary/40" : ""
+            showHighlight ? "border-primary/40" : ""
           }`}
           style={
             stage.color
-              ? { borderLeftColor: isOver ? undefined : stage.color }
+              ? { borderLeftColor: showHighlight ? undefined : stage.color }
               : undefined
           }
         >
@@ -205,10 +216,12 @@ export function UnstagedGroup({
   entityIds,
   count,
   children,
+  isHighlighted = false,
 }: {
   entityIds: string[];
   count: number;
   children: React.ReactNode;
+  isHighlighted?: boolean;
 }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -217,12 +230,15 @@ export function UnstagedGroup({
     data: { type: "stage", stageId: null },
   });
 
+  // Combine both signals - either direct isOver OR highlighted from parent
+  const showHighlight = isOver || isHighlighted;
+
   return (
     <div className="mb-2">
       <button
         type="button"
         className={`hover:bg-muted/40 flex w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${
-          isOver ? "bg-primary/5 ring-primary/30 ring-2" : ""
+          showHighlight ? "bg-primary/5 ring-primary/30 ring-2" : ""
         }`}
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
@@ -242,7 +258,7 @@ export function UnstagedGroup({
         <div
           ref={setNodeRef}
           className={`border-muted-foreground/30 ml-2 border-l-2 transition-colors ${
-            isOver ? "border-primary/40" : ""
+            showHighlight ? "border-primary/40" : ""
           }`}
         >
           <SortableContext

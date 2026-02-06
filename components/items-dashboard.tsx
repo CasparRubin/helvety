@@ -52,7 +52,7 @@ export function ItemsDashboard({
   const { unit, isLoading: isLoadingUnit } = useUnit(unitId);
   const { space, isLoading: isLoadingSpace } = useSpace(spaceId);
   const { remove: removeSpace } = useSpaces(unitId);
-  const { items, isLoading, error, create, remove, reorder } =
+  const { items, isLoading, error, refresh, create, remove, reorder } =
     useItems(spaceId);
   const {
     configs,
@@ -81,6 +81,16 @@ export function ItemsDashboard({
   // Space delete state (for deleting the parent space from command bar)
   const [isSpaceDeleteOpen, setIsSpaceDeleteOpen] = useState(false);
   const [isDeletingSpace, setIsDeletingSpace] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Get the first stage (lowest sort_order) as the default for new entities
+  const defaultStageId =
+    stages.length > 0
+      ? stages.reduce(
+          (min, s) => (s.sort_order < min.sort_order ? s : min),
+          stages[0]!
+        ).id
+      : null;
 
   const handleCreate = useCallback(
     async (e: React.FormEvent) => {
@@ -93,6 +103,7 @@ export function ItemsDashboard({
           space_id: spaceId,
           title: newTitle.trim(),
           description: newDescription.trim() || null,
+          stage_id: defaultStageId,
         });
 
         if (result) {
@@ -104,7 +115,7 @@ export function ItemsDashboard({
         setIsCreating(false);
       }
     },
-    [newTitle, newDescription, create, spaceId]
+    [newTitle, newDescription, create, spaceId, defaultStageId]
   );
 
   const handleDeleteClick = useCallback((id: string, name: string) => {
@@ -126,6 +137,13 @@ export function ItemsDashboard({
     router.push(`/units/${unitId}`);
   }, [router, unitId]);
 
+  const handleEntityClick = useCallback(
+    (entity: { id: string }) => {
+      router.push(`/units/${unitId}/spaces/${spaceId}/items/${entity.id}`);
+    },
+    [router, unitId, spaceId]
+  );
+
   const handleDeleteSpace = useCallback(() => {
     setIsSpaceDeleteOpen(true);
   }, []);
@@ -141,6 +159,15 @@ export function ItemsDashboard({
     }
   }, [removeSpace, spaceId, unitId, router]);
 
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refresh]);
+
   return (
     <>
       <TaskCommandBar
@@ -148,6 +175,8 @@ export function ItemsDashboard({
         onConfigureStages={() => setIsConfiguratorOpen(true)}
         onCreateClick={() => setIsCreateOpen(true)}
         createLabel="New Item"
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
         onDelete={handleDeleteSpace}
         deleteLabel="Delete Space"
       />
@@ -186,10 +215,9 @@ export function ItemsDashboard({
           isLoading={isLoading}
           error={error}
           stages={stages}
+          onEntityClick={handleEntityClick}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
-          emptyTitle="No items yet"
-          emptyDescription="Create your first item to start tracking tasks in this space."
         />
       </div>
 

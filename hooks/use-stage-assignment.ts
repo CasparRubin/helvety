@@ -7,7 +7,10 @@ import {
   setStageAssignment,
   removeStageAssignment,
 } from "@/app/actions/stage-actions";
-import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
+import {
+  DEFAULT_STAGE_CONFIGS,
+  isDefaultConfigId,
+} from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";
 import { useCSRFToken } from "@/lib/csrf-client";
 
@@ -84,6 +87,25 @@ export function useStageAssignment(
       }
 
       try {
+        // Default configs are not stored in the database - they're hardcoded.
+        // To "assign" a default config, we remove any existing assignment,
+        // which causes effectiveConfigId to fall back to the default.
+        if (isDefaultConfigId(configId)) {
+          const result = await removeStageAssignment(
+            entityType,
+            parentId,
+            csrfToken
+          );
+          if (!result.success) {
+            setError(result.error ?? "Failed to reset to default stages");
+            return false;
+          }
+
+          await refresh();
+          return true;
+        }
+
+        // For custom configs, store the assignment in the database
         const result = await setStageAssignment(
           entityType,
           parentId,
