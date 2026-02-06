@@ -28,7 +28,7 @@ Upload PDF files and images (PNG, JPEG, WebP, GIF), preview page thumbnails, and
 
 The customizable grid layout lets you adjust the view to accommodate different page sizes. With dark and light mode support, you can work comfortably in any environment.
 
-Note: While your files never leave your device, the hosting provider may collect standard connection metadata.`,
+Note: While your files never leave your device, we use Vercel Analytics for anonymous page view statistics. See our Privacy Policy for details.`,
   type: "software",
   category: "productivity",
   status: "available",

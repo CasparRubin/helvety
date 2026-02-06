@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
@@ -71,13 +72,27 @@ export const metadata: Metadata = {
     title: "Helvety Store | Software, Subscriptions & Apparel",
     description:
       "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+    images: [
+      {
+        url: "/helvety_Identifier_whiteBg.svg",
+        width: 500,
+        height: 500,
+        alt: "Helvety Store",
+      },
+    ],
   },
   twitter: {
     card: "summary",
     title: "Helvety Store | Software, Subscriptions & Apparel",
     description:
       "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+    images: [
+      {
+        url: "/helvety_Identifier_whiteBg.svg",
+      },
+    ],
   },
+  manifest: "/manifest.json",
   robots: {
     index: true,
     follow: true,
@@ -122,6 +137,7 @@ export default async function RootLayout({
           </TooltipProvider>
           <Toaster />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

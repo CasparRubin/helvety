@@ -1,0 +1,21 @@
+{
+  "name": "Helvety Store",
+  "short_name": "Helvety Store",
+  "description": "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/helvety_Identifier_whiteBg.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "business"],
+  "lang": "en-US",
+  "dir": "ltr"
+}
