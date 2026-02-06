@@ -1,0 +1,21 @@
+/**
+ * Hooks index
+ * Re-exports all custom hooks for convenient importing
+ */
+
+// Device detection
+export {
+  useIsMobile,
+  isMobileDevice,
+  MOBILE_BREAKPOINT,
+} from "./use-is-mobile";
+
+// Task entity hooks with E2EE
+export { useUnits, useUnit } from "./use-units";
+export { useSpaces, useSpace } from "./use-spaces";
+export { useItems, useItem } from "./use-items";
+
+// Stage hooks with E2EE
+export { useStageConfigs } from "./use-stage-configs";
+export { useStages } from "./use-stages";
+export { useStageAssignment } from "./use-stage-assignment";
