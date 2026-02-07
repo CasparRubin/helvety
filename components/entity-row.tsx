@@ -16,9 +16,10 @@ import { getDescriptionPlainText } from "@/components/tiptap-editor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/dates";
+import { renderStageIcon } from "@/lib/icons";
 import { getPriorityConfig } from "@/lib/priorities";
 
-import type { Stage, EntityType } from "@/lib/types";
+import type { Stage, Label, EntityType } from "@/lib/types";
 
 const ENTITY_ICONS: Record<EntityType, typeof VectorSquareIcon> = {
   unit: VectorSquareIcon,
@@ -26,9 +27,7 @@ const ENTITY_ICONS: Record<EntityType, typeof VectorSquareIcon> = {
   item: BoxIcon,
 };
 
-/**
- *
- */
+/** Props for a single entity row in the list view. */
 interface EntityRowProps {
   id: string;
   title: string;
@@ -38,6 +37,8 @@ interface EntityRowProps {
   stage?: Stage | null;
   /** Priority level (items only, 0-3). Shown as a badge on hover. */
   priority?: number | null;
+  /** Resolved label (items only). Shown as a badge on hover. */
+  label?: Label | null;
   /** Number of child entities (spaces for units, items for spaces) */
   childCount?: number;
   isFirst?: boolean;
@@ -62,6 +63,7 @@ export function EntityRow({
   entityType,
   stage,
   priority,
+  label,
   childCount,
   isFirst = false,
   isLast = false,
@@ -179,6 +181,22 @@ export function EntityRow({
             >
               <PriorityIcon className="size-3" />
               {prioConfig.label}
+            </Badge>
+          );
+        })()}
+
+      {/* Label badge (items only, desktop, hover-only) */}
+      {label != null &&
+        (() => {
+          const labelColor = label.color ?? "var(--muted-foreground)";
+          return (
+            <Badge
+              variant="outline"
+              className="hidden shrink-0 opacity-0 transition-opacity group-hover:opacity-100 md:inline-flex"
+              style={{ borderColor: labelColor, color: labelColor }}
+            >
+              {renderStageIcon(label.icon, "size-3")}
+              {label.name}
             </Badge>
           );
         })()}

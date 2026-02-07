@@ -127,6 +127,7 @@ export function useItems(spaceId: string): UseItemsReturn {
             id,
             ...encrypted,
             ...(input.stage_id !== undefined && { stage_id: input.stage_id }),
+            ...(input.label_id !== undefined && { label_id: input.label_id }),
             ...(input.priority !== undefined && { priority: input.priority }),
           },
           csrfToken
@@ -304,6 +305,7 @@ export function useItem(id: string): UseItemReturn {
             id,
             ...encrypted,
             ...(input.stage_id !== undefined && { stage_id: input.stage_id }),
+            ...(input.label_id !== undefined && { label_id: input.label_id }),
             ...(input.priority !== undefined && { priority: input.priority }),
           },
           csrfToken

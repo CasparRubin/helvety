@@ -27,6 +27,7 @@ import type {
   Space,
   Item,
   Stage,
+  Label,
   EntityType,
   ReorderUpdate,
 } from "@/lib/types";
@@ -44,9 +45,7 @@ type AnyEntity = (Unit | Space | Item) & {
   id: string;
 };
 
-/**
- *
- */
+/** Props for the stage-grouped entity list. */
 interface EntityListProps {
   /** The type of entity being displayed */
   entityType: EntityType;
@@ -60,6 +59,8 @@ interface EntityListProps {
   stages: Stage[];
   /** Map of entity id -> child count (spaces for units, items for spaces) */
   childCounts?: Record<string, number>;
+  /** Available labels for the current config (items only) */
+  labels?: Label[];
   /** Callback when an entity row is clicked */
   onEntityClick?: (entity: AnyEntity) => void;
   /** Callback to delete an entity (receives id and title for confirmation dialog) */
@@ -89,6 +90,7 @@ export function EntityList({
   error,
   stages,
   childCounts,
+  labels,
   onEntityClick,
   onEntityDelete,
   onReorder,
@@ -145,6 +147,16 @@ export function EntityList({
     }
     return map;
   }, [stages]);
+
+  // Build a label map for quick lookup
+  const labelMap = useMemo(() => {
+    if (!labels || labels.length === 0) return null;
+    const map = new Map<string, Label>();
+    for (const l of labels) {
+      map.set(l.id, l);
+    }
+    return map;
+  }, [labels]);
 
   // Group entities by stage
   const groupedEntities = useMemo(() => {
@@ -365,6 +377,12 @@ export function EntityList({
                             ? (entity as Item).priority
                             : null
                         }
+                        label={
+                          "label_id" in entity && (entity as Item).label_id
+                            ? (labelMap?.get((entity as Item).label_id!) ??
+                              null)
+                            : null
+                        }
                         childCount={childCounts?.[entity.id]}
                         isFirst={idx === 0}
                         isLast={idx === stageEntities.length - 1}
@@ -415,6 +433,12 @@ export function EntityList({
                             ? (entity as Item).priority
                             : null
                         }
+                        label={
+                          "label_id" in entity && (entity as Item).label_id
+                            ? (labelMap?.get((entity as Item).label_id!) ??
+                              null)
+                            : null
+                        }
                         childCount={childCounts?.[entity.id]}
                         isFirst={idx === 0}
                         isLast={idx === unstagedEntities.length - 1}
@@ -463,6 +487,11 @@ export function EntityList({
                   entityType={entityType}
                   priority={
                     "priority" in entity ? (entity as Item).priority : null
+                  }
+                  label={
+                    "label_id" in entity && (entity as Item).label_id
+                      ? (labelMap?.get((entity as Item).label_id!) ?? null)
+                      : null
                   }
                   childCount={childCounts?.[entity.id]}
                   isFirst={idx === 0}

@@ -1,7 +1,7 @@
 /**
  * Task Encryption Helpers
  * Convenience functions for encrypting/decrypting Units, Spaces, Items,
- * StageConfigs, and Stages client-side.
+ * StageConfigs, Stages, LabelConfigs, and Labels client-side.
  *
  * The server only ever sees encrypted data.
  */
@@ -29,6 +29,12 @@ import type {
   Stage,
   StageRow,
   StageInput,
+  LabelConfig,
+  LabelConfigRow,
+  LabelConfigInput,
+  Label,
+  LabelRow,
+  LabelInput,
 } from "@/lib/types";
 
 // =============================================================================
@@ -189,6 +195,7 @@ export async function encryptItemInput(
   encrypted_title: string;
   encrypted_description: string | null;
   stage_id?: string | null;
+  label_id?: string | null;
 }> {
   const encryptedTitle = await encrypt(input.title, key);
 
@@ -203,6 +210,7 @@ export async function encryptItemInput(
     encrypted_title: serializeEncryptedData(encryptedTitle),
     encrypted_description: encryptedDescription,
     stage_id: input.stage_id,
+    label_id: input.label_id,
   };
 }
 
@@ -230,6 +238,7 @@ export async function decryptItemRow(
     title,
     description,
     stage_id: row.stage_id,
+    label_id: row.label_id,
     priority: row.priority,
     sort_order: row.sort_order,
     created_at: row.created_at,
@@ -411,6 +420,166 @@ export async function encryptStageUpdate(
 
   if (update.default_rows_shown !== undefined) {
     result.default_rows_shown = update.default_rows_shown;
+  }
+
+  return result;
+}
+
+// =============================================================================
+// LABEL CONFIG ENCRYPTION
+// =============================================================================
+
+/**
+ * Encrypt a LabelConfig for database storage
+ */
+export async function encryptLabelConfigInput(
+  input: LabelConfigInput,
+  key: CryptoKey
+): Promise<{ encrypted_name: string }> {
+  const encryptedName = await encrypt(input.name, key);
+  return {
+    encrypted_name: serializeEncryptedData(encryptedName),
+  };
+}
+
+/**
+ * Decrypt a LabelConfig row from the database
+ */
+export async function decryptLabelConfigRow(
+  row: LabelConfigRow,
+  key: CryptoKey
+): Promise<LabelConfig> {
+  const name = await decrypt(parseEncryptedData(row.encrypted_name), key);
+
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    name,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+/**
+ * Decrypt multiple LabelConfig rows
+ */
+export async function decryptLabelConfigRows(
+  rows: LabelConfigRow[],
+  key: CryptoKey
+): Promise<LabelConfig[]> {
+  return Promise.all(rows.map((row) => decryptLabelConfigRow(row, key)));
+}
+
+/**
+ * Encrypt fields for updating a LabelConfig
+ */
+export async function encryptLabelConfigUpdate(
+  update: Partial<LabelConfigInput>,
+  key: CryptoKey
+): Promise<{ encrypted_name?: string }> {
+  const result: { encrypted_name?: string } = {};
+
+  if (update.name !== undefined) {
+    const encrypted = await encrypt(update.name, key);
+    result.encrypted_name = serializeEncryptedData(encrypted);
+  }
+
+  return result;
+}
+
+// =============================================================================
+// LABEL ENCRYPTION
+// =============================================================================
+
+/**
+ * Encrypt a Label for database storage
+ */
+export async function encryptLabelInput(
+  input: LabelInput,
+  key: CryptoKey
+): Promise<{
+  config_id: string;
+  encrypted_name: string;
+  color: string | null;
+  icon: string;
+  sort_order: number;
+}> {
+  const encryptedName = await encrypt(input.name, key);
+
+  return {
+    config_id: input.config_id,
+    encrypted_name: serializeEncryptedData(encryptedName),
+    color: input.color ?? null,
+    icon: input.icon ?? "circle",
+    sort_order: input.sort_order ?? 0,
+  };
+}
+
+/**
+ * Decrypt a Label row from the database
+ */
+export async function decryptLabelRow(
+  row: LabelRow,
+  key: CryptoKey
+): Promise<Label> {
+  const name = await decrypt(parseEncryptedData(row.encrypted_name), key);
+
+  return {
+    id: row.id,
+    config_id: row.config_id,
+    user_id: row.user_id,
+    name,
+    color: row.color,
+    icon: row.icon,
+    sort_order: row.sort_order,
+    created_at: row.created_at,
+  };
+}
+
+/**
+ * Decrypt multiple Label rows
+ */
+export async function decryptLabelRows(
+  rows: LabelRow[],
+  key: CryptoKey
+): Promise<Label[]> {
+  return Promise.all(rows.map((row) => decryptLabelRow(row, key)));
+}
+
+/**
+ * Encrypt fields for updating a Label
+ */
+export async function encryptLabelUpdate(
+  update: Partial<Omit<LabelInput, "config_id">>,
+  key: CryptoKey
+): Promise<{
+  encrypted_name?: string;
+  color?: string | null;
+  icon?: string;
+  sort_order?: number;
+}> {
+  const result: {
+    encrypted_name?: string;
+    color?: string | null;
+    icon?: string;
+    sort_order?: number;
+  } = {};
+
+  if (update.name !== undefined) {
+    const encrypted = await encrypt(update.name, key);
+    result.encrypted_name = serializeEncryptedData(encrypted);
+  }
+
+  if (update.color !== undefined) {
+    result.color = update.color;
+  }
+
+  if (update.icon !== undefined) {
+    result.icon = update.icon;
+  }
+
+  if (update.sort_order !== undefined) {
+    result.sort_order = update.sort_order;
   }
 
   return result;

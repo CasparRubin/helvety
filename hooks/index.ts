@@ -22,3 +22,8 @@ export { useChildCounts } from "./use-child-counts";
 export { useStageConfigs } from "./use-stage-configs";
 export { useStages } from "./use-stages";
 export { useStageAssignment } from "./use-stage-assignment";
+
+// Label hooks with E2EE
+export { useLabelConfigs } from "./use-label-configs";
+export { useLabels } from "./use-labels";
+export { useLabelAssignment } from "./use-label-assignment";

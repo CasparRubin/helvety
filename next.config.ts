@@ -5,9 +5,9 @@ import type { NextConfig } from "next";
 /**
  * Next.js configuration for helvety-tasks (task management)
  *
- * CSP Note: This app uses a slightly relaxed CSP:
+ * CSP Note: This app uses the baseline secure CSP configuration.
  * - 'unsafe-eval' is only allowed in development (for Fast Refresh)
- * - 'blob:' in script-src and 'worker-src' included for potential future use
+ * - No blob: or worker-src needed (no web workers)
  * - turbopack root for proper module resolution
  */
 const nextConfig: NextConfig = {
@@ -56,12 +56,11 @@ const nextConfig: NextConfig = {
         // - HTTPOnly cookies for authentication
         value: [
           "default-src 'self'",
-          `script-src 'self'${isDevelopment ? " 'unsafe-eval'" : ""} 'unsafe-inline' blob: https://va.vercel-scripts.com`,
+          `script-src 'self'${isDevelopment ? " 'unsafe-eval'" : ""} 'unsafe-inline' https://va.vercel-scripts.com`,
           "style-src 'self' 'unsafe-inline'",
           "img-src 'self' data: https: blob:",
           "font-src 'self' data:",
           "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://va.vercel-scripts.com",
-          "worker-src 'self' blob:",
           "frame-src 'self'",
           "object-src 'none'",
           "base-uri 'self'",

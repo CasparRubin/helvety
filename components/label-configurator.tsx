@@ -25,15 +25,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { useStages } from "@/hooks";
+import { useLabels } from "@/hooks";
 
-import type { StageConfig, EntityType } from "@/lib/types";
+import type { LabelConfig } from "@/lib/types";
 
 // =============================================================================
-// Stage color presets
+// Label color presets
 // =============================================================================
 
-const STAGE_COLORS = [
+const LABEL_COLORS = [
   "#6366f1", // indigo
   "#8b5cf6", // violet
   "#ec4899", // pink
@@ -49,7 +49,7 @@ const STAGE_COLORS = [
 ];
 
 // =============================================================================
-// Suggested icons (common Lucide icon names)
+// Suggested icons (common Lucide icon names for labels)
 // =============================================================================
 
 const SUGGESTED_ICONS = [
@@ -59,121 +59,48 @@ const SUGGESTED_ICONS = [
   "heart",
   "flag",
   "bookmark",
-  "inbox",
+  "tag",
+  "bug",
   "check-circle",
-  "loader",
-  "calendar",
-  "clock",
-  "home",
+  "alert-circle",
+  "refresh-cw",
+  "trending-up",
   "briefcase",
-  "folder",
-  "file",
-  "search",
-  "eye",
   "zap",
   "target",
-  "alert-circle",
-  "archive",
   "award",
   "bell",
-  "book-open",
+  "bolt",
   "box",
-  "check",
-  "cloud",
   "code",
-  "coffee",
   "compass",
   "cpu",
   "database",
-  "edit",
   "feather",
-  "film",
+  "flame",
   "flask-conical",
   "gift",
   "globe",
-  "grid",
   "hash",
-  "headphones",
   "hexagon",
-  "image",
   "key",
   "layers",
-  "layout",
   "lightbulb",
   "link",
-  "list",
   "lock",
   "mail",
-  "map",
   "map-pin",
   "message-circle",
-  "mic",
-  "monitor",
-  "moon",
-  "music",
   "package",
   "paperclip",
-  "pause",
   "pen",
-  "percent",
-  "phone",
-  "pie-chart",
-  "pin",
-  "play",
-  "plus",
-  "pocket",
-  "power",
-  "printer",
-  "radio",
-  "refresh-cw",
   "rocket",
-  "rss",
-  "save",
-  "scissors",
-  "send",
-  "server",
-  "settings",
-  "share",
   "shield",
-  "shopping-bag",
-  "shopping-cart",
-  "sidebar",
-  "skip-forward",
-  "sliders",
-  "smartphone",
-  "smile",
-  "speaker",
-  "sun",
-  "table",
-  "tablet",
-  "tag",
-  "terminal",
-  "thermometer",
-  "thumbs-up",
-  "thumbs-down",
-  "toggle-left",
+  "sparkles",
   "tool",
-  "trash",
-  "trash-2",
-  "trending-up",
-  "triangle",
-  "truck",
-  "tv",
   "type",
-  "umbrella",
-  "underline",
-  "unlock",
-  "upload",
-  "user",
   "users",
-  "video",
-  "voicemail",
-  "volume",
-  "watch",
-  "wifi",
-  "wind",
-  "x",
-  "zoom-in",
+  "wrench",
 ];
 
 // =============================================================================
@@ -181,8 +108,7 @@ const SUGGESTED_ICONS = [
 // =============================================================================
 
 /**
- * Converts a kebab-case string to PascalCase.
- * Used to transform icon names like "check-circle" to "CheckCircle" for Lucide.
+ *
  */
 function toPascalCase(str: string): string {
   return str
@@ -196,7 +122,7 @@ function toPascalCase(str: string): string {
 // =============================================================================
 
 /**
- * Type for a Lucide icon component with optional className and style props.
+ *
  */
 type LucideIconComponent = React.ComponentType<{
   className?: string;
@@ -204,8 +130,7 @@ type LucideIconComponent = React.ComponentType<{
 }>;
 
 /**
- * Retrieves a Lucide icon component by its kebab-case name.
- * Falls back to CircleIcon if the icon is not found.
+ *
  */
 function getLucideIcon(iconName: string): LucideIconComponent {
   const pascalName = toPascalCase(iconName);
@@ -215,16 +140,15 @@ function getLucideIcon(iconName: string): LucideIconComponent {
 }
 
 // =============================================================================
-// Main Stage Configurator Dialog
+// Main Label Configurator Dialog
 // =============================================================================
 
 /**
- * Props for the StageConfiguratorContent component (no Dialog wrapper)
+ * Props for the LabelConfiguratorContent component (no Dialog wrapper)
  */
-export interface StageConfiguratorContentProps {
-  entityType: EntityType;
-  /** All user's stage configs (including default) */
-  configs: StageConfig[];
+export interface LabelConfiguratorContentProps {
+  /** All user's label configs (including default) */
+  configs: LabelConfig[];
   /** Currently assigned config ID (if any) */
   assignedConfigId: string | null;
   /** Callbacks */
@@ -236,20 +160,18 @@ export interface StageConfiguratorContentProps {
 }
 
 /**
- * StageConfiguratorContent - Inline content for managing stage configurations.
+ * LabelConfiguratorContent - Inline content for managing label configurations.
  * Designed to be embedded inside a Sheet, Dialog, or any container.
  *
  * Features:
- * - List all existing stage configs (including defaults)
+ * - List all existing label configs (including defaults)
  * - Create new config
- * - Select config and edit its stages (name, icon, color, rows shown by default)
- * - Reorder stages with up/down arrow buttons
- * - Configure "rows shown by default" per stage (0 = collapsed)
- * - Assign/unassign config to the current entity list
+ * - Select config and edit its labels (name, icon, color)
+ * - Reorder labels with up/down arrow buttons
+ * - Assign/unassign config to the current space
  * - Default configs are read-only
  */
-export function StageConfiguratorContent({
-  entityType,
+export function LabelConfiguratorContent({
   configs,
   assignedConfigId,
   onCreateConfig,
@@ -257,34 +179,33 @@ export function StageConfiguratorContent({
   onUpdateConfig: _onUpdateConfig,
   onAssignConfig,
   onUnassignConfig,
-}: StageConfiguratorContentProps) {
+}: LabelConfiguratorContentProps) {
   const [view, setView] = useState<"list" | "edit">("list");
   const [selectedConfigId, setSelectedConfigId] = useState<string | null>(
     assignedConfigId
   );
 
-  // Load stages for the selected config (not the assigned one)
+  // Load labels for the selected config (not the assigned one)
   const {
-    stages,
-    isLoading: isLoadingStages,
+    labels,
+    isLoading: isLoadingLabels,
     isDefaultConfig,
-    create: createStage,
-    update: updateStage,
-    remove: removeStage,
-    reorder: reorderStages,
-  } = useStages(selectedConfigId);
+    create: createLabel,
+    update: updateLabel,
+    remove: removeLabel,
+    reorder: reorderLabels,
+  } = useLabels(selectedConfigId);
 
   const [newConfigName, setNewConfigName] = useState("");
   const [isCreatingConfig, setIsCreatingConfig] = useState(false);
-  const [newStageName, setNewStageName] = useState("");
-  const [newStageColor, setNewStageColor] = useState<string>(
-    STAGE_COLORS[0] ?? "#6366f1"
+  const [newLabelName, setNewLabelName] = useState("");
+  const [newLabelColor, setNewLabelColor] = useState<string>(
+    LABEL_COLORS[0] ?? "#6366f1"
   );
-  const [newStageIcon, setNewStageIcon] = useState<string>("circle");
-  const [newStageDefaultRowsShown, setNewStageDefaultRowsShown] = useState(20);
-  const [isCreatingStage, setIsCreatingStage] = useState(false);
-  const [editingStageId, setEditingStageId] = useState<string | null>(null);
-  const [editingStageName, setEditingStageName] = useState("");
+  const [newLabelIcon, setNewLabelIcon] = useState<string>("circle");
+  const [isCreatingLabel, setIsCreatingLabel] = useState(false);
+  const [editingLabelId, setEditingLabelId] = useState<string | null>(null);
+  const [editingLabelName, setEditingLabelName] = useState("");
 
   // Delete confirmation state
   const [deleteConfigState, setDeleteConfigState] = useState<{
@@ -292,26 +213,19 @@ export function StageConfiguratorContent({
     id: string | null;
     name: string | null;
   }>({ open: false, id: null, name: null });
-  const [deleteStageState, setDeleteStageState] = useState<{
+  const [deleteLabelState, setDeleteLabelState] = useState<{
     open: boolean;
     id: string | null;
     name: string | null;
   }>({ open: false, id: null, name: null });
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const entityLabel =
-    entityType === "unit"
-      ? "Units"
-      : entityType === "space"
-        ? "Spaces"
-        : "Items";
-
   const selectedConfig = configs.find((c) => c.id === selectedConfigId);
 
-  // Icon component for new stage preview
-  const NewStageIconComponent = useMemo(
-    () => getLucideIcon(newStageIcon),
-    [newStageIcon]
+  // Icon component for new label preview
+  const NewLabelIconComponent = useMemo(
+    () => getLucideIcon(newLabelIcon),
+    [newLabelIcon]
   );
 
   // Create a new config
@@ -336,43 +250,40 @@ export function StageConfiguratorContent({
     setView("edit");
   }, []);
 
-  // Create a new stage within selected config
-  const handleCreateStage = useCallback(async () => {
-    if (!newStageName.trim() || !selectedConfigId) return;
-    setIsCreatingStage(true);
+  // Create a new label within selected config
+  const handleCreateLabel = useCallback(async () => {
+    if (!newLabelName.trim() || !selectedConfigId) return;
+    setIsCreatingLabel(true);
     try {
-      await createStage({
+      await createLabel({
         config_id: selectedConfigId,
-        name: newStageName.trim(),
-        color: newStageColor,
-        icon: newStageIcon,
-        sort_order: stages.length,
-        default_rows_shown: newStageDefaultRowsShown,
+        name: newLabelName.trim(),
+        color: newLabelColor,
+        icon: newLabelIcon,
+        sort_order: labels.length,
       });
-      setNewStageName("");
-      setNewStageDefaultRowsShown(20);
+      setNewLabelName("");
     } finally {
-      setIsCreatingStage(false);
+      setIsCreatingLabel(false);
     }
   }, [
-    newStageName,
-    newStageColor,
-    newStageIcon,
-    newStageDefaultRowsShown,
+    newLabelName,
+    newLabelColor,
+    newLabelIcon,
     selectedConfigId,
-    stages.length,
-    createStage,
+    labels.length,
+    createLabel,
   ]);
 
-  // Save edited stage name
-  const handleSaveStageEdit = useCallback(
-    async (stageId: string) => {
-      if (!editingStageName.trim()) return;
-      await updateStage(stageId, { name: editingStageName.trim() });
-      setEditingStageId(null);
-      setEditingStageName("");
+  // Save edited label name
+  const handleSaveLabelEdit = useCallback(
+    async (labelId: string) => {
+      if (!editingLabelName.trim()) return;
+      await updateLabel(labelId, { name: editingLabelName.trim() });
+      setEditingLabelId(null);
+      setEditingLabelName("");
     },
-    [editingStageName, updateStage]
+    [editingLabelName, updateLabel]
   );
 
   // Assign config
@@ -402,56 +313,56 @@ export function StageConfiguratorContent({
     }
   }, [deleteConfigState.id, onDeleteConfig]);
 
-  // Delete stage confirmation
-  const handleDeleteStageClick = useCallback((id: string, name: string) => {
-    setDeleteStageState({ open: true, id, name });
+  // Delete label confirmation
+  const handleDeleteLabelClick = useCallback((id: string, name: string) => {
+    setDeleteLabelState({ open: true, id, name });
   }, []);
 
-  const handleDeleteStageConfirm = useCallback(async () => {
-    if (!deleteStageState.id) return;
+  const handleDeleteLabelConfirm = useCallback(async () => {
+    if (!deleteLabelState.id) return;
     setIsDeleting(true);
     try {
-      await removeStage(deleteStageState.id);
-      setDeleteStageState({ open: false, id: null, name: null });
+      await removeLabel(deleteLabelState.id);
+      setDeleteLabelState({ open: false, id: null, name: null });
     } finally {
       setIsDeleting(false);
     }
-  }, [deleteStageState.id, removeStage]);
+  }, [deleteLabelState.id, removeLabel]);
 
-  // Move stage up in order
-  const handleMoveStageUp = useCallback(
-    async (stageId: string) => {
-      const idx = stages.findIndex((s) => s.id === stageId);
+  // Move label up in order
+  const handleMoveLabelUp = useCallback(
+    async (labelId: string) => {
+      const idx = labels.findIndex((l) => l.id === labelId);
       if (idx <= 0) return;
 
-      const current = stages[idx];
-      const prev = stages[idx - 1];
+      const current = labels[idx];
+      const prev = labels[idx - 1];
       if (!current || !prev) return;
 
-      await reorderStages([
+      await reorderLabels([
         { id: current.id, sort_order: prev.sort_order },
         { id: prev.id, sort_order: current.sort_order },
       ]);
     },
-    [stages, reorderStages]
+    [labels, reorderLabels]
   );
 
-  // Move stage down in order
-  const handleMoveStageDown = useCallback(
-    async (stageId: string) => {
-      const idx = stages.findIndex((s) => s.id === stageId);
-      if (idx === -1 || idx >= stages.length - 1) return;
+  // Move label down in order
+  const handleMoveLabelDown = useCallback(
+    async (labelId: string) => {
+      const idx = labels.findIndex((l) => l.id === labelId);
+      if (idx === -1 || idx >= labels.length - 1) return;
 
-      const current = stages[idx];
-      const next = stages[idx + 1];
+      const current = labels[idx];
+      const next = labels[idx + 1];
       if (!current || !next) return;
 
-      await reorderStages([
+      await reorderLabels([
         { id: current.id, sort_order: next.sort_order },
         { id: next.id, sort_order: current.sort_order },
       ]);
     },
-    [stages, reorderStages]
+    [labels, reorderLabels]
   );
 
   return (
@@ -460,10 +371,9 @@ export function StageConfiguratorContent({
         {view === "list" ? (
           <>
             <div>
-              <h3 className="text-base font-semibold">Stage Configurations</h3>
+              <h3 className="text-base font-semibold">Label Configurations</h3>
               <p className="text-muted-foreground text-sm">
-                Create and manage reusable stage setups for your{" "}
-                {entityLabel.toLowerCase()}.
+                Create and manage reusable label setups for your items.
               </p>
             </div>
 
@@ -496,7 +406,7 @@ export function StageConfiguratorContent({
               {/* Config list */}
               {configs.length === 0 ? (
                 <p className="text-muted-foreground py-4 text-center text-sm">
-                  No stage configurations yet. Create one above.
+                  No label configurations yet. Create one above.
                 </p>
               ) : (
                 <div className="space-y-1">
@@ -566,7 +476,7 @@ export function StageConfiguratorContent({
             {assignedConfigId && (
               <div className="flex justify-end pt-2">
                 <Button variant="outline" size="sm" onClick={handleUnassign}>
-                  Remove Stage Assignment
+                  Remove Label Assignment
                 </Button>
               </div>
             )}
@@ -595,7 +505,7 @@ export function StageConfiguratorContent({
               <p className="text-muted-foreground text-sm">
                 {isDefaultConfig
                   ? "This is a default configuration and cannot be edited."
-                  : "Add, edit, and reorder stages in this configuration."}
+                  : "Add, edit, and reorder labels in this configuration."}
               </p>
             </div>
 
@@ -606,30 +516,30 @@ export function StageConfiguratorContent({
                   <InfoIcon className="text-muted-foreground mt-0.5 size-4 shrink-0" />
                   <p className="text-muted-foreground text-sm">
                     Default configurations cannot be modified. Create your own
-                    configuration if you need custom stages.
+                    configuration if you need custom labels.
                   </p>
                 </div>
               )}
 
-              {/* Add new stage (only for non-default configs) */}
+              {/* Add new label (only for non-default configs) */}
               {!isDefaultConfig && (
                 <div className="space-y-3">
-                  <Label>Add Stage</Label>
+                  <Label>Add Label</Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Stage name..."
-                      value={newStageName}
-                      onChange={(e) => setNewStageName(e.target.value)}
+                      placeholder="Label name..."
+                      value={newLabelName}
+                      onChange={(e) => setNewLabelName(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") void handleCreateStage();
+                        if (e.key === "Enter") void handleCreateLabel();
                       }}
                     />
                     <Button
-                      onClick={handleCreateStage}
-                      disabled={isCreatingStage || !newStageName.trim()}
+                      onClick={handleCreateLabel}
+                      disabled={isCreatingLabel || !newLabelName.trim()}
                       size="icon"
                     >
-                      {isCreatingStage ? (
+                      {isCreatingLabel ? (
                         <Loader2Icon className="size-4 animate-spin" />
                       ) : (
                         <PlusIcon className="size-4" />
@@ -643,38 +553,38 @@ export function StageConfiguratorContent({
                       Color
                     </Label>
                     <div className="flex flex-wrap items-center gap-1.5">
-                      {STAGE_COLORS.map((color) => (
+                      {LABEL_COLORS.map((color) => (
                         <button
                           key={color}
                           type="button"
                           className={`size-6 rounded-full border-2 transition-all ${
-                            newStageColor === color
+                            newLabelColor === color
                               ? "border-foreground scale-110"
                               : "border-transparent hover:scale-105"
                           }`}
                           style={{ backgroundColor: color }}
-                          onClick={() => setNewStageColor(color)}
+                          onClick={() => setNewLabelColor(color)}
                         />
                       ))}
                       {/* Custom color picker */}
                       <div className="relative">
                         <input
                           type="color"
-                          value={newStageColor}
-                          onChange={(e) => setNewStageColor(e.target.value)}
+                          value={newLabelColor}
+                          onChange={(e) => setNewLabelColor(e.target.value)}
                           className="absolute inset-0 size-6 cursor-pointer opacity-0"
                         />
                         <div
                           className="border-muted-foreground/30 hover:border-muted-foreground/50 flex size-6 items-center justify-center rounded-full border-2 border-dashed"
                           style={{
-                            backgroundColor: STAGE_COLORS.includes(
-                              newStageColor
+                            backgroundColor: LABEL_COLORS.includes(
+                              newLabelColor
                             )
                               ? undefined
-                              : newStageColor,
+                              : newLabelColor,
                           }}
                         >
-                          {STAGE_COLORS.includes(newStageColor) && (
+                          {LABEL_COLORS.includes(newLabelColor) && (
                             <PlusIcon className="text-muted-foreground size-3" />
                           )}
                         </div>
@@ -695,9 +605,9 @@ export function StageConfiguratorContent({
                             size="sm"
                             className="h-8 gap-2"
                           >
-                            <NewStageIconComponent className="size-4" />
+                            <NewLabelIconComponent className="size-4" />
                             <span className="text-muted-foreground text-xs">
-                              {newStageIcon}
+                              {newLabelIcon}
                             </span>
                           </Button>
                         </PopoverTrigger>
@@ -709,9 +619,9 @@ export function StageConfiguratorContent({
                           <div className="mb-2">
                             <Input
                               placeholder="Type icon name..."
-                              value={newStageIcon}
+                              value={newLabelIcon}
                               onChange={(e) =>
-                                setNewStageIcon(e.target.value.toLowerCase())
+                                setNewLabelIcon(e.target.value.toLowerCase())
                               }
                               className="h-8 text-sm"
                             />
@@ -724,11 +634,11 @@ export function StageConfiguratorContent({
                                   key={iconName}
                                   type="button"
                                   className={`hover:bg-muted flex size-8 items-center justify-center rounded transition-colors ${
-                                    newStageIcon === iconName
+                                    newLabelIcon === iconName
                                       ? "bg-primary/10 ring-primary/30 ring-1"
                                       : ""
                                   }`}
-                                  onClick={() => setNewStageIcon(iconName)}
+                                  onClick={() => setNewLabelIcon(iconName)}
                                   title={iconName}
                                 >
                                   <IconComp className="size-4" />
@@ -740,56 +650,29 @@ export function StageConfiguratorContent({
                       </Popover>
                     </div>
                   </div>
-
-                  {/* Rows shown by default */}
-                  <div className="space-y-1.5">
-                    <Label className="text-muted-foreground text-xs">
-                      Rows shown by default
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        min={0}
-                        max={1000}
-                        value={newStageDefaultRowsShown}
-                        onChange={(e) =>
-                          setNewStageDefaultRowsShown(
-                            Math.max(
-                              0,
-                              Math.min(1000, parseInt(e.target.value) || 0)
-                            )
-                          )
-                        }
-                        className="h-8 w-20 text-sm"
-                      />
-                      <span className="text-muted-foreground text-xs">
-                        0 = collapsed
-                      </span>
-                    </div>
-                  </div>
                 </div>
               )}
 
               {!isDefaultConfig && <Separator />}
 
-              {/* Stages list */}
-              {isLoadingStages ? (
+              {/* Labels list */}
+              {isLoadingLabels ? (
                 <div className="flex items-center justify-center py-4">
                   <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
                 </div>
-              ) : stages.length === 0 ? (
+              ) : labels.length === 0 ? (
                 <p className="text-muted-foreground py-4 text-center text-sm">
-                  No stages yet. Add one above.
+                  No labels yet. Add one above.
                 </p>
               ) : (
                 <div className="space-y-1">
-                  {stages.map((stage, stageIndex) => {
-                    const StageIconComponent = getLucideIcon(stage.icon);
-                    const isFirst = stageIndex === 0;
-                    const isLast = stageIndex === stages.length - 1;
+                  {labels.map((label, labelIndex) => {
+                    const LabelIconComponent = getLucideIcon(label.icon);
+                    const isFirst = labelIndex === 0;
+                    const isLast = labelIndex === labels.length - 1;
                     return (
                       <div
-                        key={stage.id}
+                        key={label.id}
                         className="hover:bg-muted/40 flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors"
                       >
                         {/* Reorder buttons */}
@@ -798,7 +681,7 @@ export function StageConfiguratorContent({
                             <button
                               type="button"
                               className="text-muted-foreground hover:text-foreground disabled:hover:text-muted-foreground p-0.5 disabled:opacity-30"
-                              onClick={() => handleMoveStageUp(stage.id)}
+                              onClick={() => handleMoveLabelUp(label.id)}
                               disabled={isFirst}
                               title="Move up"
                             >
@@ -807,7 +690,7 @@ export function StageConfiguratorContent({
                             <button
                               type="button"
                               className="text-muted-foreground hover:text-foreground disabled:hover:text-muted-foreground p-0.5 disabled:opacity-30"
-                              onClick={() => handleMoveStageDown(stage.id)}
+                              onClick={() => handleMoveLabelDown(label.id)}
                               disabled={isLast}
                               title="Move down"
                             >
@@ -817,10 +700,10 @@ export function StageConfiguratorContent({
                         )}
 
                         {/* Icon */}
-                        <StageIconComponent
+                        <LabelIconComponent
                           className="size-4 shrink-0"
                           style={{
-                            color: stage.color ?? "var(--muted-foreground)",
+                            color: label.color ?? "var(--muted-foreground)",
                           }}
                         />
 
@@ -829,25 +712,25 @@ export function StageConfiguratorContent({
                           className="size-3 shrink-0 rounded-full"
                           style={{
                             backgroundColor:
-                              stage.color ?? "var(--muted-foreground)",
+                              label.color ?? "var(--muted-foreground)",
                           }}
                         />
 
                         {/* Name (editable or display) */}
-                        {editingStageId === stage.id && !isDefaultConfig ? (
+                        {editingLabelId === label.id && !isDefaultConfig ? (
                           <div className="flex flex-1 items-center gap-1">
                             <Input
                               className="h-7 text-sm"
-                              value={editingStageName}
+                              value={editingLabelName}
                               onChange={(e) =>
-                                setEditingStageName(e.target.value)
+                                setEditingLabelName(e.target.value)
                               }
                               onKeyDown={(e) => {
                                 if (e.key === "Enter")
-                                  void handleSaveStageEdit(stage.id);
+                                  void handleSaveLabelEdit(label.id);
                                 if (e.key === "Escape") {
-                                  setEditingStageId(null);
-                                  setEditingStageName("");
+                                  setEditingLabelId(null);
+                                  setEditingLabelName("");
                                 }
                               }}
                               autoFocus
@@ -855,7 +738,7 @@ export function StageConfiguratorContent({
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              onClick={() => handleSaveStageEdit(stage.id)}
+                              onClick={() => handleSaveLabelEdit(label.id)}
                             >
                               <CheckIcon className="size-3.5" />
                             </Button>
@@ -863,8 +746,8 @@ export function StageConfiguratorContent({
                               variant="ghost"
                               size="icon-sm"
                               onClick={() => {
-                                setEditingStageId(null);
-                                setEditingStageName("");
+                                setEditingLabelId(null);
+                                setEditingLabelName("");
                               }}
                             >
                               <XIcon className="size-3.5" />
@@ -873,21 +756,12 @@ export function StageConfiguratorContent({
                         ) : (
                           <>
                             <span className="flex-1 truncate text-sm">
-                              {stage.name}
+                              {label.name}
                             </span>
-
-                            {/* Read-only rows shown for default configs */}
-                            {isDefaultConfig && (
-                              <span className="text-muted-foreground text-xs">
-                                {stage.default_rows_shown === 0
-                                  ? "collapsed"
-                                  : `${stage.default_rows_shown} rows`}
-                              </span>
-                            )}
 
                             {!isDefaultConfig && (
                               <>
-                                {/* Icon picker for existing stage */}
+                                {/* Icon picker for existing label */}
                                 <Popover>
                                   <PopoverTrigger asChild>
                                     <Button
@@ -895,7 +769,7 @@ export function StageConfiguratorContent({
                                       size="icon-sm"
                                       title="Change icon"
                                     >
-                                      <StageIconComponent className="size-3.5" />
+                                      <LabelIconComponent className="size-3.5" />
                                     </Button>
                                   </PopoverTrigger>
                                   <PopoverContent
@@ -906,12 +780,12 @@ export function StageConfiguratorContent({
                                     <div className="mb-2">
                                       <Input
                                         placeholder="Type icon name..."
-                                        defaultValue={stage.icon}
+                                        defaultValue={label.icon}
                                         onChange={(e) => {
                                           const value =
                                             e.target.value.toLowerCase();
                                           if (value) {
-                                            void updateStage(stage.id, {
+                                            void updateLabel(label.id, {
                                               icon: value,
                                             });
                                           }
@@ -928,12 +802,12 @@ export function StageConfiguratorContent({
                                             key={iconName}
                                             type="button"
                                             className={`hover:bg-muted flex size-8 items-center justify-center rounded transition-colors ${
-                                              stage.icon === iconName
+                                              label.icon === iconName
                                                 ? "bg-primary/10 ring-primary/30 ring-1"
                                                 : ""
                                             }`}
                                             onClick={() =>
-                                              updateStage(stage.id, {
+                                              updateLabel(label.id, {
                                                 icon: iconName,
                                               })
                                             }
@@ -947,105 +821,12 @@ export function StageConfiguratorContent({
                                   </PopoverContent>
                                 </Popover>
 
-                                {/* Rows shown input */}
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-7 px-2 text-xs"
-                                      title="Rows shown by default"
-                                    >
-                                      {stage.default_rows_shown === 0
-                                        ? "collapsed"
-                                        : `${stage.default_rows_shown} rows`}
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <PopoverContent
-                                    className="w-48 p-3"
-                                    align="end"
-                                    side="bottom"
-                                  >
-                                    <div className="space-y-2">
-                                      <Label className="text-xs">
-                                        Rows shown by default
-                                      </Label>
-                                      <div className="flex gap-1">
-                                        <Input
-                                          id={`rows-input-${stage.id}`}
-                                          type="number"
-                                          min={0}
-                                          max={1000}
-                                          defaultValue={
-                                            stage.default_rows_shown
-                                          }
-                                          onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                              const value = Math.max(
-                                                0,
-                                                Math.min(
-                                                  1000,
-                                                  parseInt(
-                                                    e.currentTarget.value
-                                                  ) || 0
-                                                )
-                                              );
-                                              if (
-                                                value !==
-                                                stage.default_rows_shown
-                                              ) {
-                                                void updateStage(stage.id, {
-                                                  default_rows_shown: value,
-                                                });
-                                              }
-                                            }
-                                          }}
-                                          className="h-8 text-sm"
-                                        />
-                                        <Button
-                                          variant="ghost"
-                                          size="icon-sm"
-                                          className="h-8 w-8 shrink-0"
-                                          onClick={() => {
-                                            const input =
-                                              document.getElementById(
-                                                `rows-input-${stage.id}`
-                                              ) as HTMLInputElement | null;
-                                            if (input) {
-                                              const value = Math.max(
-                                                0,
-                                                Math.min(
-                                                  1000,
-                                                  parseInt(input.value) || 0
-                                                )
-                                              );
-                                              if (
-                                                value !==
-                                                stage.default_rows_shown
-                                              ) {
-                                                void updateStage(stage.id, {
-                                                  default_rows_shown: value,
-                                                });
-                                              }
-                                            }
-                                          }}
-                                        >
-                                          <CheckIcon className="size-4" />
-                                        </Button>
-                                      </div>
-                                      <p className="text-muted-foreground text-xs">
-                                        0 = collapsed by default
-                                      </p>
-                                    </div>
-                                  </PopoverContent>
-                                </Popover>
-
                                 <Button
                                   variant="ghost"
                                   size="icon-sm"
                                   onClick={() => {
-                                    setEditingStageId(stage.id);
-                                    setEditingStageName(stage.name);
+                                    setEditingLabelId(label.id);
+                                    setEditingLabelName(label.name);
                                   }}
                                 >
                                   <PencilIcon className="size-3.5" />
@@ -1055,7 +836,7 @@ export function StageConfiguratorContent({
                                   size="icon-sm"
                                   className="text-muted-foreground hover:text-destructive"
                                   onClick={() =>
-                                    handleDeleteStageClick(stage.id, stage.name)
+                                    handleDeleteLabelClick(label.id, label.name)
                                   }
                                 >
                                   <TrashIcon className="size-3.5" />
@@ -1076,7 +857,7 @@ export function StageConfiguratorContent({
                 Back to Configs
               </Button>
               {selectedConfigId && selectedConfigId !== assignedConfigId && (
-                <Button onClick={handleAssign}>Use for {entityLabel}</Button>
+                <Button onClick={handleAssign}>Use for Items</Button>
               )}
               {selectedConfigId && selectedConfigId === assignedConfigId && (
                 <Button variant="secondary" disabled>
@@ -1089,7 +870,7 @@ export function StageConfiguratorContent({
         )}
       </div>
 
-      {/* Delete Stage Config Confirmation Dialog */}
+      {/* Delete Label Config Confirmation Dialog */}
       <DeleteConfirmationDialog
         open={deleteConfigState.open}
         onOpenChange={(open) => {
@@ -1097,23 +878,23 @@ export function StageConfiguratorContent({
             setDeleteConfigState({ open: false, id: null, name: null });
           }
         }}
-        entityType="stageConfig"
+        entityType="labelConfig"
         entityName={deleteConfigState.name ?? undefined}
         onConfirm={handleDeleteConfigConfirm}
         isDeleting={isDeleting}
       />
 
-      {/* Delete Stage Confirmation Dialog */}
+      {/* Delete Label Confirmation Dialog */}
       <DeleteConfirmationDialog
-        open={deleteStageState.open}
+        open={deleteLabelState.open}
         onOpenChange={(open) => {
           if (!open) {
-            setDeleteStageState({ open: false, id: null, name: null });
+            setDeleteLabelState({ open: false, id: null, name: null });
           }
         }}
-        entityType="stage"
-        entityName={deleteStageState.name ?? undefined}
-        onConfirm={handleDeleteStageConfirm}
+        entityType="label"
+        entityName={deleteLabelState.name ?? undefined}
+        onConfirm={handleDeleteLabelConfirm}
         isDeleting={isDeleting}
       />
     </>

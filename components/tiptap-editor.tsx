@@ -33,9 +33,7 @@ import { cn } from "@/lib/utils";
 
 import type { Editor, JSONContent } from "@tiptap/react";
 
-/**
- *
- */
+/** Props for the Tiptap rich-text editor. */
 export interface TiptapEditorProps {
   /** Initial content as ProseMirror JSON */
   content?: JSONContent | null;
@@ -51,9 +49,7 @@ export interface TiptapEditorProps {
   autoFocus?: boolean;
 }
 
-/**
- *
- */
+/** Imperative handle exposed by the Tiptap editor via ref. */
 export interface TiptapEditorRef {
   /** Get current content as JSON */
   getJSON: () => JSONContent | undefined;

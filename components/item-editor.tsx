@@ -5,13 +5,27 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
 
+import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemActionPanel } from "@/components/item-action-panel";
 import { ItemCommandBar } from "@/components/item-command-bar";
+import { LabelConfiguratorContent } from "@/components/label-configurator";
+import { SettingsPanel } from "@/components/settings-panel";
+import { StageConfiguratorContent } from "@/components/stage-configurator";
 import {
   TiptapEditor,
   parseDescriptionContent,
   serializeDescriptionContent,
 } from "@/components/tiptap-editor";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -27,8 +41,12 @@ import {
   useUnit,
   useSpace,
   useItem,
+  useStageConfigs,
   useStageAssignment,
   useStages,
+  useLabelConfigs,
+  useLabelAssignment,
+  useLabels,
 } from "@/hooks";
 
 import type { TiptapEditorRef } from "@/components/tiptap-editor";
@@ -61,12 +79,41 @@ export function ItemEditor({
     error,
     update,
     refresh,
+    remove,
   } = useItem(itemId);
 
   // Stage data for the action panel
-  const { effectiveConfigId } = useStageAssignment("item", spaceId);
+  const {
+    effectiveConfigId,
+    assign: assignStage,
+    unassign: unassignStage,
+  } = useStageAssignment("item", spaceId);
   const { stages, isLoading: isLoadingStages } = useStages(effectiveConfigId);
   const [isSavingStage, setIsSavingStage] = useState(false);
+  const {
+    configs: stageConfigs,
+    create: createStageConfig,
+    remove: removeStageConfig,
+    update: updateStageConfig,
+  } = useStageConfigs("item");
+
+  // Label data for the action panel
+  const {
+    effectiveConfigId: effectiveLabelConfigId,
+    assign: assignLabel,
+    unassign: unassignLabel,
+  } = useLabelAssignment(spaceId);
+  const { labels, isLoading: isLoadingLabels } = useLabels(
+    effectiveLabelConfigId
+  );
+  const [isSavingLabel, setIsSavingLabel] = useState(false);
+  const {
+    configs: labelConfigs,
+    create: createLabelConfig,
+    remove: removeLabelConfig,
+    update: updateLabelConfig,
+  } = useLabelConfigs();
+
   const [isSavingPriority, setIsSavingPriority] = useState(false);
 
   // Local state for editing
@@ -78,6 +125,18 @@ export function ItemEditor({
 
   // Track if there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Delete item state
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Settings panel state
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Unsaved changes confirmation state
+  const [pendingAction, setPendingAction] = useState<"back" | "refresh" | null>(
+    null
+  );
 
   // Ref to skip initial onChange events from TiptapEditor during initialization
   // TiptapEditor may fire onChange when normalizing content structure on mount
@@ -155,23 +214,67 @@ export function ItemEditor({
     await save(title, currentContent);
   }, [title, save]);
 
-  // Handle back navigation
-  const handleBack = useCallback(() => {
+  // Actual back navigation (no confirmation)
+  const doBack = useCallback(() => {
     router.push(`/units/${unitId}/spaces/${spaceId}`);
   }, [router, unitId, spaceId]);
 
-  // Handle refresh - reloads item data from server
-  const handleRefresh = useCallback(async () => {
+  // Actual refresh (no confirmation)
+  const doRefresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
       // Reset initialization state so form re-initializes with new data
       setHasInitialized(false);
+      setHasUnsavedChanges(false);
       skipInitialDescriptionChange.current = true;
       await refresh();
     } finally {
       setIsRefreshing(false);
     }
   }, [refresh]);
+
+  // Handle back navigation - confirms if unsaved changes
+  const handleBack = useCallback(() => {
+    if (hasUnsavedChanges) {
+      setPendingAction("back");
+    } else {
+      doBack();
+    }
+  }, [hasUnsavedChanges, doBack]);
+
+  // Handle refresh - confirms if unsaved changes
+  const handleRefresh = useCallback(() => {
+    if (hasUnsavedChanges) {
+      setPendingAction("refresh");
+    } else {
+      void doRefresh();
+    }
+  }, [hasUnsavedChanges, doRefresh]);
+
+  // Handle confirming the pending action (discard unsaved changes)
+  const handleConfirmDiscard = useCallback(() => {
+    const action = pendingAction;
+    setPendingAction(null);
+    if (action === "back") {
+      doBack();
+    } else if (action === "refresh") {
+      void doRefresh();
+    }
+  }, [pendingAction, doBack, doRefresh]);
+
+  // Handle delete item
+  const handleDeleteItem = useCallback(async () => {
+    setIsDeleting(true);
+    try {
+      const success = await remove();
+      if (success) {
+        router.push(`/units/${unitId}/spaces/${spaceId}`);
+      }
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteOpen(false);
+    }
+  }, [remove, router, unitId, spaceId]);
 
   // Handle stage change - saves immediately, independent of title/description save flow
   const handleStageChange = useCallback(
@@ -181,6 +284,19 @@ export function ItemEditor({
         await update({ stage_id: stageId });
       } finally {
         setIsSavingStage(false);
+      }
+    },
+    [update]
+  );
+
+  // Handle label change - saves immediately, independent of title/description save flow
+  const handleLabelChange = useCallback(
+    async (labelId: string | null) => {
+      setIsSavingLabel(true);
+      try {
+        await update({ label_id: labelId });
+      } finally {
+        setIsSavingLabel(false);
       }
     },
     [update]
@@ -216,6 +332,7 @@ export function ItemEditor({
           onBack={handleBack}
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing}
+          onSettings={() => setIsSettingsOpen(true)}
         />
         <div className="container mx-auto px-4 py-8">
           <div className="text-destructive">{error ?? "Item not found"}</div>
@@ -234,6 +351,9 @@ export function ItemEditor({
         isSaving={saveStatus === "saving"}
         hasUnsavedChanges={hasUnsavedChanges}
         saveStatus={saveStatus}
+        onSettings={() => setIsSettingsOpen(true)}
+        onDelete={() => setIsDeleteOpen(true)}
+        deleteLabel="Delete Item"
       />
       <div className="container mx-auto px-4 py-8">
         {/* Two-column layout: content left, action panel right (reversed on mobile so panel is on top) */}
@@ -342,12 +462,93 @@ export function ItemEditor({
               isLoadingStages={isLoadingStages}
               onStageChange={handleStageChange}
               isSavingStage={isSavingStage}
+              labels={labels}
+              isLoadingLabels={isLoadingLabels}
+              onLabelChange={handleLabelChange}
+              isSavingLabel={isSavingLabel}
               onPriorityChange={handlePriorityChange}
               isSavingPriority={isSavingPriority}
             />
           </div>
         </div>
       </div>
+
+      {/* Settings Panel */}
+      <SettingsPanel
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+        sections={[
+          {
+            id: "stages",
+            label: "Stages",
+            content: (
+              <StageConfiguratorContent
+                entityType="item"
+                configs={stageConfigs}
+                assignedConfigId={effectiveConfigId}
+                onCreateConfig={async (name) => createStageConfig({ name })}
+                onDeleteConfig={removeStageConfig}
+                onUpdateConfig={async (id, name) =>
+                  updateStageConfig(id, { name })
+                }
+                onAssignConfig={assignStage}
+                onUnassignConfig={unassignStage}
+              />
+            ),
+          },
+          {
+            id: "labels",
+            label: "Labels",
+            content: (
+              <LabelConfiguratorContent
+                configs={labelConfigs}
+                assignedConfigId={effectiveLabelConfigId}
+                onCreateConfig={async (name) => createLabelConfig({ name })}
+                onDeleteConfig={removeLabelConfig}
+                onUpdateConfig={async (id, name) =>
+                  updateLabelConfig(id, { name })
+                }
+                onAssignConfig={assignLabel}
+                onUnassignConfig={unassignLabel}
+              />
+            ),
+          },
+        ]}
+      />
+
+      {/* Delete Item Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        entityType="item"
+        entityName={item.title}
+        onConfirm={handleDeleteItem}
+        isDeleting={isDeleting}
+      />
+
+      {/* Unsaved Changes Confirmation Dialog */}
+      <AlertDialog
+        open={pendingAction !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingAction(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes that will be lost. Are you sure you want
+              to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDiscard}>
+              Discard Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

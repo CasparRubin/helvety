@@ -111,4 +111,14 @@ export {
   encryptStageUpdate,
   decryptStageRow,
   decryptStageRows,
+  // LabelConfig encryption
+  encryptLabelConfigInput,
+  encryptLabelConfigUpdate,
+  decryptLabelConfigRow,
+  decryptLabelConfigRows,
+  // Label encryption
+  encryptLabelInput,
+  encryptLabelUpdate,
+  decryptLabelRow,
+  decryptLabelRows,
 } from "./task-encryption";

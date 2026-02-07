@@ -2,8 +2,8 @@
 
 /**
  * Item Action Panel - sidebar panel for item properties.
- * Supports stage selection and priority assignment; designed to be
- * extended with milestones, labels, and other fields in the future.
+ * Displays date metadata, stage selection, label selection, and priority assignment;
+ * designed to be extended with milestones and other fields.
  */
 
 import {
@@ -22,7 +22,7 @@ import { renderStageIcon } from "@/lib/icons";
 import { PRIORITIES, getPriorityConfig } from "@/lib/priorities";
 import { cn } from "@/lib/utils";
 
-import type { Item, Stage } from "@/lib/types";
+import type { Item, Stage, Label } from "@/lib/types";
 
 /** Props for the ItemActionPanel component. */
 interface ItemActionPanelProps {
@@ -36,6 +36,14 @@ interface ItemActionPanelProps {
   onStageChange: (stageId: string | null) => void;
   /** Whether a stage change is currently being saved */
   isSavingStage?: boolean;
+  /** Available labels for this item's space */
+  labels: Label[];
+  /** Whether labels are still loading */
+  isLoadingLabels: boolean;
+  /** Callback when the user selects a different label */
+  onLabelChange: (labelId: string | null) => void;
+  /** Whether a label change is currently being saved */
+  isSavingLabel?: boolean;
   /** Callback when the user selects a different priority */
   onPriorityChange: (priority: number) => void;
   /** Whether a priority change is currently being saved */
@@ -44,7 +52,7 @@ interface ItemActionPanelProps {
 
 /**
  * Renders the action panel for an item editor.
- * Provides a stage selector and will host future property editors.
+ * Displays date metadata, stage selector, label selector, and priority picker.
  */
 export function ItemActionPanel({
   item,
@@ -52,6 +60,10 @@ export function ItemActionPanel({
   isLoadingStages,
   onStageChange,
   isSavingStage,
+  labels,
+  isLoadingLabels,
+  onLabelChange,
+  isSavingLabel,
   onPriorityChange,
   isSavingPriority,
 }: ItemActionPanelProps) {
@@ -62,6 +74,15 @@ export function ItemActionPanel({
       onStageChange(stageId);
     },
     [item.stage_id, onStageChange]
+  );
+
+  const handleLabelClick = useCallback(
+    (labelId: string | null) => {
+      // Don't fire if already on this label
+      if (item.label_id === labelId) return;
+      onLabelChange(labelId);
+    },
+    [item.label_id, onLabelChange]
   );
 
   const currentPriority = getPriorityConfig(item.priority);
@@ -84,20 +105,34 @@ export function ItemActionPanel({
             <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
               Dates
             </h3>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-2">
-                <CalendarIcon className="text-muted-foreground size-3.5 shrink-0" />
-                <span className="text-muted-foreground text-xs">Created</span>
-                <span className="ml-auto text-xs font-medium">
+            <div className="grid grid-cols-2 gap-2">
+              {/* Created tile */}
+              <div className="bg-muted/50 rounded-lg p-2.5">
+                <div className="mb-1.5 flex items-center gap-1.5">
+                  <div className="bg-muted flex size-5 items-center justify-center rounded-md">
+                    <CalendarIcon className="text-muted-foreground size-3" />
+                  </div>
+                  <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                    Created
+                  </span>
+                </div>
+                <p className="text-xs leading-tight font-medium">
                   {formatDateTime(item.created_at)}
-                </span>
+                </p>
               </div>
-              <div className="flex items-center gap-2">
-                <PencilIcon className="text-muted-foreground size-3.5 shrink-0" />
-                <span className="text-muted-foreground text-xs">Modified</span>
-                <span className="ml-auto text-xs font-medium">
+              {/* Modified tile */}
+              <div className="bg-muted/50 rounded-lg p-2.5">
+                <div className="mb-1.5 flex items-center gap-1.5">
+                  <div className="bg-muted flex size-5 items-center justify-center rounded-md">
+                    <PencilIcon className="text-muted-foreground size-3" />
+                  </div>
+                  <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                    Modified
+                  </span>
+                </div>
+                <p className="text-xs leading-tight font-medium">
                   {formatDateTime(item.updated_at)}
-                </span>
+                </p>
               </div>
             </div>
           </div>
@@ -250,7 +285,97 @@ export function ItemActionPanel({
             </div>
           </div>
 
-          {/* Future sections (Labels, Milestones, etc.) will go here */}
+          {/* Label section */}
+          <Separator className="my-4" />
+          <div>
+            <h3 className="text-muted-foreground mb-2 flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+              Label
+              {isSavingLabel && <Loader2Icon className="size-3 animate-spin" />}
+            </h3>
+
+            {isLoadingLabels ? (
+              <div className="flex items-center gap-2 py-2">
+                <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
+                <span className="text-muted-foreground text-sm">
+                  Loading labels...
+                </span>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {/* Label buttons */}
+                {labels.map((label) => {
+                  const isActive = item.label_id === label.id;
+                  return (
+                    <Button
+                      key={label.id}
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={isSavingLabel}
+                      className={cn(
+                        "h-auto justify-start gap-2 px-2.5 py-1.5",
+                        isActive && "ring-ring/30 bg-muted ring-1"
+                      )}
+                      style={
+                        isActive && label.color
+                          ? { backgroundColor: `${label.color}18` }
+                          : undefined
+                      }
+                      onClick={() => handleLabelClick(label.id)}
+                    >
+                      {/* Label icon */}
+                      {renderStageIcon(label.icon, "size-4 shrink-0", {
+                        color: label.color ?? "var(--muted-foreground)",
+                      })}
+                      {/* Color dot */}
+                      <span
+                        className="size-2 shrink-0 rounded-full"
+                        style={{
+                          backgroundColor:
+                            label.color ?? "var(--muted-foreground)",
+                        }}
+                      />
+                      {/* Label name */}
+                      <span
+                        className={cn(
+                          "truncate text-sm",
+                          isActive ? "font-medium" : "font-normal"
+                        )}
+                      >
+                        {label.name}
+                      </span>
+                    </Button>
+                  );
+                })}
+
+                {/* No Label option */}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={isSavingLabel}
+                  className={cn(
+                    "h-auto justify-start gap-2 px-2.5 py-1.5",
+                    item.label_id === null && "ring-ring/30 bg-muted ring-1"
+                  )}
+                  onClick={() => handleLabelClick(null)}
+                >
+                  <CircleHelpIcon className="text-muted-foreground size-4 shrink-0" />
+                  <span className="bg-muted-foreground/40 size-2 shrink-0 rounded-full" />
+                  <span
+                    className={cn(
+                      "text-muted-foreground truncate text-sm",
+                      item.label_id === null ? "font-medium" : "font-normal"
+                    )}
+                  >
+                    No Label
+                  </span>
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Future sections (Milestones, etc.) can go here */}
         </CardContent>
       </Card>
     </aside>

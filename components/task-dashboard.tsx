@@ -6,7 +6,8 @@ import { useState, useCallback } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
-import { StageConfigurator } from "@/components/stage-configurator";
+import { SettingsPanel } from "@/components/settings-panel";
+import { StageConfiguratorContent } from "@/components/stage-configurator";
 import { TaskCommandBar } from "@/components/task-command-bar";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,7 +53,7 @@ export function TaskDashboard() {
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     id: string | null;
@@ -129,11 +130,11 @@ export function TaskDashboard() {
   return (
     <>
       <TaskCommandBar
-        onConfigureStages={() => setIsConfiguratorOpen(true)}
         onCreateClick={() => setIsCreateOpen(true)}
         createLabel="New Unit"
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
+        onSettings={() => setIsSettingsOpen(true)}
       />
 
       <div className="container mx-auto px-4 py-8">
@@ -210,18 +211,28 @@ export function TaskDashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* Stage Configurator */}
-      <StageConfigurator
-        open={isConfiguratorOpen}
-        onOpenChange={setIsConfiguratorOpen}
-        entityType="unit"
-        configs={configs}
-        assignedConfigId={effectiveConfigId}
-        onCreateConfig={async (name) => createConfig({ name })}
-        onDeleteConfig={removeConfig}
-        onUpdateConfig={async (id, name) => updateConfig(id, { name })}
-        onAssignConfig={assign}
-        onUnassignConfig={unassign}
+      {/* Settings Panel */}
+      <SettingsPanel
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+        sections={[
+          {
+            id: "stages",
+            label: "Stages",
+            content: (
+              <StageConfiguratorContent
+                entityType="unit"
+                configs={configs}
+                assignedConfigId={effectiveConfigId}
+                onCreateConfig={async (name) => createConfig({ name })}
+                onDeleteConfig={removeConfig}
+                onUpdateConfig={async (id, name) => updateConfig(id, { name })}
+                onAssignConfig={assign}
+                onUnassignConfig={unassign}
+              />
+            ),
+          },
+        ]}
       />
 
       {/* Delete Confirmation Dialog */}

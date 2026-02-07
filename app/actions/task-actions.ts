@@ -89,12 +89,19 @@ const UpdateSpaceSchema = z.object({
 /** Priority validation: smallint 0–3 */
 const PrioritySchema = z.number().int().min(0).max(3).optional();
 
+/** Schema for label_id - accepts both UUIDs (custom labels) and default label IDs */
+const LabelIdSchema = z
+  .union([z.string().uuid(), z.string().startsWith("default-")])
+  .nullable()
+  .optional();
+
 /** Schema for creating an Item */
 const CreateItemSchema = z.object({
   space_id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
   stage_id: StageIdSchema,
+  label_id: LabelIdSchema,
   priority: PrioritySchema,
   sort_order: z.number().int().min(0).optional(),
 });
@@ -105,6 +112,7 @@ const UpdateItemSchema = z.object({
   encrypted_title: EncryptedDataSchema.optional(),
   encrypted_description: EncryptedDataSchema.nullable().optional(),
   stage_id: StageIdSchema,
+  label_id: LabelIdSchema,
   priority: PrioritySchema,
   sort_order: z.number().int().min(0).optional(),
 });
@@ -717,6 +725,7 @@ export async function createItem(
     encrypted_title: string;
     encrypted_description: string | null;
     stage_id?: string | null;
+    label_id?: string | null;
     priority?: number;
   },
   csrfToken: string
@@ -769,6 +778,7 @@ export async function createItem(
       encrypted_title: validatedData.encrypted_title,
       encrypted_description: validatedData.encrypted_description,
       stage_id: validatedData.stage_id ?? null,
+      label_id: validatedData.label_id ?? null,
     };
     if (validatedData.priority !== undefined) {
       insertObj.priority = validatedData.priority;
@@ -885,6 +895,7 @@ export async function updateItem(
     encrypted_title?: string;
     encrypted_description?: string | null;
     stage_id?: string | null;
+    label_id?: string | null;
     priority?: number;
     sort_order?: number;
   },
@@ -932,6 +943,9 @@ export async function updateItem(
     }
     if (validatedData.stage_id !== undefined) {
       updateObj.stage_id = validatedData.stage_id;
+    }
+    if (validatedData.label_id !== undefined) {
+      updateObj.label_id = validatedData.label_id;
     }
     if (validatedData.priority !== undefined) {
       updateObj.priority = validatedData.priority;

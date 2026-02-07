@@ -7,7 +7,8 @@ import { useState, useCallback } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
-import { StageConfigurator } from "@/components/stage-configurator";
+import { SettingsPanel } from "@/components/settings-panel";
+import { StageConfiguratorContent } from "@/components/stage-configurator";
 import { TaskCommandBar } from "@/components/task-command-bar";
 import {
   Breadcrumb,
@@ -64,7 +65,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [isConfiguratorOpen, setIsConfiguratorOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   // Space delete state (for individual spaces in the list)
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
@@ -166,11 +167,11 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
     <>
       <TaskCommandBar
         onBack={handleBack}
-        onConfigureStages={() => setIsConfiguratorOpen(true)}
         onCreateClick={() => setIsCreateOpen(true)}
         createLabel="New Space"
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
+        onSettings={() => setIsSettingsOpen(true)}
         onDelete={handleDeleteUnit}
         deleteLabel="Delete Unit"
       />
@@ -268,18 +269,28 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
         </DialogContent>
       </Dialog>
 
-      {/* Stage Configurator */}
-      <StageConfigurator
-        open={isConfiguratorOpen}
-        onOpenChange={setIsConfiguratorOpen}
-        entityType="space"
-        configs={configs}
-        assignedConfigId={effectiveConfigId}
-        onCreateConfig={async (name) => createConfig({ name })}
-        onDeleteConfig={removeConfig}
-        onUpdateConfig={async (id, name) => updateConfig(id, { name })}
-        onAssignConfig={assign}
-        onUnassignConfig={unassign}
+      {/* Settings Panel */}
+      <SettingsPanel
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+        sections={[
+          {
+            id: "stages",
+            label: "Stages",
+            content: (
+              <StageConfiguratorContent
+                entityType="space"
+                configs={configs}
+                assignedConfigId={effectiveConfigId}
+                onCreateConfig={async (name) => createConfig({ name })}
+                onDeleteConfig={removeConfig}
+                onUpdateConfig={async (id, name) => updateConfig(id, { name })}
+                onAssignConfig={assign}
+                onUnassignConfig={unassign}
+              />
+            ),
+          },
+        ]}
       />
 
       {/* Delete Space Confirmation Dialog */}

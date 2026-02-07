@@ -2,18 +2,27 @@
 
 /**
  * Task command bar - sticky toolbar below navbar
- * Contains navigation, action buttons (Stage Configuration, New, Refresh), and optional delete
+ * Primary actions (always visible): back, create
+ * Secondary actions (desktop inline, mobile dropdown): refresh, settings, delete
  */
 
 import {
-  AlignVerticalSpaceAround,
   ArrowLeftIcon,
+  EllipsisVerticalIcon,
   PlusIcon,
   RefreshCwIcon,
+  SettingsIcon,
   Trash2Icon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -21,8 +30,6 @@ import { cn } from "@/lib/utils";
 interface TaskCommandBarProps {
   /** Callback for back navigation (if provided, shows back button) */
   onBack?: () => void;
-  /** Callback to open the stage configurator */
-  onConfigureStages: () => void;
   /** Callback to open the create dialog */
   onCreateClick: () => void;
   /** Label for the create button - "New Unit", "New Space", "New Item" */
@@ -31,6 +38,8 @@ interface TaskCommandBarProps {
   onRefresh?: () => void;
   /** Whether a refresh operation is in progress */
   isRefreshing?: boolean;
+  /** Callback to open the settings panel */
+  onSettings: () => void;
   /** Callback to delete the current entity (if provided, shows delete button) */
   onDelete?: () => void;
   /** Label for the delete button - "Delete Unit", "Delete Space" */
@@ -38,15 +47,16 @@ interface TaskCommandBarProps {
 }
 
 /**
- * Renders the task command bar with navigation, actions, refresh, and optional delete.
+ * Renders the task command bar with primary actions always visible
+ * and secondary actions collapsed into a dropdown on mobile.
  */
 export function TaskCommandBar({
   onBack,
-  onConfigureStages,
   onCreateClick,
   createLabel,
   onRefresh,
   isRefreshing,
+  onSettings,
   onDelete,
   deleteLabel,
 }: TaskCommandBarProps) {
@@ -57,48 +67,33 @@ export function TaskCommandBar({
       }
     >
       <div className="container mx-auto px-4 py-2 md:py-0">
-        <div className="grid grid-cols-2 gap-1 md:flex md:h-12 md:items-center md:gap-2">
+        <div className="flex items-center gap-1 md:h-12 md:gap-2">
+          {/* Left group: Back, New */}
           {onBack && (
             <>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onBack}
-                className="justify-center md:justify-start"
-              >
+              <Button variant="ghost" size="sm" onClick={onBack}>
                 <ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />
                 <span>Back</span>
               </Button>
               <Separator
                 orientation="vertical"
-                className="hidden h-6 md:block"
+                className="hidden self-stretch md:block"
               />
             </>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onConfigureStages}
-            className="justify-center md:justify-start"
-          >
-            <AlignVerticalSpaceAround className="mr-1.5 size-4 shrink-0" />
-            <span>Stage Configuration</span>
-          </Button>
-          <Button
-            size="sm"
-            onClick={onCreateClick}
-            className="justify-center md:justify-start"
-          >
+          <Button size="sm" onClick={onCreateClick}>
             <PlusIcon className="mr-1.5 size-4 shrink-0" />
             <span>{createLabel}</span>
           </Button>
+
+          {/* Desktop only: Refresh */}
           {onRefresh && (
             <Button
               variant="outline"
               size="sm"
               onClick={onRefresh}
               disabled={isRefreshing}
-              className="justify-center md:justify-start"
+              className="hidden md:inline-flex"
             >
               <RefreshCwIcon
                 className={cn(
@@ -109,17 +104,65 @@ export function TaskCommandBar({
               <span>Refresh</span>
             </Button>
           )}
+
+          {/* Spacer pushes right group to the end */}
+          <div className="flex-1" />
+
+          {/* Desktop only: Settings, Delete */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onSettings}
+            className="hidden md:inline-flex"
+          >
+            <SettingsIcon className="mr-1.5 size-4 shrink-0" />
+            <span>Settings</span>
+          </Button>
           {onDelete && deleteLabel && (
             <Button
               variant="destructive"
               size="sm"
               onClick={onDelete}
-              className="justify-center md:ml-auto md:justify-start"
+              className="hidden md:inline-flex"
             >
               <Trash2Icon className="mr-1.5 size-4 shrink-0" />
               <span>{deleteLabel}</span>
             </Button>
           )}
+
+          {/* Mobile only: overflow dropdown for secondary actions */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="md:hidden">
+                <EllipsisVerticalIcon className="size-4" />
+                <span className="sr-only">More actions</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {onRefresh && (
+                <DropdownMenuItem onClick={onRefresh} disabled={isRefreshing}>
+                  <RefreshCwIcon className="mr-2 size-4" />
+                  <span>Refresh</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={onSettings}>
+                <SettingsIcon className="mr-2 size-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              {onDelete && deleteLabel && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={onDelete}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2Icon className="mr-2 size-4" />
+                    <span>{deleteLabel}</span>
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </nav>

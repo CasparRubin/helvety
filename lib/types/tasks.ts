@@ -113,6 +113,7 @@ export interface ItemRow {
   encrypted_title: string;
   encrypted_description: string | null;
   stage_id: string | null;
+  label_id: string | null;
   /** Priority: 0=low, 1=normal, 2=high, 3=urgent */
   priority: number;
   sort_order: number;
@@ -128,6 +129,7 @@ export interface Item {
   title: string;
   description: string | null;
   stage_id: string | null;
+  label_id: string | null;
   /** Priority: 0=low, 1=normal, 2=high, 3=urgent */
   priority: number;
   sort_order: number;
@@ -142,6 +144,8 @@ export interface ItemInput {
   description: string | null;
   /** Optional stage ID - can be a UUID (custom) or default stage ID (e.g., "default-item-backlog") */
   stage_id?: string | null;
+  /** Optional label ID - can be a UUID (custom) or default label ID (e.g., "default-label-bug") */
+  label_id?: string | null;
   /** Optional priority (0=low, 1=normal, 2=high, 3=urgent). Defaults to 1 (normal) in DB. */
   priority?: number;
 }
@@ -240,6 +244,98 @@ export interface StageAssignment {
   config_id: string;
   user_id: string;
   entity_type: EntityType;
+  parent_id: string | null;
+  created_at: string;
+}
+
+// =============================================================================
+// LABEL CONFIGURATION TYPES
+// =============================================================================
+
+/**
+ * Label configuration row as stored in the database (encrypted fields)
+ * A named set of labels that can be applied to items within a space
+ */
+export interface LabelConfigRow {
+  id: string;
+  user_id: string;
+  encrypted_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Decrypted LabelConfig (client-side only) */
+export interface LabelConfig {
+  id: string;
+  user_id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  /** True for hardcoded default configs (not stored in DB) */
+  isDefault?: boolean;
+}
+
+/** Input for creating a LabelConfig (plaintext, encrypted before sending) */
+export interface LabelConfigInput {
+  name: string;
+}
+
+// =============================================================================
+// LABEL TYPES
+// =============================================================================
+
+/**
+ * Label row as stored in the database (encrypted fields)
+ * An individual label within a LabelConfig (e.g., "Bug", "Feature")
+ */
+export interface LabelRow {
+  id: string;
+  config_id: string;
+  user_id: string;
+  encrypted_name: string;
+  color: string | null;
+  /** Lucide icon name (e.g., "circle", "bug") */
+  icon: string;
+  sort_order: number;
+  created_at: string;
+}
+
+/** Decrypted Label (client-side only) */
+export interface Label {
+  id: string;
+  config_id: string;
+  user_id: string;
+  name: string;
+  color: string | null;
+  /** Lucide icon name (e.g., "circle", "bug") */
+  icon: string;
+  sort_order: number;
+  created_at: string;
+}
+
+/** Input for creating a Label (plaintext, encrypted before sending) */
+export interface LabelInput {
+  config_id: string;
+  name: string;
+  color?: string | null;
+  /** Lucide icon name (defaults to "circle" if not provided) */
+  icon?: string;
+  sort_order?: number;
+}
+
+// =============================================================================
+// LABEL ASSIGNMENT TYPES
+// =============================================================================
+
+/**
+ * Links a label configuration to a specific space's items
+ * (e.g., "use this label config for items within space X")
+ */
+export interface LabelAssignment {
+  id: string;
+  config_id: string;
+  user_id: string;
+  /** The space ID this label config is assigned to */
   parent_id: string | null;
   created_at: string;
 }

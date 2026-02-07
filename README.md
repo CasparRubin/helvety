@@ -19,8 +19,13 @@ A private and secure task management app with end-to-end encryption. All your da
   - Bullet and numbered lists
   - Link support
   - Auto-save with unsaved changes indicator
-  - **Action panel** - Set item stage and priority directly from the editor without returning to the list view
+  - **Action panel** - Set item stage, label, and priority directly from the editor without returning to the list view
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators
+- **Label management** - Categorize items with labels (e.g., Bug, Feature, Improvement)
+  - **Default labels** - Built-in label set applied to every space: Bug, Change Request, Feature, Improvement, Internal Task
+  - **Custom label configurations** - Create your own label setups with custom names, colors, and Lucide icons
+  - **One label per item** - Each item can have exactly one label assigned
+  - **Space-level configuration** - All items within a space share the same label config
 - **Stage management** - Create and manage reusable stage configurations for organizing items (e.g., To Do, In Progress, Done)
   - **Default configurations** - Built-in stage setups for Units (Work/Home), Spaces (Upcoming/In Progress/Completed), and Items (full workflow from Backlog to Completed)
   - **Custom configurations** - Create your own stage setups with custom names, colors, and Lucide icons
@@ -96,7 +101,7 @@ This application implements comprehensive security hardening:
 - **Audit Logging** - Structured logging for authentication and encryption events
 - **Security Headers** - CSP, HSTS, and other security headers
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. An informational cookie notice informs visitors that only essential cookies are used (Swiss nDSG / EU ePrivacy compliant).
 
 ## Tech Stack
 
