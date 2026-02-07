@@ -58,6 +58,8 @@ interface EntityListProps {
   error: string | null;
   /** Available stages for the current config (empty if no config assigned) */
   stages: Stage[];
+  /** Map of entity id -> child count (spaces for units, items for spaces) */
+  childCounts?: Record<string, number>;
   /** Callback when an entity row is clicked */
   onEntityClick?: (entity: AnyEntity) => void;
   /** Callback to delete an entity (receives id and title for confirmation dialog) */
@@ -86,6 +88,7 @@ export function EntityList({
   isLoading,
   error,
   stages,
+  childCounts,
   onEntityClick,
   onEntityDelete,
   onReorder,
@@ -339,11 +342,15 @@ export function EntityList({
                   isHighlighted={hoveredStageId === stage.id}
                 >
                   {stageEntities
-                    .sort(
-                      (a, b) =>
+                    .sort((a, b) => {
+                      const prioA = "priority" in a ? (a as Item).priority : 1;
+                      const prioB = "priority" in b ? (b as Item).priority : 1;
+                      if (prioB !== prioA) return prioB - prioA;
+                      return (
                         new Date(b.updated_at).getTime() -
                         new Date(a.updated_at).getTime()
-                    )
+                      );
+                    })
                     .map((entity, idx) => (
                       <EntityRow
                         key={entity.id}
@@ -353,6 +360,12 @@ export function EntityList({
                         createdAt={entity.created_at}
                         entityType={entityType}
                         stage={stageMap.get(entity.stage_id ?? "")}
+                        priority={
+                          "priority" in entity
+                            ? (entity as Item).priority
+                            : null
+                        }
+                        childCount={childCounts?.[entity.id]}
                         isFirst={idx === 0}
                         isLast={idx === stageEntities.length - 1}
                         onClick={() => onEntityClick?.(entity)}
@@ -380,11 +393,15 @@ export function EntityList({
                   isHighlighted={hoveredStageId === "unstaged"}
                 >
                   {unstagedEntities
-                    .sort(
-                      (a, b) =>
+                    .sort((a, b) => {
+                      const prioA = "priority" in a ? (a as Item).priority : 1;
+                      const prioB = "priority" in b ? (b as Item).priority : 1;
+                      if (prioB !== prioA) return prioB - prioA;
+                      return (
                         new Date(b.updated_at).getTime() -
                         new Date(a.updated_at).getTime()
-                    )
+                      );
+                    })
                     .map((entity, idx) => (
                       <EntityRow
                         key={entity.id}
@@ -393,6 +410,12 @@ export function EntityList({
                         description={entity.description}
                         createdAt={entity.created_at}
                         entityType={entityType}
+                        priority={
+                          "priority" in entity
+                            ? (entity as Item).priority
+                            : null
+                        }
+                        childCount={childCounts?.[entity.id]}
                         isFirst={idx === 0}
                         isLast={idx === unstagedEntities.length - 1}
                         onClick={() => onEntityClick?.(entity)}
@@ -438,6 +461,10 @@ export function EntityList({
                   description={entity.description}
                   createdAt={entity.created_at}
                   entityType={entityType}
+                  priority={
+                    "priority" in entity ? (entity as Item).priority : null
+                  }
+                  childCount={childCounts?.[entity.id]}
                   isFirst={idx === 0}
                   isLast={idx === sortedEntities.length - 1}
                   onClick={() => onEntityClick?.(entity)}

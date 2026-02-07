@@ -19,6 +19,8 @@ A private and secure task management app with end-to-end encryption. All your da
   - Bullet and numbered lists
   - Link support
   - Auto-save with unsaved changes indicator
+  - **Action panel** - Set item stage and priority directly from the editor without returning to the list view
+- **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators
 - **Stage management** - Create and manage reusable stage configurations for organizing items (e.g., To Do, In Progress, Done)
   - **Default configurations** - Built-in stage setups for Units (Work/Home), Spaces (Upcoming/In Progress/Completed), and Items (full workflow from Backlog to Completed)
   - **Custom configurations** - Create your own stage setups with custom names, colors, and Lucide icons

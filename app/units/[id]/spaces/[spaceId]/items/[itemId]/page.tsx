@@ -7,8 +7,8 @@ import { CSRFProvider } from "@/lib/csrf-client";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 /**
- * Item Editor page - edit an individual item's title and description
- * Uses a WYSIWYG rich text editor for the description
+ * Item Editor page - edit an individual item's title, description, and properties
+ * Uses a WYSIWYG rich text editor for the description and an action panel for stage selection
  */
 export default async function ItemEditorPage({
   params,

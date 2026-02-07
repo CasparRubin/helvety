@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   useUnits,
+  useChildCounts,
   useStageConfigs,
   useStages,
   useStageAssignment,
@@ -34,6 +35,7 @@ export function TaskDashboard() {
   const router = useRouter();
   const { units, isLoading, error, refresh, create, remove, reorder } =
     useUnits();
+  const { counts: childCounts } = useChildCounts("unit");
   const {
     configs,
     create: createConfig,
@@ -143,6 +145,7 @@ export function TaskDashboard() {
           isLoading={isLoading}
           error={error}
           stages={stages}
+          childCounts={childCounts}
           onEntityClick={handleEntityClick}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}

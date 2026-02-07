@@ -32,6 +32,7 @@ import {
   useUnit,
   useUnits,
   useSpaces,
+  useChildCounts,
   useStageConfigs,
   useStages,
   useStageAssignment,
@@ -46,6 +47,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
   const { remove: removeUnit } = useUnits();
   const { spaces, isLoading, error, refresh, create, remove, reorder } =
     useSpaces(unitId);
+  const { counts: childCounts } = useChildCounts("space", unitId);
   const {
     configs,
     create: createConfig,
@@ -199,6 +201,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
           isLoading={isLoading}
           error={error}
           stages={stages}
+          childCounts={childCounts}
           onEntityClick={handleEntityClick}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}

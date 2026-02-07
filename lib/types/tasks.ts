@@ -113,6 +113,8 @@ export interface ItemRow {
   encrypted_title: string;
   encrypted_description: string | null;
   stage_id: string | null;
+  /** Priority: 0=low, 1=normal, 2=high, 3=urgent */
+  priority: number;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -126,6 +128,8 @@ export interface Item {
   title: string;
   description: string | null;
   stage_id: string | null;
+  /** Priority: 0=low, 1=normal, 2=high, 3=urgent */
+  priority: number;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -138,6 +142,8 @@ export interface ItemInput {
   description: string | null;
   /** Optional stage ID - can be a UUID (custom) or default stage ID (e.g., "default-item-backlog") */
   stage_id?: string | null;
+  /** Optional priority (0=low, 1=normal, 2=high, 3=urgent). Defaults to 1 (normal) in DB. */
+  priority?: number;
 }
 
 // =============================================================================

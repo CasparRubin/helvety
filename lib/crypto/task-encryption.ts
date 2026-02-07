@@ -230,6 +230,7 @@ export async function decryptItemRow(
     title,
     description,
     stage_id: row.stage_id,
+    priority: row.priority,
     sort_order: row.sort_order,
     created_at: row.created_at,
     updated_at: row.updated_at,

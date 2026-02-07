@@ -15,6 +15,9 @@ export { useUnits, useUnit } from "./use-units";
 export { useSpaces, useSpace } from "./use-spaces";
 export { useItems, useItem } from "./use-items";
 
+// Child counts
+export { useChildCounts } from "./use-child-counts";
+
 // Stage hooks with E2EE
 export { useStageConfigs } from "./use-stage-configs";
 export { useStages } from "./use-stages";

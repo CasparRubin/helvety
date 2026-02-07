@@ -122,7 +122,15 @@ export function useItems(spaceId: string): UseItemsReturn {
 
       try {
         const encrypted = await encryptItemUpdate(input, masterKey);
-        const result = await updateItem({ id, ...encrypted }, csrfToken);
+        const result = await updateItem(
+          {
+            id,
+            ...encrypted,
+            ...(input.stage_id !== undefined && { stage_id: input.stage_id }),
+            ...(input.priority !== undefined && { priority: input.priority }),
+          },
+          csrfToken
+        );
         if (!result.success) {
           setError(result.error ?? "Failed to update item");
           return false;
@@ -291,7 +299,15 @@ export function useItem(id: string): UseItemReturn {
 
       try {
         const encrypted = await encryptItemUpdate(input, masterKey);
-        const result = await updateItem({ id, ...encrypted }, csrfToken);
+        const result = await updateItem(
+          {
+            id,
+            ...encrypted,
+            ...(input.stage_id !== undefined && { stage_id: input.stage_id }),
+            ...(input.priority !== undefined && { priority: input.priority }),
+          },
+          csrfToken
+        );
         if (!result.success) {
           setError(result.error ?? "Failed to update item");
           return false;

@@ -86,12 +86,16 @@ const UpdateSpaceSchema = z.object({
   sort_order: z.number().int().min(0).optional(),
 });
 
+/** Priority validation: smallint 0–3 */
+const PrioritySchema = z.number().int().min(0).max(3).optional();
+
 /** Schema for creating an Item */
 const CreateItemSchema = z.object({
   space_id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
   stage_id: StageIdSchema,
+  priority: PrioritySchema,
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -101,6 +105,7 @@ const UpdateItemSchema = z.object({
   encrypted_title: EncryptedDataSchema.optional(),
   encrypted_description: EncryptedDataSchema.nullable().optional(),
   stage_id: StageIdSchema,
+  priority: PrioritySchema,
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -712,6 +717,7 @@ export async function createItem(
     encrypted_title: string;
     encrypted_description: string | null;
     stage_id?: string | null;
+    priority?: number;
   },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
@@ -757,15 +763,20 @@ export async function createItem(
     }
 
     // Insert item
+    const insertObj: Record<string, unknown> = {
+      space_id: validatedData.space_id,
+      user_id: user.id,
+      encrypted_title: validatedData.encrypted_title,
+      encrypted_description: validatedData.encrypted_description,
+      stage_id: validatedData.stage_id ?? null,
+    };
+    if (validatedData.priority !== undefined) {
+      insertObj.priority = validatedData.priority;
+    }
+
     const { data: item, error } = await supabase
       .from("items")
-      .insert({
-        space_id: validatedData.space_id,
-        user_id: user.id,
-        encrypted_title: validatedData.encrypted_title,
-        encrypted_description: validatedData.encrypted_description,
-        stage_id: validatedData.stage_id ?? null,
-      })
+      .insert(insertObj)
       .select("id")
       .single();
 
@@ -874,6 +885,7 @@ export async function updateItem(
     encrypted_title?: string;
     encrypted_description?: string | null;
     stage_id?: string | null;
+    priority?: number;
     sort_order?: number;
   },
   csrfToken: string
@@ -920,6 +932,9 @@ export async function updateItem(
     }
     if (validatedData.stage_id !== undefined) {
       updateObj.stage_id = validatedData.stage_id;
+    }
+    if (validatedData.priority !== undefined) {
+      updateObj.priority = validatedData.priority;
     }
     if (validatedData.sort_order !== undefined) {
       updateObj.sort_order = validatedData.sort_order;
@@ -1079,6 +1094,113 @@ export async function reorderEntities(
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in reorderEntities:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// =============================================================================
+// CHILD COUNT ACTIONS (for displaying counts in entity lists)
+// =============================================================================
+
+/**
+ * Get the number of spaces per unit for the current user.
+ * Returns a map of unit_id -> space count.
+ */
+export async function getSpaceCounts(): Promise<
+  ActionResponse<Record<string, number>>
+> {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    // Get all spaces for this user, selecting only the unit_id
+    const { data: spaces, error } = await supabase
+      .from("spaces")
+      .select("unit_id");
+
+    if (error) {
+      logger.error("Error getting space counts:", error);
+      return { success: false, error: "Failed to get space counts" };
+    }
+
+    // Aggregate counts by unit_id
+    const counts: Record<string, number> = {};
+    for (const space of spaces ?? []) {
+      counts[space.unit_id] = (counts[space.unit_id] ?? 0) + 1;
+    }
+
+    return { success: true, data: counts };
+  } catch (error) {
+    logger.error("Unexpected error in getSpaceCounts:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Get the number of items per space for a given unit.
+ * Returns a map of space_id -> item count.
+ */
+export async function getItemCounts(
+  unitId: string
+): Promise<ActionResponse<Record<string, number>>> {
+  try {
+    if (!z.string().uuid().safeParse(unitId).success) {
+      return { success: false, error: "Invalid unit ID" };
+    }
+
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    // First get the space IDs for this unit
+    const { data: spaces, error: spacesError } = await supabase
+      .from("spaces")
+      .select("id")
+      .eq("unit_id", unitId);
+
+    if (spacesError) {
+      logger.error("Error getting spaces for item counts:", spacesError);
+      return { success: false, error: "Failed to get item counts" };
+    }
+
+    const spaceIds = (spaces ?? []).map((s) => s.id);
+    if (spaceIds.length === 0) {
+      return { success: true, data: {} };
+    }
+
+    // Get all items for these spaces, selecting only the space_id
+    const { data: items, error: itemsError } = await supabase
+      .from("items")
+      .select("space_id")
+      .in("space_id", spaceIds);
+
+    if (itemsError) {
+      logger.error("Error getting item counts:", itemsError);
+      return { success: false, error: "Failed to get item counts" };
+    }
+
+    // Aggregate counts by space_id
+    const counts: Record<string, number> = {};
+    for (const item of items ?? []) {
+      counts[item.space_id] = (counts[item.space_id] ?? 0) + 1;
+    }
+
+    return { success: true, data: counts };
+  } catch (error) {
+    logger.error("Unexpected error in getItemCounts:", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

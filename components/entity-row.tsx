@@ -13,7 +13,10 @@ import {
 } from "lucide-react";
 
 import { getDescriptionPlainText } from "@/components/tiptap-editor";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatDateTime } from "@/lib/dates";
+import { getPriorityConfig } from "@/lib/priorities";
 
 import type { Stage, EntityType } from "@/lib/types";
 
@@ -33,6 +36,10 @@ interface EntityRowProps {
   createdAt: string;
   entityType: EntityType;
   stage?: Stage | null;
+  /** Priority level (items only, 0-3). Shown as a badge on hover. */
+  priority?: number | null;
+  /** Number of child entities (spaces for units, items for spaces) */
+  childCount?: number;
   isFirst?: boolean;
   isLast?: boolean;
   onClick?: () => void;
@@ -54,6 +61,8 @@ export function EntityRow({
   createdAt,
   entityType,
   stage,
+  priority,
+  childCount,
   isFirst = false,
   isLast = false,
   onClick,
@@ -81,7 +90,7 @@ export function EntityRow({
     <div
       ref={setNodeRef}
       style={style}
-      className={`border-border flex items-center gap-2 border-b px-3 py-2.5 transition-colors last:border-b-0 ${
+      className={`group border-border flex items-center gap-2 border-b px-3 py-2.5 transition-colors last:border-b-0 ${
         isDragging
           ? "bg-muted/80 z-50 rounded-md shadow-lg"
           : "hover:bg-muted/40"
@@ -145,6 +154,11 @@ export function EntityRow({
         }}
       >
         <span className="truncate font-medium">{title}</span>
+        {childCount !== undefined && (
+          <span className="text-muted-foreground shrink-0 text-xs">
+            ({childCount})
+          </span>
+        )}
         {description && (
           <span className="text-muted-foreground hidden truncate text-sm md:inline">
             {getDescriptionPlainText(description)}
@@ -152,9 +166,26 @@ export function EntityRow({
         )}
       </div>
 
+      {/* Priority badge (items only, desktop, hover-only) */}
+      {priority != null &&
+        (() => {
+          const prioConfig = getPriorityConfig(priority);
+          const PriorityIcon = prioConfig.icon;
+          return (
+            <Badge
+              variant="outline"
+              className="hidden shrink-0 opacity-0 transition-opacity group-hover:opacity-100 md:inline-flex"
+              style={{ borderColor: prioConfig.color, color: prioConfig.color }}
+            >
+              <PriorityIcon className="size-3" />
+              {prioConfig.label}
+            </Badge>
+          );
+        })()}
+
       {/* Date (desktop only) */}
       <span className="text-muted-foreground hidden shrink-0 text-xs md:inline">
-        {new Date(createdAt).toLocaleDateString()}
+        {formatDateTime(createdAt)}
       </span>
 
       {/* Delete */}
