@@ -51,7 +51,7 @@ const UNIT_DEFAULT: DefaultStageConfig = {
     {
       id: "default-unit-work",
       name: "Work",
-      color: "#3b82f6",
+      color: "#0ea5e9",
       icon: "briefcase",
       sort_order: 0,
       default_rows_shown: 20,
@@ -59,7 +59,7 @@ const UNIT_DEFAULT: DefaultStageConfig = {
     {
       id: "default-unit-home",
       name: "Home",
-      color: "#22c55e",
+      color: "#84cc16",
       icon: "home",
       sort_order: 1,
       default_rows_shown: 20,
@@ -105,7 +105,7 @@ const SPACE_DEFAULT: DefaultStageConfig = {
 
 /**
  * Default stage config for Items
- * Full workflow: Backlog -> Discovery -> Read -> In Progress -> Testing -> Acceptance -> Completed -> The Void
+ * Full workflow: Backlog -> Discovery -> Ready -> In Progress -> Testing -> Acceptance -> Completed -> The Void
  */
 const ITEM_DEFAULT: DefaultStageConfig = {
   id: "default-item",
@@ -139,7 +139,7 @@ const ITEM_DEFAULT: DefaultStageConfig = {
     {
       id: "default-item-progress",
       name: "In Progress",
-      color: "#f97316",
+      color: "#eab308",
       icon: "loader",
       sort_order: 3,
       default_rows_shown: 20,
@@ -147,7 +147,7 @@ const ITEM_DEFAULT: DefaultStageConfig = {
     {
       id: "default-item-testing",
       name: "Testing",
-      color: "#eab308",
+      color: "#d946ef",
       icon: "flask-conical",
       sort_order: 4,
       default_rows_shown: 20,
@@ -163,7 +163,7 @@ const ITEM_DEFAULT: DefaultStageConfig = {
     {
       id: "default-item-completed",
       name: "Completed",
-      color: "#22c55e",
+      color: "#10b981",
       icon: "check-circle",
       sort_order: 6,
       default_rows_shown: 5,

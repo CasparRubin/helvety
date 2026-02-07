@@ -13,9 +13,11 @@ import {
   Heading1Icon,
   Heading2Icon,
   Heading3Icon,
+  PilcrowIcon,
   ListIcon,
   ListOrderedIcon,
   LinkIcon,
+  MessageSquarePlusIcon,
   Undo2Icon,
   Redo2Icon,
 } from "lucide-react";
@@ -87,8 +89,8 @@ function ToolbarButton({
           onClick={onClick}
           disabled={disabled}
           className={cn(
-            "h-8 w-8 p-0",
-            isActive && "bg-accent text-accent-foreground"
+            "text-muted-foreground hover:text-foreground h-7 w-7 p-0",
+            isActive && "bg-accent/50 text-foreground"
           )}
         >
           {children}
@@ -127,13 +129,37 @@ function EditorToolbar({
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
 
+  const insertComment = useCallback(() => {
+    if (!editor) return;
+
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const timestamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    editor
+      .chain()
+      .focus("end")
+      .insertContent([
+        { type: "paragraph" },
+        { type: "horizontalRule" },
+        {
+          type: "heading",
+          attrs: { level: 3 },
+          content: [{ type: "text", text: `Comment ${timestamp}` }],
+        },
+        { type: "paragraph" },
+      ])
+      .focus()
+      .run();
+  }, [editor]);
+
   if (!editor) {
     return null;
   }
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="border-border bg-muted/30 flex flex-wrap items-center gap-0.5 rounded-t-md border-b px-2 py-1">
+      <div className="border-border/40 bg-muted/20 flex flex-wrap items-center gap-0.5 rounded-t-md border-b px-1.5 py-0.5 opacity-30 transition-opacity duration-200 focus-within:opacity-100 hover:opacity-100">
         {/* Undo / Redo */}
         <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}
@@ -141,7 +167,7 @@ function EditorToolbar({
           disabled={disabled || !editor.can().undo()}
           tooltip="Undo"
         >
-          <Undo2Icon className="size-4" />
+          <Undo2Icon className="size-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().redo().run()}
@@ -149,10 +175,10 @@ function EditorToolbar({
           disabled={disabled || !editor.can().redo()}
           tooltip="Redo"
         >
-          <Redo2Icon className="size-4" />
+          <Redo2Icon className="size-3.5" />
         </ToolbarButton>
 
-        <Separator orientation="vertical" className="mx-1 h-6" />
+        <Separator orientation="vertical" className="mx-1 h-4 opacity-30" />
 
         {/* Text formatting */}
         <ToolbarButton
@@ -161,7 +187,7 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Bold"
         >
-          <BoldIcon className="size-4" />
+          <BoldIcon className="size-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
@@ -169,7 +195,7 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Italic"
         >
-          <ItalicIcon className="size-4" />
+          <ItalicIcon className="size-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleUnderline().run()}
@@ -177,7 +203,7 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Underline"
         >
-          <UnderlineIcon className="size-4" />
+          <UnderlineIcon className="size-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
@@ -185,10 +211,10 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Strikethrough"
         >
-          <StrikethroughIcon className="size-4" />
+          <StrikethroughIcon className="size-3.5" />
         </ToolbarButton>
 
-        <Separator orientation="vertical" className="mx-1 h-6" />
+        <Separator orientation="vertical" className="mx-1 h-4 opacity-30" />
 
         {/* Headings */}
         <ToolbarButton
@@ -199,7 +225,7 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Heading 1"
         >
-          <Heading1Icon className="size-4" />
+          <Heading1Icon className="size-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() =>
@@ -209,7 +235,7 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Heading 2"
         >
-          <Heading2Icon className="size-4" />
+          <Heading2Icon className="size-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() =>
@@ -219,10 +245,22 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Heading 3"
         >
-          <Heading3Icon className="size-4" />
+          <Heading3Icon className="size-3.5" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setParagraph().run()}
+          isActive={
+            editor.isActive("paragraph") &&
+            !editor.isActive("bulletList") &&
+            !editor.isActive("orderedList")
+          }
+          disabled={disabled}
+          tooltip="Normal Text"
+        >
+          <PilcrowIcon className="size-3.5" />
         </ToolbarButton>
 
-        <Separator orientation="vertical" className="mx-1 h-6" />
+        <Separator orientation="vertical" className="mx-1 h-4 opacity-30" />
 
         {/* Lists */}
         <ToolbarButton
@@ -231,7 +269,7 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Bullet List"
         >
-          <ListIcon className="size-4" />
+          <ListIcon className="size-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
@@ -239,10 +277,10 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Numbered List"
         >
-          <ListOrderedIcon className="size-4" />
+          <ListOrderedIcon className="size-3.5" />
         </ToolbarButton>
 
-        <Separator orientation="vertical" className="mx-1 h-6" />
+        <Separator orientation="vertical" className="mx-1 h-4 opacity-30" />
 
         {/* Link */}
         <ToolbarButton
@@ -251,7 +289,18 @@ function EditorToolbar({
           disabled={disabled}
           tooltip="Add Link"
         >
-          <LinkIcon className="size-4" />
+          <LinkIcon className="size-3.5" />
+        </ToolbarButton>
+
+        <Separator orientation="vertical" className="mx-1 h-4 opacity-30" />
+
+        {/* New Comment */}
+        <ToolbarButton
+          onClick={insertComment}
+          disabled={disabled}
+          tooltip="New Comment"
+        >
+          <MessageSquarePlusIcon className="size-3.5" />
         </ToolbarButton>
       </div>
     </TooltipProvider>
@@ -344,8 +393,8 @@ export const TiptapEditor = forwardRef<TiptapEditorRef, TiptapEditorProps>(
     return (
       <div
         className={cn(
-          "border-input bg-background dark:bg-input/30 rounded-md border shadow-xs",
-          "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
+          "border-border/40 bg-background dark:bg-input/30 rounded-md border",
+          "focus-within:border-ring/70 focus-within:ring-ring/30 focus-within:ring-[2px]",
           "transition-[color,box-shadow]",
           disabled && "cursor-not-allowed opacity-50",
           className

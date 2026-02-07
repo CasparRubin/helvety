@@ -161,45 +161,48 @@ export function EntityRow({
             ({childCount})
           </span>
         )}
-        {description && (
+        {entityType !== "item" && description && (
           <span className="text-muted-foreground hidden truncate text-sm md:inline">
             {getDescriptionPlainText(description)}
           </span>
         )}
+
+        {/* Priority badge (items only, inline next to title) */}
+        {priority != null &&
+          (() => {
+            const prioConfig = getPriorityConfig(priority);
+            const PriorityIcon = prioConfig.icon;
+            return (
+              <Badge
+                variant="outline"
+                className="hidden shrink-0 opacity-0 transition-opacity group-hover:opacity-100 md:inline-flex"
+                style={{
+                  borderColor: prioConfig.color,
+                  color: prioConfig.color,
+                }}
+              >
+                <PriorityIcon className="size-3" />
+                {prioConfig.label}
+              </Badge>
+            );
+          })()}
+
+        {/* Label badge (items only, inline next to title) */}
+        {label != null &&
+          (() => {
+            const labelColor = label.color ?? "var(--muted-foreground)";
+            return (
+              <Badge
+                variant="outline"
+                className="hidden shrink-0 opacity-0 transition-opacity group-hover:opacity-100 md:inline-flex"
+                style={{ borderColor: labelColor, color: labelColor }}
+              >
+                {renderStageIcon(label.icon, "size-3")}
+                {label.name}
+              </Badge>
+            );
+          })()}
       </div>
-
-      {/* Priority badge (items only, desktop, hover-only) */}
-      {priority != null &&
-        (() => {
-          const prioConfig = getPriorityConfig(priority);
-          const PriorityIcon = prioConfig.icon;
-          return (
-            <Badge
-              variant="outline"
-              className="hidden shrink-0 opacity-0 transition-opacity group-hover:opacity-100 md:inline-flex"
-              style={{ borderColor: prioConfig.color, color: prioConfig.color }}
-            >
-              <PriorityIcon className="size-3" />
-              {prioConfig.label}
-            </Badge>
-          );
-        })()}
-
-      {/* Label badge (items only, desktop, hover-only) */}
-      {label != null &&
-        (() => {
-          const labelColor = label.color ?? "var(--muted-foreground)";
-          return (
-            <Badge
-              variant="outline"
-              className="hidden shrink-0 opacity-0 transition-opacity group-hover:opacity-100 md:inline-flex"
-              style={{ borderColor: labelColor, color: labelColor }}
-            >
-              {renderStageIcon(label.icon, "size-3")}
-              {label.name}
-            </Badge>
-          );
-        })()}
 
       {/* Date (desktop only) */}
       <span className="text-muted-foreground hidden shrink-0 text-xs md:inline">

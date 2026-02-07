@@ -35,8 +35,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   useUnit,
   useSpace,
@@ -424,26 +422,17 @@ export function ItemEditor({
 
             {/* Title input */}
             <div className="mb-6">
-              <Label
-                htmlFor="item-title"
-                className="text-muted-foreground mb-2 block text-sm font-medium"
-              >
-                Title
-              </Label>
-              <Input
+              <input
                 id="item-title"
                 value={title}
                 onChange={handleTitleChange}
                 placeholder="Item title..."
-                className="border-0 bg-transparent text-2xl font-semibold shadow-none focus-visible:ring-0"
+                className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-4xl leading-tight font-bold outline-none"
               />
             </div>
 
             {/* Description editor */}
             <div className="mb-6">
-              <Label className="text-muted-foreground mb-2 block text-sm font-medium">
-                Description
-              </Label>
               <TiptapEditor
                 ref={editorRef}
                 content={parseDescriptionContent(item.description)}

@@ -24,10 +24,7 @@ lib/              # Shared utilities (NO React components here)
   crypto/         # Encryption, passkeys, key derivation
   supabase/       # Database clients (client.ts, server.ts, client-factory.ts)
   types/          # TypeScript type definitions with index.ts barrel
-  config/         # Configuration files
-    version.ts        # Auto-generated build version
-    entity-config.ts  # Entity metadata (names, plurals, child examples)
-    default-stages.ts # Hardcoded default stage configurations (Units, Spaces, Items)
+  config/         # Configuration (version.ts)
 ```
 
 ## Naming Conventions

@@ -34,23 +34,23 @@ export interface PriorityConfig {
 
 /** All priority levels in ascending order */
 export const PRIORITIES: readonly PriorityConfig[] = [
-  { value: PRIORITY_LOW, label: "Low", color: "#6b7280", icon: ArrowDownIcon },
+  { value: PRIORITY_LOW, label: "Low", color: "#4b5563", icon: ArrowDownIcon },
   {
     value: PRIORITY_NORMAL,
     label: "Normal",
-    color: "#3b82f6",
+    color: "#2563eb",
     icon: MinusIcon,
   },
   {
     value: PRIORITY_HIGH,
     label: "High",
-    color: "#f59e0b",
+    color: "#d97706",
     icon: ArrowUpIcon,
   },
   {
     value: PRIORITY_URGENT,
     label: "Urgent",
-    color: "#ef4444",
+    color: "#dc2626",
     icon: AlertTriangleIcon,
   },
 ] as const;

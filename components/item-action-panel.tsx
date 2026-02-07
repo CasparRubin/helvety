@@ -2,12 +2,15 @@
 
 /**
  * Item Action Panel - sidebar panel for item properties.
- * Displays date metadata, stage selection, label selection, and priority assignment;
- * designed to be extended with milestones and other fields.
+ * Displays date metadata, stage selection, priority picker, and label assignment
+ * in collapsible sections. On mobile / stacked layout, stage, priority, and label
+ * sections are collapsed by default to save screen space; dates remain open.
+ * Designed to be extended with milestones and other fields.
  */
 
 import {
   CalendarIcon,
+  ChevronRightIcon,
   CircleHelpIcon,
   Loader2Icon,
   PencilIcon,
@@ -16,7 +19,13 @@ import { useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from "@/hooks";
 import { formatDateTime } from "@/lib/dates";
 import { renderStageIcon } from "@/lib/icons";
 import { PRIORITIES, getPriorityConfig } from "@/lib/priorities";
@@ -52,7 +61,8 @@ interface ItemActionPanelProps {
 
 /**
  * Renders the action panel for an item editor.
- * Displays date metadata, stage selector, label selector, and priority picker.
+ * Each section (dates, stage, priority, label) is wrapped in a collapsible;
+ * stage, priority, and label collapse by default on mobile screens.
  */
 export function ItemActionPanel({
   item,
@@ -67,6 +77,8 @@ export function ItemActionPanel({
   onPriorityChange,
   isSavingPriority,
 }: ItemActionPanelProps) {
+  const isMobile = useIsMobile();
+
   const handleStageClick = useCallback(
     (stageId: string | null) => {
       // Don't fire if already on this stage
@@ -101,279 +113,300 @@ export function ItemActionPanel({
       <Card size="sm">
         <CardContent>
           {/* Dates section */}
-          <div>
-            <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-              Dates
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {/* Created tile */}
-              <div className="bg-muted/50 rounded-lg p-2.5">
-                <div className="mb-1.5 flex items-center gap-1.5">
-                  <div className="bg-muted flex size-5 items-center justify-center rounded-md">
-                    <CalendarIcon className="text-muted-foreground size-3" />
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger className="group flex w-full items-center justify-between">
+              <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+                Dates
+              </h3>
+              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {/* Created tile */}
+                <div className="bg-muted/50 rounded-lg p-2.5">
+                  <div className="mb-1.5 flex items-center gap-1.5">
+                    <div className="bg-muted flex size-5 items-center justify-center rounded-md">
+                      <CalendarIcon className="text-muted-foreground size-3" />
+                    </div>
+                    <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                      Created
+                    </span>
                   </div>
-                  <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                    Created
-                  </span>
+                  <p className="text-xs leading-tight font-medium">
+                    {formatDateTime(item.created_at)}
+                  </p>
                 </div>
-                <p className="text-xs leading-tight font-medium">
-                  {formatDateTime(item.created_at)}
-                </p>
-              </div>
-              {/* Modified tile */}
-              <div className="bg-muted/50 rounded-lg p-2.5">
-                <div className="mb-1.5 flex items-center gap-1.5">
-                  <div className="bg-muted flex size-5 items-center justify-center rounded-md">
-                    <PencilIcon className="text-muted-foreground size-3" />
+                {/* Modified tile */}
+                <div className="bg-muted/50 rounded-lg p-2.5">
+                  <div className="mb-1.5 flex items-center gap-1.5">
+                    <div className="bg-muted flex size-5 items-center justify-center rounded-md">
+                      <PencilIcon className="text-muted-foreground size-3" />
+                    </div>
+                    <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                      Modified
+                    </span>
                   </div>
-                  <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                    Modified
-                  </span>
+                  <p className="text-xs leading-tight font-medium">
+                    {formatDateTime(item.updated_at)}
+                  </p>
                 </div>
-                <p className="text-xs leading-tight font-medium">
-                  {formatDateTime(item.updated_at)}
-                </p>
               </div>
-            </div>
-          </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           <Separator className="my-4" />
 
           {/* Stage section */}
-          <div>
-            <h3 className="text-muted-foreground mb-2 flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
-              Stage
-              {isSavingStage && <Loader2Icon className="size-3 animate-spin" />}
-            </h3>
-
-            {isLoadingStages ? (
-              <div className="flex items-center gap-2 py-2">
-                <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
-                <span className="text-muted-foreground text-sm">
-                  Loading stages...
-                </span>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1">
-                {/* Stage buttons */}
-                {stages.map((stage) => {
-                  const isActive = item.stage_id === stage.id;
-                  return (
-                    <Button
-                      key={stage.id}
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      disabled={isSavingStage}
-                      className={cn(
-                        "h-auto justify-start gap-2 px-2.5 py-1.5",
-                        isActive && "ring-ring/30 bg-muted ring-1"
-                      )}
-                      style={
-                        isActive && stage.color
-                          ? { backgroundColor: `${stage.color}18` }
-                          : undefined
-                      }
-                      onClick={() => handleStageClick(stage.id)}
-                    >
-                      {/* Stage icon */}
-                      {renderStageIcon(stage.icon, "size-4 shrink-0", {
-                        color: stage.color ?? "var(--muted-foreground)",
-                      })}
-                      {/* Color dot */}
-                      <span
-                        className="size-2 shrink-0 rounded-full"
-                        style={{
-                          backgroundColor:
-                            stage.color ?? "var(--muted-foreground)",
-                        }}
-                      />
-                      {/* Stage name */}
-                      <span
-                        className={cn(
-                          "truncate text-sm",
-                          isActive ? "font-medium" : "font-normal"
-                        )}
-                      >
-                        {stage.name}
-                      </span>
-                    </Button>
-                  );
-                })}
-
-                {/* Unstaged option */}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={isSavingStage}
-                  className={cn(
-                    "h-auto justify-start gap-2 px-2.5 py-1.5",
-                    item.stage_id === null && "ring-ring/30 bg-muted ring-1"
-                  )}
-                  onClick={() => handleStageClick(null)}
-                >
-                  <CircleHelpIcon className="text-muted-foreground size-4 shrink-0" />
-                  <span className="bg-muted-foreground/40 size-2 shrink-0 rounded-full" />
-                  <span
-                    className={cn(
-                      "text-muted-foreground truncate text-sm",
-                      item.stage_id === null ? "font-medium" : "font-normal"
-                    )}
-                  >
-                    Unstaged
+          <Collapsible defaultOpen={!isMobile}>
+            <CollapsibleTrigger className="group flex w-full items-center justify-between">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+                Stage
+                {isSavingStage && (
+                  <Loader2Icon className="size-3 animate-spin" />
+                )}
+              </h3>
+              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              {isLoadingStages ? (
+                <div className="mt-2 flex items-center gap-2 py-2">
+                  <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
+                  <span className="text-muted-foreground text-sm">
+                    Loading stages...
                   </span>
-                </Button>
-              </div>
-            )}
-          </div>
+                </div>
+              ) : (
+                <div className="mt-2 flex flex-col gap-1">
+                  {/* Stage buttons */}
+                  {stages.map((stage) => {
+                    const isActive = item.stage_id === stage.id;
+                    return (
+                      <Button
+                        key={stage.id}
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={isSavingStage}
+                        className={cn(
+                          "h-auto justify-start gap-2 px-2.5 py-1.5",
+                          isActive && "ring-ring/30 bg-muted ring-1"
+                        )}
+                        style={
+                          isActive && stage.color
+                            ? { backgroundColor: `${stage.color}18` }
+                            : undefined
+                        }
+                        onClick={() => handleStageClick(stage.id)}
+                      >
+                        {/* Stage icon */}
+                        {renderStageIcon(stage.icon, "size-4 shrink-0", {
+                          color: stage.color ?? "var(--muted-foreground)",
+                        })}
+                        {/* Color dot */}
+                        <span
+                          className="size-2 shrink-0 rounded-full"
+                          style={{
+                            backgroundColor:
+                              stage.color ?? "var(--muted-foreground)",
+                          }}
+                        />
+                        {/* Stage name */}
+                        <span
+                          className={cn(
+                            "truncate text-sm",
+                            isActive ? "font-medium" : "font-normal"
+                          )}
+                        >
+                          {stage.name}
+                        </span>
+                      </Button>
+                    );
+                  })}
 
-          {/* Priority section */}
-          <Separator className="my-4" />
-          <div>
-            <h3 className="text-muted-foreground mb-2 flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
-              Priority
-              {isSavingPriority && (
-                <Loader2Icon className="size-3 animate-spin" />
-              )}
-            </h3>
-
-            <div className="flex flex-col gap-1">
-              {PRIORITIES.map((prio) => {
-                const isActive = currentPriority.value === prio.value;
-                const Icon = prio.icon;
-                return (
+                  {/* Unstaged option */}
                   <Button
-                    key={prio.value}
                     type="button"
                     variant="ghost"
                     size="sm"
-                    disabled={isSavingPriority}
+                    disabled={isSavingStage}
                     className={cn(
                       "h-auto justify-start gap-2 px-2.5 py-1.5",
-                      isActive && "ring-ring/30 bg-muted ring-1"
+                      item.stage_id === null && "ring-ring/30 bg-muted ring-1"
                     )}
-                    style={
-                      isActive
-                        ? { backgroundColor: `${prio.color}18` }
-                        : undefined
-                    }
-                    onClick={() => handlePriorityClick(prio.value)}
+                    onClick={() => handleStageClick(null)}
                   >
-                    {/* Priority icon */}
-                    <Icon
-                      className="size-4 shrink-0"
-                      style={{ color: prio.color }}
-                    />
-                    {/* Color dot */}
-                    <span
-                      className="size-2 shrink-0 rounded-full"
-                      style={{ backgroundColor: prio.color }}
-                    />
-                    {/* Priority label */}
+                    <CircleHelpIcon className="text-muted-foreground size-4 shrink-0" />
+                    <span className="bg-muted-foreground/40 size-2 shrink-0 rounded-full" />
                     <span
                       className={cn(
-                        "truncate text-sm",
-                        isActive ? "font-medium" : "font-normal"
+                        "text-muted-foreground truncate text-sm",
+                        item.stage_id === null ? "font-medium" : "font-normal"
                       )}
                     >
-                      {prio.label}
+                      Unstaged
                     </span>
                   </Button>
-                );
-              })}
-            </div>
-          </div>
+                </div>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
 
-          {/* Label section */}
+          {/* Priority section */}
           <Separator className="my-4" />
-          <div>
-            <h3 className="text-muted-foreground mb-2 flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
-              Label
-              {isSavingLabel && <Loader2Icon className="size-3 animate-spin" />}
-            </h3>
-
-            {isLoadingLabels ? (
-              <div className="flex items-center gap-2 py-2">
-                <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
-                <span className="text-muted-foreground text-sm">
-                  Loading labels...
-                </span>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1">
-                {/* Label buttons */}
-                {labels.map((label) => {
-                  const isActive = item.label_id === label.id;
+          <Collapsible defaultOpen={!isMobile}>
+            <CollapsibleTrigger className="group flex w-full items-center justify-between">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+                Priority
+                {isSavingPriority && (
+                  <Loader2Icon className="size-3 animate-spin" />
+                )}
+              </h3>
+              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="mt-2 flex flex-col gap-1">
+                {PRIORITIES.map((prio) => {
+                  const isActive = currentPriority.value === prio.value;
+                  const Icon = prio.icon;
                   return (
                     <Button
-                      key={label.id}
+                      key={prio.value}
                       type="button"
                       variant="ghost"
                       size="sm"
-                      disabled={isSavingLabel}
+                      disabled={isSavingPriority}
                       className={cn(
                         "h-auto justify-start gap-2 px-2.5 py-1.5",
                         isActive && "ring-ring/30 bg-muted ring-1"
                       )}
                       style={
-                        isActive && label.color
-                          ? { backgroundColor: `${label.color}18` }
+                        isActive
+                          ? { backgroundColor: `${prio.color}18` }
                           : undefined
                       }
-                      onClick={() => handleLabelClick(label.id)}
+                      onClick={() => handlePriorityClick(prio.value)}
                     >
-                      {/* Label icon */}
-                      {renderStageIcon(label.icon, "size-4 shrink-0", {
-                        color: label.color ?? "var(--muted-foreground)",
-                      })}
+                      {/* Priority icon */}
+                      <Icon
+                        className="size-4 shrink-0"
+                        style={{ color: prio.color }}
+                      />
                       {/* Color dot */}
                       <span
                         className="size-2 shrink-0 rounded-full"
-                        style={{
-                          backgroundColor:
-                            label.color ?? "var(--muted-foreground)",
-                        }}
+                        style={{ backgroundColor: prio.color }}
                       />
-                      {/* Label name */}
+                      {/* Priority label */}
                       <span
                         className={cn(
                           "truncate text-sm",
                           isActive ? "font-medium" : "font-normal"
                         )}
                       >
-                        {label.name}
+                        {prio.label}
                       </span>
                     </Button>
                   );
                 })}
-
-                {/* No Label option */}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={isSavingLabel}
-                  className={cn(
-                    "h-auto justify-start gap-2 px-2.5 py-1.5",
-                    item.label_id === null && "ring-ring/30 bg-muted ring-1"
-                  )}
-                  onClick={() => handleLabelClick(null)}
-                >
-                  <CircleHelpIcon className="text-muted-foreground size-4 shrink-0" />
-                  <span className="bg-muted-foreground/40 size-2 shrink-0 rounded-full" />
-                  <span
-                    className={cn(
-                      "text-muted-foreground truncate text-sm",
-                      item.label_id === null ? "font-medium" : "font-normal"
-                    )}
-                  >
-                    No Label
-                  </span>
-                </Button>
               </div>
-            )}
-          </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Label section */}
+          <Separator className="my-4" />
+          <Collapsible defaultOpen={!isMobile}>
+            <CollapsibleTrigger className="group flex w-full items-center justify-between">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+                Label
+                {isSavingLabel && (
+                  <Loader2Icon className="size-3 animate-spin" />
+                )}
+              </h3>
+              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              {isLoadingLabels ? (
+                <div className="mt-2 flex items-center gap-2 py-2">
+                  <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
+                  <span className="text-muted-foreground text-sm">
+                    Loading labels...
+                  </span>
+                </div>
+              ) : (
+                <div className="mt-2 flex flex-col gap-1">
+                  {/* Label buttons */}
+                  {labels.map((label) => {
+                    const isActive = item.label_id === label.id;
+                    return (
+                      <Button
+                        key={label.id}
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={isSavingLabel}
+                        className={cn(
+                          "h-auto justify-start gap-2 px-2.5 py-1.5",
+                          isActive && "ring-ring/30 bg-muted ring-1"
+                        )}
+                        style={
+                          isActive && label.color
+                            ? { backgroundColor: `${label.color}18` }
+                            : undefined
+                        }
+                        onClick={() => handleLabelClick(label.id)}
+                      >
+                        {/* Label icon */}
+                        {renderStageIcon(label.icon, "size-4 shrink-0", {
+                          color: label.color ?? "var(--muted-foreground)",
+                        })}
+                        {/* Color dot */}
+                        <span
+                          className="size-2 shrink-0 rounded-full"
+                          style={{
+                            backgroundColor:
+                              label.color ?? "var(--muted-foreground)",
+                          }}
+                        />
+                        {/* Label name */}
+                        <span
+                          className={cn(
+                            "truncate text-sm",
+                            isActive ? "font-medium" : "font-normal"
+                          )}
+                        >
+                          {label.name}
+                        </span>
+                      </Button>
+                    );
+                  })}
+
+                  {/* No Label option */}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={isSavingLabel}
+                    className={cn(
+                      "h-auto justify-start gap-2 px-2.5 py-1.5",
+                      item.label_id === null && "ring-ring/30 bg-muted ring-1"
+                    )}
+                    onClick={() => handleLabelClick(null)}
+                  >
+                    <CircleHelpIcon className="text-muted-foreground size-4 shrink-0" />
+                    <span className="bg-muted-foreground/40 size-2 shrink-0 rounded-full" />
+                    <span
+                      className={cn(
+                        "text-muted-foreground truncate text-sm",
+                        item.label_id === null ? "font-medium" : "font-normal"
+                      )}
+                    >
+                      No Label
+                    </span>
+                  </Button>
+                </div>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Future sections (Milestones, etc.) can go here */}
         </CardContent>

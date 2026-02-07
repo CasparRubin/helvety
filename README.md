@@ -19,7 +19,7 @@ A private and secure task management app with end-to-end encryption. All your da
   - Bullet and numbered lists
   - Link support
   - Auto-save with unsaved changes indicator
-  - **Action panel** - Set item stage, label, and priority directly from the editor without returning to the list view
+  - **Action panel** - View dates and set item stage, label, and priority directly from the editor; sections are collapsible and auto-collapse on mobile
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators
 - **Label management** - Categorize items with labels (e.g., Bug, Feature, Improvement)
   - **Default labels** - Built-in label set applied to every space: Bug, Change Request, Feature, Improvement, Internal Task
