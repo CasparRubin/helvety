@@ -27,3 +27,7 @@ export { useStageAssignment } from "./use-stage-assignment";
 export { useLabelConfigs } from "./use-label-configs";
 export { useLabels } from "./use-labels";
 export { useLabelAssignment } from "./use-label-assignment";
+
+// Attachment hooks with E2EE
+export { useAttachments } from "./use-attachments";
+export type { UploadProgress } from "./use-attachments";

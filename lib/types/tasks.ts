@@ -339,3 +339,46 @@ export interface LabelAssignment {
   parent_id: string | null;
   created_at: string;
 }
+
+// =============================================================================
+// ATTACHMENT TYPES
+// =============================================================================
+
+/** Attachment metadata (plaintext, client-side only after decryption) */
+export interface AttachmentMetadata {
+  /** Original filename (e.g., "photo.jpg") */
+  filename: string;
+  /** MIME type (e.g., "image/jpeg") */
+  mime_type: string;
+  /** File size in bytes */
+  size: number;
+}
+
+/**
+ * Attachment row as stored in the database (encrypted metadata)
+ * The actual file blob is stored in Supabase Storage as an encrypted binary.
+ */
+export interface AttachmentRow {
+  id: string;
+  item_id: string;
+  user_id: string;
+  /** Path in the Supabase Storage bucket (e.g., "{user_id}/{attachment_id}") */
+  storage_path: string;
+  /** AES-256-GCM encrypted JSON string containing AttachmentMetadata */
+  encrypted_metadata: string;
+  sort_order: number;
+  created_at: string;
+}
+
+/** Decrypted attachment (client-side only) */
+export interface Attachment {
+  id: string;
+  item_id: string;
+  user_id: string;
+  /** Path in the Supabase Storage bucket */
+  storage_path: string;
+  /** Decrypted file metadata */
+  metadata: AttachmentMetadata;
+  sort_order: number;
+  created_at: string;
+}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
 
+import { AttachmentPanel } from "@/components/attachment-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemActionPanel } from "@/components/item-action-panel";
 import { ItemCommandBar } from "@/components/item-command-bar";
@@ -136,14 +137,21 @@ export function ItemEditor({
     null
   );
 
-  // Ref to skip initial onChange events from TiptapEditor during initialization
-  // TiptapEditor may fire onChange when normalizing content structure on mount
-  const skipInitialDescriptionChange = useRef(true);
+  // Value-comparison refs for unsaved-changes detection.
+  // We track what was last saved/initialized so we can compare against current values
+  // instead of relying on fragile event-flag tracking.
+  const savedTitleRef = useRef("");
+  const savedDescriptionRef = useRef<string | null>(null);
+  // Captures the editor's normalized output on its first emission (initialization).
+  // Until captured, description changes are not treated as user edits.
+  const editorBaselineCaptured = useRef(false);
 
   // Initialize form with item data
   useEffect(() => {
     if (item && !hasInitialized) {
       setTitle(item.title);
+      savedTitleRef.current = item.title;
+      // Description baseline is captured via editorBaselineCaptured on first TiptapEditor emission
       setHasInitialized(true);
     }
   }, [item, hasInitialized]);
@@ -163,6 +171,14 @@ export function ItemEditor({
       });
 
       if (success) {
+        // Update saved-value refs so subsequent comparisons use the just-saved values
+        savedTitleRef.current = newTitle;
+        if (newDescription) {
+          savedDescriptionRef.current = JSON.stringify(newDescription);
+        } else {
+          savedDescriptionRef.current = null;
+        }
+
         setSaveStatus("saved");
         setHasUnsavedChanges(false);
         // Reset to idle after a short delay
@@ -174,34 +190,47 @@ export function ItemEditor({
     [update]
   );
 
-  // Handle title change
+  // Handle title change — compare against saved value to determine dirty state
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newTitle = e.target.value;
       setTitle(newTitle);
 
       if (hasInitialized) {
-        setHasUnsavedChanges(true);
+        const titleChanged = newTitle !== savedTitleRef.current;
+        const currentDescJson = editorRef.current?.getJSON();
+        const currentDescSerialized = currentDescJson
+          ? JSON.stringify(currentDescJson)
+          : null;
+        const descChanged =
+          currentDescSerialized !== savedDescriptionRef.current;
+        setHasUnsavedChanges(titleChanged || descChanged);
       }
     },
     [hasInitialized]
   );
 
-  // Handle description change
+  // Handle description change — capture editor baseline on first emission, then compare values
   const handleDescriptionChange = useCallback(
-    (_content: JSONContent) => {
-      // Skip the first onChange which may be from TiptapEditor initialization
-      // (e.g., content normalization when parsing the initial description)
-      if (skipInitialDescriptionChange.current) {
-        skipInitialDescriptionChange.current = false;
+    (content: JSONContent) => {
+      const serialized = JSON.stringify(content);
+
+      // On the first emission after mount/refresh, capture the editor's normalized
+      // output as the baseline. This accounts for any content normalization TiptapEditor
+      // performs on the initial content (e.g., adding empty paragraphs, restructuring).
+      if (!editorBaselineCaptured.current) {
+        savedDescriptionRef.current = serialized;
+        editorBaselineCaptured.current = true;
         return;
       }
 
       if (hasInitialized) {
-        setHasUnsavedChanges(true);
+        const descChanged = serialized !== savedDescriptionRef.current;
+        const titleChanged = title !== savedTitleRef.current;
+        setHasUnsavedChanges(descChanged || titleChanged);
       }
     },
-    [hasInitialized]
+    [hasInitialized, title]
   );
 
   // Manual save (for button in command bar)
@@ -224,7 +253,8 @@ export function ItemEditor({
       // Reset initialization state so form re-initializes with new data
       setHasInitialized(false);
       setHasUnsavedChanges(false);
-      skipInitialDescriptionChange.current = true;
+      // Reset baseline so the next TiptapEditor emission is captured as the new baseline
+      editorBaselineCaptured.current = false;
       await refresh();
     } finally {
       setIsRefreshing(false);
@@ -313,8 +343,9 @@ export function ItemEditor({
     [update]
   );
 
-  // Loading state
-  if (isLoadingItem) {
+  // Loading state — only show spinner on initial load, not during refresh after save
+  // (refresh sets isLoading=true which would unmount TiptapEditor and cause false dirty state)
+  if (isLoadingItem && !hasInitialized) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <Loader2Icon className="text-muted-foreground size-8 animate-spin" />
@@ -440,6 +471,11 @@ export function ItemEditor({
                 placeholder="Add a description... Use the toolbar above for formatting."
                 autoFocus={false}
               />
+            </div>
+
+            {/* Attachments */}
+            <div className="mb-6">
+              <AttachmentPanel itemId={itemId} />
             </div>
           </div>
 

@@ -32,6 +32,7 @@ A private and secure task management app with end-to-end encryption. All your da
   - **Color picker** - Choose from preset colors or use the custom color picker for any hex color
   - **Icon support** - Each stage can have a Lucide icon for visual identification
   - **Rows shown by default** - Control how many items are visible per stage (0 = collapsed, N = show N items with "Show all" link)
+- **Encrypted file attachments** - Upload, download, and manage file attachments on items (images, documents, etc.) with drag-and-drop support; files are encrypted client-side before upload
 - **Drag & drop reordering** - Easily rearrange items within and between stages
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition

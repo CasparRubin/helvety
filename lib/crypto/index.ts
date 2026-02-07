@@ -30,6 +30,8 @@ export {
   isEncryptedData,
   encryptFields,
   decryptFields,
+  encryptBinary,
+  decryptBinary,
 } from "./encryption";
 
 // Key Storage
@@ -121,4 +123,8 @@ export {
   encryptLabelUpdate,
   decryptLabelRow,
   decryptLabelRows,
+  // Attachment encryption
+  encryptAttachmentMetadata,
+  decryptAttachmentRow,
+  decryptAttachmentRows,
 } from "./task-encryption";
