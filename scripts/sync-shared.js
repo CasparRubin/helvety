@@ -6,6 +6,7 @@
  *
  * Options:
  *   --dry-run    Preview changes without copying files
+ *   --check      Compare files only; exit 1 if any have drifted (useful for CI)
  *
  * Synced paths (must match .cursor/rules/shared-code-patterns.mdc):
  *   - proxy.ts
@@ -14,6 +15,9 @@
  *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/rate-limit.ts, lib/csrf.ts
  *   - lib/auth-guard.ts (helvety-store, helvety-pdf, helvety-tasks only; helvety-auth keeps its own with local redirect)
  *   - lib/redirect-validation.ts
+ *   - lib/env-validation.ts (all except helvety-store which adds Stripe key validation)
+ *   - lib/session-config.ts
+ *   - lib/supabase/client.ts, lib/supabase/server.ts, lib/supabase/admin.ts, lib/supabase/client-factory.ts
  *   - lib/types/entities.ts (shared entity types)
  *   - lib/crypto/* (entire directory)
  *   - hooks/use-auth-session.ts (helvety-store, helvety-pdf, helvety-tasks only; helvety-auth keeps its own)
@@ -29,6 +33,7 @@ const path = require("path");
 // Parse command line arguments
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes("--dry-run");
+const CHECK_MODE = args.includes("--check");
 
 const SOURCE_ROOT = path.join(__dirname, "..");
 const TARGET_REPOS = [
@@ -58,6 +63,12 @@ const FILES = [
   "lib/redirect-validation.ts",
   "lib/rate-limit.ts",
   "lib/csrf.ts",
+  "lib/env-validation.ts",
+  "lib/session-config.ts",
+  "lib/supabase/client.ts",
+  "lib/supabase/server.ts",
+  "lib/supabase/admin.ts",
+  "lib/supabase/client-factory.ts",
   "lib/types/entities.ts",
   "hooks/use-auth-session.ts",
   "app/error.tsx",
@@ -75,11 +86,13 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
  * - helvety-pdf keeps its own lib/constants.ts with app-specific exports
  * - helvety-auth keeps its own lib/auth-guard.ts (redirects to local /login instead of auth service)
  * - helvety-auth keeps its own hooks/use-auth-session.ts (no redirect, idle timeout disabled)
+ * - helvety-store keeps its own lib/env-validation.ts (includes Stripe key validation)
  * - helvety-tasks keeps its own lib/crypto/index.ts (re-exports task-encryption.ts functions)
  */
 const TARGET_SKIP_FILES = {
   "helvety-pdf": ["lib/constants.ts"],
   "helvety-auth": ["lib/auth-guard.ts", "hooks/use-auth-session.ts"],
+  "helvety-store": ["lib/env-validation.ts"],
   "helvety-tasks": ["lib/crypto/index.ts"],
 };
 
@@ -103,6 +116,85 @@ function filesAreIdentical(file1, file2) {
   } catch {
     return false;
   }
+}
+
+/**
+ * Check a single file for drift between source and target
+ */
+function checkFile(srcRoot, destRoot, file, targetRepo) {
+  const skipList = TARGET_SKIP_FILES[targetRepo];
+  if (skipList && skipList.includes(file)) {
+    return null; // skipped, not a drift
+  }
+
+  const src = path.join(srcRoot, file);
+  const dest = path.join(destRoot, file);
+
+  if (!fs.existsSync(src)) {
+    return null; // source missing, skip
+  }
+
+  if (!fs.existsSync(dest)) {
+    return file; // target missing = drift
+  }
+
+  if (!filesAreIdentical(src, dest)) {
+    return file; // content differs = drift
+  }
+
+  return null; // identical
+}
+
+/**
+ * Check a directory recursively for drift
+ */
+function checkDirRecursive(srcRoot, destRoot, dir, targetRepo) {
+  const srcDir = path.join(srcRoot, dir);
+  const drifted = [];
+
+  if (!fs.existsSync(srcDir)) {
+    return drifted;
+  }
+
+  const entries = fs.readdirSync(srcDir, { withFileTypes: true });
+  for (const entry of entries) {
+    const relativePath = path.join(dir, entry.name).replace(/\\/g, "/");
+
+    if (entry.isDirectory()) {
+      drifted.push(
+        ...checkDirRecursive(srcRoot, destRoot, relativePath, targetRepo)
+      );
+    } else {
+      const result = checkFile(srcRoot, destRoot, relativePath, targetRepo);
+      if (result) {
+        drifted.push(result);
+      }
+    }
+  }
+
+  return drifted;
+}
+
+/**
+ * Check a single repo for drift and return list of drifted files
+ */
+function checkRepo(targetRoot, targetRepo) {
+  const drifted = [];
+
+  for (const file of FILES) {
+    const result = checkFile(SOURCE_ROOT, targetRoot, file, targetRepo);
+    if (result) {
+      drifted.push(result);
+    }
+  }
+
+  for (const dir of DIRS) {
+    drifted.push(
+      ...checkDirRecursive(SOURCE_ROOT, targetRoot, dir, targetRepo)
+    );
+  }
+
+  return drifted;
 }
 
 /**
@@ -265,7 +357,9 @@ console.log("=".repeat(60));
 console.log("Helvety Shared Code Sync");
 console.log("=".repeat(60));
 
-if (DRY_RUN) {
+if (CHECK_MODE) {
+  console.log("\nCHECK MODE - Comparing files for drift\n");
+} else if (DRY_RUN) {
   console.log("\nDRY RUN MODE - No files will be modified\n");
 }
 
@@ -273,6 +367,48 @@ if (DRY_RUN) {
 validateSourceFiles();
 
 const parentDir = path.join(SOURCE_ROOT, "..");
+
+// --check mode: compare only, report drift, exit non-zero if any differ
+if (CHECK_MODE) {
+  let totalDrifted = 0;
+  let reposWithDrift = 0;
+
+  for (const repo of TARGET_REPOS) {
+    const targetRoot = path.join(parentDir, repo);
+    if (!fs.existsSync(targetRoot)) {
+      console.warn(`Target not found: ${targetRoot}`);
+      continue;
+    }
+
+    const drifted = checkRepo(targetRoot, repo);
+
+    if (drifted.length > 0) {
+      console.log(`${repo}: ${drifted.length} file(s) out of sync`);
+      drifted.forEach((f) => console.log(`  ${f}`));
+      console.log();
+      totalDrifted += drifted.length;
+      reposWithDrift++;
+    } else {
+      console.log(`${repo}: all in sync`);
+    }
+  }
+
+  console.log("\n" + "=".repeat(60));
+  if (totalDrifted > 0) {
+    console.log(
+      `FAILED: ${totalDrifted} file(s) out of sync across ${reposWithDrift} repo(s)`
+    );
+    console.log(
+      "\nRun `node scripts/sync-shared.js` to fix, or `--dry-run` to preview."
+    );
+    process.exit(1);
+  } else {
+    console.log("OK: All shared files are in sync across all repos.");
+    process.exit(0);
+  }
+}
+
+// Normal sync mode (default or --dry-run)
 let totalCopied = 0;
 let totalSkipped = 0;
 let totalDiffers = 0;
