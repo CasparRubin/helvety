@@ -73,10 +73,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
 // OPTIONS - CORS Preflight
 // =============================================================================
 
-/**
- *
- * @param request
- */
+/** Handles CORS preflight requests. */
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
 
@@ -90,10 +87,7 @@ export async function OPTIONS(request: NextRequest) {
 // GET /api/license/validate - Validate tenant license
 // =============================================================================
 
-/**
- *
- * @param request
- */
+/** Validates a tenant license for a given product. */
 export async function GET(request: NextRequest) {
   const origin = request.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);

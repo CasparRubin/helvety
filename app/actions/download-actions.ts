@@ -36,9 +36,7 @@ const PackageIdSchema = z
 // TYPES
 // =============================================================================
 
-/**
- *
- */
+/** Download metadata for a software package. */
 export interface PackageDownloadInfo {
   /** Signed URL for downloading the package (expires in 60 seconds) */
   downloadUrl: string;

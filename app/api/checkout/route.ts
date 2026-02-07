@@ -48,6 +48,10 @@ const CheckoutRequestSchema = z.object({
     ),
   successUrl: z.string().max(500).optional(),
   cancelUrl: z.string().max(500).optional(),
+  // EU digital content consent audit trail (ISO 8601 timestamps)
+  consentTermsAt: z.string().datetime().optional(),
+  consentDigitalContentAt: z.string().datetime().optional(),
+  consentVersion: z.string().max(50).optional(),
 });
 
 // =============================================================================
@@ -120,7 +124,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { tierId, successUrl, cancelUrl } = validationResult.data;
+    const {
+      tierId,
+      successUrl,
+      cancelUrl,
+      consentTermsAt,
+      consentDigitalContentAt,
+      consentVersion,
+    } = validationResult.data;
 
     // Get Stripe Price ID for the tier
     const stripePriceId = getStripePriceId(tierId);
@@ -219,6 +230,18 @@ export async function POST(request: NextRequest) {
 
     if (user) {
       metadata.supabase_user_id = user.id;
+    }
+
+    // EU digital content consent audit trail — stored in Stripe session metadata
+    // so the burden of proof (consent was obtained) can be satisfied on audit.
+    if (consentTermsAt) {
+      metadata.consent_terms_at = consentTermsAt;
+    }
+    if (consentDigitalContentAt) {
+      metadata.consent_digital_content_at = consentDigitalContentAt;
+    }
+    if (consentVersion) {
+      metadata.consent_version = consentVersion;
     }
 
     let session: Stripe.Checkout.Session;

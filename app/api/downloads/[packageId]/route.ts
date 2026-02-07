@@ -22,12 +22,7 @@ import type { NextRequest } from "next/server";
 // GET /api/downloads/[packageId] - Download package
 // =============================================================================
 
-/**
- *
- * @param _request
- * @param root0
- * @param root0.params
- */
+/** Generates a signed download URL for the requested package. */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ packageId: string }> }

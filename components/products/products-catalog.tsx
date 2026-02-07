@@ -13,9 +13,7 @@ import { type FilterType } from "./product-filters";
 import { ProductFilters } from "./product-filters";
 import { ProductGrid } from "./product-grid";
 
-/**
- *
- */
+/** Renders the product catalog with filter bar and responsive grid. */
 export function ProductsCatalog() {
   const [filter, setFilter] = useState<FilterType>("all");
 

@@ -23,14 +23,7 @@ interface PricingToggleProps {
   className?: string;
 }
 
-/**
- *
- * @param root0
- * @param root0.value
- * @param root0.onChange
- * @param root0.yearlyDiscountPercent
- * @param root0.className
- */
+/** Renders a monthly/yearly pricing toggle switch. */
 export function PricingToggle({
   value,
   onChange,

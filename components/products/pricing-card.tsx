@@ -11,7 +11,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { reactivateSubscription } from "@/app/actions/subscription-actions";
-import { DigitalContentConsentDialog } from "@/components/digital-content-consent-dialog";
+import {
+  DigitalContentConsentDialog,
+  type ConsentMetadata,
+} from "@/components/digital-content-consent-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,9 +38,7 @@ import type {
 } from "@/lib/types/entities";
 import type { PricingTier } from "@/lib/types/products";
 
-/**
- *
- */
+/** Props for the standalone PricingCard component. */
 interface PricingCardProps {
   tier: PricingTier;
   className?: string;
@@ -65,20 +66,7 @@ const CHECKOUT_ENABLED_TIERS = [
   // Add more tier IDs here as they are configured in Stripe
 ];
 
-/**
- *
- * @param root0
- * @param root0.tier
- * @param root0.className
- * @param root0.showMonthlyEquivalent
- * @param root0.onSelect
- * @param root0.selected
- * @param root0.ctaText
- * @param root0.disabled
- * @param root0.productSlug
- * @param root0.userSubscription
- * @param root0.onReactivate
- */
+/** Renders a pricing card with Stripe checkout integration. */
 export function PricingCard({
   tier,
   className,
@@ -170,7 +158,7 @@ export function PricingCard({
   /**
    * Handle checkout for paid tiers via Stripe
    */
-  const handleCheckout = async () => {
+  const handleCheckout = async (consent?: ConsentMetadata) => {
     if (tier.isFree || !hasPaidCheckout) {
       // For free tiers or non-checkout tiers, just call onSelect
       if (onSelect) {
@@ -195,6 +183,11 @@ export function PricingCard({
           cancelUrl: productSlug
             ? `/products/${productSlug}?checkout=cancelled`
             : undefined,
+          ...(consent && {
+            consentTermsAt: consent.termsAcceptedAt,
+            consentDigitalContentAt: consent.digitalContentConsentAt,
+            consentVersion: consent.consentVersion,
+          }),
         }),
       });
 
@@ -242,9 +235,11 @@ export function PricingCard({
 
   /**
    * Handle pre-checkout dialog confirmation - proceed to Stripe Checkout
+   * Consent metadata (timestamps, version) is forwarded to the checkout API
+   * for storage in Stripe session metadata as an EU-compliant audit trail.
    */
-  const handleConsentConfirm = () => {
-    void handleCheckout();
+  const handleConsentConfirm = (consent: ConsentMetadata) => {
+    void handleCheckout(consent);
   };
 
   return (
@@ -388,9 +383,7 @@ export function PricingCard({
   );
 }
 
-/**
- *
- */
+/** Props for the PricingCards grid layout. */
 interface PricingCardsProps {
   tiers: PricingTier[];
   className?: string;
@@ -405,18 +398,7 @@ interface PricingCardsProps {
   onReactivate?: () => void;
 }
 
-/**
- *
- * @param root0
- * @param root0.tiers
- * @param root0.className
- * @param root0.onSelect
- * @param root0.selectedTierId
- * @param root0.disabled
- * @param root0.productSlug
- * @param root0.userSubscriptions
- * @param root0.onReactivate
- */
+/** Renders a responsive grid of pricing cards. */
 export function PricingCards({
   tiers,
   className,

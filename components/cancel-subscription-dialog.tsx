@@ -29,9 +29,7 @@ import { logger } from "@/lib/logger";
 
 import type { Subscription } from "@/lib/types/entities";
 
-/**
- *
- */
+/** Props for the cancel subscription confirmation dialog. */
 interface CancelSubscriptionDialogProps {
   subscription: Subscription | null;
   open: boolean;
@@ -39,10 +37,7 @@ interface CancelSubscriptionDialogProps {
   onSuccess: () => void;
 }
 
-/**
- * Format date for display
- * @param dateString
- */
+/** Formats an ISO date string for user-friendly display. */
 function formatDate(dateString: string | null): string {
   if (!dateString) return "N/A";
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -53,14 +48,7 @@ function formatDate(dateString: string | null): string {
   });
 }
 
-/**
- *
- * @param root0
- * @param root0.subscription
- * @param root0.open
- * @param root0.onOpenChange
- * @param root0.onSuccess
- */
+/** Renders a confirmation dialog for cancelling a subscription. */
 export function CancelSubscriptionDialog({
   subscription,
   open,

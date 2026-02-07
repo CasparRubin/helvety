@@ -21,9 +21,7 @@ import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 
-/**
- *
- */
+/** User profile data returned from the API. */
 interface UserData {
   id: string;
   email: string;
@@ -51,9 +49,7 @@ export function ProfileTab() {
     void loadUserData();
   }, []);
 
-  /**
-   *
-   */
+  /** Fetches the current user's profile data. */
   async function loadUserData() {
     setIsLoadingUser(true);
     try {

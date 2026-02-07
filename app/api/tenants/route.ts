@@ -30,9 +30,7 @@ const SPO_EXPLORER_PRODUCT_ID = "helvety-spo-explorer";
 // GET /api/tenants - List user's registered tenants
 // =============================================================================
 
-/**
- *
- */
+/** Lists all registered tenants for the authenticated user. */
 export async function GET() {
   try {
     const supabase = await createServerComponentClient();

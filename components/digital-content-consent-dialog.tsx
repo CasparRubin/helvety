@@ -29,6 +29,16 @@ import { Separator } from "@/components/ui/separator";
 
 const LEGAL_BASE = "https://helvety.com";
 
+/** Consent metadata returned when the user confirms. */
+export interface ConsentMetadata {
+  /** ISO 8601 timestamp when the user accepted the Terms & Privacy checkbox */
+  termsAcceptedAt: string;
+  /** ISO 8601 timestamp when the user accepted the EU digital content consent checkbox */
+  digitalContentConsentAt: string;
+  /** Version identifier for the consent dialog (for audit trail) */
+  consentVersion: string;
+}
+
 /** Props for the DigitalContentConsentDialog component */
 interface DigitalContentConsentDialogProps {
   /** Whether the dialog is open */
@@ -36,7 +46,7 @@ interface DigitalContentConsentDialogProps {
   /** Called when the dialog should close */
   onOpenChange: (open: boolean) => void;
   /** Called when user confirms consent and wants to proceed */
-  onConfirm: () => void;
+  onConfirm: (consent: ConsentMetadata) => void;
   /** Whether the checkout is in progress */
   isLoading?: boolean;
   /** Optional; not shown in the dialog (reserved for future use, e.g. analytics). */
@@ -46,13 +56,6 @@ interface DigitalContentConsentDialogProps {
 /**
  * Pre-checkout consent dialog. Two sections: (1) Terms & policy — links plus
  * checkbox; (2) Digital content consent — EU withdrawal notice plus checkbox.
- *
- * @param root0
- * @param root0.open
- * @param root0.onOpenChange
- * @param root0.onConfirm
- * @param root0.isLoading
- * @param root0.productName
  */
 export function DigitalContentConsentDialog({
   open,
@@ -75,7 +78,12 @@ export function DigitalContentConsentDialog({
 
   const handleConfirm = () => {
     if (hasAcceptedTerms && hasConsented) {
-      onConfirm();
+      const now = new Date().toISOString();
+      onConfirm({
+        termsAcceptedAt: now,
+        digitalContentConsentAt: now,
+        consentVersion: "2026-02-07",
+      });
     }
   };
 

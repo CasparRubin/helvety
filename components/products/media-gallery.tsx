@@ -23,12 +23,7 @@ interface MediaGalleryProps {
   className?: string;
 }
 
-/**
- *
- * @param root0
- * @param root0.items
- * @param root0.className
- */
+/** Renders a media gallery with thumbnails and lightbox. */
 export function MediaGallery({ items, className }: MediaGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
@@ -181,13 +176,7 @@ interface MediaThumbnailProps {
   onError: () => void;
 }
 
-/**
- *
- * @param root0
- * @param root0.item
- * @param root0.onClick
- * @param root0.onError
- */
+/** Renders a single clickable media thumbnail. */
 function MediaThumbnail({ item, onClick, onError }: MediaThumbnailProps) {
   const [hasError, setHasError] = useState(false);
 

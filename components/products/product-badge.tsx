@@ -47,13 +47,7 @@ const typeConfig: Record<
   },
 };
 
-/**
- *
- * @param root0
- * @param root0.type
- * @param root0.className
- * @param root0.showIcon
- */
+/** Renders a product type badge (software or physical). */
 export function ProductBadge({
   type,
   className,
@@ -70,9 +64,7 @@ export function ProductBadge({
   );
 }
 
-/**
- *
- */
+/** Props for the product availability status badge. */
 interface StatusBadgeProps {
   status: ProductStatus;
   className?: string;
@@ -102,12 +94,7 @@ const statusConfig: Record<
   },
 };
 
-/**
- *
- * @param root0
- * @param root0.status
- * @param root0.className
- */
+/** Renders a product availability status badge. */
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = statusConfig[status];
 

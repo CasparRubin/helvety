@@ -20,13 +20,7 @@ interface ProductGridProps {
   columns?: 1 | 2 | 3 | 4;
 }
 
-/**
- *
- * @param root0
- * @param root0.products
- * @param root0.className
- * @param root0.columns
- */
+/** Renders a responsive grid of product cards. */
 export function ProductGrid({
   products,
   className,
@@ -52,9 +46,7 @@ export function ProductGrid({
   );
 }
 
-/**
- *
- */
+/** Empty state shown when no products match the current filter. */
 function ProductGridEmpty() {
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
@@ -69,22 +61,14 @@ function ProductGridEmpty() {
   );
 }
 
-/**
- *
- */
+/** Props for the product grid loading skeleton. */
 interface ProductGridSkeletonProps {
   count?: number;
   columns?: 1 | 2 | 3 | 4;
   className?: string;
 }
 
-/**
- *
- * @param root0
- * @param root0.count
- * @param root0.columns
- * @param root0.className
- */
+/** Renders loading skeleton placeholders for the product grid. */
 export function ProductGridSkeleton({
   count = 6,
   columns = 3,

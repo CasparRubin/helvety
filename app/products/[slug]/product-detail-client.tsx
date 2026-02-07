@@ -31,7 +31,10 @@ import {
   getUserSubscriptions,
   reactivateSubscription,
 } from "@/app/actions/subscription-actions";
-import { DigitalContentConsentDialog } from "@/components/digital-content-consent-dialog";
+import {
+  DigitalContentConsentDialog,
+  type ConsentMetadata,
+} from "@/components/digital-content-consent-dialog";
 import {
   ProductBadge,
   StatusBadge,
@@ -73,18 +76,12 @@ const iconMap: Record<string, LucideIcon> = {
   Package,
 };
 
-/**
- *
- */
+/** Props for the product detail page client component. */
 interface ProductDetailClientProps {
   slug: string;
 }
 
-/**
- *
- * @param root0
- * @param root0.slug
- */
+/** Renders the full product detail page with pricing, media, and features. */
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -362,9 +359,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   );
 }
 
-/**
- *
- */
+/** Props for an inline pricing card on the product detail page. */
 interface PricingCardProps {
   tier: PricingTier;
   selected: boolean;
@@ -381,16 +376,7 @@ const CHECKOUT_ENABLED_TIERS = [
   "helvety-spo-explorer-enterprise-monthly",
 ];
 
-/**
- *
- * @param root0
- * @param root0.tier
- * @param root0.selected
- * @param root0.onSelect
- * @param root0.productSlug
- * @param root0.userSubscription
- * @param root0.onReactivate
- */
+/** Renders a pricing tier card with checkout or reactivation actions. */
 function PricingCard({
   tier,
   selected,
@@ -496,7 +482,7 @@ function PricingCard({
   /**
    * Handle checkout for paid tiers via Stripe (called after Terms & Policy and EU consent)
    */
-  const handleCheckout = async () => {
+  const handleCheckout = async (consent?: ConsentMetadata) => {
     setIsLoading(true);
 
     try {
@@ -509,6 +495,11 @@ function PricingCard({
           tierId: tier.id,
           successUrl: `/products/${productSlug}?checkout=success`,
           cancelUrl: `/products/${productSlug}?checkout=cancelled`,
+          ...(consent && {
+            consentTermsAt: consent.termsAcceptedAt,
+            consentDigitalContentAt: consent.digitalContentConsentAt,
+            consentVersion: consent.consentVersion,
+          }),
         }),
       });
 

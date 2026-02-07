@@ -16,13 +16,7 @@ interface FeatureListProps {
   variant?: "default" | "compact";
 }
 
-/**
- *
- * @param root0
- * @param root0.features
- * @param root0.className
- * @param root0.variant
- */
+/** Renders a checklist of included features. */
 export function FeatureList({
   features,
   className,
@@ -57,22 +51,14 @@ export function FeatureList({
   );
 }
 
-/**
- *
- */
+/** Props for the feature comparison list. */
 interface FeatureComparisonProps {
   included: string[];
   excluded?: string[];
   className?: string;
 }
 
-/**
- *
- * @param root0
- * @param root0.included
- * @param root0.excluded
- * @param root0.className
- */
+/** Renders a comparison list of included and excluded features. */
 export function FeatureComparison({
   included,
   excluded = [],
