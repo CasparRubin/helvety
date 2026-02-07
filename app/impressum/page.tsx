@@ -94,6 +94,18 @@ export default function ImpressumPage() {
                   Registered in the Commercial Register of Basel-Stadt
                 </p>
                 <p className="text-muted-foreground">UID: CHE-356.266.592</p>
+                <p className="text-muted-foreground">
+                  VAT: Not subject to VAT (Nicht MWST-pflichtig)
+                </p>
+              </div>
+
+              <div>
+                <p className="text-foreground mb-1 font-medium">
+                  Responsible for Content
+                </p>
+                <p className="text-muted-foreground">
+                  Caspar Camille Rubin (Verantwortlich f&uuml;r den Inhalt)
+                </p>
               </div>
             </div>
           </section>
@@ -114,6 +126,31 @@ export default function ImpressumPage() {
             <p className="text-muted-foreground text-sm">
               The Helvety brand is a registered Swiss trademark. All rights
               reserved.
+            </p>
+          </section>
+
+          {/* Data Protection */}
+          <section>
+            <h2 className="mb-4 text-xl font-semibold">Data Protection</h2>
+            <p className="text-muted-foreground text-sm">
+              For data protection inquiries, to exercise your rights under the
+              Swiss Federal Act on Data Protection (nDSG), the EU General Data
+              Protection Regulation (GDPR), or other applicable data protection
+              laws, please contact us at{" "}
+              <a
+                href="mailto:contact@helvety.com"
+                className="hover:text-foreground transition-colors"
+              >
+                contact@helvety.com
+              </a>
+              . For full details on how we handle your data, see our{" "}
+              <Link
+                href="/privacy"
+                className="hover:text-foreground underline transition-colors"
+              >
+                Privacy Policy
+              </Link>
+              .
             </p>
           </section>
 
@@ -252,7 +289,7 @@ export default function ImpressumPage() {
           {/* Last Updated */}
           <footer className="border-border border-t pt-8">
             <p className="text-muted-foreground text-center text-xs">
-              Last updated: February 6, 2026
+              Last updated: February 7, 2026
             </p>
           </footer>
         </article>

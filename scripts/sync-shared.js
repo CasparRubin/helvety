@@ -19,8 +19,9 @@
  *   - hooks/use-auth-session.ts (helvety-store, helvety-pdf, helvety-tasks only; helvety-auth keeps its own)
  *   - app/error.tsx (global error boundary)
  *   - app/not-found.tsx (global 404 page)
- *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
+ *   - components/cookie-notice.tsx, components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
  *   - .cursor/rules/* (coding standards and patterns)
+ *   - .prettierrc, .prettierignore, .gitignore, postcss.config.mjs, eslint.config.mjs (tooling configs)
  */
 const fs = require("fs");
 const path = require("path");
@@ -38,6 +39,13 @@ const TARGET_REPOS = [
 ];
 
 const FILES = [
+  // Tooling configs
+  ".prettierrc",
+  ".prettierignore",
+  ".gitignore",
+  "postcss.config.mjs",
+  "eslint.config.mjs",
+  // Shared source files
   "proxy.ts",
   "scripts/generate-version.js",
   "lib/utils.ts",
@@ -54,6 +62,7 @@ const FILES = [
   "hooks/use-auth-session.ts",
   "app/error.tsx",
   "app/not-found.tsx",
+  "components/cookie-notice.tsx",
   "components/theme-provider.tsx",
   "components/theme-switcher.tsx",
   "components/app-switcher.tsx",

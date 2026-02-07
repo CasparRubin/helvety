@@ -28,7 +28,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 6, 2026
+              Last updated: February 7, 2026
             </p>
           </header>
 
@@ -404,9 +404,11 @@ export default function TermsPage() {
               4.3 Apparel and Physical Products
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              Physical Products are sold subject to availability. Product
-              descriptions and images are provided for informational purposes.
-              Title and risk of loss pass to you upon delivery to the carrier.
+              The following terms apply if and when physical products (such as
+              apparel) are offered through the Services. Physical Products are
+              sold subject to availability. Product descriptions and images are
+              provided for informational purposes. Title and risk of loss pass
+              to you upon delivery to the carrier.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Sizing:</strong> All sizing
@@ -828,8 +830,17 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Auto-Renewal:</strong> By
               subscribing, you authorize us to charge your payment method
-              automatically at the start of each billing period. You may cancel
-              auto-renewal at any time through your account settings.
+              automatically at the start of each billing period. Before each
+              renewal, Stripe will charge your payment method and you will
+              receive a receipt from Stripe for each renewal charge. You can
+              view your subscription status and manage cancellation at{" "}
+              <a
+                href="https://store.helvety.com/account"
+                className="hover:text-foreground underline transition-colors"
+              >
+                store.helvety.com/account
+              </a>
+              . You may cancel auto-renewal at any time.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Cancellation:</strong> You may
@@ -1115,6 +1126,16 @@ export default function TermsPage() {
               Any disputes arising out of or relating to these Terms or the
               Services shall be subject to the exclusive jurisdiction of the
               courts of Basel-Stadt, Switzerland.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">
+                EU/EEA Consumer Protection:
+              </strong>{" "}
+              If you are a consumer habitually resident in the EU or EEA,
+              nothing in these Terms shall deprive you of the protection
+              afforded by provisions that cannot be derogated from by agreement
+              by virtue of the law of your country of habitual residence,
+              pursuant to Regulation (EC) No 593/2008 (Rome I), Article 6.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Language:</strong> These Terms

@@ -16,6 +16,7 @@ The main Helvety website. Swiss Engineering.
 - **Profile menu** - When signed in: user email, links to Store (Products, Account, Subscriptions, Tenants), Sign out
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 - **Legal pages** - Impressum, Privacy Policy, and Terms of Service (in the site footer)
+- **Cookie notice** - Informational banner about essential cookies only (Swiss nDSG / EU ePrivacy compliant); no consent collected
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
 - **Animated logo** - Subtle glow effect on the main logo
 

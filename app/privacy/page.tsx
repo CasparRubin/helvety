@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 6, 2026
+              Last updated: February 7, 2026
             </p>
           </header>
 
@@ -248,7 +248,9 @@ export default function PrivacyPage() {
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>Purchase history and order details</li>
-              <li>Shipping address (for physical products)</li>
+              <li>
+                Shipping address (if and when physical products are offered)
+              </li>
               <li>
                 Billing information (processed by Stripe; we do not store
                 complete payment card details)
@@ -494,7 +496,8 @@ export default function PrivacyPage() {
                   <tr>
                     <td className="border-border border-b p-3">Vercel Inc.</td>
                     <td className="border-border border-b p-3">
-                      Website hosting, delivery, and privacy-focused analytics
+                      Website hosting, delivery, privacy-focused analytics, and
+                      performance monitoring (Speed Insights on helvety.com)
                     </td>
                     <td className="border-border border-b p-3">USA</td>
                   </tr>
@@ -517,7 +520,7 @@ export default function PrivacyPage() {
                   <tr>
                     <td className="border-border border-b p-3">Resend Inc.</td>
                     <td className="border-border border-b p-3">
-                      Transactional email delivery
+                      Transactional email delivery (SMTP relay via Supabase)
                     </td>
                     <td className="border-border border-b p-3">USA</td>
                   </tr>
@@ -532,15 +535,33 @@ export default function PrivacyPage() {
 
             <p className="text-muted-foreground mb-4 text-sm">
               All service providers are contractually obligated to protect your
-              data and process it only according to our instructions. Where
-              applicable, we have entered into Data Processing Agreements (DPAs)
-              with these providers.
+              data and process it only according to our instructions. We have
+              entered into Data Processing Agreements (DPAs) with these
+              providers. We maintain a record of processing activities
+              (Verzeichnis der Bearbeitungst&auml;tigkeiten) as required by Art.
+              12 nDSG and Art. 30 GDPR.
             </p>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Stripe:</strong> As a PCI DSS
               Level 1 certified payment processor, Stripe handles all payment
               card information. We do not have access to or store your complete
-              card details.
+              card details. Stripe may perform automated fraud analysis on
+              payment data as part of its processing services; for details, see{" "}
+              <a
+                href="https://stripe.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground underline transition-colors"
+              >
+                Stripe&apos;s Privacy Policy
+              </a>
+              .
+            </p>
+            <p className="text-muted-foreground text-sm">
+              <strong className="text-foreground">Resend:</strong> Resend
+              operates as a sub-processor of Supabase for email delivery. Email
+              addresses and transactional email content (such as verification
+              links) transit through Resend&apos;s infrastructure.
             </p>
           </section>
 
@@ -562,29 +583,42 @@ export default function PrivacyPage() {
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">
-                  EU-US Data Privacy Framework:
+                  EU-US Data Privacy Framework (DPF):
                 </strong>{" "}
                 Where applicable, our US-based providers are certified under the
-                EU-US Data Privacy Framework.
+                EU-US Data Privacy Framework. Key providers such as Vercel,
+                Stripe, and Supabase participate in the DPF.
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  Swiss-US Data Privacy Framework:
+                </strong>{" "}
+                The Swiss Federal Data Protection and Information Commissioner
+                (FDPIC) has recognized the Swiss-US Data Privacy Framework
+                (effective September 15, 2024) as providing adequate protection
+                for data transfers to certified US organizations.
               </li>
               <li>
                 <strong className="text-foreground">
                   Standard Contractual Clauses (SCCs):
                 </strong>{" "}
-                We use EU Commission-approved Standard Contractual Clauses for
-                data transfers where required.
-              </li>
-              <li>
-                <strong className="text-foreground">
-                  Swiss-US Safeguards:
-                </strong>{" "}
-                We implement appropriate safeguards recognized under Swiss data
-                protection law.
+                Where providers are not certified under the DPF, or as an
+                additional safeguard, we use EU Commission-approved Standard
+                Contractual Clauses for data transfers.
               </li>
             </ul>
             <p className="text-muted-foreground text-sm">
               By using the Services, you acknowledge that your data may be
-              transferred internationally as described above.
+              transferred internationally as described above. You can obtain
+              further information about the safeguards in place by contacting us
+              at{" "}
+              <a
+                href="mailto:contact@helvety.com"
+                className="hover:text-foreground underline transition-colors"
+              >
+                contact@helvety.com
+              </a>
+              .
             </p>
           </section>
 
@@ -696,8 +730,11 @@ export default function PrivacyPage() {
                 className="hover:text-foreground underline transition-colors"
               >
                 contact@helvety.com
-              </a>
-              . We will respond to your request within 30 days.
+              </a>{" "}
+              with the subject line &quot;Data Export Request,&quot;
+              &quot;Account Deletion Request,&quot; or a description of the
+              right you wish to exercise. We will verify your identity and
+              respond to your request within 30 days.
             </p>
             <p className="text-muted-foreground text-sm">
               <strong className="text-foreground">
@@ -869,7 +906,7 @@ export default function PrivacyPage() {
             <h3 className="mb-3 text-lg font-medium">
               10.2 Automated Decision-Making
             </h3>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               We do not use automated decision-making processes, including
               profiling, that produce legal effects concerning you or similarly
               significantly affect you, as described in Article 22 GDPR. While
@@ -879,6 +916,22 @@ export default function PrivacyPage() {
               If this changes in the future, we will update this policy and,
               where required, provide you with notice and an opportunity to
               object.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              <strong className="text-foreground">Note:</strong> Our payment
+              processor, Stripe, may perform automated fraud analysis on payment
+              transactions as part of its processing services. Such analysis is
+              conducted by Stripe as an independent controller or joint
+              controller and is subject to{" "}
+              <a
+                href="https://stripe.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground underline transition-colors"
+              >
+                Stripe&apos;s Privacy Policy
+              </a>
+              .
             </p>
           </section>
 
