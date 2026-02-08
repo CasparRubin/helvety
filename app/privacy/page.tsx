@@ -359,12 +359,67 @@ export default function PrivacyPage() {
               servers were compromised, your encrypted data would remain
               protected.
             </p>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Browser Requirements:</strong>{" "}
               End-to-end encryption requires a modern browser with WebAuthn PRF
               support (Chrome 128+, Edge 128+, Safari 18+, Firefox 139+ desktop
               only). Firefox for Android does not support the PRF extension.
             </p>
+
+            <h3 className="mb-3 text-lg font-medium">
+              2.8 Data Processing by Service
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              The Helvety ecosystem consists of several services, each with
+              distinct data processing characteristics:
+            </p>
+            <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
+              <li>
+                <strong className="text-foreground">
+                  helvety.com (Main Website):
+                </strong>{" "}
+                No personal data collection beyond authentication session
+                cookies. Only essential cookies and anonymous Vercel Analytics
+                (plus Speed Insights performance monitoring).
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  Helvety Auth (auth.helvety.com):
+                </strong>{" "}
+                Email address, passkey credentials, PRF encryption parameters,
+                IP address (for rate limiting), and user agent (for device
+                detection). All data is used strictly for authentication and
+                security purposes.
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  Helvety PDF (pdf.helvety.com):
+                </strong>{" "}
+                All PDF processing is performed 100% client-side in your
+                browser. Your files are never uploaded to, stored on, or
+                transmitted to our servers. Only your subscription status is
+                checked server-side to enable Pro features.
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  Helvety Store (store.helvety.com):
+                </strong>{" "}
+                User profile (email, optional display name), Stripe customer ID,
+                subscription and purchase history, and licensed tenant IDs (for
+                enterprise products). Payment data (card details, billing
+                address) is handled exclusively by Stripe.
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  Helvety Tasks (tasks.helvety.com):
+                </strong>{" "}
+                All task data (titles, descriptions, file attachments) is
+                end-to-end encrypted client-side before storage. Our servers
+                store only ciphertext. Encryption keys are derived from your
+                passkey and never leave your device. We have no technical
+                ability to read your task data.
+              </li>
+            </ul>
           </section>
 
           {/* Section 3 */}
@@ -574,7 +629,8 @@ export default function PrivacyPage() {
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               For transfers to the USA, we ensure adequate protection in
-              accordance with nDSG Art. 16 and Art. 17:
+              accordance with nDSG Art. 16 and Art. 17 through one or more of
+              the following safeguards:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -585,23 +641,29 @@ export default function PrivacyPage() {
                 (FDPIC) has recognized the Swiss-US Data Privacy Framework
                 (effective September 15, 2024) as providing adequate protection
                 for data transfers to certified US organizations. Where
-                applicable, our US-based providers are certified under the
-                Swiss-US Data Privacy Framework.
+                applicable, our US-based providers are certified under this
+                framework.
               </li>
               <li>
                 <strong className="text-foreground">
-                  Additional safeguards:
+                  Standard Contractual Clauses (SCCs):
                 </strong>{" "}
-                Where appropriate, we use contractual safeguards (such as
-                standard contractual clauses) to ensure an adequate level of
-                protection for your data.
+                We incorporate Standard Contractual Clauses into our Data
+                Processing Agreements with service providers, ensuring
+                contractual safeguards for an adequate level of data protection.
+              </li>
+              <li>
+                <strong className="text-foreground">Contract necessity:</strong>{" "}
+                Certain transfers are necessary for the performance of a
+                contract with you (e.g., payment processing via Stripe to
+                fulfill a purchase) in accordance with nDSG Art. 17(1)(b).
               </li>
             </ul>
             <p className="text-muted-foreground text-sm">
               By using the Services, you acknowledge that your data may be
               transferred internationally as described above. You can obtain
-              further information about the safeguards in place by contacting us
-              at{" "}
+              further information about the specific safeguards in place for
+              each provider by contacting us at{" "}
               <a
                 href="mailto:contact@helvety.com"
                 className="hover:text-foreground underline transition-colors"
@@ -706,7 +768,39 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
-              To exercise any of these rights, please contact us at{" "}
+              <strong className="text-foreground">
+                Self-Service Account Deletion:
+              </strong>{" "}
+              You can request deletion of your account directly from your
+              account settings at{" "}
+              <a
+                href="https://store.helvety.com/account"
+                className="hover:text-foreground underline transition-colors"
+              >
+                store.helvety.com/account
+              </a>
+              . Upon requesting deletion, your account will be scheduled for
+              permanent deletion after a 30-day grace period (during which you
+              may cancel the request). Deletion removes your personal data
+              across all Helvety services, including authentication credentials,
+              subscription records, task data, and file attachments. Transaction
+              records required for legal compliance (Art. 958f Swiss Code of
+              Obligations) will be retained in anonymized form for 10 years.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">
+                Self-Service Data Export:
+              </strong>{" "}
+              You can export your personal data from your account settings. The
+              export includes your profile information, subscription history,
+              and tenant registrations in JSON format. For Helvety Tasks
+              (end-to-end encrypted data), you can initiate an export from
+              within the app while authenticated with your passkey; the data is
+              decrypted client-side and exported locally. Server-side exports of
+              encrypted data are available only in encrypted form.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              To exercise any of these rights, you may also contact us at{" "}
               <a
                 href="mailto:contact@helvety.com"
                 className="hover:text-foreground underline transition-colors"
@@ -764,6 +858,69 @@ export default function PrivacyPage() {
                 To remember your settings (e.g., theme preference).
               </li>
             </ul>
+            <div className="mb-4 overflow-x-auto">
+              <table className="border-border w-full border text-sm">
+                <thead>
+                  <tr className="bg-card">
+                    <th className="border-border text-foreground border-b p-3 text-left font-medium">
+                      Cookie / Storage
+                    </th>
+                    <th className="border-border text-foreground border-b p-3 text-left font-medium">
+                      Purpose
+                    </th>
+                    <th className="border-border text-foreground border-b p-3 text-left font-medium">
+                      Domain
+                    </th>
+                    <th className="border-border text-foreground border-b p-3 text-left font-medium">
+                      Duration
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr>
+                    <td className="border-border border-b p-3">
+                      Supabase auth session
+                    </td>
+                    <td className="border-border border-b p-3">
+                      Authentication session (httpOnly)
+                    </td>
+                    <td className="border-border border-b p-3">.helvety.com</td>
+                    <td className="border-border border-b p-3">
+                      24 hours (max)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border-border border-b p-3">csrf_token</td>
+                    <td className="border-border border-b p-3">
+                      CSRF protection (httpOnly)
+                    </td>
+                    <td className="border-border border-b p-3">
+                      auth.helvety.com
+                    </td>
+                    <td className="border-border border-b p-3">1 hour</td>
+                  </tr>
+                  <tr>
+                    <td className="border-border border-b p-3">
+                      webauthn_challenge
+                    </td>
+                    <td className="border-border border-b p-3">
+                      Passkey authentication challenge (httpOnly)
+                    </td>
+                    <td className="border-border border-b p-3">
+                      auth.helvety.com
+                    </td>
+                    <td className="border-border border-b p-3">5 minutes</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3">Theme preference (localStorage)</td>
+                    <td className="p-3">Remember dark/light mode setting</td>
+                    <td className="p-3">Per subdomain</td>
+                    <td className="p-3">Persistent</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
             <p className="text-muted-foreground mb-4 text-sm">
               We use Vercel Analytics, a privacy-focused analytics service, to
               understand how our Services are used. Vercel Analytics collects:

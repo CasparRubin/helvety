@@ -31,8 +31,8 @@ export default function ImpressumPage() {
               Last updated: February 8, 2026
             </p>
             <p className="text-muted-foreground mt-1 text-sm">
-              Impressum gemäss Art. 3 UWG / Legal Notice pursuant to Swiss
-              Unfair Competition Act
+              Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant
+              to Swiss Unfair Competition Act
             </p>
           </header>
 
@@ -127,8 +127,8 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Trademark</h2>
             <p className="text-muted-foreground text-sm">
-              The Helvety brand is a registered Swiss trademark. All rights
-              reserved.
+              The Helvety name, logo, and related branding are trademarks of
+              Helvety by Rubin. All rights reserved.
             </p>
           </section>
 

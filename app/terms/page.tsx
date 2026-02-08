@@ -76,6 +76,14 @@ export default function TermsPage() {
                       4.4 Software, Digital Products and SaaS – No Warranties
                     </a>
                   </li>
+                  <li>
+                    <a
+                      href="#enterprise-extensions"
+                      className="hover:text-foreground transition-colors"
+                    >
+                      4.5 Enterprise Software Extensions
+                    </a>
+                  </li>
                 </ul>
               </li>
               <li>
@@ -211,7 +219,10 @@ export default function TermsPage() {
               Switzerland. By accessing or using the Services, you confirm that
               you are located in Switzerland and are not a resident of the
               European Union (EU) or European Economic Area (EEA). We do not
-              target or offer services to individuals outside Switzerland.
+              target or offer services to individuals outside Switzerland. If
+              you access the Services from outside Switzerland despite our
+              geo-restriction measures, you do so at your own responsibility and
+              Swiss law applies exclusively.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               These Terms constitute a legally binding agreement between you and
@@ -467,6 +478,51 @@ export default function TermsPage() {
               above disclaimers apply to the fullest extent permitted by such
               law.
             </p>
+
+            <h3 id="enterprise-extensions" className="mb-3 text-lg font-medium">
+              4.5 Enterprise Software Extensions
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Certain products (such as the Helvety SPO Explorer for SharePoint
+              Online) are software extensions designed for organizational use.
+              The following additional terms apply to these products:
+            </p>
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>
+                <strong className="text-foreground">License Scope:</strong>{" "}
+                Licenses are granted on a per-tenant, per-subscription basis.
+                You must register your organization&apos;s tenant identifier
+                (e.g., &quot;contoso&quot; from contoso.sharepoint.com) in your
+                account at store.helvety.com to activate the license for your
+                tenant.
+              </li>
+              <li>
+                <strong className="text-foreground">License Validation:</strong>{" "}
+                The extension periodically contacts
+                store.helvety.com/api/license/validate to verify your
+                subscription status. Only your organization&apos;s tenant
+                identifier and product identifier are transmitted during
+                validation; no personal data is sent. Results are cached locally
+                to minimize API calls and ensure offline reliability.
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  Tenant Registration:
+                </strong>{" "}
+                You are responsible for registering valid tenant identifiers
+                linked to your subscription. Incorrectly registered tenant
+                identifiers may result in license validation failures.
+              </li>
+              <li>
+                <strong className="text-foreground">Support Tiers:</strong>{" "}
+                Enterprise products may be offered in multiple tiers (e.g.,
+                &quot;Solo&quot; and &quot;Supported&quot;). The Solo tier
+                provides self-service access without dedicated support. The
+                Supported tier includes direct technical support via email.
+                Tier-specific features and limits are described on the product
+                page.
+              </li>
+            </ul>
           </section>
 
           {/* Section 5 - Free Services and Beta Features */}
@@ -872,6 +928,14 @@ export default function TermsPage() {
 
             <h3 className="mb-3 text-lg font-medium">11.1 Digital Products</h3>
             <p className="text-muted-foreground mb-4 text-sm">
+              Before completing a purchase of Digital Products or SaaS
+              subscriptions, you expressly consent to immediate access to the
+              digital content or service and acknowledge that you waive any
+              right of withdrawal once access is granted. This consent is
+              recorded as part of the pre-checkout confirmation (see Section
+              4.1).
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
               Due to the nature of digital goods, all sales of Digital Products
               are final once the product has been delivered or download access
               has been provided. No refunds will be issued for Digital Products
@@ -1074,9 +1138,18 @@ export default function TermsPage() {
               of liability, and indemnification.
             </p>
             <p className="text-muted-foreground text-sm">
-              You may terminate your account at any time by contacting us at
-              contact@helvety.com. Account termination does not entitle you to
-              any refund of fees already paid.
+              You may terminate your account at any time by using the account
+              deletion feature at{" "}
+              <a
+                href="https://store.helvety.com/account"
+                className="hover:text-foreground underline transition-colors"
+              >
+                store.helvety.com/account
+              </a>{" "}
+              or by contacting us at contact@helvety.com. Account deletion is
+              subject to a 30-day grace period during which you may cancel the
+              request. Account termination does not entitle you to any refund of
+              fees already paid.
             </p>
           </section>
 
@@ -1089,6 +1162,16 @@ export default function TermsPage() {
               These Terms shall be governed by and construed in accordance with
               the substantive laws of Switzerland, without regard to its
               conflict of law provisions.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">
+                Amicable Dispute Resolution:
+              </strong>{" "}
+              Before initiating legal proceedings, we encourage you to contact
+              us at contact@helvety.com to attempt to resolve any dispute
+              amicably. We will endeavor to respond within 14 days. Nothing in
+              this section prevents either party from seeking injunctive or
+              other equitable relief from a court of competent jurisdiction.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Any disputes arising out of or relating to these Terms or the
