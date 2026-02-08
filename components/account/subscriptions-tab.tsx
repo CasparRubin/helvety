@@ -287,8 +287,8 @@ export function SubscriptionsTab() {
     try {
       const result = await getCustomerPortalUrl(window.location.href);
 
-      if (!result.success || !result.data) {
-        throw new Error(result.error ?? "Failed to open billing portal");
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
       window.location.href = result.data;
@@ -310,13 +310,13 @@ export function SubscriptionsTab() {
     try {
       const result = await getPackageDownloadUrl("spo-explorer");
 
-      if (result.success && result.data) {
+      if (result.success) {
         window.location.href = result.data.downloadUrl;
         toast.success(`Downloading ${result.data.filename}`, {
           duration: TOAST_DURATIONS.SUCCESS,
         });
       } else {
-        toast.error(result.error ?? "Failed to generate download link", {
+        toast.error(result.error, {
           duration: TOAST_DURATIONS.ERROR,
         });
       }

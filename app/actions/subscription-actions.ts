@@ -79,14 +79,15 @@ export async function getUserSubscriptions(): Promise<
       .from("subscriptions")
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .returns<Subscription[]>();
 
     if (error) {
       logger.error("Error fetching subscriptions:", error);
       return { success: false, error: "Failed to fetch subscriptions" };
     }
 
-    const subscriptions = (data ?? []) as Subscription[];
+    const subscriptions = data ?? [];
 
     // Identify subscriptions needing period backfill from Stripe
     const subsNeedingBackfill = subscriptions.filter(
@@ -194,14 +195,15 @@ export async function getUserPurchases(): Promise<ActionResponse<Purchase[]>> {
       .from("purchases")
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .returns<Purchase[]>();
 
     if (error) {
       logger.error("Error fetching purchases:", error);
       return { success: false, error: "Failed to fetch purchases" };
     }
 
-    return { success: true, data: data as Purchase[] };
+    return { success: true, data: data ?? [] };
   } catch (error) {
     logger.error("Error in getUserPurchases:", error);
     return { success: false, error: "An unexpected error occurred" };

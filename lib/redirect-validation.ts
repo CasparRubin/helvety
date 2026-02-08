@@ -56,8 +56,8 @@ export function getSafeRedirectUri(
   uri: string | null | undefined,
   defaultUri?: string | null
 ): string | null {
-  if (isValidRedirectUri(uri)) {
-    return uri!;
+  if (uri != null && isValidRedirectUri(uri)) {
+    return uri;
   }
   return defaultUri ?? null;
 }
@@ -90,8 +90,8 @@ export function getSafeRelativePath(
   path: string | null | undefined,
   defaultPath: string = "/"
 ): string {
-  if (isValidRelativePath(path)) {
-    return path!;
+  if (path != null && isValidRelativePath(path)) {
+    return path;
   }
   return defaultPath;
 }

@@ -4,14 +4,14 @@
  * Geo-restriction confirmation dialog (Switzerland-only).
  *
  * Displayed once per browser session. Confirmation is cached in sessionStorage
- * (ephemeral — cleared when the tab or browser is closed). No localStorage, no
+ * (ephemeral, cleared when the tab or browser is closed). No localStorage, no
  * cookies. The user MUST confirm they are located in Switzerland before
  * accessing any Helvety service. Uses Radix AlertDialog which cannot be
  * dismissed by clicking outside or pressing Escape; requires an explicit action
  * button click.
  *
  * Caching rationale: sessionStorage is strictly necessary technical storage
- * (not a cookie, no FMG consent required). It stores no personal data — only a
+ * (not a cookie, no FMG consent required). It stores no personal data, only a
  * boolean flag. Each subdomain has its own sessionStorage origin, so
  * confirmation is still required per subdomain and per browser session.
  *
@@ -72,11 +72,10 @@ export function GeoRestrictionDialog({
             <AlertDialogDescription asChild>
               <div className="space-y-4">
                 <p className="text-muted-foreground text-center text-xs">
-                  This notice exists solely for legal reasons. As a small Swiss
-                  company without a designated representative in the European
-                  Union, we are legally required to limit our services to
-                  Switzerland (Art.&nbsp;3(2) and Art.&nbsp;27 of Regulation
-                  (EU) 2016/679&nbsp;&mdash;&nbsp;GDPR).
+                  We show this notice for legal reasons. As a small Swiss
+                  company without a representative in the European Union, we are
+                  required to limit our services to Switzerland (Art.&nbsp;3(2)
+                  and Art.&nbsp;27, Regulation (EU) 2016/679 / GDPR).
                 </p>
 
                 <p className="text-foreground text-center text-sm font-medium">
@@ -85,7 +84,7 @@ export function GeoRestrictionDialog({
                   in the European Union (EU) or European Economic Area (EEA).
                 </p>
 
-                {/* Multilingual notices — Swiss national languages + major EU languages */}
+                {/* Multilingual notices: Swiss national languages + major EU languages */}
                 <div className="border-border bg-muted/30 space-y-1.5 rounded-lg border p-3 text-[11px]">
                   <p>
                     <strong>DE:</strong> Unsere Dienste sind ausschliesslich
@@ -130,7 +129,7 @@ export function GeoRestrictionDialog({
           </AlertDialogHeader>
           <AlertDialogFooter className="sm:justify-center">
             <AlertDialogAction onClick={handleConfirm}>
-              I Confirm &mdash; I Am Located in Switzerland
+              I Confirm: I Am Located in Switzerland
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -217,7 +217,7 @@ export interface LicenseValidationResponse {
 }
 
 // =============================================================================
-// CONSENT EVENT TYPES (Legal audit trail — nDSG compliance)
+// CONSENT EVENT TYPES (Legal audit trail, nDSG compliance)
 // =============================================================================
 
 /**
@@ -268,10 +268,13 @@ export interface CreateCheckoutResponse {
 // =============================================================================
 
 /**
- * Standard response type for server actions
+ * Standard response type for server actions (discriminated union).
+ *
+ * Success branch includes `data` (unless T is void).
+ * Failure branch includes `error` string.
+ * TypeScript narrows on `success` so consumers must check before accessing
+ * `data` or `error`.
  */
-export type ActionResponse<T = void> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
+export type ActionResponse<T = void> = [T] extends [void]
+  ? { success: true } | { success: false; error: string }
+  : { success: true; data: T } | { success: false; error: string };

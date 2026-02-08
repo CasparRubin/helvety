@@ -53,7 +53,7 @@ const CheckoutRequestSchema = z.object({
     ),
   successUrl: z.string().max(500).optional(),
   cancelUrl: z.string().max(500).optional(),
-  // Consent audit trail — records that the customer accepted Terms & Privacy
+  // Consent audit trail: records that the customer accepted Terms & Privacy
   // Policy before purchase (Swiss contract law compliance, ISO 8601 timestamps)
   consentTermsAt: z.string().datetime().optional(),
   consentVersion: z.string().max(50).optional(),
@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
       metadata.supabase_user_id = user.id;
     }
 
-    // Consent audit trail — stored in Stripe session metadata so the burden of
+    // Consent audit trail: stored in Stripe session metadata so the burden of
     // proof (Terms & Privacy accepted) can be satisfied on audit.
     if (consentTermsAt) {
       metadata.consent_terms_at = consentTermsAt;
@@ -255,7 +255,7 @@ export async function POST(request: NextRequest) {
           },
         });
       } catch (consentError) {
-        // Non-critical — Stripe metadata is the primary audit trail
+        // Non-critical: Stripe metadata is the primary audit trail
         logger.warn("Could not persist consent event:", consentError);
       }
     }

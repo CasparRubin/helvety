@@ -178,8 +178,8 @@ export function SubscriptionsSheet({
     try {
       const result = await getCustomerPortalUrl(window.location.href);
 
-      if (!result.success || !result.data) {
-        throw new Error(result.error ?? "Failed to open billing portal");
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
       window.location.href = result.data;

@@ -252,6 +252,7 @@ export async function POST(request: NextRequest) {
         display_name: displayName?.trim() ?? null,
       })
       .select()
+      .returns<LicensedTenant[]>()
       .single();
 
     if (insertError || !newTenant) {
@@ -273,10 +274,7 @@ export async function POST(request: NextRequest) {
 
     logger.info(`Tenant registered: ${normalizedTenantId} for user ${user.id}`);
 
-    return NextResponse.json(
-      { tenant: newTenant as LicensedTenant },
-      { status: 201 }
-    );
+    return NextResponse.json({ tenant: newTenant }, { status: 201 });
   } catch (error) {
     logger.error("Error in tenants API:", error);
     return NextResponse.json(

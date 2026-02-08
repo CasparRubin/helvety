@@ -145,8 +145,8 @@ export function ProfileTab() {
     setIsExporting(true);
     try {
       const result = await exportUserData();
-      if (!result.success || !result.data) {
-        toast.error(result.error ?? "Failed to export data", {
+      if (!result.success) {
+        toast.error(result.error, {
           duration: TOAST_DURATIONS.ERROR,
         });
         return;
@@ -310,7 +310,7 @@ export function ProfileTab() {
         </CardContent>
       </Card>
 
-      {/* Data Export (nDSG Art. 28 — Right to Data Portability) */}
+      {/* Data Export (nDSG Art. 28, Right to Data Portability) */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -348,7 +348,7 @@ export function ProfileTab() {
         </CardContent>
       </Card>
 
-      {/* Account Deletion (nDSG Art. 32(2) — Right to Erasure) */}
+      {/* Account Deletion (nDSG Art. 32(2), Right to Erasure) */}
       <Card className="border-destructive/50">
         <CardHeader>
           <CardTitle className="text-destructive flex items-center gap-2">

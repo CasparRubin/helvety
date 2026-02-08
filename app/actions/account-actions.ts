@@ -213,7 +213,7 @@ export async function requestAccountDeletion(
       }
     } catch (storageError) {
       logger.warn("Could not clean up storage files:", storageError);
-      // Continue with deletion — storage cleanup failure is not critical
+      // Continue with deletion; storage cleanup failure is not critical
     }
 
     // 3. Delete the user via Supabase Admin API
@@ -241,7 +241,7 @@ export async function requestAccountDeletion(
 }
 
 // =============================================================================
-// DATA EXPORT (nDSG Art. 28 — Right to Data Portability)
+// DATA EXPORT (nDSG Art. 28, Right to Data Portability)
 // =============================================================================
 
 /** Exported user data structure */
@@ -283,7 +283,7 @@ export interface UserDataExport {
  * that must be exported client-side from within Helvety Tasks while the user
  * is authenticated with their passkey.
  *
- * Legal basis: nDSG Art. 28 (right to data portability — data must be
+ * Legal basis: nDSG Art. 28 (right to data portability; data must be
  * provided in a structured, commonly used format).
  */
 export async function exportUserData(): Promise<

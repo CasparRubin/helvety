@@ -5,10 +5,10 @@
  *
  * Shown before every purchase, before redirecting to Stripe Checkout. The user
  * must confirm that they have read and understood our Terms of Service and
- * Privacy Policy. The checkbox is required; the choice is not saved — the dialog
+ * Privacy Policy. The checkbox is required; the choice is not saved. The dialog
  * is shown on every purchase with the checkbox unchecked by default.
  *
- * Legal basis: Swiss contract law — proof that the customer accepted the Terms
+ * Legal basis: Swiss contract law. Proof that the customer accepted the Terms
  * and Privacy Policy before purchase. Consent metadata (timestamp + version) is
  * stored in Stripe session metadata for audit trail purposes.
  *

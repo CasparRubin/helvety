@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
         {
           valid: false,
           reason: "missing_tenant_id",
-        } as LicenseValidationResponse,
+        } satisfies LicenseValidationResponse,
         {
           status: 400,
           headers: corsHeaders,
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
         {
           valid: false,
           reason: "missing_product_id",
-        } as LicenseValidationResponse,
+        } satisfies LicenseValidationResponse,
         {
           status: 400,
           headers: corsHeaders,
@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
         {
           valid: false,
           reason: "invalid_tenant_id",
-        } as LicenseValidationResponse,
+        } satisfies LicenseValidationResponse,
         {
           status: 400,
           headers: corsHeaders,
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
         {
           valid: false,
           reason: "invalid_product_id",
-        } as LicenseValidationResponse,
+        } satisfies LicenseValidationResponse,
         {
           status: 400,
           headers: corsHeaders,
@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
         {
           valid: false,
           reason: "rate_limit_exceeded",
-        } as LicenseValidationResponse,
+        } satisfies LicenseValidationResponse,
         {
           status: 429,
           headers: {
@@ -196,7 +196,10 @@ export async function GET(request: NextRequest) {
     logger.error("Error in license validation API:", error);
 
     return NextResponse.json(
-      { valid: false, reason: "server_error" } as LicenseValidationResponse,
+      {
+        valid: false,
+        reason: "server_error",
+      } satisfies LicenseValidationResponse,
       {
         status: 500,
         headers: corsHeaders,

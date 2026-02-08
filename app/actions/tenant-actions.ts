@@ -320,6 +320,7 @@ export async function registerTenant(
         display_name: displayName?.trim() ?? null,
       })
       .select()
+      .returns<LicensedTenant[]>()
       .single();
 
     if (insertError || !newTenant) {
@@ -337,7 +338,7 @@ export async function registerTenant(
 
     logger.info(`Tenant registered: ${normalizedTenantId} for user ${user.id}`);
 
-    return { success: true, data: newTenant as LicensedTenant };
+    return { success: true, data: newTenant };
   } catch (error) {
     logger.error("Error in registerTenant:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -396,13 +397,14 @@ export async function updateTenant(
       .eq("id", tenantId)
       .eq("user_id", user.id)
       .select()
+      .returns<LicensedTenant[]>()
       .single();
 
     if (error || !tenant) {
       return { success: false, error: "Tenant not found or update failed" };
     }
 
-    return { success: true, data: tenant as LicensedTenant };
+    return { success: true, data: tenant };
   } catch (error) {
     logger.error("Error in updateTenant:", error);
     return { success: false, error: "An unexpected error occurred" };

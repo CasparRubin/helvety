@@ -21,7 +21,7 @@ export const helvetyPdf: SoftwareProduct = {
   slug: "helvety-pdf",
   name: "Helvety PDF",
   shortDescription:
-    "A privacy-focused PDF toolkit. Merge, reorder, rotate, and extract pages from PDFs and images — all processing runs locally in your browser.",
+    "A privacy-focused PDF toolkit. Merge, reorder, rotate, and extract pages from PDFs and images. All processing runs locally in your browser.",
   description: `Helvety PDF is a privacy-focused, client-side PDF toolkit. All file processing happens entirely in your browser. Your files are not uploaded to or stored on our servers.
 
 Upload PDF files and images (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG), preview page thumbnails, and manage your documents with an intuitive drag-and-drop interface. Merge multiple files into one PDF, extract individual pages, rotate pages by 90° increments, delete unwanted pages, and reorder with ease.
