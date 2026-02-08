@@ -242,7 +242,7 @@ export default function ImpressumPage() {
                 >
                   Terms of Service
                 </Link>
-                {" — "}Usage terms, disclaimers, and limitations
+                {" - "}Usage terms, disclaimers, and limitations
               </li>
               <li>
                 <Link
@@ -251,7 +251,7 @@ export default function ImpressumPage() {
                 >
                   Privacy Policy
                 </Link>
-                {" — "}How your data is handled and protected
+                {" - "}How your data is handled and protected
               </li>
             </ul>
           </section>
