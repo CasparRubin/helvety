@@ -1460,3 +1460,81 @@ export async function getItemCounts(
     return { success: false, error: "An unexpected error occurred" };
   }
 }
+
+// =============================================================================
+// DATA EXPORT (nDSG Art. 28 — Right to Data Portability)
+// =============================================================================
+
+/** All encrypted task data for export (decrypted client-side) */
+export interface EncryptedTaskExport {
+  units: UnitRow[];
+  spaces: SpaceRow[];
+  items: ItemRow[];
+}
+
+/**
+ * Fetch all encrypted task data for export.
+ * Returns all units, spaces, and items as encrypted rows.
+ * The client is responsible for decrypting the data using the user's
+ * encryption key before presenting or saving the export.
+ *
+ * Legal basis: nDSG Art. 28 (right to data portability)
+ */
+export async function getAllTaskDataForExport(): Promise<
+  ActionResponse<EncryptedTaskExport>
+> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit (data export is heavier than normal operations)
+    const rateLimit = await checkRateLimit(
+      `export:user:${user.id}`,
+      5, // Max 5 exports per window
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many export requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
+    // Fetch all user data (RLS ensures only user's own data is returned)
+    const [unitsResult, spacesResult, itemsResult] = await Promise.all([
+      supabase.from("units").select("*").order("sort_order"),
+      supabase.from("spaces").select("*").order("sort_order"),
+      supabase.from("items").select("*").order("sort_order"),
+    ]);
+
+    if (unitsResult.error || spacesResult.error || itemsResult.error) {
+      logger.error("Error fetching task data for export:", {
+        units: unitsResult.error,
+        spaces: spacesResult.error,
+        items: itemsResult.error,
+      });
+      return { success: false, error: "Failed to fetch task data" };
+    }
+
+    logger.info(`Data export requested for user ${user.id}`);
+
+    return {
+      success: true,
+      data: {
+        units: (unitsResult.data ?? []) as UnitRow[],
+        spaces: (spacesResult.data ?? []) as SpaceRow[],
+        items: (itemsResult.data ?? []) as ItemRow[],
+      },
+    };
+  } catch (error) {
+    logger.error("Unexpected error in getAllTaskDataForExport:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}

@@ -11,6 +11,8 @@ import {
   Settings,
   CreditCard,
   ShieldCheck,
+  Download,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -52,6 +54,7 @@ import {
 import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
+import { downloadTaskDataExport } from "@/lib/data-export";
 import { createClient } from "@/lib/supabase/client";
 
 import type { User } from "@supabase/supabase-js";
@@ -69,13 +72,31 @@ import type { User } from "@supabase/supabase-js";
  * - Burger menu below 400px: E2EE, About, GitHub plus login/user/logout sections
  */
 export function Navbar() {
-  const { isUnlocked, isLoading: encryptionLoading } = useEncryptionContext();
+  const {
+    isUnlocked,
+    isLoading: encryptionLoading,
+    masterKey,
+  } = useEncryptionContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
   const supabase = createClient();
+
+  /** Export decrypted task data as JSON (nDSG Art. 28 compliance) */
+  const handleExportData = async () => {
+    if (!masterKey) return;
+    setIsExporting(true);
+    try {
+      await downloadTaskDataExport(masterKey);
+    } catch {
+      // Toast error handled in the utility — silently catch here
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -284,6 +305,21 @@ export function Navbar() {
                       Subscriptions
                     </a>
                   </Button>
+                  {isUnlocked && masterKey && (
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={handleExportData}
+                      disabled={isExporting}
+                    >
+                      {isExporting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
+                      {isExporting ? "Exporting..." : "Export Task Data"}
+                    </Button>
+                  )}
                 </div>
                 <Separator />
                 <div className="flex flex-col gap-2">
