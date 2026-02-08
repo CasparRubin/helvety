@@ -75,19 +75,19 @@ Authentication is handled by the centralized Helvety Auth service (`auth.helvety
 **New Users:**
 
 1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
-2. Click magic link in email → Verify email ownership
+2. Enter verification code from email → Verify email ownership
 3. Create passkey with PRF extension → Verify passkey → Session established
 4. Redirected back to Tasks app → Data encrypted with your passkey
 
 **Returning Users:**
 
 1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
-2. Sign in with passkey (no email sent; existing users with a passkey skip the magic link)
+2. Sign in with passkey (no email sent; existing users with a passkey skip email verification)
 3. Redirected back to Tasks app → Unlock encryption with passkey
 
 Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
 
-**Privacy Note:** Your email address is used solely for authentication (magic links for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
+**Privacy Note:** Your email address is used solely for authentication (verification codes for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
 
 ### Security Hardening
 

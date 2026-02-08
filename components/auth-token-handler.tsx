@@ -8,11 +8,11 @@ import { createClient } from "@/lib/supabase/client";
 /**
  * Handles auth tokens from URL hash fragments on any page.
  *
- * This component provides a safety net for magic link authentication when
- * Supabase redirects to a page other than /auth/callback. Verification links
- * are only sent to new users or existing users without a passkey. Hash
- * fragments (#access_token=...) are not sent to the server, so we handle
- * them client-side.
+ * This component provides a safety net for email verification flows when
+ * Supabase redirects to a page other than /auth/callback. Hash fragments
+ * (#access_token=...) are not sent to the server, so we handle them
+ * client-side. Primarily handles edge cases and legacy flows (password reset,
+ * invite, email change confirmation links).
  *
  * Place this component in the root layout to ensure tokens are processed
  * regardless of which page the user lands on.
