@@ -23,7 +23,7 @@
  *   - hooks/use-auth-session.ts (helvety-store, helvety-pdf, helvety-tasks only; helvety-auth keeps its own)
  *   - app/error.tsx (global error boundary)
  *   - app/not-found.tsx (global 404 page)
- *   - components/cookie-notice.tsx, components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
+ *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
  *   - .cursor/rules/* (coding standards and patterns)
  *   - .prettierrc, .prettierignore, .gitignore, postcss.config.mjs, eslint.config.mjs (tooling configs)
  */
@@ -73,7 +73,6 @@ const FILES = [
   "hooks/use-auth-session.ts",
   "app/error.tsx",
   "app/not-found.tsx",
-  "components/cookie-notice.tsx",
   "components/theme-provider.tsx",
   "components/theme-switcher.tsx",
   "components/app-switcher.tsx",
@@ -87,13 +86,19 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
  * - helvety-auth keeps its own lib/auth-guard.ts (redirects to local /login instead of auth service)
  * - helvety-auth keeps its own hooks/use-auth-session.ts (no redirect, idle timeout disabled)
  * - helvety-store keeps its own lib/env-validation.ts (includes Stripe key validation)
+ * - helvety-tasks keeps its own lib/constants.ts (adds attachment constants)
  * - helvety-tasks keeps its own lib/crypto/index.ts (re-exports task-encryption.ts functions)
+ * - helvety-tasks keeps its own lib/crypto/encryption.ts (adds binary encryption for attachments)
  */
 const TARGET_SKIP_FILES = {
   "helvety-pdf": ["lib/constants.ts"],
   "helvety-auth": ["lib/auth-guard.ts", "hooks/use-auth-session.ts"],
   "helvety-store": ["lib/env-validation.ts"],
-  "helvety-tasks": ["lib/crypto/index.ts"],
+  "helvety-tasks": [
+    "lib/constants.ts",
+    "lib/crypto/index.ts",
+    "lib/crypto/encryption.ts",
+  ],
 };
 
 // Track statistics for reporting

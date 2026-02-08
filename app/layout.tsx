@@ -4,7 +4,6 @@ import localFont from "next/font/local";
 
 import "./globals.css";
 
-import { CookieNotice } from "@/components/cookie-notice";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
@@ -134,7 +133,6 @@ export default function RootLayout({
                   </div>
                 </div>
                 <Footer />
-                <CookieNotice />
               </div>
             </Providers>
           </TooltipProvider>

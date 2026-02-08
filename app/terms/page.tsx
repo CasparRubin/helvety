@@ -271,7 +271,7 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               To access certain features of the Services, you must create an
               account. Account creation requires your email address and passkey
-              setup. New users receive a verification link via email to verify
+              setup. New users receive a verification code via email to verify
               their identity; existing users with a passkey sign in directly
               with their passkey. You then authenticate using your device&apos;s
               biometrics (Face ID, fingerprint, or PIN) to set up or use your
@@ -297,7 +297,7 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Account Recovery:</strong> If
               you lose access to your passkey, you can request a new
-              verification link sent to your registered email address to
+              verification code sent to your registered email address to
               re-authenticate and set up a new passkey. We recommend keeping
               your passkey synced across your devices via iCloud Keychain,
               Google Password Manager, or similar services.

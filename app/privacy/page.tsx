@@ -212,7 +212,7 @@ export default function PrivacyPage() {
               When you create an account, we collect your email address for
               authentication purposes. We use a secure authentication process:
               new users (and existing users without a passkey) receive a
-              verification link by email, then passkey setup or verification;
+              verification code by email, then passkey setup or verification;
               existing users with a passkey sign in directly with their passkey
               (biometrics via your device). We store:
             </p>
@@ -235,7 +235,7 @@ export default function PrivacyPage() {
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
               Your email address is used solely for authentication (verification
-              links for new users, passkey for returning users) and important
+              codes for new users, passkey for returning users) and important
               account notifications. We do not share your email with third
               parties for marketing purposes.
             </p>
@@ -314,7 +314,7 @@ export default function PrivacyPage() {
               <li>
                 <strong className="text-foreground">Account Creation:</strong>{" "}
                 Creating an account requires your email address (for
-                verification links when signing up or recovering access) and
+                verification codes when signing up or recovering access) and
                 passkey setup using your device&apos;s biometrics (Face ID,
                 fingerprint, or PIN). Your email is necessary for account
                 verification and recovery. A unique identifier is generated
@@ -561,7 +561,7 @@ export default function PrivacyPage() {
               <strong className="text-foreground">Resend:</strong> Resend
               operates as a sub-processor of Supabase for email delivery. Email
               addresses and transactional email content (such as verification
-              links) transit through Resend&apos;s infrastructure.
+              codes) transit through Resend&apos;s infrastructure.
             </p>
           </section>
 
