@@ -1,22 +1,17 @@
 "use client";
 
-import { startAuthentication } from "@simplewebauthn/browser";
 import {
   Fingerprint,
   ShieldCheck,
   AlertTriangle,
   Loader2,
   Smartphone,
-  CheckCircle2,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 import {
   generatePasskeyRegistrationOptions,
   verifyPasskeyRegistration,
-  savePasskeyParams,
-  generatePasskeyAuthOptions,
-  verifyPasskeyAuthentication,
 } from "@/app/actions/passkey-auth-actions";
 import {
   AuthStepper,
@@ -31,10 +26,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useEncryptionContext, PRF_VERSION } from "@/lib/crypto";
-import { storeMasterKey } from "@/lib/crypto/key-storage";
+import { useEncryptionContext } from "@/lib/crypto";
 import { registerPasskey } from "@/lib/crypto/passkey";
-import { deriveKeyFromPRF } from "@/lib/crypto/prf-key-derivation";
 import { isMobileDevice } from "@/lib/device-utils";
 import { logger } from "@/lib/logger";
 
@@ -42,49 +35,30 @@ import { logger } from "@/lib/logger";
  * Props for the EncryptionSetup component
  */
 interface EncryptionSetupProps {
-  userId: string;
-  userEmail: string;
   flowType?: AuthFlowType;
   redirectUri?: string;
 }
 
 /** Setup step for tracking progress through the flow */
-type SetupStep =
-  | "initial"
-  | "registering"
-  | "ready_to_sign_in"
-  | "signing_in"
-  | "complete";
-
-/** Data stored after registration, needed for sign-in step */
-interface RegistrationData {
-  credentialId: string;
-  prfParams: { prfSalt: string; version: number };
-}
+type SetupStep = "initial" | "registering" | "complete";
 
 /**
- * Component for setting up encryption with passkey.
- * Uses WebAuthn PRF extension to derive encryption keys from device biometrics.
+ * Component for setting up a passkey with encryption support.
+ * Uses WebAuthn PRF extension to register a passkey that can derive encryption keys.
  * Also registers the passkey for authentication (passwordless login).
  *
- * Flow: initial → registering → ready_to_sign_in → signing_in → complete
+ * Flow: initial → registering → complete (redirect)
  *
- * Device-aware: On mobile, passkey is created/used on this device (Face ID, fingerprint, PIN).
+ * After passkey registration, the credential and PRF params are stored server-side.
+ * The user is then redirected to the destination app with their existing session
+ * (shared via .helvety.com cookies). If the destination app requires encryption
+ * (e.g. tasks.helvety.com), it will handle the encryption unlock independently
+ * using its own EncryptionGate/EncryptionUnlock components.
+ *
+ * Device-aware: On mobile, passkey is created on this device (Face ID, fingerprint, PIN).
  * On desktop, user scans QR code with phone and uses the phone for passkey.
- *
- * Step 1: User clicks "Set Up with This Device" (mobile) or "Set Up with Phone" (desktop)
- *   - Mobile: Creates passkey on this device with platform authenticator.
- *   - Desktop: Creates passkey on phone via QR code + biometrics.
- *   - Registers credential with server (stores public key, PRF salt).
- *
- * Step 2: User clicks "Sign In with Passkey" (mobile) or "Sign In with Phone" (desktop)
- *   - Authenticates with passkey to derive encryption key via PRF.
- *   - Calls verifyPasskeyAuthentication to create server session.
- *   - Redirects to destination app with valid session cookies.
  */
 export function EncryptionSetup({
-  userId,
-  userEmail: _userEmail,
   flowType = "new_user",
   redirectUri,
 }: EncryptionSetupProps) {
@@ -95,8 +69,6 @@ export function EncryptionSetup({
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingSupport, setIsCheckingSupport] = useState(true);
   const [setupStep, setSetupStep] = useState<SetupStep>("initial");
-  const [registrationData, setRegistrationData] =
-    useState<RegistrationData | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const setupInProgressRef = useRef(false);
 
@@ -121,13 +93,12 @@ export function EncryptionSetup({
   // Reset to initial state (used when cancelling during registration)
   const resetSetup = () => {
     setSetupStep("initial");
-    setRegistrationData(null);
     setIsLoading(false);
     setError("");
     setupInProgressRef.current = false;
   };
 
-  // Step 1: Handle passkey registration only
+  // Handle passkey registration and redirect
   const handleSetup = async () => {
     // Prevent double submission
     if (setupInProgressRef.current) return;
@@ -198,171 +169,34 @@ export function EncryptionSetup({
         return;
       }
 
-      // Verify and store credential for authentication (server-side)
+      // Verify and store credential + PRF params on the server
       const verifyResult = await verifyPasskeyRegistration(
         regResult.response,
         origin,
         true // PRF was enabled
       );
       if (!verifyResult.success) {
-        // Log but don't fail - encryption is more important
-        logger.warn("Failed to store auth credential:", verifyResult.error);
-        // Continue with encryption setup
-      }
-
-      // Store registration data for the sign-in step
-      setRegistrationData({
-        credentialId: regResult.credentialId,
-        prfParams: { prfSalt, version: PRF_VERSION },
-      });
-
-      // Move to ready_to_sign_in state - user must click button to proceed
-      setSetupStep("ready_to_sign_in");
-      setIsLoading(false);
-      setupInProgressRef.current = false;
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(message);
-      resetSetup();
-    }
-  };
-
-  // Step 2: Handle sign-in to complete encryption setup
-  // This step authenticates with the passkey to:
-  // 1. Derive the encryption key via PRF
-  // 2. Create a proper server session via verifyPasskeyAuthentication
-  const handleSignIn = async () => {
-    if (!registrationData) {
-      setError("Registration data not found. Please start over.");
-      resetSetup();
-      return;
-    }
-
-    setError("");
-    setIsLoading(true);
-    setSetupStep("signing_in");
-
-    try {
-      const origin = window.location.origin;
-
-      // 1. Get server-generated auth options (stores challenge for verification)
-      const serverOptions = await generatePasskeyAuthOptions(
-        origin,
-        redirectUri ?? undefined,
-        { isMobile: isMobileDevice() }
-      );
-      if (!serverOptions.success || !serverOptions.data) {
-        setError(serverOptions.error ?? "Failed to start authentication");
-        setSetupStep("ready_to_sign_in");
-        setIsLoading(false);
-        return;
-      }
-
-      // 2. Add PRF extension to server options for encryption key derivation
-      // We need to cast because PRF extension is not in the standard types
-      const optionsWithPRF = serverOptions.data as Parameters<
-        typeof startAuthentication
-      >[0]["optionsJSON"] & {
-        extensions?: Record<string, unknown>;
-      };
-      optionsWithPRF.extensions = {
-        ...(optionsWithPRF.extensions ?? {}),
-        prf: {
-          eval: {
-            first: new Uint8Array(
-              Buffer.from(registrationData.prfParams.prfSalt, "base64")
-            ),
-          },
-        },
-      };
-
-      // 3. Do WebAuthn authentication (gets PRF output AND response for server)
-      let authResponse;
-      try {
-        authResponse = await startAuthentication({
-          optionsJSON: optionsWithPRF,
-        });
-      } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Failed to authenticate for encryption";
-        // Check if user cancelled - they can retry since passkey is already created
-        if (err instanceof Error && err.name === "NotAllowedError") {
-          setError("Sign in was cancelled. Please try again.");
-        } else {
-          setError(message);
-        }
-        // Go back to ready_to_sign_in so user can retry
-        setSetupStep("ready_to_sign_in");
-        setIsLoading(false);
-        return;
-      }
-
-      // 4. Extract PRF output for encryption key derivation
-      const clientExtResults = authResponse.clientExtensionResults as {
-        prf?: { results?: { first?: ArrayBuffer } };
-      };
-      const prfOutput = clientExtResults.prf?.results?.first;
-
-      if (!prfOutput) {
+        logger.error("Failed to store auth credential:", verifyResult.error);
         setError(
-          "Failed to get encryption key from passkey. Please try again."
+          verifyResult.error ?? "Failed to complete passkey registration"
         );
-        setSetupStep("ready_to_sign_in");
-        setIsLoading(false);
+        resetSetup();
         return;
       }
 
-      // 5. Derive master key from PRF output
-      const masterKey = await deriveKeyFromPRF(
-        prfOutput,
-        registrationData.prfParams
-      );
-
-      // 6. Cache the master key
-      await storeMasterKey(userId, masterKey);
-
-      // 7. Save encryption params to database
-      const saveResult = await savePasskeyParams({
-        prf_salt: registrationData.prfParams.prfSalt,
-        credential_id: registrationData.credentialId,
-        version: registrationData.prfParams.version,
-      });
-
-      if (!saveResult.success) {
-        setError(saveResult.error ?? "Failed to save passkey settings");
-        setSetupStep("ready_to_sign_in");
-        setIsLoading(false);
-        return;
-      }
-
-      // 8. Verify passkey with server to create a proper session
-      // This ensures the user has a valid session when redirected to the destination app
-      const verifyResult = await verifyPasskeyAuthentication(
-        authResponse,
-        origin
-      );
-      if (!verifyResult.success || !verifyResult.data) {
-        setError(verifyResult.error ?? "Failed to complete authentication");
-        setSetupStep("ready_to_sign_in");
-        setIsLoading(false);
-        return;
-      }
-
-      // Mark as complete before redirect
+      // Mark as complete and redirect
+      // The OTP session is already shared via .helvety.com cookies.
+      // If the destination app needs encryption (e.g. tasks), it will handle
+      // the encryption unlock independently via its own EncryptionGate.
       setSetupStep("complete");
 
-      // 9. Redirect using server-provided URL (session already established)
-      // The verifyPasskeyAuthentication already created the session with proper cookies
-      window.location.href = verifyResult.data.redirectUrl;
+      const destination = redirectUri ?? "https://helvety.com";
+      window.location.href = destination;
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "An unexpected error occurred";
       setError(message);
-      setSetupStep("ready_to_sign_in");
-      setIsLoading(false);
+      resetSetup();
     }
   };
 
@@ -480,104 +314,6 @@ export function EncryptionSetup({
     );
   }
 
-  // Show ready_to_sign_in state - passkey created, waiting for user to click sign in
-  if (setupStep === "ready_to_sign_in") {
-    return (
-      <div className="flex w-full max-w-md flex-col items-center">
-        <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
-        <Card className="w-full">
-          <CardHeader className="space-y-1">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
-              <CardTitle>Passkey Created</CardTitle>
-            </div>
-            <CardDescription>
-              Now sign in with your passkey to complete setup
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-lg border border-green-500/50 bg-green-500/10 p-3">
-              <p className="text-sm text-green-600 dark:text-green-400">
-                {isMobile
-                  ? "Your passkey has been saved to this device. Sign in once more to activate encryption."
-                  : "Your passkey has been saved to your phone. Sign in once more to activate encryption."}
-              </p>
-            </div>
-
-            {error && <p className="text-destructive text-sm">{error}</p>}
-
-            <Button
-              onClick={handleSignIn}
-              className="w-full"
-              disabled={isLoading}
-              size="lg"
-            >
-              <Smartphone className="mr-2 h-4 w-4" />
-              {isMobile ? "Sign In with Passkey" : "Sign In with Phone"}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Show signing_in state - waiting for passkey authentication
-  if (setupStep === "signing_in") {
-    return (
-      <div className="flex w-full max-w-md flex-col items-center">
-        <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
-        <Card className="w-full">
-          <CardHeader className="space-y-1">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="text-primary h-5 w-5" />
-              <CardTitle>Sign In</CardTitle>
-            </div>
-            <CardDescription>
-              Authenticate with your passkey to complete setup
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3 rounded-lg border p-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
-                  <Loader2 className="text-primary h-5 w-5 animate-spin" />
-                </div>
-                <div>
-                  <p className="font-medium">
-                    {isMobile ? "Use this device" : "Scan QR Code"}
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    {isMobile
-                      ? "Use Face ID, fingerprint, or device PIN"
-                      : "Use your phone to scan the QR code"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="border-t pt-2">
-                <p className="text-muted-foreground text-sm">
-                  {isMobile
-                    ? "Authenticate on this device using Face ID, fingerprint, or your device PIN."
-                    : "Scan the QR code with your phone and authenticate using Face ID or fingerprint."}
-                </p>
-              </div>
-            </div>
-
-            {error && <p className="text-destructive text-sm">{error}</p>}
-
-            <div className="flex items-center justify-center py-2">
-              <p className="text-muted-foreground text-sm">
-                {isMobile
-                  ? "Waiting for verification..."
-                  : "Waiting for your phone..."}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   // Initial state - show setup introduction
   return (
     <div className="flex w-full max-w-md flex-col items-center">
@@ -663,8 +399,8 @@ export function EncryptionSetup({
 
           <p className="text-muted-foreground text-center text-xs">
             {isMobile
-              ? "You'll create a passkey on this device and then sign in once to complete setup."
-              : "You'll scan two QR codes with your phone to complete setup."}
+              ? "You'll create a passkey on this device to secure your data."
+              : "You'll scan a QR code with your phone to create a passkey."}
           </p>
         </CardContent>
       </Card>

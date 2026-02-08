@@ -5,9 +5,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Tooltip provider for configuring tooltip behavior. */
 function TooltipProvider({
   delayDuration = 0,
   ...props
@@ -21,27 +19,21 @@ function TooltipProvider({
   );
 }
 
-/**
- *
- */
+/** Tooltip root component. */
 function Tooltip({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 }
 
-/**
- *
- */
+/** Tooltip trigger element. */
 function TooltipTrigger({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
-/**
- *
- */
+/** Tooltip content popup with animations. */
 function TooltipContent({
   className,
   sideOffset = 0,

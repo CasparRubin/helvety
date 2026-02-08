@@ -1,6 +1,13 @@
 {
   "name": "helvety-auth",
   "version": "1.2.0",
+  "description": "Centralized authentication service for the Helvety ecosystem.",
+  "author": "Helvety by Rubin",
+  "homepage": "https://auth.helvety.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CasparRubin/helvety-auth.git"
+  },
   "private": true,
   "license": "UNLICENSED",
   "engines": {

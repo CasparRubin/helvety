@@ -4,19 +4,13 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-/** Type of authentication/encryption flow */
+/** Type of authentication flow */
 export type AuthFlowType = "new_user" | "returning_user";
 
-/** Steps in the encryption flow */
-export type AuthStep =
-  | "email"
-  | "create_passkey"
-  | "verify_encryption"
-  | "sign_in";
+/** Steps in the authentication flow */
+export type AuthStep = "email" | "create_passkey" | "sign_in";
 
-/**
- *
- */
+/** Configuration for a single authentication step. */
 interface StepConfig {
   id: AuthStep;
   label: string;
@@ -27,7 +21,6 @@ const FLOW_STEPS: Record<AuthFlowType, StepConfig[]> = {
   new_user: [
     { id: "email", label: "Email" },
     { id: "create_passkey", label: "Passkey Setup" },
-    { id: "verify_encryption", label: "Passkey Sign In" },
   ],
   returning_user: [
     { id: "email", label: "Email" },
@@ -39,27 +32,17 @@ const FLOW_STEPS: Record<AuthFlowType, StepConfig[]> = {
  * Get the auth step based on setup step (used by encryption-setup)
  */
 export function getSetupStep(
-  setupStep:
-    | "initial"
-    | "registering"
-    | "ready_to_sign_in"
-    | "signing_in"
-    | "complete"
+  setupStep: "initial" | "registering" | "complete"
 ): AuthStep {
   switch (setupStep) {
     case "initial":
     case "registering":
-      return "create_passkey";
-    case "ready_to_sign_in":
-    case "signing_in":
     case "complete":
-      return "verify_encryption";
+      return "create_passkey";
   }
 }
 
-/**
- *
- */
+/** Props for the AuthStepper component. */
 interface AuthStepperProps {
   flowType: AuthFlowType;
   currentStep: AuthStep;
@@ -67,7 +50,7 @@ interface AuthStepperProps {
 }
 
 /**
- * Stepper component for the encryption setup/unlock flow.
+ * Stepper component for the authentication flow.
  */
 export function AuthStepper({
   flowType,

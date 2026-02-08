@@ -11,8 +11,12 @@ import {
   generatePasskeyAuthOptions,
   verifyPasskeyAuthentication,
 } from "@/app/actions/passkey-auth-actions";
-import { AuthStepper, type AuthStep } from "@/components/auth-stepper";
 import { EncryptionSetup } from "@/components/encryption-setup";
+import {
+  AuthStepper,
+  type AuthStep,
+  type AuthFlowType,
+} from "@/components/encryption-stepper";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,6 +32,12 @@ import { isPasskeySupported } from "@/lib/crypto/passkey";
 import { isMobileDevice } from "@/lib/device-utils";
 import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/client";
+
+/** Duration (in seconds) before the user can resend an OTP code. */
+const RESEND_COOLDOWN_SECONDS = 120;
+
+/** Required length of the one-time password code. */
+const OTP_CODE_LENGTH = 6;
 
 /** Steps in the login flow, rendered sequentially. */
 type LoginStep =
@@ -175,7 +185,7 @@ function LoginContent() {
         } else {
           // New user or no passkey - show code input
           setOtpCode("");
-          setResendCooldown(120);
+          setResendCooldown(RESEND_COOLDOWN_SECONDS);
           setStep("verify-code");
         }
         setIsLoading(false);
@@ -231,7 +241,7 @@ function LoginContent() {
       if (!result.success) {
         setError(result.error ?? "Failed to resend code");
       } else {
-        setResendCooldown(120);
+        setResendCooldown(RESEND_COOLDOWN_SECONDS);
         setOtpCode("");
       }
       setIsLoading(false);
@@ -366,33 +376,31 @@ function LoginContent() {
 
   // Determine current stepper step
   const currentAuthStep: AuthStep = (() => {
-    if (step === "email") return "email";
-    if (step === "verify-code") return "verify";
-    if (step === "encryption-setup") return "passkey";
-    return "passkey";
+    if (step === "email" || step === "verify-code") return "email";
+    if (step === "passkey-signin" || step === "passkey-verify")
+      return "sign_in";
+    return "create_passkey";
   })();
 
-  // Determine if this is a returning user (has passkey) for stepper display
+  // Determine flow type for stepper display
   // From URL param (callback) or from having skipped to passkey after email submit
-  const isReturningUser = isNewUserParam === "false" || skippedToPasskey;
+  const flowType: AuthFlowType =
+    isNewUserParam === "false" || skippedToPasskey
+      ? "returning_user"
+      : "new_user";
 
   return (
     <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
       <div className="flex w-full max-w-md flex-col items-center space-y-6">
         {/* Show stepper - hidden when EncryptionSetup is shown (it has its own stepper) */}
         {step !== "encryption-setup" && (
-          <AuthStepper
-            currentStep={currentAuthStep}
-            isReturningUser={isReturningUser}
-          />
+          <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
         )}
 
         {/* Show encryption setup component for encryption-setup step */}
         {step === "encryption-setup" && userId && (
           <EncryptionSetup
-            userId={userId}
-            userEmail={email}
-            flowType={isReturningUser ? "returning_user" : "new_user"}
+            flowType={flowType}
             redirectUri={redirectUri ?? undefined}
           />
         )}
@@ -506,7 +514,7 @@ function LoginContent() {
 
                   <Button
                     type="submit"
-                    disabled={isLoading || otpCode.length < 6}
+                    disabled={isLoading || otpCode.length < OTP_CODE_LENGTH}
                     size="lg"
                     className="w-full"
                   >

@@ -11,7 +11,6 @@ import {
 import { cookies, headers } from "next/headers";
 
 import { logAuthEvent } from "@/lib/auth-logger";
-import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -429,8 +428,8 @@ function getRpId(origin: string): string {
     // In production, always use the root domain for cross-subdomain passkey sharing
     return "helvety.com";
   } catch {
-    // Fallback for development
-    return "localhost";
+    // Fallback to production domain
+    return "helvety.com";
   }
 }
 
@@ -637,35 +636,20 @@ export async function generatePasskeyRegistrationOptions(
  * Also stores PRF params for encryption if PRF was enabled.
  *
  * Security:
- * - CSRF token validation required
  * - Requires authenticated user
+ * - WebAuthn ceremony verification with server-generated challenge (httpOnly cookie)
  *
  * @param response - The registration response from the browser
  * @param origin - The origin URL
  * @param prfEnabled - Whether PRF was enabled during registration
- * @param csrfToken - CSRF token for security validation
  * @returns Success status and credential info
  */
 export async function verifyPasskeyRegistration(
   response: RegistrationResponseJSON,
   origin: string,
-  prfEnabled: boolean = false,
-  csrfToken?: string
+  prfEnabled: boolean = false
 ): Promise<PasskeyActionResponse<{ credentialId: string; prfSalt?: string }>> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      logAuthEvent("csrf_validation_failed", {
-        metadata: { action: "verifyPasskeyRegistration" },
-      });
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
     const supabase = await createClient();
 
     // Get current user
@@ -1110,30 +1094,14 @@ export async function getUserCredentials(): Promise<
  * Delete a credential (for management UI)
  *
  * Security:
- * - CSRF token validation required
  * - Requires authenticated user
  *
  * @param credentialId - The credential ID to delete
- * @param csrfToken - CSRF token for security validation
  */
 export async function deleteCredential(
-  credentialId: string,
-  csrfToken?: string
+  credentialId: string
 ): Promise<PasskeyActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      logAuthEvent("csrf_validation_failed", {
-        metadata: { action: "deleteCredential" },
-      });
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
     const supabase = await createClient();
 
     const {
@@ -1260,37 +1228,19 @@ export async function getPasskeyParams(): Promise<
  * Used during encryption setup flow
  *
  * Security:
- * - CSRF token validation required
  * - Requires authenticated user
  *
  * @param params - The passkey parameters object
  * @param params.prf_salt - Base64-encoded PRF salt for HKDF
  * @param params.credential_id - Base64url-encoded credential ID
  * @param params.version - PRF version number
- * @param csrfToken - CSRF token for security validation
  */
-export async function savePasskeyParams(
-  params: {
-    prf_salt: string;
-    credential_id: string;
-    version: number;
-  },
-  csrfToken?: string
-): Promise<PasskeyActionResponse> {
+export async function savePasskeyParams(params: {
+  prf_salt: string;
+  credential_id: string;
+  version: number;
+}): Promise<PasskeyActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      logAuthEvent("csrf_validation_failed", {
-        metadata: { action: "savePasskeyParams" },
-      });
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
     const supabase = await createClient();
 
     const {

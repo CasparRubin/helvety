@@ -18,12 +18,6 @@ export type AuthEvent =
   | "logout"
   | "session_refresh"
   | "session_expired"
-  | "encryption_setup_started"
-  | "encryption_setup_success"
-  | "encryption_setup_failed"
-  | "encryption_unlock"
-  | "encryption_lock"
-  | "encryption_failed"
   | "passkey_registration_started"
   | "passkey_registration_success"
   | "passkey_registration_failed"
@@ -64,12 +58,6 @@ const EVENT_LEVELS: Record<AuthEvent, LogLevel> = {
   logout: "info",
   session_refresh: "info",
   session_expired: "info",
-  encryption_setup_started: "info",
-  encryption_setup_success: "info",
-  encryption_setup_failed: "warn",
-  encryption_unlock: "info",
-  encryption_lock: "info",
-  encryption_failed: "warn",
   passkey_registration_started: "info",
   passkey_registration_success: "info",
   passkey_registration_failed: "warn",
@@ -225,19 +213,4 @@ export function logAuthEvent(
       console.log(message);
     }
   }
-}
-
-/**
- * Create a logger instance bound to a specific user
- *
- * @param userId - The user ID to bind to all logs
- * @returns A logger function that includes the user ID
- */
-export function createUserLogger(userId: string) {
-  return (
-    event: AuthEvent,
-    options: Omit<Parameters<typeof logAuthEvent>[1], "userId"> = {}
-  ) => {
-    logAuthEvent(event, { ...options, userId });
-  };
 }

@@ -244,7 +244,9 @@ The auth service validates all `redirect_uri` parameters to prevent open redirec
 
 Invalid redirect URIs are rejected, and the user is redirected to `helvety.com` by default.
 
-### End-to-End Encryption Setup
+### End-to-End Encryption Setup (for Helvety Tasks)
+
+Helvety Auth handles the encryption setup flow for **Helvety Tasks**, the only Helvety app that uses end-to-end encryption (E2EE). Auth itself does not encrypt any of its own data.
 
 After passkey authentication, new users are guided through a two-step encryption setup. The flow is **device-aware**:
 
@@ -267,7 +269,7 @@ After passkey authentication, new users are guided through a two-step encryption
 - **Encryption Passkey** - A passkey created using the WebAuthn PRF (Pseudo-Random Function) extension
 - **Key Derivation** - Encryption keys are derived client-side from the PRF output using HKDF
 - **Zero-Knowledge** - The server stores only PRF parameters (salt values); encryption keys are never transmitted
-- **Cross-App Support** - Encryption passkeys work across all `*.helvety.com` apps (registered to `helvety.com` RP ID)
+- **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all `*.helvety.com` apps; however, E2EE is only active in Helvety Tasks
 
 Browser requirements for encryption:
 
@@ -311,5 +313,7 @@ You may NOT:
 - Redistribute or share this code
 - Use this code in your own projects
 - Run this code locally or on your own servers
+
+**This is a free centralized authentication service accessible at [auth.helvety.com](https://auth.helvety.com).** No subscription is required to use the authentication service.
 
 See [LICENSE](./LICENSE) for full legal terms.
