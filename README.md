@@ -44,20 +44,20 @@ Authentication is handled by the centralized Helvety Auth service (`auth.helvety
 **New Users (when signing in):**
 
 1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
-2. Click magic link in email → Verify email ownership
+2. Enter verification code from email → Verify email ownership
 3. Scan QR code with phone → Verify with biometrics (Face ID/fingerprint)
 4. Passkey created → Verify passkey → Session established → Redirected back to store
 
 **Returning Users (when signing in):**
 
 1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
-2. Sign in with passkey (no email sent; existing users with a passkey skip the magic link)
+2. Sign in with passkey (no email sent; existing users with a passkey skip email verification)
 3. Scan QR code → Verify with biometrics → Session created
 4. Redirected back to store
 
 Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
 
-**Privacy Note:** Your email address is used solely for authentication (magic links for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
+**Privacy Note:** Your email address is used solely for authentication (verification codes for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
 
 **Note:** End-to-end encryption is not used in this app. E2EE is only used by [Helvety Tasks](https://tasks.helvety.com).
 

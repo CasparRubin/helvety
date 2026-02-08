@@ -3,7 +3,6 @@ import { Analytics } from "@vercel/analytics/next";
 import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
-import { CookieNotice } from "@/components/cookie-notice";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
@@ -160,7 +159,6 @@ async function NavbarWrapper({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <Footer />
-      <CookieNotice />
     </div>
   );
 }
