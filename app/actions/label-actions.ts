@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 import type {
@@ -124,6 +125,19 @@ export async function createLabelConfig(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     const { data: config, error } = await supabase
       .from("label_configs")
       .insert({
@@ -159,6 +173,19 @@ export async function getLabelConfigs(): Promise<
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     const { data: configs, error } = await supabase
@@ -208,6 +235,19 @@ export async function updateLabelConfig(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     const updateObj: Record<string, unknown> = {
@@ -263,6 +303,19 @@ export async function deleteLabelConfig(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     const { error } = await supabase
@@ -326,6 +379,19 @@ export async function createLabel(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Verify user owns the config
     const { data: config, error: configError } = await supabase
       .from("label_configs")
@@ -382,6 +448,19 @@ export async function getLabels(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     const { data: labels, error } = await supabase
       .from("labels")
       .select("*")
@@ -436,6 +515,19 @@ export async function updateLabel(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     const updateObj: Record<string, unknown> = {};
@@ -500,6 +592,19 @@ export async function deleteLabel(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     const { error } = await supabase
       .from("labels")
       .delete()
@@ -550,6 +655,19 @@ export async function reorderLabels(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Update each label's sort_order (explicit user_id check for defense-in-depth)
     for (const update of validatedUpdates) {
       const { error } = await supabase
@@ -593,6 +711,19 @@ export async function getLabelAssignment(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     let query = supabase.from("label_assignments").select("*");
@@ -655,6 +786,19 @@ export async function setLabelAssignment(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Upsert: try to find existing assignment first
@@ -734,6 +878,19 @@ export async function removeLabelAssignment(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `labels:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     let query = supabase

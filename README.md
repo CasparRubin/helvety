@@ -102,7 +102,7 @@ This application implements comprehensive security hardening:
 - **Audit Logging** - Structured logging for authentication and encryption events
 - **Security Headers** - CSP, HSTS, and other security headers
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. An informational cookie notice informs visitors that only essential cookies are used (Swiss nDSG / EU ePrivacy compliant).
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; a geo-restriction confirmation dialog is displayed once per browser session (cached in sessionStorage; cleared when the tab or browser is closed). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
 
 ## Tech Stack
 
@@ -114,7 +114,7 @@ This project is built with modern web technologies:
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
 - **[Tiptap](https://tiptap.dev/)** - Headless WYSIWYG rich text editor
 - **[dnd kit](https://dndkit.com/)** - Drag and drop toolkit for React
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
 - **[Lucide React](https://lucide.dev/)** - Icon library

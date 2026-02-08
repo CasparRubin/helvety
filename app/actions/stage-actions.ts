@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 import type {
@@ -129,6 +130,19 @@ export async function createStageConfig(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     const { data: config, error } = await supabase
       .from("stage_configs")
       .insert({
@@ -164,6 +178,19 @@ export async function getStageConfigs(): Promise<
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     const { data: configs, error } = await supabase
@@ -213,6 +240,19 @@ export async function updateStageConfig(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     const updateObj: Record<string, unknown> = {
@@ -268,6 +308,19 @@ export async function deleteStageConfig(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     const { error } = await supabase
@@ -332,6 +385,19 @@ export async function createStage(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Verify user owns the config
     const { data: config, error: configError } = await supabase
       .from("stage_configs")
@@ -389,6 +455,19 @@ export async function getStages(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     const { data: stages, error } = await supabase
       .from("stages")
       .select("*")
@@ -444,6 +523,19 @@ export async function updateStage(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     const updateObj: Record<string, unknown> = {};
@@ -511,6 +603,19 @@ export async function deleteStage(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     const { error } = await supabase
       .from("stages")
       .delete()
@@ -559,6 +664,19 @@ export async function reorderStages(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Update each stage's sort_order (explicit user_id check for defense-in-depth)
@@ -610,6 +728,19 @@ export async function getStageAssignment(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     let query = supabase
@@ -681,6 +812,19 @@ export async function setStageAssignment(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Upsert: try to find existing assignment first
@@ -763,6 +907,19 @@ export async function removeStageAssignment(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `stages:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     let query = supabase

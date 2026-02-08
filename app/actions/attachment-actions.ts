@@ -7,6 +7,7 @@ import { z } from "zod";
 import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -96,6 +97,19 @@ export async function createAttachment(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `attachments:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Verify the storage path starts with the user's ID (defense-in-depth)
     if (!validatedData.storage_path.startsWith(`${user.id}/`)) {
       logger.warn("Attachment storage path does not match user ID:", {
@@ -164,6 +178,19 @@ export async function getAttachments(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `attachments:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Get attachments (RLS ensures only user's own attachments are returned)
     const { data: attachments, error } = await supabase
       .from("item_attachments")
@@ -217,6 +244,19 @@ export async function deleteAttachment(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `attachments:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Get the attachment record first (to know the storage path)

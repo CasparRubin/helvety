@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Footer } from "@/components/footer";
+import { GeoRestrictionDialog } from "@/components/geo-restriction-dialog";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -126,19 +127,23 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthTokenHandler />
-          <TooltipProvider>
-            <EncryptionProvider>
-              <div className="flex h-screen flex-col overflow-hidden">
-                <header className="shrink-0">
-                  <Navbar />
-                </header>
-                <main className="min-h-0 flex-1 overflow-auto">{children}</main>
-                <Footer className="shrink-0" />
-              </div>
-              <Toaster />
-            </EncryptionProvider>
-          </TooltipProvider>
+          <GeoRestrictionDialog>
+            <AuthTokenHandler />
+            <TooltipProvider>
+              <EncryptionProvider>
+                <div className="flex h-screen flex-col overflow-hidden">
+                  <header className="shrink-0">
+                    <Navbar />
+                  </header>
+                  <main className="min-h-0 flex-1 overflow-auto">
+                    {children}
+                  </main>
+                  <Footer className="shrink-0" />
+                </div>
+                <Toaster />
+              </EncryptionProvider>
+            </TooltipProvider>
+          </GeoRestrictionDialog>
         </ThemeProvider>
         <Analytics />
       </body>

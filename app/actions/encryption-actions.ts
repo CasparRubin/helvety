@@ -7,6 +7,7 @@ import { z } from "zod";
 import { logAuthEvent } from "@/lib/auth-logger";
 import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 import type { UserPasskeyParams } from "@/lib/types";
@@ -112,6 +113,19 @@ export async function savePasskeyParams(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit (stricter for sensitive encryption operations)
+    const rateLimit = await checkRateLimit(
+      `encryption:user:${user.id}`,
+      RATE_LIMITS.ENCRYPTION_UNLOCK.maxRequests,
+      RATE_LIMITS.ENCRYPTION_UNLOCK.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Upsert passkey params (insert or update if exists)
     const { error } = await supabase.from("user_passkey_params").upsert(
       {
@@ -157,6 +171,19 @@ export async function getPasskeyParams(): Promise<
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `encryption:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Get passkey params

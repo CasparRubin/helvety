@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 import type {
@@ -178,6 +179,19 @@ export async function createUnit(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Insert unit
     const { data: unit, error } = await supabase
       .from("units")
@@ -219,6 +233,19 @@ export async function getUnits(): Promise<ActionResponse<UnitRow[]>> {
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Get units (RLS ensures only user's own units are returned)
     const { data: units, error } = await supabase
       .from("units")
@@ -256,6 +283,19 @@ export async function getUnit(id: string): Promise<ActionResponse<UnitRow>> {
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Get unit (RLS ensures only user's own unit can be accessed)
@@ -323,6 +363,19 @@ export async function updateUnit(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Build update object (only include provided fields)
     const updateObj: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
@@ -360,7 +413,9 @@ export async function updateUnit(
 }
 
 /**
- * Delete a Unit (cascades to all Spaces and Items)
+ * Delete a Unit (cascades to all Spaces, Items, and Attachments).
+ * Encrypted attachment files are automatically removed from storage
+ * by the `on_attachment_deleted` database trigger.
  */
 export async function deleteUnit(
   id: string,
@@ -392,8 +447,22 @@ export async function deleteUnit(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Delete unit (RLS + explicit user_id check for defense-in-depth)
-    // CASCADE will delete all associated Spaces and Items
+    // CASCADE will delete all associated Spaces, Items, and Attachments
+    // The on_attachment_deleted trigger handles storage file cleanup
     const { error } = await supabase
       .from("units")
       .delete()
@@ -458,6 +527,19 @@ export async function createSpace(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Verify user owns the unit (RLS will also check this on insert)
     const { data: unit, error: unitError } = await supabase
       .from("units")
@@ -516,6 +598,19 @@ export async function getSpaces(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Get spaces (RLS ensures only user's own spaces are returned)
     const { data: spaces, error } = await supabase
       .from("spaces")
@@ -554,6 +649,19 @@ export async function getSpace(id: string): Promise<ActionResponse<SpaceRow>> {
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Get space
@@ -624,6 +732,19 @@ export async function updateSpace(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Build update object
     const updateObj: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
@@ -661,7 +782,9 @@ export async function updateSpace(
 }
 
 /**
- * Delete a Space (cascades to all Items)
+ * Delete a Space (cascades to all Items and their Attachments).
+ * Encrypted attachment files are automatically removed from storage
+ * by the `on_attachment_deleted` database trigger.
  */
 export async function deleteSpace(
   id: string,
@@ -691,6 +814,19 @@ export async function deleteSpace(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Delete space (RLS + explicit user_id check for defense-in-depth)
@@ -760,6 +896,19 @@ export async function createItem(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Verify user owns the space
     const { data: space, error: spaceError } = await supabase
       .from("spaces")
@@ -824,6 +973,19 @@ export async function getItems(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Get items
     const { data: items, error } = await supabase
       .from("items")
@@ -862,6 +1024,19 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Get item
@@ -931,6 +1106,19 @@ export async function updateItem(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Build update object
     const updateObj: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
@@ -974,7 +1162,9 @@ export async function updateItem(
 }
 
 /**
- * Delete an Item
+ * Delete an Item (cascades to all Attachments).
+ * Encrypted attachment files are automatically removed from storage
+ * by the `on_attachment_deleted` database trigger.
  */
 export async function deleteItem(
   id: string,
@@ -1004,6 +1194,19 @@ export async function deleteItem(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // Delete item (RLS + explicit user_id check for defense-in-depth)
@@ -1076,6 +1279,19 @@ export async function reorderEntities(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     const tableName =
       entityType === "unit"
         ? "units"
@@ -1134,6 +1350,19 @@ export async function getSpaceCounts(): Promise<
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Get all spaces for this user, selecting only the unit_id
     const { data: spaces, error } = await supabase
       .from("spaces")
@@ -1177,6 +1406,19 @@ export async function getItemCounts(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit
+    const rateLimit = await checkRateLimit(
+      `tasks:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
     }
 
     // First get the space IDs for this unit

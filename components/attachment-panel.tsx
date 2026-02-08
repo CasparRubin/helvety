@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAttachments } from "@/hooks";
 import { ATTACHMENT_MAX_SIZE_BYTES } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 import { cn } from "@/lib/utils";
 
 import type { UploadProgress } from "@/hooks";
@@ -323,7 +324,7 @@ export function AttachmentPanel({
         if (file.size > ATTACHMENT_MAX_SIZE_BYTES) {
           const maxMB = Math.round(ATTACHMENT_MAX_SIZE_BYTES / (1024 * 1024));
           // Skip oversized files with a warning (the hook also validates)
-          console.warn(`Skipping "${file.name}": exceeds ${maxMB}MB limit`);
+          logger.warn(`Skipping "${file.name}": exceeds ${maxMB}MB limit`);
           continue;
         }
         // Upload sequentially to avoid overwhelming the browser with parallel encryptions
