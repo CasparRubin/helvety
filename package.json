@@ -1,6 +1,13 @@
 {
   "name": "helvety.com",
   "version": "1.2.0",
+  "description": "The main Helvety website. Swiss Engineering.",
+  "author": "Helvety by Rubin",
+  "homepage": "https://helvety.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CasparRubin/helvety.com.git"
+  },
   "private": true,
   "license": "UNLICENSED",
   "engines": {
@@ -15,7 +22,7 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "predeploy": "npm run format:check && npm run type-check && npm run lint && npm run build"
+    "predeploy": "node scripts/sync-shared.js --check && npm run format:check && npm run type-check && npm run lint && npm run build"
   },
   "dependencies": {
     "@fontsource-variable/public-sans": "^5.2.7",

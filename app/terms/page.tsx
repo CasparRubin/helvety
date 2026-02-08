@@ -326,7 +326,7 @@ export default function TermsPage() {
               data. When using Helvety Tasks, you will be required to set up an
               encryption passkey after authentication. This uses the WebAuthn
               PRF (Pseudo-Random Function) extension to derive encryption keys
-              on your device. The encryption keys are never transmitted to or
+              on your device. The encryption keys are not transmitted to or
               stored on our servers. If you lose access to your encryption
               passkey, encrypted data may become permanently inaccessible. Other
               Helvety services (helvety.com, Helvety Auth, Helvety PDF, Helvety
@@ -746,9 +746,9 @@ export default function TermsPage() {
                 Google Password Manager, etc.).
               </li>
               <li>
-                Encrypted data is protected by a zero-knowledge architecture; we
-                have no technical ability to access the plaintext content of
-                your encrypted data.
+                Encrypted data is protected by a zero-knowledge architecture;
+                our architecture is designed so that we cannot access the
+                plaintext content of your encrypted data.
               </li>
             </ul>
             <p className="text-muted-foreground text-sm">
@@ -777,79 +777,75 @@ export default function TermsPage() {
             </p>
             <ol className="text-muted-foreground mb-4 list-inside list-decimal space-y-2 text-sm">
               <li>
-                Browse our products and select items you wish to purchase.
-              </li>
-              <li>Add selected items to your shopping cart.</li>
-              <li>Review your cart contents, quantities, and prices.</li>
-              <li>
-                Proceed to checkout and enter your shipping and billing
-                information.
-              </li>
-              <li>Select your preferred payment method.</li>
-              <li>
-                Review your complete order, including all items, prices, taxes,
-                and shipping costs.
+                Browse our product catalog and select the product or
+                subscription tier you wish to purchase.
               </li>
               <li>
-                Read and accept these Terms of Service by checking the required
-                checkbox.
+                Click the purchase button (e.g., &quot;Subscribe Now&quot; or
+                &quot;Get Started&quot;) on the product detail page.
               </li>
               <li>
-                Click &quot;Confirm Order&quot; or &quot;Place Order&quot; to
-                submit your order.
+                A consent dialog appears requiring you to read and accept the
+                Terms of Service and Privacy Policy before proceeding. This
+                consent is required for each purchase.
               </li>
+              <li>
+                You are redirected to a secure Stripe Checkout page where you
+                enter your billing information and select your payment method.
+              </li>
+              <li>
+                Review your order summary on the Stripe Checkout page, including
+                the product, price, and billing details.
+              </li>
+              <li>Complete the payment to submit your order.</li>
             </ol>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Contract Formation:</strong>{" "}
               Your order constitutes an offer to purchase. A binding contract is
               formed when we send you an order confirmation email. We reserve
-              the right to reject orders at our discretion (e.g., due to stock
-              unavailability, pricing errors, or suspected fraud).
+              the right to reject orders at our discretion (e.g., due to pricing
+              errors or suspected fraud).
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
               8.2 Error Detection and Correction
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              Before submitting your order, you have the opportunity to detect
-              and correct input errors:
+              Before completing your purchase, you have the opportunity to
+              detect and correct input errors:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
-                You can modify the contents of your shopping cart at any time
-                before checkout.
+                You can cancel the consent dialog and return to the product page
+                at any time before proceeding to Stripe Checkout.
               </li>
               <li>
-                During checkout, you can review and edit your shipping address,
-                billing information, and payment method.
+                On the Stripe Checkout page, you can review and edit your
+                billing information and payment method before completing the
+                payment.
               </li>
               <li>
-                The order review page displays all order details, allowing you
-                to verify everything before final submission.
+                You can use your browser&apos;s back button or close the Stripe
+                Checkout page to cancel the purchase before payment.
               </li>
               <li>
-                You can use your browser&apos;s back button to return to
-                previous steps and make corrections.
-              </li>
-              <li>
-                If you notice an error after submitting your order, contact us
-                immediately at contact@helvety.com.
+                If you notice an error after completing your purchase, contact
+                us immediately at contact@helvety.com.
               </li>
             </ul>
 
             <h3 className="mb-3 text-lg font-medium">8.3 Order Confirmation</h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              Upon successful submission of your order, you will receive:
+              Upon successful completion of your purchase, you will receive:
             </p>
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
-                An immediate order confirmation email to the email address you
-                provided during checkout.
+                An order confirmation email from Stripe to the email address
+                associated with your Helvety account.
               </li>
               <li>
-                The confirmation includes: order number, itemized list of
-                products, prices, applicable taxes, shipping address, and
-                estimated delivery time (for physical products).
+                The confirmation includes: product details, price, and
+                applicable taxes.
               </li>
               <li>
                 For digital products and SaaS subscriptions, access is

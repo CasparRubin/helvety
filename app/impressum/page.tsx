@@ -161,13 +161,13 @@ export default function ImpressumPage() {
 
             <h3 className="mb-3 text-lg font-medium">Liability for Content</h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              The content of this website has been created with the greatest
-              possible care. However, we cannot guarantee the accuracy,
-              completeness, or timeliness of the content. As a service provider,
-              we are responsible for our own content on these pages in
-              accordance with general laws. However, we are not obligated to
-              monitor transmitted or stored third-party information or to
-              investigate circumstances that indicate illegal activity.
+              We strive to keep the content of this website accurate and up to
+              date. However, we cannot guarantee the accuracy, completeness, or
+              timeliness of the content. As a service provider, we are
+              responsible for our own content on these pages in accordance with
+              general laws. However, we are not obligated to monitor transmitted
+              or stored third-party information or to investigate circumstances
+              that indicate illegal activity.
             </p>
 
             <h3 className="mt-6 mb-3 text-lg font-medium">

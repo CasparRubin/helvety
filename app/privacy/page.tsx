@@ -35,12 +35,12 @@ export default function PrivacyPage() {
           {/* Introduction */}
           <p className="text-muted-foreground text-sm">
             Helvety by Rubin (&quot;we,&quot; &quot;us,&quot; or &quot;the
-            Company&quot;) respects your privacy and is committed to protecting
-            your personal data. This Privacy Policy explains how we collect,
-            use, disclose, and safeguard your information when you use Helvety
-            services (&quot;the Services&quot;). This policy complies with the
-            Swiss Federal Act on Data Protection (nDSG) and other applicable
-            data protection laws.
+            Company&quot;) respects your privacy and takes the protection of
+            your personal data seriously. This Privacy Policy explains how we
+            collect, use, disclose, and safeguard your information when you use
+            Helvety services (&quot;the Services&quot;). This policy complies
+            with the Swiss Federal Act on Data Protection (nDSG) and other
+            applicable data protection laws.
           </p>
           <p className="text-muted-foreground text-sm">
             Our services are intended exclusively for customers located in
@@ -354,10 +354,10 @@ export default function PrivacyPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Important:</strong> Encryption
               keys are derived client-side in your browser using the WebAuthn
-              PRF extension. We never have access to your actual encryption
+              PRF extension. We do not have access to your actual encryption
               keys. This zero-knowledge architecture means that even if our
-              servers were compromised, your encrypted data would remain
-              protected.
+              servers were compromised, your encrypted data is designed to
+              remain protected.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Browser Requirements:</strong>{" "}
@@ -395,8 +395,8 @@ export default function PrivacyPage() {
                 <strong className="text-foreground">
                   Helvety PDF (pdf.helvety.com):
                 </strong>{" "}
-                All PDF processing is performed 100% client-side in your
-                browser. Your files are never uploaded to, stored on, or
+                All file processing is performed entirely client-side in your
+                browser. Your files are not uploaded to, stored on, or
                 transmitted to our servers. Only your subscription status is
                 checked server-side to enable Pro features.
               </li>
@@ -416,8 +416,8 @@ export default function PrivacyPage() {
                 All task data (titles, descriptions, file attachments) is
                 end-to-end encrypted client-side before storage. Our servers
                 store only ciphertext. Encryption keys are derived from your
-                passkey and never leave your device. We have no technical
-                ability to read your task data.
+                passkey and do not leave your device. Our architecture is
+                designed so that we cannot read your task data.
               </li>
             </ul>
           </section>
@@ -586,19 +586,11 @@ export default function PrivacyPage() {
             </div>
 
             <p className="text-muted-foreground mb-4 text-sm">
-              All service providers are contractually obligated to protect your
-              data and process it only according to our instructions. We have
-              entered into Data Processing Agreements with these providers in
-              accordance with nDSG Art. 9. We maintain a record of processing
-              activities (Verzeichnis der Bearbeitungst&auml;tigkeiten) as
-              required by Art. 12 nDSG.
-            </p>
-            <p className="text-muted-foreground mb-4 text-sm">
-              <strong className="text-foreground">Stripe:</strong> As a PCI DSS
-              Level 1 certified payment processor, Stripe handles all payment
-              card information. We do not have access to or store your complete
-              card details. Stripe may perform automated fraud analysis on
-              payment data as part of its processing services; for details, see{" "}
+              <strong className="text-foreground">Stripe:</strong> Stripe, which
+              maintains PCI DSS Level 1 certification, handles all payment card
+              information. We do not have access to or store your complete card
+              details. Stripe may perform automated fraud analysis on payment
+              data as part of its processing services; for details, see{" "}
               <a
                 href="https://stripe.com/privacy"
                 target="_blank"
@@ -628,9 +620,8 @@ export default function PrivacyPage() {
               where our service providers are located.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              For transfers to the USA, we ensure adequate protection in
-              accordance with nDSG Art. 16 and Art. 17 through one or more of
-              the following safeguards:
+              For transfers to the USA, we rely on one or more of the following
+              safeguards in accordance with nDSG Art. 16 and Art. 17:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -641,16 +632,16 @@ export default function PrivacyPage() {
                 (FDPIC) has recognized the Swiss-US Data Privacy Framework
                 (effective September 15, 2024) as providing adequate protection
                 for data transfers to certified US organizations. Where
-                applicable, our US-based providers are certified under this
+                applicable, our US-based providers may be certified under this
                 framework.
               </li>
               <li>
                 <strong className="text-foreground">
                   Standard Contractual Clauses (SCCs):
                 </strong>{" "}
-                We incorporate Standard Contractual Clauses into our Data
-                Processing Agreements with service providers, ensuring
-                contractual safeguards for an adequate level of data protection.
+                Where available, we rely on Standard Contractual Clauses offered
+                by service providers as contractual safeguards for an adequate
+                level of data protection.
               </li>
               <li>
                 <strong className="text-foreground">Contract necessity:</strong>{" "}
@@ -1019,7 +1010,7 @@ export default function PrivacyPage() {
                 (for applicable services)
               </li>
               <li>
-                Zero-knowledge architecture where encryption keys are never
+                Zero-knowledge architecture where encryption keys are not
                 transmitted to or stored on our servers
               </li>
               <li>Secure authentication mechanisms</li>
@@ -1099,7 +1090,7 @@ export default function PrivacyPage() {
                 device to re-derive the same key
               </li>
               <li>
-                We cannot decrypt your data as we never possess your encryption
+                We cannot decrypt your data as we do not possess your encryption
                 key
               </li>
               <li>
@@ -1108,10 +1099,10 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p className="text-muted-foreground text-sm">
-              This approach ensures that your encrypted data remains protected
-              even in the event of a data breach on our servers. Browser
-              requirements for end-to-end encryption: Chrome 128+, Edge 128+,
-              Safari 18+, Firefox 139+ (desktop only).
+              This approach is designed to protect your encrypted data even in
+              the event of a data breach on our servers. Browser requirements
+              for end-to-end encryption: Chrome 128+, Edge 128+, Safari 18+,
+              Firefox 139+ (desktop only).
             </p>
           </section>
 

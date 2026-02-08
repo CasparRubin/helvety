@@ -18,12 +18,11 @@
  *   - lib/env-validation.ts (all except helvety-store which adds Stripe key validation)
  *   - lib/session-config.ts
  *   - lib/supabase/client.ts, lib/supabase/server.ts, lib/supabase/admin.ts, lib/supabase/client-factory.ts
- *   - lib/types/entities.ts (shared entity types)
- *   - lib/crypto/* (entire directory)
- *   - hooks/use-auth-session.ts (helvety-store, helvety-pdf, helvety-tasks only; helvety-auth keeps its own)
+ *   - lib/types/entities.ts (helvety-auth, helvety-tasks only; helvety-store and helvety-pdf keep their own without encryption types)
+ *   - lib/crypto/* (helvety-auth, helvety-tasks only; helvety-store and helvety-pdf do not use E2EE)
  *   - app/error.tsx (global error boundary)
  *   - app/not-found.tsx (global 404 page)
- *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
+ *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx, components/geo-restriction-dialog.tsx
  *   - .cursor/rules/* (coding standards and patterns)
  *   - .prettierrc, .prettierignore, .gitignore, postcss.config.mjs, eslint.config.mjs (tooling configs)
  */
@@ -69,12 +68,12 @@ const FILES = [
   "lib/supabase/admin.ts",
   "lib/supabase/client-factory.ts",
   "lib/types/entities.ts",
-  "hooks/use-auth-session.ts",
   "app/error.tsx",
   "app/not-found.tsx",
   "components/theme-provider.tsx",
   "components/theme-switcher.tsx",
   "components/app-switcher.tsx",
+  "components/geo-restriction-dialog.tsx",
 ];
 
 const DIRS = ["lib/crypto", ".cursor/rules"];
@@ -82,22 +81,34 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
 /**
  * Files to skip per target
  * - helvety-pdf keeps its own lib/constants.ts with app-specific exports
+ * - helvety-pdf keeps its own lib/types/entities.ts (no encryption types; E2EE not used)
  * - helvety-auth keeps its own lib/auth-guard.ts (redirects to local /login instead of auth service)
- * - helvety-auth keeps its own hooks/use-auth-session.ts (no redirect, idle timeout disabled)
  * - helvety-store keeps its own lib/env-validation.ts (includes Stripe key validation)
+ * - helvety-store keeps its own lib/types/entities.ts (no encryption types; E2EE not used)
  * - helvety-tasks keeps its own lib/constants.ts (adds attachment constants)
  * - helvety-tasks keeps its own lib/crypto/index.ts (re-exports task-encryption.ts functions)
  * - helvety-tasks keeps its own lib/crypto/encryption.ts (adds binary encryption for attachments)
  */
 const TARGET_SKIP_FILES = {
-  "helvety-pdf": ["lib/constants.ts"],
-  "helvety-auth": ["lib/auth-guard.ts", "hooks/use-auth-session.ts"],
-  "helvety-store": ["lib/env-validation.ts"],
+  "helvety-pdf": ["lib/constants.ts", "lib/types/entities.ts"],
+  "helvety-auth": ["lib/auth-guard.ts"],
+  "helvety-store": ["lib/env-validation.ts", "lib/types/entities.ts"],
   "helvety-tasks": [
     "lib/constants.ts",
     "lib/crypto/index.ts",
     "lib/crypto/encryption.ts",
   ],
+};
+
+/**
+ * Directories to skip entirely per target
+ * - helvety-store does not use E2EE; lib/crypto/ was removed
+ * - helvety-pdf does not use E2EE; lib/crypto/ was removed
+ * - Only helvety-auth and helvety-tasks receive lib/crypto/
+ */
+const TARGET_SKIP_DIRS = {
+  "helvety-store": ["lib/crypto"],
+  "helvety-pdf": ["lib/crypto"],
 };
 
 // Track statistics for reporting
@@ -192,7 +203,11 @@ function checkRepo(targetRoot, targetRepo) {
     }
   }
 
+  const skipDirs = TARGET_SKIP_DIRS[targetRepo] || [];
   for (const dir of DIRS) {
+    if (skipDirs.includes(dir)) {
+      continue; // entire directory skipped for this target
+    }
     drifted.push(
       ...checkDirRecursive(SOURCE_ROOT, targetRoot, dir, targetRepo)
     );
@@ -342,7 +357,13 @@ function syncTo(targetRoot, targetRepo) {
   for (const file of FILES) {
     copyFile(SOURCE_ROOT, targetRoot, file, targetRepo);
   }
+  const skipDirs = TARGET_SKIP_DIRS[targetRepo] || [];
   for (const dir of DIRS) {
+    if (skipDirs.includes(dir)) {
+      console.log(`  Skip (target-specific dir): ${dir}/`);
+      stats.skipped++;
+      continue;
+    }
     copyDirRecursive(SOURCE_ROOT, targetRoot, dir, targetRepo);
   }
 

@@ -21,8 +21,8 @@
  * (EU) 2016/679) or EU consumer protection directives. Only the Swiss Federal
  * Act on Data Protection (nDSG) applies.
  *
- * The notice is displayed in English plus 7 additional languages (DE, FR, IT,
- * ES, PT, NL, PL) to ensure EU/EEA visitors can understand the restriction
+ * The notice is displayed in English plus 6 additional languages (DE, FR, IT,
+ * ES, PT, NL) to ensure EU/EEA visitors can understand the restriction
  * regardless of their native language.
  */
 
@@ -71,13 +71,21 @@ export function GeoRestrictionDialog({
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-4">
+                <p className="text-muted-foreground text-center text-xs">
+                  This notice exists solely for legal reasons. As a small Swiss
+                  company without a designated representative in the European
+                  Union, we are legally required to limit our services to
+                  Switzerland (Art.&nbsp;3(2) and Art.&nbsp;27 of Regulation
+                  (EU) 2016/679&nbsp;&mdash;&nbsp;GDPR).
+                </p>
+
                 <p className="text-foreground text-center text-sm font-medium">
                   Our services are intended exclusively for customers located in
                   Switzerland. We do not offer services to individuals located
                   in the European Union (EU) or European Economic Area (EEA).
                 </p>
 
-                {/* Multilingual notices — all 4 Swiss national languages + major EU languages */}
+                {/* Multilingual notices — Swiss national languages + major EU languages */}
                 <div className="border-border bg-muted/30 space-y-1.5 rounded-lg border p-3 text-[11px]">
                   <p>
                     <strong>DE:</strong> Unsere Dienste sind ausschliesslich
@@ -109,12 +117,6 @@ export function GeoRestrictionDialog({
                     <strong>NL:</strong> Onze diensten zijn uitsluitend bedoeld
                     voor klanten in Zwitserland. Wij bieden geen diensten aan
                     personen in de EU/EER.
-                  </p>
-                  <p>
-                    <strong>PL:</strong> Nasze us&lstrok;ugi s&aogon;
-                    przeznaczone wy&lstrok;&aogon;cznie dla klient&oacute;w w
-                    Szwajcarii. Nie &sacute;wiadczymy us&lstrok;ug osobom w
-                    UE/EOG.
                   </p>
                 </div>
 
