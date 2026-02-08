@@ -91,7 +91,6 @@ const envSchema = z.object({
 type Env = z.infer<typeof envSchema>;
 
 let validatedEnv: Env | null = null;
-let hasLoggedValidationSuccess = false;
 
 /**
  * Validates and returns environment variables
@@ -204,9 +203,9 @@ export function getSupabaseKey(): string {
       );
     }
 
-    // Remind developers about security (only log once to avoid spam)
-    if (key && validateAnonKey(key) && !hasLoggedValidationSuccess) {
-      hasLoggedValidationSuccess = true;
+    // Validate the key is an anon key (not service role)
+    if (key) {
+      validateAnonKey(key);
     }
   }
 

@@ -45,10 +45,16 @@ export function getRPConfig(): RPConfig {
 
   if (typeof window === "undefined") {
     // Server-side fallback (passkey operations should only happen client-side)
+    const authUrl =
+      process.env.NEXT_PUBLIC_AUTH_URL ??
+      (process.env.NODE_ENV === "development"
+        ? "http://localhost:3002"
+        : "https://auth.helvety.com");
     return {
-      rpId: "localhost",
+      rpId:
+        process.env.NODE_ENV === "development" ? "localhost" : "helvety.com",
       rpName,
-      origin: "http://localhost:3002",
+      origin: authUrl,
     };
   }
 
@@ -138,7 +144,10 @@ export interface PasskeyAuthenticationResult {
 function base64Encode(data: Uint8Array): string {
   let binary = "";
   for (let i = 0; i < data.length; i++) {
-    binary += String.fromCharCode(data[i]!);
+    const byte = data[i];
+    if (byte !== undefined) {
+      binary += String.fromCharCode(byte);
+    }
   }
   return btoa(binary);
 }

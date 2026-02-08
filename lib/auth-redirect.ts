@@ -14,10 +14,12 @@ import { isValidRedirectUri } from "@/lib/redirect-validation";
  * Get the base URL for the auth service
  */
 function getAuthBaseUrl(): string {
-  if (process.env.NODE_ENV === "development") {
-    return "http://localhost:3002";
-  }
-  return "https://auth.helvety.com";
+  return (
+    process.env.NEXT_PUBLIC_AUTH_URL ??
+    (process.env.NODE_ENV === "development"
+      ? "http://localhost:3002"
+      : "https://auth.helvety.com")
+  );
 }
 
 /**
