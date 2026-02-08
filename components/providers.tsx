@@ -2,7 +2,6 @@
 
 import { type ReactNode } from "react";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { CSRFProvider } from "@/hooks/use-csrf";
 
 /**
@@ -21,9 +20,5 @@ interface ProvidersProps {
  * E2EE is only used by helvety-tasks; this app does not need EncryptionProvider.
  */
 export function Providers({ children, csrfToken }: ProvidersProps) {
-  return (
-    <CSRFProvider csrfToken={csrfToken}>
-      <TooltipProvider>{children}</TooltipProvider>
-    </CSRFProvider>
-  );
+  return <CSRFProvider csrfToken={csrfToken}>{children}</CSRFProvider>;
 }

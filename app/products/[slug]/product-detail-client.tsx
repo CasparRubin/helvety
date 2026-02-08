@@ -51,7 +51,6 @@ import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCSRF } from "@/hooks/use-csrf";
@@ -475,12 +474,12 @@ function PricingCard({
       return;
     }
 
-    // Show pre-checkout dialog (Terms & Policy + EU digital content consent)
+    // Show pre-checkout dialog (Terms & Privacy Policy consent)
     setShowConsentDialog(true);
   };
 
   /**
-   * Handle checkout for paid tiers via Stripe (called after Terms & Policy and EU consent)
+   * Handle checkout for paid tiers via Stripe (called after Terms & Privacy consent)
    */
   const handleCheckout = async (consent?: ConsentMetadata) => {
     setIsLoading(true);
@@ -497,7 +496,6 @@ function PricingCard({
           cancelUrl: `/products/${productSlug}?checkout=cancelled`,
           ...(consent && {
             consentTermsAt: consent.termsAcceptedAt,
-            consentDigitalContentAt: consent.digitalContentConsentAt,
             consentVersion: consent.consentVersion,
           }),
         }),
@@ -599,22 +597,20 @@ function PricingCard({
             <Check className="mt-0.5 size-4 shrink-0 text-green-500" />
             <span className="text-sm">{feature}</span>
             {feature === "Only limited by your device" && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="text-muted-foreground hover:text-foreground mt-0.5 size-4 shrink-0 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs text-left">
-                    <p className="text-sm">
-                      Helvety PDF processes everything directly in your browser.
-                      This means performance depends on your device&apos;s RAM
-                      and CPU. The Pro plan has no artificial limits. Your
-                      device&apos;s hardware capabilities will naturally
-                      determine what&apos;s possible.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="text-muted-foreground hover:text-foreground mt-0.5 size-4 shrink-0 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-left">
+                  <p className="text-sm">
+                    Helvety PDF processes everything directly in your browser.
+                    This means performance depends on your device&apos;s RAM and
+                    CPU. The Pro plan has no artificial limits. Your
+                    device&apos;s hardware capabilities will naturally determine
+                    what&apos;s possible.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             )}
           </li>
         ))}
@@ -682,7 +678,7 @@ function PricingCard({
         </Button>
       )}
 
-      {/* Pre-checkout consent dialog (Terms & Policy + EU digital content) */}
+      {/* Pre-checkout consent dialog (Terms & Privacy Policy) */}
       <DigitalContentConsentDialog
         open={showConsentDialog}
         onOpenChange={setShowConsentDialog}

@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Footer } from "@/components/footer";
+import { GeoRestrictionDialog } from "@/components/geo-restriction-dialog";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { StoreNav } from "@/components/store-nav";
@@ -129,13 +130,15 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthTokenHandler />
-          <TooltipProvider>
-            <Providers csrfToken={csrfToken}>
-              <NavbarWrapper>{children}</NavbarWrapper>
-            </Providers>
-          </TooltipProvider>
-          <Toaster />
+          <GeoRestrictionDialog>
+            <AuthTokenHandler />
+            <TooltipProvider>
+              <Providers csrfToken={csrfToken}>
+                <NavbarWrapper>{children}</NavbarWrapper>
+              </Providers>
+            </TooltipProvider>
+            <Toaster />
+          </GeoRestrictionDialog>
         </ThemeProvider>
         <Analytics />
       </body>

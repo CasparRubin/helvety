@@ -1,12 +1,17 @@
 /**
  * Stripe Checkout API Route
- * Creates checkout sessions for subscription purchases
+ * Creates checkout sessions for subscription purchases (Switzerland-only).
  *
  * Security:
  * - CSRF token validation via X-CSRF-Token header
  * - Input validation with Zod schema
  * - Rate limiting to prevent abuse
  * - successUrl and cancelUrl parameters are validated to prevent open redirect attacks
+ *
+ * Legal: Helvety services are exclusively available to customers in Switzerland.
+ * All prices are in CHF. The consent audit trail records that the customer
+ * accepted the Terms of Service and Privacy Policy before purchase (Swiss
+ * contract law compliance).
  */
 
 import { NextResponse } from "next/server";
@@ -48,9 +53,9 @@ const CheckoutRequestSchema = z.object({
     ),
   successUrl: z.string().max(500).optional(),
   cancelUrl: z.string().max(500).optional(),
-  // EU digital content consent audit trail (ISO 8601 timestamps)
+  // Consent audit trail — records that the customer accepted Terms & Privacy
+  // Policy before purchase (Swiss contract law compliance, ISO 8601 timestamps)
   consentTermsAt: z.string().datetime().optional(),
-  consentDigitalContentAt: z.string().datetime().optional(),
   consentVersion: z.string().max(50).optional(),
 });
 
@@ -124,14 +129,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const {
-      tierId,
-      successUrl,
-      cancelUrl,
-      consentTermsAt,
-      consentDigitalContentAt,
-      consentVersion,
-    } = validationResult.data;
+    const { tierId, successUrl, cancelUrl, consentTermsAt, consentVersion } =
+      validationResult.data;
 
     // Get Stripe Price ID for the tier
     const stripePriceId = getStripePriceId(tierId);
@@ -232,13 +231,10 @@ export async function POST(request: NextRequest) {
       metadata.supabase_user_id = user.id;
     }
 
-    // EU digital content consent audit trail — stored in Stripe session metadata
-    // so the burden of proof (consent was obtained) can be satisfied on audit.
+    // Consent audit trail — stored in Stripe session metadata so the burden of
+    // proof (Terms & Privacy accepted) can be satisfied on audit.
     if (consentTermsAt) {
       metadata.consent_terms_at = consentTermsAt;
-    }
-    if (consentDigitalContentAt) {
-      metadata.consent_digital_content_at = consentDigitalContentAt;
     }
     if (consentVersion) {
       metadata.consent_version = consentVersion;

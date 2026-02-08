@@ -1,14 +1,19 @@
 "use client";
 
 /**
- * Pre-checkout consent dialog (Terms & Policy + EU digital content).
+ * Pre-checkout consent dialog (Terms & Privacy Policy acceptance).
  *
  * Shown before every purchase, before redirecting to Stripe Checkout. The user
- * must confirm (1) that they have read and understood our Terms of Service and
- * Privacy Policy, and (2) for digital content, the EU Consumer Rights Directive
- * consent (acknowledgement that they lose the 14-day withdrawal right once
- * content is made available). Both checkboxes are required; neither choice is
- * saved — the dialog is shown on every purchase with both unchecked by default.
+ * must confirm that they have read and understood our Terms of Service and
+ * Privacy Policy. The checkbox is required; the choice is not saved — the dialog
+ * is shown on every purchase with the checkbox unchecked by default.
+ *
+ * Legal basis: Swiss contract law — proof that the customer accepted the Terms
+ * and Privacy Policy before purchase. Consent metadata (timestamp + version) is
+ * stored in Stripe session metadata for audit trail purposes.
+ *
+ * Note: Helvety services are exclusively available to customers in Switzerland.
+ * No EU Consumer Rights Directive provisions apply.
  */
 
 import { ExternalLink, Loader2 } from "lucide-react";
@@ -25,7 +30,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 
 const LEGAL_BASE = "https://helvety.com";
 
@@ -33,14 +37,12 @@ const LEGAL_BASE = "https://helvety.com";
 export interface ConsentMetadata {
   /** ISO 8601 timestamp when the user accepted the Terms & Privacy checkbox */
   termsAcceptedAt: string;
-  /** ISO 8601 timestamp when the user accepted the EU digital content consent checkbox */
-  digitalContentConsentAt: string;
   /** Version identifier for the consent dialog (for audit trail) */
   consentVersion: string;
 }
 
-/** Props for the DigitalContentConsentDialog component */
-interface DigitalContentConsentDialogProps {
+/** Props for the PurchaseConsentDialog component */
+interface PurchaseConsentDialogProps {
   /** Whether the dialog is open */
   open: boolean;
   /** Called when the dialog should close */
@@ -54,35 +56,32 @@ interface DigitalContentConsentDialogProps {
 }
 
 /**
- * Pre-checkout consent dialog. Two sections: (1) Terms & policy — links plus
- * checkbox; (2) Digital content consent — EU withdrawal notice plus checkbox.
+ * Pre-checkout consent dialog. The user must confirm they have read and
+ * understood the Terms of Service and Privacy Policy before proceeding to
+ * Stripe Checkout.
  */
-export function DigitalContentConsentDialog({
+export function PurchaseConsentDialog({
   open,
   onOpenChange,
   onConfirm,
   isLoading = false,
   productName: _productName, // reserved for future use (e.g. analytics)
-}: DigitalContentConsentDialogProps) {
+}: PurchaseConsentDialogProps) {
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
-  const [hasConsented, setHasConsented] = useState(false);
 
-  // Reset both checkboxes when dialog closes (no persistence; required on every purchase)
+  // Reset checkbox when dialog closes (no persistence; required on every purchase)
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       setHasAcceptedTerms(false);
-      setHasConsented(false);
     }
     onOpenChange(newOpen);
   };
 
   const handleConfirm = () => {
-    if (hasAcceptedTerms && hasConsented) {
-      const now = new Date().toISOString();
+    if (hasAcceptedTerms) {
       onConfirm({
-        termsAcceptedAt: now,
-        digitalContentConsentAt: now,
-        consentVersion: "2026-02-07",
+        termsAcceptedAt: new Date().toISOString(),
+        consentVersion: "2026-02-08",
       });
     }
   };
@@ -91,7 +90,7 @@ export function DigitalContentConsentDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Digital Content Purchase</DialogTitle>
+          <DialogTitle>Confirm Purchase</DialogTitle>
           <DialogDescription>
             Please read the following information carefully before completing
             your purchase.
@@ -99,10 +98,10 @@ export function DigitalContentConsentDialog({
         </DialogHeader>
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto">
-          {/* Section 1: Terms & Policy */}
+          {/* Terms & Policy */}
           <div className="space-y-3">
             <p className="text-muted-foreground text-center text-xs font-medium tracking-wider uppercase">
-              Terms &amp; policy
+              Terms &amp; Privacy Policy
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button variant="secondary" size="default" asChild>
@@ -145,41 +144,6 @@ export function DigitalContentConsentDialog({
               </Label>
             </div>
           </div>
-
-          <Separator />
-
-          {/* Section 2: EU digital content consent */}
-          <div className="space-y-3">
-            <p className="text-muted-foreground text-center text-xs font-medium tracking-wider uppercase">
-              Digital content consent
-            </p>
-            <div className="bg-muted/50 rounded-lg p-4 text-sm">
-              <p className="text-muted-foreground">
-                Under EU consumer protection law, you have a 14-day right of
-                withdrawal for online purchases. However, for digital content
-                that is delivered immediately, this right is waived once the
-                content is made available to you.
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="withdrawal-consent"
-                checked={hasConsented}
-                onCheckedChange={(value) => setHasConsented(value === true)}
-                disabled={isLoading}
-                className="mt-0.5"
-              />
-              <Label
-                htmlFor="withdrawal-consent"
-                className="cursor-pointer text-sm leading-relaxed font-normal"
-              >
-                I expressly request that you begin the supply of digital content
-                immediately and I acknowledge that I will lose my right of
-                withdrawal once the digital content has been made available to
-                me.
-              </Label>
-            </div>
-          </div>
         </div>
 
         <DialogFooter className="flex-col gap-2 sm:flex-row">
@@ -192,7 +156,7 @@ export function DigitalContentConsentDialog({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={!hasAcceptedTerms || !hasConsented || isLoading}
+            disabled={!hasAcceptedTerms || isLoading}
           >
             {isLoading ? (
               <>
@@ -213,3 +177,9 @@ export function DigitalContentConsentDialog({
     </Dialog>
   );
 }
+
+/**
+ * @deprecated Use PurchaseConsentDialog instead. This alias is kept temporarily
+ * for backward compatibility during the migration.
+ */
+export const DigitalContentConsentDialog = PurchaseConsentDialog;

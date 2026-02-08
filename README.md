@@ -11,7 +11,7 @@ Your one-stop shop for Helvety software and subscriptions. Browse and purchase o
 
 ## Navigation
 
-The store has four main sections, linked from the store nav bar (below the top navbar) and from the profile dropdown in the top navbar on helvety.com and store.helvety.com (when signed in; shows your email and links to Products, Account, Subscriptions, Tenants, and Sign out):
+The store has four main sections, linked from the store nav bar (below the top navbar). The profile dropdown in the top navbar (when signed in) shows your email and links to Account, Subscriptions, and Sign out:
 
 - **Products** (`/products`) – Product catalog with filters; product detail at `/products/[slug]`
 - **Account** (`/account`) – Profile and account settings
@@ -20,12 +20,12 @@ The store has four main sections, linked from the store nav bar (below the top n
 
 The root path (`/`) redirects all users to `/products`. No login is required to browse products.
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. An informational cookie notice informs visitors that only essential cookies are used (Swiss nDSG / EU ePrivacy compliant).
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; a geo-restriction confirmation dialog is displayed once per browser session (cached in sessionStorage; cleared when the tab or browser is closed). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
 
 ## Features
 
 - **Product Catalog** - Browse Helvety software products with detailed descriptions and pricing
-- **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout. Before every purchase, a consent dialog is shown with two sections: (1) Terms & policy — links to Terms of Service and Privacy Policy plus a confirmation checkbox; (2) Digital content consent — EU withdrawal notice plus consent checkbox. Both confirmations are required on each purchase and are not saved.
+- **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout (CHF only). Before every purchase, a consent dialog requires acceptance of the Terms of Service and Privacy Policy. Consent is required on each purchase and is not cached.
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
 - **Account Management** - Profile and account settings (Account page)
 - **Subscription Management** - Compact list to view, cancel, or reactivate subscriptions; SPO Explorer subscriptions link to the Tenants page
@@ -82,7 +82,7 @@ This project is built with modern web technologies:
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript with strict configuration
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
 - **[Lucide React](https://lucide.dev/)** - Icon library

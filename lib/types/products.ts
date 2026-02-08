@@ -51,7 +51,7 @@ export interface PricingTier {
   id: string;
   /** Display name (e.g., "Free", "Pro", "Enterprise") */
   name: string;
-  /** Price in smallest currency unit (cents for USD/EUR) */
+  /** Price in smallest currency unit (Rappen for CHF) */
   price: number;
   /** ISO 4217 currency code */
   currency: string;

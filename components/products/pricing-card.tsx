@@ -185,7 +185,6 @@ export function PricingCard({
             : undefined,
           ...(consent && {
             consentTermsAt: consent.termsAcceptedAt,
-            consentDigitalContentAt: consent.digitalContentConsentAt,
             consentVersion: consent.consentVersion,
           }),
         }),
@@ -214,7 +213,7 @@ export function PricingCard({
 
   /**
    * Handle button click - either custom onSelect, checkout, or reactivate
-   * For paid digital products, shows pre-checkout dialog first (Terms & Policy + EU digital content consent)
+   * For paid digital products, shows pre-checkout dialog first (Terms & Privacy Policy consent)
    */
   const handleClick = () => {
     if (isPendingCancellation) {
@@ -228,7 +227,7 @@ export function PricingCard({
     if (onSelect) {
       onSelect(tier);
     } else if (hasPaidCheckout) {
-      // Show pre-checkout dialog (Terms & Policy + EU digital content consent)
+      // Show pre-checkout dialog (Terms & Privacy Policy consent)
       setShowConsentDialog(true);
     }
   };
@@ -236,7 +235,7 @@ export function PricingCard({
   /**
    * Handle pre-checkout dialog confirmation - proceed to Stripe Checkout
    * Consent metadata (timestamps, version) is forwarded to the checkout API
-   * for storage in Stripe session metadata as an EU-compliant audit trail.
+   * for storage in Stripe session metadata as a Swiss contract law audit trail.
    */
   const handleConsentConfirm = (consent: ConsentMetadata) => {
     void handleCheckout(consent);
@@ -371,7 +370,7 @@ export function PricingCard({
         </Button>
       </CardFooter>
 
-      {/* Pre-checkout consent dialog (Terms & Policy + EU digital content) */}
+      {/* Pre-checkout consent dialog (Terms & Privacy Policy) */}
       <DigitalContentConsentDialog
         open={showConsentDialog}
         onOpenChange={setShowConsentDialog}
