@@ -114,10 +114,8 @@ export function EncryptionSetup({
       const serverOptions = await generatePasskeyRegistrationOptions(origin, {
         isMobile: isMobileDevice(),
       });
-      if (!serverOptions.success || !serverOptions.data) {
-        setError(
-          serverOptions.error ?? "Failed to generate registration options"
-        );
+      if (!serverOptions.success) {
+        setError(serverOptions.error);
         resetSetup();
         return;
       }

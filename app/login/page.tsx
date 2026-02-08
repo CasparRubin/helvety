@@ -3,7 +3,7 @@
 import { startAuthentication } from "@simplewebauthn/browser";
 import { Loader2, ArrowLeft, Mail, KeyRound, CheckCircle2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense, useCallback } from "react";
+import { useEffect, useState, useRef, Suspense, useCallback } from "react";
 
 import {
   sendVerificationCode,
@@ -83,6 +83,7 @@ function LoginContent() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [skippedToPasskey, setSkippedToPasskey] = useState(false);
+  const hasAutoTriggered = useRef(false);
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
 
@@ -271,10 +272,8 @@ function LoginContent() {
         redirectUri ?? undefined,
         { isMobile: isMobileDevice() }
       );
-      if (!optionsResult.success || !optionsResult.data) {
-        setError(
-          optionsResult.error ?? "Failed to start passkey authentication"
-        );
+      if (!optionsResult.success) {
+        setError(optionsResult.error);
         setIsLoading(false);
         return;
       }
@@ -306,8 +305,8 @@ function LoginContent() {
         authResponse,
         origin
       );
-      if (!verifyResult.success || !verifyResult.data) {
-        setError(verifyResult.error ?? "Authentication verification failed");
+      if (!verifyResult.success) {
+        setError(verifyResult.error);
         setIsLoading(false);
         return;
       }
@@ -338,8 +337,10 @@ function LoginContent() {
       step === "passkey-signin" &&
       skippedToPasskey &&
       passkeySupported &&
-      !isLoading
+      !isLoading &&
+      !hasAutoTriggered.current
     ) {
+      hasAutoTriggered.current = true;
       // Small delay to allow UI to render first
       const timer = setTimeout(() => {
         void handlePasskeySignIn();
@@ -361,6 +362,7 @@ function LoginContent() {
     setError("");
     setIsLoading(false);
     setSkippedToPasskey(false);
+    hasAutoTriggered.current = false;
     setOtpCode("");
     setResendCooldown(0);
   };

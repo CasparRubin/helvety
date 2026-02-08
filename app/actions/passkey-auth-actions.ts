@@ -16,7 +16,7 @@ import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-import type { UserAuthCredential } from "@/lib/types";
+import type { ActionResponse, UserAuthCredential } from "@/lib/types";
 import type {
   GenerateRegistrationOptionsOpts,
   GenerateAuthenticationOptionsOpts,
@@ -35,13 +35,6 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 // =============================================================================
 // TYPES
 // =============================================================================
-
-/** Response type for passkey-related server actions */
-export type PasskeyActionResponse<T = void> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
 
 /** Challenge data stored in cookie for WebAuthn ceremony verification */
 type StoredChallenge = {
@@ -102,7 +95,7 @@ async function getClientIP(): Promise<string> {
  */
 export async function sendVerificationCode(
   email: string
-): Promise<PasskeyActionResponse<{ codeSent: boolean; hasPasskey: boolean }>> {
+): Promise<ActionResponse<{ codeSent: boolean; hasPasskey: boolean }>> {
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
 
@@ -263,7 +256,7 @@ export async function verifyEmailCode(
   email: string,
   code: string
 ): Promise<
-  PasskeyActionResponse<{
+  ActionResponse<{
     nextStep: "encryption-setup" | "passkey-signin";
     userId: string;
     isNewUser: boolean;
@@ -381,7 +374,7 @@ export async function verifyEmailCode(
  */
 export async function checkUserPasskeyStatus(
   userId: string
-): Promise<PasskeyActionResponse<{ hasPasskey: boolean; count: number }>> {
+): Promise<ActionResponse<{ hasPasskey: boolean; count: number }>> {
   try {
     const adminClient = createAdminClient();
 
@@ -536,9 +529,7 @@ export async function generatePasskeyRegistrationOptions(
   origin: string,
   options?: { isMobile?: boolean }
 ): Promise<
-  PasskeyActionResponse<
-    PublicKeyCredentialCreationOptionsJSON & { prfSalt: string }
-  >
+  ActionResponse<PublicKeyCredentialCreationOptionsJSON & { prfSalt: string }>
 > {
   const isMobile = options?.isMobile === true;
 
@@ -648,7 +639,7 @@ export async function verifyPasskeyRegistration(
   response: RegistrationResponseJSON,
   origin: string,
   prfEnabled: boolean = false
-): Promise<PasskeyActionResponse<{ credentialId: string; prfSalt?: string }>> {
+): Promise<ActionResponse<{ credentialId: string; prfSalt?: string }>> {
   try {
     const supabase = await createClient();
 
@@ -785,7 +776,7 @@ export async function generatePasskeyAuthOptions(
   origin: string,
   redirectUri?: string,
   authOptions?: { isMobile?: boolean }
-): Promise<PasskeyActionResponse<PublicKeyCredentialRequestOptionsJSON>> {
+): Promise<ActionResponse<PublicKeyCredentialRequestOptionsJSON>> {
   const isMobile = authOptions?.isMobile === true;
   const clientIP = await getClientIP();
 
@@ -873,7 +864,7 @@ export async function verifyPasskeyAuthentication(
   response: AuthenticationResponseJSON,
   origin: string
 ): Promise<
-  PasskeyActionResponse<{
+  ActionResponse<{
     redirectUrl: string;
     userId: string;
   }>
@@ -1059,7 +1050,7 @@ export async function verifyPasskeyAuthentication(
  * Requires authentication
  */
 export async function getUserCredentials(): Promise<
-  PasskeyActionResponse<UserAuthCredential[]>
+  ActionResponse<UserAuthCredential[]>
 > {
   try {
     const supabase = await createClient();
@@ -1100,7 +1091,7 @@ export async function getUserCredentials(): Promise<
  */
 export async function deleteCredential(
   credentialId: string
-): Promise<PasskeyActionResponse> {
+): Promise<ActionResponse> {
   try {
     const supabase = await createClient();
 
@@ -1148,9 +1139,7 @@ export interface UserPasskeyParams {
 /**
  * Check if user has encryption (PRF params) set up
  */
-export async function hasEncryptionSetup(): Promise<
-  PasskeyActionResponse<boolean>
-> {
+export async function hasEncryptionSetup(): Promise<ActionResponse<boolean>> {
   try {
     const supabase = await createClient();
 
@@ -1188,7 +1177,7 @@ export async function hasEncryptionSetup(): Promise<
  * Get user's PRF params for encryption
  */
 export async function getPasskeyParams(): Promise<
-  PasskeyActionResponse<UserPasskeyParams | null>
+  ActionResponse<UserPasskeyParams | null>
 > {
   try {
     const supabase = await createClient();
@@ -1239,7 +1228,7 @@ export async function savePasskeyParams(params: {
   prf_salt: string;
   credential_id: string;
   version: number;
-}): Promise<PasskeyActionResponse> {
+}): Promise<ActionResponse> {
   try {
     const supabase = await createClient();
 
