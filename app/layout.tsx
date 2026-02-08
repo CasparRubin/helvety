@@ -5,8 +5,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 import { Footer } from "@/components/footer";
+import { GeoRestrictionDialog } from "@/components/geo-restriction-dialog";
 import { Navbar } from "@/components/navbar";
-import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     description: "Helvety. Swiss Engineering.",
     images: [
       {
-        url: "/Identifier_whiteBg.png",
+        url: "/helvety_Identifier_whiteBg.svg",
         width: 500,
         height: 500,
         alt: "Helvety",
@@ -77,16 +77,13 @@ export const metadata: Metadata = {
     description: "Helvety. Swiss Engineering.",
     images: [
       {
-        url: "/Identifier_whiteBg.png",
+        url: "/helvety_Identifier_whiteBg.svg",
       },
     ],
   },
   icons: {
-    icon: [
-      { url: "/Identifier_whiteBg.png", type: "image/png" },
-      { url: "/Identifier_whiteBg.svg", type: "image/svg+xml" },
-    ],
-    apple: "/Identifier_whiteBg.png",
+    icon: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
   },
   robots: {
     index: true,
@@ -121,8 +118,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider>
-            <Providers>
+          <GeoRestrictionDialog>
+            <TooltipProvider>
               <div className="flex min-h-screen flex-col">
                 <header className="shrink-0">
                   <Navbar />
@@ -134,8 +131,8 @@ export default function RootLayout({
                 </div>
                 <Footer />
               </div>
-            </Providers>
-          </TooltipProvider>
+            </TooltipProvider>
+          </GeoRestrictionDialog>
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

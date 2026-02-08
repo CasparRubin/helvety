@@ -28,6 +28,9 @@ export default function ImpressumPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Impressum</h1>
             <p className="text-muted-foreground text-sm">
+              Last updated: February 8, 2026
+            </p>
+            <p className="text-muted-foreground mt-1 text-sm">
               Impressum gemäss Art. 3 UWG / Legal Notice pursuant to Swiss
               Unfair Competition Act
             </p>
@@ -36,7 +39,7 @@ export default function ImpressumPage() {
           {/* Company Information */}
           <section>
             <h2 className="mb-4 text-xl font-semibold">Company Information</h2>
-            <div className="border-border bg-card space-y-4 border p-6">
+            <div className="border-border bg-card space-y-4 border p-6 text-sm">
               <div>
                 <p className="text-foreground font-medium">Helvety by Rubin</p>
                 <p className="text-muted-foreground">
@@ -72,7 +75,7 @@ export default function ImpressumPage() {
                   Email:{" "}
                   <a
                     href="mailto:contact@helvety.com"
-                    className="hover:text-foreground transition-colors"
+                    className="hover:text-foreground underline transition-colors"
                   >
                     contact@helvety.com
                   </a>
@@ -81,7 +84,7 @@ export default function ImpressumPage() {
                   Phone:{" "}
                   <a
                     href="tel:+41798700208"
-                    className="hover:text-foreground transition-colors"
+                    className="hover:text-foreground underline transition-colors"
                   >
                     +41 79 870 02 08
                   </a>
@@ -133,10 +136,8 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Data Protection</h2>
             <p className="text-muted-foreground text-sm">
-              For data protection inquiries, to exercise your rights under the
-              Swiss Federal Act on Data Protection (nDSG), the EU General Data
-              Protection Regulation (GDPR), or other applicable data protection
-              laws, please contact us at{" "}
+              For data protection inquiries or to exercise your rights under the
+              Swiss Federal Act on Data Protection (nDSG), please contact us at{" "}
               <a
                 href="mailto:contact@helvety.com"
                 className="hover:text-foreground transition-colors"
@@ -158,94 +159,58 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Disclaimer</h2>
 
-            <div className="space-y-6">
-              <div>
-                <h3 className="mb-2 text-lg font-medium">
-                  Liability for Content
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  The content of this website has been created with the greatest
-                  possible care. However, we cannot guarantee the accuracy,
-                  completeness, or timeliness of the content. As a service
-                  provider, we are responsible for our own content on these
-                  pages in accordance with general laws. However, we are not
-                  obligated to monitor transmitted or stored third-party
-                  information or to investigate circumstances that indicate
-                  illegal activity.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="mb-2 text-lg font-medium">
-                  Liability for Links
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Our website may contain links to external third-party websites
-                  over whose content we have no influence. Therefore, we cannot
-                  accept any liability for this third-party content. The
-                  respective provider or operator of the linked pages is always
-                  responsible for the content of the linked pages. The linked
-                  pages were checked for possible legal violations at the time
-                  of linking. Illegal content was not recognizable at the time
-                  of linking. Permanent monitoring of the content of the linked
-                  pages is not reasonable without concrete evidence of a legal
-                  violation. Upon notification of violations, we will remove
-                  such links immediately.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="mb-2 text-lg font-medium">
-                  Liability for Software and SaaS
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Our software and SaaS products are provided without guarantee
-                  of uninterrupted or error-free operation and without
-                  obligation to provide updates. Detailed disclaimers and
-                  limitations are set out in our{" "}
-                  <Link
-                    href="/terms"
-                    className="hover:text-foreground underline transition-colors"
-                  >
-                    Terms of Service
-                  </Link>
-                  .
-                </p>
-              </div>
-
-              <div>
-                <h3 className="mb-2 text-lg font-medium">Copyright</h3>
-                <p className="text-muted-foreground text-sm">
-                  The content and works created by the site operators on these
-                  pages are subject to Swiss copyright law. Reproduction,
-                  editing, distribution, and any kind of use outside the limits
-                  of copyright law require the written consent of the respective
-                  author or creator. Downloads and copies of this site are only
-                  permitted for private, non-commercial use.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Dispute Resolution */}
-          <section>
-            <h2 className="mb-4 text-xl font-semibold">Dispute Resolution</h2>
+            <h3 className="mb-3 text-lg font-medium">Liability for Content</h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              The European Commission provides a platform for online dispute
-              resolution (ODR):{" "}
-              <a
-                href="https://ec.europa.eu/consumers/odr"
-                target="_blank"
-                rel="noopener noreferrer"
+              The content of this website has been created with the greatest
+              possible care. However, we cannot guarantee the accuracy,
+              completeness, or timeliness of the content. As a service provider,
+              we are responsible for our own content on these pages in
+              accordance with general laws. However, we are not obligated to
+              monitor transmitted or stored third-party information or to
+              investigate circumstances that indicate illegal activity.
+            </p>
+
+            <h3 className="mt-6 mb-3 text-lg font-medium">
+              Liability for Links
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Our website may contain links to external third-party websites
+              over whose content we have no influence. Therefore, we cannot
+              accept any liability for this third-party content. The respective
+              provider or operator of the linked pages is always responsible for
+              the content of the linked pages. The linked pages were checked for
+              possible legal violations at the time of linking. Illegal content
+              was not recognizable at the time of linking. Permanent monitoring
+              of the content of the linked pages is not reasonable without
+              concrete evidence of a legal violation. Upon notification of
+              violations, we will remove such links immediately.
+            </p>
+
+            <h3 className="mt-6 mb-3 text-lg font-medium">
+              Liability for Software and SaaS
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Our software and SaaS products are provided without guarantee of
+              uninterrupted or error-free operation and without obligation to
+              provide updates. Detailed disclaimers and limitations are set out
+              in our{" "}
+              <Link
+                href="/terms"
                 className="hover:text-foreground underline transition-colors"
               >
-                https://ec.europa.eu/consumers/odr
-              </a>
+                Terms of Service
+              </Link>
+              .
             </p>
+
+            <h3 className="mt-6 mb-3 text-lg font-medium">Copyright</h3>
             <p className="text-muted-foreground text-sm">
-              We are not obligated and generally not willing to participate in
-              dispute resolution proceedings before a consumer arbitration
-              board.
+              The content and works created by the site operators on these pages
+              are subject to Swiss copyright law. Reproduction, editing,
+              distribution, and any kind of use outside the limits of copyright
+              law require the written consent of the respective author or
+              creator. Downloads and copies of this site are only permitted for
+              private, non-commercial use.
             </p>
           </section>
 
@@ -254,10 +219,15 @@ export default function ImpressumPage() {
             <h2 className="mb-4 text-xl font-semibold">
               Applicable Law and Jurisdiction
             </h2>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               This Impressum and any disputes arising from or in connection with
               this website are governed by Swiss law. The exclusive place of
               jurisdiction is Basel-Stadt, Switzerland.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Our services are offered exclusively to customers in Switzerland.
+              We do not target or offer services to individuals in the European
+              Union (EU) or European Economic Area (EEA).
             </p>
           </section>
 
@@ -286,10 +256,11 @@ export default function ImpressumPage() {
             </ul>
           </section>
 
-          {/* Last Updated */}
+          {/* Final Notice */}
           <footer className="border-border border-t pt-8">
             <p className="text-muted-foreground text-center text-xs">
-              Last updated: February 7, 2026
+              By using Helvety services, you acknowledge that you have read and
+              understood this Impressum.
             </p>
           </footer>
         </article>

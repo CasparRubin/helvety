@@ -13,10 +13,10 @@ The main Helvety website. Swiss Engineering.
 
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks)
 - **Sign in** - Sign in when not authenticated (centralized auth)
-- **Profile menu** - When signed in: user email, links to Store (Products, Account, Subscriptions, Tenants), Sign out
+- **Profile menu** - When signed in: user email, links to Store (Account, Subscriptions), Sign out
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
-- **Legal pages** - Impressum, Privacy Policy, and Terms of Service (in the site footer)
-- **Cookie notice** - Informational banner about essential cookies only (Swiss nDSG / EU ePrivacy compliant); no consent collected
+- **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; a geo-restriction confirmation dialog is displayed once per browser session (cached in sessionStorage; cleared when the tab or browser is closed). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply.
+- **Cookie notice** - Informational banner about essential cookies only (Swiss nDSG / FMG compliant); no consent collected
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
 - **Animated logo** - Subtle glow effect on the main logo
 
@@ -28,7 +28,6 @@ This application implements comprehensive security hardening:
 - **Server Layout Guards** - Authentication checks in Server Components via `lib/auth-guard.ts` (CVE-2025-29927 compliant)
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `lib/redirect-validation.ts` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection with timing-safe comparison for state-changing operations
-- **Rate Limiting** - In-memory rate limiting to prevent brute force attacks
 - **Idle Timeout** - Automatic session expiration after 30 minutes of inactivity
 - **Security Headers** - Comprehensive CSP, HSTS, and other security headers
 - **Audit Logging** - Structured logging for authentication events
@@ -44,7 +43,7 @@ This project is built with modern web technologies:
 - **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
 - **[Lucide React](https://lucide.dev/)** - Icon library

@@ -55,7 +55,7 @@ export default function Home() {
             className="logo-glow-wrapper flex justify-center"
           >
             <Image
-              src="/logo_whiteBg.svg"
+              src="/helvety_logo_white.svg"
               alt="Helvety logo"
               width={1200}
               height={300}

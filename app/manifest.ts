@@ -15,13 +15,7 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait-primary",
     icons: [
       {
-        src: "/Identifier_whiteBg.png",
-        sizes: "any",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        src: "/Identifier_whiteBg.svg",
+        src: "/helvety_Identifier_whiteBg.svg",
         sizes: "any",
         type: "image/svg+xml",
         purpose: "any",

@@ -28,7 +28,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 7, 2026
+              Last updated: February 8, 2026
             </p>
           </header>
 
@@ -207,6 +207,13 @@ export default function TermsPage() {
               you must not access or use the Services.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
+              The Services are offered exclusively to customers located in
+              Switzerland. By accessing or using the Services, you confirm that
+              you are located in Switzerland and are not a resident of the
+              European Union (EU) or European Economic Area (EEA). We do not
+              target or offer services to individuals outside Switzerland.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
               These Terms constitute a legally binding agreement between you and
               Helvety by Rubin, a sole proprietorship (Einzelfirma) registered
               in Switzerland.
@@ -366,40 +373,6 @@ export default function TermsPage() {
               or non-payment.
             </p>
 
-            <h3
-              id="software-saas-no-warranties"
-              className="mb-3 text-lg font-medium"
-            >
-              4.4 Software, Digital Products and SaaS – No Warranties and No
-              Guarantees
-            </h3>
-            <p className="text-muted-foreground mb-4 text-sm">
-              Digital Products and SaaS are provided &quot;as is&quot; and
-              &quot;as available&quot;. They may contain defects, errors, bugs,
-              or may not operate as intended. We do not guarantee uninterrupted
-              or error-free access, any particular uptime, or continuous
-              availability. Services may be temporarily unavailable due to
-              maintenance, third-party failures, or other reasons.
-            </p>
-            <p className="text-muted-foreground mb-4 text-sm">
-              We are not obligated to provide updates, upgrades, patches, new
-              versions, or new features. Any updates or improvements are at our
-              sole discretion. We do not guarantee compatibility with future
-              operating systems, browsers, or third-party products or services.
-            </p>
-            <p className="text-muted-foreground mb-4 text-sm">
-              You use our software and SaaS at your own risk. For important
-              data, you are responsible for keeping backups; we are not liable
-              for loss of data arising from use of our software or services.
-            </p>
-            <p className="text-muted-foreground text-sm">
-              Where applicable law (including Swiss and EU consumer law) grants
-              you mandatory rights (e.g. conformity with the contract, statutory
-              remedies), nothing in these Terms is intended to exclude or limit
-              those rights. The above disclaimers apply to the fullest extent
-              permitted by such law.
-            </p>
-
             <h3 className="mb-3 text-lg font-medium">
               4.3 Apparel and Physical Products
             </h3>
@@ -445,22 +418,54 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Warranty:</strong> Physical
               products are covered by the statutory warranty provisions under
-              applicable law. In Switzerland, the warranty period is 2 years
-              from delivery (Art. 210 Swiss Code of Obligations). For EU
-              consumers, the legal guarantee period is 2 years from delivery.
-              Defects that appear within 6 months of delivery are presumed to
-              have existed at the time of delivery (burden of proof reversal).
-              This does not limit any other rights you may have under applicable
+              applicable Swiss law. In Switzerland, the warranty period is 2
+              years from delivery (Art. 210 Swiss Code of Obligations). Defects
+              that appear within 6 months of delivery are presumed to have
+              existed at the time of delivery (burden of proof reversal). This
+              does not limit any other rights you may have under applicable
               consumer protection laws.
             </p>
             <p className="text-muted-foreground text-sm">
               <strong className="text-foreground">Delivery:</strong> Delivery
-              times vary by destination and are estimated at checkout. We
-              currently ship to Switzerland and select EU countries. Shipping
-              costs are calculated at checkout based on destination and order
-              weight. For Swiss deliveries, typical delivery time is 2-5
-              business days. Risk of loss passes to you upon delivery to the
-              carrier.
+              times vary and are estimated at checkout. We currently ship to
+              Switzerland only. Shipping costs are calculated at checkout based
+              on destination and order weight. For Swiss deliveries, typical
+              delivery time is 2-5 business days. Risk of loss passes to you
+              upon delivery to the carrier.
+            </p>
+
+            <h3
+              id="software-saas-no-warranties"
+              className="mb-3 text-lg font-medium"
+            >
+              4.4 Software, Digital Products and SaaS – No Warranties and No
+              Guarantees
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Digital Products and SaaS are provided &quot;as is&quot; and
+              &quot;as available&quot;. They may contain defects, errors, bugs,
+              or may not operate as intended. We do not guarantee uninterrupted
+              or error-free access, any particular uptime, or continuous
+              availability. Services may be temporarily unavailable due to
+              maintenance, third-party failures, or other reasons.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              We are not obligated to provide updates, upgrades, patches, new
+              versions, or new features. Any updates or improvements are at our
+              sole discretion. We do not guarantee compatibility with future
+              operating systems, browsers, or third-party products or services.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              You use our software and SaaS at your own risk. For important
+              data, you are responsible for keeping backups; we are not liable
+              for loss of data arising from use of our software or services.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Where applicable Swiss law grants you mandatory rights (e.g.
+              conformity with the contract, statutory remedies), nothing in
+              these Terms is intended to exclude or limit those rights. The
+              above disclaimers apply to the fullest extent permitted by such
+              law.
             </p>
           </section>
 
@@ -606,11 +611,16 @@ export default function TermsPage() {
             <h3 className="mb-3 text-lg font-medium">7.2 License to Us</h3>
             <p className="text-muted-foreground mb-4 text-sm">
               By uploading or submitting User Content to the Services, you grant
-              us a worldwide, non-exclusive, royalty-free, sublicensable, and
-              transferable license to use, reproduce, distribute, prepare
-              derivative works of, display, and perform your User Content solely
-              for the purpose of operating, providing, and improving the
-              Services.
+              us a worldwide, non-exclusive, royalty-free license to use,
+              reproduce, and display your User Content solely for the technical
+              purpose of operating, hosting, and providing the Services (such as
+              storage, backup, and content delivery).
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              For end-to-end encrypted content in Helvety Tasks, we have no
+              technical ability to access or use your content. This license
+              applies only to encrypted data as stored on our infrastructure; we
+              cannot and do not access plaintext content.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -799,10 +809,10 @@ export default function TermsPage() {
               9. Pricing and Payment
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
-              All prices are displayed in Swiss Francs (CHF) or Euros (EUR) as
-              indicated. Prices are subject to change without notice. All
-              applicable taxes (including Swiss VAT where applicable) will be
-              calculated and displayed at checkout.
+              All prices are displayed in Swiss Francs (CHF). Prices are subject
+              to change without notice. All applicable taxes (including Swiss
+              VAT where applicable) will be calculated and displayed at
+              checkout.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Payment processing is handled by Stripe, Inc. By making a
@@ -882,60 +892,17 @@ export default function TermsPage() {
               11.3 Physical Products (Apparel)
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              <strong className="text-foreground">EU Customers:</strong> Under
-              EU consumer protection law (Consumer Rights Directive 2011/83/EU),
-              you have a statutory right to withdraw from the purchase of
-              Physical Products within 14 days of receiving the goods without
-              giving any reason.
-            </p>
-            <p className="text-muted-foreground mb-4 text-sm">
-              <strong className="text-foreground">Swiss Customers:</strong>{" "}
               While Swiss law does not provide a statutory withdrawal right for
-              online purchases, we voluntarily extend the same 14-day withdrawal
-              policy to our Swiss customers as a gesture of goodwill.
+              online purchases, we voluntarily offer a 14-day return policy for
+              physical products as a gesture of goodwill.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               To exercise this right, you must inform us of your decision to
-              withdraw by a clear statement (e.g., email to
+              return the goods by a clear statement (e.g., email to
               contact@helvety.com). Products must be returned in their original
               condition, unworn and with all tags attached. You bear the cost of
               returning the goods.
             </p>
-            <p className="text-muted-foreground mb-4 text-sm">
-              <strong className="text-foreground">
-                Model Withdrawal Form:
-              </strong>{" "}
-              You may use the following form to exercise your right of
-              withdrawal (not mandatory):
-            </p>
-            <div className="bg-muted/50 mb-4 rounded-lg p-4 text-sm">
-              <p className="text-muted-foreground mb-2">
-                To: Helvety by Rubin, Holeestrasse 116, 4054 Basel, Switzerland
-              </p>
-              <p className="text-muted-foreground mb-2">
-                Email:{" "}
-                <a
-                  href="mailto:contact@helvety.com"
-                  className="hover:text-foreground underline transition-colors"
-                >
-                  contact@helvety.com
-                </a>
-              </p>
-              <p className="text-muted-foreground mb-2">
-                I hereby give notice that I withdraw from my contract of sale of
-                the following goods:
-              </p>
-              <ul className="text-muted-foreground mb-2 list-inside list-disc space-y-1">
-                <li>Order number: _______________</li>
-                <li>Ordered on / Received on: _______________</li>
-                <li>Name of consumer: _______________</li>
-                <li>Address of consumer: _______________</li>
-                <li>Date: _______________</li>
-              </ul>
-              <p className="text-muted-foreground text-xs italic">
-                Signature (only required if sent by post)
-              </p>
-            </div>
             <p className="text-muted-foreground text-sm">
               Refunds will be processed within 14 days of receiving the returned
               items using the same payment method used for the original
@@ -1094,9 +1061,10 @@ export default function TermsPage() {
             <h2 className="mb-4 text-xl font-semibold">15. Termination</h2>
             <p className="text-muted-foreground mb-4 text-sm">
               We may terminate or suspend your account and access to the
-              Services immediately, without prior notice or liability, for any
-              reason whatsoever, including without limitation if you breach
-              these Terms.
+              Services for cause, including but not limited to: breach of these
+              Terms, fraudulent activity, non-payment, illegal use, or prolonged
+              inactivity. We will provide reasonable notice (minimum 30 days)
+              except in cases of serious breach requiring immediate action.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Upon termination, your right to use the Services will immediately
@@ -1128,38 +1096,10 @@ export default function TermsPage() {
               courts of Basel-Stadt, Switzerland.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              <strong className="text-foreground">
-                EU/EEA Consumer Protection:
-              </strong>{" "}
-              If you are a consumer habitually resident in the EU or EEA,
-              nothing in these Terms shall deprive you of the protection
-              afforded by provisions that cannot be derogated from by agreement
-              by virtue of the law of your country of habitual residence,
-              pursuant to Regulation (EC) No 593/2008 (Rome I), Article 6.
-            </p>
-            <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Language:</strong> These Terms
               are drafted in English. In the event of any discrepancy between
               this English version and any translation, the English version
               shall prevail.
-            </p>
-            <p className="text-muted-foreground mb-4 text-sm">
-              <strong className="text-foreground">
-                EU Consumer Dispute Resolution:
-              </strong>{" "}
-              The European Commission provides an online dispute resolution
-              platform at{" "}
-              <a
-                href="https://ec.europa.eu/consumers/odr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground underline transition-colors"
-              >
-                https://ec.europa.eu/consumers/odr
-              </a>
-              . We are not obligated and generally not willing to participate in
-              dispute resolution proceedings before a consumer arbitration
-              board.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Severability:</strong> If any
@@ -1231,11 +1171,15 @@ export default function TermsPage() {
               effect. What constitutes a material change will be determined at
               our sole discretion.
             </p>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               By continuing to access or use the Services after any revisions
-              become effective, you agree to be bound by the revised Terms. If
-              you do not agree to the new Terms, you must stop using the
-              Services.
+              become effective, you agree to be bound by the revised Terms.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              If you do not agree to the revised Terms, you may terminate your
+              account and stop using the Services. We will not retroactively
+              apply material changes to purchases or subscriptions made before
+              the changes took effect.
             </p>
           </section>
 

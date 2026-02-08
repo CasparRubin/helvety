@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 7, 2026
+              Last updated: February 8, 2026
             </p>
           </header>
 
@@ -39,9 +39,16 @@ export default function PrivacyPage() {
             your personal data. This Privacy Policy explains how we collect,
             use, disclose, and safeguard your information when you use Helvety
             services (&quot;the Services&quot;). This policy complies with the
-            Swiss Federal Act on Data Protection (DSG/nDSG), the EU General Data
-            Protection Regulation (GDPR), and other applicable data protection
-            laws.
+            Swiss Federal Act on Data Protection (nDSG) and other applicable
+            data protection laws.
+          </p>
+          <p className="text-muted-foreground text-sm">
+            Our services are intended exclusively for customers located in
+            Switzerland. We do not offer services to individuals located in the
+            European Union (EU) or European Economic Area (EEA). This Privacy
+            Policy is governed exclusively by the Swiss Federal Act on Data
+            Protection (nDSG); the EU General Data Protection Regulation (GDPR)
+            does not apply.
           </p>
 
           {/* Table of Contents */}
@@ -110,14 +117,6 @@ export default function PrivacyPage() {
                   className="hover:text-foreground transition-colors"
                 >
                   Your Rights
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#california"
-                  className="hover:text-foreground transition-colors"
-                >
-                  California Privacy Rights
                 </a>
               </li>
               <li>
@@ -306,11 +305,10 @@ export default function PrivacyPage() {
               2.6 Data Provision Requirements
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              In accordance with GDPR Article 13(2)(e), we inform you about
-              whether providing personal data is a statutory or contractual
-              requirement:
+              We inform you about whether providing personal data is a statutory
+              or contractual requirement:
             </p>
-            <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">Account Creation:</strong>{" "}
                 Creating an account requires your email address (for
@@ -375,38 +373,37 @@ export default function PrivacyPage() {
               3. Legal Basis for Processing
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
-              We process your personal data based on the following legal grounds
-              (as required by GDPR and Swiss DSG):
+              We process your personal data in accordance with the principles
+              set out in Art. 6 nDSG: lawfulness, proportionality, purpose
+              limitation, transparency, accuracy, and data security. Our
+              processing is based on the following grounds:
             </p>
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">
-                  Contract Performance (Art. 6(1)(b) GDPR):
+                  Contract performance:
                 </strong>{" "}
                 Processing necessary to fulfill our contractual obligations to
                 you, including processing orders, managing subscriptions, and
                 providing the Services.
               </li>
               <li>
-                <strong className="text-foreground">
-                  Legal Obligations (Art. 6(1)(c) GDPR):
-                </strong>{" "}
-                Processing required to comply with applicable laws, such as tax
-                and accounting requirements.
+                <strong className="text-foreground">Legal obligations:</strong>{" "}
+                Processing required to comply with applicable Swiss law, such as
+                tax and accounting requirements (e.g., Art. 958f Swiss Code of
+                Obligations).
               </li>
               <li>
                 <strong className="text-foreground">
-                  Legitimate Interests (Art. 6(1)(f) GDPR):
+                  Legitimate interests:
                 </strong>{" "}
                 Processing for our legitimate business interests, such as fraud
                 prevention, security, and improving our Services, where such
                 interests are not overridden by your rights.
               </li>
               <li>
-                <strong className="text-foreground">
-                  Consent (Art. 6(1)(a) GDPR):
-                </strong>{" "}
-                Where you have given explicit consent, such as for marketing
+                <strong className="text-foreground">Consent:</strong> Where you
+                have given explicit consent, such as for marketing
                 communications. You may withdraw consent at any time.
               </li>
             </ul>
@@ -536,10 +533,10 @@ export default function PrivacyPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               All service providers are contractually obligated to protect your
               data and process it only according to our instructions. We have
-              entered into Data Processing Agreements (DPAs) with these
-              providers. We maintain a record of processing activities
-              (Verzeichnis der Bearbeitungst&auml;tigkeiten) as required by Art.
-              12 nDSG and Art. 30 GDPR.
+              entered into Data Processing Agreements with these providers in
+              accordance with nDSG Art. 9. We maintain a record of processing
+              activities (Verzeichnis der Bearbeitungst&auml;tigkeiten) as
+              required by Art. 12 nDSG.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Stripe:</strong> As a PCI DSS
@@ -572,23 +569,14 @@ export default function PrivacyPage() {
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               Your personal data may be transferred to and processed in
-              countries outside Switzerland and the European Economic Area
-              (EEA), particularly the United States, where our service providers
-              are located.
+              countries outside Switzerland, particularly the United States,
+              where our service providers are located.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              For transfers to the USA, we rely on the following safeguards to
-              ensure adequate protection of your data:
+              For transfers to the USA, we ensure adequate protection in
+              accordance with nDSG Art. 16 and Art. 17:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
-              <li>
-                <strong className="text-foreground">
-                  EU-US Data Privacy Framework (DPF):
-                </strong>{" "}
-                Where applicable, our US-based providers are certified under the
-                EU-US Data Privacy Framework. Key providers such as Vercel,
-                Stripe, and Supabase participate in the DPF.
-              </li>
               <li>
                 <strong className="text-foreground">
                   Swiss-US Data Privacy Framework:
@@ -596,15 +584,17 @@ export default function PrivacyPage() {
                 The Swiss Federal Data Protection and Information Commissioner
                 (FDPIC) has recognized the Swiss-US Data Privacy Framework
                 (effective September 15, 2024) as providing adequate protection
-                for data transfers to certified US organizations.
+                for data transfers to certified US organizations. Where
+                applicable, our US-based providers are certified under the
+                Swiss-US Data Privacy Framework.
               </li>
               <li>
                 <strong className="text-foreground">
-                  Standard Contractual Clauses (SCCs):
+                  Additional safeguards:
                 </strong>{" "}
-                Where providers are not certified under the DPF, or as an
-                additional safeguard, we use EU Commission-approved Standard
-                Contractual Clauses for data transfers.
+                Where appropriate, we use contractual safeguards (such as
+                standard contractual clauses) to ensure an adequate level of
+                protection for your data.
               </li>
             </ul>
             <p className="text-muted-foreground text-sm">
@@ -641,9 +631,9 @@ export default function PrivacyPage() {
                 <strong className="text-foreground">Transaction data:</strong>{" "}
                 Subscription and purchase records (linked to your account ID and
                 Stripe customer ID) are retained for 10 years as required by
-                Swiss accounting and tax laws (Art. 958f Swiss Code of
-                Obligations). Note that your email and billing details are
-                stored by Stripe, not by Helvety.
+                Art. 958f Swiss Code of Obligations (accounting and tax
+                retention). Note that your email and billing details are stored
+                by Stripe, not by Helvety.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -658,9 +648,10 @@ export default function PrivacyPage() {
               <li>
                 <strong className="text-foreground">Subscription data:</strong>{" "}
                 Retained for the duration of your subscription plus 10 years for
-                tax and accounting compliance. Subscription history (plan
-                changes, upgrades, downgrades, cancellations) is retained as
-                part of transaction records.
+                tax and accounting compliance (Art. 958f Swiss Code of
+                Obligations). Subscription history (plan changes, upgrades,
+                downgrades, cancellations) is retained as part of transaction
+                records.
               </li>
             </ul>
           </section>
@@ -669,51 +660,42 @@ export default function PrivacyPage() {
           <section id="your-rights">
             <h2 className="mb-4 text-xl font-semibold">8. Your Rights</h2>
             <p className="text-muted-foreground mb-4 text-sm">
-              Under the GDPR, Swiss DSG, and other applicable laws, you have the
+              Under the nDSG and other applicable Swiss law, you have the
               following rights regarding your personal data:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">
-                  Right of Access (Art. 15 GDPR / Art. 25 DSG):
+                  Right of Access (Art. 25 nDSG):
                 </strong>{" "}
                 You have the right to request a copy of the personal data we
                 hold about you.
               </li>
               <li>
                 <strong className="text-foreground">
-                  Right to Rectification (Art. 16 GDPR / Art. 32 DSG):
+                  Right to Rectification (Art. 32(1) nDSG and Art. 6(5) nDSG):
                 </strong>{" "}
                 You have the right to request correction of inaccurate or
                 incomplete data.
               </li>
               <li>
-                <strong className="text-foreground">
-                  Right to Erasure (Art. 17 GDPR):
-                </strong>{" "}
+                <strong className="text-foreground">Right to Erasure:</strong>{" "}
                 You have the right to request deletion of your personal data,
                 subject to legal retention requirements.
               </li>
               <li>
                 <strong className="text-foreground">
-                  Right to Restrict Processing (Art. 18 GDPR):
-                </strong>{" "}
-                You have the right to request limitation of processing in
-                certain circumstances.
-              </li>
-              <li>
-                <strong className="text-foreground">
-                  Right to Data Portability (Art. 20 GDPR / Art. 28 DSG):
+                  Right to Data Portability (Art. 28 nDSG):
                 </strong>{" "}
                 You have the right to receive your data in a structured,
                 commonly used format.
               </li>
               <li>
                 <strong className="text-foreground">
-                  Right to Object (Art. 21 GDPR / Art. 32 DSG):
+                  Right to Object (Art. 30(2)(b) nDSG):
                 </strong>{" "}
-                You have the right to object to processing based on legitimate
-                interests.
+                You have the right to object to the disclosure of your data to
+                third parties in certain circumstances.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -741,96 +723,26 @@ export default function PrivacyPage() {
                 Right to Lodge a Complaint:
               </strong>{" "}
               If you believe your data protection rights have been violated, you
-              have the right to lodge a complaint with a supervisory authority.
-              In Switzerland, this is the Federal Data Protection and
-              Information Commissioner (FDPIC). In the EU, you may contact the
-              data protection authority in your country of residence.
-            </p>
-          </section>
-
-          {/* Section 9 - California Privacy Rights */}
-          <section id="california">
-            <h2 className="mb-4 text-xl font-semibold">
-              9. California Privacy Rights (CCPA/CPRA)
-            </h2>
-            <p className="text-muted-foreground mb-4 text-sm">
-              If you are a California resident, you have additional rights under
-              the California Consumer Privacy Act (CCPA) as amended by the
-              California Privacy Rights Act (CPRA):
-            </p>
-            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
-              <li>
-                <strong className="text-foreground">Right to Know:</strong> You
-                have the right to request information about the categories and
-                specific pieces of personal information we have collected about
-                you, the sources of that information, our purposes for
-                collecting it, and the categories of third parties with whom we
-                share it.
-              </li>
-              <li>
-                <strong className="text-foreground">Right to Delete:</strong>{" "}
-                You have the right to request that we delete the personal
-                information we have collected from you, subject to certain
-                exceptions.
-              </li>
-              <li>
-                <strong className="text-foreground">Right to Correct:</strong>{" "}
-                You have the right to request that we correct inaccurate
-                personal information we maintain about you.
-              </li>
-              <li>
-                <strong className="text-foreground">
-                  Right to Opt-Out of Sale/Sharing:
-                </strong>{" "}
-                You have the right to opt-out of the &quot;sale&quot; or
-                &quot;sharing&quot; of your personal information.{" "}
-                <strong>
-                  We do not sell or share your personal information
-                </strong>{" "}
-                as defined under CCPA/CPRA.
-              </li>
-              <li>
-                <strong className="text-foreground">
-                  Right to Limit Use of Sensitive Personal Information:
-                </strong>{" "}
-                You have the right to limit the use and disclosure of sensitive
-                personal information.
-              </li>
-              <li>
-                <strong className="text-foreground">
-                  Right to Non-Discrimination:
-                </strong>{" "}
-                You have the right not to receive discriminatory treatment for
-                exercising your privacy rights.
-              </li>
-            </ul>
-            <p className="text-muted-foreground mb-4 text-sm">
-              <strong className="text-foreground">
-                How to Exercise Your Rights:
-              </strong>{" "}
-              To exercise any of these rights, please contact us at{" "}
+              have the right to lodge a complaint with the Swiss supervisory
+              authority (Art. 19 nDSG): Eidgenössischer Datenschutz- und
+              Öffentlichkeitsbeauftragter (EDÖB), Feldeggweg 1, 3003 Bern,
+              Switzerland,{" "}
               <a
-                href="mailto:contact@helvety.com"
+                href="https://www.edoeb.admin.ch"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:text-foreground underline transition-colors"
               >
-                contact@helvety.com
+                https://www.edoeb.admin.ch
               </a>
-              . We will verify your identity before processing your request and
-              respond within 45 days (or up to 90 days in certain circumstances,
-              with notice).
-            </p>
-            <p className="text-muted-foreground text-sm">
-              <strong className="text-foreground">Authorized Agents:</strong>{" "}
-              You may designate an authorized agent to make a request on your
-              behalf. We may require proof of your authorization and
-              verification of your identity.
+              .
             </p>
           </section>
 
-          {/* Section 10 */}
+          {/* Section 9 */}
           <section id="cookies">
             <h2 className="mb-4 text-xl font-semibold">
-              10. Cookies and Tracking
+              9. Cookies and Tracking
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               We use only essential cookies that are strictly necessary for the
@@ -885,15 +797,13 @@ export default function PrivacyPage() {
               or cross-site tracking technologies.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              Essential cookies do not require consent under Swiss and EU law as
-              they are necessary for the Services to function. You can configure
-              your browser to reject cookies, but this may affect your ability
-              to use certain features.
+              Essential cookies do not require consent under Swiss law as they
+              are necessary for the Services to function. You can configure your
+              browser to reject cookies, but this may affect your ability to use
+              certain features.
             </p>
 
-            <h3 className="mb-3 text-lg font-medium">
-              10.1 Do Not Track (DNT)
-            </h3>
+            <h3 className="mb-3 text-lg font-medium">9.1 Do Not Track (DNT)</h3>
             <p className="text-muted-foreground mb-4 text-sm">
               &quot;Do Not Track&quot; (DNT) is a browser setting that requests
               websites not to track the user. We do not currently respond to DNT
@@ -904,25 +814,24 @@ export default function PrivacyPage() {
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
-              10.2 Automated Decision-Making
+              9.2 Automated Decision-Making
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
               We do not use automated decision-making processes, including
               profiling, that produce legal effects concerning you or similarly
-              significantly affect you, as described in Article 22 GDPR. While
-              we may use automated tools for fraud detection, spam filtering, or
-              service optimization, these processes do not result in decisions
-              that have legal or similarly significant effects on individuals.
-              If this changes in the future, we will update this policy and,
-              where required, provide you with notice and an opportunity to
-              object.
+              significantly affect you. While we may use automated tools for
+              fraud detection, spam filtering, or service optimization, these
+              processes do not result in decisions that have legal or similarly
+              significant effects on individuals. If this changes in the future,
+              we will update this policy and, where required, provide you with
+              notice and an opportunity to object.
             </p>
             <p className="text-muted-foreground text-sm">
               <strong className="text-foreground">Note:</strong> Our payment
               processor, Stripe, may perform automated fraud analysis on payment
               transactions as part of its processing services. Such analysis is
-              conducted by Stripe as an independent controller or joint
-              controller and is subject to{" "}
+              conducted by Stripe as an independent controller and is subject to
+              nDSG principles and{" "}
               <a
                 href="https://stripe.com/privacy"
                 target="_blank"
@@ -935,10 +844,10 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 11 */}
+          {/* Section 10 */}
           <section id="security">
             <h2 className="mb-4 text-xl font-semibold">
-              11. Security Measures
+              10. Security Measures
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               We implement appropriate technical and organizational measures to
@@ -982,7 +891,7 @@ export default function PrivacyPage() {
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
-              11.1 Data Breach Notification
+              10.1 Data Breach Notification
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
               In the event of a personal data breach that is likely to result in
@@ -990,17 +899,9 @@ export default function PrivacyPage() {
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
-                <strong className="text-foreground">For EU residents:</strong>{" "}
-                Notify the applicable EU data protection authority within 72
-                hours of becoming aware of the breach, as required by Article 33
-                GDPR
-              </li>
-              <li>
-                <strong className="text-foreground">
-                  For Swiss residents:
-                </strong>{" "}
-                Notify the Swiss FDPIC as soon as possible after becoming aware
-                of the breach, as required by Article 24 nDSG
+                Notify the Swiss FDPIC (Eidgenössischer Datenschutz- und
+                Öffentlichkeitsbeauftragter) as soon as possible after becoming
+                aware of the breach, as required by Article 24 nDSG
               </li>
               <li>
                 Notify affected individuals without undue delay if the breach is
@@ -1019,7 +920,7 @@ export default function PrivacyPage() {
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
-              11.2 End-to-End Encryption
+              10.2 End-to-End Encryption
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
               Helvety Tasks implements end-to-end encryption to protect your
@@ -1057,10 +958,10 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 12 */}
+          {/* Section 11 */}
           <section id="children">
             <h2 className="mb-4 text-xl font-semibold">
-              12. Children&apos;s Privacy
+              11. Children&apos;s Privacy
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               The Services are not intended for individuals under 18 years of
@@ -1082,10 +983,10 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 13 */}
+          {/* Section 12 */}
           <section id="changes">
             <h2 className="mb-4 text-xl font-semibold">
-              13. Changes to This Policy
+              12. Changes to This Policy
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               We may update this Privacy Policy from time to time to reflect
@@ -1094,8 +995,7 @@ export default function PrivacyPage() {
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
-                The &quot;Last updated&quot; date at the top of this page is
-                displayed automatically (no manual update needed)
+                Update the &quot;Last updated&quot; date at the top of this page
               </li>
               <li>
                 Notify you via email (if you have an account) or through a
@@ -1109,10 +1009,10 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 14 */}
+          {/* Section 13 */}
           <section id="contact">
             <h2 className="mb-4 text-xl font-semibold">
-              14. Contact Information
+              13. Contact Information
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               For any questions about this Privacy Policy or our data practices,
