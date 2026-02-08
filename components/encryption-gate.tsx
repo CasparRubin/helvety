@@ -75,9 +75,7 @@ export function EncryptionGate({
 
   // Check encryption state on mount
   useEffect(() => {
-    /**
-     *
-     */
+    /** Checks encryption state on mount (cached key and DB params). */
     async function checkState() {
       try {
         // First check if we have a cached key

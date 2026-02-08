@@ -4,9 +4,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Navigation breadcrumb container. */
 function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
@@ -18,9 +16,7 @@ function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
   );
 }
 
-/**
- *
- */
+/** Ordered list of breadcrumb items. */
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
   return (
     <ol
@@ -34,9 +30,7 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
   );
 }
 
-/**
- *
- */
+/** Single breadcrumb list item. */
 function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
   return (
     <li
@@ -47,9 +41,7 @@ function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
   );
 }
 
-/**
- *
- */
+/** Link within a breadcrumb item. */
 function BreadcrumbLink({
   asChild,
   className,
@@ -68,9 +60,7 @@ function BreadcrumbLink({
   );
 }
 
-/**
- *
- */
+/** Current page indicator in the breadcrumb (non-link). */
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -84,9 +74,7 @@ function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
-/**
- *
- */
+/** Separator between breadcrumb items (e.g. chevron). */
 function BreadcrumbSeparator({
   children,
   className,
@@ -105,9 +93,7 @@ function BreadcrumbSeparator({
   );
 }
 
-/**
- *
- */
+/** Ellipsis indicator for collapsed breadcrumb items. */
 function BreadcrumbEllipsis({
   className,
   ...props

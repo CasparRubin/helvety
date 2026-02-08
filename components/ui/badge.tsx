@@ -27,9 +27,7 @@ const badgeVariants = cva(
   }
 );
 
-/**
- *
- */
+/** Badge component with multiple style variants. */
 function Badge({
   className,
   variant = "default",

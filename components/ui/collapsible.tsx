@@ -1,6 +1,6 @@
 "use client";
 
-import { Collapsible as CollapsiblePrimitive } from "radix-ui";
+import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
 
 /** Collapsible root wrapper around Radix UI Collapsible. */
 function Collapsible({
@@ -12,24 +12,18 @@ function Collapsible({
 /** Trigger that toggles the collapsible open/closed state. */
 function CollapsibleTrigger({
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>) {
+}: React.ComponentProps<typeof CollapsiblePrimitive.Trigger>) {
   return (
-    <CollapsiblePrimitive.CollapsibleTrigger
-      data-slot="collapsible-trigger"
-      {...props}
-    />
+    <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" {...props} />
   );
 }
 
 /** Content area that shows/hides when the collapsible is toggled. */
 function CollapsibleContent({
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {
+}: React.ComponentProps<typeof CollapsiblePrimitive.Content>) {
   return (
-    <CollapsiblePrimitive.CollapsibleContent
-      data-slot="collapsible-content"
-      {...props}
-    />
+    <CollapsiblePrimitive.Content data-slot="collapsible-content" {...props} />
   );
 }
 

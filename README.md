@@ -148,4 +148,6 @@ You may NOT:
 - Use this code in your own projects
 - Run this code locally or on your own servers
 
+**This is a free task management application accessible at [tasks.helvety.com](https://tasks.helvety.com).** No subscription is required.
+
 See [LICENSE](./LICENSE) for full legal terms.

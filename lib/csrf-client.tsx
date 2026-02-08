@@ -17,18 +17,14 @@ import { fetchCSRFToken } from "@/app/actions/csrf-actions";
  * The token is fetched via a Server Action (which can set cookies).
  */
 
-/**
- *
- */
+/** CSRF token context value. */
 interface CSRFContextValue {
   token: string | null;
 }
 
 const CSRFContext = createContext<CSRFContextValue | null>(null);
 
-/**
- *
- */
+/** Props for CSRFProvider (children). */
 interface CSRFProviderProps {
   children: ReactNode;
 }

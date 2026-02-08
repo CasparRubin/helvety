@@ -21,9 +21,7 @@ import { useCSRFToken } from "@/lib/csrf-client";
 
 import type { Space, SpaceInput, ReorderUpdate } from "@/lib/types";
 
-/**
- *
- */
+/** Return type of useSpaces hook (spaces list, CRUD, reorder). */
 interface UseSpacesReturn {
   /** List of decrypted spaces */
   spaces: Space[];
@@ -248,9 +246,7 @@ export function useSpaces(unitId: string): UseSpacesReturn {
   };
 }
 
-/**
- *
- */
+/** Return type of useSpace hook for a single space. */
 interface UseSpaceReturn {
   /** The decrypted space */
   space: Space | null;

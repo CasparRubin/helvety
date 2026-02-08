@@ -7,45 +7,35 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Root container for a modal dialog. */
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>): React.JSX.Element {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
-/**
- *
- */
+/** Button or element that opens the dialog. */
 function DialogTrigger({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Trigger>): React.JSX.Element {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 }
 
-/**
- *
- */
+/** Portal that renders the dialog outside the DOM hierarchy. */
 function DialogPortal({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>): React.JSX.Element {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
-/**
- *
- */
+/** Button or element that closes the dialog. */
 function DialogClose({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Close>): React.JSX.Element {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
-/**
- *
- */
+/** Backdrop overlay behind the dialog content. */
 function DialogOverlay({
   className,
   ...props
@@ -62,9 +52,7 @@ function DialogOverlay({
   );
 }
 
-/**
- *
- */
+/** Main content container of the dialog. */
 function DialogContent({
   className,
   children,
@@ -102,9 +90,7 @@ function DialogContent({
   );
 }
 
-/**
- *
- */
+/** Header section of the dialog. */
 function DialogHeader({
   className,
   ...props
@@ -118,9 +104,7 @@ function DialogHeader({
   );
 }
 
-/**
- *
- */
+/** Footer section of the dialog. */
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -148,9 +132,7 @@ function DialogFooter({
   );
 }
 
-/**
- *
- */
+/** Title text of the dialog. */
 function DialogTitle({
   className,
   ...props
@@ -164,9 +146,7 @@ function DialogTitle({
   );
 }
 
-/**
- *
- */
+/** Description or body text of the dialog. */
 function DialogDescription({
   className,
   ...props

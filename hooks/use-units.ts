@@ -21,9 +21,7 @@ import { useCSRFToken } from "@/lib/csrf-client";
 
 import type { Unit, UnitInput, ReorderUpdate } from "@/lib/types";
 
-/**
- *
- */
+/** Return type of useUnits hook (units list, CRUD, reorder). */
 interface UseUnitsReturn {
   /** List of decrypted units */
   units: Unit[];
@@ -244,9 +242,7 @@ export function useUnits(): UseUnitsReturn {
   };
 }
 
-/**
- *
- */
+/** Return type of useUnit hook for a single unit. */
 interface UseUnitReturn {
   /** The decrypted unit */
   unit: Unit | null;

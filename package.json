@@ -1,6 +1,13 @@
 {
   "name": "helvety-tasks",
   "version": "1.2.0",
+  "description": "Private and secure task management with end-to-end encryption.",
+  "author": "Helvety by Rubin",
+  "homepage": "https://tasks.helvety.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CasparRubin/helvety-tasks.git"
+  },
   "private": true,
   "license": "UNLICENSED",
   "engines": {
@@ -23,7 +30,9 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@fontsource-variable/public-sans": "^5.2.7",
     "@radix-ui/react-alert-dialog": "^1.1.15",
+    "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-separator": "^1.1.8",
@@ -48,7 +57,6 @@
     "lucide-react": "^0.563.0",
     "next": "^16.1.6",
     "next-themes": "^0.4.6",
-    "radix-ui": "^1.4.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "server-only": "^0.0.1",

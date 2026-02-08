@@ -6,18 +6,14 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Root container for an alert dialog. */
 function AlertDialog({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Root>): React.JSX.Element {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
 }
 
-/**
- *
- */
+/** Button or element that opens the alert dialog. */
 function AlertDialogTrigger({
   ...props
 }: React.ComponentProps<
@@ -28,9 +24,7 @@ function AlertDialogTrigger({
   );
 }
 
-/**
- *
- */
+/** Portal that renders the alert dialog outside the DOM hierarchy. */
 function AlertDialogPortal({
   ...props
 }: React.ComponentProps<
@@ -41,9 +35,7 @@ function AlertDialogPortal({
   );
 }
 
-/**
- *
- */
+/** Backdrop overlay behind the alert dialog content. */
 function AlertDialogOverlay({
   className,
   ...props
@@ -62,9 +54,7 @@ function AlertDialogOverlay({
   );
 }
 
-/**
- *
- */
+/** Main content container of the alert dialog. */
 function AlertDialogContent({
   className,
   children,
@@ -89,9 +79,7 @@ function AlertDialogContent({
   );
 }
 
-/**
- *
- */
+/** Header section of the alert dialog. */
 function AlertDialogHeader({
   className,
   ...props
@@ -105,9 +93,7 @@ function AlertDialogHeader({
   );
 }
 
-/**
- *
- */
+/** Footer section containing action buttons. */
 function AlertDialogFooter({
   className,
   ...props
@@ -124,9 +110,7 @@ function AlertDialogFooter({
   );
 }
 
-/**
- *
- */
+/** Title text of the alert dialog. */
 function AlertDialogTitle({
   className,
   ...props
@@ -140,9 +124,7 @@ function AlertDialogTitle({
   );
 }
 
-/**
- *
- */
+/** Description or body text of the alert dialog. */
 function AlertDialogDescription({
   className,
   ...props
@@ -158,9 +140,7 @@ function AlertDialogDescription({
   );
 }
 
-/**
- *
- */
+/** Primary action button that confirms and closes the dialog. */
 function AlertDialogAction({
   className,
   variant = "destructive",
@@ -178,9 +158,7 @@ function AlertDialogAction({
   );
 }
 
-/**
- *
- */
+/** Cancel button that closes the dialog without confirming. */
 function AlertDialogCancel({
   className,
   children,

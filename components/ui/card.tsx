@@ -2,9 +2,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Card container component with size variants. */
 function Card({
   className,
   size = "default",
@@ -25,9 +23,7 @@ function Card({
   );
 }
 
-/**
- *
- */
+/** Card header section. */
 function CardHeader({
   className,
   ...props
@@ -44,9 +40,7 @@ function CardHeader({
   );
 }
 
-/**
- *
- */
+/** Card title text. */
 function CardTitle({
   className,
   ...props
@@ -63,9 +57,7 @@ function CardTitle({
   );
 }
 
-/**
- *
- */
+/** Card description text. */
 function CardDescription({
   className,
   ...props
@@ -79,9 +71,7 @@ function CardDescription({
   );
 }
 
-/**
- *
- */
+/** Card action area positioned in the header. */
 function CardAction({
   className,
   ...props
@@ -98,9 +88,7 @@ function CardAction({
   );
 }
 
-/**
- *
- */
+/** Card content section. */
 function CardContent({
   className,
   ...props
@@ -114,9 +102,7 @@ function CardContent({
   );
 }
 
-/**
- *
- */
+/** Card footer section. */
 function CardFooter({
   className,
   ...props

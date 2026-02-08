@@ -5,45 +5,35 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Provider that configures tooltip behavior for the app. */
 function TooltipProvider({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" {...props} />;
 }
 
-/**
- *
- */
+/** Root container for a tooltip. */
 function Tooltip({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 }
 
-/**
- *
- */
+/** Element that triggers the tooltip on hover or focus. */
 function TooltipTrigger({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
-/**
- *
- */
+/** Portal that renders the tooltip outside the DOM hierarchy. */
 function TooltipPortal({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Portal>) {
   return <TooltipPrimitive.Portal data-slot="tooltip-portal" {...props} />;
 }
 
-/**
- *
- */
+/** Content shown in the tooltip popup. */
 function TooltipContent({
   className,
   ...props

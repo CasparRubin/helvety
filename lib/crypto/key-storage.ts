@@ -139,7 +139,7 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
         // Check if key has expired
         if (Date.now() - result.cachedAt > KEY_CACHE_DURATION) {
           // Key expired, clean it up
-          deleteMasterKey(userId).catch((err) =>
+          void deleteMasterKey(userId).catch((err) =>
             logger.error("Failed to delete expired master key:", err)
           );
           resolve(null);
@@ -276,7 +276,7 @@ export async function getUnitKey(unitId: number): Promise<CryptoKey | null> {
 
         // Check if key has expired
         if (Date.now() - result.cachedAt > KEY_CACHE_DURATION) {
-          deleteUnitKey(unitId).catch((err) =>
+          void deleteUnitKey(unitId).catch((err) =>
             logger.error("Failed to delete expired unit key:", err)
           );
           resolve(null);

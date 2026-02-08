@@ -5,9 +5,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Visual separator line for dividing content sections. */
 function Separator({
   className,
   orientation = "horizontal",

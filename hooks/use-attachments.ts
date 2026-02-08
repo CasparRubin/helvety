@@ -34,9 +34,7 @@ export interface UploadProgress {
   error?: string;
 }
 
-/**
- *
- */
+/** Return type of the useAttachments hook. */
 interface UseAttachmentsReturn {
   /** List of decrypted attachments */
   attachments: Attachment[];

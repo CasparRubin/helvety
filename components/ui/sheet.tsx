@@ -7,43 +7,33 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Root container for a slide-out sheet panel. */
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
 }
 
-/**
- *
- */
+/** Button or element that opens the sheet. */
 function SheetTrigger({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
   return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
 }
 
-/**
- *
- */
+/** Button or element that closes the sheet. */
 function SheetClose({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Close>) {
   return <SheetPrimitive.Close data-slot="sheet-close" {...props} />;
 }
 
-/**
- *
- */
+/** Portal that renders the sheet outside the DOM hierarchy. */
 function SheetPortal({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Portal>) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
 }
 
-/**
- *
- */
+/** Backdrop overlay behind the sheet content. */
 function SheetOverlay({
   className,
   ...props
@@ -60,9 +50,7 @@ function SheetOverlay({
   );
 }
 
-/**
- *
- */
+/** Main content panel of the sheet (slides in from a side). */
 function SheetContent({
   className,
   children,
@@ -103,9 +91,7 @@ function SheetContent({
   );
 }
 
-/**
- *
- */
+/** Header section of the sheet. */
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -116,9 +102,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-/**
- *
- */
+/** Footer section of the sheet. */
 function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -129,9 +113,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-/**
- *
- */
+/** Title text of the sheet. */
 function SheetTitle({
   className,
   ...props
@@ -145,9 +127,7 @@ function SheetTitle({
   );
 }
 
-/**
- *
- */
+/** Description or body text of the sheet. */
 function SheetDescription({
   className,
   ...props

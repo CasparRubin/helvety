@@ -21,9 +21,7 @@ import { useCSRFToken } from "@/lib/csrf-client";
 
 import type { Item, ItemInput, ReorderUpdate } from "@/lib/types";
 
-/**
- *
- */
+/** Return type of the useItems hook. */
 interface UseItemsReturn {
   /** List of decrypted items */
   items: Item[];
@@ -234,9 +232,7 @@ export function useItems(spaceId: string): UseItemsReturn {
   };
 }
 
-/**
- *
- */
+/** Return type of the useItem hook for a single item. */
 interface UseItemReturn {
   /** The decrypted item */
   item: Item | null;
