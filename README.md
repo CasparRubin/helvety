@@ -32,6 +32,9 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 - **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer (Tenants page: compact subscription summary, Registered Tenants list with Add Tenant above it)
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
+- **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog (30-day grace period); cancels active Stripe subscriptions and removes all user data via cascade deletes
+- **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (nDSG Art. 28 compliance)
+- **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in both Stripe session metadata and a dedicated `consent_events` database table for defensible audit compliance
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks)
 

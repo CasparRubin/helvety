@@ -236,6 +236,32 @@ export interface LicenseValidationResponse {
 }
 
 // =============================================================================
+// CONSENT EVENT TYPES (Legal audit trail — nDSG compliance)
+// =============================================================================
+
+/**
+ * Consent event record for legal audit trail.
+ * Records when users accept Terms of Service and Privacy Policy
+ * (e.g., before checkout). Stores version identifiers so the exact
+ * document versions can be reconstructed for legal compliance.
+ */
+export interface ConsentEvent {
+  id: string;
+  user_id: string;
+  /** Type of consent event (e.g., "checkout_consent") */
+  event_type: string;
+  /** Version date of the Terms of Service accepted */
+  terms_version: string;
+  /** Version date of the Privacy Policy accepted */
+  privacy_version: string;
+  /** Client IP address at time of consent */
+  ip_address: string | null;
+  /** Additional metadata (tier, product, timestamps) */
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
+// =============================================================================
 // CHECKOUT TYPES
 // =============================================================================
 

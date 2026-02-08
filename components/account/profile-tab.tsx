@@ -1,10 +1,34 @@
 "use client";
 
-import { User, Mail, Calendar, Loader2 } from "lucide-react";
+import {
+  User,
+  Mail,
+  Calendar,
+  Loader2,
+  Download,
+  Trash2,
+  AlertTriangle,
+} from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { getCurrentUser, updateUserEmail } from "@/app/actions/account-actions";
+import {
+  getCurrentUser,
+  updateUserEmail,
+  requestAccountDeletion,
+  exportUserData,
+} from "@/app/actions/account-actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -115,6 +139,85 @@ export function ProfileTab() {
     });
   }
 
+  // Data export state
+  const [isExporting, setIsExporting] = React.useState(false);
+
+  // Account deletion state
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
+
+  /** Exports all user data as a JSON download (nDSG Art. 28 compliance). */
+  async function handleDataExport() {
+    setIsExporting(true);
+    try {
+      const result = await exportUserData();
+      if (!result.success || !result.data) {
+        toast.error(result.error ?? "Failed to export data", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
+        return;
+      }
+
+      // Download as JSON file
+      const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `helvety-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success("Data exported successfully", {
+        description: "Your data has been downloaded as a JSON file.",
+        duration: TOAST_DURATIONS.SUCCESS,
+      });
+    } catch (error) {
+      logger.error("Error exporting data:", error);
+      toast.error("An unexpected error occurred", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
+  /** Requests permanent account deletion after confirmation. */
+  async function handleAccountDeletion() {
+    setIsDeleting(true);
+    try {
+      const result = await requestAccountDeletion(csrfToken);
+      if (!result.success) {
+        toast.error(result.error ?? "Failed to delete account", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
+        return;
+      }
+
+      toast.success("Account deleted", {
+        description:
+          "Your account has been permanently deleted. You will be redirected shortly.",
+        duration: TOAST_DURATIONS.SUCCESS,
+      });
+
+      // Redirect to homepage after deletion
+      setTimeout(() => {
+        window.location.href = "https://helvety.com";
+      }, 2000);
+    } catch (error) {
+      logger.error("Error deleting account:", error);
+      toast.error("An unexpected error occurred", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmText("");
+    }
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -210,6 +313,128 @@ export function ProfileTab() {
           ) : (
             <p className="text-muted-foreground">Unable to load user data</p>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Data Export (nDSG Art. 28 — Right to Data Portability) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Download className="h-5 w-5" />
+            Export Your Data
+          </CardTitle>
+          <CardDescription>
+            Download a copy of your personal data in JSON format (nDSG Art. 28)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-muted-foreground text-sm">
+            This export includes your profile information, subscription history,
+            purchase history, and tenant registrations. For Helvety Tasks
+            (end-to-end encrypted data), please use the export feature within
+            the Tasks app while signed in.
+          </p>
+          <Button
+            variant="outline"
+            onClick={handleDataExport}
+            disabled={isExporting || isLoadingUser}
+          >
+            {isExporting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Exporting...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4" />
+                Export Data
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Account Deletion (nDSG Art. 32(2) — Right to Erasure) */}
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle className="text-destructive flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5" />
+            Delete Account
+          </CardTitle>
+          <CardDescription>
+            Permanently delete your account and all associated data
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-muted-foreground text-sm">
+            This action is irreversible. Deleting your account will:
+          </p>
+          <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
+            <li>Cancel all active subscriptions immediately</li>
+            <li>Delete your profile, credentials, and passkeys</li>
+            <li>
+              Delete all task data and encrypted file attachments (Helvety
+              Tasks)
+            </li>
+            <li>Remove all tenant registrations</li>
+          </ul>
+          <p className="text-muted-foreground text-sm">
+            Transaction records required for Swiss tax compliance (Art. 958f OR)
+            will be retained in anonymized form for 10 years.
+          </p>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" disabled={isLoadingUser}>
+                <Trash2 className="h-4 w-4" />
+                Delete Account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription className="space-y-3">
+                  <span className="block">
+                    This action cannot be undone. Your account and all
+                    associated data will be permanently deleted across all
+                    Helvety services.
+                  </span>
+                  <span className="block">
+                    We recommend exporting your data before proceeding.
+                  </span>
+                  <span className="block font-medium">
+                    Type <span className="font-mono font-bold">DELETE</span> to
+                    confirm:
+                  </span>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <Input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE to confirm"
+                className="font-mono"
+              />
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setDeleteConfirmText("")}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleAccountDeletion}
+                  disabled={deleteConfirmText !== "DELETE" || isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    "Permanently Delete Account"
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardContent>
       </Card>
     </div>

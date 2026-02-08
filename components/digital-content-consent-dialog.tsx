@@ -140,7 +140,9 @@ export function PurchaseConsentDialog({
                 className="cursor-pointer text-sm leading-relaxed font-normal"
               >
                 I have read and understood the Terms of Service and Privacy
-                Policy above.
+                Policy above. I consent to immediate access to the digital
+                content/service and acknowledge that I waive any right of
+                withdrawal once access is granted.
               </Label>
             </div>
           </div>

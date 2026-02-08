@@ -240,6 +240,28 @@ export async function POST(request: NextRequest) {
       metadata.consent_version = consentVersion;
     }
 
+    // Persist consent event in Supabase for defensible audit trail (nDSG compliance)
+    if (user && consentTermsAt && consentVersion) {
+      try {
+        const consentAdminClient = createAdminClient();
+        await consentAdminClient.from("consent_events").insert({
+          user_id: user.id,
+          event_type: "checkout_consent",
+          terms_version: consentVersion,
+          privacy_version: consentVersion,
+          ip_address: clientIP,
+          metadata: {
+            tier_id: tierId,
+            product_id: productInfo.productId,
+            consent_terms_at: consentTermsAt,
+          },
+        });
+      } catch (consentError) {
+        // Non-critical — Stripe metadata is the primary audit trail
+        logger.warn("Could not persist consent event:", consentError);
+      }
+    }
+
     let session: Stripe.Checkout.Session;
 
     if (isSubscription) {
