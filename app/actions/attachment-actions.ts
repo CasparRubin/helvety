@@ -4,12 +4,10 @@ import "server-only";
 
 import { z } from "zod";
 
+import { authenticateAndRateLimit } from "@/lib/action-helpers";
 import { ATTACHMENT_BUCKET } from "@/lib/constants";
-import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 
 import type { ActionResponse, AttachmentRow } from "@/lib/types";
 
@@ -68,15 +66,12 @@ export async function createAttachment(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "attachments",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Validate input
     const validationResult = CreateAttachmentSchema.safeParse(data);
@@ -85,30 +80,6 @@ export async function createAttachment(
       return { success: false, error: "Invalid attachment data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `attachments:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Verify the storage path starts with the user's ID (defense-in-depth)
     if (!validatedData.storage_path.startsWith(`${user.id}/`)) {
@@ -143,7 +114,7 @@ export async function createAttachment(
       .select("id")
       .single();
 
-    if (error) {
+    if (error || !attachment) {
       logger.error("Error creating attachment:", error);
       return { success: false, error: "Failed to create attachment" };
     }
@@ -163,32 +134,14 @@ export async function getAttachments(
   itemId: string
 ): Promise<ActionResponse<AttachmentRow[]>> {
   try {
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "attachments",
+    });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
+
     if (!z.string().uuid().safeParse(itemId).success) {
       return { success: false, error: "Invalid item ID" };
-    }
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `attachments:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     // Get attachments (RLS ensures only user's own attachments are returned)
@@ -221,42 +174,15 @@ export async function deleteAttachment(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "attachments",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid attachment ID" };
-    }
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `attachments:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     // Get the attachment record first (to know the storage path)

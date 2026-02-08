@@ -4,10 +4,9 @@ import "server-only";
 
 import { z } from "zod";
 
-import { requireCSRFToken } from "@/lib/csrf";
+import { authenticateAndRateLimit } from "@/lib/action-helpers";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { createClient } from "@/lib/supabase/server";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type {
   ActionResponse,
@@ -150,15 +149,12 @@ export async function createUnit(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Validate input
     const validationResult = CreateUnitSchema.safeParse(data);
@@ -167,30 +163,6 @@ export async function createUnit(
       return { success: false, error: "Invalid unit data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Insert unit
     const { data: unit, error } = await supabase
@@ -204,7 +176,7 @@ export async function createUnit(
       .select("id")
       .single();
 
-    if (error) {
+    if (error || !unit) {
       logger.error("Error creating unit:", error);
       return { success: false, error: "Failed to create unit" };
     }
@@ -222,29 +194,9 @@ export async function createUnit(
  */
 export async function getUnits(): Promise<ActionResponse<UnitRow[]>> {
   try {
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     // Get units (RLS ensures only user's own units are returned)
     const { data: units, error } = await supabase
@@ -274,29 +226,9 @@ export async function getUnit(id: string): Promise<ActionResponse<UnitRow>> {
       return { success: false, error: "Invalid unit ID" };
     }
 
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     // Get unit (RLS ensures only user's own unit can be accessed)
     const { data: unit, error } = await supabase
@@ -305,8 +237,8 @@ export async function getUnit(id: string): Promise<ActionResponse<UnitRow>> {
       .eq("id", id)
       .single();
 
-    if (error) {
-      if (error.code === "PGRST116") {
+    if (error || !unit) {
+      if (error?.code === "PGRST116" || !unit) {
         return { success: false, error: "Unit not found" };
       }
       logger.error("Error getting unit:", error);
@@ -334,15 +266,12 @@ export async function updateUnit(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Validate input
     const validationResult = UpdateUnitSchema.safeParse(data);
@@ -351,30 +280,6 @@ export async function updateUnit(
       return { success: false, error: "Invalid unit data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Build update object (only include provided fields)
     const updateObj: Record<string, unknown> = {
@@ -422,42 +327,15 @@ export async function deleteUnit(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid unit ID" };
-    }
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     // Delete unit (RLS + explicit user_id check for defense-in-depth)
@@ -498,15 +376,12 @@ export async function createSpace(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Validate input
     const validationResult = CreateSpaceSchema.safeParse(data);
@@ -515,30 +390,6 @@ export async function createSpace(
       return { success: false, error: "Invalid space data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Verify user owns the unit (RLS will also check this on insert)
     const { data: unit, error: unitError } = await supabase
@@ -564,7 +415,7 @@ export async function createSpace(
       .select("id")
       .single();
 
-    if (error) {
+    if (error || !space) {
       logger.error("Error creating space:", error);
       return { success: false, error: "Failed to create space" };
     }
@@ -587,29 +438,9 @@ export async function getSpaces(
       return { success: false, error: "Invalid unit ID" };
     }
 
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     // Get spaces (RLS ensures only user's own spaces are returned)
     const { data: spaces, error } = await supabase
@@ -640,29 +471,9 @@ export async function getSpace(id: string): Promise<ActionResponse<SpaceRow>> {
       return { success: false, error: "Invalid space ID" };
     }
 
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     // Get space
     const { data: space, error } = await supabase
@@ -671,8 +482,8 @@ export async function getSpace(id: string): Promise<ActionResponse<SpaceRow>> {
       .eq("id", id)
       .single();
 
-    if (error) {
-      if (error.code === "PGRST116") {
+    if (error || !space) {
+      if (error?.code === "PGRST116" || !space) {
         return { success: false, error: "Space not found" };
       }
       logger.error("Error getting space:", error);
@@ -700,15 +511,12 @@ export async function updateSpace(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Validate input
     const validationResult = UpdateSpaceSchema.safeParse(data);
@@ -720,30 +528,6 @@ export async function updateSpace(
       return { success: false, error: "Invalid space data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Build update object
     const updateObj: Record<string, unknown> = {
@@ -791,42 +575,15 @@ export async function deleteSpace(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid space ID" };
-    }
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     // Delete space (RLS + explicit user_id check for defense-in-depth)
@@ -867,15 +624,12 @@ export async function createItem(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Validate input
     const validationResult = CreateItemSchema.safeParse(data);
@@ -884,30 +638,6 @@ export async function createItem(
       return { success: false, error: "Invalid item data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Verify user owns the space
     const { data: space, error: spaceError } = await supabase
@@ -939,7 +669,7 @@ export async function createItem(
       .select("id")
       .single();
 
-    if (error) {
+    if (error || !item) {
       logger.error("Error creating item:", error);
       return { success: false, error: "Failed to create item" };
     }
@@ -962,29 +692,9 @@ export async function getItems(
       return { success: false, error: "Invalid space ID" };
     }
 
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     // Get items
     const { data: items, error } = await supabase
@@ -1015,29 +725,9 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
       return { success: false, error: "Invalid item ID" };
     }
 
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     // Get item
     const { data: item, error } = await supabase
@@ -1046,8 +736,8 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
       .eq("id", id)
       .single();
 
-    if (error) {
-      if (error.code === "PGRST116") {
+    if (error || !item) {
+      if (error?.code === "PGRST116" || !item) {
         return { success: false, error: "Item not found" };
       }
       logger.error("Error getting item:", error);
@@ -1077,15 +767,12 @@ export async function updateItem(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Validate input
     const validationResult = UpdateItemSchema.safeParse(data);
@@ -1094,30 +781,6 @@ export async function updateItem(
       return { success: false, error: "Invalid item data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Build update object
     const updateObj: Record<string, unknown> = {
@@ -1171,42 +834,15 @@ export async function deleteItem(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid item ID" };
-    }
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     // Delete item (RLS + explicit user_id check for defense-in-depth)
@@ -1242,15 +878,12 @@ export async function reorderEntities(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tasks",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const typeResult = EntityTypeSchema.safeParse(entityType);
     if (!typeResult.success) {
@@ -1266,30 +899,6 @@ export async function reorderEntities(
 
     if (validatedUpdates.length === 0) {
       return { success: true };
-    }
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     const tableName =
@@ -1340,28 +949,9 @@ export async function getSpaceCounts(): Promise<
   ActionResponse<Record<string, number>>
 > {
   try {
-    const supabase = await createClient();
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     // Get all spaces for this user, selecting only the unit_id
     const { data: spaces, error } = await supabase
@@ -1398,28 +988,9 @@ export async function getItemCounts(
       return { success: false, error: "Invalid unit ID" };
     }
 
-    const supabase = await createClient();
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `tasks:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     // First get the space IDs for this unit
     const { data: spaces, error: spacesError } = await supabase
@@ -1484,28 +1055,12 @@ export async function getAllTaskDataForExport(): Promise<
   ActionResponse<EncryptedTaskExport>
 > {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit (data export is heavier than normal operations)
-    const rateLimit = await checkRateLimit(
-      `export:user:${user.id}`,
-      5, // Max 5 exports per window
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many export requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "export",
+      rateLimitConfig: { maxRequests: 5, windowMs: RATE_LIMITS.API.windowMs },
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Fetch all user data (RLS ensures only user's own data is returned)
     const [unitsResult, spacesResult, itemsResult] = await Promise.all([

@@ -4,11 +4,9 @@ import "server-only";
 
 import { z } from "zod";
 
-import { logAuthEvent } from "@/lib/auth-logger";
-import { requireCSRFToken } from "@/lib/csrf";
+import { authenticateAndRateLimit } from "@/lib/action-helpers";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { createClient } from "@/lib/supabase/server";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { UserPasskeyParams } from "@/lib/types";
 
@@ -78,18 +76,13 @@ export async function savePasskeyParams(
   csrfToken: string
 ): Promise<EncryptionActionResponse> {
   try {
-    // Validate CSRF token (required)
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      logAuthEvent("csrf_validation_failed", {
-        metadata: { action: "savePasskeyParams" },
-      });
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "encryption",
+      rateLimitConfig: RATE_LIMITS.ENCRYPTION_UNLOCK,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Validate input parameters
     const validationResult = PasskeyParamsSchema.safeParse(params);
@@ -101,30 +94,6 @@ export async function savePasskeyParams(
       };
     }
     const validatedParams = validationResult.data;
-
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit (stricter for sensitive encryption operations)
-    const rateLimit = await checkRateLimit(
-      `encryption:user:${user.id}`,
-      RATE_LIMITS.ENCRYPTION_UNLOCK.maxRequests,
-      RATE_LIMITS.ENCRYPTION_UNLOCK.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Upsert passkey params (insert or update if exists)
     const { error } = await supabase.from("user_passkey_params").upsert(
@@ -162,29 +131,11 @@ export async function getPasskeyParams(): Promise<
   EncryptionActionResponse<UserPasskeyParams | null>
 > {
   try {
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `encryption:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "encryption",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Get passkey params
     const { data, error } = await supabase

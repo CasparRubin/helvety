@@ -4,10 +4,8 @@ import "server-only";
 
 import { z } from "zod";
 
-import { requireCSRFToken } from "@/lib/csrf";
+import { authenticateAndRateLimit } from "@/lib/action-helpers";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { createClient } from "@/lib/supabase/server";
 
 import type {
   ActionResponse,
@@ -97,14 +95,12 @@ export async function createLabelConfig(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "labels",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = CreateLabelConfigSchema.safeParse(data);
     if (!validationResult.success) {
@@ -116,28 +112,6 @@ export async function createLabelConfig(
     }
     const validatedData = validationResult.data;
 
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
-
     const { data: config, error } = await supabase
       .from("label_configs")
       .insert({
@@ -147,7 +121,7 @@ export async function createLabelConfig(
       .select("id")
       .single();
 
-    if (error) {
+    if (error || !config) {
       logger.error("Error creating label config:", error);
       return { success: false, error: "Failed to create label config" };
     }
@@ -166,27 +140,9 @@ export async function getLabelConfigs(): Promise<
   ActionResponse<LabelConfigRow[]>
 > {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "labels" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     const { data: configs, error } = await supabase
       .from("label_configs")
@@ -213,42 +169,18 @@ export async function updateLabelConfig(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "labels",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = UpdateLabelConfigSchema.safeParse(data);
     if (!validationResult.success) {
       return { success: false, error: "Invalid label config data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     const updateObj: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
@@ -283,39 +215,15 @@ export async function deleteLabelConfig(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "labels",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid label config ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     const { error } = await supabase
@@ -354,14 +262,12 @@ export async function createLabel(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "labels",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = CreateLabelSchema.safeParse(data);
     if (!validationResult.success) {
@@ -369,28 +275,6 @@ export async function createLabel(
       return { success: false, error: "Invalid label data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Verify user owns the config
     const { data: config, error: configError } = await supabase
@@ -416,7 +300,7 @@ export async function createLabel(
       .select("id")
       .single();
 
-    if (error) {
+    if (error || !label) {
       logger.error("Error creating label:", error);
       return { success: false, error: "Failed to create label" };
     }
@@ -435,30 +319,12 @@ export async function getLabels(
   configId: string
 ): Promise<ActionResponse<LabelRow[]>> {
   try {
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "labels" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
+
     if (!z.string().uuid().safeParse(configId).success) {
       return { success: false, error: "Invalid config ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     const { data: labels, error } = await supabase
@@ -493,42 +359,18 @@ export async function updateLabel(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "labels",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = UpdateLabelSchema.safeParse(data);
     if (!validationResult.success) {
       return { success: false, error: "Invalid label data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     const updateObj: Record<string, unknown> = {};
     if (validatedData.encrypted_name !== undefined) {
@@ -570,39 +412,15 @@ export async function deleteLabel(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "labels",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid label ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     const { error } = await supabase
@@ -631,42 +449,18 @@ export async function reorderLabels(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "labels",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = ReorderLabelsSchema.safeParse(updates);
     if (!validationResult.success) {
       return { success: false, error: "Invalid reorder data" };
     }
     const validatedUpdates = validationResult.data;
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Update each label's sort_order (explicit user_id check for defense-in-depth)
     for (const update of validatedUpdates) {
@@ -700,30 +494,12 @@ export async function getLabelAssignment(
   parentId: string | null
 ): Promise<ActionResponse<LabelAssignment | null>> {
   try {
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "labels" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
+
     if (parentId !== null && !z.string().uuid().safeParse(parentId).success) {
       return { success: false, error: "Invalid parent ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     let query = supabase.from("label_assignments").select("*");
@@ -762,14 +538,12 @@ export async function setLabelAssignment(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "labels",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(configId).success) {
       return { success: false, error: "Invalid config ID" };
@@ -777,28 +551,6 @@ export async function setLabelAssignment(
 
     if (parentId !== null && !z.string().uuid().safeParse(parentId).success) {
       return { success: false, error: "Invalid parent ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     // Upsert: try to find existing assignment first
@@ -841,7 +593,7 @@ export async function setLabelAssignment(
         .select("id")
         .single();
 
-      if (error) {
+      if (error || !assignment) {
         logger.error("Error creating label assignment:", error);
         return { success: false, error: "Failed to create label assignment" };
       }
@@ -862,36 +614,12 @@ export async function removeLabelAssignment(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `labels:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "labels",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     let query = supabase
       .from("label_assignments")

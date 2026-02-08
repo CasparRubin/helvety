@@ -4,10 +4,8 @@ import "server-only";
 
 import { z } from "zod";
 
-import { requireCSRFToken } from "@/lib/csrf";
+import { authenticateAndRateLimit } from "@/lib/action-helpers";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { createClient } from "@/lib/supabase/server";
 
 import type {
   ActionResponse,
@@ -102,14 +100,12 @@ export async function createStageConfig(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "stages",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = CreateStageConfigSchema.safeParse(data);
     if (!validationResult.success) {
@@ -121,28 +117,6 @@ export async function createStageConfig(
     }
     const validatedData = validationResult.data;
 
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
-
     const { data: config, error } = await supabase
       .from("stage_configs")
       .insert({
@@ -152,7 +126,7 @@ export async function createStageConfig(
       .select("id")
       .single();
 
-    if (error) {
+    if (error || !config) {
       logger.error("Error creating stage config:", error);
       return { success: false, error: "Failed to create stage config" };
     }
@@ -171,27 +145,9 @@ export async function getStageConfigs(): Promise<
   ActionResponse<StageConfigRow[]>
 > {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "stages" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
 
     const { data: configs, error } = await supabase
       .from("stage_configs")
@@ -218,42 +174,18 @@ export async function updateStageConfig(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "stages",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = UpdateStageConfigSchema.safeParse(data);
     if (!validationResult.success) {
       return { success: false, error: "Invalid stage config data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     const updateObj: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
@@ -288,39 +220,15 @@ export async function deleteStageConfig(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "stages",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid stage config ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     const { error } = await supabase
@@ -360,14 +268,12 @@ export async function createStage(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "stages",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = CreateStageSchema.safeParse(data);
     if (!validationResult.success) {
@@ -375,28 +281,6 @@ export async function createStage(
       return { success: false, error: "Invalid stage data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Verify user owns the config
     const { data: config, error: configError } = await supabase
@@ -423,7 +307,7 @@ export async function createStage(
       .select("id")
       .single();
 
-    if (error) {
+    if (error || !stage) {
       logger.error("Error creating stage:", error);
       return { success: false, error: "Failed to create stage" };
     }
@@ -442,30 +326,12 @@ export async function getStages(
   configId: string
 ): Promise<ActionResponse<StageRow[]>> {
   try {
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "stages" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
+
     if (!z.string().uuid().safeParse(configId).success) {
       return { success: false, error: "Invalid config ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     const { data: stages, error } = await supabase
@@ -501,42 +367,18 @@ export async function updateStage(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "stages",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = UpdateStageSchema.safeParse(data);
     if (!validationResult.success) {
       return { success: false, error: "Invalid stage data" };
     }
     const validatedData = validationResult.data;
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     const updateObj: Record<string, unknown> = {};
     if (validatedData.encrypted_name !== undefined) {
@@ -581,39 +423,15 @@ export async function deleteStage(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "stages",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid stage ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     const { error } = await supabase
@@ -642,42 +460,18 @@ export async function reorderStages(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "stages",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const validationResult = ReorderStagesSchema.safeParse(updates);
     if (!validationResult.success) {
       return { success: false, error: "Invalid reorder data" };
     }
     const validatedUpdates = validationResult.data;
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
 
     // Update each stage's sort_order (explicit user_id check for defense-in-depth)
     for (const update of validatedUpdates) {
@@ -712,6 +506,10 @@ export async function getStageAssignment(
   parentId: string | null
 ): Promise<ActionResponse<StageAssignment | null>> {
   try {
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "stages" });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
+
     const typeResult = EntityTypeSchema.safeParse(entityType);
     if (!typeResult.success) {
       return { success: false, error: "Invalid entity type" };
@@ -719,28 +517,6 @@ export async function getStageAssignment(
 
     if (parentId !== null && !z.string().uuid().safeParse(parentId).success) {
       return { success: false, error: "Invalid parent ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     let query = supabase
@@ -783,14 +559,12 @@ export async function setStageAssignment(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "stages",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const typeResult = EntityTypeSchema.safeParse(entityType);
     if (!typeResult.success) {
@@ -803,28 +577,6 @@ export async function setStageAssignment(
 
     if (parentId !== null && !z.string().uuid().safeParse(parentId).success) {
       return { success: false, error: "Invalid parent ID" };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
     }
 
     // Upsert: try to find existing assignment first
@@ -869,7 +621,7 @@ export async function setStageAssignment(
         .select("id")
         .single();
 
-      if (error) {
+      if (error || !assignment) {
         logger.error("Error creating stage assignment:", error);
         return { success: false, error: "Failed to create stage assignment" };
       }
@@ -891,36 +643,12 @@ export async function removeStageAssignment(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit
-    const rateLimit = await checkRateLimit(
-      `stages:user:${user.id}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "stages",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     let query = supabase
       .from("stage_assignments")

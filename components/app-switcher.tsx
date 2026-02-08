@@ -25,12 +25,33 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+/** Helvety ecosystem app URLs, configurable via NEXT_PUBLIC env vars */
 const apps = [
-  { name: "Home", href: "https://helvety.com", icon: Home },
-  { name: "Auth", href: "https://auth.helvety.com", icon: KeyRound },
-  { name: "Store", href: "https://store.helvety.com", icon: ShoppingBag },
-  { name: "PDF", href: "https://pdf.helvety.com", icon: FileText },
-  { name: "Tasks", href: "https://tasks.helvety.com", icon: CheckSquare },
+  {
+    name: "Home",
+    href: process.env.NEXT_PUBLIC_HOME_URL ?? "https://helvety.com",
+    icon: Home,
+  },
+  {
+    name: "Auth",
+    href: process.env.NEXT_PUBLIC_AUTH_URL ?? "https://auth.helvety.com",
+    icon: KeyRound,
+  },
+  {
+    name: "Store",
+    href: process.env.NEXT_PUBLIC_STORE_URL ?? "https://store.helvety.com",
+    icon: ShoppingBag,
+  },
+  {
+    name: "PDF",
+    href: process.env.NEXT_PUBLIC_PDF_URL ?? "https://pdf.helvety.com",
+    icon: FileText,
+  },
+  {
+    name: "Tasks",
+    href: process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks.helvety.com",
+    icon: CheckSquare,
+  },
 ];
 
 /** Props for the AppSwitcher component */

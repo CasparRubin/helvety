@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo, type ReactNode } from "react";
 
 import { getEncryptionParams } from "@/app/actions/encryption-actions";
 import { EncryptionUnlock } from "@/components/encryption-unlock";
+import { getLoginUrl } from "@/lib/auth-redirect";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
 /** Props for the EncryptionGate component */
@@ -27,26 +28,16 @@ type EncryptionStatus =
 
 /**
  * Get the auth URL for encryption setup
- * Redirects to auth.helvety.com with the current URL as redirect_uri
+ * Redirects to auth service with the current URL as redirect_uri
+ * and an encryption-setup step parameter.
  */
 function getAuthSetupUrl(): string {
-  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
-  const isDev =
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1");
-
-  const authBaseUrl = isDev
-    ? "http://localhost:3002"
-    : "https://auth.helvety.com";
-
-  const url = new URL(authBaseUrl);
-  url.pathname = "/login";
+  const loginUrl = getLoginUrl(
+    typeof window !== "undefined" ? window.location.href : undefined
+  );
+  // Append the encryption-setup step to the existing login URL
+  const url = new URL(loginUrl);
   url.searchParams.set("step", "encryption-setup");
-  if (currentUrl) {
-    url.searchParams.set("redirect_uri", currentUrl);
-  }
-
   return url.toString();
 }
 
