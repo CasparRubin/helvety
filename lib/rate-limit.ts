@@ -17,6 +17,8 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
+import { logger } from "@/lib/logger";
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -53,8 +55,8 @@ function getRedis(): Redis | null {
   if (!url || !token) {
     if (process.env.NODE_ENV === "production" && !hasWarnedMissingRedis) {
       hasWarnedMissingRedis = true;
-      console.warn(
-        "WARNING: UPSTASH_REDIS_REST_URL and/or UPSTASH_REDIS_REST_TOKEN are not configured. " +
+      logger.warn(
+        "UPSTASH_REDIS_REST_URL and/or UPSTASH_REDIS_REST_TOKEN are not configured. " +
           "Rate limiting will fall back to in-memory mode, which does not persist across serverless invocations. " +
           "Configure Upstash Redis for distributed rate limiting: https://console.upstash.com/"
       );
@@ -196,8 +198,12 @@ export async function checkRateLimit(
       }
 
       return { allowed: true, remaining: result.remaining };
-    } catch {
+    } catch (error) {
       // If Upstash fails, fall through to in-memory
+      logger.warn(
+        "Upstash rate limit failed, falling back to in-memory:",
+        error
+      );
     }
   }
 
@@ -214,8 +220,8 @@ export async function resetRateLimit(key: string): Promise<void> {
   if (redisClient) {
     try {
       await redisClient.del(`ratelimit:api:${key}`);
-    } catch {
-      // Ignore errors on reset
+    } catch (error) {
+      logger.warn("Failed to reset rate limit in Redis:", error);
     }
   }
 

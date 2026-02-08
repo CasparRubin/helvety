@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       logger.warn(`Checkout rate limit exceeded for IP: ${clientIP}`);
       return NextResponse.json(
         {
-          error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+          error: `Too many requests. Please wait ${rateLimit.retryAfter ?? 60} seconds.`,
         },
         { status: 429 }
       );
@@ -199,9 +199,7 @@ export async function POST(request: NextRequest) {
 
     // Build success and cancel URLs
     const baseUrl =
-      request.headers.get("origin") ??
-      process.env.NEXT_PUBLIC_APP_URL ??
-      "https://store.helvety.com";
+      request.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "";
     const productSlug = productInfo.productId; // e.g., 'helvety-pdf'
 
     // Security: Validate custom URLs to prevent open redirect attacks

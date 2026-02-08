@@ -21,6 +21,36 @@ import type { NextRequest } from "next/server";
 import type Stripe from "stripe";
 
 // =============================================================================
+// Helpers
+// =============================================================================
+
+/** Period fields that may live at subscription-level (legacy) or item-level (newer Stripe API) */
+interface SubscriptionPeriod {
+  periodStart: number | undefined;
+  periodEnd: number | undefined;
+}
+
+/**
+ * Extract current_period_start/end from a Stripe subscription.
+ * Handles both the legacy subscription-level fields and the newer
+ * per-item fields introduced in recent Stripe API versions.
+ */
+function extractSubscriptionPeriod(
+  subscription: Stripe.Subscription,
+  item?: { current_period_start?: number; current_period_end?: number }
+): SubscriptionPeriod {
+  const subWithPeriod = subscription as Stripe.Subscription & {
+    current_period_start?: number;
+    current_period_end?: number;
+  };
+  return {
+    periodStart:
+      subWithPeriod.current_period_start ?? item?.current_period_start,
+    periodEnd: subWithPeriod.current_period_end ?? item?.current_period_end,
+  };
+}
+
+// =============================================================================
 // POST /api/webhooks/stripe - Handle Stripe webhooks
 // =============================================================================
 
@@ -245,18 +275,23 @@ async function upsertSubscription(
   const productInfo = getProductFromPriceId(priceId);
 
   // Period: subscription-level (legacy) or first item (newer Stripe API)
-  const subWithPeriod = subscription as Stripe.Subscription & {
-    current_period_start?: number;
-    current_period_end?: number;
-  };
-  const itemWithPeriod = item as {
-    current_period_start?: number;
-    current_period_end?: number;
-  };
-  const periodStart =
-    subWithPeriod.current_period_start ?? itemWithPeriod.current_period_start;
-  const periodEnd =
-    subWithPeriod.current_period_end ?? itemWithPeriod.current_period_end;
+  const { periodStart, periodEnd } = extractSubscriptionPeriod(
+    subscription,
+    item as { current_period_start?: number; current_period_end?: number }
+  );
+
+  // Resolve product/tier IDs with fallback logging
+  const resolvedProductId =
+    productInfo?.productId ?? subscription.metadata?.product_id ?? "unknown";
+  const resolvedTierId =
+    productInfo?.tierId ?? subscription.metadata?.tier_id ?? "unknown";
+
+  if (resolvedProductId === "unknown" || resolvedTierId === "unknown") {
+    logger.warn(
+      `Unknown product/tier for price ID ${priceId} on subscription ${subscription.id}. ` +
+        `Check that Stripe env vars are configured correctly.`
+    );
+  }
 
   // Upsert subscription record and get our row id for the event log
   const { data: upsertedSub, error } = await supabase
@@ -266,12 +301,8 @@ async function upsertSubscription(
         user_id: userId,
         stripe_subscription_id: subscription.id,
         stripe_price_id: priceId,
-        product_id:
-          productInfo?.productId ??
-          subscription.metadata?.product_id ??
-          "unknown",
-        tier_id:
-          productInfo?.tierId ?? subscription.metadata?.tier_id ?? "unknown",
+        product_id: resolvedProductId,
+        tier_id: resolvedTierId,
         status: subscription.status,
         current_period_start: periodStart
           ? new Date(periodStart * 1000).toISOString()
@@ -291,15 +322,15 @@ async function upsertSubscription(
     .select("id")
     .single();
 
-  if (error) {
+  if (error || !upsertedSub) {
     logger.error(`Failed to upsert subscription ${subscription.id}:`, error);
-    throw error;
+    throw error ?? new Error("Upsert returned no data");
   }
 
   // Log the event (subscription_id = our subscriptions.id for JOINs)
   await supabase.from("subscription_events").insert({
     user_id: userId,
-    subscription_id: upsertedSub?.id ?? null,
+    subscription_id: upsertedSub.id,
     event_type:
       subscription.status === "active"
         ? "subscription.created"
@@ -399,17 +430,12 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 
   // Update subscription period (subscription-level or first item for newer API)
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-  const firstItem = subscription.items?.data?.[0] as
-    | { current_period_start?: number; current_period_end?: number }
-    | undefined;
-  const subWithPeriod = subscription as Stripe.Subscription & {
-    current_period_start?: number;
-    current_period_end?: number;
-  };
-  const periodStart =
-    subWithPeriod.current_period_start ?? firstItem?.current_period_start;
-  const periodEnd =
-    subWithPeriod.current_period_end ?? firstItem?.current_period_end;
+  const { periodStart, periodEnd } = extractSubscriptionPeriod(
+    subscription,
+    subscription.items?.data?.[0] as
+      | { current_period_start?: number; current_period_end?: number }
+      | undefined
+  );
 
   await supabase
     .from("subscriptions")

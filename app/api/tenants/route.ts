@@ -254,11 +254,11 @@ export async function POST(request: NextRequest) {
       .select()
       .single();
 
-    if (insertError) {
+    if (insertError || !newTenant) {
       logger.error("Error creating tenant:", insertError);
 
       // Handle unique constraint violation
-      if (insertError.code === "23505") {
+      if (insertError?.code === "23505") {
         return NextResponse.json(
           { error: "This tenant is already registered" },
           { status: 409 }

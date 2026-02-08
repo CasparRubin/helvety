@@ -322,10 +322,10 @@ export async function registerTenant(
       .select()
       .single();
 
-    if (insertError) {
+    if (insertError || !newTenant) {
       logger.error("Error creating tenant:", insertError);
 
-      if (insertError.code === "23505") {
+      if (insertError?.code === "23505") {
         return {
           success: false,
           error: "This tenant is already registered for this subscription",

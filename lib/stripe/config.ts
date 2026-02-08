@@ -3,51 +3,106 @@
  * Maps internal product/tier IDs to Stripe Price IDs
  */
 
+import { logger } from "@/lib/logger";
+
 // =============================================================================
-// PRICE ID MAPPINGS
+// TYPES
+// =============================================================================
+
+/** Product info associated with a Stripe Price ID */
+export interface ProductInfo {
+  productId: string;
+  tierId: string;
+  name: string;
+  type: "subscription";
+}
+
+// =============================================================================
+// PRODUCT DEFINITIONS
 // =============================================================================
 
 /**
- * Mapping of internal tier IDs to Stripe Price IDs
- * Add new products here as they are created in Stripe
+ * Central product/tier definitions.
+ * Add new products here as they are created in Stripe.
  */
-export const STRIPE_PRICE_IDS = {
-  "helvety-pdf-pro-monthly":
-    process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID,
-  "helvety-spo-explorer-solo-monthly":
-    process.env.STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID,
-  "helvety-spo-explorer-supported-monthly":
-    process.env.STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID,
-} as const;
-
-/**
- * Mapping of Stripe Price IDs back to internal product/tier info
- * Used by webhooks to identify what was purchased
- */
-export const PRICE_ID_TO_PRODUCT = {
-  [process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID ?? ""]: {
-    productId: "helvety-pdf",
+const PRODUCT_DEFINITIONS: {
+  envVar: string;
+  tierId: string;
+  productId: string;
+  name: string;
+}[] = [
+  {
+    envVar: "STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID",
     tierId: "helvety-pdf-pro-monthly",
+    productId: "helvety-pdf",
     name: "Helvety PDF Pro",
-    type: "subscription" as const,
   },
-  [process.env.STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID ?? ""]: {
-    productId: "helvety-spo-explorer",
+  {
+    envVar: "STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID",
     tierId: "helvety-spo-explorer-solo-monthly",
-    name: "Helvety SPO Explorer Solo",
-    type: "subscription" as const,
-  },
-  [process.env.STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID ?? ""]: {
     productId: "helvety-spo-explorer",
-    tierId: "helvety-spo-explorer-supported-monthly",
-    name: "Helvety SPO Explorer Supported",
-    type: "subscription" as const,
+    name: "Helvety SPO Explorer Solo",
   },
-} as const;
+  {
+    envVar: "STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID",
+    tierId: "helvety-spo-explorer-supported-monthly",
+    productId: "helvety-spo-explorer",
+    name: "Helvety SPO Explorer Supported",
+  },
+];
+
+// =============================================================================
+// PRICE ID MAPPINGS (built from definitions, skipping missing env vars)
+// =============================================================================
+
+/** Build tier-to-price mapping, filtering out tiers with missing env vars */
+function buildStripePriceIds(): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const def of PRODUCT_DEFINITIONS) {
+    const priceId = process.env[def.envVar];
+    if (priceId) {
+      map[def.tierId] = priceId;
+    } else if (process.env.NODE_ENV === "production") {
+      logger.warn(`Missing Stripe env var: ${def.envVar}`);
+    }
+  }
+  return map;
+}
+
+/** Build price-to-product reverse mapping, skipping entries with missing env vars */
+function buildPriceIdToProduct(): Record<string, ProductInfo> {
+  const map: Record<string, ProductInfo> = {};
+  for (const def of PRODUCT_DEFINITIONS) {
+    const priceId = process.env[def.envVar];
+    if (priceId) {
+      map[priceId] = {
+        productId: def.productId,
+        tierId: def.tierId,
+        name: def.name,
+        type: "subscription",
+      };
+    }
+  }
+  return map;
+}
+
+/**
+ * Mapping of internal tier IDs to Stripe Price IDs.
+ * Only contains tiers whose env vars are configured.
+ */
+export const STRIPE_PRICE_IDS: Record<string, string> = buildStripePriceIds();
+
+/**
+ * Mapping of Stripe Price IDs back to internal product/tier info.
+ * Used by webhooks to identify what was purchased.
+ * Only contains entries whose env vars are configured (no empty-string keys).
+ */
+export const PRICE_ID_TO_PRODUCT: Record<string, ProductInfo> =
+  buildPriceIdToProduct();
 
 /**
  * Tier IDs that have Stripe checkout enabled.
- * Derived from STRIPE_PRICE_IDS keys so it stays in sync automatically.
+ * Only includes tiers with valid Stripe Price IDs configured.
  */
 export const CHECKOUT_ENABLED_TIERS: string[] = Object.keys(STRIPE_PRICE_IDS);
 
@@ -60,14 +115,17 @@ export const CHECKOUT_ENABLED_TIERS: string[] = Object.keys(STRIPE_PRICE_IDS);
  * @param tierId
  */
 export function getStripePriceId(tierId: string): string | undefined {
-  return STRIPE_PRICE_IDS[tierId as keyof typeof STRIPE_PRICE_IDS];
+  return STRIPE_PRICE_IDS[tierId];
 }
 
 /**
  * Get product info from a Stripe Price ID
  * @param priceId
+ * @returns Product info or undefined if price ID is not recognized
  */
-export function getProductFromPriceId(priceId: string) {
+export function getProductFromPriceId(
+  priceId: string
+): ProductInfo | undefined {
   return PRICE_ID_TO_PRODUCT[priceId];
 }
 
