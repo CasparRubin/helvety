@@ -568,7 +568,10 @@ export function ItemEditor({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDiscard}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleConfirmDiscard}
+            >
               Discard Changes
             </AlertDialogAction>
           </AlertDialogFooter>

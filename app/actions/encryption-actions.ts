@@ -8,14 +8,7 @@ import { authenticateAndRateLimit } from "@/lib/action-helpers";
 import { logger } from "@/lib/logger";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 
-import type { UserPasskeyParams } from "@/lib/types";
-
-/** Response type for encryption-related server actions */
-export type EncryptionActionResponse<T = void> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
+import type { ActionResponse, UserPasskeyParams } from "@/lib/types";
 
 // ============================================================================
 // Input Validation Schemas
@@ -74,7 +67,7 @@ export async function savePasskeyParams(
     version: number;
   },
   csrfToken: string
-): Promise<EncryptionActionResponse> {
+): Promise<ActionResponse> {
   try {
     const auth = await authenticateAndRateLimit({
       csrfToken,
@@ -128,7 +121,7 @@ export async function savePasskeyParams(
  * Returns null if user hasn't set up passkey encryption yet
  */
 export async function getPasskeyParams(): Promise<
-  EncryptionActionResponse<UserPasskeyParams | null>
+  ActionResponse<UserPasskeyParams | null>
 > {
   try {
     const auth = await authenticateAndRateLimit({
@@ -142,6 +135,7 @@ export async function getPasskeyParams(): Promise<
       .from("user_passkey_params")
       .select("*")
       .eq("user_id", user.id)
+      .returns<UserPasskeyParams[]>()
       .single();
 
     if (error) {
@@ -156,7 +150,7 @@ export async function getPasskeyParams(): Promise<
       };
     }
 
-    return { success: true, data: data as UserPasskeyParams };
+    return { success: true, data };
   } catch (error) {
     logger.error("Unexpected error in getPasskeyParams:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -167,7 +161,7 @@ export async function getPasskeyParams(): Promise<
  * Check if user has passkey encryption set up
  */
 export async function hasPasskeyEncryptionSetup(): Promise<
-  EncryptionActionResponse<boolean>
+  ActionResponse<boolean>
 > {
   const result = await getPasskeyParams();
   if (!result.success) {
@@ -181,7 +175,7 @@ export async function hasPasskeyEncryptionSetup(): Promise<
  * Only passkey-based encryption is supported
  */
 export async function getEncryptionParams(): Promise<
-  EncryptionActionResponse<{
+  ActionResponse<{
     type: "passkey" | null;
     passkeyParams?: UserPasskeyParams;
   }>

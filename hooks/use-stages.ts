@@ -113,8 +113,8 @@ export function useStages(configId: string | null): UseStagesReturn {
 
     try {
       const result = await getStages(configId);
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch stages");
+      if (!result.success) {
+        setError(result.error);
         setStages([]);
         return;
       }
@@ -145,8 +145,8 @@ export function useStages(configId: string | null): UseStagesReturn {
       try {
         const encrypted = await encryptStageInput(input, masterKey);
         const result = await createStage(encrypted, csrfToken);
-        if (!result.success || !result.data) {
-          setError(result.error ?? "Failed to create stage");
+        if (!result.success) {
+          setError(result.error);
           return null;
         }
 

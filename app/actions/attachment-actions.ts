@@ -150,14 +150,15 @@ export async function getAttachments(
       .select("*")
       .eq("item_id", itemId)
       .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .returns<AttachmentRow[]>();
 
     if (error) {
       logger.error("Error getting attachments:", error);
       return { success: false, error: "Failed to get attachments" };
     }
 
-    return { success: true, data: attachments as AttachmentRow[] };
+    return { success: true, data: attachments ?? [] };
   } catch (error) {
     logger.error("Unexpected error in getAttachments:", error);
     return { success: false, error: "An unexpected error occurred" };

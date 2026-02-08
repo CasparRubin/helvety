@@ -4,7 +4,7 @@
  * Fetches all encrypted task data from the server, decrypts it client-side
  * using the user's master key, and provides a downloadable JSON export.
  *
- * Legal basis: nDSG Art. 28 (right to data portability — data must be
+ * Legal basis: nDSG Art. 28 (right to data portability; data must be
  * provided in a structured, commonly used format).
  *
  * IMPORTANT: Decryption happens entirely client-side. The server never
@@ -57,8 +57,8 @@ export async function exportDecryptedTaskData(
 ): Promise<DecryptedTaskExport> {
   // 1. Fetch all encrypted data from the server
   const result = await getAllTaskDataForExport();
-  if (!result.success || !result.data) {
-    throw new Error(result.error ?? "Failed to fetch task data");
+  if (!result.success) {
+    throw new Error(result.error);
   }
 
   const {

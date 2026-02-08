@@ -4,7 +4,6 @@ import { requireCSRFToken } from "@/lib/csrf";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
-import type { ActionResponse } from "@/lib/types";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 // =============================================================================
@@ -20,10 +19,11 @@ export interface AuthContext {
 }
 
 /** Discriminated union: either auth succeeded or we have an error response.
- *  Error responses use `never` so they are assignable to any ActionResponse<T>. */
+ *  The failure response is typed as the failure branch of ActionResponse,
+ *  which is assignable to any ActionResponse<T>. */
 type AuthResult =
   | { ok: true; ctx: AuthContext }
-  | { ok: false; response: ActionResponse<never> };
+  | { ok: false; response: { success: false; error: string } };
 
 /** Options for the authentication guard */
 interface AuthGuardOptions {

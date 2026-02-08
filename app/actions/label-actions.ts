@@ -147,14 +147,15 @@ export async function getLabelConfigs(): Promise<
     const { data: configs, error } = await supabase
       .from("label_configs")
       .select("*")
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .returns<LabelConfigRow[]>();
 
     if (error) {
       logger.error("Error getting label configs:", error);
       return { success: false, error: "Failed to get label configs" };
     }
 
-    return { success: true, data: configs as LabelConfigRow[] };
+    return { success: true, data: configs ?? [] };
   } catch (error) {
     logger.error("Unexpected error in getLabelConfigs:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -331,14 +332,15 @@ export async function getLabels(
       .from("labels")
       .select("*")
       .eq("config_id", configId)
-      .order("sort_order", { ascending: true });
+      .order("sort_order", { ascending: true })
+      .returns<LabelRow[]>();
 
     if (error) {
       logger.error("Error getting labels:", error);
       return { success: false, error: "Failed to get labels" };
     }
 
-    return { success: true, data: labels as LabelRow[] };
+    return { success: true, data: labels ?? [] };
   } catch (error) {
     logger.error("Unexpected error in getLabels:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -517,10 +519,8 @@ export async function getLabelAssignment(
       return { success: false, error: "Failed to get label assignment" };
     }
 
-    const assignment =
-      assignments && assignments.length > 0
-        ? (assignments[0] as LabelAssignment)
-        : null;
+    const first = assignments?.[0];
+    const assignment = first ?? null;
 
     return { success: true, data: assignment };
   } catch (error) {
@@ -567,9 +567,10 @@ export async function setLabelAssignment(
 
     const { data: existing } = await query.limit(1);
 
-    if (existing && existing.length > 0 && existing[0]) {
+    const existingFirst = existing?.[0];
+    if (existingFirst) {
       // Update existing assignment
-      const existingId = existing[0].id as string;
+      const existingId = existingFirst.id;
       const { error } = await supabase
         .from("label_assignments")
         .update({ config_id: configId })

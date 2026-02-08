@@ -3,50 +3,44 @@
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/** Root container for an alert dialog. */
+/** Alert dialog root component. */
 function AlertDialog({
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Root>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
 }
 
-/** Button or element that opens the alert dialog. */
+/** Alert dialog trigger button. */
 function AlertDialogTrigger({
   ...props
-}: React.ComponentProps<
-  typeof AlertDialogPrimitive.Trigger
->): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {
   return (
     <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />
   );
 }
 
-/** Portal that renders the alert dialog outside the DOM hierarchy. */
+/** Alert dialog portal for rendering outside the DOM hierarchy. */
 function AlertDialogPortal({
   ...props
-}: React.ComponentProps<
-  typeof AlertDialogPrimitive.Portal
->): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) {
   return (
     <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" {...props} />
   );
 }
 
-/** Backdrop overlay behind the alert dialog content. */
+/** Alert dialog overlay backdrop. */
 function AlertDialogOverlay({
   className,
   ...props
-}: React.ComponentProps<
-  typeof AlertDialogPrimitive.Overlay
->): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) {
   return (
     <AlertDialogPrimitive.Overlay
       data-slot="alert-dialog-overlay"
       className={cn(
-        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80",
         className
       )}
       {...props}
@@ -54,50 +48,45 @@ function AlertDialogOverlay({
   );
 }
 
-/** Main content container of the alert dialog. */
+/** Alert dialog content panel with overlay. */
 function AlertDialogContent({
   className,
-  children,
   ...props
-}: React.ComponentProps<
-  typeof AlertDialogPrimitive.Content
->): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         className={cn(
-          "bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl p-6 text-sm ring-1 duration-100 sm:max-w-md",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
           className
         )}
         {...props}
-      >
-        {children}
-      </AlertDialogPrimitive.Content>
+      />
     </AlertDialogPortal>
   );
 }
 
-/** Header section of the alert dialog. */
+/** Alert dialog header section. */
 function AlertDialogHeader({
   className,
   ...props
-}: React.ComponentProps<"div">): React.JSX.Element {
+}: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="alert-dialog-header"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
       {...props}
     />
   );
 }
 
-/** Footer section containing action buttons. */
+/** Alert dialog footer section with action buttons. */
 function AlertDialogFooter({
   className,
   ...props
-}: React.ComponentProps<"div">): React.JSX.Element {
+}: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="alert-dialog-footer"
@@ -110,27 +99,25 @@ function AlertDialogFooter({
   );
 }
 
-/** Title text of the alert dialog. */
+/** Alert dialog title text. */
 function AlertDialogTitle({
   className,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Title>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
   return (
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
-      className={cn("leading-none font-medium", className)}
+      className={cn("text-lg font-semibold", className)}
       {...props}
     />
   );
 }
 
-/** Description or body text of the alert dialog. */
+/** Alert dialog description text. */
 function AlertDialogDescription({
   className,
   ...props
-}: React.ComponentProps<
-  typeof AlertDialogPrimitive.Description
->): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Description>) {
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
@@ -140,51 +127,48 @@ function AlertDialogDescription({
   );
 }
 
-/** Primary action button that confirms and closes the dialog. */
+/** Alert dialog confirm action button. */
 function AlertDialogAction({
   className,
-  variant = "destructive",
-  children,
+  variant,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action> & {
-  variant?: React.ComponentProps<typeof Button>["variant"];
-}): React.JSX.Element {
+  variant?: NonNullable<Parameters<typeof buttonVariants>[0]>["variant"];
+}) {
   return (
-    <AlertDialogPrimitive.Action asChild>
-      <Button variant={variant} className={className} {...props}>
-        {children}
-      </Button>
-    </AlertDialogPrimitive.Action>
+    <AlertDialogPrimitive.Action
+      className={cn(buttonVariants({ variant }), className)}
+      {...props}
+    />
   );
 }
 
-/** Cancel button that closes the dialog without confirming. */
+/** Alert dialog cancel button. */
 function AlertDialogCancel({
   className,
-  children,
+  variant = "outline",
   ...props
-}: React.ComponentProps<
-  typeof AlertDialogPrimitive.Cancel
->): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> & {
+  variant?: NonNullable<Parameters<typeof buttonVariants>[0]>["variant"];
+}) {
   return (
-    <AlertDialogPrimitive.Cancel asChild>
-      <Button variant="outline" className={className} {...props}>
-        {children}
-      </Button>
-    </AlertDialogPrimitive.Cancel>
+    <AlertDialogPrimitive.Cancel
+      className={cn(buttonVariants({ variant }), className)}
+      {...props}
+    />
   );
 }
 
 export {
   AlertDialog,
+  AlertDialogPortal,
+  AlertDialogOverlay,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  AlertDialogPortal,
-  AlertDialogTitle,
-  AlertDialogTrigger,
 };

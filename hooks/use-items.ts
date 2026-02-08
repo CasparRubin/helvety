@@ -67,8 +67,8 @@ export function useItems(spaceId: string): UseItemsReturn {
 
     try {
       const result = await getItems(spaceId);
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch items");
+      if (!result.success) {
+        setError(result.error);
         setItems([]);
         return;
       }
@@ -93,8 +93,8 @@ export function useItems(spaceId: string): UseItemsReturn {
       try {
         const encrypted = await encryptItemInput(input, masterKey);
         const result = await createItem(encrypted, csrfToken);
-        if (!result.success || !result.data) {
-          setError(result.error ?? "Failed to create item");
+        if (!result.success) {
+          setError(result.error);
           return null;
         }
 
@@ -271,8 +271,8 @@ export function useItem(id: string): UseItemReturn {
 
     try {
       const result = await getItem(id);
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch item");
+      if (!result.success) {
+        setError(result.error);
         setItem(null);
         return;
       }

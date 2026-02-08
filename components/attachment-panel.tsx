@@ -580,6 +580,7 @@ export function AttachmentPanel({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
+              variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
             >

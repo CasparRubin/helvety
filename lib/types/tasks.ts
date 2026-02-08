@@ -10,6 +10,11 @@
 /** Entity type discriminator */
 export type EntityType = "unit" | "space" | "item";
 
+/** Type guard to narrow a union entity (Unit | Space | Item) to Item */
+export function isItem(entity: { id: string }): entity is Item {
+  return "priority" in entity && "label_id" in entity;
+}
+
 /** Batch reorder update for drag-and-drop */
 export interface ReorderUpdate {
   id: string;

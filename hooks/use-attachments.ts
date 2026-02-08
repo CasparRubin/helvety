@@ -99,8 +99,8 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
 
     try {
       const result = await getAttachments(itemId);
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch attachments");
+      if (!result.success) {
+        setError(result.error);
         setAttachments([]);
         return;
       }

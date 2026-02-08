@@ -203,14 +203,15 @@ export async function getUnits(): Promise<ActionResponse<UnitRow[]>> {
       .from("units")
       .select("*")
       .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .returns<UnitRow[]>();
 
     if (error) {
       logger.error("Error getting units:", error);
       return { success: false, error: "Failed to get units" };
     }
 
-    return { success: true, data: units as UnitRow[] };
+    return { success: true, data: units ?? [] };
   } catch (error) {
     logger.error("Unexpected error in getUnits:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -235,6 +236,7 @@ export async function getUnit(id: string): Promise<ActionResponse<UnitRow>> {
       .from("units")
       .select("*")
       .eq("id", id)
+      .returns<UnitRow[]>()
       .single();
 
     if (error || !unit) {
@@ -245,7 +247,7 @@ export async function getUnit(id: string): Promise<ActionResponse<UnitRow>> {
       return { success: false, error: "Failed to get unit" };
     }
 
-    return { success: true, data: unit as UnitRow };
+    return { success: true, data: unit };
   } catch (error) {
     logger.error("Unexpected error in getUnit:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -448,14 +450,15 @@ export async function getSpaces(
       .select("*")
       .eq("unit_id", unitId)
       .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .returns<SpaceRow[]>();
 
     if (error) {
       logger.error("Error getting spaces:", error);
       return { success: false, error: "Failed to get spaces" };
     }
 
-    return { success: true, data: spaces as SpaceRow[] };
+    return { success: true, data: spaces ?? [] };
   } catch (error) {
     logger.error("Unexpected error in getSpaces:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -480,6 +483,7 @@ export async function getSpace(id: string): Promise<ActionResponse<SpaceRow>> {
       .from("spaces")
       .select("*")
       .eq("id", id)
+      .returns<SpaceRow[]>()
       .single();
 
     if (error || !space) {
@@ -490,7 +494,7 @@ export async function getSpace(id: string): Promise<ActionResponse<SpaceRow>> {
       return { success: false, error: "Failed to get space" };
     }
 
-    return { success: true, data: space as SpaceRow };
+    return { success: true, data: space };
   } catch (error) {
     logger.error("Unexpected error in getSpace:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -702,14 +706,15 @@ export async function getItems(
       .select("*")
       .eq("space_id", spaceId)
       .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .returns<ItemRow[]>();
 
     if (error) {
       logger.error("Error getting items:", error);
       return { success: false, error: "Failed to get items" };
     }
 
-    return { success: true, data: items as ItemRow[] };
+    return { success: true, data: items ?? [] };
   } catch (error) {
     logger.error("Unexpected error in getItems:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -734,6 +739,7 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
       .from("items")
       .select("*")
       .eq("id", id)
+      .returns<ItemRow[]>()
       .single();
 
     if (error || !item) {
@@ -744,7 +750,7 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
       return { success: false, error: "Failed to get item" };
     }
 
-    return { success: true, data: item as ItemRow };
+    return { success: true, data: item };
   } catch (error) {
     logger.error("Unexpected error in getItem:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -1033,7 +1039,7 @@ export async function getItemCounts(
 }
 
 // =============================================================================
-// DATA EXPORT (nDSG Art. 28 — Right to Data Portability)
+// DATA EXPORT (nDSG Art. 28, Right to Data Portability)
 // =============================================================================
 
 /** All encrypted task data for export (decrypted client-side) */
@@ -1064,9 +1070,21 @@ export async function getAllTaskDataForExport(): Promise<
 
     // Fetch all user data (RLS ensures only user's own data is returned)
     const [unitsResult, spacesResult, itemsResult] = await Promise.all([
-      supabase.from("units").select("*").order("sort_order"),
-      supabase.from("spaces").select("*").order("sort_order"),
-      supabase.from("items").select("*").order("sort_order"),
+      supabase
+        .from("units")
+        .select("*")
+        .order("sort_order")
+        .returns<UnitRow[]>(),
+      supabase
+        .from("spaces")
+        .select("*")
+        .order("sort_order")
+        .returns<SpaceRow[]>(),
+      supabase
+        .from("items")
+        .select("*")
+        .order("sort_order")
+        .returns<ItemRow[]>(),
     ]);
 
     if (unitsResult.error || spacesResult.error || itemsResult.error) {
@@ -1083,9 +1101,9 @@ export async function getAllTaskDataForExport(): Promise<
     return {
       success: true,
       data: {
-        units: (unitsResult.data ?? []) as UnitRow[],
-        spaces: (spacesResult.data ?? []) as SpaceRow[],
-        items: (itemsResult.data ?? []) as ItemRow[],
+        units: unitsResult.data ?? [],
+        spaces: spacesResult.data ?? [],
+        items: itemsResult.data ?? [],
       },
     };
   } catch (error) {

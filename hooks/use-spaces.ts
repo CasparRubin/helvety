@@ -70,8 +70,8 @@ export function useSpaces(unitId: string): UseSpacesReturn {
 
     try {
       const result = await getSpaces(unitId);
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch spaces");
+      if (!result.success) {
+        setError(result.error);
         setSpaces([]);
         return;
       }
@@ -103,8 +103,8 @@ export function useSpaces(unitId: string): UseSpacesReturn {
 
         // Send encrypted data to server
         const result = await createSpace(encrypted, csrfToken);
-        if (!result.success || !result.data) {
-          setError(result.error ?? "Failed to create space");
+        if (!result.success) {
+          setError(result.error);
           return null;
         }
 
@@ -285,8 +285,8 @@ export function useSpace(id: string): UseSpaceReturn {
 
     try {
       const result = await getSpace(id);
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch space");
+      if (!result.success) {
+        setError(result.error);
         setSpace(null);
         return;
       }

@@ -80,7 +80,11 @@ export function DeleteConfirmationDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm} disabled={isDeleting}>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={isDeleting}
+          >
             {isDeleting ? (
               <>
                 <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />

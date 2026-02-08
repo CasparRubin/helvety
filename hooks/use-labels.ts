@@ -112,8 +112,8 @@ export function useLabels(configId: string | null): UseLabelsReturn {
 
     try {
       const result = await getLabels(configId);
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch labels");
+      if (!result.success) {
+        setError(result.error);
         setLabels([]);
         return;
       }
@@ -144,8 +144,8 @@ export function useLabels(configId: string | null): UseLabelsReturn {
       try {
         const encrypted = await encryptLabelInput(input, masterKey);
         const result = await createLabel(encrypted, csrfToken);
-        if (!result.success || !result.data) {
-          setError(result.error ?? "Failed to create label");
+        if (!result.success) {
+          setError(result.error);
           return null;
         }
 

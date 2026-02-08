@@ -98,8 +98,8 @@ export function useStageConfigs(
 
     try {
       const result = await getStageConfigs();
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch stage configs");
+      if (!result.success) {
+        setError(result.error);
         setUserConfigs([]);
         return;
       }
@@ -126,8 +126,8 @@ export function useStageConfigs(
       try {
         const encrypted = await encryptStageConfigInput(input, masterKey);
         const result = await createStageConfig(encrypted, csrfToken);
-        if (!result.success || !result.data) {
-          setError(result.error ?? "Failed to create stage config");
+        if (!result.success) {
+          setError(result.error);
           return null;
         }
 

@@ -68,8 +68,8 @@ export function useUnits(): UseUnitsReturn {
 
     try {
       const result = await getUnits();
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch units");
+      if (!result.success) {
+        setError(result.error);
         setUnits([]);
         return;
       }
@@ -101,8 +101,8 @@ export function useUnits(): UseUnitsReturn {
 
         // Send encrypted data to server
         const result = await createUnit(encrypted, csrfToken);
-        if (!result.success || !result.data) {
-          setError(result.error ?? "Failed to create unit");
+        if (!result.success) {
+          setError(result.error);
           return null;
         }
 
@@ -284,8 +284,8 @@ export function useUnit(id: string): UseUnitReturn {
 
     try {
       const result = await getUnit(id);
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch unit");
+      if (!result.success) {
+        setError(result.error);
         setUnit(null);
         return;
       }

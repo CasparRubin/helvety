@@ -87,8 +87,8 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
 
     try {
       const result = await getLabelConfigs();
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Failed to fetch label configs");
+      if (!result.success) {
+        setError(result.error);
         setUserConfigs([]);
         return;
       }
@@ -115,8 +115,8 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
       try {
         const encrypted = await encryptLabelConfigInput(input, masterKey);
         const result = await createLabelConfig(encrypted, csrfToken);
-        if (!result.success || !result.data) {
-          setError(result.error ?? "Failed to create label config");
+        if (!result.success) {
+          setError(result.error);
           return null;
         }
 

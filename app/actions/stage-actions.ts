@@ -152,14 +152,15 @@ export async function getStageConfigs(): Promise<
     const { data: configs, error } = await supabase
       .from("stage_configs")
       .select("*")
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .returns<StageConfigRow[]>();
 
     if (error) {
       logger.error("Error getting stage configs:", error);
       return { success: false, error: "Failed to get stage configs" };
     }
 
-    return { success: true, data: configs as StageConfigRow[] };
+    return { success: true, data: configs ?? [] };
   } catch (error) {
     logger.error("Unexpected error in getStageConfigs:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -338,14 +339,15 @@ export async function getStages(
       .from("stages")
       .select("*")
       .eq("config_id", configId)
-      .order("sort_order", { ascending: true });
+      .order("sort_order", { ascending: true })
+      .returns<StageRow[]>();
 
     if (error) {
       logger.error("Error getting stages:", error);
       return { success: false, error: "Failed to get stages" };
     }
 
-    return { success: true, data: stages as StageRow[] };
+    return { success: true, data: stages ?? [] };
   } catch (error) {
     logger.error("Unexpected error in getStages:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -537,10 +539,8 @@ export async function getStageAssignment(
       return { success: false, error: "Failed to get stage assignment" };
     }
 
-    const assignment =
-      assignments && assignments.length > 0
-        ? (assignments[0] as StageAssignment)
-        : null;
+    const first = assignments?.[0];
+    const assignment = first ?? null;
 
     return { success: true, data: assignment };
   } catch (error) {
@@ -594,9 +594,10 @@ export async function setStageAssignment(
 
     const { data: existing } = await query.limit(1);
 
-    if (existing && existing.length > 0 && existing[0]) {
+    const existingFirst = existing?.[0];
+    if (existingFirst) {
       // Update existing assignment
-      const existingId = existing[0].id as string;
+      const existingId = existingFirst.id;
       const { error } = await supabase
         .from("stage_assignments")
         .update({ config_id: configId })

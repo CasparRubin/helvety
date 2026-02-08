@@ -21,6 +21,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { EntityRow } from "@/components/entity-row";
 import { StageGroup, UnstagedGroup } from "@/components/stage-group";
+import { isItem } from "@/lib/types";
 
 import type {
   Unit,
@@ -177,7 +178,8 @@ export function EntityList({
         group.push(entity);
       } else {
         // Entity has a stage_id not in current config -> unstaged
-        groups.get(null)!.push(entity);
+        const unstaged = groups.get(null);
+        if (unstaged) unstaged.push(entity);
       }
     }
 
@@ -355,8 +357,8 @@ export function EntityList({
                 >
                   {stageEntities
                     .sort((a, b) => {
-                      const prioA = "priority" in a ? (a as Item).priority : 1;
-                      const prioB = "priority" in b ? (b as Item).priority : 1;
+                      const prioA = isItem(a) ? a.priority : 1;
+                      const prioB = isItem(b) ? b.priority : 1;
                       if (prioB !== prioA) return prioB - prioA;
                       return (
                         new Date(b.updated_at).getTime() -
@@ -372,15 +374,10 @@ export function EntityList({
                         createdAt={entity.created_at}
                         entityType={entityType}
                         stage={stageMap.get(entity.stage_id ?? "")}
-                        priority={
-                          "priority" in entity
-                            ? (entity as Item).priority
-                            : null
-                        }
+                        priority={isItem(entity) ? entity.priority : null}
                         label={
-                          "label_id" in entity && (entity as Item).label_id
-                            ? (labelMap?.get((entity as Item).label_id!) ??
-                              null)
+                          isItem(entity) && entity.label_id
+                            ? (labelMap?.get(entity.label_id) ?? null)
                             : null
                         }
                         childCount={childCounts?.[entity.id]}
@@ -412,8 +409,8 @@ export function EntityList({
                 >
                   {unstagedEntities
                     .sort((a, b) => {
-                      const prioA = "priority" in a ? (a as Item).priority : 1;
-                      const prioB = "priority" in b ? (b as Item).priority : 1;
+                      const prioA = isItem(a) ? a.priority : 1;
+                      const prioB = isItem(b) ? b.priority : 1;
                       if (prioB !== prioA) return prioB - prioA;
                       return (
                         new Date(b.updated_at).getTime() -
@@ -428,15 +425,10 @@ export function EntityList({
                         description={entity.description}
                         createdAt={entity.created_at}
                         entityType={entityType}
-                        priority={
-                          "priority" in entity
-                            ? (entity as Item).priority
-                            : null
-                        }
+                        priority={isItem(entity) ? entity.priority : null}
                         label={
-                          "label_id" in entity && (entity as Item).label_id
-                            ? (labelMap?.get((entity as Item).label_id!) ??
-                              null)
+                          isItem(entity) && entity.label_id
+                            ? (labelMap?.get(entity.label_id) ?? null)
                             : null
                         }
                         childCount={childCounts?.[entity.id]}
@@ -485,12 +477,10 @@ export function EntityList({
                   description={entity.description}
                   createdAt={entity.created_at}
                   entityType={entityType}
-                  priority={
-                    "priority" in entity ? (entity as Item).priority : null
-                  }
+                  priority={isItem(entity) ? entity.priority : null}
                   label={
-                    "label_id" in entity && (entity as Item).label_id
-                      ? (labelMap?.get((entity as Item).label_id!) ?? null)
+                    isItem(entity) && entity.label_id
+                      ? (labelMap?.get(entity.label_id) ?? null)
                       : null
                   }
                   childCount={childCounts?.[entity.id]}
