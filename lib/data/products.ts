@@ -21,20 +21,20 @@ export const helvetyPdf: SoftwareProduct = {
   slug: "helvety-pdf",
   name: "Helvety PDF",
   shortDescription:
-    "A privacy-focused PDF toolkit that runs entirely in your browser. Merge, reorder, rotate, and extract pages from PDFs and images. Everything runs locally in your browser.",
-  description: `Helvety PDF is a privacy-focused, client-side PDF toolkit. All file processing happens entirely in your browser. Your files never leave your device.
+    "A privacy-focused PDF toolkit. Merge, reorder, rotate, and extract pages from PDFs and images — all processing runs locally in your browser.",
+  description: `Helvety PDF is a privacy-focused, client-side PDF toolkit. All file processing happens entirely in your browser. Your files are not uploaded to or stored on our servers.
 
-Upload PDF files and images (PNG, JPEG, WebP, GIF), preview page thumbnails, and manage your documents with an intuitive drag-and-drop interface. Merge multiple files into one PDF, extract individual pages, rotate pages by 90° increments, delete unwanted pages, and reorder with ease.
+Upload PDF files and images (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG), preview page thumbnails, and manage your documents with an intuitive drag-and-drop interface. Merge multiple files into one PDF, extract individual pages, rotate pages by 90° increments, delete unwanted pages, and reorder with ease.
 
 The customizable grid layout lets you adjust the view to accommodate different page sizes. With dark and light mode support, you can work comfortably in any environment.
 
-Note: While your files never leave your device, we use Vercel Analytics for anonymous page view statistics. See our Privacy Policy for details.`,
+Note: While your files are not transmitted to our servers, we use Vercel Analytics for anonymous page view statistics. See our Privacy Policy for details.`,
   type: "software",
   category: "productivity",
   status: "available",
   icon: "FileText",
   features: [
-    "PDF and image support (PNG, JPEG, WebP, GIF)",
+    "PDF and image support (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG)",
     "Merge multiple files into one PDF",
     "Extract individual pages as separate PDFs",
     "Rotate pages by 90° increments",
@@ -42,7 +42,7 @@ Note: While your files never leave your device, we use Vercel Analytics for anon
     "Delete unwanted pages",
     "Page thumbnail previews",
     "Customizable grid layout",
-    "100% client-side processing",
+    "Client-side processing",
     "Dark and light mode support",
   ],
   pricing: {
@@ -57,12 +57,14 @@ Note: While your files never leave your device, we use Vercel Analytics for anon
         interval: "monthly",
         isFree: true,
         features: [
-          "Upload maximal 2 Files",
+          "Upload up to 2 files",
           "Maximum 10 pages",
-          "Merge Files",
-          "Split Files",
+          "Merge files",
+          "Split files",
           "Reorder pages",
           "Rotate pages",
+          "Delete pages",
+          "Extract pages",
           "Client-side processing",
         ],
       },
@@ -75,12 +77,14 @@ Note: While your files never leave your device, we use Vercel Analytics for anon
         highlighted: true,
         stripePriceId: process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID,
         features: [
-          "No File Upload Limit",
-          "No page limits",
-          "Merge Files",
-          "Split Files",
+          "Unlimited file uploads",
+          "Unlimited pages",
+          "Merge files",
+          "Split files",
           "Reorder pages",
           "Rotate pages",
+          "Delete pages",
+          "Extract pages",
           "Client-side processing",
           "Only limited by your device",
         ],
@@ -184,11 +188,13 @@ Install it once in your SharePoint App Catalog and give all users instant access
     hasYearlyPricing: false,
     tiers: [
       {
-        id: "helvety-spo-explorer-basic-monthly",
+        id: "helvety-spo-explorer-solo-monthly",
         name: "Solo",
         price: 45000,
         currency: "CHF",
         interval: "monthly",
+        stripePriceId:
+          process.env.STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID,
         features: [
           "Full extension features",
           "All sites navigation",
@@ -198,12 +204,14 @@ Install it once in your SharePoint App Catalog and give all users instant access
         ],
       },
       {
-        id: "helvety-spo-explorer-enterprise-monthly",
+        id: "helvety-spo-explorer-supported-monthly",
         name: "Supported",
         price: 65000,
         currency: "CHF",
         interval: "monthly",
         highlighted: true,
+        stripePriceId:
+          process.env.STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID,
         features: [
           "Full extension features",
           "All sites navigation",

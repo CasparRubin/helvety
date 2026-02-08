@@ -179,9 +179,3 @@ export function PurchaseConsentDialog({
     </Dialog>
   );
 }
-
-/**
- * @deprecated Use PurchaseConsentDialog instead. This alias is kept temporarily
- * for backward compatibility during the migration.
- */
-export const DigitalContentConsentDialog = PurchaseConsentDialog;

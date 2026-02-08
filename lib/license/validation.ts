@@ -25,11 +25,11 @@ export const TIER_FEATURES: Record<
     features: string[];
   }
 > = {
-  "helvety-spo-explorer-basic-monthly": {
+  "helvety-spo-explorer-solo-monthly": {
     maxTenants: -1, // -1 = unlimited tenants
     features: ["basic_navigation", "favorites", "search"],
   },
-  "helvety-spo-explorer-enterprise-monthly": {
+  "helvety-spo-explorer-supported-monthly": {
     maxTenants: -1, // -1 = unlimited tenants
     features: [
       "basic_navigation",

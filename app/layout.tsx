@@ -44,20 +44,12 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://store.helvety.com"),
   title: {
-    default: "Helvety Store | Software, Subscriptions & Apparel",
+    default: "Helvety Store | Software & Subscriptions",
     template: "%s | Helvety Store",
   },
   description:
-    "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
-  keywords: [
-    "Helvety Store",
-    "software",
-    "subscriptions",
-    "apparel",
-    "Swiss",
-    "shop",
-    "merchandise",
-  ],
+    "Official Helvety Store. Browse software and subscriptions designed in Switzerland.",
+  keywords: ["Helvety Store", "software", "subscriptions", "Swiss", "shop"],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
   publisher: "Helvety",
@@ -70,9 +62,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://store.helvety.com",
     siteName: "Helvety Store",
-    title: "Helvety Store | Software, Subscriptions & Apparel",
+    title: "Helvety Store | Software & Subscriptions",
     description:
-      "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+      "Official Helvety Store. Browse software and subscriptions designed in Switzerland.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",
@@ -84,9 +76,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Helvety Store | Software, Subscriptions & Apparel",
+    title: "Helvety Store | Software & Subscriptions",
     description:
-      "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+      "Official Helvety Store. Browse software and subscriptions designed in Switzerland.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",

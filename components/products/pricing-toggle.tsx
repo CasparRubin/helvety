@@ -8,14 +8,10 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Billing period option. */
 export type BillingPeriod = "monthly" | "yearly";
 
-/**
- *
- */
+/** Props for the PricingToggle component. */
 interface PricingToggleProps {
   value: BillingPeriod;
   onChange: (value: BillingPeriod) => void;

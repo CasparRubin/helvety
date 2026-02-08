@@ -91,10 +91,7 @@ export function ProfileTab() {
     }
   }
 
-  /**
-   *
-   * @param e
-   */
+  /** Handle email change form submission. */
   async function handleEmailChange(e: React.FormEvent) {
     e.preventDefault();
     setEmailError(null);
@@ -127,10 +124,7 @@ export function ProfileTab() {
     }
   }
 
-  /**
-   *
-   * @param dateString
-   */
+  /** Format a date string for display. */
   function formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",

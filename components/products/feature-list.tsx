@@ -7,9 +7,7 @@ import { Check, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Props for the FeatureList component. */
 interface FeatureListProps {
   features: string[];
   className?: string;

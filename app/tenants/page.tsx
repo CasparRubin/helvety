@@ -32,7 +32,7 @@ function TenantsLoading() {
 
 /**
  * Tenants page: auth gate and tenant management or empty state.
- * Requires auth (no E2EE).
+ * Requires authentication.
  */
 export default async function TenantsPage() {
   const supabase = await createClient();

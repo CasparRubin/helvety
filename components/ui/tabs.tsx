@@ -6,9 +6,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Tabs root component for horizontal or vertical tab navigation. */
 function Tabs({
   className,
   orientation = "horizontal",
@@ -42,9 +40,7 @@ const tabsListVariants = cva(
   }
 );
 
-/**
- *
- */
+/** Container for tab trigger buttons. */
 function TabsList({
   className,
   variant = "default",
@@ -61,9 +57,7 @@ function TabsList({
   );
 }
 
-/**
- *
- */
+/** Single tab trigger button. */
 function TabsTrigger({
   className,
   ...props
@@ -83,9 +77,7 @@ function TabsTrigger({
   );
 }
 
-/**
- *
- */
+/** Panel content for the selected tab. */
 function TabsContent({
   className,
   ...props

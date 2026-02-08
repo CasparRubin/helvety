@@ -1,6 +1,13 @@
 {
   "name": "helvety-store",
   "version": "1.2.0",
+  "description": "Helvety Store for software products and subscriptions. Designed in Switzerland.",
+  "author": "Helvety by Rubin",
+  "homepage": "https://store.helvety.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CasparRubin/helvety-store.git"
+  },
   "private": true,
   "license": "UNLICENSED",
   "engines": {
@@ -31,7 +38,6 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@simplewebauthn/browser": "^13.2.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.3",
     "@upstash/ratelimit": "^2.0.8",

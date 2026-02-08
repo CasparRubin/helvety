@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 import { reactivateSubscription } from "@/app/actions/subscription-actions";
 import {
-  DigitalContentConsentDialog,
+  PurchaseConsentDialog,
   type ConsentMetadata,
 } from "@/components/digital-content-consent-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ import {
 import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
+import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
 import { cn } from "@/lib/utils";
 import { formatPrice, getIntervalShortLabel } from "@/lib/utils/pricing";
 
@@ -59,12 +60,6 @@ interface PricingCardProps {
   /** Callback when subscription is reactivated */
   onReactivate?: () => void;
 }
-
-// Tier IDs that have Stripe checkout enabled
-const CHECKOUT_ENABLED_TIERS = [
-  "helvety-pdf-pro-monthly",
-  // Add more tier IDs here as they are configured in Stripe
-];
 
 /** Renders a pricing card with Stripe checkout integration. */
 export function PricingCard({
@@ -371,7 +366,7 @@ export function PricingCard({
       </CardFooter>
 
       {/* Pre-checkout consent dialog (Terms & Privacy Policy) */}
-      <DigitalContentConsentDialog
+      <PurchaseConsentDialog
         open={showConsentDialog}
         onOpenChange={setShowConsentDialog}
         onConfirm={handleConsentConfirm}

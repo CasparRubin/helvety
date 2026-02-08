@@ -7,43 +7,33 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Sheet root component (slide-out panel). */
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
 }
 
-/**
- *
- */
+/** Sheet trigger button. */
 function SheetTrigger({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
   return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
 }
 
-/**
- *
- */
+/** Sheet close button. */
 function SheetClose({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Close>) {
   return <SheetPrimitive.Close data-slot="sheet-close" {...props} />;
 }
 
-/**
- *
- */
+/** Sheet portal for rendering outside the DOM hierarchy. */
 function SheetPortal({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Portal>) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
 }
 
-/**
- *
- */
+/** Sheet overlay backdrop. */
 function SheetOverlay({
   className,
   ...props
@@ -60,9 +50,7 @@ function SheetOverlay({
   );
 }
 
-/**
- *
- */
+/** Sheet content panel that slides in from a side. */
 function SheetContent({
   className,
   children,
@@ -103,9 +91,7 @@ function SheetContent({
   );
 }
 
-/**
- *
- */
+/** Sheet header section. */
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -116,9 +102,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-/**
- *
- */
+/** Sheet footer section. */
 function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -129,9 +113,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-/**
- *
- */
+/** Sheet title text. */
 function SheetTitle({
   className,
   ...props
@@ -145,9 +127,7 @@ function SheetTitle({
   );
 }
 
-/**
- *
- */
+/** Sheet description text. */
 function SheetDescription({
   className,
   ...props

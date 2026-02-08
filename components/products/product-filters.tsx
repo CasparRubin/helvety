@@ -6,12 +6,7 @@
  * Mobile: dropdown menu showing active filter with selection list
  */
 
-import {
-  ChevronDownIcon,
-  MonitorCloud,
-  Handbag,
-  LayoutGrid,
-} from "lucide-react";
+import { ChevronDownIcon, MonitorCloud, LayoutGrid } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,7 +38,6 @@ const filterOptions: {
 }[] = [
   { value: "all", label: "All Products", icon: LayoutGrid },
   { value: "software", label: "Software", icon: MonitorCloud },
-  { value: "physical", label: "Physical", icon: Handbag },
 ];
 
 /** Renders the product type filter bar (desktop) or dropdown (mobile). */

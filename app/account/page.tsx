@@ -34,7 +34,7 @@ function AccountLoading() {
 
 /**
  * Account page for profile and settings management.
- * Requires auth (no E2EE).
+ * Requires authentication.
  */
 export default async function AccountPage() {
   // Server-side auth check

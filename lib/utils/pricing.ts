@@ -25,9 +25,6 @@ interface CurrencyConfig {
  * Supported currencies
  */
 const currencies: Record<string, CurrencyConfig> = {
-  EUR: { locale: "de-DE", symbol: "€", position: "suffix" },
-  USD: { locale: "en-US", symbol: "$", position: "prefix" },
-  GBP: { locale: "en-GB", symbol: "£", position: "prefix" },
   CHF: { locale: "de-CH", symbol: "CHF", position: "suffix" },
 };
 
@@ -219,22 +216,6 @@ export function getHighlightedTier(
   tiers: PricingTier[]
 ): PricingTier | undefined {
   return tiers.find((tier) => tier.highlighted);
-}
-
-/**
- * Check if a tier is a subscription (recurring)
- * @param tier
- */
-export function isSubscriptionTier(tier: PricingTier): boolean {
-  return tier.interval === "monthly" || tier.interval === "yearly";
-}
-
-/**
- * Check if a tier is a one-time purchase
- * @param tier
- */
-export function isOneTimeTier(tier: PricingTier): boolean {
-  return tier.interval === "one-time" || tier.interval === "lifetime";
 }
 
 // =============================================================================

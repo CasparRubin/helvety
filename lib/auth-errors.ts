@@ -23,10 +23,6 @@ export enum AuthErrorCode {
   PASSKEY_REGISTRATION_FAILED = "passkey_registration_failed",
   /** Passkey not supported by browser */
   PASSKEY_NOT_SUPPORTED = "passkey_not_supported",
-  /** PRF extension not supported */
-  PRF_NOT_SUPPORTED = "prf_not_supported",
-  /** Encryption operation failed */
-  ENCRYPTION_FAILED = "encryption_failed",
   /** Network or connectivity error */
   NETWORK_ERROR = "network_error",
   /** User not found */
@@ -53,7 +49,7 @@ export enum AuthErrorCode {
  */
 export const AUTH_ERROR_MESSAGES: Record<AuthErrorCode, string> = {
   [AuthErrorCode.INVALID_CREDENTIALS]:
-    "Invalid email or password. Please try again.",
+    "Invalid email or credentials. Please try again.",
   [AuthErrorCode.SESSION_EXPIRED]:
     "Your session has expired. Please sign in again.",
   [AuthErrorCode.RATE_LIMITED]:
@@ -66,10 +62,6 @@ export const AUTH_ERROR_MESSAGES: Record<AuthErrorCode, string> = {
     "Failed to register passkey. Please try again.",
   [AuthErrorCode.PASSKEY_NOT_SUPPORTED]:
     "Your browser doesn't support passkeys. Please use a modern browser.",
-  [AuthErrorCode.PRF_NOT_SUPPORTED]:
-    "Your browser doesn't support secure encryption. Please use Chrome 128+, Safari 18+, or Edge 128+.",
-  [AuthErrorCode.ENCRYPTION_FAILED]:
-    "Failed to set up encryption. Please try again.",
   [AuthErrorCode.NETWORK_ERROR]:
     "Unable to connect. Please check your internet connection.",
   [AuthErrorCode.USER_NOT_FOUND]: "No account found with this email address.",
@@ -133,76 +125,4 @@ export class AuthError extends Error {
       userMessage: this.userMessage,
     };
   }
-}
-
-/**
- * Check if an error is an AuthError
- */
-export function isAuthError(error: unknown): error is AuthError {
-  return error instanceof AuthError;
-}
-
-/**
- * Convert any error to an AuthError
- *
- * Useful for wrapping unknown errors in a consistent format.
- *
- * @param error - Any error to convert
- * @param defaultCode - Code to use if error is not an AuthError
- * @returns An AuthError instance
- */
-export function toAuthError(
-  error: unknown,
-  defaultCode: AuthErrorCode = AuthErrorCode.SERVER_ERROR
-): AuthError {
-  if (error instanceof AuthError) {
-    return error;
-  }
-
-  if (error instanceof Error) {
-    return new AuthError(defaultCode, error.message, error);
-  }
-
-  return new AuthError(defaultCode, String(error));
-}
-
-/**
- * Get user-friendly message for any error
- *
- * @param error - Any error
- * @returns A safe message to display to users
- */
-export function getErrorMessage(error: unknown): string {
-  if (error instanceof AuthError) {
-    return error.userMessage;
-  }
-
-  // Don't expose internal error messages to users
-  return AUTH_ERROR_MESSAGES[AuthErrorCode.SERVER_ERROR];
-}
-
-/**
- * Result type for auth operations
- *
- * Use this for operations that can fail gracefully.
- */
-export type AuthResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: AuthError };
-
-/**
- * Create a successful auth result
- */
-export function authSuccess<T>(data: T): AuthResult<T> {
-  return { success: true, data };
-}
-
-/**
- * Create a failed auth result
- */
-export function authFailure<T>(
-  code: AuthErrorCode,
-  message?: string
-): AuthResult<T> {
-  return { success: false, error: new AuthError(code, message) };
 }

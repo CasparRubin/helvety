@@ -1,7 +1,7 @@
 {
   "name": "Helvety Store",
   "short_name": "Helvety Store",
-  "description": "Official Helvety Store. Browse software, subscriptions, and apparel designed in Switzerland.",
+  "description": "Official Helvety Store. Browse software and subscriptions designed in Switzerland.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

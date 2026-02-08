@@ -7,7 +7,7 @@ import "server-only";
 
 import Stripe from "stripe";
 
-import { logger } from "@/lib/logger";
+import { version as appVersion } from "@/package.json";
 
 /**
  * Singleton instance of the Stripe client
@@ -105,7 +105,7 @@ export function getStripeClient(): Stripe {
     typescript: true,
     appInfo: {
       name: "helvety-store",
-      version: "1.0.0",
+      version: appVersion,
       url: "https://store.helvety.com",
     },
   });
@@ -122,19 +122,3 @@ export const stripe = new Proxy({} as Stripe, {
     return getStripeClient()[prop as keyof Stripe];
   },
 });
-
-/**
- * Verify that Stripe is properly configured
- * Call this in development to ensure keys are set
- */
-export async function verifyStripeConfig(): Promise<boolean> {
-  try {
-    const client = getStripeClient();
-    // Make a simple API call to verify the key works
-    await client.customers.list({ limit: 1 });
-    return true;
-  } catch (error) {
-    logger.error("Stripe configuration verification failed:", error);
-    return false;
-  }
-}

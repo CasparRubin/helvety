@@ -62,8 +62,6 @@ Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
 
 **Privacy Note:** Your email address is used solely for authentication (verification codes for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
 
-**Note:** End-to-end encryption is not used in this app. E2EE is only used by [Helvety Tasks](https://tasks.helvety.com).
-
 ### Security Hardening
 
 This application implements comprehensive security hardening:
@@ -74,7 +72,7 @@ This application implements comprehensive security hardening:
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
 - **Idle Timeout** - Automatic session expiration after 30 minutes of inactivity
-- **Audit Logging** - Structured logging for authentication and encryption events
+- **Audit Logging** - Structured logging for authentication events
 - **Security Headers** - CSP, HSTS, and other security headers
 
 ## Tech Stack

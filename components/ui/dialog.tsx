@@ -7,45 +7,35 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Dialog root component. */
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>): React.JSX.Element {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
-/**
- *
- */
+/** Dialog trigger button. */
 function DialogTrigger({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Trigger>): React.JSX.Element {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 }
 
-/**
- *
- */
+/** Dialog portal for rendering outside the DOM hierarchy. */
 function DialogPortal({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>): React.JSX.Element {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
-/**
- *
- */
+/** Dialog close button. */
 function DialogClose({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Close>): React.JSX.Element {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
-/**
- *
- */
+/** Dialog overlay backdrop with blur effect. */
 function DialogOverlay({
   className,
   ...props
@@ -62,9 +52,7 @@ function DialogOverlay({
   );
 }
 
-/**
- *
- */
+/** Dialog content panel with optional close button. */
 function DialogContent({
   className,
   children,
@@ -102,9 +90,7 @@ function DialogContent({
   );
 }
 
-/**
- *
- */
+/** Dialog header section. */
 function DialogHeader({
   className,
   ...props
@@ -118,9 +104,7 @@ function DialogHeader({
   );
 }
 
-/**
- *
- */
+/** Dialog footer section with optional close button. */
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -148,9 +132,7 @@ function DialogFooter({
   );
 }
 
-/**
- *
- */
+/** Dialog title text. */
 function DialogTitle({
   className,
   ...props
@@ -164,9 +146,7 @@ function DialogTitle({
   );
 }
 
-/**
- *
- */
+/** Dialog description text. */
 function DialogDescription({
   className,
   ...props

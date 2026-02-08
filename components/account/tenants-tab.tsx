@@ -403,7 +403,9 @@ export function TenantsTab() {
                     {sub.current_period_end && (
                       <span className="text-muted-foreground text-sm">
                         Renews{" "}
-                        {new Date(sub.current_period_end).toLocaleDateString()}
+                        {new Date(sub.current_period_end).toLocaleDateString(
+                          "en-US"
+                        )}
                       </span>
                     )}
                     {sub.maxTenants !== -1 && (
@@ -447,7 +449,9 @@ export function TenantsTab() {
                     {sub.current_period_end && (
                       <p className="text-muted-foreground mt-2 text-xs">
                         Renews{" "}
-                        {new Date(sub.current_period_end).toLocaleDateString()}
+                        {new Date(sub.current_period_end).toLocaleDateString(
+                          "en-US"
+                        )}
                       </p>
                     )}
                   </>

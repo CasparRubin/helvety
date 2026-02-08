@@ -10,9 +10,7 @@ import { cn } from "@/lib/utils";
 
 import type { ProductType, ProductStatus } from "@/lib/types/products";
 
-/**
- *
- */
+/** Props for the ProductBadge component. */
 interface ProductBadgeProps {
   type: ProductType;
   className?: string;

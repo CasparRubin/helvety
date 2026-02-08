@@ -14,9 +14,9 @@
 export const STRIPE_PRICE_IDS = {
   "helvety-pdf-pro-monthly":
     process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID,
-  "helvety-spo-explorer-basic-monthly":
+  "helvety-spo-explorer-solo-monthly":
     process.env.STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID,
-  "helvety-spo-explorer-enterprise-monthly":
+  "helvety-spo-explorer-supported-monthly":
     process.env.STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID,
 } as const;
 
@@ -33,17 +33,23 @@ export const PRICE_ID_TO_PRODUCT = {
   },
   [process.env.STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID ?? ""]: {
     productId: "helvety-spo-explorer",
-    tierId: "helvety-spo-explorer-basic-monthly",
+    tierId: "helvety-spo-explorer-solo-monthly",
     name: "Helvety SPO Explorer Solo",
     type: "subscription" as const,
   },
   [process.env.STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID ?? ""]: {
     productId: "helvety-spo-explorer",
-    tierId: "helvety-spo-explorer-enterprise-monthly",
+    tierId: "helvety-spo-explorer-supported-monthly",
     name: "Helvety SPO Explorer Supported",
     type: "subscription" as const,
   },
 } as const;
+
+/**
+ * Tier IDs that have Stripe checkout enabled.
+ * Derived from STRIPE_PRICE_IDS keys so it stays in sync automatically.
+ */
+export const CHECKOUT_ENABLED_TIERS: string[] = Object.keys(STRIPE_PRICE_IDS);
 
 // =============================================================================
 // CHECKOUT CONFIGURATION
@@ -66,19 +72,6 @@ export function getProductFromPriceId(priceId: string) {
 }
 
 /**
- * Check if a tier ID is a subscription (vs one-time purchase)
- * @param tierId
- */
-export function isSubscriptionTier(tierId: string): boolean {
-  const subscriptionTiers = [
-    "helvety-pdf-pro-monthly",
-    "helvety-spo-explorer-basic-monthly",
-    "helvety-spo-explorer-enterprise-monthly",
-  ];
-  return subscriptionTiers.includes(tierId);
-}
-
-/**
  * Checkout session configuration
  */
 export const CHECKOUT_CONFIG = {
@@ -98,7 +91,7 @@ export const CHECKOUT_CONFIG = {
   paymentMethodTypes: ["card"] as const,
 
   // Allowed countries for billing
-  allowedCountries: ["CH", "DE", "AT", "FR", "IT", "LI"] as const,
+  allowedCountries: ["CH"] as const,
 } as const;
 
 // =============================================================================

@@ -32,7 +32,7 @@ function SubscriptionsLoading() {
 
 /**
  * Subscriptions page: auth gate and compact subscriptions list (SubscriptionsTab).
- * Requires auth (no E2EE).
+ * Requires authentication.
  */
 export default async function SubscriptionsPage() {
   const supabase = await createClient();

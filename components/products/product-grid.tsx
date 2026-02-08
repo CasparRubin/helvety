@@ -11,9 +11,7 @@ import { ProductCard } from "./product-card";
 
 import type { Product } from "@/lib/types/products";
 
-/**
- *
- */
+/** Props for the ProductGrid component. */
 interface ProductGridProps {
   products: Product[];
   className?: string;
@@ -91,9 +89,7 @@ export function ProductGridSkeleton({
   );
 }
 
-/**
- *
- */
+/** Loading skeleton for a product card. */
 function ProductCardSkeleton() {
   return (
     <div className="bg-card flex flex-col rounded-lg border p-6 shadow-xs">

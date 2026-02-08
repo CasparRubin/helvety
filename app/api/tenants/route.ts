@@ -103,10 +103,7 @@ export async function GET() {
 // POST /api/tenants - Register a new tenant
 // =============================================================================
 
-/**
- *
- * @param request
- */
+/** Register a new tenant. */
 export async function POST(request: NextRequest) {
   try {
     // Validate CSRF token from header

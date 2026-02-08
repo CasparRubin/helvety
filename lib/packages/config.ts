@@ -41,8 +41,8 @@ export const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     productId: "helvety-spo-explorer",
     productName: "Helvety SPO Explorer",
     allowedTiers: [
-      "helvety-spo-explorer-basic-monthly",
-      "helvety-spo-explorer-enterprise-monthly",
+      "helvety-spo-explorer-solo-monthly",
+      "helvety-spo-explorer-supported-monthly",
     ],
   },
 } as const;

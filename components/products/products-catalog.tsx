@@ -41,7 +41,7 @@ export function ProductsCatalog() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Products</h1>
         <p className="text-muted-foreground mt-1">
-          Browse software, subscriptions, and apparel from Helvety
+          Browse software and subscriptions from Helvety
         </p>
       </div>
       <section className="mb-6">

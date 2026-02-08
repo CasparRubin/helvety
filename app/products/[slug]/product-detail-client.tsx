@@ -32,7 +32,7 @@ import {
   reactivateSubscription,
 } from "@/app/actions/subscription-actions";
 import {
-  DigitalContentConsentDialog,
+  PurchaseConsentDialog,
   type ConsentMetadata,
 } from "@/components/digital-content-consent-dialog";
 import {
@@ -57,6 +57,7 @@ import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { getProductBySlug } from "@/lib/data/products";
 import { logger } from "@/lib/logger";
+import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
 import { isSoftwareProduct } from "@/lib/types/products";
 import { cn } from "@/lib/utils";
 
@@ -368,13 +369,6 @@ interface PricingCardProps {
   onReactivate?: () => void;
 }
 
-// Tier IDs that have Stripe checkout enabled
-const CHECKOUT_ENABLED_TIERS = [
-  "helvety-pdf-pro-monthly",
-  "helvety-spo-explorer-basic-monthly",
-  "helvety-spo-explorer-enterprise-monthly",
-];
-
 /** Renders a pricing tier card with checkout or reactivation actions. */
 function PricingCard({
   tier,
@@ -679,7 +673,7 @@ function PricingCard({
       )}
 
       {/* Pre-checkout consent dialog (Terms & Privacy Policy) */}
-      <DigitalContentConsentDialog
+      <PurchaseConsentDialog
         open={showConsentDialog}
         onOpenChange={setShowConsentDialog}
         onConfirm={handleCheckout}

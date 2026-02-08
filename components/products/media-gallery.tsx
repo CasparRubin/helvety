@@ -15,9 +15,7 @@ import { cn } from "@/lib/utils";
 
 import type { MediaItem } from "@/lib/types/products";
 
-/**
- *
- */
+/** Props for the MediaGallery component. */
 interface MediaGalleryProps {
   items: MediaItem[];
   className?: string;
@@ -167,9 +165,7 @@ export function MediaGallery({ items, className }: MediaGalleryProps) {
   );
 }
 
-/**
- *
- */
+/** Props for the MediaThumbnail component. */
 interface MediaThumbnailProps {
   item: MediaItem;
   onClick: () => void;

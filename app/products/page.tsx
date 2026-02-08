@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Products",
-  description: "Browse software, subscriptions, and apparel from Helvety",
+  description: "Browse software and subscriptions from Helvety",
 };
 
 /**
