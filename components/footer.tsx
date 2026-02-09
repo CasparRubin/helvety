@@ -45,6 +45,15 @@ export function Footer({ className }: { className?: string }) {
             >
               Terms
             </a>
+            <span aria-hidden>·</span>
+            <a
+              href={`${LEGAL_BASE}/impressum#abuse`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-muted-foreground transition-colors"
+            >
+              Abuse
+            </a>
           </nav>
         </div>
       </div>

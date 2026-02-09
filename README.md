@@ -28,6 +28,8 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
 
+**Abuse Reporting:** Abuse reports can be submitted to [abuse@helvety.com](mailto:abuse@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes a dedicated abuse reporting section with guidance for both users and law enforcement.
+
 ## Features
 
 - **Product Catalog** - Browse Helvety software products with detailed descriptions and pricing
@@ -42,7 +44,7 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 - **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (nDSG Art. 28 compliance)
 - **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in both Stripe session metadata and a dedicated `consent_events` database table for defensible audit compliance
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks)
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 
 ## Security & Authentication
 
@@ -103,7 +105,7 @@ This application is developed and maintained by [Helvety](https://helvety.com), 
 
 Vercel Analytics is used across all Helvety apps for privacy-focused, anonymous page view statistics. Vercel Speed Insights is enabled only on [helvety.com](https://helvety.com). See our [Privacy Policy](https://helvety.com/privacy) for details.
 
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com).
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [abuse@helvety.com](mailto:abuse@helvety.com).
 
 ## License & Usage
 
