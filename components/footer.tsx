@@ -39,6 +39,13 @@ export function Footer({ className }: { className?: string }) {
             >
               Terms
             </Link>
+            <span aria-hidden>·</span>
+            <Link
+              href="/impressum#abuse"
+              className="hover:text-muted-foreground transition-colors"
+            >
+              Abuse
+            </Link>
           </nav>
         </div>
       </div>

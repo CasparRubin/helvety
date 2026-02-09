@@ -231,8 +231,8 @@ export default function PrivacyPage() {
               </li>
               <li>
                 Encryption passkey parameters (PRF salt values for deriving
-                encryption keys, for Helvety Tasks which uses end-to-end
-                encryption)
+                encryption keys, for Helvety Tasks and Helvety Contacts which
+                use end-to-end encryption)
               </li>
               <li>
                 Geo-confirmation metadata (confirmation that you are located in
@@ -348,8 +348,8 @@ export default function PrivacyPage() {
 
             <h3 className="mb-3 text-lg font-medium">2.7 Encryption Data</h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              Helvety Tasks uses end-to-end encryption to protect your data. For
-              this service, we store:
+              Helvety Tasks and Helvety Contacts use end-to-end encryption to
+              protect your data. For these services, we store:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -427,6 +427,16 @@ export default function PrivacyPage() {
                 passkey and do not leave your device. Our architecture is
                 designed so that we cannot read your task data.
               </li>
+              <li>
+                <strong className="text-foreground">
+                  Helvety Contacts (contacts.helvety.com):
+                </strong>{" "}
+                All contact data is end-to-end encrypted client-side before
+                storage. Our servers store only ciphertext. Encryption keys are
+                derived from your passkey and do not leave your device. Our
+                architecture is designed so that we cannot read your contact
+                data.
+              </li>
             </ul>
           </section>
 
@@ -493,6 +503,10 @@ export default function PrivacyPage() {
               <li>To comply with legal obligations</li>
               <li>To improve and optimize the Services</li>
               <li>To enforce our Terms of Service</li>
+              <li>
+                To respond to valid legal requests from Swiss law enforcement
+                and judicial authorities
+              </li>
             </ul>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -518,12 +532,59 @@ export default function PrivacyPage() {
               </li>
               <li>Contacting us at contact@helvety.com</li>
             </ul>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               Please note that even if you opt out of marketing communications,
               we may still send you transactional or service-related
               communications (such as order confirmations, account
               notifications, or important service updates) as necessary to
               provide the Services.
+            </p>
+
+            <h3 className="mb-3 text-lg font-medium">
+              4.2 Law Enforcement and Legal Disclosures
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              We may disclose your non-encrypted personal data to Swiss law
+              enforcement or judicial authorities when required by a valid Swiss
+              court order or binding legal request issued in accordance with
+              applicable Swiss law, including the Swiss Federal Act on the
+              Surveillance of Post and Telecommunications (BÜPF) where
+              applicable.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              The types of data we may disclose in response to valid legal
+              requests include:
+            </p>
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>
+                Account information (email address, account creation date,
+                internal identifiers)
+              </li>
+              <li>
+                IP addresses and timestamps associated with account activity,
+                including file uploads and downloads
+              </li>
+              <li>
+                File operation metadata (upload timestamps, encrypted file
+                sizes, storage paths)
+              </li>
+              <li>Subscription and billing metadata</li>
+            </ul>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">
+                We cannot and will not decrypt end-to-end encrypted content,
+              </strong>{" "}
+              even in response to a court order. Our zero-knowledge architecture
+              means we do not possess the encryption keys necessary to decrypt
+              your data. Only non-encrypted metadata as described above can be
+              provided.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Where legally permitted, we will notify affected users of legal
+              requests concerning their accounts. We may be prohibited from
+              providing such notice where it would compromise an ongoing
+              investigation or where notification is otherwise prohibited by
+              law.
             </p>
           </section>
 
@@ -707,6 +768,18 @@ export default function PrivacyPage() {
                 Retained for up to 90 days for security purposes.
               </li>
               <li>
+                <strong className="text-foreground">
+                  File operation metadata (Helvety Tasks):
+                </strong>{" "}
+                Non-encrypted metadata associated with file uploads, downloads,
+                and deletions -- including timestamps, file sizes (of encrypted
+                blobs), storage paths, IP addresses, and user identifiers -- is
+                retained for up to 6 months for service security and legal
+                compliance purposes. This metadata does not include the content
+                of your files, which is end-to-end encrypted and inaccessible to
+                us.
+              </li>
+              <li>
                 <strong className="text-foreground">Subscription data:</strong>{" "}
                 Retained for the duration of your subscription plus 10 years for
                 tax and accounting compliance (Art. 958f Swiss Code of
@@ -792,11 +865,12 @@ export default function PrivacyPage() {
               </strong>{" "}
               You can export your personal data from your account settings. The
               export includes your profile information, subscription history,
-              and tenant registrations in JSON format. For Helvety Tasks
-              (end-to-end encrypted data), you can initiate an export from
-              within the app while authenticated with your passkey; the data is
-              decrypted client-side and exported locally. Server-side exports of
-              encrypted data are available only in encrypted form.
+              and tenant registrations in JSON format. For Helvety Tasks and
+              Helvety Contacts (end-to-end encrypted data), you can initiate an
+              export from within the app while authenticated with your passkey;
+              the data is decrypted client-side and exported locally.
+              Server-side exports of encrypted data are available only in
+              encrypted form.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               To exercise any of these rights, you may also contact us at{" "}
@@ -1079,10 +1153,10 @@ export default function PrivacyPage() {
               10.2 End-to-End Encryption
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              Helvety Tasks implements end-to-end encryption to protect your
-              task data. Other Helvety services (helvety.com, Helvety Auth,
-              Helvety PDF, Helvety Store) do not use end-to-end encryption. For
-              Helvety Tasks:
+              Helvety Tasks and Helvety Contacts implement end-to-end encryption
+              to protect your data. Other Helvety services (helvety.com, Helvety
+              Auth, Helvety PDF, Helvety Store) do not use end-to-end
+              encryption. For Helvety Tasks and Helvety Contacts:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>

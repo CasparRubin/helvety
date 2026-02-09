@@ -132,6 +132,68 @@ export default function ImpressumPage() {
             </p>
           </section>
 
+          {/* Abuse Reporting */}
+          <section id="abuse">
+            <h2 className="mb-4 text-xl font-semibold">Abuse Reporting</h2>
+            <p className="text-muted-foreground mb-4 text-sm">
+              If you believe that our Services are being used for illegal
+              activity, or if you are a law enforcement authority with a legal
+              request, please contact us:
+            </p>
+            <div className="border-border bg-card space-y-4 border p-6 text-sm">
+              <div>
+                <p className="text-foreground mb-1 font-medium">
+                  Abuse Reports
+                </p>
+                <p className="text-muted-foreground">
+                  Email:{" "}
+                  <a
+                    href="mailto:abuse@helvety.com"
+                    className="hover:text-foreground underline transition-colors"
+                  >
+                    abuse@helvety.com
+                  </a>
+                </p>
+              </div>
+              <div>
+                <p className="text-foreground mb-1 font-medium">
+                  What to Include in a Report
+                </p>
+                <ul className="text-muted-foreground list-inside list-disc space-y-1">
+                  <li>
+                    Description of the suspected illegal activity or content
+                  </li>
+                  <li>
+                    Any account identifiers you may have (e.g., email address)
+                  </li>
+                  <li>Your contact information for follow-up</li>
+                  <li>Reference to the applicable legal basis (if known)</li>
+                </ul>
+              </div>
+              <div>
+                <p className="text-foreground mb-1 font-medium">
+                  For Law Enforcement
+                </p>
+                <p className="text-muted-foreground">
+                  Legal requests must be issued in accordance with applicable
+                  Swiss law. We respond to valid Swiss court orders and binding
+                  legal requests. Due to our zero-knowledge, end-to-end
+                  encryption architecture, we can only provide non-encrypted
+                  metadata (account information, IP addresses, timestamps,
+                  storage usage). We cannot decrypt user content.
+                </p>
+              </div>
+              <div>
+                <p className="text-foreground mb-1 font-medium">
+                  Response Commitment
+                </p>
+                <p className="text-muted-foreground">
+                  We acknowledge abuse reports within 48 hours on business days.
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* Data Protection */}
           <section>
             <h2 className="mb-4 text-xl font-semibold">Data Protection</h2>

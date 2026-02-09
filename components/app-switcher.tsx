@@ -7,6 +7,7 @@ import {
   ShoppingBag,
   KeyRound,
   CheckSquare,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -52,6 +53,12 @@ const apps = [
     href: process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks.helvety.com",
     icon: CheckSquare,
   },
+  {
+    name: "Contacts",
+    href:
+      process.env.NEXT_PUBLIC_CONTACTS_URL ?? "https://contacts.helvety.com",
+    icon: Users,
+  },
 ];
 
 /** Props for the AppSwitcher component */
@@ -63,7 +70,7 @@ interface AppSwitcherProps {
 /**
  * App switcher component for navigating between Helvety ecosystem apps.
  * Displays a grid of available apps in a slide-out sheet.
- * Apps are listed in order: Home, Auth, Store, PDF, Tasks.
+ * Apps are listed in order: Home, Auth, Store, PDF, Tasks, Contacts.
  */
 export function AppSwitcher({ currentApp }: AppSwitcherProps) {
   const [open, setOpen] = useState(false);

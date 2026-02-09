@@ -325,15 +325,15 @@ export default function TermsPage() {
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Encryption Setup:</strong>{" "}
-              Helvety Tasks uses end-to-end encryption to protect your task
-              data. When using Helvety Tasks, you will be required to set up an
-              encryption passkey after authentication. This uses the WebAuthn
-              PRF (Pseudo-Random Function) extension to derive encryption keys
-              on your device. The encryption keys are not transmitted to or
-              stored on our servers. If you lose access to your encryption
-              passkey, encrypted data may become permanently inaccessible. Other
-              Helvety services (helvety.com, Helvety Auth, Helvety PDF, Helvety
-              Store) do not use end-to-end encryption.
+              Helvety Tasks and Helvety Contacts use end-to-end encryption to
+              protect your data. When using these services, you will be required
+              to set up an encryption passkey after authentication. This uses
+              the WebAuthn PRF (Pseudo-Random Function) extension to derive
+              encryption keys on your device. The encryption keys are not
+              transmitted to or stored on our servers. If you lose access to
+              your encryption passkey, encrypted data may become permanently
+              inaccessible. Other Helvety services (helvety.com, Helvety Auth,
+              Helvety PDF, Helvety Store) do not use end-to-end encryption.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Age Requirement:</strong> You
@@ -596,6 +596,23 @@ export default function TermsPage() {
                 or international law or regulation
               </li>
               <li>
+                To store, upload, transmit, or distribute child sexual abuse
+                material (CSAM) or any content that sexualizes minors, in
+                violation of Swiss Criminal Code Art. 197
+              </li>
+              <li>
+                To store, upload, transmit, or distribute depictions of extreme
+                violence against human beings or animals without justifiable
+                cultural or scientific purpose, in violation of Swiss Criminal
+                Code Art. 135
+              </li>
+              <li>
+                To use the Services for any activity that constitutes a criminal
+                offense under Swiss law, including but not limited to fraud,
+                money laundering, terrorist financing, or the distribution of
+                prohibited content
+              </li>
+              <li>
                 To transmit, or procure the sending of, any advertising or
                 promotional material, including any &quot;junk mail,&quot;
                 &quot;chain letter,&quot; &quot;spam,&quot; or any similar
@@ -647,6 +664,15 @@ export default function TermsPage() {
                 from other users
               </li>
             </ul>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">
+                End-to-end encryption does not exempt you from legal
+                responsibility.
+              </strong>{" "}
+              You remain solely responsible for the legality of all content you
+              store using the Services, regardless of whether that content is
+              encrypted.
+            </p>
             <p className="text-muted-foreground text-sm">
               Violation of this Acceptable Use Policy may result in immediate
               termination of your access to the Services and may expose you to
@@ -676,10 +702,10 @@ export default function TermsPage() {
               storage, backup, and content delivery).
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              For end-to-end encrypted content in Helvety Tasks, we have no
-              technical ability to access or use your content. This license
-              applies only to encrypted data as stored on our infrastructure; we
-              cannot and do not access plaintext content.
+              For end-to-end encrypted content in Helvety Tasks and Helvety
+              Contacts, we have no technical ability to access or use your
+              content. This license applies only to encrypted data as stored on
+              our infrastructure; we cannot and do not access plaintext content.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -716,6 +742,30 @@ export default function TermsPage() {
               no reason, including User Content that we believe violates these
               Terms or is otherwise objectionable.
             </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              We may immediately suspend or terminate accounts and delete all
+              associated data (including encrypted files) upon receipt of a
+              valid Swiss court order or if we reasonably believe an account is
+              being used for illegal activity. In such cases:
+            </p>
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>
+                Suspension may be imposed without advance notice where required
+                by law or where notice would compromise an investigation
+              </li>
+              <li>
+                Suspended accounts will have all stored data frozen (encrypted
+                files remain on our infrastructure but become inaccessible)
+              </li>
+              <li>
+                Upon account termination, all associated encrypted files and
+                database records will be permanently deleted
+              </li>
+              <li>
+                You will not be entitled to any refund of fees already paid in
+                the event of suspension or termination for cause
+              </li>
+            </ul>
 
             <h3 className="mb-3 text-lg font-medium">
               7.5 No Liability for User Content
@@ -731,7 +781,8 @@ export default function TermsPage() {
               7.6 Encrypted User Content
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              Helvety Tasks implements end-to-end encryption. For this service:
+              Helvety Tasks and Helvety Contacts implement end-to-end
+              encryption. For these services:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -758,6 +809,52 @@ export default function TermsPage() {
               End-to-end encryption requires a modern browser with WebAuthn PRF
               support (Chrome 128+, Edge 128+, Safari 18+, Firefox 139+ desktop
               only). Firefox for Android does not support encryption features.
+            </p>
+
+            <h3 className="mb-3 text-lg font-medium">
+              7.7 Law Enforcement Cooperation
+            </h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Helvety cooperates with Swiss law enforcement authorities when
+              presented with valid Swiss court orders or binding legal requests
+              issued in accordance with applicable Swiss law, including the
+              Swiss Federal Act on the Surveillance of Post and
+              Telecommunications (BÜPF) where applicable.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Due to our zero-knowledge architecture, we cannot decrypt or
+              provide access to the plaintext content of end-to-end encrypted
+              data. However, we may provide the following non-encrypted metadata
+              in response to valid legal requests:
+            </p>
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>
+                Account information (email address, account creation date,
+                internal identifiers)
+              </li>
+              <li>
+                IP addresses and timestamps associated with account activity
+              </li>
+              <li>
+                Storage usage information (file sizes, upload timestamps,
+                storage paths)
+              </li>
+              <li>Subscription and billing metadata</li>
+            </ul>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Upon receipt of a valid Swiss court order, we may immediately
+              suspend or terminate the account in question. Suspension includes
+              freezing all stored data (encrypted files remain on our
+              infrastructure but become inaccessible to the user). All
+              associated encrypted files will be permanently deleted upon
+              account termination.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              We are under no obligation to provide advance notice to users when
+              acting on valid legal orders, where such notice is prohibited by
+              law or would compromise an ongoing investigation. Where legally
+              permitted, we will notify affected users of legal requests
+              concerning their accounts.
             </p>
           </section>
 
