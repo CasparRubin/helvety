@@ -211,8 +211,8 @@ export default function PrivacyPage() {
               When you create an account, we collect your email address for
               authentication purposes. We use a secure authentication process:
               new users must first confirm that they are located in Switzerland
-              and are not residents of the EU or EEA before any personal data
-              is stored. After this confirmation, new users (and existing users
+              and are not residents of the EU or EEA before any personal data is
+              stored. After this confirmation, new users (and existing users
               without a passkey) receive a verification code by email, then
               passkey setup or verification; existing users with a passkey sign
               in directly with their passkey (biometrics via your device). We

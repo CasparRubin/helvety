@@ -124,9 +124,7 @@ export default function RootLayout({
                 <Navbar />
               </header>
               <ScrollArea className="min-h-0 flex-1">
-                <div className="mx-auto w-full max-w-[2000px]">
-                  {children}
-                </div>
+                <div className="mx-auto w-full max-w-[2000px]">{children}</div>
               </ScrollArea>
               <Footer />
             </div>
