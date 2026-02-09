@@ -64,12 +64,12 @@ export function SettingsPanel({
         </SheetHeader>
 
         {sections.length === 1 ? (
-          /* Single section — skip tabs, render content directly */
+          /* Single section: skip tabs, render content directly */
           <div className="flex-1 overflow-y-auto px-4 pb-4">
             {sections[0]?.content}
           </div>
         ) : (
-          /* Multiple sections — use tabbed navigation */
+          /* Multiple sections: use tabbed navigation */
           <Tabs
             defaultValue={defaultTab}
             className="flex flex-1 flex-col overflow-hidden"

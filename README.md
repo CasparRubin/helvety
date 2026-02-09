@@ -42,7 +42,7 @@ A private and secure task management app with end-to-end encryption. All your da
 
 ### End-to-End Encryption
 
-Helvety Tasks is the only Helvety app that uses end-to-end encryption (E2EE). Your task data is encrypted and decrypted entirely in your browser using a key derived from your passkey. The server stores only encrypted data and PRF salt parameters — it never possesses your encryption key.
+Helvety Tasks is the only Helvety app that uses end-to-end encryption (E2EE). Your task data is encrypted and decrypted entirely in your browser using a key derived from your passkey. The server stores only encrypted data and PRF salt parameters. The server never possesses your encryption key.
 
 **How it works:**
 
@@ -71,7 +71,7 @@ Browser requirements for end-to-end encryption:
 
 ### Authentication Flow
 
-Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** — no passwords required. **Login is required** — all task data is encrypted and tied to your passkey.
+Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is required** because all task data is encrypted and tied to your passkey.
 
 **New Users:**
 

@@ -190,7 +190,7 @@ export function ItemEditor({
     [update]
   );
 
-  // Handle title change — compare against saved value to determine dirty state
+  // Handle title change: compare against saved value to determine dirty state
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newTitle = e.target.value;
@@ -210,7 +210,7 @@ export function ItemEditor({
     [hasInitialized]
   );
 
-  // Handle description change — capture editor baseline on first emission, then compare values
+  // Handle description change: capture editor baseline on first emission, then compare values
   const handleDescriptionChange = useCallback(
     (content: JSONContent) => {
       const serialized = JSON.stringify(content);
@@ -343,7 +343,7 @@ export function ItemEditor({
     [update]
   );
 
-  // Loading state — only show spinner on initial load, not during refresh after save
+  // Loading state: only show spinner on initial load, not during refresh after save
   // (refresh sets isLoading=true which would unmount TiptapEditor and cause false dirty state)
   if (isLoadingItem && !hasInitialized) {
     return (

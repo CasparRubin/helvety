@@ -22,6 +22,6 @@ export function formatDateTime(isoString: string): string {
     minute: "2-digit",
     timeZone: TIMEZONE,
   });
-  // Intl returns "07.02.2026, 14:30" for de-CH — strip the comma
+  // Intl returns "07.02.2026, 14:30" for de-CH so we strip the comma
   return formatter.format(date).replace(",", "");
 }

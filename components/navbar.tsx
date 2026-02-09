@@ -92,7 +92,7 @@ export function Navbar() {
     try {
       await downloadTaskDataExport(masterKey);
     } catch {
-      // Toast error handled in the utility — silently catch here
+      // Toast error handled in the utility, silently catch here
     } finally {
       setIsExporting(false);
     }
