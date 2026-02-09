@@ -22,7 +22,7 @@
  *   - lib/crypto/* (helvety-auth, helvety-tasks only; helvety-store and helvety-pdf do not use E2EE)
  *   - app/error.tsx (global error boundary)
  *   - app/not-found.tsx (global 404 page)
- *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx, components/geo-restriction-dialog.tsx
+ *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
  *   - .cursor/rules/* (coding standards and patterns)
  *   - .prettierrc, .prettierignore, .gitignore, postcss.config.mjs, eslint.config.mjs (tooling configs)
  */
@@ -73,7 +73,6 @@ const FILES = [
   "components/theme-provider.tsx",
   "components/theme-switcher.tsx",
   "components/app-switcher.tsx",
-  "components/geo-restriction-dialog.tsx",
 ];
 
 const DIRS = ["lib/crypto", ".cursor/rules"];

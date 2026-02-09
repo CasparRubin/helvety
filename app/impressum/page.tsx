@@ -28,7 +28,7 @@ export default function ImpressumPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Impressum</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 8, 2026
+              Last updated: February 9, 2026
             </p>
             <p className="text-muted-foreground mt-1 text-sm">
               Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant

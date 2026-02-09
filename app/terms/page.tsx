@@ -28,7 +28,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 8, 2026
+              Last updated: February 9, 2026
             </p>
           </header>
 
@@ -289,11 +289,15 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               To access certain features of the Services, you must create an
               account. Account creation requires your email address and passkey
-              setup. New users receive a verification code via email to verify
-              their identity; existing users with a passkey sign in directly
-              with their passkey. You then authenticate using your device&apos;s
-              biometrics (Face ID, fingerprint, or PIN) to set up or use your
-              passkey.
+              setup. During registration, new users must first confirm that
+              they are located in Switzerland and are not residents of the
+              EU or EEA; this confirmation is required before any personal
+              data is stored or a verification code is sent. After
+              confirmation, new users receive a verification code via email
+              to verify their identity; existing users with a passkey sign in
+              directly with their passkey. You then authenticate using your
+              device&apos;s biometrics (Face ID, fingerprint, or PIN) to set
+              up or use your passkey.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               By creating an account, you agree to:

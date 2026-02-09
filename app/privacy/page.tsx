@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 8, 2026
+              Last updated: February 9, 2026
             </p>
           </header>
 
@@ -210,10 +210,13 @@ export default function PrivacyPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               When you create an account, we collect your email address for
               authentication purposes. We use a secure authentication process:
-              new users (and existing users without a passkey) receive a
-              verification code by email, then passkey setup or verification;
-              existing users with a passkey sign in directly with their passkey
-              (biometrics via your device). We store:
+              new users must first confirm that they are located in Switzerland
+              and are not residents of the EU or EEA before any personal data
+              is stored. After this confirmation, new users (and existing users
+              without a passkey) receive a verification code by email, then
+              passkey setup or verification; existing users with a passkey sign
+              in directly with their passkey (biometrics via your device). We
+              store:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -230,6 +233,10 @@ export default function PrivacyPage() {
                 Encryption passkey parameters (PRF salt values for deriving
                 encryption keys, for Helvety Tasks which uses end-to-end
                 encryption)
+              </li>
+              <li>
+                Geo-confirmation metadata (confirmation that you are located in
+                Switzerland, and the timestamp of that confirmation)
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -387,9 +394,10 @@ export default function PrivacyPage() {
                   Helvety Auth (auth.helvety.com):
                 </strong>{" "}
                 Email address, passkey credentials, PRF encryption parameters,
-                IP address (for rate limiting), and user agent (for device
-                detection). All data is used strictly for authentication and
-                security purposes.
+                geo-confirmation status (confirmation that you are located in
+                Switzerland and the timestamp of that confirmation), IP address
+                (for rate limiting), and user agent (for device detection). All
+                data is used strictly for authentication and security purposes.
               </li>
               <li>
                 <strong className="text-foreground">
