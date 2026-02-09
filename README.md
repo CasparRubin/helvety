@@ -9,6 +9,12 @@ Your one-stop shop for Helvety software and subscriptions. Browse and purchase o
 
 **Store:** [store.helvety.com](https://store.helvety.com)
 
+## Service Availability
+
+Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
+
+As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [auth.helvety.com](https://auth.helvety.com) that they are located in Switzerland before any personal data is stored.
+
 ## Navigation
 
 The store has four main sections, linked from the store nav bar (below the top navbar). The profile dropdown in the top navbar (when signed in) shows your email and links to Account, Subscriptions, and Sign out:
