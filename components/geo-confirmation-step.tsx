@@ -23,6 +23,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
+/** Props for the geo-restriction confirmation step. */
 interface GeoConfirmationStepProps {
   /** Whether the parent is in a loading state (e.g. creating user + sending OTP). */
   isLoading: boolean;
@@ -34,6 +35,7 @@ interface GeoConfirmationStepProps {
   onBack: () => void;
 }
 
+/** Geo-restriction confirmation step displayed before account creation. */
 export function GeoConfirmationStep({
   isLoading,
   error,
@@ -51,10 +53,10 @@ export function GeoConfirmationStep({
       </div>
 
       <p className="text-muted-foreground text-center text-xs">
-        We show this notice for legal reasons. As a small Swiss company without a
-        representative in the European Union, we are required to limit our
-        services to Switzerland (Art.&nbsp;3(2) and Art.&nbsp;27, Regulation (EU)
-        2016/679 / GDPR).
+        We show this notice for legal reasons. As a small Swiss company without
+        a representative in the European Union, we are required to limit our
+        services to Switzerland (Art.&nbsp;3(2) and Art.&nbsp;27, Regulation
+        (EU) 2016/679 / GDPR).
       </p>
 
       <p className="text-foreground text-center text-sm font-medium">
@@ -77,8 +79,7 @@ export function GeoConfirmationStep({
         </p>
         <p>
           <strong>IT:</strong> I nostri servizi sono destinati esclusivamente ai
-          clienti in Svizzera. Non offriamo servizi a persone
-          nell&apos;UE/SEE.
+          clienti in Svizzera. Non offriamo servizi a persone nell&apos;UE/SEE.
         </p>
         <p>
           <strong>ES:</strong> Nuestros servicios est&aacute;n destinados
@@ -87,8 +88,8 @@ export function GeoConfirmationStep({
         </p>
         <p>
           <strong>PT:</strong> Os nossos servi&ccedil;os destinam-se
-          exclusivamente a clientes na Su&iacute;&ccedil;a. N&atilde;o oferecemos
-          servi&ccedil;os a pessoas na UE/EEE.
+          exclusivamente a clientes na Su&iacute;&ccedil;a. N&atilde;o
+          oferecemos servi&ccedil;os a pessoas na UE/EEE.
         </p>
         <p>
           <strong>NL:</strong> Onze diensten zijn uitsluitend bedoeld voor
@@ -112,9 +113,7 @@ export function GeoConfirmationStep({
         </span>
       </label>
 
-      {error && (
-        <p className="text-destructive text-center text-sm">{error}</p>
-      )}
+      {error && <p className="text-destructive text-center text-sm">{error}</p>}
 
       <Button
         onClick={onConfirm}
