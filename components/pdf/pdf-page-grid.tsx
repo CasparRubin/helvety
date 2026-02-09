@@ -38,8 +38,6 @@ interface PdfPageGridProps {
   readonly onExtract: (unifiedPageNumber: number) => void;
   readonly isProcessing: boolean;
   readonly columns?: number;
-  /** Whether rotation is allowed */
-  readonly canRotate?: boolean;
 }
 
 /** Renders the list of page thumbnails with drag-drop reorder, actions, and accessibility. */
@@ -56,7 +54,6 @@ function PdfPageGridComponent({
   onExtract,
   isProcessing,
   columns,
-  canRotate = true,
 }: PdfPageGridProps): React.JSX.Element | null {
   // Track error boundary retry keys for each page
   const errorRetryKeysRef = React.useRef<Map<number, number>>(new Map());
@@ -227,7 +224,6 @@ function PdfPageGridComponent({
             hasRotation: hasUserRotation,
             rotation: userRotation,
             isProcessing,
-            canRotate,
             onMoveUp: handleMoveUp,
             onMoveDown: handleMoveDown,
             onMoveLeft: handleMoveUp,

@@ -396,8 +396,6 @@ function PdfToolkitComponent({
                       {[
                         "Unlimited file uploads",
                         "Unlimited pages",
-                        "All merge & split features",
-                        "Client-side processing",
                       ].map((feature) => (
                         <li
                           key={feature}
@@ -512,8 +510,7 @@ function arePropsEqual(
     }
     if (
       prevProps.limits.maxFiles !== nextProps.limits.maxFiles ||
-      prevProps.limits.maxPages !== nextProps.limits.maxPages ||
-      prevProps.limits.canRotate !== nextProps.limits.canRotate
+      prevProps.limits.maxPages !== nextProps.limits.maxPages
     ) {
       return false;
     }

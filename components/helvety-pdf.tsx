@@ -268,7 +268,6 @@ export function HelvetyPdf(): React.JSX.Element {
                 onExtract={pdfProcessing.extractPage}
                 isProcessing={isProcessing}
                 columns={columns}
-                canRotate={limits.canRotate}
               />
             )}
 

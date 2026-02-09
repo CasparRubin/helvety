@@ -34,7 +34,7 @@ A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract 
 
 **Privacy First** - 100% Client-Side Processing. All file processing happens entirely in your browser. Your file data is never uploaded to our servers. We use Vercel Analytics for anonymous page view statistics only (see [Privacy Policy](https://helvety.com/privacy)).
 
-Helvety PDF offers a free Basic tier with essential features, and a Pro subscription for unlimited usage.
+Helvety PDF offers a free Basic tier and a Pro subscription for unlimited files and pages. Both tiers include all features - the only difference is file and page limits.
 
 ## Service Availability
 
@@ -58,19 +58,12 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 ## Pricing
 
-Helvety PDF offers a free Basic tier and a paid Pro subscription:
+Helvety PDF offers a free Basic tier and a paid Pro subscription. Both tiers include all features (merge, split, reorder, delete, extract, rotate, client-side processing). The only difference is file and page limits:
 
-| Feature                | Basic (Free) | Pro (CHF 4.95/month) |
-| ---------------------- | ------------ | -------------------- |
-| Files                  | Max 2 files  | Unlimited            |
-| Pages                  | Max 10 pages | Unlimited            |
-| Merge files            | Yes          | Yes                  |
-| Split files            | Yes          | Yes                  |
-| Reorder pages          | Yes          | Yes                  |
-| Delete pages           | Yes          | Yes                  |
-| Extract pages          | Yes          | Yes                  |
-| Rotate pages           | Yes          | Yes                  |
-| Client-side processing | Yes          | Yes                  |
+| Limit | Basic (Free) | Pro (CHF 4.95/month) |
+| ----- | ------------ | -------------------- |
+| Files | Max 2 files  | Unlimited            |
+| Pages | Max 10 pages | Unlimited            |
 
 Subscribe at [store.helvety.com](https://store.helvety.com/products/helvety-pdf)
 
@@ -84,7 +77,7 @@ Subscribe at [store.helvety.com](https://store.helvety.com/products/helvety-pdf)
 
 ### Authentication Flow
 
-Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is optional** and users can use the PDF tool without an account. Login is only required for Pro subscription features.
+Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is optional** and users can use the PDF tool without an account. Login is only required for the Pro subscription (unlimited files and pages).
 
 **New Users (when signing in):**
 

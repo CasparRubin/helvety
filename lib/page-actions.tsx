@@ -55,8 +55,6 @@ export interface CreatePageActionsParams {
   hasRotation: boolean;
   rotation: number;
   isProcessing: boolean;
-  /** Whether rotation is allowed */
-  canRotate?: boolean;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
   onMoveLeft: (index: number) => void;
@@ -83,7 +81,6 @@ export function createPageActions(
     isDeleted,
     hasRotation,
     isProcessing,
-    canRotate = true,
     onMoveUp,
     onMoveDown,
     onMoveLeft,
@@ -144,28 +141,24 @@ export function createPageActions(
       variant: isDeleted ? "destructive" : "secondary",
     },
     // Rotate buttons
-    ...(canRotate
-      ? [
-          {
-            icon: <RotateCw className="h-4 w-4" />,
-            onClick: () =>
-              onRotate(unifiedPageNumber, ROTATION_ANGLES.INCREMENT),
-            ariaLabel: `Rotate page ${unifiedPageNumber} 90° clockwise`,
-            title: "Rotate 90° clockwise",
-            disabled: isProcessing,
-          },
-          {
-            icon: <RotateCcw className="h-4 w-4" />,
-            onClick: () =>
-              onRotate(unifiedPageNumber, -ROTATION_ANGLES.INCREMENT),
-            ariaLabel: `Rotate page ${unifiedPageNumber} 90° counter-clockwise`,
-            title: "Rotate 90° counter-clockwise",
-            disabled: isProcessing,
-          },
-        ]
-      : []),
-    // Reset rotation button (only show if rotated AND canRotate)
-    ...(hasRotation && canRotate
+    {
+      icon: <RotateCw className="h-4 w-4" />,
+      onClick: () =>
+        onRotate(unifiedPageNumber, ROTATION_ANGLES.INCREMENT),
+      ariaLabel: `Rotate page ${unifiedPageNumber} 90° clockwise`,
+      title: "Rotate 90° clockwise",
+      disabled: isProcessing,
+    },
+    {
+      icon: <RotateCcw className="h-4 w-4" />,
+      onClick: () =>
+        onRotate(unifiedPageNumber, -ROTATION_ANGLES.INCREMENT),
+      ariaLabel: `Rotate page ${unifiedPageNumber} 90° counter-clockwise`,
+      title: "Rotate 90° counter-clockwise",
+      disabled: isProcessing,
+    },
+    // Reset rotation button (only show if rotated)
+    ...(hasRotation
       ? [
           {
             icon: <RefreshCw className="h-4 w-4" />,

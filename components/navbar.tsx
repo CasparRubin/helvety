@@ -259,9 +259,6 @@ export function Navbar() {
                         {[
                           "Unlimited file uploads",
                           "Unlimited pages",
-                          "Rotate pages",
-                          "All merge & split features",
-                          "Client-side processing",
                         ].map((feature) => (
                           <li
                             key={feature}
@@ -432,9 +429,6 @@ export function Navbar() {
                           {[
                             "Unlimited file uploads",
                             "Unlimited pages",
-                            "Rotate pages",
-                            "All merge & split features",
-                            "Client-side processing",
                           ].map((feature) => (
                             <li
                               key={feature}

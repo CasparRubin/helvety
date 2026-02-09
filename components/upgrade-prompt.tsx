@@ -36,12 +36,7 @@ const REASON_DESCRIPTIONS: Record<
     `You've reached the maximum of ${limits.maxPages} pages with your Basic plan.`,
 };
 
-const PRO_FEATURES = [
-  "Unlimited file uploads",
-  "Unlimited pages",
-  "All merge & split features",
-  "Client-side processing",
-];
+const PRO_FEATURES = ["Unlimited file uploads", "Unlimited pages"];
 
 /** Dialog prompting the user to upgrade when file or page limits are reached. */
 export function UpgradePrompt({

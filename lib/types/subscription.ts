@@ -15,8 +15,6 @@ export interface TierLimits {
   maxFiles: number;
   /** Maximum total number of pages across all files */
   maxPages: number;
-  /** Whether page rotation is allowed */
-  canRotate: boolean;
   /** Tier display name */
   name: string;
   /** Tier description */
@@ -31,16 +29,14 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
   free: {
     maxFiles: 2,
     maxPages: 10,
-    canRotate: true,
     name: "Basic",
-    description: "Free tier with limited features",
+    description: "Free tier with file and page limits",
   },
   pro: {
     maxFiles: Infinity,
     maxPages: Infinity,
-    canRotate: true,
     name: "Pro",
-    description: "Full access to all features",
+    description: "Unlimited files and pages",
   },
 };
 
