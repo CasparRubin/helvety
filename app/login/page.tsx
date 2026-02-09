@@ -175,7 +175,7 @@ function LoginContent() {
       setIsLoading(true);
 
       try {
-        // Read-only check — no user record is created here
+        // Read-only check, no user record is created here
         const result = await checkEmail(email);
 
         if (!result.success) {
@@ -202,7 +202,7 @@ function LoginContent() {
           setResendCooldown(RESEND_COOLDOWN_SECONDS);
           setStep("verify-code");
         } else {
-          // New user — show geo confirmation BEFORE creating any DB record
+          // New user: show geo confirmation BEFORE creating any DB record
           setIsNewUser(true);
           setStep("geo-confirmation");
         }
@@ -222,7 +222,7 @@ function LoginContent() {
     setIsLoading(true);
 
     try {
-      // Now safe to create the user — they confirmed they are in Switzerland
+      // Now safe to create the user since they confirmed they are in Switzerland
       const result = await sendVerificationCode(email, { geoConfirmed: true });
 
       if (!result.success) {

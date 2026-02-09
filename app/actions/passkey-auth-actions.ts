@@ -82,7 +82,7 @@ async function getClientIP(): Promise<string> {
 /**
  * Check if an email address belongs to an existing user (read-only).
  *
- * This action performs NO writes — it only checks existence and passkey status.
+ * This action performs NO writes. It only checks existence and passkey status.
  * Used as the first step of the auth flow so we can branch new vs returning
  * users BEFORE creating any database records (critical for geo-restriction
  * compliance: no EU user data may be stored before confirmation).
@@ -163,7 +163,7 @@ export async function checkEmail(
       };
     }
 
-    // User exists — check passkey status
+    // User exists, check passkey status
     const passkeyStatus = await checkUserPasskeyStatus(existingUser.id);
     const hasPasskey =
       passkeyStatus.success && (passkeyStatus.data?.hasPasskey ?? false);

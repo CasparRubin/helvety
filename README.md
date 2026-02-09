@@ -205,7 +205,7 @@ CREATE TABLE user_passkey_params (
 );
 ```
 
-**Note:** Each user has exactly one passkey params row (keyed by `user_id`). The `prf_salt` is used during PRF evaluation to derive the encryption key. The actual encryption key is never stored—it's derived client-side during passkey authentication.
+**Note:** Each user has exactly one passkey params row (keyed by `user_id`). The `prf_salt` is used during PRF evaluation to derive the encryption key. The actual encryption key is never stored. It is derived client-side during passkey authentication.
 
 ## Security Considerations
 
