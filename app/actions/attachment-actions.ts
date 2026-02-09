@@ -25,8 +25,8 @@ async function getClientIp(): Promise<string | undefined> {
   try {
     const headersList = await headers();
     return (
-      headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      headersList.get("x-real-ip") ||
+      headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      headersList.get("x-real-ip") ??
       undefined
     );
   } catch {
