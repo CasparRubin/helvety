@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/client";
  *
  * Note: The primary sign-in flow now uses OTP codes (verification codes typed by
  * the user), so this component primarily handles edge cases and legacy flows
- * (password reset, invite, email change confirmation links).
+ * (account recovery, invite, email change confirmation links).
  *
  * After setting the session, this component checks if the user needs to complete
  * passkey/encryption setup before redirecting to the final destination.

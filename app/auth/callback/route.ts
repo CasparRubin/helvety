@@ -16,7 +16,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  * This route serves as a backwards-compatible fallback for email verification
  * flows. The primary sign-in flow now uses OTP codes (verification codes typed by
  * the user) instead of clickable links, but this route is kept for:
- * - Password reset, invite, and email change confirmation links
+ * - Account recovery, invite, and email change confirmation links
  * - OAuth flows
  *
  * NOTE: This route is NOT used for passkey sign-in. Passkey authentication

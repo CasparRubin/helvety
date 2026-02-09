@@ -33,7 +33,7 @@ Helvety Auth (`auth.helvety.com`) handles all authentication for Helvety applica
 
 ## Authentication Flows
 
-New users receive a verification code by email to verify their address, then complete passkey setup. Existing users with a passkey skip the email and sign in with passkey directly.
+New users must first confirm they are located in Switzerland (non-EU/EEA), then receive a verification code by email to verify their address, then complete passkey setup. Existing users with a passkey skip the email and sign in with passkey directly.
 
 ### New User Flow
 
@@ -47,7 +47,10 @@ sequenceDiagram
     participant S as Supabase
 
     U->>A: Enter email address
-    A->>S: Send OTP code
+    A->>A: Check if new user (read-only, no DB write)
+    A->>U: Show Non-EU Confirmation step
+    U->>A: Confirm Switzerland location
+    A->>S: Create user + Send OTP code
     S-->>U: Email with verification code
     U->>A: Enter verification code
     A->>S: Verify OTP code
@@ -107,7 +110,7 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 
 ### GET `/auth/callback`
 
-Handles authentication callbacks from email verification (backwards-compatible fallback) and OAuth flows. The primary sign-in flow now uses OTP codes typed by the user, but this route is kept for in-flight links, password reset, invite, and email change flows. After successful verification, redirects to the login page with the appropriate passkey step.
+Handles authentication callbacks from email verification (backwards-compatible fallback) and OAuth flows. The primary sign-in flow now uses OTP codes typed by the user, but this route is kept for in-flight links, account recovery, invite, and email change flows. After successful verification, redirects to the login page with the appropriate passkey step.
 
 **Note:** This route is NOT used for passkey sign-in. Passkey authentication creates the session directly server-side and redirects the user to their destination without going through this callback.
 
@@ -286,7 +289,7 @@ Browser requirements for encryption:
 
 **Note:** Firefox for Android does not support the PRF extension.
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; a geo-restriction confirmation dialog is displayed once per browser session (cached in sessionStorage; cleared when the tab or browser is closed). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
 
 ## Developer
 

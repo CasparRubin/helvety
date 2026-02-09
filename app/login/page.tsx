@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef, Suspense, useCallback } from "react";
 
 import {
+  checkEmail,
   sendVerificationCode,
   verifyEmailCode,
   generatePasskeyAuthOptions,
@@ -17,6 +18,7 @@ import {
   type AuthStep,
   type AuthFlowType,
 } from "@/components/encryption-stepper";
+import { GeoConfirmationStep } from "@/components/geo-confirmation-step";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -42,6 +44,7 @@ const OTP_CODE_LENGTH = 6;
 /** Steps in the login flow, rendered sequentially. */
 type LoginStep =
   | "email" // Enter email
+  | "geo-confirmation" // Non-EU confirmation (new users only)
   | "verify-code" // Enter OTP code from email
   | "passkey-signin" // Sign in with existing passkey
   | "passkey-verify" // Verify newly created passkey
@@ -83,6 +86,7 @@ function LoginContent() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [skippedToPasskey, setSkippedToPasskey] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
   const hasAutoTriggered = useRef(false);
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -163,7 +167,7 @@ function LoginContent() {
     void init();
   }, [supabase, step, redirectUri]);
 
-  // Handle email submission; sends OTP code for new users (or existing without passkey), otherwise goes to passkey sign-in
+  // Handle email submission; checks if user exists (read-only) and branches accordingly
   const handleEmailSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -171,23 +175,36 @@ function LoginContent() {
       setIsLoading(true);
 
       try {
-        const result = await sendVerificationCode(email);
+        // Read-only check — no user record is created here
+        const result = await checkEmail(email);
 
         if (!result.success) {
-          setError(result.error ?? "Failed to send verification email");
+          setError(result.error ?? "Failed to check email");
           setIsLoading(false);
           return;
         }
 
-        if (result.data?.hasPasskey) {
+        if (result.data?.userExists && result.data.hasPasskey) {
           // Existing user with passkey - go directly to passkey sign-in
           setSkippedToPasskey(true);
+          setIsNewUser(false);
           setStep("passkey-signin");
-        } else {
-          // New user or no passkey - show code input
+        } else if (result.data?.userExists) {
+          // Existing user without passkey - send OTP directly (no geo confirmation needed)
+          setIsNewUser(false);
+          const otpResult = await sendVerificationCode(email);
+          if (!otpResult.success) {
+            setError(otpResult.error ?? "Failed to send verification email");
+            setIsLoading(false);
+            return;
+          }
           setOtpCode("");
           setResendCooldown(RESEND_COOLDOWN_SECONDS);
           setStep("verify-code");
+        } else {
+          // New user — show geo confirmation BEFORE creating any DB record
+          setIsNewUser(true);
+          setStep("geo-confirmation");
         }
         setIsLoading(false);
       } catch (err) {
@@ -198,6 +215,32 @@ function LoginContent() {
     },
     [email]
   );
+
+  // Handle geo confirmation for new users; creates user + sends OTP only after confirmation
+  const handleGeoConfirm = useCallback(async () => {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      // Now safe to create the user — they confirmed they are in Switzerland
+      const result = await sendVerificationCode(email, { geoConfirmed: true });
+
+      if (!result.success) {
+        setError(result.error ?? "Failed to send verification email");
+        setIsLoading(false);
+        return;
+      }
+
+      setOtpCode("");
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+      setStep("verify-code");
+      setIsLoading(false);
+    } catch (err) {
+      logger.error("Geo confirmation error:", err);
+      setError("An unexpected error occurred");
+      setIsLoading(false);
+    }
+  }, [email]);
 
   // Handle OTP code verification
   const handleCodeVerify = useCallback(
@@ -237,7 +280,11 @@ function LoginContent() {
     setIsLoading(true);
 
     try {
-      const result = await sendVerificationCode(email);
+      // Pass geoConfirmed for new users (they already confirmed in the previous step)
+      const result = await sendVerificationCode(
+        email,
+        isNewUser ? { geoConfirmed: true } : undefined
+      );
 
       if (!result.success) {
         setError(result.error ?? "Failed to resend code");
@@ -251,7 +298,7 @@ function LoginContent() {
       setError("An unexpected error occurred");
       setIsLoading(false);
     }
-  }, [email, resendCooldown]);
+  }, [email, resendCooldown, isNewUser]);
 
   // Handle passkey sign in (for existing users or verification after setup)
   const handlePasskeySignIn = useCallback(async () => {
@@ -362,6 +409,7 @@ function LoginContent() {
     setError("");
     setIsLoading(false);
     setSkippedToPasskey(false);
+    setIsNewUser(false);
     hasAutoTriggered.current = false;
     setOtpCode("");
     setResendCooldown(0);
@@ -378,6 +426,7 @@ function LoginContent() {
 
   // Determine current stepper step
   const currentAuthStep: AuthStep = (() => {
+    if (step === "geo-confirmation") return "geo_confirmation";
     if (step === "email" || step === "verify-code") return "email";
     if (step === "passkey-signin" || step === "passkey-verify")
       return "sign_in";
@@ -394,8 +443,8 @@ function LoginContent() {
   return (
     <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
       <div className="flex w-full max-w-md flex-col items-center space-y-6">
-        {/* Show stepper - hidden when EncryptionSetup is shown (it has its own stepper) */}
-        {step !== "encryption-setup" && (
+        {/* Show stepper - hidden on initial email step (flow type unknown) and encryption-setup (has its own stepper) */}
+        {step !== "email" && step !== "encryption-setup" && (
           <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
         )}
 
@@ -413,6 +462,7 @@ function LoginContent() {
             <CardHeader>
               <CardTitle>
                 {step === "email" && "Welcome to Helvety"}
+                {step === "geo-confirmation" && "Location Confirmation"}
                 {step === "verify-code" && "Check Your Email"}
                 {step === "passkey-signin" && "Sign In with Passkey"}
                 {step === "passkey-verify" && "Verify Your Passkey"}
@@ -420,6 +470,8 @@ function LoginContent() {
               <CardDescription>
                 {step === "email" &&
                   "Enter your email to sign in or create an account"}
+                {step === "geo-confirmation" &&
+                  "Before we create your account, please confirm your location"}
                 {step === "verify-code" &&
                   `We sent a verification code to ${email}. Check your spam folder if you don\u2019t see it.`}
                 {step === "passkey-signin" && "Use your passkey to sign in"}
@@ -428,7 +480,17 @@ function LoginContent() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Step 1: Email input */}
+              {/* Geo confirmation (new users only - shown BEFORE any DB record is created) */}
+              {step === "geo-confirmation" && (
+                <GeoConfirmationStep
+                  isLoading={isLoading}
+                  error={error}
+                  onConfirm={handleGeoConfirm}
+                  onBack={handleBack}
+                />
+              )}
+
+              {/* Email input */}
               {step === "email" && (
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
                   <div className="space-y-2">

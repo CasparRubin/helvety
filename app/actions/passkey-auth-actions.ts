@@ -80,21 +80,129 @@ async function getClientIP(): Promise<string> {
 }
 
 /**
+ * Check if an email address belongs to an existing user (read-only).
+ *
+ * This action performs NO writes — it only checks existence and passkey status.
+ * Used as the first step of the auth flow so we can branch new vs returning
+ * users BEFORE creating any database records (critical for geo-restriction
+ * compliance: no EU user data may be stored before confirmation).
+ *
+ * Security:
+ * - Rate limited to prevent enumeration attacks
+ * - Email is normalized to prevent duplicates
+ * - Returns generic responses on errors to prevent enumeration
+ *
+ * @param email - The user's email address
+ * @returns Whether the user exists and whether they have a passkey
+ */
+export async function checkEmail(
+  email: string
+): Promise<ActionResponse<{ userExists: boolean; hasPasskey: boolean }>> {
+  const normalizedEmail = email.toLowerCase().trim();
+  const clientIP = await getClientIP();
+
+  // Rate limit by email AND IP to prevent enumeration
+  const emailRateLimit = await checkRateLimit(
+    `check:email:${normalizedEmail}`,
+    RATE_LIMITS.OTP.maxRequests,
+    RATE_LIMITS.OTP.windowMs
+  );
+  const ipRateLimit = await checkRateLimit(
+    `check:ip:${clientIP}`,
+    RATE_LIMITS.OTP.maxRequests * 3,
+    RATE_LIMITS.OTP.windowMs
+  );
+
+  if (!emailRateLimit.allowed || !ipRateLimit.allowed) {
+    const retryAfter =
+      emailRateLimit.retryAfter ?? ipRateLimit.retryAfter ?? 60;
+    logAuthEvent("rate_limit_exceeded", {
+      metadata: {
+        action: "checkEmail",
+        email: `${normalizedEmail.slice(0, 3)}***`,
+        retryAfter,
+      },
+      ip: clientIP,
+    });
+    return {
+      success: false,
+      error: `Too many requests. Please wait ${retryAfter} seconds before trying again.`,
+    };
+  }
+
+  try {
+    const adminClient = createAdminClient();
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      return { success: false, error: "Please enter a valid email address" };
+    }
+
+    // Check if user exists (read-only)
+    const { data: existingUsers, error: listError } =
+      await adminClient.auth.admin.listUsers();
+
+    if (listError) {
+      logger.error("Error listing users:", listError);
+      // Return generic response to prevent enumeration
+      return {
+        success: true,
+        data: { userExists: false, hasPasskey: false },
+      };
+    }
+
+    const existingUser = existingUsers.users.find(
+      (u) => u.email?.toLowerCase() === normalizedEmail
+    );
+
+    if (!existingUser) {
+      return {
+        success: true,
+        data: { userExists: false, hasPasskey: false },
+      };
+    }
+
+    // User exists — check passkey status
+    const passkeyStatus = await checkUserPasskeyStatus(existingUser.id);
+    const hasPasskey =
+      passkeyStatus.success && (passkeyStatus.data?.hasPasskey ?? false);
+
+    return {
+      success: true,
+      data: { userExists: true, hasPasskey },
+    };
+  } catch (error) {
+    logger.error("Error in checkEmail:", error);
+    return {
+      success: true,
+      data: { userExists: false, hasPasskey: false },
+    };
+  }
+}
+
+/**
  * Send a verification code (OTP) to the user's email for authentication.
- * Creates a new account if the user doesn't exist.
+ * Creates a new account if the user doesn't exist, but ONLY when
+ * `options.geoConfirmed` is true (the user has confirmed they are located
+ * in Switzerland and are not an EU/EEA resident).
+ *
  * Skips sending email for existing users who already have passkeys registered
  * (they should use passkey sign-in directly instead).
  *
  * Security:
  * - Rate limited to prevent email spam attacks
  * - Email is normalized to prevent duplicates
+ * - New user creation gated behind geo confirmation (GDPR compliance)
  * - Logs all attempts for audit trail
  *
  * @param email - The user's email address
+ * @param options - Optional flags; geoConfirmed must be true for new users
  * @returns Whether a code was sent or the user should use passkey sign-in
  */
 export async function sendVerificationCode(
-  email: string
+  email: string,
+  options?: { geoConfirmed?: boolean }
 ): Promise<ActionResponse<{ codeSent: boolean; hasPasskey: boolean }>> {
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
@@ -179,10 +287,23 @@ export async function sendVerificationCode(
     let isNewUser = false;
 
     if (!existingUser) {
-      // Create new user
+      // GUARD: Require geo confirmation before creating any user record.
+      // This ensures no EU/EEA user data is ever persisted in the database.
+      if (!options?.geoConfirmed) {
+        return {
+          success: false,
+          error: "Geo confirmation required for new accounts",
+        };
+      }
+
+      // Create new user (only after geo confirmation)
       const { error: createError } = await adminClient.auth.admin.createUser({
         email: normalizedEmail,
         email_confirm: false, // Will be confirmed when they verify the OTP code
+        app_metadata: {
+          geo_ch_confirmed: true,
+          geo_ch_confirmed_at: new Date().toISOString(),
+        },
       });
 
       if (createError) {

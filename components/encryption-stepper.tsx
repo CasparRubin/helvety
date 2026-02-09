@@ -8,7 +8,11 @@ import { cn } from "@/lib/utils";
 export type AuthFlowType = "new_user" | "returning_user";
 
 /** Steps in the authentication flow */
-export type AuthStep = "email" | "create_passkey" | "sign_in";
+export type AuthStep =
+  | "geo_confirmation"
+  | "email"
+  | "create_passkey"
+  | "sign_in";
 
 /** Configuration for a single authentication step. */
 interface StepConfig {
@@ -19,7 +23,8 @@ interface StepConfig {
 /** Step configurations for each flow type */
 const FLOW_STEPS: Record<AuthFlowType, StepConfig[]> = {
   new_user: [
-    { id: "email", label: "Email" },
+    { id: "geo_confirmation", label: "Non-EU Confirmation" },
+    { id: "email", label: "Email Verification" },
     { id: "create_passkey", label: "Passkey Setup" },
   ],
   returning_user: [

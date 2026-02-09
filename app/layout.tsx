@@ -4,9 +4,9 @@ import "./globals.css";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Footer } from "@/components/footer";
-import { GeoRestrictionDialog } from "@/components/geo-restriction-dialog";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EncryptionProvider } from "@/lib/crypto/encryption-context";
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout: sticky header (Navbar), scrollable main, sticky footer (contact + legal links).
+ * Root layout: fixed header (Navbar), ScrollArea main, fixed footer (contact + legal links).
  */
 export default function RootLayout({
   children,
@@ -95,25 +95,23 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <GeoRestrictionDialog>
-            <EncryptionProvider>
-              <TooltipProvider>
-                <AuthTokenHandler />
-                <div className="flex min-h-screen flex-col">
-                  <header className="shrink-0">
-                    <Navbar />
-                  </header>
-                  <div className="min-h-0 flex-1 overflow-y-auto">
-                    <div className="mx-auto w-full max-w-[2000px]">
-                      {children}
-                    </div>
+          <EncryptionProvider>
+            <TooltipProvider>
+              <AuthTokenHandler />
+              <div className="flex h-screen flex-col overflow-hidden">
+                <header className="shrink-0">
+                  <Navbar />
+                </header>
+                <ScrollArea className="min-h-0 flex-1">
+                  <div className="mx-auto w-full max-w-[2000px]">
+                    {children}
                   </div>
-                  <Footer />
-                </div>
-                <Toaster />
-              </TooltipProvider>
-            </EncryptionProvider>
-          </GeoRestrictionDialog>
+                </ScrollArea>
+                <Footer />
+              </div>
+              <Toaster />
+            </TooltipProvider>
+          </EncryptionProvider>
         </ThemeProvider>
         <Analytics />
       </body>
