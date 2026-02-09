@@ -4,11 +4,11 @@ import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Footer } from "@/components/footer";
-import { GeoRestrictionDialog } from "@/components/geo-restriction-dialog";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { StoreNav } from "@/components/store-nav";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getCSRFToken } from "@/lib/csrf";
@@ -103,7 +103,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout: NavbarWrapper provides sticky header, scrollable main, sticky footer.
+ * Root layout: NavbarWrapper provides fixed header, ScrollArea main, fixed footer.
  */
 export default async function RootLayout({
   children,
@@ -122,15 +122,13 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <GeoRestrictionDialog>
-            <AuthTokenHandler />
-            <TooltipProvider>
-              <Providers csrfToken={csrfToken}>
-                <NavbarWrapper>{children}</NavbarWrapper>
-              </Providers>
-            </TooltipProvider>
-            <Toaster />
-          </GeoRestrictionDialog>
+          <AuthTokenHandler />
+          <TooltipProvider>
+            <Providers csrfToken={csrfToken}>
+              <NavbarWrapper>{children}</NavbarWrapper>
+            </Providers>
+          </TooltipProvider>
+          <Toaster />
         </ThemeProvider>
         <Analytics />
       </body>
@@ -139,20 +137,20 @@ export default async function RootLayout({
 }
 
 /**
- * Wraps content with sticky header (Navbar + StoreNav), scrollable main, sticky footer.
+ * Wraps content with fixed header (Navbar + StoreNav), ScrollArea main, fixed footer.
  */
 async function NavbarWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col overflow-hidden">
       <header className="shrink-0">
         <Navbar />
         <StoreNav />
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="mx-auto w-full max-w-[2000px]">
           <main className="min-w-0">{children}</main>
         </div>
-      </div>
+      </ScrollArea>
       <Footer />
     </div>
   );

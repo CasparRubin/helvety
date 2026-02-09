@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/client";
  * This component provides a safety net for email verification flows when
  * Supabase redirects to a page other than /auth/callback. Hash fragments
  * (#access_token=...) are not sent to the server, so we handle them
- * client-side. Primarily handles edge cases and legacy flows (password reset,
+ * client-side. Primarily handles edge cases and legacy flows (account recovery,
  * invite, email change confirmation links).
  *
  * Place this component in the root layout to ensure tokens are processed
