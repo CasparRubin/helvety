@@ -1,0 +1,339 @@
+/**
+ * Contact Encryption Helpers
+ * Convenience functions for encrypting/decrypting Contacts,
+ * CategoryConfigs, and Categories client-side.
+ *
+ * The server only ever sees encrypted data.
+ */
+
+import {
+  encrypt,
+  decrypt,
+  serializeEncryptedData,
+  parseEncryptedData,
+} from "./encryption";
+
+import type {
+  Contact,
+  ContactRow,
+  ContactInput,
+  CategoryConfig,
+  CategoryConfigRow,
+  CategoryConfigInput,
+  Category,
+  CategoryRow,
+  CategoryInput,
+} from "@/lib/types";
+
+// =============================================================================
+// CONTACT ENCRYPTION
+// =============================================================================
+
+/**
+ * Encrypt a Contact for database storage
+ * Takes plaintext input and returns encrypted fields ready for the server
+ */
+export async function encryptContactInput(
+  input: ContactInput,
+  key: CryptoKey
+): Promise<{
+  encrypted_first_name: string;
+  encrypted_last_name: string;
+  encrypted_email: string | null;
+  encrypted_notes: string | null;
+  category_id?: string | null;
+}> {
+  const encryptedFirstName = await encrypt(input.first_name, key);
+  const encryptedLastName = await encrypt(input.last_name, key);
+
+  let encryptedEmail: string | null = null;
+  if (input.email) {
+    const encrypted = await encrypt(input.email, key);
+    encryptedEmail = serializeEncryptedData(encrypted);
+  }
+
+  let encryptedNotes: string | null = null;
+  if (input.notes) {
+    const encrypted = await encrypt(input.notes, key);
+    encryptedNotes = serializeEncryptedData(encrypted);
+  }
+
+  return {
+    encrypted_first_name: serializeEncryptedData(encryptedFirstName),
+    encrypted_last_name: serializeEncryptedData(encryptedLastName),
+    encrypted_email: encryptedEmail,
+    encrypted_notes: encryptedNotes,
+    category_id: input.category_id,
+  };
+}
+
+/**
+ * Decrypt a Contact row from the database
+ * Takes encrypted database row and returns plaintext Contact
+ */
+export async function decryptContactRow(
+  row: ContactRow,
+  key: CryptoKey
+): Promise<Contact> {
+  const first_name = await decrypt(
+    parseEncryptedData(row.encrypted_first_name),
+    key
+  );
+  const last_name = await decrypt(
+    parseEncryptedData(row.encrypted_last_name),
+    key
+  );
+
+  let email: string | null = null;
+  if (row.encrypted_email) {
+    email = await decrypt(parseEncryptedData(row.encrypted_email), key);
+  }
+
+  let notes: string | null = null;
+  if (row.encrypted_notes) {
+    notes = await decrypt(parseEncryptedData(row.encrypted_notes), key);
+  }
+
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    first_name,
+    last_name,
+    email,
+    notes,
+    category_id: row.category_id,
+    sort_order: row.sort_order,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+/**
+ * Decrypt multiple Contact rows
+ */
+export async function decryptContactRows(
+  rows: ContactRow[],
+  key: CryptoKey
+): Promise<Contact[]> {
+  return Promise.all(rows.map((row) => decryptContactRow(row, key)));
+}
+
+/**
+ * Encrypt fields for updating a Contact
+ * Only encrypts provided fields (for partial updates)
+ */
+export async function encryptContactUpdate(
+  update: Partial<ContactInput>,
+  key: CryptoKey
+): Promise<{
+  encrypted_first_name?: string;
+  encrypted_last_name?: string;
+  encrypted_email?: string | null;
+  encrypted_notes?: string | null;
+}> {
+  const result: {
+    encrypted_first_name?: string;
+    encrypted_last_name?: string;
+    encrypted_email?: string | null;
+    encrypted_notes?: string | null;
+  } = {};
+
+  if (update.first_name !== undefined) {
+    const encrypted = await encrypt(update.first_name, key);
+    result.encrypted_first_name = serializeEncryptedData(encrypted);
+  }
+
+  if (update.last_name !== undefined) {
+    const encrypted = await encrypt(update.last_name, key);
+    result.encrypted_last_name = serializeEncryptedData(encrypted);
+  }
+
+  if (update.email !== undefined) {
+    if (update.email === null) {
+      result.encrypted_email = null;
+    } else {
+      const encrypted = await encrypt(update.email, key);
+      result.encrypted_email = serializeEncryptedData(encrypted);
+    }
+  }
+
+  if (update.notes !== undefined) {
+    if (update.notes === null) {
+      result.encrypted_notes = null;
+    } else {
+      const encrypted = await encrypt(update.notes, key);
+      result.encrypted_notes = serializeEncryptedData(encrypted);
+    }
+  }
+
+  return result;
+}
+
+// =============================================================================
+// CATEGORY CONFIG ENCRYPTION
+// =============================================================================
+
+/**
+ * Encrypt a CategoryConfig for database storage
+ */
+export async function encryptCategoryConfigInput(
+  input: CategoryConfigInput,
+  key: CryptoKey
+): Promise<{ encrypted_name: string }> {
+  const encryptedName = await encrypt(input.name, key);
+  return {
+    encrypted_name: serializeEncryptedData(encryptedName),
+  };
+}
+
+/**
+ * Decrypt a CategoryConfig row from the database
+ */
+export async function decryptCategoryConfigRow(
+  row: CategoryConfigRow,
+  key: CryptoKey
+): Promise<CategoryConfig> {
+  const name = await decrypt(parseEncryptedData(row.encrypted_name), key);
+
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    name,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+/**
+ * Decrypt multiple CategoryConfig rows
+ */
+export async function decryptCategoryConfigRows(
+  rows: CategoryConfigRow[],
+  key: CryptoKey
+): Promise<CategoryConfig[]> {
+  return Promise.all(rows.map((row) => decryptCategoryConfigRow(row, key)));
+}
+
+/**
+ * Encrypt fields for updating a CategoryConfig
+ */
+export async function encryptCategoryConfigUpdate(
+  update: Partial<CategoryConfigInput>,
+  key: CryptoKey
+): Promise<{ encrypted_name?: string }> {
+  const result: { encrypted_name?: string } = {};
+
+  if (update.name !== undefined) {
+    const encrypted = await encrypt(update.name, key);
+    result.encrypted_name = serializeEncryptedData(encrypted);
+  }
+
+  return result;
+}
+
+// =============================================================================
+// CATEGORY ENCRYPTION
+// =============================================================================
+
+/**
+ * Encrypt a Category for database storage
+ */
+export async function encryptCategoryInput(
+  input: CategoryInput,
+  key: CryptoKey
+): Promise<{
+  config_id: string;
+  encrypted_name: string;
+  color: string | null;
+  icon: string;
+  sort_order: number;
+  default_rows_shown: number;
+}> {
+  const encryptedName = await encrypt(input.name, key);
+
+  return {
+    config_id: input.config_id,
+    encrypted_name: serializeEncryptedData(encryptedName),
+    color: input.color ?? null,
+    icon: input.icon ?? "circle",
+    sort_order: input.sort_order ?? 0,
+    default_rows_shown: input.default_rows_shown ?? 20,
+  };
+}
+
+/**
+ * Decrypt a Category row from the database
+ */
+export async function decryptCategoryRow(
+  row: CategoryRow,
+  key: CryptoKey
+): Promise<Category> {
+  const name = await decrypt(parseEncryptedData(row.encrypted_name), key);
+
+  return {
+    id: row.id,
+    config_id: row.config_id,
+    user_id: row.user_id,
+    name,
+    color: row.color,
+    icon: row.icon,
+    sort_order: row.sort_order,
+    default_rows_shown: row.default_rows_shown,
+    created_at: row.created_at,
+  };
+}
+
+/**
+ * Decrypt multiple Category rows
+ */
+export async function decryptCategoryRows(
+  rows: CategoryRow[],
+  key: CryptoKey
+): Promise<Category[]> {
+  return Promise.all(rows.map((row) => decryptCategoryRow(row, key)));
+}
+
+/**
+ * Encrypt fields for updating a Category
+ */
+export async function encryptCategoryUpdate(
+  update: Partial<Omit<CategoryInput, "config_id">>,
+  key: CryptoKey
+): Promise<{
+  encrypted_name?: string;
+  color?: string | null;
+  icon?: string;
+  sort_order?: number;
+  default_rows_shown?: number;
+}> {
+  const result: {
+    encrypted_name?: string;
+    color?: string | null;
+    icon?: string;
+    sort_order?: number;
+    default_rows_shown?: number;
+  } = {};
+
+  if (update.name !== undefined) {
+    const encrypted = await encrypt(update.name, key);
+    result.encrypted_name = serializeEncryptedData(encrypted);
+  }
+
+  if (update.color !== undefined) {
+    result.color = update.color;
+  }
+
+  if (update.icon !== undefined) {
+    result.icon = update.icon;
+  }
+
+  if (update.sort_order !== undefined) {
+    result.sort_order = update.sort_order;
+  }
+
+  if (update.default_rows_shown !== undefined) {
+    result.default_rows_shown = update.default_rows_shown;
+  }
+
+  return result;
+}
