@@ -3,9 +3,9 @@ import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Footer } from "@/components/footer";
-import { GeoRestrictionDialog } from "@/components/geo-restriction-dialog";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EncryptionProvider } from "@/lib/crypto";
@@ -111,7 +111,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout: sticky header (Navbar), scrollable main, sticky footer.
+ * Root layout: fixed header (Navbar), ScrollArea main, fixed footer.
  */
 export default function RootLayout({
   children,
@@ -127,23 +127,21 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <GeoRestrictionDialog>
-            <AuthTokenHandler />
-            <TooltipProvider>
-              <EncryptionProvider>
-                <div className="flex h-screen flex-col overflow-hidden">
-                  <header className="shrink-0">
-                    <Navbar />
-                  </header>
-                  <main className="min-h-0 flex-1 overflow-auto">
-                    {children}
-                  </main>
-                  <Footer className="shrink-0" />
-                </div>
-                <Toaster />
-              </EncryptionProvider>
-            </TooltipProvider>
-          </GeoRestrictionDialog>
+          <AuthTokenHandler />
+          <TooltipProvider>
+            <EncryptionProvider>
+              <div className="flex h-screen flex-col overflow-hidden">
+                <header className="shrink-0">
+                  <Navbar />
+                </header>
+                <ScrollArea className="min-h-0 flex-1">
+                  <main>{children}</main>
+                </ScrollArea>
+                <Footer className="shrink-0" />
+              </div>
+              <Toaster />
+            </EncryptionProvider>
+          </TooltipProvider>
         </ThemeProvider>
         <Analytics />
       </body>

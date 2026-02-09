@@ -15,7 +15,7 @@ import {
   Loader2Icon,
   PencilIcon,
 } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -78,6 +78,20 @@ export function ItemActionPanel({
   isSavingPriority,
 }: ItemActionPanelProps) {
   const isMobile = useIsMobile();
+
+  // Controlled open state for collapsible sections.
+  // Start open (SSR-safe), then collapse once isMobile resolves to true.
+  const [stageOpen, setStageOpen] = useState(true);
+  const [priorityOpen, setPriorityOpen] = useState(true);
+  const [labelOpen, setLabelOpen] = useState(true);
+
+  useEffect(() => {
+    if (isMobile) {
+      setStageOpen(false);
+      setPriorityOpen(false);
+      setLabelOpen(false);
+    }
+  }, [isMobile]);
 
   const handleStageClick = useCallback(
     (stageId: string | null) => {
@@ -157,7 +171,7 @@ export function ItemActionPanel({
           <Separator className="my-4" />
 
           {/* Stage section */}
-          <Collapsible defaultOpen={!isMobile}>
+          <Collapsible open={stageOpen} onOpenChange={setStageOpen}>
             <CollapsibleTrigger className="group flex w-full items-center justify-between">
               <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
                 Stage
@@ -253,7 +267,7 @@ export function ItemActionPanel({
 
           {/* Priority section */}
           <Separator className="my-4" />
-          <Collapsible defaultOpen={!isMobile}>
+          <Collapsible open={priorityOpen} onOpenChange={setPriorityOpen}>
             <CollapsibleTrigger className="group flex w-full items-center justify-between">
               <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
                 Priority
@@ -314,7 +328,7 @@ export function ItemActionPanel({
 
           {/* Label section */}
           <Separator className="my-4" />
-          <Collapsible defaultOpen={!isMobile}>
+          <Collapsible open={labelOpen} onOpenChange={setLabelOpen}>
             <CollapsibleTrigger className="group flex w-full items-center justify-between">
               <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
                 Label

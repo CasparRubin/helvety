@@ -385,72 +385,72 @@ export function ItemEditor({
         deleteLabel="Delete Item"
       />
       <div className="container mx-auto px-4 py-8">
+        {/* Header with breadcrumb and save status - above the two-column layout */}
+        <div className="mb-6 flex items-center justify-between">
+          {/* Breadcrumb */}
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">Units</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href={`/units/${unitId}`}>
+                    {isLoadingUnit ? "..." : (unit?.title ?? "Unknown")}
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href={`/units/${unitId}/spaces/${spaceId}`}>
+                    {isLoadingSpace ? "..." : (space?.title ?? "Unknown")}
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{title || "Untitled"}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
+          {/* Save status indicator */}
+          <div className="flex items-center gap-2">
+            {saveStatus === "saving" && (
+              <Badge variant="secondary">
+                <Loader2Icon className="size-3 animate-spin" />
+                Saving...
+              </Badge>
+            )}
+            {saveStatus === "saved" && (
+              <Badge variant="secondary">
+                <CheckIcon className="size-3" />
+                Saved
+              </Badge>
+            )}
+            {saveStatus === "error" && (
+              <Badge variant="destructive">Failed to save</Badge>
+            )}
+            {hasUnsavedChanges && saveStatus === "idle" && (
+              <Badge
+                variant="outline"
+                className="border-amber-500/50 text-amber-600 dark:text-amber-400"
+              >
+                <span className="size-1.5 animate-pulse rounded-full bg-amber-500" />
+                Unsaved changes
+              </Badge>
+            )}
+          </div>
+        </div>
+
         {/* Two-column layout: content left, action panel right (reversed on mobile so panel is on top) */}
         <div className="flex flex-col-reverse md:flex-row md:gap-8">
           {/* Left column - main content */}
           <div className="min-w-0 flex-1">
-            {/* Header with breadcrumb and save status */}
-            <div className="mb-6 flex items-center justify-between">
-              {/* Breadcrumb */}
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link href="/">Units</Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link href={`/units/${unitId}`}>
-                        {isLoadingUnit ? "..." : (unit?.title ?? "Unknown")}
-                      </Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link href={`/units/${unitId}/spaces/${spaceId}`}>
-                        {isLoadingSpace ? "..." : (space?.title ?? "Unknown")}
-                      </Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>{title || "Untitled"}</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-
-              {/* Save status indicator */}
-              <div className="flex items-center gap-2">
-                {saveStatus === "saving" && (
-                  <Badge variant="secondary">
-                    <Loader2Icon className="size-3 animate-spin" />
-                    Saving...
-                  </Badge>
-                )}
-                {saveStatus === "saved" && (
-                  <Badge variant="secondary">
-                    <CheckIcon className="size-3" />
-                    Saved
-                  </Badge>
-                )}
-                {saveStatus === "error" && (
-                  <Badge variant="destructive">Failed to save</Badge>
-                )}
-                {hasUnsavedChanges && saveStatus === "idle" && (
-                  <Badge
-                    variant="outline"
-                    className="border-amber-500/50 text-amber-600 dark:text-amber-400"
-                  >
-                    <span className="size-1.5 animate-pulse rounded-full bg-amber-500" />
-                    Unsaved changes
-                  </Badge>
-                )}
-              </div>
-            </div>
-
             {/* Title input */}
             <div className="mb-6">
               <input
@@ -458,7 +458,7 @@ export function ItemEditor({
                 value={title}
                 onChange={handleTitleChange}
                 placeholder="Item title..."
-                className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-4xl leading-tight font-bold outline-none"
+                className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-2xl leading-tight font-bold outline-none md:text-4xl"
               />
             </div>
 
