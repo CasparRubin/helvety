@@ -557,11 +557,11 @@ function PricingCard({
           </span>
         </div>
       )}
-      {/* Popular badge - only show if not subscribed */}
+      {/* Recommended badge - only show if not subscribed */}
       {tier.highlighted && !hasActiveSubscription && !isPendingCancellation && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
           <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-medium shadow-md">
-            Popular
+            Recommended
           </span>
         </div>
       )}
