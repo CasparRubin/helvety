@@ -182,7 +182,17 @@ export async function getEncryptionParams(): Promise<
 > {
   try {
     const passkeyResult = await getPasskeyParams();
-    if (passkeyResult.success && passkeyResult.data) {
+
+    // Propagate errors (auth failure, rate limit, etc.) instead of
+    // silently treating them as "no encryption set up"
+    if (!passkeyResult.success) {
+      return {
+        success: false,
+        error: passkeyResult.error ?? "Failed to check encryption status",
+      };
+    }
+
+    if (passkeyResult.data) {
       return {
         success: true,
         data: {
@@ -192,7 +202,8 @@ export async function getEncryptionParams(): Promise<
       };
     }
 
-    // No encryption set up
+    // Only reached when success=true but data=null
+    // (user genuinely has no encryption set up)
     return {
       success: true,
       data: { type: null },

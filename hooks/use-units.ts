@@ -90,8 +90,12 @@ export function useUnits(): UseUnitsReturn {
    */
   const create = useCallback(
     async (input: UnitInput): Promise<{ id: string } | null> => {
-      if (!masterKey || !csrfToken) {
+      if (!masterKey) {
         setError("Encryption not unlocked");
+        return null;
+      }
+      if (!csrfToken) {
+        setError("Please wait, initializing security token...");
         return null;
       }
 
@@ -122,8 +126,12 @@ export function useUnits(): UseUnitsReturn {
    */
   const update = useCallback(
     async (id: string, input: Partial<UnitInput>): Promise<boolean> => {
-      if (!masterKey || !csrfToken) {
+      if (!masterKey) {
         setError("Encryption not unlocked");
+        return false;
+      }
+      if (!csrfToken) {
+        setError("Please wait, initializing security token...");
         return false;
       }
 

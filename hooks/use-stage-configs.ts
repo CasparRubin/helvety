@@ -118,8 +118,12 @@ export function useStageConfigs(
 
   const create = useCallback(
     async (input: StageConfigInput): Promise<{ id: string } | null> => {
-      if (!masterKey || !csrfToken) {
+      if (!masterKey) {
         setError("Encryption not unlocked");
+        return null;
+      }
+      if (!csrfToken) {
+        setError("Please wait, initializing security token...");
         return null;
       }
 
@@ -151,8 +155,12 @@ export function useStageConfigs(
         return false;
       }
 
-      if (!masterKey || !csrfToken) {
+      if (!masterKey) {
         setError("Encryption not unlocked");
+        return false;
+      }
+      if (!csrfToken) {
+        setError("Please wait, initializing security token...");
         return false;
       }
 

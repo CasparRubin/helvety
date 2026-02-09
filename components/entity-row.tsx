@@ -53,7 +53,7 @@ interface EntityRowProps {
  * EntityRow - A single row in the entity list/table.
  *
  * Desktop: drag handle, icon (stage-colored), title, description (subtle), date, actions
- * Mobile: up/down arrows, icon (stage-colored), title, actions
+ * Mobile: icon (stage-colored), title, stage arrows + delete (right-side actions)
  */
 export function EntityRow({
   id,
@@ -92,11 +92,20 @@ export function EntityRow({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group border-border flex items-center gap-2 border-b px-3 py-2.5 transition-colors last:border-b-0 ${
+      className={`group border-border flex cursor-pointer items-center gap-2 border-b px-3 py-2.5 transition-colors last:border-b-0 ${
         isDragging
           ? "bg-muted/80 z-50 rounded-md shadow-lg"
           : "hover:bg-muted/40"
       }`}
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
     >
       {/* Desktop: Drag Handle */}
       <button
@@ -108,53 +117,14 @@ export function EntityRow({
         <GripVerticalIcon className="size-4" />
       </button>
 
-      {/* Mobile: Up/Down arrows */}
-      <div className="flex shrink-0 flex-col gap-0.5 md:hidden">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="size-5"
-          onClick={(e) => {
-            e.stopPropagation();
-            onMoveUp?.();
-          }}
-          disabled={isFirst}
-        >
-          <ChevronUpIcon className="size-3" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="size-5"
-          onClick={(e) => {
-            e.stopPropagation();
-            onMoveDown?.();
-          }}
-          disabled={isLast}
-        >
-          <ChevronDownIcon className="size-3" />
-        </Button>
-      </div>
-
       {/* Icon */}
       <Icon
         className="size-4 shrink-0"
         style={stage?.color ? { color: stage.color } : undefined}
       />
 
-      {/* Title + Description (clickable area) */}
-      <div
-        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3"
-        onClick={onClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onClick?.();
-          }
-        }}
-      >
+      {/* Title + Description */}
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <span className="truncate font-medium">{title}</span>
         {childCount !== undefined && (
           <span className="text-muted-foreground shrink-0 text-xs">
@@ -209,20 +179,52 @@ export function EntityRow({
         {formatDateTime(createdAt)}
       </span>
 
-      {/* Delete */}
-      {onDelete && (
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="text-muted-foreground hover:text-destructive shrink-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-        >
-          <TrashIcon className="size-4" />
-        </Button>
-      )}
+      {/* Actions: Mobile stage arrows + Delete */}
+      <div className="flex shrink-0 items-center gap-0.5">
+        {(onMoveUp ?? onMoveDown) && (
+          <div className="flex items-center gap-0.5 md:hidden">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-muted-foreground size-7"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveUp?.();
+              }}
+              disabled={isFirst}
+              aria-label="Move to previous stage"
+            >
+              <ChevronUpIcon className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-muted-foreground size-7"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveDown?.();
+              }}
+              disabled={isLast}
+              aria-label="Move to next stage"
+            >
+              <ChevronDownIcon className="size-4" />
+            </Button>
+          </div>
+        )}
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-muted-foreground hover:text-destructive shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            <TrashIcon className="size-4" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

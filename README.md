@@ -9,6 +9,12 @@ A private and secure task management app with end-to-end encryption. All your da
 
 **App:** [tasks.helvety.com](https://tasks.helvety.com)
 
+## Service Availability
+
+Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
+
+As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [auth.helvety.com](https://auth.helvety.com) that they are located in Switzerland before any personal data is stored.
+
 ## Features
 
 - **End-to-end encryption** - All task data is encrypted client-side using your passkey; we never see your data
@@ -33,7 +39,7 @@ A private and secure task management app with end-to-end encryption. All your da
   - **Icon support** - Each stage can have a Lucide icon for visual identification
   - **Rows shown by default** - Control how many items are visible per stage (0 = collapsed, N = show N items with "Show all" link)
 - **Encrypted file attachments** - Upload, download, and manage file attachments on items (images, documents, etc.) with drag-and-drop support; files are encrypted client-side before upload
-- **Drag & drop reordering** - Easily rearrange items within and between stages
+- **Drag & drop reordering** - Easily rearrange items within and between stages on desktop; mobile uses up/down arrows to move items between stages
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the profile menu; data is fetched encrypted from the server and decrypted client-side using your passkey (nDSG Art. 28 compliance). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition

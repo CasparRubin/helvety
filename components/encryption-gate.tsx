@@ -57,6 +57,7 @@ export function EncryptionGate({
     isUnlocked,
     isLoading: contextLoading,
     checkEncryptionState,
+    error: contextError,
   } = useEncryptionContext();
 
   const [hasCheckedParams, setHasCheckedParams] = useState(false);
@@ -101,13 +102,14 @@ export function EncryptionGate({
 
   // Derive status from state (no setState in effect)
   const status: EncryptionStatus = useMemo(() => {
-    if (error) return "error";
+    if (error || contextError) return "error";
     if (contextLoading || !hasCheckedParams) return "loading";
     if (isUnlocked || manualUnlock) return "unlocked";
     if (passkeyParams) return "needs_unlock";
     return "needs_setup";
   }, [
     error,
+    contextError,
     contextLoading,
     hasCheckedParams,
     isUnlocked,
@@ -142,7 +144,9 @@ export function EncryptionGate({
     return (
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <div className="text-center">
-          <p className="text-destructive">{error ?? "An error occurred"}</p>
+          <p className="text-destructive">
+            {error ?? contextError ?? "An error occurred"}
+          </p>
           <p className="text-muted-foreground mt-2 text-sm">
             If this problem persists, contact us at{" "}
             <a

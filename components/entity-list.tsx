@@ -80,8 +80,8 @@ interface EntityListProps {
  * Features:
  * - Always shows stage groups when stages are configured (even with no entities)
  * - Flat list fallback (when no stages configured)
- * - Drag-and-drop reordering within and between stages
- * - Desktop: drag handles, Mobile: up/down arrows
+ * - Drag-and-drop reordering within and between stages (desktop)
+ * - Mobile: up/down arrows to move entities between stages
  * - Consistent row layout across all entity types
  */
 export function EntityList({
@@ -257,45 +257,60 @@ export function EntityList({
     [entities, onReorder]
   );
 
-  // Move up/down handlers for mobile
+  // Move up/down handlers for mobile — move entity to previous/next stage
   const handleMoveUp = useCallback(
     (entityId: string) => {
-      if (!onReorder) return;
-      const sorted = [...entities].sort((a, b) => a.sort_order - b.sort_order);
-      const idx = sorted.findIndex((e) => e.id === entityId);
-      if (idx <= 0) return;
+      if (!onReorder || stages.length === 0) return;
+      const entity = entities.find((e) => e.id === entityId);
+      if (!entity) return;
 
-      const current = sorted[idx];
-      const prev = sorted[idx - 1];
-      if (!current || !prev) return;
+      const currentStageIdx = stages.findIndex((s) => s.id === entity.stage_id);
+
+      let newStageId: string;
+      if (currentStageIdx === -1) {
+        // Unstaged → move to last stage
+        const lastStage = stages[stages.length - 1];
+        if (!lastStage) return;
+        newStageId = lastStage.id;
+      } else if (currentStageIdx <= 0) {
+        // Already in the first stage, cannot move up
+        return;
+      } else {
+        const prevStage = stages[currentStageIdx - 1];
+        if (!prevStage) return;
+        newStageId = prevStage.id;
+      }
 
       const updates: ReorderUpdate[] = [
-        { id: current.id, sort_order: prev.sort_order },
-        { id: prev.id, sort_order: current.sort_order },
+        { id: entity.id, sort_order: entity.sort_order, stage_id: newStageId },
       ];
       void onReorder(updates);
     },
-    [entities, onReorder]
+    [entities, stages, onReorder]
   );
 
   const handleMoveDown = useCallback(
     (entityId: string) => {
-      if (!onReorder) return;
-      const sorted = [...entities].sort((a, b) => a.sort_order - b.sort_order);
-      const idx = sorted.findIndex((e) => e.id === entityId);
-      if (idx === -1 || idx >= sorted.length - 1) return;
+      if (!onReorder || stages.length === 0) return;
+      const entity = entities.find((e) => e.id === entityId);
+      if (!entity) return;
 
-      const current = sorted[idx];
-      const next = sorted[idx + 1];
-      if (!current || !next) return;
+      const currentStageIdx = stages.findIndex((s) => s.id === entity.stage_id);
+
+      // Unstaged or already in the last stage → cannot move down
+      if (currentStageIdx === -1 || currentStageIdx >= stages.length - 1)
+        return;
+
+      const nextStage = stages[currentStageIdx + 1];
+      if (!nextStage) return;
+      const newStageId = nextStage.id;
 
       const updates: ReorderUpdate[] = [
-        { id: current.id, sort_order: next.sort_order },
-        { id: next.id, sort_order: current.sort_order },
+        { id: entity.id, sort_order: entity.sort_order, stage_id: newStageId },
       ];
       void onReorder(updates);
     },
-    [entities, onReorder]
+    [entities, stages, onReorder]
   );
 
   // Loading state
@@ -345,8 +360,10 @@ export function EntityList({
           onDragEnd={handleDragEnd}
         >
           <div>
-            {stages.map((stage) => {
+            {stages.map((stage, stageIndex) => {
               const stageEntities = groupedEntities?.get(stage.id) ?? [];
+              const isFirstStage = stageIndex === 0;
+              const isLastStage = stageIndex === stages.length - 1;
               return (
                 <StageGroup
                   key={stage.id}
@@ -365,7 +382,7 @@ export function EntityList({
                         new Date(a.updated_at).getTime()
                       );
                     })
-                    .map((entity, idx) => (
+                    .map((entity) => (
                       <EntityRow
                         key={entity.id}
                         id={entity.id}
@@ -381,8 +398,8 @@ export function EntityList({
                             : null
                         }
                         childCount={childCounts?.[entity.id]}
-                        isFirst={idx === 0}
-                        isLast={idx === stageEntities.length - 1}
+                        isFirst={isFirstStage}
+                        isLast={isLastStage}
                         onClick={() => onEntityClick?.(entity)}
                         onDelete={
                           onEntityDelete
@@ -417,7 +434,7 @@ export function EntityList({
                         new Date(a.updated_at).getTime()
                       );
                     })
-                    .map((entity, idx) => (
+                    .map((entity) => (
                       <EntityRow
                         key={entity.id}
                         id={entity.id}
@@ -432,8 +449,8 @@ export function EntityList({
                             : null
                         }
                         childCount={childCounts?.[entity.id]}
-                        isFirst={idx === 0}
-                        isLast={idx === unstagedEntities.length - 1}
+                        isFirst={false}
+                        isLast={true}
                         onClick={() => onEntityClick?.(entity)}
                         onDelete={
                           onEntityDelete

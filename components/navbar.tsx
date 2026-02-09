@@ -168,22 +168,29 @@ export function Navbar() {
           {/* E2EE, About, GitHub - hidden below 400px (moved into burger) */}
           <div className="hidden items-center gap-2 min-[401px]:flex">
             {!encryptionLoading && isUnlocked && (
-              <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="cursor-default md:hidden">
-                      <ShieldCheck className="h-4 w-4 text-green-500" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>End-to-end encrypted</p>
-                  </TooltipContent>
-                </Tooltip>
-                <div className="hidden items-center gap-1.5 md:flex">
-                  <ShieldCheck className="h-4 w-4 text-green-500" />
-                  <span>End-to-end encrypted</span>
-                </div>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm">
+                    <ShieldCheck className="h-4 w-4 text-green-500" />
+                    <span className="hidden md:inline">
+                      End-to-end encrypted
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs space-y-2 p-3">
+                  <p className="font-semibold">End-to-End Encrypted</p>
+                  <p>
+                    All your data is encrypted on your device before it leaves
+                    your browser. Only you can read it — not even we can access
+                    your tasks, notes, or any other content.
+                  </p>
+                  <p>
+                    Encryption is tied to your passkey. If you lose your
+                    passkey, your data cannot be recovered — by you or by us.
+                    There is no reset or backup option.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             )}
 
             <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>

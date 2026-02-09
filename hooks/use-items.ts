@@ -85,8 +85,12 @@ export function useItems(spaceId: string): UseItemsReturn {
 
   const create = useCallback(
     async (input: ItemInput): Promise<{ id: string } | null> => {
-      if (!masterKey || !csrfToken) {
+      if (!masterKey) {
         setError("Encryption not unlocked");
+        return null;
+      }
+      if (!csrfToken) {
+        setError("Please wait, initializing security token...");
         return null;
       }
 
@@ -113,8 +117,12 @@ export function useItems(spaceId: string): UseItemsReturn {
       id: string,
       input: Partial<Omit<ItemInput, "space_id">>
     ): Promise<boolean> => {
-      if (!masterKey || !csrfToken) {
+      if (!masterKey) {
         setError("Encryption not unlocked");
+        return false;
+      }
+      if (!csrfToken) {
+        setError("Please wait, initializing security token...");
         return false;
       }
 

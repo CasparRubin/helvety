@@ -15,7 +15,7 @@ import {
   Loader2Icon,
   PencilIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -84,14 +84,17 @@ export function ItemActionPanel({
   const [stageOpen, setStageOpen] = useState(true);
   const [priorityOpen, setPriorityOpen] = useState(true);
   const [labelOpen, setLabelOpen] = useState(true);
+  const [prevIsMobile, setPrevIsMobile] = useState(isMobile);
 
-  useEffect(() => {
-    if (isMobile) {
-      setStageOpen(false);
-      setPriorityOpen(false);
-      setLabelOpen(false);
-    }
-  }, [isMobile]);
+  // Collapse sections when switching to mobile view (SSR-safe).
+  // Uses the "adjusting state during render" pattern per React docs
+  // to avoid cascading renders (react-hooks/set-state-in-effect).
+  if (isMobile && isMobile !== prevIsMobile) {
+    setPrevIsMobile(isMobile);
+    setStageOpen(false);
+    setPriorityOpen(false);
+    setLabelOpen(false);
+  }
 
   const handleStageClick = useCallback(
     (stageId: string | null) => {
