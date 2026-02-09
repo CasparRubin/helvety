@@ -92,7 +92,7 @@ function getStatusInfo(
 
 /** Format ISO date string for list display (e.g. "Jan 15, 2026"). */
 function formatListDate(dateString: string | null): string {
-  if (!dateString) return "—";
+  if (!dateString) return "-";
   return new Date(dateString).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",

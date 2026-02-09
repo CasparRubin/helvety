@@ -42,7 +42,7 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 
 ### Authentication Flow
 
-Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** — no passwords required. **Login is optional for browsing** — users can view products without an account. Login is required for purchases, account management, subscriptions, and tenant management.
+Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is optional for browsing** and users can view products without an account. Login is required for purchases, account management, subscriptions, and tenant management.
 
 **New Users (when signing in):**
 

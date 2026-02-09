@@ -279,7 +279,7 @@ export interface UserDataExport {
  * Export all user data in a structured JSON format.
  *
  * Returns profile info, subscription history, purchase history, and tenant
- * registrations. Encrypted task data (helvety-tasks) is NOT included here —
+ * registrations. Encrypted task data (helvety-tasks) is NOT included here.
  * that must be exported client-side from within Helvety Tasks while the user
  * is authenticated with their passkey.
  *
