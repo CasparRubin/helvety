@@ -57,6 +57,14 @@ export const metadata: Metadata = {
     siteName: "Helvety Auth",
     title: "Sign In | Helvety",
     description: "Sign in to your Helvety account",
+    images: [
+      {
+        url: "/helvety_Identifier_whiteBg.svg",
+        width: 500,
+        height: 500,
+        alt: "Helvety",
+      },
+    ],
   },
   twitter: {
     card: "summary",

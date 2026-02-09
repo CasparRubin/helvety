@@ -21,6 +21,7 @@ Helvety Auth (`auth.helvety.com`) handles all authentication for Helvety applica
 - **store.helvety.com** - Store application
 - **pdf.helvety.com** - PDF application
 - **tasks.helvety.com** - Tasks application
+- **contacts.helvety.com** - Contacts application
 
 ## Features
 
@@ -253,9 +254,9 @@ The auth service validates all `redirect_uri` parameters to prevent open redirec
 
 Invalid redirect URIs are rejected, and the user is redirected to `helvety.com` by default.
 
-### End-to-End Encryption Setup (for Helvety Tasks)
+### End-to-End Encryption Setup (for Helvety Tasks and Helvety Contacts)
 
-Helvety Auth handles the encryption setup flow for **Helvety Tasks**, the only Helvety app that uses end-to-end encryption (E2EE). Auth itself does not encrypt any of its own data.
+Helvety Auth handles the encryption setup flow for **Helvety Tasks** and **Helvety Contacts**, the Helvety apps that use end-to-end encryption (E2EE). Auth itself does not encrypt any of its own data.
 
 After passkey authentication, new users are guided through a two-step encryption setup. The flow is **device-aware**:
 
@@ -278,7 +279,7 @@ After passkey authentication, new users are guided through a two-step encryption
 - **Encryption Passkey** - A passkey created using the WebAuthn PRF (Pseudo-Random Function) extension
 - **Key Derivation** - Encryption keys are derived client-side from the PRF output using HKDF
 - **Zero-Knowledge** - The server stores only PRF parameters (salt values); encryption keys are never transmitted
-- **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all `*.helvety.com` apps; however, E2EE is only active in Helvety Tasks
+- **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all `*.helvety.com` apps; however, E2EE is only active in Helvety Tasks and Helvety Contacts
 
 Browser requirements for encryption:
 
@@ -297,13 +298,15 @@ Browser requirements for encryption:
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
 
+**Abuse Reporting:** Abuse reports can be submitted to [abuse@helvety.com](mailto:abuse@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes a dedicated abuse reporting section with guidance for both users and law enforcement.
+
 ## Developer
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
 
 Vercel Analytics is used across all Helvety apps for privacy-focused, anonymous page view statistics. Vercel Speed Insights is enabled only on [helvety.com](https://helvety.com). See our [Privacy Policy](https://helvety.com/privacy) for details.
 
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com).
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [abuse@helvety.com](mailto:abuse@helvety.com).
 
 ## License & Usage
 

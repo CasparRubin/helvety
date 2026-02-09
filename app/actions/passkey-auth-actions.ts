@@ -554,13 +554,15 @@ function getRpId(origin: string): string {
 function getExpectedOrigins(rpId: string): string[] {
   if (rpId === "localhost") {
     // All local development ports for Helvety apps
-    // 3000: reserved for new dev, 3001: helvety.com, 3002: auth, 3003: store, 3004: pdf
+    // 3000: reserved for new dev, 3001: helvety.com, 3002: auth, 3003: store, 3004: pdf, 3005: tasks, 3006: contacts
     return [
       "http://localhost:3000",
       "http://localhost:3001",
       "http://localhost:3002",
       "http://localhost:3003",
       "http://localhost:3004",
+      "http://localhost:3005",
+      "http://localhost:3006",
     ];
   }
   // All Helvety subdomains
@@ -569,6 +571,8 @@ function getExpectedOrigins(rpId: string): string[] {
     "https://auth.helvety.com",
     "https://pdf.helvety.com",
     "https://store.helvety.com",
+    "https://tasks.helvety.com",
+    "https://contacts.helvety.com",
   ];
 }
 

@@ -49,8 +49,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# supabase
-/supabase
 
 # typescript
 *.tsbuildinfo
