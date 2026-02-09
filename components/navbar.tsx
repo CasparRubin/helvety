@@ -181,13 +181,13 @@ export function Navbar() {
                   <p className="font-semibold">End-to-End Encrypted</p>
                   <p>
                     All your data is encrypted on your device before it leaves
-                    your browser. Only you can read it — not even we can access
+                    your browser. Only you can read it. Not even we can access
                     your tasks, notes, or any other content.
                   </p>
                   <p>
                     Encryption is tied to your passkey. If you lose your
-                    passkey, your data cannot be recovered — by you or by us.
-                    There is no reset or backup option.
+                    passkey, your data cannot be recovered by anyone, including
+                    us. There is no reset or backup option.
                   </p>
                 </TooltipContent>
               </Tooltip>

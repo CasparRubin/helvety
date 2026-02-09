@@ -1,9 +1,14 @@
 /**
  * Task Encryption Helpers
  * Convenience functions for encrypting/decrypting Units, Spaces, Items,
- * StageConfigs, Stages, LabelConfigs, Labels, and Attachments client-side.
+ * StageConfigs, Stages, LabelConfigs, Labels, Attachments, and Contacts
+ * client-side.
  *
  * The server only ever sees encrypted data.
+ *
+ * Note: Contact decryption is read-only — contacts are created and edited
+ * in helvety-contacts. Only name and email are decrypted here; notes content
+ * is not decrypted, only a `has_notes` flag is derived.
  */
 
 import {
@@ -38,6 +43,8 @@ import type {
   Attachment,
   AttachmentRow,
   AttachmentMetadata,
+  Contact,
+  ContactRow,
 } from "@/lib/types";
 
 // =============================================================================
@@ -740,4 +747,55 @@ export async function decryptAttachmentRows(
   key: CryptoKey
 ): Promise<Attachment[]> {
   return Promise.all(rows.map((row) => decryptAttachmentRow(row, key)));
+}
+
+// =============================================================================
+// CONTACT DECRYPTION (read-only, contacts are created/edited in helvety-contacts)
+// =============================================================================
+
+/**
+ * Decrypt a Contact row from the database.
+ * Decrypts first_name, last_name, and email. Notes content is NOT decrypted;
+ * only a `has_notes` boolean flag is derived from whether encrypted_notes is non-null.
+ */
+export async function decryptContactRow(
+  row: ContactRow,
+  key: CryptoKey
+): Promise<Contact> {
+  const firstName = await decrypt(
+    parseEncryptedData(row.encrypted_first_name),
+    key
+  );
+  const lastName = await decrypt(
+    parseEncryptedData(row.encrypted_last_name),
+    key
+  );
+
+  let email: string | null = null;
+  if (row.encrypted_email) {
+    email = await decrypt(parseEncryptedData(row.encrypted_email), key);
+  }
+
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    first_name: firstName,
+    last_name: lastName,
+    email,
+    has_notes: row.encrypted_notes !== null,
+    category_id: row.category_id,
+    sort_order: row.sort_order,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+/**
+ * Decrypt multiple Contact rows
+ */
+export async function decryptContactRows(
+  rows: ContactRow[],
+  key: CryptoKey
+): Promise<Contact[]> {
+  return Promise.all(rows.map((row) => decryptContactRow(row, key)));
 }

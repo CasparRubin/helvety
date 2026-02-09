@@ -1,39 +1,39 @@
 "use client";
 
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { Tooltip as TooltipPrimitive } from "radix-ui";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/** Provider that configures tooltip behavior for the app. */
+/** Tooltip provider for configuring tooltip behavior. */
 function TooltipProvider({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" {...props} />;
 }
 
-/** Root container for a tooltip. */
+/** Tooltip root component. */
 function Tooltip({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 }
 
-/** Element that triggers the tooltip on hover or focus. */
+/** Tooltip trigger element. */
 function TooltipTrigger({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
-/** Portal that renders the tooltip outside the DOM hierarchy. */
+/** Tooltip portal for rendering outside the DOM hierarchy. */
 function TooltipPortal({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Portal>) {
   return <TooltipPrimitive.Portal data-slot="tooltip-portal" {...props} />;
 }
 
-/** Content shown in the tooltip popup. */
+/** Tooltip content popup with animations. */
 function TooltipContent({
   className,
   ...props

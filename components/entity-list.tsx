@@ -257,7 +257,7 @@ export function EntityList({
     [entities, onReorder]
   );
 
-  // Move up/down handlers for mobile — move entity to previous/next stage
+  // Move up/down handlers for mobile: move entity to previous/next stage
   const handleMoveUp = useCallback(
     (entityId: string) => {
       if (!onReorder || stages.length === 0) return;

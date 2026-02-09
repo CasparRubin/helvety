@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
 
+import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
 import { SettingsPanel } from "@/components/settings-panel";
@@ -44,7 +45,11 @@ import {
  */
 export function SpacesDashboard({ unitId }: { unitId: string }) {
   const router = useRouter();
-  const { unit, isLoading: isLoadingUnit } = useUnit(unitId);
+  const {
+    unit,
+    isLoading: isLoadingUnit,
+    update: updateUnit,
+  } = useUnit(unitId);
   const { remove: removeUnit } = useUnits();
   const { spaces, isLoading, error, refresh, create, remove, reorder } =
     useSpaces(unitId);
@@ -73,6 +78,11 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
     name: string | null;
   }>({ open: false, id: null, name: null });
   const [isDeleting, setIsDeleting] = useState(false);
+  // Unit edit state (for editing the parent unit from command bar)
+  const [isEditUnitOpen, setIsEditUnitOpen] = useState(false);
+  const [editUnitTitle, setEditUnitTitle] = useState("");
+  const [editUnitDescription, setEditUnitDescription] = useState("");
+  const [isUpdatingUnit, setIsUpdatingUnit] = useState(false);
   // Unit delete state (for deleting the parent unit from command bar)
   const [isUnitDeleteOpen, setIsUnitDeleteOpen] = useState(false);
   const [isDeletingUnit, setIsDeletingUnit] = useState(false);
@@ -139,6 +149,34 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
     router.push("/");
   }, [router]);
 
+  const handleEditUnitOpen = useCallback(() => {
+    setEditUnitTitle(unit?.title ?? "");
+    setEditUnitDescription(unit?.description ?? "");
+    setIsEditUnitOpen(true);
+  }, [unit]);
+
+  const handleEditUnitSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editUnitTitle.trim()) return;
+
+      setIsUpdatingUnit(true);
+      try {
+        const success = await updateUnit({
+          title: editUnitTitle.trim(),
+          description: editUnitDescription.trim() || null,
+        });
+
+        if (success) {
+          setIsEditUnitOpen(false);
+        }
+      } finally {
+        setIsUpdatingUnit(false);
+      }
+    },
+    [editUnitTitle, editUnitDescription, updateUnit]
+  );
+
   const handleDeleteUnit = useCallback(() => {
     setIsUnitDeleteOpen(true);
   }, []);
@@ -172,6 +210,8 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
         onSettings={() => setIsSettingsOpen(true)}
+        onEdit={handleEditUnitOpen}
+        editLabel="Edit Unit"
         onDelete={handleDeleteUnit}
         deleteLabel="Delete Unit"
       />
@@ -207,6 +247,11 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
         />
+
+        {/* Linked Contacts */}
+        <div className="mt-8">
+          <ContactLinksPanel entityType="unit" entityId={unitId} />
+        </div>
       </div>
 
       {/* Create Space Dialog */}
@@ -262,6 +307,69 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
                   </>
                 ) : (
                   "Create Space"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Unit Dialog */}
+      <Dialog open={isEditUnitOpen} onOpenChange={setIsEditUnitOpen}>
+        <DialogContent>
+          <form onSubmit={handleEditUnitSubmit}>
+            <DialogHeader>
+              <DialogTitle>Edit Unit</DialogTitle>
+              <DialogDescription>
+                Update the unit name and description. All data is encrypted
+                end-to-end.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-unit-title">Title</Label>
+                <Input
+                  id="edit-unit-title"
+                  placeholder="e.g., My Organization"
+                  value={editUnitTitle}
+                  onChange={(e) => setEditUnitTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-unit-description">
+                  Description (optional)
+                </Label>
+                <Input
+                  id="edit-unit-description"
+                  placeholder="e.g., Main workspace for my company"
+                  value={editUnitDescription}
+                  onChange={(e) => setEditUnitDescription(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditUnitOpen(false)}
+                disabled={isUpdatingUnit}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isUpdatingUnit || !editUnitTitle.trim()}
+              >
+                {isUpdatingUnit ? (
+                  <>
+                    <Loader2Icon className="mr-2 size-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
                 )}
               </Button>
             </DialogFooter>

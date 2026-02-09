@@ -1,0 +1,403 @@
+"use client";
+
+import {
+  ExternalLinkIcon,
+  Loader2Icon,
+  NotepadTextIcon,
+  PlusIcon,
+  SearchIcon,
+  UnlinkIcon,
+  UsersIcon,
+} from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useContactLinks } from "@/hooks";
+
+import type { LinkedContact } from "@/hooks";
+import type { EntityType, Contact } from "@/lib/types";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+const CONTACTS_APP_URL =
+  process.env.NEXT_PUBLIC_CONTACTS_URL ?? "https://contacts.helvety.com";
+
+/** Build a deep link URL to view/edit a contact in the Contacts app */
+function getContactDeepLink(contactId: string): string {
+  return `${CONTACTS_APP_URL}/contacts/${contactId}`;
+}
+
+/** Format a contact's full name */
+function formatContactName(contact: Contact | LinkedContact): string {
+  return `${contact.first_name} ${contact.last_name}`.trim();
+}
+
+// =============================================================================
+// Sub-components
+// =============================================================================
+
+/**
+ * A single linked contact row in the list.
+ */
+function LinkedContactRow({
+  contact,
+  onUnlink,
+}: {
+  contact: LinkedContact;
+  onUnlink: (linkId: string, name: string) => void;
+}): React.JSX.Element {
+  const name = formatContactName(contact);
+
+  return (
+    <div className="group hover:bg-muted/40 flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors">
+      {/* Contact info */}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <p className="truncate text-sm font-medium">{name}</p>
+          {contact.has_notes && (
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <NotepadTextIcon className="size-3.5 shrink-0 text-amber-500" />
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>Has notes</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+        {contact.email && (
+          <p className="text-muted-foreground truncate text-xs">
+            {contact.email}
+          </p>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon-xs" asChild>
+                <a
+                  href={getContactDeepLink(contact.id)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLinkIcon className="size-3.5" />
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>Open in Contacts</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => onUnlink(contact.link_id, name)}
+                className="text-destructive hover:text-destructive"
+              >
+                <UnlinkIcon className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>Unlink contact</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Contact picker item in the search dropdown.
+ */
+function ContactPickerItem({
+  contact,
+  onSelect,
+  isLinking,
+}: {
+  contact: Contact;
+  onSelect: (id: string) => void;
+  isLinking: boolean;
+}): React.JSX.Element {
+  const name = formatContactName(contact);
+
+  return (
+    <button
+      type="button"
+      className="hover:bg-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors disabled:pointer-events-none disabled:opacity-50"
+      onClick={() => onSelect(contact.id)}
+      disabled={isLinking}
+    >
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium">{name}</p>
+        {contact.email && (
+          <p className="text-muted-foreground truncate text-xs">
+            {contact.email}
+          </p>
+        )}
+      </div>
+      {contact.has_notes && (
+        <NotepadTextIcon className="size-3.5 shrink-0 text-amber-500" />
+      )}
+    </button>
+  );
+}
+
+// =============================================================================
+// Main Component
+// =============================================================================
+
+/**
+ * Panel for linking/unlinking contacts to a task entity (unit, space, or item).
+ * Displays linked contacts with deep links to the Contacts app and a
+ * searchable picker to add new contacts.
+ */
+export function ContactLinksPanel({
+  entityType,
+  entityId,
+}: {
+  entityType: EntityType;
+  entityId: string;
+}): React.JSX.Element {
+  const { allContacts, linkedContacts, isLoading, link, unlink } =
+    useContactLinks(entityType, entityId);
+
+  // Picker state
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLinking, setIsLinking] = useState(false);
+
+  // Unlink confirmation state
+  const [unlinkTarget, setUnlinkTarget] = useState<{
+    linkId: string;
+    name: string;
+  } | null>(null);
+  const [isUnlinking, setIsUnlinking] = useState(false);
+
+  // Filter contacts: exclude already-linked ones and apply search
+  const linkedContactIds = useMemo(
+    () => new Set(linkedContacts.map((c) => c.id)),
+    [linkedContacts]
+  );
+
+  const filteredContacts = useMemo(() => {
+    const available = allContacts.filter((c) => !linkedContactIds.has(c.id));
+    if (!searchQuery.trim()) return available;
+
+    const query = searchQuery.toLowerCase();
+    return available.filter((c) => {
+      const name = formatContactName(c).toLowerCase();
+      const email = c.email?.toLowerCase() ?? "";
+      return name.includes(query) || email.includes(query);
+    });
+  }, [allContacts, linkedContactIds, searchQuery]);
+
+  // Handle linking a contact
+  const handleLink = useCallback(
+    async (contactId: string) => {
+      setIsLinking(true);
+      try {
+        const success = await link(contactId);
+        if (success) {
+          setSearchQuery("");
+          setIsPickerOpen(false);
+        }
+      } finally {
+        setIsLinking(false);
+      }
+    },
+    [link]
+  );
+
+  // Handle unlink confirmation
+  const handleUnlinkClick = useCallback((linkId: string, name: string) => {
+    setUnlinkTarget({ linkId, name });
+  }, []);
+
+  const handleUnlinkConfirm = useCallback(async () => {
+    if (!unlinkTarget) return;
+    setIsUnlinking(true);
+    try {
+      await unlink(unlinkTarget.linkId);
+    } finally {
+      setIsUnlinking(false);
+      setUnlinkTarget(null);
+    }
+  }, [unlinkTarget, unlink]);
+
+  return (
+    <>
+      <div className="space-y-3">
+        {/* Section header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <UsersIcon className="text-muted-foreground size-4" />
+            <h3 className="text-muted-foreground text-sm font-medium">
+              Contacts
+            </h3>
+            {linkedContacts.length > 0 && (
+              <span className="text-muted-foreground text-xs">
+                ({linkedContacts.length})
+              </span>
+            )}
+          </div>
+
+          {/* Add contact button / picker */}
+          <Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+                <PlusIcon className="size-3.5" />
+                Add
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="w-72 gap-0 p-0"
+              onOpenAutoFocus={(e) => e.preventDefault()}
+            >
+              {/* Search input */}
+              <div className="border-b p-2">
+                <div className="relative">
+                  <SearchIcon className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
+                  <Input
+                    placeholder="Search contacts..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-8 pl-7 text-xs"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              {/* Contact list */}
+              <ScrollArea className="max-h-56">
+                <div className="p-1">
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
+                    </div>
+                  ) : filteredContacts.length === 0 ? (
+                    <p className="text-muted-foreground py-4 text-center text-xs">
+                      {allContacts.length === 0
+                        ? "No contacts found"
+                        : searchQuery
+                          ? "No matching contacts"
+                          : "All contacts are already linked"}
+                    </p>
+                  ) : (
+                    filteredContacts.map((contact) => (
+                      <ContactPickerItem
+                        key={contact.id}
+                        contact={contact}
+                        onSelect={handleLink}
+                        isLinking={isLinking}
+                      />
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Loading state */}
+        {isLoading && linkedContacts.length === 0 && (
+          <div className="flex items-center justify-center py-4">
+            <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+          </div>
+        )}
+
+        {/* Linked contacts list */}
+        {linkedContacts.length > 0 && (
+          <div className="space-y-1.5">
+            {linkedContacts.map((contact) => (
+              <LinkedContactRow
+                key={contact.link_id}
+                contact={contact}
+                onUnlink={handleUnlinkClick}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!isLoading && linkedContacts.length === 0 && (
+          <p className="text-muted-foreground py-2 text-center text-xs">
+            No contacts linked yet
+          </p>
+        )}
+      </div>
+
+      {/* Unlink confirmation dialog */}
+      <AlertDialog
+        open={unlinkTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setUnlinkTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unlink Contact</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to unlink &ldquo;{unlinkTarget?.name}
+              &rdquo; from this {entityType}? The contact itself will not be
+              deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isUnlinking}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleUnlinkConfirm}
+              disabled={isUnlinking}
+            >
+              {isUnlinking ? (
+                <>
+                  <Loader2Icon className="mr-2 size-4 animate-spin" />
+                  Unlinking...
+                </>
+              ) : (
+                "Unlink"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

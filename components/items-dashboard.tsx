@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
 
+import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
 import { LabelConfiguratorContent } from "@/components/label-configurator";
@@ -55,7 +56,11 @@ export function ItemsDashboard({
 }) {
   const router = useRouter();
   const { unit, isLoading: isLoadingUnit } = useUnit(unitId);
-  const { space, isLoading: isLoadingSpace } = useSpace(spaceId);
+  const {
+    space,
+    isLoading: isLoadingSpace,
+    update: updateSpace,
+  } = useSpace(spaceId);
   const { remove: removeSpace } = useSpaces(unitId);
   const { items, isLoading, error, refresh, create, remove, reorder } =
     useItems(spaceId);
@@ -98,6 +103,11 @@ export function ItemsDashboard({
     name: string | null;
   }>({ open: false, id: null, name: null });
   const [isDeleting, setIsDeleting] = useState(false);
+  // Space edit state (for editing the parent space from command bar)
+  const [isEditSpaceOpen, setIsEditSpaceOpen] = useState(false);
+  const [editSpaceTitle, setEditSpaceTitle] = useState("");
+  const [editSpaceDescription, setEditSpaceDescription] = useState("");
+  const [isUpdatingSpace, setIsUpdatingSpace] = useState(false);
   // Space delete state (for deleting the parent space from command bar)
   const [isSpaceDeleteOpen, setIsSpaceDeleteOpen] = useState(false);
   const [isDeletingSpace, setIsDeletingSpace] = useState(false);
@@ -164,6 +174,34 @@ export function ItemsDashboard({
     [router, unitId, spaceId]
   );
 
+  const handleEditSpaceOpen = useCallback(() => {
+    setEditSpaceTitle(space?.title ?? "");
+    setEditSpaceDescription(space?.description ?? "");
+    setIsEditSpaceOpen(true);
+  }, [space]);
+
+  const handleEditSpaceSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editSpaceTitle.trim()) return;
+
+      setIsUpdatingSpace(true);
+      try {
+        const success = await updateSpace({
+          title: editSpaceTitle.trim(),
+          description: editSpaceDescription.trim() || null,
+        });
+
+        if (success) {
+          setIsEditSpaceOpen(false);
+        }
+      } finally {
+        setIsUpdatingSpace(false);
+      }
+    },
+    [editSpaceTitle, editSpaceDescription, updateSpace]
+  );
+
   const handleDeleteSpace = useCallback(() => {
     setIsSpaceDeleteOpen(true);
   }, []);
@@ -197,6 +235,8 @@ export function ItemsDashboard({
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
         onSettings={() => setIsSettingsOpen(true)}
+        onEdit={handleEditSpaceOpen}
+        editLabel="Edit Space"
         onDelete={handleDeleteSpace}
         deleteLabel="Delete Space"
       />
@@ -240,6 +280,11 @@ export function ItemsDashboard({
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
         />
+
+        {/* Linked Contacts */}
+        <div className="mt-8">
+          <ContactLinksPanel entityType="space" entityId={spaceId} />
+        </div>
       </div>
 
       {/* Create Item Dialog */}
@@ -293,6 +338,69 @@ export function ItemsDashboard({
                   </>
                 ) : (
                   "Create Item"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Space Dialog */}
+      <Dialog open={isEditSpaceOpen} onOpenChange={setIsEditSpaceOpen}>
+        <DialogContent>
+          <form onSubmit={handleEditSpaceSubmit}>
+            <DialogHeader>
+              <DialogTitle>Edit Space</DialogTitle>
+              <DialogDescription>
+                Update the space name and description. All data is encrypted
+                end-to-end.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-space-title">Title</Label>
+                <Input
+                  id="edit-space-title"
+                  placeholder="e.g., Backend, Frontend, Design"
+                  value={editSpaceTitle}
+                  onChange={(e) => setEditSpaceTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-space-description">
+                  Description (optional)
+                </Label>
+                <Input
+                  id="edit-space-description"
+                  placeholder="e.g., Backend development tasks"
+                  value={editSpaceDescription}
+                  onChange={(e) => setEditSpaceDescription(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditSpaceOpen(false)}
+                disabled={isUpdatingSpace}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isUpdatingSpace || !editSpaceTitle.trim()}
+              >
+                {isUpdatingSpace ? (
+                  <>
+                    <Loader2Icon className="mr-2 size-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
                 )}
               </Button>
             </DialogFooter>

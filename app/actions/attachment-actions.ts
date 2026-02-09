@@ -2,14 +2,37 @@
 
 import "server-only";
 
+import { headers } from "next/headers";
 import { z } from "zod";
 
 import { authenticateAndRateLimit } from "@/lib/action-helpers";
+import { logAttachmentEvent } from "@/lib/attachment-logger";
 import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { ActionResponse, AttachmentRow } from "@/lib/types";
+
+// =============================================================================
+// Utilities
+// =============================================================================
+
+/**
+ * Extract client IP address from request headers.
+ * Works with Vercel, Cloudflare, and standard reverse proxies.
+ */
+async function getClientIp(): Promise<string | undefined> {
+  try {
+    const headersList = await headers();
+    return (
+      headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      headersList.get("x-real-ip") ||
+      undefined
+    );
+  } catch {
+    return undefined;
+  }
+}
 
 // =============================================================================
 // Input Validation Schemas
@@ -101,6 +124,9 @@ export async function createAttachment(
       return { success: false, error: "Item not found" };
     }
 
+    // Capture IP for audit logging
+    const clientIp = await getClientIp();
+
     // Insert attachment record
     const { data: attachment, error } = await supabase
       .from("item_attachments")
@@ -116,8 +142,24 @@ export async function createAttachment(
 
     if (error || !attachment) {
       logger.error("Error creating attachment:", error);
+      logAttachmentEvent("attachment_upload_failed", {
+        userId: user.id,
+        itemId: validatedData.item_id,
+        storagePath: validatedData.storage_path,
+        ip: clientIp,
+        metadata: { reason: "db_insert_failed" },
+      });
       return { success: false, error: "Failed to create attachment" };
     }
+
+    // Audit log: successful upload
+    logAttachmentEvent("attachment_upload_success", {
+      userId: user.id,
+      attachmentId: attachment.id,
+      itemId: validatedData.item_id,
+      storagePath: validatedData.storage_path,
+      ip: clientIp,
+    });
 
     return { success: true, data: { id: attachment.id } };
   } catch (error) {
@@ -202,6 +244,9 @@ export async function deleteAttachment(
       return { success: false, error: "Failed to find attachment" };
     }
 
+    // Capture IP for audit logging
+    const clientIp = await getClientIp();
+
     // Delete the file from Supabase Storage using admin client
     // (admin client bypasses storage RLS for reliable cleanup)
     const adminClient = createAdminClient();
@@ -226,8 +271,23 @@ export async function deleteAttachment(
 
     if (deleteError) {
       logger.error("Error deleting attachment record:", deleteError);
+      logAttachmentEvent("attachment_delete_failed", {
+        userId: user.id,
+        attachmentId: id,
+        storagePath: attachment.storage_path,
+        ip: clientIp,
+        metadata: { reason: "db_delete_failed" },
+      });
       return { success: false, error: "Failed to delete attachment" };
     }
+
+    // Audit log: successful deletion
+    logAttachmentEvent("attachment_deleted", {
+      userId: user.id,
+      attachmentId: id,
+      storagePath: attachment.storage_path,
+      ip: clientIp,
+    });
 
     return { success: true };
   } catch (error) {

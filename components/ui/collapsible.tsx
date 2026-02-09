@@ -1,6 +1,6 @@
 "use client";
 
-import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
+import { Collapsible as CollapsiblePrimitive } from "radix-ui";
 
 /** Collapsible root wrapper around Radix UI Collapsible. */
 function Collapsible({

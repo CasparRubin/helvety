@@ -3,12 +3,13 @@
 /**
  * Task command bar - sticky toolbar below navbar
  * Primary actions (always visible): back, create
- * Secondary actions (desktop inline, mobile dropdown): refresh, settings, delete
+ * Secondary actions (desktop inline, mobile dropdown): refresh, settings, edit, delete
  */
 
 import {
   ArrowLeftIcon,
   EllipsisVerticalIcon,
+  PencilIcon,
   PlusIcon,
   RefreshCwIcon,
   SettingsIcon,
@@ -40,6 +41,10 @@ interface TaskCommandBarProps {
   isRefreshing?: boolean;
   /** Callback to open the settings panel */
   onSettings: () => void;
+  /** Callback to open the edit dialog (if provided, shows edit button) */
+  onEdit?: () => void;
+  /** Label for the edit button - "Edit Unit", "Edit Space" */
+  editLabel?: string;
   /** Callback to delete the current entity (if provided, shows delete button) */
   onDelete?: () => void;
   /** Label for the delete button - "Delete Unit", "Delete Space" */
@@ -57,6 +62,8 @@ export function TaskCommandBar({
   onRefresh,
   isRefreshing,
   onSettings,
+  onEdit,
+  editLabel,
   onDelete,
   deleteLabel,
 }: TaskCommandBarProps) {
@@ -108,7 +115,7 @@ export function TaskCommandBar({
           {/* Spacer pushes right group to the end */}
           <div className="flex-1" />
 
-          {/* Desktop only: Settings, Delete */}
+          {/* Desktop only: Settings, Edit, Delete */}
           <Button
             variant="outline"
             size="sm"
@@ -118,6 +125,17 @@ export function TaskCommandBar({
             <SettingsIcon className="mr-1.5 size-4 shrink-0" />
             <span>Settings</span>
           </Button>
+          {onEdit && editLabel && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onEdit}
+              className="hidden md:inline-flex"
+            >
+              <PencilIcon className="mr-1.5 size-4 shrink-0" />
+              <span>{editLabel}</span>
+            </Button>
+          )}
           {onDelete && deleteLabel && (
             <Button
               variant="destructive"
@@ -149,6 +167,12 @@ export function TaskCommandBar({
                 <SettingsIcon className="mr-2 size-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
+              {onEdit && editLabel && (
+                <DropdownMenuItem onClick={onEdit}>
+                  <PencilIcon className="mr-2 size-4" />
+                  <span>{editLabel}</span>
+                </DropdownMenuItem>
+              )}
               {onDelete && deleteLabel && (
                 <>
                   <DropdownMenuSeparator />

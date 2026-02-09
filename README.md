@@ -39,16 +39,22 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - **Icon support** - Each stage can have a Lucide icon for visual identification
   - **Rows shown by default** - Control how many items are visible per stage (0 = collapsed, N = show N items with "Show all" link)
 - **Encrypted file attachments** - Upload, download, and manage file attachments on items (images, documents, etc.) with drag-and-drop support; files are encrypted client-side before upload
+- **Contact linking** - Link contacts from [Helvety Contacts](https://contacts.helvety.com) to any Unit, Space, or Item
+  - **Searchable picker** - Search your contacts by name or email and link them with one click
+  - **Contact display** - Shows name, email, and a flag indicating whether the contact has notes
+  - **Deep links** - Click through to view or edit the full contact details in the Contacts app (opens in a new tab)
+  - **Bidirectional** - Linked entities also appear on the contact's page in the Contacts app with deep links back to Tasks
+  - **Privacy** - Contact notes content is never decrypted in the Tasks app; only a has-notes indicator is shown
 - **Drag & drop reordering** - Easily rearrange items within and between stages on desktop; mobile uses up/down arrows to move items between stages
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the profile menu; data is fetched encrypted from the server and decrypted client-side using your passkey (nDSG Art. 28 compliance). Export is only available while your encryption context is unlocked.
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks)
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 
 ## Security & Authentication
 
 ### End-to-End Encryption
 
-Helvety Tasks is the only Helvety app that uses end-to-end encryption (E2EE). Your task data is encrypted and decrypted entirely in your browser using a key derived from your passkey. The server stores only encrypted data and PRF salt parameters. The server never possesses your encryption key.
+Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. Your task data is encrypted and decrypted entirely in your browser using a key derived from your passkey. The server stores only encrypted data and PRF salt parameters. The server never possesses your encryption key.
 
 **How it works:**
 
@@ -106,10 +112,14 @@ This application implements comprehensive security hardening:
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
 - **Idle Timeout** - Automatic session expiration after 30 minutes of inactivity
-- **Audit Logging** - Structured logging for authentication and encryption events
+- **Audit Logging** - Structured logging for authentication, encryption, and file attachment events (persisted to `attachment_audit_logs` table with 6-month retention)
 - **Security Headers** - CSP, HSTS, and other security headers
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
+
+**Abuse Reporting:** Abuse reports can be submitted to [abuse@helvety.com](mailto:abuse@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes a dedicated abuse reporting section with guidance for both users and law enforcement.
+
+**Attachment Audit Logging:** All file attachment operations (uploads, downloads, deletions) are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs) to the `attachment_audit_logs` database table. This audit trail is retained for up to 6 months in accordance with the Privacy Policy and supports law enforcement cooperation under valid Swiss court orders. Encrypted file content and metadata are never logged.
 
 ## Tech Stack
 
@@ -134,7 +144,7 @@ This application is developed and maintained by [Helvety](https://helvety.com), 
 
 Vercel Analytics is used across all Helvety apps for privacy-focused, anonymous page view statistics. Vercel Speed Insights is enabled only on [helvety.com](https://helvety.com). See our [Privacy Policy](https://helvety.com/privacy) for details.
 
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com).
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [abuse@helvety.com](mailto:abuse@helvety.com).
 
 ## License & Usage
 

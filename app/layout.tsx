@@ -91,18 +91,16 @@ export const metadata: Metadata = {
     title: "Helvety Tasks | Task Management | Private and Secure",
     description:
       "Manage your tasks with ease. Private, secure, and encrypted task management.",
-    images: ["/helvety_Identifier_whiteBg.svg"],
+    images: [
+      {
+        url: "/helvety_Identifier_whiteBg.svg",
+        alt: "Helvety Tasks",
+      },
+    ],
   },
   robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
+    index: false,
+    follow: false,
   },
   alternates: {
     canonical: "https://tasks.helvety.com",

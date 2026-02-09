@@ -127,4 +127,7 @@ export {
   encryptAttachmentMetadata,
   decryptAttachmentRow,
   decryptAttachmentRows,
+  // Contact decryption (read-only)
+  decryptContactRow,
+  decryptContactRows,
 } from "./task-encryption";

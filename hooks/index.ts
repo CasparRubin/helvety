@@ -31,3 +31,7 @@ export { useLabelAssignment } from "./use-label-assignment";
 // Attachment hooks with E2EE
 export { useAttachments } from "./use-attachments";
 export type { UploadProgress } from "./use-attachments";
+
+// Contact link hooks with E2EE
+export { useContactLinks } from "./use-contact-links";
+export type { LinkedContact } from "./use-contact-links";

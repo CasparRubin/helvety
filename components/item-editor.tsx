@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
 
 import { AttachmentPanel } from "@/components/attachment-panel";
+import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemActionPanel } from "@/components/item-action-panel";
 import { ItemCommandBar } from "@/components/item-command-bar";
@@ -476,6 +477,11 @@ export function ItemEditor({
             {/* Attachments */}
             <div className="mb-6">
               <AttachmentPanel itemId={itemId} />
+            </div>
+
+            {/* Linked Contacts */}
+            <div className="mb-6">
+              <ContactLinksPanel entityType="item" entityId={itemId} />
             </div>
           </div>
 

@@ -387,3 +387,59 @@ export interface Attachment {
   sort_order: number;
   created_at: string;
 }
+
+// =============================================================================
+// CONTACT TYPES (read-only, from the shared contacts table)
+// =============================================================================
+
+/**
+ * Contact row as stored in the database (encrypted fields).
+ * Mirrors the contacts table in the shared Supabase database.
+ * The Tasks app only reads contacts and never creates or edits them.
+ */
+export interface ContactRow {
+  id: string;
+  user_id: string;
+  encrypted_first_name: string;
+  encrypted_last_name: string;
+  encrypted_email: string | null;
+  encrypted_notes: string | null;
+  category_id: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Decrypted Contact (client-side only).
+ * Note: the notes content is NOT decrypted. Only a `has_notes` flag is exposed.
+ */
+export interface Contact {
+  id: string;
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  email: string | null;
+  /** Whether the contact has notes content (flag only, content not decrypted) */
+  has_notes: boolean;
+  category_id: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// =============================================================================
+// ENTITY CONTACT LINK TYPES
+// =============================================================================
+
+/**
+ * Junction table row linking a contact to a task entity (unit, space, or item).
+ */
+export interface EntityContactLinkRow {
+  id: string;
+  entity_type: EntityType;
+  entity_id: string;
+  contact_id: string;
+  user_id: string;
+  created_at: string;
+}
