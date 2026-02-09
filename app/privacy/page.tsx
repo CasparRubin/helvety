@@ -406,7 +406,7 @@ export default function PrivacyPage() {
                 All file processing is performed entirely client-side in your
                 browser. Your files are not uploaded to, stored on, or
                 transmitted to our servers. Only your subscription status is
-                checked server-side to enable Pro features.
+                checked server-side to determine file and page limits.
               </li>
               <li>
                 <strong className="text-foreground">
