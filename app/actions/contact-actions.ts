@@ -6,36 +6,13 @@ import { z } from "zod";
 
 import { authenticateAndRateLimit } from "@/lib/action-helpers";
 import { logger } from "@/lib/logger";
+import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
 
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
-
-/**
- * Schema for encrypted data fields
- * Validates that the encrypted data is valid JSON with required fields
- */
-const EncryptedDataSchema = z
-  .string()
-  .min(1)
-  .max(100000) // 100KB max for encrypted data
-  .refine(
-    (val) => {
-      try {
-        const parsed = JSON.parse(val);
-        return (
-          typeof parsed.iv === "string" &&
-          typeof parsed.ciphertext === "string" &&
-          typeof parsed.version === "number"
-        );
-      } catch {
-        return false;
-      }
-    },
-    { message: "Invalid encrypted data format" }
-  );
 
 /** Schema for category_id - accepts both UUIDs (custom categories) and default category IDs */
 const CategoryIdSchema = z
