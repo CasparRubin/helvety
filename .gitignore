@@ -56,8 +56,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# lock files (using npm)
-bun.lock
+# lock files (using bun)
+package-lock.json
 *.lock-*.tmp
 
 # auto-generated
