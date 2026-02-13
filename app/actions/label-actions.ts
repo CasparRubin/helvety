@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { authenticateAndRateLimit } from "@/lib/action-helpers";
 import { logger } from "@/lib/logger";
+import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type {
   ActionResponse,
@@ -17,26 +18,6 @@ import type {
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
-
-const EncryptedDataSchema = z
-  .string()
-  .min(1)
-  .max(100000)
-  .refine(
-    (val) => {
-      try {
-        const parsed = JSON.parse(val);
-        return (
-          typeof parsed.iv === "string" &&
-          typeof parsed.ciphertext === "string" &&
-          typeof parsed.version === "number"
-        );
-      } catch {
-        return false;
-      }
-    },
-    { message: "Invalid encrypted data format" }
-  );
 
 const HexColorSchema = z
   .string()

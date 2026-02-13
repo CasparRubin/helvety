@@ -443,3 +443,14 @@ export interface EntityContactLinkRow {
   user_id: string;
   created_at: string;
 }
+
+// =============================================================================
+// DATA EXPORT TYPES (nDSG Art. 28, Right to Data Portability)
+// =============================================================================
+
+/** All encrypted task data for export (decrypted client-side) */
+export interface EncryptedTaskExport {
+  units: UnitRow[];
+  spaces: SpaceRow[];
+  items: ItemRow[];
+}

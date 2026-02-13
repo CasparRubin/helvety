@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { getSupabaseKey, getSupabaseUrl } from "@/lib/env-validation";
+
 /**
  * Proxy to refresh Supabase auth sessions on every request.
  *
@@ -15,11 +17,13 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    // Skip auth refresh if env vars are missing (shouldn't happen in production)
+  let supabaseUrl: string;
+  let supabaseKey: string;
+  try {
+    supabaseUrl = getSupabaseUrl();
+    supabaseKey = getSupabaseKey();
+  } catch {
+    // Skip auth refresh if env vars are missing or invalid
     return supabaseResponse;
   }
 

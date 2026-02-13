@@ -3,7 +3,6 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
 import { getSupabaseUrl } from "@/lib/env-validation";
-import { logger } from "@/lib/logger";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -57,85 +56,4 @@ export function createAdminClient(): SupabaseClient {
   });
 
   return adminClient;
-}
-
-// =============================================================================
-// Account Suspension (Law Enforcement / Abuse Response)
-// =============================================================================
-
-/**
- * Suspend a user account by banning them via Supabase Auth admin API.
- * This prevents the user from authenticating and accessing any services.
- *
- * Use cases:
- * - Responding to a valid Swiss court order
- * - Account reported for abuse (after internal review)
- *
- * IMPORTANT: This is an irreversible admin action in practice.
- * The ban can be lifted by calling `unsuspendUser()`, but this should only
- * be done after careful review.
- *
- * @param userId - The UUID of the user to suspend
- * @param reason - Internal reason for suspension (logged, not exposed to user)
- * @returns True if suspension was successful, false otherwise
- */
-export async function suspendUser(
-  userId: string,
-  reason: string
-): Promise<boolean> {
-  try {
-    const client = createAdminClient();
-    const { error } = await client.auth.admin.updateUserById(userId, {
-      ban_duration: "876600h", // ~100 years, effectively permanent
-    });
-
-    if (error) {
-      logger.error("Failed to suspend user:", {
-        userId,
-        reason,
-        error: error.message,
-      });
-      return false;
-    }
-
-    logger.error("User account suspended:", { userId, reason });
-    return true;
-  } catch (error) {
-    logger.error("Unexpected error suspending user:", { userId, error });
-    return false;
-  }
-}
-
-/**
- * Lift a suspension on a user account.
- *
- * @param userId - The UUID of the user to unsuspend
- * @param reason - Internal reason for lifting suspension (logged)
- * @returns True if unsuspension was successful, false otherwise
- */
-export async function unsuspendUser(
-  userId: string,
-  reason: string
-): Promise<boolean> {
-  try {
-    const client = createAdminClient();
-    const { error } = await client.auth.admin.updateUserById(userId, {
-      ban_duration: "none",
-    });
-
-    if (error) {
-      logger.error("Failed to unsuspend user:", {
-        userId,
-        reason,
-        error: error.message,
-      });
-      return false;
-    }
-
-    logger.error("User account unsuspended:", { userId, reason });
-    return true;
-  } catch (error) {
-    logger.error("Unexpected error unsuspending user:", { userId, error });
-    return false;
-  }
 }

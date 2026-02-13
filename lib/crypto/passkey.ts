@@ -38,7 +38,7 @@ export interface RPConfig {
  *
  * IMPORTANT: For centralized auth, we use 'helvety.com' as the rpId in production.
  * This allows passkeys registered on auth.helvety.com to work across all subdomains
- * (pdf.helvety.com, store.helvety.com, etc.)
+ * (store.helvety.com, pdf.helvety.com, tasks.helvety.com, contacts.helvety.com, etc.)
  */
 export function getRPConfig(): RPConfig {
   const rpName = "Helvety";
