@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getUserWithRetry } from "@/lib/auth-retry";
 import { requireCSRFToken } from "@/lib/csrf";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
@@ -82,12 +83,9 @@ export async function authenticateAndRateLimit(
     }
   }
 
-  // 2. Authentication
+  // 2. Authentication (with retry for transient network failures)
   const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const { user, error: userError } = await getUserWithRetry(supabase);
 
   if (userError || !user) {
     return {
