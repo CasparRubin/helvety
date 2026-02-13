@@ -14,6 +14,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import type { ActionResponse } from "@/lib/types/entities";
+import type { UserDataExport } from "@/lib/types/store";
 
 // =============================================================================
 // INPUT VALIDATION SCHEMAS
@@ -244,36 +245,7 @@ export async function requestAccountDeletion(
 // DATA EXPORT (nDSG Art. 28, Right to Data Portability)
 // =============================================================================
 
-/** Exported user data structure */
-export interface UserDataExport {
-  exportedAt: string;
-  profile: {
-    email: string;
-    displayName: string | null;
-    createdAt: string;
-  };
-  subscriptions: Array<{
-    productId: string;
-    tierId: string;
-    status: string;
-    createdAt: string;
-    currentPeriodEnd: string | null;
-    cancelAtPeriodEnd: boolean;
-  }>;
-  purchases: Array<{
-    productId: string;
-    tierId: string;
-    amountPaid: number;
-    currency: string;
-    createdAt: string;
-  }>;
-  tenants: Array<{
-    tenantId: string;
-    tenantDomain: string;
-    displayName: string | null;
-    createdAt: string;
-  }>;
-}
+export type { UserDataExport } from "@/lib/types/store";
 
 /**
  * Export all user data in a structured JSON format.

@@ -14,6 +14,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import type { ActionResponse } from "@/lib/types/entities";
+import type { PackageDownloadInfo } from "@/lib/types/store";
 
 // =============================================================================
 // INPUT VALIDATION SCHEMAS
@@ -32,19 +33,7 @@ const PackageIdSchema = z
     "Package ID must be lowercase alphanumeric with hyphens"
   );
 
-// =============================================================================
-// TYPES
-// =============================================================================
-
-/** Download metadata for a software package. */
-export interface PackageDownloadInfo {
-  /** Signed URL for downloading the package (expires in 60 seconds) */
-  downloadUrl: string;
-  /** Filename for the download */
-  filename: string;
-  /** Package version */
-  version: string;
-}
+export type { PackageDownloadInfo } from "@/lib/types/store";
 
 // =============================================================================
 // DOWNLOAD ACTIONS
