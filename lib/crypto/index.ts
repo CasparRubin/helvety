@@ -30,8 +30,6 @@ export {
   isEncryptedData,
   encryptFields,
   decryptFields,
-  encryptBinary,
-  decryptBinary,
 } from "./encryption";
 
 // Key Storage
