@@ -12,7 +12,7 @@
  *   - proxy.ts
  *   - scripts/generate-version.js
  *   - lib/utils.ts, lib/logger.ts, lib/constants.ts (helvety-auth, helvety-store, helvety-tasks, helvety-contacts; helvety-pdf and helvety-contacts keep app-specific constants)
- *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/csrf.ts
+ *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/auth-retry.ts, lib/csrf.ts
  *   - lib/auth-guard.ts (helvety-store, helvety-pdf, helvety-tasks, helvety-contacts; helvety-auth keeps its own with local redirect)
  *   - lib/redirect-validation.ts
  *   - lib/env-validation.ts (all except helvety-store which adds Stripe key validation)
@@ -61,6 +61,7 @@ const FILES = [
   "lib/auth-logger.ts",
   "lib/auth-redirect.ts",
   "lib/auth-guard.ts",
+  "lib/auth-retry.ts",
   "lib/redirect-validation.ts",
   "lib/csrf.ts",
   "lib/env-validation.ts",
