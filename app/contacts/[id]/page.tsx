@@ -1,10 +1,7 @@
-import { redirect } from "next/navigation";
-
 import { ContactEditor } from "@/components/contact-editor";
 import { EncryptionGate } from "@/components/encryption-gate";
-import { getLoginUrl } from "@/lib/auth-redirect";
+import { requireAuth } from "@/lib/auth-guard";
 import { CSRFProvider } from "@/lib/csrf-client";
-import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 /**
  * Contact Editor page - edit a contact's names, email, notes, and category
@@ -17,14 +14,8 @@ export default async function ContactEditorPage({
 }): Promise<React.JSX.Element> {
   const { id: contactId } = await params;
 
-  const supabase = await createServerComponentClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(getLoginUrl());
-  }
+  // Server-side auth check (includes retry for transient network failures)
+  const user = await requireAuth();
 
   return (
     <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>

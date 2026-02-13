@@ -3,6 +3,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 
 import { getLoginUrl } from "@/lib/auth-redirect";
+import { getUserWithRetry } from "@/lib/auth-retry";
 import { createClient } from "@/lib/supabase/server";
 
 import type { User } from "@supabase/supabase-js";
@@ -12,6 +13,10 @@ import type { User } from "@supabase/supabase-js";
  *
  * Use this in Server Components or Server Actions to ensure the user is authenticated.
  * Redirects to the auth service login page if not authenticated.
+ *
+ * Includes a single retry with a short delay to handle transient network
+ * failures (VPN, Private Relay, mobile) that would otherwise cause false
+ * login redirects.
  *
  * IMPORTANT: Per CVE-2025-29927, authentication checks should be done in
  * Server Layout Guards or Route Handlers, NOT in proxy.ts.
@@ -25,10 +30,7 @@ import type { User } from "@supabase/supabase-js";
  */
 export async function requireAuth(): Promise<User> {
   const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const { user, error } = await getUserWithRetry(supabase);
 
   if (error || !user) {
     // Redirect to auth service login
@@ -43,6 +45,10 @@ export async function requireAuth(): Promise<User> {
  *
  * Use this when you want to check if a user is logged in
  * but don't want to redirect if they're not.
+ *
+ * Note: Unlike requireAuth(), this does NOT retry on failure. A transient
+ * network error simply returns null (user not found), which is acceptable
+ * for optional/non-critical checks where missing the user is safe.
  *
  * @example
  * // In a page that shows different content for logged in users

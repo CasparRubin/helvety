@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useEffect, useState, useMemo, type ReactNode } from "react";
+import { useEffect, useState, useRef, useMemo, type ReactNode } from "react";
 
 import { getEncryptionParams } from "@/app/actions/encryption-actions";
 import { EncryptionUnlock } from "@/components/encryption-unlock";
@@ -26,6 +26,12 @@ type EncryptionStatus =
   | "unlocked"
   | "error";
 
+/** Maximum number of automatic retries on transient errors */
+const MAX_AUTO_RETRIES = 1;
+
+/** Delay before an automatic retry (ms) */
+const AUTO_RETRY_DELAY_MS = 1_000;
+
 /**
  * Get the auth URL for encryption setup
  * Redirects to auth service with the current URL as redirect_uri
@@ -47,6 +53,11 @@ function getAuthSetupUrl(): string {
  *
  * If encryption is not set up, redirects to auth.helvety.com for setup.
  * Supports passkey-based encryption (PRF).
+ *
+ * Includes automatic retry logic: on transient errors (e.g. network blip
+ * during getEncryptionParams()), the check is retried once before showing
+ * the error screen. This prevents VPN/Private Relay glitches from surfacing
+ * as user-visible errors.
  */
 export function EncryptionGate({
   userId,
@@ -65,7 +76,10 @@ export function EncryptionGate({
   const [error, setError] = useState<string | null>(null);
   const [manualUnlock, setManualUnlock] = useState(false);
 
-  // Check encryption state on mount
+  // Track auto-retry count to avoid infinite loops
+  const retryCountRef = useRef(0);
+
+  // Check encryption state on mount (with auto-retry on transient errors)
   useEffect(() => {
     /** Checks encryption state on mount (cached key and DB params). */
     async function checkState() {
@@ -77,6 +91,13 @@ export function EncryptionGate({
         const result = await getEncryptionParams();
 
         if (!result.success) {
+          // Auto-retry once on transient errors before showing error screen
+          if (retryCountRef.current < MAX_AUTO_RETRIES) {
+            retryCountRef.current += 1;
+            await new Promise((r) => setTimeout(r, AUTO_RETRY_DELAY_MS));
+            void checkState();
+            return;
+          }
           setError(result.error ?? "Failed to check encryption status");
           setHasCheckedParams(true);
           return;
@@ -90,8 +111,17 @@ export function EncryptionGate({
           });
         }
 
+        // Success — reset retry counter
+        retryCountRef.current = 0;
         setHasCheckedParams(true);
       } catch {
+        // Auto-retry once on unexpected errors (network failure, etc.)
+        if (retryCountRef.current < MAX_AUTO_RETRIES) {
+          retryCountRef.current += 1;
+          await new Promise((r) => setTimeout(r, AUTO_RETRY_DELAY_MS));
+          void checkState();
+          return;
+        }
         setError("Failed to check encryption status");
         setHasCheckedParams(true);
       }
