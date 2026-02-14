@@ -35,8 +35,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#faf8f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#1c1816" },
   ],
 };
 
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     default: "Helvety | Software and Apparel | Designed in Switzerland",
     template: "%s | Helvety",
   },
-  description: "Helvety. Swiss Engineering.",
+  description: "The main Helvety website. Swiss Engineering.",
   keywords: [
     "Helvety",
     "Swiss software",
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     url: "https://helvety.com",
     siteName: "Helvety",
     title: "Helvety | Software and Apparel | Designed in Switzerland",
-    description: "Helvety. Swiss Engineering.",
+    description: "The main Helvety website. Swiss Engineering.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Helvety | Software and Apparel | Designed in Switzerland",
-    description: "Helvety. Swiss Engineering.",
+    description: "The main Helvety website. Swiss Engineering.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",

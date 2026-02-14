@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 /** Site footer: contact email, legal links, and cookie info. */
 export function Footer({ className }: { className?: string }) {
   return (
-    <footer className={cn("border-border shrink-0 border-t", className)}>
+    <footer
+      className={cn("border-border bg-card/35 shrink-0 border-t", className)}
+    >
       <div className="mx-auto w-full max-w-[2000px] px-4 py-3">
         <div className="text-muted-foreground flex flex-col items-center gap-1 text-center text-xs">
           <p>
