@@ -28,7 +28,7 @@ Helvety Auth (`auth.helvety.com`) handles all authentication for Helvety applica
 - **Email + Passkey Authentication** - OTP verification codes for new users (and existing without passkey); existing users with a passkey go straight to passkey sign-in
 - **WebAuthn/FIDO2** - Device-aware passkey auth: on mobile, use this device (Face ID/fingerprint/PIN); on desktop, use phone via QR code + biometrics
 - **Cross-Subdomain SSO** - Single sign-on across all `*.helvety.com` apps
-- **Redirect URI Support** - Seamless cross-app authentication flows
+- **Redirect URI Support** - Cross-app authentication flows
 
 ## Tech Stack
 
@@ -156,7 +156,7 @@ The proxy (`proxy.ts`) handles session validation and refresh and cross-subdomai
 - **Cross-Subdomain SSO** - Sets cookies with `.helvety.com` domain in production for session sharing across all Helvety apps
 - **Server Component Support** - Ensures server components always have access to fresh session data
 
-The proxy runs on all routes except static assets and handles the Supabase session lifecycle transparently.
+The proxy runs on all routes except static assets and handles the Supabase session lifecycle automatically.
 
 ## Cross-App Authentication
 
@@ -226,7 +226,7 @@ CREATE TABLE user_passkey_params (
 
 ### Security Hardening
 
-The auth service implements comprehensive security hardening:
+The auth service includes the following security hardening:
 
 - **Rate Limiting** - Protection against brute force attacks:
   - Verification code requests: 3 per 5 minutes per email, 9 per 5 minutes per IP
@@ -298,21 +298,21 @@ Browser requirements for encryption:
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
 
-**Abuse Reporting:** Abuse reports can be submitted to [abuse@helvety.com](mailto:abuse@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes a dedicated abuse reporting section with guidance for both users and law enforcement.
+**Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
 ## Developer
 
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
+This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
 Vercel Analytics is used across all Helvety apps for privacy-focused, anonymous page view statistics. Vercel Speed Insights is enabled only on [helvety.com](https://helvety.com). See our [Privacy Policy](https://helvety.com/privacy) for details.
 
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [abuse@helvety.com](mailto:abuse@helvety.com).
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 
 ## License & Usage
 
 > **This is NOT open source software.**
 
-This repository is public **for transparency purposes only** so users can verify the application's behavior and security.
+This repository is public so users can inspect and verify the application's behavior and security.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 
