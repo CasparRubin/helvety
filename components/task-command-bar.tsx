@@ -8,7 +8,9 @@
 
 import {
   ArrowLeftIcon,
+  DownloadIcon,
   EllipsisVerticalIcon,
+  Loader2Icon,
   PencilIcon,
   PlusIcon,
   RefreshCwIcon,
@@ -49,6 +51,10 @@ interface TaskCommandBarProps {
   onDelete?: () => void;
   /** Label for the delete button - "Delete Unit", "Delete Space" */
   deleteLabel?: string;
+  /** Callback to export task data (if provided, shows export button) */
+  onExport?: () => void;
+  /** Whether an export operation is in progress */
+  isExporting?: boolean;
 }
 
 /**
@@ -66,6 +72,8 @@ export function TaskCommandBar({
   editLabel,
   onDelete,
   deleteLabel,
+  onExport,
+  isExporting,
 }: TaskCommandBarProps) {
   return (
     <nav
@@ -115,7 +123,23 @@ export function TaskCommandBar({
           {/* Spacer pushes right group to the end */}
           <div className="flex-1" />
 
-          {/* Desktop only: Settings, Edit, Delete */}
+          {/* Desktop only: Export, Settings, Edit, Delete */}
+          {onExport && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onExport}
+              disabled={isExporting}
+              className="hidden md:inline-flex"
+            >
+              {isExporting ? (
+                <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
+              ) : (
+                <DownloadIcon className="mr-1.5 size-4 shrink-0" />
+              )}
+              <span>{isExporting ? "Exporting..." : "Export Data"}</span>
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -161,6 +185,12 @@ export function TaskCommandBar({
                 <DropdownMenuItem onClick={onRefresh} disabled={isRefreshing}>
                   <RefreshCwIcon className="mr-2 size-4" />
                   <span>Refresh</span>
+                </DropdownMenuItem>
+              )}
+              {onExport && (
+                <DropdownMenuItem onClick={onExport} disabled={isExporting}>
+                  <DownloadIcon className="mr-2 size-4" />
+                  <span>{isExporting ? "Exporting..." : "Export Data"}</span>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={onSettings}>

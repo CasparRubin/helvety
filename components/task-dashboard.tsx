@@ -3,6 +3,7 @@
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
+import { toast } from "sonner";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
@@ -27,6 +28,9 @@ import {
   useStages,
   useStageAssignment,
 } from "@/hooks";
+import { TOAST_DURATIONS } from "@/lib/constants";
+import { useEncryptionContext } from "@/lib/crypto/encryption-context";
+import { downloadTaskDataExport } from "@/lib/data-export";
 
 /**
  * Task Dashboard - Main view for Units list
@@ -34,6 +38,7 @@ import {
  */
 export function TaskDashboard() {
   const router = useRouter();
+  const { isUnlocked, masterKey } = useEncryptionContext();
   const { units, isLoading, error, refresh, create, remove, reorder } =
     useUnits();
   const { counts: childCounts } = useChildCounts("unit");
@@ -61,6 +66,7 @@ export function TaskDashboard() {
   }>({ open: false, id: null, name: null });
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Get the first stage (lowest sort_order) as the default for new entities
   const defaultStageId =
@@ -127,6 +133,21 @@ export function TaskDashboard() {
     }
   }, [refresh]);
 
+  /** Export decrypted task data as JSON (nDSG Art. 28 compliance) */
+  const handleExportData = useCallback(async () => {
+    if (!masterKey) return;
+    setIsExporting(true);
+    try {
+      await downloadTaskDataExport(masterKey);
+    } catch {
+      toast.error("Failed to export data. Please try again.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  }, [masterKey]);
+
   return (
     <>
       <TaskCommandBar
@@ -135,6 +156,8 @@ export function TaskDashboard() {
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
         onSettings={() => setIsSettingsOpen(true)}
+        onExport={isUnlocked && masterKey ? handleExportData : undefined}
+        isExporting={isExporting}
       />
 
       <div className="container mx-auto px-4 py-8">

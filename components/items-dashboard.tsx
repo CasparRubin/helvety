@@ -4,6 +4,7 @@ import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
+import { toast } from "sonner";
 
 import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
@@ -43,6 +44,9 @@ import {
   useLabels,
   useLabelAssignment,
 } from "@/hooks";
+import { TOAST_DURATIONS } from "@/lib/constants";
+import { useEncryptionContext } from "@/lib/crypto/encryption-context";
+import { downloadTaskDataExport } from "@/lib/data-export";
 
 /**
  * Items Dashboard - shows all items for a specific space
@@ -55,6 +59,7 @@ export function ItemsDashboard({
   spaceId: string;
 }) {
   const router = useRouter();
+  const { isUnlocked, masterKey } = useEncryptionContext();
   const { unit, isLoading: isLoadingUnit } = useUnit(unitId);
   const {
     space,
@@ -112,6 +117,7 @@ export function ItemsDashboard({
   const [isSpaceDeleteOpen, setIsSpaceDeleteOpen] = useState(false);
   const [isDeletingSpace, setIsDeletingSpace] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Get the first stage (lowest sort_order) as the default for new entities
   const defaultStageId =
@@ -226,6 +232,21 @@ export function ItemsDashboard({
     }
   }, [refresh]);
 
+  /** Export decrypted task data as JSON (nDSG Art. 28 compliance) */
+  const handleExportData = useCallback(async () => {
+    if (!masterKey) return;
+    setIsExporting(true);
+    try {
+      await downloadTaskDataExport(masterKey);
+    } catch {
+      toast.error("Failed to export data. Please try again.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  }, [masterKey]);
+
   return (
     <>
       <TaskCommandBar
@@ -239,6 +260,8 @@ export function ItemsDashboard({
         editLabel="Edit Space"
         onDelete={handleDeleteSpace}
         deleteLabel="Delete Space"
+        onExport={isUnlocked && masterKey ? handleExportData : undefined}
+        isExporting={isExporting}
       />
 
       <div className="container mx-auto px-4 py-8">
