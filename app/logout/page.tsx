@@ -32,9 +32,7 @@ export default function LogoutPage() {
     if (hasRun.current) return;
     hasRun.current = true;
 
-    /**
-     *
-     */
+    /** Clear encryption keys and sign out the user, then redirect to login. */
     async function performLogout() {
       // Step 1: Clear all encryption keys from IndexedDB
       try {

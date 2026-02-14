@@ -25,8 +25,8 @@ export function PasskeySignInStep({
     <div className="space-y-4">
       {!passkeySupported && (
         <div className="bg-destructive/10 text-destructive rounded-lg p-3 text-sm">
-          Your browser doesn&apos;t support passkeys. Please use Chrome, Edge,
-          Safari, or Firefox on desktop.
+          Your browser doesn&apos;t support passkeys. Please use Chrome 128+,
+          Edge 128+, Safari 18+, or Firefox 139+ on desktop.
         </div>
       )}
 
