@@ -1,6 +1,12 @@
 import path from "path";
 
+import bundleAnalyzer from "@next/bundle-analyzer";
+
 import type { NextConfig } from "next";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 /**
  * Next.js configuration for helvety-tasks (task management)
@@ -33,8 +39,10 @@ const nextConfig: NextConfig = {
         value: "nosniff",
       },
       {
+        // Disabled: modern best practice relies on CSP instead.
+        // "1; mode=block" is deprecated and can introduce vulnerabilities in older browsers.
         key: "X-XSS-Protection",
-        value: "1; mode=block",
+        value: "0",
       },
       {
         key: "Referrer-Policy",
@@ -82,8 +90,11 @@ const nextConfig: NextConfig = {
         value: "same-origin",
       });
       headers.push({
+        // "credentialless" allows third-party resources (Vercel Analytics, etc.)
+        // without requiring Cross-Origin-Resource-Policy headers from them,
+        // while still enabling cross-origin isolation benefits.
         key: "Cross-Origin-Embedder-Policy",
-        value: "require-corp",
+        value: "credentialless",
       });
     }
 
@@ -100,10 +111,18 @@ const nextConfig: NextConfig = {
     root: path.resolve("."),
   },
 
-  // Experimental features for better performance
+  // Optimize tree-shaking for barrel-export packages
   experimental: {
-    optimizePackageImports: ["sonner"],
+    optimizePackageImports: [
+      "lucide-react",
+      "radix-ui",
+      "sonner",
+      "@dnd-kit/core",
+      "@dnd-kit/sortable",
+      "@tiptap/react",
+      "@simplewebauthn/browser",
+    ],
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

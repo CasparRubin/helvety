@@ -1,5 +1,5 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import importPlugin from "eslint-plugin-import";
+import importPlugin from "eslint-plugin-import-x";
 import jsdoc from "eslint-plugin-jsdoc";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -20,12 +20,11 @@ const eslintConfig = defineConfig([
       },
     },
     plugins: {
-      "@typescript-eslint": tseslint.plugin,
-      import: importPlugin,
+      "import-x": importPlugin,
       jsdoc,
     },
     settings: {
-      "import/resolver": {
+      "import-x/resolver": {
         typescript: {
           project: "./tsconfig.json",
         },
@@ -39,7 +38,7 @@ const eslintConfig = defineConfig([
       "react/no-array-index-key": "warn",
 
       // Import organization
-      "import/order": [
+      "import-x/order": [
         "error",
         {
           groups: [
@@ -66,8 +65,8 @@ const eslintConfig = defineConfig([
           },
         },
       ],
-      "import/no-unresolved": "off",
-      "import/no-duplicates": "error",
+      "import-x/no-unresolved": "off",
+      "import-x/no-duplicates": "error",
 
       // TypeScript rules - underscore ignore pattern
       "no-unused-vars": "off",
