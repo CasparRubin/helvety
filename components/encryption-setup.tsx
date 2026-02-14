@@ -12,7 +12,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   generatePasskeyRegistrationOptions,
   verifyPasskeyRegistration,
-} from "@/app/actions/passkey-auth-actions";
+} from "@/app/actions/passkey-registration-actions";
 import {
   AuthStepper,
   getSetupStep,

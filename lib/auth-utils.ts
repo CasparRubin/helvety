@@ -5,10 +5,8 @@
  * what step the user needs to complete (passkey setup, signin, or complete).
  */
 
-import {
-  checkUserPasskeyStatus,
-  hasEncryptionSetup,
-} from "@/app/actions/passkey-auth-actions";
+import { checkUserPasskeyStatus } from "@/app/actions/credential-actions";
+import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 
 /** The authentication step the user needs to complete */
 export type AuthStep = "encryption-setup" | "passkey-signin" | "complete";

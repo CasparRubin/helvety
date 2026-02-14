@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 
-import {
-  checkUserPasskeyStatus,
-  hasEncryptionSetup,
-} from "@/app/actions/passkey-auth-actions";
+import { checkUserPasskeyStatus } from "@/app/actions/credential-actions";
+import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 import { logger } from "@/lib/logger";
 import { getSafeRedirectUri } from "@/lib/redirect-validation";
 import { createClient } from "@/lib/supabase/server";

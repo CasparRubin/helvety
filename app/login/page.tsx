@@ -9,6 +9,8 @@ import {
   checkEmail,
   sendVerificationCode,
   verifyEmailCode,
+} from "@/app/actions/otp-actions";
+import {
   generatePasskeyAuthOptions,
   verifyPasskeyAuthentication,
 } from "@/app/actions/passkey-auth-actions";
@@ -528,8 +530,8 @@ function LoginContent() {
                   </Button>
 
                   <p className="text-muted-foreground text-center text-xs">
-                    We&apos;ll send a verification code only if you&apos;re new;
-                    otherwise sign in with your passkey.
+                    New users and users without a passkey receive a code by
+                    email. Returning users with a passkey sign in directly.
                   </p>
                 </form>
               )}
@@ -551,7 +553,7 @@ function LoginContent() {
                       inputMode="numeric"
                       pattern="[0-9]*"
                       maxLength={8}
-                      placeholder="00000000"
+                      placeholder="000000"
                       value={otpCode}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, "");
