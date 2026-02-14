@@ -16,7 +16,7 @@ import {
   decryptAttachmentRows,
 } from "@/lib/crypto";
 import { useCSRFToken } from "@/lib/csrf-client";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 import type { Attachment } from "@/lib/types";
 
@@ -158,7 +158,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
           )
         );
 
-        const supabase = createClient();
+        const supabase = createBrowserClient();
         const {
           data: { user },
         } = await supabase.auth.getUser();
@@ -302,7 +302,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
 
       try {
         // Download the encrypted blob from Supabase Storage
-        const supabase = createClient();
+        const supabase = createBrowserClient();
         const { data: blob, error: downloadError } = await supabase.storage
           .from(ATTACHMENT_BUCKET)
           .download(attachment.storage_path);

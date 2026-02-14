@@ -3,6 +3,13 @@
  * Re-exports all custom hooks for convenient importing
  */
 
+// Generic encrypted list hook
+export { useEncryptedList } from "./use-encrypted-list";
+export type {
+  UseEncryptedListConfig,
+  UseEncryptedListReturn,
+} from "./use-encrypted-list";
+
 // Device detection
 export {
   useIsMobile,

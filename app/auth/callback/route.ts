@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getLoginUrl } from "@/lib/auth-redirect";
 import { logger } from "@/lib/logger";
 import { getSafeRelativePath } from "@/lib/redirect-validation";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import type { EmailOtpType } from "@supabase/supabase-js";
 
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 
   // Handle PKCE flow (code exchange)
   if (code) {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
   // Handle token hash (email OTP verification link)
   // Supports all Supabase email types: magiclink, signup, recovery, invite, email_change
   if (token_hash && type) {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { error } = await supabase.auth.verifyOtp({
       token_hash,
       type: type as EmailOtpType,

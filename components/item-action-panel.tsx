@@ -3,8 +3,8 @@
 /**
  * Item Action Panel - sidebar panel for item properties.
  * Displays date metadata, stage selection, priority picker, and label assignment
- * in collapsible sections. All sections start collapsed except Dates, which
- * remains open by default. Designed to be extended with milestones and other fields.
+ * in collapsible sections. On desktop, all sections are open by default. On
+ * mobile/stacked layouts, all sections start collapsed except Dates.
  */
 
 import {
@@ -24,6 +24,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from "@/hooks";
 import { formatDateTime } from "@/lib/dates";
 import { renderStageIcon } from "@/lib/icons";
 import { PRIORITIES, getPriorityConfig } from "@/lib/priorities";
@@ -75,11 +76,20 @@ export function ItemActionPanel({
   onPriorityChange,
   isSavingPriority,
 }: ItemActionPanelProps) {
-  // Controlled open state for collapsible sections.
-  // All sections start collapsed except Dates (which uses defaultOpen).
-  const [stageOpen, setStageOpen] = useState(false);
-  const [priorityOpen, setPriorityOpen] = useState(false);
-  const [labelOpen, setLabelOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  // User-initiated overrides for collapse state. When null, derive from screen size.
+  // Sections open by default on desktop, collapsed on mobile/stacked layouts.
+  // Dates always stays open via defaultOpen (uncontrolled).
+  const [stageOverride, setStageOverride] = useState<boolean | null>(null);
+  const [priorityOverride, setPriorityOverride] = useState<boolean | null>(
+    null
+  );
+  const [labelOverride, setLabelOverride] = useState<boolean | null>(null);
+
+  const stageOpen = stageOverride ?? !isMobile;
+  const priorityOpen = priorityOverride ?? !isMobile;
+  const labelOpen = labelOverride ?? !isMobile;
 
   const handleStageClick = useCallback(
     (stageId: string | null) => {
@@ -159,7 +169,7 @@ export function ItemActionPanel({
           <Separator className="my-4" />
 
           {/* Stage section */}
-          <Collapsible open={stageOpen} onOpenChange={setStageOpen}>
+          <Collapsible open={stageOpen} onOpenChange={setStageOverride}>
             <CollapsibleTrigger className="group flex w-full items-center justify-between">
               <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
                 Stage
@@ -255,7 +265,7 @@ export function ItemActionPanel({
 
           {/* Priority section */}
           <Separator className="my-4" />
-          <Collapsible open={priorityOpen} onOpenChange={setPriorityOpen}>
+          <Collapsible open={priorityOpen} onOpenChange={setPriorityOverride}>
             <CollapsibleTrigger className="group flex w-full items-center justify-between">
               <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
                 Priority
@@ -316,7 +326,7 @@ export function ItemActionPanel({
 
           {/* Label section */}
           <Separator className="my-4" />
-          <Collapsible open={labelOpen} onOpenChange={setLabelOpen}>
+          <Collapsible open={labelOpen} onOpenChange={setLabelOverride}>
             <CollapsibleTrigger className="group flex w-full items-center justify-between">
               <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
                 Label

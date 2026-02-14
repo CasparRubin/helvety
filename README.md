@@ -25,7 +25,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - Bullet and numbered lists
   - Link support
   - Auto-save with unsaved changes indicator
-  - **Action panel** - View dates and set item stage, label, and priority directly from the editor; sections are collapsible (all start collapsed except Dates)
+  - **Action panel** - View dates and set item stage, label, and priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators
 - **Label management** - Categorize items with labels (e.g., Bug, Feature, Improvement)
   - **Default labels** - Built-in label set applied to every space: Bug, Change Request, Feature, Improvement, Internal Task
@@ -40,10 +40,10 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - **Rows shown by default** - Control how many items are visible per stage (0 = collapsed, N = show N items with "Show all" link)
 - **Encrypted file attachments** - Upload, download, and manage file attachments on items (images, documents, etc.) with drag-and-drop support; files are encrypted client-side before upload
 - **Contact linking** - Link contacts from [Helvety Contacts](https://contacts.helvety.com) to any Unit, Space, or Item
+  - **Bidirectional** - Link and unlink from either the Tasks app or the Contacts app for consistent cross-app UX
   - **Searchable picker** - Search your contacts by name or email and link them with one click
   - **Contact display** - Shows name, email, and a flag indicating whether the contact has notes
   - **Deep links** - Click any contact row to view or edit the full contact details in the Contacts app (opens in a new tab)
-  - **Bidirectional** - Linked entities also appear on the contact's page in the Contacts app with deep links back to Tasks
   - **Privacy** - Contact notes content is never decrypted in the Tasks app; only a has-notes indicator is shown
 - **Drag & drop reordering** - Rearrange items within and between stages on desktop; mobile uses up/down arrows to move items between stages
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the profile menu; data is fetched encrypted from the server and decrypted client-side using your passkey (nDSG Art. 28 compliance). Export is only available while your encryption context is unlocked.
@@ -128,7 +128,7 @@ This project is built with modern web technologies:
 - **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
-- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
+- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at auth.helvety.com)
 - **[Tiptap](https://tiptap.dev/)** - Headless WYSIWYG rich text editor
 - **[dnd kit](https://dndkit.com/)** - Drag and drop toolkit for React
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 /**
  * Invisible component that recovers the Supabase auth session after
@@ -15,7 +15,7 @@ import { createClient } from "@/lib/supabase/client";
  */
 export function SessionRecovery() {
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = createBrowserClient();
 
     /** Refresh the Supabase session when the tab becomes visible again. */
     function handleVisibilityChange() {

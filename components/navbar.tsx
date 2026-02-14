@@ -55,7 +55,7 @@ import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 import { downloadTaskDataExport } from "@/lib/data-export";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -83,7 +83,7 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
-  const supabase = createClient();
+  const supabase = createBrowserClient();
 
   /** Export decrypted task data as JSON (nDSG Art. 28 compliance) */
   const handleExportData = async () => {
