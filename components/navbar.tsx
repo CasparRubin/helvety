@@ -47,6 +47,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 import { createBrowserClient } from "@/lib/supabase/client";
@@ -65,16 +66,29 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
  * - Profile menu with user email, store links (Account, Subscriptions), and Sign out (shown when authenticated)
  * - Burger menu below 400px: E2EE, About, GitHub to save icon space
  */
-export function Navbar() {
+export function Navbar({
+  initialUser = null,
+}: {
+  initialUser?: SupabaseUser | null;
+}) {
   const { isUnlocked, isLoading: encryptionLoading } = useEncryptionContext();
   const supabase = createBrowserClient();
-  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(initialUser);
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialUser);
 
   useEffect(() => {
+    if (initialUser) {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+      });
+      return () => subscription.unsubscribe();
+    }
+
     const getUser = async () => {
       const {
         data: { user },
@@ -84,7 +98,6 @@ export function Navbar() {
     };
     void getUser();
 
-    // Listen for auth state changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -94,12 +107,11 @@ export function Navbar() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, [supabase.auth, initialUser]);
 
   const handleLogout = () => {
-    // Get current origin for redirect after logout
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    window.location.href = `/logout?redirect_uri=${encodeURIComponent(origin)}`;
+    // Redirect to centralized auth service for logout
+    redirectToLogout(window.location.origin);
   };
 
   return (
