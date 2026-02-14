@@ -16,6 +16,7 @@ import {
   CheckIcon,
 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -127,6 +128,34 @@ export function ContactEditorCommandBar({
             >
               {getSaveButtonContent()}
             </Button>
+          )}
+
+          {/* Save status / unsaved changes indicator */}
+          {saveStatus === "saving" && (
+            <Badge variant="secondary" className="hidden md:inline-flex">
+              <Loader2Icon className="size-3 animate-spin" />
+              Saving...
+            </Badge>
+          )}
+          {saveStatus === "saved" && (
+            <Badge variant="secondary" className="hidden md:inline-flex">
+              <CheckIcon className="size-3" />
+              Saved
+            </Badge>
+          )}
+          {saveStatus === "error" && (
+            <Badge variant="destructive" className="hidden md:inline-flex">
+              Failed to save
+            </Badge>
+          )}
+          {hasUnsavedChanges && saveStatus === "idle" && (
+            <Badge
+              variant="outline"
+              className="hidden border-amber-500/50 text-amber-600 md:inline-flex dark:text-amber-400"
+            >
+              <span className="size-1.5 animate-pulse rounded-full bg-amber-500" />
+              Unsaved changes
+            </Badge>
           )}
 
           {/* Desktop only: Refresh */}
