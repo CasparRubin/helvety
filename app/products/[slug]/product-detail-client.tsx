@@ -234,11 +234,8 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           <section>
             <h2 className="mb-4 text-xl font-semibold">About</h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
-              {product.description.split("\n\n").map((paragraph, index) => (
-                <p
-                  key={index}
-                  className="text-muted-foreground"
-                >
+              {product.description.split("\n\n").map((paragraph) => (
+                <p key={paragraph} className="text-muted-foreground">
                   {paragraph}
                 </p>
               ))}

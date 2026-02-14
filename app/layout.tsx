@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
@@ -14,6 +15,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { getCSRFToken } from "@/lib/csrf";
 import { createServerClient } from "@/lib/supabase/server";
 
+import type { User } from "@supabase/supabase-js";
 import type { Metadata, Viewport } from "next";
 
 // Local Public Sans variable font - no network fetch during build
@@ -132,12 +134,15 @@ export default async function RootLayout({
           <AuthTokenHandler />
           <TooltipProvider>
             <Providers csrfToken={csrfToken}>
-              <NavbarWrapper initialUser={initialUser}>{children}</NavbarWrapper>
+              <NavbarWrapper initialUser={initialUser}>
+                {children}
+              </NavbarWrapper>
             </Providers>
           </TooltipProvider>
           <Toaster />
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
@@ -151,7 +156,7 @@ async function NavbarWrapper({
   initialUser,
 }: {
   children: React.ReactNode;
-  initialUser: import("@supabase/supabase-js").User | null;
+  initialUser: User | null;
 }) {
   return (
     <div className="flex h-screen flex-col overflow-hidden">
