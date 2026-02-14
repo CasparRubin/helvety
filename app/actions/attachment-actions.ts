@@ -7,6 +7,10 @@ import { z } from "zod";
 
 import { authenticateAndRateLimit } from "@/lib/action-helpers";
 import { logAttachmentEvent } from "@/lib/attachment-logger";
+import {
+  getAttachmentPathOwner,
+  isValidAttachmentStoragePath,
+} from "@/lib/attachment-storage-path";
 import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -105,8 +109,12 @@ export async function createAttachment(
     }
     const validatedData = validationResult.data;
 
-    // Verify the storage path starts with the user's ID (defense-in-depth)
-    if (!validatedData.storage_path.startsWith(`${user.id}/`)) {
+    // Verify canonical storage path format and ownership (defense-in-depth)
+    const pathOwnerId = getAttachmentPathOwner(validatedData.storage_path);
+    if (
+      !isValidAttachmentStoragePath(validatedData.storage_path) ||
+      pathOwnerId !== user.id
+    ) {
       logger.warn("Attachment storage path does not match user ID:", {
         userId: user.id,
         storagePath: validatedData.storage_path,
@@ -248,6 +256,26 @@ export async function deleteAttachment(
 
     // Capture IP for audit logging
     const clientIp = await getClientIp();
+
+    // Defense-in-depth: refuse storage deletion if path is malformed/corrupted.
+    if (
+      !isValidAttachmentStoragePath(attachment.storage_path) ||
+      getAttachmentPathOwner(attachment.storage_path) !== user.id
+    ) {
+      logger.error("Refusing to delete attachment with invalid storage path:", {
+        userId: user.id,
+        attachmentId: attachment.id,
+        storagePath: attachment.storage_path,
+      });
+      logAttachmentEvent("attachment_delete_failed", {
+        userId: user.id,
+        attachmentId: attachment.id,
+        storagePath: attachment.storage_path,
+        ip: clientIp,
+        metadata: { reason: "invalid_storage_path" },
+      });
+      return { success: false, error: "Invalid attachment storage path" };
+    }
 
     // Delete the file from Supabase Storage using admin client
     // (admin client bypasses storage RLS for reliable cleanup)

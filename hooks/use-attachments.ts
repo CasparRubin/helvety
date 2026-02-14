@@ -7,6 +7,11 @@ import {
   createAttachment,
   deleteAttachment,
 } from "@/app/actions/attachment-actions";
+import {
+  buildAttachmentStoragePath,
+  getAttachmentPathOwner,
+  isValidAttachmentStoragePath,
+} from "@/lib/attachment-storage-path";
 import { ATTACHMENT_MAX_SIZE_BYTES, ATTACHMENT_BUCKET } from "@/lib/constants";
 import {
   useEncryptionContext,
@@ -167,7 +172,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
           throw new Error("Not authenticated");
         }
 
-        const storagePath = `${user.id}/${attachmentId}`;
+        const storagePath = buildAttachmentStoragePath(user.id, attachmentId);
         const encryptedBlob = new Blob([encryptedBuffer], {
           type: "application/octet-stream",
         });
@@ -304,6 +309,18 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
       try {
         // Download the encrypted blob from Supabase Storage
         const supabase = createBrowserClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error("Not authenticated");
+        }
+        if (
+          !isValidAttachmentStoragePath(attachment.storage_path) ||
+          getAttachmentPathOwner(attachment.storage_path) !== user.id
+        ) {
+          throw new Error("Invalid attachment storage path");
+        }
         const { data: blob, error: downloadError } = await supabase.storage
           .from(ATTACHMENT_BUCKET)
           .download(attachment.storage_path);
