@@ -284,6 +284,9 @@ export async function POST(request: NextRequest) {
         metadata,
         allow_promotion_codes: true,
         billing_address_collection: "required",
+        // tax_id_collection: Allows B2B customers to enter a VAT/UID number.
+        // Helvety is not currently MWST-registered. When we register, Stripe
+        // Tax will handle collection automatically.
         tax_id_collection: { enabled: true },
         subscription_data: { metadata },
       };
@@ -310,6 +313,9 @@ export async function POST(request: NextRequest) {
         metadata,
         allow_promotion_codes: true,
         billing_address_collection: "required",
+        // tax_id_collection: Allows B2B customers to enter a VAT/UID number.
+        // Helvety is not currently MWST-registered. When we register, Stripe
+        // Tax will handle collection automatically.
         tax_id_collection: { enabled: true },
         payment_intent_data: { metadata },
       };

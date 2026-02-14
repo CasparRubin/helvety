@@ -324,9 +324,9 @@ export function ProfileTab() {
         <CardContent className="space-y-4">
           <p className="text-muted-foreground text-sm">
             This export includes your profile information, subscription history,
-            purchase history, and tenant registrations. For Helvety Tasks
-            (end-to-end encrypted data), please use the export feature within
-            the Tasks app while signed in.
+            purchase history, and tenant registrations. For Helvety Tasks and
+            Helvety Contacts (end-to-end encrypted data), please use the export
+            feature within each app while signed in.
           </p>
           <Button
             variant="outline"
@@ -370,6 +370,7 @@ export function ProfileTab() {
               Delete all task data and encrypted file attachments (Helvety
               Tasks)
             </li>
+            <li>Delete all contact data and notes (Helvety Contacts)</li>
             <li>Remove all tenant registrations</li>
           </ul>
           <p className="text-muted-foreground text-sm">
