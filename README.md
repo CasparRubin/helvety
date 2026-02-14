@@ -39,7 +39,7 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 - **Subscription Management** - Compact list to view, cancel, or reactivate subscriptions; SPO Explorer subscriptions link to the Tenants page
 - **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer (Tenants page: compact subscription summary, Registered Tenants list with Add Tenant above it)
 - **Download Management** - Access and download purchased software packages
-- **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
+- **License Validation** - API for validating tenant licenses per product (supports multi-product licensing; optional HMAC-signed machine-to-machine mode available)
 - **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog; immediately cancels active Stripe subscriptions and permanently removes all user data via cascade deletes
 - **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (nDSG Art. 28 compliance)
 - **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in both Stripe session metadata and a dedicated `consent_events` database table for audit compliance

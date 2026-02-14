@@ -5,6 +5,8 @@
  * GET /api/license/validate?tenant={tenantId}&product={productId}
  */
 
+import { createHmac, timingSafeEqual } from "node:crypto";
+
 import { NextResponse } from "next/server";
 
 import { validateTenantLicense } from "@/lib/license/validation";
@@ -13,6 +15,18 @@ import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { LicenseValidationResponse } from "@/lib/types/entities";
 import type { NextRequest } from "next/server";
+
+/** Narrowed union of API failure reasons used by this route. */
+type LicenseFailureReason = NonNullable<LicenseValidationResponse["reason"]>;
+/** Reasons specific to signature validation failures. */
+type SignatureFailureReason = Extract<
+  LicenseFailureReason,
+  | "missing_signature"
+  | "invalid_signature"
+  | "invalid_signature_timestamp"
+  | "expired_signature"
+  | "signature_misconfigured"
+>;
 
 // =============================================================================
 // CORS CONFIGURATION
@@ -49,7 +63,8 @@ import type { NextRequest } from "next/server";
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const headers: Record<string, string> = {
     "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers":
+      "Content-Type, X-License-Timestamp, X-License-Signature",
     "Access-Control-Max-Age": "86400", // 24 hours
   };
 
@@ -67,6 +82,69 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   }
 
   return headers;
+}
+
+/** Maximum age allowed for signed validation requests. */
+const SIGNATURE_TTL_SECONDS = 300;
+
+/** Validate optional HMAC request signature for machine-to-machine callers. */
+function verifyRequestSignature(
+  request: NextRequest,
+  tenantId: string,
+  productId: string
+): { ok: boolean; reason?: SignatureFailureReason } {
+  const signatureSecret = process.env.LICENSE_VALIDATION_SHARED_SECRET?.trim();
+  const requireSignature =
+    process.env.LICENSE_VALIDATION_REQUIRE_SIGNATURE === "true";
+
+  // Backward-compatible mode: no secret configured means unsigned requests are accepted.
+  if (!signatureSecret) {
+    if (requireSignature) {
+      logger.error(
+        "LICENSE_VALIDATION_REQUIRE_SIGNATURE is true but LICENSE_VALIDATION_SHARED_SECRET is missing"
+      );
+      return { ok: false, reason: "signature_misconfigured" };
+    }
+    return { ok: true };
+  }
+
+  const timestampHeader = request.headers.get("x-license-timestamp");
+  const signatureHeader = request.headers.get("x-license-signature");
+
+  // If signature is optional and headers are omitted, allow legacy callers.
+  if (!timestampHeader && !signatureHeader && !requireSignature) {
+    return { ok: true };
+  }
+
+  if (!timestampHeader || !signatureHeader) {
+    return { ok: false, reason: "missing_signature" };
+  }
+
+  const timestampMs = Number(timestampHeader);
+  if (!Number.isFinite(timestampMs)) {
+    return { ok: false, reason: "invalid_signature_timestamp" };
+  }
+
+  const now = Date.now();
+  const ageSeconds = Math.abs(now - timestampMs) / 1000;
+  if (ageSeconds > SIGNATURE_TTL_SECONDS) {
+    return { ok: false, reason: "expired_signature" };
+  }
+
+  const payload = `${tenantId.toLowerCase()}:${productId.toLowerCase()}:${timestampHeader}`;
+  const expectedHex = createHmac("sha256", signatureSecret)
+    .update(payload)
+    .digest("hex");
+
+  const received = signatureHeader.trim().toLowerCase();
+  if (
+    expectedHex.length !== received.length ||
+    !timingSafeEqual(Buffer.from(expectedHex), Buffer.from(received))
+  ) {
+    return { ok: false, reason: "invalid_signature" };
+  }
+
+  return { ok: true };
 }
 
 // =============================================================================
@@ -152,10 +230,42 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const signatureCheck = verifyRequestSignature(request, tenantId, productId);
+    if (!signatureCheck.ok) {
+      logger.warn(
+        `License signature validation failed (${signatureCheck.reason ?? "unknown"})`
+      );
+      return NextResponse.json(
+        {
+          valid: false,
+          reason: signatureCheck.reason ?? "invalid_signature",
+        } satisfies LicenseValidationResponse,
+        {
+          status:
+            signatureCheck.reason === "signature_misconfigured" ? 500 : 401,
+          headers: corsHeaders,
+        }
+      );
+    }
+
     // Check IP-based rate limit (prevents abuse from a single source)
     // Prefer x-real-ip (Vercel-trusted, not spoofable) over x-forwarded-for
+    const trustedIp = request.headers.get("x-real-ip");
+    if (process.env.NODE_ENV === "production" && !trustedIp) {
+      logger.warn("License validation request missing x-real-ip in production");
+      return NextResponse.json(
+        {
+          valid: false,
+          reason: "missing_client_ip",
+        } satisfies LicenseValidationResponse,
+        {
+          status: 400,
+          headers: corsHeaders,
+        }
+      );
+    }
     const clientIP =
-      request.headers.get("x-real-ip") ??
+      trustedIp ??
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       "unknown";
     const ipRateLimit = await checkRateLimit(

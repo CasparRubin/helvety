@@ -209,6 +209,12 @@ export interface LicenseValidationResponse {
     | "invalid_tenant_id"
     | "missing_product_id"
     | "invalid_product_id"
+    | "missing_signature"
+    | "invalid_signature"
+    | "invalid_signature_timestamp"
+    | "expired_signature"
+    | "missing_client_ip"
+    | "signature_misconfigured"
     | "rate_limit_exceeded"
     | "server_error";
 }

@@ -30,6 +30,14 @@ interface SubscriptionPeriod {
   periodEnd: number | undefined;
 }
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/** Type guard for canonical UUID strings. */
+function isUuid(value: string | undefined): value is string {
+  return !!value && UUID_REGEX.test(value);
+}
+
 /**
  * Extract current_period_start/end from a Stripe subscription.
  * Handles both the legacy subscription-level fields and the newer
@@ -48,6 +56,57 @@ function extractSubscriptionPeriod(
       subWithPeriod.current_period_start ?? item?.current_period_start,
     periodEnd: subWithPeriod.current_period_end ?? item?.current_period_end,
   };
+}
+
+/** Resolve internal user ID from a persisted Stripe customer mapping. */
+async function getUserIdByCustomerId(
+  customerId: string
+): Promise<string | null> {
+  const supabase = createAdminClient();
+  const { data: profile, error } = await supabase
+    .from("user_profiles")
+    .select("id")
+    .eq("stripe_customer_id", customerId)
+    .maybeSingle();
+
+  if (error) {
+    logger.error("Failed to resolve user by stripe customer ID:", error);
+    return null;
+  }
+
+  return profile?.id ?? null;
+}
+
+/**
+ * Resolve the user ID for webhook processing with trust ordering:
+ * customer mapping > validated metadata fallback.
+ */
+async function resolveTrustedUserId(
+  metadataUserId: string | undefined,
+  customerId: string,
+  context: string
+): Promise<{ userId: string | null; metadataMismatch: boolean }> {
+  const mappedUserId = await getUserIdByCustomerId(customerId);
+  const candidateMetadataUserId = isUuid(metadataUserId)
+    ? metadataUserId
+    : null;
+
+  if (
+    mappedUserId &&
+    candidateMetadataUserId &&
+    mappedUserId !== candidateMetadataUserId
+  ) {
+    logger.warn(
+      `Webhook user mismatch (${context}): metadata user ${candidateMetadataUserId} does not match customer mapping ${mappedUserId} for customer ${customerId}`
+    );
+    return { userId: mappedUserId, metadataMismatch: true };
+  }
+
+  if (mappedUserId) {
+    return { userId: mappedUserId, metadataMismatch: false };
+  }
+
+  return { userId: candidateMetadataUserId, metadataMismatch: false };
 }
 
 // =============================================================================
@@ -179,9 +238,14 @@ async function handleCheckoutCompleted(
 ) {
   const supabase = createAdminClient();
 
-  const userId = session.metadata?.supabase_user_id;
+  const metadataUserId = session.metadata?.supabase_user_id;
   const customerId = session.customer as string;
   const subscriptionId = session.subscription as string | null;
+  const { userId, metadataMismatch } = await resolveTrustedUserId(
+    metadataUserId,
+    customerId,
+    "checkout.session.completed"
+  );
 
   if (!userId) {
     // Guest checkout - we'll handle this when they sign up
@@ -199,7 +263,9 @@ async function handleCheckoutCompleted(
         subscription_id: subscriptionId,
         tier_id: session.metadata?.tier_id,
         product_id: session.metadata?.product_id,
+        supplied_user_id: metadataUserId ?? null,
         is_guest_checkout: true,
+        metadata_mismatch: metadataMismatch,
       },
       // user_id is nullable for guest checkouts - will be linked when user signs up
       user_id: null as string | null,
@@ -228,6 +294,8 @@ async function handleCheckoutCompleted(
       session_id: session.id,
       customer_id: customerId,
       subscription_id: subscriptionId,
+      supplied_user_id: metadataUserId ?? null,
+      metadata_mismatch: metadataMismatch,
     },
   });
 
@@ -243,31 +311,21 @@ async function handleSubscriptionUpsert(
   subscription: Stripe.Subscription,
   eventId: string
 ) {
-  const supabase = createAdminClient();
-
-  // Get user ID from subscription metadata or customer
-  const userId = subscription.metadata?.supabase_user_id;
+  const customerId = subscription.customer as string;
+  const { userId } = await resolveTrustedUserId(
+    subscription.metadata?.supabase_user_id,
+    customerId,
+    `subscription.upsert:${subscription.id}`
+  );
 
   if (!userId) {
-    // Try to find user by customer ID
-    const customerId = subscription.customer as string;
-    const { data: profile } = await supabase
-      .from("user_profiles")
-      .select("id")
-      .eq("stripe_customer_id", customerId)
-      .single();
-
-    if (!profile) {
-      logger.warn(
-        `No user found for subscription ${subscription.id}, customer ${customerId}`
-      );
-      return;
-    }
-
-    await upsertSubscription(subscription, profile.id, eventId);
-  } else {
-    await upsertSubscription(subscription, userId, eventId);
+    logger.warn(
+      `No trusted user found for subscription ${subscription.id}, customer ${customerId}`
+    );
+    return;
   }
+
+  await upsertSubscription(subscription, userId, eventId);
 }
 
 /**
