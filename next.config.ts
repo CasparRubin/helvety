@@ -1,4 +1,10 @@
+import bundleAnalyzer from "@next/bundle-analyzer";
+
 import type { NextConfig } from "next";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 /**
  * Next.js configuration for helvety.com (main site)
@@ -13,7 +19,7 @@ const nextConfig: NextConfig = {
 
   // Optimize tree-shaking for barrel-export packages
   experimental: {
-    optimizePackageImports: ["sonner"],
+    optimizePackageImports: ["lucide-react", "radix-ui", "framer-motion"],
   },
 
   // Security headers
@@ -35,8 +41,10 @@ const nextConfig: NextConfig = {
         value: "nosniff",
       },
       {
+        // Disabled: modern best practice relies on CSP instead.
+        // "1; mode=block" is deprecated and can introduce vulnerabilities in older browsers.
         key: "X-XSS-Protection",
-        value: "1; mode=block",
+        value: "0",
       },
       {
         key: "Referrer-Policy",
@@ -84,8 +92,11 @@ const nextConfig: NextConfig = {
         value: "same-origin",
       });
       headers.push({
+        // "credentialless" allows third-party resources (Vercel Analytics, etc.)
+        // without requiring Cross-Origin-Resource-Policy headers from them,
+        // while still enabling cross-origin isolation benefits.
         key: "Cross-Origin-Embedder-Policy",
-        value: "require-corp",
+        value: "credentialless",
       });
     }
 
@@ -98,4 +109,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

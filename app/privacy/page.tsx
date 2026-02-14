@@ -386,8 +386,8 @@ export default function PrivacyPage() {
                   helvety.com (Main Website):
                 </strong>{" "}
                 No personal data collection beyond authentication session
-                cookies. Only essential cookies and anonymous Vercel Analytics
-                (plus Speed Insights performance monitoring).
+                cookies. Only essential cookies, anonymous Vercel Analytics, and
+                Vercel Speed Insights performance monitoring.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -622,7 +622,7 @@ export default function PrivacyPage() {
                     <td className="border-border border-b p-3">Vercel Inc.</td>
                     <td className="border-border border-b p-3">
                       Website hosting, delivery, privacy-focused analytics, and
-                      performance monitoring (Speed Insights on helvety.com)
+                      performance monitoring (Speed Insights across all apps)
                     </td>
                     <td className="border-border border-b p-3">USA</td>
                   </tr>
@@ -1027,8 +1027,7 @@ export default function PrivacyPage() {
               <li>Browser and device type</li>
               <li>Country-level geographic location</li>
               <li>
-                Performance metrics (on helvety.com only via Vercel Speed
-                Insights)
+                Performance metrics (via Vercel Speed Insights across all apps)
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">

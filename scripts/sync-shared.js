@@ -24,6 +24,7 @@
  *   - app/not-found.tsx (global 404 page)
  *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
  *   - components/auth-token-handler.tsx (helvety-store, helvety-tasks, helvety-contacts, helvety-pdf; helvety-auth keeps its own with passkey logic)
+ *   - vitest.config.ts, vitest.setup.ts, vitest.server-only-mock.ts (test infrastructure)
  *   - .cursor/rules/* (coding standards and patterns)
  *   - tsconfig.json, .prettierrc, .prettierignore, .gitignore, postcss.config.mjs, eslint.config.mjs (tooling configs)
  */
@@ -52,6 +53,10 @@ const FILES = [
   ".gitignore",
   "postcss.config.mjs",
   "eslint.config.mjs",
+  // Test infrastructure
+  "vitest.config.ts",
+  "vitest.setup.ts",
+  "vitest.server-only-mock.ts",
   // Shared source files
   "proxy.ts",
   "scripts/generate-version.mjs",
