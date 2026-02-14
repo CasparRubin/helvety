@@ -65,15 +65,24 @@ import type { User } from "@supabase/supabase-js";
  *
  * Helvety PDF is a free tool with no limits. Login is optional for cross-app session sharing.
  */
-export function Navbar() {
+export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [isLoading, setIsLoading] = useState(!initialUser);
   const supabase = createBrowserClient();
 
   useEffect(() => {
+    if (initialUser) {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+      });
+      return () => subscription.unsubscribe();
+    }
+
     const getUser = async () => {
       const {
         data: { user: u },
@@ -90,7 +99,7 @@ export function Navbar() {
       setIsLoading(false);
     });
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase.auth, initialUser]);
 
   const isAuthenticated = !!user;
 

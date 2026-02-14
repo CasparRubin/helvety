@@ -7,6 +7,7 @@ import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { createServerClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 import type { Metadata, Viewport } from "next";
@@ -121,11 +122,17 @@ export const metadata: Metadata = {
 /**
  * Root layout: fixed header (Navbar), overflow-hidden main (PDF toolkit manages its own scroll), fixed footer.
  */
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>): React.JSX.Element {
+}>): Promise<React.JSX.Element> {
+  // Fetch initial user server-side to avoid loading flash in Navbar
+  const supabase = await createServerClient();
+  const {
+    data: { user: initialUser },
+  } = await supabase.auth.getUser();
+
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
@@ -139,7 +146,7 @@ export default function RootLayout({
           <TooltipProvider>
             <div className="flex h-screen flex-col overflow-hidden">
               <header className="shrink-0">
-                <Navbar />
+                <Navbar initialUser={initialUser} />
               </header>
               <main className="min-h-0 flex-1 overflow-hidden">{children}</main>
               <Footer className="shrink-0" />
