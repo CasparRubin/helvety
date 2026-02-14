@@ -140,7 +140,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   const isAuthenticated = !!user;
 
   return (
-    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+    <nav className="bg-card/50 supports-[backdrop-filter]:bg-card/30 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <AppSwitcher currentApp="Tasks" />
@@ -224,8 +224,9 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    A private and secure task management app. All your data is
-                    end-to-end encrypted.
+                    Private and secure task management with end-to-end
+                    encryption. All your data is encrypted and only you can read
+                    it.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

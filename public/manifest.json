@@ -1,11 +1,11 @@
 {
   "name": "Helvety Tasks",
   "short_name": "Helvety Tasks",
-  "description": "Privacy-focused task management with end-to-end encryption.",
+  "description": "Private and secure task management with end-to-end encryption.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#faf8f7",
+  "theme_color": "#faf8f7",
   "orientation": "portrait-primary",
   "icons": [
     {
