@@ -21,7 +21,7 @@ import {
   Undo2Icon,
   Redo2Icon,
 } from "lucide-react";
-import { useCallback, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useCallback, useEffect, useImperativeHandle, type Ref } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -49,6 +49,8 @@ export interface TiptapEditorProps {
   className?: string;
   /** Whether to auto-focus the editor */
   autoFocus?: boolean;
+  /** Ref to access imperative editor methods */
+  ref?: Ref<TiptapEditorRef>;
 }
 
 /** Imperative handle exposed by the Tiptap editor via ref. */
@@ -310,104 +312,98 @@ function EditorToolbar({
 /**
  * Tiptap WYSIWYG editor component
  */
-export const TiptapEditor = forwardRef<TiptapEditorRef, TiptapEditorProps>(
-  (
-    {
-      content,
-      onChange,
-      placeholder = "Start typing...",
-      disabled = false,
-      className,
-      autoFocus = false,
-    },
-    ref
-  ) => {
-    const editor = useEditor({
-      immediatelyRender: false,
-      extensions: [
-        StarterKit.configure({
-          heading: {
-            levels: [1, 2, 3],
-          },
-        }),
-        Placeholder.configure({
-          placeholder,
-          emptyEditorClass:
-            "before:content-[attr(data-placeholder)] before:text-muted-foreground before:float-left before:h-0 before:pointer-events-none",
-        }),
-        Underline,
-        Link.configure({
-          openOnClick: false,
-          HTMLAttributes: {
-            class: "text-primary underline cursor-pointer",
-          },
-        }),
-      ],
-      content: content ?? undefined,
-      editable: !disabled,
-      autofocus: autoFocus,
-      editorProps: {
-        attributes: {
-          class: cn(
-            "prose prose-sm dark:prose-invert max-w-none",
-            "min-h-[200px] w-full px-3 py-2",
-            "focus:outline-none",
-            "[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-6 first:[&_h1]:mt-0",
-            "[&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 first:[&_h2]:mt-0",
-            "[&_h3]:text-lg [&_h3]:font-medium [&_h3]:mb-2 [&_h3]:mt-4 first:[&_h3]:mt-0",
-            "[&_p]:mb-3 [&_p]:leading-relaxed last:[&_p]:mb-0",
-            "[&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-6",
-            "[&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6",
-            "[&_li]:mb-1",
-            "[&_a]:text-primary [&_a]:underline"
-          ),
+export function TiptapEditor({
+  content,
+  onChange,
+  placeholder = "Start typing...",
+  disabled = false,
+  className,
+  autoFocus = false,
+  ref,
+}: TiptapEditorProps) {
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
         },
+      }),
+      Placeholder.configure({
+        placeholder,
+        emptyEditorClass:
+          "before:content-[attr(data-placeholder)] before:text-muted-foreground before:float-left before:h-0 before:pointer-events-none",
+      }),
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-primary underline cursor-pointer",
+        },
+      }),
+    ],
+    content: content ?? undefined,
+    editable: !disabled,
+    autofocus: autoFocus,
+    editorProps: {
+      attributes: {
+        class: cn(
+          "prose prose-sm dark:prose-invert max-w-none",
+          "min-h-[200px] w-full px-3 py-2",
+          "focus:outline-none",
+          "[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-6 first:[&_h1]:mt-0",
+          "[&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 first:[&_h2]:mt-0",
+          "[&_h3]:text-lg [&_h3]:font-medium [&_h3]:mb-2 [&_h3]:mt-4 first:[&_h3]:mt-0",
+          "[&_p]:mb-3 [&_p]:leading-relaxed last:[&_p]:mb-0",
+          "[&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-6",
+          "[&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6",
+          "[&_li]:mb-1",
+          "[&_a]:text-primary [&_a]:underline"
+        ),
       },
-      onUpdate: ({ editor }) => {
-        onChange?.(editor.getJSON());
-      },
-    });
+    },
+    onUpdate: ({ editor }) => {
+      onChange?.(editor.getJSON());
+    },
+  });
 
-    // Expose methods via ref
-    useImperativeHandle(ref, () => ({
-      getJSON: () => editor?.getJSON(),
-      setContent: (newContent) => {
-        if (!editor) return;
-        if (newContent === null) {
-          editor.commands.clearContent();
-        } else {
-          editor.commands.setContent(newContent);
-        }
-      },
-      focus: () => editor?.commands.focus(),
-      getEditor: () => editor,
-    }));
-
-    // Update editable state when disabled changes
-    useEffect(() => {
-      if (editor) {
-        editor.setEditable(!disabled);
+  // Expose methods via ref
+  useImperativeHandle(ref, () => ({
+    getJSON: () => editor?.getJSON(),
+    setContent: (newContent) => {
+      if (!editor) return;
+      if (newContent === null) {
+        editor.commands.clearContent();
+      } else {
+        editor.commands.setContent(newContent);
       }
-    }, [editor, disabled]);
+    },
+    focus: () => editor?.commands.focus(),
+    getEditor: () => editor,
+  }));
 
-    return (
-      <div
-        className={cn(
-          "border-border/40 bg-background dark:bg-input/30 rounded-md border",
-          "focus-within:border-ring/70 focus-within:ring-ring/30 focus-within:ring-[2px]",
-          "transition-[color,box-shadow]",
-          disabled && "cursor-not-allowed opacity-50",
-          className
-        )}
-      >
-        <EditorToolbar editor={editor} disabled={disabled} />
-        <EditorContent editor={editor} />
-      </div>
-    );
-  }
-);
+  // Update editable state when disabled changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!disabled);
+    }
+  }, [editor, disabled]);
 
-TiptapEditor.displayName = "TiptapEditor";
+  return (
+    <div
+      className={cn(
+        "border-border/40 bg-background dark:bg-input/30 rounded-md border",
+        "focus-within:border-ring/70 focus-within:ring-ring/30 focus-within:ring-[2px]",
+        "transition-[color,box-shadow]",
+        disabled && "cursor-not-allowed opacity-50",
+        className
+      )}
+    >
+      <EditorToolbar editor={editor} disabled={disabled} />
+      <EditorContent editor={editor} />
+    </div>
+  );
+}
 
 /**
  * Parse notes content - handles both JSON and legacy plain text

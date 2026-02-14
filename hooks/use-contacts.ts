@@ -199,18 +199,24 @@ export function useContacts(): UseContactsReturn {
         return false;
       }
 
+      // Optimistic delete: remove from state immediately, rollback on failure
+      let prevContacts: Contact[] = [];
+      setContacts((prev) => {
+        prevContacts = prev;
+        return prev.filter((contact) => contact.id !== id);
+      });
+
       try {
         const result = await deleteContact(id, csrfToken);
         if (!result.success) {
+          setContacts(prevContacts);
           setError(result.error ?? "Failed to delete contact");
           return false;
         }
 
-        // Optimistic update: remove from local state
-        setContacts((prev) => prev.filter((contact) => contact.id !== id));
-
         return true;
       } catch (err) {
+        setContacts(prevContacts);
         setError(
           err instanceof Error ? err.message : "Failed to delete contact"
         );
