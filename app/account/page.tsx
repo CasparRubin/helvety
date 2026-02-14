@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/lib/auth-redirect";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import { AccountClient } from "./account-client";
 
@@ -38,7 +38,7 @@ function AccountLoading() {
  */
 export default async function AccountPage() {
   // Server-side auth check
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

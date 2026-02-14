@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       logger.warn(`Checkout rate limit exceeded for IP: ${clientIP}`);
       return NextResponse.json(
         {
-          error: `Too many requests. Please wait ${rateLimit.retryAfter ?? 60} seconds.`,
+          error: `Too many attempts. Please wait ${rateLimit.retryAfter ?? 60} seconds before trying again.`,
         },
         { status: 429 }
       );

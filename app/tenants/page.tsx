@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { TenantsPageClient } from "@/app/tenants/tenants-page-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/lib/auth-redirect";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import type { Metadata } from "next";
 
@@ -35,7 +35,7 @@ function TenantsLoading() {
  * Requires authentication.
  */
 export default async function TenantsPage() {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

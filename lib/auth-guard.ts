@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { getLoginUrl } from "@/lib/auth-redirect";
 import { getUserWithRetry } from "@/lib/auth-retry";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -29,7 +29,7 @@ import type { User } from "@supabase/supabase-js";
  * }
  */
 export async function requireAuth(): Promise<User> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   const { user, error } = await getUserWithRetry(supabase);
 
   if (error || !user) {
@@ -58,7 +58,7 @@ export async function requireAuth(): Promise<User> {
  * }
  */
 export async function getOptionalUser(): Promise<User | null> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
