@@ -118,7 +118,8 @@ export async function getUnitsDashboardData(): Promise<
         units: unitsResult.data ?? [],
         spaceCounts,
         stageConfigs: stageConfigsResult.data ?? [],
-        stageAssignment: (assignmentResult.data?.[0] as StageAssignment) ?? null,
+        stageAssignment:
+          (assignmentResult.data?.[0] as StageAssignment) ?? null,
       },
     };
   } catch (error) {
@@ -183,7 +184,11 @@ export async function getSpacesDashboardData(
       return { success: false, error: "Failed to load dashboard data" };
     }
 
-    if (spacesResult.error || stageConfigsResult.error || assignmentResult.error) {
+    if (
+      spacesResult.error ||
+      stageConfigsResult.error ||
+      assignmentResult.error
+    ) {
       logger.error("Error in getSpacesDashboardData:", {
         spaces: spacesResult.error,
         stageConfigs: stageConfigsResult.error,
@@ -194,7 +199,7 @@ export async function getSpacesDashboardData(
 
     // Get item counts for the spaces in this unit
     const spaceIds = (spacesResult.data ?? []).map((s) => s.id);
-    let itemCounts: Record<string, number> = {};
+    const itemCounts: Record<string, number> = {};
 
     if (spaceIds.length > 0) {
       const { data: items, error: itemsError } = await supabase
@@ -219,7 +224,8 @@ export async function getSpacesDashboardData(
         spaces: spacesResult.data ?? [],
         itemCounts,
         stageConfigs: stageConfigsResult.data ?? [],
-        stageAssignment: (assignmentResult.data?.[0] as StageAssignment) ?? null,
+        stageAssignment:
+          (assignmentResult.data?.[0] as StageAssignment) ?? null,
       },
     };
   } catch (error) {

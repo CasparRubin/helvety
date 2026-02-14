@@ -124,9 +124,7 @@ export function useUnits(): UseUnitsReturn {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
-          return [...prev, newUnit].sort(
-            (a, b) => a.sort_order - b.sort_order
-          );
+          return [...prev, newUnit].sort((a, b) => a.sort_order - b.sort_order);
         });
 
         return result.data;

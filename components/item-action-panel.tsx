@@ -3,9 +3,8 @@
 /**
  * Item Action Panel - sidebar panel for item properties.
  * Displays date metadata, stage selection, priority picker, and label assignment
- * in collapsible sections. On mobile / stacked layout, stage, priority, and label
- * sections are collapsed by default to save screen space; dates remain open.
- * Designed to be extended with milestones and other fields.
+ * in collapsible sections. All sections start collapsed except Dates, which
+ * remains open by default. Designed to be extended with milestones and other fields.
  */
 
 import {
@@ -25,7 +24,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
-import { useIsMobile } from "@/hooks";
 import { formatDateTime } from "@/lib/dates";
 import { renderStageIcon } from "@/lib/icons";
 import { PRIORITIES, getPriorityConfig } from "@/lib/priorities";
@@ -62,7 +60,7 @@ interface ItemActionPanelProps {
 /**
  * Renders the action panel for an item editor.
  * Each section (dates, stage, priority, label) is wrapped in a collapsible;
- * stage, priority, and label collapse by default on mobile screens.
+ * stage, priority, and label start collapsed; dates remain open.
  */
 export function ItemActionPanel({
   item,
@@ -77,24 +75,11 @@ export function ItemActionPanel({
   onPriorityChange,
   isSavingPriority,
 }: ItemActionPanelProps) {
-  const isMobile = useIsMobile();
-
   // Controlled open state for collapsible sections.
-  // Start open (SSR-safe), then collapse once isMobile resolves to true.
-  const [stageOpen, setStageOpen] = useState(true);
-  const [priorityOpen, setPriorityOpen] = useState(true);
-  const [labelOpen, setLabelOpen] = useState(true);
-  const [prevIsMobile, setPrevIsMobile] = useState(isMobile);
-
-  // Collapse sections when switching to mobile view (SSR-safe).
-  // Uses the "adjusting state during render" pattern per React docs
-  // to avoid cascading renders (react-hooks/set-state-in-effect).
-  if (isMobile && isMobile !== prevIsMobile) {
-    setPrevIsMobile(isMobile);
-    setStageOpen(false);
-    setPriorityOpen(false);
-    setLabelOpen(false);
-  }
+  // All sections start collapsed except Dates (which uses defaultOpen).
+  const [stageOpen, setStageOpen] = useState(false);
+  const [priorityOpen, setPriorityOpen] = useState(false);
+  const [labelOpen, setLabelOpen] = useState(false);
 
   const handleStageClick = useCallback(
     (stageId: string | null) => {

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ExternalLinkIcon,
   Loader2Icon,
   NotepadTextIcon,
   PlusIcon,
@@ -62,7 +61,7 @@ function formatContactName(contact: Contact | LinkedContact): string {
 // =============================================================================
 
 /**
- * A single linked contact row in the list.
+ * A single linked contact row rendered as a clickable link to the Contacts app.
  */
 function LinkedContactRow({
   contact,
@@ -74,7 +73,12 @@ function LinkedContactRow({
   const name = formatContactName(contact);
 
   return (
-    <div className="group hover:bg-muted/40 flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors">
+    <a
+      href={getContactDeepLink(contact.id)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group hover:bg-muted/40 flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors"
+    >
       {/* Contact info */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
@@ -104,29 +108,14 @@ function LinkedContactRow({
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon-xs" asChild>
-                <a
-                  href={getContactDeepLink(contact.id)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLinkIcon className="size-3.5" />
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p>Open in Contacts</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon-xs"
-                onClick={() => onUnlink(contact.link_id, name)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onUnlink(contact.link_id, name);
+                }}
                 className="text-destructive hover:text-destructive"
               >
                 <UnlinkIcon className="size-3.5" />
@@ -138,7 +127,7 @@ function LinkedContactRow({
           </Tooltip>
         </TooltipProvider>
       </div>
-    </div>
+    </a>
   );
 }
 
