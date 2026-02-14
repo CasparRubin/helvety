@@ -4,8 +4,6 @@ import { Upload } from "lucide-react";
 import * as React from "react";
 
 import { PdfPageGrid, PdfToolkit } from "@/components/pdf";
-import { useSubscriptionContext } from "@/components/subscription-provider";
-import { UpgradePrompt } from "@/components/upgrade-prompt";
 import { useColumns } from "@/hooks/use-columns";
 import { useDragDrop } from "@/hooks/use-drag-drop";
 import { useErrorHandler } from "@/hooks/use-error-handler";
@@ -25,6 +23,7 @@ import { cn } from "@/lib/utils";
  * - Merge all pages into a single PDF
  *
  * All processing happens client-side for privacy and security.
+ * Completely free with no limits and no login required.
  *
  * @returns The main PDF toolkit interface
  */
@@ -33,16 +32,7 @@ export function HelvetyPdf(): React.JSX.Element {
   const [columns, handleColumnsChange] = useColumns();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Subscription context for tier-based limits
-  const { limits, tier } = useSubscriptionContext();
-
-  // State for showing upgrade prompt
-  const [showUpgradePrompt, setShowUpgradePrompt] = React.useState(false);
-  const [upgradeReason, setUpgradeReason] = React.useState<"files" | "pages">(
-    "files"
-  );
-
-  // PDF files management with tier-based limits
+  // PDF files management (no limits)
   const {
     pdfFiles,
     unifiedPages,
@@ -52,20 +42,7 @@ export function HelvetyPdf(): React.JSX.Element {
     removeFile,
     clearAll: clearAllFiles,
     getCachedPdf,
-    canAddMoreFiles,
-    remainingFileSlots,
-  } = usePdfFiles({
-    maxFiles: limits.maxFiles,
-    maxPages: limits.maxPages,
-    onFileLimitReached: () => {
-      setUpgradeReason("files");
-      setShowUpgradePrompt(true);
-    },
-    onPageLimitReached: () => {
-      setUpgradeReason("pages");
-      setShowUpgradePrompt(true);
-    },
-  });
+  } = usePdfFiles();
 
   // Error handling - initialize first, will be updated when processing starts
   const [isProcessing, setIsProcessing] = React.useState(false);
@@ -307,20 +284,8 @@ export function HelvetyPdf(): React.JSX.Element {
           isProcessing={isProcessing}
           columns={columns}
           onColumnsChange={handleColumnsChange}
-          tier={tier}
-          limits={limits}
-          canAddMoreFiles={canAddMoreFiles()}
-          remainingFileSlots={remainingFileSlots}
         />
       </aside>
-
-      {/* Upgrade Prompt Dialog */}
-      <UpgradePrompt
-        open={showUpgradePrompt}
-        onOpenChange={setShowUpgradePrompt}
-        reason={upgradeReason}
-        limits={limits}
-      />
     </div>
   );
 }

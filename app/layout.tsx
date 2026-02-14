@@ -4,7 +4,6 @@ import localFont from "next/font/local";
 import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-import { SubscriptionProvider } from "@/components/subscription-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -41,11 +40,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://pdf.helvety.com"),
   title: {
-    default: "Helvety PDF | Comprehensive PDF Tool | Private and Secure",
+    default: "Helvety PDF | Free PDF Tool | Private and Secure",
     template: "%s | Helvety PDF",
   },
   description:
-    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Private, secure, and free.",
+    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Private, secure, and 100% free with no limits.",
   keywords: [
     "Helvety PDF",
     "PDF merge",
@@ -58,6 +57,7 @@ export const metadata: Metadata = {
     "secure PDF",
     "browser PDF",
     "PDF editor",
+    "free PDF tool",
   ],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -77,9 +77,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://pdf.helvety.com",
     siteName: "Helvety PDF",
-    title: "Helvety PDF | Comprehensive PDF Tool | Private and Secure",
+    title: "Helvety PDF | Free PDF Tool | Private and Secure",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. 100% free with no limits.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",
@@ -91,9 +91,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Helvety PDF | Comprehensive PDF Tool | Private and Secure",
+    title: "Helvety PDF | Free PDF Tool | Private and Secure",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. 100% free with no limits.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",
@@ -137,18 +137,14 @@ export default function RootLayout({
         >
           <AuthTokenHandler />
           <TooltipProvider>
-            <SubscriptionProvider>
-              <div className="flex h-screen flex-col overflow-hidden">
-                <header className="shrink-0">
-                  <Navbar />
-                </header>
-                <main className="min-h-0 flex-1 overflow-hidden">
-                  {children}
-                </main>
-                <Footer className="shrink-0" />
-              </div>
-              <Toaster />
-            </SubscriptionProvider>
+            <div className="flex h-screen flex-col overflow-hidden">
+              <header className="shrink-0">
+                <Navbar />
+              </header>
+              <main className="min-h-0 flex-1 overflow-hidden">{children}</main>
+              <Footer className="shrink-0" />
+            </div>
+            <Toaster />
           </TooltipProvider>
         </ThemeProvider>
         <Analytics />

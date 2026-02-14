@@ -30,11 +30,11 @@
 
 A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images with 100% client-side processing. All file processing happens entirely in your browser - your files are never uploaded to our servers.
 
-**App:** [pdf.helvety.com](https://pdf.helvety.com) | **Subscribe:** [store.helvety.com](https://store.helvety.com/products/helvety-pdf)
+**App:** [pdf.helvety.com](https://pdf.helvety.com)
 
 **Privacy First** - 100% Client-Side Processing. All file processing happens entirely in your browser. Your file data is never uploaded to our servers. We use Vercel Analytics for anonymous page view statistics only (see [Privacy Policy](https://helvety.com/privacy)).
 
-Helvety PDF offers a free Basic tier and a Pro subscription for unlimited files and pages. Both tiers include all features - the only difference is file and page limits.
+Helvety PDF is a 100% free tool with no limits and no login required. All features are available to everyone - unlimited files, unlimited pages.
 
 ## Service Availability
 
@@ -56,17 +56,8 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 - **Customizable grid layout** - Adjust pages per row to accommodate different page sizes
 - **Dark & Light mode support** - Comfortable viewing in any lighting condition
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
-
-## Pricing
-
-Helvety PDF offers a free Basic tier and a paid Pro subscription. Both tiers include all features (merge, split, reorder, delete, extract, rotate, client-side processing). The only difference is file and page limits:
-
-| Limit | Basic (Free) | Pro (CHF 4.95/month) |
-| ----- | ------------ | -------------------- |
-| Files | Max 2 files  | Unlimited            |
-| Pages | Max 10 pages | Unlimited            |
-
-Subscribe at [store.helvety.com](https://store.helvety.com/products/helvety-pdf)
+- **Unlimited files and pages** - No restrictions, completely free
+- **No login required** - Use the tool instantly, no account needed
 
 ## How It Works
 
@@ -74,29 +65,7 @@ Subscribe at [store.helvety.com](https://store.helvety.com/products/helvety-pdf)
 2. **Preview & Manage** - See thumbnails of all pages, reorder by dragging, rotate, or delete pages as needed
 3. **Download** - Your processed PDF downloads automatically with a timestamped filename
 
-## Security & Authentication
-
-### Authentication Flow
-
-Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is optional** and users can use the PDF tool without an account. Login is only required for the Pro subscription (unlimited files and pages).
-
-**New Users (when signing in):**
-
-1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
-2. Enter verification code from email → Verify email ownership
-3. Scan QR code with phone → Verify with biometrics (Face ID/fingerprint)
-4. Passkey created → Verify passkey → Session established → Redirected back to PDF app
-
-**Returning Users (when signing in):**
-
-1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
-2. Sign in with passkey (no email sent; existing users with a passkey skip email verification)
-3. Scan QR code → Verify with biometrics → Session created
-4. Redirected back to PDF app
-
-Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
-
-**Privacy Note:** Your email address is used solely for authentication (verification codes for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
+## Security
 
 **Note:** End-to-end encryption is not used in this app. E2EE is used by [Helvety Tasks](https://tasks.helvety.com) and [Helvety Contacts](https://contacts.helvety.com).
 
@@ -104,13 +73,6 @@ Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
 
 This application implements comprehensive security hardening:
 
-- **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
-- **Server Layout Guards** - Authentication checks in Server Components via `lib/auth-guard.ts` with retry logic for transient failures (CVE-2025-29927 compliant)
-- **Redirect URI Validation** - All redirect URIs validated against allowlist via `lib/redirect-validation.ts` to prevent open redirect attacks
-- **CSRF Protection** - Token-based protection for state-changing operations
-- **Rate Limiting** - Protection against brute force attacks
-- **Idle Timeout** - Automatic session expiration after 30 minutes of inactivity
-- **Audit Logging** - Structured logging for authentication events
 - **Security Headers** - CSP, HSTS, and other security headers
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
@@ -124,7 +86,6 @@ This project is built with modern web technologies:
 - **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
-- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
 - **[pdf-lib](https://pdf-lib.js.org/)** - PDF manipulation and creation
 - **[react-pdf](https://www.npmjs.com/package/react-pdf)** - React components for PDF display
 - **[pdfjs-dist](https://mozilla.github.io/pdf.js/)** - PDF rendering engine (used by react-pdf)
@@ -151,7 +112,7 @@ This application is developed and maintained by [Helvety](https://helvety.com), 
 
 Vercel Analytics is used across all Helvety apps for privacy-focused, anonymous page view statistics. Vercel Speed Insights is enabled only on [helvety.com](https://helvety.com). See our [Privacy Policy](https://helvety.com/privacy) for details.
 
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com).
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [abuse@helvety.com](mailto:abuse@helvety.com).
 
 ## License & Usage
 
@@ -170,7 +131,5 @@ You may NOT:
 - Redistribute or share this code
 - Use this code in your own projects
 - Run this code locally or on your own servers
-
-**Purchasing a subscription grants access to use the hosted service at [pdf.helvety.com](https://pdf.helvety.com) only.** Subscriptions do not grant any rights to the source code.
 
 See [LICENSE](./LICENSE) for full legal terms.

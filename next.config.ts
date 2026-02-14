@@ -55,7 +55,6 @@ const nextConfig: NextConfig = {
         // These are necessary tradeoffs for functionality. XSS is mitigated through:
         // - Strict React JSX escaping (no dangerouslySetInnerHTML)
         // - Input validation on all user data
-        // - HTTPOnly cookies for authentication
         value: [
           "default-src 'self'",
           "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://va.vercel-scripts.com",

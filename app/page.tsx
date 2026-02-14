@@ -2,8 +2,7 @@ import { PageClient } from "./page-client";
 
 /**
  * Main page - server component
- * No auth required - users can use the PDF tool without logging in.
- * Login is only needed for the Pro subscription (unlimited files and pages).
+ * No login or account required. Helvety PDF is a free tool with no limits.
  */
 export default function Page(): React.JSX.Element {
   return <PageClient />;

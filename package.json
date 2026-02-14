@@ -1,6 +1,6 @@
 {
   "name": "helvety-pdf",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Privacy-focused, client-side PDF toolkit for merging, reordering, rotating, and extracting pages.",
   "author": "Helvety by Rubin",
   "homepage": "https://pdf.helvety.com",
@@ -28,11 +28,8 @@
   "dependencies": {
     "@fontsource-variable/public-sans": "^5.2.7",
     "radix-ui": "^1.4.3",
-    "@simplewebauthn/browser": "^13.2.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",
-    "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.36.2",
     "@vercel/analytics": "^1.6.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -7,12 +7,8 @@ import {
   Info,
   LogIn,
   LogOut,
-  Crown,
   User as UserIcon,
-  ShoppingBag,
-  Check,
   Settings,
-  CreditCard,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,9 +16,7 @@ import { useEffect, useState } from "react";
 
 // Internal components
 import { AppSwitcher } from "@/components/app-switcher";
-import { useSubscriptionContext } from "@/components/subscription-provider";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -68,15 +62,17 @@ import type { User } from "@supabase/supabase-js";
  * - About dialog, GitHub link (in bar above 400px; in burger below 400px)
  * - Theme switcher (dark/light mode)
  * - Login button (shown when user is not authenticated)
- * - Profile menu with user email, subscription tier, upgrade prompt, store links (Account, Subscriptions), and Sign out (shown when authenticated)
- * - Burger menu below 400px: About, GitHub plus login/user/upgrade/logout sections
+ * - Profile menu with user email, Account link, and Sign out (shown when authenticated)
+ * - Burger menu below 400px: About, GitHub plus login/user/logout sections
+ *
+ * Helvety PDF is a free tool with no limits. Login is optional for cross-app session sharing.
  */
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const { isAuthenticated, isPro, isLoading } = useSubscriptionContext();
+  const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
@@ -85,6 +81,7 @@ export function Navbar() {
         data: { user: u },
       } = await supabase.auth.getUser();
       setUser(u ?? null);
+      setIsLoading(false);
     };
     void getUser();
 
@@ -92,9 +89,12 @@ export function Navbar() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setIsLoading(false);
     });
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
+
+  const isAuthenticated = !!user;
 
   const handleLogin = () => {
     redirectToLogin();
@@ -166,7 +166,7 @@ export function Navbar() {
                   <DialogDescription className="pt-2">
                     A comprehensive PDF tool for merging, reordering, rotating,
                     and extracting pages. All processing happens locally in your
-                    browser - private and secure.
+                    browser - private and secure. Free to use with no limits.
                   </DialogDescription>
                 </DialogHeader>
                 <>
@@ -235,64 +235,6 @@ export function Navbar() {
                   </div>
                 </PopoverHeader>
                 <Separator />
-                {/* Tier badge and upgrade section */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <Badge variant={isPro ? "default" : "secondary"}>
-                      {isPro ? (
-                        <>
-                          <Crown className="mr-1 h-3 w-3" />
-                          Pro
-                        </>
-                      ) : (
-                        "Basic"
-                      )}
-                    </Badge>
-                  </div>
-                  {!isPro && (
-                    <div className="bg-muted/50 rounded-lg border p-3">
-                      <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
-                        <Crown className="h-4 w-4" />
-                        Upgrade to Pro
-                      </h4>
-                      <ul className="mb-3 space-y-1">
-                        {["Unlimited file uploads", "Unlimited pages"].map(
-                          (feature) => (
-                            <li
-                              key={feature}
-                              className="flex items-center gap-2 text-xs"
-                            >
-                              <Check className="text-primary h-3 w-3 shrink-0" />
-                              {feature}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                      <p className="text-muted-foreground mb-3 text-xs">
-                        Only{" "}
-                        <span className="text-foreground font-medium">
-                          CHF 4.95/month
-                        </span>
-                      </p>
-                      <Button
-                        variant="default"
-                        className="w-full justify-start"
-                        size="sm"
-                        asChild
-                      >
-                        <a
-                          href="https://store.helvety.com/products/helvety-pdf"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ShoppingBag className="h-4 w-4" />
-                          Upgrade Now
-                        </a>
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                <Separator />
                 <div className="flex flex-col gap-2">
                   <Button
                     variant="outline"
@@ -306,20 +248,6 @@ export function Navbar() {
                     >
                       <Settings className="h-4 w-4" />
                       Account
-                    </a>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <a
-                      href="https://store.helvety.com/subscriptions"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <CreditCard className="h-4 w-4" />
-                      Subscriptions
                     </a>
                   </Button>
                 </div>
@@ -398,70 +326,12 @@ export function Navbar() {
                 )}
                 {/* User info section in mobile menu */}
                 {isAuthenticated && !isLoading && (
-                  <>
-                    <div className="mb-2 flex h-9 items-center gap-2 border-b px-2.5 pb-2">
-                      <UserIcon className="text-muted-foreground h-4 w-4" />
-                      <span className="text-muted-foreground text-sm">
-                        Signed in
-                      </span>
-                      <Badge
-                        variant={isPro ? "default" : "secondary"}
-                        className="ml-auto"
-                      >
-                        {isPro ? (
-                          <>
-                            <Crown className="mr-1 h-3 w-3" />
-                            Pro
-                          </>
-                        ) : (
-                          "Basic"
-                        )}
-                      </Badge>
-                    </div>
-                    {!isPro && (
-                      <div className="bg-muted/50 rounded-lg border p-3">
-                        <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
-                          <Crown className="h-4 w-4" />
-                          Upgrade to Pro
-                        </h4>
-                        <ul className="mb-3 space-y-1">
-                          {["Unlimited file uploads", "Unlimited pages"].map(
-                            (feature) => (
-                              <li
-                                key={feature}
-                                className="flex items-center gap-2 text-xs"
-                              >
-                                <Check className="text-primary h-3 w-3 shrink-0" />
-                                {feature}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                        <p className="text-muted-foreground mb-3 text-xs">
-                          Only{" "}
-                          <span className="text-foreground font-medium">
-                            CHF 4.95/month
-                          </span>
-                        </p>
-                        <Button
-                          variant="default"
-                          className="w-full"
-                          size="sm"
-                          asChild
-                        >
-                          <a
-                            href="https://store.helvety.com/products/helvety-pdf"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            <ShoppingBag className="h-4 w-4" />
-                            Upgrade Now
-                          </a>
-                        </Button>
-                      </div>
-                    )}
-                  </>
+                  <div className="mb-2 flex h-9 items-center gap-2 border-b px-2.5 pb-2">
+                    <UserIcon className="text-muted-foreground h-4 w-4" />
+                    <span className="text-muted-foreground text-sm">
+                      Signed in
+                    </span>
+                  </div>
                 )}
                 {/* Logout button in mobile menu */}
                 {isAuthenticated && !isLoading && (

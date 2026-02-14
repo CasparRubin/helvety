@@ -16,5 +16,4 @@ export * from "./use-pdf-rendering";
 export * from "./use-pdf-worker";
 export * from "./use-progressive-quality";
 export * from "./use-screen-size";
-export * from "./use-subscription";
 export * from "./use-thumbnail-intersection";
