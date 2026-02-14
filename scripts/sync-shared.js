@@ -9,7 +9,7 @@
  *   --check      Compare files only; exit 1 if any have drifted
  *
  * Synced paths (must match .cursor/rules/shared-code-patterns.mdc):
- *   - proxy.ts
+ *   - proxy.ts (all except helvety-auth which adds CSRF token generation for auth server actions)
  *   - scripts/generate-version.mjs
  *   - lib/utils.ts, lib/logger.ts, lib/constants.ts (helvety-auth, helvety-store, helvety-tasks, helvety-contacts; helvety-pdf and helvety-contacts keep app-specific constants)
  *   - lib/auth-logger.ts, lib/auth-redirect.ts, lib/auth-retry.ts
@@ -98,6 +98,7 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
  * - helvety-pdf keeps its own app/globals.css (adds custom responsive grid utilities)
  * - helvety-auth keeps its own lib/auth-guard.ts (redirects to local /login instead of auth service)
  * - helvety-auth keeps its own components/auth-token-handler.tsx (includes passkey verification logic)
+ * - helvety-auth keeps its own proxy.ts (adds CSRF token generation for auth server actions)
  * - helvety-auth keeps its own lib/csrf.ts (auth-specific CSRF lifecycle with proxy.ts)
  * - helvety-auth keeps its own lib/rate-limit.ts (auth-specific rate limits: PASSKEY, OTP, OTP_VERIFY)
  * - helvety-store keeps its own lib/env-validation.ts (includes Stripe key validation)
@@ -121,6 +122,7 @@ const TARGET_SKIP_FILES = {
     "app/globals.css",
   ],
   "helvety-auth": [
+    "proxy.ts",
     "lib/auth-guard.ts",
     "components/auth-token-handler.tsx",
     "lib/csrf.ts",
