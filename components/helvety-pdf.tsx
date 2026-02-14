@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 /**
  * Main PDF toolkit component.
  *
- * Provides a comprehensive interface for managing PDF files and images:
+ * Provides an interface for managing PDF files and images:
  * - Upload and validate files (PDFs and images)
  * - Reorder, delete, and rotate pages
  * - Extract individual pages
@@ -222,7 +222,7 @@ export function HelvetyPdf(): React.JSX.Element {
                     </p>
                     <p className="text-muted-foreground mt-1 text-xs">
                       Or use the panel{" "}
-                      {columns === 1 ? "on the top" : "on the right"} to add
+                      {columns === 1 ? "at the top" : "on the right"} to add
                       your files
                     </p>
                   </div>

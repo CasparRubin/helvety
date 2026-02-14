@@ -47,14 +47,14 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 - **Client-side file processing** - All operations happen in your browser
 - **PDF and image support** - Upload PDF files and images (PNG, JPEG, WebP, GIF, etc.)
 - **Page thumbnails preview** - Visual preview of all pages before processing
-- **Drag & drop reordering** - Easily rearrange pages by dragging thumbnails
+- **Drag & drop reordering** - Rearrange pages by dragging thumbnails
 - **Page rotation** - Rotate individual pages by 90° increments
 - **Page deletion** - Remove unwanted pages from your documents
 - **Page extraction** - Extract individual pages as separate PDF files
 - **Multi-file merging** - Combine multiple PDF files and images into one PDF
-- **Drag & drop upload** - Intuitive file upload interface
+- **Drag & drop upload** - Simple file upload interface
 - **Customizable grid layout** - Adjust pages per row to accommodate different page sizes
-- **Dark & Light mode support** - Comfortable viewing in any lighting condition
+- **Dark & Light mode support** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Unlimited files and pages** - No restrictions, completely free
 - **No login required** - Use the tool instantly, no account needed
@@ -71,13 +71,13 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 ### Security Hardening
 
-This application implements comprehensive security hardening:
+This application includes the following security hardening:
 
 - **Security Headers** - CSP, HSTS, and other security headers
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
 
-**Abuse Reporting:** Abuse reports can be submitted to [abuse@helvety.com](mailto:abuse@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes a dedicated abuse reporting section with guidance for both users and law enforcement.
+**Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
 ## Tech Stack
 
@@ -101,24 +101,24 @@ This application is built with performance and code quality in mind:
 
 - **LRU Cache Strategy** - Uses Least Recently Used (LRU) cache eviction for optimal memory management
 - **Batch Processing** - Processes PDF pages in adaptive batches (3-10 pages) to prevent UI blocking
-- **Optimized Memoization** - Smart memoization with early short-circuiting for efficient re-renders
-- **Strict TypeScript** - Comprehensive type safety with `noUncheckedIndexedAccess`, `noImplicitReturns`, `noUnusedLocals`, and other strict compiler options
+- **Optimized Memoization** - Memoization with early short-circuiting to reduce re-renders
+- **Strict TypeScript** - Strict type safety with `noUncheckedIndexedAccess`, `noImplicitReturns`, `noUnusedLocals`, and other strict compiler options
 - **Error Handling** - Centralized error handling with detailed context and recovery strategies
 - **Code Organization** - Modular architecture with extracted utilities and reusable components
 
 ## Developer
 
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
+This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
 Vercel Analytics is used across all Helvety apps for privacy-focused, anonymous page view statistics. Vercel Speed Insights is enabled only on [helvety.com](https://helvety.com). See our [Privacy Policy](https://helvety.com/privacy) for details.
 
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [abuse@helvety.com](mailto:abuse@helvety.com).
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 
 ## License & Usage
 
 > **This is NOT open source software.**
 
-This repository is public **for transparency purposes only** so users can verify the application's behavior and security.
+This repository is public so users can inspect and verify the application's behavior and security.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 

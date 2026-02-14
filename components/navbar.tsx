@@ -164,9 +164,9 @@ export function Navbar() {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    A comprehensive PDF tool for merging, reordering, rotating,
-                    and extracting pages. All processing happens locally in your
-                    browser - private and secure. Free to use with no limits.
+                    A PDF tool for merging, reordering, rotating, and extracting
+                    pages. All processing happens locally in your browser -
+                    private and secure. Free to use with no limits.
                   </DialogDescription>
                 </DialogHeader>
                 <>

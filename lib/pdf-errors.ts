@@ -109,7 +109,7 @@ export function formatPdfError(error: unknown, context: string): string {
       break;
     case PdfErrorType.NETWORK:
       userMessage +=
-        " network error occurred. Please check your connection and try again.";
+        " a network error occurred. Please check your connection and try again.";
       break;
     case PdfErrorType.TIMEOUT:
       userMessage +=

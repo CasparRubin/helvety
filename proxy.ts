@@ -66,7 +66,7 @@ export async function proxy(request: NextRequest) {
   try {
     await supabase.auth.getClaims();
   } catch {
-    // Session refresh failed — continue without refresh.
+    // Session refresh failed - continue without refresh.
     // The request still proceeds; server components will re-check auth.
   }
 
