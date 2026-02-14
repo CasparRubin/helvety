@@ -1,7 +1,13 @@
+import { randomBytes } from "crypto";
+
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getSupabaseKey, getSupabaseUrl } from "@/lib/env-validation";
+
+// CSRF token cookie configuration (must match lib/csrf.ts)
+const CSRF_COOKIE_NAME = "csrf_token";
+const CSRF_TOKEN_LENGTH = 32;
 
 /**
  * Proxy to refresh Supabase auth sessions on every request.
@@ -67,6 +73,20 @@ export async function proxy(request: NextRequest) {
   } catch {
     // Session refresh failed - continue without refresh.
     // The request still proceeds; server components will re-check auth.
+  }
+
+  // Generate CSRF token if not present on the incoming request.
+  // This must happen in the proxy (not in a Server Component) because
+  // cookies().set() is not allowed in Server Components / layouts.
+  if (!request.cookies.get(CSRF_COOKIE_NAME)?.value) {
+    const token = randomBytes(CSRF_TOKEN_LENGTH).toString("hex");
+    supabaseResponse.cookies.set(CSRF_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60, // 1 hour
+    });
   }
 
   return supabaseResponse;
