@@ -14,121 +14,6 @@ import type {
 // =============================================================================
 
 /**
- * Helvety PDF - Free software product
- */
-export const helvetyPdf: SoftwareProduct = {
-  id: "helvety-pdf",
-  slug: "helvety-pdf",
-  name: "Helvety PDF",
-  shortDescription:
-    "A free, privacy-focused PDF toolkit. Merge, reorder, rotate, and extract pages from PDFs and images. All processing runs locally in your browser. No limits, no login required.",
-  description: `Helvety PDF is a free, privacy-focused, client-side PDF toolkit. All file processing happens entirely in your browser. Your files are not uploaded to or stored on our servers. No login or account is required.
-
-Upload PDF files and images (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG), preview page thumbnails, and manage your documents with a simple drag-and-drop interface. Merge multiple files into one PDF, extract individual pages, rotate pages by 90° increments, delete unwanted pages, and reorder with ease. Unlimited files, unlimited pages.
-
-The customizable grid layout lets you adjust the view to accommodate different page sizes. With dark and light mode support, you can work comfortably in any environment.
-
-Note: While your files are not transmitted to our servers, we use Vercel Analytics for anonymous page view statistics. See our Privacy Policy for details.`,
-  type: "software",
-  category: "productivity",
-  status: "available",
-  icon: "FileText",
-  features: [
-    "100% free - no limits, no login required",
-    "Unlimited file uploads",
-    "Unlimited pages",
-    "PDF and image support (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG)",
-    "Merge multiple files into one PDF",
-    "Extract individual pages as separate PDFs",
-    "Rotate pages by 90° increments",
-    "Reorder pages with drag-and-drop",
-    "Delete unwanted pages",
-    "Page thumbnail previews",
-    "Customizable grid layout",
-    "Client-side processing",
-    "Dark and light mode support",
-  ],
-  pricing: {
-    hasFreeTier: true,
-    hasYearlyPricing: false,
-    tiers: [
-      {
-        id: "helvety-pdf-free",
-        name: "Free",
-        price: 0,
-        currency: "CHF",
-        interval: "monthly",
-        isFree: true,
-        features: [
-          "Unlimited file uploads",
-          "Unlimited pages",
-          "Merge files",
-          "Split files",
-          "Reorder pages",
-          "Rotate pages",
-          "Delete pages",
-          "Extract pages",
-          "Client-side processing",
-          "No login required",
-        ],
-      },
-    ],
-  },
-  links: {
-    website: "https://pdf.helvety.com",
-    github: "https://github.com/CasparRubin/helvety-pdf",
-  },
-  software: {
-    downloadUrl: "https://pdf.helvety.com",
-    requirements: ["Google Chrome 128+", "Microsoft Edge 128+", "Safari 18+"],
-    licenseType: "free",
-  },
-  media: {
-    screencaptures: [
-      {
-        src: "https://pdf.helvety.com/screencapture/demo.gif",
-        alt: "Helvety PDF Demo - Drag and drop PDF management",
-        type: "gif",
-      },
-    ],
-    screenshots: [
-      {
-        src: "https://pdf.helvety.com/screenshots/Light%20mode.png",
-        alt: "Helvety PDF - Light mode",
-        type: "image",
-      },
-      {
-        src: "https://pdf.helvety.com/screenshots/Dark%20mode.png",
-        alt: "Helvety PDF - Dark mode",
-        type: "image",
-      },
-      {
-        src: "https://pdf.helvety.com/screenshots/Light%20mode%20Functionality.png",
-        alt: "Helvety PDF - Light mode with functionality",
-        type: "image",
-      },
-      {
-        src: "https://pdf.helvety.com/screenshots/Dark%20mode%20Functionality.png",
-        alt: "Helvety PDF - Dark mode with functionality",
-        type: "image",
-      },
-      {
-        src: "https://pdf.helvety.com/screenshots/Dark%20mode%20Mobile%20Functionality.png",
-        alt: "Helvety PDF - Mobile view",
-        type: "image",
-      },
-    ],
-  },
-  metadata: {
-    targetAudience: ["professionals", "students", "privacy-conscious users"],
-    platforms: ["web"],
-    keywords: ["pdf", "merge", "split", "privacy", "browser", "free"],
-    featured: true,
-    sortOrder: 1,
-  },
-};
-
-/**
  * Helvety SPO Explorer - SharePoint Online Extension
  */
 export const helvetyExplorer: SoftwareProduct = {
@@ -285,7 +170,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
 /**
  * All available products
  */
-export const products: Product[] = [helvetyPdf, helvetyExplorer];
+export const products: Product[] = [helvetyExplorer];
 
 // =============================================================================
 // DATA ACCESS FUNCTIONS

@@ -40,7 +40,7 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 - **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer (Tenants page: compact subscription summary, Registered Tenants list with Add Tenant above it)
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
-- **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog (30-day grace period); cancels active Stripe subscriptions and removes all user data via cascade deletes
+- **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog; immediately cancels active Stripe subscriptions and permanently removes all user data via cascade deletes
 - **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (nDSG Art. 28 compliance)
 - **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in both Stripe session metadata and a dedicated `consent_events` database table for audit compliance
 - **Dark & Light mode** - Switch between dark and light themes
@@ -79,8 +79,6 @@ This application includes the following security hardening:
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `lib/redirect-validation.ts` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
-- **Idle Timeout** - Automatic session expiration after 30 minutes of inactivity
-- **Audit Logging** - Structured logging for authentication events
 - **Security Headers** - CSP, HSTS, and other security headers
 
 ## Tech Stack
@@ -119,11 +117,11 @@ This repository is public so users can inspect and verify the application's beha
 
 You may NOT:
 
-- Clone, copy, or download this code for any purpose
+- Copy, use, or reuse the code in any form
+- Redistribute, publish, or share the code
 - Modify, adapt, or create derivative works
-- Redistribute or share this code
-- Use this code in your own projects
-- Run this code locally or on your own servers
+- Sell, sublicense, or commercially exploit the code
+- Reverse engineer or decompile the code
 
 **Purchasing a subscription grants access to use the hosted service at [store.helvety.com](https://store.helvety.com) only.** Subscriptions do not grant any rights to the source code.
 

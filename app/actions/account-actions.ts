@@ -141,13 +141,15 @@ export async function updateUserEmail(
 // =============================================================================
 
 /**
- * Request account deletion with a 30-day grace period.
+ * Permanently delete the user's account.
  *
  * This action:
  * 1. Cancels all active Stripe subscriptions immediately
- * 2. Deletes the user via Supabase Admin API (cascade deletes handle
+ * 2. Removes encrypted file attachments from storage
+ * 3. Deletes the user via Supabase Admin API (cascade deletes handle
  *    user_auth_credentials, user_passkey_params, subscriptions,
- *    licensed_tenants, and all task data including encrypted attachments)
+ *    licensed_tenants, units, spaces, items, item_attachments,
+ *    label_configs, stage_configs, user_profiles)
  *
  * Legal basis: nDSG Art. 32(2) (right to request deletion) + Art. 6(4)
  * (purpose limitation). Transaction records are retained in anonymized form
@@ -220,7 +222,7 @@ export async function requestAccountDeletion(
     // 3. Delete the user via Supabase Admin API
     // CASCADE deletes handle: user_auth_credentials, user_passkey_params,
     // subscriptions, licensed_tenants, units, spaces, items, item_attachments,
-    // label_configs, stage_configs, user_passkey_params, user_profiles
+    // label_configs, stage_configs, user_profiles
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(
       user.id
     );
@@ -251,9 +253,9 @@ export type { UserDataExport } from "@/lib/types/store";
  * Export all user data in a structured JSON format.
  *
  * Returns profile info, subscription history, purchase history, and tenant
- * registrations. Encrypted task data (helvety-tasks) is NOT included here.
- * that must be exported client-side from within Helvety Tasks while the user
- * is authenticated with their passkey.
+ * registrations. Encrypted task data (helvety-tasks) is NOT included; that data
+ * must be exported client-side from within Helvety Tasks while the user is
+ * authenticated with their passkey.
  *
  * Legal basis: nDSG Art. 28 (right to data portability; data must be
  * provided in a structured, commonly used format).

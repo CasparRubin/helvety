@@ -540,7 +540,7 @@ export function TenantsTab() {
                           onChange={(e) =>
                             setSelectedSubscription(e.target.value)
                           }
-                          className="border-input bg-background flex h-10 w-full rounded-md border px-3 py-2 text-sm"
+                          className="border-input bg-background flex h-10 w-full rounded-md border px-3 py-2 text-base md:text-sm"
                         >
                           <option value="">Select a subscription</option>
                           {subscriptions

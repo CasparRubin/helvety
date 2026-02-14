@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
 }
 
 // =============================================================================
-// GET /api/subscriptions/check - Quick check for specific product access
+// HEAD /api/subscriptions - Quick check for specific product access
 // =============================================================================
 
 /** Quick check for specific product subscription access. */

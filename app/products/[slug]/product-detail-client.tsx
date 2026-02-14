@@ -14,7 +14,6 @@ import {
   Package,
   Check,
   ChevronDown,
-  Info,
   Loader2,
   RotateCcw,
   ArrowLeft,
@@ -48,11 +47,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useCSRF } from "@/hooks/use-csrf";
 import { TOAST_DURATIONS } from "@/lib/constants";
 import { getProductBySlug } from "@/lib/data/products";
@@ -449,7 +443,7 @@ function PricingCard({
   };
 
   /**
-   * Handle button click - shows pre-checkout dialog (Terms & Policy + EU consent) for paid digital products
+   * Handle button click - shows pre-checkout dialog (Terms & Policy + digital content consent) for paid digital products
    */
   const handleButtonClick = () => {
     // Handle reactivation
@@ -590,22 +584,6 @@ function PricingCard({
           <li key={feature} className="flex items-start gap-2">
             <Check className="mt-0.5 size-4 shrink-0 text-green-500" />
             <span className="text-sm">{feature}</span>
-            {feature === "Only limited by your device" && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="text-muted-foreground hover:text-foreground mt-0.5 size-4 shrink-0 cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs text-left">
-                  <p className="text-sm">
-                    Helvety PDF processes everything directly in your browser.
-                    This means performance depends on your device&apos;s RAM and
-                    CPU. There are no artificial limits. Your device&apos;s
-                    hardware capabilities will naturally determine what&apos;s
-                    possible.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            )}
           </li>
         ))}
       </ul>

@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
     // Build success and cancel URLs
     const baseUrl =
       request.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "";
-    const productSlug = productInfo.productId; // e.g., 'helvety-pdf'
+    const productSlug = productInfo.productId; // e.g., 'helvety-spo-explorer'
 
     // Security: Validate custom URLs to prevent open redirect attacks
     // Only relative paths starting with "/" are allowed
