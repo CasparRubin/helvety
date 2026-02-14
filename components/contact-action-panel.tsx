@@ -22,6 +22,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from "@/hooks";
 import { formatDateTime } from "@/lib/dates";
 import { renderCategoryIcon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
@@ -52,8 +53,15 @@ export function ContactActionPanel({
   onCategoryChange,
   isSavingCategory,
 }: ContactActionPanelProps) {
-  // All sections start collapsed except Dates (which uses defaultOpen).
-  const [categoryOpen, setCategoryOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  // User-initiated override for collapse state. When null, derive from screen size.
+  // Sections open by default on desktop, collapsed on mobile/stacked layouts.
+  // Dates always stays open via defaultOpen (uncontrolled).
+  const [categoryOverride, setCategoryOverride] = useState<boolean | null>(
+    null
+  );
+  const categoryOpen = categoryOverride ?? !isMobile;
 
   const handleCategoryClick = useCallback(
     (categoryId: string | null) => {
@@ -112,7 +120,7 @@ export function ContactActionPanel({
           <Separator className="my-4" />
 
           {/* Category section */}
-          <Collapsible open={categoryOpen} onOpenChange={setCategoryOpen}>
+          <Collapsible open={categoryOpen} onOpenChange={setCategoryOverride}>
             <CollapsibleTrigger className="group flex w-full items-center justify-between">
               <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
                 Category

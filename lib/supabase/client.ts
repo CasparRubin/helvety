@@ -1,4 +1,4 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createBrowserClient as createSSRBrowserClient } from "@supabase/ssr";
 
 import { getSupabaseUrl, getSupabaseKey } from "@/lib/env-validation";
 
@@ -112,7 +112,7 @@ async function lockWithTimeout<R>(
  *
  * @returns The Supabase client instance
  */
-export function createClient(): SupabaseClient {
+export function createBrowserClient(): SupabaseClient {
   // Return existing client if available (singleton pattern)
   if (browserClient) {
     return browserClient;
@@ -121,7 +121,7 @@ export function createClient(): SupabaseClient {
   const supabaseUrl = getSupabaseUrl();
   const supabaseKey = getSupabaseKey();
 
-  browserClient = createBrowserClient(supabaseUrl, supabaseKey, {
+  browserClient = createSSRBrowserClient(supabaseUrl, supabaseKey, {
     global: {
       fetch: fetchWithTimeout,
     },

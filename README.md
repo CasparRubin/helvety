@@ -26,7 +26,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - Link support
   - Unsaved changes detection with confirmation dialog
   - **Comment with Timestamp** - Insert timestamped comments into notes with a single click
-  - **Action panel** - View dates and set contact category directly from the editor; sections are collapsible (all start collapsed except Dates)
+  - **Action panel** - View dates and set contact category directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
 - **Category management** - Organize contacts into categories (e.g., Work, Family, Friends)
   - **Default categories** - Built-in category set: Work, Family, Friends
   - **Custom category configurations** - Create your own category setups with custom names, colors, and Lucide icons
@@ -34,11 +34,11 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - **Icon support** - Each category can have a Lucide icon for visual identification
   - **Rows shown by default** - Control how many contacts are visible per category (0 = collapsed, N = show N contacts with "Show all" link)
 - **Drag & drop reordering** - Rearrange contacts within and between categories on desktop; mobile uses up/down arrows to move contacts between categories
-- **Task linking** - View linked task entities from [Helvety Tasks](https://tasks.helvety.com) directly on the contact editor page
-  - **Cross-app display** - Linked Units, Spaces, and Items are shown in dedicated sections below the notes editor
+- **Task linking** - Link, unlink, and view task entities from [Helvety Tasks](https://tasks.helvety.com) directly on the contact editor page
+  - **Bidirectional** - Link and unlink task entities from either the Contacts app or the Tasks app for consistent cross-app UX
+  - **Searchable picker** - Search your task entities by title and link them with one click
   - **Deep links** - Click any task row to open the linked Unit, Space, or Item in the Tasks app (opens in a new tab)
   - **Privacy** - Task entity titles are decrypted client-side; the server never sees plaintext
-  - **Read-only** - Links are managed in the Tasks app; the Contacts app displays them for cross-app navigation
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Switch between dark and light themes
 
@@ -118,7 +118,7 @@ This project is built with modern web technologies:
 - **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
-- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
+- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at auth.helvety.com)
 - **[Tiptap](https://tiptap.dev/)** - Headless WYSIWYG rich text editor
 - **[dnd kit](https://dndkit.com/)** - Drag and drop toolkit for React
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework

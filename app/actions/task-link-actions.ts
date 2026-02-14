@@ -10,11 +10,15 @@ import { logger } from "@/lib/logger";
 import type {
   ActionResponse,
   EntityContactLinkRow,
+  TaskEntityType,
   TaskLinkData,
+  TaskEntitiesData,
 } from "@/lib/types";
 
+const EntityTypeSchema = z.enum(["unit", "space", "item"]);
+
 // =============================================================================
-// TASK LINK ACTIONS (read-only, links are managed in helvety-tasks)
+// TASK LINK ACTIONS
 // =============================================================================
 
 /**
@@ -248,6 +252,185 @@ export async function getContactTaskLinks(
     return { success: true, data };
   } catch (error) {
     logger.error("Unexpected error in getContactTaskLinks:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// =============================================================================
+// ENTITY PICKER DATA (for linking new entities to a contact)
+// =============================================================================
+
+/**
+ * Get all task entities (units, spaces, items) for the current user.
+ * Returns encrypted data that must be decrypted client-side.
+ * Used by the entity picker in the contact editor.
+ */
+export async function getTaskEntities(): Promise<
+  ActionResponse<TaskEntitiesData>
+> {
+  try {
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "task-links",
+    });
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth.ctx;
+
+    // Fetch all units, spaces, items in parallel
+    const [unitsResult, spacesResult, itemsResult] = await Promise.all([
+      supabase
+        .from("units")
+        .select("id, encrypted_title")
+        .order("sort_order", { ascending: true })
+        .returns<{ id: string; encrypted_title: string }[]>(),
+      supabase
+        .from("spaces")
+        .select("id, unit_id, encrypted_title")
+        .order("sort_order", { ascending: true })
+        .returns<{ id: string; unit_id: string; encrypted_title: string }[]>(),
+      supabase
+        .from("items")
+        .select("id, space_id, encrypted_title")
+        .order("sort_order", { ascending: true })
+        .returns<{ id: string; space_id: string; encrypted_title: string }[]>(),
+    ]);
+
+    if (unitsResult.error) {
+      logger.error("Error fetching units:", unitsResult.error);
+      return { success: false, error: "Failed to fetch units" };
+    }
+    if (spacesResult.error) {
+      logger.error("Error fetching spaces:", spacesResult.error);
+      return { success: false, error: "Failed to fetch spaces" };
+    }
+    if (itemsResult.error) {
+      logger.error("Error fetching items:", itemsResult.error);
+      return { success: false, error: "Failed to fetch items" };
+    }
+
+    // Build space -> unit_id map for resolving item deep links
+    const spaceUnitMap: Record<string, string> = {};
+    for (const s of spacesResult.data ?? []) {
+      spaceUnitMap[s.id] = s.unit_id;
+    }
+
+    return {
+      success: true,
+      data: {
+        units: (unitsResult.data ?? []).map((u) => ({
+          id: u.id,
+          encrypted_title: u.encrypted_title,
+        })),
+        spaces: (spacesResult.data ?? []).map((s) => ({
+          id: s.id,
+          unit_id: s.unit_id,
+          encrypted_title: s.encrypted_title,
+        })),
+        items: (itemsResult.data ?? []).map((i) => ({
+          id: i.id,
+          space_id: i.space_id,
+          unit_id: spaceUnitMap[i.space_id] ?? "",
+          encrypted_title: i.encrypted_title,
+        })),
+      },
+    };
+  } catch (error) {
+    logger.error("Unexpected error in getTaskEntities:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// =============================================================================
+// LINK / UNLINK ACTIONS
+// =============================================================================
+
+/**
+ * Link a task entity (unit, space, or item) to a contact.
+ */
+export async function linkTaskEntity(
+  entityType: string,
+  entityId: string,
+  contactId: string,
+  csrfToken: string
+): Promise<ActionResponse<{ id: string }>> {
+  try {
+    if (!EntityTypeSchema.safeParse(entityType).success) {
+      return { success: false, error: "Invalid entity type" };
+    }
+    if (!z.string().uuid().safeParse(entityId).success) {
+      return { success: false, error: "Invalid entity ID" };
+    }
+    if (!z.string().uuid().safeParse(contactId).success) {
+      return { success: false, error: "Invalid contact ID" };
+    }
+
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "task-links",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
+
+    const { data: link, error } = await supabase
+      .from("entity_contact_links")
+      .insert({
+        entity_type: entityType as TaskEntityType,
+        entity_id: entityId,
+        contact_id: contactId,
+        user_id: user.id,
+      })
+      .select("id")
+      .single();
+
+    if (error || !link) {
+      // Handle unique constraint violation (entity already linked)
+      if (error?.code === "23505") {
+        return { success: false, error: "Entity is already linked" };
+      }
+      logger.error("Error linking task entity:", error);
+      return { success: false, error: "Failed to link entity" };
+    }
+
+    return { success: true, data: { id: link.id } };
+  } catch (error) {
+    logger.error("Unexpected error in linkTaskEntity:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Unlink a task entity from a contact by deleting the link row.
+ */
+export async function unlinkTaskEntity(
+  linkId: string,
+  csrfToken: string
+): Promise<ActionResponse> {
+  try {
+    if (!z.string().uuid().safeParse(linkId).success) {
+      return { success: false, error: "Invalid link ID" };
+    }
+
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "task-links",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
+
+    // Delete link (RLS + explicit user_id check for defense-in-depth)
+    const { error } = await supabase
+      .from("entity_contact_links")
+      .delete()
+      .eq("id", linkId)
+      .eq("user_id", user.id);
+
+    if (error) {
+      logger.error("Error unlinking task entity:", error);
+      return { success: false, error: "Failed to unlink entity" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    logger.error("Unexpected error in unlinkTaskEntity:", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

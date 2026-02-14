@@ -52,7 +52,7 @@ import {
 import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -75,7 +75,7 @@ export function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = createBrowserClient();
 
   useEffect(() => {
     const getUser = async () => {

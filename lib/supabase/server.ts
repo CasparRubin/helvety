@@ -23,6 +23,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * @returns Promise that resolves to a Supabase client instance
  */
-export async function createClient(): Promise<SupabaseClient> {
+export async function createServerClient(): Promise<SupabaseClient> {
   return createServerComponentClient();
 }

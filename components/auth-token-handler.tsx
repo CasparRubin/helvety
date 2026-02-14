@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 /**
  * Handles auth tokens from URL hash fragments on any page.
@@ -19,7 +19,7 @@ import { createClient } from "@/lib/supabase/client";
  */
 export function AuthTokenHandler() {
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = createBrowserClient();
 
   useEffect(() => {
     // Handle hash fragment tokens that may arrive on any page

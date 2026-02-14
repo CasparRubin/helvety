@@ -331,7 +331,7 @@ export function ContactEditor({ contactId }: { contactId: string }) {
               )}
             </div>
 
-            {/* Linked task entities (read-only, managed in Tasks app) */}
+            {/* Linked task entities (bidirectional link/unlink) */}
             <TaskLinksPanel contactId={contactId} />
           </div>
 
