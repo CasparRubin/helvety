@@ -47,13 +47,26 @@ export async function getContactTaskLinks(
       rateLimitPrefix: "task-links",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
+
+    // Verify user owns the contact first (defense-in-depth alongside RLS)
+    const { data: contact, error: contactError } = await supabase
+      .from("contacts")
+      .select("id")
+      .eq("id", contactId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (contactError || !contact) {
+      return { success: false, error: "Contact not found" };
+    }
 
     // 1. Fetch all entity_contact_links for this contact
     const { data: links, error: linksError } = await supabase
       .from("entity_contact_links")
       .select("*")
       .eq("contact_id", contactId)
+      .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .returns<EntityContactLinkRow[]>();
 
@@ -85,6 +98,7 @@ export async function getContactTaskLinks(
             .from("units")
             .select("id, encrypted_title")
             .in("id", unitIds)
+            .eq("user_id", user.id)
             .returns<{ id: string; encrypted_title: string }[]>()
         : Promise.resolve({
             data: [] as { id: string; encrypted_title: string }[],
@@ -96,6 +110,7 @@ export async function getContactTaskLinks(
             .from("spaces")
             .select("id, unit_id, encrypted_title")
             .in("id", spaceIds)
+            .eq("user_id", user.id)
             .returns<
               { id: string; unit_id: string; encrypted_title: string }[]
             >()
@@ -113,6 +128,7 @@ export async function getContactTaskLinks(
             .from("items")
             .select("id, space_id, encrypted_title")
             .in("id", itemIds)
+            .eq("user_id", user.id)
             .returns<
               { id: string; space_id: string; encrypted_title: string }[]
             >()
@@ -161,6 +177,7 @@ export async function getContactTaskLinks(
           .from("spaces")
           .select("id, unit_id")
           .in("id", missingSpaceIds)
+          .eq("user_id", user.id)
           .returns<{ id: string; unit_id: string }[]>();
 
         if (parentError) {
