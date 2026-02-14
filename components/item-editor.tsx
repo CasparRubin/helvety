@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, Loader2Icon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -28,7 +28,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -386,9 +385,8 @@ export function ItemEditor({
         deleteLabel="Delete Item"
       />
       <div className="container mx-auto px-4 py-8">
-        {/* Header with breadcrumb and save status - above the two-column layout */}
-        <div className="mb-6 flex items-center justify-between">
-          {/* Breadcrumb */}
+        {/* Breadcrumb navigation */}
+        <div className="mb-6">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -418,34 +416,6 @@ export function ItemEditor({
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-
-          {/* Save status indicator */}
-          <div className="flex items-center gap-2">
-            {saveStatus === "saving" && (
-              <Badge variant="secondary">
-                <Loader2Icon className="size-3 animate-spin" />
-                Saving...
-              </Badge>
-            )}
-            {saveStatus === "saved" && (
-              <Badge variant="secondary">
-                <CheckIcon className="size-3" />
-                Saved
-              </Badge>
-            )}
-            {saveStatus === "error" && (
-              <Badge variant="destructive">Failed to save</Badge>
-            )}
-            {hasUnsavedChanges && saveStatus === "idle" && (
-              <Badge
-                variant="outline"
-                className="border-amber-500/50 text-amber-600 dark:text-amber-400"
-              >
-                <span className="size-1.5 animate-pulse rounded-full bg-amber-500" />
-                Unsaved changes
-              </Badge>
-            )}
-          </div>
         </div>
 
         {/* Two-column layout: content left, action panel right (reversed on mobile so panel is on top) */}

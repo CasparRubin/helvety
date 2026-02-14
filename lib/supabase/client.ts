@@ -43,6 +43,57 @@ function fetchWithTimeout(
 }
 
 /**
+ * Lock wrapper with timeout to prevent navigator.locks deadlocks.
+ *
+ * Safari iOS and some Android browsers can hold Web Locks indefinitely
+ * when tabs are suspended/resumed, causing the Supabase auth client to
+ * hang on initialization and token refresh.
+ *
+ * This wrapper aborts lock acquisition after LOCK_TIMEOUT_MS and falls
+ * back to running the callback without a lock. The trade-off (potential
+ * duplicate refresh requests across tabs) is vastly preferable to a
+ * complete auth deadlock.
+ *
+ * @see https://github.com/supabase/supabase-js/issues/1594
+ */
+const LOCK_TIMEOUT_MS = 5_000;
+
+/** Acquire a Web Lock with a timeout, falling back to no lock on timeout. */
+async function lockWithTimeout<R>(
+  name: string,
+  acquireTimeout: number,
+  fn: () => Promise<R>
+): Promise<R> {
+  if (typeof navigator === "undefined" || !navigator.locks) {
+    return await fn();
+  }
+
+  const abort = new AbortController();
+  const timer = setTimeout(
+    () => abort.abort(),
+    acquireTimeout > 0
+      ? Math.min(acquireTimeout, LOCK_TIMEOUT_MS)
+      : LOCK_TIMEOUT_MS
+  );
+
+  try {
+    return await navigator.locks.request(
+      name,
+      { signal: abort.signal },
+      async () => fn()
+    );
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      // Lock acquisition timed out — run without lock
+      return await fn();
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
  * Creates or returns the existing Supabase browser client instance.
  * Uses a singleton pattern to ensure only one client instance exists per browser context.
  *
@@ -79,6 +130,10 @@ export function createClient(): SupabaseClient {
       // layout, so we disable the built-in detection to avoid race conditions
       // where Supabase tries to consume the hash before our handler runs.
       detectSessionInUrl: false,
+      // Prevent navigator.locks deadlocks on Safari iOS and Android Chrome.
+      // The default lock uses infinite timeouts which can hang permanently
+      // when tabs are suspended/resumed.
+      lock: lockWithTimeout,
     },
   });
   return browserClient;
