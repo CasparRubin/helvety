@@ -4,6 +4,8 @@ import {
   LogIn,
   LogOut,
   Menu,
+  Moon,
+  Sun,
   User as UserIcon,
   Github,
   Info,
@@ -12,6 +14,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { AppSwitcher } from "@/components/app-switcher";
@@ -58,11 +61,8 @@ import type { User } from "@supabase/supabase-js";
  * Features:
  * - App switcher for navigating between Helvety ecosystem apps
  * - Logo and branding with "STORE" label
- * - About dialog, GitHub link (in bar above 400px; in burger below 400px)
- * - Theme switcher (dark/light mode)
- * - Login button (shown when user is not authenticated)
- * - Profile menu with user email, links to Account, Subscriptions, and Sign out (shown when authenticated)
- * - Burger menu below 400px: About, GitHub to save icon space
+ * - Desktop (sm+): About dialog, GitHub link, theme switcher, profile menu
+ * - Burger menu (below sm): About, GitHub, theme toggle, account, sign in/out
  */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   const supabase = createBrowserClient();
@@ -71,6 +71,16 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(!initialUser);
+  const { resolvedTheme, setTheme, theme: currentTheme } = useTheme();
+
+  const isDark = (resolvedTheme ?? "light") === "dark";
+  const toggleTheme = () => {
+    if (currentTheme === "system") {
+      setTheme(isDark ? "light" : "dark");
+    } else {
+      setTheme(currentTheme === "light" ? "dark" : "light");
+    }
+  };
 
   useEffect(() => {
     // If we already have an initial user from the server, skip the client-side fetch
@@ -151,8 +161,8 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
           </Link>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {/* About, GitHub - hidden below 400px (moved into burger) */}
-          <div className="hidden items-center gap-2 min-[401px]:flex">
+          {/* Desktop: About, GitHub, theme, sign in, profile — hidden below sm */}
+          <div className="hidden items-center gap-2 sm:flex">
             <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -206,20 +216,17 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <p>View source code on GitHub</p>
               </TooltipContent>
             </Tooltip>
-          </div>
 
-          <ThemeSwitcher />
+            <ThemeSwitcher />
 
-          {/* Login button - only show when not authenticated */}
-          {!isAuthenticated && !isLoading && (
-            <Button variant="default" size="sm" onClick={handleLogin}>
-              <LogIn className="h-4 w-4" />
-              Sign in
-            </Button>
-          )}
+            {!isAuthenticated && !isLoading && (
+              <Button variant="default" size="sm" onClick={handleLogin}>
+                <LogIn className="h-4 w-4" />
+                Sign in
+              </Button>
+            )}
 
-          {isAuthenticated && !isLoading && (
-            <>
+            {isAuthenticated && !isLoading && (
               <Popover open={profileOpen} onOpenChange={setProfileOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -285,12 +292,12 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   </div>
                 </PopoverContent>
               </Popover>
-            </>
-          )}
+            )}
+          </div>
 
-          {/* Burger menu - only below 400px */}
+          {/* Burger menu — only below sm */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild className="hidden max-[400px]:inline-flex">
+            <SheetTrigger asChild className="inline-flex sm:hidden">
               <Button variant="ghost" size="icon">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open menu</span>
@@ -324,9 +331,86 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Github className="h-4 w-4" />
-                    View source code on GitHub
+                    GitHub
                   </a>
                 </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    toggleTheme();
+                  }}
+                >
+                  {isDark ? (
+                    <Sun className="h-4 w-4" />
+                  ) : (
+                    <Moon className="h-4 w-4" />
+                  )}
+                  {isDark ? "Light mode" : "Dark mode"}
+                </Button>
+                <Separator />
+                {!isAuthenticated && !isLoading && (
+                  <Button
+                    variant="default"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLogin();
+                    }}
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Sign in
+                  </Button>
+                )}
+                {isAuthenticated && !isLoading && (
+                  <>
+                    <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
+                      <UserIcon className="h-4 w-4 shrink-0" />
+                      <span className="truncate">
+                        {user?.email ?? "Account"}
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <Link
+                        href="/account"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Settings className="h-4 w-4" />
+                        Account
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <Link
+                        href="/subscriptions"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <CreditCard className="h-4 w-4" />
+                        Subscriptions
+                      </Link>
+                    </Button>
+                    <Separator />
+                    <Button
+                      variant="destructive"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </Button>
+                  </>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
