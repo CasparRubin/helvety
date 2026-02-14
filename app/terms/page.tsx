@@ -73,7 +73,7 @@ export default function TermsPage() {
                       href="#software-saas-no-warranties"
                       className="hover:text-foreground transition-colors"
                     >
-                      4.4 Software, Digital Products and SaaS – No Warranties
+                      4.4 Software, Digital Products and SaaS - No Warranties
                     </a>
                   </li>
                   <li>
@@ -452,7 +452,7 @@ export default function TermsPage() {
               id="software-saas-no-warranties"
               className="mt-8 mb-3 text-lg font-medium"
             >
-              4.4 Software, Digital Products and SaaS – No Warranties and No
+              4.4 Software, Digital Products and SaaS - No Warranties and No
               Guarantees
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
