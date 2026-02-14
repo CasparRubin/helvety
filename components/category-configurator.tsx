@@ -691,7 +691,7 @@ export function CategoryConfiguratorContent({
                               onChange={(e) =>
                                 setNewCategoryIcon(e.target.value.toLowerCase())
                               }
-                              className="h-8 text-sm"
+                              className="h-8 text-base md:text-sm"
                             />
                           </div>
                           <div className="grid max-h-48 grid-cols-6 gap-1 overflow-y-auto">
@@ -738,7 +738,7 @@ export function CategoryConfiguratorContent({
                             )
                           )
                         }
-                        className="h-8 w-20 text-sm"
+                        className="h-8 w-20 text-base md:text-sm"
                       />
                       <span className="text-muted-foreground text-xs">
                         0 = collapsed
@@ -818,7 +818,7 @@ export function CategoryConfiguratorContent({
                         !isDefaultConfig ? (
                           <div className="flex flex-1 items-center gap-1">
                             <Input
-                              className="h-7 text-sm"
+                              className="h-7 text-base md:text-sm"
                               value={editingCategoryName}
                               onChange={(e) =>
                                 setEditingCategoryName(e.target.value)
@@ -899,7 +899,7 @@ export function CategoryConfiguratorContent({
                                             });
                                           }
                                         }}
-                                        className="h-8 text-sm"
+                                        className="h-8 text-base md:text-sm"
                                       />
                                     </div>
                                     <div className="grid max-h-48 grid-cols-6 gap-1 overflow-y-auto">
@@ -986,7 +986,7 @@ export function CategoryConfiguratorContent({
                                               }
                                             }
                                           }}
-                                          className="h-8 text-sm"
+                                          className="h-8 text-base md:text-sm"
                                         />
                                         <Button
                                           variant="ghost"

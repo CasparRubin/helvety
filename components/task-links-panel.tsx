@@ -16,7 +16,6 @@ import {
   Loader2Icon,
   ListChecksIcon,
   PlusIcon,
-  SearchIcon,
   UnlinkIcon,
   VectorSquareIcon,
 } from "lucide-react";
@@ -33,13 +32,19 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
@@ -185,33 +190,6 @@ function EntitySection({
       {/* Entity rows */}
       <div className="space-y-1.5">{children}</div>
     </div>
-  );
-}
-
-/**
- * Entity picker item in the search dropdown.
- */
-function EntityPickerItem({
-  title,
-  icon: Icon,
-  onSelect,
-  isLinking,
-}: {
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  onSelect: () => void;
-  isLinking: boolean;
-}): React.JSX.Element {
-  return (
-    <button
-      type="button"
-      className="hover:bg-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors disabled:pointer-events-none disabled:opacity-50"
-      onClick={onSelect}
-      disabled={isLinking}
-    >
-      <Icon className="text-muted-foreground size-4 shrink-0" />
-      <span className="min-w-0 flex-1 truncate font-medium">{title}</span>
-    </button>
   );
 }
 
@@ -377,32 +355,22 @@ export function TaskLinksPanel({
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="w-72 gap-0 p-0"
+              className="w-72 p-0"
               onOpenAutoFocus={(e) => e.preventDefault()}
             >
-              {/* Search input */}
-              <div className="border-b p-2">
-                <div className="relative">
-                  <SearchIcon className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
-                  <Input
-                    placeholder="Search entities..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-8 pl-7 text-xs"
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              {/* Entity list */}
-              <ScrollArea className="max-h-64">
-                <div className="p-1">
+              <Command shouldFilter={false}>
+                <CommandInput
+                  placeholder="Search entities..."
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                />
+                <CommandList>
                   {isLoadingEntities ? (
                     <div className="flex items-center justify-center py-4">
                       <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
                     </div>
                   ) : filteredTotal === 0 ? (
-                    <p className="text-muted-foreground py-4 text-center text-xs">
+                    <CommandEmpty>
                       {allEntities.units.length === 0 &&
                       allEntities.spaces.length === 0 &&
                       allEntities.items.length === 0
@@ -412,66 +380,69 @@ export function TaskLinksPanel({
                           : allAvailableTotal === 0
                             ? "All entities are already linked"
                             : "No entities available"}
-                    </p>
+                    </CommandEmpty>
                   ) : (
                     <>
                       {/* Units section */}
                       {filteredEntities.units.length > 0 && (
-                        <div>
-                          <p className="text-muted-foreground px-2 py-1 text-[10px] font-semibold tracking-wide uppercase">
-                            Units
-                          </p>
+                        <CommandGroup heading="Units">
                           {filteredEntities.units.map((unit: PickerUnit) => (
-                            <EntityPickerItem
+                            <CommandItem
                               key={unit.id}
-                              title={unit.title}
-                              icon={VectorSquareIcon}
+                              value={unit.id}
                               onSelect={() => handleLink("unit", unit.id)}
-                              isLinking={isLinking}
-                            />
+                              disabled={isLinking}
+                            >
+                              <VectorSquareIcon className="text-muted-foreground size-4 shrink-0" />
+                              <span className="min-w-0 flex-1 truncate font-medium">
+                                {unit.title}
+                              </span>
+                            </CommandItem>
                           ))}
-                        </div>
+                        </CommandGroup>
                       )}
 
                       {/* Spaces section */}
                       {filteredEntities.spaces.length > 0 && (
-                        <div>
-                          <p className="text-muted-foreground px-2 py-1 text-[10px] font-semibold tracking-wide uppercase">
-                            Spaces
-                          </p>
+                        <CommandGroup heading="Spaces">
                           {filteredEntities.spaces.map((space: PickerSpace) => (
-                            <EntityPickerItem
+                            <CommandItem
                               key={space.id}
-                              title={space.title}
-                              icon={BoxesIcon}
+                              value={space.id}
                               onSelect={() => handleLink("space", space.id)}
-                              isLinking={isLinking}
-                            />
+                              disabled={isLinking}
+                            >
+                              <BoxesIcon className="text-muted-foreground size-4 shrink-0" />
+                              <span className="min-w-0 flex-1 truncate font-medium">
+                                {space.title}
+                              </span>
+                            </CommandItem>
                           ))}
-                        </div>
+                        </CommandGroup>
                       )}
 
                       {/* Items section */}
                       {filteredEntities.items.length > 0 && (
-                        <div>
-                          <p className="text-muted-foreground px-2 py-1 text-[10px] font-semibold tracking-wide uppercase">
-                            Items
-                          </p>
+                        <CommandGroup heading="Items">
                           {filteredEntities.items.map((item: PickerItem) => (
-                            <EntityPickerItem
+                            <CommandItem
                               key={item.id}
-                              title={item.title}
-                              icon={BoxIcon}
+                              value={item.id}
                               onSelect={() => handleLink("item", item.id)}
-                              isLinking={isLinking}
-                            />
+                              disabled={isLinking}
+                            >
+                              <BoxIcon className="text-muted-foreground size-4 shrink-0" />
+                              <span className="min-w-0 flex-1 truncate font-medium">
+                                {item.title}
+                              </span>
+                            </CommandItem>
                           ))}
-                        </div>
+                        </CommandGroup>
                       )}
                     </>
                   )}
-                </div>
-              </ScrollArea>
+                </CommandList>
+              </Command>
             </PopoverContent>
           </Popover>
         </div>

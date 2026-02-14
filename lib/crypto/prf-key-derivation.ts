@@ -101,7 +101,7 @@ export async function deriveKeyFromPRF(
 /**
  * Initialize encryption for a new user using passkey PRF
  *
- * @param prfOutput - The raw PRF output from passkey registration
+ * @param prfOutput - The raw PRF output from passkey authentication
  * @returns The PRF params to store and the derived master key
  */
 export async function initializePRFEncryption(prfOutput: ArrayBuffer): Promise<{
