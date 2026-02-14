@@ -19,7 +19,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 - **End-to-end encryption** - All contact data is encrypted client-side using your passkey; we never see your data
 - **Contact fields** - Each contact stores First Name(s), Last Name, Email, and Notes
-- **Rich text notes** - Full-featured editor for contact notes with formatting toolbar
+- **Rich text notes** - Rich text editor for contact notes with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
   - Headings (H1, H2, H3)
   - Bullet and numbered lists
@@ -33,14 +33,14 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - **Color picker** - Choose from preset colors or use the custom color picker for any hex color
   - **Icon support** - Each category can have a Lucide icon for visual identification
   - **Rows shown by default** - Control how many contacts are visible per category (0 = collapsed, N = show N contacts with "Show all" link)
-- **Drag & drop reordering** - Easily rearrange contacts within and between categories on desktop; mobile uses up/down arrows to move contacts between categories
+- **Drag & drop reordering** - Rearrange contacts within and between categories on desktop; mobile uses up/down arrows to move contacts between categories
 - **Task linking** - View linked task entities from [Helvety Tasks](https://tasks.helvety.com) directly on the contact editor page
   - **Cross-app display** - Linked Units, Spaces, and Items are shown in dedicated sections below the notes editor
   - **Deep links** - Click any task row to open the linked Unit, Space, or Item in the Tasks app (opens in a new tab)
   - **Privacy** - Task entity titles are decrypted client-side; the server never sees plaintext
-  - **Read-only** - Links are managed in the Tasks app; the Contacts app displays them for seamless cross-app navigation
+  - **Read-only** - Links are managed in the Tasks app; the Contacts app displays them for cross-app navigation
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
-- **Dark & Light mode** - Comfortable viewing in any lighting condition
+- **Dark & Light mode** - Switch between dark and light themes
 
 ## Security & Authentication
 
@@ -96,7 +96,7 @@ Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
 
 ### Security Hardening
 
-This application implements comprehensive security hardening:
+This application includes the following security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
 - **Server Layout Guards** - Authentication checks in Server Components via `lib/auth-guard.ts` with retry logic for transient failures (CVE-2025-29927 compliant)
@@ -109,7 +109,7 @@ This application implements comprehensive security hardening:
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
 
-**Abuse Reporting:** Abuse reports can be submitted to [abuse@helvety.com](mailto:abuse@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes a dedicated abuse reporting section with guidance for both users and law enforcement.
+**Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
 ## Tech Stack
 
@@ -130,17 +130,17 @@ This project is built with modern web technologies:
 
 ## Developer
 
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
+This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
 Vercel Analytics is used across all Helvety apps for privacy-focused, anonymous page view statistics. Vercel Speed Insights is enabled only on [helvety.com](https://helvety.com). See our [Privacy Policy](https://helvety.com/privacy) for details.
 
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [abuse@helvety.com](mailto:abuse@helvety.com).
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 
 ## License & Usage
 
 > **This is NOT open source software.**
 
-This repository is public **for transparency purposes only** so users can verify the application's behavior and security.
+This repository is public so users can inspect and verify the application's behavior and security.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 

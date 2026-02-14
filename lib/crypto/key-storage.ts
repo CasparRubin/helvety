@@ -21,7 +21,7 @@ const UNIT_KEY_STORE = "unit-keys";
 /** Cache duration for keys (24 hours) */
 const KEY_CACHE_DURATION = 24 * 60 * 60 * 1000;
 
-/** Timeout for IndexedDB open requests (ms) — Safari can hang indefinitely */
+/** Timeout for IndexedDB open requests (ms) - Safari can hang indefinitely */
 const DB_OPEN_TIMEOUT_MS = 5_000;
 
 /** Delay between IndexedDB retry attempts (ms) */
@@ -38,7 +38,7 @@ function openDatabaseOnce(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     let settled = false;
 
-    // Timeout guard — prevent indefinite hangs on Safari iOS
+    // Timeout guard - prevent indefinite hangs on Safari iOS
     const timer = setTimeout(() => {
       if (!settled) {
         settled = true;
@@ -189,7 +189,7 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
       const request = store.get(userId);
 
       request.onerror = () => {
-        // Resolve null instead of rejecting — treat storage errors as "no key"
+        // Resolve null instead of rejecting - treat storage errors as "no key"
         // so the caller can fall back to passkey unlock instead of erroring out
         logger.error("Failed to retrieve master key from IndexedDB");
         resolve(null);
@@ -220,7 +220,7 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
       };
     });
   } catch (error) {
-    // Any IndexedDB failure (open timeout, storage pressure, etc.) — return
+    // Any IndexedDB failure (open timeout, storage pressure, etc.) - return
     // null so the caller falls back to passkey unlock instead of erroring out
     logger.error("Failed to access key storage:", error);
     return null;
@@ -443,7 +443,7 @@ export function isStorageAvailable(): boolean {
     // privacy/storage-pressure scenarios. Catch those early.
     const testRequest = indexedDB.open("__idb_test__");
     testRequest.onerror = () => {
-      /* swallow — we only care about the synchronous throw */
+      /* swallow - we only care about the synchronous throw */
     };
     testRequest.onsuccess = () => {
       // Clean up test database
