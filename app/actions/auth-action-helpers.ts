@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies, headers } from "next/headers";
+import { z } from "zod";
 
 // =============================================================================
 // TYPES
@@ -24,6 +25,14 @@ export const CHALLENGE_COOKIE_NAME = "webauthn_challenge";
 export const CHALLENGE_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 export const PRF_VERSION = 1; // Current PRF encryption version
 export const PRF_SALT_LENGTH = 32; // PRF salt length in bytes
+
+const StoredChallengeSchema = z.object({
+  challenge: z.string().min(1),
+  userId: z.string().uuid().optional(),
+  timestamp: z.number().int().nonnegative(),
+  redirectUri: z.string().url().optional(),
+  prfSalt: z.string().min(1).optional(),
+});
 
 /**
  * Generate a random PRF salt for encryption
@@ -144,14 +153,19 @@ export async function getStoredChallenge(): Promise<StoredChallenge | null> {
   }
 
   try {
-    const data = JSON.parse(cookie.value) as StoredChallenge;
+    const parsedJson = JSON.parse(cookie.value);
+    const parsed = StoredChallengeSchema.safeParse(parsedJson);
+    if (!parsed.success) {
+      return null;
+    }
+    const data = parsed.data;
 
     // Check if challenge has expired
     if (Date.now() - data.timestamp > CHALLENGE_EXPIRY_MS) {
       return null;
     }
 
-    return data;
+    return data as StoredChallenge;
   } catch {
     return null;
   }

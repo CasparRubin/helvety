@@ -96,14 +96,15 @@ async function findUserByEmail(
  * Security:
  * - Rate limited to prevent enumeration attacks
  * - Email is normalized to prevent duplicates
+ * - Does not expose direct user existence in the response
  * - Returns generic responses on errors to prevent enumeration
  *
  * @param email - The user's email address
- * @returns Whether the user exists and whether they have a passkey
+ * @returns Whether this identity can use direct passkey sign-in
  */
 export async function checkEmail(
   email: string
-): Promise<ActionResponse<{ userExists: boolean; hasPasskey: boolean }>> {
+): Promise<ActionResponse<{ hasPasskey: boolean }>> {
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
 
@@ -150,7 +151,7 @@ export async function checkEmail(
     if (!existingUser) {
       return {
         success: true,
-        data: { userExists: false, hasPasskey: false },
+        data: { hasPasskey: false },
       };
     }
 
@@ -161,13 +162,13 @@ export async function checkEmail(
 
     return {
       success: true,
-      data: { userExists: true, hasPasskey },
+      data: { hasPasskey },
     };
   } catch (error) {
     logger.error("Error in checkEmail:", error);
     return {
       success: true,
-      data: { userExists: false, hasPasskey: false },
+      data: { hasPasskey: false },
     };
   }
 }
@@ -280,7 +281,7 @@ export async function sendVerificationCode(
       if (!options?.geoConfirmed) {
         return {
           success: false,
-          error: "Geo confirmation required for new accounts",
+          error: "GEO_CONFIRMATION_REQUIRED",
         };
       }
 

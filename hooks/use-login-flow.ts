@@ -188,7 +188,7 @@ export function useLoginFlow(): LoginFlowState {
     void init();
   }, [supabase, step, redirectUri]);
 
-  // Handle email submission; checks if user exists (read-only) and branches accordingly
+  // Handle email submission and branch by passkey availability.
   const handleEmailSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -205,16 +205,23 @@ export function useLoginFlow(): LoginFlowState {
           return;
         }
 
-        if (result.data?.userExists && result.data.hasPasskey) {
-          // Existing user with passkey - go directly to passkey sign-in
+        if (result.data?.hasPasskey) {
+          // User with passkey - go directly to passkey sign-in
           setSkippedToPasskey(true);
           setIsNewUser(false);
           setStep("passkey-signin");
-        } else if (result.data?.userExists) {
-          // Existing user without passkey - send OTP directly (no geo confirmation needed)
+        } else {
+          // No passkey path: attempt OTP directly. New users will be challenged
+          // for geo confirmation by sendVerificationCode.
           setIsNewUser(false);
           const otpResult = await sendVerificationCode(csrfToken, email);
           if (!otpResult.success) {
+            if (otpResult.error === "GEO_CONFIRMATION_REQUIRED") {
+              setIsNewUser(true);
+              setStep("geo-confirmation");
+              setIsLoading(false);
+              return;
+            }
             setError(otpResult.error ?? "Failed to send verification email");
             setIsLoading(false);
             return;
@@ -222,10 +229,6 @@ export function useLoginFlow(): LoginFlowState {
           setOtpCode("");
           setResendCooldown(RESEND_COOLDOWN_SECONDS);
           setStep("verify-code");
-        } else {
-          // New user: show geo confirmation BEFORE creating any DB record
-          setIsNewUser(true);
-          setStep("geo-confirmation");
         }
         setIsLoading(false);
       } catch (err) {
