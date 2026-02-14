@@ -114,7 +114,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   };
 
   return (
-    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+    <nav className="bg-card/50 supports-[backdrop-filter]:bg-card/30 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <AppSwitcher currentApp="Store" />
@@ -173,7 +173,8 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    Your one-stop shop for Helvety software and subscriptions.
+                    Official Helvety Store. Browse software and subscriptions
+                    designed in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

@@ -4,8 +4,8 @@
   "description": "Official Helvety Store. Browse software and subscriptions designed in Switzerland.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#faf8f7",
+  "theme_color": "#faf8f7",
   "orientation": "portrait-primary",
   "icons": [
     {
