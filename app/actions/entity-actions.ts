@@ -234,21 +234,24 @@ export async function getAllTaskDataForExport(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    // Fetch all user data (RLS ensures only user's own data is returned)
+    // Fetch all user data (explicit user_id filter as defense-in-depth alongside RLS)
     const [unitsResult, spacesResult, itemsResult] = await Promise.all([
       supabase
         .from("units")
         .select("*")
+        .eq("user_id", user.id)
         .order("sort_order")
         .returns<UnitRow[]>(),
       supabase
         .from("spaces")
         .select("*")
+        .eq("user_id", user.id)
         .order("sort_order")
         .returns<SpaceRow[]>(),
       supabase
         .from("items")
         .select("*")
+        .eq("user_id", user.id)
         .order("sort_order")
         .returns<ItemRow[]>(),
     ]);

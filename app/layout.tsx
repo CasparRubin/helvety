@@ -1,3 +1,4 @@
+import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
@@ -12,7 +13,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EncryptionProvider } from "@/lib/crypto";
 import { createServerClient } from "@/lib/supabase/server";
-import "./globals.css";
 
 import type { Metadata, Viewport } from "next";
 
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Helvety Tasks | Task Management | Private and Secure",
     description:
       "Manage your tasks with ease. Private, secure, and encrypted task management.",
@@ -143,7 +143,9 @@ export default async function RootLayout({
                   <Navbar initialUser={initialUser} />
                 </header>
                 <ScrollArea className="min-h-0 flex-1">
-                  <main>{children}</main>
+                  <div className="mx-auto w-full max-w-[2000px]">
+                    <main>{children}</main>
+                  </div>
                 </ScrollArea>
                 <Footer className="shrink-0" />
               </div>

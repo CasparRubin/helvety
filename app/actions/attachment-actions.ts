@@ -180,17 +180,18 @@ export async function getAttachments(
       rateLimitPrefix: "attachments",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(itemId).success) {
       return { success: false, error: "Invalid item ID" };
     }
 
-    // Get attachments (RLS ensures only user's own attachments are returned)
+    // Get attachments (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: attachments, error } = await supabase
       .from("item_attachments")
       .select("*")
       .eq("item_id", itemId)
+      .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true })
       .returns<AttachmentRow[]>();

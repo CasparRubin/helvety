@@ -419,7 +419,7 @@ export function ItemEditor({
         </div>
 
         {/* Two-column layout: content left, action panel right (reversed on mobile so panel is on top) */}
-        <div className="flex flex-col-reverse md:flex-row md:gap-8">
+        <div className="flex flex-col-reverse gap-6 md:flex-row md:gap-8">
           {/* Left column - main content */}
           <div className="min-w-0 flex-1">
             {/* Title input */}
@@ -456,21 +456,19 @@ export function ItemEditor({
           </div>
 
           {/* Right column - action panel */}
-          <div className="mb-6 md:mb-0">
-            <ItemActionPanel
-              item={item}
-              stages={stages}
-              isLoadingStages={isLoadingStages}
-              onStageChange={handleStageChange}
-              isSavingStage={isSavingStage}
-              labels={labels}
-              isLoadingLabels={isLoadingLabels}
-              onLabelChange={handleLabelChange}
-              isSavingLabel={isSavingLabel}
-              onPriorityChange={handlePriorityChange}
-              isSavingPriority={isSavingPriority}
-            />
-          </div>
+          <ItemActionPanel
+            item={item}
+            stages={stages}
+            isLoadingStages={isLoadingStages}
+            onStageChange={handleStageChange}
+            isSavingStage={isSavingStage}
+            labels={labels}
+            isLoadingLabels={isLoadingLabels}
+            onLabelChange={handleLabelChange}
+            isSavingLabel={isSavingLabel}
+            onPriorityChange={handlePriorityChange}
+            isSavingPriority={isSavingPriority}
+          />
         </div>
       </div>
 

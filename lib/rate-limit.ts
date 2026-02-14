@@ -2,8 +2,9 @@
  * Rate Limiting Module
  *
  * Provides distributed rate limiting using Upstash Redis for production
- * environments. Falls back to in-memory rate limiting when Upstash
- * credentials are not configured (development).
+ * environments. In production, fails closed (rejects requests) when Redis
+ * is unavailable. Falls back to in-memory rate limiting only in development
+ * when Upstash credentials are not configured.
  *
  * Production: Uses @upstash/ratelimit with sliding window algorithm.
  *   - Works across serverless invocations and multiple instances
@@ -169,8 +170,9 @@ function checkInMemoryRateLimit(
 /**
  * Check if a request is allowed under the rate limit.
  *
- * Uses Upstash Redis in production (distributed), falls back to in-memory
- * in development when UPSTASH_REDIS_REST_URL is not configured.
+ * Uses Upstash Redis in production (distributed). In production, fails closed
+ * (rejects requests) if Redis is unavailable. In development, falls back to
+ * in-memory when UPSTASH_REDIS_REST_URL is not configured.
  *
  * @param key - Unique identifier for the rate limit (e.g., IP + endpoint)
  * @param maxRequests - Maximum number of requests allowed in the window
@@ -199,7 +201,17 @@ export async function checkRateLimit(
 
       return { allowed: true, remaining: result.remaining };
     } catch (error) {
-      // If Upstash fails, fall through to in-memory
+      // In production, fail closed (reject the request) when Redis is unavailable.
+      // In-memory fallback does not persist across serverless invocations,
+      // making it ineffective for distributed rate limiting.
+      if (process.env.NODE_ENV === "production") {
+        logger.error(
+          "Upstash rate limit failed in production — failing closed:",
+          error
+        );
+        return { allowed: false, remaining: 0, retryAfter: 30 };
+      }
+      // In development, fall through to in-memory as a convenience
       logger.warn(
         "Upstash rate limit failed, falling back to in-memory:",
         error

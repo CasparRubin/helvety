@@ -119,13 +119,14 @@ export async function getSpaces(
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
-    // Get spaces (RLS ensures only user's own spaces are returned)
+    // Get spaces (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: spaces, error } = await supabase
       .from("spaces")
       .select("*")
       .eq("unit_id", unitId)
+      .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
       .returns<SpaceRow[]>();
@@ -153,13 +154,14 @@ export async function getSpace(id: string): Promise<ActionResponse<SpaceRow>> {
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
-    // Get space
+    // Get space (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: space, error } = await supabase
       .from("spaces")
       .select("*")
       .eq("id", id)
+      .eq("user_id", user.id)
       .returns<SpaceRow[]>()
       .single();
 

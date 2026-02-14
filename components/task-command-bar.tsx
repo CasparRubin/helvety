@@ -70,7 +70,7 @@ export function TaskCommandBar({
   return (
     <nav
       className={
-        "bg-card/70 supports-[backdrop-filter]:bg-card/50 sticky top-0 z-40 w-full border-b backdrop-blur"
+        "bg-card/70 supports-[backdrop-filter]:bg-card/50 sticky top-0 z-40 w-full border-b backdrop-blur min-[2000px]:border-x"
       }
     >
       <div className="container mx-auto px-4 py-2 md:py-0">

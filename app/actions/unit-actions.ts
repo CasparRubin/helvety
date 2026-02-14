@@ -101,12 +101,13 @@ export async function getUnits(): Promise<ActionResponse<UnitRow[]>> {
   try {
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
-    // Get units (RLS ensures only user's own units are returned)
+    // Get units (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: units, error } = await supabase
       .from("units")
       .select("*")
+      .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
       .returns<UnitRow[]>();
@@ -134,13 +135,14 @@ export async function getUnit(id: string): Promise<ActionResponse<UnitRow>> {
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
-    // Get unit (RLS ensures only user's own unit can be accessed)
+    // Get unit (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: unit, error } = await supabase
       .from("units")
       .select("*")
       .eq("id", id)
+      .eq("user_id", user.id)
       .returns<UnitRow[]>()
       .single();
 

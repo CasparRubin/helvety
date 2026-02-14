@@ -140,13 +140,14 @@ export async function getItems(
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
-    // Get items
+    // Get items (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: items, error } = await supabase
       .from("items")
       .select("*")
       .eq("space_id", spaceId)
+      .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
       .returns<ItemRow[]>();
@@ -174,13 +175,14 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
-    // Get item
+    // Get item (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: item, error } = await supabase
       .from("items")
       .select("*")
       .eq("id", id)
+      .eq("user_id", user.id)
       .returns<ItemRow[]>()
       .single();
 
