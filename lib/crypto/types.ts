@@ -11,8 +11,12 @@ export interface EncryptedData {
   iv: string;
   /** Base64-encoded ciphertext */
   ciphertext: string;
-  /** Encryption version for future compatibility */
+  /** Encryption format version for future compatibility */
   version: number;
+  /** Key version used for encryption. Used for key rotation support.
+   *  When rotating keys, increment this value. During decryption,
+   *  use this to select the correct key version. Defaults to 1. */
+  keyVersion?: number;
 }
 
 /**

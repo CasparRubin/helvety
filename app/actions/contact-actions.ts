@@ -123,12 +123,13 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
       rateLimitPrefix: "contacts",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
-    // Get contacts (RLS ensures only user's own contacts are returned)
+    // Get contacts (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: contacts, error } = await supabase
       .from("contacts")
       .select("*")
+      .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
       .returns<ContactRow[]>();
@@ -160,13 +161,14 @@ export async function getContact(
       rateLimitPrefix: "contacts",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
-    // Get contact (RLS ensures only user's own contact can be accessed)
+    // Get contact (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: contact, error } = await supabase
       .from("contacts")
       .select("*")
       .eq("id", id)
+      .eq("user_id", user.id)
       .returns<ContactRow[]>()
       .single();
 

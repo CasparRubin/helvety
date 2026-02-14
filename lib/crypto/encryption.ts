@@ -8,34 +8,44 @@ import { CryptoError, CryptoErrorType } from "./types";
 
 import type { EncryptedData } from "./types";
 
-/** Current encryption version */
+/** Current encryption format version */
 const ENCRYPTION_VERSION = 1;
+
+/** Current key version - increment when rotating encryption keys */
+const CURRENT_KEY_VERSION = 1;
 
 /**
  * Encrypt a string using AES-256-GCM
  *
  * @param data - The plaintext string to encrypt
  * @param key - The CryptoKey to use for encryption
+ * @param aad - Optional Additional Authenticated Data to bind ciphertext to its context.
+ *              When provided, the same AAD must be supplied during decryption.
+ *              Use to prevent ciphertext from being moved between records/contexts.
+ *              Example: `${userId}:${tableName}:${recordId}`
  * @returns Encrypted data with IV and ciphertext
  */
 export async function encrypt(
   data: string,
-  key: CryptoKey
+  key: CryptoKey,
+  aad?: string
 ): Promise<EncryptedData> {
   try {
     const iv = generateIV();
     const encoded = new TextEncoder().encode(data);
 
-    const ciphertext = await crypto.subtle.encrypt(
-      { name: "AES-GCM", iv },
-      key,
-      encoded
-    );
+    const algorithm: AesGcmParams = { name: "AES-GCM", iv, tagLength: 128 };
+    if (aad) {
+      algorithm.additionalData = new TextEncoder().encode(aad);
+    }
+
+    const ciphertext = await crypto.subtle.encrypt(algorithm, key, encoded);
 
     return {
       iv: base64Encode(iv),
       ciphertext: base64Encode(new Uint8Array(ciphertext)),
       version: ENCRYPTION_VERSION,
+      keyVersion: CURRENT_KEY_VERSION,
     };
   } catch (error) {
     throw new CryptoError(
@@ -51,21 +61,24 @@ export async function encrypt(
  *
  * @param encrypted - The encrypted data object
  * @param key - The CryptoKey to use for decryption
+ * @param aad - Optional Additional Authenticated Data. Must match the AAD used during encryption.
  * @returns The decrypted plaintext string
  */
 export async function decrypt(
   encrypted: EncryptedData,
-  key: CryptoKey
+  key: CryptoKey,
+  aad?: string
 ): Promise<string> {
   try {
     const iv = base64Decode(encrypted.iv);
     const ciphertext = base64Decode(encrypted.ciphertext);
 
-    const decrypted = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv },
-      key,
-      ciphertext
-    );
+    const algorithm: AesGcmParams = { name: "AES-GCM", iv, tagLength: 128 };
+    if (aad) {
+      algorithm.additionalData = new TextEncoder().encode(aad);
+    }
+
+    const decrypted = await crypto.subtle.decrypt(algorithm, key, ciphertext);
 
     return new TextDecoder().decode(decrypted);
   } catch (error) {
@@ -82,14 +95,16 @@ export async function decrypt(
  *
  * @param data - The object to encrypt
  * @param key - The CryptoKey to use for encryption
+ * @param aad - Optional Additional Authenticated Data
  * @returns Encrypted data
  */
 export async function encryptObject<T extends object>(
   data: T,
-  key: CryptoKey
+  key: CryptoKey,
+  aad?: string
 ): Promise<EncryptedData> {
   const json = JSON.stringify(data);
-  return encrypt(json, key);
+  return encrypt(json, key, aad);
 }
 
 /**
@@ -97,13 +112,15 @@ export async function encryptObject<T extends object>(
  *
  * @param encrypted - The encrypted data
  * @param key - The CryptoKey to use for decryption
+ * @param aad - Optional Additional Authenticated Data. Must match the AAD used during encryption.
  * @returns The decrypted and parsed object
  */
 export async function decryptObject<T extends object>(
   encrypted: EncryptedData,
-  key: CryptoKey
+  key: CryptoKey,
+  aad?: string
 ): Promise<T> {
-  const json = await decrypt(encrypted, key);
+  const json = await decrypt(encrypted, key, aad);
   try {
     return JSON.parse(json) as T;
   } catch {
@@ -164,11 +181,14 @@ export function isEncryptedData(value: unknown): value is EncryptedData {
 /**
  * Batch encrypt multiple fields of an object
  * Only encrypts string values, leaves other types unchanged
+ *
+ * @param aad - Optional Additional Authenticated Data applied to all fields
  */
 export async function encryptFields<T extends Record<string, unknown>>(
   data: T,
   fieldsToEncrypt: (keyof T)[],
-  key: CryptoKey
+  key: CryptoKey,
+  aad?: string
 ): Promise<Record<string, unknown>> {
   const result: Record<string, unknown> = { ...data };
 
@@ -177,11 +197,12 @@ export async function encryptFields<T extends Record<string, unknown>>(
       const value = data[field];
       if (value !== null && value !== undefined) {
         if (typeof value === "string") {
-          result[field as string] = await encrypt(value, key);
+          result[field as string] = await encrypt(value, key, aad);
         } else if (typeof value === "object") {
           result[field as string] = await encryptObject(
             value as Record<string, unknown>,
-            key
+            key,
+            aad
           );
         }
       }
@@ -193,11 +214,14 @@ export async function encryptFields<T extends Record<string, unknown>>(
 
 /**
  * Batch decrypt multiple fields of an object
+ *
+ * @param aad - Optional Additional Authenticated Data. Must match the AAD used during encryption.
  */
 export async function decryptFields<T extends Record<string, unknown>>(
   data: Record<string, unknown>,
   fieldsToDecrypt: (keyof T)[],
-  key: CryptoKey
+  key: CryptoKey,
+  aad?: string
 ): Promise<T> {
   const result: Record<string, unknown> = { ...data };
 
@@ -205,10 +229,46 @@ export async function decryptFields<T extends Record<string, unknown>>(
     fieldsToDecrypt.map(async (field) => {
       const value = data[field as string];
       if (isEncryptedData(value)) {
-        result[field as string] = await decrypt(value, key);
+        result[field as string] = await decrypt(value, key, aad);
       }
     })
   );
 
   return result as T;
+}
+
+/**
+ * Re-encrypt data with a new key (for key rotation).
+ *
+ * Decrypts with the old key and re-encrypts with the new key.
+ * The new ciphertext will have the current keyVersion.
+ *
+ * @param encrypted - The encrypted data to re-encrypt
+ * @param oldKey - The key used for the original encryption
+ * @param newKey - The new key to encrypt with
+ * @param oldAad - AAD used during original encryption (if any)
+ * @param newAad - AAD to use for the new encryption (if any)
+ * @returns Newly encrypted data with updated keyVersion
+ */
+export async function reencrypt(
+  encrypted: EncryptedData,
+  oldKey: CryptoKey,
+  newKey: CryptoKey,
+  oldAad?: string,
+  newAad?: string
+): Promise<EncryptedData> {
+  const plaintext = await decrypt(encrypted, oldKey, oldAad);
+  return encrypt(plaintext, newKey, newAad);
+}
+
+/**
+ * Check if encrypted data needs key rotation (was encrypted with an older key version).
+ */
+export function needsKeyRotation(encrypted: EncryptedData): boolean {
+  return (encrypted.keyVersion ?? 1) < CURRENT_KEY_VERSION;
+}
+
+/** Get the current key version constant */
+export function getCurrentKeyVersion(): number {
+  return CURRENT_KEY_VERSION;
 }

@@ -6,9 +6,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Composable command menu. */
 function Command({
   className,
   ...props
@@ -25,9 +23,7 @@ function Command({
   );
 }
 
-/**
- *
- */
+/** Search input for the command menu. */
 function CommandInput({
   className,
   ...props
@@ -50,9 +46,7 @@ function CommandInput({
   );
 }
 
-/**
- *
- */
+/** Scrollable list of command items. */
 function CommandList({
   className,
   ...props
@@ -69,9 +63,7 @@ function CommandList({
   );
 }
 
-/**
- *
- */
+/** Displayed when no results match the query. */
 function CommandEmpty({
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
@@ -84,9 +76,7 @@ function CommandEmpty({
   );
 }
 
-/**
- *
- */
+/** Groups related command items under a heading. */
 function CommandGroup({
   className,
   ...props
@@ -103,9 +93,7 @@ function CommandGroup({
   );
 }
 
-/**
- *
- */
+/** Visual separator between command groups. */
 function CommandSeparator({
   className,
   ...props
@@ -119,9 +107,7 @@ function CommandSeparator({
   );
 }
 
-/**
- *
- */
+/** Selectable item within a command list. */
 function CommandItem({
   className,
   ...props
@@ -138,9 +124,7 @@ function CommandItem({
   );
 }
 
-/**
- *
- */
+/** Keyboard shortcut hint displayed in a command item. */
 function CommandShortcut({
   className,
   ...props

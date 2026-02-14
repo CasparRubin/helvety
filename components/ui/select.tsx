@@ -6,18 +6,14 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Root container for a select dropdown. */
 function Select({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
   return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 
-/**
- *
- */
+/** Groups related select items under a label. */
 function SelectGroup({
   className,
   ...props
@@ -31,18 +27,14 @@ function SelectGroup({
   );
 }
 
-/**
- *
- */
+/** Displays the currently selected value. */
 function SelectValue({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Value>) {
   return <SelectPrimitive.Value data-slot="select-value" {...props} />;
 }
 
-/**
- *
- */
+/** Button that opens the select dropdown. */
 function SelectTrigger({
   className,
   size = "default",
@@ -69,9 +61,7 @@ function SelectTrigger({
   );
 }
 
-/**
- *
- */
+/** Dropdown content container with scrollable items. */
 function SelectContent({
   className,
   children,
@@ -110,9 +100,7 @@ function SelectContent({
   );
 }
 
-/**
- *
- */
+/** Label for a group of select items. */
 function SelectLabel({
   className,
   ...props
@@ -126,9 +114,7 @@ function SelectLabel({
   );
 }
 
-/**
- *
- */
+/** Selectable item within the dropdown. */
 function SelectItem({
   className,
   children,
@@ -153,9 +139,7 @@ function SelectItem({
   );
 }
 
-/**
- *
- */
+/** Visual separator between select groups. */
 function SelectSeparator({
   className,
   ...props
@@ -169,9 +153,7 @@ function SelectSeparator({
   );
 }
 
-/**
- *
- */
+/** Scroll-up button at the top of the dropdown. */
 function SelectScrollUpButton({
   className,
   ...props
@@ -190,9 +172,7 @@ function SelectScrollUpButton({
   );
 }
 
-/**
- *
- */
+/** Scroll-down button at the bottom of the dropdown. */
 function SelectScrollDownButton({
   className,
   ...props

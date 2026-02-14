@@ -279,9 +279,9 @@ export function ContactEditor({ contactId }: { contactId: string }) {
       />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col-reverse md:flex-row md:gap-8">
+        <div className="flex flex-col-reverse gap-6 md:flex-row md:gap-8">
           {/* Left column: Form fields + Notes editor */}
-          <div className="flex-1 space-y-6">
+          <div className="min-w-0 flex-1 space-y-6">
             {/* Name fields */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">

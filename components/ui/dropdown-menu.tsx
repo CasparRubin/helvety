@@ -6,32 +6,30 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Dropdown menu root component. */
 function DropdownMenu({
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Root>): React.JSX.Element {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
 
-/**
- *
- */
+/** Portal for rendering dropdown menu outside the DOM hierarchy. */
 function DropdownMenuPortal({
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) {
+}: React.ComponentProps<
+  typeof DropdownMenuPrimitive.Portal
+>): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />
   );
 }
 
-/**
- *
- */
+/** Trigger element that opens the dropdown menu. */
 function DropdownMenuTrigger({
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
+}: React.ComponentProps<
+  typeof DropdownMenuPrimitive.Trigger
+>): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
@@ -40,15 +38,15 @@ function DropdownMenuTrigger({
   );
 }
 
-/**
- *
- */
+/** Dropdown menu content panel with animations. */
 function DropdownMenuContent({
   className,
   align = "start",
   sideOffset = 4,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+}: React.ComponentProps<
+  typeof DropdownMenuPrimitive.Content
+>): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
@@ -65,20 +63,18 @@ function DropdownMenuContent({
   );
 }
 
-/**
- *
- */
+/** Group of related dropdown menu items. */
 function DropdownMenuGroup({
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Group>) {
+}: React.ComponentProps<
+  typeof DropdownMenuPrimitive.Group
+>): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />
   );
 }
 
-/**
- *
- */
+/** Single dropdown menu item with optional variant. */
 function DropdownMenuItem({
   className,
   inset,
@@ -87,7 +83,7 @@ function DropdownMenuItem({
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
   inset?: boolean;
   variant?: "default" | "destructive";
-}) {
+}): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.Item
       data-slot="dropdown-menu-item"
@@ -102,9 +98,7 @@ function DropdownMenuItem({
   );
 }
 
-/**
- *
- */
+/** Dropdown menu item with checkbox state. */
 function DropdownMenuCheckboxItem({
   className,
   children,
@@ -113,7 +107,7 @@ function DropdownMenuCheckboxItem({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem> & {
   inset?: boolean;
-}) {
+}): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
@@ -138,12 +132,12 @@ function DropdownMenuCheckboxItem({
   );
 }
 
-/**
- *
- */
+/** Radio group container for mutually exclusive menu items. */
 function DropdownMenuRadioGroup({
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) {
+}: React.ComponentProps<
+  typeof DropdownMenuPrimitive.RadioGroup
+>): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.RadioGroup
       data-slot="dropdown-menu-radio-group"
@@ -152,9 +146,7 @@ function DropdownMenuRadioGroup({
   );
 }
 
-/**
- *
- */
+/** Single radio option in a dropdown menu. */
 function DropdownMenuRadioItem({
   className,
   children,
@@ -162,7 +154,7 @@ function DropdownMenuRadioItem({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.RadioItem> & {
   inset?: boolean;
-}) {
+}): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.RadioItem
       data-slot="dropdown-menu-radio-item"
@@ -186,16 +178,14 @@ function DropdownMenuRadioItem({
   );
 }
 
-/**
- *
- */
+/** Label or section heading within the dropdown menu. */
 function DropdownMenuLabel({
   className,
   inset,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Label> & {
   inset?: boolean;
-}) {
+}): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.Label
       data-slot="dropdown-menu-label"
@@ -209,13 +199,13 @@ function DropdownMenuLabel({
   );
 }
 
-/**
- *
- */
+/** Visual separator line between dropdown menu items. */
 function DropdownMenuSeparator({
   className,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) {
+}: React.ComponentProps<
+  typeof DropdownMenuPrimitive.Separator
+>): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
@@ -225,13 +215,11 @@ function DropdownMenuSeparator({
   );
 }
 
-/**
- *
- */
+/** Displays keyboard shortcut for a menu item. */
 function DropdownMenuShortcut({
   className,
   ...props
-}: React.ComponentProps<"span">) {
+}: React.ComponentProps<"span">): React.JSX.Element {
   return (
     <span
       data-slot="dropdown-menu-shortcut"
@@ -244,18 +232,14 @@ function DropdownMenuShortcut({
   );
 }
 
-/**
- *
- */
+/** Submenu container that nests another dropdown. */
 function DropdownMenuSub({
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) {
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>): React.JSX.Element {
   return <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} />;
 }
 
-/**
- *
- */
+/** Trigger that opens a nested submenu. */
 function DropdownMenuSubTrigger({
   className,
   inset,
@@ -263,7 +247,7 @@ function DropdownMenuSubTrigger({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.SubTrigger> & {
   inset?: boolean;
-}) {
+}): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.SubTrigger
       data-slot="dropdown-menu-sub-trigger"
@@ -280,13 +264,13 @@ function DropdownMenuSubTrigger({
   );
 }
 
-/**
- *
- */
+/** Content panel for a nested submenu. */
 function DropdownMenuSubContent({
   className,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
+}: React.ComponentProps<
+  typeof DropdownMenuPrimitive.SubContent
+>): React.JSX.Element {
   return (
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"

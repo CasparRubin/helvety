@@ -5,9 +5,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- *
- */
+/** Scrollable area with custom scrollbar styling. */
 function ScrollArea({
   className,
   children,
@@ -31,9 +29,7 @@ function ScrollArea({
   );
 }
 
-/**
- *
- */
+/** Scrollbar track and thumb for a scroll area. */
 function ScrollBar({
   className,
   orientation = "vertical",
