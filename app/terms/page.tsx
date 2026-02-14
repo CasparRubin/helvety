@@ -74,6 +74,7 @@ export default function TermsPage() {
                       className="hover:text-foreground transition-colors"
                     >
                       4.4 Software, Digital Products and SaaS - No Warranties
+                      and No Guarantees
                     </a>
                   </li>
                   <li>

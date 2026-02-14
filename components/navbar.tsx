@@ -75,9 +75,9 @@ export function Navbar() {
   useEffect(() => {
     const getUser = async () => {
       const {
-        data: { user },
+        data: { user: u },
       } = await supabase.auth.getUser();
-      setUser(user);
+      setUser(u ?? null);
       setIsLoading(false);
     };
     void getUser();
@@ -87,19 +87,20 @@ export function Navbar() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setIsLoading(false);
     });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, [supabase.auth]);
+
+  const isAuthenticated = !!user;
 
   const handleLogin = () => {
     redirectToLogin();
   };
 
   const handleLogout = () => {
-    redirectToLogout();
+    // Redirect to centralized auth service for logout
+    redirectToLogout(window.location.origin);
   };
 
   return (
@@ -161,12 +162,10 @@ export function Navbar() {
                     The main Helvety website. Swiss Engineering.
                   </DialogDescription>
                 </DialogHeader>
-                <>
-                  <div className="border-t" />
-                  <p className="text-muted-foreground text-xs">
-                    {VERSION || "Unknown build time"}
-                  </p>
-                </>
+                <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  {VERSION || "Unknown build time"}
+                </p>
                 <DialogClose asChild>
                   <Button variant="outline" className="w-full">
                     Close
@@ -197,7 +196,7 @@ export function Navbar() {
           <ThemeSwitcher />
 
           {/* Login button - only show when not authenticated */}
-          {!user && !isLoading && (
+          {!isAuthenticated && !isLoading && (
             <Button variant="default" size="sm" onClick={handleLogin}>
               <LogIn className="h-4 w-4" />
               Sign in
@@ -205,7 +204,7 @@ export function Navbar() {
           )}
 
           {/* Profile menu - only show when authenticated */}
-          {user && !isLoading && (
+          {isAuthenticated && !isLoading && (
             <Popover open={profileOpen} onOpenChange={setProfileOpen}>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon">
