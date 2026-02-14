@@ -240,6 +240,7 @@ export function EncryptionSetup({
               <ul className="list-inside list-disc space-y-1">
                 <li>Chrome 128+ or Edge 128+ on desktop</li>
                 <li>Safari 18+ on Mac</li>
+                <li>Firefox 139+ on desktop</li>
               </ul>
               <p className="mt-3 mb-2 font-medium">Supported phones:</p>
               <ul className="list-inside list-disc space-y-1">
