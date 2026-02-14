@@ -413,11 +413,11 @@ export default function PrivacyPage() {
                 <strong className="text-foreground">
                   Helvety Store (store.helvety.com):
                 </strong>{" "}
-                User profile (email, optional display name), Stripe customer ID,
-                subscription and purchase history, licensed tenant IDs (for
-                enterprise products), and IP address (for checkout consent audit
-                trail and rate limiting). Payment data (card details, billing
-                address) is handled exclusively by Stripe.
+                User profile (email), Stripe customer ID, subscription and
+                purchase history, licensed tenant IDs (for enterprise products),
+                and IP address (for checkout consent audit trail and rate
+                limiting). Payment data (card details, billing address) is
+                handled exclusively by Stripe.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -531,9 +531,6 @@ export default function PrivacyPage() {
                 Clicking the &quot;unsubscribe&quot; link at the bottom of any
                 marketing email
               </li>
-              <li>
-                Updating your communication preferences in your account settings
-              </li>
               <li>Contacting us at contact@helvety.com</li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -551,9 +548,10 @@ export default function PrivacyPage() {
               We may disclose your non-encrypted personal data to Swiss law
               enforcement or judicial authorities when required by a valid Swiss
               court order or binding legal request issued in accordance with
-              applicable Swiss law, including the Swiss Federal Act on the
-              Surveillance of Post and Telecommunications (BÜPF) where
-              applicable.
+              applicable Swiss law. We will cooperate with any lawful
+              surveillance order directed at us, including under the Swiss
+              Federal Act on the Surveillance of Post and Telecommunications
+              (BÜPF) to the extent it applies to our services.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               The types of data we may disclose in response to valid legal
@@ -874,13 +872,14 @@ export default function PrivacyPage() {
               >
                 store.helvety.com/account
               </a>
-              . Upon requesting deletion, your account will be scheduled for
-              permanent deletion after a 30-day grace period (during which you
-              may cancel the request). Deletion removes your personal data
-              across all Helvety services, including authentication credentials,
-              subscription records, task data, and file attachments. Transaction
-              records required for legal compliance (Art. 958f Swiss Code of
-              Obligations) will be retained in anonymized form for 10 years.
+              . Upon confirmation, your account and personal data will be
+              permanently deleted across all Helvety services, including
+              authentication credentials, subscription records, task data,
+              contact data, and file attachments. This action is immediate and
+              cannot be undone. We recommend exporting your data before
+              proceeding. Transaction records required for legal compliance
+              (Art. 958f Swiss Code of Obligations) will be retained in
+              anonymized form for 10 years.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">

@@ -392,23 +392,25 @@ export default function TermsPage() {
               4.3 Apparel and Physical Products
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              The following terms apply if and when physical products (such as
-              apparel) are offered through the Services. Physical Products are
-              sold subject to availability. Product descriptions and images are
-              provided for informational purposes. Title and risk of loss pass
-              to you upon delivery to the carrier.
+              Physical products (such as apparel) are not currently offered
+              through the Services but may be offered in the future. The
+              following terms will apply if and when physical products become
+              available. Physical Products will be sold subject to availability.
+              Product descriptions and images will be provided for informational
+              purposes. Title and risk of loss will pass to you upon delivery to
+              the carrier.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Sizing:</strong> All sizing
-              information is approximate and provided as a general guide only.
-              We recommend consulting our size guides before ordering. Sizing
-              may vary between different product lines and manufacturers. We are
-              not responsible for items that do not fit as expected if the
-              sizing guide was not followed.
+              information will be approximate and provided as a general guide
+              only. We recommend consulting size guides before ordering. Sizing
+              may vary between different product lines and manufacturers. We
+              will not be responsible for items that do not fit as expected if
+              the sizing guide was not followed.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Colors and Images:</strong> We
-              make every effort to display accurate colors of our products.
+              will make every effort to display accurate colors of products.
               However, actual product colors may vary from images shown due to
               differences in monitor settings, screen resolutions, photography
               lighting, and manufacturing variations. Minor color variations are
@@ -416,9 +418,9 @@ export default function TermsPage() {
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Care Instructions:</strong>{" "}
-              All apparel products come with care instructions. You are
+              All apparel products will come with care instructions. You will be
               responsible for following these instructions. Damage resulting
-              from improper care, washing, or handling is not covered under our
+              from improper care, washing, or handling will not be covered under
               return or warranty policies.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -442,11 +444,10 @@ export default function TermsPage() {
             </p>
             <p className="text-muted-foreground text-sm">
               <strong className="text-foreground">Delivery:</strong> Delivery
-              times vary and are estimated at checkout. We currently ship to
-              Switzerland only. Shipping costs are calculated at checkout based
-              on destination and order weight. For Swiss deliveries, typical
-              delivery time is 2-5 business days. Risk of loss passes to you
-              upon delivery to the carrier.
+              times will vary and will be estimated at checkout. Shipping will
+              be to Switzerland only. Shipping costs will be calculated at
+              checkout based on destination and order weight. Risk of loss will
+              pass to you upon delivery to the carrier.
             </p>
 
             <h3
@@ -818,9 +819,11 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               Helvety cooperates with Swiss law enforcement authorities when
               presented with valid Swiss court orders or binding legal requests
-              issued in accordance with applicable Swiss law, including the
-              Swiss Federal Act on the Surveillance of Post and
-              Telecommunications (BÜPF) where applicable.
+              issued in accordance with applicable Swiss law. We will cooperate
+              with any lawful surveillance order directed at us, including under
+              the Swiss Federal Act on the Surveillance of Post and
+              Telecommunications (BÜPF) to the extent it applies to our
+              services.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Due to our zero-knowledge architecture, we cannot decrypt or
@@ -963,9 +966,9 @@ export default function TermsPage() {
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               All prices are displayed in Swiss Francs (CHF). Prices are subject
-              to change without notice. All applicable taxes (including Swiss
-              VAT where applicable) will be calculated and displayed at
-              checkout.
+              to change without notice. Helvety by Rubin is currently not
+              registered for Swiss VAT (MWST). Should this change, applicable
+              taxes will be calculated and displayed at checkout.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Payment processing is handled by Stripe, Inc. By making a
@@ -1050,19 +1053,23 @@ export default function TermsPage() {
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
-              11.3 Physical Products (Apparel)
+              11.3 Physical Products (If and When Offered)
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              While Swiss law does not provide a statutory withdrawal right for
-              online purchases, we voluntarily offer a 14-day return policy for
-              physical products as a gesture of goodwill.
+              Physical products are not currently offered. The following return
+              policy will apply if and when physical products become available.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              To exercise this right, you must inform us of your decision to
+              While Swiss law does not provide a statutory withdrawal right for
+              online purchases, we will voluntarily offer a 14-day return policy
+              for physical products as a gesture of goodwill.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              To exercise this right, you would inform us of your decision to
               return the goods by a clear statement (e.g., email to
               contact@helvety.com). Products must be returned in their original
-              condition, unworn and with all tags attached. You bear the cost of
-              returning the goods.
+              condition, unworn and with all tags attached. You will bear the
+              cost of returning the goods.
             </p>
             <p className="text-muted-foreground text-sm">
               Refunds will be processed within 14 days of receiving the returned
@@ -1244,9 +1251,9 @@ export default function TermsPage() {
                 store.helvety.com/account
               </a>{" "}
               or by contacting us at contact@helvety.com. Account deletion is
-              subject to a 30-day grace period during which you may cancel the
-              request. Account termination does not entitle you to any refund of
-              fees already paid.
+              permanent and cannot be undone. We recommend exporting your data
+              before proceeding. Account termination does not entitle you to any
+              refund of fees already paid.
             </p>
           </section>
 

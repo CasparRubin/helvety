@@ -74,8 +74,8 @@ export default function Home() {
           >
             <motion.div variants={fadeInUp}>
               <p className="text-muted-foreground text-sm md:text-base">
-                <span className="font-medium text-[#FF0000]">Swiss</span>{" "}
-                Engineering
+                Designed in{" "}
+                <span className="font-medium text-[#FF0000]">Switzerland</span>
               </p>
             </motion.div>
           </motion.div>

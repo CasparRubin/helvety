@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-The main Helvety website. Swiss Engineering.
+The main Helvety website. Designed in Switzerland.
 
 **Website:** [helvety.com](https://helvety.com)
 

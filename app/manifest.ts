@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Helvety",
     short_name: "Helvety",
-    description: "Helvety. Swiss Engineering.",
+    description: "Helvety. Designed in Switzerland.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

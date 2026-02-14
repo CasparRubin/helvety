@@ -12,13 +12,12 @@
  *   - proxy.ts
  *   - scripts/generate-version.mjs
  *   - lib/utils.ts, lib/logger.ts, lib/constants.ts (helvety-auth, helvety-store, helvety-tasks, helvety-contacts; helvety-pdf and helvety-contacts keep app-specific constants)
- *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/auth-retry.ts
+ *   - lib/auth-logger.ts, lib/auth-redirect.ts, lib/auth-retry.ts
  *   - lib/csrf.ts (all except helvety-auth which has auth-specific CSRF lifecycle, and helvety-pdf which has no server actions)
  *   - lib/auth-guard.ts (helvety-store, helvety-tasks, helvety-contacts; helvety-auth keeps its own with local redirect; helvety-pdf does not use it)
  *   - lib/redirect-validation.ts
  *   - lib/rate-limit.ts (helvety-pdf only; helvety-store, helvety-auth, helvety-tasks, helvety-contacts keep app-specific rate limits)
  *   - lib/env-validation.ts (all except helvety-store which adds Stripe key validation)
- *   - lib/session-config.ts
  *   - lib/supabase/client.ts, lib/supabase/server.ts, lib/supabase/client-factory.ts
  *   - lib/types/entities.ts (helvety-auth, helvety-tasks, helvety-contacts only; helvety-store and helvety-pdf keep their own without encryption types)
  *   - lib/crypto/* (helvety-auth, helvety-tasks, helvety-contacts only; helvety-store and helvety-pdf do not use E2EE)
@@ -66,7 +65,6 @@ const FILES = [
   "lib/utils.ts",
   "lib/logger.ts",
   "lib/constants.ts",
-  "lib/auth-errors.ts",
   "lib/auth-logger.ts",
   "lib/auth-redirect.ts",
   "lib/auth-guard.ts",
@@ -75,7 +73,6 @@ const FILES = [
   "lib/rate-limit.ts",
   "lib/csrf.ts",
   "lib/env-validation.ts",
-  "lib/session-config.ts",
   "lib/supabase/client.ts",
   "lib/supabase/server.ts",
   "lib/supabase/client-factory.ts",

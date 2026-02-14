@@ -43,14 +43,14 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://helvety.com"),
   title: {
-    default: "Helvety | Software and Apparel | Designed in Switzerland",
+    default: "Helvety | Software & Subscriptions | Designed in Switzerland",
     template: "%s | Helvety",
   },
-  description: "The main Helvety website. Swiss Engineering.",
+  description: "The main Helvety website. Designed in Switzerland.",
   keywords: [
     "Helvety",
     "Swiss software",
-    "Swiss apparel",
+    "Swiss subscriptions",
     "Switzerland",
     "software development",
   ],
@@ -67,8 +67,8 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://helvety.com",
     siteName: "Helvety",
-    title: "Helvety | Software and Apparel | Designed in Switzerland",
-    description: "The main Helvety website. Swiss Engineering.",
+    title: "Helvety | Software & Subscriptions | Designed in Switzerland",
+    description: "The main Helvety website. Designed in Switzerland.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",
@@ -80,8 +80,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Helvety | Software and Apparel | Designed in Switzerland",
-    description: "The main Helvety website. Swiss Engineering.",
+    title: "Helvety | Software & Subscriptions | Designed in Switzerland",
+    description: "The main Helvety website. Designed in Switzerland.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",
