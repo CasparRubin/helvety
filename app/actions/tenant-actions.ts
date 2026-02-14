@@ -10,6 +10,7 @@ import { z } from "zod";
 import { requireCSRFToken } from "@/lib/csrf";
 import { getMaxTenantsForTier } from "@/lib/license/validation";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import type {
@@ -80,6 +81,19 @@ export async function getUserTenants(): Promise<
       return { success: false, error: "Not authenticated" };
     }
 
+    const rl = await checkRateLimit(
+      `tenants:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs,
+      "tenants"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
     const { data, error } = await supabase
       .from("licensed_tenants")
       .select(
@@ -143,6 +157,19 @@ export async function getSpoExplorerSubscriptions(): Promise<
 
     if (!user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    const rl = await checkRateLimit(
+      `tenants:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs,
+      "tenants"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
     }
 
     // Get SPO Explorer subscriptions
@@ -244,6 +271,19 @@ export async function registerTenant(
 
     if (!user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    const rl = await checkRateLimit(
+      `tenants:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs,
+      "tenants"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
     }
 
     const { tenantId, displayName, subscriptionId } = parseResult.data;
@@ -388,6 +428,19 @@ export async function updateTenant(
       return { success: false, error: "Not authenticated" };
     }
 
+    const rl = await checkRateLimit(
+      `tenants:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs,
+      "tenants"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
     const { data: tenant, error } = await supabase
       .from("licensed_tenants")
       .update({
@@ -445,6 +498,19 @@ export async function removeTenant(
 
     if (!user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    const rl = await checkRateLimit(
+      `tenants:${user.id}`,
+      RATE_LIMITS.TENANTS.maxRequests,
+      RATE_LIMITS.TENANTS.windowMs,
+      "tenants"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
     }
 
     // Verify tenant exists and belongs to user

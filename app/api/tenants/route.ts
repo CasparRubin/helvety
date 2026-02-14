@@ -105,6 +105,15 @@ export async function GET() {
 
 /** Register a new tenant. */
 export async function POST(request: NextRequest) {
+  // Reject oversized request bodies early (10KB limit for tenant registration)
+  const contentLength = parseInt(
+    request.headers.get("content-length") ?? "0",
+    10
+  );
+  if (contentLength > 10_000) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   try {
     // Validate CSRF token from header
     const csrfToken = request.headers.get("X-CSRF-Token");

@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
@@ -104,6 +105,20 @@ export async function updateUserEmail(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit: account mutation
+    const rl = await checkRateLimit(
+      `acct-mutate:${user.id}`,
+      RATE_LIMITS.ACCOUNT_MUTATE.maxRequests,
+      RATE_LIMITS.ACCOUNT_MUTATE.windowMs,
+      "acct-mutate"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
     // Check if new email is same as current
     if (user.email?.toLowerCase() === newEmail.toLowerCase()) {
       return {
@@ -180,6 +195,20 @@ export async function requestAccountDeletion(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit: account mutation (destructive)
+    const rl = await checkRateLimit(
+      `acct-mutate:${user.id}`,
+      RATE_LIMITS.ACCOUNT_MUTATE.maxRequests,
+      RATE_LIMITS.ACCOUNT_MUTATE.windowMs,
+      "acct-mutate"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
     const adminClient = createAdminClient();
 
     // 1. Cancel all active Stripe subscriptions
@@ -190,14 +219,24 @@ export async function requestAccountDeletion(
       .in("status", ["active", "trialing", "past_due"]);
 
     if (subscriptions && subscriptions.length > 0) {
-      for (const sub of subscriptions) {
-        if (sub.stripe_subscription_id) {
-          try {
-            await stripe.subscriptions.cancel(sub.stripe_subscription_id);
-          } catch (stripeError) {
+      const cancellableSubscriptions = subscriptions.filter(
+        (sub) => sub.stripe_subscription_id
+      );
+
+      if (cancellableSubscriptions.length > 0) {
+        const results = await Promise.allSettled(
+          cancellableSubscriptions.map((sub) =>
+            stripe.subscriptions.cancel(sub.stripe_subscription_id)
+          )
+        );
+
+        // Log any failures (individual failures don't block the overall deletion)
+        for (let i = 0; i < results.length; i++) {
+          const result = results[i];
+          if (result?.status === "rejected") {
             logger.warn(
-              `Could not cancel Stripe subscription ${sub.stripe_subscription_id}:`,
-              stripeError
+              `Could not cancel Stripe subscription ${cancellableSubscriptions[i]?.stripe_subscription_id}:`,
+              result.reason
             );
           }
         }
@@ -207,12 +246,14 @@ export async function requestAccountDeletion(
     // 2. Delete user files from Supabase Storage (encrypted attachments)
     try {
       const { data: files } = await adminClient.storage
-        .from("item_attachments")
+        .from("encrypted-attachments")
         .list(user.id);
 
       if (files && files.length > 0) {
         const filePaths = files.map((f) => `${user.id}/${f.name}`);
-        await adminClient.storage.from("item_attachments").remove(filePaths);
+        await adminClient.storage
+          .from("encrypted-attachments")
+          .remove(filePaths);
       }
     } catch (storageError) {
       logger.warn("Could not clean up storage files:", storageError);
@@ -273,37 +314,53 @@ export async function exportUserData(): Promise<
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit: data export pulls from multiple tables
+    const rl = await checkRateLimit(
+      `data-export:${user.id}`,
+      RATE_LIMITS.DATA_EXPORT.maxRequests,
+      RATE_LIMITS.DATA_EXPORT.windowMs,
+      "data-export"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
     const adminClient = createAdminClient();
 
-    // Fetch profile
-    const { data: profile } = await adminClient
-      .from("user_profiles")
-      .select("email, display_name, created_at")
-      .eq("id", user.id)
-      .single();
+    // Fetch all user data in parallel (independent queries)
+    const [profileResult, subscriptionsResult, purchasesResult, tenantsResult] =
+      await Promise.all([
+        adminClient
+          .from("user_profiles")
+          .select("email, display_name, created_at")
+          .eq("id", user.id)
+          .single(),
+        adminClient
+          .from("subscriptions")
+          .select(
+            "product_id, tier_id, status, created_at, current_period_end, cancel_at_period_end"
+          )
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+        adminClient
+          .from("purchases")
+          .select("product_id, tier_id, amount_paid, currency, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+        adminClient
+          .from("licensed_tenants")
+          .select("tenant_id, tenant_domain, display_name, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+      ]);
 
-    // Fetch subscriptions
-    const { data: subscriptions } = await adminClient
-      .from("subscriptions")
-      .select(
-        "product_id, tier_id, status, created_at, current_period_end, cancel_at_period_end"
-      )
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    // Fetch purchases
-    const { data: purchases } = await adminClient
-      .from("purchases")
-      .select("product_id, tier_id, amount_paid, currency, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    // Fetch tenants
-    const { data: tenants } = await adminClient
-      .from("licensed_tenants")
-      .select("tenant_id, tenant_domain, display_name, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+    const { data: profile } = profileResult;
+    const { data: subscriptions } = subscriptionsResult;
+    const { data: purchases } = purchasesResult;
+    const { data: tenants } = tenantsResult;
 
     const exportData: UserDataExport = {
       exportedAt: new Date().toISOString(),

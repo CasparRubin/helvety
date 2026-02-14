@@ -92,11 +92,11 @@ export async function validateTenantLicense(
 
     if (licensedError || !licensedRows?.length) {
       logger.debug(
-        `Tenant not found for product: ${normalizedTenantId} / ${productId}`
+        `License invalid (tenant_not_registered): ${normalizedTenantId} / ${productId}`
       );
       return {
         valid: false,
-        reason: "tenant_not_registered",
+        reason: "invalid",
       };
     }
 
@@ -105,11 +105,11 @@ export async function validateTenantLicense(
       .filter(Boolean) as string[];
     if (subscriptionIds.length === 0) {
       logger.warn(
-        `licensed_tenants rows for ${normalizedTenantId} have no subscription_id`
+        `License invalid (subscription_inactive): ${normalizedTenantId} has no subscription_id`
       );
       return {
         valid: false,
-        reason: "subscription_inactive",
+        reason: "invalid",
       };
     }
 
@@ -125,11 +125,11 @@ export async function validateTenantLicense(
 
     if (subError || !subscription) {
       logger.warn(
-        `Tenant ${normalizedTenantId} subscription not found or wrong product: ${productId}`
+        `License invalid (subscription_inactive): ${normalizedTenantId} subscription not found for product ${productId}`
       );
       return {
         valid: false,
-        reason: "subscription_inactive",
+        reason: "invalid",
       };
     }
 
@@ -171,17 +171,13 @@ export async function validateTenantLicense(
       }
     }
 
-    // Subscription expired or canceled
-    if (status === "canceled") {
-      return {
-        valid: false,
-        reason: "subscription_canceled",
-      };
-    }
-
+    // Subscription expired or canceled - use generic reason to prevent enumeration
+    logger.debug(
+      `License invalid (${status === "canceled" ? "subscription_canceled" : "subscription_expired"}): ${normalizedTenantId} / ${productId}`
+    );
     return {
       valid: false,
-      reason: "subscription_expired",
+      reason: "invalid",
     };
   } catch (error) {
     logger.error("Error validating tenant license:", error);

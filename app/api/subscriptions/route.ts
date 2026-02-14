@@ -4,6 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -47,9 +48,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Optional product filter
+    // Optional product filter (validated to prevent injection)
     const { searchParams } = new URL(request.url);
-    const productId = searchParams.get("productId");
+    const rawProductId = searchParams.get("productId");
+    const ProductIdSchema = z
+      .string()
+      .regex(/^[a-z0-9-]+$/)
+      .max(100);
+    const productId = rawProductId
+      ? ProductIdSchema.safeParse(rawProductId).success
+        ? rawProductId
+        : null
+      : null;
+
+    if (rawProductId && !productId) {
+      return NextResponse.json(
+        { error: "Invalid product ID format" },
+        { status: 400 }
+      );
+    }
 
     // Get subscriptions
     let subscriptionsQuery = supabase
@@ -133,12 +150,35 @@ export async function HEAD(request: NextRequest) {
       return new NextResponse(null, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const productId = searchParams.get("productId");
+    // Rate limit by user ID (same as GET)
+    const rateLimit = await checkRateLimit(
+      `subscriptions:user:${user.id}`,
+      RATE_LIMITS.API.maxRequests,
+      RATE_LIMITS.API.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return new NextResponse(null, {
+        status: 429,
+        headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) },
+      });
+    }
 
-    if (!productId) {
+    const { searchParams } = new URL(request.url);
+    const rawProductIdHead = searchParams.get("productId");
+
+    if (!rawProductIdHead) {
       return new NextResponse(null, { status: 400 });
     }
+
+    // Validate product ID format
+    const HeadProductIdSchema = z
+      .string()
+      .regex(/^[a-z0-9-]+$/)
+      .max(100);
+    if (!HeadProductIdSchema.safeParse(rawProductIdHead).success) {
+      return new NextResponse(null, { status: 400 });
+    }
+    const productId = rawProductIdHead;
 
     // Check for active subscription
     const { data } = await supabase

@@ -10,6 +10,7 @@ import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { getPackageInfo, isTierAllowedForPackage } from "@/lib/packages/config";
 import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
@@ -70,6 +71,20 @@ export async function getPackageDownloadUrl(
 
     if (!user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit: generates signed URLs
+    const rl = await checkRateLimit(
+      `download-url:${user.id}`,
+      RATE_LIMITS.DOWNLOAD_URL.maxRequests,
+      RATE_LIMITS.DOWNLOAD_URL.windowMs,
+      "download-url"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
     }
 
     // Check for active subscription with allowed tier
@@ -171,6 +186,20 @@ export async function getPackageMetadata(
 
     if (!user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit: package metadata reads
+    const rl = await checkRateLimit(
+      `pkg-meta:${user.id}`,
+      RATE_LIMITS.PACKAGE_META.maxRequests,
+      RATE_LIMITS.PACKAGE_META.windowMs,
+      "pkg-meta"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
     }
 
     // Check for active subscription

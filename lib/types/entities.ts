@@ -204,10 +204,7 @@ export interface LicenseValidationResponse {
   expiresAt?: string;
   gracePeriodDays?: number;
   reason?:
-    | "tenant_not_registered"
-    | "subscription_expired"
-    | "subscription_canceled"
-    | "subscription_inactive"
+    | "invalid"
     | "missing_tenant_id"
     | "invalid_tenant_id"
     | "missing_product_id"
@@ -215,6 +212,16 @@ export interface LicenseValidationResponse {
     | "rate_limit_exceeded"
     | "server_error";
 }
+
+/**
+ * Internal license validation reason (server-side logging only, never exposed to clients).
+ * Maps to the generic "invalid" reason in the public API response.
+ */
+export type InternalLicenseReason =
+  | "tenant_not_registered"
+  | "subscription_expired"
+  | "subscription_canceled"
+  | "subscription_inactive";
 
 // =============================================================================
 // CONSENT EVENT TYPES (Legal audit trail, nDSG compliance)

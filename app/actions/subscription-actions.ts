@@ -9,6 +9,8 @@ import { z } from "zod";
 
 import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { isValidRelativePath } from "@/lib/redirect-validation";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerComponentClient } from "@/lib/supabase/client-factory";
@@ -73,6 +75,20 @@ export async function getUserSubscriptions(): Promise<
 
     if (!user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit: subscription reads can trigger Stripe API calls for period backfill
+    const rl = await checkRateLimit(
+      `sub-read:${user.id}`,
+      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
+      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
+      "sub-read"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
     }
 
     const { data, error } = await supabase
@@ -191,6 +207,19 @@ export async function getUserPurchases(): Promise<ActionResponse<Purchase[]>> {
       return { success: false, error: "Not authenticated" };
     }
 
+    const rl = await checkRateLimit(
+      `sub-read:${user.id}`,
+      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
+      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
+      "sub-read"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
     const { data, error } = await supabase
       .from("purchases")
       .select("*")
@@ -231,6 +260,19 @@ export async function hasActiveSubscription(
 
     if (!user) {
       return { success: true, data: false };
+    }
+
+    const rl = await checkRateLimit(
+      `sub-read:${user.id}`,
+      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
+      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
+      "sub-read"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
     }
 
     const { data, error } = await supabase
@@ -276,23 +318,39 @@ export async function getUserSubscriptionSummary(): Promise<
       return { success: false, error: "Not authenticated" };
     }
 
-    // Get active subscriptions
-    const { data: subscriptions, error: subError } = await supabase
-      .from("subscriptions")
-      .select("product_id, tier_id, status, current_period_end")
-      .eq("user_id", user.id)
-      .in("status", ["active", "trialing"]);
+    const rl = await checkRateLimit(
+      `sub-read:${user.id}`,
+      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
+      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
+      "sub-read"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
+    // Fetch subscriptions and purchases in parallel (independent queries)
+    const [subsResult, purchasesResult] = await Promise.all([
+      supabase
+        .from("subscriptions")
+        .select("product_id, tier_id, status, current_period_end")
+        .eq("user_id", user.id)
+        .in("status", ["active", "trialing"]),
+      supabase
+        .from("purchases")
+        .select("product_id, tier_id, created_at")
+        .eq("user_id", user.id),
+    ]);
+
+    const { data: subscriptions, error: subError } = subsResult;
+    const { data: purchases, error: purchaseError } = purchasesResult;
 
     if (subError) {
       logger.error("Error fetching subscriptions:", subError);
       return { success: false, error: "Failed to fetch subscriptions" };
     }
-
-    // Get purchases
-    const { data: purchases, error: purchaseError } = await supabase
-      .from("purchases")
-      .select("product_id, tier_id, created_at")
-      .eq("user_id", user.id);
 
     if (purchaseError) {
       logger.error("Error fetching purchases:", purchaseError);
@@ -361,6 +419,20 @@ export async function cancelSubscription(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit: Stripe mutation - tight limit
+    const rl = await checkRateLimit(
+      `sub-mutate:${user.id}`,
+      RATE_LIMITS.SUBSCRIPTION_MUTATE.maxRequests,
+      RATE_LIMITS.SUBSCRIPTION_MUTATE.windowMs,
+      "sub-mutate"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
     // Verify user owns this subscription
     const { data: subscription, error: fetchError } = await supabase
       .from("subscriptions")
@@ -420,6 +492,20 @@ export async function getSubscriptionPeriodEnd(
 
     if (!user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    // Rate limit: triggers Stripe API call
+    const rl = await checkRateLimit(
+      `sub-read:${user.id}`,
+      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
+      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
+      "sub-read"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
     }
 
     const { data: row, error } = await supabase
@@ -487,6 +573,20 @@ export async function reactivateSubscription(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit: Stripe mutation - tight limit
+    const rl = await checkRateLimit(
+      `sub-mutate:${user.id}`,
+      RATE_LIMITS.SUBSCRIPTION_MUTATE.maxRequests,
+      RATE_LIMITS.SUBSCRIPTION_MUTATE.windowMs,
+      "sub-mutate"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
     // Verify user owns this subscription
     const { data: subscription, error: fetchError } = await supabase
       .from("subscriptions")
@@ -534,7 +634,8 @@ export async function reactivateSubscription(
 /**
  * Get Stripe Customer Portal URL for managing subscription
  *
- * @param returnUrl - Optional URL to return to after portal session (defaults to /account)
+ * @param returnUrl - Optional relative path to return to after portal (e.g. "/account").
+ *   Validated with isValidRelativePath() to prevent open redirects; invalid values fall back to /account.
  */
 export async function getCustomerPortalUrl(
   returnUrl?: string
@@ -549,6 +650,20 @@ export async function getCustomerPortalUrl(
       return { success: false, error: "Not authenticated" };
     }
 
+    // Rate limit: creates Stripe portal session
+    const rl = await checkRateLimit(
+      `portal:${user.id}`,
+      RATE_LIMITS.PORTAL.maxRequests,
+      RATE_LIMITS.PORTAL.windowMs,
+      "portal"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: "Too many requests. Please try again later.",
+      };
+    }
+
     // Get user's Stripe customer ID
     const { data: profile, error: profileError } = await supabase
       .from("user_profiles")
@@ -560,12 +675,19 @@ export async function getCustomerPortalUrl(
       return { success: false, error: "No billing account found" };
     }
 
+    // Validate returnUrl to prevent open redirect attacks
+    // Only allow relative paths (e.g., "/account") - no external URLs
+    const appBaseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ?? "https://store.helvety.com";
+    const safeReturnUrl =
+      returnUrl && isValidRelativePath(returnUrl)
+        ? `${appBaseUrl}${returnUrl}`
+        : `${appBaseUrl}/account`;
+
     // Create portal session
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
-      return_url:
-        returnUrl ??
-        `${process.env.NEXT_PUBLIC_APP_URL ?? "https://store.helvety.com"}/account`,
+      return_url: safeReturnUrl,
     });
 
     return { success: true, data: portalSession.url };

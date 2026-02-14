@@ -60,6 +60,15 @@ function extractSubscriptionPeriod(
  * @param request - Request body must be raw (for signature verification)
  */
 export async function POST(request: NextRequest) {
+  // Reject oversized request bodies early (512KB limit for Stripe webhooks)
+  const contentLength = parseInt(
+    request.headers.get("content-length") ?? "0",
+    10
+  );
+  if (contentLength > 512_000) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   // Get validated webhook secret (throws if not configured or invalid format)
   let webhookSecret: string;
   try {
@@ -120,7 +129,7 @@ export async function POST(request: NextRequest) {
     // Handle different event types
     switch (event.type) {
       case "checkout.session.completed":
-        await handleCheckoutCompleted(event.data.object);
+        await handleCheckoutCompleted(event.data.object, event.id);
         break;
 
       case "customer.subscription.created":
@@ -133,11 +142,11 @@ export async function POST(request: NextRequest) {
         break;
 
       case "invoice.paid":
-        await handleInvoicePaid(event.data.object);
+        await handleInvoicePaid(event.data.object, event.id);
         break;
 
       case "invoice.payment_failed":
-        await handleInvoicePaymentFailed(event.data.object);
+        await handleInvoicePaymentFailed(event.data.object, event.id);
         break;
     }
 
@@ -162,8 +171,12 @@ export async function POST(request: NextRequest) {
  * is created/updated by customer.subscription.created / customer.subscription.updated.
  * checkout.completed does not set subscription_id (subscription row may not exist yet).
  * @param session
+ * @param eventId - Stripe event ID used as stripe_event_id for idempotency
  */
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+async function handleCheckoutCompleted(
+  session: Stripe.Checkout.Session,
+  eventId: string
+) {
   const supabase = createAdminClient();
 
   const userId = session.metadata?.supabase_user_id;
@@ -178,7 +191,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     // Guest checkout events can be linked to users later via customer_email in metadata
     await supabase.from("subscription_events").insert({
       event_type: "checkout.completed",
-      stripe_event_id: `checkout_${session.id}`,
+      stripe_event_id: eventId,
       metadata: {
         session_id: session.id,
         customer_id: customerId,
@@ -210,7 +223,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   await supabase.from("subscription_events").insert({
     user_id: userId,
     event_type: "checkout.completed",
-    stripe_event_id: `checkout_${session.id}`,
+    stripe_event_id: eventId,
     metadata: {
       session_id: session.id,
       customer_id: customerId,
@@ -410,8 +423,9 @@ async function handleSubscriptionDeleted(
 /**
  * Handle invoice.paid - subscription renewal
  * @param invoice
+ * @param eventId - Stripe event ID used as stripe_event_id for idempotency
  */
-async function handleInvoicePaid(invoice: Stripe.Invoice) {
+async function handleInvoicePaid(invoice: Stripe.Invoice, eventId: string) {
   const supabase = createAdminClient();
 
   // Cast invoice for API version compatibility
@@ -465,7 +479,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     user_id: sub.user_id,
     subscription_id: sub.id,
     event_type: "subscription.renewed",
-    stripe_event_id: `invoice_${invoice.id}`,
+    stripe_event_id: eventId,
     metadata: {
       subscription_id: subscriptionId,
       invoice_id: invoice.id,
@@ -481,8 +495,12 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 /**
  * Handle invoice.payment_failed
  * @param invoice
+ * @param eventId - Stripe event ID used as stripe_event_id for idempotency
  */
-async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
+async function handleInvoicePaymentFailed(
+  invoice: Stripe.Invoice,
+  eventId: string
+) {
   const supabase = createAdminClient();
 
   // Cast invoice for API version compatibility
@@ -522,7 +540,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     user_id: sub.user_id,
     subscription_id: sub.id,
     event_type: "subscription.payment_failed",
-    stripe_event_id: `invoice_failed_${invoice.id}`,
+    stripe_event_id: eventId,
     metadata: {
       subscription_id: subscriptionId,
       invoice_id: invoice.id,

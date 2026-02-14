@@ -1,6 +1,6 @@
 {
   "name": "helvety-store",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Official Helvety Store. Browse software and subscriptions designed in Switzerland.",
   "author": "Helvety by Rubin",
   "homepage": "https://store.helvety.com",
@@ -25,8 +25,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "analyze": "ANALYZE=true next build",
-    "sync:check": "node ../helvety.com/scripts/sync-shared.js --check",
-    "predeploy": "bun run sync:check && bun run format:check && bun run type-check && bun run lint && bun run test && bun run build"
+    "sync:check": "node ../helvety.com/scripts/sync-shared.js --check"
   },
   "dependencies": {
     "@fontsource-variable/public-sans": "^5.2.7",

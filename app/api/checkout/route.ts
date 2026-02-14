@@ -66,10 +66,15 @@ const CheckoutRequestSchema = z.object({
 /**
  * Get client IP for rate limiting
  */
+/**
+ * Get client IP for rate limiting.
+ * Prefers x-real-ip (set by Vercel from the true client IP, not spoofable)
+ * over x-forwarded-for (client-controllable when not behind a trusted proxy).
+ */
 function getClientIP(request: NextRequest): string {
   return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     request.headers.get("x-real-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     "unknown"
   );
 }
@@ -87,12 +92,21 @@ function getClientIP(request: NextRequest): string {
 export async function POST(request: NextRequest) {
   const clientIP = getClientIP(request);
 
+  // Reject oversized request bodies early (100KB limit for checkout)
+  const contentLength = parseInt(
+    request.headers.get("content-length") ?? "0",
+    10
+  );
+  if (contentLength > 100_000) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   try {
     // Rate limit by IP to prevent abuse
     const rateLimit = await checkRateLimit(
       `checkout:ip:${clientIP}`,
-      RATE_LIMITS.API.maxRequests,
-      RATE_LIMITS.API.windowMs
+      RATE_LIMITS.CHECKOUT.maxRequests,
+      RATE_LIMITS.CHECKOUT.windowMs
     );
 
     if (!rateLimit.allowed) {
@@ -197,8 +211,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Build success and cancel URLs
-    const baseUrl =
-      request.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "";
+    // Security: Use trusted NEXT_PUBLIC_APP_URL instead of client-controlled Origin header
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
     const productSlug = productInfo.productId; // e.g., 'helvety-spo-explorer'
 
     // Security: Validate custom URLs to prevent open redirect attacks
@@ -331,11 +345,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
+    // Log full error server-side only; never expose internal details to client
     logger.error("Error creating checkout session:", error);
-
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
 
     return NextResponse.json(
       { error: "An unexpected error occurred" },

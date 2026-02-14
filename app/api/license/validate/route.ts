@@ -36,7 +36,7 @@ import type { NextRequest } from "next/server";
  * 3. Security controls in place:
  *    - Endpoint only returns license validity (boolean) - no sensitive data
  *    - Tenant ID is validated against registered licenses in the database
- *    - Rate limiting prevents abuse
+ *    - IP-based and tenant-based rate limiting prevents abuse
  *    - No authentication cookies are sent (simple CORS request)
  *
  * 4. Accepted risk: Any SharePoint site can call this API. The worst case is
@@ -152,7 +152,35 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check rate limit
+    // Check IP-based rate limit (prevents abuse from a single source)
+    // Prefer x-real-ip (Vercel-trusted, not spoofable) over x-forwarded-for
+    const clientIP =
+      request.headers.get("x-real-ip") ??
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      "unknown";
+    const ipRateLimit = await checkRateLimit(
+      `license:ip:${clientIP}`,
+      30,
+      60_000
+    );
+    if (!ipRateLimit.allowed) {
+      logger.warn(`IP rate limit exceeded for license validation: ${clientIP}`);
+      return NextResponse.json(
+        {
+          valid: false,
+          reason: "rate_limit_exceeded",
+        } satisfies LicenseValidationResponse,
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Retry-After": "60",
+          },
+        }
+      );
+    }
+
+    // Check tenant-based rate limit
     const rateLimit = await checkRateLimit(
       `license:tenant:${tenantId.toLowerCase()}`,
       RATE_LIMITS.API.maxRequests,
@@ -175,15 +203,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Constant-time floor: ensure all responses take at least 200-300ms
+    // to prevent timing-based enumeration of valid vs invalid tenants
+    const startTime = Date.now();
+
     // Validate the license for the specific product
     const result = await validateTenantLicense(tenantId, productId);
 
-    // Set cache headers (cache valid responses for 1 hour)
-    const cacheHeaders = result.valid
-      ? {
-          "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
-        }
-      : { "Cache-Control": "no-cache" };
+    // Enforce constant-time floor with jitter (200-300ms minimum)
+    const elapsed = Date.now() - startTime;
+    const minDuration = 200 + Math.floor(Math.random() * 100);
+    if (elapsed < minDuration) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, minDuration - elapsed)
+      );
+    }
+
+    // Uniform cache headers for all responses (prevents enumeration via cache behavior)
+    const cacheHeaders = {
+      "Cache-Control": "private, no-store, max-age=0",
+    };
 
     return NextResponse.json(result, {
       status: 200,

@@ -98,6 +98,15 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Reject oversized request bodies early (10KB limit for tenant update)
+  const contentLength = parseInt(
+    request.headers.get("content-length") ?? "0",
+    10
+  );
+  if (contentLength > 10_000) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   try {
     // Validate CSRF token from header
     const csrfToken = request.headers.get("X-CSRF-Token");
