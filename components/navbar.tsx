@@ -178,12 +178,10 @@ export function Navbar() {
                     ecosystem.
                   </DialogDescription>
                 </DialogHeader>
-                <>
-                  <div className="border-t" />
-                  <p className="text-muted-foreground text-xs">
-                    {VERSION || "Unknown build time"}
-                  </p>
-                </>
+                <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  {VERSION || "Unknown build time"}
+                </p>
                 <DialogClose asChild>
                   <Button variant="outline" className="w-full">
                     Close
