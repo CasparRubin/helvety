@@ -445,18 +445,21 @@ export async function reorderLabels(
     }
     const validatedUpdates = validationResult.data;
 
-    // Update each label's sort_order (explicit user_id check for defense-in-depth)
-    for (const update of validatedUpdates) {
-      const { error } = await supabase
-        .from("labels")
-        .update({ sort_order: update.sort_order })
-        .eq("id", update.id)
-        .eq("user_id", user.id);
+    // Update all labels in parallel for better performance
+    const results = await Promise.all(
+      validatedUpdates.map((update) =>
+        supabase
+          .from("labels")
+          .update({ sort_order: update.sort_order })
+          .eq("id", update.id)
+          .eq("user_id", user.id)
+      )
+    );
 
-      if (error) {
-        logger.error("Error reordering label:", error);
-        return { success: false, error: "Failed to reorder labels" };
-      }
+    const failedResult = results.find((r) => r.error);
+    if (failedResult?.error) {
+      logger.error("Error reordering label:", failedResult.error);
+      return { success: false, error: "Failed to reorder labels" };
     }
 
     return { success: true };

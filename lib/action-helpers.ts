@@ -95,20 +95,25 @@ export async function authenticateAndRateLimit(
   }
 
   // 3. Rate limiting
-  const rateLimit = await checkRateLimit(
-    `${rateLimitPrefix}:user:${user.id}`,
-    rateLimitConfig.maxRequests,
-    rateLimitConfig.windowMs
-  );
+  // Skip rate limiting for read-only actions (no CSRF token) to reduce latency.
+  // Read-only actions are already protected by RLS and authentication above.
+  // Mutations (which include a CSRF token) are still rate-limited.
+  if (csrfToken !== undefined) {
+    const rateLimit = await checkRateLimit(
+      `${rateLimitPrefix}:user:${user.id}`,
+      rateLimitConfig.maxRequests,
+      rateLimitConfig.windowMs
+    );
 
-  if (!rateLimit.allowed) {
-    return {
-      ok: false,
-      response: {
-        success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter ?? 60} seconds.`,
-      },
-    };
+    if (!rateLimit.allowed) {
+      return {
+        ok: false,
+        response: {
+          success: false,
+          error: `Too many requests. Please wait ${rateLimit.retryAfter ?? 60} seconds.`,
+        },
+      };
+    }
   }
 
   return { ok: true, ctx: { user, supabase } };

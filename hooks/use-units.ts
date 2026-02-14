@@ -110,15 +110,32 @@ export function useUnits(): UseUnitsReturn {
           return null;
         }
 
-        // Refresh the list
-        await refresh();
+        // Optimistic update: add the new unit to local state
+        setUnits((prev) => {
+          const maxSortOrder =
+            prev.length > 0 ? Math.max(...prev.map((u) => u.sort_order)) : -1;
+          const newUnit: Unit = {
+            id: result.data.id,
+            user_id: prev[0]?.user_id ?? "",
+            title: input.title,
+            description: input.description,
+            stage_id: input.stage_id ?? null,
+            sort_order: maxSortOrder + 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          return [...prev, newUnit].sort(
+            (a, b) => a.sort_order - b.sort_order
+          );
+        });
+
         return result.data;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to create unit");
         return null;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   /**
@@ -146,15 +163,31 @@ export function useUnits(): UseUnitsReturn {
           return false;
         }
 
-        // Refresh the list
-        await refresh();
+        // Optimistic update: merge changes into local state
+        setUnits((prev) =>
+          prev.map((unit) => {
+            if (unit.id !== id) return unit;
+            return {
+              ...unit,
+              ...(input.title !== undefined && { title: input.title }),
+              ...(input.description !== undefined && {
+                description: input.description,
+              }),
+              ...(input.stage_id !== undefined && {
+                stage_id: input.stage_id ?? null,
+              }),
+              updated_at: new Date().toISOString(),
+            };
+          })
+        );
+
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update unit");
         return false;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   /**
@@ -174,15 +207,16 @@ export function useUnits(): UseUnitsReturn {
           return false;
         }
 
-        // Refresh the list
-        await refresh();
+        // Optimistic update: remove from local state
+        setUnits((prev) => prev.filter((unit) => unit.id !== id));
+
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to delete unit");
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken]
   );
 
   /**
@@ -327,14 +361,29 @@ export function useUnit(id: string): UseUnitReturn {
           return false;
         }
 
-        await refresh();
+        // Optimistic update: merge changes into local state
+        setUnit((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            ...(input.title !== undefined && { title: input.title }),
+            ...(input.description !== undefined && {
+              description: input.description,
+            }),
+            ...(input.stage_id !== undefined && {
+              stage_id: input.stage_id ?? null,
+            }),
+            updated_at: new Date().toISOString(),
+          };
+        });
+
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update unit");
         return false;
       }
     },
-    [id, masterKey, csrfToken, refresh]
+    [id, masterKey, csrfToken]
   );
 
   /**

@@ -456,18 +456,21 @@ export async function reorderStages(
     }
     const validatedUpdates = validationResult.data;
 
-    // Update each stage's sort_order (explicit user_id check for defense-in-depth)
-    for (const update of validatedUpdates) {
-      const { error } = await supabase
-        .from("stages")
-        .update({ sort_order: update.sort_order })
-        .eq("id", update.id)
-        .eq("user_id", user.id);
+    // Update all stages in parallel for better performance
+    const results = await Promise.all(
+      validatedUpdates.map((update) =>
+        supabase
+          .from("stages")
+          .update({ sort_order: update.sort_order })
+          .eq("id", update.id)
+          .eq("user_id", user.id)
+      )
+    );
 
-      if (error) {
-        logger.error("Error reordering stage:", error);
-        return { success: false, error: "Failed to reorder stages" };
-      }
+    const failedResult = results.find((r) => r.error);
+    if (failedResult?.error) {
+      logger.error("Error reordering stage:", failedResult.error);
+      return { success: false, error: "Failed to reorder stages" };
     }
 
     return { success: true };

@@ -102,14 +102,35 @@ export function useItems(spaceId: string): UseItemsReturn {
           return null;
         }
 
-        await refresh();
+        // Optimistic update: add the new item to local state
+        setItems((prev) => {
+          const maxSortOrder =
+            prev.length > 0 ? Math.max(...prev.map((i) => i.sort_order)) : -1;
+          const newItem: Item = {
+            id: result.data.id,
+            space_id: input.space_id,
+            user_id: prev[0]?.user_id ?? "",
+            title: input.title,
+            description: input.description,
+            stage_id: input.stage_id ?? null,
+            label_id: input.label_id ?? null,
+            priority: input.priority ?? 1,
+            sort_order: maxSortOrder + 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          return [...prev, newItem].sort(
+            (a, b) => a.sort_order - b.sort_order
+          );
+        });
+
         return result.data;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to create item");
         return null;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const update = useCallback(
@@ -143,14 +164,35 @@ export function useItems(spaceId: string): UseItemsReturn {
           return false;
         }
 
-        await refresh();
+        // Optimistic update: merge changes into local state
+        setItems((prev) =>
+          prev.map((item) => {
+            if (item.id !== id) return item;
+            return {
+              ...item,
+              ...(input.title !== undefined && { title: input.title }),
+              ...(input.description !== undefined && {
+                description: input.description,
+              }),
+              ...(input.stage_id !== undefined && {
+                stage_id: input.stage_id ?? null,
+              }),
+              ...(input.label_id !== undefined && {
+                label_id: input.label_id ?? null,
+              }),
+              ...(input.priority !== undefined && { priority: input.priority }),
+              updated_at: new Date().toISOString(),
+            };
+          })
+        );
+
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update item");
         return false;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const remove = useCallback(
@@ -167,14 +209,16 @@ export function useItems(spaceId: string): UseItemsReturn {
           return false;
         }
 
-        await refresh();
+        // Optimistic update: remove from local state
+        setItems((prev) => prev.filter((item) => item.id !== id));
+
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to delete item");
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken]
   );
 
   /**
@@ -319,14 +363,33 @@ export function useItem(id: string): UseItemReturn {
           return false;
         }
 
-        await refresh();
+        // Optimistic update: merge changes into local state
+        setItem((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            ...(input.title !== undefined && { title: input.title }),
+            ...(input.description !== undefined && {
+              description: input.description,
+            }),
+            ...(input.stage_id !== undefined && {
+              stage_id: input.stage_id ?? null,
+            }),
+            ...(input.label_id !== undefined && {
+              label_id: input.label_id ?? null,
+            }),
+            ...(input.priority !== undefined && { priority: input.priority }),
+            updated_at: new Date().toISOString(),
+          };
+        });
+
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update item");
         return false;
       }
     },
-    [id, masterKey, csrfToken, refresh]
+    [id, masterKey, csrfToken]
   );
 
   const remove = useCallback(async (): Promise<boolean> => {

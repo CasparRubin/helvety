@@ -112,15 +112,33 @@ export function useSpaces(unitId: string): UseSpacesReturn {
           return null;
         }
 
-        // Refresh the list
-        await refresh();
+        // Optimistic update: add the new space to local state
+        setSpaces((prev) => {
+          const maxSortOrder =
+            prev.length > 0 ? Math.max(...prev.map((s) => s.sort_order)) : -1;
+          const newSpace: Space = {
+            id: result.data.id,
+            unit_id: input.unit_id,
+            user_id: prev[0]?.user_id ?? "",
+            title: input.title,
+            description: input.description,
+            stage_id: input.stage_id ?? null,
+            sort_order: maxSortOrder + 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          return [...prev, newSpace].sort(
+            (a, b) => a.sort_order - b.sort_order
+          );
+        });
+
         return result.data;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to create space");
         return null;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   /**
@@ -151,15 +169,31 @@ export function useSpaces(unitId: string): UseSpacesReturn {
           return false;
         }
 
-        // Refresh the list
-        await refresh();
+        // Optimistic update: merge changes into local state
+        setSpaces((prev) =>
+          prev.map((space) => {
+            if (space.id !== id) return space;
+            return {
+              ...space,
+              ...(input.title !== undefined && { title: input.title }),
+              ...(input.description !== undefined && {
+                description: input.description,
+              }),
+              ...(input.stage_id !== undefined && {
+                stage_id: input.stage_id ?? null,
+              }),
+              updated_at: new Date().toISOString(),
+            };
+          })
+        );
+
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update space");
         return false;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   /**
@@ -179,15 +213,16 @@ export function useSpaces(unitId: string): UseSpacesReturn {
           return false;
         }
 
-        // Refresh the list
-        await refresh();
+        // Optimistic update: remove from local state
+        setSpaces((prev) => prev.filter((space) => space.id !== id));
+
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to delete space");
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken]
   );
 
   /**
@@ -324,14 +359,29 @@ export function useSpace(id: string): UseSpaceReturn {
           return false;
         }
 
-        await refresh();
+        // Optimistic update: merge changes into local state
+        setSpace((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            ...(input.title !== undefined && { title: input.title }),
+            ...(input.description !== undefined && {
+              description: input.description,
+            }),
+            ...(input.stage_id !== undefined && {
+              stage_id: input.stage_id ?? null,
+            }),
+            updated_at: new Date().toISOString(),
+          };
+        });
+
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update space");
         return false;
       }
     },
-    [id, masterKey, csrfToken, refresh]
+    [id, masterKey, csrfToken]
   );
 
   const remove = useCallback(async (): Promise<boolean> => {

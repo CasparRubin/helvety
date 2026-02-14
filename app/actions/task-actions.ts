@@ -892,26 +892,30 @@ export async function reorderEntities(
           ? "spaces"
           : "items";
 
-    // Batch update each entity's sort_order and optionally stage_id
-    for (const update of validatedUpdates) {
-      const updateObj: Record<string, unknown> = {
-        sort_order: update.sort_order,
-        updated_at: new Date().toISOString(),
-      };
-      if (update.stage_id !== undefined) {
-        updateObj.stage_id = update.stage_id;
-      }
+    // Batch update all entities in parallel for better performance
+    const now = new Date().toISOString();
+    const results = await Promise.all(
+      validatedUpdates.map((update) => {
+        const updateObj: Record<string, unknown> = {
+          sort_order: update.sort_order,
+          updated_at: now,
+        };
+        if (update.stage_id !== undefined) {
+          updateObj.stage_id = update.stage_id;
+        }
 
-      const { error } = await supabase
-        .from(tableName)
-        .update(updateObj)
-        .eq("id", update.id)
-        .eq("user_id", user.id);
+        return supabase
+          .from(tableName)
+          .update(updateObj)
+          .eq("id", update.id)
+          .eq("user_id", user.id);
+      })
+    );
 
-      if (error) {
-        logger.error(`Error reordering ${entityType}:`, error);
-        return { success: false, error: `Failed to reorder ${entityType}s` };
-      }
+    const failedResult = results.find((r) => r.error);
+    if (failedResult?.error) {
+      logger.error(`Error reordering ${entityType}:`, failedResult.error);
+      return { success: false, error: `Failed to reorder ${entityType}s` };
     }
 
     return { success: true };
