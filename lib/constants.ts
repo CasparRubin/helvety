@@ -2,14 +2,8 @@
  * Toast notification durations (in milliseconds)
  */
 export const TOAST_DURATIONS = {
-  /** Success messages */
-  SUCCESS: 5000,
-  /** Informational messages */
-  INFO: 4000,
   /** Error messages (auto-dismiss) */
   ERROR: 8000,
-  /** Critical errors (manual dismiss) */
-  ERROR_CRITICAL: Infinity,
 } as const;
 
 /**
@@ -18,8 +12,6 @@ export const TOAST_DURATIONS = {
 export const ERROR_MESSAGES = {
   /** Data export failure */
   EXPORT_FAILED: "Failed to export data. Please try again.",
-  /** Generic catch-all error */
-  GENERIC: "An unexpected error occurred",
 } as const;
 
 /**

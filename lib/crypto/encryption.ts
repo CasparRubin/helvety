@@ -237,42 +237,6 @@ export async function decryptFields<T extends Record<string, unknown>>(
   return result as T;
 }
 
-/**
- * Re-encrypt data with a new key (for key rotation).
- *
- * Decrypts with the old key and re-encrypts with the new key.
- * The new ciphertext will have the current keyVersion.
- *
- * @param encrypted - The encrypted data to re-encrypt
- * @param oldKey - The key used for the original encryption
- * @param newKey - The new key to encrypt with
- * @param oldAad - AAD used during original encryption (if any)
- * @param newAad - AAD to use for the new encryption (if any)
- * @returns Newly encrypted data with updated keyVersion
- */
-export async function reencrypt(
-  encrypted: EncryptedData,
-  oldKey: CryptoKey,
-  newKey: CryptoKey,
-  oldAad?: string,
-  newAad?: string
-): Promise<EncryptedData> {
-  const plaintext = await decrypt(encrypted, oldKey, oldAad);
-  return encrypt(plaintext, newKey, newAad);
-}
-
-/**
- * Check if encrypted data needs key rotation (was encrypted with an older key version).
- */
-export function needsKeyRotation(encrypted: EncryptedData): boolean {
-  return (encrypted.keyVersion ?? 1) < CURRENT_KEY_VERSION;
-}
-
-/** Get the current key version constant */
-export function getCurrentKeyVersion(): number {
-  return CURRENT_KEY_VERSION;
-}
-
 // =============================================================================
 // BINARY ENCRYPTION (for files/attachments)
 // =============================================================================
