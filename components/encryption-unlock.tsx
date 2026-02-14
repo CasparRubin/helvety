@@ -101,7 +101,7 @@ export function EncryptionUnlock({
             <div>
               <p className="font-medium">Passkey Authentication</p>
               <p className="text-muted-foreground text-sm">
-                Scan the QR code with your phone
+                Verify with your passkey to unlock encryption
               </p>
             </div>
           </div>
