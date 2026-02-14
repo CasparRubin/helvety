@@ -21,6 +21,72 @@ const UNIT_KEY_STORE = "unit-keys";
 /** Cache duration for keys (24 hours) */
 const KEY_CACHE_DURATION = 24 * 60 * 60 * 1000;
 
+// =============================================================================
+// Cross-Tab Coordination via BroadcastChannel
+// =============================================================================
+
+/** Channel name for cross-tab key operation coordination */
+const KEY_CHANNEL_NAME = "helvety-key-ops";
+
+/** Message types for cross-tab coordination */
+type KeyChannelMessage =
+  | { type: "keys-cleared" }
+  | { type: "master-key-stored"; userId: string }
+  | { type: "master-key-deleted"; userId: string };
+
+/** Callbacks registered for cross-tab key events */
+type KeyEventListener = (message: KeyChannelMessage) => void;
+
+let keyChannel: BroadcastChannel | null = null;
+const keyEventListeners: Set<KeyEventListener> = new Set();
+
+/** Get or create the BroadcastChannel for cross-tab key coordination */
+function getKeyChannel(): BroadcastChannel | null {
+  if (typeof BroadcastChannel === "undefined") return null;
+  if (keyChannel) return keyChannel;
+
+  try {
+    keyChannel = new BroadcastChannel(KEY_CHANNEL_NAME);
+    keyChannel.onmessage = (event: MessageEvent<KeyChannelMessage>) => {
+      for (const listener of keyEventListeners) {
+        try {
+          listener(event.data);
+        } catch (err) {
+          logger.error("Error in key event listener:", err);
+        }
+      }
+    };
+    return keyChannel;
+  } catch {
+    return null;
+  }
+}
+
+/** Broadcast a key operation to other tabs */
+function broadcastKeyEvent(message: KeyChannelMessage): void {
+  try {
+    getKeyChannel()?.postMessage(message);
+  } catch {
+    // BroadcastChannel may fail in some contexts (e.g., service workers)
+  }
+}
+
+/**
+ * Register a listener for cross-tab key events.
+ * Use this to react when another tab clears or updates keys
+ * (e.g., to lock the encryption UI when another tab logs out).
+ *
+ * @returns An unsubscribe function
+ */
+export function onKeyEvent(listener: KeyEventListener): () => void {
+  // Ensure the channel is created when a listener is registered
+  getKeyChannel();
+  keyEventListeners.add(listener);
+  return () => {
+    keyEventListeners.delete(listener);
+  };
+}
+
 /** Timeout for IndexedDB open requests (ms) - Safari can hang indefinitely */
 const DB_OPEN_TIMEOUT_MS = 5_000;
 
@@ -151,6 +217,7 @@ export async function storeMasterKey(
       };
 
       request.onsuccess = () => {
+        broadcastKeyEvent({ type: "master-key-stored", userId });
         resolve();
       };
 
@@ -251,6 +318,7 @@ export async function deleteMasterKey(userId: string): Promise<void> {
       };
 
       request.onsuccess = () => {
+        broadcastKeyEvent({ type: "master-key-deleted", userId });
         resolve();
       };
 
@@ -422,6 +490,7 @@ export async function clearAllKeys(): Promise<void> {
     ]);
 
     db.close();
+    broadcastKeyEvent({ type: "keys-cleared" });
   } catch (error) {
     logger.error("Failed to clear all keys:", error);
   }

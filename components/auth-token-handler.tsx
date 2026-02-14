@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { getRequiredAuthStep, buildLoginUrl } from "@/lib/auth-utils";
 import { logger } from "@/lib/logger";
+import { isValidRedirectUri } from "@/lib/redirect-validation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 /**
@@ -53,7 +54,11 @@ export function AuthTokenHandler() {
     // Read search params directly from the URL (avoids useSearchParams which
     // requires Suspense and can cause hydration mismatches with Radix IDs)
     const queryParams = new URLSearchParams(window.location.search);
-    const redirectUri = queryParams.get("redirect_uri");
+    const rawRedirectUri = queryParams.get("redirect_uri");
+    // Validate redirect URI against allowlist to prevent open redirect attacks
+    const redirectUri = isValidRedirectUri(rawRedirectUri)
+      ? rawRedirectUri
+      : null;
 
     // Set the session from hash tokens
     void (async () => {

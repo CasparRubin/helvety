@@ -37,7 +37,7 @@ function TooltipPortal({
 function TooltipContent({
   className,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+}: React.ComponentProps<typeof TooltipPrimitive.Content>): React.JSX.Element {
   return (
     <TooltipPortal>
       <TooltipPrimitive.Content

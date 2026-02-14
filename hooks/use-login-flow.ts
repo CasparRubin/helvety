@@ -17,6 +17,7 @@ import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isPasskeySupported } from "@/lib/crypto/passkey";
 import { isMobileDevice } from "@/lib/device-utils";
 import { logger } from "@/lib/logger";
+import { isValidRedirectUri } from "@/lib/redirect-validation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 import type { AuthStep, AuthFlowType } from "@/components/encryption-stepper";
@@ -76,8 +77,11 @@ export function useLoginFlow(): LoginFlowState {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [passkeySupported, setPasskeySupported] = useState(false);
 
-  // Get parameters from URL
-  const redirectUri = searchParams.get("redirect_uri");
+  // Get parameters from URL (validate redirect URI against allowlist to prevent open redirects)
+  const rawRedirectUri = searchParams.get("redirect_uri");
+  const redirectUri = isValidRedirectUri(rawRedirectUri)
+    ? rawRedirectUri
+    : null;
   const stepParam = searchParams.get("step") as LoginStep | null;
   const authError = searchParams.get("error");
   const isNewUserParam = searchParams.get("is_new_user");

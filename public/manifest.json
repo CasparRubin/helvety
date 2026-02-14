@@ -1,0 +1,21 @@
+{
+  "name": "Helvety Auth",
+  "short_name": "Helvety Auth",
+  "description": "Sign in to your Helvety account.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f7",
+  "theme_color": "#faf8f7",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/helvety_Identifier_whiteBg.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business"],
+  "lang": "en-US",
+  "dir": "ltr"
+}

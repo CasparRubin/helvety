@@ -52,7 +52,9 @@ function AlertDialogOverlay({
 function AlertDialogContent({
   className,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
+}: React.ComponentProps<
+  typeof AlertDialogPrimitive.Content
+>): React.JSX.Element {
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
@@ -72,7 +74,7 @@ function AlertDialogContent({
 function AlertDialogHeader({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div">): React.JSX.Element {
   return (
     <div
       data-slot="alert-dialog-header"
@@ -86,7 +88,7 @@ function AlertDialogHeader({
 function AlertDialogFooter({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div">): React.JSX.Element {
   return (
     <div
       data-slot="alert-dialog-footer"
@@ -103,7 +105,7 @@ function AlertDialogFooter({
 function AlertDialogTitle({
   className,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Title>): React.JSX.Element {
   return (
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
@@ -117,7 +119,9 @@ function AlertDialogTitle({
 function AlertDialogDescription({
   className,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Description>) {
+}: React.ComponentProps<
+  typeof AlertDialogPrimitive.Description
+>): React.JSX.Element {
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
@@ -134,7 +138,7 @@ function AlertDialogAction({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action> & {
   variant?: NonNullable<Parameters<typeof buttonVariants>[0]>["variant"];
-}) {
+}): React.JSX.Element {
   return (
     <AlertDialogPrimitive.Action
       className={cn(buttonVariants({ variant }), className)}
@@ -150,7 +154,7 @@ function AlertDialogCancel({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> & {
   variant?: NonNullable<Parameters<typeof buttonVariants>[0]>["variant"];
-}) {
+}): React.JSX.Element {
   return (
     <AlertDialogPrimitive.Cancel
       className={cn(buttonVariants({ variant }), className)}

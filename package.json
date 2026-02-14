@@ -26,7 +26,7 @@
     "test:watch": "vitest",
     "analyze": "ANALYZE=true next build",
     "sync:check": "node ../helvety.com/scripts/sync-shared.js --check",
-    "predeploy": "npm run sync:check && npm run format:check && npm run type-check && npm run lint && npm run test && npm run build"
+    "predeploy": "bun run sync:check && bun run format:check && bun run type-check && bun run lint && bun run test && bun run build"
   },
   "dependencies": {
     "@fontsource-variable/public-sans": "^5.2.7",

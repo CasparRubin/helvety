@@ -30,6 +30,7 @@ import { useEncryptionContext } from "@/lib/crypto";
 import { registerPasskey } from "@/lib/crypto/passkey";
 import { isMobileDevice } from "@/lib/device-utils";
 import { logger } from "@/lib/logger";
+import { isValidRedirectUri } from "@/lib/redirect-validation";
 
 /**
  * Props for the EncryptionSetup component
@@ -188,7 +189,11 @@ export function EncryptionSetup({
       // the encryption unlock independently via its own EncryptionGate.
       setSetupStep("complete");
 
-      const destination = redirectUri ?? "https://helvety.com";
+      // Validate redirect URI against allowlist to prevent open redirect attacks
+      const destination =
+        redirectUri && isValidRedirectUri(redirectUri)
+          ? redirectUri
+          : "https://helvety.com";
       window.location.href = destination;
     } catch (err) {
       const message =

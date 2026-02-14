@@ -2,6 +2,8 @@
 
 import "server-only";
 
+import { z } from "zod";
+
 import { logAuthEvent } from "@/lib/auth-logger";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
@@ -73,8 +75,7 @@ export async function checkEmail(
     const adminClient = createAdminClient();
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normalizedEmail)) {
+    if (!z.string().email().safeParse(normalizedEmail).success) {
       return { success: false, error: "Please enter a valid email address" };
     }
 
@@ -184,8 +185,7 @@ export async function sendVerificationCode(
     const adminClient = createAdminClient();
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normalizedEmail)) {
+    if (!z.string().email().safeParse(normalizedEmail).success) {
       return { success: false, error: "Please enter a valid email address" };
     }
 
