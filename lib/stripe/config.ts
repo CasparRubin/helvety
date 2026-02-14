@@ -32,12 +32,6 @@ const PRODUCT_DEFINITIONS: {
   name: string;
 }[] = [
   {
-    envVar: "STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID",
-    tierId: "helvety-pdf-pro-monthly",
-    productId: "helvety-pdf",
-    name: "Helvety PDF Pro",
-  },
-  {
     envVar: "STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID",
     tierId: "helvety-spo-explorer-solo-monthly",
     productId: "helvety-spo-explorer",

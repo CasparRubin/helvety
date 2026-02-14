@@ -14,17 +14,17 @@ import type {
 // =============================================================================
 
 /**
- * Helvety PDF - Software subscription product
+ * Helvety PDF - Free software product
  */
 export const helvetyPdf: SoftwareProduct = {
   id: "helvety-pdf",
   slug: "helvety-pdf",
   name: "Helvety PDF",
   shortDescription:
-    "A privacy-focused PDF toolkit. Merge, reorder, rotate, and extract pages from PDFs and images. All processing runs locally in your browser.",
-  description: `Helvety PDF is a privacy-focused, client-side PDF toolkit. All file processing happens entirely in your browser. Your files are not uploaded to or stored on our servers.
+    "A free, privacy-focused PDF toolkit. Merge, reorder, rotate, and extract pages from PDFs and images. All processing runs locally in your browser. No limits, no login required.",
+  description: `Helvety PDF is a free, privacy-focused, client-side PDF toolkit. All file processing happens entirely in your browser. Your files are not uploaded to or stored on our servers. No login or account is required.
 
-Upload PDF files and images (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG), preview page thumbnails, and manage your documents with an intuitive drag-and-drop interface. Merge multiple files into one PDF, extract individual pages, rotate pages by 90° increments, delete unwanted pages, and reorder with ease.
+Upload PDF files and images (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG), preview page thumbnails, and manage your documents with an intuitive drag-and-drop interface. Merge multiple files into one PDF, extract individual pages, rotate pages by 90° increments, delete unwanted pages, and reorder with ease. Unlimited files, unlimited pages.
 
 The customizable grid layout lets you adjust the view to accommodate different page sizes. With dark and light mode support, you can work comfortably in any environment.
 
@@ -34,6 +34,9 @@ Note: While your files are not transmitted to our servers, we use Vercel Analyti
   status: "available",
   icon: "FileText",
   features: [
+    "100% free - no limits, no login required",
+    "Unlimited file uploads",
+    "Unlimited pages",
     "PDF and image support (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG)",
     "Merge multiple files into one PDF",
     "Extract individual pages as separate PDFs",
@@ -51,14 +54,14 @@ Note: While your files are not transmitted to our servers, we use Vercel Analyti
     tiers: [
       {
         id: "helvety-pdf-free",
-        name: "Basic",
+        name: "Free",
         price: 0,
         currency: "CHF",
         interval: "monthly",
         isFree: true,
         features: [
-          "Upload up to 2 files",
-          "Maximum 10 pages",
+          "Unlimited file uploads",
+          "Unlimited pages",
           "Merge files",
           "Split files",
           "Reorder pages",
@@ -66,21 +69,7 @@ Note: While your files are not transmitted to our servers, we use Vercel Analyti
           "Delete pages",
           "Extract pages",
           "Client-side processing",
-        ],
-      },
-      {
-        id: "helvety-pdf-pro-monthly",
-        name: "Pro",
-        price: 495,
-        currency: "CHF",
-        interval: "monthly",
-        highlighted: true,
-        stripePriceId: process.env.STRIPE_HELVETY_PDF_PRO_MONTHLY_PRICE_ID,
-        features: [
-          "Unlimited file uploads",
-          "Unlimited pages",
-          "All features from Basic",
-          "Only limited by your device",
+          "No login required",
         ],
       },
     ],
@@ -92,7 +81,7 @@ Note: While your files are not transmitted to our servers, we use Vercel Analyti
   software: {
     downloadUrl: "https://pdf.helvety.com",
     requirements: ["Google Chrome 128+", "Microsoft Edge 128+", "Safari 18+"],
-    licenseType: "subscription",
+    licenseType: "free",
   },
   media: {
     screencaptures: [
@@ -133,7 +122,7 @@ Note: While your files are not transmitted to our servers, we use Vercel Analyti
   metadata: {
     targetAudience: ["professionals", "students", "privacy-conscious users"],
     platforms: ["web"],
-    keywords: ["pdf", "merge", "split", "privacy", "browser"],
+    keywords: ["pdf", "merge", "split", "privacy", "browser", "free"],
     featured: true,
     sortOrder: 1,
   },

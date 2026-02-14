@@ -599,9 +599,9 @@ function PricingCard({
                   <p className="text-sm">
                     Helvety PDF processes everything directly in your browser.
                     This means performance depends on your device&apos;s RAM and
-                    CPU. The Pro plan has no artificial limits. Your
-                    device&apos;s hardware capabilities will naturally determine
-                    what&apos;s possible.
+                    CPU. There are no artificial limits. Your device&apos;s
+                    hardware capabilities will naturally determine what&apos;s
+                    possible.
                   </p>
                 </TooltipContent>
               </Tooltip>

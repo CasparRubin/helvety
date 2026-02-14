@@ -244,7 +244,7 @@ export interface SoftwareProductDetails {
   /** System requirements */
   requirements?: string[];
   /** License type */
-  licenseType?: "perpetual" | "subscription" | "per-seat";
+  licenseType?: "free" | "perpetual" | "subscription" | "per-seat";
 }
 
 /**
