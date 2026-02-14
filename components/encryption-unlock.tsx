@@ -24,9 +24,9 @@ interface EncryptionUnlockProps {
 }
 
 /**
- * Component for unlocking encryption with passkey
- * Shown to users who have set up passkey encryption but need to unlock
- * Automatically detects device capabilities for context-aware messaging
+ * Component for unlocking encryption with passkey.
+ * Shown to users who have set up passkey encryption but need to unlock.
+ * Auto-triggers the passkey popup on mount for a seamless unlock flow.
  */
 export function EncryptionUnlock({
   userId,

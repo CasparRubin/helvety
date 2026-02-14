@@ -11,9 +11,7 @@
 // ENTITY TYPES (matching helvety-tasks entity_type enum)
 // =============================================================================
 
-/**
- *
- */
+/** Discriminator for the three entity levels in helvety-tasks. */
 export type TaskEntityType = "unit" | "space" | "item";
 
 // =============================================================================
