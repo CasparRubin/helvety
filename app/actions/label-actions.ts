@@ -57,12 +57,14 @@ const UpdateLabelSchema = z.object({
   sort_order: z.number().int().min(0).optional(),
 });
 
-const ReorderLabelsSchema = z.array(
-  z.object({
-    id: z.string().uuid(),
-    sort_order: z.number().int().min(0),
-  })
-);
+const ReorderLabelsSchema = z
+  .array(
+    z.object({
+      id: z.string().uuid(),
+      sort_order: z.number().int().min(0),
+    })
+  )
+  .max(100, "Too many labels to reorder");
 
 // =============================================================================
 // LABEL CONFIG ACTIONS
@@ -123,11 +125,12 @@ export async function getLabelConfigs(): Promise<
   try {
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "labels" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const { data: configs, error } = await supabase
       .from("label_configs")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .returns<LabelConfigRow[]>();
 
@@ -263,6 +266,7 @@ export async function createLabel(
       .from("label_configs")
       .select("id")
       .eq("id", validatedData.config_id)
+      .eq("user_id", user.id)
       .single();
 
     if (configError || !config) {
@@ -303,7 +307,7 @@ export async function getLabels(
   try {
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "labels" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(configId).success) {
       return { success: false, error: "Invalid config ID" };
@@ -313,6 +317,7 @@ export async function getLabels(
       .from("labels")
       .select("*")
       .eq("config_id", configId)
+      .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .returns<LabelRow[]>();
 
@@ -482,13 +487,16 @@ export async function getLabelAssignment(
   try {
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "labels" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     if (parentId !== null && !z.string().uuid().safeParse(parentId).success) {
       return { success: false, error: "Invalid parent ID" };
     }
 
-    let query = supabase.from("label_assignments").select("*");
+    let query = supabase
+      .from("label_assignments")
+      .select("*")
+      .eq("user_id", user.id);
 
     if (parentId === null) {
       query = query.is("parent_id", null);
@@ -535,6 +543,18 @@ export async function setLabelAssignment(
 
     if (parentId !== null && !z.string().uuid().safeParse(parentId).success) {
       return { success: false, error: "Invalid parent ID" };
+    }
+
+    // Verify user owns the config (defense-in-depth)
+    const { data: config, error: configError } = await supabase
+      .from("label_configs")
+      .select("id")
+      .eq("id", configId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (configError || !config) {
+      return { success: false, error: "Label config not found" };
     }
 
     // Upsert: try to find existing assignment first

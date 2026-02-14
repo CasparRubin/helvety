@@ -34,11 +34,12 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
       rateLimitPrefix: "contact-links",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const { data: contacts, error } = await supabase
       .from("contacts")
       .select("*")
+      .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
       .returns<ContactRow[]>();
@@ -79,11 +80,12 @@ export async function getEntityContactLinks(
       rateLimitPrefix: "contact-links",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const { data: links, error } = await supabase
       .from("entity_contact_links")
       .select("*")
+      .eq("user_id", user.id)
       .eq("entity_type", entityType)
       .eq("entity_id", entityId)
       .order("created_at", { ascending: true })
@@ -127,6 +129,36 @@ export async function linkContact(
     });
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
+
+    // Verify user owns the contact (defense-in-depth)
+    const { data: contact, error: contactError } = await supabase
+      .from("contacts")
+      .select("id")
+      .eq("id", contactId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (contactError || !contact) {
+      return { success: false, error: "Contact not found" };
+    }
+
+    // Verify user owns the entity (defense-in-depth)
+    const entityTable =
+      entityType === "unit"
+        ? "units"
+        : entityType === "space"
+          ? "spaces"
+          : "items";
+    const { data: entity, error: entityError } = await supabase
+      .from(entityTable)
+      .select("id")
+      .eq("id", entityId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (entityError || !entity) {
+      return { success: false, error: "Entity not found" };
+    }
 
     const { data: link, error } = await supabase
       .from("entity_contact_links")

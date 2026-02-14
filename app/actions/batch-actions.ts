@@ -67,25 +67,28 @@ export async function getUnitsDashboardData(): Promise<
   try {
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const [unitsResult, spacesResult, stageConfigsResult, assignmentResult] =
       await Promise.all([
         supabase
           .from("units")
           .select("*")
+          .eq("user_id", user.id)
           .order("sort_order", { ascending: true })
           .order("created_at", { ascending: false })
           .returns<UnitRow[]>(),
-        supabase.from("spaces").select("unit_id"),
+        supabase.from("spaces").select("unit_id").eq("user_id", user.id),
         supabase
           .from("stage_configs")
           .select("*")
+          .eq("user_id", user.id)
           .order("created_at", { ascending: true })
           .returns<StageConfigRow[]>(),
         supabase
           .from("stage_assignments")
           .select("*")
+          .eq("user_id", user.id)
           .eq("entity_type", "unit")
           .is("parent_id", null)
           .limit(1),
@@ -145,7 +148,7 @@ export async function getSpacesDashboardData(
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const [unitResult, spacesResult, stageConfigsResult, assignmentResult] =
       await Promise.all([
@@ -153,23 +156,27 @@ export async function getSpacesDashboardData(
           .from("units")
           .select("*")
           .eq("id", unitId)
+          .eq("user_id", user.id)
           .returns<UnitRow[]>()
           .single(),
         supabase
           .from("spaces")
           .select("*")
           .eq("unit_id", unitId)
+          .eq("user_id", user.id)
           .order("sort_order", { ascending: true })
           .order("created_at", { ascending: false })
           .returns<SpaceRow[]>(),
         supabase
           .from("stage_configs")
           .select("*")
+          .eq("user_id", user.id)
           .order("created_at", { ascending: true })
           .returns<StageConfigRow[]>(),
         supabase
           .from("stage_assignments")
           .select("*")
+          .eq("user_id", user.id)
           .eq("entity_type", "space")
           .eq("parent_id", unitId)
           .limit(1),
@@ -256,7 +263,7 @@ export async function getItemsDashboardData(
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const [
       unitResult,
@@ -271,40 +278,47 @@ export async function getItemsDashboardData(
         .from("units")
         .select("*")
         .eq("id", unitId)
+        .eq("user_id", user.id)
         .returns<UnitRow[]>()
         .single(),
       supabase
         .from("spaces")
         .select("*")
         .eq("id", spaceId)
+        .eq("user_id", user.id)
         .returns<SpaceRow[]>()
         .single(),
       supabase
         .from("items")
         .select("*")
         .eq("space_id", spaceId)
+        .eq("user_id", user.id)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })
         .returns<ItemRow[]>(),
       supabase
         .from("stage_configs")
         .select("*")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: true })
         .returns<StageConfigRow[]>(),
       supabase
         .from("stage_assignments")
         .select("*")
+        .eq("user_id", user.id)
         .eq("entity_type", "item")
         .eq("parent_id", spaceId)
         .limit(1),
       supabase
         .from("label_configs")
         .select("*")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: true })
         .returns<LabelConfigRow[]>(),
       supabase
         .from("label_assignments")
         .select("*")
+        .eq("user_id", user.id)
         .eq("parent_id", spaceId)
         .limit(1),
     ]);

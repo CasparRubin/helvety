@@ -14,15 +14,27 @@ import type { ActionResponse, ItemRow } from "@/lib/types";
 // Input Validation Schemas
 // =============================================================================
 
-/** Schema for stage_id - accepts both UUIDs (custom stages) and default stage IDs */
+/** Schema for stage_id - accepts both UUIDs (custom stages) and constrained default stage IDs */
 const StageIdSchema = z
-  .union([z.string().uuid(), z.string().startsWith("default-")])
+  .union([
+    z.string().uuid(),
+    z
+      .string()
+      .regex(/^default-[a-z0-9-]+$/)
+      .max(50),
+  ])
   .nullable()
   .optional();
 
-/** Schema for label_id - accepts both UUIDs (custom labels) and default label IDs */
+/** Schema for label_id - accepts both UUIDs (custom labels) and constrained default label IDs */
 const LabelIdSchema = z
-  .union([z.string().uuid(), z.string().startsWith("default-")])
+  .union([
+    z.string().uuid(),
+    z
+      .string()
+      .regex(/^default-[a-z0-9-]+$/)
+      .max(50),
+  ])
   .nullable()
   .optional();
 
@@ -90,6 +102,7 @@ export async function createItem(
       .from("spaces")
       .select("id")
       .eq("id", validatedData.space_id)
+      .eq("user_id", user.id)
       .single();
 
     if (spaceError || !space) {

@@ -42,3 +42,6 @@ export type { UploadProgress } from "./use-attachments";
 // Contact link hooks with E2EE
 export { useContactLinks } from "./use-contact-links";
 export type { LinkedContact } from "./use-contact-links";
+
+// Data export
+export { useDataExport } from "./use-data-export";

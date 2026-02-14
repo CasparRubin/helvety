@@ -16,6 +16,7 @@ import {
   decryptAttachmentRows,
 } from "@/lib/crypto";
 import { useCSRFToken } from "@/lib/csrf-client";
+import { sanitizeFilename } from "@/lib/sanitize-filename";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 import type { Attachment } from "@/lib/types";
@@ -345,10 +346,10 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
       const url = await downloadUrl(attachment);
       if (!url) return;
 
-      // Trigger file download
+      // Trigger file download (sanitize filename to prevent path traversal)
       const a = document.createElement("a");
       a.href = url;
-      a.download = attachment.metadata.filename;
+      a.download = sanitizeFilename(attachment.metadata.filename);
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

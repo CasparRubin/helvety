@@ -128,6 +128,12 @@ function EditorToolbar({
       return;
     }
 
+    // Block unsafe URL schemes to prevent stored XSS (javascript:, data:, vbscript:, etc.)
+    const SAFE_URL_PATTERN = /^(https?:\/\/|mailto:|tel:)/i;
+    if (!SAFE_URL_PATTERN.test(url)) {
+      return;
+    }
+
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
 
@@ -337,6 +343,8 @@ export function TiptapEditor({
       Underline,
       Link.configure({
         openOnClick: false,
+        // Block unsafe URL schemes (javascript:, data:, vbscript:) to prevent stored XSS
+        validate: (href) => /^(https?:\/\/|mailto:|tel:)/i.test(href),
         HTMLAttributes: {
           class: "text-primary underline cursor-pointer",
         },

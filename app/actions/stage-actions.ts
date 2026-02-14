@@ -62,12 +62,14 @@ const UpdateStageSchema = z.object({
   default_rows_shown: z.number().int().min(0).max(1000).optional(),
 });
 
-const ReorderStagesSchema = z.array(
-  z.object({
-    id: z.string().uuid(),
-    sort_order: z.number().int().min(0),
-  })
-);
+const ReorderStagesSchema = z
+  .array(
+    z.object({
+      id: z.string().uuid(),
+      sort_order: z.number().int().min(0),
+    })
+  )
+  .max(100, "Too many stages to reorder");
 
 // =============================================================================
 // STAGE CONFIG ACTIONS
@@ -128,11 +130,12 @@ export async function getStageConfigs(): Promise<
   try {
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "stages" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const { data: configs, error } = await supabase
       .from("stage_configs")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .returns<StageConfigRow[]>();
 
@@ -269,6 +272,7 @@ export async function createStage(
       .from("stage_configs")
       .select("id")
       .eq("id", validatedData.config_id)
+      .eq("user_id", user.id)
       .single();
 
     if (configError || !config) {
@@ -310,7 +314,7 @@ export async function getStages(
   try {
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "stages" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(configId).success) {
       return { success: false, error: "Invalid config ID" };
@@ -320,6 +324,7 @@ export async function getStages(
       .from("stages")
       .select("*")
       .eq("config_id", configId)
+      .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .returns<StageRow[]>();
 
@@ -494,7 +499,7 @@ export async function getStageAssignment(
   try {
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "stages" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const typeResult = EntityTypeSchema.safeParse(entityType);
     if (!typeResult.success) {
@@ -508,6 +513,7 @@ export async function getStageAssignment(
     let query = supabase
       .from("stage_assignments")
       .select("*")
+      .eq("user_id", user.id)
       .eq("entity_type", entityType);
 
     if (parentId === null) {
@@ -561,6 +567,18 @@ export async function setStageAssignment(
 
     if (parentId !== null && !z.string().uuid().safeParse(parentId).success) {
       return { success: false, error: "Invalid parent ID" };
+    }
+
+    // Verify user owns the config (defense-in-depth)
+    const { data: config, error: configError } = await supabase
+      .from("stage_configs")
+      .select("id")
+      .eq("id", configId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (configError || !config) {
+      return { success: false, error: "Stage config not found" };
     }
 
     // Upsert: try to find existing assignment first

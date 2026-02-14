@@ -13,6 +13,16 @@ export const TOAST_DURATIONS = {
 } as const;
 
 /**
+ * Reusable user-facing error messages
+ */
+export const ERROR_MESSAGES = {
+  /** Data export failure */
+  EXPORT_FAILED: "Failed to export data. Please try again.",
+  /** Generic catch-all error */
+  GENERIC: "An unexpected error occurred",
+} as const;
+
+/**
  * Attachment / file upload constants
  */
 /** Maximum file size for attachments (25 MB) */

@@ -24,9 +24,10 @@ import type { ActionResponse, AttachmentRow } from "@/lib/types";
 async function getClientIp(): Promise<string | undefined> {
   try {
     const headersList = await headers();
+    // Prefer x-real-ip (Vercel-trusted, not spoofable) over x-forwarded-for
     return (
-      headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       headersList.get("x-real-ip") ??
+      headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       undefined
     );
   } catch {

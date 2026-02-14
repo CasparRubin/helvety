@@ -4,7 +4,6 @@ import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
-import { toast } from "sonner";
 
 import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
@@ -43,10 +42,9 @@ import {
   useLabelConfigs,
   useLabels,
   useLabelAssignment,
+  useDataExport,
 } from "@/hooks";
-import { TOAST_DURATIONS } from "@/lib/constants";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
-import { downloadTaskDataExport } from "@/lib/data-export";
 
 /**
  * Items Dashboard - shows all items for a specific space
@@ -117,7 +115,7 @@ export function ItemsDashboard({
   const [isSpaceDeleteOpen, setIsSpaceDeleteOpen] = useState(false);
   const [isDeletingSpace, setIsDeletingSpace] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const { isExporting, handleExportData } = useDataExport(masterKey);
 
   // Get the first stage (lowest sort_order) as the default for new entities
   const defaultStageId =
@@ -231,21 +229,6 @@ export function ItemsDashboard({
       setIsRefreshing(false);
     }
   }, [refresh]);
-
-  /** Export decrypted task data as JSON (nDSG Art. 28 compliance) */
-  const handleExportData = useCallback(async () => {
-    if (!masterKey) return;
-    setIsExporting(true);
-    try {
-      await downloadTaskDataExport(masterKey);
-    } catch {
-      toast.error("Failed to export data. Please try again.", {
-        duration: TOAST_DURATIONS.ERROR,
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  }, [masterKey]);
 
   return (
     <>

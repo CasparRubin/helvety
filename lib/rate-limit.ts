@@ -3,8 +3,8 @@
  *
  * Provides distributed rate limiting using Upstash Redis for production
  * environments. In production, fails closed (rejects requests) when Redis
- * is unavailable. Falls back to in-memory rate limiting only in development
- * when Upstash credentials are not configured.
+ * is unavailable or when Upstash credentials are not configured. Falls back
+ * to in-memory rate limiting only in development.
  *
  * Production: Uses @upstash/ratelimit with sliding window algorithm.
  *   - Works across serverless invocations and multiple instances
@@ -58,7 +58,7 @@ function getRedis(): Redis | null {
       hasWarnedMissingRedis = true;
       logger.warn(
         "UPSTASH_REDIS_REST_URL and/or UPSTASH_REDIS_REST_TOKEN are not configured. " +
-          "Rate limiting will fall back to in-memory mode, which does not persist across serverless invocations. " +
+          "Rate limiting will fail closed (reject all rate-limited requests) in production. " +
           "Configure Upstash Redis for distributed rate limiting: https://console.upstash.com/"
       );
     }
@@ -171,20 +171,23 @@ function checkInMemoryRateLimit(
  * Check if a request is allowed under the rate limit.
  *
  * Uses Upstash Redis in production (distributed). In production, fails closed
- * (rejects requests) if Redis is unavailable. In development, falls back to
- * in-memory when UPSTASH_REDIS_REST_URL is not configured.
+ * (rejects requests) if Redis is unavailable or if credentials are not configured.
+ * In development, falls back to in-memory when credentials are not configured.
  *
  * @param key - Unique identifier for the rate limit (e.g., IP + endpoint)
  * @param maxRequests - Maximum number of requests allowed in the window
  * @param windowMs - Time window in milliseconds (default: 60 seconds)
+ * @param prefix - Redis key prefix for the limiter (default: "api"). Different
+ *   prefixes create separate Upstash Ratelimit instances and Redis key namespaces.
  * @returns Rate limit result with allowed status and remaining requests
  */
 export async function checkRateLimit(
   key: string,
   maxRequests: number = 5,
-  windowMs: number = 60000
+  windowMs: number = 60000,
+  prefix: string = "api"
 ): Promise<RateLimitResult> {
-  const limiter = getUpstashLimiter("api", maxRequests, windowMs);
+  const limiter = getUpstashLimiter(prefix, maxRequests, windowMs);
 
   if (limiter) {
     try {
@@ -217,21 +220,38 @@ export async function checkRateLimit(
         error
       );
     }
+  } else if (process.env.NODE_ENV === "production") {
+    // Fail closed in production when Redis credentials are not configured.
+    // In-memory rate limiting does not persist across serverless invocations,
+    // so it provides no real protection in production.
+    return { allowed: false, remaining: 0, retryAfter: 30 };
   }
 
+  // Development fallback: in-memory rate limiting (single-server only)
   return checkInMemoryRateLimit(key, maxRequests, windowMs);
 }
 
 /**
  * Reset the rate limit for a specific key.
  *
+ * Uses Upstash's `resetUsedTokens` API to properly clear all sliding window
+ * state (sorted sets + metadata), rather than a raw Redis DEL which may miss
+ * internal keys.
+ *
  * @param key - The rate limit key to reset
+ * @param prefix - Redis key prefix matching the one used in checkRateLimit (default: "api")
  */
-export async function resetRateLimit(key: string): Promise<void> {
-  const redisClient = getRedis();
-  if (redisClient) {
+export async function resetRateLimit(
+  key: string,
+  prefix: string = "api"
+): Promise<void> {
+  // Get or create a limiter with the matching prefix to use its resetUsedTokens API.
+  // The maxRequests/windowMs values don't affect the reset operation — they only
+  // matter for the sliding window config — so we use sensible defaults.
+  const limiter = getUpstashLimiter(prefix, 100, 60000);
+  if (limiter) {
     try {
-      await redisClient.del(`ratelimit:api:${key}`);
+      await limiter.resetUsedTokens(key);
     } catch (error) {
       logger.warn("Failed to reset rate limit in Redis:", error);
     }
@@ -244,20 +264,10 @@ export async function resetRateLimit(key: string): Promise<void> {
  * Rate limit configurations for different endpoints
  */
 export const RATE_LIMITS = {
-  /** Login attempts: 5 per minute per IP */
-  LOGIN: { maxRequests: 5, windowMs: 60 * 1000 },
-  /** Passkey authentication: 10 per minute per IP */
-  PASSKEY: { maxRequests: 10, windowMs: 60 * 1000 },
-  /** Verification code / OTP email requests: 3 per 5 minutes per email */
-  OTP: { maxRequests: 3, windowMs: 5 * 60 * 1000 },
-  /** OTP code verification attempts: 5 per 5 minutes per email */
-  OTP_VERIFY: { maxRequests: 5, windowMs: 5 * 60 * 1000 },
   /** Encryption unlock attempts: 5 per minute per user */
   ENCRYPTION_UNLOCK: { maxRequests: 5, windowMs: 60 * 1000 },
-  /** API calls: 100 per minute per user */
+  /** API calls (mutations): 100 per minute per user */
   API: { maxRequests: 100, windowMs: 60 * 1000 },
-  /** Download requests: 30 per minute per user */
-  DOWNLOADS: { maxRequests: 30, windowMs: 60 * 1000 },
-  /** Tenant management: 20 per minute per user */
-  TENANTS: { maxRequests: 20, windowMs: 60 * 1000 },
+  /** Read-only actions: 300 per minute per user (prevents scraping/enumeration) */
+  READ: { maxRequests: 300, windowMs: 60 * 1000 },
 } as const;

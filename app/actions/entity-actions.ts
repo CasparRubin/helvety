@@ -22,18 +22,26 @@ import type {
 // Input Validation Schemas
 // =============================================================================
 
-/** Schema for batch reorder updates */
-const ReorderSchema = z.array(
-  z.object({
-    id: z.string().uuid(),
-    sort_order: z.number().int().min(0),
-    // Accept both UUIDs (custom stages) and default stage IDs (e.g., "default-item-backlog")
-    stage_id: z
-      .union([z.string().uuid(), z.string().startsWith("default-")])
-      .nullable()
-      .optional(),
-  })
-);
+/** Schema for batch reorder updates (capped to prevent DoS via unbounded parallel queries) */
+const ReorderSchema = z
+  .array(
+    z.object({
+      id: z.string().uuid(),
+      sort_order: z.number().int().min(0),
+      // Accept both UUIDs (custom stages) and constrained default stage IDs
+      stage_id: z
+        .union([
+          z.string().uuid(),
+          z
+            .string()
+            .regex(/^default-[a-z0-9-]+$/)
+            .max(50),
+        ])
+        .nullable()
+        .optional(),
+    })
+  )
+  .max(500, "Too many items to reorder");
 
 const EntityTypeSchema = z.enum(["unit", "space", "item"]);
 
@@ -128,12 +136,13 @@ export async function getSpaceCounts(): Promise<
   try {
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     // Get all spaces for this user, selecting only the unit_id
     const { data: spaces, error } = await supabase
       .from("spaces")
-      .select("unit_id");
+      .select("unit_id")
+      .eq("user_id", user.id);
 
     if (error) {
       logger.error("Error getting space counts:", error);
@@ -167,13 +176,14 @@ export async function getItemCounts(
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     // First get the space IDs for this unit
     const { data: spaces, error: spacesError } = await supabase
       .from("spaces")
       .select("id")
-      .eq("unit_id", unitId);
+      .eq("unit_id", unitId)
+      .eq("user_id", user.id);
 
     if (spacesError) {
       logger.error("Error getting spaces for item counts:", spacesError);
@@ -189,7 +199,8 @@ export async function getItemCounts(
     const { data: items, error: itemsError } = await supabase
       .from("items")
       .select("space_id")
-      .in("space_id", spaceIds);
+      .in("space_id", spaceIds)
+      .eq("user_id", user.id);
 
     if (itemsError) {
       logger.error("Error getting item counts:", itemsError);

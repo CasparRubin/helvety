@@ -14,9 +14,15 @@ import type { ActionResponse, UnitRow } from "@/lib/types";
 // Input Validation Schemas
 // =============================================================================
 
-/** Schema for stage_id - accepts both UUIDs (custom stages) and default stage IDs */
+/** Schema for stage_id - accepts both UUIDs (custom stages) and constrained default stage IDs */
 const StageIdSchema = z
-  .union([z.string().uuid(), z.string().startsWith("default-")])
+  .union([
+    z.string().uuid(),
+    z
+      .string()
+      .regex(/^default-[a-z0-9-]+$/)
+      .max(50),
+  ])
   .nullable()
   .optional();
 
