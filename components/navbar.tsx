@@ -139,7 +139,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
               priority
             />
           </Link>
-          <span className="shrink-0 text-xl font-black tracking-tight">
+          <span className="shrink-0 text-xl font-black tracking-tight transition-opacity hover:opacity-80">
             by Rubin
           </span>
         </div>

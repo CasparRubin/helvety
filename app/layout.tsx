@@ -1,14 +1,14 @@
+import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
-
-import "./globals.css";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -57,6 +57,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
   publisher: "Helvety",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -87,6 +92,7 @@ export const metadata: Metadata = {
     icon: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
     apple: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
   },
+  manifest: "/manifest.json",
   robots: {
     index: true,
     follow: true,
@@ -135,8 +141,9 @@ export default async function RootLayout({
               <ScrollArea className="min-h-0 flex-1">
                 <div className="mx-auto w-full max-w-[2000px]">{children}</div>
               </ScrollArea>
-              <Footer />
+              <Footer className="shrink-0" />
             </div>
+            <Toaster />
           </TooltipProvider>
         </ThemeProvider>
         <Analytics />

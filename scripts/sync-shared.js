@@ -6,7 +6,7 @@
  *
  * Options:
  *   --dry-run    Preview changes without copying files
- *   --check      Compare files only; exit 1 if any have drifted (useful for CI)
+ *   --check      Compare files only; exit 1 if any have drifted
  *
  * Synced paths (must match .cursor/rules/shared-code-patterns.mdc):
  *   - proxy.ts
@@ -144,6 +144,19 @@ const stats = {
   differs: 0,
   errors: [],
 };
+
+/**
+ * Check if a file path is within the specified parent directory
+ * Prevents path traversal attacks by ensuring resolved paths stay within expected boundaries
+ */
+function isPathWithin(filePath, parentDir) {
+  const resolvedPath = path.resolve(filePath);
+  const resolvedParent = path.resolve(parentDir);
+  return (
+    resolvedPath.startsWith(resolvedParent + path.sep) ||
+    resolvedPath === resolvedParent
+  );
+}
 
 /**
  * Compare two files and return true if they are identical
@@ -294,6 +307,24 @@ function copyFile(srcRoot, destRoot, file, targetRepo) {
     stats.differs++;
   }
 
+  // Path traversal protection: ensure paths stay within expected directories
+  if (!isPathWithin(src, srcRoot)) {
+    console.error(`  Error: Source path traversal detected for ${file}`);
+    stats.errors.push({
+      file,
+      error: "Source path outside expected directory",
+    });
+    return;
+  }
+  if (!isPathWithin(dest, destRoot)) {
+    console.error(`  Error: Destination path traversal detected for ${file}`);
+    stats.errors.push({
+      file,
+      error: "Destination path outside expected directory",
+    });
+    return;
+  }
+
   if (DRY_RUN) {
     console.log(`  Would copy: ${file}`);
     stats.copied++;
@@ -349,6 +380,28 @@ function copyDirRecursive(srcRoot, destRoot, dir, targetRepo) {
       if (fs.existsSync(destPath) && !filesAreIdentical(srcPath, destPath)) {
         console.log(`  Differs (will overwrite): ${relativePath}`);
         stats.differs++;
+      }
+
+      // Path traversal protection: ensure paths stay within expected directories
+      if (!isPathWithin(srcPath, srcRoot)) {
+        console.error(
+          `  Error: Source path traversal detected for ${relativePath}`
+        );
+        stats.errors.push({
+          file: relativePath,
+          error: "Source path outside expected directory",
+        });
+        continue;
+      }
+      if (!isPathWithin(destPath, destRoot)) {
+        console.error(
+          `  Error: Destination path traversal detected for ${relativePath}`
+        );
+        stats.errors.push({
+          file: relativePath,
+          error: "Destination path outside expected directory",
+        });
+        continue;
       }
 
       if (DRY_RUN) {

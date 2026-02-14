@@ -8,28 +8,28 @@ import { cn } from "@/lib/utils";
 /** Tooltip provider for configuring tooltip behavior. */
 function TooltipProvider({
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>): React.JSX.Element {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" {...props} />;
 }
 
 /** Tooltip root component. */
 function Tooltip({
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+}: React.ComponentProps<typeof TooltipPrimitive.Root>): React.JSX.Element {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 }
 
 /** Tooltip trigger element. */
 function TooltipTrigger({
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+}: React.ComponentProps<typeof TooltipPrimitive.Trigger>): React.JSX.Element {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
 /** Tooltip portal for rendering outside the DOM hierarchy. */
 function TooltipPortal({
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Portal>) {
+}: React.ComponentProps<typeof TooltipPrimitive.Portal>): React.JSX.Element {
   return <TooltipPrimitive.Portal data-slot="tooltip-portal" {...props} />;
 }
 
@@ -37,7 +37,7 @@ function TooltipPortal({
 function TooltipContent({
   className,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+}: React.ComponentProps<typeof TooltipPrimitive.Content>): React.JSX.Element {
   return (
     <TooltipPortal>
       <TooltipPrimitive.Content

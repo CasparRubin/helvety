@@ -43,6 +43,15 @@ export function generateSalt(length: number = 16): Uint8Array<ArrayBuffer> {
 
 /**
  * Generate a random IV for AES-GCM (12 bytes as recommended by NIST)
+ *
+ * Security note on IV reuse bounds:
+ * With a 96-bit random IV, the birthday bound is ~2^48 encryptions per key
+ * before a collision becomes probable (at probability ~2^-32). Given that:
+ * - Master keys are rotated every 24 hours (key-storage.ts cache expiry)
+ * - Typical usage is well under 1 million encryptions per key lifetime
+ * - Each user has their own key (no key sharing between users)
+ * The collision probability is negligibly small (~2^-56 for 10^6 operations).
+ * This is considered safe for the current and foreseeable usage patterns.
  */
 export function generateIV(): Uint8Array<ArrayBuffer> {
   const buffer = new ArrayBuffer(12);

@@ -10,28 +10,28 @@ import { cn } from "@/lib/utils";
 /** Dialog root component. */
 function Dialog({
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Root>) {
+}: React.ComponentProps<typeof DialogPrimitive.Root>): React.JSX.Element {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
 /** Dialog trigger button. */
 function DialogTrigger({
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+}: React.ComponentProps<typeof DialogPrimitive.Trigger>): React.JSX.Element {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 }
 
 /** Dialog portal for rendering outside the DOM hierarchy. */
 function DialogPortal({
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Portal>) {
+}: React.ComponentProps<typeof DialogPrimitive.Portal>): React.JSX.Element {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
 /** Dialog close button. */
 function DialogClose({
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Close>) {
+}: React.ComponentProps<typeof DialogPrimitive.Close>): React.JSX.Element {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
@@ -39,7 +39,7 @@ function DialogClose({
 function DialogOverlay({
   className,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
+}: React.ComponentProps<typeof DialogPrimitive.Overlay>): React.JSX.Element {
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
@@ -60,14 +60,14 @@ function DialogContent({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
-}) {
+}): React.JSX.Element {
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl p-6 text-sm ring-1 duration-100 sm:max-w-md",
+          "bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-6 rounded-xl p-6 text-sm ring-1 duration-100 outline-none sm:max-w-md",
           className
         )}
         {...props}
@@ -91,7 +91,10 @@ function DialogContent({
 }
 
 /** Dialog header section. */
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+function DialogHeader({
+  className,
+  ...props
+}: React.ComponentProps<"div">): React.JSX.Element {
   return (
     <div
       data-slot="dialog-header"
@@ -109,7 +112,7 @@ function DialogFooter({
   ...props
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean;
-}) {
+}): React.JSX.Element {
   return (
     <div
       data-slot="dialog-footer"
@@ -147,11 +150,16 @@ function DialogTitle({
 function DialogDescription({
   className,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Description>) {
+}: React.ComponentProps<
+  typeof DialogPrimitive.Description
+>): React.JSX.Element {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn(
+        "text-muted-foreground *:[a]:hover:text-foreground text-sm *:[a]:underline *:[a]:underline-offset-3",
+        className
+      )}
       {...props}
     />
   );

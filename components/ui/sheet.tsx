@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /** Sheet root component (slide-out panel). */
-function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
+function Sheet({
+  ...props
+}: React.ComponentProps<typeof SheetPrimitive.Root>): React.JSX.Element {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
 }
 
@@ -92,7 +94,10 @@ function SheetContent({
 }
 
 /** Sheet header section. */
-function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
+function SheetHeader({
+  className,
+  ...props
+}: React.ComponentProps<"div">): React.JSX.Element {
   return (
     <div
       data-slot="sheet-header"
@@ -103,7 +108,10 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /** Sheet footer section. */
-function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
+function SheetFooter({
+  className,
+  ...props
+}: React.ComponentProps<"div">): React.JSX.Element {
   return (
     <div
       data-slot="sheet-footer"
@@ -117,7 +125,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
 function SheetTitle({
   className,
   ...props
-}: React.ComponentProps<typeof SheetPrimitive.Title>) {
+}: React.ComponentProps<typeof SheetPrimitive.Title>): React.JSX.Element {
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
@@ -131,7 +139,7 @@ function SheetTitle({
 function SheetDescription({
   className,
   ...props
-}: React.ComponentProps<typeof SheetPrimitive.Description>) {
+}: React.ComponentProps<typeof SheetPrimitive.Description>): React.JSX.Element {
   return (
     <SheetPrimitive.Description
       data-slot="sheet-description"
