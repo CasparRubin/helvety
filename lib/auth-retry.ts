@@ -26,17 +26,17 @@ export async function getUserWithRetry(
       error,
     } = await supabase.auth.getUser();
 
-    // Success — return immediately
+    // Success - return immediately
     if (user) {
       return { user, error: null };
     }
 
-    // Last attempt failed — return the error
+    // Last attempt failed - return the error
     if (attempt >= maxRetries) {
       return { user: null, error: error ?? null };
     }
 
-    // Transient failure — wait briefly before retrying
+    // Transient failure - wait briefly before retrying
     await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
 

@@ -19,16 +19,16 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 The store has four main sections, linked from the store nav bar (below the top navbar). The profile dropdown in the top navbar (when signed in) shows your email and links to Account, Subscriptions, and Sign out:
 
-- **Products** (`/products`) – Product catalog with filters; product detail at `/products/[slug]`
-- **Account** (`/account`) – Profile and account settings
-- **Subscriptions** (`/subscriptions`) – Compact list of active subscriptions; SPO Explorer rows link to Tenants
-- **Tenants** (`/tenants`) – Register and manage SharePoint tenant IDs for SPO Explorer
+- **Products** (`/products`) - Product catalog with filters; product detail at `/products/[slug]`
+- **Account** (`/account`) - Profile and account settings
+- **Subscriptions** (`/subscriptions`) - Compact list of active subscriptions; SPO Explorer rows link to Tenants
+- **Tenants** (`/tenants`) - Register and manage SharePoint tenant IDs for SPO Explorer
 
 The root path (`/`) redirects all users to `/products`. No login is required to browse products.
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
 
-**Abuse Reporting:** Abuse reports can be submitted to [abuse@helvety.com](mailto:abuse@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes a dedicated abuse reporting section with guidance for both users and law enforcement.
+**Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
 ## Features
 
@@ -42,8 +42,8 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing)
 - **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog (30-day grace period); cancels active Stripe subscriptions and removes all user data via cascade deletes
 - **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (nDSG Art. 28 compliance)
-- **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in both Stripe session metadata and a dedicated `consent_events` database table for defensible audit compliance
-- **Dark & Light mode** - Comfortable viewing in any lighting condition
+- **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in both Stripe session metadata and a dedicated `consent_events` database table for audit compliance
+- **Dark & Light mode** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 
 ## Security & Authentication
@@ -72,7 +72,7 @@ Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
 
 ### Security Hardening
 
-This application implements comprehensive security hardening:
+This application includes the following security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
 - **Server Layout Guards** - Authentication checks in Server Components via `lib/auth-guard.ts` with retry logic for transient failures (CVE-2025-29927 compliant)
@@ -101,17 +101,17 @@ This project is built with modern web technologies:
 
 ## Developer
 
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
+This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
 Vercel Analytics is used across all Helvety apps for privacy-focused, anonymous page view statistics. Vercel Speed Insights is enabled only on [helvety.com](https://helvety.com). See our [Privacy Policy](https://helvety.com/privacy) for details.
 
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [abuse@helvety.com](mailto:abuse@helvety.com).
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 
 ## License & Usage
 
 > **This is NOT open source software.**
 
-This repository is public **for transparency purposes only** so users can verify the application's behavior and security.
+This repository is public so users can inspect and verify the application's behavior and security.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 

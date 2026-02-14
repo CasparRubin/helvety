@@ -367,7 +367,7 @@ export function TenantsTab() {
         </Card>
       )}
 
-      {/* Subscription summary – full-width compact */}
+      {/* Subscription summary - full-width compact */}
       {subscriptions.length > 0 && (
         <div
           className={

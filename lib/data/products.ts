@@ -24,7 +24,7 @@ export const helvetyPdf: SoftwareProduct = {
     "A free, privacy-focused PDF toolkit. Merge, reorder, rotate, and extract pages from PDFs and images. All processing runs locally in your browser. No limits, no login required.",
   description: `Helvety PDF is a free, privacy-focused, client-side PDF toolkit. All file processing happens entirely in your browser. Your files are not uploaded to or stored on our servers. No login or account is required.
 
-Upload PDF files and images (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG), preview page thumbnails, and manage your documents with an intuitive drag-and-drop interface. Merge multiple files into one PDF, extract individual pages, rotate pages by 90° increments, delete unwanted pages, and reorder with ease. Unlimited files, unlimited pages.
+Upload PDF files and images (PNG, JPEG, WebP, GIF, BMP, TIFF, SVG), preview page thumbnails, and manage your documents with a simple drag-and-drop interface. Merge multiple files into one PDF, extract individual pages, rotate pages by 90° increments, delete unwanted pages, and reorder with ease. Unlimited files, unlimited pages.
 
 The customizable grid layout lets you adjust the view to accommodate different page sizes. With dark and light mode support, you can work comfortably in any environment.
 
@@ -137,7 +137,7 @@ export const helvetyExplorer: SoftwareProduct = {
   name: "Helvety SPO Explorer",
   shortDescription:
     "A privacy-focused SharePoint site navigator. Browse, search, and favorite all your accessible sites with a lightning-fast interface. All preferences stored locally - no external data collection.",
-  description: `Helvety SPO Explorer is a privacy-focused SharePoint Framework (SPFx) application customizer that transforms how you navigate your Microsoft 365 environment.
+  description: `Helvety SPO Explorer is a privacy-focused SharePoint Framework (SPFx) application customizer that gives you a fast way to navigate your Microsoft 365 environment.
 
 Privacy First - All data processing happens client-side. User preferences (favorites and settings) are stored locally in the browser's localStorage. The application does not collect or transmit user data to external servers.
 
@@ -148,7 +148,7 @@ Key Features:
 • Quick Access Menu - Dropdown menu from the navbar button showing your favorite sites
 • Settings Panel - Customize display preferences including URL display, descriptions, and tab behavior
 
-The extension seamlessly adapts to SharePoint's light and dark themes, with full keyboard navigation and accessibility support. Performance is optimized with 5-minute caching and efficient React rendering.
+The extension adapts to SharePoint's light and dark themes, with full keyboard navigation and accessibility support. Performance is optimized with 5-minute caching and efficient React rendering.
 
 Install it once in your SharePoint App Catalog and give all users instant access to a clean, modern navigation experience.`,
   type: "software",

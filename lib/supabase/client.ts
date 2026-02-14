@@ -84,7 +84,7 @@ async function lockWithTimeout<R>(
     );
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
-      // Lock acquisition timed out — run without lock
+      // Lock acquisition timed out - run without lock
       return await fn();
     }
     throw err;

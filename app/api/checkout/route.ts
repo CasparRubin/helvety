@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
       metadata.consent_version = consentVersion;
     }
 
-    // Persist consent event in Supabase for defensible audit trail (nDSG compliance)
+    // Persist consent event in Supabase for audit trail (nDSG compliance)
     if (user && consentTermsAt && consentVersion) {
       try {
         const consentAdminClient = createAdminClient();
