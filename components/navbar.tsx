@@ -1,6 +1,5 @@
 "use client";
 
-// Next.js
 import {
   Github,
   Menu,
@@ -18,7 +17,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-// Internal components
 import { AppSwitcher } from "@/components/app-switcher";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
@@ -217,12 +215,10 @@ export function Navbar() {
                     end-to-end encrypted.
                   </DialogDescription>
                 </DialogHeader>
-                <>
-                  <div className="border-t" />
-                  <p className="text-muted-foreground text-xs">
-                    {VERSION || "Unknown build time"}
-                  </p>
-                </>
+                <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  {VERSION || "Unknown build time"}
+                </p>
                 <DialogClose asChild>
                   <Button variant="outline" className="w-full">
                     Close
