@@ -1,3 +1,5 @@
+import path from "path";
+
 import bundleAnalyzer from "@next/bundle-analyzer";
 
 import type { NextConfig } from "next";
@@ -16,11 +18,6 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
-
-  // Optimize tree-shaking for barrel-export packages
-  experimental: {
-    optimizePackageImports: ["lucide-react", "radix-ui", "framer-motion"],
-  },
 
   // Security headers
   async headers() {
@@ -106,6 +103,21 @@ const nextConfig: NextConfig = {
         headers,
       },
     ];
+  },
+
+  // Set turbopack root to current working directory (should be project root when running npm run dev)
+  turbopack: {
+    root: path.resolve("."),
+  },
+
+  // Optimize tree-shaking for barrel-export packages
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "radix-ui",
+      "sonner",
+      "framer-motion",
+    ],
   },
 };
 

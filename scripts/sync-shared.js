@@ -12,14 +12,17 @@
  *   - proxy.ts
  *   - scripts/generate-version.mjs
  *   - lib/utils.ts, lib/logger.ts, lib/constants.ts (helvety-auth, helvety-store, helvety-tasks, helvety-contacts; helvety-pdf and helvety-contacts keep app-specific constants)
- *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/auth-retry.ts, lib/csrf.ts
+ *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/auth-retry.ts
+ *   - lib/csrf.ts (all except helvety-auth which has auth-specific CSRF lifecycle, and helvety-pdf which has no server actions)
  *   - lib/auth-guard.ts (helvety-store, helvety-tasks, helvety-contacts; helvety-auth keeps its own with local redirect; helvety-pdf does not use it)
  *   - lib/redirect-validation.ts
+ *   - lib/rate-limit.ts (helvety-pdf only; helvety-store, helvety-auth, helvety-tasks, helvety-contacts keep app-specific rate limits)
  *   - lib/env-validation.ts (all except helvety-store which adds Stripe key validation)
  *   - lib/session-config.ts
  *   - lib/supabase/client.ts, lib/supabase/server.ts, lib/supabase/client-factory.ts
  *   - lib/types/entities.ts (helvety-auth, helvety-tasks, helvety-contacts only; helvety-store and helvety-pdf keep their own without encryption types)
  *   - lib/crypto/* (helvety-auth, helvety-tasks, helvety-contacts only; helvety-store and helvety-pdf do not use E2EE)
+ *   - app/globals.css (shared design system; helvety-pdf keeps its own with custom grid utilities)
  *   - app/error.tsx (global error boundary)
  *   - app/not-found.tsx (global 404 page)
  *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
@@ -69,6 +72,7 @@ const FILES = [
   "lib/auth-guard.ts",
   "lib/auth-retry.ts",
   "lib/redirect-validation.ts",
+  "lib/rate-limit.ts",
   "lib/csrf.ts",
   "lib/env-validation.ts",
   "lib/session-config.ts",
@@ -76,6 +80,8 @@ const FILES = [
   "lib/supabase/server.ts",
   "lib/supabase/client-factory.ts",
   "lib/types/entities.ts",
+  // Shared design system
+  "app/globals.css",
   "app/error.tsx",
   "app/not-found.tsx",
   "components/theme-provider.tsx",
@@ -92,16 +98,22 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
  * - helvety-pdf keeps its own lib/types/entities.ts (no encryption types; E2EE not used)
  * - helvety-pdf does not use auth-guard.ts (no login required; client-side-only PDF processing)
  * - helvety-pdf does not use csrf.ts (no server actions requiring CSRF protection)
+ * - helvety-pdf keeps its own app/globals.css (adds custom responsive grid utilities)
  * - helvety-auth keeps its own lib/auth-guard.ts (redirects to local /login instead of auth service)
  * - helvety-auth keeps its own components/auth-token-handler.tsx (includes passkey verification logic)
+ * - helvety-auth keeps its own lib/csrf.ts (auth-specific CSRF lifecycle with proxy.ts)
+ * - helvety-auth keeps its own lib/rate-limit.ts (auth-specific rate limits: PASSKEY, OTP, OTP_VERIFY)
  * - helvety-store keeps its own lib/env-validation.ts (includes Stripe key validation)
  * - helvety-store keeps its own lib/types/entities.ts (no encryption types; E2EE not used)
+ * - helvety-store keeps its own lib/rate-limit.ts (store-specific rate limits: CHECKOUT, DOWNLOADS, etc.)
  * - helvety-tasks keeps its own lib/constants.ts (adds attachment constants)
  * - helvety-tasks keeps its own lib/crypto/index.ts (re-exports task-encryption.ts functions)
  * - helvety-tasks keeps its own lib/crypto/encryption.ts (adds binary encryption for attachments)
+ * - helvety-tasks keeps its own lib/rate-limit.ts (task-specific rate limits: ENCRYPTION_UNLOCK, READ)
  * - helvety-contacts keeps its own lib/constants.ts (no attachment constants)
  * - helvety-contacts keeps its own lib/crypto/index.ts (no task-encryption re-exports)
  * - helvety-contacts keeps its own lib/auth-redirect.ts (app-specific fallback URLs for dev/prod)
+ * - helvety-contacts keeps its own lib/rate-limit.ts (contact-specific rate limits: ENCRYPTION_UNLOCK, READ)
  */
 const TARGET_SKIP_FILES = {
   "helvety-pdf": [
@@ -109,18 +121,30 @@ const TARGET_SKIP_FILES = {
     "lib/types/entities.ts",
     "lib/auth-guard.ts",
     "lib/csrf.ts",
+    "app/globals.css",
   ],
-  "helvety-auth": ["lib/auth-guard.ts", "components/auth-token-handler.tsx"],
-  "helvety-store": ["lib/env-validation.ts", "lib/types/entities.ts"],
+  "helvety-auth": [
+    "lib/auth-guard.ts",
+    "components/auth-token-handler.tsx",
+    "lib/csrf.ts",
+    "lib/rate-limit.ts",
+  ],
+  "helvety-store": [
+    "lib/env-validation.ts",
+    "lib/types/entities.ts",
+    "lib/rate-limit.ts",
+  ],
   "helvety-tasks": [
     "lib/constants.ts",
     "lib/crypto/index.ts",
     "lib/crypto/encryption.ts",
+    "lib/rate-limit.ts",
   ],
   "helvety-contacts": [
     "lib/constants.ts",
     "lib/crypto/index.ts",
     "lib/auth-redirect.ts",
+    "lib/rate-limit.ts",
   ],
 };
 
