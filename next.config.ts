@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
 
+  // Optimize tree-shaking for barrel-export packages
+  experimental: {
+    optimizePackageImports: ["sonner"],
+  },
+
   // Security headers
   async headers() {
     const isDevelopment = process.env.NODE_ENV === "development";

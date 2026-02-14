@@ -132,9 +132,10 @@
   }
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 /* Subtle animated glowing red border around logo */

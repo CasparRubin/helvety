@@ -10,6 +10,7 @@ import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { createServerClient } from "@/lib/supabase/server";
 
 import type { Metadata, Viewport } from "next";
 
@@ -105,11 +106,17 @@ export const metadata: Metadata = {
 /**
  * Root layout: fixed header (Navbar), ScrollArea main, fixed footer (contact + legal links).
  */
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch initial user server-side to avoid loading flash in Navbar
+  const supabase = await createServerClient();
+  const {
+    data: { user: initialUser },
+  } = await supabase.auth.getUser();
+
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
@@ -123,7 +130,7 @@ export default function RootLayout({
           <TooltipProvider>
             <div className="flex h-screen flex-col overflow-hidden">
               <header className="shrink-0">
-                <Navbar />
+                <Navbar initialUser={initialUser} />
               </header>
               <ScrollArea className="min-h-0 flex-1">
                 <div className="mx-auto w-full max-w-[2000px]">{children}</div>
