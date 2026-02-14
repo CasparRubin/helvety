@@ -49,7 +49,7 @@ interface AuthGuardOptions {
  *
  * @example
  * ```ts
- * export async function createUnit(data, csrfToken) {
+ * export async function createContact(data, csrfToken) {
  *   try {
  *     const auth = await authenticateAndRateLimit({ csrfToken, rateLimitPrefix: "contacts" });
  *     if (!auth.ok) return auth.response;

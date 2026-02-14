@@ -39,7 +39,6 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - **Deep links** - Click any task row to open the linked Unit, Space, or Item in the Tasks app (opens in a new tab)
   - **Privacy** - Task entity titles are decrypted client-side; the server never sees plaintext
   - **Read-only** - Links are managed in the Tasks app; the Contacts app displays them for seamless cross-app navigation
-- **Self-Service Data Export** - Export all your contact data as a decrypted JSON file from the profile menu; data is fetched encrypted from the server and decrypted client-side using your passkey (nDSG Art. 28 compliance). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 
