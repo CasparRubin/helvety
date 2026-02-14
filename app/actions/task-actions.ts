@@ -64,7 +64,7 @@ const UpdateSpaceSchema = z.object({
   sort_order: z.number().int().min(0).optional(),
 });
 
-/** Priority validation: smallint 0–3 */
+/** Priority validation: smallint 0-3 */
 const PrioritySchema = z.number().int().min(0).max(3).optional();
 
 /** Schema for label_id - accepts both UUIDs (custom labels) and default label IDs */

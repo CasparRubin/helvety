@@ -19,7 +19,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 - **End-to-end encryption** - All task data is encrypted client-side using your passkey; we never see your data
 - **Units, Spaces, and Items** - Hierarchical organization: Units (top-level containers) → Spaces (teams/projects) → Items (tasks)
-- **Rich text descriptions** - Full-featured editor for item descriptions with formatting toolbar
+- **Rich text descriptions** - Rich text editor for item descriptions with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
   - Headings (H1, H2, H3)
   - Bullet and numbered lists
@@ -45,10 +45,10 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - **Deep links** - Click any contact row to view or edit the full contact details in the Contacts app (opens in a new tab)
   - **Bidirectional** - Linked entities also appear on the contact's page in the Contacts app with deep links back to Tasks
   - **Privacy** - Contact notes content is never decrypted in the Tasks app; only a has-notes indicator is shown
-- **Drag & drop reordering** - Easily rearrange items within and between stages on desktop; mobile uses up/down arrows to move items between stages
+- **Drag & drop reordering** - Rearrange items within and between stages on desktop; mobile uses up/down arrows to move items between stages
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the profile menu; data is fetched encrypted from the server and decrypted client-side using your passkey (nDSG Art. 28 compliance). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
-- **Dark & Light mode** - Comfortable viewing in any lighting condition
+- **Dark & Light mode** - Switch between dark and light themes
 
 ## Security & Authentication
 
@@ -104,7 +104,7 @@ Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
 
 ### Security Hardening
 
-This application implements comprehensive security hardening:
+This application includes the following security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
 - **Server Layout Guards** - Authentication checks in Server Components via `lib/auth-guard.ts` with retry logic for transient failures (CVE-2025-29927 compliant)
@@ -117,7 +117,7 @@ This application implements comprehensive security hardening:
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
 
-**Abuse Reporting:** Abuse reports can be submitted to [abuse@helvety.com](mailto:abuse@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes a dedicated abuse reporting section with guidance for both users and law enforcement.
+**Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
 **Attachment Audit Logging:** All file attachment operations (uploads, downloads, deletions) are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs) to the `attachment_audit_logs` database table. This audit trail is retained for up to 6 months in accordance with the Privacy Policy and supports law enforcement cooperation under valid Swiss court orders. Encrypted file content and metadata are never logged.
 
@@ -140,17 +140,17 @@ This project is built with modern web technologies:
 
 ## Developer
 
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company committed to transparency, strong security, and respect for user privacy and data protection.
+This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
 Vercel Analytics is used across all Helvety apps for privacy-focused, anonymous page view statistics. Vercel Speed Insights is enabled only on [helvety.com](https://helvety.com). See our [Privacy Policy](https://helvety.com/privacy) for details.
 
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [abuse@helvety.com](mailto:abuse@helvety.com).
+For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 
 ## License & Usage
 
 > **This is NOT open source software.**
 
-This repository is public **for transparency purposes only** so users can verify the application's behavior and security.
+This repository is public so users can inspect and verify the application's behavior and security.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 

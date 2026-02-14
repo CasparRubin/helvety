@@ -6,7 +6,7 @@
  *
  * The server only ever sees encrypted data.
  *
- * Note: Contact decryption is read-only — contacts are created and edited
+ * Note: Contact decryption is read-only - contacts are created and edited
  * in helvety-contacts. Only name and email are decrypted here; notes content
  * is not decrypted, only a `has_notes` flag is derived.
  */

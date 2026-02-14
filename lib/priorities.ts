@@ -9,7 +9,7 @@ import {
 // Priority Type & Constants
 // =============================================================================
 
-/** Numeric priority values stored in the database (smallint 0–3) */
+/** Numeric priority values stored in the database (smallint 0-3) */
 export type Priority = 0 | 1 | 2 | 3;
 
 export const PRIORITY_LOW: Priority = 0;

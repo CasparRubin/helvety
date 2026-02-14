@@ -111,7 +111,7 @@ export function EncryptionGate({
           });
         }
 
-        // Success — reset retry counter
+        // Success - reset retry counter
         retryCountRef.current = 0;
         setHasCheckedParams(true);
       } catch {
