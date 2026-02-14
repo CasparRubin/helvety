@@ -1,3 +1,4 @@
+import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
@@ -9,7 +10,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { createServerClient } from "@/lib/supabase/server";
-import "./globals.css";
 
 import type { Metadata, Viewport } from "next";
 
@@ -92,7 +92,7 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Helvety PDF | Free PDF Tool | Private and Secure",
     description:
       "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Private, secure, and 100% free with no limits.",

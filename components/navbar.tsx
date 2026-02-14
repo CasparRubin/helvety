@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CreditCard,
   Github,
   Menu,
   Info,
@@ -60,7 +61,7 @@ import type { User } from "@supabase/supabase-js";
  * - About dialog, GitHub link (in bar above 400px; in burger below 400px)
  * - Theme switcher (dark/light mode)
  * - Login button (shown when user is not authenticated)
- * - Profile menu with user email, Account link, and Sign out (shown when authenticated)
+ * - Profile menu with user email, Account link, Subscriptions link, and Sign out (shown when authenticated)
  * - Burger menu below 400px: About, GitHub plus login/user/logout sections
  *
  * Helvety PDF is a free tool with no limits. Login is optional for cross-app session sharing.
@@ -253,6 +254,20 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                     >
                       <Settings className="h-4 w-4" />
                       Account
+                    </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <a
+                      href="https://store.helvety.com/subscriptions"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <CreditCard className="h-4 w-4" />
+                      Subscriptions
                     </a>
                   </Button>
                 </div>
