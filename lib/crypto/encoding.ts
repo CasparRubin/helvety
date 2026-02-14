@@ -1,6 +1,6 @@
 /**
  * Base64 encoding/decoding utilities for crypto operations
- * Uses standard base64 encoding (btoa/atob)
+ * Uses URL-safe base64 encoding
  */
 
 /**
