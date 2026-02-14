@@ -28,7 +28,7 @@ export default function ImpressumPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Impressum</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 9, 2026
+              Last updated: February 14, 2026
             </p>
             <p className="text-muted-foreground mt-1 text-sm">
               Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant
@@ -97,9 +97,6 @@ export default function ImpressumPage() {
                   Registered in the Commercial Register of Basel-Stadt
                 </p>
                 <p className="text-muted-foreground">UID: CHE-356.266.592</p>
-                <p className="text-muted-foreground">
-                  VAT: Not subject to VAT (Nicht MWST-pflichtig)
-                </p>
               </div>
 
               <div>
@@ -117,9 +114,9 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Business Activity</h2>
             <p className="text-muted-foreground text-sm">
-              Helvety by Rubin develops and sells software and
-              software-as-a-service (SaaS) subscriptions. All products are
-              designed and developed in Switzerland.
+              Helvety by Rubin develops and sells software,
+              software-as-a-service (SaaS) subscriptions, and apparel. All
+              products are designed and developed in Switzerland.
             </p>
           </section>
 
@@ -127,8 +124,8 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Trademark</h2>
             <p className="text-muted-foreground text-sm">
-              The Helvety name, logo, and related branding are trademarks of
-              Helvety by Rubin. All rights reserved.
+              The Helvety name is a registered word mark (Wortmarke) of Helvety
+              by Rubin. All rights reserved.
             </p>
           </section>
 
@@ -143,15 +140,15 @@ export default function ImpressumPage() {
             <div className="border-border bg-card space-y-4 border p-6 text-sm">
               <div>
                 <p className="text-foreground mb-1 font-medium">
-                  Abuse Reports
+                  Contact for Abuse Reports
                 </p>
                 <p className="text-muted-foreground">
                   Email:{" "}
                   <a
-                    href="mailto:abuse@helvety.com"
+                    href="mailto:contact@helvety.com"
                     className="hover:text-foreground underline transition-colors"
                   >
-                    abuse@helvety.com
+                    contact@helvety.com
                   </a>
                 </p>
               </div>

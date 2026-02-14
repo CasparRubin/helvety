@@ -28,7 +28,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 9, 2026
+              Last updated: February 14, 2026
             </p>
           </header>
 
@@ -331,7 +331,7 @@ export default function TermsPage() {
               the WebAuthn PRF (Pseudo-Random Function) extension to derive
               encryption keys on your device. The encryption keys are not
               transmitted to or stored on our servers. If you lose access to
-              your encryption passkey, encrypted data may become permanently
+              your encryption passkey, encrypted data will become permanently
               inaccessible. Other Helvety services (helvety.com, Helvety Auth,
               Helvety PDF, Helvety Store) do not use end-to-end encryption.
             </p>
@@ -450,7 +450,7 @@ export default function TermsPage() {
 
             <h3
               id="software-saas-no-warranties"
-              className="mb-3 text-lg font-medium"
+              className="mt-8 mb-3 text-lg font-medium"
             >
               4.4 Software, Digital Products and SaaS – No Warranties and No
               Guarantees
@@ -788,7 +788,7 @@ export default function TermsPage() {
               <li>
                 You are solely responsible for maintaining access to your
                 passkey. If you lose your passkey and cannot recover it through
-                account recovery, your encrypted data may become permanently
+                account recovery, your encrypted data will become permanently
                 inaccessible.
               </li>
               <li>

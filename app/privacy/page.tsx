@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 9, 2026
+              Last updated: February 14, 2026
             </p>
           </header>
 
@@ -405,16 +405,18 @@ export default function PrivacyPage() {
                 </strong>{" "}
                 All file processing is performed entirely client-side in your
                 browser. Your files are not uploaded to, stored on, or
-                transmitted to our servers. Only your subscription status is
-                checked server-side to determine file and page limits.
+                transmitted to our servers. No login or account is required, and
+                no server-side processing or checks occur. Helvety PDF is a free
+                tool with no limits.
               </li>
               <li>
                 <strong className="text-foreground">
                   Helvety Store (store.helvety.com):
                 </strong>{" "}
                 User profile (email, optional display name), Stripe customer ID,
-                subscription and purchase history, and licensed tenant IDs (for
-                enterprise products). Payment data (card details, billing
+                subscription and purchase history, licensed tenant IDs (for
+                enterprise products), and IP address (for checkout consent audit
+                trail and rate limiting). Payment data (card details, billing
                 address) is handled exclusively by Stripe.
               </li>
               <li>
@@ -425,7 +427,9 @@ export default function PrivacyPage() {
                 end-to-end encrypted client-side before storage. Our servers
                 store only ciphertext. Encryption keys are derived from your
                 passkey and do not leave your device. Our architecture is
-                designed so that we cannot read your task data.
+                designed so that we cannot read your task data. Non-encrypted
+                metadata for file attachment operations (including your IP
+                address) is logged for security and audit purposes.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -647,7 +651,9 @@ export default function PrivacyPage() {
                   </tr>
                   <tr>
                     <td className="p-3">Upstash Inc.</td>
-                    <td className="p-3">Rate limiting</td>
+                    <td className="p-3">
+                      Rate limiting (processes IP-based identifiers)
+                    </td>
                     <td className="p-3">USA</td>
                   </tr>
                 </tbody>
@@ -759,6 +765,17 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-foreground">
+                  Consent audit records:
+                </strong>{" "}
+                When you accept the Terms of Service and Privacy Policy during
+                checkout, we record a consent event including your IP address,
+                timestamp, and the versions of the documents you accepted. This
+                data is retained for 10 years alongside transaction data as
+                legally required proof of consent (Art. 958f Swiss Code of
+                Obligations).
+              </li>
+              <li>
+                <strong className="text-foreground">
                   Communication records:
                 </strong>{" "}
                 Retained for up to 3 years after last contact.
@@ -766,6 +783,12 @@ export default function PrivacyPage() {
               <li>
                 <strong className="text-foreground">Technical logs:</strong>{" "}
                 Retained for up to 90 days for security purposes.
+              </li>
+              <li>
+                <strong className="text-foreground">Rate limiting data:</strong>{" "}
+                IP-based identifiers used for rate limiting are stored
+                temporarily in Redis (Upstash) and automatically expire within 1
+                to 5 minutes depending on the endpoint.
               </li>
               <li>
                 <strong className="text-foreground">
