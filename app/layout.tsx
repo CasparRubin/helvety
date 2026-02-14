@@ -109,6 +109,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Prevent Next.js from caching user-specific data (supabase.auth.getUser) across sessions
+export const dynamic = "force-dynamic";
+
 /**
  * Root layout: fixed header (Navbar), ScrollArea main, fixed footer (contact + legal links).
  */
