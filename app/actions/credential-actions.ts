@@ -4,7 +4,7 @@ import "server-only";
 
 import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import type { ActionResponse, UserAuthCredential } from "@/lib/types";
 
@@ -57,7 +57,7 @@ export async function getUserCredentials(): Promise<
   ActionResponse<UserAuthCredential[]>
 > {
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     const {
       data: { user },
@@ -97,7 +97,7 @@ export async function deleteCredential(
   credentialId: string
 ): Promise<ActionResponse> {
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     const {
       data: { user },

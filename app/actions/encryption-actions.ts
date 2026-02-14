@@ -3,7 +3,7 @@
 import "server-only";
 
 import { logger } from "@/lib/logger";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import type { ActionResponse, UserPasskeyParams } from "@/lib/types";
 
@@ -18,7 +18,7 @@ export type { UserPasskeyParams } from "@/lib/types";
  */
 export async function hasEncryptionSetup(): Promise<ActionResponse<boolean>> {
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     const {
       data: { user },
@@ -57,7 +57,7 @@ export async function getPasskeyParams(): Promise<
   ActionResponse<UserPasskeyParams | null>
 > {
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     const {
       data: { user },
@@ -107,7 +107,7 @@ export async function savePasskeyParams(params: {
   version: number;
 }): Promise<ActionResponse> {
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     const {
       data: { user },

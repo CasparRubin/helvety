@@ -8,7 +8,7 @@ import {
 } from "@simplewebauthn/server";
 
 import { logger } from "@/lib/logger";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import {
   RP_NAME,
@@ -56,7 +56,7 @@ export async function generatePasskeyRegistrationOptions(
   const isMobile = options?.isMobile === true;
 
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     // Get current user - must be authenticated to register a passkey
     const {
@@ -163,7 +163,7 @@ export async function verifyPasskeyRegistration(
   prfEnabled: boolean = false
 ): Promise<ActionResponse<{ credentialId: string; prfSalt?: string }>> {
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     // Get current user
     const {

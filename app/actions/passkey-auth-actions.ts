@@ -11,7 +11,7 @@ import { logAuthEvent } from "@/lib/auth-logger";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import {
   getClientIP,
@@ -77,7 +77,7 @@ export async function generatePasskeyAuthOptions(
     });
     return {
       success: false,
-      error: `Too many attempts. Please wait ${rateLimit.retryAfter} seconds.`,
+      error: `Too many attempts. Please wait ${rateLimit.retryAfter} seconds before trying again.`,
     };
   }
 
@@ -280,7 +280,7 @@ export async function verifyPasskeyAuthentication(
 
     // Verify the auth token server-side to create the session immediately
     // This avoids the PKCE/hash fragment issue where tokens are lost on server redirect
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { error: verifyError } = await supabase.auth.verifyOtp({
       token_hash: linkData.properties.hashed_token,
       type: linkData.properties.verification_type as EmailOtpType,

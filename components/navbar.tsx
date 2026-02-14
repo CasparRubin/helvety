@@ -49,7 +49,7 @@ import {
 } from "@/components/ui/tooltip";
 import { VERSION } from "@/lib/config/version";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -67,7 +67,7 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
  */
 export function Navbar() {
   const { isUnlocked, isLoading: encryptionLoading } = useEncryptionContext();
-  const supabase = createClient();
+  const supabase = createBrowserClient();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

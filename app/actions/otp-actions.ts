@@ -6,7 +6,7 @@ import { logAuthEvent } from "@/lib/auth-logger";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import { getClientIP } from "./auth-action-helpers";
 import { checkUserPasskeyStatus } from "./credential-actions";
@@ -65,7 +65,7 @@ export async function checkEmail(
     });
     return {
       success: false,
-      error: `Too many requests. Please wait ${retryAfter} seconds before trying again.`,
+      error: `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
     };
   }
 
@@ -171,7 +171,7 @@ export async function sendVerificationCode(
     });
     return {
       success: false,
-      error: `Too many requests. Please wait ${retryAfter} seconds before trying again.`,
+      error: `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
     };
   }
 
@@ -364,7 +364,7 @@ export async function verifyEmailCode(
     }
 
     // Use server client (not admin) so session cookies are properly set
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     const { data, error: verifyError } = await supabase.auth.verifyOtp({
       email: normalizedEmail,

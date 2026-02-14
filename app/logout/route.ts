@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { logger } from "@/lib/logger";
 import { isValidRedirectUri } from "@/lib/redirect-validation";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 /**
  * Logout route for signing out users
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const rawRedirectUri = searchParams.get("redirect_uri");
 
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     await supabase.auth.signOut();
   } catch (error) {
     logger.error("Logout error:", error);

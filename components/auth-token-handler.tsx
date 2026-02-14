@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { getRequiredAuthStep, buildLoginUrl } from "@/lib/auth-utils";
 import { logger } from "@/lib/logger";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 /**
  * Handles auth tokens from URL hash fragments on any page.
@@ -26,7 +26,7 @@ import { createClient } from "@/lib/supabase/client";
  */
 export function AuthTokenHandler() {
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = createBrowserClient();
   const processingRef = useRef(false);
 
   useEffect(() => {

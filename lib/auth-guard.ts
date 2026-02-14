@@ -2,7 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -23,7 +23,7 @@ import type { User } from "@supabase/supabase-js";
  * }
  */
 export async function requireAuth(): Promise<User> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   const {
     data: { user },
     error,
@@ -51,7 +51,7 @@ export async function requireAuth(): Promise<User> {
  * }
  */
 export async function getOptionalUser(): Promise<User | null> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
