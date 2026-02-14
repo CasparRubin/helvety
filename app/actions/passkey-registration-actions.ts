@@ -7,6 +7,7 @@ import {
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 
+import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -43,16 +44,31 @@ import type {
  * When isMobile is true, uses platform authenticator (this device); otherwise
  * uses cross-platform/hybrid (phone via QR) for desktop.
  *
+ * Security:
+ * - CSRF token validation
+ * - Requires authenticated user
+ *
+ * @param csrfToken - CSRF token for request validation
  * @param origin - The origin URL (e.g., 'https://auth.helvety.com')
  * @param options - Optional { isMobile } to choose platform vs hybrid flow
  * @returns Registration options to pass to the WebAuthn API
  */
 export async function generatePasskeyRegistrationOptions(
+  csrfToken: string,
   origin: string,
   options?: { isMobile?: boolean }
 ): Promise<
   ActionResponse<PublicKeyCredentialCreationOptionsJSON & { prfSalt: string }>
 > {
+  try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      success: false,
+      error: "Security validation failed. Please refresh and try again.",
+    };
+  }
+
   const isMobile = options?.isMobile === true;
 
   try {
@@ -149,19 +165,31 @@ export async function generatePasskeyRegistrationOptions(
  * Also stores PRF params for encryption if PRF was enabled.
  *
  * Security:
+ * - CSRF token validation
  * - Requires authenticated user
  * - WebAuthn ceremony verification with server-generated challenge (httpOnly cookie)
  *
+ * @param csrfToken - CSRF token for request validation
  * @param response - The registration response from the browser
  * @param origin - The origin URL
  * @param prfEnabled - Whether PRF was enabled during registration
  * @returns Success status and credential info
  */
 export async function verifyPasskeyRegistration(
+  csrfToken: string,
   response: RegistrationResponseJSON,
   origin: string,
   prfEnabled: boolean = false
 ): Promise<ActionResponse<{ credentialId: string; prfSalt?: string }>> {
+  try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      success: false,
+      error: "Security validation failed. Please refresh and try again.",
+    };
+  }
+
   try {
     const supabase = await createServerClient();
 

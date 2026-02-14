@@ -9,19 +9,19 @@ const withBundleAnalyzer = bundleAnalyzer({
 /**
  * Next.js configuration for helvety-auth (authentication service)
  *
- * CSP Note: This app uses the baseline secure CSP configuration.
- * - 'unsafe-eval' is only allowed in development (for Fast Refresh)
- * - No blob: or worker-src needed (no web workers or PDF rendering)
+ * CSP Note: CSP is now applied per-request via proxy.ts with a unique nonce.
+ * This replaces 'unsafe-inline' in script-src, providing strong XSS protection.
+ * See proxy.ts for the CSP configuration.
  */
 const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
 
-  // Security headers
+  // Security headers (CSP is set in proxy.ts with per-request nonce)
   async headers() {
     const isDevelopment = process.env.NODE_ENV === "development";
 
-    // Build headers array
+    // Build headers array (CSP omitted — handled by proxy.ts with nonce)
     const headers = [
       {
         key: "X-DNS-Prefetch-Control",
@@ -48,31 +48,6 @@ const nextConfig: NextConfig = {
       {
         key: "Permissions-Policy",
         value: "camera=(), microphone=(), geolocation=()",
-      },
-      {
-        key: "Content-Security-Policy",
-        // Note on 'unsafe-eval' and 'unsafe-inline':
-        // - 'unsafe-eval': Only included in development for Next.js Fast Refresh.
-        //   Removed in production to prevent eval-based XSS attacks.
-        // - 'unsafe-inline': Required for Next.js styled-jsx and some React patterns.
-        // XSS is mitigated through:
-        // - Strict React JSX escaping (no dangerouslySetInnerHTML)
-        // - Input validation on all user data
-        // - HTTPOnly cookies for authentication
-        value: [
-          "default-src 'self'",
-          `script-src 'self'${isDevelopment ? " 'unsafe-eval'" : ""} 'unsafe-inline' https://va.vercel-scripts.com`,
-          "style-src 'self' 'unsafe-inline'",
-          "img-src 'self' data: https:",
-          "font-src 'self' data:",
-          "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://va.vercel-scripts.com",
-          "frame-src 'self'",
-          "object-src 'none'",
-          "base-uri 'self'",
-          "form-action 'self'",
-          "frame-ancestors 'self'",
-          ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
-        ].join("; "),
       },
     ];
 

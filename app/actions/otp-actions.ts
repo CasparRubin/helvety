@@ -5,8 +5,16 @@ import "server-only";
 import { z } from "zod";
 
 import { logAuthEvent } from "@/lib/auth-logger";
+import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
-import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
+import {
+  checkRateLimit,
+  RATE_LIMITS,
+  resetRateLimit,
+  checkEscalatingLockout,
+  recordOtpFailureAndCheckLockout,
+  resetEscalatingLockout,
+} from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -15,6 +23,63 @@ import { checkUserPasskeyStatus } from "./credential-actions";
 import { hasEncryptionSetup } from "./encryption-actions";
 
 import type { ActionResponse } from "@/lib/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+// =============================================================================
+// HELPERS
+// =============================================================================
+
+/**
+ * Find a user by email using a direct database lookup via Postgres RPC.
+ *
+ * Uses the `get_auth_user_by_email` Postgres function to perform an O(1) index
+ * lookup on `auth.users.email`. This replaces the previous approach of
+ * paginating through all users via `listUsers()`, which was O(n) and loaded
+ * all user data into server memory on every login attempt.
+ *
+ * PREREQUISITE: The following SQL must be run once in your Supabase project
+ * (Dashboard → SQL Editor):
+ *
+ * ```sql
+ * CREATE OR REPLACE FUNCTION public.get_auth_user_by_email(lookup_email text)
+ * RETURNS TABLE(id uuid, email text)
+ * LANGUAGE sql
+ * SECURITY DEFINER
+ * SET search_path = ''
+ * AS $$
+ *   SELECT id, email
+ *   FROM auth.users
+ *   WHERE lower(email) = lower(lookup_email)
+ *   LIMIT 1;
+ * $$;
+ *
+ * -- Restrict access to service_role only (prevents client-side abuse)
+ * REVOKE EXECUTE ON FUNCTION public.get_auth_user_by_email(text) FROM PUBLIC;
+ * REVOKE EXECUTE ON FUNCTION public.get_auth_user_by_email(text) FROM anon;
+ * REVOKE EXECUTE ON FUNCTION public.get_auth_user_by_email(text) FROM authenticated;
+ * GRANT EXECUTE ON FUNCTION public.get_auth_user_by_email(text) TO service_role;
+ * ```
+ */
+async function findUserByEmail(
+  adminClient: SupabaseClient,
+  email: string
+): Promise<{ id: string; email: string } | null> {
+  const { data, error } = await adminClient.rpc("get_auth_user_by_email", {
+    lookup_email: email,
+  });
+
+  if (error) {
+    logger.error("Error looking up user by email via RPC:", error);
+    return null;
+  }
+
+  if (!data || (Array.isArray(data) && data.length === 0)) {
+    return null;
+  }
+
+  const user = Array.isArray(data) ? data[0] : data;
+  return { id: user.id, email: user.email ?? email };
+}
 
 // =============================================================================
 // EMAIL + OTP CODE AUTHENTICATION
@@ -79,22 +144,8 @@ export async function checkEmail(
       return { success: false, error: "Please enter a valid email address" };
     }
 
-    // Check if user exists (read-only)
-    const { data: existingUsers, error: listError } =
-      await adminClient.auth.admin.listUsers();
-
-    if (listError) {
-      logger.error("Error listing users:", listError);
-      // Return generic response to prevent enumeration
-      return {
-        success: true,
-        data: { userExists: false, hasPasskey: false },
-      };
-    }
-
-    const existingUser = existingUsers.users.find(
-      (u) => u.email?.toLowerCase() === normalizedEmail
-    );
+    // Check if user exists (read-only, direct O(1) lookup via RPC)
+    const existingUser = await findUserByEmail(adminClient, normalizedEmail);
 
     if (!existingUser) {
       return {
@@ -131,19 +182,31 @@ export async function checkEmail(
  * (they should use passkey sign-in directly instead).
  *
  * Security:
+ * - CSRF token validation
  * - Rate limited to prevent email spam attacks
  * - Email is normalized to prevent duplicates
  * - New user creation gated behind geo confirmation (GDPR compliance)
  * - Logs all attempts for audit trail
  *
+ * @param csrfToken - CSRF token for request validation
  * @param email - The user's email address
  * @param options - Optional flags; geoConfirmed must be true for new users
  * @returns Whether a code was sent or the user should use passkey sign-in
  */
 export async function sendVerificationCode(
+  csrfToken: string,
   email: string,
   options?: { geoConfirmed?: boolean }
 ): Promise<ActionResponse<{ codeSent: boolean; hasPasskey: boolean }>> {
+  try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      success: false,
+      error: "Security validation failed. Please refresh and try again.",
+    };
+  }
+
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
 
@@ -189,22 +252,8 @@ export async function sendVerificationCode(
       return { success: false, error: "Please enter a valid email address" };
     }
 
-    // Check if user exists
-    const { data: existingUsers, error: listError } =
-      await adminClient.auth.admin.listUsers();
-
-    if (listError) {
-      logger.error("Error listing users:", listError);
-      // Return generic success to prevent enumeration
-      return {
-        success: true,
-        data: { codeSent: true, hasPasskey: false },
-      };
-    }
-
-    const existingUser = existingUsers.users.find(
-      (u) => u.email?.toLowerCase() === normalizedEmail
-    );
+    // Check if user exists (direct O(1) lookup via RPC)
+    const existingUser = await findUserByEmail(adminClient, normalizedEmail);
 
     // If user exists, check if they have a passkey
     if (existingUser) {
@@ -304,15 +353,18 @@ export async function sendVerificationCode(
  * Creates a session on success and determines the next authentication step.
  *
  * Security:
+ * - CSRF token validation
  * - Rate limited to prevent brute force attacks
  * - Uses server Supabase client for proper session/cookie handling
  * - Logs all attempts for audit trail
  *
+ * @param csrfToken - CSRF token for request validation
  * @param email - The user's email address
  * @param code - The OTP code from the email
  * @returns The next step the user needs to complete
  */
 export async function verifyEmailCode(
+  csrfToken: string,
   email: string,
   code: string
 ): Promise<
@@ -322,10 +374,38 @@ export async function verifyEmailCode(
     isNewUser: boolean;
   }>
 > {
+  try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      success: false,
+      error: "Security validation failed. Please refresh and try again.",
+    };
+  }
+
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
 
-  // Rate limit by email AND IP to prevent brute force
+  // Check escalating lockout first (long-term cumulative failure counter)
+  const lockout = await checkEscalatingLockout(normalizedEmail);
+  if (!lockout.allowed) {
+    const retryMinutes = Math.ceil((lockout.retryAfter ?? 300) / 60);
+    logAuthEvent("rate_limit_exceeded", {
+      metadata: {
+        action: "verifyEmailCode",
+        email: `${normalizedEmail.slice(0, 3)}***`,
+        reason: "escalating_lockout",
+        retryMinutes,
+      },
+      ip: clientIP,
+    });
+    return {
+      success: false,
+      error: `Account temporarily locked due to too many failed attempts. Please try again in ${retryMinutes} minute${retryMinutes !== 1 ? "s" : ""}.`,
+    };
+  }
+
+  // Rate limit by email AND IP to prevent brute force (short-term sliding window)
   const emailRateLimit = await checkRateLimit(
     `otp_verify:email:${normalizedEmail}`,
     RATE_LIMITS.OTP_VERIFY.maxRequests,
@@ -377,6 +457,18 @@ export async function verifyEmailCode(
         metadata: { method: "otp", reason: verifyError?.message ?? "no_user" },
         ip: clientIP,
       });
+
+      // Record failure for escalating lockout (cumulative counter)
+      const lockoutResult =
+        await recordOtpFailureAndCheckLockout(normalizedEmail);
+      if (!lockoutResult.allowed) {
+        const retryMinutes = Math.ceil((lockoutResult.retryAfter ?? 300) / 60);
+        return {
+          success: false,
+          error: `Account temporarily locked due to too many failed attempts. Please try again in ${retryMinutes} minute${retryMinutes !== 1 ? "s" : ""}.`,
+        };
+      }
+
       return {
         success: false,
         error: "Invalid or expired code. Please try again.",
@@ -385,9 +477,10 @@ export async function verifyEmailCode(
 
     const user = data.user;
 
-    // Reset rate limit on successful verification
+    // Reset rate limit and escalating lockout on successful verification
     await resetRateLimit(`otp_verify:email:${normalizedEmail}`);
     await resetRateLimit(`otp_verify:ip:${clientIP}`);
+    await resetEscalatingLockout(normalizedEmail);
 
     logAuthEvent("login_success", {
       userId: user.id,

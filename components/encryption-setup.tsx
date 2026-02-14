@@ -26,6 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useCSRF } from "@/hooks/use-csrf";
 import { useEncryptionContext } from "@/lib/crypto";
 import { registerPasskey } from "@/lib/crypto/passkey";
 import { isMobileDevice } from "@/lib/device-utils";
@@ -65,6 +66,7 @@ export function EncryptionSetup({
 }: EncryptionSetupProps) {
   const { prfSupported, prfSupportInfo, checkPRFSupport } =
     useEncryptionContext();
+  const csrfToken = useCSRF();
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -112,9 +114,13 @@ export function EncryptionSetup({
       const origin = window.location.origin;
 
       // Generate server-side registration options for auth (includes PRF salt)
-      const serverOptions = await generatePasskeyRegistrationOptions(origin, {
-        isMobile: isMobileDevice(),
-      });
+      const serverOptions = await generatePasskeyRegistrationOptions(
+        csrfToken,
+        origin,
+        {
+          isMobile: isMobileDevice(),
+        }
+      );
       if (!serverOptions.success) {
         setError(serverOptions.error);
         resetSetup();
@@ -170,6 +176,7 @@ export function EncryptionSetup({
 
       // Verify and store credential + PRF params on the server
       const verifyResult = await verifyPasskeyRegistration(
+        csrfToken,
         regResult.response,
         origin,
         true // PRF was enabled

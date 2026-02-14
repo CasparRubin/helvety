@@ -13,6 +13,7 @@ import {
   generatePasskeyAuthOptions,
   verifyPasskeyAuthentication,
 } from "@/app/actions/passkey-auth-actions";
+import { useCSRF } from "@/hooks/use-csrf";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isPasskeySupported } from "@/lib/crypto/passkey";
 import { isMobileDevice } from "@/lib/device-utils";
@@ -71,6 +72,7 @@ export function useLoginFlow(): LoginFlowState {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createBrowserClient();
+  const csrfToken = useCSRF();
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -211,7 +213,7 @@ export function useLoginFlow(): LoginFlowState {
         } else if (result.data?.userExists) {
           // Existing user without passkey - send OTP directly (no geo confirmation needed)
           setIsNewUser(false);
-          const otpResult = await sendVerificationCode(email);
+          const otpResult = await sendVerificationCode(csrfToken, email);
           if (!otpResult.success) {
             setError(otpResult.error ?? "Failed to send verification email");
             setIsLoading(false);
@@ -232,7 +234,7 @@ export function useLoginFlow(): LoginFlowState {
         setIsLoading(false);
       }
     },
-    [email]
+    [email, csrfToken]
   );
 
   // Handle geo confirmation for new users; creates user + sends OTP only after confirmation
@@ -242,7 +244,9 @@ export function useLoginFlow(): LoginFlowState {
 
     try {
       // Now safe to create the user since they confirmed they are in Switzerland
-      const result = await sendVerificationCode(email, { geoConfirmed: true });
+      const result = await sendVerificationCode(csrfToken, email, {
+        geoConfirmed: true,
+      });
 
       if (!result.success) {
         setError(result.error ?? "Failed to send verification email");
@@ -259,7 +263,7 @@ export function useLoginFlow(): LoginFlowState {
       setError("An unexpected error occurred");
       setIsLoading(false);
     }
-  }, [email]);
+  }, [email, csrfToken]);
 
   // Handle OTP code verification
   const handleCodeVerify = useCallback(
@@ -269,7 +273,7 @@ export function useLoginFlow(): LoginFlowState {
       setIsLoading(true);
 
       try {
-        const result = await verifyEmailCode(email, otpCode);
+        const result = await verifyEmailCode(csrfToken, email, otpCode);
 
         if (!result.success) {
           setError(result.error ?? "Verification failed");
@@ -288,7 +292,7 @@ export function useLoginFlow(): LoginFlowState {
         setIsLoading(false);
       }
     },
-    [email, otpCode]
+    [email, otpCode, csrfToken]
   );
 
   // Handle resending OTP code
@@ -301,6 +305,7 @@ export function useLoginFlow(): LoginFlowState {
     try {
       // Pass geoConfirmed for new users (they already confirmed in the previous step)
       const result = await sendVerificationCode(
+        csrfToken,
         email,
         isNewUser ? { geoConfirmed: true } : undefined
       );
@@ -317,7 +322,7 @@ export function useLoginFlow(): LoginFlowState {
       setError("An unexpected error occurred");
       setIsLoading(false);
     }
-  }, [email, resendCooldown, isNewUser]);
+  }, [email, resendCooldown, isNewUser, csrfToken]);
 
   // Handle passkey sign in (for existing users or verification after setup)
   const handlePasskeySignIn = useCallback(async () => {
@@ -334,6 +339,7 @@ export function useLoginFlow(): LoginFlowState {
 
       // Get authentication options
       const optionsResult = await generatePasskeyAuthOptions(
+        csrfToken,
         origin,
         redirectUri ?? undefined,
         { isMobile: isMobileDevice() }
@@ -368,6 +374,7 @@ export function useLoginFlow(): LoginFlowState {
 
       // Verify authentication
       const verifyResult = await verifyPasskeyAuthentication(
+        csrfToken,
         authResponse,
         origin
       );
@@ -384,7 +391,7 @@ export function useLoginFlow(): LoginFlowState {
       setError("An unexpected error occurred");
       setIsLoading(false);
     }
-  }, [passkeySupported, redirectUri]);
+  }, [passkeySupported, redirectUri, csrfToken]);
 
   // Complete auth after passkey verification
   const handleCompleteAuth = useCallback(() => {

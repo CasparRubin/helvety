@@ -10,7 +10,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { CSRFProvider } from "@/hooks/use-csrf";
 import { EncryptionProvider } from "@/lib/crypto/encryption-context";
+import { generateCSRFToken, getCSRFToken } from "@/lib/csrf";
 import { createServerClient } from "@/lib/supabase/server";
 
 import type { Metadata, Viewport } from "next";
@@ -102,6 +104,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get or generate CSRF token for client components
+  const csrfToken = (await getCSRFToken()) ?? (await generateCSRFToken());
+
   // Fetch initial user server-side to avoid loading flash in Navbar
   const supabase = await createServerClient();
   const {
@@ -119,20 +124,22 @@ export default async function RootLayout({
         >
           <AuthTokenHandler />
           <TooltipProvider>
-            <EncryptionProvider>
-              <div className="flex h-screen flex-col overflow-hidden">
-                <header className="shrink-0">
-                  <Navbar initialUser={initialUser} />
-                </header>
-                <ScrollArea className="min-h-0 flex-1">
-                  <div className="mx-auto w-full max-w-[2000px]">
-                    {children}
-                  </div>
-                </ScrollArea>
-                <Footer className="shrink-0" />
-              </div>
-              <Toaster />
-            </EncryptionProvider>
+            <CSRFProvider csrfToken={csrfToken}>
+              <EncryptionProvider>
+                <div className="flex h-screen flex-col overflow-hidden">
+                  <header className="shrink-0">
+                    <Navbar initialUser={initialUser} />
+                  </header>
+                  <ScrollArea className="min-h-0 flex-1">
+                    <div className="mx-auto w-full max-w-[2000px]">
+                      {children}
+                    </div>
+                  </ScrollArea>
+                  <Footer className="shrink-0" />
+                </div>
+                <Toaster />
+              </EncryptionProvider>
+            </CSRFProvider>
           </TooltipProvider>
         </ThemeProvider>
         <Analytics />

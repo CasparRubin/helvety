@@ -2,12 +2,39 @@
 
 import "server-only";
 
+import { z } from "zod";
+
+import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
 import { createServerClient } from "@/lib/supabase/server";
 
 import type { ActionResponse, UserPasskeyParams } from "@/lib/types";
 
 export type { UserPasskeyParams } from "@/lib/types";
+
+// =============================================================================
+// INPUT VALIDATION SCHEMAS
+// =============================================================================
+
+/**
+ * Strict validation for passkey PRF parameters.
+ * Prevents oversized, malformed, or injection-prone values from reaching the DB.
+ */
+const SavePasskeyParamsSchema = z.object({
+  /** Base64-encoded PRF salt (32 bytes = 44 base64 chars with padding) */
+  prf_salt: z
+    .string()
+    .min(1, "PRF salt is required")
+    .max(100, "PRF salt too long")
+    .regex(/^[A-Za-z0-9+/]+=*$/, "PRF salt must be valid base64"),
+  /** Base64url-encoded credential ID from WebAuthn */
+  credential_id: z
+    .string()
+    .min(1, "Credential ID is required")
+    .max(512, "Credential ID too long"),
+  /** PRF key derivation version number */
+  version: z.number().int().min(1).max(10),
+});
 
 // =============================================================================
 // ENCRYPTION (PRF PARAMS)
@@ -94,19 +121,43 @@ export async function getPasskeyParams(): Promise<
  * Used during encryption setup flow
  *
  * Security:
+ * - CSRF token validation
  * - Requires authenticated user
  *
+ * @param csrfToken - CSRF token for request validation
  * @param params - The passkey parameters object
  * @param params.prf_salt - Base64-encoded PRF salt for HKDF
  * @param params.credential_id - Base64url-encoded credential ID
  * @param params.version - PRF version number
  */
-export async function savePasskeyParams(params: {
-  prf_salt: string;
-  credential_id: string;
-  version: number;
-}): Promise<ActionResponse> {
+export async function savePasskeyParams(
+  csrfToken: string,
+  params: {
+    prf_salt: string;
+    credential_id: string;
+    version: number;
+  }
+): Promise<ActionResponse> {
   try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      success: false,
+      error: "Security validation failed. Please refresh and try again.",
+    };
+  }
+
+  try {
+    // Validate input format before any DB access
+    const parseResult = SavePasskeyParamsSchema.safeParse(params);
+    if (!parseResult.success) {
+      const errorMessage =
+        parseResult.error.issues[0]?.message ?? "Invalid parameters";
+      logger.warn("Invalid passkey params:", parseResult.error);
+      return { success: false, error: errorMessage };
+    }
+    const validatedParams = parseResult.data;
+
     const supabase = await createServerClient();
 
     const {
@@ -120,9 +171,9 @@ export async function savePasskeyParams(params: {
     const { error } = await supabase.from("user_passkey_params").upsert(
       {
         user_id: user.id,
-        prf_salt: params.prf_salt,
-        credential_id: params.credential_id,
-        version: params.version,
+        prf_salt: validatedParams.prf_salt,
+        credential_id: validatedParams.credential_id,
+        version: validatedParams.version,
       },
       { onConflict: "user_id" }
     );

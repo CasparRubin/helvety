@@ -2,6 +2,7 @@
 
 import "server-only";
 
+import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerClient } from "@/lib/supabase/server";
@@ -89,13 +90,25 @@ export async function getUserCredentials(): Promise<
  * Delete a credential (for management UI)
  *
  * Security:
+ * - CSRF token validation
  * - Requires authenticated user
  *
+ * @param csrfToken - CSRF token for request validation
  * @param credentialId - The credential ID to delete
  */
 export async function deleteCredential(
+  csrfToken: string,
   credentialId: string
 ): Promise<ActionResponse> {
+  try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      success: false,
+      error: "Security validation failed. Please refresh and try again.",
+    };
+  }
+
   try {
     const supabase = await createServerClient();
 

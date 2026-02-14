@@ -42,9 +42,11 @@ export function generatePRFSalt(): string {
  */
 export async function getClientIP(): Promise<string> {
   const headersList = await headers();
+  // Prefer x-real-ip (set by Vercel from the true client IP, not spoofable)
+  // over x-forwarded-for (client-controllable when not behind a trusted proxy)
   return (
-    headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     headersList.get("x-real-ip") ??
+    headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     "unknown"
   );
 }

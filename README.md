@@ -138,9 +138,15 @@ Handles authentication callbacks from email verification (backwards-compatible f
 - If no `redirect_uri` is provided, defaults to `https://helvety.com`
 - **Always preserves `redirect_uri`** through the entire auth flow, including when handling hash fragment authentication (where tokens arrive as `#access_token=...` instead of query params)
 
-### GET `/logout`
+### `/logout` (Client-Side Page)
 
-Signs out the user and redirects.
+Signs out the user with secure key cleanup and redirects. This is a client-side page (not a route handler) so that encryption keys can be cleared from IndexedDB before the session is destroyed.
+
+**Flow:**
+
+1. Clears all encryption keys from IndexedDB (master + unit keys)
+2. Calls server action to sign out the Supabase session
+3. Redirects to the specified destination
 
 **Query Parameters:**
 
@@ -150,10 +156,11 @@ Signs out the user and redirects.
 
 ## Session Management (proxy.ts)
 
-The proxy (`proxy.ts`) handles session validation and refresh and cross-subdomain cookie management:
+The proxy (`proxy.ts`) handles session validation, security headers, and cross-subdomain cookie management:
 
 - **Session Validation & Refresh** - Uses `getClaims()` to validate the JWT locally (no Auth API call when the token is valid). The Supabase Auth API is only called when a token refresh is needed (e.g. near or past expiry). Refreshed tokens are written to cookies automatically. The call is wrapped in try/catch for resilience against transient network failures (VPN, Private Relay, mobile).
-- **Cross-Subdomain SSO** - Sets cookies with `.helvety.com` domain in production for session sharing across all Helvety apps
+- **Cross-Subdomain SSO** - Sets cookies using `COOKIE_DOMAIN` env var (defaults to `.helvety.com`) for cross-subdomain session sharing
+- **Nonce-Based CSP** - Generates a unique nonce per request, passes it to server components via `x-nonce` header, and sets a `Content-Security-Policy` header with `'nonce-...'` for script-src (replacing the old `'unsafe-inline'` approach)
 - **Server Component Support** - Ensures server components always have access to fresh session data
 
 The proxy runs on all routes except static assets and handles the Supabase session lifecycle automatically.
@@ -173,7 +180,7 @@ window.location.href = loginUrl;
 // → https://auth.helvety.com/login?redirect_uri=https://store.helvety.com/account
 ```
 
-After authentication, users are redirected back to their original app with an active session (shared via `.helvety.com` cookie domain).
+After authentication, users are redirected back to their original app with an active session (shared via cookie domain configured by `COOKIE_DOMAIN`, default `.helvety.com`).
 
 ## Database Schema
 
@@ -212,7 +219,7 @@ CREATE TABLE user_passkey_params (
 );
 ```
 
-**Note:** Each user has exactly one passkey params row (keyed by `user_id`). The `prf_salt` is used during PRF evaluation to derive the encryption key. The actual encryption key is never stored. It is derived client-side during passkey authentication.
+**Note:** Each user has at most one passkey params row (keyed by `user_id`). The row can be deleted when the user removes their last passkey (via the `user_passkey_params` DELETE policy). The `prf_salt` is used during PRF evaluation to derive the encryption key. The actual encryption key is never stored. It is derived client-side during passkey authentication.
 
 ## Security Considerations
 
@@ -220,7 +227,7 @@ CREATE TABLE user_passkey_params (
 - **PKCE Flow** - Supabase uses PKCE for OAuth code exchange
 - **OTP Code Expiry** - Verification codes expire after 1 hour
 - **Passkey Verification** - Strict origin and RP ID validation
-- **Session Cookies** - Shared across subdomains via `.helvety.com` domain
+- **Session Cookies** - Shared across subdomains via `COOKIE_DOMAIN` (defaults to `.helvety.com`)
 - **Counter Tracking** - Prevents passkey replay attacks
 - **Redirect URI Validation** - All redirect URIs are validated against a strict allowlist to prevent open redirect attacks
 
@@ -231,7 +238,7 @@ The auth service includes the following security hardening:
 - **Rate Limiting** - Protection against brute force attacks:
   - Verification code requests: 3 per 5 minutes per email, 9 per 5 minutes per IP
   - OTP verification attempts: 5 per 5 minutes per email, 15 per 5 minutes per IP
-  - Passkey authentication: 10 per minute per IP
+  - Passkey authentication (generation and verification): 10 per minute per IP
   - Rate limits reset on successful authentication
 - **CSRF Protection** - Token-based protection with timing-safe comparison for all state-changing Server Actions
 - **Server Layout Guards** - Authentication checks in Server Components (CVE-2025-29927 compliant - auth NOT in proxy)
@@ -241,16 +248,22 @@ The auth service includes the following security hardening:
   - Passkey authentication (started/success/failed)
   - Rate limit exceeded events
 - **Standardized Errors** - Consistent error codes and user-friendly messages that don't leak implementation details
-- **Security Headers** - CSP, HSTS, X-Frame-Options, and other security headers
+- **Security Headers** - Nonce-based CSP (per-request nonce via proxy.ts), HSTS, X-Frame-Options, and other security headers
 
 ### Redirect URI Validation
 
-The auth service validates all `redirect_uri` parameters to prevent open redirect vulnerabilities. Allowed destinations:
+The auth service validates all `redirect_uri` parameters to prevent open redirect vulnerabilities. Allowed destinations (explicit allowlist — no wildcard subdomains):
 
 - `https://helvety.com` and any path
-- `https://*.helvety.com` - Any subdomain (dynamically supports future apps)
-- `http://localhost:*` - Any port (development only)
-- `http://127.0.0.1:*` - Any port (development only)
+- `https://auth.helvety.com` - Authentication service
+- `https://store.helvety.com` - Store / subscription management
+- `https://pdf.helvety.com` - PDF tools
+- `https://tasks.helvety.com` - Task management
+- `https://contacts.helvety.com` - Contact management
+- `http://localhost:*` - Any port (development only, gated behind `NODE_ENV`)
+- `http://127.0.0.1:*` - Any port (development only, gated behind `NODE_ENV`)
+
+When adding a new app, add its hostname to `ALLOWED_REDIRECT_HOSTS` in `lib/redirect-validation.ts`.
 
 Invalid redirect URIs are rejected, and the user is redirected to `helvety.com` by default.
 

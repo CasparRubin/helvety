@@ -8,8 +8,10 @@ import {
 } from "@simplewebauthn/server";
 
 import { logAuthEvent } from "@/lib/auth-logger";
+import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
+import { getSafeRedirectUri } from "@/lib/redirect-validation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -42,21 +44,33 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  * Called when a user wants to sign in with a passkey
  *
  * Security:
+ * - CSRF token validation
  * - Rate limited to prevent brute force attacks
  * - Logs all attempts for audit trail
  *
  * When isMobile is true, hints client-device (this device); otherwise hybrid (phone via QR).
  *
+ * @param csrfToken - CSRF token for request validation
  * @param origin - The origin URL
  * @param redirectUri - Optional redirect URI to preserve through auth flow
  * @param options - Optional { isMobile } to choose platform vs hybrid flow
  * @returns Authentication options to pass to the WebAuthn API
  */
 export async function generatePasskeyAuthOptions(
+  csrfToken: string,
   origin: string,
   redirectUri?: string,
   authOptions?: { isMobile?: boolean }
 ): Promise<ActionResponse<PublicKeyCredentialRequestOptionsJSON>> {
+  try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      success: false,
+      error: "Security validation failed. Please refresh and try again.",
+    };
+  }
+
   const isMobile = authOptions?.isMobile === true;
   const clientIP = await getClientIP();
 
@@ -108,10 +122,13 @@ export async function generatePasskeyAuthOptions(
       )[],
     };
 
+    // Validate redirectUri against allowlist before storing (prevent open redirect)
+    const safeRedirectUri = getSafeRedirectUri(redirectUri) ?? undefined;
+
     // Store challenge for verification (no userId yet - we don't know who's authenticating)
     await storeChallenge({
       challenge: authOpts.challenge,
-      redirectUri,
+      redirectUri: safeRedirectUri,
     });
 
     return { success: true, data: optionsWithHints };
@@ -132,15 +149,18 @@ export async function generatePasskeyAuthOptions(
  * token server-side to create the session immediately, then returns a redirect URL.
  *
  * Security:
+ * - CSRF token validation
  * - Rate limited to prevent brute force attacks
  * - Counter updates are critical for replay attack prevention
  * - Logs all attempts for audit trail
  *
+ * @param csrfToken - CSRF token for request validation
  * @param response - The authentication response from the browser
  * @param origin - The origin URL
  * @returns Success status with redirect URL to final destination
  */
 export async function verifyPasskeyAuthentication(
+  csrfToken: string,
   response: AuthenticationResponseJSON,
   origin: string
 ): Promise<
@@ -149,7 +169,37 @@ export async function verifyPasskeyAuthentication(
     userId: string;
   }>
 > {
+  try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      success: false,
+      error: "Security validation failed. Please refresh and try again.",
+    };
+  }
+
   const clientIP = await getClientIP();
+
+  // Rate limit by IP to prevent brute force verification attempts
+  const rateLimit = await checkRateLimit(
+    `passkey_verify:ip:${clientIP}`,
+    RATE_LIMITS.PASSKEY.maxRequests,
+    RATE_LIMITS.PASSKEY.windowMs
+  );
+
+  if (!rateLimit.allowed) {
+    logAuthEvent("rate_limit_exceeded", {
+      metadata: {
+        action: "verifyPasskeyAuthentication",
+        retryAfter: rateLimit.retryAfter,
+      },
+      ip: clientIP,
+    });
+    return {
+      success: false,
+      error: `Too many attempts. Please wait ${rateLimit.retryAfter} seconds before trying again.`,
+    };
+  }
 
   try {
     // Retrieve stored challenge
@@ -294,8 +344,9 @@ export async function verifyPasskeyAuthentication(
     // Clear the challenge
     await clearChallenge();
 
-    // Reset rate limit on successful auth
+    // Reset rate limits on successful auth
     await resetRateLimit(`passkey_auth:ip:${clientIP}`);
+    await resetRateLimit(`passkey_verify:ip:${clientIP}`);
 
     logAuthEvent("passkey_auth_success", {
       userId: credential.user_id,
@@ -303,7 +354,10 @@ export async function verifyPasskeyAuthentication(
     });
 
     // Return the redirect URL - session is already set via cookies
-    const redirectUrl = storedData.redirectUri ?? "https://helvety.com";
+    // Re-validate stored redirectUri as defense-in-depth
+    const redirectUrl =
+      getSafeRedirectUri(storedData.redirectUri, "https://helvety.com") ??
+      "https://helvety.com";
     return {
       success: true,
       data: {
