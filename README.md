@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-Your one-stop shop for Helvety software and subscriptions. Browse and purchase official Helvety products designed in Switzerland.
+Official Helvety Store. Browse and purchase software and subscriptions designed in Switzerland.
 
 **Store:** [store.helvety.com](https://store.helvety.com)
 

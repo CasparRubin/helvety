@@ -56,6 +56,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
   publisher: "Helvety",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
     apple: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
@@ -138,8 +143,8 @@ export default async function RootLayout({
                 {children}
               </NavbarWrapper>
             </Providers>
+            <Toaster />
           </TooltipProvider>
-          <Toaster />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
@@ -169,7 +174,7 @@ async function NavbarWrapper({
           <main className="min-w-0">{children}</main>
         </div>
       </ScrollArea>
-      <Footer />
+      <Footer className="shrink-0" />
     </div>
   );
 }

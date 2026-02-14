@@ -31,7 +31,7 @@ export const SESSION_CONFIG = {
 
   /**
    * Key cache duration in milliseconds (24 hours)
-   * How long encryption keys are cached in IndexedDB
+   * How long derived encryption keys are cached client-side before re-derivation
    */
   keyCacheDuration: 24 * 60 * 60 * 1000,
 } as const;

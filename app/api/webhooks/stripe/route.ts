@@ -125,11 +125,11 @@ export async function POST(request: NextRequest) {
 
       case "customer.subscription.created":
       case "customer.subscription.updated":
-        await handleSubscriptionUpsert(event.data.object);
+        await handleSubscriptionUpsert(event.data.object, event.id);
         break;
 
       case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(event.data.object);
+        await handleSubscriptionDeleted(event.data.object, event.id);
         break;
 
       case "invoice.paid":
@@ -224,8 +224,12 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 /**
  * Handle customer.subscription.created and customer.subscription.updated
  * @param subscription
+ * @param eventId
  */
-async function handleSubscriptionUpsert(subscription: Stripe.Subscription) {
+async function handleSubscriptionUpsert(
+  subscription: Stripe.Subscription,
+  eventId: string
+) {
   const supabase = createAdminClient();
 
   // Get user ID from subscription metadata or customer
@@ -247,9 +251,9 @@ async function handleSubscriptionUpsert(subscription: Stripe.Subscription) {
       return;
     }
 
-    await upsertSubscription(subscription, profile.id);
+    await upsertSubscription(subscription, profile.id, eventId);
   } else {
-    await upsertSubscription(subscription, userId);
+    await upsertSubscription(subscription, userId, eventId);
   }
 }
 
@@ -257,10 +261,12 @@ async function handleSubscriptionUpsert(subscription: Stripe.Subscription) {
  * Upsert subscription record
  * @param subscription
  * @param userId
+ * @param eventId
  */
 async function upsertSubscription(
   subscription: Stripe.Subscription,
-  userId: string
+  userId: string,
+  eventId: string
 ) {
   const supabase = createAdminClient();
 
@@ -335,7 +341,7 @@ async function upsertSubscription(
       subscription.status === "active"
         ? "subscription.created"
         : "subscription.updated",
-    stripe_event_id: `sub_${subscription.id}_${Date.now()}`,
+    stripe_event_id: eventId,
     metadata: {
       subscription_id: subscription.id,
       status: subscription.status,
@@ -351,8 +357,12 @@ async function upsertSubscription(
 /**
  * Handle customer.subscription.deleted
  * @param subscription
+ * @param eventId
  */
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+async function handleSubscriptionDeleted(
+  subscription: Stripe.Subscription,
+  eventId: string
+) {
   const supabase = createAdminClient();
 
   // Update subscription status to canceled
@@ -388,7 +398,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     user_id: existingSub.user_id,
     subscription_id: existingSub.id,
     event_type: "subscription.canceled",
-    stripe_event_id: `sub_deleted_${subscription.id}_${Date.now()}`,
+    stripe_event_id: eventId,
     metadata: {
       subscription_id: subscription.id,
     },

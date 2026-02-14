@@ -8,11 +8,11 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Toaster as Sonner } from "sonner";
+import * as React from "react";
+import { Toaster as Sonner, type ToasterProps } from "sonner";
 
-import type { ToasterProps } from "sonner";
-
-const Toaster = ({ ...props }: ToasterProps) => {
+/** Toast notification container using Sonner. */
+const Toaster = ({ ...props }: ToasterProps): React.JSX.Element => {
   const { theme = "system" } = useTheme();
 
   return (
