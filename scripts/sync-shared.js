@@ -13,7 +13,7 @@
  *   - scripts/generate-version.js
  *   - lib/utils.ts, lib/logger.ts, lib/constants.ts (helvety-auth, helvety-store, helvety-tasks, helvety-contacts; helvety-pdf and helvety-contacts keep app-specific constants)
  *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/auth-retry.ts, lib/csrf.ts
- *   - lib/auth-guard.ts (helvety-store, helvety-tasks, helvety-contacts, helvety-pdf; helvety-auth keeps its own with local redirect)
+ *   - lib/auth-guard.ts (helvety-store, helvety-tasks, helvety-contacts; helvety-auth keeps its own with local redirect; helvety-pdf does not use it)
  *   - lib/redirect-validation.ts
  *   - lib/env-validation.ts (all except helvety-store which adds Stripe key validation)
  *   - lib/session-config.ts
@@ -85,6 +85,8 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
  * Files to skip per target
  * - helvety-pdf keeps its own lib/constants.ts with app-specific exports
  * - helvety-pdf keeps its own lib/types/entities.ts (no encryption types; E2EE not used)
+ * - helvety-pdf does not use auth-guard.ts (no login required; client-side-only PDF processing)
+ * - helvety-pdf does not use csrf.ts (no server actions requiring CSRF protection)
  * - helvety-auth keeps its own lib/auth-guard.ts (redirects to local /login instead of auth service)
  * - helvety-auth keeps its own components/auth-token-handler.tsx (includes passkey verification logic)
  * - helvety-store keeps its own lib/env-validation.ts (includes Stripe key validation)
@@ -97,7 +99,12 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
  * - helvety-contacts keeps its own lib/auth-redirect.ts (app-specific fallback URLs for dev/prod)
  */
 const TARGET_SKIP_FILES = {
-  "helvety-pdf": ["lib/constants.ts", "lib/types/entities.ts"],
+  "helvety-pdf": [
+    "lib/constants.ts",
+    "lib/types/entities.ts",
+    "lib/auth-guard.ts",
+    "lib/csrf.ts",
+  ],
   "helvety-auth": ["lib/auth-guard.ts", "components/auth-token-handler.tsx"],
   "helvety-store": ["lib/env-validation.ts", "lib/types/entities.ts"],
   "helvety-tasks": [

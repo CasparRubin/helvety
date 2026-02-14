@@ -22,7 +22,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 - **Profile menu** - When signed in: user email, links to Store (Account, Subscriptions), Sign out
 - **Dark & Light mode** - Comfortable viewing in any lighting condition
 - **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply.
-- **Abuse reporting** - The Impressum includes a dedicated abuse reporting section ([helvety.com/impressum#abuse](https://helvety.com/impressum#abuse)) with guidance for users and law enforcement. Abuse contact: [abuse@helvety.com](mailto:abuse@helvety.com).
+- **Abuse reporting** - The Impressum includes a dedicated abuse reporting section ([helvety.com/impressum#abuse](https://helvety.com/impressum#abuse)) with guidance for users and law enforcement. Abuse contact: [contact@helvety.com](mailto:contact@helvety.com).
 - **Cookie notice** - Informational banner about essential cookies only (Swiss nDSG / FMG compliant); no consent collected
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
 - **Animated logo** - Subtle glow effect on the main logo
