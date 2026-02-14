@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 
 import "./globals.css";
 
+import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -118,6 +119,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <AuthTokenHandler />
           <TooltipProvider>
             <div className="flex h-screen flex-col overflow-hidden">
               <header className="shrink-0">

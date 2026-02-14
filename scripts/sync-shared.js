@@ -10,7 +10,7 @@
  *
  * Synced paths (must match .cursor/rules/shared-code-patterns.mdc):
  *   - proxy.ts
- *   - scripts/generate-version.js
+ *   - scripts/generate-version.mjs
  *   - lib/utils.ts, lib/logger.ts, lib/constants.ts (helvety-auth, helvety-store, helvety-tasks, helvety-contacts; helvety-pdf and helvety-contacts keep app-specific constants)
  *   - lib/auth-errors.ts, lib/auth-logger.ts, lib/auth-redirect.ts, lib/auth-retry.ts, lib/csrf.ts
  *   - lib/auth-guard.ts (helvety-store, helvety-tasks, helvety-contacts; helvety-auth keeps its own with local redirect; helvety-pdf does not use it)
@@ -25,7 +25,7 @@
  *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
  *   - components/auth-token-handler.tsx (helvety-store, helvety-tasks, helvety-contacts, helvety-pdf; helvety-auth keeps its own with passkey logic)
  *   - .cursor/rules/* (coding standards and patterns)
- *   - .prettierrc, .prettierignore, .gitignore, postcss.config.mjs, eslint.config.mjs (tooling configs)
+ *   - tsconfig.json, .prettierrc, .prettierignore, .gitignore, postcss.config.mjs, eslint.config.mjs (tooling configs)
  */
 const fs = require("fs");
 const path = require("path");
@@ -46,6 +46,7 @@ const TARGET_REPOS = [
 
 const FILES = [
   // Tooling configs
+  "tsconfig.json",
   ".prettierrc",
   ".prettierignore",
   ".gitignore",
@@ -53,7 +54,7 @@ const FILES = [
   "eslint.config.mjs",
   // Shared source files
   "proxy.ts",
-  "scripts/generate-version.js",
+  "scripts/generate-version.mjs",
   "lib/utils.ts",
   "lib/logger.ts",
   "lib/constants.ts",

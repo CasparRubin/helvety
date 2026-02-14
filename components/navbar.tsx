@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/tooltip";
 import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -65,7 +65,7 @@ import type { User } from "@supabase/supabase-js";
  * - Burger menu below 400px: About, GitHub to save icon space
  */
 export function Navbar() {
-  const supabase = createClient();
+  const supabase = createBrowserClient();
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);

@@ -20,7 +20,6 @@ const eslintConfig = defineConfig([
       },
     },
     plugins: {
-      "@typescript-eslint": tseslint.plugin,
       import: importPlugin,
       jsdoc,
     },
