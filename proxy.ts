@@ -59,7 +59,6 @@ export async function proxy(request: NextRequest) {
   // Validate JWT and refresh session only when needed (getClaims validates
   // locally; Auth API is called only on refresh). Avoids 429 rate limits
   // from calling getUser() on every request.
-  //
   // Wrapped in try/catch so transient network failures (VPN, Private Relay,
   // DNS hiccups) don't crash the entire request. If refresh fails, server
   // components will handle auth independently via getUser().

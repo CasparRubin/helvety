@@ -180,9 +180,7 @@ const SUGGESTED_ICONS = [
 // Helpers
 // =============================================================================
 
-/**
- *
- */
+/** Convert a kebab-case string to PascalCase. */
 function toPascalCase(str: string): string {
   return str
     .split("-")
@@ -190,17 +188,13 @@ function toPascalCase(str: string): string {
     .join("");
 }
 
-/**
- *
- */
+/** Props accepted by a Lucide icon component. */
 type LucideIconComponent = React.ComponentType<{
   className?: string;
   style?: React.CSSProperties;
 }>;
 
-/**
- *
- */
+/** Look up a Lucide icon by kebab-case name, falling back to CircleIcon. */
 function getLucideIcon(iconName: string): LucideIconComponent {
   const pascalName = toPascalCase(iconName);
   const icons = LucideIcons as unknown as Record<string, LucideIconComponent>;
