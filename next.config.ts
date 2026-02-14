@@ -1,6 +1,12 @@
 import path from "path";
 
+import bundleAnalyzer from "@next/bundle-analyzer";
+
 import type { NextConfig } from "next";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 /**
  * Next.js configuration for helvety-pdf (PDF tools)
@@ -35,8 +41,10 @@ const nextConfig: NextConfig = {
         value: "nosniff",
       },
       {
+        // Disabled: modern best practice relies on CSP instead.
+        // "1; mode=block" is deprecated and can introduce vulnerabilities in older browsers.
         key: "X-XSS-Protection",
-        value: "1; mode=block",
+        value: "0",
       },
       {
         key: "Referrer-Policy",
@@ -84,8 +92,11 @@ const nextConfig: NextConfig = {
         value: "same-origin",
       });
       headers.push({
+        // "credentialless" allows third-party resources (Vercel Analytics, etc.)
+        // without requiring Cross-Origin-Resource-Policy headers from them,
+        // while still enabling cross-origin isolation benefits.
         key: "Cross-Origin-Embedder-Policy",
-        value: "require-corp",
+        value: "credentialless",
       });
     }
 
@@ -97,6 +108,8 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  // Webpack config (used during `next build` which still uses webpack).
+  // Disables the canvas module to prevent SSR errors with PDF.js.
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -105,15 +118,16 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Set turbopack root to current working directory (should be project root when running npm run dev)
+  // Turbopack config (used during `next dev` in Next.js 16).
+  // Sets root for proper module resolution.
   turbopack: {
     root: path.resolve("."),
   },
 
-  // Experimental features for better performance
+  // Optimize tree-shaking for barrel-export packages
   experimental: {
-    optimizePackageImports: ["sonner"],
+    optimizePackageImports: ["lucide-react", "radix-ui", "sonner"],
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
