@@ -26,7 +26,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - Link support
   - Unsaved changes detection with confirmation dialog
   - **Comment with Timestamp** - Insert timestamped comments into notes with a single click
-  - **Action panel** - View dates and set contact category directly from the editor; sections are collapsible and auto-collapse on mobile
+  - **Action panel** - View dates and set contact category directly from the editor; sections are collapsible (all start collapsed except Dates)
 - **Category management** - Organize contacts into categories (e.g., Work, Family, Friends)
   - **Default categories** - Built-in category set: Work, Family, Friends
   - **Custom category configurations** - Create your own category setups with custom names, colors, and Lucide icons
@@ -36,7 +36,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 - **Drag & drop reordering** - Easily rearrange contacts within and between categories on desktop; mobile uses up/down arrows to move contacts between categories
 - **Task linking** - View linked task entities from [Helvety Tasks](https://tasks.helvety.com) directly on the contact editor page
   - **Cross-app display** - Linked Units, Spaces, and Items are shown in dedicated sections below the notes editor
-  - **Deep links** - Click through to open any linked Unit, Space, or Item in the Tasks app (opens in a new tab)
+  - **Deep links** - Click any task row to open the linked Unit, Space, or Item in the Tasks app (opens in a new tab)
   - **Privacy** - Task entity titles are decrypted client-side; the server never sees plaintext
   - **Read-only** - Links are managed in the Tasks app; the Contacts app displays them for seamless cross-app navigation
 - **Self-Service Data Export** - Export all your contact data as a decrypted JSON file from the profile menu; data is fetched encrypted from the server and decrypted client-side using your passkey (nDSG Art. 28 compliance). Export is only available while your encryption context is unlocked.

@@ -20,13 +20,6 @@ import {
   VectorSquareIcon,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useTaskLinks } from "@/hooks";
 
 import type { LinkedUnit, LinkedSpace, LinkedItem } from "@/lib/types";
@@ -62,45 +55,33 @@ function getItemDeepLink(
 // =============================================================================
 
 /**
- * A single linked entity row with title and deep link action.
+ * A single linked entity row rendered as a clickable link to the Tasks app.
  */
 function EntityRow({
   title,
   href,
   icon: Icon,
-  tooltipLabel,
 }: {
   title: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  tooltipLabel: string;
 }): React.JSX.Element {
   return (
-    <div className="group hover:bg-muted/40 flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors">
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group hover:bg-muted/40 flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors"
+    >
       {/* Entity icon + title */}
       <Icon className="text-muted-foreground size-4 shrink-0" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{title}</p>
       </div>
 
-      {/* Deep link action */}
-      <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover:opacity-100">
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon-xs" asChild>
-                <a href={href} target="_blank" rel="noopener noreferrer">
-                  <ExternalLinkIcon className="size-3.5" />
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p>{tooltipLabel}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-    </div>
+      {/* External link indicator */}
+      <ExternalLinkIcon className="text-muted-foreground size-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+    </a>
   );
 }
 
@@ -195,7 +176,6 @@ export function TaskLinksPanel({
               title={unit.title}
               href={getUnitDeepLink(unit.id)}
               icon={VectorSquareIcon}
-              tooltipLabel="Open in Tasks"
             />
           ))}
         </EntitySection>
@@ -210,7 +190,6 @@ export function TaskLinksPanel({
               title={space.title}
               href={getSpaceDeepLink(space.unit_id, space.id)}
               icon={BoxesIcon}
-              tooltipLabel="Open in Tasks"
             />
           ))}
         </EntitySection>
@@ -225,7 +204,6 @@ export function TaskLinksPanel({
               title={item.title}
               href={getItemDeepLink(item.unit_id, item.space_id, item.id)}
               icon={BoxIcon}
-              tooltipLabel="Open in Tasks"
             />
           ))}
         </EntitySection>

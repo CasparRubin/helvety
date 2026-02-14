@@ -36,7 +36,8 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 /**
  * ContactEditor - Full editor for a single contact.
  * Two-column layout: left = name fields, email, TipTap notes editor, linked task entities;
- * right = category selector
+ * right = action panel (dates, category). On mobile the action panel is displayed
+ * above the form fields (via flex-col-reverse) for consistency with the Tasks app.
  */
 export function ContactEditor({ contactId }: { contactId: string }) {
   const router = useRouter();
@@ -278,7 +279,7 @@ export function ContactEditor({ contactId }: { contactId: string }) {
       />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col gap-8 md:flex-row">
+        <div className="flex flex-col-reverse md:flex-row md:gap-8">
           {/* Left column: Form fields + Notes editor */}
           <div className="flex-1 space-y-6">
             {/* Name fields */}

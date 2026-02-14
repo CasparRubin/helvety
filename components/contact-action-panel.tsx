@@ -22,7 +22,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
-import { useIsMobile } from "@/hooks";
 import { formatDateTime } from "@/lib/dates";
 import { renderCategoryIcon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
@@ -53,16 +52,8 @@ export function ContactActionPanel({
   onCategoryChange,
   isSavingCategory,
 }: ContactActionPanelProps) {
-  const isMobile = useIsMobile();
-
-  const [categoryOpen, setCategoryOpen] = useState(true);
-  const [prevIsMobile, setPrevIsMobile] = useState(isMobile);
-
-  // Collapse sections when switching to mobile view
-  if (isMobile && isMobile !== prevIsMobile) {
-    setPrevIsMobile(isMobile);
-    setCategoryOpen(false);
-  }
+  // All sections start collapsed except Dates (which uses defaultOpen).
+  const [categoryOpen, setCategoryOpen] = useState(false);
 
   const handleCategoryClick = useCallback(
     (categoryId: string | null) => {
