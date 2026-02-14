@@ -71,7 +71,7 @@ import type { User } from "@supabase/supabase-js";
  * - Profile menu with user email, store links, and Sign out (shown when authenticated)
  * - Burger menu below 400px: E2EE, About, GitHub plus login/user/logout sections
  */
-export function Navbar() {
+export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   const {
     isUnlocked,
     isLoading: encryptionLoading,
@@ -80,8 +80,8 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [isLoading, setIsLoading] = useState(!initialUser);
   const [isExporting, setIsExporting] = useState(false);
   const supabase = createBrowserClient();
 
@@ -101,6 +101,15 @@ export function Navbar() {
   };
 
   useEffect(() => {
+    if (initialUser) {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+      });
+      return () => subscription.unsubscribe();
+    }
+
     const getUser = async () => {
       const {
         data: { user: u },
@@ -117,7 +126,7 @@ export function Navbar() {
       setIsLoading(false);
     });
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase.auth, initialUser]);
 
   const handleLogin = () => {
     redirectToLogin();

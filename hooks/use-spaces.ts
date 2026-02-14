@@ -206,18 +206,24 @@ export function useSpaces(unitId: string): UseSpacesReturn {
         return false;
       }
 
+      // Optimistic delete: remove from state immediately, rollback on failure
+      let prevSpaces: Space[] = [];
+      setSpaces((prev) => {
+        prevSpaces = prev;
+        return prev.filter((space) => space.id !== id);
+      });
+
       try {
         const result = await deleteSpace(id, csrfToken);
         if (!result.success) {
+          setSpaces(prevSpaces);
           setError(result.error ?? "Failed to delete space");
           return false;
         }
 
-        // Optimistic update: remove from local state
-        setSpaces((prev) => prev.filter((space) => space.id !== id));
-
         return true;
       } catch (err) {
+        setSpaces(prevSpaces);
         setError(err instanceof Error ? err.message : "Failed to delete space");
         return false;
       }

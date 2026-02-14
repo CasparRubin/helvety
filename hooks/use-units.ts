@@ -198,18 +198,24 @@ export function useUnits(): UseUnitsReturn {
         return false;
       }
 
+      // Optimistic delete: remove from state immediately, rollback on failure
+      let prevUnits: Unit[] = [];
+      setUnits((prev) => {
+        prevUnits = prev;
+        return prev.filter((unit) => unit.id !== id);
+      });
+
       try {
         const result = await deleteUnit(id, csrfToken);
         if (!result.success) {
+          setUnits(prevUnits);
           setError(result.error ?? "Failed to delete unit");
           return false;
         }
 
-        // Optimistic update: remove from local state
-        setUnits((prev) => prev.filter((unit) => unit.id !== id));
-
         return true;
       } catch (err) {
+        setUnits(prevUnits);
         setError(err instanceof Error ? err.message : "Failed to delete unit");
         return false;
       }

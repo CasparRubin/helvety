@@ -21,7 +21,7 @@ import {
   Undo2Icon,
   Redo2Icon,
 } from "lucide-react";
-import { useCallback, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useCallback, useEffect, useImperativeHandle, type Ref } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -49,6 +49,8 @@ export interface TiptapEditorProps {
   className?: string;
   /** Whether to auto-focus the editor */
   autoFocus?: boolean;
+  /** Ref to access imperative editor methods */
+  ref?: Ref<TiptapEditorRef>;
 }
 
 /** Imperative handle exposed by the Tiptap editor via ref. */
@@ -310,18 +312,15 @@ function EditorToolbar({
 /**
  * Tiptap WYSIWYG editor component
  */
-export const TiptapEditor = forwardRef<TiptapEditorRef, TiptapEditorProps>(
-  (
-    {
-      content,
-      onChange,
-      placeholder = "Start typing...",
-      disabled = false,
-      className,
-      autoFocus = false,
-    },
-    ref
-  ) => {
+export function TiptapEditor({
+  content,
+  onChange,
+  placeholder = "Start typing...",
+  disabled = false,
+  className,
+  autoFocus = false,
+  ref,
+}: TiptapEditorProps) {
     const editor = useEditor({
       immediatelyRender: false,
       extensions: [
@@ -404,10 +403,7 @@ export const TiptapEditor = forwardRef<TiptapEditorRef, TiptapEditorProps>(
         <EditorContent editor={editor} />
       </div>
     );
-  }
-);
-
-TiptapEditor.displayName = "TiptapEditor";
+}
 
 /**
  * Parse description content - handles both JSON and legacy plain text

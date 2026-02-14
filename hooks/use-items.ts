@@ -200,18 +200,24 @@ export function useItems(spaceId: string): UseItemsReturn {
         return false;
       }
 
+      // Optimistic delete: remove from state immediately, rollback on failure
+      let prevItems: Item[] = [];
+      setItems((prev) => {
+        prevItems = prev;
+        return prev.filter((item) => item.id !== id);
+      });
+
       try {
         const result = await deleteItem(id, csrfToken);
         if (!result.success) {
+          setItems(prevItems);
           setError(result.error ?? "Failed to delete item");
           return false;
         }
 
-        // Optimistic update: remove from local state
-        setItems((prev) => prev.filter((item) => item.id !== id));
-
         return true;
       } catch (err) {
+        setItems(prevItems);
         setError(err instanceof Error ? err.message : "Failed to delete item");
         return false;
       }
