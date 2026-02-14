@@ -126,6 +126,12 @@
   }
 }
 
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 @layer utilities {
   .container {
     max-width: 2000px;

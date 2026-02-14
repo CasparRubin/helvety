@@ -90,7 +90,7 @@ This project is built with modern web technologies:
 - **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript with strict configuration
-- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Auth & Database)
+- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at [auth.helvety.com](https://auth.helvety.com))
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
