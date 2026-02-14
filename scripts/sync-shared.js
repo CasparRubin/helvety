@@ -17,7 +17,7 @@
  *   - lib/redirect-validation.ts
  *   - lib/env-validation.ts (all except helvety-store which adds Stripe key validation)
  *   - lib/session-config.ts
- *   - lib/supabase/client.ts, lib/supabase/server.ts, lib/supabase/admin.ts, lib/supabase/client-factory.ts
+ *   - lib/supabase/client.ts, lib/supabase/server.ts, lib/supabase/client-factory.ts
  *   - lib/types/entities.ts (helvety-auth, helvety-tasks, helvety-contacts only; helvety-store and helvety-pdf keep their own without encryption types)
  *   - lib/crypto/* (helvety-auth, helvety-tasks, helvety-contacts only; helvety-store and helvety-pdf do not use E2EE)
  *   - app/error.tsx (global error boundary)
@@ -74,7 +74,6 @@ const FILES = [
   "lib/session-config.ts",
   "lib/supabase/client.ts",
   "lib/supabase/server.ts",
-  "lib/supabase/admin.ts",
   "lib/supabase/client-factory.ts",
   "lib/types/entities.ts",
   "app/error.tsx",

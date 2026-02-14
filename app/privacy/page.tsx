@@ -407,7 +407,7 @@ export default function PrivacyPage() {
                 browser. Your files are not uploaded to, stored on, or
                 transmitted to our servers. No login or account is required, and
                 no server-side processing or checks occur. Helvety PDF is a free
-                tool with no limits.
+                tool with a maximum file size of 100MB per file.
               </li>
               <li>
                 <strong className="text-foreground">
