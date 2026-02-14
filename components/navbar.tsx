@@ -64,15 +64,26 @@ import type { User } from "@supabase/supabase-js";
  * - Profile menu with user email, links to Account, Subscriptions, and Sign out (shown when authenticated)
  * - Burger menu below 400px: About, GitHub to save icon space
  */
-export function Navbar() {
+export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   const supabase = createBrowserClient();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(initialUser);
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialUser);
 
   useEffect(() => {
+    // If we already have an initial user from the server, skip the client-side fetch
+    if (initialUser) {
+      // Still subscribe to auth state changes for real-time updates
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+      });
+      return () => subscription.unsubscribe();
+    }
+
     const getUser = async () => {
       const {
         data: { user: u },
@@ -89,7 +100,7 @@ export function Navbar() {
       setIsLoading(false);
     });
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase.auth, initialUser]);
 
   const isAuthenticated = !!user;
 
