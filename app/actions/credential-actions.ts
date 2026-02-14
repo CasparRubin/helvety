@@ -59,6 +59,7 @@ export async function getUserCredentials(): Promise<
 > {
   try {
     const supabase = await createServerClient();
+    const adminClient = createAdminClient();
 
     const {
       data: { user },
@@ -68,7 +69,8 @@ export async function getUserCredentials(): Promise<
       return { success: false, error: "Not authenticated" };
     }
 
-    const { data, error } = await supabase
+    // Use adminClient to bypass deny-all RLS policy on user_auth_credentials
+    const { data, error } = await adminClient
       .from("user_auth_credentials")
       .select("*")
       .eq("user_id", user.id)
@@ -111,6 +113,7 @@ export async function deleteCredential(
 
   try {
     const supabase = await createServerClient();
+    const adminClient = createAdminClient();
 
     const {
       data: { user },
@@ -120,7 +123,8 @@ export async function deleteCredential(
       return { success: false, error: "Not authenticated" };
     }
 
-    const { error } = await supabase
+    // Use adminClient to bypass deny-all RLS policy on user_auth_credentials
+    const { error } = await adminClient
       .from("user_auth_credentials")
       .delete()
       .eq("user_id", user.id)

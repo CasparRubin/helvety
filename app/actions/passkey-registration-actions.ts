@@ -9,6 +9,7 @@ import {
 
 import { requireCSRFToken } from "@/lib/csrf";
 import { logger } from "@/lib/logger";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerClient } from "@/lib/supabase/server";
 
 import {
@@ -73,6 +74,7 @@ export async function generatePasskeyRegistrationOptions(
 
   try {
     const supabase = await createServerClient();
+    const adminClient = createAdminClient();
 
     // Get current user - must be authenticated to register a passkey
     const {
@@ -88,8 +90,8 @@ export async function generatePasskeyRegistrationOptions(
 
     const rpId = getRpId(origin);
 
-    // Get existing credentials to exclude them
-    const { data: existingCredentials } = await supabase
+    // Use adminClient to bypass deny-all RLS policy on user_auth_credentials
+    const { data: existingCredentials } = await adminClient
       .from("user_auth_credentials")
       .select("credential_id, transports")
       .eq("user_id", user.id);
@@ -192,6 +194,7 @@ export async function verifyPasskeyRegistration(
 
   try {
     const supabase = await createServerClient();
+    const adminClient = createAdminClient();
 
     // Get current user
     const {
@@ -248,8 +251,8 @@ export async function verifyPasskeyRegistration(
       "base64url"
     );
 
-    // Store the credential in the database
-    const { error: insertError } = await supabase
+    // Use adminClient to bypass deny-all RLS policy on user_auth_credentials
+    const { error: insertError } = await adminClient
       .from("user_auth_credentials")
       .insert({
         user_id: user.id,
