@@ -16,6 +16,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { AppSwitcher } from "@/components/app-switcher";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -51,6 +52,7 @@ import {
 } from "@/components/ui/tooltip";
 import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
+import { TOAST_DURATIONS } from "@/lib/constants";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 import { downloadTaskDataExport } from "@/lib/data-export";
 import { createBrowserClient } from "@/lib/supabase/client";
@@ -90,7 +92,9 @@ export function Navbar() {
     try {
       await downloadTaskDataExport(masterKey);
     } catch {
-      // Toast error handled in the utility, silently catch here
+      toast.error("Failed to export data. Please try again.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
     } finally {
       setIsExporting(false);
     }

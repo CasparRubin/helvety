@@ -617,7 +617,7 @@ export function LabelConfiguratorContent({
                               onChange={(e) =>
                                 setNewLabelIcon(e.target.value.toLowerCase())
                               }
-                              className="h-8 text-sm"
+                              className="h-8 text-base md:text-sm"
                             />
                           </div>
                           <div className="grid max-h-48 grid-cols-6 gap-1 overflow-y-auto">
@@ -714,7 +714,7 @@ export function LabelConfiguratorContent({
                         {editingLabelId === label.id && !isDefaultConfig ? (
                           <div className="flex flex-1 items-center gap-1">
                             <Input
-                              className="h-7 text-sm"
+                              className="h-7 text-base md:text-sm"
                               value={editingLabelName}
                               onChange={(e) =>
                                 setEditingLabelName(e.target.value)
@@ -784,7 +784,7 @@ export function LabelConfiguratorContent({
                                             });
                                           }
                                         }}
-                                        className="h-8 text-sm"
+                                        className="h-8 text-base md:text-sm"
                                       />
                                     </div>
                                     <div className="grid max-h-48 grid-cols-6 gap-1 overflow-y-auto">

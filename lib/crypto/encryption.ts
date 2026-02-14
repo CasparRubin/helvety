@@ -163,7 +163,7 @@ export function isEncryptedData(value: unknown): value is EncryptedData {
 
 /**
  * Batch encrypt multiple fields of an object
- * Only encrypts string values, leaves other types unchanged
+ * Encrypts string and object values; leaves other types unchanged
  */
 export async function encryptFields<T extends Record<string, unknown>>(
   data: T,

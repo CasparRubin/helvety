@@ -4,7 +4,6 @@ import {
   Loader2Icon,
   NotepadTextIcon,
   PlusIcon,
-  SearchIcon,
   UnlinkIcon,
   UsersIcon,
 } from "lucide-react";
@@ -21,13 +20,18 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
@@ -128,42 +132,6 @@ function LinkedContactRow({
         </TooltipProvider>
       </div>
     </a>
-  );
-}
-
-/**
- * Contact picker item in the search dropdown.
- */
-function ContactPickerItem({
-  contact,
-  onSelect,
-  isLinking,
-}: {
-  contact: Contact;
-  onSelect: (id: string) => void;
-  isLinking: boolean;
-}): React.JSX.Element {
-  const name = formatContactName(contact);
-
-  return (
-    <button
-      type="button"
-      className="hover:bg-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors disabled:pointer-events-none disabled:opacity-50"
-      onClick={() => onSelect(contact.id)}
-      disabled={isLinking}
-    >
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-medium">{name}</p>
-        {contact.email && (
-          <p className="text-muted-foreground truncate text-xs">
-            {contact.email}
-          </p>
-        )}
-      </div>
-      {contact.has_notes && (
-        <NotepadTextIcon className="size-3.5 shrink-0 text-amber-500" />
-      )}
-    </button>
   );
 }
 
@@ -276,50 +244,55 @@ export function ContactLinksPanel({
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="w-72 gap-0 p-0"
+              className="w-72 p-0"
               onOpenAutoFocus={(e) => e.preventDefault()}
             >
-              {/* Search input */}
-              <div className="border-b p-2">
-                <div className="relative">
-                  <SearchIcon className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
-                  <Input
-                    placeholder="Search contacts..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-8 pl-7 text-xs"
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              {/* Contact list */}
-              <ScrollArea className="max-h-56">
-                <div className="p-1">
+              <Command shouldFilter={false}>
+                <CommandInput
+                  placeholder="Search contacts..."
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                />
+                <CommandList>
                   {isLoading ? (
                     <div className="flex items-center justify-center py-4">
                       <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
                     </div>
                   ) : filteredContacts.length === 0 ? (
-                    <p className="text-muted-foreground py-4 text-center text-xs">
+                    <CommandEmpty>
                       {allContacts.length === 0
                         ? "No contacts found"
                         : searchQuery
                           ? "No matching contacts"
                           : "All contacts are already linked"}
-                    </p>
+                    </CommandEmpty>
                   ) : (
-                    filteredContacts.map((contact) => (
-                      <ContactPickerItem
-                        key={contact.id}
-                        contact={contact}
-                        onSelect={handleLink}
-                        isLinking={isLinking}
-                      />
-                    ))
+                    filteredContacts.map((contact) => {
+                      const name = formatContactName(contact);
+                      return (
+                        <CommandItem
+                          key={contact.id}
+                          value={contact.id}
+                          onSelect={() => handleLink(contact.id)}
+                          disabled={isLinking}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium">{name}</p>
+                            {contact.email && (
+                              <p className="text-muted-foreground truncate text-xs">
+                                {contact.email}
+                              </p>
+                            )}
+                          </div>
+                          {contact.has_notes && (
+                            <NotepadTextIcon className="size-3.5 shrink-0 text-amber-500" />
+                          )}
+                        </CommandItem>
+                      );
+                    })
                   )}
-                </div>
-              </ScrollArea>
+                </CommandList>
+              </Command>
             </PopoverContent>
           </Popover>
         </div>

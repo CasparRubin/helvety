@@ -111,15 +111,14 @@ This application includes the following security hardening:
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `lib/redirect-validation.ts` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
-- **Idle Timeout** - Automatic session expiration after 30 minutes of inactivity
-- **Audit Logging** - Structured logging for authentication, encryption, and file attachment events (persisted to `attachment_audit_logs` table with 6-month retention)
+- **Attachment Audit Logging** - Structured logging for file attachment upload and deletion events (persisted to `attachment_audit_logs` table with 6-month retention)
 - **Security Headers** - CSP, HSTS, and other security headers
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
-**Attachment Audit Logging:** All file attachment operations (uploads, downloads, deletions) are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs) to the `attachment_audit_logs` database table. This audit trail is retained for up to 6 months in accordance with the Privacy Policy and supports law enforcement cooperation under valid Swiss court orders. Encrypted file content and metadata are never logged.
+**Attachment Audit Logging:** File attachment uploads and deletions are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs) to the `attachment_audit_logs` database table. This audit trail is retained for up to 6 months in accordance with the Privacy Policy and supports law enforcement cooperation under valid Swiss court orders. Encrypted file content and metadata are never logged.
 
 ## Tech Stack
 
@@ -158,11 +157,11 @@ This repository is public so users can inspect and verify the application's beha
 
 You may NOT:
 
-- Clone, copy, or download this code for any purpose
+- Copy, use, or reuse the code in any form
+- Redistribute, publish, or share the code
 - Modify, adapt, or create derivative works
-- Redistribute or share this code
-- Use this code in your own projects
-- Run this code locally or on your own servers
+- Sell, sublicense, or commercially exploit the code
+- Reverse engineer or decompile the code
 
 **This is a free task management application accessible at [tasks.helvety.com](https://tasks.helvety.com).** No subscription is required.
 

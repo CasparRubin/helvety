@@ -129,7 +129,7 @@ export function EncryptionUnlock({
 
           {isLoading && (
             <p className="text-muted-foreground text-center text-xs">
-              Waiting for your phone...
+              Waiting for passkey verification...
             </p>
           )}
         </CardContent>
