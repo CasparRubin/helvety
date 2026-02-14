@@ -4,7 +4,6 @@
  */
 
 // Internal utilities
-import { FILE_LIMITS } from "./constants";
 import { validateFileType, isPdfFile } from "./file-validation";
 
 // Types
@@ -90,26 +89,18 @@ export function validateFiniteNumber(
 
 /**
  * Validates multiple files for upload.
- * Performs type, size, and duplicate checks.
+ * Performs type and size checks (empty file detection only; no maximum size).
+ * Duplicate files are allowed and renamed in the upload handler (use-pdf-files.ts).
  *
  * @param files - Array of files to validate
- * @param existingFiles - Array of already uploaded files to check for duplicates
+ * @param _existingFiles - Array of already uploaded files (unused; kept for API compatibility)
  * @returns Validation result with errors array
  */
 export function validateFiles(
   files: ReadonlyArray<File>,
-  existingFiles: ReadonlyArray<PdfFile>
+  _existingFiles: ReadonlyArray<PdfFile>
 ): FileValidationResult {
   const errors: string[] = [];
-
-  const currentFileCount = existingFiles.length;
-  const newFileCount = files.length;
-  if (currentFileCount + newFileCount > FILE_LIMITS.MAX_FILES) {
-    errors.push(
-      `Cannot add ${newFileCount} file(s). Maximum ${FILE_LIMITS.MAX_FILES} files allowed. You currently have ${currentFileCount} file(s).`
-    );
-    return { valid: false, errors };
-  }
 
   for (const file of files) {
     const typeValidation = validateFileType(file);

@@ -1,7 +1,7 @@
 {
   "name": "Helvety PDF",
   "short_name": "Helvety PDF",
-  "description": "Privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files with client-side processing.",
+  "description": "Privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images with client-side processing.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

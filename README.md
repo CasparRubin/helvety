@@ -126,10 +126,10 @@ This repository is public so users can inspect and verify the application's beha
 
 You may NOT:
 
-- Clone, copy, or download this code for any purpose
+- Copy, use, or reuse the code in any form
+- Redistribute, publish, or share the code
 - Modify, adapt, or create derivative works
-- Redistribute or share this code
-- Use this code in your own projects
-- Run this code locally or on your own servers
+- Sell, sublicense, or commercially exploit the code
+- Reverse engineer or decompile the code
 
 See [LICENSE](./LICENSE) for full legal terms.

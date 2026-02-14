@@ -19,7 +19,7 @@ interface UseScreenSizeReturn {
 /**
  * Custom hook to detect screen size category and provide responsive utilities.
  *
- * @returns Object containing screen size category, width, and utility functions
+ * @returns Object containing screen size category, width, and boolean flags (isMobile, isTablet, isDesktop)
  */
 export function useScreenSize(): UseScreenSizeReturn {
   const [screenSize, setScreenSize] = React.useState<ScreenSize>("desktop");

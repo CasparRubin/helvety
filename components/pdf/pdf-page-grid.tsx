@@ -192,10 +192,8 @@ function PdfPageGridComponent({
         aria-label="PDF pages grid"
       >
         {pageOrder.map((unifiedPageNumber, index) => {
-          // Skip rendering if virtual scrolling is enabled and item is not visible
-          // Note: The intersection observer in PdfPageThumbnail handles actual visibility,
-          // so we render all items but they'll be unmounted when not visible
-          // This is more efficient than conditionally rendering here
+          // All items are rendered; PdfPageThumbnail uses an intersection observer
+          // to unmount off-screen thumbnails for memory management
           const page = getPageInfo(unifiedPageNumber);
           if (!page) return null;
 

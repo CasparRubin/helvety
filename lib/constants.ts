@@ -139,8 +139,6 @@ export const PDF_RENDER = {
  * File upload limits and validation
  */
 export const FILE_LIMITS = {
-  /** Maximum number of files that can be uploaded */
-  MAX_FILES: 50,
   /** Minimum delay between uploads in milliseconds */
   UPLOAD_RATE_LIMIT: 100,
 } as const;

@@ -32,7 +32,7 @@ interface UsePdfProcessingReturn {
   readonly downloadMerged: () => Promise<void>;
 }
 
-/** Parameters for usePdfProcessing: file state, page order, rotations, getCachedPdf, onError. */
+/** Parameters for usePdfProcessing: file state, unified pages, page order, deleted pages, rotations, getCachedPdf, onError. */
 interface UsePdfProcessingParams {
   readonly pdfFiles: ReadonlyArray<PdfFile>;
   readonly unifiedPages: ReadonlyArray<UnifiedPage>;
