@@ -12,7 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CSRFProvider } from "@/hooks/use-csrf";
 import { EncryptionProvider } from "@/lib/crypto/encryption-context";
-import { generateCSRFToken, getCSRFToken } from "@/lib/csrf";
+import { getCSRFToken } from "@/lib/csrf";
 import { createServerClient } from "@/lib/supabase/server";
 
 import type { Metadata, Viewport } from "next";
@@ -104,8 +104,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Get or generate CSRF token for client components
-  const csrfToken = (await getCSRFToken()) ?? (await generateCSRFToken());
+  // Read CSRF token set by proxy.ts (cookie generation happens there,
+  // not here, because cookies().set() is not allowed in Server Components)
+  const csrfToken = (await getCSRFToken()) ?? "";
 
   // Fetch initial user server-side to avoid loading flash in Navbar
   const supabase = await createServerClient();

@@ -1,73 +1,27 @@
+import { randomBytes } from "crypto";
+
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getSupabaseKey, getSupabaseUrl } from "@/lib/env-validation";
 
-// =============================================================================
-// Nonce-based CSP
-// =============================================================================
+// CSRF token cookie configuration (must match lib/csrf.ts)
+const CSRF_COOKIE_NAME = "csrf_token";
+const CSRF_TOKEN_LENGTH = 32;
 
 /**
- * Build the Content-Security-Policy header with a per-request nonce.
- *
- * Using a nonce instead of 'unsafe-inline' for script-src prevents XSS attacks
- * from injecting arbitrary inline scripts. This is critical for the auth service
- * where any XSS means total compromise (session cookies, E2EE keys, passkey
- * ceremonies).
- *
- * 'strict-dynamic' allows scripts loaded by nonce-tagged scripts to execute,
- * so dynamically loaded chunks inherit trust without explicit host allowlisting.
- */
-function buildCspHeader(nonce: string): string {
-  const isDevelopment = process.env.NODE_ENV === "development";
-
-  const directives = [
-    "default-src 'self'",
-    // Nonce-based script-src: 'strict-dynamic' propagates trust to dynamically loaded scripts
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com`,
-    // Style-src: nonce for styles where possible; 'unsafe-inline' fallback for CSS-in-JS
-    `style-src 'self' 'unsafe-inline'`,
-    "img-src 'self' data: https:",
-    "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://va.vercel-scripts.com",
-    "frame-src 'self'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'self'",
-    ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
-  ];
-
-  return directives.join("; ");
-}
-
-// =============================================================================
-// Proxy
-// =============================================================================
-
-/**
- * Proxy to refresh Supabase auth sessions and apply nonce-based CSP on every request.
+ * Proxy to refresh Supabase auth sessions on every request.
  *
  * This ensures:
  * 1. Sessions are refreshed before they expire
  * 2. Cookies are properly set with the correct domain for cross-subdomain SSO
  * 3. Server components always have access to fresh session data
- * 4. A unique CSP nonce is generated per request, replacing 'unsafe-inline' in script-src
  *
  * IMPORTANT: Per CVE-2025-29927, this proxy should ONLY handle session refresh,
  * NOT route protection. Use Server Layout Guards for authentication checks.
  */
 export async function proxy(request: NextRequest) {
-  // Generate a unique nonce for this request (used in CSP script-src)
-  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-
-  // Set the nonce in request headers so server components can read it via headers()
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-nonce", nonce);
-
-  let supabaseResponse = NextResponse.next({
-    request: { headers: requestHeaders },
-  });
+  let supabaseResponse = NextResponse.next({ request });
 
   let supabaseUrl: string;
   let supabaseKey: string;
@@ -122,10 +76,19 @@ export async function proxy(request: NextRequest) {
     // The request still proceeds; server components will re-check auth.
   }
 
-  // Apply CSP header with the per-request nonce
-  const csp = buildCspHeader(nonce);
-  supabaseResponse.headers.set("Content-Security-Policy", csp);
-  supabaseResponse.headers.set("x-nonce", nonce);
+  // Generate CSRF token if not present on the incoming request.
+  // This must happen in the proxy (not in a Server Component) because
+  // cookies().set() is not allowed in Server Components / layouts.
+  if (!request.cookies.get(CSRF_COOKIE_NAME)?.value) {
+    const token = randomBytes(CSRF_TOKEN_LENGTH).toString("hex");
+    supabaseResponse.cookies.set(CSRF_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60, // 1 hour
+    });
+  }
 
   return supabaseResponse;
 }

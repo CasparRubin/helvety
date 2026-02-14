@@ -118,43 +118,6 @@ export interface Purchase {
 }
 
 /**
- * Subscription event types for audit log
- */
-export type SubscriptionEventType =
-  | "subscription.created"
-  | "subscription.updated"
-  | "subscription.canceled"
-  | "subscription.renewed"
-  | "subscription.payment_failed"
-  | "purchase.completed"
-  | "checkout.completed";
-
-/**
- * Subscription event record (audit log).
- * subscription_id is set for subscription lifecycle events (created/updated/canceled/renewed/payment_failed)
- * and references subscriptions.id for JOINs; null for checkout.completed. purchase_id is for future
- * one-time purchase events (e.g. purchase.completed).
- */
-export interface SubscriptionEvent {
-  id: string;
-  subscription_id: string | null;
-  purchase_id: string | null;
-  user_id: string;
-  event_type: string;
-  stripe_event_id: string | null;
-  metadata: Record<string, unknown> | null;
-  created_at: string;
-}
-
-/**
- * Subscription with related info for display
- */
-export interface SubscriptionWithProduct extends Subscription {
-  product_name?: string;
-  tier_name?: string;
-}
-
-/**
  * User's subscription summary (for quick access checks)
  */
 export interface UserSubscriptionSummary {
