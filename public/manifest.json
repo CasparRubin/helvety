@@ -1,11 +1,11 @@
 {
   "name": "Helvety Contacts",
   "short_name": "Helvety Contacts",
-  "description": "Privacy-focused contact management with end-to-end encryption.",
+  "description": "Private and secure contact management with end-to-end encryption.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#faf8f7",
+  "theme_color": "#faf8f7",
   "orientation": "portrait-primary",
   "icons": [
     {
