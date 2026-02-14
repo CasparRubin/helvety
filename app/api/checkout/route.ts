@@ -28,7 +28,7 @@ import {
   getProductFromPriceId,
 } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createServerComponentClient } from "@/lib/supabase/client-factory";
+import { createServerClient } from "@/lib/supabase/server";
 
 import type { CreateCheckoutResponse } from "@/lib/types/entities";
 import type { NextRequest } from "next/server";
@@ -153,17 +153,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current user (optional - can checkout as guest)
-    const supabase = await createServerComponentClient();
+    const supabase = await createServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     let stripeCustomerId: string | undefined;
+    const adminClient = user ? createAdminClient() : null;
 
     // If user is logged in, get or create their Stripe customer
-    if (user) {
-      const adminClient = createAdminClient();
-
+    if (user && adminClient) {
       // Check if user has a profile with Stripe customer ID
       const { data: profile } = await adminClient
         .from("user_profiles")
@@ -239,10 +238,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Persist consent event in Supabase for audit trail (nDSG compliance)
-    if (user && consentTermsAt && consentVersion) {
+    if (user && adminClient && consentTermsAt && consentVersion) {
       try {
-        const consentAdminClient = createAdminClient();
-        await consentAdminClient.from("consent_events").insert({
+        await adminClient.from("consent_events").insert({
           user_id: user.id,
           event_type: "checkout_consent",
           terms_version: consentVersion,

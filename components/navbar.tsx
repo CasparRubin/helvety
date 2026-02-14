@@ -86,6 +86,7 @@ export function Navbar() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setIsLoading(false);
     });
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
@@ -164,12 +165,10 @@ export function Navbar() {
                     Your one-stop shop for Helvety software and subscriptions.
                   </DialogDescription>
                 </DialogHeader>
-                <>
-                  <div className="border-t" />
-                  <p className="text-muted-foreground text-xs">
-                    {VERSION || "Unknown build time"}
-                  </p>
-                </>
+                <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  {VERSION || "Unknown build time"}
+                </p>
                 <DialogClose asChild>
                   <Button variant="outline" className="w-full">
                     Close

@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { getLoginUrl } from "@/lib/auth-redirect";
-import { createServerClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/auth-guard";
 
 import { AccountClient } from "./account-client";
 
@@ -37,16 +35,7 @@ function AccountLoading() {
  * Requires authentication.
  */
 export default async function AccountPage() {
-  // Server-side auth check
-  const supabase = await createServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Redirect to centralized auth service if not authenticated
-  if (!user) {
-    redirect(getLoginUrl());
-  }
+  await requireAuth();
 
   return (
     <Suspense fallback={<AccountLoading />}>

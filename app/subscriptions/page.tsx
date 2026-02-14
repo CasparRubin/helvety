@@ -1,10 +1,8 @@
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { SubscriptionsPageClient } from "@/app/subscriptions/subscriptions-page-client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getLoginUrl } from "@/lib/auth-redirect";
-import { createServerClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/auth-guard";
 
 import type { Metadata } from "next";
 
@@ -35,14 +33,7 @@ function SubscriptionsLoading() {
  * Requires authentication.
  */
 export default async function SubscriptionsPage() {
-  const supabase = await createServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(getLoginUrl());
-  }
+  await requireAuth();
 
   return (
     <Suspense fallback={<SubscriptionsLoading />}>
