@@ -457,17 +457,21 @@ export async function reorderCategories(
     }
     const validatedUpdates = validationResult.data;
 
-    for (const update of validatedUpdates) {
-      const { error } = await supabase
-        .from("categories")
-        .update({ sort_order: update.sort_order })
-        .eq("id", update.id)
-        .eq("user_id", user.id);
+    // Update all categories in parallel for better performance
+    const results = await Promise.all(
+      validatedUpdates.map((update) =>
+        supabase
+          .from("categories")
+          .update({ sort_order: update.sort_order })
+          .eq("id", update.id)
+          .eq("user_id", user.id)
+      )
+    );
 
-      if (error) {
-        logger.error("Error reordering category:", error);
-        return { success: false, error: "Failed to reorder categories" };
-      }
+    const failedResult = results.find((r) => r.error);
+    if (failedResult?.error) {
+      logger.error("Error reordering category:", failedResult.error);
+      return { success: false, error: "Failed to reorder categories" };
     }
 
     return { success: true };

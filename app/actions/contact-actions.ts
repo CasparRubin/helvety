@@ -326,26 +326,30 @@ export async function reorderContacts(
       return { success: true };
     }
 
-    // Batch update each contact's sort_order and optionally category_id
-    for (const update of validatedUpdates) {
-      const updateObj: Record<string, unknown> = {
-        sort_order: update.sort_order,
-        updated_at: new Date().toISOString(),
-      };
-      if (update.category_id !== undefined) {
-        updateObj.category_id = update.category_id;
-      }
+    // Batch update all contacts in parallel for better performance
+    const now = new Date().toISOString();
+    const results = await Promise.all(
+      validatedUpdates.map((update) => {
+        const updateObj: Record<string, unknown> = {
+          sort_order: update.sort_order,
+          updated_at: now,
+        };
+        if (update.category_id !== undefined) {
+          updateObj.category_id = update.category_id;
+        }
 
-      const { error } = await supabase
-        .from("contacts")
-        .update(updateObj)
-        .eq("id", update.id)
-        .eq("user_id", user.id);
+        return supabase
+          .from("contacts")
+          .update(updateObj)
+          .eq("id", update.id)
+          .eq("user_id", user.id);
+      })
+    );
 
-      if (error) {
-        logger.error("Error reordering contact:", error);
-        return { success: false, error: "Failed to reorder contacts" };
-      }
+    const failedResult = results.find((r) => r.error);
+    if (failedResult?.error) {
+      logger.error("Error reordering contact:", failedResult.error);
+      return { success: false, error: "Failed to reorder contacts" };
     }
 
     return { success: true };

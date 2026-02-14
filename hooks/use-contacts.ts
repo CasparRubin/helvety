@@ -99,7 +99,27 @@ export function useContacts(): UseContactsReturn {
           return null;
         }
 
-        await refresh();
+        // Optimistic update: add the new contact to local state
+        setContacts((prev) => {
+          const maxSortOrder =
+            prev.length > 0 ? Math.max(...prev.map((c) => c.sort_order)) : -1;
+          const newContact: Contact = {
+            id: result.data.id,
+            user_id: prev[0]?.user_id ?? "",
+            first_name: input.first_name,
+            last_name: input.last_name,
+            email: input.email,
+            notes: input.notes,
+            category_id: input.category_id ?? null,
+            sort_order: maxSortOrder + 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          return [...prev, newContact].sort(
+            (a, b) => a.sort_order - b.sort_order
+          );
+        });
+
         return result.data;
       } catch (err) {
         setError(
@@ -108,7 +128,7 @@ export function useContacts(): UseContactsReturn {
         return null;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const update = useCallback(
@@ -139,7 +159,28 @@ export function useContacts(): UseContactsReturn {
           return false;
         }
 
-        await refresh();
+        // Optimistic update: merge changes into local state
+        setContacts((prev) =>
+          prev.map((contact) => {
+            if (contact.id !== id) return contact;
+            return {
+              ...contact,
+              ...(input.first_name !== undefined && {
+                first_name: input.first_name,
+              }),
+              ...(input.last_name !== undefined && {
+                last_name: input.last_name,
+              }),
+              ...(input.email !== undefined && { email: input.email }),
+              ...(input.notes !== undefined && { notes: input.notes }),
+              ...(input.category_id !== undefined && {
+                category_id: input.category_id ?? null,
+              }),
+              updated_at: new Date().toISOString(),
+            };
+          })
+        );
+
         return true;
       } catch (err) {
         setError(
@@ -148,7 +189,7 @@ export function useContacts(): UseContactsReturn {
         return false;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const remove = useCallback(
@@ -165,7 +206,9 @@ export function useContacts(): UseContactsReturn {
           return false;
         }
 
-        await refresh();
+        // Optimistic update: remove from local state
+        setContacts((prev) => prev.filter((contact) => contact.id !== id));
+
         return true;
       } catch (err) {
         setError(
@@ -174,7 +217,7 @@ export function useContacts(): UseContactsReturn {
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken]
   );
 
   /**
@@ -321,7 +364,26 @@ export function useContact(id: string): UseContactReturn {
           return false;
         }
 
-        await refresh();
+        // Optimistic update: merge changes into local state
+        setContact((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            ...(input.first_name !== undefined && {
+              first_name: input.first_name,
+            }),
+            ...(input.last_name !== undefined && {
+              last_name: input.last_name,
+            }),
+            ...(input.email !== undefined && { email: input.email }),
+            ...(input.notes !== undefined && { notes: input.notes }),
+            ...(input.category_id !== undefined && {
+              category_id: input.category_id ?? null,
+            }),
+            updated_at: new Date().toISOString(),
+          };
+        });
+
         return true;
       } catch (err) {
         setError(
@@ -330,7 +392,7 @@ export function useContact(id: string): UseContactReturn {
         return false;
       }
     },
-    [id, masterKey, csrfToken, refresh]
+    [id, masterKey, csrfToken]
   );
 
   const remove = useCallback(async (): Promise<boolean> => {
