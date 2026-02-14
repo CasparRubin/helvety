@@ -7,7 +7,9 @@
  */
 
 import {
+  DownloadIcon,
   EllipsisVerticalIcon,
+  Loader2Icon,
   PlusIcon,
   RefreshCwIcon,
   SettingsIcon,
@@ -32,6 +34,10 @@ interface ContactCommandBarProps {
   isRefreshing?: boolean;
   /** Callback to open the settings panel */
   onSettings: () => void;
+  /** Callback to export contact data (if provided, shows export button) */
+  onExport?: () => void;
+  /** Whether an export operation is in progress */
+  isExporting?: boolean;
 }
 
 /**
@@ -42,6 +48,8 @@ export function ContactCommandBar({
   onRefresh,
   isRefreshing,
   onSettings,
+  onExport,
+  isExporting,
 }: ContactCommandBarProps) {
   return (
     <nav
@@ -79,7 +87,23 @@ export function ContactCommandBar({
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Desktop only: Settings */}
+          {/* Desktop only: Export, Settings */}
+          {onExport && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onExport}
+              disabled={isExporting}
+              className="hidden md:inline-flex"
+            >
+              {isExporting ? (
+                <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
+              ) : (
+                <DownloadIcon className="mr-1.5 size-4 shrink-0" />
+              )}
+              <span>{isExporting ? "Exporting..." : "Export Data"}</span>
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -103,6 +127,12 @@ export function ContactCommandBar({
                 <DropdownMenuItem onClick={onRefresh} disabled={isRefreshing}>
                   <RefreshCwIcon className="mr-2 size-4" />
                   <span>Refresh</span>
+                </DropdownMenuItem>
+              )}
+              {onExport && (
+                <DropdownMenuItem onClick={onExport} disabled={isExporting}>
+                  <DownloadIcon className="mr-2 size-4" />
+                  <span>{isExporting ? "Exporting..." : "Export Data"}</span>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={onSettings}>

@@ -3,6 +3,7 @@
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
+import { toast } from "sonner";
 
 import { CategoryConfiguratorContent } from "@/components/category-configurator";
 import { ContactCommandBar } from "@/components/contact-command-bar";
@@ -26,12 +27,16 @@ import {
   useCategories,
   useCategoryAssignment,
 } from "@/hooks";
+import { TOAST_DURATIONS } from "@/lib/constants";
+import { useEncryptionContext } from "@/lib/crypto/encryption-context";
+import { downloadContactDataExport } from "@/lib/data-export";
 
 /**
  * ContactsDashboard - Main dashboard showing all contacts
  */
 export function ContactsDashboard() {
   const router = useRouter();
+  const { isUnlocked, masterKey } = useEncryptionContext();
   const { contacts, isLoading, error, refresh, create, remove, reorder } =
     useContacts();
   const {
@@ -60,6 +65,7 @@ export function ContactsDashboard() {
   }>({ open: false, id: null, name: null });
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Get the first category as default for new contacts
   const defaultCategoryId =
@@ -129,6 +135,21 @@ export function ContactsDashboard() {
     }
   }, [refresh]);
 
+  /** Export decrypted contact data as JSON (nDSG Art. 28 compliance) */
+  const handleExportData = useCallback(async () => {
+    if (!masterKey) return;
+    setIsExporting(true);
+    try {
+      await downloadContactDataExport(masterKey);
+    } catch {
+      toast.error("Failed to export data. Please try again.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  }, [masterKey]);
+
   return (
     <>
       <ContactCommandBar
@@ -136,6 +157,8 @@ export function ContactsDashboard() {
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
         onSettings={() => setIsSettingsOpen(true)}
+        onExport={isUnlocked && masterKey ? handleExportData : undefined}
+        isExporting={isExporting}
       />
 
       <div className="container mx-auto px-4 py-8">
