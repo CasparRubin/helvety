@@ -59,12 +59,14 @@ const UpdateCategorySchema = z.object({
   default_rows_shown: z.number().int().min(0).max(1000).optional(),
 });
 
-const ReorderCategoriesSchema = z.array(
-  z.object({
-    id: z.string().uuid(),
-    sort_order: z.number().int().min(0),
-  })
-);
+const ReorderCategoriesSchema = z
+  .array(
+    z.object({
+      id: z.string().uuid(),
+      sort_order: z.number().int().min(0),
+    })
+  )
+  .max(50, "Too many categories to reorder");
 
 // =============================================================================
 // CATEGORY CONFIG ACTIONS
@@ -127,11 +129,12 @@ export async function getCategoryConfigs(): Promise<
       rateLimitPrefix: "categories",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const { data: configs, error } = await supabase
       .from("category_configs")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .returns<CategoryConfigRow[]>();
 
@@ -263,11 +266,12 @@ export async function createCategory(
     }
     const validatedData = validationResult.data;
 
-    // Verify user owns the config
+    // Verify user owns the config (defense-in-depth: explicit user_id check)
     const { data: config, error: configError } = await supabase
       .from("category_configs")
       .select("id")
       .eq("id", validatedData.config_id)
+      .eq("user_id", user.id)
       .single();
 
     if (configError || !config) {
@@ -311,7 +315,7 @@ export async function getCategories(
       rateLimitPrefix: "categories",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(configId).success) {
       return { success: false, error: "Invalid config ID" };
@@ -321,6 +325,7 @@ export async function getCategories(
       .from("categories")
       .select("*")
       .eq("config_id", configId)
+      .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .returns<CategoryRow[]>();
 
@@ -496,11 +501,12 @@ export async function getCategoryAssignment(): Promise<
       rateLimitPrefix: "categories",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const { data: assignments, error } = await supabase
       .from("category_assignments")
       .select("*")
+      .eq("user_id", user.id)
       .limit(1);
 
     if (error) {
@@ -535,6 +541,18 @@ export async function setCategoryAssignment(
 
     if (!z.string().uuid().safeParse(configId).success) {
       return { success: false, error: "Invalid config ID" };
+    }
+
+    // Verify user owns the config (defense-in-depth: prevent assigning another user's config)
+    const { data: config, error: configError } = await supabase
+      .from("category_configs")
+      .select("id")
+      .eq("id", configId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (configError || !config) {
+      return { success: false, error: "Category config not found" };
     }
 
     // Upsert: try to find existing assignment first

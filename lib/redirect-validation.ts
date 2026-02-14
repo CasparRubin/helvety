@@ -6,22 +6,42 @@
  */
 
 /**
+ * Explicit allowlist of trusted redirect hosts.
+ *
+ * Security: Uses an explicit list of known subdomains instead of a wildcard
+ * (*.helvety.com) to prevent subdomain takeover attacks. If an unused subdomain
+ * DNS record is hijacked, it cannot be used for redirect-based attacks since
+ * it won't be in this list.
+ *
+ * When adding a new app/subdomain, add it here.
+ */
+const ALLOWED_REDIRECT_HOSTS = new Set([
+  "helvety.com",
+  "auth.helvety.com",
+  "store.helvety.com",
+  "pdf.helvety.com",
+  "tasks.helvety.com",
+  "contacts.helvety.com",
+]);
+
+/**
  * Allowed redirect URI patterns
  * Only these domains are permitted as redirect destinations
  *
  * Supports:
- * - helvety.com (root domain)
- * - Any subdomain of helvety.com (e.g., auth.helvety.com, store.helvety.com, pdf.helvety.com)
- * - localhost with any port (development)
- * - 127.0.0.1 with any port (development)
+ * - Explicit allowlist of helvety.com subdomains (see ALLOWED_REDIRECT_HOSTS)
+ * - localhost with any port (development only)
+ * - 127.0.0.1 with any port (development only)
  */
 const ALLOWED_REDIRECT_PATTERNS = [
-  // Production: helvety.com and any subdomain (*.helvety.com)
-  // Matches: helvety.com, auth.helvety.com, store.helvety.com, new-app.helvety.com, etc.
-  /^https:\/\/([a-z0-9-]+\.)?helvety\.com(\/.*)?$/,
-  // Development (localhost with any port)
-  /^http:\/\/localhost(:\d+)?(\/.*)?$/,
-  /^http:\/\/127\.0\.0\.1(:\d+)?(\/.*)?$/,
+  // Development only: localhost and 127.0.0.1 with any port
+  // These are gated behind NODE_ENV to prevent redirect-based attacks in production
+  ...(process.env.NODE_ENV !== "production"
+    ? [
+        /^http:\/\/localhost(:\d+)?(\/.*)?$/,
+        /^http:\/\/127\.0\.0\.1(:\d+)?(\/.*)?$/,
+      ]
+    : []),
 ];
 
 /**
@@ -41,7 +61,12 @@ export function isValidRedirectUri(uri: string | null | undefined): boolean {
       return false;
     }
 
-    // Check against allowed patterns
+    // Check explicit host allowlist (production helvety.com subdomains)
+    if (url.protocol === "https:" && ALLOWED_REDIRECT_HOSTS.has(url.hostname)) {
+      return true;
+    }
+
+    // Check regex patterns (development localhost/127.0.0.1)
     return ALLOWED_REDIRECT_PATTERNS.some((pattern) => pattern.test(uri));
   } catch {
     // Invalid URL

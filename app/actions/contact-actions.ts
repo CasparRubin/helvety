@@ -14,9 +14,17 @@ import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
 // Input Validation Schemas
 // =============================================================================
 
-/** Schema for category_id - accepts both UUIDs (custom categories) and default category IDs */
+/** Strict allowlist of valid default category IDs */
+const ALLOWED_DEFAULT_CATEGORY_IDS = [
+  "default-contact",
+  "default-contact-work",
+  "default-contact-family",
+  "default-contact-friends",
+] as const;
+
+/** Schema for category_id - accepts UUIDs (custom) or strict allowlist of default IDs */
 const CategoryIdSchema = z
-  .union([z.string().uuid(), z.string().startsWith("default-")])
+  .union([z.string().uuid(), z.enum(ALLOWED_DEFAULT_CATEGORY_IDS)])
   .nullable()
   .optional();
 
@@ -41,17 +49,16 @@ const UpdateContactSchema = z.object({
   sort_order: z.number().int().min(0).optional(),
 });
 
-/** Schema for batch reorder updates */
-const ReorderSchema = z.array(
-  z.object({
-    id: z.string().uuid(),
-    sort_order: z.number().int().min(0),
-    category_id: z
-      .union([z.string().uuid(), z.string().startsWith("default-")])
-      .nullable()
-      .optional(),
-  })
-);
+/** Schema for batch reorder updates (capped to prevent DoS via unbounded parallel queries) */
+const ReorderSchema = z
+  .array(
+    z.object({
+      id: z.string().uuid(),
+      sort_order: z.number().int().min(0),
+      category_id: CategoryIdSchema,
+    })
+  )
+  .max(500, "Too many items to reorder");
 
 // =============================================================================
 // CONTACT ACTIONS

@@ -11,3 +11,13 @@ export const TOAST_DURATIONS = {
   /** Critical errors (manual dismiss) */
   ERROR_CRITICAL: Infinity,
 } as const;
+
+/**
+ * Reusable user-facing error messages
+ */
+export const ERROR_MESSAGES = {
+  /** Data export failure */
+  EXPORT_FAILED: "Failed to export data. Please try again.",
+  /** Generic catch-all error */
+  GENERIC: "An unexpected error occurred",
+} as const;

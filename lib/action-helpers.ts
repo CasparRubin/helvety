@@ -30,7 +30,7 @@ type AuthResult =
 interface AuthGuardOptions {
   /** CSRF token to validate. Pass `undefined` to skip CSRF validation (read-only actions). */
   csrfToken?: string;
-  /** Rate limit key prefix (e.g. "contacts", "encryption"). Appends `:user:{userId}` automatically. */
+  /** Rate limit key prefix (e.g. "contacts", "encryption"). Appends `:user:{userId}` for mutations or `:read:{userId}` for read-only actions. */
   rateLimitPrefix: string;
   /** Rate limit configuration. Defaults to RATE_LIMITS.API. */
   rateLimitConfig?: { maxRequests: number; windowMs: number };
@@ -95,10 +95,8 @@ export async function authenticateAndRateLimit(
   }
 
   // 3. Rate limiting
-  // Skip rate limiting for read-only actions (no CSRF token) to reduce latency.
-  // Read-only actions are already protected by RLS and authentication above.
-  // Mutations (which include a CSRF token) are still rate-limited.
   if (csrfToken !== undefined) {
+    // Mutation rate limit (stricter)
     const rateLimit = await checkRateLimit(
       `${rateLimitPrefix}:user:${user.id}`,
       rateLimitConfig.maxRequests,
@@ -111,6 +109,23 @@ export async function authenticateAndRateLimit(
         response: {
           success: false,
           error: `Too many attempts. Please wait ${rateLimit.retryAfter ?? 60} seconds before trying again.`,
+        },
+      };
+    }
+  } else {
+    // Read-only rate limit (softer, prevents scraping/enumeration)
+    const readLimit = await checkRateLimit(
+      `${rateLimitPrefix}:read:${user.id}`,
+      RATE_LIMITS.READ.maxRequests,
+      RATE_LIMITS.READ.windowMs
+    );
+
+    if (!readLimit.allowed) {
+      return {
+        ok: false,
+        response: {
+          success: false,
+          error: `Too many requests. Please wait ${readLimit.retryAfter ?? 60} seconds before trying again.`,
         },
       };
     }

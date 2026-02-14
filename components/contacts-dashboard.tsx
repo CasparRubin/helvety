@@ -27,9 +27,10 @@ import {
   useCategories,
   useCategoryAssignment,
 } from "@/hooks";
-import { TOAST_DURATIONS } from "@/lib/constants";
+import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
 import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 import { downloadContactDataExport } from "@/lib/data-export";
+import { logger } from "@/lib/logger";
 
 /**
  * ContactsDashboard - Main dashboard showing all contacts
@@ -141,8 +142,9 @@ export function ContactsDashboard() {
     setIsExporting(true);
     try {
       await downloadContactDataExport(masterKey);
-    } catch {
-      toast.error("Failed to export data. Please try again.", {
+    } catch (error) {
+      logger.error("Data export failed:", error);
+      toast.error(ERROR_MESSAGES.EXPORT_FAILED, {
         duration: TOAST_DURATIONS.ERROR,
       });
     } finally {

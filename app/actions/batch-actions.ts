@@ -42,21 +42,27 @@ export async function getContactsDashboardData(): Promise<
       rateLimitPrefix: "contacts",
     });
     if (!auth.ok) return auth.response;
-    const { supabase } = auth.ctx;
+    const { user, supabase } = auth.ctx;
 
     const [contactsResult, categoryConfigsResult, assignmentResult] =
       await Promise.all([
         supabase
           .from("contacts")
           .select("*")
+          .eq("user_id", user.id)
           .order("sort_order", { ascending: true })
           .returns<ContactRow[]>(),
         supabase
           .from("category_configs")
           .select("*")
+          .eq("user_id", user.id)
           .order("created_at", { ascending: true })
           .returns<CategoryConfigRow[]>(),
-        supabase.from("category_assignments").select("*").limit(1),
+        supabase
+          .from("category_assignments")
+          .select("*")
+          .eq("user_id", user.id)
+          .limit(1),
       ]);
 
     if (

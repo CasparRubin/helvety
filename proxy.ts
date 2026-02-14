@@ -45,7 +45,7 @@ export async function proxy(request: NextRequest) {
         cookiesToSet.forEach(({ name, value, options }) => {
           const cookieOptions = {
             ...options,
-            // In production, use shared domain for cross-subdomain session sharing
+            // In production, use COOKIE_DOMAIN env for cross-subdomain session sharing (default: .helvety.com)
             ...(process.env.NODE_ENV === "production" && {
               domain: process.env.COOKIE_DOMAIN ?? ".helvety.com",
             }),
