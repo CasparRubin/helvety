@@ -34,8 +34,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#faf8f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#1c1816" },
   ],
 };
 
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
     siteName: "Helvety PDF",
     title: "Helvety PDF | Free PDF Tool | Private and Secure",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. 100% free with no limits.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Private, secure, and 100% free with no limits.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",
@@ -95,7 +95,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Helvety PDF | Free PDF Tool | Private and Secure",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. 100% free with no limits.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Private, secure, and 100% free with no limits.",
     images: [
       {
         url: "/helvety_Identifier_whiteBg.svg",
