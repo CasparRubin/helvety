@@ -1,3 +1,5 @@
+import path from "path";
+
 import bundleAnalyzer from "@next/bundle-analyzer";
 
 import type { NextConfig } from "next";
@@ -102,6 +104,11 @@ const nextConfig: NextConfig = {
         headers,
       },
     ];
+  },
+
+  // Set turbopack root to current working directory (should be project root when running npm run dev)
+  turbopack: {
+    root: path.resolve("."),
   },
 
   // Optimize tree-shaking for barrel-export packages
