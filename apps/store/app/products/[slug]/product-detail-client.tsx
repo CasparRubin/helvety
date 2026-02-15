@@ -1,0 +1,660 @@
+"use client";
+
+/**
+ * Product detail client component
+ * Displays full product information with pricing tiers
+ * Integrates with Stripe Checkout for subscription purchases
+ */
+
+import {
+  FileText,
+  LayoutGrid,
+  Cloud,
+  Download,
+  Package,
+  Check,
+  ChevronDown,
+  Loader2,
+  RotateCcw,
+  ArrowLeft,
+  Globe,
+  Github,
+  type LucideIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { notFound, useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
+
+import {
+  getUserSubscriptions,
+  reactivateSubscription,
+} from "@/app/actions/subscription-actions";
+import {
+  PurchaseConsentDialog,
+  type ConsentMetadata,
+} from "@/components/digital-content-consent-dialog";
+import {
+  ProductBadge,
+  StatusBadge,
+  FeatureList,
+  MediaGallery,
+} from "@/components/products";
+import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
+import { useCSRF } from "@/hooks/use-csrf";
+import { TOAST_DURATIONS } from "@/lib/constants";
+import { getProductBySlug } from "@/lib/data/products";
+import { logger } from "@/lib/logger";
+import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
+import { isSoftwareProduct } from "@/lib/types/products";
+import { cn } from "@/lib/utils";
+
+import type {
+  CreateCheckoutResponse,
+  Subscription,
+} from "@/lib/types/entities";
+import type { PricingTier } from "@/lib/types/products";
+
+// Icon mapping for products
+const iconMap: Record<string, LucideIcon> = {
+  FileText,
+  LayoutGrid,
+  Cloud,
+  Download,
+  Package,
+};
+
+/** Props for the product detail page client component. */
+interface ProductDetailClientProps {
+  slug: string;
+}
+
+/** Renders the full product detail page with pricing, media, and features. */
+export function ProductDetailClient({ slug }: ProductDetailClientProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const product = getProductBySlug(slug);
+
+  const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
+  const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>(
+    []
+  );
+
+  /**
+   * Fetch user subscriptions
+   */
+  const fetchSubscriptions = useCallback(async () => {
+    try {
+      const result = await getUserSubscriptions();
+      if (result.success && result.data) {
+        setUserSubscriptions(result.data);
+      }
+    } catch (error) {
+      logger.error("Error fetching subscriptions:", error);
+    }
+  }, []);
+
+  // Fetch subscriptions on mount
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Data fetching on mount is a valid pattern
+    void fetchSubscriptions();
+  }, [fetchSubscriptions]);
+
+  // Handle checkout success/cancelled state from URL params
+  useEffect(() => {
+    const checkoutStatus = searchParams.get("checkout");
+
+    if (checkoutStatus === "success") {
+      // Show product-specific success message
+      if (product?.id === "helvety-spo-explorer") {
+        // SPO Explorer: Guide users to register tenants
+        toast.success("Welcome to SPO Explorer!", {
+          description: "Register your SharePoint tenant to get started.",
+          action: {
+            label: "Register Tenant",
+            onClick: () => router.push("/tenants"),
+          },
+          duration: TOAST_DURATIONS.SUCCESS * 2, // Extra long for actionable toast
+        });
+      } else {
+        // Default success message
+        toast.success("Payment successful! Thank you for your purchase.", {
+          description: "Your subscription is now active.",
+          duration: TOAST_DURATIONS.SUCCESS,
+        });
+      }
+      // Refresh subscriptions after successful checkout
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Data fetching after checkout is valid
+      void fetchSubscriptions();
+      // Clean up URL
+      window.history.replaceState({}, "", `/products/${slug}`);
+    } else if (checkoutStatus === "cancelled") {
+      toast.info("Checkout cancelled", {
+        description: "No payment was made. You can try again anytime.",
+        duration: TOAST_DURATIONS.INFO,
+      });
+      // Clean up URL
+      window.history.replaceState({}, "", `/products/${slug}`);
+    }
+  }, [searchParams, slug, fetchSubscriptions, product?.id, router]);
+
+  if (!product) {
+    notFound();
+  }
+
+  const Icon = product.icon ? (iconMap[product.icon] ?? FileText) : FileText;
+
+  // Get monthly tiers only (filter out yearly tiers)
+  const monthlyTiers = product.pricing.tiers.filter(
+    (tier) => tier.interval !== "yearly"
+  );
+
+  const handleTierSelect = (tier: PricingTier) => {
+    setSelectedTier(tier);
+  };
+
+  const hasLinks =
+    Boolean(product.links?.website) || Boolean(product.links?.github);
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Back + Product links */}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/products">
+            <ArrowLeft className="size-4" />
+            <span className="hidden sm:inline">Back to Products</span>
+          </Link>
+        </Button>
+        {hasLinks && product.links && (
+          <div className="flex items-center gap-1">
+            {product.links.website && (
+              <Button variant="ghost" size="sm" asChild>
+                <a
+                  href={product.links.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Globe className="size-4" />
+                  <span className="hidden sm:inline">Website</span>
+                </a>
+              </Button>
+            )}
+            {product.links.github && (
+              <Button variant="ghost" size="sm" asChild>
+                <a
+                  href={product.links.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Github className="size-4" />
+                  <span className="hidden sm:inline">GitHub</span>
+                </a>
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Product Header */}
+      <div className="mb-12">
+        <div className="flex items-start gap-4">
+          <div className="bg-primary/10 text-primary flex size-16 shrink-0 items-center justify-center rounded-xl">
+            <Icon className="size-8" />
+          </div>
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                {product.name}
+              </h1>
+              <ProductBadge type={product.type} />
+              {product.status !== "available" && (
+                <StatusBadge status={product.status} />
+              )}
+            </div>
+            <p className="text-muted-foreground max-w-2xl text-lg">
+              {product.shortDescription}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Two-column layout: Main Content + Features Sidebar */}
+      <div className="grid gap-12 lg:grid-cols-[1fr_400px]">
+        {/* Main Content */}
+        <div className="space-y-8">
+          {/* Description */}
+          <section>
+            <h2 className="mb-4 text-xl font-semibold">About</h2>
+            <div className="prose prose-neutral dark:prose-invert max-w-none">
+              {product.description.split("\n\n").map((paragraph) => (
+                <p key={paragraph} className="text-muted-foreground">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </section>
+
+          {/* Pricing Section */}
+          <Separator />
+          <section>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold">Pricing</h2>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Choose the plan that works best for you
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-6">
+              {monthlyTiers.map((tier) => {
+                // Find subscription for this tier
+                const tierSubscription =
+                  userSubscriptions.find(
+                    (sub) =>
+                      sub.tier_id === tier.id &&
+                      (sub.status === "active" || sub.status === "trialing")
+                  ) ?? null;
+
+                return (
+                  <PricingCard
+                    key={tier.id}
+                    tier={tier}
+                    selected={selectedTier?.id === tier.id}
+                    onSelect={() => handleTierSelect(tier)}
+                    productSlug={slug}
+                    userSubscription={tierSubscription}
+                    onReactivate={fetchSubscriptions}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        </div>
+
+        {/* Right Sidebar - Features & Requirements */}
+        <div className="space-y-6">
+          <div className="bg-card sticky top-32 z-10 space-y-6 rounded-xl border p-6 shadow-sm">
+            {/* Features */}
+            <section>
+              <h2 className="mb-4 text-lg font-semibold">Features</h2>
+              <FeatureList features={product.features} />
+            </section>
+
+            {/* System Requirements */}
+            {isSoftwareProduct(product) && product.software?.requirements && (
+              <>
+                <Separator />
+                <section>
+                  <h2 className="mb-4 text-lg font-semibold">Requirements</h2>
+                  <ul className="text-muted-foreground space-y-2 text-sm">
+                    {product.software.requirements.map((req: string) => (
+                      <li key={req} className="flex items-start gap-2">
+                        <Check className="text-primary mt-0.5 size-4 shrink-0" />
+                        <span>{req}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </>
+            )}
+          </div>
+
+          {/* Media (Screencaptures & Screenshots) - Collapsible */}
+          {product.media &&
+            ((product.media.screencaptures?.length ?? 0) > 0 ||
+              (product.media.screenshots?.length ?? 0) > 0) && (
+              <div className="bg-card rounded-xl border p-6 shadow-sm">
+                <Collapsible defaultOpen={false}>
+                  <CollapsibleTrigger className="flex w-full items-center justify-between transition-opacity hover:opacity-80">
+                    <h2 className="text-lg font-semibold">Media</h2>
+                    <ChevronDown className="text-muted-foreground size-5 transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="mt-4 space-y-6">
+                      {/* Screencaptures */}
+                      {product.media.screencaptures &&
+                        product.media.screencaptures.length > 0 && (
+                          <div>
+                            <h3 className="text-muted-foreground mb-3 text-sm font-medium">
+                              Screencaptures
+                            </h3>
+                            <MediaGallery
+                              items={product.media.screencaptures}
+                            />
+                          </div>
+                        )}
+                      {/* Screenshots */}
+                      {product.media.screenshots &&
+                        product.media.screenshots.length > 0 && (
+                          <div>
+                            <h3 className="text-muted-foreground mb-3 text-sm font-medium">
+                              Screenshots
+                            </h3>
+                            <MediaGallery items={product.media.screenshots} />
+                          </div>
+                        )}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Props for an inline pricing card on the product detail page. */
+interface PricingCardProps {
+  tier: PricingTier;
+  selected: boolean;
+  onSelect: () => void;
+  productSlug: string;
+  userSubscription?: Subscription | null;
+  onReactivate?: () => void;
+}
+
+/** Renders a pricing tier card with checkout or reactivation actions. */
+function PricingCard({
+  tier,
+  selected,
+  onSelect,
+  productSlug,
+  userSubscription,
+  onReactivate,
+}: PricingCardProps) {
+  // CSRF token for security
+  const csrfToken = useCSRF();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
+  const isRecurring = tier.interval === "monthly" || tier.interval === "yearly";
+  const intervalLabel = isRecurring
+    ? "/month"
+    : tier.interval === "one-time"
+      ? "one-time"
+      : "";
+  // Check checkout eligibility based on tier ID (stable between server/client)
+  const hasPaidCheckout =
+    !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id);
+
+  // Subscription state checks
+  const hasActiveSubscription =
+    userSubscription &&
+    (userSubscription.status === "active" ||
+      userSubscription.status === "trialing") &&
+    !userSubscription.cancel_at_period_end;
+  const isPendingCancellation =
+    userSubscription &&
+    (userSubscription.status === "active" ||
+      userSubscription.status === "trialing") &&
+    userSubscription.cancel_at_period_end;
+
+  const formatPrice = (cents: number) => {
+    if (cents === 0) return "Free";
+    return `CHF ${(cents / 100).toFixed(2).replace(".00", "")}`;
+  };
+
+  /**
+   * Handle reactivate subscription
+   */
+  const handleReactivate = async () => {
+    if (!userSubscription) return;
+
+    setIsReactivating(true);
+
+    try {
+      const result = await reactivateSubscription(
+        userSubscription.id,
+        csrfToken
+      );
+
+      if (!result.success) {
+        throw new Error(result.error ?? "Failed to reactivate subscription");
+      }
+
+      toast.success("Subscription reactivated", {
+        description: "Your subscription will continue as normal.",
+        duration: TOAST_DURATIONS.SUCCESS,
+      });
+
+      onReactivate?.();
+    } catch (error) {
+      logger.error("Reactivate subscription error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to reactivate subscription. Please try again.",
+        { duration: TOAST_DURATIONS.ERROR }
+      );
+    } finally {
+      setIsReactivating(false);
+    }
+  };
+
+  /**
+   * Handle button click - shows pre-checkout dialog (Terms & Policy + digital content consent) for paid digital products
+   */
+  const handleButtonClick = () => {
+    // Handle reactivation
+    if (isPendingCancellation) {
+      void handleReactivate();
+      return;
+    }
+
+    // Already subscribed - do nothing
+    if (hasActiveSubscription) {
+      return;
+    }
+
+    if (tier.isFree || !hasPaidCheckout) {
+      onSelect();
+      return;
+    }
+
+    // Show pre-checkout dialog (Terms & Privacy Policy consent)
+    setShowConsentDialog(true);
+  };
+
+  /**
+   * Handle checkout for paid tiers via Stripe (called after Terms & Privacy consent)
+   */
+  const handleCheckout = async (consent?: ConsentMetadata) => {
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tierId: tier.id,
+          successUrl: `/products/${productSlug}?checkout=success`,
+          cancelUrl: `/products/${productSlug}?checkout=cancelled`,
+          ...(consent && {
+            consentTermsAt: consent.termsAcceptedAt,
+            consentVersion: consent.consentVersion,
+          }),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error ?? "Failed to create checkout session");
+      }
+
+      const data: CreateCheckoutResponse = await response.json();
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.checkoutUrl;
+    } catch (error) {
+      logger.error("Checkout error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to start checkout. Please try again.",
+        { duration: TOAST_DURATIONS.ERROR }
+      );
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div
+      className={cn(
+        "bg-card relative flex w-80 flex-col rounded-2xl border px-6 py-8 text-center transition-all duration-200",
+        hasActiveSubscription &&
+          "border-green-500 bg-green-500/5 ring-2 ring-green-500",
+        isPendingCancellation &&
+          "border-amber-500 bg-amber-500/5 ring-2 ring-amber-500",
+        !hasActiveSubscription &&
+          !isPendingCancellation &&
+          selected &&
+          "border-primary ring-primary ring-2",
+        !hasActiveSubscription &&
+          !isPendingCancellation &&
+          tier.highlighted &&
+          !selected &&
+          "border-primary shadow-xl",
+        !hasActiveSubscription &&
+          !isPendingCancellation &&
+          !tier.highlighted &&
+          !selected &&
+          "hover:border-primary/50 hover:shadow-lg"
+      )}
+    >
+      {/* Current Plan badge */}
+      {hasActiveSubscription && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="flex items-center gap-1 rounded-full bg-green-500 px-3 py-1 text-xs font-medium text-white shadow-md">
+            <Check className="size-3" />
+            Current Plan
+          </span>
+        </div>
+      )}
+      {/* Canceling badge */}
+      {isPendingCancellation && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-medium text-white shadow-md">
+            Canceling
+          </span>
+        </div>
+      )}
+      {/* Recommended badge - only show if not subscribed */}
+      {tier.highlighted && !hasActiveSubscription && !isPendingCancellation && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-medium shadow-md">
+            Recommended
+          </span>
+        </div>
+      )}
+
+      {/* Tier name */}
+      <h3 className="text-xl font-bold">{tier.name}</h3>
+
+      {/* Price */}
+      <div className="mt-5">
+        <div className="flex items-baseline justify-center gap-1">
+          <span className="text-4xl font-bold tracking-tight">
+            {formatPrice(tier.price)}
+          </span>
+        </div>
+        {intervalLabel && tier.price > 0 && (
+          <p className="text-muted-foreground mt-1 text-sm">{intervalLabel}</p>
+        )}
+      </div>
+
+      {/* Divider */}
+      <Separator className="my-5" />
+
+      {/* Features */}
+      <ul className="flex-1 space-y-3 text-left">
+        {tier.features.map((feature) => (
+          <li key={feature} className="flex items-start gap-2">
+            <Check className="mt-0.5 size-4 shrink-0 text-green-500" />
+            <span className="text-sm">{feature}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Limits info */}
+      {tier.limits && Object.keys(tier.limits).length > 0 && (
+        <div className="bg-muted/50 mt-5 rounded-lg p-3 text-left">
+          <ul className="text-muted-foreground space-y-1 text-xs">
+            {tier.limits.maxFiles !== undefined && (
+              <li>
+                {tier.limits.maxFiles === -1
+                  ? "✓ Unlimited files"
+                  : `Up to ${tier.limits.maxFiles} files`}
+              </li>
+            )}
+            {tier.limits.maxFileSize && (
+              <li>Max file size: {tier.limits.maxFileSize}</li>
+            )}
+          </ul>
+        </div>
+      )}
+
+      {/* CTA - Only show for paid tiers */}
+      {!tier.isFree && (
+        <Button
+          className="mt-6 w-full"
+          variant={
+            hasActiveSubscription
+              ? "outline"
+              : isPendingCancellation
+                ? "default"
+                : tier.highlighted
+                  ? "default"
+                  : "outline"
+          }
+          onClick={handleButtonClick}
+          disabled={
+            isLoading ||
+            isReactivating ||
+            !hasPaidCheckout ||
+            !!hasActiveSubscription
+          }
+        >
+          {isLoading || isReactivating ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" />
+              {isReactivating ? "Reactivating..." : "Processing..."}
+            </>
+          ) : hasActiveSubscription ? (
+            <>
+              <Check className="mr-2 size-4" />
+              Current Plan
+            </>
+          ) : isPendingCancellation ? (
+            <>
+              <RotateCcw className="mr-2 size-4" />
+              Reactivate
+            </>
+          ) : hasPaidCheckout ? (
+            "Subscribe Now"
+          ) : (
+            "Coming Soon"
+          )}
+        </Button>
+      )}
+
+      {/* Pre-checkout consent dialog (Terms & Privacy Policy) */}
+      <PurchaseConsentDialog
+        open={showConsentDialog}
+        onOpenChange={setShowConsentDialog}
+        onConfirm={handleCheckout}
+        isLoading={isLoading}
+        productName={tier.name}
+      />
+    </div>
+  );
+}
