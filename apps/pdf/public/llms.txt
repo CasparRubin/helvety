@@ -1,0 +1,16 @@
+# Helvety PDF
+
+> Free, privacy-focused PDF toolkit. Merge, reorder, delete, rotate, and extract PDF pages entirely in the browser. No uploads, no servers, 100% client-side processing. Engineered and designed in Switzerland.
+
+## Core Pages
+- [Home](https://pdf.helvety.com): PDF toolkit with merge, reorder, rotate, delete, and extract features
+
+## Helvety Ecosystem
+- [Helvety](https://helvety.com): Main Helvety website with company information and legal pages
+- [Helvety Store](https://store.helvety.com): Official store for Helvety software products and subscriptions
+- [Helvety Auth](https://auth.helvety.com): Centralized authentication for all Helvety apps
+- [Helvety Contacts](https://contacts.helvety.com): End-to-end encrypted contact management
+- [Helvety Tasks](https://tasks.helvety.com): End-to-end encrypted task management
+
+## Optional
+- [GitHub](https://github.com/CasparRubin/helvety-pdf): Public repository for Helvety PDF (source-visible, not open source)
