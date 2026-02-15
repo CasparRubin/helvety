@@ -187,7 +187,7 @@ export function ContactsDashboard() {
             <DialogHeader>
               <DialogTitle>Create Contact</DialogTitle>
               <DialogDescription>
-                Create a new contact. All data is encrypted end-to-end.
+                Create a new contact. All content is encrypted end-to-end.
               </DialogDescription>
             </DialogHeader>
 

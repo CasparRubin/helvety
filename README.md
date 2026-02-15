@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A private and secure contact management app with end-to-end encryption. All your data is encrypted and only you can read it. Engineered & Designed in Switzerland.
+A private and secure contact management app with end-to-end encryption. All your content is encrypted and only you can read it. Engineered & Designed in Switzerland.
 
 **App:** [contacts.helvety.com](https://contacts.helvety.com)
 
@@ -17,7 +17,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 ## Features
 
-- **End-to-end encryption** - All contact data is encrypted client-side using your passkey; we never see your data
+- **End-to-end encryption** - All contact content is encrypted client-side using your passkey; we never see your content (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
 - **Contact fields** - Each contact stores First Name(s), Last Name(s), Description, Email, Phone, Birthday, and Notes
 - **Rich text notes** - Rich text editor for contact notes with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
@@ -61,7 +61,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ### End-to-End Encryption
 
-Helvety Contacts uses end-to-end encryption (E2EE), as does Helvety Tasks. Your contact data is encrypted and decrypted entirely in your browser using a key derived from your passkey. The server stores only encrypted data and PRF salt parameters. The server never possesses your encryption key.
+Helvety Contacts uses end-to-end encryption (E2EE), as does Helvety Tasks. Your contact content is encrypted and decrypted entirely in your browser using a key derived from your passkey. The server stores only encrypted ciphertext and PRF salt parameters. The server never possesses your encryption key.
 
 **How it works:**
 
@@ -73,7 +73,31 @@ Helvety Contacts uses end-to-end encryption (E2EE), as does Helvety Tasks. Your 
 6. Record identifiers for encrypted data are generated on your device, not by the server
 7. The server stores only encrypted ciphertext and PRF salt values
 
-**Important:** Your passkey is the only way to decrypt your data. If you lose access to your passkey, your encrypted data cannot be recovered.
+**Important:** Your passkey is the only way to decrypt your content. If you lose access to your passkey, your encrypted content cannot be recovered.
+
+#### Encrypted vs. Non-Encrypted Fields
+
+**Encrypted fields** (AES-256-GCM, client-side before storage):
+
+| Entity         | Encrypted Fields                                                                |
+| -------------- | ------------------------------------------------------------------------------- |
+| Contact        | `first_name`, `last_name`, `description`, `email`, `phone`, `birthday`, `notes` |
+| CategoryConfig | `name`                                                                          |
+| Category       | `name`                                                                          |
+
+**Non-encrypted structural metadata** (stored in plaintext to enable application functionality):
+
+| Field                           | Purpose                                            |
+| ------------------------------- | -------------------------------------------------- |
+| Record identifiers (`id`)       | Generated client-side; bound to ciphertext via AAD |
+| `user_id`                       | Row Level Security (RLS)                           |
+| `created_at`, `updated_at`      | Timestamps                                         |
+| `sort_order`                    | Display ordering                                   |
+| `category_id` (Contact)         | Category assignment                                |
+| `color`, `icon` (Category)      | Display preferences                                |
+| `default_rows_shown` (Category) | UI preference                                      |
+| `config_id` (Category)          | Parent config reference                            |
+| Category assignments            | Linking table (all fields plaintext)               |
 
 Browser requirements for end-to-end encryption:
 
@@ -92,7 +116,7 @@ Browser requirements for end-to-end encryption:
 
 ### Authentication Flow
 
-Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is required** because all contact data is encrypted and tied to your passkey.
+Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is required** because all contact content is encrypted and tied to your passkey.
 
 **New Users:**
 
