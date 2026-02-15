@@ -1,0 +1,133 @@
+"use client";
+
+import { Check } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+/** Type of authentication flow */
+export type AuthFlowType = "new_user" | "returning_user";
+
+/** Steps in the authentication flow */
+export type AuthStep =
+  | "geo_confirmation"
+  | "email"
+  | "create_passkey"
+  | "sign_in";
+
+/** Configuration for a single authentication step. */
+interface StepConfig {
+  id: AuthStep;
+  label: string;
+}
+
+/** Step configurations for each flow type */
+const FLOW_STEPS: Record<AuthFlowType, StepConfig[]> = {
+  new_user: [
+    { id: "geo_confirmation", label: "Non-EU Confirmation" },
+    { id: "email", label: "Email Verification" },
+    { id: "create_passkey", label: "Passkey Setup" },
+  ],
+  returning_user: [
+    { id: "email", label: "Email" },
+    { id: "sign_in", label: "Passkey Sign In" },
+  ],
+};
+
+/**
+ * Get the auth step based on setup step (used by encryption-setup)
+ */
+export function getSetupStep(
+  setupStep: "initial" | "registering" | "complete"
+): AuthStep {
+  switch (setupStep) {
+    case "initial":
+    case "registering":
+    case "complete":
+      return "create_passkey";
+  }
+}
+
+/** Props for the AuthStepper component. */
+interface AuthStepperProps {
+  flowType: AuthFlowType;
+  currentStep: AuthStep;
+  className?: string;
+}
+
+/**
+ * Stepper component for the authentication flow.
+ */
+export function AuthStepper({
+  flowType,
+  currentStep,
+  className,
+}: AuthStepperProps) {
+  const steps = FLOW_STEPS[flowType];
+  const currentIndex = steps.findIndex((s) => s.id === currentStep);
+
+  return (
+    <div className={cn("mx-auto mb-6 w-full max-w-md", className)}>
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: `repeat(${steps.length}, 1fr)` }}
+      >
+        {steps.map((step, index) => {
+          const isComplete = index < currentIndex;
+          const isCurrent = index === currentIndex;
+          const isLast = index === steps.length - 1;
+
+          return (
+            <div key={step.id} className="flex flex-col items-center">
+              {/* Step circle with connector line */}
+              <div className="relative flex w-full items-center justify-center">
+                {/* Left connector - stops at circle edge */}
+                {index > 0 && (
+                  <div
+                    className={cn(
+                      "absolute left-0 h-0.5 w-[calc(50%-24px)]",
+                      index <= currentIndex ? "bg-primary" : "bg-muted"
+                    )}
+                  />
+                )}
+                {/* Right connector - starts at circle edge */}
+                {!isLast && (
+                  <div
+                    className={cn(
+                      "absolute left-[calc(50%+24px)] h-0.5 w-[calc(50%-24px)]",
+                      isComplete ? "bg-primary" : "bg-muted"
+                    )}
+                  />
+                )}
+                {/* Circle */}
+                <div
+                  className={cn(
+                    "relative z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-colors",
+                    isComplete && "bg-primary text-primary-foreground",
+                    isCurrent &&
+                      "bg-primary/20 text-primary border-primary border-2",
+                    !isComplete &&
+                      !isCurrent &&
+                      "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {isComplete ? <Check className="h-5 w-5" /> : index + 1}
+                </div>
+              </div>
+              {/* Label */}
+              <span
+                className={cn(
+                  "mt-2 text-center text-xs",
+                  isCurrent
+                    ? "text-primary font-medium"
+                    : "text-muted-foreground"
+                )}
+              >
+                {step.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
