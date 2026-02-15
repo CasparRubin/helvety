@@ -1,10 +1,9 @@
 import { randomBytes } from "crypto";
 
 import { COOKIE_DOMAIN } from "@helvety/shared/config";
+import { getSupabaseKey, getSupabaseUrl } from "@helvety/shared/env-validation";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-
-import { getSupabaseKey, getSupabaseUrl } from "@/lib/env-validation";
 
 // CSRF token cookie configuration (must match @helvety/shared/csrf)
 const CSRF_COOKIE_NAME = "csrf_token";

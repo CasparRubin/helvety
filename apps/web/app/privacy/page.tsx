@@ -1027,7 +1027,7 @@ export default function PrivacyPage() {
                       Passkey authentication challenge (httpOnly)
                     </td>
                     <td className="border-border border-b p-3">
-                      helvety.com/auth
+                      helvety.com (path: /auth)
                     </td>
                     <td className="border-border border-b p-3">5 minutes</td>
                   </tr>

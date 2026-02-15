@@ -29,6 +29,7 @@
     "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
+    "@helvety/brand": "workspace:*",
     "@helvety/shared": "workspace:*",
     "@fontsource-variable/public-sans": "^5.2.7",
     "@simplewebauthn/browser": "^13.2.2",

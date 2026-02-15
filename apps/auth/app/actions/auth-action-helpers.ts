@@ -89,8 +89,10 @@ export function getRpId(origin: string): string {
 }
 
 /**
- * Get expected origins for verification
- * Includes all Helvety origins for passkey verification
+ * Get expected origins for passkey verification.
+ * In production there is a single origin (https://helvety.com) because all
+ * apps are served under one domain via path-based routing (multi-zone).
+ * In development each app runs on a separate localhost port.
  */
 export function getExpectedOrigins(rpId: string): string[] {
   if (rpId === "localhost") {

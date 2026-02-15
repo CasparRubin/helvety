@@ -1,7 +1,7 @@
 "use client";
 
+import { HelvetyLogo } from "@helvety/brand";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import "./page.css";
 
@@ -55,15 +55,9 @@ export default function Home() {
             }
             className="logo-glow-wrapper flex justify-center"
           >
-            <Image
-              src="/helvety_logo_white.svg"
-              alt="Helvety logo"
-              width={1200}
-              height={300}
+            <HelvetyLogo
+              aria-label="Helvety logo"
               className="mx-auto h-auto w-[90vw] max-w-6xl"
-              sizes="(max-width: 768px) 95vw, (max-width: 1280px) 90vw, 1400px"
-              loading="eager"
-              fetchPriority="high"
             />
           </motion.div>
 

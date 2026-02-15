@@ -130,7 +130,7 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 
 1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
 2. Sign in with passkey (no email sent; existing users with a passkey skip email verification)
-3. Redirected back to Contacts app → Unlock encryption with passkey
+3. Redirected back to Contacts app → Encryption unlocked automatically (single-touch SSO; the passkey ceremony at helvety.com/auth includes PRF for key derivation, so no second passkey prompt is needed)
 
 Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
 
@@ -141,8 +141,8 @@ Sessions are shared across all Helvety apps via cookie-based SSO (all apps are s
 This application includes the following security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
-- **Server Layout Guards** - Authentication checks in Server Components via `lib/auth-guard.ts` with retry logic for transient failures (CVE-2025-29927 compliant)
-- **Redirect URI Validation** - All redirect URIs validated against allowlist via `lib/redirect-validation.ts` to prevent open redirect attacks
+- **Server Layout Guards** - Authentication checks in Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (CVE-2025-29927 compliant)
+- **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
 - **Security Headers** - CSP, HSTS, and other security headers

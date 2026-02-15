@@ -215,7 +215,13 @@ export function useLoginFlow(): LoginFlowState {
         }
 
         if (result.data?.hasPasskey) {
-          // User with passkey - go directly to passkey sign-in
+          // User with passkey - go directly to passkey sign-in.
+          // If the server returned PRF params, cache them so the passkey
+          // ceremony includes the PRF extension for single-touch encryption
+          // unlock -- even on a new device with empty localStorage.
+          if (result.data.prfSalt && result.data.prfVersion != null) {
+            cachePRFSalt(result.data.prfSalt, result.data.prfVersion);
+          }
           setSkippedToPasskey(true);
           setIsNewUser(false);
           setStep("passkey-signin");

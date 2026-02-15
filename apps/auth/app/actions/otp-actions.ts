@@ -93,6 +93,12 @@ async function findUserByEmail(
  * users BEFORE creating any database records (critical for geo-restriction
  * compliance: no EU user data may be stored before confirmation).
  *
+ * When the user has a passkey, also returns their PRF salt and version so the
+ * client can cache them before the passkey ceremony. This enables single-touch
+ * login + encryption unlock even on new devices where localStorage is empty.
+ * The PRF salt is NOT sensitive -- it's a public parameter stored in the
+ * database; security comes from the passkey's private key, not the salt.
+ *
  * Security:
  * - Rate limited to prevent enumeration attacks
  * - Email is normalized to prevent duplicates
@@ -100,11 +106,13 @@ async function findUserByEmail(
  * - Returns generic responses on errors to prevent enumeration
  *
  * @param email - The user's email address
- * @returns Whether this identity can use direct passkey sign-in
+ * @returns Whether this identity can use direct passkey sign-in, plus PRF params if available
  */
 export async function checkEmail(
   email: string
-): Promise<ActionResponse<{ hasPasskey: boolean }>> {
+): Promise<
+  ActionResponse<{ hasPasskey: boolean; prfSalt?: string; prfVersion?: number }>
+> {
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
 
@@ -160,9 +168,44 @@ export async function checkEmail(
     const hasPasskey =
       passkeyStatus.success && (passkeyStatus.data?.hasPasskey ?? false);
 
+    if (!hasPasskey) {
+      return {
+        success: true,
+        data: { hasPasskey: false },
+      };
+    }
+
+    // Fetch PRF params so the client can include PRF in the passkey ceremony.
+    // This enables single-touch login + encryption unlock on any device.
+    try {
+      const { data: prfData, error: prfError } = await adminClient
+        .from("user_passkey_params")
+        .select("prf_salt, version")
+        .eq("user_id", existingUser.id)
+        .single();
+
+      if (!prfError && prfData) {
+        return {
+          success: true,
+          data: {
+            hasPasskey: true,
+            prfSalt: prfData.prf_salt,
+            prfVersion: prfData.version,
+          },
+        };
+      }
+    } catch (prfFetchError) {
+      // Non-fatal: PRF params fetch failed, but passkey sign-in still works.
+      // The user will just need a separate encryption unlock step.
+      logger.warn(
+        "Failed to fetch PRF params during checkEmail:",
+        prfFetchError
+      );
+    }
+
     return {
       success: true,
-      data: { hasPasskey },
+      data: { hasPasskey: true },
     };
   } catch (error) {
     logger.error("Error in checkEmail:", error);

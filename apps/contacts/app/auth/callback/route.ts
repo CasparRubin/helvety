@@ -1,10 +1,10 @@
+import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { logger } from "@helvety/shared/logger";
 import { checkRateLimit, RATE_LIMITS } from "@helvety/shared/rate-limit";
 import { getSafeRelativePath } from "@helvety/shared/redirect-validation";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 
-import { getLoginUrl } from "@/lib/auth-redirect";
 
 import type { EmailOtpType } from "@supabase/supabase-js";
 

@@ -5,7 +5,7 @@ import { getSupabaseKey, getSupabaseUrl } from "@helvety/shared/env-validation";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// CSRF token cookie configuration (must match lib/csrf.ts)
+// CSRF token cookie configuration (must match @helvety/shared/csrf)
 const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
 
@@ -16,6 +16,7 @@ const CSRF_TOKEN_LENGTH = 32;
  * 1. Sessions are refreshed before they expire
  * 2. Cookies are properly set with the correct domain for session sharing
  * 3. Server components always have access to fresh session data
+ * 4. CSRF tokens are generated for server action protection
  *
  * IMPORTANT: Per CVE-2025-29927, this proxy should ONLY handle session refresh,
  * NOT route protection. Use Server Layout Guards for authentication checks.
@@ -85,7 +86,7 @@ export async function proxy(request: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 60 * 24, // 24 hours
     });
   }
 

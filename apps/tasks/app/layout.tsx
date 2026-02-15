@@ -1,4 +1,5 @@
 import "./globals.css";
+import { brandAssets } from "@helvety/brand/urls";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -78,7 +79,7 @@ export const metadata: Metadata = {
       "Manage your tasks with ease. Private, secure, and encrypted task management. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_identifier_whiteBg.png",
+        url: brandAssets.identifierPng,
         width: 500,
         height: 500,
         alt: "Helvety Tasks",
@@ -92,7 +93,7 @@ export const metadata: Metadata = {
       "Manage your tasks with ease. Private, secure, and encrypted task management. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_identifier_whiteBg.png",
+        url: brandAssets.identifierPng,
         alt: "Helvety Tasks",
       },
     ],
@@ -143,15 +144,15 @@ export default async function RootLayout({
                 "@type": "Organization",
                 name: "Helvety",
                 url: "https://helvety.com",
-                logo: "https://helvety.com/helvety_identifier_whiteBg.png",
+                logo: brandAssets.identifierPng,
                 description:
                   "Software and subscriptions engineered and designed in Switzerland.",
                 sameAs: [
                   "https://helvety.com",
-                  "https://helvety.com/store",
-                  "https://helvety.com/pdf",
                   "https://helvety.com/auth",
                   "https://helvety.com/contacts",
+                  "https://helvety.com/pdf",
+                  "https://helvety.com/store",
                   "https://github.com/CasparRubin",
                 ],
               },

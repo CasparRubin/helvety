@@ -187,7 +187,7 @@ Other Helvety apps redirect to helvety.com/auth for authentication:
 
 ```typescript
 // In helvety.com/store or helvety.com/pdf
-// Each app has its own lib/auth-redirect.ts with helper functions
+// Apps use @helvety/shared/auth-redirect for helper functions
 
 // Example redirect for unauthenticated users
 const currentUrl = window.location.href;

@@ -1,4 +1,5 @@
 import "./globals.css";
+import { brandAssets } from "@helvety/brand/urls";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -75,7 +76,7 @@ export const metadata: Metadata = {
       "The main Helvety website. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_identifier_whiteBg.png",
+        url: brandAssets.identifierPng,
         width: 500,
         height: 500,
         alt: "Helvety",
@@ -90,7 +91,7 @@ export const metadata: Metadata = {
       "The main Helvety website. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_identifier_whiteBg.png",
+        url: brandAssets.identifierPng,
       },
     ],
   },
@@ -121,7 +122,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>): Promise<React.JSX.Element> {
   // Fetch initial user server-side to avoid loading flash in Navbar
   const supabase = await createServerClient();
   const {
@@ -140,14 +141,14 @@ export default async function RootLayout({
                 "@type": "Organization",
                 name: "Helvety",
                 url: "https://helvety.com",
-                logo: "https://helvety.com/helvety_identifier_whiteBg.png",
+                logo: brandAssets.identifierPng,
                 description:
                   "Software and subscriptions engineered and designed in Switzerland.",
                 sameAs: [
-                  "https://helvety.com/store",
-                  "https://helvety.com/pdf",
                   "https://helvety.com/auth",
                   "https://helvety.com/contacts",
+                  "https://helvety.com/pdf",
+                  "https://helvety.com/store",
                   "https://helvety.com/tasks",
                   "https://github.com/CasparRubin",
                 ],
@@ -176,7 +177,9 @@ export default async function RootLayout({
                 <Navbar initialUser={initialUser} />
               </header>
               <ScrollArea className="min-h-0 flex-1">
-                <div className="mx-auto w-full max-w-[2000px]">{children}</div>
+                <div className="mx-auto w-full max-w-[2000px]">
+                  <main>{children}</main>
+                </div>
               </ScrollArea>
               <Footer className="shrink-0" />
             </div>

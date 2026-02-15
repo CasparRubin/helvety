@@ -55,10 +55,14 @@ type SetupStep = "initial" | "registering" | "complete";
  * Flow: initial → registering → complete (redirect)
  *
  * After passkey registration, the credential and PRF params are stored server-side.
- * The user is then redirected to the destination app with their existing session
- * (shared via .helvety.com cookies). If the destination app requires encryption
- * (e.g. helvety.com/tasks), it will handle the encryption unlock independently
- * using its own EncryptionGate/EncryptionUnlock components.
+ * The PRF salt is also cached in localStorage so that subsequent logins include
+ * the PRF extension for single-touch encryption unlock (no separate passkey
+ * prompt in E2EE apps like helvety.com/tasks or helvety.com/contacts).
+ *
+ * For brand-new users, WebAuthn registration does not return PRF output (spec
+ * limitation), so the first visit to an E2EE app after signup will still trigger
+ * one passkey touch via EncryptionGate. After that, all future logins are
+ * single-touch.
  *
  * Device-aware: On mobile, passkey is created on this device (Face ID, fingerprint, PIN).
  * On desktop, user scans QR code with phone and uses the phone for passkey.
@@ -197,9 +201,10 @@ export function EncryptionSetup({
       cachePRFSalt(prfSalt, PRF_VERSION);
 
       // Mark as complete and redirect
-      // The session is shared via same-origin cookies.
-      // If the destination app needs encryption (e.g. tasks), it will handle
-      // the encryption unlock independently via its own EncryptionGate.
+      // The session is shared via same-origin cookies. The PRF salt was just
+      // cached, so the next login will include PRF for single-touch encryption
+      // unlock. EncryptionGate in E2EE apps serves as a fallback for this
+      // first session (registration doesn't produce PRF output).
       setSetupStep("complete");
 
       // Validate redirect URI against allowlist to prevent open redirect attacks

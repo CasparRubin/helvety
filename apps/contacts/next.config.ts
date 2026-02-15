@@ -13,7 +13,7 @@ const withBundleAnalyzer = bundleAnalyzer({
  *
  * CSP Note: This app uses the baseline secure CSP configuration.
  * - 'unsafe-eval' is only allowed in development (for Fast Refresh)
- * - No blob: or worker-src needed (no web workers)
+ * - blob: in img-src for decrypted attachment previews; no worker-src needed
  * - turbopack root for proper module resolution
  */
 const nextConfig: NextConfig = {
@@ -82,6 +82,7 @@ const nextConfig: NextConfig = {
           "default-src 'self'",
           `script-src 'self'${isDevelopment ? " 'unsafe-eval'" : ""} 'unsafe-inline' https://va.vercel-scripts.com`,
           "style-src 'self' 'unsafe-inline'",
+          // blob: required for decrypted attachment previews
           "img-src 'self' data: blob: https://*.helvety.com https://*.supabase.co",
           "font-src 'self' data:",
           "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://va.vercel-scripts.com",

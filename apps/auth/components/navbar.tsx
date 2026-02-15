@@ -1,5 +1,6 @@
 "use client";
 
+import { HelvetyIdentifier, HelvetyLogo } from "@helvety/brand";
 import { redirectToLogout } from "@helvety/shared/auth-redirect";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
@@ -16,7 +17,6 @@ import {
   CreditCard,
   ShieldCheck,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -136,21 +136,13 @@ export function Navbar({
             className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
             aria-label="Visit Helvety.com"
           >
-            <Image
-              src="/helvety_logo_white.svg"
-              alt="Helvety"
-              width={120}
-              height={30}
+            <HelvetyLogo
+              aria-label="Helvety"
               className="hidden h-8 w-auto sm:block"
-              loading="eager"
             />
-            <Image
-              src="/helvety_identifier_whiteBg.svg"
-              alt="Helvety"
-              width={30}
-              height={30}
+            <HelvetyIdentifier
+              aria-label="Helvety"
               className="h-8 w-auto sm:hidden"
-              loading="eager"
             />
           </a>
         </div>
@@ -158,22 +150,31 @@ export function Navbar({
           {/* Desktop: E2EE, About, GitHub, theme, sign in, profile — hidden below sm */}
           <div className="hidden items-center gap-2 sm:flex">
             {!encryptionLoading && isUnlocked && (
-              <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="cursor-default md:hidden">
-                      <ShieldCheck className="h-4 w-4 text-green-500" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>End-to-end encrypted</p>
-                  </TooltipContent>
-                </Tooltip>
-                <div className="hidden items-center gap-1.5 md:flex">
-                  <ShieldCheck className="h-4 w-4 text-green-500" />
-                  <span>End-to-end encrypted</span>
-                </div>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm">
+                    <ShieldCheck className="h-4 w-4 text-green-500" />
+                    <span className="hidden md:inline">
+                      End-to-end encrypted
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs space-y-2 p-3">
+                  <p className="font-semibold">End-to-End Encrypted</p>
+                  <p>
+                    All your content is encrypted on your device before it
+                    leaves your browser. Only you can read it. Not even we can
+                    access your contacts or any other content. Some structural
+                    metadata (such as timestamps and display preferences) is
+                    stored unencrypted to enable app functionality.
+                  </p>
+                  <p>
+                    Encryption is tied to your passkey. If you lose your
+                    passkey, your encrypted content cannot be recovered by
+                    anyone, including us. There is no reset or backup option.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             )}
 
             <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>

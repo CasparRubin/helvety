@@ -1,4 +1,5 @@
 import "./globals.css";
+import { brandAssets } from "@helvety/brand/urls";
 import { EncryptionProvider } from "@helvety/shared/crypto/encryption-context";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { Analytics } from "@vercel/analytics/next";
@@ -70,7 +71,7 @@ export const metadata: Metadata = {
       "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_identifier_whiteBg.png",
+        url: brandAssets.identifierPng,
         width: 500,
         height: 500,
         alt: "Helvety",
@@ -84,7 +85,7 @@ export const metadata: Metadata = {
       "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_identifier_whiteBg.png",
+        url: brandAssets.identifierPng,
       },
     ],
   },
@@ -100,6 +101,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  alternates: {
+    canonical: "https://helvety.com/auth",
+  },
 };
 
 // Prevent Next.js from caching user-specific data (supabase.auth.getUser) across sessions
@@ -112,7 +116,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>): Promise<React.JSX.Element> {
   // Read CSRF token set by proxy.ts (cookie generation happens there,
   // not here, because cookies().set() is not allowed in Server Components)
   const csrfToken = (await getCSRFToken()) ?? "";
@@ -129,23 +133,35 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "Helvety",
-              url: "https://helvety.com",
-              logo: "https://helvety.com/helvety_identifier_whiteBg.png",
-              description:
-                "Software and subscriptions engineered and designed in Switzerland.",
-              sameAs: [
-                "https://helvety.com",
-                "https://helvety.com/store",
-                "https://helvety.com/pdf",
-                "https://helvety.com/contacts",
-                "https://helvety.com/tasks",
-                "https://github.com/CasparRubin",
-              ],
-            }),
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "Helvety",
+                url: "https://helvety.com",
+                logo: brandAssets.identifierPng,
+                description:
+                  "Software and subscriptions engineered and designed in Switzerland.",
+                sameAs: [
+                  "https://helvety.com",
+                  "https://helvety.com/contacts",
+                  "https://helvety.com/pdf",
+                  "https://helvety.com/store",
+                  "https://helvety.com/tasks",
+                  "https://github.com/CasparRubin",
+                ],
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                name: "Helvety Auth",
+                url: "https://helvety.com/auth",
+                description:
+                  "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
+                applicationCategory: "SecurityApplication",
+                operatingSystem: "Any",
+              },
+            ]),
           }}
         />
         <ThemeProvider
@@ -164,7 +180,7 @@ export default async function RootLayout({
                   </header>
                   <ScrollArea className="min-h-0 flex-1">
                     <div className="mx-auto w-full max-w-[2000px]">
-                      {children}
+                      <main>{children}</main>
                     </div>
                   </ScrollArea>
                   <Footer className="shrink-0" />

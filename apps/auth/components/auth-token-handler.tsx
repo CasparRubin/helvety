@@ -86,21 +86,8 @@ export function AuthTokenHandler() {
           return;
         }
 
-        // Check for passkey_verified param (legacy fallback - passkey auth now creates session directly)
-        const passkeyVerified = queryParams.get("passkey_verified") === "true";
-
         // Check what auth step the user needs to complete
-        const { step, hasPasskey, hasEncryption } = await getRequiredAuthStep(
-          user.id
-        );
-
-        // If user has everything set up and passkey_verified is present, redirect to final destination
-        // Note: This is a legacy fallback - passkey authentication now creates the session
-        // directly in verifyPasskeyAuthentication() without going through hash fragments
-        if (passkeyVerified && hasPasskey && hasEncryption) {
-          window.location.href = redirectUri ?? "https://helvety.com";
-          return;
-        }
+        const { step } = await getRequiredAuthStep(user.id);
 
         // User needs to complete setup or passkey auth
         const loginUrl = buildLoginUrl(step, redirectUri);

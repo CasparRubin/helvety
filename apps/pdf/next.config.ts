@@ -83,6 +83,7 @@ const nextConfig: NextConfig = {
           "default-src 'self'",
           "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://va.vercel-scripts.com",
           "style-src 'self' 'unsafe-inline'",
+          // blob: required for client-side PDF page rendering
           "img-src 'self' data: blob: https://*.helvety.com https://*.supabase.co",
           "font-src 'self' data:",
           "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://va.vercel-scripts.com",

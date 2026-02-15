@@ -54,19 +54,9 @@ export async function GET(request: Request) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type");
   const rawRedirectUri = searchParams.get("redirect_uri");
-  const passkeyVerified = searchParams.get("passkey_verified") === "true";
 
   // Validate redirect URI against allowlist (prevents open redirect attacks)
   const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
-
-  // Helper to get final redirect URL
-  const getFinalRedirectUrl = () => {
-    if (safeRedirectUri) {
-      return safeRedirectUri;
-    }
-    // Default to helvety.com (works in both dev and prod)
-    return "https://helvety.com";
-  };
 
   // Helper to build login redirect with passkey step
   const buildPasskeyRedirect = async (
@@ -96,12 +86,6 @@ export async function GET(request: Request) {
     } else if (!hasEncryption) {
       // Has passkey but no encryption - needs encryption setup only
       step = "encryption-setup";
-    } else if (passkeyVerified) {
-      // Legacy fallback: passkey_verified param present
-      // Note: Passkey auth now creates the session directly in verifyPasskeyAuthentication()
-      // and redirects without going through this callback. This check remains for backwards
-      // compatibility in case of edge cases.
-      return getFinalRedirectUrl();
     } else {
       // User has passkey + encryption but hasn't done passkey auth yet
       // (this is after email verification for returning users)
@@ -119,7 +103,7 @@ export async function GET(request: Request) {
     return loginUrl.toString();
   };
 
-  // Helper to build error/fallback redirect URL preserving redirect_uri and passkey_verified
+  // Helper to build error/fallback redirect URL preserving redirect_uri
   const buildErrorRedirect = (error?: string) => {
     const loginUrl = new URL(`${origin}/login`);
     if (error) {
@@ -127,9 +111,6 @@ export async function GET(request: Request) {
     }
     if (safeRedirectUri) {
       loginUrl.searchParams.set("redirect_uri", safeRedirectUri);
-    }
-    if (passkeyVerified) {
-      loginUrl.searchParams.set("passkey_verified", "true");
     }
     return loginUrl.toString();
   };

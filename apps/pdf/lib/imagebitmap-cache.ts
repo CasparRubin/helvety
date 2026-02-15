@@ -244,6 +244,3 @@ export function generateCacheKey(
   // Create a stable key from render parameters
   return `${fileUrl}:${pageNumber}:${width}:${devicePixelRatio}:${rotation}`;
 }
-
-// NOTE: cleanupImageBitmapCache was removed as it was unused.
-// Use getImageBitmapCache().clear() directly if cache cleanup is needed.

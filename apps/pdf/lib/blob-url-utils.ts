@@ -24,6 +24,3 @@ export function safeRevokeObjectURL(url: string | null | undefined): void {
     }
   }
 }
-
-// NOTE: createBlobURLWithCleanup was removed as it was unused.
-// The downloadBlob function in file-download.ts handles URL lifecycle internally.

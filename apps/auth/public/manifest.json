@@ -9,18 +9,18 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/helvety_identifier_whiteBg.svg",
+      "src": "https://helvety.com/helvety_identifier.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/helvety_identifier_whiteBg.png",
+      "src": "https://helvety.com/helvety_identifier.png",
       "type": "image/png",
       "purpose": "any"
     }
   ],
-  "categories": ["business"],
+  "categories": ["business", "utilities"],
   "lang": "en-US",
   "dir": "ltr"
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { HelvetyIdentifier, HelvetyLogo } from "@helvety/brand";
 import {
   redirectToLogin,
   redirectToLogout,
@@ -17,7 +18,6 @@ import {
   User as UserIcon,
   Settings,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -135,21 +135,13 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
             className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
             aria-label="Go to home"
           >
-            <Image
-              src="/helvety_logo_white.svg"
-              alt="Helvety"
-              width={120}
-              height={30}
+            <HelvetyLogo
+              aria-label="Helvety"
               className="hidden h-8 w-auto sm:block"
-              loading="eager"
             />
-            <Image
-              src="/helvety_identifier_whiteBg.svg"
-              alt="Helvety"
-              width={30}
-              height={30}
+            <HelvetyIdentifier
+              aria-label="Helvety"
               className="h-8 w-auto sm:hidden"
-              loading="eager"
             />
           </Link>
           <span className="shrink-0 text-xl font-black tracking-tight transition-opacity hover:opacity-80">
