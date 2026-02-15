@@ -1,0 +1,19 @@
+# Helvety
+
+> The main Helvety website. Software and subscriptions engineered and designed in Switzerland.
+
+## Core Pages
+- [Home](https://helvety.com): Main landing page for Helvety
+- [Privacy Policy](https://helvety.com/privacy): How Helvety handles user data, compliant with Swiss nDSG
+- [Terms of Service](https://helvety.com/terms): Terms governing use of Helvety services
+- [Impressum](https://helvety.com/impressum): Legal information and company details
+
+## Helvety Ecosystem
+- [Helvety Store](https://store.helvety.com): Official store for Helvety software products and subscriptions
+- [Helvety PDF](https://pdf.helvety.com): Free, privacy-focused PDF toolkit that processes files locally in the browser
+- [Helvety Auth](https://auth.helvety.com): Centralized authentication service for all Helvety apps
+- [Helvety Contacts](https://contacts.helvety.com): End-to-end encrypted contact management
+- [Helvety Tasks](https://tasks.helvety.com): End-to-end encrypted task management
+
+## Optional
+- [GitHub](https://github.com/CasparRubin/helvety.com): Public repository for this website (source-visible, not open source)

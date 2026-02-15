@@ -1,0 +1,5 @@
+# Override .gitignore to ensure Cursor indexes the supabase folder
+# These files contain the full database schema, RLS policies, and structure
+# needed for development. They are gitignored to keep them out of the public
+# repo, but Cursor needs access for DB-related work.
+!supabase/
