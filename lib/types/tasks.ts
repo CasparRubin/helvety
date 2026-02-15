@@ -357,6 +357,9 @@ export interface AttachmentMetadata {
   mime_type: string;
   /** File size in bytes */
   size: number;
+  /** Whether the file binary was gzip-compressed before encryption.
+   *  Missing / false means uncompressed (backward-compatible with existing attachments). */
+  compressed?: boolean;
 }
 
 /**

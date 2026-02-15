@@ -281,9 +281,9 @@ function UploadProgressCard({
  * attachments on an item. Renders below the description editor.
  *
  * All file operations are fully E2EE:
- * - Upload: file is encrypted client-side before upload
- * - Download/Preview: encrypted blob is decrypted client-side
- * - Metadata (filename, type, size) is encrypted in the database
+ * - Upload: file is compressed (if beneficial) then encrypted client-side before upload
+ * - Download/Preview: encrypted blob is decrypted then decompressed (if needed) client-side
+ * - Metadata (filename, type, size, compression flag) is encrypted in the database
  */
 export function AttachmentPanel({
   itemId,

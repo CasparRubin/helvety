@@ -38,7 +38,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - **Color picker** - Choose from preset colors or use the custom color picker for any hex color
   - **Icon support** - Each stage can have a Lucide icon for visual identification
   - **Rows shown by default** - Control how many items are visible per stage (0 = collapsed, N = show N items with "Show all" link)
-- **Encrypted file attachments** - Upload, download, and manage file attachments on items (images, documents, etc.) with drag-and-drop support; files are encrypted client-side before upload
+- **Encrypted file attachments** - Upload, download, and manage file attachments on items (images, documents, etc.) with drag-and-drop support; files are losslessly compressed (when beneficial) then encrypted client-side before upload
 - **Contact linking** - Link contacts from [Helvety Contacts](https://contacts.helvety.com) to any Unit, Space, or Item
   - **Bidirectional** - Link and unlink from either the Tasks app or the Contacts app for consistent cross-app UX
   - **Searchable picker** - Search your contacts by name or email and link them with one click

@@ -20,6 +20,11 @@ import {
   encryptAttachmentMetadata,
   decryptAttachmentRows,
 } from "@/lib/crypto";
+import {
+  shouldCompress,
+  compressBuffer,
+  decompressBuffer,
+} from "@/lib/crypto/compression";
 import { useCSRFToken } from "@/lib/csrf-client";
 import { sanitizeFilename } from "@/lib/sanitize-filename";
 import { createBrowserClient } from "@/lib/supabase/client";
@@ -66,8 +71,8 @@ interface UseAttachmentsReturn {
  * Hook to manage encrypted file attachments for a specific Item.
  *
  * Handles the full E2EE lifecycle:
- * - Upload: File → encrypt binary → upload to Storage → encrypt metadata → save DB row
- * - Download: Fetch encrypted blob → decrypt binary → create object URL
+ * - Upload: File → compress (if beneficial) → encrypt binary → upload to Storage → encrypt metadata → save DB row
+ * - Download: Fetch encrypted blob → decrypt binary → decompress (if compressed) → create object URL
  * - Delete: Delete DB row + storage file via server action
  */
 export function useAttachments(itemId: string): UseAttachmentsReturn {
@@ -124,7 +129,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
   }, [itemId, masterKey, isUnlocked]);
 
   /**
-   * Upload a file: encrypt → upload to storage → save metadata
+   * Upload a file: compress (if beneficial) → encrypt → upload to storage → save metadata
    */
   const upload = useCallback(
     async (file: File): Promise<boolean> => {
@@ -154,8 +159,15 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         // 1. Read file as ArrayBuffer
         const fileBuffer = await file.arrayBuffer();
 
-        // 2. Encrypt the file binary
-        const encryptedBuffer = await encryptBinary(fileBuffer, masterKey);
+        // 2. Optionally compress, then encrypt the file binary
+        const isCompressed = shouldCompress(
+          file.type || "application/octet-stream",
+          file.size
+        );
+        const dataToEncrypt = isCompressed
+          ? await compressBuffer(fileBuffer)
+          : fileBuffer;
+        const encryptedBuffer = await encryptBinary(dataToEncrypt, masterKey);
 
         // 3. Upload encrypted blob to Supabase Storage
         setUploads((prev) =>
@@ -198,6 +210,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
             filename: file.name,
             mime_type: file.type || "application/octet-stream",
             size: file.size,
+            ...(isCompressed ? { compressed: true } : {}),
           },
           masterKey
         );
@@ -335,8 +348,13 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         const encryptedBuffer = await blob.arrayBuffer();
         const decryptedBuffer = await decryptBinary(encryptedBuffer, masterKey);
 
+        // Decompress if the file was compressed before encryption
+        const finalBuffer = attachment.metadata.compressed
+          ? await decompressBuffer(decryptedBuffer)
+          : decryptedBuffer;
+
         // Create an object URL
-        const decryptedBlob = new Blob([decryptedBuffer], {
+        const decryptedBlob = new Blob([finalBuffer], {
           type: attachment.metadata.mime_type,
         });
         const url = URL.createObjectURL(decryptedBlob);
