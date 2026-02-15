@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  manifest: "/manifest.json",
+  manifest: "/pdf/manifest.json",
   openGraph: {
     type: "website",
     locale: "en_US",

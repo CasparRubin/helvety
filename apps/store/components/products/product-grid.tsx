@@ -92,10 +92,8 @@ export function ProductGridSkeleton({
 function ProductCardSkeleton() {
   return (
     <div className="bg-muted/40 ring-foreground/10 flex min-h-[420px] flex-col overflow-hidden rounded-xl shadow-xs ring-1">
-      {/* Artwork placeholder area */}
-      <div className="bg-muted/60 h-16 animate-pulse" />
       {/* Inner content panel skeleton */}
-      <div className="bg-card mx-3 mb-3 flex flex-1 flex-col rounded-lg p-5 shadow-sm">
+      <div className="bg-card mx-3 mt-auto mb-3 flex flex-col rounded-lg p-5 shadow-sm">
         <div className="space-y-2">
           <div className="bg-muted h-5 w-40 animate-pulse rounded" />
           <div className="bg-muted h-4 w-20 animate-pulse rounded" />

@@ -55,7 +55,7 @@ export function ProductBadge({
 
   return (
     <Badge variant="outline" className={cn(config.className, className)}>
-      {showIcon && <Icon data-icon="inline-start" className="size-3" />}
+      {showIcon && <Icon className="size-3" />}
       {config.label}
     </Badge>
   );

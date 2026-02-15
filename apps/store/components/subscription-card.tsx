@@ -128,7 +128,7 @@ export function SubscriptionCard({
             <p className="text-muted-foreground text-sm">{tierName}</p>
           </div>
           <Badge variant={statusInfo.variant} className="shrink-0">
-            <StatusIcon className="size-3" data-icon="inline-start" />
+            <StatusIcon className="size-3" />
             {statusInfo.label}
           </Badge>
         </div>

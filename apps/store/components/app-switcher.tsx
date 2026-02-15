@@ -6,9 +6,9 @@ import { Button } from "@helvety/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@helvety/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import {
@@ -50,12 +50,15 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
     <Sheet open={open} onOpenChange={setOpen}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Grip className="h-4 w-4" />
-              <span className="sr-only">Switch apps</span>
-            </Button>
-          </SheetTrigger>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={() => setOpen(true)}
+          >
+            <Grip className="h-4 w-4" />
+            <span className="sr-only">Switch apps</span>
+          </Button>
         </TooltipTrigger>
         <TooltipContent>
           <p>Helvety Ecosystem</p>
@@ -64,6 +67,9 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
       <SheetContent side="left">
         <SheetHeader>
           <SheetTitle>Helvety Ecosystem</SheetTitle>
+          <SheetDescription className="sr-only">
+            Navigate between Helvety apps
+          </SheetDescription>
         </SheetHeader>
         <div className="mt-6 grid grid-cols-3 gap-2">
           {apps.map((app) => {

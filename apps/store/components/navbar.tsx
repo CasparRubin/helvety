@@ -27,6 +27,7 @@ import { Separator } from "@helvety/ui/separator";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -297,6 +298,9 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
             <SheetContent side="right">
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Store navigation menu
+                </SheetDescription>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-2 px-4">
                 <Button

@@ -27,7 +27,7 @@ export default function NotFound() {
 
         <Button asChild>
           <Link href="/">
-            <ArrowLeft className="size-4" data-icon="inline-start" />
+            <ArrowLeft className="size-4" />
             Go home
           </Link>
         </Button>

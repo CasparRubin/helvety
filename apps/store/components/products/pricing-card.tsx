@@ -28,7 +28,6 @@ import {
   type ConsentMetadata,
 } from "@/components/digital-content-consent-dialog";
 import { useCSRF } from "@/hooks/use-csrf";
-import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
 import { formatPrice, getIntervalShortLabel } from "@/lib/utils/pricing";
 
 import { FeatureList } from "./feature-list";
@@ -59,6 +58,8 @@ interface PricingCardProps {
   userSubscription?: Subscription | null;
   /** Callback when subscription is reactivated */
   onReactivate?: () => void;
+  /** Tier IDs with Stripe checkout enabled (resolved server-side). */
+  checkoutEnabledTiers: string[];
 }
 
 /** Renders a pricing card with Stripe checkout integration. */
@@ -73,6 +74,7 @@ export function PricingCard({
   productSlug,
   userSubscription,
   onReactivate,
+  checkoutEnabledTiers,
 }: PricingCardProps) {
   // CSRF token for security
   const csrfToken = useCSRF();
@@ -82,9 +84,9 @@ export function PricingCard({
   const [showConsentDialog, setShowConsentDialog] = useState(false);
   const isRecurring = tier.interval === "monthly" || tier.interval === "yearly";
   const intervalLabel = getIntervalShortLabel(tier.interval);
-  // Check checkout eligibility based on tier ID (stable between server/client)
+  // Check checkout eligibility based on tier ID (resolved server-side)
   const hasPaidCheckout =
-    !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id);
+    !tier.isFree && checkoutEnabledTiers.includes(tier.id);
 
   // Subscription state checks
   const hasActiveSubscription =
@@ -390,6 +392,8 @@ interface PricingCardsProps {
   userSubscriptions?: Subscription[];
   /** Callback when a subscription is reactivated */
   onReactivate?: () => void;
+  /** Tier IDs with Stripe checkout enabled (resolved server-side). */
+  checkoutEnabledTiers: string[];
 }
 
 /** Renders a responsive grid of pricing cards. */
@@ -402,6 +406,7 @@ export function PricingCards({
   productSlug,
   userSubscriptions = [],
   onReactivate,
+  checkoutEnabledTiers,
 }: PricingCardsProps) {
   /**
    * Find user's subscription for a specific tier
@@ -437,6 +442,7 @@ export function PricingCards({
           productSlug={productSlug}
           userSubscription={getSubscriptionForTier(tier.id)}
           onReactivate={onReactivate}
+          checkoutEnabledTiers={checkoutEnabledTiers}
         />
       ))}
     </div>

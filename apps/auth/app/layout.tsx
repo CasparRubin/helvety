@@ -89,7 +89,7 @@ export const metadata: Metadata = {
       },
     ],
   },
-  manifest: "/manifest.json",
+  manifest: "/auth/manifest.json",
   robots: {
     index: true,
     follow: true,

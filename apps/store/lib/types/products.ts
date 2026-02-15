@@ -133,8 +133,6 @@ export interface Product {
   category: ProductCategory;
   /** Current availability status */
   status: ProductStatus;
-  /** Icon identifier (lucide icon name or custom) */
-  icon?: string;
   /** Product image URL */
   image?: string;
   /** Hero/banner image URL */

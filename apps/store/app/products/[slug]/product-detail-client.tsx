@@ -17,11 +17,6 @@ import {
 } from "@helvety/ui/collapsible";
 import { Separator } from "@helvety/ui/separator";
 import {
-  FileText,
-  LayoutGrid,
-  Cloud,
-  Download,
-  Package,
   Check,
   ChevronDown,
   Loader2,
@@ -29,7 +24,6 @@ import {
   ArrowLeft,
   Globe,
   Github,
-  type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound, useSearchParams, useRouter } from "next/navigation";
@@ -52,7 +46,6 @@ import {
 } from "@/components/products";
 import { useCSRF } from "@/hooks/use-csrf";
 import { getProductBySlug } from "@/lib/data/products";
-import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
 import { isSoftwareProduct } from "@/lib/types/products";
 
 import type {
@@ -61,22 +54,18 @@ import type {
 } from "@/lib/types/entities";
 import type { PricingTier } from "@/lib/types/products";
 
-// Icon mapping for products
-const iconMap: Record<string, LucideIcon> = {
-  FileText,
-  LayoutGrid,
-  Cloud,
-  Download,
-  Package,
-};
-
 /** Props for the product detail page client component. */
 interface ProductDetailClientProps {
   slug: string;
+  /** Tier IDs with Stripe checkout enabled (resolved server-side from env vars). */
+  checkoutEnabledTiers: string[];
 }
 
 /** Renders the full product detail page with pricing, media, and features. */
-export function ProductDetailClient({ slug }: ProductDetailClientProps) {
+export function ProductDetailClient({
+  slug,
+  checkoutEnabledTiers,
+}: ProductDetailClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -149,8 +138,6 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     notFound();
   }
 
-  const Icon = product.icon ? (iconMap[product.icon] ?? FileText) : FileText;
-
   // Get monthly tiers only (filter out yearly tiers)
   const monthlyTiers = product.pricing.tiers.filter(
     (tier) => tier.interval !== "yearly"
@@ -204,26 +191,19 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       </div>
 
       {/* Product Header */}
-      <div className="mb-12">
-        <div className="flex items-start gap-4">
-          <div className="bg-primary/10 text-primary flex size-16 shrink-0 items-center justify-center rounded-xl">
-            <Icon className="size-8" />
-          </div>
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                {product.name}
-              </h1>
-              <ProductBadge type={product.type} />
-              {product.status !== "available" && (
-                <StatusBadge status={product.status} />
-              )}
-            </div>
-            <p className="text-muted-foreground max-w-2xl text-lg">
-              {product.shortDescription}
-            </p>
-          </div>
+      <div className="mb-12 space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            {product.name}
+          </h1>
+          <ProductBadge type={product.type} />
+          {product.status !== "available" && (
+            <StatusBadge status={product.status} />
+          )}
         </div>
+        <p className="text-muted-foreground max-w-2xl text-lg">
+          {product.shortDescription}
+        </p>
       </div>
 
       {/* Two-column layout: Main Content + Features Sidebar */}
@@ -270,6 +250,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                     productSlug={slug}
                     userSubscription={tierSubscription}
                     onReactivate={fetchSubscriptions}
+                    checkoutEnabledTiers={checkoutEnabledTiers}
                   />
                 );
               })}
@@ -358,6 +339,8 @@ interface PricingCardProps {
   productSlug: string;
   userSubscription?: Subscription | null;
   onReactivate?: () => void;
+  /** Tier IDs with Stripe checkout enabled (resolved server-side). */
+  checkoutEnabledTiers: string[];
 }
 
 /** Renders a pricing tier card with checkout or reactivation actions. */
@@ -368,6 +351,7 @@ function PricingCard({
   productSlug,
   userSubscription,
   onReactivate,
+  checkoutEnabledTiers,
 }: PricingCardProps) {
   // CSRF token for security
   const csrfToken = useCSRF();
@@ -381,9 +365,9 @@ function PricingCard({
     : tier.interval === "one-time"
       ? "one-time"
       : "";
-  // Check checkout eligibility based on tier ID (stable between server/client)
+  // Check checkout eligibility based on tier ID (resolved server-side)
   const hasPaidCheckout =
-    !tier.isFree && CHECKOUT_ENABLED_TIERS.includes(tier.id);
+    !tier.isFree && checkoutEnabledTiers.includes(tier.id);
 
   // Subscription state checks
   const hasActiveSubscription =

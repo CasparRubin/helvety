@@ -54,7 +54,7 @@ export default function GlobalError({
 
         <div className="flex gap-3">
           <Button onClick={reset} variant="default">
-            <RefreshCw className="size-4" data-icon="inline-start" />
+            <RefreshCw className="size-4" />
             Try again
           </Button>
           <Button variant="outline" asChild>

@@ -39,7 +39,6 @@ Install it once in your SharePoint App Catalog and give all users instant access
   type: "software",
   category: "integrations",
   status: "available",
-  icon: "LayoutGrid",
   features: [
     "Site Discovery - auto-fetch all accessible sites",
     "Real-time search with highlighted matches",

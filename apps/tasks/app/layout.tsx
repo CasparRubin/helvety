@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  manifest: "/manifest.json",
+  manifest: "/tasks/manifest.json",
   openGraph: {
     type: "website",
     locale: "en_US",

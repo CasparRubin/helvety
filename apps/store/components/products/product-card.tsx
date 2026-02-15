@@ -43,18 +43,23 @@ export function ProductCard({ product, className }: ProductCardProps) {
       {/* Outer layer: artwork background frame */}
       <div
         className={cn(
-          "group ring-foreground/10 relative flex min-h-[420px] flex-col overflow-hidden rounded-xl bg-cover bg-center shadow-xs ring-1 transition-all hover:shadow-lg",
+          "group ring-foreground/10 relative flex min-h-[420px] flex-col overflow-hidden rounded-xl shadow-xs ring-1 transition-shadow hover:shadow-lg",
           className
         )}
-        style={{
-          backgroundImage: `url('${process.env.__NEXT_ROUTER_BASEPATH ?? ""}/artwork_1.jpg')`,
-        }}
       >
+        {/* Background artwork — desaturated at rest, full color on hover */}
+        <div
+          className="absolute inset-0 bg-cover bg-center grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
+          style={{
+            backgroundImage: `url('${process.env.__NEXT_ROUTER_BASEPATH ?? ""}/artwork_1.jpg')`,
+          }}
+        />
+
         {/* Inner layer: solid content panel */}
-        <div className="bg-card/95 mx-3 mt-16 mb-3 flex flex-1 flex-col rounded-lg shadow-sm backdrop-blur-sm">
+        <div className="bg-card/95 relative mx-3 mt-auto mb-3 flex flex-col rounded-lg shadow-sm backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-1">
           {/* Header: name + badges */}
           <div className="space-y-2 px-5 pt-5">
-            <h3 className="text-card-foreground line-clamp-1 text-base leading-tight font-semibold">
+            <h3 className="text-card-foreground line-clamp-1 text-lg leading-tight font-semibold">
               {product.name}
             </h3>
             <div className="flex items-center gap-2">

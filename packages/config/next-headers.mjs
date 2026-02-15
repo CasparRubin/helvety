@@ -120,7 +120,7 @@ function buildCsp({
     "default-src 'self'",
     `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""} 'unsafe-inline'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
     "style-src 'self' 'unsafe-inline'",
-    `img-src 'self' data:${imgBlob ? " blob:" : ""} https://*.helvety.com https://*.supabase.co`,
+    `img-src 'self' data:${imgBlob ? " blob:" : ""} https://helvety.com https://*.helvety.com https://*.supabase.co`,
     "font-src 'self' data:",
     "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://va.vercel-scripts.com",
     ...(workerBlob ? ["worker-src 'self' blob:"] : []),

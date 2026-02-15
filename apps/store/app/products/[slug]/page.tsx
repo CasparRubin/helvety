@@ -1,4 +1,5 @@
 import { getProductBySlug } from "@/lib/data/products";
+import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
 
 import { ProductDetailClient } from "./product-detail-client";
 
@@ -87,7 +88,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
       )}
-      <ProductDetailClient slug={slug} />
+      <ProductDetailClient
+        slug={slug}
+        checkoutEnabledTiers={CHECKOUT_ENABLED_TIERS}
+      />
     </>
   );
 }
