@@ -1,0 +1,16 @@
+# Helvety Tasks
+
+> Private and secure task management with end-to-end encryption. Organize tasks across spaces and stages with drag-and-drop. Engineered and designed in Switzerland.
+
+## Core Pages
+- [Home](https://tasks.helvety.com): End-to-end encrypted task management app
+
+## Helvety Ecosystem
+- [Helvety](https://helvety.com): Main Helvety website with company information and legal pages
+- [Helvety Store](https://store.helvety.com): Official store for Helvety software products and subscriptions
+- [Helvety PDF](https://pdf.helvety.com): Free, privacy-focused PDF toolkit
+- [Helvety Auth](https://auth.helvety.com): Centralized authentication for all Helvety apps
+- [Helvety Contacts](https://contacts.helvety.com): End-to-end encrypted contact management
+
+## Optional
+- [GitHub](https://github.com/CasparRubin/helvety-tasks): Public repository for Helvety Tasks (source-visible, not open source)

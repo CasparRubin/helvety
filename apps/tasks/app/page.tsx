@@ -1,0 +1,22 @@
+import { EncryptionGate } from "@/components/encryption-gate";
+import { TaskDashboard } from "@/components/task-dashboard";
+import { requireAuth } from "@/lib/auth-guard";
+import { CSRFProvider } from "@/lib/csrf-client";
+
+/**
+ * Main page - server component with auth protection
+ * Redirects to centralized auth service if not authenticated
+ * Wraps content in EncryptionGate to enforce passkey setup
+ */
+export default async function Page(): Promise<React.JSX.Element> {
+  // Server-side auth check (includes retry for transient network failures)
+  const user = await requireAuth();
+
+  return (
+    <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
+      <CSRFProvider>
+        <TaskDashboard />
+      </CSRFProvider>
+    </EncryptionGate>
+  );
+}
