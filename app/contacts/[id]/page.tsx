@@ -4,8 +4,9 @@ import { requireAuth } from "@/lib/auth-guard";
 import { CSRFProvider } from "@/lib/csrf-client";
 
 /**
- * Contact Editor page - edit a contact's names, email, notes, and category
- * Uses a WYSIWYG rich text editor for notes and an action panel for category selection
+ * Contact Editor page - edit a contact's names, description, email, phone,
+ * birthday, notes, and category.
+ * Uses a WYSIWYG rich text editor for notes and an action panel for category selection.
  */
 export default async function ContactEditorPage({
   params,

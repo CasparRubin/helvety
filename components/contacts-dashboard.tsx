@@ -87,7 +87,10 @@ export function ContactsDashboard() {
         const result = await create({
           first_name: newFirstName.trim(),
           last_name: newLastName.trim(),
+          description: null,
           email: newEmail.trim() || null,
+          phone: null,
+          birthday: null,
           notes: null,
           category_id: defaultCategoryId,
         });
@@ -200,7 +203,7 @@ export function ContactsDashboard() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="contact-last-name">Last Name</Label>
+                <Label htmlFor="contact-last-name">Last Name(s)</Label>
                 <Input
                   id="contact-last-name"
                   placeholder="e.g., Doe"

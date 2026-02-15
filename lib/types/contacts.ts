@@ -22,7 +22,10 @@ export interface ContactRow {
   user_id: string;
   encrypted_first_name: string;
   encrypted_last_name: string;
+  encrypted_description: string | null;
   encrypted_email: string | null;
+  encrypted_phone: string | null;
+  encrypted_birthday: string | null;
   encrypted_notes: string | null;
   category_id: string | null;
   sort_order: number;
@@ -36,7 +39,11 @@ export interface Contact {
   user_id: string;
   first_name: string;
   last_name: string;
+  description: string | null;
   email: string | null;
+  phone: string | null;
+  /** ISO date string, e.g. "2000-01-15" */
+  birthday: string | null;
   notes: string | null;
   category_id: string | null;
   sort_order: number;
@@ -48,7 +55,11 @@ export interface Contact {
 export interface ContactInput {
   first_name: string;
   last_name: string;
+  description: string | null;
   email: string | null;
+  phone: string | null;
+  /** ISO date string, e.g. "2000-01-15" */
+  birthday: string | null;
   notes: string | null;
   /** Optional category ID - can be a UUID (custom) or default category ID (e.g., "default-contact-work") */
   category_id?: string | null;

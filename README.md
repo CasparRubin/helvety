@@ -18,7 +18,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 ## Features
 
 - **End-to-end encryption** - All contact data is encrypted client-side using your passkey; we never see your data
-- **Contact fields** - Each contact stores First Name(s), Last Name, Email, and Notes
+- **Contact fields** - Each contact stores First Name(s), Last Name(s), Description, Email, Phone, Birthday, and Notes
 - **Rich text notes** - Rich text editor for contact notes with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
   - Headings (H1, H2, H3)

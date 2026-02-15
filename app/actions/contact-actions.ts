@@ -32,7 +32,10 @@ const CategoryIdSchema = z
 const CreateContactSchema = z.object({
   encrypted_first_name: EncryptedDataSchema,
   encrypted_last_name: EncryptedDataSchema,
+  encrypted_description: EncryptedDataSchema.nullable(),
   encrypted_email: EncryptedDataSchema.nullable(),
+  encrypted_phone: EncryptedDataSchema.nullable(),
+  encrypted_birthday: EncryptedDataSchema.nullable(),
   encrypted_notes: EncryptedDataSchema.nullable(),
   category_id: CategoryIdSchema,
   sort_order: z.number().int().min(0).optional(),
@@ -43,7 +46,10 @@ const UpdateContactSchema = z.object({
   id: z.string().uuid(),
   encrypted_first_name: EncryptedDataSchema.optional(),
   encrypted_last_name: EncryptedDataSchema.optional(),
+  encrypted_description: EncryptedDataSchema.nullable().optional(),
   encrypted_email: EncryptedDataSchema.nullable().optional(),
+  encrypted_phone: EncryptedDataSchema.nullable().optional(),
+  encrypted_birthday: EncryptedDataSchema.nullable().optional(),
   encrypted_notes: EncryptedDataSchema.nullable().optional(),
   category_id: CategoryIdSchema,
   sort_order: z.number().int().min(0).optional(),
@@ -72,7 +78,10 @@ export async function createContact(
   data: {
     encrypted_first_name: string;
     encrypted_last_name: string;
+    encrypted_description: string | null;
     encrypted_email: string | null;
+    encrypted_phone: string | null;
+    encrypted_birthday: string | null;
     encrypted_notes: string | null;
     category_id?: string | null;
   },
@@ -101,7 +110,10 @@ export async function createContact(
         user_id: user.id,
         encrypted_first_name: validatedData.encrypted_first_name,
         encrypted_last_name: validatedData.encrypted_last_name,
+        encrypted_description: validatedData.encrypted_description,
         encrypted_email: validatedData.encrypted_email,
+        encrypted_phone: validatedData.encrypted_phone,
+        encrypted_birthday: validatedData.encrypted_birthday,
         encrypted_notes: validatedData.encrypted_notes,
         category_id: validatedData.category_id ?? null,
       })
@@ -202,7 +214,10 @@ export async function updateContact(
     id: string;
     encrypted_first_name?: string;
     encrypted_last_name?: string;
+    encrypted_description?: string | null;
     encrypted_email?: string | null;
+    encrypted_phone?: string | null;
+    encrypted_birthday?: string | null;
     encrypted_notes?: string | null;
     category_id?: string | null;
     sort_order?: number;
@@ -238,8 +253,17 @@ export async function updateContact(
     if (validatedData.encrypted_last_name !== undefined) {
       updateObj.encrypted_last_name = validatedData.encrypted_last_name;
     }
+    if (validatedData.encrypted_description !== undefined) {
+      updateObj.encrypted_description = validatedData.encrypted_description;
+    }
     if (validatedData.encrypted_email !== undefined) {
       updateObj.encrypted_email = validatedData.encrypted_email;
+    }
+    if (validatedData.encrypted_phone !== undefined) {
+      updateObj.encrypted_phone = validatedData.encrypted_phone;
+    }
+    if (validatedData.encrypted_birthday !== undefined) {
+      updateObj.encrypted_birthday = validatedData.encrypted_birthday;
     }
     if (validatedData.encrypted_notes !== undefined) {
       updateObj.encrypted_notes = validatedData.encrypted_notes;

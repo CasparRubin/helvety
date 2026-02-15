@@ -39,17 +39,38 @@ export async function encryptContactInput(
 ): Promise<{
   encrypted_first_name: string;
   encrypted_last_name: string;
+  encrypted_description: string | null;
   encrypted_email: string | null;
+  encrypted_phone: string | null;
+  encrypted_birthday: string | null;
   encrypted_notes: string | null;
   category_id?: string | null;
 }> {
   const encryptedFirstName = await encrypt(input.first_name, key);
   const encryptedLastName = await encrypt(input.last_name, key);
 
+  let encryptedDescription: string | null = null;
+  if (input.description) {
+    const encrypted = await encrypt(input.description, key);
+    encryptedDescription = serializeEncryptedData(encrypted);
+  }
+
   let encryptedEmail: string | null = null;
   if (input.email) {
     const encrypted = await encrypt(input.email, key);
     encryptedEmail = serializeEncryptedData(encrypted);
+  }
+
+  let encryptedPhone: string | null = null;
+  if (input.phone) {
+    const encrypted = await encrypt(input.phone, key);
+    encryptedPhone = serializeEncryptedData(encrypted);
+  }
+
+  let encryptedBirthday: string | null = null;
+  if (input.birthday) {
+    const encrypted = await encrypt(input.birthday, key);
+    encryptedBirthday = serializeEncryptedData(encrypted);
   }
 
   let encryptedNotes: string | null = null;
@@ -61,7 +82,10 @@ export async function encryptContactInput(
   return {
     encrypted_first_name: serializeEncryptedData(encryptedFirstName),
     encrypted_last_name: serializeEncryptedData(encryptedLastName),
+    encrypted_description: encryptedDescription,
     encrypted_email: encryptedEmail,
+    encrypted_phone: encryptedPhone,
+    encrypted_birthday: encryptedBirthday,
     encrypted_notes: encryptedNotes,
     category_id: input.category_id,
   };
@@ -84,9 +108,27 @@ export async function decryptContactRow(
     key
   );
 
+  let description: string | null = null;
+  if (row.encrypted_description) {
+    description = await decrypt(
+      parseEncryptedData(row.encrypted_description),
+      key
+    );
+  }
+
   let email: string | null = null;
   if (row.encrypted_email) {
     email = await decrypt(parseEncryptedData(row.encrypted_email), key);
+  }
+
+  let phone: string | null = null;
+  if (row.encrypted_phone) {
+    phone = await decrypt(parseEncryptedData(row.encrypted_phone), key);
+  }
+
+  let birthday: string | null = null;
+  if (row.encrypted_birthday) {
+    birthday = await decrypt(parseEncryptedData(row.encrypted_birthday), key);
   }
 
   let notes: string | null = null;
@@ -99,7 +141,10 @@ export async function decryptContactRow(
     user_id: row.user_id,
     first_name,
     last_name,
+    description,
     email,
+    phone,
+    birthday,
     notes,
     category_id: row.category_id,
     sort_order: row.sort_order,
@@ -128,13 +173,19 @@ export async function encryptContactUpdate(
 ): Promise<{
   encrypted_first_name?: string;
   encrypted_last_name?: string;
+  encrypted_description?: string | null;
   encrypted_email?: string | null;
+  encrypted_phone?: string | null;
+  encrypted_birthday?: string | null;
   encrypted_notes?: string | null;
 }> {
   const result: {
     encrypted_first_name?: string;
     encrypted_last_name?: string;
+    encrypted_description?: string | null;
     encrypted_email?: string | null;
+    encrypted_phone?: string | null;
+    encrypted_birthday?: string | null;
     encrypted_notes?: string | null;
   } = {};
 
@@ -148,12 +199,39 @@ export async function encryptContactUpdate(
     result.encrypted_last_name = serializeEncryptedData(encrypted);
   }
 
+  if (update.description !== undefined) {
+    if (update.description === null) {
+      result.encrypted_description = null;
+    } else {
+      const encrypted = await encrypt(update.description, key);
+      result.encrypted_description = serializeEncryptedData(encrypted);
+    }
+  }
+
   if (update.email !== undefined) {
     if (update.email === null) {
       result.encrypted_email = null;
     } else {
       const encrypted = await encrypt(update.email, key);
       result.encrypted_email = serializeEncryptedData(encrypted);
+    }
+  }
+
+  if (update.phone !== undefined) {
+    if (update.phone === null) {
+      result.encrypted_phone = null;
+    } else {
+      const encrypted = await encrypt(update.phone, key);
+      result.encrypted_phone = serializeEncryptedData(encrypted);
+    }
+  }
+
+  if (update.birthday !== undefined) {
+    if (update.birthday === null) {
+      result.encrypted_birthday = null;
+    } else {
+      const encrypted = await encrypt(update.birthday, key);
+      result.encrypted_birthday = serializeEncryptedData(encrypted);
     }
   }
 

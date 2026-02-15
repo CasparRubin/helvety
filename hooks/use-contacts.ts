@@ -108,7 +108,10 @@ export function useContacts(): UseContactsReturn {
             user_id: prev[0]?.user_id ?? "",
             first_name: input.first_name,
             last_name: input.last_name,
+            description: input.description,
             email: input.email,
+            phone: input.phone,
+            birthday: input.birthday,
             notes: input.notes,
             category_id: input.category_id ?? null,
             sort_order: maxSortOrder + 1,
@@ -171,7 +174,12 @@ export function useContacts(): UseContactsReturn {
               ...(input.last_name !== undefined && {
                 last_name: input.last_name,
               }),
+              ...(input.description !== undefined && {
+                description: input.description,
+              }),
               ...(input.email !== undefined && { email: input.email }),
+              ...(input.phone !== undefined && { phone: input.phone }),
+              ...(input.birthday !== undefined && { birthday: input.birthday }),
               ...(input.notes !== undefined && { notes: input.notes }),
               ...(input.category_id !== undefined && {
                 category_id: input.category_id ?? null,
@@ -381,7 +389,12 @@ export function useContact(id: string): UseContactReturn {
             ...(input.last_name !== undefined && {
               last_name: input.last_name,
             }),
+            ...(input.description !== undefined && {
+              description: input.description,
+            }),
             ...(input.email !== undefined && { email: input.email }),
+            ...(input.phone !== undefined && { phone: input.phone }),
+            ...(input.birthday !== undefined && { birthday: input.birthday }),
             ...(input.notes !== undefined && { notes: input.notes }),
             ...(input.category_id !== undefined && {
               category_id: input.category_id ?? null,
