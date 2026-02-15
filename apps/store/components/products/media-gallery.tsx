@@ -226,4 +226,3 @@ function MediaThumbnail({ item, onClick, onError }: MediaThumbnailProps) {
     </button>
   );
 }
-

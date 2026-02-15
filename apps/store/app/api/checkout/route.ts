@@ -21,7 +21,6 @@ import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import {
   stripe,
@@ -30,7 +29,6 @@ import {
   getProductFromPriceId,
 } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-
 
 import type { CreateCheckoutResponse } from "@/lib/types/entities";
 import type { NextRequest } from "next/server";
@@ -369,4 +367,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

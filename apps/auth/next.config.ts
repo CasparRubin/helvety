@@ -9,7 +9,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 /**
- * Next.js configuration for helvety-auth (authentication service)
+ * Next.js configuration for the Auth app (authentication service)
  *
  * CSP Note: This app uses the baseline secure CSP configuration.
  * - 'unsafe-eval' is only allowed in development (for Fast Refresh)
@@ -122,9 +122,9 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Set turbopack root to current working directory (should be project root when running npm run dev)
+  // Set turbopack root to monorepo root so hoisted dependencies (node_modules) are resolvable
   turbopack: {
-    root: path.resolve("."),
+    root: path.resolve("../.."),
   },
 
   // Optimize tree-shaking for barrel-export packages

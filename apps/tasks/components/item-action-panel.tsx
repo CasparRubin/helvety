@@ -32,7 +32,6 @@ import { useIsMobile } from "@/hooks";
 import { renderStageIcon } from "@/lib/icons";
 import { PRIORITIES, getPriorityConfig } from "@/lib/priorities";
 
-
 import type { Item, Stage, Label } from "@/lib/types";
 
 /** Props for the ItemActionPanel component. */

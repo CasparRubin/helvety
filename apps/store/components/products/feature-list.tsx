@@ -6,7 +6,6 @@
 import { cn } from "@helvety/shared/utils";
 import { Check, X } from "lucide-react";
 
-
 /** Props for the FeatureList component. */
 interface FeatureListProps {
   features: string[];
@@ -81,4 +80,3 @@ export function FeatureComparison({
     </ul>
   );
 }
-

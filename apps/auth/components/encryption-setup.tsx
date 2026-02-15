@@ -33,7 +33,6 @@ import {
 import { useCSRF } from "@/hooks/use-csrf";
 import { isMobileDevice } from "@/lib/device-utils";
 
-
 /**
  * Props for the EncryptionSetup component
  */

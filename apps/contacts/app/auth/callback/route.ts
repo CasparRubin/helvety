@@ -1,4 +1,3 @@
-
 import { logger } from "@helvety/shared/logger";
 import { getSafeRelativePath } from "@helvety/shared/redirect-validation";
 import { createServerClient } from "@helvety/shared/supabase/server";

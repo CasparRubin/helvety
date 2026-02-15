@@ -1,0 +1,11 @@
+# Lockfiles (binary)
+bun.lock
+
+# Auto-generated version files
+**/lib/config/version.ts
+
+# Static assets
+**/public/**
+
+# Minified files
+*.min.js

@@ -16,4 +16,4 @@
 - [Helvety Tasks](https://tasks.helvety.com): End-to-end encrypted task management
 
 ## Optional
-- [GitHub](https://github.com/CasparRubin/helvety.com): Public repository for this website (source-visible, not open source)
+- [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (source-visible, not open source)

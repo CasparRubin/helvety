@@ -21,4 +21,3 @@ interface ProvidersProps {
 export function Providers({ children, csrfToken }: ProvidersProps) {
   return <CSRFProvider csrfToken={csrfToken}>{children}</CSRFProvider>;
 }
-

@@ -1,7 +1,6 @@
 import { cn } from "@helvety/shared/utils";
 import { describe, expect, it } from "vitest";
 
-
 describe("cn", () => {
   it("merges class names", () => {
     expect(cn("foo", "bar")).toBe("foo bar");

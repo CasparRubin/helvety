@@ -1,6 +1,5 @@
 import "server-only";
 
-
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { getUserWithRetry } from "@helvety/shared/auth-retry";
 import { createServerClient } from "@helvety/shared/supabase/server";

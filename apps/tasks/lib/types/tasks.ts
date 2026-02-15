@@ -1,6 +1,5 @@
 /**
- * Task-specific type definitions for helvety-tasks
- * These types are local to this repo and NOT synced via sync-shared.js
+ * Task-specific type definitions for the Tasks app
  */
 
 // =============================================================================

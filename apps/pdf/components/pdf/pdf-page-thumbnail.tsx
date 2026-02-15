@@ -20,7 +20,6 @@ import { getImageBitmapCache } from "@/lib/imagebitmap-cache";
 import { debounce } from "@/lib/pdf-helpers";
 import { calculateOptimalDPR } from "@/lib/thumbnail-dpr";
 
-
 import { PdfImageThumbnail } from "./pdf-image-thumbnail";
 import { PdfImageBitmapThumbnail } from "./pdf-imagebitmap-thumbnail";
 import { PageErrorBoundary } from "./pdf-page-error-boundary";

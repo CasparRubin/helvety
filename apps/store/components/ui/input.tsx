@@ -1,7 +1,6 @@
 import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
-
 /** Text input field component. */
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
@@ -18,4 +17,3 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
 }
 
 export { Input };
-

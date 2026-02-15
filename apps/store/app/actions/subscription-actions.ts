@@ -11,11 +11,9 @@ import { isValidRelativePath } from "@helvety/shared/redirect-validation";
 import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
 import { z } from "zod";
 
-
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-
 
 import type {
   ActionResponse,
@@ -698,4 +696,3 @@ export async function getCustomerPortalUrl(
     return { success: false, error: "Failed to create billing portal session" };
   }
 }
-

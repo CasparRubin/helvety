@@ -6,7 +6,6 @@ import {
 } from "@helvety/shared/redirect-validation";
 import { describe, expect, it } from "vitest";
 
-
 // =============================================================================
 // isValidRedirectUri
 // =============================================================================

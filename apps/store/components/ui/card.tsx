@@ -1,7 +1,6 @@
 import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
-
 /** Card container component with size variants. */
 function Card({
   className,
@@ -128,4 +127,3 @@ export {
   CardDescription,
   CardContent,
 };
-

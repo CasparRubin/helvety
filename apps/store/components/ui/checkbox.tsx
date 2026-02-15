@@ -5,7 +5,6 @@ import { CheckIcon } from "lucide-react";
 import { Checkbox as CheckboxPrimitive } from "radix-ui";
 import * as React from "react";
 
-
 /**
  * Checkbox input built on Radix UI primitive.
  */
@@ -33,4 +32,3 @@ function Checkbox({
 }
 
 export { Checkbox };
-

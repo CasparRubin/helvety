@@ -728,4 +728,3 @@ export function TenantsTab() {
     </div>
   );
 }
-

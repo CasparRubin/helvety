@@ -1,7 +1,6 @@
 import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
-
 /** Text input field component. */
 function Input({
   className,

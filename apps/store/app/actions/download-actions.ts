@@ -14,7 +14,6 @@ import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-
 import type { ActionResponse } from "@/lib/types/entities";
 import type { PackageDownloadInfo } from "@/lib/types/store";
 
@@ -249,4 +248,3 @@ export async function getPackageMetadata(
     return { success: false, error: "An unexpected error occurred" };
   }
 }
-

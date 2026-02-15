@@ -4,7 +4,6 @@ import { cn } from "@helvety/shared/utils";
 import { Label as LabelPrimitive } from "radix-ui";
 import * as React from "react";
 
-
 /** Form label component. */
 function Label({
   className,

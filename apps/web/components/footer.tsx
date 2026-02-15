@@ -1,7 +1,6 @@
 import { cn } from "@helvety/shared/utils";
 import Link from "next/link";
 
-
 /** Site footer: contact email, legal links, and cookie info. */
 export function Footer({ className }: { className?: string }) {
   return (

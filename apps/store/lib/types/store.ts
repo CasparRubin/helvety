@@ -63,4 +63,3 @@ export interface UserDataExport {
     createdAt: string;
   }>;
 }
-

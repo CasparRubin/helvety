@@ -3,7 +3,6 @@ import { ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
 import { Slot } from "radix-ui";
 import * as React from "react";
 
-
 /** Navigation breadcrumb container. */
 function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
   return (

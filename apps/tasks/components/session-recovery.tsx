@@ -3,7 +3,6 @@
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useEffect } from "react";
 
-
 /**
  * Invisible component that recovers the Supabase auth session after
  * Safari iOS (and similar browsers) suspend and resume the tab.

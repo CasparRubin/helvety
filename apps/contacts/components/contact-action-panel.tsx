@@ -27,7 +27,6 @@ import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks";
 import { renderCategoryIcon } from "@/lib/icons";
 
-
 import type { Contact, Category } from "@/lib/types";
 
 /** Props for the ContactActionPanel component. */

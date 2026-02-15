@@ -1,6 +1,6 @@
 /**
  * Entity type definitions shared across all Helvety apps
- * These types represent database entities and are synced via sync-shared.js
+ * These types represent database entities (source of truth in @helvety/shared)
  */
 
 // =============================================================================

@@ -9,6 +9,8 @@ A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract 
 
 **App:** [pdf.helvety.com](https://pdf.helvety.com)
 
+> **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/pdf/`. See the root README for monorepo setup instructions.
+
 **Privacy First** - 100% Client-Side Processing. All file processing happens entirely in your browser. Your file data is never uploaded to our servers. We use Vercel Analytics for anonymous page view statistics only (see [Privacy Policy](https://helvety.com/privacy)).
 
 Helvety PDF is a 100% free tool with no login required. All features are available to everyone - unlimited files, unlimited pages, up to 100MB per file.
@@ -106,9 +108,9 @@ Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom env
 
 | Script                  | Description                       |
 | ----------------------- | --------------------------------- |
-| `npm test`              | Run all tests once                |
-| `npm run test:watch`    | Run tests in watch mode           |
-| `npm run test:coverage` | Run tests with v8 coverage report |
+| `bun run test`          | Run all tests once                |
+| `bun run test:watch`    | Run tests in watch mode           |
+| `bun run test:coverage` | Run tests with v8 coverage report |
 
 Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
 
@@ -124,7 +126,7 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 > **This is NOT open source software.**
 
-This repository is public so users can inspect and verify the application's behavior and security.
+This monorepo is public so users can inspect and verify the application's behavior and security.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 

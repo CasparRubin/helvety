@@ -610,4 +610,3 @@ async function handleInvoicePaymentFailed(
     `Payment failed for subscription ${subscriptionId}, invoice ${invoice.id}`
   );
 }
-

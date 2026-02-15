@@ -1,4 +1,3 @@
-
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { logger } from "@helvety/shared/logger";
 import { getSafeRelativePath } from "@helvety/shared/redirect-validation";

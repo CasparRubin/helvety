@@ -1,7 +1,6 @@
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
 import { redirect } from "next/navigation";
 
-
 /**
  * Root page - redirects to login with any redirect_uri preserved
  *

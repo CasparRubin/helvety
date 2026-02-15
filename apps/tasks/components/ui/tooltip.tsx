@@ -4,7 +4,6 @@ import { cn } from "@helvety/shared/utils";
 import { Tooltip as TooltipPrimitive } from "radix-ui";
 import * as React from "react";
 
-
 /** Tooltip provider for configuring tooltip behavior. */
 function TooltipProvider({
   ...props

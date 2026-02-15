@@ -21,7 +21,6 @@ import { useCSRF } from "@/hooks/use-csrf";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isMobileDevice } from "@/lib/device-utils";
 
-
 import type { AuthStep, AuthFlowType } from "@/components/encryption-stepper";
 
 /** Duration (in seconds) before the user can resend an OTP code. */

@@ -9,7 +9,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 /**
- * Next.js configuration for helvety-pdf (PDF tools)
+ * Next.js configuration for the PDF app (PDF tools)
  *
  * CSP Note: This app requires a RELAXED CSP for PDF.js functionality:
  * - 'unsafe-eval' is ALWAYS allowed (PDF.js uses eval for font parsing)
@@ -134,10 +134,9 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Turbopack config (used during `next dev` in Next.js 16).
-  // Sets root for proper module resolution.
+  // Set turbopack root to monorepo root so hoisted dependencies (node_modules) are resolvable
   turbopack: {
-    root: path.resolve("."),
+    root: path.resolve("../.."),
   },
 
   // Optimize tree-shaking for barrel-export packages

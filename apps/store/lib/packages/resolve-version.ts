@@ -114,4 +114,3 @@ export async function resolveLatestPackageVersion(
 
   return { version, storagePath };
 }
-

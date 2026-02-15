@@ -8,7 +8,10 @@ import { z } from "zod";
 
 import { requireCSRFToken } from "@/lib/csrf";
 
-import type { ActionResponse, UserPasskeyParams } from "@helvety/shared/types/entities";
+import type {
+  ActionResponse,
+  UserPasskeyParams,
+} from "@helvety/shared/types/entities";
 
 export type { UserPasskeyParams } from "@helvety/shared/types/entities";
 

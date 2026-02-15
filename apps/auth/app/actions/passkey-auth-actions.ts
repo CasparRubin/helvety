@@ -15,7 +15,6 @@ import { requireCSRFToken } from "@/lib/csrf";
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-
 import {
   getClientIP,
   getRpId,
@@ -25,7 +24,10 @@ import {
   clearChallenge,
 } from "./auth-action-helpers";
 
-import type { ActionResponse, UserAuthCredential } from "@helvety/shared/types/entities";
+import type {
+  ActionResponse,
+  UserAuthCredential,
+} from "@helvety/shared/types/entities";
 import type {
   GenerateAuthenticationOptionsOpts,
   VerifyAuthenticationResponseOpts,

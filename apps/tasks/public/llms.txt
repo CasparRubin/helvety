@@ -13,4 +13,4 @@
 - [Helvety Contacts](https://contacts.helvety.com): End-to-end encrypted contact management
 
 ## Optional
-- [GitHub](https://github.com/CasparRubin/helvety-tasks): Public repository for Helvety Tasks (source-visible, not open source)
+- [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (source-visible, not open source)

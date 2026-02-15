@@ -109,4 +109,3 @@ describe("getMaxTenantsForTier edge cases", () => {
     expect(getMaxTenantsForTier("helvety-spo-explorer-solo")).toBe(1);
   });
 });
-

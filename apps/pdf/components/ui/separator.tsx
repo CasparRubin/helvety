@@ -4,7 +4,6 @@ import { cn } from "@helvety/shared/utils";
 import { Separator as SeparatorPrimitive } from "radix-ui";
 import * as React from "react";
 
-
 /** Visual separator line for dividing content sections. */
 function Separator({
   className,

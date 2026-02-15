@@ -58,7 +58,7 @@ import { VERSION } from "@/lib/config/version";
 import type { User } from "@supabase/supabase-js";
 
 /**
- * Main navigation bar component for helvety-contacts
+ * Main navigation bar component for the Contacts app
  *
  * Features:
  * - App switcher for navigating between Helvety ecosystem apps
@@ -231,7 +231,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
-                  href="https://github.com/CasparRubin/helvety-contacts"
+                  href="https://github.com/CasparRubin/helvety"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View source code on GitHub"
@@ -362,7 +362,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   asChild
                 >
                   <a
-                    href="https://github.com/CasparRubin/helvety-contacts"
+                    href="https://github.com/CasparRubin/helvety"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setMobileMenuOpen(false)}

@@ -270,4 +270,3 @@ export function formatStartingFrom(
 
   return `From ${formatPrice(startingTier.price, currency)}`;
 }
-

@@ -18,7 +18,6 @@ import {
 } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-
 import { getClientIP } from "./auth-action-helpers";
 import { checkUserPasskeyStatus } from "./credential-actions";
 import { hasEncryptionSetup } from "./encryption-actions";

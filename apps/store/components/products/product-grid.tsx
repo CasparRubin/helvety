@@ -6,7 +6,6 @@
 import { cn } from "@helvety/shared/utils";
 import { Package } from "lucide-react";
 
-
 import { ProductCard } from "./product-card";
 
 import type { Product } from "@/lib/types/products";
@@ -111,4 +110,3 @@ function ProductCardSkeleton() {
     </div>
   );
 }
-

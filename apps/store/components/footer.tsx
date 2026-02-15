@@ -62,4 +62,3 @@ export function Footer({ className }: { className?: string }) {
     </footer>
   );
 }
-

@@ -6,7 +6,6 @@
 import { logger } from "@helvety/shared/logger";
 import * as React from "react";
 
-
 /** Props for the PDF page error boundary (children, onError, retryKey). */
 interface PageErrorBoundaryProps {
   /** Child components to render */

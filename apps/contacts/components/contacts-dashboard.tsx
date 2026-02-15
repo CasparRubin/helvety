@@ -32,7 +32,6 @@ import {
 import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
 import { downloadContactDataExport } from "@/lib/data-export";
 
-
 /**
  * ContactsDashboard - Main dashboard showing all contacts
  */

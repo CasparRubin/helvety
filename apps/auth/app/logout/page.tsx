@@ -5,7 +5,6 @@ import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-
 import { signOutAction } from "./actions";
 
 /**

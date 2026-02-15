@@ -14,7 +14,6 @@ import { NextResponse } from "next/server";
 import { getMaxTenantsForTier } from "@/lib/license/validation";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-
 import type {
   LicensedTenant,
   RegisterTenantRequest,
@@ -293,4 +292,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

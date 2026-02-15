@@ -1,6 +1,9 @@
 "use client";
 
-import { redirectToLogin, redirectToLogout } from "@helvety/shared/auth-redirect";
+import {
+  redirectToLogin,
+  redirectToLogout,
+} from "@helvety/shared/auth-redirect";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import {
   CreditCard,
@@ -53,11 +56,10 @@ import {
 } from "@/components/ui/tooltip";
 import { VERSION } from "@/lib/config/version";
 
-
 import type { User } from "@supabase/supabase-js";
 
 /**
- * Main navigation bar component for helvety.com
+ * Main navigation bar component for the Web app
  *
  * Features:
  * - App switcher for navigating between Helvety ecosystem apps
@@ -197,7 +199,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
-                  href="https://github.com/CasparRubin/helvety.com"
+                  href="https://github.com/CasparRubin/helvety"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View source code on GitHub"
@@ -322,7 +324,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   asChild
                 >
                   <a
-                    href="https://github.com/CasparRubin/helvety.com"
+                    href="https://github.com/CasparRubin/helvety"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setMobileMenuOpen(false)}

@@ -176,4 +176,3 @@ export function isHandledWebhookEvent(
 ): eventType is HandledWebhookEvent {
   return HANDLED_WEBHOOK_EVENTS.includes(eventType as HandledWebhookEvent);
 }
-

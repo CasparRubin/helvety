@@ -55,11 +55,10 @@ import {
 } from "@/components/ui/tooltip";
 import { VERSION } from "@/lib/config/version";
 
-
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 /**
- * Main navigation bar component for helvety-auth
+ * Main navigation bar component for the Auth app
  *
  * Features:
  * - App switcher for navigating between Helvety ecosystem apps
@@ -216,7 +215,7 @@ export function Navbar({
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
-                  href="https://github.com/CasparRubin/helvety-auth"
+                  href="https://github.com/CasparRubin/helvety"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View source code on GitHub"
@@ -349,7 +348,7 @@ export function Navbar({
                   asChild
                 >
                   <a
-                    href="https://github.com/CasparRubin/helvety-auth"
+                    href="https://github.com/CasparRubin/helvety"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setMobileMenuOpen(false)}

@@ -13,7 +13,6 @@ import { z } from "zod";
 import { getMaxTenantsForTier } from "@/lib/license/validation";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-
 import type {
   ActionResponse,
   LicensedTenant,
@@ -546,4 +545,3 @@ export async function removeTenant(
     return { success: false, error: "An unexpected error occurred" };
   }
 }
-

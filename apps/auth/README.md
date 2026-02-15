@@ -7,6 +7,8 @@
 
 Centralized authentication service for the Helvety ecosystem, providing passwordless SSO across all Helvety applications. Engineered & Designed in Switzerland.
 
+> **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/auth/`. See the root README for monorepo setup instructions.
+
 ## Service Availability
 
 Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
@@ -334,9 +336,9 @@ Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom env
 
 | Script                  | Description                       |
 | ----------------------- | --------------------------------- |
-| `npm test`              | Run all tests once                |
-| `npm run test:watch`    | Run tests in watch mode           |
-| `npm run test:coverage` | Run tests with v8 coverage report |
+| `bun run test`          | Run all tests once                |
+| `bun run test:watch`    | Run tests in watch mode           |
+| `bun run test:coverage` | Run tests with v8 coverage report |
 
 Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
 
@@ -352,7 +354,7 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 > **This is NOT open source software.**
 
-This repository is public so users can inspect and verify the application's behavior and security.
+This monorepo is public so users can inspect and verify the application's behavior and security.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 

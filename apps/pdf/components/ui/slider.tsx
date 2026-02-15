@@ -4,7 +4,6 @@ import { cn } from "@helvety/shared/utils";
 import { Slider as SliderPrimitive } from "radix-ui";
 import * as React from "react";
 
-
 /** Range slider input component. */
 function Slider({
   className,

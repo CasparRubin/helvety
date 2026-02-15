@@ -7,7 +7,6 @@
  * DELETE /api/tenants/[id] - Remove a tenant
  */
 
-
 import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";

@@ -1,6 +1,5 @@
 /**
- * Contact-specific type definitions for helvety-contacts
- * These types are local to this repo and NOT synced via sync-shared.js
+ * Contact-specific type definitions for the Contacts app
  */
 
 // =============================================================================

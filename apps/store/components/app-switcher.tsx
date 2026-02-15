@@ -120,4 +120,3 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
     </Sheet>
   );
 }
-

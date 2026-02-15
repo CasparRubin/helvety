@@ -402,4 +402,3 @@ describe("formatStartingFrom", () => {
     expect(result).toContain("CHF");
   });
 });
-

@@ -293,4 +293,3 @@ export function getProductTypes(): ProductType[] {
 export function getFeaturedProducts(): Product[] {
   return products.filter((product) => product.metadata?.featured === true);
 }
-

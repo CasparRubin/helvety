@@ -201,4 +201,3 @@ export function getMaxTenantsForTier(tierId: string): number {
 export function getFeaturesForTier(tierId: string): string[] {
   return TIER_FEATURES[tierId]?.features ?? ["basic_navigation"];
 }
-

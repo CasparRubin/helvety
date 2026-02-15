@@ -4,7 +4,6 @@ import { getSupabaseKey, getSupabaseUrl } from "@helvety/shared/env-validation";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-
 // CSRF token cookie configuration (must match lib/csrf.ts)
 const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;

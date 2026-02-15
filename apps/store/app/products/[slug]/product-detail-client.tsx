@@ -55,7 +55,6 @@ import { getProductBySlug } from "@/lib/data/products";
 import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
 import { isSoftwareProduct } from "@/lib/types/products";
 
-
 import type {
   CreateCheckoutResponse,
   Subscription,

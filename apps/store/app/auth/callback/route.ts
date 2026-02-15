@@ -1,4 +1,3 @@
-
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { logger } from "@helvety/shared/logger";
 import { getSafeRelativePath } from "@helvety/shared/redirect-validation";
@@ -65,4 +64,3 @@ export async function GET(request: Request) {
   // No valid auth params - redirect to auth service
   return NextResponse.redirect(`${authErrorUrl}&error=missing_params`);
 }
-

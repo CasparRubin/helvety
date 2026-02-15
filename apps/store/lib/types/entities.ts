@@ -1,6 +1,6 @@
 /**
  * Entity type definitions shared across all Helvety apps
- * These types represent database entities and are synced via sync-shared.js
+ * These types represent database entities local to the Store app
  */
 
 // =============================================================================
@@ -217,4 +217,3 @@ export interface CreateCheckoutResponse {
 export type ActionResponse<T = void> = [T] extends [void]
   ? { success: true } | { success: false; error: string }
   : { success: true; data: T } | { success: false; error: string };
-

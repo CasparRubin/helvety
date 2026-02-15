@@ -4,7 +4,6 @@ import { cn } from "@helvety/shared/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import * as React from "react";
 
-
 /** Scrollable area with custom scrollbar styling. */
 function ScrollArea({
   className,
@@ -55,4 +54,3 @@ function ScrollBar({
 }
 
 export { ScrollArea, ScrollBar };
-

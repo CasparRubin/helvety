@@ -10,7 +10,6 @@ import { Package, User, CreditCard, Building2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-
 const links = [
   { href: "/products", label: "Products", icon: Package },
   { href: "/account", label: "Account", icon: User },
@@ -59,4 +58,3 @@ export function StoreNav() {
     </nav>
   );
 }
-

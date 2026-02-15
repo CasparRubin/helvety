@@ -15,7 +15,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CSRFProvider } from "@/hooks/use-csrf";
 import { getCSRFToken } from "@/lib/csrf";
 
-
 import type { Metadata, Viewport } from "next";
 
 // Local Public Sans variable font - no network fetch during build

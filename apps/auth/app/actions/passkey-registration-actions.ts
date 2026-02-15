@@ -12,7 +12,6 @@ import {
 import { requireCSRFToken } from "@/lib/csrf";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-
 import {
   RP_NAME,
   PRF_VERSION,

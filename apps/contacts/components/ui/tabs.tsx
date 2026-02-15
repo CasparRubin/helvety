@@ -5,7 +5,6 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Tabs as TabsPrimitive } from "radix-ui";
 import * as React from "react";
 
-
 /** Tabs root component for horizontal or vertical tab navigation. */
 function Tabs({
   className,

@@ -10,7 +10,6 @@ import { z } from "zod";
 
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-
 import type {
   UserSubscriptionSummary,
   SubscriptionStatus,
@@ -221,4 +220,3 @@ export async function HEAD(request: NextRequest) {
     return new NextResponse(null, { status: 500 });
   }
 }
-

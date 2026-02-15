@@ -3,7 +3,6 @@
 import { cn } from "@helvety/shared/utils";
 import { Check } from "lucide-react";
 
-
 /** Type of authentication flow */
 export type AuthFlowType = "new_user" | "returning_user";
 

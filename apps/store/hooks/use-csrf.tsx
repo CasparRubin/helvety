@@ -62,4 +62,3 @@ export function useCSRFSafe(): string | null {
   const context = React.useContext(CSRFContext);
   return context?.csrfToken ?? null;
 }
-

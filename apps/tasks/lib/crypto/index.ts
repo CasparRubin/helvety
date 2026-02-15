@@ -56,7 +56,10 @@ export {
 } from "@helvety/shared/crypto/encoding";
 
 // Context
-export { EncryptionProvider, useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
+export {
+  EncryptionProvider,
+  useEncryptionContext,
+} from "@helvety/shared/crypto/encryption-context";
 
 // PRF Key Derivation (Passkey-based)
 export {
@@ -85,7 +88,10 @@ export {
   isPRFSupported as isPasskeyPRFSupported,
   getPRFSupportInfo as getPasskeyPRFSupportInfo,
 } from "@helvety/shared/crypto/passkey";
-export type { RPConfig, PasskeyAuthenticationResult } from "@helvety/shared/crypto/passkey";
+export type {
+  RPConfig,
+  PasskeyAuthenticationResult,
+} from "@helvety/shared/crypto/passkey";
 
 // Task-specific Encryption (helvety-tasks only)
 export {

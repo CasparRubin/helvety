@@ -27,7 +27,6 @@ import {
 import { useCSRF } from "@/hooks/use-csrf";
 import { getProductById } from "@/lib/data/products";
 
-
 import type { Subscription } from "@/lib/types/entities";
 
 /** Props for the cancel subscription confirmation dialog. */
@@ -195,4 +194,3 @@ export function CancelSubscriptionDialog({
     </Dialog>
   );
 }
-

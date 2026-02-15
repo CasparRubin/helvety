@@ -70,4 +70,3 @@ export function isTierAllowedForPackage(
 export function getAllPackageIds(): string[] {
   return Object.keys(PACKAGE_CONFIG);
 }
-
