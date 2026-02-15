@@ -1,1 +1,6 @@
 @import "@helvety/ui/globals.css";
+
+/* Tailwind v4 only auto-scans the app directory for utility classes.
+   Workspace packages must be added explicitly so their classes are generated. */
+@source "../../../packages/ui/src";
+@source "../../../packages/brand/src";
