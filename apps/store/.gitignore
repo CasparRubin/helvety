@@ -49,11 +49,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# supabase - export contains full DB schema, never commit
-supabase/supabase.json
-supabase.json
-**/supabase.json
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts

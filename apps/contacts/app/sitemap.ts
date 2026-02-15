@@ -11,7 +11,7 @@ const lastModified = new Date();
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: "https://contacts.helvety.com",
+      url: "https://helvety.com/contacts",
       lastModified,
       changeFrequency: "monthly",
       priority: 1,

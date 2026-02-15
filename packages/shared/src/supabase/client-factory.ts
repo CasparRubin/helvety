@@ -8,8 +8,8 @@ import { getSupabaseUrl, getSupabaseKey } from "../env-validation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * Get cookie domain for cross-subdomain session sharing
- * In production, uses .helvety.com to share sessions across subdomains
+ * Get cookie domain for session sharing
+ * In production, uses .helvety.com for session sharing
  */
 function getCookieDomain(): string | undefined {
   if (process.env.NODE_ENV === "production") {
@@ -22,7 +22,7 @@ function getCookieDomain(): string | undefined {
  * Creates a Supabase server client with cookie handling for Server Components.
  * This is the standard way to create a client in Server Components, Server Actions, etc.
  *
- * Cookies are configured to share sessions across helvety.com subdomains in production.
+ * Cookies are configured for session sharing in production.
  *
  * @returns Promise that resolves to a Supabase client instance
  */
@@ -46,7 +46,7 @@ export async function createServerComponentClient(): Promise<SupabaseClient> {
       ): void {
         try {
           cookiesToSet.forEach(({ name, value, options }) => {
-            // Add domain for cross-subdomain session sharing
+            // Add domain for session sharing
             const cookieOptions = {
               ...options,
               ...(cookieDomain && { domain: cookieDomain }),

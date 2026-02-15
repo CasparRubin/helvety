@@ -351,24 +351,55 @@ async function upsertSubscription(
   const priceId = item.price.id;
   const productInfo = getProductFromPriceId(priceId);
 
-  // Period: subscription-level (legacy) or first item (newer Stripe API)
-  const { periodStart, periodEnd } = extractSubscriptionPeriod(
-    subscription,
-    item as { current_period_start?: number; current_period_end?: number }
-  );
+  // Reject unknown price IDs to prevent storing records with invalid product/tier.
+  // This catches misconfigured Stripe env vars or unexpected price IDs.
+  // We still return 200 to Stripe (handled by the caller) to prevent infinite retries,
+  // but we skip the database upsert to avoid corrupting subscription data.
+  if (!productInfo) {
+    const metadataProductId = subscription.metadata?.product_id;
+    const metadataTierId = subscription.metadata?.tier_id;
 
-  // Resolve product/tier IDs with fallback logging
+    // If metadata has valid product/tier from checkout, we can fall back to that
+    if (metadataProductId && metadataTierId) {
+      logger.warn(
+        `Price ID ${priceId} not found in config for subscription ${subscription.id}. ` +
+          `Falling back to metadata: product=${metadataProductId}, tier=${metadataTierId}. ` +
+          `Check that STRIPE_PRICE_IDS env var is configured correctly.`
+      );
+    } else {
+      logger.error(
+        `Unknown price ID ${priceId} on subscription ${subscription.id} with no metadata fallback. ` +
+          `Skipping subscription upsert to prevent storing invalid data. ` +
+          `Check that STRIPE_PRICE_IDS env var is configured correctly.`
+      );
+
+      // Still log the event for audit trail, but skip the subscription upsert
+      const supabaseForEvent = createAdminClient();
+      await supabaseForEvent.from("subscription_events").insert({
+        user_id: userId,
+        event_type: "subscription.skipped_unknown_price",
+        stripe_event_id: eventId,
+        metadata: {
+          subscription_id: subscription.id,
+          price_id: priceId,
+          status: subscription.status,
+          reason: "Unknown price ID with no metadata fallback",
+        },
+      });
+      return;
+    }
+  }
+
   const resolvedProductId =
     productInfo?.productId ?? subscription.metadata?.product_id ?? "unknown";
   const resolvedTierId =
     productInfo?.tierId ?? subscription.metadata?.tier_id ?? "unknown";
 
-  if (resolvedProductId === "unknown" || resolvedTierId === "unknown") {
-    logger.warn(
-      `Unknown product/tier for price ID ${priceId} on subscription ${subscription.id}. ` +
-        `Check that Stripe env vars are configured correctly.`
-    );
-  }
+  // Period: subscription-level (legacy) or first item (newer Stripe API)
+  const { periodStart, periodEnd } = extractSubscriptionPeriod(
+    subscription,
+    item as { current_period_start?: number; current_period_end?: number }
+  );
 
   // Upsert subscription record and get our row id for the event log
   const { data: upsertedSub, error } = await supabase

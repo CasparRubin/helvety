@@ -1,9 +1,9 @@
 {
   "name": "@helvety/tasks",
-  "version": "1.17.0",
+  "version": "2.0.0",
   "description": "Private and secure task management with end-to-end encryption. Engineered & Designed in Switzerland.",
   "author": "Helvety by Rubin",
-  "homepage": "https://tasks.helvety.com",
+  "homepage": "https://helvety.com/tasks",
   "repository": {
     "type": "git",
     "url": "https://github.com/CasparRubin/helvety.git",
@@ -29,6 +29,7 @@
     "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
+    "@helvety/shared": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -66,7 +67,6 @@
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
-    "@helvety/shared": "workspace:*",
     "@next/bundle-analyzer": "^16.1.6",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

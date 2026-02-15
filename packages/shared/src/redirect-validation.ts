@@ -8,28 +8,19 @@
 /**
  * Explicit allowlist of trusted redirect hosts.
  *
- * Security: Uses an explicit list of known subdomains instead of a wildcard
- * (*.helvety.com) to prevent subdomain takeover attacks. If an unused subdomain
- * DNS record is hijacked, it cannot be used for redirect-based attacks since
- * it won't be in this list.
+ * All apps are served under helvety.com via path-based routing (multi-zone):
+ *   helvety.com/auth, helvety.com/tasks, helvety.com/contacts, etc.
  *
- * When adding a new app/subdomain, add it here.
+ * Only the root domain is needed since all apps share the same origin.
  */
-const ALLOWED_REDIRECT_HOSTS = new Set([
-  "helvety.com",
-  "auth.helvety.com",
-  "store.helvety.com",
-  "pdf.helvety.com",
-  "tasks.helvety.com",
-  "contacts.helvety.com",
-]);
+const ALLOWED_REDIRECT_HOSTS = new Set(["helvety.com"]);
 
 /**
  * Allowed redirect URI patterns
  * Only these domains are permitted as redirect destinations
  *
  * Supports:
- * - Explicit allowlist of helvety.com subdomains (see ALLOWED_REDIRECT_HOSTS)
+ * - Explicit allowlist of helvety.com (see ALLOWED_REDIRECT_HOSTS)
  * - localhost with any port (development only)
  * - 127.0.0.1 with any port (development only)
  */
@@ -61,7 +52,7 @@ export function isValidRedirectUri(uri: string | null | undefined): boolean {
       return false;
     }
 
-    // Check explicit host allowlist (production helvety.com subdomains)
+    // Check explicit host allowlist (helvety.com)
     if (url.protocol === "https:" && ALLOWED_REDIRECT_HOSTS.has(url.hostname)) {
       return true;
     }

@@ -7,7 +7,7 @@
  * The server only ever sees encrypted data.
  *
  * Note: Contact decryption is read-only - contacts are created and edited
- * in helvety-contacts. Name, description, email, phone, and birthday are
+ * in the Contacts app. Name, description, email, phone, and birthday are
  * decrypted here; notes content is not decrypted, only a `has_notes` flag
  * is derived.
  */
@@ -878,7 +878,7 @@ export async function decryptAttachmentRows(
 }
 
 // =============================================================================
-// CONTACT DECRYPTION (read-only, contacts are created/edited in helvety-contacts)
+// CONTACT DECRYPTION (read-only, contacts are created/edited in the Contacts app)
 // =============================================================================
 
 /**

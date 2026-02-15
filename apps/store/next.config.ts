@@ -17,6 +17,9 @@ const withBundleAnalyzer = bundleAnalyzer({
  * - Has images config for Supabase storage
  */
 const nextConfig: NextConfig = {
+  // Multi-zone: serve this app under helvety.com/store
+  basePath: "/store",
+
   // Enable compression
   compress: true,
 

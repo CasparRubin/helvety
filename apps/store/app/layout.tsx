@@ -45,7 +45,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://store.helvety.com"),
+  metadataBase: new URL("https://helvety.com/store"),
   title: {
     default: "Helvety Store | Software & Subscriptions",
     template: "%s | Helvety Store",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://store.helvety.com",
+    url: "https://helvety.com/store",
     siteName: "Helvety Store",
     title: "Helvety Store | Software & Subscriptions",
     description:
@@ -102,7 +102,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://store.helvety.com",
+    canonical: "https://helvety.com/store",
   },
 };
 
@@ -143,10 +143,10 @@ export default async function RootLayout({
                   "Software and subscriptions engineered and designed in Switzerland.",
                 sameAs: [
                   "https://helvety.com",
-                  "https://pdf.helvety.com",
-                  "https://auth.helvety.com",
-                  "https://contacts.helvety.com",
-                  "https://tasks.helvety.com",
+                  "https://helvety.com/pdf",
+                  "https://helvety.com/auth",
+                  "https://helvety.com/contacts",
+                  "https://helvety.com/tasks",
                   "https://github.com/CasparRubin",
                 ],
               },
@@ -154,7 +154,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "WebSite",
                 name: "Helvety Store",
-                url: "https://store.helvety.com",
+                url: "https://helvety.com/store",
                 description:
                   "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
               },

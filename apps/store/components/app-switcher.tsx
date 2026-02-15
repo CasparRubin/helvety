@@ -35,28 +35,28 @@ const apps = [
   },
   {
     name: "Auth",
-    href: process.env.NEXT_PUBLIC_AUTH_URL ?? "https://auth.helvety.com",
+    href: process.env.NEXT_PUBLIC_AUTH_URL ?? "https://helvety.com/auth",
     icon: KeyRound,
   },
   {
     name: "Store",
-    href: process.env.NEXT_PUBLIC_STORE_URL ?? "https://store.helvety.com",
+    href: process.env.NEXT_PUBLIC_STORE_URL ?? "https://helvety.com/store",
     icon: ShoppingBag,
   },
   {
     name: "PDF",
-    href: process.env.NEXT_PUBLIC_PDF_URL ?? "https://pdf.helvety.com",
+    href: process.env.NEXT_PUBLIC_PDF_URL ?? "https://helvety.com/pdf",
     icon: FileText,
   },
   {
     name: "Tasks",
-    href: process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks.helvety.com",
+    href: process.env.NEXT_PUBLIC_TASKS_URL ?? "https://helvety.com/tasks",
     icon: CheckSquare,
   },
   {
     name: "Contacts",
     href:
-      process.env.NEXT_PUBLIC_CONTACTS_URL ?? "https://contacts.helvety.com",
+      process.env.NEXT_PUBLIC_CONTACTS_URL ?? "https://helvety.com/contacts",
     icon: Users,
   },
 ];

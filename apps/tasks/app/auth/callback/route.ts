@@ -1,5 +1,6 @@
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { logger } from "@helvety/shared/logger";
+import { checkRateLimit, RATE_LIMITS } from "@helvety/shared/rate-limit";
 import { getSafeRelativePath } from "@helvety/shared/redirect-validation";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
@@ -10,15 +11,32 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  * Auth callback route for handling Supabase email verification and OAuth
  *
  * This route handles session establishment from email verification flows
- * and OAuth. Primary authentication now happens via auth.helvety.com using
+ * and OAuth. Primary authentication now happens via helvety.com/auth using
  * OTP codes. This callback is used for account recovery, invite, and email
- * change confirmation links, as well as session establishment from
- * cross-subdomain cookies.
+ * change confirmation links.
  *
  * Security: The `next` parameter is validated to prevent open redirect attacks.
  * Only relative paths starting with "/" are allowed.
+ * Rate limited by IP to prevent auth callback abuse.
  */
 export async function GET(request: Request) {
+  // Rate limit auth callbacks by IP to prevent abuse
+  // Prefer x-real-ip (Vercel-trusted) over x-forwarded-for (spoofable)
+  const clientIP =
+    request.headers.get("x-real-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+  const rateLimit = await checkRateLimit(
+    `auth_callback:ip:${clientIP}`,
+    RATE_LIMITS.AUTH_CALLBACK.maxRequests,
+    RATE_LIMITS.AUTH_CALLBACK.windowMs
+  );
+  if (!rateLimit.allowed) {
+    return NextResponse.redirect(
+      `${new URL(request.url).origin}/?error=rate_limited`
+    );
+  }
+
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const token_hash = searchParams.get("token_hash");

@@ -104,9 +104,9 @@ export function getStripeClient(): Stripe {
     apiVersion: "2026-01-28.clover",
     typescript: true,
     appInfo: {
-      name: "helvety-store",
+      name: "Helvety Store",
       version: appVersion,
-      url: "https://store.helvety.com",
+      url: "https://helvety.com/store",
     },
   });
 

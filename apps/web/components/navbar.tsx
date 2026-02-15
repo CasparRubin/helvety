@@ -252,7 +252,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://store.helvety.com/account"
+                        href="https://helvety.com/store/account"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -266,7 +266,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://store.helvety.com/subscriptions"
+                        href="https://helvety.com/store/subscriptions"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -376,7 +376,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://store.helvety.com/account"
+                        href="https://helvety.com/store/account"
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setMobileMenuOpen(false)}
@@ -391,7 +391,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://store.helvety.com/subscriptions"
+                        href="https://helvety.com/store/subscriptions"
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setMobileMenuOpen(false)}

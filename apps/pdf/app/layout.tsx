@@ -40,7 +40,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pdf.helvety.com"),
+  metadataBase: new URL("https://helvety.com/pdf"),
   title: {
     default: "Helvety PDF | Free PDF Tool | Private and Secure",
     template: "%s | Helvety PDF",
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://pdf.helvety.com",
+    url: "https://helvety.com/pdf",
     siteName: "Helvety PDF",
     title: "Helvety PDF | Free PDF Tool | Private and Secure",
     description:
@@ -111,7 +111,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://pdf.helvety.com",
+    canonical: "https://helvety.com/pdf",
   },
   category: "productivity",
 };
@@ -150,10 +150,10 @@ export default async function RootLayout({
                   "Software and subscriptions engineered and designed in Switzerland.",
                 sameAs: [
                   "https://helvety.com",
-                  "https://store.helvety.com",
-                  "https://auth.helvety.com",
-                  "https://contacts.helvety.com",
-                  "https://tasks.helvety.com",
+                  "https://helvety.com/store",
+                  "https://helvety.com/auth",
+                  "https://helvety.com/contacts",
+                  "https://helvety.com/tasks",
                   "https://github.com/CasparRubin",
                 ],
               },
@@ -161,7 +161,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "WebApplication",
                 name: "Helvety PDF",
-                url: "https://pdf.helvety.com",
+                url: "https://helvety.com/pdf",
                 description:
                   "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser.",
                 applicationCategory: "UtilitiesApplication",

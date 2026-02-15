@@ -11,10 +11,9 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  * Auth callback route for handling Supabase email verification and OAuth
  *
  * This route handles session establishment from email verification flows
- * and OAuth. Primary authentication now happens via auth.helvety.com using
+ * and OAuth. Primary authentication now happens via helvety.com/auth using
  * OTP codes. This callback is used for account recovery, invite, and email
- * change confirmation links, as well as session establishment from
- * cross-subdomain cookies.
+ * change confirmation links.
  *
  * Security: The `next` parameter is validated to prevent open redirect attacks.
  * Only relative paths starting with "/" are allowed.

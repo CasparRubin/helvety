@@ -678,7 +678,7 @@ export async function getCustomerPortalUrl(
     // Validate returnUrl to prevent open redirect attacks
     // Only allow relative paths (e.g., "/account") - no external URLs
     const appBaseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ?? "https://store.helvety.com";
+      process.env.NEXT_PUBLIC_APP_URL ?? "https://helvety.com/store";
     const safeReturnUrl =
       returnUrl && isValidRelativePath(returnUrl)
         ? `${appBaseUrl}${returnUrl}`

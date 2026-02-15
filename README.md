@@ -13,11 +13,11 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 | App                            | URL                                                  | Description                                                   |
 | ------------------------------ | ---------------------------------------------------- | ------------------------------------------------------------- |
 | **[Web](apps/web/)**           | [helvety.com](https://helvety.com)                   | Main website, legal pages, landing                            |
-| **[Auth](apps/auth/)**         | [auth.helvety.com](https://auth.helvety.com)         | Centralized passwordless authentication (email + passkey SSO) |
-| **[Store](apps/store/)**       | [store.helvety.com](https://store.helvety.com)       | Product catalog, subscriptions, Stripe payments               |
-| **[PDF](apps/pdf/)**           | [pdf.helvety.com](https://pdf.helvety.com)           | Client-side PDF toolkit (merge, reorder, rotate, extract)     |
-| **[Tasks](apps/tasks/)**       | [tasks.helvety.com](https://tasks.helvety.com)       | End-to-end encrypted task management                          |
-| **[Contacts](apps/contacts/)** | [contacts.helvety.com](https://contacts.helvety.com) | End-to-end encrypted contact management                       |
+| **[Auth](apps/auth/)**         | [helvety.com/auth](https://helvety.com/auth)         | Centralized passwordless authentication (email + passkey SSO) |
+| **[Store](apps/store/)**       | [helvety.com/store](https://helvety.com/store)       | Product catalog, subscriptions, Stripe payments               |
+| **[PDF](apps/pdf/)**           | [helvety.com/pdf](https://helvety.com/pdf)           | Client-side PDF toolkit (merge, reorder, rotate, extract)     |
+| **[Tasks](apps/tasks/)**       | [helvety.com/tasks](https://helvety.com/tasks)       | End-to-end encrypted task management                          |
+| **[Contacts](apps/contacts/)** | [helvety.com/contacts](https://helvety.com/contacts) | End-to-end encrypted contact management                       |
 
 ## Shared Packages
 
@@ -78,14 +78,15 @@ bun run format
 helvety/
 ├── apps/
 │   ├── web/          # helvety.com
-│   ├── auth/         # auth.helvety.com
-│   ├── store/        # store.helvety.com
-│   ├── pdf/          # pdf.helvety.com
-│   ├── tasks/        # tasks.helvety.com
-│   └── contacts/     # contacts.helvety.com
+│   ├── auth/         # helvety.com/auth
+│   ├── store/        # helvety.com/store
+│   ├── pdf/          # helvety.com/pdf
+│   ├── tasks/        # helvety.com/tasks
+│   └── contacts/     # helvety.com/contacts
 ├── packages/
 │   ├── config/       # Shared tooling configs
 │   └── shared/       # Shared libraries
+├── supabase/         # Database schema export & SQL scripts (gitignored export)
 ├── turbo.json        # Turborepo task configuration
 └── package.json      # Root workspace configuration
 ```

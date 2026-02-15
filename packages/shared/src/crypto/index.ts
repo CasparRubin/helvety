@@ -6,7 +6,7 @@
  * server never sees plaintext content.
  *
  * Uses passkey-based (PRF) key derivation for secure, passwordless encryption.
- * Encryption setup is handled by auth.helvety.com.
+ * Encryption setup is handled by helvety.com/auth.
  */
 
 // Types
@@ -72,7 +72,14 @@ export type {
   PRFSupportInfo,
 } from "./prf-key-derivation";
 
-// Passkey Operations (Authentication only - setup is in auth.helvety.com)
+// PRF Salt Cache (for single-touch login + encryption unlock)
+export {
+  cachePRFSalt,
+  getCachedPRFSalt,
+  clearCachedPRFSalt,
+} from "./prf-salt-cache";
+
+// Passkey Operations (Authentication only - setup is in helvety.com/auth)
 export {
   isPasskeySupported,
   isPlatformAuthenticatorAvailable,

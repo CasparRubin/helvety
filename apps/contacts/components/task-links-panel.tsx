@@ -6,7 +6,7 @@
  *
  * Supports bidirectional linking: users can link new entities via a searchable
  * picker and unlink existing ones with confirmation. Mirrors the visual style
- * of ContactLinksPanel in helvety-tasks for consistent cross-app UI/UX.
+ * of ContactLinksPanel in the Tasks app for consistent cross-app UI/UX.
  */
 
 import {
@@ -68,7 +68,7 @@ import type {
 // =============================================================================
 
 const TASKS_APP_URL =
-  process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks.helvety.com";
+  process.env.NEXT_PUBLIC_TASKS_URL ?? "https://helvety.com/tasks";
 
 /** Build a deep link URL to a unit in the Tasks app */
 function getUnitDeepLink(unitId: string): string {
@@ -201,7 +201,7 @@ function EntitySection({
  * Panel for linking/unlinking task entities to a contact.
  * Displays linked entities with deep links to the Tasks app and a
  * searchable picker to add new links. Mirrors ContactLinksPanel in
- * helvety-tasks for consistent bidirectional UX.
+ * the Tasks app for consistent bidirectional UX.
  */
 export function TaskLinksPanel({
   contactId,

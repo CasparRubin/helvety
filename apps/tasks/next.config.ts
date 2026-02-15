@@ -17,6 +17,9 @@ const withBundleAnalyzer = bundleAnalyzer({
  * - turbopack root for proper module resolution
  */
 const nextConfig: NextConfig = {
+  // Multi-zone: serve this app under helvety.com/tasks
+  basePath: "/tasks",
+
   // Enable compression
   compress: true,
 

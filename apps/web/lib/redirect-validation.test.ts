@@ -17,19 +17,33 @@ describe("isValidRedirectUri", () => {
     expect(isValidRedirectUri("")).toBe(false);
   });
 
-  it("accepts production helvety.com domains", () => {
+  it("accepts production helvety.com paths", () => {
     expect(isValidRedirectUri("https://helvety.com")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/some/path")).toBe(true);
-    expect(isValidRedirectUri("https://auth.helvety.com")).toBe(true);
-    expect(isValidRedirectUri("https://store.helvety.com/products")).toBe(true);
-    expect(isValidRedirectUri("https://pdf.helvety.com")).toBe(true);
-    expect(isValidRedirectUri("https://tasks.helvety.com/units/123")).toBe(
+    expect(isValidRedirectUri("https://helvety.com/auth")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/store/products")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/pdf")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/tasks/units/123")).toBe(
       true
     );
     expect(
-      isValidRedirectUri("https://contacts.helvety.com/contacts/456")
+      isValidRedirectUri("https://helvety.com/contacts/contacts/456")
     ).toBe(true);
+  });
+
+  it("rejects old subdomain URLs (no longer allowed)", () => {
+    expect(isValidRedirectUri("https://auth.helvety.com")).toBe(false);
+    expect(isValidRedirectUri("https://store.helvety.com/products")).toBe(
+      false
+    );
+    expect(isValidRedirectUri("https://pdf.helvety.com")).toBe(false);
+    expect(isValidRedirectUri("https://tasks.helvety.com/units/123")).toBe(
+      false
+    );
+    expect(
+      isValidRedirectUri("https://contacts.helvety.com/contacts/456")
+    ).toBe(false);
   });
 
   it("accepts localhost for development", () => {
@@ -65,7 +79,6 @@ describe("isValidRedirectUri", () => {
 
   it("rejects HTTP for production domains (requires HTTPS)", () => {
     expect(isValidRedirectUri("http://helvety.com")).toBe(false);
-    expect(isValidRedirectUri("http://auth.helvety.com")).toBe(false);
   });
 
   it("rejects whitespace-only and padded input", () => {

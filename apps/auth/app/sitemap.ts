@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 /**
- * Sitemap for helvety-auth
+ * Sitemap for the Auth app (helvety.com/auth)
  */
 
 /** Static build-time date for consistent sitemap caching */
@@ -11,7 +11,7 @@ const lastModified = new Date();
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: "https://auth.helvety.com",
+      url: "https://helvety.com/auth",
       lastModified,
       changeFrequency: "monthly",
       priority: 1,

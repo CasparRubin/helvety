@@ -1,6 +1,6 @@
 /**
  * PDF-specific helper utilities.
- * These functions are specific to the helvety-pdf app and not shared across other apps.
+ * These functions are specific to the PDF app and not shared across other apps.
  */
 
 /**

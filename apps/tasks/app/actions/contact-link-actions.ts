@@ -20,7 +20,7 @@ import type {
 const EntityTypeSchema = z.enum(["unit", "space", "item"]);
 
 // =============================================================================
-// CONTACT ACTIONS (read-only, contacts are managed in helvety-contacts)
+// CONTACT ACTIONS (read-only, contacts are managed in the Contacts app)
 // =============================================================================
 
 /**

@@ -2,12 +2,15 @@
 
 import { useEncryptionContext } from "@helvety/shared/crypto";
 import { registerPasskey } from "@helvety/shared/crypto/passkey";
+import { PRF_VERSION } from "@helvety/shared/crypto/prf-key-derivation";
+import { cachePRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import {
   Fingerprint,
   ShieldCheck,
   AlertTriangle,
+  CloudUpload,
   Loader2,
   Smartphone,
 } from "lucide-react";
@@ -54,7 +57,7 @@ type SetupStep = "initial" | "registering" | "complete";
  * After passkey registration, the credential and PRF params are stored server-side.
  * The user is then redirected to the destination app with their existing session
  * (shared via .helvety.com cookies). If the destination app requires encryption
- * (e.g. tasks.helvety.com), it will handle the encryption unlock independently
+ * (e.g. helvety.com/tasks), it will handle the encryption unlock independently
  * using its own EncryptionGate/EncryptionUnlock components.
  *
  * Device-aware: On mobile, passkey is created on this device (Face ID, fingerprint, PIN).
@@ -190,8 +193,11 @@ export function EncryptionSetup({
         return;
       }
 
+      // Cache the PRF salt so future logins can include PRF for single-touch unlock
+      cachePRFSalt(prfSalt, PRF_VERSION);
+
       // Mark as complete and redirect
-      // The OTP session is already shared via .helvety.com cookies.
+      // The session is shared via same-origin cookies.
       // If the destination app needs encryption (e.g. tasks), it will handle
       // the encryption unlock independently via its own EncryptionGate.
       setSetupStep("complete");
@@ -351,6 +357,21 @@ export function EncryptionSetup({
                   {isMobile
                     ? "Your passkey is the only way to decrypt your data. If you remove the passkey from this device, your data cannot be recovered."
                     : "Your passkey is the only way to decrypt your data. If you remove the passkey from your phone, your data cannot be recovered."}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Cloud sync recommendation */}
+          <div className="rounded-lg border border-blue-500/50 bg-blue-500/10 p-3">
+            <div className="flex gap-2">
+              <CloudUpload className="h-5 w-5 flex-shrink-0 text-blue-500" />
+              <div className="text-sm text-blue-500">
+                <p className="font-medium">Recommended</p>
+                <p className="mt-1 text-blue-500/80">
+                  {isMobile
+                    ? "When prompted, save your passkey using your device's built-in password manager — Passwords on iPhone or Google Password Manager on Android. These sync automatically to iCloud or your Google account, so if you ever lose or replace your device, your passkey is restored as soon as you sign in on a new one. Third-party password managers may also work, as long as they support passkey sync."
+                    : "When saving your passkey, use your phone's built-in password manager — Passwords on iPhone or Google Password Manager on Android. These sync automatically to iCloud or your Google account, so if you ever lose or replace your phone, your passkey is restored as soon as you sign in on a new device. Third-party password managers may also work, as long as they support passkey sync."}
                 </p>
               </div>
             </div>

@@ -15,7 +15,7 @@ The main Helvety website. Engineered & Designed in Switzerland.
 
 Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
 
-As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [auth.helvety.com](https://auth.helvety.com) that they are located in Switzerland before any personal data is stored.
+As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [helvety.com/auth](https://helvety.com/auth) that they are located in Switzerland before any personal data is stored.
 
 ## Features
 
@@ -23,7 +23,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 - **Sign in** - Sign in when not authenticated (centralized auth)
 - **Profile menu** - When signed in: user email, links to Store (Account, Subscriptions), Sign out
 - **Dark & Light mode** - Switch between dark and light themes
-- **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply.
+- **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [helvety.com/auth](https://helvety.com/auth) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply.
 - **Abuse reporting** - The Impressum includes an abuse reporting section ([helvety.com/impressum#abuse](https://helvety.com/impressum#abuse)) with guidance for users and law enforcement. Abuse contact: [contact@helvety.com](mailto:contact@helvety.com).
 - **Cookie notice** - Informational notice in the footer about essential cookies only (Swiss nDSG / FMG compliant); no consent collected
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
@@ -39,9 +39,9 @@ This application includes the following security hardening:
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Security Headers** - CSP, HSTS, and other security headers
 
-### Cross-Subdomain SSO
+### Session Sharing (SSO)
 
-Sessions are shared across all `*.helvety.com` applications via cookie-based SSO. Authentication is handled centrally by [auth.helvety.com](https://auth.helvety.com).
+Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing). Authentication is handled centrally by [helvety.com/auth](https://helvety.com/auth).
 
 ## Environment Variables
 

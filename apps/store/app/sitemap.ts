@@ -16,7 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const products = getAllProducts();
 
   const productEntries: MetadataRoute.Sitemap = products.map((product) => ({
-    url: `https://store.helvety.com/products/${product.slug}`,
+    url: `https://helvety.com/store/products/${product.slug}`,
     lastModified,
     changeFrequency: "weekly",
     priority: 0.8,
@@ -24,13 +24,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: "https://store.helvety.com",
+      url: "https://helvety.com/store",
       lastModified,
       changeFrequency: "monthly",
       priority: 1,
     },
     {
-      url: "https://store.helvety.com/products",
+      url: "https://helvety.com/store/products",
       lastModified,
       changeFrequency: "weekly",
       priority: 0.9,

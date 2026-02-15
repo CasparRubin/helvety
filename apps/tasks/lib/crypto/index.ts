@@ -5,7 +5,7 @@
  * All encryption/decryption happens client-side; the server never sees plaintext content.
  *
  * Uses passkey-based (PRF) key derivation for secure, passwordless encryption.
- * Setup is handled by auth.helvety.com - this module only handles unlock and usage.
+ * Setup is handled by helvety.com/auth - this module only handles unlock and usage.
  */
 
 // Types
@@ -77,7 +77,7 @@ export type {
   PRFSupportInfo,
 } from "@helvety/shared/crypto/prf-key-derivation";
 
-// Passkey Operations (Authentication only - setup is in auth.helvety.com)
+// Passkey Operations (Authentication only - setup is in helvety.com/auth)
 export {
   isPasskeySupported,
   isPlatformAuthenticatorAvailable,
@@ -93,7 +93,7 @@ export type {
   PasskeyAuthenticationResult,
 } from "@helvety/shared/crypto/passkey";
 
-// Task-specific Encryption (helvety-tasks only)
+// Task-specific Encryption (Tasks app only)
 export {
   // Unit encryption
   encryptUnitInput,

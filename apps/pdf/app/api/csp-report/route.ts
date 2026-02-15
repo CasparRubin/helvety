@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
     const payload = await request.json().catch(() => null);
-    console.warn("[csp-report] helvety-pdf", payload);
+    console.warn("[csp-report] pdf", payload);
     return new Response(null, { status: 204 });
   } catch (error) {
     console.error("[csp-report] failed to process report", error);

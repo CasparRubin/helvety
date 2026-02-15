@@ -7,7 +7,7 @@
 
 A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images with 100% client-side processing. All file processing happens entirely in your browser - your files are never uploaded to our servers. Engineered & Designed in Switzerland.
 
-**App:** [pdf.helvety.com](https://pdf.helvety.com)
+**App:** [helvety.com/pdf](https://helvety.com/pdf)
 
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/pdf/`. See the root README for monorepo setup instructions.
 
@@ -19,7 +19,7 @@ Helvety PDF is a 100% free tool with no login required. All features are availab
 
 Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
 
-As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [auth.helvety.com](https://auth.helvety.com) that they are located in Switzerland before any personal data is stored. Note: Helvety PDF itself requires no login or account - this applies to other Helvety apps that require authentication.
+As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [helvety.com/auth](https://helvety.com/auth) that they are located in Switzerland before any personal data is stored. Note: Helvety PDF itself requires no login or account - this applies to other Helvety apps that require authentication.
 
 ## Features
 
@@ -46,7 +46,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 ## Security
 
-**Note:** End-to-end encryption is not used in this app. E2EE is used by [Helvety Tasks](https://tasks.helvety.com) and [Helvety Contacts](https://contacts.helvety.com).
+**Note:** End-to-end encryption is not used in this app. E2EE is used by [Helvety Tasks](https://helvety.com/tasks) and [Helvety Contacts](https://helvety.com/contacts).
 
 ### Security Hardening
 
@@ -57,7 +57,7 @@ This application includes the following security hardening:
 - **File Size Validation** - Maximum 100MB per file enforced client-side
 - **Redirect URI Validation** - All redirect URIs validated against allowlist
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [helvety.com/auth](https://helvety.com/auth) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 

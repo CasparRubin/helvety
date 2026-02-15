@@ -506,13 +506,13 @@ export default function TermsPage() {
                 Licenses are granted on a per-tenant, per-subscription basis.
                 You must register your organization&apos;s tenant identifier
                 (e.g., &quot;contoso&quot; from contoso.sharepoint.com) in your
-                account at store.helvety.com to activate the license for your
+                account at helvety.com/store to activate the license for your
                 tenant.
               </li>
               <li>
                 <strong className="text-foreground">License Validation:</strong>{" "}
                 The extension periodically contacts
-                store.helvety.com/api/license/validate to verify your
+                helvety.com/store/api/license/validate to verify your
                 subscription status. Only your organization&apos;s tenant
                 identifier and product identifier are transmitted during
                 validation; no personal data is sent. Results are cached locally
@@ -1015,10 +1015,10 @@ export default function TermsPage() {
               receive a receipt from Stripe for each renewal charge. You can
               view your subscription status and manage cancellation at{" "}
               <a
-                href="https://store.helvety.com/account"
+                href="https://helvety.com/store/account"
                 className="hover:text-foreground underline transition-colors"
               >
-                store.helvety.com/account
+                helvety.com/store/account
               </a>
               . You may cancel auto-renewal at any time.
             </p>
@@ -1259,10 +1259,10 @@ export default function TermsPage() {
               You may terminate your account at any time by using the account
               deletion feature at{" "}
               <a
-                href="https://store.helvety.com/account"
+                href="https://helvety.com/store/account"
                 className="hover:text-foreground underline transition-colors"
               >
-                store.helvety.com/account
+                helvety.com/store/account
               </a>{" "}
               or by contacting us at contact@helvety.com. Account deletion is
               permanent and cannot be undone. We recommend exporting your data

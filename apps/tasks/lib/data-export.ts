@@ -23,7 +23,7 @@ import type { Unit, Space, Item } from "@/lib/types";
 /** Structure of the exported (decrypted) task data */
 export interface DecryptedTaskExport {
   exportedAt: string;
-  service: "helvety-tasks";
+  service: "Helvety Tasks";
   note: "This export was decrypted client-side using your passkey. Helvety servers never had access to this plaintext data.";
   units: Array<{
     id: string;
@@ -91,7 +91,7 @@ export async function exportDecryptedTaskData(
 
   return {
     exportedAt: new Date().toISOString(),
-    service: "helvety-tasks",
+    service: "Helvety Tasks",
     note: "This export was decrypted client-side using your passkey. Helvety servers never had access to this plaintext data.",
     units: units.map((unit) => ({
       id: unit.id,

@@ -16,6 +16,9 @@ const withBundleAnalyzer = bundleAnalyzer({
  * - No blob: or worker-src needed (no web workers or PDF rendering)
  */
 const nextConfig: NextConfig = {
+  // Multi-zone: serve this app under helvety.com/auth
+  basePath: "/auth",
+
   // Enable compression
   compress: true,
 

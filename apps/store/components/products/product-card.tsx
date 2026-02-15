@@ -2,42 +2,20 @@
  * Product card component
  * Displays a product in the catalog grid. The entire card is a single link to the
  * product detail page (/products/[slug]); no overlay or nested links.
+ *
+ * Uses a two-layer design: an outer artwork background frame with an inner
+ * solid-color content panel for readability.
  */
 
 import { cn } from "@helvety/shared/utils";
-import {
-  FileText,
-  LayoutGrid,
-  Cloud,
-  Download,
-  Package,
-  ArrowRight,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { formatStartingFrom } from "@/lib/utils/pricing";
 
 import { ProductBadge, StatusBadge } from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
-
-// Icon mapping for products
-const iconMap: Record<string, LucideIcon> = {
-  FileText,
-  LayoutGrid,
-  Cloud,
-  Download,
-  Package,
-};
 
 /** Props for the product card */
 interface ProductCardProps {
@@ -50,7 +28,6 @@ interface ProductCardProps {
  * Card and "View Details" share one link; clicking anywhere navigates to /products/[slug].
  */
 export function ProductCard({ product, className }: ProductCardProps) {
-  const Icon = product.icon ? (iconMap[product.icon] ?? FileText) : FileText;
   const priceDisplay = formatStartingFrom(
     product.pricing,
     product.pricing.tiers[0]?.currency
@@ -60,62 +37,63 @@ export function ProductCard({ product, className }: ProductCardProps) {
   return (
     <Link
       href={productHref}
-      className="block"
+      className="block h-full"
       aria-label={`View ${product.name} details`}
     >
-      <Card
+      {/* Outer layer: artwork background frame */}
+      <div
         className={cn(
-          "group relative flex flex-col transition-all hover:shadow-md",
+          "group ring-foreground/10 relative flex min-h-[420px] flex-col overflow-hidden rounded-xl bg-cover bg-center shadow-xs ring-1 transition-all hover:shadow-lg",
           className
         )}
+        style={{ backgroundImage: "url('/artwork_1.jpg')" }}
       >
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg">
-                <Icon className="size-5" />
-              </div>
-              <div className="space-y-1">
-                <CardTitle className="line-clamp-1">{product.name}</CardTitle>
-                <div className="flex items-center gap-2">
-                  <ProductBadge type={product.type} showIcon={false} />
-                  {product.status !== "available" && (
-                    <StatusBadge status={product.status} />
-                  )}
-                </div>
-              </div>
+        {/* Inner layer: solid content panel */}
+        <div className="bg-card/95 mx-3 mt-16 mb-3 flex flex-1 flex-col rounded-lg shadow-sm backdrop-blur-sm">
+          {/* Header: name + badges */}
+          <div className="space-y-2 px-5 pt-5">
+            <h3 className="text-card-foreground line-clamp-1 text-base leading-tight font-semibold">
+              {product.name}
+            </h3>
+            <div className="flex items-center gap-2">
+              <ProductBadge type={product.type} showIcon={false} />
+              {product.status !== "available" && (
+                <StatusBadge status={product.status} />
+              )}
             </div>
           </div>
-        </CardHeader>
 
-        <CardContent className="flex-1">
-          <CardDescription className="line-clamp-3">
-            {product.shortDescription}
-          </CardDescription>
-        </CardContent>
-
-        <CardFooter className="flex items-center justify-between gap-4">
-          <div className="text-sm font-medium">
-            {product.pricing.hasFreeTier ? (
-              <span className="text-green-600 dark:text-green-400">
-                Free to start
-              </span>
-            ) : (
-              <span className="text-muted-foreground">{priceDisplay}</span>
-            )}
+          {/* Content: description */}
+          <div className="flex-1 px-5 pt-3">
+            <p className="text-muted-foreground line-clamp-4 text-sm leading-relaxed">
+              {product.shortDescription}
+            </p>
           </div>
-          <span
-            className={cn(
-              "inline-flex h-8 items-center gap-1 rounded-md px-2.5 text-sm font-medium",
-              "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50",
-              "transition-colors"
-            )}
-          >
-            View Details
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </CardFooter>
-      </Card>
+
+          {/* Footer: pricing + CTA */}
+          <div className="flex items-center justify-between gap-4 px-5 pt-4 pb-5">
+            <div className="text-sm font-medium">
+              {product.pricing.hasFreeTier ? (
+                <span className="text-green-600 dark:text-green-400">
+                  Free to start
+                </span>
+              ) : (
+                <span className="text-muted-foreground">{priceDisplay}</span>
+              )}
+            </div>
+            <span
+              className={cn(
+                "inline-flex h-8 items-center gap-1 rounded-md px-2.5 text-sm font-medium",
+                "text-card-foreground/80 transition-colors",
+                "group-hover:text-card-foreground"
+              )}
+            >
+              View Details
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </div>
+        </div>
+      </div>
     </Link>
   );
 }

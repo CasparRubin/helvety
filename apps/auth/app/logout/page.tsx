@@ -1,6 +1,7 @@
 "use client";
 
 import { clearAllKeys } from "@helvety/shared/crypto/key-storage";
+import { clearCachedPRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
@@ -20,7 +21,7 @@ import { signOutAction } from "./actions";
  * 2. Call server action to sign out Supabase session
  * 3. Redirect to the specified destination (or default)
  *
- * Usage: /logout?redirect_uri=https://pdf.helvety.com
+ * Usage: /logout?redirect_uri=https://helvety.com/pdf
  */
 export default function LogoutPage() {
   const searchParams = useSearchParams();
@@ -33,9 +34,10 @@ export default function LogoutPage() {
 
     /** Clear encryption keys and sign out the user, then redirect to login. */
     async function performLogout() {
-      // Step 1: Clear all encryption keys from IndexedDB
+      // Step 1: Clear all encryption keys from IndexedDB and PRF salt cache
       try {
         await clearAllKeys();
+        clearCachedPRFSalt();
       } catch {
         // Continue with logout even if key clearing fails
       }

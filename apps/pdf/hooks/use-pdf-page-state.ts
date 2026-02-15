@@ -29,7 +29,7 @@ interface UsePdfPageStateReturn {
 
 /**
  * Custom hook for managing PDF page state (deletions and rotations).
- * Extracted from helvety-pdf component for better code organization.
+ * Extracted from the PDF app component for better code organization.
  *
  * Handles:
  * - Page deletion state (Set of deleted page numbers)

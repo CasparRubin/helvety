@@ -260,15 +260,200 @@ export async function resetRateLimit(
   inMemoryStore.delete(key);
 }
 
+// =============================================================================
+// Escalating Lockout for OTP Verification
+// =============================================================================
+
 /**
- * Rate limit configurations for different endpoints.
+ * Escalating lockout thresholds.
+ * After N cumulative failed OTP attempts for a given email, the lockout
+ * duration increases. The counter TTL is 24 hours (resets if no failures
+ * for 24h).
+ */
+const ESCALATING_LOCKOUT_THRESHOLDS = [
+  { attempts: 15, lockoutSeconds: 5 * 60 }, // 15 failures → 5 min lockout
+  { attempts: 30, lockoutSeconds: 15 * 60 }, // 30 failures → 15 min lockout
+  { attempts: 50, lockoutSeconds: 60 * 60 }, // 50 failures → 1 hour lockout
+  { attempts: 100, lockoutSeconds: 24 * 60 * 60 }, // 100 failures → 24 hour lockout
+] as const;
+
+/** TTL for the cumulative failure counter (24 hours) */
+const FAILURE_COUNTER_TTL_SECONDS = 24 * 60 * 60;
+
+/**
+ * Check if an email is under escalating lockout and increment the failure counter.
  *
- * App-specific rate limits are defined in each repo's own copy of this file.
- * This shared version only includes the common API limit.
+ * Uses a Redis counter (INCR + EXPIRE) to track cumulative failed OTP attempts
+ * per email. If the count exceeds a threshold, returns a lockout with the
+ * corresponding duration.
+ *
+ * Call this on OTP verification failure (not on success). On success, call
+ * `resetEscalatingLockout` to clear the counter.
+ *
+ * In development without Redis, falls back to in-memory tracking (single-server).
+ *
+ * @param email - Normalized email address
+ * @returns Whether the email is locked out and for how long
+ */
+export async function recordOtpFailureAndCheckLockout(
+  email: string
+): Promise<RateLimitResult> {
+  const redisKey = `otp_lockout:${email}`;
+
+  const redisClient = getRedis();
+  if (redisClient) {
+    try {
+      // Atomically increment and set TTL
+      const count = await redisClient.incr(redisKey);
+      if (count === 1) {
+        // First failure — set the TTL
+        await redisClient.expire(redisKey, FAILURE_COUNTER_TTL_SECONDS);
+      }
+
+      // Check thresholds (highest first)
+      for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
+        const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
+        if (count >= threshold.attempts) {
+          return {
+            allowed: false,
+            remaining: 0,
+            retryAfter: threshold.lockoutSeconds,
+          };
+        }
+      }
+
+      return { allowed: true, remaining: 0 };
+    } catch (error) {
+      logger.error("Failed to check escalating lockout:", error);
+      // Fail closed in production
+      if (process.env.NODE_ENV === "production") {
+        return { allowed: false, remaining: 0, retryAfter: 300 };
+      }
+    }
+  }
+
+  // Development fallback: in-memory tracking
+  const now = Date.now();
+  const memKey = `lockout:${email}`;
+  const record = inMemoryStore.get(memKey);
+
+  if (!record || now > record.resetTime) {
+    inMemoryStore.set(memKey, {
+      count: 1,
+      resetTime: now + FAILURE_COUNTER_TTL_SECONDS * 1000,
+    });
+    return { allowed: true, remaining: 0 };
+  }
+
+  record.count++;
+
+  for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
+    const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
+    if (record.count >= threshold.attempts) {
+      return {
+        allowed: false,
+        remaining: 0,
+        retryAfter: threshold.lockoutSeconds,
+      };
+    }
+  }
+
+  return { allowed: true, remaining: 0 };
+}
+
+/**
+ * Check if an email is currently under escalating lockout without incrementing.
+ * Use this before processing to reject early.
+ *
+ * @param email - Normalized email address
+ * @returns Whether the email is locked out
+ */
+export async function checkEscalatingLockout(
+  email: string
+): Promise<RateLimitResult> {
+  const redisKey = `otp_lockout:${email}`;
+
+  const redisClient = getRedis();
+  if (redisClient) {
+    try {
+      const count = (await redisClient.get<number>(redisKey)) ?? 0;
+
+      for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
+        const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
+        if (count >= threshold.attempts) {
+          return {
+            allowed: false,
+            remaining: 0,
+            retryAfter: threshold.lockoutSeconds,
+          };
+        }
+      }
+
+      return { allowed: true, remaining: 0 };
+    } catch (error) {
+      logger.error("Failed to check escalating lockout:", error);
+      if (process.env.NODE_ENV === "production") {
+        return { allowed: false, remaining: 0, retryAfter: 300 };
+      }
+    }
+  }
+
+  // Development fallback
+  const memKey = `lockout:${email}`;
+  const record = inMemoryStore.get(memKey);
+  if (record && Date.now() <= record.resetTime) {
+    for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
+      const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
+      if (record.count >= threshold.attempts) {
+        return {
+          allowed: false,
+          remaining: 0,
+          retryAfter: threshold.lockoutSeconds,
+        };
+      }
+    }
+  }
+
+  return { allowed: true, remaining: 0 };
+}
+
+/**
+ * Reset the escalating lockout counter for an email (call on successful verification).
+ *
+ * @param email - Normalized email address
+ */
+export async function resetEscalatingLockout(email: string): Promise<void> {
+  const redisKey = `otp_lockout:${email}`;
+
+  const redisClient = getRedis();
+  if (redisClient) {
+    try {
+      await redisClient.del(redisKey);
+    } catch (error) {
+      logger.warn("Failed to reset escalating lockout:", error);
+    }
+  }
+
+  inMemoryStore.delete(`lockout:${email}`);
+}
+
+// =============================================================================
+// Common Rate Limit Configurations
+// =============================================================================
+
+/**
+ * Common rate limit configurations shared across apps.
+ *
+ * App-specific rate limits should be defined in each app's own
+ * `lib/rate-limit.ts` as a local `RATE_LIMITS` constant.
  */
 export const RATE_LIMITS = {
   /** API calls: 100 per minute per user */
   API: { maxRequests: 100, windowMs: 60 * 1000 },
   /** Auth callback: 20 per minute per IP */
   AUTH_CALLBACK: { maxRequests: 20, windowMs: 60 * 1000 },
+  /** Read-only actions: 300 per minute per user (prevents scraping/enumeration) */
+  READ: { maxRequests: 300, windowMs: 60 * 1000 },
+  /** Encryption unlock attempts: 5 per minute per user */
+  ENCRYPTION_UNLOCK: { maxRequests: 5, windowMs: 60 * 1000 },
 } as const;

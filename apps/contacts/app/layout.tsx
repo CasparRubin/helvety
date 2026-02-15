@@ -43,7 +43,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://contacts.helvety.com"),
+  metadataBase: new URL("https://helvety.com/contacts"),
   title: {
     default: "Helvety Contacts | Contact Management | Private and Secure",
     template: "%s | Helvety Contacts",
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://contacts.helvety.com",
+    url: "https://helvety.com/contacts",
     siteName: "Helvety Contacts",
     title: "Helvety Contacts | Contact Management | Private and Secure",
     description:
@@ -109,7 +109,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://contacts.helvety.com",
+    canonical: "https://helvety.com/contacts",
   },
   category: "productivity",
 };
@@ -148,10 +148,10 @@ export default async function RootLayout({
                   "Software and subscriptions engineered and designed in Switzerland.",
                 sameAs: [
                   "https://helvety.com",
-                  "https://store.helvety.com",
-                  "https://pdf.helvety.com",
-                  "https://auth.helvety.com",
-                  "https://tasks.helvety.com",
+                  "https://helvety.com/store",
+                  "https://helvety.com/pdf",
+                  "https://helvety.com/auth",
+                  "https://helvety.com/tasks",
                   "https://github.com/CasparRubin",
                 ],
               },
@@ -159,7 +159,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "SoftwareApplication",
                 name: "Helvety Contacts",
-                url: "https://contacts.helvety.com",
+                url: "https://helvety.com/contacts",
                 description:
                   "Private and secure contact management with end-to-end encryption. Engineered & Designed in Switzerland.",
                 applicationCategory: "BusinessApplication",

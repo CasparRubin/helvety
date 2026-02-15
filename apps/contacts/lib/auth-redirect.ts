@@ -2,7 +2,7 @@
  * Auth redirect utilities for centralized authentication (contacts app).
  *
  * These functions handle redirects to/from the centralized auth service
- * at auth.helvety.com for login and logout flows.
+ * at helvety.com/auth for login and logout flows.
  *
  * Security: All redirect URIs are validated against an allowlist to prevent
  * open redirect attacks.
@@ -17,8 +17,8 @@ function getAuthBaseUrl(): string {
   return (
     process.env.NEXT_PUBLIC_AUTH_URL ??
     (process.env.NODE_ENV === "development"
-      ? "http://localhost:3002"
-      : "https://auth.helvety.com")
+      ? "http://localhost:3001/auth"
+      : "https://helvety.com/auth")
   );
 }
 
@@ -34,8 +34,8 @@ export function getLoginUrl(currentUrl?: string): string {
   const defaultUri =
     process.env.NEXT_PUBLIC_APP_URL ??
     (process.env.NODE_ENV === "development"
-      ? "http://localhost:3006"
-      : "https://contacts.helvety.com");
+      ? "http://localhost:3001/contacts"
+      : "https://helvety.com/contacts");
 
   // Determine the redirect URI with validation
   let redirectUri: string;
@@ -67,8 +67,8 @@ export function getLogoutUrl(redirectUri?: string): string {
   const defaultUri =
     process.env.NEXT_PUBLIC_APP_URL ??
     (process.env.NODE_ENV === "development"
-      ? "http://localhost:3006"
-      : "https://contacts.helvety.com");
+      ? "http://localhost:3001/contacts"
+      : "https://helvety.com/contacts");
 
   // Validate the provided URI; fall back to default if invalid
   const redirect =

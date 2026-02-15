@@ -144,11 +144,11 @@ export default async function RootLayout({
                 description:
                   "Software and subscriptions engineered and designed in Switzerland.",
                 sameAs: [
-                  "https://store.helvety.com",
-                  "https://pdf.helvety.com",
-                  "https://auth.helvety.com",
-                  "https://contacts.helvety.com",
-                  "https://tasks.helvety.com",
+                  "https://helvety.com/store",
+                  "https://helvety.com/pdf",
+                  "https://helvety.com/auth",
+                  "https://helvety.com/contacts",
+                  "https://helvety.com/tasks",
                   "https://github.com/CasparRubin",
                 ],
               },

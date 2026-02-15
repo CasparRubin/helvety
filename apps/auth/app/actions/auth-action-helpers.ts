@@ -68,7 +68,7 @@ export async function getClientIP(): Promise<string> {
  * Get the Relying Party ID
  *
  * IMPORTANT: For centralized auth, we use 'helvety.com' as the rpId in production.
- * This allows passkeys registered on auth.helvety.com to work across all subdomains.
+ * This allows passkeys registered on helvety.com/auth to work across all paths.
  *
  * @param origin - The origin URL (used only for development detection)
  */
@@ -79,7 +79,7 @@ export function getRpId(origin: string): string {
     if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
       return "localhost";
     }
-    // In production, always use the root domain for cross-subdomain passkey sharing
+    // In production, always use the root domain for passkey sharing across all apps
     return "helvety.com";
   } catch {
     // Fallback to production domain
@@ -89,7 +89,7 @@ export function getRpId(origin: string): string {
 
 /**
  * Get expected origins for verification
- * Includes all Helvety subdomains for cross-origin passkey usage
+ * Includes all Helvety origins for passkey verification
  */
 export function getExpectedOrigins(rpId: string): string[] {
   if (rpId === "localhost") {
@@ -105,15 +105,8 @@ export function getExpectedOrigins(rpId: string): string[] {
       "http://localhost:3006",
     ];
   }
-  // All Helvety subdomains
-  return [
-    "https://helvety.com",
-    "https://auth.helvety.com",
-    "https://pdf.helvety.com",
-    "https://store.helvety.com",
-    "https://tasks.helvety.com",
-    "https://contacts.helvety.com",
-  ];
+  // All apps now served under helvety.com via path-based routing (multi-zone)
+  return ["https://helvety.com"];
 }
 
 // =============================================================================

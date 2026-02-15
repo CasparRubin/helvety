@@ -50,7 +50,7 @@ import type {
  * - Requires authenticated user
  *
  * @param csrfToken - CSRF token for request validation
- * @param origin - The origin URL (e.g., 'https://auth.helvety.com')
+ * @param origin - The origin URL (e.g., 'https://helvety.com/auth')
  * @param options - Optional { isMobile } to choose platform vs hybrid flow
  * @returns Registration options to pass to the WebAuthn API
  */

@@ -19,7 +19,7 @@ import type { Contact } from "@/lib/types";
 /** Structure of the exported (decrypted) contact data */
 export interface DecryptedContactExport {
   exportedAt: string;
-  service: "helvety-contacts";
+  service: "Helvety Contacts";
   note: "This export was decrypted client-side using your passkey. Helvety servers never had access to this plaintext data.";
   contacts: Array<{
     id: string;
@@ -57,7 +57,7 @@ export async function exportDecryptedContactData(
   // 3. Build export structure
   return {
     exportedAt: new Date().toISOString(),
-    service: "helvety-contacts",
+    service: "Helvety Contacts",
     note: "This export was decrypted client-side using your passkey. Helvety servers never had access to this plaintext data.",
     contacts: contacts.map((contact) => ({
       id: contact.id,

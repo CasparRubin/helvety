@@ -1,8 +1,11 @@
 {
   "name": "helvety",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
+  "description": "Monorepo for all Helvety applications. Engineered & Designed in Switzerland.",
+  "author": "Helvety by Rubin",
   "license": "UNLICENSED",
+  "homepage": "https://helvety.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/CasparRubin/helvety.git"

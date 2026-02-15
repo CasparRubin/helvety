@@ -19,6 +19,80 @@ const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
 
+  // Multi-zone rewrites: proxy path-based URLs to each app's Vercel deployment.
+  // In production, AUTH_URL/TASKS_URL/etc. are the internal Vercel deployment URLs.
+  // In development, they point to the local dev server ports.
+  async rewrites() {
+    const authUrl =
+      process.env.AUTH_URL ??
+      (process.env.NODE_ENV === "development"
+        ? "http://localhost:3002"
+        : "https://helvety.com");
+    const tasksUrl =
+      process.env.TASKS_URL ??
+      (process.env.NODE_ENV === "development"
+        ? "http://localhost:3005"
+        : "https://helvety.com");
+    const contactsUrl =
+      process.env.CONTACTS_URL ??
+      (process.env.NODE_ENV === "development"
+        ? "http://localhost:3006"
+        : "https://helvety.com");
+    const storeUrl =
+      process.env.STORE_URL ??
+      (process.env.NODE_ENV === "development"
+        ? "http://localhost:3003"
+        : "https://helvety.com");
+    const pdfUrl =
+      process.env.PDF_URL ??
+      (process.env.NODE_ENV === "development"
+        ? "http://localhost:3004"
+        : "https://helvety.com");
+
+    return [
+      {
+        source: "/auth",
+        destination: `${authUrl}/auth`,
+      },
+      {
+        source: "/auth/:path*",
+        destination: `${authUrl}/auth/:path*`,
+      },
+      {
+        source: "/tasks",
+        destination: `${tasksUrl}/tasks`,
+      },
+      {
+        source: "/tasks/:path*",
+        destination: `${tasksUrl}/tasks/:path*`,
+      },
+      {
+        source: "/contacts",
+        destination: `${contactsUrl}/contacts`,
+      },
+      {
+        source: "/contacts/:path*",
+        destination: `${contactsUrl}/contacts/:path*`,
+      },
+      {
+        source: "/store",
+        destination: `${storeUrl}/store`,
+      },
+      {
+        source: "/store/:path*",
+        destination: `${storeUrl}/store/:path*`,
+      },
+      {
+        source: "/pdf",
+        destination: `${pdfUrl}/pdf`,
+      },
+      {
+        source: "/pdf/:path*",
+        destination: `${pdfUrl}/pdf/:path*`,
+      },
+    ];
+  },
+
   // Security headers
   async headers() {
     const isDevelopment = process.env.NODE_ENV === "development";

@@ -1,5 +1,5 @@
 /**
- * Task link type definitions for cross-app integration with helvety-tasks.
+ * Task link type definitions for cross-app integration with the Tasks app (@helvety/tasks).
  *
  * The Contacts app reads and manages task entity links from the shared
  * `entity_contact_links` junction table. These types represent the data
@@ -8,10 +8,10 @@
  */
 
 // =============================================================================
-// ENTITY TYPES (matching helvety-tasks entity_type enum)
+// ENTITY TYPES (matching the Tasks app entity_type enum)
 // =============================================================================
 
-/** Discriminator for the three entity levels in helvety-tasks. */
+/** Discriminator for the three entity levels in the Tasks app. */
 export type TaskEntityType = "unit" | "space" | "item";
 
 // =============================================================================

@@ -29,7 +29,7 @@ export interface RPConfig {
   rpId: string;
   /** Human-readable name shown in passkey prompts */
   rpName: string;
-  /** Origin URL (e.g., 'https://auth.helvety.com') */
+  /** Origin URL (e.g., 'https://helvety.com/auth') */
   origin: string;
 }
 
@@ -37,8 +37,8 @@ export interface RPConfig {
  * Get RP config based on the current browser location
  *
  * IMPORTANT: For centralized auth, we use 'helvety.com' as the rpId in production.
- * This allows passkeys registered on auth.helvety.com to work across all subdomains
- * (store.helvety.com, pdf.helvety.com, tasks.helvety.com, contacts.helvety.com, etc.)
+ * All apps are served under helvety.com via path-based routing (multi-zone),
+ * so passkeys work across all apps (helvety.com/auth, helvety.com/tasks, etc.)
  */
 export function getRPConfig(): RPConfig {
   const rpName = "Helvety";
@@ -48,8 +48,8 @@ export function getRPConfig(): RPConfig {
     const authUrl =
       process.env.NEXT_PUBLIC_AUTH_URL ??
       (process.env.NODE_ENV === "development"
-        ? "http://localhost:3002"
-        : "https://auth.helvety.com");
+        ? "http://localhost:3001/auth"
+        : "https://helvety.com/auth");
     return {
       rpId:
         process.env.NODE_ENV === "development" ? "localhost" : "helvety.com",
@@ -58,7 +58,7 @@ export function getRPConfig(): RPConfig {
     };
   }
 
-  // In production, use the root domain for cross-subdomain passkey sharing
+  // In production, use the root domain for passkey sharing across all apps
   // In development, use localhost
   const isDev =
     window.location.hostname === "localhost" ||

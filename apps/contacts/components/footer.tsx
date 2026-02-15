@@ -11,7 +11,8 @@ export function Footer({ className }: { className?: string }) {
       <div className="mx-auto w-full max-w-[2000px] px-4 py-3">
         <div className="text-muted-foreground flex flex-col items-center gap-1 text-center text-xs">
           <p>
-            This site uses essential cookies for authentication and security.
+            &copy; {new Date().getFullYear()} Helvety &middot; This site uses
+            essential cookies for authentication and security.
           </p>
           <nav className="text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[11px]">
             <a

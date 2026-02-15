@@ -1,15 +1,22 @@
+import { randomBytes } from "crypto";
+
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getSupabaseKey, getSupabaseUrl } from "@/lib/env-validation";
+
+// CSRF token cookie configuration (must match @helvety/shared/csrf)
+const CSRF_COOKIE_NAME = "csrf_token";
+const CSRF_TOKEN_LENGTH = 32;
 
 /**
  * Proxy to refresh Supabase auth sessions on every request.
  *
  * This ensures:
  * 1. Sessions are refreshed before they expire
- * 2. Cookies are properly set with the correct domain for cross-subdomain SSO
+ * 2. Cookies are properly set with the correct domain for session sharing
  * 3. Server components always have access to fresh session data
+ * 4. CSRF tokens are generated for server action protection
  *
  * IMPORTANT: Per CVE-2025-29927, this proxy should ONLY handle session refresh,
  * NOT route protection. Use Server Layout Guards for authentication checks.
@@ -41,11 +48,11 @@ export async function proxy(request: NextRequest) {
         // Create a new response with the updated request
         supabaseResponse = NextResponse.next({ request });
 
-        // Set cookies on the response with proper domain for cross-subdomain SSO
+        // Set cookies on the response with proper domain for session sharing
         cookiesToSet.forEach(({ name, value, options }) => {
           const cookieOptions = {
             ...options,
-            // In production, use COOKIE_DOMAIN env for cross-subdomain session sharing (default: .helvety.com)
+            // In production, use COOKIE_DOMAIN env for session sharing (same-origin under helvety.com)
             ...(process.env.NODE_ENV === "production" && {
               domain: process.env.COOKIE_DOMAIN ?? ".helvety.com",
             }),
@@ -67,6 +74,20 @@ export async function proxy(request: NextRequest) {
   } catch {
     // Session refresh failed - continue without refresh.
     // The request still proceeds; server components will re-check auth.
+  }
+
+  // Generate CSRF token if not present on the incoming request.
+  // This must happen in the proxy (not in a Server Component) because
+  // cookies().set() is not allowed in Server Components / layouts.
+  if (!request.cookies.get(CSRF_COOKIE_NAME)?.value) {
+    const token = randomBytes(CSRF_TOKEN_LENGTH).toString("hex");
+    supabaseResponse.cookies.set(CSRF_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24, // 24 hours
+    });
   }
 
   return supabaseResponse;

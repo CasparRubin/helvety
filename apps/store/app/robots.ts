@@ -25,6 +25,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "CCBot", allow: "/", disallow: disallowedPaths },
       { userAgent: "FacebookBot", allow: "/", disallow: disallowedPaths },
     ],
-    sitemap: "https://store.helvety.com/sitemap.xml",
+    sitemap: "https://helvety.com/store/sitemap.xml",
   };
 }

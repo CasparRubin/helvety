@@ -13,23 +13,23 @@ Centralized authentication service for the Helvety ecosystem, providing password
 
 Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
 
-As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [auth.helvety.com](https://auth.helvety.com) that they are located in Switzerland before any personal data is stored.
+As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [helvety.com/auth](https://helvety.com/auth) that they are located in Switzerland before any personal data is stored.
 
 ## Overview
 
-Helvety Auth (`auth.helvety.com`) handles all authentication for Helvety applications:
+Helvety Auth (`helvety.com/auth`) handles all authentication for Helvety applications:
 
 - **helvety.com** - Main website
-- **store.helvety.com** - Store application
-- **pdf.helvety.com** - PDF application
-- **tasks.helvety.com** - Tasks application
-- **contacts.helvety.com** - Contacts application
+- **helvety.com/store** - Store application
+- **helvety.com/pdf** - PDF application
+- **helvety.com/tasks** - Tasks application
+- **helvety.com/contacts** - Contacts application
 
 ## Features
 
 - **Email + Passkey Authentication** - OTP verification codes for new users (and existing without passkey); existing users with a passkey go straight to passkey sign-in
 - **WebAuthn/FIDO2** - Device-aware passkey auth: on mobile, use this device (Face ID/fingerprint/PIN); on desktop, use phone via QR code + biometrics
-- **Cross-Subdomain SSO** - Single sign-on across all `*.helvety.com` apps
+- **Session Sharing** - Single sign-on across all Helvety apps
 - **Redirect URI Support** - Cross-app authentication flows
 
 ## Environment Variables
@@ -169,14 +169,14 @@ Signs out the user with secure key cleanup and redirects. This is a client-side 
 
 - `redirect_uri` - Where to redirect after logout (default: helvety.com)
 
-**Example:** `/logout?redirect_uri=https://pdf.helvety.com`
+**Example:** `/logout?redirect_uri=https://helvety.com/pdf`
 
 ## Session Management (proxy.ts)
 
-The proxy (`proxy.ts`) handles session validation, CSRF token generation, and cross-subdomain cookie management:
+The proxy (`proxy.ts`) handles session validation, CSRF token generation, and same-origin cookie management:
 
 - **Session Validation & Refresh** - Uses `getClaims()` to validate the JWT locally (no Auth API call when the token is valid). The Supabase Auth API is only called when a token refresh is needed (e.g. near or past expiry). Refreshed tokens are written to cookies automatically. The call is wrapped in try/catch for resilience against transient network failures (VPN, Private Relay, mobile).
-- **Cross-Subdomain SSO** - Sets cookies using `COOKIE_DOMAIN` env var (defaults to `.helvety.com`) for cross-subdomain session sharing
+- **Session Sharing** - Sets cookies using `COOKIE_DOMAIN` env var (defaults to `.helvety.com`) for session sharing
 - **CSRF Token Generation** - Generates a CSRF token cookie on each request if not already present. The token is read by the layout and passed to client components via `CSRFProvider`. Server Actions validate the token using timing-safe comparison.
 - **Server Component Support** - Ensures server components always have access to fresh session data
 
@@ -184,20 +184,20 @@ The proxy runs on all routes except static assets and handles the Supabase sessi
 
 ## Cross-App Authentication
 
-Other Helvety apps redirect to auth.helvety.com for authentication:
+Other Helvety apps redirect to helvety.com/auth for authentication:
 
 ```typescript
-// In store.helvety.com or pdf.helvety.com
+// In helvety.com/store or helvety.com/pdf
 // Each app has its own lib/auth-redirect.ts with helper functions
 
 // Example redirect for unauthenticated users
 const currentUrl = window.location.href;
-const loginUrl = `https://auth.helvety.com/login?redirect_uri=${encodeURIComponent(currentUrl)}`;
+const loginUrl = `https://helvety.com/auth/login?redirect_uri=${encodeURIComponent(currentUrl)}`;
 window.location.href = loginUrl;
-// → https://auth.helvety.com/login?redirect_uri=https://store.helvety.com/account
+// → https://helvety.com/auth/login?redirect_uri=https://helvety.com/store/account
 ```
 
-After authentication, users are redirected back to their original app with an active session (shared via cookie domain configured by `COOKIE_DOMAIN`, default `.helvety.com`).
+After authentication, users are redirected back to their original app with an active session (session sharing via cookie domain configured by `COOKIE_DOMAIN`, default `.helvety.com`).
 
 ## Database Schema
 
@@ -244,7 +244,7 @@ CREATE TABLE user_passkey_params (
 - **PKCE Flow** - Supabase uses PKCE for OAuth code exchange
 - **OTP Code Expiry** - Verification codes expire after 1 hour
 - **Passkey Verification** - Strict origin and RP ID validation
-- **Session Cookies** - Shared across subdomains via `COOKIE_DOMAIN` (defaults to `.helvety.com`)
+- **Session Cookies** - Session sharing via `COOKIE_DOMAIN` (defaults to `.helvety.com`)
 - **Counter Tracking** - Prevents passkey replay attacks
 - **Redirect URI Validation** - All redirect URIs are validated against a strict allowlist to prevent open redirect attacks
 
@@ -269,14 +269,14 @@ The auth service includes the following security hardening:
 
 ### Redirect URI Validation
 
-The auth service validates all `redirect_uri` parameters to prevent open redirect vulnerabilities. Allowed destinations (explicit allowlist — no wildcard subdomains):
+The auth service validates all `redirect_uri` parameters to prevent open redirect vulnerabilities. Allowed destinations (explicit allowlist — no wildcards):
 
 - `https://helvety.com` and any path
-- `https://auth.helvety.com` - Authentication service
-- `https://store.helvety.com` - Store / subscription management
-- `https://pdf.helvety.com` - PDF tools
-- `https://tasks.helvety.com` - Task management
-- `https://contacts.helvety.com` - Contact management
+- `https://helvety.com/auth` - Authentication service
+- `https://helvety.com/store` - Store / subscription management
+- `https://helvety.com/pdf` - PDF tools
+- `https://helvety.com/tasks` - Task management
+- `https://helvety.com/contacts` - Contact management
 - `http://localhost:*` - Any port (development only, gated behind `NODE_ENV`)
 - `http://127.0.0.1:*` - Any port (development only, gated behind `NODE_ENV`)
 
@@ -309,7 +309,8 @@ After passkey authentication, new users are guided through a two-step encryption
 - **Encryption Passkey** - A passkey created using the WebAuthn PRF (Pseudo-Random Function) extension
 - **Key Derivation** - Encryption keys are derived client-side from the PRF output using HKDF
 - **Zero-Knowledge** - The server stores only PRF parameters (salt values); encryption keys are never transmitted
-- **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all `*.helvety.com` apps; however, E2EE is only active in Helvety Tasks and Helvety Contacts
+- **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all Helvety apps; however, E2EE is only active in Helvety Tasks and Helvety Contacts
+- **Cloud Sync Recommendation** - During passkey creation, the UI recommends saving the passkey to the device's built-in password manager (Passwords on iPhone or Google Password Manager on Android). These sync automatically to iCloud or Google's cloud, so the passkey can be recovered on a new device if the original is lost or replaced. Third-party password managers that support passkey sync also work.
 
 Browser requirements for encryption:
 
@@ -368,6 +369,6 @@ You may NOT:
 - Sell, sublicense, or commercially exploit the code
 - Reverse engineer or decompile the code
 
-**This is a free centralized authentication service accessible at [auth.helvety.com](https://auth.helvety.com).** No subscription is required to use the authentication service.
+**This is a free centralized authentication service accessible at [helvety.com/auth](https://helvety.com/auth).** No subscription is required to use the authentication service.
 
 See [LICENSE](./LICENSE) for full legal terms.

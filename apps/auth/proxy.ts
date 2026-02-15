@@ -13,7 +13,7 @@ const CSRF_TOKEN_LENGTH = 32;
  *
  * This ensures:
  * 1. Sessions are refreshed before they expire
- * 2. Cookies are properly set with the correct domain for cross-subdomain SSO
+ * 2. Cookies are properly set with the correct domain for session sharing
  * 3. Server components always have access to fresh session data
  *
  * IMPORTANT: Per CVE-2025-29927, this proxy should ONLY handle session refresh,
@@ -46,11 +46,11 @@ export async function proxy(request: NextRequest) {
         // Create a new response with the updated request
         supabaseResponse = NextResponse.next({ request });
 
-        // Set cookies on the response with proper domain for cross-subdomain SSO
+        // Set cookies on the response with proper domain for session sharing
         cookiesToSet.forEach(({ name, value, options }) => {
           const cookieOptions = {
             ...options,
-            // In production, use COOKIE_DOMAIN env for cross-subdomain session sharing (default: .helvety.com)
+            // In production, use COOKIE_DOMAIN env for session sharing (same-origin under helvety.com)
             ...(process.env.NODE_ENV === "production" && {
               domain: process.env.COOKIE_DOMAIN ?? ".helvety.com",
             }),

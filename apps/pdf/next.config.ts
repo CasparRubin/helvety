@@ -19,6 +19,9 @@ const withBundleAnalyzer = bundleAnalyzer({
  * - turbopack root for proper module resolution
  */
 const nextConfig: NextConfig = {
+  // Multi-zone: serve this app under helvety.com/pdf
+  basePath: "/pdf",
+
   // Enable compression
   compress: true,
 

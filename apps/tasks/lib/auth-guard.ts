@@ -15,7 +15,10 @@ import type { User } from "@supabase/supabase-js";
  *
  * Includes a single retry with a short delay to handle transient network
  * failures (VPN, Private Relay, mobile) that would otherwise cause false
- * login redirects.
+ * login redirects to helvety.com/auth.
+ *
+ * NOTE: The auth app's auth-guard intentionally omits retry logic because it
+ * redirects to its own /login page (same origin). See apps/auth/lib/auth-guard.ts.
  *
  * IMPORTANT: Per CVE-2025-29927, authentication checks should be done in
  * Server Layout Guards or Route Handlers, NOT in proxy.ts.

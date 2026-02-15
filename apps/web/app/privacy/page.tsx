@@ -295,7 +295,7 @@ export default function PrivacyPage() {
               For enterprise products (such as SharePoint extensions), our
               software may validate licenses by sending your organization&apos;s
               tenant identifier (e.g., &quot;contoso&quot; from
-              contoso.sharepoint.com) to our servers at store.helvety.com. This
+              contoso.sharepoint.com) to our servers at helvety.com/store. This
               data:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
@@ -397,7 +397,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-foreground">
-                  Helvety Auth (auth.helvety.com):
+                  Helvety Auth (helvety.com/auth):
                 </strong>{" "}
                 Email address, passkey credentials, PRF encryption parameters,
                 geo-confirmation status (confirmation that you are located in
@@ -407,7 +407,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-foreground">
-                  Helvety PDF (pdf.helvety.com):
+                  Helvety PDF (helvety.com/pdf):
                 </strong>{" "}
                 All file processing is performed entirely client-side in your
                 browser. Your files are not uploaded to, stored on, or
@@ -417,7 +417,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-foreground">
-                  Helvety Store (store.helvety.com):
+                  Helvety Store (helvety.com/store):
                 </strong>{" "}
                 User profile (email), Stripe customer ID, subscription and
                 purchase history, licensed tenant IDs (for enterprise products),
@@ -427,7 +427,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-foreground">
-                  Helvety Tasks (tasks.helvety.com):
+                  Helvety Tasks (helvety.com/tasks):
                 </strong>{" "}
                 Task content is end-to-end encrypted client-side before storage.
                 Encrypted fields include: titles, descriptions, start/end dates,
@@ -447,7 +447,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-foreground">
-                  Helvety Contacts (contacts.helvety.com):
+                  Helvety Contacts (helvety.com/contacts):
                 </strong>{" "}
                 Contact content is end-to-end encrypted client-side before
                 storage. Encrypted fields include: first and last names,
@@ -894,10 +894,10 @@ export default function PrivacyPage() {
               You can request deletion of your account directly from your
               account settings at{" "}
               <a
-                href="https://store.helvety.com/account"
+                href="https://helvety.com/store/account"
                 className="hover:text-foreground underline transition-colors"
               >
-                store.helvety.com/account
+                helvety.com/store/account
               </a>
               . Upon confirmation, your account and personal data will be
               permanently deleted across all Helvety services, including
@@ -1016,9 +1016,7 @@ export default function PrivacyPage() {
                     <td className="border-border border-b p-3">
                       CSRF protection (httpOnly)
                     </td>
-                    <td className="border-border border-b p-3">
-                      Per subdomain
-                    </td>
+                    <td className="border-border border-b p-3">helvety.com</td>
                     <td className="border-border border-b p-3">24 hours</td>
                   </tr>
                   <tr>
@@ -1029,14 +1027,14 @@ export default function PrivacyPage() {
                       Passkey authentication challenge (httpOnly)
                     </td>
                     <td className="border-border border-b p-3">
-                      auth.helvety.com
+                      helvety.com/auth
                     </td>
                     <td className="border-border border-b p-3">5 minutes</td>
                   </tr>
                   <tr>
                     <td className="p-3">Theme preference (localStorage)</td>
                     <td className="p-3">Remember dark/light mode setting</td>
-                    <td className="p-3">Per subdomain</td>
+                    <td className="p-3">helvety.com</td>
                     <td className="p-3">Persistent</td>
                   </tr>
                 </tbody>

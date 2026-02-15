@@ -1,9 +1,9 @@
 {
   "name": "@helvety/auth",
-  "version": "1.15.0",
+  "version": "2.0.0",
   "description": "Centralized authentication service for the Helvety ecosystem. Engineered & Designed in Switzerland.",
   "author": "Helvety by Rubin",
-  "homepage": "https://auth.helvety.com",
+  "homepage": "https://helvety.com/auth",
   "repository": {
     "type": "git",
     "url": "https://github.com/CasparRubin/helvety.git",
@@ -29,6 +29,7 @@
     "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
+    "@helvety/shared": "workspace:*",
     "@fontsource-variable/public-sans": "^5.2.7",
     "@simplewebauthn/browser": "^13.2.2",
     "@simplewebauthn/server": "^13.2.2",
@@ -54,7 +55,6 @@
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
-    "@helvety/shared": "workspace:*",
     "@next/bundle-analyzer": "^16.1.6",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

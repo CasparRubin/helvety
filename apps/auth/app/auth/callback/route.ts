@@ -1,4 +1,5 @@
 import { logger } from "@helvety/shared/logger";
+import { checkRateLimit, RATE_LIMITS } from "@helvety/shared/rate-limit";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
@@ -28,8 +29,26 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  *
  * Supports redirect_uri query param for cross-app SSO flows.
  * Redirect URIs are validated against an allowlist to prevent open redirects.
+ * Rate limited by IP to prevent auth callback abuse.
  */
 export async function GET(request: Request) {
+  // Rate limit auth callbacks by IP to prevent abuse
+  // Prefer x-real-ip (Vercel-trusted) over x-forwarded-for (spoofable)
+  const clientIP =
+    request.headers.get("x-real-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+  const rateLimit = await checkRateLimit(
+    `auth_callback:ip:${clientIP}`,
+    RATE_LIMITS.AUTH_CALLBACK.maxRequests,
+    RATE_LIMITS.AUTH_CALLBACK.windowMs
+  );
+  if (!rateLimit.allowed) {
+    return NextResponse.redirect(
+      `${new URL(request.url).origin}/login?error=rate_limited`
+    );
+  }
+
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const token_hash = searchParams.get("token_hash");

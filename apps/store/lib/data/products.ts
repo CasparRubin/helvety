@@ -1,5 +1,5 @@
 /**
- * Static product data for helvety-store
+ * Static product data for the Store app (@helvety/store)
  */
 
 import type {

@@ -2,7 +2,7 @@
  * Auth redirect utilities for centralized authentication
  *
  * These functions handle redirects to/from the centralized auth service
- * at auth.helvety.com for login and logout flows.
+ * at helvety.com/auth for login and logout flows.
  *
  * Security: All redirect URIs are validated against an allowlist to prevent
  * open redirect attacks.
@@ -17,8 +17,8 @@ function getAuthBaseUrl(): string {
   return (
     process.env.NEXT_PUBLIC_AUTH_URL ??
     (process.env.NODE_ENV === "development"
-      ? "http://localhost:3002"
-      : "https://auth.helvety.com")
+      ? "http://localhost:3001/auth"
+      : "https://helvety.com/auth")
   );
 }
 

@@ -18,6 +18,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "CCBot", allow: "/", disallow: disallowedPaths },
       { userAgent: "FacebookBot", allow: "/", disallow: disallowedPaths },
     ],
-    sitemap: "https://pdf.helvety.com/sitemap.xml",
+    sitemap: "https://helvety.com/pdf/sitemap.xml",
   };
 }

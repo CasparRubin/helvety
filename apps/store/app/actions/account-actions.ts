@@ -294,7 +294,7 @@ export type { UserDataExport } from "@/lib/types/store";
  * Export all user data in a structured JSON format.
  *
  * Returns profile info, subscription history, purchase history, and tenant
- * registrations. Encrypted task data (helvety-tasks) is NOT included; that data
+ * registrations. Encrypted task data (Helvety Tasks) is NOT included; that data
  * must be exported client-side from within Helvety Tasks while the user is
  * authenticated with their passkey.
  *

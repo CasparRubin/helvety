@@ -1,6 +1,6 @@
 {
   "name": "@helvety/web",
-  "version": "1.16.0",
+  "version": "2.0.0",
   "description": "The main Helvety website. Engineered & Designed in Switzerland.",
   "author": "Helvety by Rubin",
   "homepage": "https://helvety.com",
@@ -29,6 +29,7 @@
     "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
+    "@helvety/shared": "workspace:*",
     "@fontsource-variable/public-sans": "^5.2.7",
     "radix-ui": "^1.4.3",
     "@simplewebauthn/browser": "^13.2.2",
@@ -54,7 +55,6 @@
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
-    "@helvety/shared": "workspace:*",
     "@next/bundle-analyzer": "^16.1.6",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

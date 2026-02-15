@@ -51,7 +51,7 @@ function getAuthSetupUrl(): string {
  * Gate component that ensures encryption is set up and unlocked
  * before rendering children.
  *
- * If encryption is not set up, redirects to auth.helvety.com for setup.
+ * If encryption is not set up, redirects to helvety.com/auth for setup.
  * Supports passkey-based encryption (PRF).
  *
  * Includes automatic retry logic: on transient errors (e.g. network blip

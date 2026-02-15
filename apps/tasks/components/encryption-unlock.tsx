@@ -1,5 +1,6 @@
 "use client";
 
+import { cachePRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { Fingerprint, Lock, Loader2, Smartphone } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -51,6 +52,9 @@ export function EncryptionUnlock({
         setIsLoading(false);
         return;
       }
+
+      // Cache PRF salt so future logins can include PRF for single-touch unlock
+      cachePRFSalt(passkeyParams.prfSalt, passkeyParams.version);
 
       // Success
       if (onUnlock) {

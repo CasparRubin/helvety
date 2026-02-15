@@ -7,7 +7,7 @@
 
 Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.
 
-**Store:** [store.helvety.com](https://store.helvety.com)
+**Store:** [helvety.com/store](https://helvety.com/store)
 
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/store/`. See the root README for monorepo setup instructions.
 
@@ -15,7 +15,7 @@ Official Helvety Store. Software and subscriptions engineered & designed in Swit
 
 Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
 
-As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [auth.helvety.com](https://auth.helvety.com) that they are located in Switzerland before any personal data is stored.
+As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [helvety.com/auth](https://helvety.com/auth) that they are located in Switzerland before any personal data is stored.
 
 ## Navigation
 
@@ -28,7 +28,7 @@ The store has four main sections, linked from the store nav bar (below the top n
 
 The root path (`/`) redirects all users to `/products`. No login is required to browse products.
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [auth.helvety.com](https://auth.helvety.com) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [helvety.com/auth](https://helvety.com/auth) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
@@ -52,23 +52,23 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 
 ### Authentication Flow
 
-Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is optional for browsing** and users can view products without an account. Login is required for purchases, account management, subscriptions, and tenant management.
+Authentication is handled by the centralized Helvety Auth service (`helvety.com/auth`) using **email + passkey authentication** with no passwords required. **Login is optional for browsing** and users can view products without an account. Login is required for purchases, account management, subscriptions, and tenant management.
 
 **New Users (when signing in):**
 
-1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
+1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
 2. Enter verification code from email → Verify email ownership
 3. Scan QR code with phone → Verify with biometrics (Face ID/fingerprint)
 4. Passkey created → Verify passkey → Session established → Redirected back to store
 
 **Returning Users (when signing in):**
 
-1. Click "Sign in" → Redirected to auth.helvety.com → Enter email address
+1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
 2. Sign in with passkey (no email sent; existing users with a passkey skip email verification)
 3. Scan QR code → Verify with biometrics → Session created
 4. Redirected back to store
 
-Sessions are shared across all `*.helvety.com` subdomains via cookie-based SSO.
+Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
 
 **Privacy Note:** Your email address is used solely for authentication (verification codes for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
 
@@ -107,7 +107,7 @@ This project is built with modern web technologies:
 - **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
 - **[React 19.2.4](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript with strict configuration
-- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at [auth.helvety.com](https://auth.helvety.com))
+- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at [helvety.com/auth](https://helvety.com/auth))
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
@@ -154,6 +154,6 @@ You may NOT:
 - Sell, sublicense, or commercially exploit the code
 - Reverse engineer or decompile the code
 
-**Purchasing a subscription grants access to use the hosted service at [store.helvety.com](https://store.helvety.com) only.** Subscriptions do not grant any rights to the source code.
+**Purchasing a subscription grants access to use the hosted service at [helvety.com/store](https://helvety.com/store) only.** Subscriptions do not grant any rights to the source code.
 
 See [LICENSE](./LICENSE) for full legal terms.

@@ -1,6 +1,15 @@
 "use client";
 
+import { storeMasterKey } from "@helvety/shared/crypto/key-storage";
 import { isPasskeySupported } from "@helvety/shared/crypto/passkey";
+import {
+  deriveKeyFromPRF,
+  type PRFKeyParams,
+} from "@helvety/shared/crypto/prf-key-derivation";
+import {
+  getCachedPRFSalt,
+  cachePRFSalt,
+} from "@helvety/shared/crypto/prf-salt-cache";
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
@@ -328,6 +337,7 @@ export function useLoginFlow(): LoginFlowState {
   }, [email, resendCooldown, isNewUser, csrfToken]);
 
   // Handle passkey sign in (for existing users or verification after setup)
+  // Includes PRF extension for single-touch encryption unlock when PRF salt is cached
   const handlePasskeySignIn = useCallback(async () => {
     if (!passkeySupported) {
       setError("Your browser doesn't support passkeys");
@@ -340,7 +350,7 @@ export function useLoginFlow(): LoginFlowState {
     try {
       const origin = window.location.origin;
 
-      // Get authentication options
+      // Get authentication options from server
       const optionsResult = await generatePasskeyAuthOptions(
         csrfToken,
         origin,
@@ -353,11 +363,35 @@ export function useLoginFlow(): LoginFlowState {
         return;
       }
 
-      // Start WebAuthn authentication
+      // Check for cached PRF salt to enable single-touch encryption unlock.
+      // The PRF salt is not sensitive (it's a public parameter) - caching it
+      // allows us to request the PRF extension during login authentication,
+      // so the user doesn't need a separate passkey touch for encryption.
+      const cachedSalt = getCachedPRFSalt();
+      const authOptions = optionsResult.data;
+
+      if (cachedSalt) {
+        // Add PRF extension to the authentication options
+        const saltBytes = Uint8Array.from(atob(cachedSalt.prfSalt), (c) =>
+          c.charCodeAt(0)
+        );
+        Object.assign(authOptions, {
+          extensions: {
+            ...authOptions.extensions,
+            prf: {
+              eval: {
+                first: saltBytes,
+              },
+            },
+          },
+        });
+      }
+
+      // Start WebAuthn authentication (with PRF if salt was cached)
       let authResponse;
       try {
         authResponse = await startAuthentication({
-          optionsJSON: optionsResult.data,
+          optionsJSON: authOptions,
         });
       } catch (err) {
         if (err instanceof Error) {
@@ -375,7 +409,7 @@ export function useLoginFlow(): LoginFlowState {
         return;
       }
 
-      // Verify authentication
+      // Verify authentication server-side
       const verifyResult = await verifyPasskeyAuthentication(
         csrfToken,
         authResponse,
@@ -385,6 +419,41 @@ export function useLoginFlow(): LoginFlowState {
         setError(verifyResult.error);
         setIsLoading(false);
         return;
+      }
+
+      // If PRF output was received, derive and cache the master encryption key.
+      // This enables instant encryption unlock in E2EE apps (tasks, contacts)
+      // without requiring a separate passkey touch.
+      if (cachedSalt) {
+        try {
+          const clientExtResults = authResponse.clientExtensionResults as {
+            prf?: { results?: { first?: ArrayBuffer } };
+          };
+          const prfOutput = clientExtResults?.prf?.results?.first;
+
+          if (prfOutput) {
+            const prfParams: PRFKeyParams = {
+              prfSalt: cachedSalt.prfSalt,
+              version: cachedSalt.version,
+            };
+            const masterKey = await deriveKeyFromPRF(prfOutput, prfParams);
+            await storeMasterKey(verifyResult.data.userId, masterKey);
+
+            // Re-cache the salt (refreshes the cached entry)
+            cachePRFSalt(cachedSalt.prfSalt, cachedSalt.version);
+
+            logger.info(
+              "Encryption key derived and cached during login (single-touch unlock)"
+            );
+          }
+        } catch (prfError) {
+          // PRF key derivation failure is non-fatal - the user can still
+          // unlock encryption manually via the EncryptionGate fallback
+          logger.warn(
+            "Failed to derive encryption key during login (will use fallback):",
+            prfError
+          );
+        }
       }
 
       // Redirect to final destination (session already created server-side)

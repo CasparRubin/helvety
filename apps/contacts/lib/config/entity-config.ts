@@ -1,5 +1,5 @@
 /**
- * Entity configuration registry for helvety-contacts
+ * Entity configuration registry for the Contacts app (@helvety/contacts)
  * Centralizes entity metadata for dynamic UI components (e.g., delete confirmations)
  */
 

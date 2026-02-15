@@ -11,6 +11,17 @@ import type { User } from "@supabase/supabase-js";
  * Use this in Server Components or Server Actions to ensure the user is authenticated.
  * Redirects to the login page if not authenticated.
  *
+ * NOTE: Unlike the auth-guard in other apps (which use getUserWithRetry from
+ * @helvety/shared/auth-retry), this version intentionally omits retry logic.
+ * Reason: The auth app redirects to its own /login page (same origin), so a
+ * transient network failure during getUser() simply lands the user back on the
+ * login form where they can re-authenticate immediately. Retrying here would
+ * add latency without meaningful benefit, since the auth app IS the login page.
+ *
+ * Other apps (tasks, contacts, store, etc.) DO use retry logic because they
+ * redirect to helvety.com/auth, where a false redirect would be more
+ * disruptive to the user experience.
+ *
  * IMPORTANT: Per CVE-2025-29927, authentication checks should be done in
  * Server Layout Guards or Route Handlers, NOT in proxy.ts.
  *
@@ -29,7 +40,7 @@ export async function requireAuth(): Promise<User> {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    // In auth service, redirect to login page directly
+    // In auth service, redirect to login page directly (same origin)
     redirect("/login");
   }
 

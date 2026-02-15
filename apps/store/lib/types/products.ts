@@ -1,5 +1,5 @@
 /**
- * Product type definitions for helvety-store
+ * Product type definitions for the Store app (@helvety/store)
  * Flexible system supporting SaaS, software, and physical products
  */
 

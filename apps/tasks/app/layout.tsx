@@ -43,7 +43,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tasks.helvety.com"),
+  metadataBase: new URL("https://helvety.com/tasks"),
   title: {
     default: "Helvety Tasks | Task Management | Private and Secure",
     template: "%s | Helvety Tasks",
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://tasks.helvety.com",
+    url: "https://helvety.com/tasks",
     siteName: "Helvety Tasks",
     title: "Helvety Tasks | Task Management | Private and Secure",
     description:
@@ -109,7 +109,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://tasks.helvety.com",
+    canonical: "https://helvety.com/tasks",
   },
   category: "productivity",
 };
@@ -148,10 +148,10 @@ export default async function RootLayout({
                   "Software and subscriptions engineered and designed in Switzerland.",
                 sameAs: [
                   "https://helvety.com",
-                  "https://store.helvety.com",
-                  "https://pdf.helvety.com",
-                  "https://auth.helvety.com",
-                  "https://contacts.helvety.com",
+                  "https://helvety.com/store",
+                  "https://helvety.com/pdf",
+                  "https://helvety.com/auth",
+                  "https://helvety.com/contacts",
                   "https://github.com/CasparRubin",
                 ],
               },
@@ -159,7 +159,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "SoftwareApplication",
                 name: "Helvety Tasks",
-                url: "https://tasks.helvety.com",
+                url: "https://helvety.com/tasks",
                 description:
                   "Private and secure task management with end-to-end encryption. Engineered & Designed in Switzerland.",
                 applicationCategory: "BusinessApplication",

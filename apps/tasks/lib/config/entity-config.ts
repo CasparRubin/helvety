@@ -1,5 +1,5 @@
 /**
- * Entity configuration registry for helvety-tasks
+ * Entity configuration registry for the Tasks app (@helvety/tasks)
  * Centralizes entity metadata for dynamic UI components (e.g., delete confirmations)
  *
  * When adding new entities:
