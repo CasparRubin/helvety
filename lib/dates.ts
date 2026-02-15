@@ -1,5 +1,5 @@
 /**
- * Date formatting utilities for helvety-contacts.
+ * Date formatting utilities.
  * All dates are displayed in the Europe/Zurich (Swiss) timezone.
  */
 

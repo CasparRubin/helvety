@@ -10,6 +10,9 @@ import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
 
+const MAX_REORDER_ITEMS = 200;
+const REORDER_CHUNK_SIZE = 50;
+
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
@@ -30,6 +33,7 @@ const CategoryIdSchema = z
 
 /** Schema for creating a Contact */
 const CreateContactSchema = z.object({
+  id: z.string().uuid(),
   encrypted_first_name: EncryptedDataSchema,
   encrypted_last_name: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
@@ -64,7 +68,10 @@ const ReorderSchema = z
       category_id: CategoryIdSchema,
     })
   )
-  .max(500, "Too many items to reorder");
+  .max(
+    MAX_REORDER_ITEMS,
+    `Too many items to reorder (max ${MAX_REORDER_ITEMS})`
+  );
 
 // =============================================================================
 // CONTACT ACTIONS
@@ -76,6 +83,7 @@ const ReorderSchema = z
  */
 export async function createContact(
   data: {
+    id: string;
     encrypted_first_name: string;
     encrypted_last_name: string;
     encrypted_description: string | null;
@@ -107,6 +115,7 @@ export async function createContact(
     const { data: contact, error } = await supabase
       .from("contacts")
       .insert({
+        id: validatedData.id,
         user_id: user.id,
         encrypted_first_name: validatedData.encrypted_first_name,
         encrypted_last_name: validatedData.encrypted_last_name,
@@ -359,25 +368,30 @@ export async function reorderContacts(
       return { success: true };
     }
 
-    // Batch update all contacts in parallel for better performance
+    // Batch updates in chunks to avoid saturating DB connections.
     const now = new Date().toISOString();
-    const results = await Promise.all(
-      validatedUpdates.map((update) => {
-        const updateObj: Record<string, unknown> = {
-          sort_order: update.sort_order,
-          updated_at: now,
-        };
-        if (update.category_id !== undefined) {
-          updateObj.category_id = update.category_id;
-        }
+    const results = [];
+    for (let i = 0; i < validatedUpdates.length; i += REORDER_CHUNK_SIZE) {
+      const chunk = validatedUpdates.slice(i, i + REORDER_CHUNK_SIZE);
+      const chunkResults = await Promise.all(
+        chunk.map((update) => {
+          const updateObj: Record<string, unknown> = {
+            sort_order: update.sort_order,
+            updated_at: now,
+          };
+          if (update.category_id !== undefined) {
+            updateObj.category_id = update.category_id;
+          }
 
-        return supabase
-          .from("contacts")
-          .update(updateObj)
-          .eq("id", update.id)
-          .eq("user_id", user.id);
-      })
-    );
+          return supabase
+            .from("contacts")
+            .update(updateObj)
+            .eq("id", update.id)
+            .eq("user_id", user.id);
+        })
+      );
+      results.push(...chunkResults);
+    }
 
     const failedResult = results.find((r) => r.error);
     if (failedResult?.error) {

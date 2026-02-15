@@ -161,7 +161,11 @@ export function useCategoryConfigs(): UseCategoryConfigsReturn {
       }
 
       try {
-        const encrypted = await encryptCategoryConfigUpdate(input, masterKey);
+        const encrypted = await encryptCategoryConfigUpdate(
+          id,
+          input,
+          masterKey
+        );
         const result = await updateCategoryConfig(
           { id, ...encrypted },
           csrfToken

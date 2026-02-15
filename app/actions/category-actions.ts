@@ -33,6 +33,7 @@ const IconNameSchema = z
   .optional();
 
 const CreateCategoryConfigSchema = z.object({
+  id: z.string().uuid(),
   encrypted_name: EncryptedDataSchema,
 });
 
@@ -42,6 +43,7 @@ const UpdateCategoryConfigSchema = z.object({
 });
 
 const CreateCategorySchema = z.object({
+  id: z.string().uuid(),
   config_id: z.string().uuid(),
   encrypted_name: EncryptedDataSchema,
   color: HexColorSchema,
@@ -76,7 +78,7 @@ const ReorderCategoriesSchema = z
  * Create a new CategoryConfig
  */
 export async function createCategoryConfig(
-  data: { encrypted_name: string },
+  data: { id: string; encrypted_name: string },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
@@ -100,6 +102,7 @@ export async function createCategoryConfig(
     const { data: config, error } = await supabase
       .from("category_configs")
       .insert({
+        id: validatedData.id,
         user_id: user.id,
         encrypted_name: validatedData.encrypted_name,
       })
@@ -242,6 +245,7 @@ export async function deleteCategoryConfig(
  */
 export async function createCategory(
   data: {
+    id: string;
     config_id: string;
     encrypted_name: string;
     color?: string | null;
@@ -281,6 +285,7 @@ export async function createCategory(
     const { data: category, error } = await supabase
       .from("categories")
       .insert({
+        id: validatedData.id,
         config_id: validatedData.config_id,
         user_id: user.id,
         encrypted_name: validatedData.encrypted_name,

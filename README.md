@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A private and secure contact management app with end-to-end encryption. All your data is encrypted and only you can read it.
+A private and secure contact management app with end-to-end encryption. All your data is encrypted and only you can read it. Engineered & Designed in Switzerland.
 
 **App:** [contacts.helvety.com](https://contacts.helvety.com)
 
@@ -43,6 +43,20 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Switch between dark and light themes
 
+## Environment Variables
+
+Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
+
+| Variable                               | Required | Server-only | Description                                  |
+| -------------------------------------- | -------- | ----------- | -------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                         |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                       |
+| `NEXT_PUBLIC_*` URLs                   | No       | No          | Cross-app URLs; have sensible defaults       |
+| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required. |
+| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                 |
+
+> **Note:** Make sure `NEXT_PUBLIC_APP_URL` is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+
 ## Security & Authentication
 
 ### End-to-End Encryption
@@ -55,7 +69,9 @@ Helvety Contacts uses end-to-end encryption (E2EE), as does Helvety Tasks. Your 
 2. The PRF extension produces a deterministic output tied to your passkey
 3. Your browser derives an AES-256-GCM encryption key from the PRF output using HKDF
 4. All encryption and decryption happens locally in your browser
-5. The server stores only encrypted ciphertext and PRF salt values
+5. Additional Authenticated Data (AAD) binds each ciphertext to its specific record, preventing encrypted data from being moved or replayed in a different context
+6. Record identifiers for encrypted data are generated on your device, not by the server
+7. The server stores only encrypted ciphertext and PRF salt values
 
 **Important:** Your passkey is the only way to decrypt your data. If you lose access to your passkey, your encrypted data cannot be recovered.
 
@@ -126,6 +142,18 @@ This project is built with modern web technologies:
 - **[Lucide React](https://lucide.dev/)** - Icon library
 - **[Zod](https://zod.dev/)** - TypeScript-first schema validation
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
+
+## Testing
+
+Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom environment with type-checking enabled.
+
+| Script                  | Description                       |
+| ----------------------- | --------------------------------- |
+| `npm test`              | Run all tests once                |
+| `npm run test:watch`    | Run tests in watch mode           |
+| `npm run test:coverage` | Run tests with v8 coverage report |
+
+Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
 
 ## Developer
 

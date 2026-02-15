@@ -191,7 +191,7 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
       }
 
       try {
-        const encrypted = await encryptCategoryUpdate(input, masterKey);
+        const encrypted = await encryptCategoryUpdate(id, input, masterKey);
         const result = await updateCategory({ id, ...encrypted }, csrfToken);
         if (!result.success) {
           setError(result.error ?? "Failed to update category");

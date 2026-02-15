@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety Contacts",
   },
   description:
-    "Manage your contacts with ease. Private, secure, and encrypted contact management.",
+    "Manage your contacts with ease. Private, secure, and encrypted contact management. Engineered & Designed in Switzerland.",
   keywords: [
     "Helvety Contacts",
     "contact management",
@@ -67,10 +67,6 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  icons: {
-    icon: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
-  },
   manifest: "/manifest.json",
   openGraph: {
     type: "website",
@@ -79,10 +75,10 @@ export const metadata: Metadata = {
     siteName: "Helvety Contacts",
     title: "Helvety Contacts | Contact Management | Private and Secure",
     description:
-      "Manage your contacts with ease. Private, secure, and encrypted contact management.",
+      "Manage your contacts with ease. Private, secure, and encrypted contact management. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_Identifier_whiteBg.svg",
+        url: "/helvety_identifier_whiteBg.png",
         width: 500,
         height: 500,
         alt: "Helvety Contacts",
@@ -93,17 +89,24 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety Contacts | Contact Management | Private and Secure",
     description:
-      "Manage your contacts with ease. Private, secure, and encrypted contact management.",
+      "Manage your contacts with ease. Private, secure, and encrypted contact management. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_Identifier_whiteBg.svg",
+        url: "/helvety_identifier_whiteBg.png",
         alt: "Helvety Contacts",
       },
     ],
   },
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   alternates: {
     canonical: "https://contacts.helvety.com",
@@ -131,6 +134,45 @@ export default async function RootLayout({
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "Helvety",
+                url: "https://helvety.com",
+                logo: "https://helvety.com/helvety_identifier_whiteBg.png",
+                description:
+                  "Software and subscriptions engineered and designed in Switzerland.",
+                sameAs: [
+                  "https://helvety.com",
+                  "https://store.helvety.com",
+                  "https://pdf.helvety.com",
+                  "https://auth.helvety.com",
+                  "https://tasks.helvety.com",
+                  "https://github.com/CasparRubin",
+                ],
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                name: "Helvety Contacts",
+                url: "https://contacts.helvety.com",
+                description:
+                  "Private and secure contact management with end-to-end encryption. Engineered & Designed in Switzerland.",
+                applicationCategory: "BusinessApplication",
+                operatingSystem: "Any",
+                offers: {
+                  "@type": "Offer",
+                  price: "0",
+                  priceCurrency: "USD",
+                },
+              },
+            ]),
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

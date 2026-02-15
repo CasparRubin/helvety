@@ -1,0 +1,16 @@
+# Helvety Contacts
+
+> Private and secure contact management with end-to-end encryption. Manage your contacts with ease. Engineered and designed in Switzerland.
+
+## Core Pages
+- [Home](https://contacts.helvety.com): End-to-end encrypted contact management app
+
+## Helvety Ecosystem
+- [Helvety](https://helvety.com): Main Helvety website with company information and legal pages
+- [Helvety Store](https://store.helvety.com): Official store for Helvety software products and subscriptions
+- [Helvety PDF](https://pdf.helvety.com): Free, privacy-focused PDF toolkit
+- [Helvety Auth](https://auth.helvety.com): Centralized authentication for all Helvety apps
+- [Helvety Tasks](https://tasks.helvety.com): End-to-end encrypted task management
+
+## Optional
+- [GitHub](https://github.com/CasparRubin/helvety-contacts): Public repository for Helvety Contacts (source-visible, not open source)

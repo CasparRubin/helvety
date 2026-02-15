@@ -146,7 +146,7 @@ export function useContacts(): UseContactsReturn {
       }
 
       try {
-        const encrypted = await encryptContactUpdate(input, masterKey);
+        const encrypted = await encryptContactUpdate(id, input, masterKey);
         const result = await updateContact(
           {
             id,
@@ -362,7 +362,7 @@ export function useContact(id: string): UseContactReturn {
       }
 
       try {
-        const encrypted = await encryptContactUpdate(input, masterKey);
+        const encrypted = await encryptContactUpdate(id, input, masterKey);
         const result = await updateContact(
           {
             id,

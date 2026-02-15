@@ -30,6 +30,7 @@ export {
   isEncryptedData,
   encryptFields,
   decryptFields,
+  buildAAD,
 } from "./encryption";
 
 // Key Storage

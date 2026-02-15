@@ -12,6 +12,8 @@ import type {
   CategoryAssignment,
 } from "@/lib/types";
 
+const MAX_DASHBOARD_ROWS = 3000;
+
 // =============================================================================
 // Batch Response Types
 // =============================================================================
@@ -51,6 +53,7 @@ export async function getContactsDashboardData(): Promise<
           .select("*")
           .eq("user_id", user.id)
           .order("sort_order", { ascending: true })
+          .limit(MAX_DASHBOARD_ROWS + 1)
           .returns<ContactRow[]>(),
         supabase
           .from("category_configs")
@@ -76,6 +79,13 @@ export async function getContactsDashboardData(): Promise<
         categoryAssignment: assignmentResult.error,
       });
       return { success: false, error: "Failed to load dashboard data" };
+    }
+
+    if ((contactsResult.data?.length ?? 0) > MAX_DASHBOARD_ROWS) {
+      return {
+        success: false,
+        error: "Too many contacts to load in one request",
+      };
     }
 
     return {
