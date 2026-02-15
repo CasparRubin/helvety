@@ -47,14 +47,19 @@ Sessions are shared across all Helvety apps via cookie-based SSO (all apps are s
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                  |
-| -------------------------------------- | -------- | ----------- | -------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                         |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                       |
-| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required. |
-| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                 |
+| Variable                               | Required | Server-only | Description                                                   |
+| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                          |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                                        |
+| `AUTH_URL`                             | Prod     | **Yes**     | Internal Vercel URL for Auth app (gateway rewrite target)     |
+| `STORE_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Store app (gateway rewrite target)    |
+| `PDF_URL`                              | Prod     | **Yes**     | Internal Vercel URL for PDF app (gateway rewrite target)      |
+| `TASKS_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Tasks app (gateway rewrite target)    |
+| `CONTACTS_URL`                         | Prod     | **Yes**     | Internal Vercel URL for Contacts app (gateway rewrite target) |
+| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.                  |
+| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                                  |
 
-> **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+> **Note:** App URLs and cookie domain are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed for those. The gateway rewrite URLs (`AUTH_URL`, `STORE_URL`, etc.) are only needed on Vercel production — they point to each sub-app's internal Vercel deployment URL (not `helvety.com`). In development, they fall back to localhost ports. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
 ## Tech Stack
 
