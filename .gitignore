@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Turborepo
+.turbo/
+
+# Build
+.next/
+out/
+dist/
+build/
+
+# Bun
+bun.lock.*.tmp
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug
+npm-debug.log*
+
+# Supabase exports (sensitive)
+supabase/supabase.json
+
+# Test coverage
+coverage/
