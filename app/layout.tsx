@@ -49,7 +49,8 @@ export const metadata: Metadata = {
     default: "Sign In | Helvety",
     template: "%s | Helvety",
   },
-  description: "Sign in to your Helvety account",
+  description:
+    "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
   keywords: ["Helvety", "sign in", "login", "authentication"],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -65,10 +66,11 @@ export const metadata: Metadata = {
     url: "https://auth.helvety.com",
     siteName: "Helvety Auth",
     title: "Sign In | Helvety",
-    description: "Sign in to your Helvety account",
+    description:
+      "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_Identifier_whiteBg.svg",
+        url: "/helvety_identifier_whiteBg.png",
         width: 500,
         height: 500,
         alt: "Helvety",
@@ -78,21 +80,25 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Sign In | Helvety",
-    description: "Sign in to your Helvety account",
+    description:
+      "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_Identifier_whiteBg.svg",
+        url: "/helvety_identifier_whiteBg.png",
       },
     ],
   },
-  icons: {
-    icon: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
-  },
   manifest: "/manifest.json",
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -120,6 +126,28 @@ export default async function RootLayout({
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Helvety",
+              url: "https://helvety.com",
+              logo: "https://helvety.com/helvety_identifier_whiteBg.png",
+              description:
+                "Software and subscriptions engineered and designed in Switzerland.",
+              sameAs: [
+                "https://helvety.com",
+                "https://store.helvety.com",
+                "https://pdf.helvety.com",
+                "https://contacts.helvety.com",
+                "https://tasks.helvety.com",
+                "https://github.com/CasparRubin",
+              ],
+            }),
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

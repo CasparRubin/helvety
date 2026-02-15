@@ -15,6 +15,19 @@ const ENCRYPTION_VERSION = 1;
 const CURRENT_KEY_VERSION = 1;
 
 /**
+ * Build Additional Authenticated Data (AAD) for AES-GCM encryption.
+ * AAD binds ciphertext to its database record, preventing encrypted data from being moved
+ * between records or tables.
+ *
+ * @param table - The database table name (e.g. "units", "items", "contacts")
+ * @param recordId - The UUID of the record
+ * @returns AAD string in the format "table:recordId"
+ */
+export function buildAAD(table: string, recordId: string): string {
+  return `${table}:${recordId}`;
+}
+
+/**
  * Encrypt a string using AES-256-GCM
  *
  * @param data - The plaintext string to encrypt
@@ -22,7 +35,7 @@ const CURRENT_KEY_VERSION = 1;
  * @param aad - Optional Additional Authenticated Data to bind ciphertext to its context.
  *              When provided, the same AAD must be supplied during decryption.
  *              Use to prevent ciphertext from being moved between records/contexts.
- *              Example: `${userId}:${tableName}:${recordId}`
+ *              Format: `table:recordId` (use `buildAAD(table, recordId)` helper)
  * @returns Encrypted data with IV and ciphertext
  */
 export async function encrypt(

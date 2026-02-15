@@ -1,15 +1,24 @@
 import type { MetadataRoute } from "next";
 
 /**
- * Robots configuration for helvety-auth
- * Auth service pages should not be indexed by search engines
+ * Robots.txt configuration
+ * Allow landing/login pages for brand visibility, block auth callback and API routes
+ * Explicitly allow AI crawlers
  */
 export default function robots(): MetadataRoute.Robots {
+  const disallowedPaths = ["/api", "/auth/callback"];
+
   return {
-    rules: {
-      userAgent: "*",
-      disallow: "/",
-    },
+    rules: [
+      { userAgent: "*", allow: "/", disallow: disallowedPaths },
+      { userAgent: "GPTBot", allow: "/", disallow: disallowedPaths },
+      { userAgent: "ClaudeBot", allow: "/", disallow: disallowedPaths },
+      { userAgent: "Google-Extended", allow: "/", disallow: disallowedPaths },
+      { userAgent: "PerplexityBot", allow: "/", disallow: disallowedPaths },
+      { userAgent: "Applebot-Extended", allow: "/", disallow: disallowedPaths },
+      { userAgent: "CCBot", allow: "/", disallow: disallowedPaths },
+      { userAgent: "FacebookBot", allow: "/", disallow: disallowedPaths },
+    ],
     sitemap: "https://auth.helvety.com/sitemap.xml",
   };
 }

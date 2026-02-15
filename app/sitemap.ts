@@ -2,7 +2,6 @@ import type { MetadataRoute } from "next";
 
 /**
  * Sitemap for helvety-auth
- * Minimal sitemap for auth service - most pages should not be indexed
  */
 
 /** Static build-time date for consistent sitemap caching */
@@ -15,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: "https://auth.helvety.com",
       lastModified,
       changeFrequency: "monthly",
-      priority: 0.1,
+      priority: 1,
     },
   ];
 }

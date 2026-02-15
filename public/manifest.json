@@ -1,7 +1,7 @@
 {
   "name": "Helvety Auth",
   "short_name": "Helvety Auth",
-  "description": "Sign in to your Helvety account.",
+  "description": "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf8f7",
@@ -9,10 +9,15 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/helvety_Identifier_whiteBg.svg",
+      "src": "/helvety_identifier_whiteBg.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/helvety_identifier_whiteBg.png",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "categories": ["business"],

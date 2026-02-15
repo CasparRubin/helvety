@@ -145,7 +145,7 @@ export function Navbar({
               loading="eager"
             />
             <Image
-              src="/helvety_Identifier_whiteBg.svg"
+              src="/helvety_identifier_whiteBg.svg"
               alt="Helvety"
               width={30}
               height={30}
@@ -197,7 +197,7 @@ export function Navbar({
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
                     Centralized authentication service for the Helvety
-                    ecosystem.
+                    ecosystem. Engineered & Designed in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
