@@ -23,6 +23,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { Label as FormLabel } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks";
 import { formatDateTime } from "@/lib/dates";
@@ -56,6 +58,12 @@ interface ItemActionPanelProps {
   onPriorityChange: (priority: number) => void;
   /** Whether a priority change is currently being saved */
   isSavingPriority?: boolean;
+  /** Callback when the user changes the start date/time */
+  onStartDateChange: (date: string | null) => void;
+  /** Callback when the user changes the end date/time */
+  onEndDateChange: (date: string | null) => void;
+  /** Whether a date change is currently being saved */
+  isSavingDates?: boolean;
 }
 
 /**
@@ -75,6 +83,9 @@ export function ItemActionPanel({
   isSavingLabel,
   onPriorityChange,
   isSavingPriority,
+  onStartDateChange,
+  onEndDateChange,
+  isSavingDates,
 }: ItemActionPanelProps) {
   const isMobile = useIsMobile();
 
@@ -127,8 +138,11 @@ export function ItemActionPanel({
           {/* Dates section */}
           <Collapsible defaultOpen>
             <CollapsibleTrigger className="group flex w-full items-center justify-between">
-              <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
                 Dates
+                {isSavingDates && (
+                  <Loader2Icon className="size-3 animate-spin" />
+                )}
               </h3>
               <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
             </CollapsibleTrigger>
@@ -162,6 +176,32 @@ export function ItemActionPanel({
                     {formatDateTime(item.updated_at)}
                   </p>
                 </div>
+              </div>
+
+              {/* Start Date/Time picker */}
+              <div className="mt-3 grid gap-1.5">
+                <FormLabel className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                  Start
+                </FormLabel>
+                <DateTimePicker
+                  value={item.start_date}
+                  onChange={onStartDateChange}
+                  placeholder="Set start date & time"
+                  disabled={isSavingDates}
+                />
+              </div>
+
+              {/* End Date/Time picker */}
+              <div className="mt-3 grid gap-1.5">
+                <FormLabel className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                  End
+                </FormLabel>
+                <DateTimePicker
+                  value={item.end_date}
+                  onChange={onEndDateChange}
+                  placeholder="Set end date & time"
+                  disabled={isSavingDates}
+                />
               </div>
             </CollapsibleContent>
           </Collapsible>

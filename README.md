@@ -25,7 +25,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - Bullet and numbered lists
   - Link support
   - Auto-save with unsaved changes indicator
-  - **Action panel** - View dates and set item stage, label, and priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
+  - **Action panel** - View created/modified dates, set start and end date/time, and set item stage, label, and priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators
 - **Label management** - Categorize items with labels (e.g., Bug, Feature, Improvement)
   - **Default labels** - Built-in label set applied to every space: Bug, Change Request, Feature, Improvement, Internal Task
@@ -42,7 +42,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 - **Contact linking** - Link contacts from [Helvety Contacts](https://contacts.helvety.com) to any Unit, Space, or Item
   - **Bidirectional** - Link and unlink from either the Tasks app or the Contacts app for consistent cross-app UX
   - **Searchable picker** - Search your contacts by name or email and link them with one click
-  - **Contact display** - Shows name, email, and a flag indicating whether the contact has notes
+  - **Contact display** - Shows name and email; description, phone, and birthday are decrypted but not displayed in the compact link view. A flag indicates whether the contact has notes
   - **Deep links** - Click any contact row to view or edit the full contact details in the Contacts app (opens in a new tab)
   - **Privacy** - Contact notes content is never decrypted in the Tasks app; only a has-notes indicator is shown
 - **Drag & drop reordering** - Rearrange items within and between stages on desktop; mobile uses up/down arrows to move items between stages

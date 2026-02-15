@@ -121,7 +121,7 @@ export function ItemCommandBar({
           </Button>
           <Separator
             orientation="vertical"
-            className="hidden self-stretch md:block"
+            className="mx-2 hidden self-stretch md:block"
           />
           {onSave && (
             <Button

@@ -7,8 +7,9 @@
  * The server only ever sees encrypted data.
  *
  * Note: Contact decryption is read-only - contacts are created and edited
- * in helvety-contacts. Only name and email are decrypted here; notes content
- * is not decrypted, only a `has_notes` flag is derived.
+ * in helvety-contacts. Name, description, email, phone, and birthday are
+ * decrypted here; notes content is not decrypted, only a `has_notes` flag
+ * is derived.
  */
 
 import {
@@ -204,6 +205,8 @@ export async function encryptItemInput(
   space_id: string;
   encrypted_title: string;
   encrypted_description: string | null;
+  encrypted_start_date: string | null;
+  encrypted_end_date: string | null;
   stage_id?: string | null;
   label_id?: string | null;
 }> {
@@ -215,10 +218,24 @@ export async function encryptItemInput(
     encryptedDescription = serializeEncryptedData(encrypted);
   }
 
+  let encryptedStartDate: string | null = null;
+  if (input.start_date) {
+    const encrypted = await encrypt(input.start_date, key);
+    encryptedStartDate = serializeEncryptedData(encrypted);
+  }
+
+  let encryptedEndDate: string | null = null;
+  if (input.end_date) {
+    const encrypted = await encrypt(input.end_date, key);
+    encryptedEndDate = serializeEncryptedData(encrypted);
+  }
+
   return {
     space_id: input.space_id,
     encrypted_title: serializeEncryptedData(encryptedTitle),
     encrypted_description: encryptedDescription,
+    encrypted_start_date: encryptedStartDate,
+    encrypted_end_date: encryptedEndDate,
     stage_id: input.stage_id,
     label_id: input.label_id,
   };
@@ -241,12 +258,27 @@ export async function decryptItemRow(
     );
   }
 
+  let start_date: string | null = null;
+  if (row.encrypted_start_date) {
+    start_date = await decrypt(
+      parseEncryptedData(row.encrypted_start_date),
+      key
+    );
+  }
+
+  let end_date: string | null = null;
+  if (row.encrypted_end_date) {
+    end_date = await decrypt(parseEncryptedData(row.encrypted_end_date), key);
+  }
+
   return {
     id: row.id,
     space_id: row.space_id,
     user_id: row.user_id,
     title,
     description,
+    start_date,
+    end_date,
     stage_id: row.stage_id,
     label_id: row.label_id,
     priority: row.priority,
@@ -673,10 +705,14 @@ export async function encryptItemUpdate(
 ): Promise<{
   encrypted_title?: string;
   encrypted_description?: string | null;
+  encrypted_start_date?: string | null;
+  encrypted_end_date?: string | null;
 }> {
   const result: {
     encrypted_title?: string;
     encrypted_description?: string | null;
+    encrypted_start_date?: string | null;
+    encrypted_end_date?: string | null;
   } = {};
 
   if (update.title !== undefined) {
@@ -690,6 +726,24 @@ export async function encryptItemUpdate(
     } else {
       const encrypted = await encrypt(update.description, key);
       result.encrypted_description = serializeEncryptedData(encrypted);
+    }
+  }
+
+  if (update.start_date !== undefined) {
+    if (update.start_date === null) {
+      result.encrypted_start_date = null;
+    } else {
+      const encrypted = await encrypt(update.start_date, key);
+      result.encrypted_start_date = serializeEncryptedData(encrypted);
+    }
+  }
+
+  if (update.end_date !== undefined) {
+    if (update.end_date === null) {
+      result.encrypted_end_date = null;
+    } else {
+      const encrypted = await encrypt(update.end_date, key);
+      result.encrypted_end_date = serializeEncryptedData(encrypted);
     }
   }
 
@@ -755,8 +809,9 @@ export async function decryptAttachmentRows(
 
 /**
  * Decrypt a Contact row from the database.
- * Decrypts first_name, last_name, and email. Notes content is NOT decrypted;
- * only a `has_notes` boolean flag is derived from whether encrypted_notes is non-null.
+ * Decrypts first_name, last_name, description, email, phone, and birthday.
+ * Notes content is NOT decrypted; only a `has_notes` boolean flag is derived
+ * from whether encrypted_notes is non-null.
  */
 export async function decryptContactRow(
   row: ContactRow,
@@ -771,9 +826,27 @@ export async function decryptContactRow(
     key
   );
 
+  let description: string | null = null;
+  if (row.encrypted_description) {
+    description = await decrypt(
+      parseEncryptedData(row.encrypted_description),
+      key
+    );
+  }
+
   let email: string | null = null;
   if (row.encrypted_email) {
     email = await decrypt(parseEncryptedData(row.encrypted_email), key);
+  }
+
+  let phone: string | null = null;
+  if (row.encrypted_phone) {
+    phone = await decrypt(parseEncryptedData(row.encrypted_phone), key);
+  }
+
+  let birthday: string | null = null;
+  if (row.encrypted_birthday) {
+    birthday = await decrypt(parseEncryptedData(row.encrypted_birthday), key);
   }
 
   return {
@@ -781,7 +854,10 @@ export async function decryptContactRow(
     user_id: row.user_id,
     first_name: firstName,
     last_name: lastName,
+    description,
     email,
+    phone,
+    birthday,
     has_notes: row.encrypted_notes !== null,
     category_id: row.category_id,
     sort_order: row.sort_order,

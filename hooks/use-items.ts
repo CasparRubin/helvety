@@ -112,6 +112,8 @@ export function useItems(spaceId: string): UseItemsReturn {
             user_id: prev[0]?.user_id ?? "",
             title: input.title,
             description: input.description,
+            start_date: input.start_date ?? null,
+            end_date: input.end_date ?? null,
             stage_id: input.stage_id ?? null,
             label_id: input.label_id ?? null,
             priority: input.priority ?? 1,
@@ -171,6 +173,12 @@ export function useItems(spaceId: string): UseItemsReturn {
               ...(input.title !== undefined && { title: input.title }),
               ...(input.description !== undefined && {
                 description: input.description,
+              }),
+              ...(input.start_date !== undefined && {
+                start_date: input.start_date ?? null,
+              }),
+              ...(input.end_date !== undefined && {
+                end_date: input.end_date ?? null,
               }),
               ...(input.stage_id !== undefined && {
                 stage_id: input.stage_id ?? null,
@@ -375,6 +383,12 @@ export function useItem(id: string): UseItemReturn {
             ...(input.title !== undefined && { title: input.title }),
             ...(input.description !== undefined && {
               description: input.description,
+            }),
+            ...(input.start_date !== undefined && {
+              start_date: input.start_date ?? null,
+            }),
+            ...(input.end_date !== undefined && {
+              end_date: input.end_date ?? null,
             }),
             ...(input.stage_id !== undefined && {
               stage_id: input.stage_id ?? null,

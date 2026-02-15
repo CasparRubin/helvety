@@ -46,6 +46,8 @@ const CreateItemSchema = z.object({
   space_id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
+  encrypted_start_date: EncryptedDataSchema.nullable(),
+  encrypted_end_date: EncryptedDataSchema.nullable(),
   stage_id: StageIdSchema,
   label_id: LabelIdSchema,
   priority: PrioritySchema,
@@ -57,6 +59,8 @@ const UpdateItemSchema = z.object({
   id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema.optional(),
   encrypted_description: EncryptedDataSchema.nullable().optional(),
+  encrypted_start_date: EncryptedDataSchema.nullable().optional(),
+  encrypted_end_date: EncryptedDataSchema.nullable().optional(),
   stage_id: StageIdSchema,
   label_id: LabelIdSchema,
   priority: PrioritySchema,
@@ -75,6 +79,8 @@ export async function createItem(
     space_id: string;
     encrypted_title: string;
     encrypted_description: string | null;
+    encrypted_start_date: string | null;
+    encrypted_end_date: string | null;
     stage_id?: string | null;
     label_id?: string | null;
     priority?: number;
@@ -115,6 +121,8 @@ export async function createItem(
       user_id: user.id,
       encrypted_title: validatedData.encrypted_title,
       encrypted_description: validatedData.encrypted_description,
+      encrypted_start_date: validatedData.encrypted_start_date,
+      encrypted_end_date: validatedData.encrypted_end_date,
       stage_id: validatedData.stage_id ?? null,
       label_id: validatedData.label_id ?? null,
     };
@@ -222,6 +230,8 @@ export async function updateItem(
     id: string;
     encrypted_title?: string;
     encrypted_description?: string | null;
+    encrypted_start_date?: string | null;
+    encrypted_end_date?: string | null;
     stage_id?: string | null;
     label_id?: string | null;
     priority?: number;
@@ -254,6 +264,12 @@ export async function updateItem(
     }
     if (validatedData.encrypted_description !== undefined) {
       updateObj.encrypted_description = validatedData.encrypted_description;
+    }
+    if (validatedData.encrypted_start_date !== undefined) {
+      updateObj.encrypted_start_date = validatedData.encrypted_start_date;
+    }
+    if (validatedData.encrypted_end_date !== undefined) {
+      updateObj.encrypted_end_date = validatedData.encrypted_end_date;
     }
     if (validatedData.stage_id !== undefined) {
       updateObj.stage_id = validatedData.stage_id;

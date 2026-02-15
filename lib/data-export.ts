@@ -39,6 +39,8 @@ export interface DecryptedTaskExport {
         id: string;
         title: string;
         description: string | null;
+        startDate: string | null;
+        endDate: string | null;
         priority: number;
         createdAt: string;
       }>;
@@ -105,6 +107,8 @@ export async function exportDecryptedTaskData(
           id: item.id,
           title: item.title,
           description: item.description,
+          startDate: item.start_date,
+          endDate: item.end_date,
           priority: item.priority,
           createdAt: item.created_at,
         })),

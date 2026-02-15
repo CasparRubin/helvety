@@ -57,7 +57,7 @@ import type { JSONContent } from "@tiptap/react";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 /**
- * Item Editor - Full page editor for item title, description, and properties.
+ * Item Editor - Full page editor for item title, description, start/end dates, and properties.
  * Uses a two-column responsive layout: content (left/bottom) and action panel (right/top).
  */
 export function ItemEditor({
@@ -114,6 +114,7 @@ export function ItemEditor({
   } = useLabelConfigs();
 
   const [isSavingPriority, setIsSavingPriority] = useState(false);
+  const [isSavingDates, setIsSavingDates] = useState(false);
 
   // Local state for editing
   const [title, setTitle] = useState("");
@@ -343,6 +344,32 @@ export function ItemEditor({
     [update]
   );
 
+  // Handle start date change - saves immediately, independent of title/description save flow
+  const handleStartDateChange = useCallback(
+    async (startDate: string | null) => {
+      setIsSavingDates(true);
+      try {
+        await update({ start_date: startDate });
+      } finally {
+        setIsSavingDates(false);
+      }
+    },
+    [update]
+  );
+
+  // Handle end date change - saves immediately, independent of title/description save flow
+  const handleEndDateChange = useCallback(
+    async (endDate: string | null) => {
+      setIsSavingDates(true);
+      try {
+        await update({ end_date: endDate });
+      } finally {
+        setIsSavingDates(false);
+      }
+    },
+    [update]
+  );
+
   // Loading state: only show spinner on initial load, not during refresh after save
   // (refresh sets isLoading=true which would unmount TiptapEditor and cause false dirty state)
   if (isLoadingItem && !hasInitialized) {
@@ -468,6 +495,9 @@ export function ItemEditor({
             isSavingLabel={isSavingLabel}
             onPriorityChange={handlePriorityChange}
             isSavingPriority={isSavingPriority}
+            onStartDateChange={handleStartDateChange}
+            onEndDateChange={handleEndDateChange}
+            isSavingDates={isSavingDates}
           />
         </div>
       </div>

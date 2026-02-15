@@ -117,6 +117,8 @@ export interface ItemRow {
   user_id: string;
   encrypted_title: string;
   encrypted_description: string | null;
+  encrypted_start_date: string | null;
+  encrypted_end_date: string | null;
   stage_id: string | null;
   label_id: string | null;
   /** Priority: 0=low, 1=normal, 2=high, 3=urgent */
@@ -133,6 +135,10 @@ export interface Item {
   user_id: string;
   title: string;
   description: string | null;
+  /** ISO datetime string, e.g. "2026-02-15T14:30:00.000Z" */
+  start_date: string | null;
+  /** ISO datetime string, e.g. "2026-02-15T16:00:00.000Z" */
+  end_date: string | null;
   stage_id: string | null;
   label_id: string | null;
   /** Priority: 0=low, 1=normal, 2=high, 3=urgent */
@@ -147,6 +153,10 @@ export interface ItemInput {
   space_id: string;
   title: string;
   description: string | null;
+  /** Optional ISO datetime string for the start date/time */
+  start_date?: string | null;
+  /** Optional ISO datetime string for the end date/time */
+  end_date?: string | null;
   /** Optional stage ID - can be a UUID (custom) or default stage ID (e.g., "default-item-backlog") */
   stage_id?: string | null;
   /** Optional label ID - can be a UUID (custom) or default label ID (e.g., "default-label-bug") */
@@ -405,7 +415,10 @@ export interface ContactRow {
   user_id: string;
   encrypted_first_name: string;
   encrypted_last_name: string;
+  encrypted_description: string | null;
   encrypted_email: string | null;
+  encrypted_phone: string | null;
+  encrypted_birthday: string | null;
   encrypted_notes: string | null;
   category_id: string | null;
   sort_order: number;
@@ -422,7 +435,11 @@ export interface Contact {
   user_id: string;
   first_name: string;
   last_name: string;
+  description: string | null;
   email: string | null;
+  phone: string | null;
+  /** ISO date string, e.g. "2000-01-15" */
+  birthday: string | null;
   /** Whether the contact has notes content (flag only, content not decrypted) */
   has_notes: boolean;
   category_id: string | null;

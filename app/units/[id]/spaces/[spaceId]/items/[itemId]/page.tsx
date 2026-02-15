@@ -4,8 +4,10 @@ import { requireAuth } from "@/lib/auth-guard";
 import { CSRFProvider } from "@/lib/csrf-client";
 
 /**
- * Item Editor page - edit an individual item's title, description, and properties
- * Uses a WYSIWYG rich text editor for the description and an action panel for stage, label, and priority selection
+ * Item Editor page - edit an individual item's title, description, start/end
+ * dates, and properties.
+ * Uses a WYSIWYG rich text editor for the description and an action panel for
+ * dates, stage, label, and priority selection.
  */
 export default async function ItemEditorPage({
   params,
