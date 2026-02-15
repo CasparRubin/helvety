@@ -1,11 +1,12 @@
 /**
  * E2EE Crypto Module - Public API
  *
- * This module provides end-to-end encryption for user data.
- * All encryption/decryption happens client-side; the server never sees plaintext.
+ * This module provides end-to-end encryption for user content in Helvety Tasks
+ * and Helvety Contacts. All encryption/decryption happens client-side; the
+ * server never sees plaintext content.
  *
  * Uses passkey-based (PRF) key derivation for secure, passwordless encryption.
- * Setup is handled by auth.helvety.com - this module only handles unlock and usage.
+ * Encryption setup is handled by auth.helvety.com.
  */
 
 // Types

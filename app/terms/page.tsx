@@ -330,14 +330,19 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Encryption Setup:</strong>{" "}
               Helvety Tasks and Helvety Contacts use end-to-end encryption to
-              protect your data. When using these services, you will be required
-              to set up an encryption passkey after authentication. This uses
-              the WebAuthn PRF (Pseudo-Random Function) extension to derive
-              encryption keys on your device. The encryption keys are not
+              protect your content. When using these services, you will be
+              required to set up an encryption passkey after authentication.
+              This uses the WebAuthn PRF (Pseudo-Random Function) extension to
+              derive encryption keys on your device. The encryption keys are not
               transmitted to or stored on our servers. If you lose access to
-              your encryption passkey, encrypted data will become permanently
-              inaccessible. Other Helvety services (helvety.com, Helvety Auth,
-              Helvety PDF, Helvety Store) do not use end-to-end encryption.
+              your encryption passkey, encrypted content will become permanently
+              inaccessible. Certain non-encrypted structural metadata (such as
+              record identifiers, timestamps, priority levels, display
+              preferences, and entity relationships) is stored in plaintext to
+              enable application functionality; see our Privacy Policy for
+              field-level details. Other Helvety services (helvety.com, Helvety
+              Auth, Helvety PDF, Helvety Store) do not use end-to-end
+              encryption.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Age Requirement:</strong> You
@@ -847,6 +852,12 @@ export default function TermsPage() {
                 storage paths)
               </li>
               <li>Subscription and billing metadata</li>
+              <li>
+                Non-encrypted structural metadata from Helvety Tasks and Helvety
+                Contacts (priority levels, display preferences such as colors
+                and icons, sort orders, entity relationships, and category
+                assignments)
+              </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
               Upon receipt of a valid Swiss court order, we may immediately

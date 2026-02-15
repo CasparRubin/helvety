@@ -429,27 +429,38 @@ export default function PrivacyPage() {
                 <strong className="text-foreground">
                   Helvety Tasks (tasks.helvety.com):
                 </strong>{" "}
-                All task data (titles, descriptions, file attachments) is
-                end-to-end encrypted client-side before storage. Our servers
-                store only ciphertext. Encryption keys are derived from your
-                passkey and do not leave your device. Record identifiers for
-                encrypted data are generated on your device and bound to the
-                ciphertext via Additional Authenticated Data (AAD). Our
-                architecture is designed so that we cannot read your task data.
-                Non-encrypted metadata for file attachment operations (including
-                your IP address) is logged for security and audit purposes.
+                Task content is end-to-end encrypted client-side before storage.
+                Encrypted fields include: titles, descriptions, start/end dates,
+                stage names, label names, and file attachments (both file
+                content and file metadata such as filename, type, and size). Our
+                servers store only ciphertext for these fields. Encryption keys
+                are derived from your passkey and do not leave your device.
+                Record identifiers for encrypted data are generated on your
+                device and bound to the ciphertext via Additional Authenticated
+                Data (AAD). Our architecture is designed so that we cannot read
+                your task content. Non-encrypted structural metadata is stored
+                in plaintext to enable application functionality: record
+                identifiers, timestamps, priority levels, display preferences
+                (colors, icons, sort orders), entity relationships (e.g., which
+                stage, label, or space an item belongs to), and file operation
+                audit logs (IP addresses, file sizes, storage paths).
               </li>
               <li>
                 <strong className="text-foreground">
                   Helvety Contacts (contacts.helvety.com):
                 </strong>{" "}
-                All contact data is end-to-end encrypted client-side before
-                storage. Our servers store only ciphertext. Encryption keys are
-                derived from your passkey and do not leave your device. Record
-                identifiers for encrypted data are generated on your device and
-                bound to the ciphertext via Additional Authenticated Data (AAD).
-                Our architecture is designed so that we cannot read your contact
-                data.
+                Contact content is end-to-end encrypted client-side before
+                storage. Encrypted fields include: first and last names,
+                description, email, phone, birthday, notes, and category names.
+                Our servers store only ciphertext for these fields. Encryption
+                keys are derived from your passkey and do not leave your device.
+                Record identifiers for encrypted data are generated on your
+                device and bound to the ciphertext via Additional Authenticated
+                Data (AAD). Our architecture is designed so that we cannot read
+                your contact content. Non-encrypted structural metadata is
+                stored in plaintext to enable application functionality: record
+                identifiers, timestamps, display preferences (colors, icons,
+                sort orders), and category assignments.
               </li>
             </ul>
           </section>
@@ -581,6 +592,12 @@ export default function PrivacyPage() {
                 sizes, storage paths)
               </li>
               <li>Subscription and billing metadata</li>
+              <li>
+                Non-encrypted structural metadata from Helvety Tasks and Helvety
+                Contacts (priority levels, display preferences such as colors
+                and icons, sort orders, entity relationships, and category
+                assignments)
+              </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
@@ -1185,8 +1202,8 @@ export default function PrivacyPage() {
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
               Helvety Tasks and Helvety Contacts implement end-to-end encryption
-              to protect your data. Other Helvety services (helvety.com, Helvety
-              Auth, Helvety PDF, Helvety Store) do not use end-to-end
+              to protect your content. Other Helvety services (helvety.com,
+              Helvety Auth, Helvety PDF, Helvety Store) do not use end-to-end
               encryption. For Helvety Tasks and Helvety Contacts:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
@@ -1203,12 +1220,12 @@ export default function PrivacyPage() {
                 device to re-derive the same key
               </li>
               <li>
-                We cannot decrypt your data as we do not possess your encryption
-                key
+                We cannot decrypt your content as we do not possess your
+                encryption key
               </li>
               <li>
                 Your passkey (stored on your device) is the only way to access
-                encrypted data
+                encrypted content
               </li>
               <li>
                 Additional Authenticated Data (AAD) binds each ciphertext to a
@@ -1220,9 +1237,36 @@ export default function PrivacyPage() {
                 device, not by our servers
               </li>
             </ul>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">
+                Helvety Tasks encrypted fields:
+              </strong>{" "}
+              titles, descriptions, start/end dates, stage names, label names,
+              and file attachments (both file content and file metadata such as
+              filename, type, and size).{" "}
+              <strong className="text-foreground">
+                Non-encrypted structural metadata:
+              </strong>{" "}
+              record identifiers, timestamps, priority levels, display
+              preferences (colors, icons, sort orders), entity relationships
+              (e.g., which stage, label, or space an item belongs to), and file
+              operation audit logs (IP addresses, file sizes, storage paths).
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              <strong className="text-foreground">
+                Helvety Contacts encrypted fields:
+              </strong>{" "}
+              first and last names, description, email, phone, birthday, notes,
+              and category names.{" "}
+              <strong className="text-foreground">
+                Non-encrypted structural metadata:
+              </strong>{" "}
+              record identifiers, timestamps, display preferences (colors,
+              icons, sort orders), and category assignments.
+            </p>
             <p className="text-muted-foreground text-sm">
-              This approach is designed to protect your encrypted data even in
-              the event of a data breach on our servers. Browser requirements
+              This approach is designed to protect your encrypted content even
+              in the event of a data breach on our servers. Browser requirements
               for end-to-end encryption: Chrome 128+, Edge 128+, Safari 18+,
               Firefox 139+ (desktop only).
             </p>
