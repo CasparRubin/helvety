@@ -53,6 +53,12 @@ describe("isValidRedirectUri", () => {
     expect(isValidRedirectUri("data:text/html,<h1>Hi</h1>")).toBe(false);
   });
 
+  it("rejects mixed-case protocol attacks", () => {
+    expect(isValidRedirectUri("JaVaScRiPt:alert(1)")).toBe(false);
+    expect(isValidRedirectUri("JAVASCRIPT:alert(1)")).toBe(false);
+    expect(isValidRedirectUri("DATA:text/html,<h1>Hi</h1>")).toBe(false);
+  });
+
   it("rejects invalid URLs", () => {
     expect(isValidRedirectUri("not-a-url")).toBe(false);
     expect(isValidRedirectUri("://missing-protocol")).toBe(false);
@@ -61,6 +67,24 @@ describe("isValidRedirectUri", () => {
   it("rejects HTTP for production domains (requires HTTPS)", () => {
     expect(isValidRedirectUri("http://helvety.com")).toBe(false);
     expect(isValidRedirectUri("http://auth.helvety.com")).toBe(false);
+  });
+
+  it("rejects whitespace-only and padded input", () => {
+    expect(isValidRedirectUri("   ")).toBe(false);
+    expect(isValidRedirectUri("\t")).toBe(false);
+    expect(isValidRedirectUri("\n")).toBe(false);
+  });
+
+  it("rejects backslash-based bypass attempts", () => {
+    expect(isValidRedirectUri("https://evil.com\\@helvety.com")).toBe(false);
+  });
+
+  it("accepts additional localhost variants for development", () => {
+    expect(isValidRedirectUri("http://localhost:3001")).toBe(true);
+    expect(isValidRedirectUri("http://localhost:3002")).toBe(true);
+    expect(isValidRedirectUri("http://127.0.0.1")).toBe(true);
+    expect(isValidRedirectUri("http://127.0.0.1:3001")).toBe(true);
+    expect(isValidRedirectUri("http://127.0.0.1:3002")).toBe(true);
   });
 });
 
@@ -121,6 +145,15 @@ describe("isValidRelativePath", () => {
   it("rejects paths not starting with /", () => {
     expect(isValidRelativePath("login")).toBe(false);
     expect(isValidRelativePath("https://helvety.com")).toBe(false);
+  });
+
+  it("rejects backslash-prefixed paths", () => {
+    expect(isValidRelativePath("\\evil.com")).toBe(false);
+  });
+
+  it("accepts paths with query strings and fragments", () => {
+    expect(isValidRelativePath("/search?q=test")).toBe(true);
+    expect(isValidRelativePath("/page#section")).toBe(true);
   });
 });
 

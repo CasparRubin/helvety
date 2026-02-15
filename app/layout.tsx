@@ -43,10 +43,12 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://helvety.com"),
   title: {
-    default: "Helvety | Software & Subscriptions | Designed in Switzerland",
+    default:
+      "Helvety | Software & Subscriptions | Engineered & Designed in Switzerland",
     template: "%s | Helvety",
   },
-  description: "The main Helvety website. Designed in Switzerland.",
+  description:
+    "The main Helvety website. Engineered & Designed in Switzerland.",
   keywords: [
     "Helvety",
     "Swiss software",
@@ -67,11 +69,13 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://helvety.com",
     siteName: "Helvety",
-    title: "Helvety | Software & Subscriptions | Designed in Switzerland",
-    description: "The main Helvety website. Designed in Switzerland.",
+    title:
+      "Helvety | Software & Subscriptions | Engineered & Designed in Switzerland",
+    description:
+      "The main Helvety website. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_Identifier_whiteBg.svg",
+        url: "/helvety_identifier_whiteBg.png",
         width: 500,
         height: 500,
         alt: "Helvety",
@@ -80,17 +84,15 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Helvety | Software & Subscriptions | Designed in Switzerland",
-    description: "The main Helvety website. Designed in Switzerland.",
+    title:
+      "Helvety | Software & Subscriptions | Engineered & Designed in Switzerland",
+    description:
+      "The main Helvety website. Engineered & Designed in Switzerland.",
     images: [
       {
-        url: "/helvety_Identifier_whiteBg.svg",
+        url: "/helvety_identifier_whiteBg.png",
       },
     ],
-  },
-  icons: {
-    icon: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
   },
   manifest: "/manifest.json",
   robots: {
@@ -129,6 +131,38 @@ export default async function RootLayout({
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "Helvety",
+                url: "https://helvety.com",
+                logo: "https://helvety.com/helvety_identifier_whiteBg.png",
+                description:
+                  "Software and subscriptions engineered and designed in Switzerland.",
+                sameAs: [
+                  "https://store.helvety.com",
+                  "https://pdf.helvety.com",
+                  "https://auth.helvety.com",
+                  "https://contacts.helvety.com",
+                  "https://tasks.helvety.com",
+                  "https://github.com/CasparRubin",
+                ],
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "Helvety",
+                url: "https://helvety.com",
+                description:
+                  "The main Helvety website. Engineered & Designed in Switzerland.",
+              },
+            ]),
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

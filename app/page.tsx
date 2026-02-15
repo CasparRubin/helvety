@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import "./page.css";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -74,7 +75,7 @@ export default function Home() {
           >
             <motion.div variants={fadeInUp}>
               <p className="text-muted-foreground text-sm md:text-base">
-                Designed in{" "}
+                Engineered & Designed in{" "}
                 <span className="font-medium text-[#FF0000]">Switzerland</span>
               </p>
             </motion.div>

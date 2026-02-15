@@ -8,6 +8,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy | Helvety",
   description: "Privacy Policy for Helvety - How we handle your data",
+  alternates: {
+    canonical: "https://helvety.com/privacy",
+  },
 };
 
 /** Privacy Policy page for Helvety */
@@ -364,7 +367,10 @@ export default function PrivacyPage() {
               PRF extension. We do not have access to your actual encryption
               keys. This zero-knowledge architecture means that even if our
               servers were compromised, your encrypted data is designed to
-              remain protected.
+              remain protected. Additionally, encryption uses Additional
+              Authenticated Data (AAD) to bind each ciphertext to its specific
+              database record, preventing encrypted data from being moved or
+              replayed in a different context.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Browser Requirements:</strong>{" "}
@@ -426,10 +432,12 @@ export default function PrivacyPage() {
                 All task data (titles, descriptions, file attachments) is
                 end-to-end encrypted client-side before storage. Our servers
                 store only ciphertext. Encryption keys are derived from your
-                passkey and do not leave your device. Our architecture is
-                designed so that we cannot read your task data. Non-encrypted
-                metadata for file attachment operations (including your IP
-                address) is logged for security and audit purposes.
+                passkey and do not leave your device. Record identifiers for
+                encrypted data are generated on your device and bound to the
+                ciphertext via Additional Authenticated Data (AAD). Our
+                architecture is designed so that we cannot read your task data.
+                Non-encrypted metadata for file attachment operations (including
+                your IP address) is logged for security and audit purposes.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -437,8 +445,10 @@ export default function PrivacyPage() {
                 </strong>{" "}
                 All contact data is end-to-end encrypted client-side before
                 storage. Our servers store only ciphertext. Encryption keys are
-                derived from your passkey and do not leave your device. Our
-                architecture is designed so that we cannot read your contact
+                derived from your passkey and do not leave your device. Record
+                identifiers for encrypted data are generated on your device and
+                bound to the ciphertext via Additional Authenticated Data (AAD).
+                Our architecture is designed so that we cannot read your contact
                 data.
               </li>
             </ul>
@@ -990,9 +1000,9 @@ export default function PrivacyPage() {
                       CSRF protection (httpOnly)
                     </td>
                     <td className="border-border border-b p-3">
-                      auth.helvety.com
+                      Per subdomain
                     </td>
-                    <td className="border-border border-b p-3">1 hour</td>
+                    <td className="border-border border-b p-3">24 hours</td>
                   </tr>
                   <tr>
                     <td className="border-border border-b p-3">
@@ -1199,6 +1209,15 @@ export default function PrivacyPage() {
               <li>
                 Your passkey (stored on your device) is the only way to access
                 encrypted data
+              </li>
+              <li>
+                Additional Authenticated Data (AAD) binds each ciphertext to a
+                specific record, preventing encrypted data from being moved or
+                replayed in a different context
+              </li>
+              <li>
+                Record identifiers for encrypted data are generated on your
+                device, not by our servers
               </li>
             </ul>
             <p className="text-muted-foreground text-sm">

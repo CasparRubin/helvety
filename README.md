@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-The main Helvety website. Designed in Switzerland.
+The main Helvety website. Engineered & Designed in Switzerland.
 
 **Website:** [helvety.com](https://helvety.com)
 
@@ -41,6 +41,20 @@ This application includes the following security hardening:
 
 Sessions are shared across all `*.helvety.com` applications via cookie-based SSO. Authentication is handled centrally by [auth.helvety.com](https://auth.helvety.com).
 
+## Environment Variables
+
+Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
+
+| Variable                               | Required | Server-only | Description                                  |
+| -------------------------------------- | -------- | ----------- | -------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                         |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                       |
+| `NEXT_PUBLIC_*` URLs                   | No       | No          | Cross-app URLs; have sensible defaults       |
+| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required. |
+| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                 |
+
+> **Note:** Make sure `NEXT_PUBLIC_APP_URL` is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+
 ## Tech Stack
 
 This project is built with modern web technologies:
@@ -54,6 +68,18 @@ This project is built with modern web technologies:
 - **[Lucide React](https://lucide.dev/)** - Icon library
 - **[Framer Motion](https://www.framer.com/motion/)** - Animation library
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
+
+## Testing
+
+Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom environment with type-checking enabled.
+
+| Script                  | Description                       |
+| ----------------------- | --------------------------------- |
+| `npm test`              | Run all tests once                |
+| `npm run test:watch`    | Run tests in watch mode           |
+| `npm run test:coverage` | Run tests with v8 coverage report |
+
+Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
 
 ## Developer
 

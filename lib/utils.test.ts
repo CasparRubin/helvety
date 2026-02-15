@@ -27,4 +27,18 @@ describe("cn", () => {
   it("handles arrays", () => {
     expect(cn(["foo", "bar"])).toBe("foo bar");
   });
+
+  it("handles object syntax", () => {
+    expect(cn({ "bg-red-500": true, "text-white": false })).toBe("bg-red-500");
+  });
+
+  it("handles mixed arrays and objects", () => {
+    expect(cn("base", ["p-4"], { "text-bold": true, hidden: false })).toBe(
+      "base p-4 text-bold"
+    );
+  });
+
+  it("resolves complex Tailwind conflicts with responsive prefixes", () => {
+    expect(cn("px-2 py-1", "px-4")).toBe("py-1 px-4");
+  });
 });

@@ -141,7 +141,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
               loading="eager"
             />
             <Image
-              src="/helvety_Identifier_whiteBg.svg"
+              src="/helvety_identifier_whiteBg.svg"
               alt="Helvety"
               width={30}
               height={30}
@@ -177,7 +177,8 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    The main Helvety website. Designed in Switzerland.
+                    The main Helvety website. Engineered & Designed in
+                    Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

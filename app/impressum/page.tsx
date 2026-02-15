@@ -8,6 +8,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Impressum | Helvety",
   description: "Impressum for Helvety - Software and Subscriptions",
+  alternates: {
+    canonical: "https://helvety.com/impressum",
+  },
 };
 
 /** Legal notice / Impressum page for Helvety */

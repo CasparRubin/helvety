@@ -26,6 +26,7 @@
  *   - app/not-found.tsx (global 404 page)
  *   - components/theme-provider.tsx, components/theme-switcher.tsx, components/app-switcher.tsx
  *   - components/auth-token-handler.tsx (helvety-store, helvety-tasks, helvety-contacts, helvety-pdf; helvety-auth keeps its own with passkey logic)
+ *   - lib/dates.ts, lib/dates.test.ts (helvety-tasks, helvety-contacts only; other repos do not use date formatting)
  *   - vitest.config.ts, vitest.setup.ts, vitest.server-only-mock.ts (test infrastructure)
  *   - .cursor/rules/* (coding standards and patterns)
  *   - tsconfig.json, .prettierrc, .prettierignore, .gitignore, postcss.config.mjs, eslint.config.mjs (tooling configs)
@@ -70,6 +71,8 @@ const FILES = [
   "lib/auth-guard.ts",
   "lib/auth-retry.ts",
   "lib/redirect-validation.ts",
+  "lib/dates.ts",
+  "lib/dates.test.ts",
   "lib/rate-limit.ts",
   "lib/csrf.ts",
   "lib/env-validation.ts",
@@ -93,25 +96,29 @@ const DIRS = ["lib/crypto", ".cursor/rules"];
  * Files to skip per target
  * - helvety-pdf keeps its own lib/constants.ts with app-specific exports
  * - helvety-pdf keeps its own lib/types/entities.ts (no encryption types; E2EE not used)
+ * - helvety-pdf does not use lib/dates.ts (no date formatting in PDF toolkit)
  * - helvety-pdf does not use auth-guard.ts (no login required; client-side-only PDF processing)
  * - helvety-pdf does not use csrf.ts (no server actions requiring CSRF protection)
  * - helvety-pdf keeps its own app/globals.css (adds custom responsive grid utilities)
+ * - helvety-auth does not use lib/dates.ts (no date formatting in auth flows)
  * - helvety-auth keeps its own lib/auth-guard.ts (redirects to local /login instead of auth service)
  * - helvety-auth keeps its own components/auth-token-handler.tsx (includes passkey verification logic)
  * - helvety-auth keeps its own proxy.ts (adds CSRF token generation for auth server actions)
  * - helvety-auth keeps its own lib/csrf.ts (auth-specific CSRF lifecycle with proxy.ts)
  * - helvety-auth keeps its own lib/rate-limit.ts (auth-specific rate limits: PASSKEY, OTP, OTP_VERIFY)
+ * - helvety-store does not use lib/dates.ts (no date formatting in store)
  * - helvety-store keeps its own lib/env-validation.ts (includes Stripe key validation)
  * - helvety-store keeps its own lib/types/entities.ts (no encryption types; E2EE not used)
  * - helvety-store keeps its own lib/rate-limit.ts (store-specific rate limits: CHECKOUT, DOWNLOADS, etc.)
  * - helvety-tasks keeps its own lib/constants.ts (adds attachment constants)
  * - helvety-tasks keeps its own lib/crypto/index.ts (re-exports task-encryption.ts functions)
- * - helvety-tasks keeps its own lib/crypto/encryption.ts (adds binary encryption for attachments)
+ * - helvety-tasks keeps its own lib/crypto/encryption.ts (adds buildAAD and binary encryption for attachments)
  * - helvety-tasks keeps its own lib/rate-limit.ts (task-specific rate limits: ENCRYPTION_UNLOCK, READ)
  * - helvety-contacts keeps its own lib/constants.ts (no attachment constants)
  * - helvety-contacts keeps its own lib/crypto/index.ts (no task-encryption re-exports)
  * - helvety-contacts keeps its own lib/auth-redirect.ts (app-specific fallback URLs for dev/prod)
  * - helvety-contacts keeps its own lib/rate-limit.ts (contact-specific rate limits: ENCRYPTION_UNLOCK, READ)
+ * - .cursor/rules/supabase-database.mdc is skipped for ALL targets (only helvety.com has the supabase/ folder)
  */
 const TARGET_SKIP_FILES = {
   "helvety-pdf": [
@@ -119,31 +126,42 @@ const TARGET_SKIP_FILES = {
     "lib/types/entities.ts",
     "lib/auth-guard.ts",
     "lib/csrf.ts",
+    "lib/dates.ts",
+    "lib/dates.test.ts",
     "app/globals.css",
+    ".cursor/rules/supabase-database.mdc",
   ],
   "helvety-auth": [
     "proxy.ts",
     "lib/auth-guard.ts",
     "components/auth-token-handler.tsx",
     "lib/csrf.ts",
+    "lib/dates.ts",
+    "lib/dates.test.ts",
     "lib/rate-limit.ts",
+    ".cursor/rules/supabase-database.mdc",
   ],
   "helvety-store": [
     "lib/env-validation.ts",
     "lib/types/entities.ts",
+    "lib/dates.ts",
+    "lib/dates.test.ts",
     "lib/rate-limit.ts",
+    ".cursor/rules/supabase-database.mdc",
   ],
   "helvety-tasks": [
     "lib/constants.ts",
     "lib/crypto/index.ts",
     "lib/crypto/encryption.ts",
     "lib/rate-limit.ts",
+    ".cursor/rules/supabase-database.mdc",
   ],
   "helvety-contacts": [
     "lib/constants.ts",
     "lib/crypto/index.ts",
     "lib/auth-redirect.ts",
     "lib/rate-limit.ts",
+    ".cursor/rules/supabase-database.mdc",
   ],
 };
 
