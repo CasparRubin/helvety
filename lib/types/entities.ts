@@ -177,7 +177,6 @@ export interface LicenseValidationResponse {
     | "invalid_signature_timestamp"
     | "expired_signature"
     | "missing_client_ip"
-    | "signature_misconfigured"
     | "rate_limit_exceeded"
     | "server_error";
 }

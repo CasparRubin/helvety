@@ -47,6 +47,23 @@ describe("formatPrice", () => {
     const result = formatPrice(1000, "USD");
     expect(result).toContain("CHF");
   });
+
+  it("formats negative prices (credit/refund scenario)", () => {
+    const result = formatPrice(-100, "CHF");
+    // Should format the number even if negative
+    expect(result).toContain("CHF");
+  });
+
+  it("formats very large prices", () => {
+    const result = formatPrice(9999999, "CHF");
+    expect(result).toContain("CHF");
+    expect(result).toContain("99");
+  });
+
+  it("formats compact large prices when compact option set", () => {
+    const result = formatPrice(10000000, "CHF", { compact: true });
+    expect(result).toContain("CHF");
+  });
 });
 
 // =============================================================================

@@ -30,6 +30,9 @@ export async function generateMetadata({
     title: product.name,
     description: product.shortDescription,
     keywords: product.metadata?.keywords,
+    alternates: {
+      canonical: `https://store.helvety.com/products/${product.slug}`,
+    },
     openGraph: {
       title: `${product.name} | Helvety Store`,
       description: product.shortDescription,
@@ -56,6 +59,35 @@ export async function generateMetadata({
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params;
+  const product = getProductBySlug(slug);
 
-  return <ProductDetailClient slug={slug} />;
+  // Build Product JSON-LD structured data for search engines
+  const productJsonLd = product
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        description: product.shortDescription,
+        url: `https://store.helvety.com/products/${product.slug}`,
+        brand: {
+          "@type": "Organization",
+          name: "Helvety",
+        },
+        ...(product.media?.screenshots?.[0] && {
+          image: product.media.screenshots[0].src,
+        }),
+      }
+    : null;
+
+  return (
+    <>
+      {productJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        />
+      )}
+      <ProductDetailClient slug={slug} />
+    </>
+  );
 }

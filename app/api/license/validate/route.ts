@@ -25,7 +25,6 @@ type SignatureFailureReason = Extract<
   | "invalid_signature"
   | "invalid_signature_timestamp"
   | "expired_signature"
-  | "signature_misconfigured"
 >;
 
 // =============================================================================
@@ -33,29 +32,24 @@ type SignatureFailureReason = Extract<
 // =============================================================================
 
 /**
- * CORS headers for SharePoint domains
+ * CORS headers for the license validation endpoint
  *
  * SECURITY RATIONALE (for auditors):
  *
- * This endpoint allows CORS from any *.sharepoint.com subdomain because:
+ * This endpoint allows CORS from SharePoint Online tenants and localhost:
  *
  * 1. Purpose: This API is called by the Helvety SPO Explorer extension running
- *    inside SharePoint Online. Each customer has their own tenant subdomain
- *    (e.g., contoso.sharepoint.com, fabrikam.sharepoint.com).
+ *    inside SharePoint Online and (optionally) local development clients.
  *
- * 2. Why not allowlist specific domains: We cannot predict all customer tenant
- *    domains in advance. New customers can purchase and use the extension
- *    without us knowing their SharePoint domain.
+ * 2. All SharePoint Online tenants use *.sharepoint.com hostnames, so we
+ *    allow any origin matching that pattern (no per-tenant configuration).
  *
  * 3. Security controls in place:
  *    - Endpoint only returns license validity (boolean) - no sensitive data
  *    - Tenant ID is validated against registered licenses in the database
  *    - IP-based and tenant-based rate limiting prevents abuse
  *    - No authentication cookies are sent (simple CORS request)
- *
- * 4. Accepted risk: Any SharePoint site can call this API. The worst case is
- *    an attacker learns whether a specific tenant has a valid license, which
- *    is low-value information.
+ *    - Optional HMAC signature verification for machine-to-machine callers
  *
  * @param origin - The request origin header
  * @returns CORS headers to include in the response
@@ -68,17 +62,25 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
     "Access-Control-Max-Age": "86400", // 24 hours
   };
 
-  // Allow SharePoint domains and localhost for development
-  if (origin) {
-    const isSharePoint =
-      origin.endsWith(".sharepoint.com") ||
-      origin.endsWith(".sharepoint-df.com");
-    const isLocalhost =
-      origin.includes("localhost") || origin.includes("127.0.0.1");
+  if (!origin) return headers;
 
-    if (isSharePoint || isLocalhost) {
-      headers["Access-Control-Allow-Origin"] = origin;
+  const normalizedHost = (() => {
+    try {
+      return new URL(origin).hostname.toLowerCase();
+    } catch {
+      return null;
     }
+  })();
+
+  if (!normalizedHost) return headers;
+
+  const isSharePoint = normalizedHost.endsWith(".sharepoint.com");
+  const isLocalhost =
+    normalizedHost === "localhost" || normalizedHost === "127.0.0.1";
+  const isDevelopment = process.env.NODE_ENV !== "production";
+
+  if (isSharePoint || (isDevelopment && isLocalhost)) {
+    headers["Access-Control-Allow-Origin"] = origin;
   }
 
   return headers;
@@ -87,35 +89,27 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
 /** Maximum age allowed for signed validation requests. */
 const SIGNATURE_TTL_SECONDS = 300;
 
-/** Validate optional HMAC request signature for machine-to-machine callers. */
+/**
+ * Validate HMAC request signature for machine-to-machine callers.
+ *
+ * Signature verification is optional: if LICENSE_VALIDATION_SHARED_SECRET is
+ * set in the environment, requests carrying signature headers are verified.
+ * If the secret is not configured, signature verification is skipped entirely.
+ */
 function verifyRequestSignature(
   request: NextRequest,
   tenantId: string,
   productId: string
 ): { ok: boolean; reason?: SignatureFailureReason } {
   const signatureSecret = process.env.LICENSE_VALIDATION_SHARED_SECRET?.trim();
-  const requireSignature =
-    process.env.LICENSE_VALIDATION_REQUIRE_SIGNATURE === "true";
 
-  // Backward-compatible mode: no secret configured means unsigned requests are accepted.
-  if (!signatureSecret) {
-    if (requireSignature) {
-      logger.error(
-        "LICENSE_VALIDATION_REQUIRE_SIGNATURE is true but LICENSE_VALIDATION_SHARED_SECRET is missing"
-      );
-      return { ok: false, reason: "signature_misconfigured" };
-    }
-    return { ok: true };
-  }
+  // No secret configured — skip signature verification entirely.
+  if (!signatureSecret) return { ok: true };
 
   const timestampHeader = request.headers.get("x-license-timestamp");
   const signatureHeader = request.headers.get("x-license-signature");
 
-  // If signature is optional and headers are omitted, allow legacy callers.
-  if (!timestampHeader && !signatureHeader && !requireSignature) {
-    return { ok: true };
-  }
-
+  // Secret is configured but headers are absent — reject.
   if (!timestampHeader || !signatureHeader) {
     return { ok: false, reason: "missing_signature" };
   }
@@ -241,8 +235,7 @@ export async function GET(request: NextRequest) {
           reason: signatureCheck.reason ?? "invalid_signature",
         } satisfies LicenseValidationResponse,
         {
-          status:
-            signatureCheck.reason === "signature_misconfigured" ? 500 : 401,
+          status: 401,
           headers: corsHeaders,
         }
       );

@@ -5,6 +5,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Products",
   description: "Browse software and subscriptions from Helvety",
+  alternates: {
+    canonical: "https://store.helvety.com/products",
+  },
 };
 
 /**

@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety Store",
   },
   description:
-    "Official Helvety Store. Browse software and subscriptions designed in Switzerland.",
+    "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
   keywords: ["Helvety Store", "software", "subscriptions", "Swiss", "shop"],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -61,10 +61,6 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  icons: {
-    icon: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/helvety_Identifier_whiteBg.svg", type: "image/svg+xml" }],
-  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -72,10 +68,10 @@ export const metadata: Metadata = {
     siteName: "Helvety Store",
     title: "Helvety Store | Software & Subscriptions",
     description:
-      "Official Helvety Store. Browse software and subscriptions designed in Switzerland.",
+      "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
     images: [
       {
-        url: "/helvety_Identifier_whiteBg.svg",
+        url: "/helvety_identifier_whiteBg.png",
         width: 500,
         height: 500,
         alt: "Helvety Store",
@@ -86,10 +82,10 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety Store | Software & Subscriptions",
     description:
-      "Official Helvety Store. Browse software and subscriptions designed in Switzerland.",
+      "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
     images: [
       {
-        url: "/helvety_Identifier_whiteBg.svg",
+        url: "/helvety_identifier_whiteBg.png",
       },
     ],
   },
@@ -133,6 +129,38 @@ export default async function RootLayout({
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "Helvety",
+                url: "https://helvety.com",
+                logo: "https://helvety.com/helvety_identifier_whiteBg.png",
+                description:
+                  "Software and subscriptions engineered and designed in Switzerland.",
+                sameAs: [
+                  "https://helvety.com",
+                  "https://pdf.helvety.com",
+                  "https://auth.helvety.com",
+                  "https://contacts.helvety.com",
+                  "https://tasks.helvety.com",
+                  "https://github.com/CasparRubin",
+                ],
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "Helvety Store",
+                url: "https://store.helvety.com",
+                description:
+                  "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
+              },
+            ]),
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

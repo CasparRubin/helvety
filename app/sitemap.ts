@@ -1,7 +1,10 @@
+import { getAllProducts } from "@/lib/data/products";
+
 import type { MetadataRoute } from "next";
 
 /**
  * Sitemap for public pages
+ * Dynamically generates entries for all products
  * Note: /account, /subscriptions, /tenants require auth and are excluded
  */
 
@@ -10,6 +13,15 @@ const lastModified = new Date();
 
 /** Generates the sitemap for public store pages. */
 export default function sitemap(): MetadataRoute.Sitemap {
+  const products = getAllProducts();
+
+  const productEntries: MetadataRoute.Sitemap = products.map((product) => ({
+    url: `https://store.helvety.com/products/${product.slug}`,
+    lastModified,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }));
+
   return [
     {
       url: "https://store.helvety.com",
@@ -23,11 +35,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.9,
     },
-    {
-      url: "https://store.helvety.com/products/helvety-spo-explorer",
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
+    ...productEntries,
   ];
 }

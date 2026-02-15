@@ -64,19 +64,20 @@ const CheckoutRequestSchema = z.object({
 // =============================================================================
 
 /**
- * Get client IP for rate limiting
- */
-/**
  * Get client IP for rate limiting.
  * Prefers x-real-ip (set by Vercel from the true client IP, not spoofable)
  * over x-forwarded-for (client-controllable when not behind a trusted proxy).
  */
-function getClientIP(request: NextRequest): string {
-  return (
-    request.headers.get("x-real-ip") ??
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown"
-  );
+function getClientIP(request: NextRequest): string | null {
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp) return realIp;
+
+  // In production, require trusted proxy headers and fail closed.
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
+
+  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
 }
 
 /**
@@ -91,6 +92,12 @@ function getClientIP(request: NextRequest): string {
  */
 export async function POST(request: NextRequest) {
   const clientIP = getClientIP(request);
+  if (!clientIP) {
+    return NextResponse.json(
+      { error: "Unable to determine client IP" },
+      { status: 400 }
+    );
+  }
 
   // Reject oversized request bodies early (100KB limit for checkout)
   const contentLength = parseInt(

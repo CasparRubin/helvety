@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-Official Helvety Store. Browse and purchase software and subscriptions designed in Switzerland.
+Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.
 
 **Store:** [store.helvety.com](https://store.helvety.com)
 
@@ -81,6 +81,23 @@ This application includes the following security hardening:
 - **Rate Limiting** - Protection against brute force attacks
 - **Security Headers** - CSP, HSTS, and other security headers
 
+## Environment Variables
+
+Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
+
+| Variable                               | Required | Server-only | Description                                          |
+| -------------------------------------- | -------- | ----------- | ---------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                 |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                               |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key; bypasses RLS. Never expose.        |
+| `NEXT_PUBLIC_*` URLs                   | No       | No          | Cross-app URLs; have sensible defaults               |
+| `STRIPE_SECRET_KEY`                    | Yes      | **Yes**     | Stripe API key. Never expose.                        |
+| `STRIPE_WEBHOOK_SECRET`                | Yes      | **Yes**     | Webhook signature verification. Never expose.        |
+| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.         |
+| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                         |
+
+> **Note:** Make sure `NEXT_PUBLIC_APP_URL` is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+
 ## Tech Stack
 
 This project is built with modern web technologies:
@@ -96,6 +113,18 @@ This project is built with modern web technologies:
 - **[Zod](https://zod.dev/)** - TypeScript-first schema validation
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 - **[Stripe](https://stripe.com/)** - Payment processing and subscription management
+
+## Testing
+
+Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom environment with type-checking enabled.
+
+| Script                  | Description                       |
+| ----------------------- | --------------------------------- |
+| `npm test`              | Run all tests once                |
+| `npm run test:watch`    | Run tests in watch mode           |
+| `npm run test:coverage` | Run tests with v8 coverage report |
+
+Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
 
 ## Developer
 

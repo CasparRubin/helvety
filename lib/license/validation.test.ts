@@ -84,4 +84,28 @@ describe("getFeaturesForTier", () => {
     const features = getFeaturesForTier("unknown-tier");
     expect(features).toEqual(["basic_navigation"]);
   });
+
+  it("returns default for empty string tier ID", () => {
+    const features = getFeaturesForTier("");
+    expect(features).toEqual(["basic_navigation"]);
+  });
+
+  it("returns default for tier ID with similar but incorrect name", () => {
+    const features = getFeaturesForTier("helvety-spo-explorer-solo");
+    expect(features).toEqual(["basic_navigation"]);
+  });
+});
+
+// =============================================================================
+// getMaxTenantsForTier edge cases
+// =============================================================================
+
+describe("getMaxTenantsForTier edge cases", () => {
+  it("returns 1 as default for empty string tier ID", () => {
+    expect(getMaxTenantsForTier("")).toBe(1);
+  });
+
+  it("returns 1 as default for tier ID with similar but incorrect name", () => {
+    expect(getMaxTenantsForTier("helvety-spo-explorer-solo")).toBe(1);
+  });
 });
