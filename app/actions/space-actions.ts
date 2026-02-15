@@ -28,6 +28,7 @@ const StageIdSchema = z
 
 /** Schema for creating a Space */
 const CreateSpaceSchema = z.object({
+  id: z.string().uuid(),
   unit_id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
@@ -53,6 +54,7 @@ const UpdateSpaceSchema = z.object({
  */
 export async function createSpace(
   data: {
+    id: string;
     unit_id: string;
     encrypted_title: string;
     encrypted_description: string | null;
@@ -92,6 +94,7 @@ export async function createSpace(
     const { data: space, error } = await supabase
       .from("spaces")
       .insert({
+        id: validatedData.id,
         unit_id: validatedData.unit_id,
         user_id: user.id,
         encrypted_title: validatedData.encrypted_title,

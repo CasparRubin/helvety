@@ -148,7 +148,7 @@ export function useItems(spaceId: string): UseItemsReturn {
       }
 
       try {
-        const encrypted = await encryptItemUpdate(input, masterKey);
+        const encrypted = await encryptItemUpdate(id, input, masterKey);
         const result = await updateItem(
           {
             id,
@@ -359,7 +359,7 @@ export function useItem(id: string): UseItemReturn {
       }
 
       try {
-        const encrypted = await encryptItemUpdate(input, masterKey);
+        const encrypted = await encryptItemUpdate(id, input, masterKey);
         const result = await updateItem(
           {
             id,

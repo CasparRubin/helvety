@@ -17,6 +17,7 @@ import {
   decrypt,
   serializeEncryptedData,
   parseEncryptedData,
+  buildAAD,
 } from "./encryption";
 
 import type {
@@ -54,25 +55,30 @@ import type {
 
 /**
  * Encrypt a Unit for database storage
- * Takes plaintext input and returns encrypted fields ready for the server
+ * Takes plaintext input and returns encrypted fields ready for the server.
+ * Generates a client-side UUID and binds all ciphertext to it via AAD.
  */
 export async function encryptUnitInput(
   input: UnitInput,
   key: CryptoKey
 ): Promise<{
+  id: string;
   encrypted_title: string;
   encrypted_description: string | null;
   stage_id?: string | null;
 }> {
-  const encryptedTitle = await encrypt(input.title, key);
+  const id = crypto.randomUUID();
+  const aad = buildAAD("units", id);
+  const encryptedTitle = await encrypt(input.title, key, aad);
 
   let encryptedDescription: string | null = null;
   if (input.description) {
-    const encrypted = await encrypt(input.description, key);
+    const encrypted = await encrypt(input.description, key, aad);
     encryptedDescription = serializeEncryptedData(encrypted);
   }
 
   return {
+    id,
     encrypted_title: serializeEncryptedData(encryptedTitle),
     encrypted_description: encryptedDescription,
     stage_id: input.stage_id,
@@ -87,13 +93,19 @@ export async function decryptUnitRow(
   row: UnitRow,
   key: CryptoKey
 ): Promise<Unit> {
-  const title = await decrypt(parseEncryptedData(row.encrypted_title), key);
+  const aad = buildAAD("units", row.id);
+  const title = await decrypt(
+    parseEncryptedData(row.encrypted_title),
+    key,
+    aad
+  );
 
   let description: string | null = null;
   if (row.encrypted_description) {
     description = await decrypt(
       parseEncryptedData(row.encrypted_description),
-      key
+      key,
+      aad
     );
   }
 
@@ -130,20 +142,24 @@ export async function encryptSpaceInput(
   input: SpaceInput,
   key: CryptoKey
 ): Promise<{
+  id: string;
   unit_id: string;
   encrypted_title: string;
   encrypted_description: string | null;
   stage_id?: string | null;
 }> {
-  const encryptedTitle = await encrypt(input.title, key);
+  const id = crypto.randomUUID();
+  const aad = buildAAD("spaces", id);
+  const encryptedTitle = await encrypt(input.title, key, aad);
 
   let encryptedDescription: string | null = null;
   if (input.description) {
-    const encrypted = await encrypt(input.description, key);
+    const encrypted = await encrypt(input.description, key, aad);
     encryptedDescription = serializeEncryptedData(encrypted);
   }
 
   return {
+    id,
     unit_id: input.unit_id,
     encrypted_title: serializeEncryptedData(encryptedTitle),
     encrypted_description: encryptedDescription,
@@ -158,13 +174,19 @@ export async function decryptSpaceRow(
   row: SpaceRow,
   key: CryptoKey
 ): Promise<Space> {
-  const title = await decrypt(parseEncryptedData(row.encrypted_title), key);
+  const aad = buildAAD("spaces", row.id);
+  const title = await decrypt(
+    parseEncryptedData(row.encrypted_title),
+    key,
+    aad
+  );
 
   let description: string | null = null;
   if (row.encrypted_description) {
     description = await decrypt(
       parseEncryptedData(row.encrypted_description),
-      key
+      key,
+      aad
     );
   }
 
@@ -202,6 +224,7 @@ export async function encryptItemInput(
   input: ItemInput,
   key: CryptoKey
 ): Promise<{
+  id: string;
   space_id: string;
   encrypted_title: string;
   encrypted_description: string | null;
@@ -210,27 +233,30 @@ export async function encryptItemInput(
   stage_id?: string | null;
   label_id?: string | null;
 }> {
-  const encryptedTitle = await encrypt(input.title, key);
+  const id = crypto.randomUUID();
+  const aad = buildAAD("items", id);
+  const encryptedTitle = await encrypt(input.title, key, aad);
 
   let encryptedDescription: string | null = null;
   if (input.description) {
-    const encrypted = await encrypt(input.description, key);
+    const encrypted = await encrypt(input.description, key, aad);
     encryptedDescription = serializeEncryptedData(encrypted);
   }
 
   let encryptedStartDate: string | null = null;
   if (input.start_date) {
-    const encrypted = await encrypt(input.start_date, key);
+    const encrypted = await encrypt(input.start_date, key, aad);
     encryptedStartDate = serializeEncryptedData(encrypted);
   }
 
   let encryptedEndDate: string | null = null;
   if (input.end_date) {
-    const encrypted = await encrypt(input.end_date, key);
+    const encrypted = await encrypt(input.end_date, key, aad);
     encryptedEndDate = serializeEncryptedData(encrypted);
   }
 
   return {
+    id,
     space_id: input.space_id,
     encrypted_title: serializeEncryptedData(encryptedTitle),
     encrypted_description: encryptedDescription,
@@ -248,13 +274,19 @@ export async function decryptItemRow(
   row: ItemRow,
   key: CryptoKey
 ): Promise<Item> {
-  const title = await decrypt(parseEncryptedData(row.encrypted_title), key);
+  const aad = buildAAD("items", row.id);
+  const title = await decrypt(
+    parseEncryptedData(row.encrypted_title),
+    key,
+    aad
+  );
 
   let description: string | null = null;
   if (row.encrypted_description) {
     description = await decrypt(
       parseEncryptedData(row.encrypted_description),
-      key
+      key,
+      aad
     );
   }
 
@@ -262,13 +294,18 @@ export async function decryptItemRow(
   if (row.encrypted_start_date) {
     start_date = await decrypt(
       parseEncryptedData(row.encrypted_start_date),
-      key
+      key,
+      aad
     );
   }
 
   let end_date: string | null = null;
   if (row.encrypted_end_date) {
-    end_date = await decrypt(parseEncryptedData(row.encrypted_end_date), key);
+    end_date = await decrypt(
+      parseEncryptedData(row.encrypted_end_date),
+      key,
+      aad
+    );
   }
 
   return {
@@ -308,9 +345,12 @@ export async function decryptItemRows(
 export async function encryptStageConfigInput(
   input: StageConfigInput,
   key: CryptoKey
-): Promise<{ encrypted_name: string }> {
-  const encryptedName = await encrypt(input.name, key);
+): Promise<{ id: string; encrypted_name: string }> {
+  const id = crypto.randomUUID();
+  const aad = buildAAD("stage_configs", id);
+  const encryptedName = await encrypt(input.name, key, aad);
   return {
+    id,
     encrypted_name: serializeEncryptedData(encryptedName),
   };
 }
@@ -322,7 +362,8 @@ export async function decryptStageConfigRow(
   row: StageConfigRow,
   key: CryptoKey
 ): Promise<StageConfig> {
-  const name = await decrypt(parseEncryptedData(row.encrypted_name), key);
+  const aad = buildAAD("stage_configs", row.id);
+  const name = await decrypt(parseEncryptedData(row.encrypted_name), key, aad);
 
   return {
     id: row.id,
@@ -347,13 +388,15 @@ export async function decryptStageConfigRows(
  * Encrypt fields for updating a StageConfig
  */
 export async function encryptStageConfigUpdate(
+  id: string,
   update: Partial<StageConfigInput>,
   key: CryptoKey
 ): Promise<{ encrypted_name?: string }> {
+  const aad = buildAAD("stage_configs", id);
   const result: { encrypted_name?: string } = {};
 
   if (update.name !== undefined) {
-    const encrypted = await encrypt(update.name, key);
+    const encrypted = await encrypt(update.name, key, aad);
     result.encrypted_name = serializeEncryptedData(encrypted);
   }
 
@@ -371,6 +414,7 @@ export async function encryptStageInput(
   input: StageInput,
   key: CryptoKey
 ): Promise<{
+  id: string;
   config_id: string;
   encrypted_name: string;
   color: string | null;
@@ -378,9 +422,12 @@ export async function encryptStageInput(
   sort_order: number;
   default_rows_shown: number;
 }> {
-  const encryptedName = await encrypt(input.name, key);
+  const id = crypto.randomUUID();
+  const aad = buildAAD("stages", id);
+  const encryptedName = await encrypt(input.name, key, aad);
 
   return {
+    id,
     config_id: input.config_id,
     encrypted_name: serializeEncryptedData(encryptedName),
     color: input.color ?? null,
@@ -397,7 +444,8 @@ export async function decryptStageRow(
   row: StageRow,
   key: CryptoKey
 ): Promise<Stage> {
-  const name = await decrypt(parseEncryptedData(row.encrypted_name), key);
+  const aad = buildAAD("stages", row.id);
+  const name = await decrypt(parseEncryptedData(row.encrypted_name), key, aad);
 
   return {
     id: row.id,
@@ -426,6 +474,7 @@ export async function decryptStageRows(
  * Encrypt fields for updating a Stage
  */
 export async function encryptStageUpdate(
+  id: string,
   update: Partial<Omit<StageInput, "config_id">>,
   key: CryptoKey
 ): Promise<{
@@ -435,6 +484,7 @@ export async function encryptStageUpdate(
   sort_order?: number;
   default_rows_shown?: number;
 }> {
+  const aad = buildAAD("stages", id);
   const result: {
     encrypted_name?: string;
     color?: string | null;
@@ -444,7 +494,7 @@ export async function encryptStageUpdate(
   } = {};
 
   if (update.name !== undefined) {
-    const encrypted = await encrypt(update.name, key);
+    const encrypted = await encrypt(update.name, key, aad);
     result.encrypted_name = serializeEncryptedData(encrypted);
   }
 
@@ -477,9 +527,12 @@ export async function encryptStageUpdate(
 export async function encryptLabelConfigInput(
   input: LabelConfigInput,
   key: CryptoKey
-): Promise<{ encrypted_name: string }> {
-  const encryptedName = await encrypt(input.name, key);
+): Promise<{ id: string; encrypted_name: string }> {
+  const id = crypto.randomUUID();
+  const aad = buildAAD("label_configs", id);
+  const encryptedName = await encrypt(input.name, key, aad);
   return {
+    id,
     encrypted_name: serializeEncryptedData(encryptedName),
   };
 }
@@ -491,7 +544,8 @@ export async function decryptLabelConfigRow(
   row: LabelConfigRow,
   key: CryptoKey
 ): Promise<LabelConfig> {
-  const name = await decrypt(parseEncryptedData(row.encrypted_name), key);
+  const aad = buildAAD("label_configs", row.id);
+  const name = await decrypt(parseEncryptedData(row.encrypted_name), key, aad);
 
   return {
     id: row.id,
@@ -516,13 +570,15 @@ export async function decryptLabelConfigRows(
  * Encrypt fields for updating a LabelConfig
  */
 export async function encryptLabelConfigUpdate(
+  id: string,
   update: Partial<LabelConfigInput>,
   key: CryptoKey
 ): Promise<{ encrypted_name?: string }> {
+  const aad = buildAAD("label_configs", id);
   const result: { encrypted_name?: string } = {};
 
   if (update.name !== undefined) {
-    const encrypted = await encrypt(update.name, key);
+    const encrypted = await encrypt(update.name, key, aad);
     result.encrypted_name = serializeEncryptedData(encrypted);
   }
 
@@ -540,15 +596,19 @@ export async function encryptLabelInput(
   input: LabelInput,
   key: CryptoKey
 ): Promise<{
+  id: string;
   config_id: string;
   encrypted_name: string;
   color: string | null;
   icon: string;
   sort_order: number;
 }> {
-  const encryptedName = await encrypt(input.name, key);
+  const id = crypto.randomUUID();
+  const aad = buildAAD("labels", id);
+  const encryptedName = await encrypt(input.name, key, aad);
 
   return {
+    id,
     config_id: input.config_id,
     encrypted_name: serializeEncryptedData(encryptedName),
     color: input.color ?? null,
@@ -564,7 +624,8 @@ export async function decryptLabelRow(
   row: LabelRow,
   key: CryptoKey
 ): Promise<Label> {
-  const name = await decrypt(parseEncryptedData(row.encrypted_name), key);
+  const aad = buildAAD("labels", row.id);
+  const name = await decrypt(parseEncryptedData(row.encrypted_name), key, aad);
 
   return {
     id: row.id,
@@ -592,6 +653,7 @@ export async function decryptLabelRows(
  * Encrypt fields for updating a Label
  */
 export async function encryptLabelUpdate(
+  id: string,
   update: Partial<Omit<LabelInput, "config_id">>,
   key: CryptoKey
 ): Promise<{
@@ -600,6 +662,7 @@ export async function encryptLabelUpdate(
   icon?: string;
   sort_order?: number;
 }> {
+  const aad = buildAAD("labels", id);
   const result: {
     encrypted_name?: string;
     color?: string | null;
@@ -608,7 +671,7 @@ export async function encryptLabelUpdate(
   } = {};
 
   if (update.name !== undefined) {
-    const encrypted = await encrypt(update.name, key);
+    const encrypted = await encrypt(update.name, key, aad);
     result.encrypted_name = serializeEncryptedData(encrypted);
   }
 
@@ -636,19 +699,21 @@ export async function encryptLabelUpdate(
  * Only encrypts provided fields (for partial updates)
  */
 export async function encryptUnitUpdate(
+  id: string,
   update: Partial<UnitInput>,
   key: CryptoKey
 ): Promise<{
   encrypted_title?: string;
   encrypted_description?: string | null;
 }> {
+  const aad = buildAAD("units", id);
   const result: {
     encrypted_title?: string;
     encrypted_description?: string | null;
   } = {};
 
   if (update.title !== undefined) {
-    const encrypted = await encrypt(update.title, key);
+    const encrypted = await encrypt(update.title, key, aad);
     result.encrypted_title = serializeEncryptedData(encrypted);
   }
 
@@ -656,7 +721,7 @@ export async function encryptUnitUpdate(
     if (update.description === null) {
       result.encrypted_description = null;
     } else {
-      const encrypted = await encrypt(update.description, key);
+      const encrypted = await encrypt(update.description, key, aad);
       result.encrypted_description = serializeEncryptedData(encrypted);
     }
   }
@@ -668,19 +733,21 @@ export async function encryptUnitUpdate(
  * Encrypt fields for updating a Space
  */
 export async function encryptSpaceUpdate(
+  id: string,
   update: Partial<Omit<SpaceInput, "unit_id">>,
   key: CryptoKey
 ): Promise<{
   encrypted_title?: string;
   encrypted_description?: string | null;
 }> {
+  const aad = buildAAD("spaces", id);
   const result: {
     encrypted_title?: string;
     encrypted_description?: string | null;
   } = {};
 
   if (update.title !== undefined) {
-    const encrypted = await encrypt(update.title, key);
+    const encrypted = await encrypt(update.title, key, aad);
     result.encrypted_title = serializeEncryptedData(encrypted);
   }
 
@@ -688,7 +755,7 @@ export async function encryptSpaceUpdate(
     if (update.description === null) {
       result.encrypted_description = null;
     } else {
-      const encrypted = await encrypt(update.description, key);
+      const encrypted = await encrypt(update.description, key, aad);
       result.encrypted_description = serializeEncryptedData(encrypted);
     }
   }
@@ -700,6 +767,7 @@ export async function encryptSpaceUpdate(
  * Encrypt fields for updating an Item
  */
 export async function encryptItemUpdate(
+  id: string,
   update: Partial<Omit<ItemInput, "space_id">>,
   key: CryptoKey
 ): Promise<{
@@ -708,6 +776,7 @@ export async function encryptItemUpdate(
   encrypted_start_date?: string | null;
   encrypted_end_date?: string | null;
 }> {
+  const aad = buildAAD("items", id);
   const result: {
     encrypted_title?: string;
     encrypted_description?: string | null;
@@ -716,7 +785,7 @@ export async function encryptItemUpdate(
   } = {};
 
   if (update.title !== undefined) {
-    const encrypted = await encrypt(update.title, key);
+    const encrypted = await encrypt(update.title, key, aad);
     result.encrypted_title = serializeEncryptedData(encrypted);
   }
 
@@ -724,7 +793,7 @@ export async function encryptItemUpdate(
     if (update.description === null) {
       result.encrypted_description = null;
     } else {
-      const encrypted = await encrypt(update.description, key);
+      const encrypted = await encrypt(update.description, key, aad);
       result.encrypted_description = serializeEncryptedData(encrypted);
     }
   }
@@ -733,7 +802,7 @@ export async function encryptItemUpdate(
     if (update.start_date === null) {
       result.encrypted_start_date = null;
     } else {
-      const encrypted = await encrypt(update.start_date, key);
+      const encrypted = await encrypt(update.start_date, key, aad);
       result.encrypted_start_date = serializeEncryptedData(encrypted);
     }
   }
@@ -742,7 +811,7 @@ export async function encryptItemUpdate(
     if (update.end_date === null) {
       result.encrypted_end_date = null;
     } else {
-      const encrypted = await encrypt(update.end_date, key);
+      const encrypted = await encrypt(update.end_date, key, aad);
       result.encrypted_end_date = serializeEncryptedData(encrypted);
     }
   }
@@ -758,14 +827,17 @@ export async function encryptItemUpdate(
  * Encrypt attachment metadata for database storage.
  * The metadata (filename, MIME type, size) is encrypted as a JSON string
  * using the same pattern as other encrypted fields.
+ * Generates a client-side UUID and returns it alongside the encrypted metadata.
  */
 export async function encryptAttachmentMetadata(
   metadata: AttachmentMetadata,
   key: CryptoKey
-): Promise<string> {
+): Promise<{ id: string; encrypted_metadata: string }> {
+  const id = crypto.randomUUID();
+  const aad = buildAAD("item_attachments", id);
   const json = JSON.stringify(metadata);
-  const encrypted = await encrypt(json, key);
-  return serializeEncryptedData(encrypted);
+  const encrypted = await encrypt(json, key, aad);
+  return { id, encrypted_metadata: serializeEncryptedData(encrypted) };
 }
 
 /**
@@ -776,9 +848,11 @@ export async function decryptAttachmentRow(
   row: AttachmentRow,
   key: CryptoKey
 ): Promise<Attachment> {
+  const aad = buildAAD("item_attachments", row.id);
   const metadataJson = await decrypt(
     parseEncryptedData(row.encrypted_metadata),
-    key
+    key,
+    aad
   );
   const metadata: AttachmentMetadata = JSON.parse(metadataJson);
 
@@ -817,36 +891,44 @@ export async function decryptContactRow(
   row: ContactRow,
   key: CryptoKey
 ): Promise<Contact> {
+  const aad = buildAAD("contacts", row.id);
   const firstName = await decrypt(
     parseEncryptedData(row.encrypted_first_name),
-    key
+    key,
+    aad
   );
   const lastName = await decrypt(
     parseEncryptedData(row.encrypted_last_name),
-    key
+    key,
+    aad
   );
 
   let description: string | null = null;
   if (row.encrypted_description) {
     description = await decrypt(
       parseEncryptedData(row.encrypted_description),
-      key
+      key,
+      aad
     );
   }
 
   let email: string | null = null;
   if (row.encrypted_email) {
-    email = await decrypt(parseEncryptedData(row.encrypted_email), key);
+    email = await decrypt(parseEncryptedData(row.encrypted_email), key, aad);
   }
 
   let phone: string | null = null;
   if (row.encrypted_phone) {
-    phone = await decrypt(parseEncryptedData(row.encrypted_phone), key);
+    phone = await decrypt(parseEncryptedData(row.encrypted_phone), key, aad);
   }
 
   let birthday: string | null = null;
   if (row.encrypted_birthday) {
-    birthday = await decrypt(parseEncryptedData(row.encrypted_birthday), key);
+    birthday = await decrypt(
+      parseEncryptedData(row.encrypted_birthday),
+      key,
+      aad
+    );
   }
 
   return {

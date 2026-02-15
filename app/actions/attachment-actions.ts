@@ -69,6 +69,7 @@ const EncryptedMetadataSchema = z
 
 /** Schema for creating an attachment */
 const CreateAttachmentSchema = z.object({
+  id: z.string().uuid(),
   item_id: z.string().uuid(),
   storage_path: z.string().min(1).max(500),
   encrypted_metadata: EncryptedMetadataSchema,
@@ -86,6 +87,7 @@ const CreateAttachmentSchema = z.object({
  */
 export async function createAttachment(
   data: {
+    id: string;
     item_id: string;
     storage_path: string;
     encrypted_metadata: string;
@@ -140,6 +142,7 @@ export async function createAttachment(
     const { data: attachment, error } = await supabase
       .from("item_attachments")
       .insert({
+        id: validatedData.id,
         item_id: validatedData.item_id,
         user_id: user.id,
         storage_path: validatedData.storage_path,

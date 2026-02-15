@@ -1,7 +1,7 @@
 {
   "name": "helvety-tasks",
-  "version": "1.14.0",
-  "description": "Private and secure task management with end-to-end encryption.",
+  "version": "1.16.0",
+  "description": "Private and secure task management with end-to-end encryption. Engineered & Designed in Switzerland.",
   "author": "Helvety by Rubin",
   "homepage": "https://tasks.helvety.com",
   "repository": {
@@ -24,6 +24,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "analyze": "ANALYZE=true next build",
     "sync:check": "node ../helvety.com/scripts/sync-shared.js --check"
   },

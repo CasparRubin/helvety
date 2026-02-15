@@ -145,9 +145,8 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         return false;
       }
 
-      // Generate a unique ID for this upload/attachment
-      const attachmentId = crypto.randomUUID();
-      const uploadId = attachmentId;
+      // Unique ID for tracking this upload in the UI
+      const uploadId = crypto.randomUUID();
 
       // Add to uploads list
       setUploads((prev) => [
@@ -169,7 +168,19 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
           : fileBuffer;
         const encryptedBuffer = await encryptBinary(dataToEncrypt, masterKey);
 
-        // 3. Upload encrypted blob to Supabase Storage
+        // 3. Encrypt file metadata (returns id and encrypted_metadata for DB)
+        const { id: attachmentId, encrypted_metadata: encryptedMetadata } =
+          await encryptAttachmentMetadata(
+            {
+              filename: file.name,
+              mime_type: file.type || "application/octet-stream",
+              size: file.size,
+              ...(isCompressed ? { compressed: true } : {}),
+            },
+            masterKey
+          );
+
+        // 4. Upload encrypted blob to Supabase Storage
         setUploads((prev) =>
           prev.map((u) =>
             u.id === uploadId ? { ...u, status: "uploading" } : u
@@ -200,24 +211,14 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
           throw new Error(`Storage upload failed: ${uploadError.message}`);
         }
 
-        // 4. Encrypt file metadata
+        // 5. Save the attachment record via server action
         setUploads((prev) =>
           prev.map((u) => (u.id === uploadId ? { ...u, status: "saving" } : u))
         );
 
-        const encryptedMetadata = await encryptAttachmentMetadata(
-          {
-            filename: file.name,
-            mime_type: file.type || "application/octet-stream",
-            size: file.size,
-            ...(isCompressed ? { compressed: true } : {}),
-          },
-          masterKey
-        );
-
-        // 5. Save the attachment record via server action
         const result = await createAttachment(
           {
+            id: attachmentId,
             item_id: itemId,
             storage_path: storagePath,
             encrypted_metadata: encryptedMetadata,

@@ -36,6 +36,7 @@ const IconNameSchema = z
   .optional();
 
 const CreateStageConfigSchema = z.object({
+  id: z.string().uuid(),
   encrypted_name: EncryptedDataSchema,
 });
 
@@ -45,6 +46,7 @@ const UpdateStageConfigSchema = z.object({
 });
 
 const CreateStageSchema = z.object({
+  id: z.string().uuid(),
   config_id: z.string().uuid(),
   encrypted_name: EncryptedDataSchema,
   color: HexColorSchema,
@@ -79,7 +81,7 @@ const ReorderStagesSchema = z
  * Create a new StageConfig
  */
 export async function createStageConfig(
-  data: { encrypted_name: string },
+  data: { id: string; encrypted_name: string },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
@@ -103,6 +105,7 @@ export async function createStageConfig(
     const { data: config, error } = await supabase
       .from("stage_configs")
       .insert({
+        id: validatedData.id,
         user_id: user.id,
         encrypted_name: validatedData.encrypted_name,
       })
@@ -243,6 +246,7 @@ export async function deleteStageConfig(
  */
 export async function createStage(
   data: {
+    id: string;
     config_id: string;
     encrypted_name: string;
     color?: string | null;
@@ -282,6 +286,7 @@ export async function createStage(
     const { data: stage, error } = await supabase
       .from("stages")
       .insert({
+        id: validatedData.id,
         config_id: validatedData.config_id,
         user_id: user.id,
         encrypted_name: validatedData.encrypted_name,

@@ -36,8 +36,8 @@ export async function generateCSRFToken(): Promise<string> {
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
-    // Token expires in 1 hour
-    maxAge: 60 * 60,
+    // Token expires in 24 hours (reduced UX failures on long sessions)
+    maxAge: 60 * 60 * 24,
   });
 
   return token;

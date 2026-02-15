@@ -154,7 +154,7 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
       }
 
       try {
-        const encrypted = await encryptLabelConfigUpdate(input, masterKey);
+        const encrypted = await encryptLabelConfigUpdate(id, input, masterKey);
         const result = await updateLabelConfig({ id, ...encrypted }, csrfToken);
         if (!result.success) {
           setError(result.error ?? "Failed to update label config");

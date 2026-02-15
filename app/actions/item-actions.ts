@@ -43,6 +43,7 @@ const PrioritySchema = z.number().int().min(0).max(3).optional();
 
 /** Schema for creating an Item */
 const CreateItemSchema = z.object({
+  id: z.string().uuid(),
   space_id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
@@ -76,6 +77,7 @@ const UpdateItemSchema = z.object({
  */
 export async function createItem(
   data: {
+    id: string;
     space_id: string;
     encrypted_title: string;
     encrypted_description: string | null;
@@ -117,6 +119,7 @@ export async function createItem(
 
     // Insert item
     const insertObj: Record<string, unknown> = {
+      id: validatedData.id,
       space_id: validatedData.space_id,
       user_id: user.id,
       encrypted_title: validatedData.encrypted_title,

@@ -33,6 +33,7 @@ const IconNameSchema = z
   .optional();
 
 const CreateLabelConfigSchema = z.object({
+  id: z.string().uuid(),
   encrypted_name: EncryptedDataSchema,
 });
 
@@ -42,6 +43,7 @@ const UpdateLabelConfigSchema = z.object({
 });
 
 const CreateLabelSchema = z.object({
+  id: z.string().uuid(),
   config_id: z.string().uuid(),
   encrypted_name: EncryptedDataSchema,
   color: HexColorSchema,
@@ -74,7 +76,7 @@ const ReorderLabelsSchema = z
  * Create a new LabelConfig
  */
 export async function createLabelConfig(
-  data: { encrypted_name: string },
+  data: { id: string; encrypted_name: string },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
@@ -98,6 +100,7 @@ export async function createLabelConfig(
     const { data: config, error } = await supabase
       .from("label_configs")
       .insert({
+        id: validatedData.id,
         user_id: user.id,
         encrypted_name: validatedData.encrypted_name,
       })
@@ -238,6 +241,7 @@ export async function deleteLabelConfig(
  */
 export async function createLabel(
   data: {
+    id: string;
     config_id: string;
     encrypted_name: string;
     color?: string | null;
@@ -276,6 +280,7 @@ export async function createLabel(
     const { data: label, error } = await supabase
       .from("labels")
       .insert({
+        id: validatedData.id,
         config_id: validatedData.config_id,
         user_id: user.id,
         encrypted_name: validatedData.encrypted_name,

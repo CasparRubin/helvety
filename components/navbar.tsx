@@ -145,7 +145,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
               loading="eager"
             />
             <Image
-              src="/helvety_Identifier_whiteBg.svg"
+              src="/helvety_identifier_whiteBg.svg"
               alt="Helvety"
               width={30}
               height={30}
@@ -211,7 +211,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   <DialogDescription className="pt-2">
                     Private and secure task management with end-to-end
                     encryption. All your data is encrypted and only you can read
-                    it.
+                    it. Engineered & Designed in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

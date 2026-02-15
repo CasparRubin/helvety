@@ -160,7 +160,7 @@ export function useSpaces(unitId: string): UseSpacesReturn {
 
       try {
         // Encrypt the update fields
-        const encrypted = await encryptSpaceUpdate(input, masterKey);
+        const encrypted = await encryptSpaceUpdate(id, input, masterKey);
 
         // Send encrypted data to server
         const result = await updateSpace({ id, ...encrypted }, csrfToken);
@@ -358,7 +358,7 @@ export function useSpace(id: string): UseSpaceReturn {
       }
 
       try {
-        const encrypted = await encryptSpaceUpdate(input, masterKey);
+        const encrypted = await encryptSpaceUpdate(id, input, masterKey);
         const result = await updateSpace({ id, ...encrypted }, csrfToken);
         if (!result.success) {
           setError(result.error ?? "Failed to update space");

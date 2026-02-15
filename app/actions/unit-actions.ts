@@ -28,6 +28,7 @@ const StageIdSchema = z
 
 /** Schema for creating a Unit */
 const CreateUnitSchema = z.object({
+  id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
   stage_id: StageIdSchema,
@@ -53,6 +54,7 @@ const UpdateUnitSchema = z.object({
  */
 export async function createUnit(
   data: {
+    id: string;
     encrypted_title: string;
     encrypted_description: string | null;
     stage_id?: string | null;
@@ -79,6 +81,7 @@ export async function createUnit(
     const { data: unit, error } = await supabase
       .from("units")
       .insert({
+        id: validatedData.id,
         user_id: user.id,
         encrypted_title: validatedData.encrypted_title,
         encrypted_description: validatedData.encrypted_description,

@@ -165,7 +165,7 @@ export function useStageConfigs(
       }
 
       try {
-        const encrypted = await encryptStageConfigUpdate(input, masterKey);
+        const encrypted = await encryptStageConfigUpdate(id, input, masterKey);
         const result = await updateStageConfig({ id, ...encrypted }, csrfToken);
         if (!result.success) {
           setError(result.error ?? "Failed to update stage config");

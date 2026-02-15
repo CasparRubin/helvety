@@ -18,6 +18,9 @@ import type {
   LabelAssignment,
 } from "@/lib/types";
 
+const MAX_DASHBOARD_ROWS = 2000;
+const MAX_COUNT_ROWS = 10000;
+
 // =============================================================================
 // Batch Response Types
 // =============================================================================
@@ -77,8 +80,13 @@ export async function getUnitsDashboardData(): Promise<
           .eq("user_id", user.id)
           .order("sort_order", { ascending: true })
           .order("created_at", { ascending: false })
+          .limit(MAX_DASHBOARD_ROWS + 1)
           .returns<UnitRow[]>(),
-        supabase.from("spaces").select("unit_id").eq("user_id", user.id),
+        supabase
+          .from("spaces")
+          .select("unit_id")
+          .eq("user_id", user.id)
+          .limit(MAX_COUNT_ROWS + 1),
         supabase
           .from("stage_configs")
           .select("*")
@@ -107,6 +115,19 @@ export async function getUnitsDashboardData(): Promise<
         stageAssignment: assignmentResult.error,
       });
       return { success: false, error: "Failed to load dashboard data" };
+    }
+
+    if ((unitsResult.data?.length ?? 0) > MAX_DASHBOARD_ROWS) {
+      return {
+        success: false,
+        error: "Too many units to load in one request",
+      };
+    }
+    if ((spacesResult.data?.length ?? 0) > MAX_COUNT_ROWS) {
+      return {
+        success: false,
+        error: "Too many spaces to aggregate in one request",
+      };
     }
 
     // Aggregate space counts by unit_id
@@ -166,6 +187,7 @@ export async function getSpacesDashboardData(
           .eq("user_id", user.id)
           .order("sort_order", { ascending: true })
           .order("created_at", { ascending: false })
+          .limit(MAX_DASHBOARD_ROWS + 1)
           .returns<SpaceRow[]>(),
         supabase
           .from("stage_configs")
@@ -204,6 +226,13 @@ export async function getSpacesDashboardData(
       return { success: false, error: "Failed to load dashboard data" };
     }
 
+    if ((spacesResult.data?.length ?? 0) > MAX_DASHBOARD_ROWS) {
+      return {
+        success: false,
+        error: "Too many spaces to load in one request",
+      };
+    }
+
     // Get item counts for the spaces in this unit
     const spaceIds = (spacesResult.data ?? []).map((s) => s.id);
     const itemCounts: Record<string, number> = {};
@@ -212,12 +241,20 @@ export async function getSpacesDashboardData(
       const { data: items, error: itemsError } = await supabase
         .from("items")
         .select("space_id")
-        .in("space_id", spaceIds);
+        .in("space_id", spaceIds)
+        .eq("user_id", user.id)
+        .limit(MAX_COUNT_ROWS + 1);
 
       if (itemsError) {
         logger.error("Error getting item counts in batch:", itemsError);
         // Non-fatal: proceed with empty counts
       } else {
+        if ((items?.length ?? 0) > MAX_COUNT_ROWS) {
+          return {
+            success: false,
+            error: "Too many items to aggregate in one request",
+          };
+        }
         for (const item of items ?? []) {
           itemCounts[item.space_id] = (itemCounts[item.space_id] ?? 0) + 1;
         }
@@ -295,6 +332,7 @@ export async function getItemsDashboardData(
         .eq("user_id", user.id)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })
+        .limit(MAX_DASHBOARD_ROWS + 1)
         .returns<ItemRow[]>(),
       supabase
         .from("stage_configs")
@@ -356,6 +394,13 @@ export async function getItemsDashboardData(
         labelAssignment: labelAssignmentResult.error,
       });
       return { success: false, error: "Failed to load dashboard data" };
+    }
+
+    if ((itemsResult.data?.length ?? 0) > MAX_DASHBOARD_ROWS) {
+      return {
+        success: false,
+        error: "Too many items to load in one request",
+      };
     }
 
     return {

@@ -32,6 +32,7 @@ export {
   decryptFields,
   encryptBinary,
   decryptBinary,
+  buildAAD,
 } from "./encryption";
 
 // Key Storage

@@ -152,7 +152,7 @@ export function useUnits(): UseUnitsReturn {
 
       try {
         // Encrypt the update fields
-        const encrypted = await encryptUnitUpdate(input, masterKey);
+        const encrypted = await encryptUnitUpdate(id, input, masterKey);
 
         // Send encrypted data to server
         const result = await updateUnit({ id, ...encrypted }, csrfToken);
@@ -358,7 +358,7 @@ export function useUnit(id: string): UseUnitReturn {
       }
 
       try {
-        const encrypted = await encryptUnitUpdate(input, masterKey);
+        const encrypted = await encryptUnitUpdate(id, input, masterKey);
         const result = await updateUnit({ id, ...encrypted }, csrfToken);
         if (!result.success) {
           setError(result.error ?? "Failed to update unit");

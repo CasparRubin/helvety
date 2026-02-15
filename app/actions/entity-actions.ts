@@ -18,6 +18,10 @@ import type {
   EncryptedTaskExport,
 } from "@/lib/types";
 
+const MAX_REORDER_ITEMS = 200;
+const REORDER_CHUNK_SIZE = 50;
+const MAX_EXPORT_ROWS_PER_TABLE = 5000;
+
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
@@ -41,7 +45,10 @@ const ReorderSchema = z
         .optional(),
     })
   )
-  .max(500, "Too many items to reorder");
+  .max(
+    MAX_REORDER_ITEMS,
+    `Too many items to reorder (max ${MAX_REORDER_ITEMS})`
+  );
 
 const EntityTypeSchema = z.enum(["unit", "space", "item"]);
 
@@ -89,25 +96,30 @@ export async function reorderEntities(
           ? "spaces"
           : "items";
 
-    // Batch update all entities in parallel for better performance
+    // Batch updates in chunks to avoid saturating DB connections.
     const now = new Date().toISOString();
-    const results = await Promise.all(
-      validatedUpdates.map((update) => {
-        const updateObj: Record<string, unknown> = {
-          sort_order: update.sort_order,
-          updated_at: now,
-        };
-        if (update.stage_id !== undefined) {
-          updateObj.stage_id = update.stage_id;
-        }
+    const results = [];
+    for (let i = 0; i < validatedUpdates.length; i += REORDER_CHUNK_SIZE) {
+      const chunk = validatedUpdates.slice(i, i + REORDER_CHUNK_SIZE);
+      const chunkResults = await Promise.all(
+        chunk.map((update) => {
+          const updateObj: Record<string, unknown> = {
+            sort_order: update.sort_order,
+            updated_at: now,
+          };
+          if (update.stage_id !== undefined) {
+            updateObj.stage_id = update.stage_id;
+          }
 
-        return supabase
-          .from(tableName)
-          .update(updateObj)
-          .eq("id", update.id)
-          .eq("user_id", user.id);
-      })
-    );
+          return supabase
+            .from(tableName)
+            .update(updateObj)
+            .eq("id", update.id)
+            .eq("user_id", user.id);
+        })
+      );
+      results.push(...chunkResults);
+    }
 
     const failedResult = results.find((r) => r.error);
     if (failedResult?.error) {
@@ -245,25 +257,28 @@ export async function getAllTaskDataForExport(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    // Fetch all user data (explicit user_id filter as defense-in-depth alongside RLS)
+    // Fetch bounded data to prevent oversized in-memory exports.
     const [unitsResult, spacesResult, itemsResult] = await Promise.all([
       supabase
         .from("units")
         .select("*")
         .eq("user_id", user.id)
         .order("sort_order")
+        .limit(MAX_EXPORT_ROWS_PER_TABLE + 1)
         .returns<UnitRow[]>(),
       supabase
         .from("spaces")
         .select("*")
         .eq("user_id", user.id)
         .order("sort_order")
+        .limit(MAX_EXPORT_ROWS_PER_TABLE + 1)
         .returns<SpaceRow[]>(),
       supabase
         .from("items")
         .select("*")
         .eq("user_id", user.id)
         .order("sort_order")
+        .limit(MAX_EXPORT_ROWS_PER_TABLE + 1)
         .returns<ItemRow[]>(),
     ]);
 
@@ -276,14 +291,36 @@ export async function getAllTaskDataForExport(): Promise<
       return { success: false, error: "Failed to fetch task data" };
     }
 
+    const units = unitsResult.data ?? [];
+    const spaces = spacesResult.data ?? [];
+    const items = itemsResult.data ?? [];
+    if (
+      units.length > MAX_EXPORT_ROWS_PER_TABLE ||
+      spaces.length > MAX_EXPORT_ROWS_PER_TABLE ||
+      items.length > MAX_EXPORT_ROWS_PER_TABLE
+    ) {
+      logger.warn("Export exceeds maximum row cap", {
+        userId: user.id,
+        units: units.length,
+        spaces: spaces.length,
+        items: items.length,
+        cap: MAX_EXPORT_ROWS_PER_TABLE,
+      });
+      return {
+        success: false,
+        error:
+          "Export too large for a single request. Please reduce dataset size and retry.",
+      };
+    }
+
     logger.info(`Data export requested for user ${user.id}`);
 
     return {
       success: true,
       data: {
-        units: unitsResult.data ?? [],
-        spaces: spacesResult.data ?? [],
-        items: itemsResult.data ?? [],
+        units,
+        spaces,
+        items,
       },
     };
   } catch (error) {
