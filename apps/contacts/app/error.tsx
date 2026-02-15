@@ -1,11 +1,10 @@
 "use client";
 
 import { logger } from "@helvety/shared/logger";
+import { Button } from "@helvety/ui/button";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
-
-import { Button } from "@/components/ui/button";
 
 /**
  * Global error boundary component for Next.js App Router

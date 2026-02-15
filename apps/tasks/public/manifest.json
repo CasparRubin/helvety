@@ -2,7 +2,7 @@
   "name": "Helvety Tasks",
   "short_name": "Helvety Tasks",
   "description": "Private and secure task management with end-to-end encryption. Engineered & Designed in Switzerland.",
-  "start_url": "/",
+  "start_url": "/tasks",
   "display": "standalone",
   "background_color": "#faf8f7",
   "theme_color": "#faf8f7",

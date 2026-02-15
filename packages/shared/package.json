@@ -13,6 +13,7 @@
   },
   "exports": {
     "./config": "./src/config.ts",
+    "./csp-report": "./src/csp-report.ts",
     "./utils": "./src/utils.ts",
     "./logger": "./src/logger.ts",
     "./constants": "./src/constants.ts",

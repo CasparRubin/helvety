@@ -46,7 +46,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
           "group ring-foreground/10 relative flex min-h-[420px] flex-col overflow-hidden rounded-xl bg-cover bg-center shadow-xs ring-1 transition-all hover:shadow-lg",
           className
         )}
-        style={{ backgroundImage: "url('/artwork_1.jpg')" }}
+        style={{
+          backgroundImage: `url('${process.env.__NEXT_ROUTER_BASEPATH ?? ""}/artwork_1.jpg')`,
+        }}
       >
         {/* Inner layer: solid content panel */}
         <div className="bg-card/95 mx-3 mt-16 mb-3 flex flex-1 flex-col rounded-lg shadow-sm backdrop-blur-sm">

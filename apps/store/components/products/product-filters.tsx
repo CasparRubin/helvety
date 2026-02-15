@@ -7,15 +7,14 @@
  */
 
 import { cn } from "@helvety/shared/utils";
-import { ChevronDownIcon, MonitorCloud, LayoutGrid } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { Button } from "@helvety/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@helvety/ui/dropdown-menu";
+import { ChevronDownIcon, MonitorCloud, LayoutGrid } from "lucide-react";
 
 import type { ProductType } from "@/lib/types/products";
 

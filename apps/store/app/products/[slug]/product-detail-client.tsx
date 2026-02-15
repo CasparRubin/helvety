@@ -9,6 +9,13 @@
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { cn } from "@helvety/shared/utils";
+import { Button } from "@helvety/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@helvety/ui/collapsible";
+import { Separator } from "@helvety/ui/separator";
 import {
   FileText,
   LayoutGrid,
@@ -43,13 +50,6 @@ import {
   FeatureList,
   MediaGallery,
 } from "@/components/products";
-import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Separator } from "@/components/ui/separator";
 import { useCSRF } from "@/hooks/use-csrf";
 import { getProductBySlug } from "@/lib/data/products";
 import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";

@@ -16,11 +16,8 @@
  * No EU Consumer Rights Directive provisions apply.
  */
 
-import { ExternalLink, Loader2 } from "lucide-react";
-import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@helvety/ui/button";
+import { Checkbox } from "@helvety/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -28,8 +25,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+} from "@helvety/ui/dialog";
+import { Label } from "@helvety/ui/label";
+import { ExternalLink, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 const LEGAL_BASE = "https://helvety.com";
 
@@ -81,7 +80,7 @@ export function PurchaseConsentDialog({
     if (hasAcceptedTerms) {
       onConfirm({
         termsAcceptedAt: new Date().toISOString(),
-        consentVersion: "2026-02-08",
+        consentVersion: "2026-02-14",
       });
     }
   };

@@ -8,6 +8,16 @@
  */
 
 import { cn } from "@helvety/shared/utils";
+import { Badge } from "@helvety/ui/badge";
+import { Button } from "@helvety/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@helvety/ui/card";
+import { Skeleton } from "@helvety/ui/skeleton";
 import {
   Calendar,
   AlertCircle,
@@ -17,16 +27,6 @@ import {
   Clock,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getProductById } from "@/lib/data/products";
 import { formatPrice } from "@/lib/utils/pricing";
 

@@ -1,10 +1,9 @@
 "use client";
 
+import { Button } from "@helvety/ui/button";
+import { Input } from "@helvety/ui/input";
+import { Label } from "@helvety/ui/label";
 import { Loader2, Mail } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 /** Props for the email input step. */
 interface EmailStepProps {

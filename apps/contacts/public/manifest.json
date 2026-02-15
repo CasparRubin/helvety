@@ -2,7 +2,7 @@
   "name": "Helvety Contacts",
   "short_name": "Helvety Contacts",
   "description": "Private and secure contact management with end-to-end encryption. Engineered & Designed in Switzerland.",
-  "start_url": "/",
+  "start_url": "/contacts",
   "display": "standalone",
   "background_color": "#faf8f7",
   "theme_color": "#faf8f7",

@@ -1,7 +1,6 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
+import { Skeleton } from "@helvety/ui/skeleton";
 import { Suspense } from "react";
-
-import { Skeleton } from "@/components/ui/skeleton";
 
 import { AccountClient } from "./account-client";
 

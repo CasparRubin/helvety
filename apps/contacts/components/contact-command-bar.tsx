@@ -7,6 +7,13 @@
  */
 
 import { cn } from "@helvety/shared/utils";
+import { Button } from "@helvety/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@helvety/ui/dropdown-menu";
 import {
   DownloadIcon,
   EllipsisVerticalIcon,
@@ -15,14 +22,6 @@ import {
   RefreshCwIcon,
   SettingsIcon,
 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 /** Props for the ContactCommandBar component. */
 interface ContactCommandBarProps {

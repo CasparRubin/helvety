@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@helvety/ui/card";
 import { Loader2 } from "lucide-react";
 import { Suspense } from "react";
 
@@ -12,13 +19,6 @@ import {
   PasskeySignInStep,
   PasskeyVerifyStep,
 } from "@/components/login";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useLoginFlow } from "@/hooks/use-login-flow";
 
 /** Card titles for each login step. */

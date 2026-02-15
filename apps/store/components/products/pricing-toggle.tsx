@@ -6,8 +6,7 @@
  */
 
 import { cn } from "@helvety/shared/utils";
-
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@helvety/ui/badge";
 
 /** Billing period option. */
 export type BillingPeriod = "monthly" | "yearly";

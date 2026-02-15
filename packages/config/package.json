@@ -15,7 +15,8 @@
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./eslint": "./eslint.mjs",
     "./vitest": "./vitest.mjs",
-    "./postcss": "./postcss.mjs"
+    "./postcss": "./postcss.mjs",
+    "./next-headers": "./next-headers.mjs"
   },
   "peerDependencies": {
     "eslint": "^9",

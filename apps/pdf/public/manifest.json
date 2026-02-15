@@ -2,7 +2,7 @@
   "name": "Helvety PDF",
   "short_name": "Helvety PDF",
   "description": "Privacy-focused, client-side PDF toolkit for merging, reordering, rotating, and extracting pages. Engineered & Designed in Switzerland.",
-  "start_url": "/",
+  "start_url": "/pdf",
   "display": "standalone",
   "background_color": "#faf8f7",
   "theme_color": "#faf8f7",

@@ -3,6 +3,29 @@
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@helvety/ui/alert-dialog";
+import { Button } from "@helvety/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@helvety/ui/card";
+import { Input } from "@helvety/ui/input";
+import { Label } from "@helvety/ui/label";
+import { Separator } from "@helvety/ui/separator";
+import { Skeleton } from "@helvety/ui/skeleton";
+import {
   User,
   Mail,
   Calendar,
@@ -20,29 +43,6 @@ import {
   requestAccountDeletion,
   exportUserData,
 } from "@/app/actions/account-actions";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useCSRF } from "@/hooks/use-csrf";
 
 /** User profile data returned from the API. */

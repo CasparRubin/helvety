@@ -2,10 +2,9 @@
  * Product not found page
  */
 
+import { Button } from "@helvety/ui/button";
 import { Package, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
 
 /** Product not found page. */
 export default function ProductNotFound() {

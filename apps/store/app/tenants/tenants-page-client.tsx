@@ -1,19 +1,19 @@
 "use client";
 
-import { Building2 } from "lucide-react";
-import Link from "next/link";
-import * as React from "react";
-
-import { getSpoExplorerSubscriptions } from "@/app/actions/tenant-actions";
-import { TenantsTab } from "@/components/account";
-import { Button } from "@/components/ui/button";
+import { Button } from "@helvety/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@helvety/ui/card";
+import { Building2 } from "lucide-react";
+import Link from "next/link";
+import * as React from "react";
+
+import { getSpoExplorerSubscriptions } from "@/app/actions/tenant-actions";
+import { TenantsTab } from "@/components/account";
 
 /**
  * Client wrapper for the tenants page: SPO check, empty state, or TenantsTab.

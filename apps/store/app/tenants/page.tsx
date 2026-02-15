@@ -1,8 +1,8 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
+import { Skeleton } from "@helvety/ui/skeleton";
 import { Suspense } from "react";
 
 import { TenantsPageClient } from "@/app/tenants/tenants-page-client";
-import { Skeleton } from "@/components/ui/skeleton";
 
 import type { Metadata } from "next";
 

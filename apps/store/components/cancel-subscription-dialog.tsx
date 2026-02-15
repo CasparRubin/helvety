@@ -7,6 +7,15 @@
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
+import { Button } from "@helvety/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@helvety/ui/dialog";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -15,15 +24,6 @@ import {
   cancelSubscription,
   getSubscriptionPeriodEnd,
 } from "@/app/actions/subscription-actions";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useCSRF } from "@/hooks/use-csrf";
 import { getProductById } from "@/lib/data/products";
 

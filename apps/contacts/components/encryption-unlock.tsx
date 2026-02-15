@@ -1,17 +1,17 @@
 "use client";
 
 import { cachePRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
-import { Fingerprint, Lock, Loader2, Smartphone } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
-
-import { Button } from "@/components/ui/button";
+import { Button } from "@helvety/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@helvety/ui/card";
+import { Fingerprint, Lock, Loader2, Smartphone } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
 /** Props for the EncryptionUnlock component */

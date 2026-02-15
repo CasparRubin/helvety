@@ -1,7 +1,6 @@
+import { Button } from "@helvety/ui/button";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
 
 import type { Metadata } from "next";
 

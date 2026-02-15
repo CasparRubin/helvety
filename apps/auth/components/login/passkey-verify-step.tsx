@@ -1,8 +1,7 @@
 "use client";
 
+import { Button } from "@helvety/ui/button";
 import { Loader2, KeyRound, CheckCircle2 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 
 /** Props for the passkey verification step. */
 interface PasskeyVerifyStepProps {

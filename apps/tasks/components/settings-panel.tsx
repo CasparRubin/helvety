@@ -6,16 +6,15 @@
  * Designed to be scalable for future settings categories.
  */
 
-import { SettingsIcon } from "lucide-react";
-
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@helvety/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@helvety/ui/tabs";
+import { SettingsIcon } from "lucide-react";
 
 /** A single settings section rendered as a tab. */
 export interface SettingsSection {

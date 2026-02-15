@@ -1,6 +1,10 @@
 "use client";
 
-import * as LucideIcons from "lucide-react";
+import { Button } from "@helvety/ui/button";
+import { Input } from "@helvety/ui/input";
+import { Label } from "@helvety/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@helvety/ui/popover";
+import { Separator } from "@helvety/ui/separator";
 import {
   PlusIcon,
   TrashIcon,
@@ -13,18 +17,10 @@ import {
   CircleIcon,
   InfoIcon,
 } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
 import { useCategories } from "@/hooks";
 
 import type { CategoryConfig } from "@/lib/types";

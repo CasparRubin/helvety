@@ -1,15 +1,10 @@
 "use client";
 
 import { cn } from "@helvety/shared/utils";
+import { Button } from "@helvety/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import { GripVertical } from "lucide-react";
 import * as React from "react";
-
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 /** Single action button config (icon, handlers, label, optional title/description). */
 interface ActionButton {

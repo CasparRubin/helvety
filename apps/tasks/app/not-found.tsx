@@ -1,7 +1,6 @@
+import { Button } from "@helvety/ui/button";
 import { FileQuestion, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
 
 /**
  * Global 404 not found page for Next.js App Router

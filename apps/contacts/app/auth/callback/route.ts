@@ -5,7 +5,6 @@ import { getSafeRelativePath } from "@helvety/shared/redirect-validation";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 
-
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 /**

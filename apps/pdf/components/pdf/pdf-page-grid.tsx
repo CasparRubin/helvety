@@ -1,9 +1,9 @@
 "use client";
 
 import { cn } from "@helvety/shared/utils";
+import { Badge } from "@helvety/ui/badge";
 import * as React from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { usePageDragDrop } from "@/hooks/use-page-drag-drop";
 import {
   areArraysEqual,

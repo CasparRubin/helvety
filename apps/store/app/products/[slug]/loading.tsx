@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@helvety/ui/skeleton";
 
 /** Loading UI shown while the product detail page is loading (route transition). */
 export default function ProductDetailLoading() {

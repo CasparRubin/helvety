@@ -7,6 +7,14 @@
 
 import { formatDateTime } from "@helvety/shared/dates";
 import { cn } from "@helvety/shared/utils";
+import { Button } from "@helvety/ui/button";
+import { Card, CardContent } from "@helvety/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@helvety/ui/collapsible";
+import { Separator } from "@helvety/ui/separator";
 import {
   CalendarIcon,
   ChevronRightIcon,
@@ -16,14 +24,6 @@ import {
 } from "lucide-react";
 import { useCallback, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks";
 import { renderCategoryIcon } from "@/lib/icons";
 

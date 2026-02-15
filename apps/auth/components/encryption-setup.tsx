@@ -6,6 +6,14 @@ import { PRF_VERSION } from "@helvety/shared/crypto/prf-key-derivation";
 import { cachePRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
+import { Button } from "@helvety/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@helvety/ui/card";
 import {
   Fingerprint,
   ShieldCheck,
@@ -25,14 +33,6 @@ import {
   getSetupStep,
   type AuthFlowType,
 } from "@/components/encryption-stepper";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useCSRF } from "@/hooks/use-csrf";
 import { isMobileDevice } from "@/lib/device-utils";
 

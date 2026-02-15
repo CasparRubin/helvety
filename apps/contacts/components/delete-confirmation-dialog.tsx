@@ -1,8 +1,5 @@
 "use client";
 
-import { Loader2Icon } from "lucide-react";
-import * as React from "react";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,7 +9,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@helvety/ui/alert-dialog";
+import { Loader2Icon } from "lucide-react";
+import * as React from "react";
+
 import {
   buildDeleteMessage,
   type EntityTypeId,

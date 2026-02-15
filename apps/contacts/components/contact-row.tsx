@@ -3,6 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatDateTime } from "@helvety/shared/dates";
+import { Button } from "@helvety/ui/button";
 import {
   GripVerticalIcon,
   ChevronUpIcon,
@@ -10,8 +11,6 @@ import {
   TrashIcon,
   UserIcon,
 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 
 import type { Category } from "@/lib/types";
 

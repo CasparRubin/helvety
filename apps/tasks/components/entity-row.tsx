@@ -3,6 +3,8 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatDateTime } from "@helvety/shared/dates";
+import { Badge } from "@helvety/ui/badge";
+import { Button } from "@helvety/ui/button";
 import {
   GripVerticalIcon,
   ChevronUpIcon,
@@ -14,8 +16,6 @@ import {
 } from "lucide-react";
 
 import { getDescriptionPlainText } from "@/components/tiptap-editor";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { renderStageIcon } from "@/lib/icons";
 import { getPriorityConfig } from "@/lib/priorities";
 

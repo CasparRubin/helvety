@@ -18,10 +18,9 @@
  * ES, PT, NL) to ensure EU/EEA visitors can understand the restriction.
  */
 
+import { Button } from "@helvety/ui/button";
 import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
 
 /** Props for the geo-restriction confirmation step. */
 interface GeoConfirmationStepProps {

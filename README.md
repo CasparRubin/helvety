@@ -26,6 +26,7 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 | **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                       |
 | **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, and PostCSS configurations                           |
 | **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, rate limiting, crypto, types, utilities |
+| **[@helvety/ui](packages/ui/)**         | Shared UI component library: shadcn/ui components, footer, and theme provider           |
 
 ## Getting Started
 
@@ -87,7 +88,8 @@ helvety/
 ├── packages/
 │   ├── brand/        # Shared brand assets (SVG components, asset URLs)
 │   ├── config/       # Shared tooling configs
-│   └── shared/       # Shared libraries
+│   ├── shared/       # Shared libraries
+│   └── ui/           # Shared UI components (shadcn/ui, footer, theme provider)
 ├── supabase/         # Database schema export & SQL scripts (gitignored export)
 ├── turbo.json        # Turborepo task configuration
 └── package.json      # Root workspace configuration

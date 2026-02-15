@@ -1,16 +1,16 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { createServerClient } from "@helvety/shared/supabase/server";
+import { Footer } from "@helvety/ui/footer";
+import { Toaster } from "@helvety/ui/sonner";
+import { ThemeProvider } from "@helvety/ui/theme-provider";
+import { TooltipProvider } from "@helvety/ui/tooltip";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
-import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 import type { Metadata, Viewport } from "next";
 

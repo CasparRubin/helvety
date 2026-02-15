@@ -2,6 +2,15 @@
 
 import { urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
+import { Button } from "@helvety/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@helvety/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import {
   Grip,
   Home,
@@ -12,20 +21,6 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 /** Helvety ecosystem app URLs */
 const apps = [

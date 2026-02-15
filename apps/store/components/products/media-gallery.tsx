@@ -6,12 +6,11 @@
  */
 
 import { cn } from "@helvety/shared/utils";
+import { Button } from "@helvety/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@helvety/ui/dialog";
 import { ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
 import Image from "next/image";
 import { useState, useCallback } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 import type { MediaItem } from "@/lib/types/products";
 

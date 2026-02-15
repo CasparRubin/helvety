@@ -1,8 +1,8 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
+import { Skeleton } from "@helvety/ui/skeleton";
 import { Suspense } from "react";
 
 import { SubscriptionsPageClient } from "@/app/subscriptions/subscriptions-page-client";
-import { Skeleton } from "@/components/ui/skeleton";
 
 import type { Metadata } from "next";
 

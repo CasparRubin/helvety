@@ -2,7 +2,7 @@
   "name": "Helvety Store",
   "short_name": "Helvety Store",
   "description": "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
-  "start_url": "/",
+  "start_url": "/store",
   "display": "standalone",
   "background_color": "#faf8f7",
   "theme_color": "#faf8f7",

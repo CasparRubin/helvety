@@ -1,10 +1,10 @@
 "use client";
 
+import { Button } from "@helvety/ui/button";
+import { Input } from "@helvety/ui/input";
+import { Label } from "@helvety/ui/label";
 import { ArrowLeft, Loader2, Mail } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { OTP_CODE_LENGTH } from "@/hooks/use-login-flow";
 
 /** Props for the OTP verification step. */

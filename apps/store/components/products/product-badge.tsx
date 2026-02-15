@@ -4,9 +4,8 @@
  */
 
 import { cn } from "@helvety/shared/utils";
+import { Badge } from "@helvety/ui/badge";
 import { Cloud, Download, Package } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
 
 import type { ProductType, ProductStatus } from "@/lib/types/products";
 

@@ -2,6 +2,17 @@
 
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { logger } from "@helvety/shared/logger";
+import { Button } from "@helvety/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@helvety/ui/dialog";
+import { Input } from "@helvety/ui/input";
+import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
@@ -12,17 +23,6 @@ import { ContactCommandBar } from "@/components/contact-command-bar";
 import { ContactList } from "@/components/contact-list";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { SettingsPanel } from "@/components/settings-panel";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   useContacts,
   useCategoryConfigs,

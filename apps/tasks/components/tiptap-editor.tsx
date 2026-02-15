@@ -1,6 +1,14 @@
 "use client";
 
 import { cn } from "@helvety/shared/utils";
+import { Button } from "@helvety/ui/button";
+import { Separator } from "@helvety/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@helvety/ui/tooltip";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
@@ -23,15 +31,6 @@ import {
   Redo2Icon,
 } from "lucide-react";
 import { useCallback, useEffect, useImperativeHandle, type Ref } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import type { Editor, JSONContent } from "@tiptap/react";
 

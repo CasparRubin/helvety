@@ -1,13 +1,13 @@
 "use client";
 
 import { cn } from "@helvety/shared/utils";
+import { Badge } from "@helvety/ui/badge";
+import { Button } from "@helvety/ui/button";
+import { Label } from "@helvety/ui/label";
+import { Slider } from "@helvety/ui/slider";
 import { X } from "lucide-react";
 import * as React from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { BREAKPOINTS, COLUMNS } from "@/lib/constants";
 import { addOklchAlpha } from "@/lib/pdf-colors";
 

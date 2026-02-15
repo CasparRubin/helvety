@@ -4,6 +4,32 @@ import { HelvetyIdentifier, HelvetyLogo } from "@helvety/brand";
 import { redirectToLogout } from "@helvety/shared/auth-redirect";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
+import { Button } from "@helvety/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@helvety/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@helvety/ui/popover";
+import { Separator } from "@helvety/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@helvety/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import {
   LogIn,
   LogOut,
@@ -23,36 +49,6 @@ import { useEffect, useState } from "react";
 
 import { AppSwitcher } from "@/components/app-switcher";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { VERSION } from "@/lib/config/version";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";

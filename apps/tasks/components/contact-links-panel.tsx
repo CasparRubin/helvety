@@ -2,15 +2,6 @@
 
 import { urls } from "@helvety/shared/config";
 import {
-  Loader2Icon,
-  NotepadTextIcon,
-  PlusIcon,
-  UnlinkIcon,
-  UsersIcon,
-} from "lucide-react";
-import { useState, useCallback, useMemo } from "react";
-
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -19,26 +10,31 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from "@helvety/ui/alert-dialog";
+import { Button } from "@helvety/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@helvety/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@helvety/ui/popover";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@helvety/ui/tooltip";
+import {
+  Loader2Icon,
+  NotepadTextIcon,
+  PlusIcon,
+  UnlinkIcon,
+  UsersIcon,
+} from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
+
 import { useContactLinks } from "@/hooks";
 
 import type { LinkedContact } from "@/hooks";

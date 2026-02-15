@@ -3,6 +3,37 @@
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@helvety/ui/alert-dialog";
+import { Badge } from "@helvety/ui/badge";
+import { Button } from "@helvety/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@helvety/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@helvety/ui/dialog";
+import { Input } from "@helvety/ui/input";
+import { Label } from "@helvety/ui/label";
+import { Skeleton } from "@helvety/ui/skeleton";
+import {
   Building2,
   Plus,
   Trash2,
@@ -25,37 +56,6 @@ import {
   removeTenant,
   updateTenant,
 } from "@/app/actions/tenant-actions";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useCSRF } from "@/hooks/use-csrf";
 
 import type { LicensedTenantWithSubscription } from "@/lib/types/entities";

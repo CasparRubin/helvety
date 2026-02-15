@@ -7,15 +7,6 @@
  */
 
 import {
-  DownloadIcon,
-  EllipsisVerticalIcon,
-  Loader2Icon,
-  Trash2Icon,
-  UploadIcon,
-} from "lucide-react";
-import * as React from "react";
-
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -25,14 +16,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from "@helvety/ui/alert-dialog";
+import { Button } from "@helvety/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@helvety/ui/dropdown-menu";
+import {
+  DownloadIcon,
+  EllipsisVerticalIcon,
+  Loader2Icon,
+  Trash2Icon,
+  UploadIcon,
+} from "lucide-react";
+import * as React from "react";
 
 /** Props for the PdfCommandBar component. */
 interface PdfCommandBarProps {

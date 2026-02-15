@@ -2,7 +2,7 @@
   "name": "Helvety Auth",
   "short_name": "Helvety Auth",
   "description": "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
-  "start_url": "/",
+  "start_url": "/auth",
   "display": "standalone",
   "background_color": "#faf8f7",
   "theme_color": "#faf8f7",
