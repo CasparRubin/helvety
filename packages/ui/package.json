@@ -22,6 +22,7 @@
     "./checkbox": "./src/checkbox.tsx",
     "./collapsible": "./src/collapsible.tsx",
     "./command": "./src/command.tsx",
+    "./command-bar": "./src/command-bar.tsx",
     "./dialog": "./src/dialog.tsx",
     "./dropdown-menu": "./src/dropdown-menu.tsx",
     "./footer": "./src/footer.tsx",

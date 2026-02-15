@@ -200,10 +200,10 @@ async function NavbarWrapper({
     <div className="flex h-screen flex-col overflow-hidden">
       <header className="shrink-0">
         <Navbar initialUser={initialUser} />
-        <StoreNav />
       </header>
       <ScrollArea className="min-h-0 flex-1">
         <div className="mx-auto w-full max-w-[2000px]">
+          <StoreNav />
           <main className="min-w-0">{children}</main>
         </div>
       </ScrollArea>

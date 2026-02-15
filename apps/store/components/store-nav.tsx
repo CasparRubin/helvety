@@ -3,10 +3,26 @@
 /**
  * Store section navigation
  * Renders four links (Products, Account, Subscriptions, Tenants) below the navbar.
+ * Desktop: horizontal flex row of link-buttons
+ * Mobile: dropdown showing the active link as trigger
  */
 
 import { cn } from "@helvety/shared/utils";
-import { Package, User, CreditCard, Building2 } from "lucide-react";
+import { Button } from "@helvety/ui/button";
+import { CommandBar } from "@helvety/ui/command-bar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@helvety/ui/dropdown-menu";
+import {
+  Package,
+  User,
+  CreditCard,
+  Building2,
+  ChevronDownIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -23,38 +39,69 @@ const links = [
 export function StoreNav() {
   const pathname = usePathname();
 
+  const getIsActive = (href: string) => {
+    const isProducts = href === "/products";
+    return isProducts
+      ? pathname === "/products" || pathname.startsWith("/products/")
+      : pathname === href;
+  };
+
+  const activeLink = links.find((l) => getIsActive(l.href)) ?? links[0]!;
+  const ActiveIcon = activeLink.icon;
+
   return (
-    <nav
-      className={
-        "bg-card/70 supports-[backdrop-filter]:bg-card/50 z-40 w-full border-b backdrop-blur min-[2000px]:border-x"
-      }
-    >
-      <div className="container mx-auto px-4 py-2 md:py-0">
-        <div className="grid grid-cols-2 gap-1 md:flex md:h-12 md:items-center">
+    <CommandBar>
+      {/* Desktop: horizontal link row */}
+      <div className="hidden items-center gap-1 md:flex">
+        {links.map(({ href, label, icon: Icon }) => {
+          const isActive = getIsActive(href);
+
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-secondary text-secondary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <Icon className="size-4 shrink-0" />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Mobile: dropdown showing active link */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-1.5 md:hidden">
+            <ActiveIcon className="size-4" />
+            <span>{activeLink.label}</span>
+            <ChevronDownIcon className="ml-1 size-3.5 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
           {links.map(({ href, label, icon: Icon }) => {
-            const isProducts = href === "/products";
-            const isActive = isProducts
-              ? pathname === "/products" || pathname.startsWith("/products/")
-              : pathname === href;
+            const isActive = getIsActive(href);
 
             return (
-              <Link
+              <DropdownMenuItem
                 key={href}
-                href={href}
-                className={cn(
-                  "flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors md:justify-start",
-                  isActive
-                    ? "bg-secondary text-secondary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
+                asChild
+                className={cn(isActive && "bg-accent")}
               >
-                <Icon className="size-4 shrink-0" />
-                <span>{label}</span>
-              </Link>
+                <Link href={href}>
+                  <Icon className="mr-2 size-4" />
+                  <span>{label}</span>
+                </Link>
+              </DropdownMenuItem>
             );
           })}
-        </div>
-      </div>
-    </nav>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </CommandBar>
   );
 }

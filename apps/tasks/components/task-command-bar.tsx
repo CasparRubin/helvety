@@ -8,6 +8,7 @@
 
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
+import { CommandBar, CommandBarSpacer } from "@helvety/ui/command-bar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,149 +76,140 @@ export function TaskCommandBar({
   isExporting,
 }: TaskCommandBarProps) {
   return (
-    <nav
-      className={
-        "bg-card/70 supports-[backdrop-filter]:bg-card/50 sticky top-0 z-40 w-full border-b backdrop-blur min-[2000px]:border-x"
-      }
-    >
-      <div className="container mx-auto px-4 py-2 md:py-0">
-        <div className="flex items-center gap-1 md:h-12 md:gap-2">
-          {/* Left group: Back, New */}
-          {onBack && (
-            <>
-              <Button variant="ghost" size="sm" onClick={onBack}>
-                <ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />
-                <span>Back</span>
-              </Button>
-              <Separator
-                orientation="vertical"
-                className="mx-2 hidden self-stretch md:block"
-              />
-            </>
-          )}
-          <Button size="sm" onClick={onCreateClick}>
-            <PlusIcon className="mr-1.5 size-4 shrink-0" />
-            <span>{createLabel}</span>
+    <CommandBar>
+      {/* Left group: Back, New */}
+      {onBack && (
+        <>
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />
+            <span>Back</span>
           </Button>
+          <Separator
+            orientation="vertical"
+            className="mx-2 hidden self-stretch md:block"
+          />
+        </>
+      )}
+      <Button size="sm" onClick={onCreateClick}>
+        <PlusIcon className="mr-1.5 size-4 shrink-0" />
+        <span>{createLabel}</span>
+      </Button>
 
-          {/* Desktop only: Refresh */}
+      {/* Desktop only: Refresh */}
+      {onRefresh && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          className="hidden md:inline-flex"
+        >
+          <RefreshCwIcon
+            className={cn(
+              "mr-1.5 size-4 shrink-0",
+              isRefreshing && "animate-spin"
+            )}
+          />
+          <span>Refresh</span>
+        </Button>
+      )}
+
+      <CommandBarSpacer />
+
+      {/* Desktop only: Export, Settings, Edit, Delete */}
+      {onExport && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onExport}
+          disabled={isExporting}
+          className="hidden md:inline-flex"
+        >
+          {isExporting ? (
+            <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
+          ) : (
+            <DownloadIcon className="mr-1.5 size-4 shrink-0" />
+          )}
+          <span>{isExporting ? "Exporting..." : "Export Data"}</span>
+        </Button>
+      )}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onSettings}
+        className="hidden md:inline-flex"
+      >
+        <SettingsIcon className="mr-1.5 size-4 shrink-0" />
+        <span>Settings</span>
+      </Button>
+      {onEdit && editLabel && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onEdit}
+          className="hidden md:inline-flex"
+        >
+          <PencilIcon className="mr-1.5 size-4 shrink-0" />
+          <span>{editLabel}</span>
+        </Button>
+      )}
+      {onDelete && deleteLabel && (
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={onDelete}
+          className="hidden md:inline-flex"
+        >
+          <Trash2Icon className="mr-1.5 size-4 shrink-0" />
+          <span>{deleteLabel}</span>
+        </Button>
+      )}
+
+      {/* Mobile only: overflow dropdown for secondary actions */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="md:hidden">
+            <EllipsisVerticalIcon className="size-4" />
+            <span className="sr-only">More actions</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
           {onRefresh && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={isRefreshing}
-              className="hidden md:inline-flex"
-            >
-              <RefreshCwIcon
-                className={cn(
-                  "mr-1.5 size-4 shrink-0",
-                  isRefreshing && "animate-spin"
-                )}
-              />
+            <DropdownMenuItem onClick={onRefresh} disabled={isRefreshing}>
+              <RefreshCwIcon className="mr-2 size-4" />
               <span>Refresh</span>
-            </Button>
+            </DropdownMenuItem>
           )}
-
-          {/* Spacer pushes right group to the end */}
-          <div className="flex-1" />
-
-          {/* Desktop only: Export, Settings, Edit, Delete */}
           {onExport && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onExport}
-              disabled={isExporting}
-              className="hidden md:inline-flex"
-            >
-              {isExporting ? (
-                <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
-              ) : (
-                <DownloadIcon className="mr-1.5 size-4 shrink-0" />
-              )}
+            <DropdownMenuItem onClick={onExport} disabled={isExporting}>
+              <DownloadIcon className="mr-2 size-4" />
               <span>{isExporting ? "Exporting..." : "Export Data"}</span>
-            </Button>
+            </DropdownMenuItem>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onSettings}
-            className="hidden md:inline-flex"
-          >
-            <SettingsIcon className="mr-1.5 size-4 shrink-0" />
+          <DropdownMenuItem onClick={onSettings}>
+            <SettingsIcon className="mr-2 size-4" />
             <span>Settings</span>
-          </Button>
+          </DropdownMenuItem>
           {onEdit && editLabel && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onEdit}
-              className="hidden md:inline-flex"
-            >
-              <PencilIcon className="mr-1.5 size-4 shrink-0" />
+            <DropdownMenuItem onClick={onEdit}>
+              <PencilIcon className="mr-2 size-4" />
               <span>{editLabel}</span>
-            </Button>
+            </DropdownMenuItem>
           )}
           {onDelete && deleteLabel && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={onDelete}
-              className="hidden md:inline-flex"
-            >
-              <Trash2Icon className="mr-1.5 size-4 shrink-0" />
-              <span>{deleteLabel}</span>
-            </Button>
-          )}
-
-          {/* Mobile only: overflow dropdown for secondary actions */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="md:hidden">
-                <EllipsisVerticalIcon className="size-4" />
-                <span className="sr-only">More actions</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {onRefresh && (
-                <DropdownMenuItem onClick={onRefresh} disabled={isRefreshing}>
-                  <RefreshCwIcon className="mr-2 size-4" />
-                  <span>Refresh</span>
-                </DropdownMenuItem>
-              )}
-              {onExport && (
-                <DropdownMenuItem onClick={onExport} disabled={isExporting}>
-                  <DownloadIcon className="mr-2 size-4" />
-                  <span>{isExporting ? "Exporting..." : "Export Data"}</span>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={onSettings}>
-                <SettingsIcon className="mr-2 size-4" />
-                <span>Settings</span>
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={onDelete}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2Icon className="mr-2 size-4" />
+                <span>{deleteLabel}</span>
               </DropdownMenuItem>
-              {onEdit && editLabel && (
-                <DropdownMenuItem onClick={onEdit}>
-                  <PencilIcon className="mr-2 size-4" />
-                  <span>{editLabel}</span>
-                </DropdownMenuItem>
-              )}
-              {onDelete && deleteLabel && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={onDelete}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <Trash2Icon className="mr-2 size-4" />
-                    <span>{deleteLabel}</span>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-    </nav>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </CommandBar>
   );
 }

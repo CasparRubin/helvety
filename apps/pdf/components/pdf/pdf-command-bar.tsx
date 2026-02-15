@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
+import { CommandBar, CommandBarSpacer } from "@helvety/ui/command-bar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,115 +66,81 @@ export function PdfCommandBar({
 
   return (
     <>
-      <nav
-        className={
-          "bg-card/70 supports-[backdrop-filter]:bg-card/50 sticky top-0 z-40 w-full border-b backdrop-blur min-[2000px]:border-x"
-        }
-      >
-        <div className="container mx-auto px-4 py-2 md:py-0">
-          <div className="flex items-center gap-1 md:h-12 md:gap-2">
-            {/* Add Files button - always visible */}
-            <Button size="sm" onClick={onAddFiles} disabled={isProcessing}>
-              <UploadIcon className="mr-1.5 size-4 shrink-0" />
-              <span>{hasFiles ? "Add More" : "Add Files"}</span>
-            </Button>
+      <CommandBar>
+        {/* Add Files button - always visible */}
+        <Button size="sm" onClick={onAddFiles} disabled={isProcessing}>
+          <UploadIcon className="mr-1.5 size-4 shrink-0" />
+          <span>{hasFiles ? "Add More" : "Add Files"}</span>
+        </Button>
 
-            {/* Desktop only: Clear All with confirmation */}
-            {hasFiles && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={isProcessing}
-                    className="hidden md:inline-flex"
-                  >
-                    <Trash2Icon className="mr-1.5 size-4 shrink-0" />
-                    <span>Clear All</span>
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Clear All Files?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will remove all files and pages from the canvas. This
-                      action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={onClearAll}
-                      variant="destructive"
-                    >
-                      Clear All
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-
-            {/* Spacer */}
-            <div className="flex-1" />
-
-            {/* Desktop only: Download */}
-            {hasFiles && (
+        {/* Desktop only: Clear All with confirmation */}
+        {hasFiles && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
               <Button
+                variant="outline"
                 size="sm"
-                onClick={onDownload}
                 disabled={isProcessing}
                 className="hidden md:inline-flex"
               >
-                {isProcessing ? (
-                  <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
-                ) : (
-                  <DownloadIcon className="mr-1.5 size-4 shrink-0" />
-                )}
-                <span>{isProcessing ? "Processing..." : "Download PDF"}</span>
+                <Trash2Icon className="mr-1.5 size-4 shrink-0" />
+                <span>Clear All</span>
               </Button>
-            )}
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Clear All Files?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will remove all files and pages from the canvas. This
+                  action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={onClearAll} variant="destructive">
+                  Clear All
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
 
-            {/* Mobile only: Download (always visible when files exist) */}
-            {hasFiles && (
-              <Button
-                size="sm"
-                onClick={onDownload}
+        <CommandBarSpacer />
+
+        {/* Download - always visible when files exist */}
+        {hasFiles && (
+          <Button size="sm" onClick={onDownload} disabled={isProcessing}>
+            {isProcessing ? (
+              <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
+            ) : (
+              <DownloadIcon className="mr-1.5 size-4 shrink-0" />
+            )}
+            <span>{isProcessing ? "Processing..." : "Download PDF"}</span>
+          </Button>
+        )}
+
+        {/* Mobile only: overflow dropdown for secondary actions */}
+        {hasFiles && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="md:hidden">
+                <EllipsisVerticalIcon className="size-4" />
+                <span className="sr-only">More actions</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
                 disabled={isProcessing}
-                className="md:hidden"
+                onClick={() => setShowClearDialog(true)}
+                variant="destructive"
               >
-                {isProcessing ? (
-                  <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
-                ) : (
-                  <DownloadIcon className="mr-1.5 size-4 shrink-0" />
-                )}
-                <span>{isProcessing ? "Processing..." : "Download"}</span>
-              </Button>
-            )}
-
-            {/* Mobile only: overflow dropdown for secondary actions */}
-            {hasFiles && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="md:hidden">
-                    <EllipsisVerticalIcon className="size-4" />
-                    <span className="sr-only">More actions</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    disabled={isProcessing}
-                    onClick={() => setShowClearDialog(true)}
-                    variant="destructive"
-                  >
-                    <Trash2Icon className="mr-2 size-4" />
-                    <span>Clear All</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-        </div>
-      </nav>
+                <Trash2Icon className="mr-2 size-4" />
+                <span>Clear All</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </CommandBar>
 
       {/* Mobile clear-all confirmation dialog (triggered from dropdown) */}
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
