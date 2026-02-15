@@ -106,7 +106,9 @@ export function StageGroup({
         />
 
         {/* Stage name */}
-        <span className="text-sm font-medium">{stage.name}</span>
+        <span className="min-w-0 truncate text-sm font-medium">
+          {stage.name}
+        </span>
 
         {/* Count */}
         <span className="text-muted-foreground text-xs">({count})</span>
