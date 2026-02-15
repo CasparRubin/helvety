@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A private and secure task management app with end-to-end encryption. All your data is encrypted and only you can read it. Engineered & Designed in Switzerland.
+A private and secure task management app with end-to-end encryption. All your content is encrypted and only you can read it. Engineered & Designed in Switzerland.
 
 **App:** [tasks.helvety.com](https://tasks.helvety.com)
 
@@ -17,7 +17,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 ## Features
 
-- **End-to-end encryption** - All task data is encrypted client-side using your passkey; we never see your data
+- **End-to-end encryption** - All task content is encrypted client-side using your passkey; we never see your content (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
 - **Units, Spaces, and Items** - Hierarchical organization: Units (top-level containers) → Spaces (teams/projects) → Items (tasks)
 - **Rich text descriptions** - Rich text editor for item descriptions with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
@@ -69,7 +69,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ### End-to-End Encryption
 
-Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. Your task data is encrypted and decrypted entirely in your browser using a key derived from your passkey. The server stores only encrypted data and PRF salt parameters. The server never possesses your encryption key.
+Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. Your task content is encrypted and decrypted entirely in your browser using a key derived from your passkey. The server stores only encrypted ciphertext and PRF salt parameters. The server never possesses your encryption key.
 
 **How it works:**
 
@@ -81,7 +81,38 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. Your 
 6. Record identifiers for encrypted data are generated on your device, not by the server
 7. The server stores only encrypted ciphertext and PRF salt values
 
-**Important:** Your passkey is the only way to decrypt your data. If you lose access to your passkey, your encrypted data cannot be recovered.
+**Important:** Your passkey is the only way to decrypt your content. If you lose access to your passkey, your encrypted content cannot be recovered.
+
+#### Encrypted vs. Non-Encrypted Fields
+
+**Encrypted fields** (AES-256-GCM, client-side before storage):
+
+| Entity      | Encrypted Fields                                                                |
+| ----------- | ------------------------------------------------------------------------------- |
+| Unit        | `title`, `description`                                                          |
+| Space       | `title`, `description`                                                          |
+| Item        | `title`, `description`, `start_date`, `end_date`                                |
+| StageConfig | `name`                                                                          |
+| Stage       | `name`                                                                          |
+| LabelConfig | `name`                                                                          |
+| Label       | `name`                                                                          |
+| Attachment  | file content (binary), metadata (`filename`, `mime_type`, `size`, `compressed`) |
+
+**Non-encrypted structural metadata** (stored in plaintext to enable application functionality):
+
+| Field                                         | Purpose                                              |
+| --------------------------------------------- | ---------------------------------------------------- |
+| Record identifiers (`id`)                     | Generated client-side; bound to ciphertext via AAD   |
+| `user_id`                                     | Row Level Security (RLS)                             |
+| `created_at`, `updated_at`                    | Timestamps                                           |
+| `sort_order`                                  | Display ordering                                     |
+| `priority` (Item)                             | Priority level (0-3 numeric)                         |
+| `stage_id`, `label_id`, `space_id`, `unit_id` | Entity relationships                                 |
+| `color`, `icon` (Stage/Label)                 | Display preferences                                  |
+| `default_rows_shown` (Stage)                  | UI preference                                        |
+| `storage_path` (Attachment)                   | Storage location                                     |
+| Stage/Label/Contact assignments               | Linking tables (all fields plaintext)                |
+| Audit logs                                    | Timestamps, IPs, file sizes, user IDs, storage paths |
 
 Browser requirements for end-to-end encryption:
 
@@ -100,7 +131,7 @@ Browser requirements for end-to-end encryption:
 
 ### Authentication Flow
 
-Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is required** because all task data is encrypted and tied to your passkey.
+Authentication is handled by the centralized Helvety Auth service (`auth.helvety.com`) using **email + passkey authentication** with no passwords required. **Login is required** because all task content is encrypted and tied to your passkey.
 
 **New Users:**
 

@@ -267,7 +267,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
             <DialogHeader>
               <DialogTitle>Create Space</DialogTitle>
               <DialogDescription>
-                Create a new space within this unit. All data is encrypted
+                Create a new space within this unit. All content is encrypted
                 end-to-end.
               </DialogDescription>
             </DialogHeader>
@@ -327,7 +327,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
             <DialogHeader>
               <DialogTitle>Edit Unit</DialogTitle>
               <DialogDescription>
-                Update the unit name and description. All data is encrypted
+                Update the unit name and description. All content is encrypted
                 end-to-end.
               </DialogDescription>
             </DialogHeader>

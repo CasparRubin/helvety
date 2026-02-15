@@ -300,7 +300,7 @@ export function ItemsDashboard({
             <DialogHeader>
               <DialogTitle>Create Item</DialogTitle>
               <DialogDescription>
-                Create a new item in this space. All data is encrypted
+                Create a new item in this space. All content is encrypted
                 end-to-end.
               </DialogDescription>
             </DialogHeader>
@@ -358,7 +358,7 @@ export function ItemsDashboard({
             <DialogHeader>
               <DialogTitle>Edit Space</DialogTitle>
               <DialogDescription>
-                Update the space name and description. All data is encrypted
+                Update the space name and description. All content is encrypted
                 end-to-end.
               </DialogDescription>
             </DialogHeader>

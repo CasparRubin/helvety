@@ -176,14 +176,17 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <TooltipContent className="max-w-xs space-y-2 p-3">
                   <p className="font-semibold">End-to-End Encrypted</p>
                   <p>
-                    All your data is encrypted on your device before it leaves
-                    your browser. Only you can read it. Not even we can access
-                    your tasks, notes, or any other content.
+                    All your content is encrypted on your device before it
+                    leaves your browser. Only you can read it. Not even we can
+                    access your tasks, notes, or any other content. Some
+                    structural metadata (such as timestamps and display
+                    preferences) is stored unencrypted to enable app
+                    functionality.
                   </p>
                   <p>
                     Encryption is tied to your passkey. If you lose your
-                    passkey, your data cannot be recovered by anyone, including
-                    us. There is no reset or backup option.
+                    passkey, your encrypted content cannot be recovered by
+                    anyone, including us. There is no reset or backup option.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -210,8 +213,8 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
                     Private and secure task management with end-to-end
-                    encryption. All your data is encrypted and only you can read
-                    it. Engineered & Designed in Switzerland.
+                    encryption. All your content is encrypted and only you can
+                    read it. Engineered & Designed in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

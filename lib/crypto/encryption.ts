@@ -1,6 +1,6 @@
 /**
  * Encryption Module
- * AES-256-GCM encryption and decryption for user data
+ * AES-256-GCM encryption and decryption for user content
  */
 
 import { base64Encode, base64Decode, generateIV } from "./encoding";
