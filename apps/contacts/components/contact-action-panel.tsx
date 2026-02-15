@@ -73,7 +73,7 @@ export function ContactActionPanel({
 
   return (
     <aside className="w-full md:sticky md:top-20 md:w-80 md:shrink-0">
-      <Card size="sm">
+      <Card size="sm" className="bg-surface-panel">
         <CardContent>
           {/* Dates section */}
           <Collapsible defaultOpen>

@@ -18,7 +18,7 @@ export function CommandBar({
   return (
     <nav
       className={cn(
-        "bg-card/70 supports-[backdrop-filter]:bg-card/50 sticky top-0 z-40 w-full border-b backdrop-blur min-[2000px]:border-x",
+        "bg-surface-toolbar sticky top-0 z-40 w-full border-x border-b",
         className
       )}
     >

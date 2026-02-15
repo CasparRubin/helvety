@@ -90,6 +90,7 @@ helvety/
 │   ├── config/       # Shared tooling configs
 │   ├── shared/       # Shared libraries
 │   └── ui/           # Shared UI components (shadcn/ui, footer, theme provider)
+├── patches/          # Bun dependency patches (applied on install)
 ├── supabase/         # Database schema export & SQL scripts (gitignored export)
 ├── turbo.json        # Turborepo task configuration
 └── package.json      # Root workspace configuration

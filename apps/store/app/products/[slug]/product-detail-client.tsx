@@ -260,7 +260,7 @@ export function ProductDetailClient({
 
         {/* Right Sidebar - Features & Requirements */}
         <div className="space-y-6">
-          <div className="bg-card sticky top-32 z-10 space-y-6 rounded-xl border p-6 shadow-sm">
+          <div className="bg-surface-panel sticky top-32 z-10 space-y-6 rounded-xl border p-6 shadow-sm">
             {/* Features */}
             <section>
               <h2 className="mb-4 text-lg font-semibold">Features</h2>
@@ -290,7 +290,7 @@ export function ProductDetailClient({
           {product.media &&
             ((product.media.screencaptures?.length ?? 0) > 0 ||
               (product.media.screenshots?.length ?? 0) > 0) && (
-              <div className="bg-card rounded-xl border p-6 shadow-sm">
+              <div className="bg-surface-panel rounded-xl border p-6 shadow-sm">
                 <Collapsible defaultOpen={false}>
                   <CollapsibleTrigger className="flex w-full items-center justify-between transition-opacity hover:opacity-80">
                     <h2 className="text-lg font-semibold">Media</h2>
