@@ -1,5 +1,6 @@
 import "server-only";
 
+import { DOMAIN, DEV_PORTS } from "@helvety/shared/config";
 import { cookies, headers } from "next/headers";
 import { z } from "zod";
 
@@ -80,10 +81,10 @@ export function getRpId(origin: string): string {
       return "localhost";
     }
     // In production, always use the root domain for passkey sharing across all apps
-    return "helvety.com";
+    return DOMAIN;
   } catch {
     // Fallback to production domain
-    return "helvety.com";
+    return DOMAIN;
   }
 }
 
@@ -94,19 +95,13 @@ export function getRpId(origin: string): string {
 export function getExpectedOrigins(rpId: string): string[] {
   if (rpId === "localhost") {
     // All local development ports for Helvety apps
-    // 3000: reserved for new dev, 3001: helvety.com, 3002: auth, 3003: store, 3004: pdf, 3005: tasks, 3006: contacts
     return [
       "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:3002",
-      "http://localhost:3003",
-      "http://localhost:3004",
-      "http://localhost:3005",
-      "http://localhost:3006",
+      ...Object.values(DEV_PORTS).map((port) => `http://localhost:${port}`),
     ];
   }
-  // All apps now served under helvety.com via path-based routing (multi-zone)
-  return ["https://helvety.com"];
+  // All apps served under helvety.com via path-based routing (multi-zone)
+  return [`https://${DOMAIN}`];
 }
 
 // =============================================================================

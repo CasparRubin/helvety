@@ -5,6 +5,7 @@
  * Query and manage user subscriptions
  */
 
+import { urls } from "@helvety/shared/config";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { isValidRelativePath } from "@helvety/shared/redirect-validation";
@@ -677,8 +678,7 @@ export async function getCustomerPortalUrl(
 
     // Validate returnUrl to prevent open redirect attacks
     // Only allow relative paths (e.g., "/account") - no external URLs
-    const appBaseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ?? "https://helvety.com/store";
+    const appBaseUrl = urls.store;
     const safeReturnUrl =
       returnUrl && isValidRelativePath(returnUrl)
         ? `${appBaseUrl}${returnUrl}`

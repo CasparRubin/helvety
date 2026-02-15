@@ -9,6 +9,7 @@
  * of ContactLinksPanel in the Tasks app for consistent cross-app UI/UX.
  */
 
+import { urls } from "@helvety/shared/config";
 import {
   BoxesIcon,
   BoxIcon,
@@ -67,8 +68,7 @@ import type {
 // Helpers
 // =============================================================================
 
-const TASKS_APP_URL =
-  process.env.NEXT_PUBLIC_TASKS_URL ?? "https://helvety.com/tasks";
+const TASKS_APP_URL = urls.tasks;
 
 /** Build a deep link URL to a unit in the Tasks app */
 function getUnitDeepLink(unitId: string): string {

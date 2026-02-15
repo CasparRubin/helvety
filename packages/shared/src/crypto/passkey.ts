@@ -7,6 +7,8 @@
  * for E2EE key derivation.
  */
 
+import { DOMAIN, urls } from "../config";
+
 import {
   startRegistration,
   startAuthentication,
@@ -45,16 +47,10 @@ export function getRPConfig(): RPConfig {
 
   if (typeof window === "undefined") {
     // Server-side fallback (passkey operations should only happen client-side)
-    const authUrl =
-      process.env.NEXT_PUBLIC_AUTH_URL ??
-      (process.env.NODE_ENV === "development"
-        ? "http://localhost:3001/auth"
-        : "https://helvety.com/auth");
     return {
-      rpId:
-        process.env.NODE_ENV === "development" ? "localhost" : "helvety.com",
+      rpId: process.env.NODE_ENV === "development" ? "localhost" : DOMAIN,
       rpName,
-      origin: authUrl,
+      origin: urls.auth,
     };
   }
 
@@ -65,7 +61,7 @@ export function getRPConfig(): RPConfig {
     window.location.hostname === "127.0.0.1";
 
   return {
-    rpId: isDev ? "localhost" : "helvety.com",
+    rpId: isDev ? "localhost" : DOMAIN,
     rpName,
     origin: window.location.origin,
   };

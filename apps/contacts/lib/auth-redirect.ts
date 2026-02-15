@@ -8,51 +8,30 @@
  * open redirect attacks.
  */
 
+import { urls } from "@helvety/shared/config";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
-
-/**
- * Get the base URL for the auth service
- */
-function getAuthBaseUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_AUTH_URL ??
-    (process.env.NODE_ENV === "development"
-      ? "http://localhost:3001/auth"
-      : "https://helvety.com/auth")
-  );
-}
 
 /**
  * Get the login URL for redirecting to the auth service.
  * Includes the current URL as redirect_uri parameter for post-login return.
  *
  * Security: The redirect URI is validated against an allowlist to prevent
- * open redirect attacks. Invalid URIs fall back to the default app URL.
+ * open redirect attacks. Invalid URIs fall back to the contacts app URL.
  */
 export function getLoginUrl(currentUrl?: string): string {
-  const authBase = getAuthBaseUrl();
-  const defaultUri =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.NODE_ENV === "development"
-      ? "http://localhost:3001/contacts"
-      : "https://helvety.com/contacts");
-
   // Determine the redirect URI with validation
   let redirectUri: string;
 
   if (currentUrl && isValidRedirectUri(currentUrl)) {
-    // Use provided URL if it passes validation
     redirectUri = currentUrl;
   } else if (typeof window !== "undefined") {
-    // Client-side: use current location (always valid as it's from the browser)
     const windowUrl = window.location.href;
-    redirectUri = isValidRedirectUri(windowUrl) ? windowUrl : defaultUri;
+    redirectUri = isValidRedirectUri(windowUrl) ? windowUrl : urls.contacts;
   } else {
-    // Server-side: use app URL from environment
-    redirectUri = defaultUri;
+    redirectUri = urls.contacts;
   }
 
-  return `${authBase}/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
+  return `${urls.auth}/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
 }
 
 /**
@@ -60,21 +39,15 @@ export function getLoginUrl(currentUrl?: string): string {
  * Includes an optional redirect_uri parameter for post-logout navigation.
  *
  * Security: The redirect URI is validated against an allowlist to prevent
- * open redirect attacks. Invalid URIs fall back to the default app URL.
+ * open redirect attacks. Invalid URIs fall back to the contacts app URL.
  */
 export function getLogoutUrl(redirectUri?: string): string {
-  const authBase = getAuthBaseUrl();
-  const defaultUri =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.NODE_ENV === "development"
-      ? "http://localhost:3001/contacts"
-      : "https://helvety.com/contacts");
-
-  // Validate the provided URI; fall back to default if invalid
   const redirect =
-    redirectUri && isValidRedirectUri(redirectUri) ? redirectUri : defaultUri;
+    redirectUri && isValidRedirectUri(redirectUri)
+      ? redirectUri
+      : urls.contacts;
 
-  return `${authBase}/logout?redirect_uri=${encodeURIComponent(redirect)}`;
+  return `${urls.auth}/logout?redirect_uri=${encodeURIComponent(redirect)}`;
 }
 
 /**

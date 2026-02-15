@@ -1,5 +1,6 @@
 "use client";
 
+import { urls } from "@helvety/shared/config";
 import {
   Loader2Icon,
   NotepadTextIcon,
@@ -47,8 +48,7 @@ import type { EntityType, Contact } from "@/lib/types";
 // Helpers
 // =============================================================================
 
-const CONTACTS_APP_URL =
-  process.env.NEXT_PUBLIC_CONTACTS_URL ?? "https://helvety.com/contacts";
+const CONTACTS_APP_URL = urls.contacts;
 
 /** Build a deep link URL to view/edit a contact in the Contacts app */
 function getContactDeepLink(contactId: string): string {

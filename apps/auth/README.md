@@ -41,11 +41,10 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 | `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                          |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                        |
 | `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key; bypasses RLS. Never expose. |
-| `NEXT_PUBLIC_*` URLs                   | No       | No          | Cross-app URLs; have sensible defaults        |
 | `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.  |
 | `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                  |
 
-> **Note:** Make sure `NEXT_PUBLIC_APP_URL` is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+> **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
 ## Tech Stack
 
@@ -176,7 +175,7 @@ Signs out the user with secure key cleanup and redirects. This is a client-side 
 The proxy (`proxy.ts`) handles session validation, CSRF token generation, and same-origin cookie management:
 
 - **Session Validation & Refresh** - Uses `getClaims()` to validate the JWT locally (no Auth API call when the token is valid). The Supabase Auth API is only called when a token refresh is needed (e.g. near or past expiry). Refreshed tokens are written to cookies automatically. The call is wrapped in try/catch for resilience against transient network failures (VPN, Private Relay, mobile).
-- **Session Sharing** - Sets cookies using `COOKIE_DOMAIN` env var (defaults to `.helvety.com`) for session sharing
+- **Session Sharing** - Sets cookies using the `COOKIE_DOMAIN` constant from `config.ts` (`.helvety.com` in production) for session sharing
 - **CSRF Token Generation** - Generates a CSRF token cookie on each request if not already present. The token is read by the layout and passed to client components via `CSRFProvider`. Server Actions validate the token using timing-safe comparison.
 - **Server Component Support** - Ensures server components always have access to fresh session data
 
@@ -197,7 +196,7 @@ window.location.href = loginUrl;
 // → https://helvety.com/auth/login?redirect_uri=https://helvety.com/store/account
 ```
 
-After authentication, users are redirected back to their original app with an active session (session sharing via cookie domain configured by `COOKIE_DOMAIN`, default `.helvety.com`).
+After authentication, users are redirected back to their original app with an active session (session sharing via the `COOKIE_DOMAIN` constant, `.helvety.com` in production).
 
 ## Database Schema
 
@@ -244,7 +243,7 @@ CREATE TABLE user_passkey_params (
 - **PKCE Flow** - Supabase uses PKCE for OAuth code exchange
 - **OTP Code Expiry** - Verification codes expire after 1 hour
 - **Passkey Verification** - Strict origin and RP ID validation
-- **Session Cookies** - Session sharing via `COOKIE_DOMAIN` (defaults to `.helvety.com`)
+- **Session Cookies** - Session sharing via `COOKIE_DOMAIN` constant (`.helvety.com` in production)
 - **Counter Tracking** - Prevents passkey replay attacks
 - **Redirect URI Validation** - All redirect URIs are validated against a strict allowlist to prevent open redirect attacks
 
@@ -280,7 +279,7 @@ The auth service validates all `redirect_uri` parameters to prevent open redirec
 - `http://localhost:*` - Any port (development only, gated behind `NODE_ENV`)
 - `http://127.0.0.1:*` - Any port (development only, gated behind `NODE_ENV`)
 
-When adding a new app, add its hostname to `ALLOWED_REDIRECT_HOSTS` in `lib/redirect-validation.ts`.
+All apps share the same hostname (`helvety.com`) with path-based routing, so redirect validation in `packages/shared/src/redirect-validation.ts` already allows all paths under `helvety.com`. No changes are needed when adding a new app.
 
 Invalid redirect URIs are rejected, and the user is redirected to `helvety.com` by default.
 

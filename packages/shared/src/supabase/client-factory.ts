@@ -3,20 +3,10 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+import { COOKIE_DOMAIN } from "../config";
 import { getSupabaseUrl, getSupabaseKey } from "../env-validation";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-
-/**
- * Get cookie domain for session sharing
- * In production, uses .helvety.com for session sharing
- */
-function getCookieDomain(): string | undefined {
-  if (process.env.NODE_ENV === "production") {
-    return ".helvety.com";
-  }
-  return undefined;
-}
 
 /**
  * Creates a Supabase server client with cookie handling for Server Components.
@@ -30,7 +20,7 @@ export async function createServerComponentClient(): Promise<SupabaseClient> {
   const supabaseUrl = getSupabaseUrl();
   const supabaseKey = getSupabaseKey();
   const cookieStore = await cookies();
-  const cookieDomain = getCookieDomain();
+  const cookieDomain = COOKIE_DOMAIN;
 
   return createServerClient(supabaseUrl, supabaseKey, {
     cookies: {

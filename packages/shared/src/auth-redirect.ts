@@ -8,19 +8,8 @@
  * open redirect attacks.
  */
 
+import { urls } from "./config";
 import { isValidRedirectUri } from "./redirect-validation";
-
-/**
- * Get the base URL for the auth service
- */
-function getAuthBaseUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_AUTH_URL ??
-    (process.env.NODE_ENV === "development"
-      ? "http://localhost:3001/auth"
-      : "https://helvety.com/auth")
-  );
-}
 
 /**
  * Get the login URL for redirecting to the auth service.
@@ -30,9 +19,6 @@ function getAuthBaseUrl(): string {
  * open redirect attacks. Invalid URIs fall back to the default app URL.
  */
 export function getLoginUrl(currentUrl?: string): string {
-  const authBase = getAuthBaseUrl();
-  const defaultUri = process.env.NEXT_PUBLIC_APP_URL ?? "https://helvety.com";
-
   // Determine the redirect URI with validation
   let redirectUri: string;
 
@@ -42,13 +28,13 @@ export function getLoginUrl(currentUrl?: string): string {
   } else if (typeof window !== "undefined") {
     // Client-side: use current location (always valid as it's from the browser)
     const windowUrl = window.location.href;
-    redirectUri = isValidRedirectUri(windowUrl) ? windowUrl : defaultUri;
+    redirectUri = isValidRedirectUri(windowUrl) ? windowUrl : urls.home;
   } else {
-    // Server-side: use app URL from environment
-    redirectUri = defaultUri;
+    // Server-side: use home URL
+    redirectUri = urls.home;
   }
 
-  return `${authBase}/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
+  return `${urls.auth}/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
 }
 
 /**
@@ -59,14 +45,11 @@ export function getLoginUrl(currentUrl?: string): string {
  * open redirect attacks. Invalid URIs fall back to the default app URL.
  */
 export function getLogoutUrl(redirectUri?: string): string {
-  const authBase = getAuthBaseUrl();
-  const defaultUri = process.env.NEXT_PUBLIC_APP_URL ?? "https://helvety.com";
-
   // Validate the provided URI; fall back to default if invalid
   const redirect =
-    redirectUri && isValidRedirectUri(redirectUri) ? redirectUri : defaultUri;
+    redirectUri && isValidRedirectUri(redirectUri) ? redirectUri : urls.home;
 
-  return `${authBase}/logout?redirect_uri=${encodeURIComponent(redirect)}`;
+  return `${urls.auth}/logout?redirect_uri=${encodeURIComponent(redirect)}`;
 }
 
 /**

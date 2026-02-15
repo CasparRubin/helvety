@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 
+import { COOKIE_DOMAIN } from "@helvety/shared/config";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -52,9 +53,9 @@ export async function proxy(request: NextRequest) {
         cookiesToSet.forEach(({ name, value, options }) => {
           const cookieOptions = {
             ...options,
-            // In production, use COOKIE_DOMAIN env for session sharing (same-origin under helvety.com)
+            // In production, use COOKIE_DOMAIN constant for session sharing (same-origin under helvety.com)
             ...(process.env.NODE_ENV === "production" && {
-              domain: process.env.COOKIE_DOMAIN ?? ".helvety.com",
+              domain: COOKIE_DOMAIN,
             }),
           };
           supabaseResponse.cookies.set(name, value, cookieOptions);

@@ -1,5 +1,6 @@
 "use client";
 
+import { urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
 import {
   Grip,
@@ -26,39 +27,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-/** Helvety ecosystem app URLs, configurable via NEXT_PUBLIC env vars */
+/** Helvety ecosystem app URLs */
 const apps = [
-  {
-    name: "Home",
-    href: process.env.NEXT_PUBLIC_HOME_URL ?? "https://helvety.com",
-    icon: Home,
-  },
-  {
-    name: "Auth",
-    href: process.env.NEXT_PUBLIC_AUTH_URL ?? "https://helvety.com/auth",
-    icon: KeyRound,
-  },
-  {
-    name: "Store",
-    href: process.env.NEXT_PUBLIC_STORE_URL ?? "https://helvety.com/store",
-    icon: ShoppingBag,
-  },
-  {
-    name: "PDF",
-    href: process.env.NEXT_PUBLIC_PDF_URL ?? "https://helvety.com/pdf",
-    icon: FileText,
-  },
-  {
-    name: "Tasks",
-    href: process.env.NEXT_PUBLIC_TASKS_URL ?? "https://helvety.com/tasks",
-    icon: CheckSquare,
-  },
-  {
-    name: "Contacts",
-    href:
-      process.env.NEXT_PUBLIC_CONTACTS_URL ?? "https://helvety.com/contacts",
-    icon: Users,
-  },
+  { name: "Home", href: urls.home, icon: Home },
+  { name: "Auth", href: urls.auth, icon: KeyRound },
+  { name: "Store", href: urls.store, icon: ShoppingBag },
+  { name: "PDF", href: urls.pdf, icon: FileText },
+  { name: "Tasks", href: urls.tasks, icon: CheckSquare },
+  { name: "Contacts", href: urls.contacts, icon: Users },
 ];
 
 /** Props for the AppSwitcher component */

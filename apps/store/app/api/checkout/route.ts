@@ -14,6 +14,7 @@
  * contract law compliance).
  */
 
+import { urls } from "@helvety/shared/config";
 import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { isValidRelativePath } from "@helvety/shared/redirect-validation";
@@ -218,8 +219,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Build success and cancel URLs
-    // Security: Use trusted NEXT_PUBLIC_APP_URL instead of client-controlled Origin header
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+    // Security: Use trusted store URL from shared config instead of client-controlled Origin header
+    const baseUrl = urls.store;
     const productSlug = productInfo.productId; // e.g., 'helvety-spo-explorer'
 
     // Security: Validate custom URLs to prevent open redirect attacks

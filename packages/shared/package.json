@@ -12,6 +12,7 @@
     "directory": "packages/shared"
   },
   "exports": {
+    "./config": "./src/config.ts",
     "./utils": "./src/utils.ts",
     "./logger": "./src/logger.ts",
     "./constants": "./src/constants.ts",

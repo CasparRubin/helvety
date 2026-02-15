@@ -1,5 +1,6 @@
 import path from "path";
 
+import { DEV_PORTS, DOMAIN } from "@helvety/shared/config";
 import bundleAnalyzer from "@next/bundle-analyzer";
 
 import type { NextConfig } from "next";
@@ -20,34 +21,24 @@ const nextConfig: NextConfig = {
   compress: true,
 
   // Multi-zone rewrites: proxy path-based URLs to each app's Vercel deployment.
-  // In production, AUTH_URL/TASKS_URL/etc. are the internal Vercel deployment URLs.
-  // In development, they point to the local dev server ports.
+  // In production, AUTH_URL/TASKS_URL/etc. must be set to the internal Vercel deployment URLs.
+  // In development, they fall back to local dev server ports from shared config.
   async rewrites() {
+    const isDev = process.env.NODE_ENV === "development";
+    const devUrl = (port: number) => `http://localhost:${port}`;
+    const prodFallback = `https://${DOMAIN}`;
+
     const authUrl =
-      process.env.AUTH_URL ??
-      (process.env.NODE_ENV === "development"
-        ? "http://localhost:3002"
-        : "https://helvety.com");
+      process.env.AUTH_URL ?? (isDev ? devUrl(DEV_PORTS.auth) : prodFallback);
     const tasksUrl =
-      process.env.TASKS_URL ??
-      (process.env.NODE_ENV === "development"
-        ? "http://localhost:3005"
-        : "https://helvety.com");
+      process.env.TASKS_URL ?? (isDev ? devUrl(DEV_PORTS.tasks) : prodFallback);
     const contactsUrl =
       process.env.CONTACTS_URL ??
-      (process.env.NODE_ENV === "development"
-        ? "http://localhost:3006"
-        : "https://helvety.com");
+      (isDev ? devUrl(DEV_PORTS.contacts) : prodFallback);
     const storeUrl =
-      process.env.STORE_URL ??
-      (process.env.NODE_ENV === "development"
-        ? "http://localhost:3003"
-        : "https://helvety.com");
+      process.env.STORE_URL ?? (isDev ? devUrl(DEV_PORTS.store) : prodFallback);
     const pdfUrl =
-      process.env.PDF_URL ??
-      (process.env.NODE_ENV === "development"
-        ? "http://localhost:3004"
-        : "https://helvety.com");
+      process.env.PDF_URL ?? (isDev ? devUrl(DEV_PORTS.pdf) : prodFallback);
 
     return [
       {
