@@ -85,16 +85,16 @@ This application includes the following security hardening:
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                          |
-| -------------------------------------- | -------- | ----------- | ---------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                 |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                               |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key; bypasses RLS. Never expose.        |
-| `NEXT_PUBLIC_*` URLs                   | No       | No          | Cross-app URLs; have sensible defaults               |
-| `STRIPE_SECRET_KEY`                    | Yes      | **Yes**     | Stripe API key. Never expose.                        |
-| `STRIPE_WEBHOOK_SECRET`                | Yes      | **Yes**     | Webhook signature verification. Never expose.        |
-| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.         |
-| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                         |
+| Variable                               | Required | Server-only | Description                                   |
+| -------------------------------------- | -------- | ----------- | --------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                          |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                        |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key; bypasses RLS. Never expose. |
+| `NEXT_PUBLIC_*` URLs                   | No       | No          | Cross-app URLs; have sensible defaults        |
+| `STRIPE_SECRET_KEY`                    | Yes      | **Yes**     | Stripe API key. Never expose.                 |
+| `STRIPE_WEBHOOK_SECRET`                | Yes      | **Yes**     | Webhook signature verification. Never expose. |
+| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.  |
+| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                  |
 
 > **Note:** Make sure `NEXT_PUBLIC_APP_URL` is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
