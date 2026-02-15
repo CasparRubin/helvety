@@ -2,11 +2,12 @@
 
 import "server-only";
 
+import { logAuthEvent } from "@helvety/shared/auth-logger";
+import { logger } from "@helvety/shared/logger";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
-import { logAuthEvent } from "@/lib/auth-logger";
 import { requireCSRFToken } from "@/lib/csrf";
-import { logger } from "@/lib/logger";
 import {
   checkRateLimit,
   RATE_LIMITS,
@@ -16,13 +17,13 @@ import {
   resetEscalatingLockout,
 } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createServerClient } from "@/lib/supabase/server";
+
 
 import { getClientIP } from "./auth-action-helpers";
 import { checkUserPasskeyStatus } from "./credential-actions";
 import { hasEncryptionSetup } from "./encryption-actions";
 
-import type { ActionResponse } from "@/lib/types";
+import type { ActionResponse } from "@helvety/shared/types/entities";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // =============================================================================

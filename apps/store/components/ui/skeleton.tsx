@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@helvety/shared/utils";
 
 /** Loading skeleton placeholder with pulse animation. */
 function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
@@ -12,3 +12,4 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 export { Skeleton };
+

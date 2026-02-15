@@ -1,5 +1,9 @@
 "use client";
 
+import { isPasskeySupported } from "@helvety/shared/crypto/passkey";
+import { logger } from "@helvety/shared/logger";
+import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
+import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -15,11 +19,8 @@ import {
 } from "@/app/actions/passkey-auth-actions";
 import { useCSRF } from "@/hooks/use-csrf";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
-import { isPasskeySupported } from "@/lib/crypto/passkey";
 import { isMobileDevice } from "@/lib/device-utils";
-import { logger } from "@/lib/logger";
-import { isValidRedirectUri } from "@/lib/redirect-validation";
-import { createBrowserClient } from "@/lib/supabase/client";
+
 
 import type { AuthStep, AuthFlowType } from "@/components/encryption-stepper";
 

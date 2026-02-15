@@ -20,7 +20,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
-import type { LogLevel } from "@/lib/auth-logger";
+import type { LogLevel } from "@helvety/shared/auth-logger";
 
 /**
  * Attachment operation event types

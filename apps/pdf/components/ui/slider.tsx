@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { Slider as SliderPrimitive } from "radix-ui";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 
 /** Range slider input component. */
 function Slider({

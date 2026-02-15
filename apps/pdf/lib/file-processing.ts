@@ -6,11 +6,12 @@
 // External libraries
 
 // Internal utilities
+import { logger } from "@helvety/shared/logger";
+
 import { yieldToBrowser } from "./batch-processing";
 import { safeRevokeObjectURL } from "./blob-url-utils";
 import { CACHE_LIMITS, PROCESSING } from "./constants";
 import { ERROR_TEMPLATES } from "./error-formatting";
-import { logger } from "./logger";
 import { getRecommendedCacheLimit, shouldYieldToBrowser } from "./memory-utils";
 import { getPdfColor } from "./pdf-colors";
 import { createPdfErrorInfo, PdfErrorType } from "./pdf-errors";
@@ -95,7 +96,7 @@ export function generateFileId(): string {
  *
  * @example
  * ```typescript
- * import { logger } from "./logger"
+ * import { logger } from "@helvety/shared/logger"
  * const result = await processFile(file, 0, pdfCache, true)
  * if ('error' in result) {
  *   logger.error('Processing failed:', result.error)

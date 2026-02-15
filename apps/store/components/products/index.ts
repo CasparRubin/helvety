@@ -16,3 +16,4 @@ export {
 } from "./product-filters";
 export { ProductsCatalog } from "./products-catalog";
 export { MediaGallery } from "./media-gallery";
+

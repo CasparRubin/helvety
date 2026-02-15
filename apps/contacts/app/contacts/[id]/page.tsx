@@ -1,6 +1,7 @@
+import { requireAuth } from "@helvety/shared/auth-guard";
+
 import { ContactEditor } from "@/components/contact-editor";
 import { EncryptionGate } from "@/components/encryption-gate";
-import { requireAuth } from "@/lib/auth-guard";
 import { CSRFProvider } from "@/lib/csrf-client";
 
 /**

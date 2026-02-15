@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { Popover as PopoverPrimitive } from "radix-ui";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 
 /** Popover root component. */
 function Popover({
@@ -94,3 +94,4 @@ export {
   PopoverTitle,
   PopoverTrigger,
 };
+

@@ -2,18 +2,19 @@
 
 import "server-only";
 
+import { logAuthEvent } from "@helvety/shared/auth-logger";
+import { logger } from "@helvety/shared/logger";
+import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import {
   generateAuthenticationOptions as generateAuthOptions,
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
 
-import { logAuthEvent } from "@/lib/auth-logger";
 import { requireCSRFToken } from "@/lib/csrf";
-import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
-import { getSafeRedirectUri } from "@/lib/redirect-validation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createServerClient } from "@/lib/supabase/server";
+
 
 import {
   getClientIP,
@@ -24,7 +25,7 @@ import {
   clearChallenge,
 } from "./auth-action-helpers";
 
-import type { ActionResponse, UserAuthCredential } from "@/lib/types";
+import type { ActionResponse, UserAuthCredential } from "@helvety/shared/types/entities";
 import type {
   GenerateAuthenticationOptionsOpts,
   VerifyAuthenticationResponseOpts,

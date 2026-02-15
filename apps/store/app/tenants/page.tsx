@@ -1,8 +1,8 @@
+import { requireAuth } from "@helvety/shared/auth-guard";
 import { Suspense } from "react";
 
 import { TenantsPageClient } from "@/app/tenants/tenants-page-client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireAuth } from "@/lib/auth-guard";
 
 import type { Metadata } from "next";
 
@@ -41,3 +41,4 @@ export default async function TenantsPage() {
     </Suspense>
   );
 }
+

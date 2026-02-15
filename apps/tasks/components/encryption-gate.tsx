@@ -1,11 +1,11 @@
 "use client";
 
+import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState, useRef, useMemo, type ReactNode } from "react";
 
 import { getEncryptionParams } from "@/app/actions/encryption-actions";
 import { EncryptionUnlock } from "@/components/encryption-unlock";
-import { getLoginUrl } from "@/lib/auth-redirect";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
 
 /** Props for the EncryptionGate component */

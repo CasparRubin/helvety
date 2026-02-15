@@ -1,5 +1,7 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { logger } from "@helvety/shared/logger";
 import {
   Building2,
   Plus,
@@ -55,8 +57,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCSRF } from "@/hooks/use-csrf";
-import { TOAST_DURATIONS } from "@/lib/constants";
-import { logger } from "@/lib/logger";
 
 import type { LicensedTenantWithSubscription } from "@/lib/types/entities";
 
@@ -728,3 +728,4 @@ export function TenantsTab() {
     </div>
   );
 }
+

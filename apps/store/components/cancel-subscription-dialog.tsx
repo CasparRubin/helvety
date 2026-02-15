@@ -5,6 +5,8 @@
  * Shows subscription details and confirms cancellation
  */
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { logger } from "@helvety/shared/logger";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -23,9 +25,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useCSRF } from "@/hooks/use-csrf";
-import { TOAST_DURATIONS } from "@/lib/constants";
 import { getProductById } from "@/lib/data/products";
-import { logger } from "@/lib/logger";
+
 
 import type { Subscription } from "@/lib/types/entities";
 
@@ -194,3 +195,4 @@ export function CancelSubscriptionDialog({
     </Dialog>
   );
 }
+

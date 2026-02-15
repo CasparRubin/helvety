@@ -5,8 +5,9 @@
  * Allows switching between monthly and yearly billing
  */
 
+import { cn } from "@helvety/shared/utils";
+
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
 /** Billing period option. */
 export type BillingPeriod = "monthly" | "yearly";
@@ -65,3 +66,4 @@ export function PricingToggle({
     </div>
   );
 }
+

@@ -7,6 +7,8 @@
  * page uses a compact list (SubscriptionsTab) instead of cards.
  */
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { logger } from "@helvety/shared/logger";
 import {
   CreditCard,
   ExternalLink,
@@ -39,8 +41,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCSRF } from "@/hooks/use-csrf";
-import { TOAST_DURATIONS } from "@/lib/constants";
-import { logger } from "@/lib/logger";
 
 import type { Subscription } from "@/lib/types/entities";
 
@@ -316,3 +316,4 @@ export function SubscriptionsSheet({
     </>
   );
 }
+

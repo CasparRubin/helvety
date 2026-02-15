@@ -1,7 +1,7 @@
+import { requireAuth } from "@helvety/shared/auth-guard";
 import { Suspense } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireAuth } from "@/lib/auth-guard";
 
 import { AccountClient } from "./account-client";
 
@@ -43,3 +43,4 @@ export default async function AccountPage() {
     </Suspense>
   );
 }
+

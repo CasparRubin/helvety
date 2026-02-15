@@ -74,3 +74,4 @@ export function ThemeSwitcher(): React.JSX.Element {
     </Tooltip>
   );
 }
+

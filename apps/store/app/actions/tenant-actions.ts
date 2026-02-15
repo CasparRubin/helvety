@@ -5,13 +5,14 @@
  * Manage licensed tenants for Helvety products
  */
 
+import { requireCSRFToken } from "@helvety/shared/csrf";
+import { logger } from "@helvety/shared/logger";
+import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
 import { z } from "zod";
 
-import { requireCSRFToken } from "@/lib/csrf";
 import { getMaxTenantsForTier } from "@/lib/license/validation";
-import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { createServerComponentClient } from "@/lib/supabase/client-factory";
+
 
 import type {
   ActionResponse,
@@ -545,3 +546,4 @@ export async function removeTenant(
     return { success: false, error: "An unexpected error occurred" };
   }
 }
+

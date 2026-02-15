@@ -1,5 +1,6 @@
 "use client";
 
+import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -40,7 +41,6 @@ import {
   useStageAssignment,
   useDataExport,
 } from "@/hooks";
-import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 
 /**
  * Spaces Dashboard - shows all spaces for a specific unit

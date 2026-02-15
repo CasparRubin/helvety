@@ -7,12 +7,13 @@
  * DELETE /api/tenants/[id] - Remove a tenant
  */
 
+
+import { validateCSRFToken } from "@helvety/shared/csrf";
+import { logger } from "@helvety/shared/logger";
+import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
 import { NextResponse } from "next/server";
 
-import { validateCSRFToken } from "@/lib/csrf";
-import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { createServerComponentClient } from "@/lib/supabase/client-factory";
 
 import type { NextRequest } from "next/server";
 

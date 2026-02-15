@@ -7,10 +7,10 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import { logger } from "@helvety/shared/logger";
 import { NextResponse } from "next/server";
 
 import { validateTenantLicense } from "@/lib/license/validation";
-import { logger } from "@/lib/logger";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { LicenseValidationResponse } from "@/lib/types/entities";
@@ -349,3 +349,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+

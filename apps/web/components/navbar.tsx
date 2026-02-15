@@ -1,5 +1,7 @@
 "use client";
 
+import { redirectToLogin, redirectToLogout } from "@helvety/shared/auth-redirect";
+import { createBrowserClient } from "@helvety/shared/supabase/client";
 import {
   CreditCard,
   Github,
@@ -49,9 +51,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
-import { createBrowserClient } from "@/lib/supabase/client";
+
 
 import type { User } from "@supabase/supabase-js";
 

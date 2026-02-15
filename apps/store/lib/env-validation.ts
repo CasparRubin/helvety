@@ -1,6 +1,6 @@
+import { logger } from "@helvety/shared/logger";
 import { z } from "zod";
 
-import { logger } from "./logger";
 
 /**
  * Validates that a Supabase key appears to be an anon key (not service role key)
@@ -313,3 +313,4 @@ export function getStripePublishableKey(): string {
 
   return key;
 }
+

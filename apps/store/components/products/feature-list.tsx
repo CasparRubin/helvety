@@ -3,9 +3,9 @@
  * Displays a list of features with checkmark icons
  */
 
+import { cn } from "@helvety/shared/utils";
 import { Check, X } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 
 /** Props for the FeatureList component. */
 interface FeatureListProps {
@@ -81,3 +81,4 @@ export function FeatureComparison({
     </ul>
   );
 }
+

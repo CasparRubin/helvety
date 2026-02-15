@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 
 /** Scrollable area with custom scrollbar styling. */
 function ScrollArea({

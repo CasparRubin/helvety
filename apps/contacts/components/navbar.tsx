@@ -1,5 +1,7 @@
 "use client";
 
+import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
+import { createBrowserClient } from "@helvety/shared/supabase/client";
 import {
   Github,
   Menu,
@@ -52,8 +54,6 @@ import {
 } from "@/components/ui/tooltip";
 import { redirectToLogin, redirectToLogout } from "@/lib/auth-redirect";
 import { VERSION } from "@/lib/config/version";
-import { useEncryptionContext } from "@/lib/crypto/encryption-context";
-import { createBrowserClient } from "@/lib/supabase/client";
 
 import type { User } from "@supabase/supabase-js";
 

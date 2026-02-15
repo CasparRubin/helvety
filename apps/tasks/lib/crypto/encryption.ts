@@ -3,10 +3,10 @@
  * AES-256-GCM encryption and decryption for user content
  */
 
-import { base64Encode, base64Decode, generateIV } from "./encoding";
-import { CryptoError, CryptoErrorType } from "./types";
+import { base64Encode, base64Decode, generateIV } from "@helvety/shared/crypto/encoding";
+import { CryptoError, CryptoErrorType } from "@helvety/shared/crypto/types";
 
-import type { EncryptedData } from "./types";
+import type { EncryptedData } from "@helvety/shared/crypto/types";
 
 /** Current encryption format version */
 const ENCRYPTION_VERSION = 1;

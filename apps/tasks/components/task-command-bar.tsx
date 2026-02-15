@@ -6,6 +6,7 @@
  * Secondary actions (desktop inline, mobile dropdown): refresh, settings, edit, delete
  */
 
+import { cn } from "@helvety/shared/utils";
 import {
   ArrowLeftIcon,
   DownloadIcon,
@@ -27,7 +28,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
 /** Props for the TaskCommandBar component. */
 interface TaskCommandBarProps {

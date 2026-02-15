@@ -17,7 +17,7 @@ import type { PdfFile, UnifiedPage } from "./types";
  *
  * @example
  * ```typescript
- * import { logger } from "./logger"
+ * import { logger } from "@helvety/shared/logger"
  * const pageMap = createPageMap(unifiedPages)
  * const page = pageMap.get(5) // O(1) lookup instead of O(n) Array.find()
  * if (page) {
@@ -51,7 +51,7 @@ export function createPageMap(
  *
  * @example
  * ```typescript
- * import { logger } from "./logger"
+ * import { logger } from "@helvety/shared/logger"
  * const fileMap = createFileMap(pdfFiles)
  * const file = fileMap.get('file-123') // O(1) lookup
  * if (file) {

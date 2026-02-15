@@ -5,10 +5,10 @@
  * subscription.created/updated/canceled/renewed/payment_failed; checkout.completed leaves it null.
  */
 
+import { logger } from "@helvety/shared/logger";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { logger } from "@/lib/logger";
 import {
   stripe,
   getStripeWebhookSecret,
@@ -610,3 +610,4 @@ async function handleInvoicePaymentFailed(
     `Payment failed for subscription ${subscriptionId}, invoice ${invoice.id}`
   );
 }
+

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@helvety/shared/utils";
 
 const LEGAL_BASE = "https://helvety.com";
 
@@ -62,3 +62,4 @@ export function Footer({ className }: { className?: string }) {
     </footer>
   );
 }
+

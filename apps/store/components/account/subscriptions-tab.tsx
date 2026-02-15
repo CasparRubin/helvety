@@ -8,6 +8,8 @@
  * other contexts (e.g. SubscriptionsSheet); this tab uses an inline list.
  */
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { logger } from "@helvety/shared/logger";
 import {
   CreditCard,
   ExternalLink,
@@ -49,9 +51,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCSRF } from "@/hooks/use-csrf";
-import { TOAST_DURATIONS } from "@/lib/constants";
 import { getProductById } from "@/lib/data/products";
-import { logger } from "@/lib/logger";
 import { formatPrice } from "@/lib/utils/pricing";
 
 import type { Subscription, SubscriptionStatus } from "@/lib/types/entities";
@@ -566,3 +566,4 @@ export function SubscriptionsTab() {
     </div>
   );
 }
+

@@ -13,7 +13,7 @@ export type {
   UserPasskeyParams,
   UserProfile,
   ActionResponse,
-} from "./entities";
+} from "@helvety/shared/types/entities";
 
 // =============================================================================
 // CRYPTO TYPES
@@ -24,6 +24,6 @@ export type {
   StoredPasskey,
   WrappedKey,
   StoredKeyEntry,
-} from "@/lib/crypto/types";
+} from "@helvety/shared/crypto/types";
 
-export { CryptoErrorType, CryptoError } from "@/lib/crypto/types";
+export { CryptoErrorType, CryptoError } from "@helvety/shared/crypto/types";

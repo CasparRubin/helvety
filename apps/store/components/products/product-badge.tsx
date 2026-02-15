@@ -3,10 +3,10 @@
  * Displays a colored badge indicating the product type (SaaS, Software, Physical)
  */
 
+import { cn } from "@helvety/shared/utils";
 import { Cloud, Download, Package } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
 import type { ProductType, ProductStatus } from "@/lib/types/products";
 
@@ -102,3 +102,4 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     </Badge>
   );
 }
+

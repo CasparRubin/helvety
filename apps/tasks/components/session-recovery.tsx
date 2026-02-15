@@ -1,8 +1,8 @@
 "use client";
 
+import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useEffect } from "react";
 
-import { createBrowserClient } from "@/lib/supabase/client";
 
 /**
  * Invisible component that recovers the Supabase auth session after

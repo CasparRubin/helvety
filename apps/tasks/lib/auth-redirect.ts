@@ -8,7 +8,7 @@
  * open redirect attacks.
  */
 
-import { isValidRedirectUri } from "@/lib/redirect-validation";
+import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 
 /**
  * Get the base URL for the auth service

@@ -12,7 +12,7 @@ import {
   serializeEncryptedData,
   parseEncryptedData,
   buildAAD,
-} from "./encryption";
+} from "@helvety/shared/crypto/encryption";
 
 import type {
   Contact,

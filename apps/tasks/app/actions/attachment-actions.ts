@@ -2,6 +2,7 @@
 
 import "server-only";
 
+import { logger } from "@helvety/shared/logger";
 import { headers } from "next/headers";
 import { z } from "zod";
 
@@ -12,7 +13,6 @@ import {
   isValidAttachmentStoragePath,
 } from "@/lib/attachment-storage-path";
 import { ATTACHMENT_BUCKET } from "@/lib/constants";
-import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { ActionResponse, AttachmentRow } from "@/lib/types";

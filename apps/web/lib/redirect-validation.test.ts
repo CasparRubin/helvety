@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
-
 import {
   getSafeRedirectUri,
   getSafeRelativePath,
   isValidRedirectUri,
   isValidRelativePath,
-} from "./redirect-validation";
+} from "@helvety/shared/redirect-validation";
+import { describe, expect, it } from "vitest";
+
 
 // =============================================================================
 // isValidRedirectUri

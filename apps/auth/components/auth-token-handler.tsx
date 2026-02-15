@@ -1,12 +1,12 @@
 "use client";
 
+import { logger } from "@helvety/shared/logger";
+import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
+import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { getRequiredAuthStep, buildLoginUrl } from "@/lib/auth-utils";
-import { logger } from "@/lib/logger";
-import { isValidRedirectUri } from "@/lib/redirect-validation";
-import { createBrowserClient } from "@/lib/supabase/client";
 
 /**
  * Handles auth tokens from URL hash fragments on any page.

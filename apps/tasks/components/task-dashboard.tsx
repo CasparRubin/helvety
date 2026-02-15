@@ -1,5 +1,6 @@
 "use client";
 
+import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
@@ -28,7 +29,6 @@ import {
   useStageAssignment,
   useDataExport,
 } from "@/hooks";
-import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 
 /**
  * Task Dashboard - Main view for Units list

@@ -7,6 +7,7 @@
  * /subscriptions page uses a compact list in SubscriptionsTab instead.
  */
 
+import { cn } from "@helvety/shared/utils";
 import {
   Calendar,
   AlertCircle,
@@ -27,7 +28,6 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProductById } from "@/lib/data/products";
-import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/utils/pricing";
 
 import type { Subscription, SubscriptionStatus } from "@/lib/types/entities";
@@ -252,3 +252,4 @@ export function SubscriptionCardSkeleton() {
     </Card>
   );
 }
+

@@ -57,3 +57,4 @@ export function createAdminClient(): SupabaseClient {
 
   return adminClient;
 }
+

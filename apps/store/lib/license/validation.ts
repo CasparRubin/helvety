@@ -3,7 +3,8 @@
  * Validates tenant licenses against product-specific subscriptions
  */
 
-import { logger } from "@/lib/logger";
+import { logger } from "@helvety/shared/logger";
+
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import type {
@@ -200,3 +201,4 @@ export function getMaxTenantsForTier(tierId: string): number {
 export function getFeaturesForTier(tierId: string): string[] {
   return TIER_FEATURES[tierId]?.features ?? ["basic_navigation"];
 }
+

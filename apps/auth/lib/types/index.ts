@@ -1,1 +1,1 @@
-export * from "./entities";
+export * from "@helvety/shared/types/entities";

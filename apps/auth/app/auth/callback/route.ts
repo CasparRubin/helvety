@@ -1,10 +1,10 @@
+import { logger } from "@helvety/shared/logger";
+import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 
 import { checkUserPasskeyStatus } from "@/app/actions/credential-actions";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
-import { logger } from "@/lib/logger";
-import { getSafeRedirectUri } from "@/lib/redirect-validation";
-import { createServerClient } from "@/lib/supabase/server";
 
 import type { EmailOtpType } from "@supabase/supabase-js";
 

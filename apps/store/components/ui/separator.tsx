@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { Separator as SeparatorPrimitive } from "radix-ui";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 
 /** Visual separator line for dividing content sections. */
 function Separator({
@@ -27,3 +27,4 @@ function Separator({
 }
 
 export { Separator };
+

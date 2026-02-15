@@ -2,10 +2,10 @@
 
 import "server-only";
 
+import { logger } from "@helvety/shared/logger";
 import { z } from "zod";
 
 import { authenticateAndRateLimit } from "@/lib/action-helpers";
-import { logger } from "@/lib/logger";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, UnitRow } from "@/lib/types";

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { X } from "lucide-react";
 import * as React from "react";
 
@@ -9,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { BREAKPOINTS, COLUMNS } from "@/lib/constants";
 import { addOklchAlpha } from "@/lib/pdf-colors";
-import { cn } from "@/lib/utils";
 
 import type { PdfFile } from "@/lib/types";
 

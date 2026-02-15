@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,6 @@ import {
   createFileMap,
   createFileUrlMap,
 } from "@/lib/pdf-lookup-utils";
-import { cn } from "@/lib/utils";
 
 import { PdfActionButtons } from "./pdf-action-buttons";
 import { PageErrorBoundary } from "./pdf-page-error-boundary";

@@ -1,5 +1,7 @@
 "use client";
 
+import { logger } from "@helvety/shared/logger";
+import { cn } from "@helvety/shared/utils";
 import {
   DownloadIcon,
   FileIcon,
@@ -33,8 +35,6 @@ import {
 } from "@/components/ui/dialog";
 import { useAttachments } from "@/hooks";
 import { ATTACHMENT_MAX_SIZE_BYTES } from "@/lib/constants";
-import { logger } from "@/lib/logger";
-import { cn } from "@/lib/utils";
 
 import type { UploadProgress } from "@/hooks";
 import type { Attachment } from "@/lib/types";

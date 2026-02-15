@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { Check } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 
 /** Type of authentication flow */
 export type AuthFlowType = "new_user" | "returning_user";

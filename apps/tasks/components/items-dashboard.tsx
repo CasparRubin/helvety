@@ -1,5 +1,6 @@
 "use client";
 
+import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -44,7 +45,6 @@ import {
   useLabelAssignment,
   useDataExport,
 } from "@/hooks";
-import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 
 /**
  * Items Dashboard - shows all items for a specific space

@@ -15,10 +15,10 @@
  *   - Does not persist across server restarts
  */
 
+import { logger } from "@helvety/shared/logger";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types

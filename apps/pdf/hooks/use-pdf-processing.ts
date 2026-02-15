@@ -1,6 +1,7 @@
 // React
 
 // External libraries
+import { logger } from "@helvety/shared/logger";
 import { PDFDocument } from "pdf-lib";
 import * as React from "react";
 
@@ -9,7 +10,6 @@ import { calculateBatchSize, yieldToBrowser } from "@/lib/batch-processing";
 import { DELAYS, TIMEOUTS } from "@/lib/constants";
 import { handleError } from "@/lib/error-handler";
 import { downloadBlob } from "@/lib/file-download";
-import { logger } from "@/lib/logger";
 import { createPdfErrorInfo } from "@/lib/pdf-errors";
 import { extractPageFromPdf } from "@/lib/pdf-extraction";
 import { formatTimestamp } from "@/lib/pdf-helpers";

@@ -5,13 +5,13 @@
  * Displays screenshots and screencaptures in a scrollable gallery with lightbox
  */
 
+import { cn } from "@helvety/shared/utils";
 import { ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
 import Image from "next/image";
 import { useState, useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 
 import type { MediaItem } from "@/lib/types/products";
 
@@ -226,3 +226,4 @@ function MediaThumbnail({ item, onClick, onError }: MediaThumbnailProps) {
     </button>
   );
 }
+

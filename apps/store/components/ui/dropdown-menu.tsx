@@ -1,10 +1,10 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { CheckIcon, ChevronRightIcon } from "lucide-react";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 
 /** Dropdown menu root component. */
 function DropdownMenu({
@@ -278,3 +278,4 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 };
+

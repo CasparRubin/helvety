@@ -4,6 +4,7 @@
  * product detail page (/products/[slug]); no overlay or nested links.
  */
 
+import { cn } from "@helvety/shared/utils";
 import {
   FileText,
   LayoutGrid,
@@ -23,7 +24,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { formatStartingFrom } from "@/lib/utils/pricing";
 
 import { ProductBadge, StatusBadge } from "./product-badge";
@@ -119,3 +119,4 @@ export function ProductCard({ product, className }: ProductCardProps) {
     </Link>
   );
 }
+

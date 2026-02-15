@@ -6,6 +6,7 @@
  * Mobile: dropdown menu showing active filter with selection list
  */
 
+import { cn } from "@helvety/shared/utils";
 import { ChevronDownIcon, MonitorCloud, LayoutGrid } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
 
 import type { ProductType } from "@/lib/types/products";
 
@@ -168,3 +168,4 @@ export function ProductFiltersCompact({
     </div>
   );
 }
+

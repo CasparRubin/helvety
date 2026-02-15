@@ -39,6 +39,7 @@
       },
       "devDependencies": {
         "@helvety/config": "workspace:*",
+        "@helvety/shared": "workspace:*",
         "@next/bundle-analyzer": "^16.1.6",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
@@ -96,6 +97,7 @@
       },
       "devDependencies": {
         "@helvety/config": "workspace:*",
+        "@helvety/shared": "workspace:*",
         "@next/bundle-analyzer": "^16.1.6",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
@@ -142,6 +144,7 @@
       },
       "devDependencies": {
         "@helvety/config": "workspace:*",
+        "@helvety/shared": "workspace:*",
         "@next/bundle-analyzer": "^16.1.6",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
@@ -186,6 +189,7 @@
       },
       "devDependencies": {
         "@helvety/config": "workspace:*",
+        "@helvety/shared": "workspace:*",
         "@next/bundle-analyzer": "^16.1.6",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
@@ -243,6 +247,7 @@
       },
       "devDependencies": {
         "@helvety/config": "workspace:*",
+        "@helvety/shared": "workspace:*",
         "@next/bundle-analyzer": "^16.1.6",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
@@ -288,6 +293,7 @@
       },
       "devDependencies": {
         "@helvety/config": "workspace:*",
+        "@helvety/shared": "workspace:*",
         "@next/bundle-analyzer": "^16.1.6",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
@@ -321,6 +327,29 @@
       "peerDependencies": {
         "eslint": "^9",
         "vitest": "^4",
+      },
+    },
+    "packages/shared": {
+      "name": "@helvety/shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@simplewebauthn/browser": "^13.2.2",
+        "@supabase/ssr": "^0.8.0",
+        "@supabase/supabase-js": "^2.95.3",
+        "@upstash/ratelimit": "^2.0.8",
+        "@upstash/redis": "^1.36.2",
+        "clsx": "^2.1.1",
+        "server-only": "^0.0.1",
+        "tailwind-merge": "^3.4.0",
+        "zod": "^4.3.6",
+      },
+      "devDependencies": {
+        "@types/react": "^19",
+        "typescript": "^5",
+      },
+      "peerDependencies": {
+        "next": "^16",
+        "react": "^19",
       },
     },
   },
@@ -530,6 +559,8 @@
     "@helvety/contacts": ["@helvety/contacts@workspace:apps/contacts"],
 
     "@helvety/pdf": ["@helvety/pdf@workspace:apps/pdf"],
+
+    "@helvety/shared": ["@helvety/shared@workspace:packages/shared"],
 
     "@helvety/store": ["@helvety/store@workspace:apps/store"],
 

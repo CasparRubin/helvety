@@ -1,4 +1,5 @@
 import "./globals.css";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
@@ -12,7 +13,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EncryptionProvider } from "@/lib/crypto";
-import { createServerClient } from "@/lib/supabase/server";
 
 import type { Metadata, Viewport } from "next";
 

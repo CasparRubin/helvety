@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -14,7 +15,6 @@ import {
 } from "react-day-picker";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 /**
  * Calendar - shadcn/ui calendar component wrapping react-day-picker.

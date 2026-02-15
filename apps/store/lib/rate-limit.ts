@@ -15,10 +15,10 @@
  *   - Does not persist across server restarts
  */
 
+import { logger } from "@helvety/shared/logger";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-import { logger } from "@/lib/logger";
 
 // =============================================================================
 // Types
@@ -287,3 +287,4 @@ export const RATE_LIMITS = {
   /** Package metadata reads: 30 per minute per user */
   PACKAGE_META: { maxRequests: 30, windowMs: 60 * 1000 },
 } as const;
+

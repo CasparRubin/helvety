@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
 
-import { getLoginUrl } from "@/lib/auth-redirect";
-import { logger } from "@/lib/logger";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { getSafeRelativePath } from "@/lib/redirect-validation";
-import { createServerClient } from "@/lib/supabase/server";
+import { getLoginUrl } from "@helvety/shared/auth-redirect";
+import { logger } from "@helvety/shared/logger";
+import { checkRateLimit, RATE_LIMITS } from "@helvety/shared/rate-limit";
+import { getSafeRelativePath } from "@helvety/shared/redirect-validation";
+import { createServerClient } from "@helvety/shared/supabase/server";
+import { NextResponse } from "next/server";
 
 import type { EmailOtpType } from "@supabase/supabase-js";
 

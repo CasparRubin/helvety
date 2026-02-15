@@ -6,6 +6,7 @@
  * Secondary actions (desktop inline, mobile dropdown): refresh, delete
  */
 
+import { cn } from "@helvety/shared/utils";
 import {
   ArrowLeftIcon,
   EllipsisVerticalIcon,
@@ -26,7 +27,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
 /** Save status type */
 type SaveStatus = "idle" | "saving" | "saved" | "error";

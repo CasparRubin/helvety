@@ -3,7 +3,7 @@
  * Maps internal product/tier IDs to Stripe Price IDs
  */
 
-import { logger } from "@/lib/logger";
+import { logger } from "@helvety/shared/logger";
 
 // =============================================================================
 // TYPES
@@ -176,3 +176,4 @@ export function isHandledWebhookEvent(
 ): eventType is HandledWebhookEvent {
   return HANDLED_WEBHOOK_EVENTS.includes(eventType as HandledWebhookEvent);
 }
+

@@ -1,11 +1,11 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { XIcon } from "lucide-react";
 import { Dialog as SheetPrimitive } from "radix-ui";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 /** Sheet root component (slide-out panel). */
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
@@ -151,3 +151,4 @@ export {
   SheetTitle,
   SheetDescription,
 };
+

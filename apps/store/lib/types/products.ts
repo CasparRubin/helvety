@@ -349,3 +349,4 @@ export function isSoftwareProduct(
 export function isSaaSProduct(product: Product): product is SaaSProduct {
   return product.type === "saas" && "saas" in product;
 }
+

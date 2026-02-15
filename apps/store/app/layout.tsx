@@ -1,4 +1,6 @@
 import "./globals.css";
+import { getCSRFToken } from "@helvety/shared/csrf";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
@@ -12,8 +14,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { getCSRFToken } from "@/lib/csrf";
-import { createServerClient } from "@/lib/supabase/server";
 
 import type { User } from "@supabase/supabase-js";
 import type { Metadata, Viewport } from "next";
@@ -209,3 +209,4 @@ async function NavbarWrapper({
     </div>
   );
 }
+

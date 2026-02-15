@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { Tooltip as TooltipPrimitive } from "radix-ui";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 
 /** Tooltip provider for configuring tooltip behavior. */
 function TooltipProvider({
@@ -53,3 +53,4 @@ function TooltipContent({
 }
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+

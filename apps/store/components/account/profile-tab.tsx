@@ -1,5 +1,7 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { logger } from "@helvety/shared/logger";
 import {
   User,
   Mail,
@@ -42,8 +44,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCSRF } from "@/hooks/use-csrf";
-import { TOAST_DURATIONS } from "@/lib/constants";
-import { logger } from "@/lib/logger";
 
 /** User profile data returned from the API. */
 interface UserData {
@@ -435,3 +435,4 @@ export function ProfileTab() {
     </div>
   );
 }
+

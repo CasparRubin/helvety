@@ -54,3 +54,4 @@ export function ProductsCatalog() {
     </div>
   );
 }
+

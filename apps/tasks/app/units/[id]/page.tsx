@@ -1,6 +1,7 @@
+import { requireAuth } from "@helvety/shared/auth-guard";
+
 import { EncryptionGate } from "@/components/encryption-gate";
 import { SpacesDashboard } from "@/components/spaces-dashboard";
-import { requireAuth } from "@/lib/auth-guard";
 import { CSRFProvider } from "@/lib/csrf-client";
 
 /**

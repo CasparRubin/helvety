@@ -1,4 +1,6 @@
 import "./globals.css";
+import { EncryptionProvider } from "@helvety/shared/crypto/encryption-context";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
@@ -11,9 +13,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CSRFProvider } from "@/hooks/use-csrf";
-import { EncryptionProvider } from "@/lib/crypto/encryption-context";
 import { getCSRFToken } from "@/lib/csrf";
-import { createServerClient } from "@/lib/supabase/server";
+
 
 import type { Metadata, Viewport } from "next";
 

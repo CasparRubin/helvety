@@ -6,6 +6,7 @@
  * Secondary actions (desktop inline, mobile dropdown): refresh, settings
  */
 
+import { cn } from "@helvety/shared/utils";
 import {
   DownloadIcon,
   EllipsisVerticalIcon,
@@ -22,7 +23,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
 
 /** Props for the ContactCommandBar component. */
 interface ContactCommandBarProps {

@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { Label as LabelPrimitive } from "radix-ui";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 
 /** Form label component. */
 function Label({
@@ -23,3 +23,4 @@ function Label({
 }
 
 export { Label };
+

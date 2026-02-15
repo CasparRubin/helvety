@@ -1,11 +1,11 @@
 "use client";
 
+import { logger } from "@helvety/shared/logger";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 
 import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
 import { downloadTaskDataExport } from "@/lib/data-export";
-import { logger } from "@/lib/logger";
 
 /**
  * Hook for exporting decrypted task data as JSON (nDSG Art. 28 compliance).

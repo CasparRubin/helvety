@@ -122,3 +122,4 @@ export const stripe = new Proxy({} as Stripe, {
     return getStripeClient()[prop as keyof Stripe];
   },
 });
+

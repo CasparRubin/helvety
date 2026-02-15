@@ -15,9 +15,9 @@ export type {
   StoredPasskey,
   WrappedKey,
   StoredKeyEntry,
-} from "./types";
+} from "@helvety/shared/crypto/types";
 
-export { CryptoError, CryptoErrorType } from "./types";
+export { CryptoError, CryptoErrorType } from "@helvety/shared/crypto/types";
 
 // Encryption
 export {
@@ -45,7 +45,7 @@ export {
   deleteUnitKey,
   clearAllKeys,
   isStorageAvailable,
-} from "./key-storage";
+} from "@helvety/shared/crypto/key-storage";
 
 // Encoding Utilities
 export {
@@ -53,10 +53,10 @@ export {
   base64Decode,
   generateSalt,
   generateIV,
-} from "./encoding";
+} from "@helvety/shared/crypto/encoding";
 
 // Context
-export { EncryptionProvider, useEncryptionContext } from "./encryption-context";
+export { EncryptionProvider, useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 
 // PRF Key Derivation (Passkey-based)
 export {
@@ -68,11 +68,11 @@ export {
   isPRFSupported,
   getPRFSupportInfo,
   PRF_VERSION,
-} from "./prf-key-derivation";
+} from "@helvety/shared/crypto/prf-key-derivation";
 export type {
   PRFKeyParams as PRFKeyParamsType,
   PRFSupportInfo,
-} from "./prf-key-derivation";
+} from "@helvety/shared/crypto/prf-key-derivation";
 
 // Passkey Operations (Authentication only - setup is in auth.helvety.com)
 export {
@@ -84,8 +84,8 @@ export {
   authenticatePasskeyWithEncryption,
   isPRFSupported as isPasskeyPRFSupported,
   getPRFSupportInfo as getPasskeyPRFSupportInfo,
-} from "./passkey";
-export type { RPConfig, PasskeyAuthenticationResult } from "./passkey";
+} from "@helvety/shared/crypto/passkey";
+export type { RPConfig, PasskeyAuthenticationResult } from "@helvety/shared/crypto/passkey";
 
 // Task-specific Encryption (helvety-tasks only)
 export {

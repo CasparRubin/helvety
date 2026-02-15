@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
 
-import { getLoginUrl } from "@/lib/auth-redirect";
-import { logger } from "@/lib/logger";
-import { getSafeRelativePath } from "@/lib/redirect-validation";
-import { createServerClient } from "@/lib/supabase/server";
+import { getLoginUrl } from "@helvety/shared/auth-redirect";
+import { logger } from "@helvety/shared/logger";
+import { getSafeRelativePath } from "@helvety/shared/redirect-validation";
+import { createServerClient } from "@helvety/shared/supabase/server";
+import { NextResponse } from "next/server";
 
 import type { EmailOtpType } from "@supabase/supabase-js";
 
@@ -65,3 +65,4 @@ export async function GET(request: Request) {
   // No valid auth params - redirect to auth service
   return NextResponse.redirect(`${authErrorUrl}&error=missing_params`);
 }
+

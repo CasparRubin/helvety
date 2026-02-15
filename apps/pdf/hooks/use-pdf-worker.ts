@@ -3,10 +3,10 @@
  * Ensures worker is initialized once and shared across all PDF components.
  */
 
+import { logger } from "@helvety/shared/logger";
 import * as React from "react";
 
 import { PDF_RENDER } from "@/lib/constants";
-import { logger } from "@/lib/logger";
 
 // Shared Promise for worker initialization (resolves when worker is ready)
 let workerInitPromise: Promise<void> | null = null;

@@ -2,15 +2,15 @@
 
 import "server-only";
 
+import { logger } from "@helvety/shared/logger";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
 import { requireCSRFToken } from "@/lib/csrf";
-import { logger } from "@/lib/logger";
-import { createServerClient } from "@/lib/supabase/server";
 
-import type { ActionResponse, UserPasskeyParams } from "@/lib/types";
+import type { ActionResponse, UserPasskeyParams } from "@helvety/shared/types/entities";
 
-export type { UserPasskeyParams } from "@/lib/types";
+export type { UserPasskeyParams } from "@helvety/shared/types/entities";
 
 // =============================================================================
 // INPUT VALIDATION SCHEMAS

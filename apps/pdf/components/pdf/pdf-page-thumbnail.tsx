@@ -1,5 +1,7 @@
 "use client";
 
+import { logger } from "@helvety/shared/logger";
+import { cn } from "@helvety/shared/utils";
 import { FileTextIcon, AlertCircle } from "lucide-react";
 import dynamic from "next/dynamic";
 import * as React from "react";
@@ -15,10 +17,9 @@ import {
   ROTATION_ANGLES,
 } from "@/lib/constants";
 import { getImageBitmapCache } from "@/lib/imagebitmap-cache";
-import { logger } from "@/lib/logger";
 import { debounce } from "@/lib/pdf-helpers";
 import { calculateOptimalDPR } from "@/lib/thumbnail-dpr";
-import { cn } from "@/lib/utils";
+
 
 import { PdfImageThumbnail } from "./pdf-image-thumbnail";
 import { PdfImageBitmapThumbnail } from "./pdf-imagebitmap-thumbnail";

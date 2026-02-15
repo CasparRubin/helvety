@@ -1,8 +1,8 @@
 import "server-only";
 
+import { getSupabaseUrl } from "@helvety/shared/env-validation";
 import { createClient } from "@supabase/supabase-js";
 
-import { getSupabaseUrl } from "@/lib/env-validation";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 

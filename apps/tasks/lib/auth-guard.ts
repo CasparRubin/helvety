@@ -1,10 +1,10 @@
 import "server-only";
 
-import { redirect } from "next/navigation";
 
-import { getLoginUrl } from "@/lib/auth-redirect";
-import { getUserWithRetry } from "@/lib/auth-retry";
-import { createServerClient } from "@/lib/supabase/server";
+import { getLoginUrl } from "@helvety/shared/auth-redirect";
+import { getUserWithRetry } from "@helvety/shared/auth-retry";
+import { createServerClient } from "@helvety/shared/supabase/server";
+import { redirect } from "next/navigation";
 
 import type { User } from "@supabase/supabase-js";
 

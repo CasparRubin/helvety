@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import {
   Grip,
   Home,
@@ -24,7 +25,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 
 /** Helvety ecosystem app URLs, configurable via NEXT_PUBLIC env vars */
 const apps = [

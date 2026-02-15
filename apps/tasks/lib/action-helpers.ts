@@ -1,9 +1,10 @@
 import "server-only";
 
-import { getUserWithRetry } from "@/lib/auth-retry";
-import { requireCSRFToken } from "@/lib/csrf";
+import { getUserWithRetry } from "@helvety/shared/auth-retry";
+import { requireCSRFToken } from "@helvety/shared/csrf";
+import { createServerClient } from "@helvety/shared/supabase/server";
+
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { createServerClient } from "@/lib/supabase/server";
 
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 

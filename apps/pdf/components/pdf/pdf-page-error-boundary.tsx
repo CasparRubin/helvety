@@ -3,9 +3,9 @@
  * Catches render-time errors and provides retry functionality.
  */
 
+import { logger } from "@helvety/shared/logger";
 import * as React from "react";
 
-import { logger } from "@/lib/logger";
 
 /** Props for the PDF page error boundary (children, onError, retryKey). */
 interface PageErrorBoundaryProps {

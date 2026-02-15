@@ -3,9 +3,9 @@
  * Responsive grid layout for product cards
  */
 
+import { cn } from "@helvety/shared/utils";
 import { Package } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 
 import { ProductCard } from "./product-card";
 
@@ -111,3 +111,4 @@ function ProductCardSkeleton() {
     </div>
   );
 }
+

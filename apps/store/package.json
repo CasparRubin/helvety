@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
+    "@helvety/shared": "workspace:*",
     "@next/bundle-analyzer": "^16.1.6",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

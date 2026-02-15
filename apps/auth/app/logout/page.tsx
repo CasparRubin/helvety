@@ -1,10 +1,10 @@
 "use client";
 
+import { clearAllKeys } from "@helvety/shared/crypto/key-storage";
+import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-import { clearAllKeys } from "@/lib/crypto/key-storage";
-import { isValidRedirectUri } from "@/lib/redirect-validation";
 
 import { signOutAction } from "./actions";
 

@@ -23,6 +23,7 @@ export function createVitestConfig(rootDir) {
       setupFiles: [path.resolve(rootDir, "vitest.setup.ts")],
       include: ["**/*.test.{ts,tsx}"],
       exclude: ["node_modules", ".next"],
+      passWithNoTests: true,
       typecheck: {
         enabled: true,
       },

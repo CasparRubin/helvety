@@ -3,7 +3,7 @@
  * Provides LRU cache for ImageBitmap objects with memory management.
  */
 
-import { logger } from "./logger";
+import { logger } from "@helvety/shared/logger";
 
 /**
  * Cache entry containing ImageBitmap and metadata.

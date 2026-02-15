@@ -1,7 +1,7 @@
+import { getSupabaseKey, getSupabaseUrl } from "@helvety/shared/env-validation";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { getSupabaseKey, getSupabaseUrl } from "@/lib/env-validation";
 
 /**
  * Proxy to refresh Supabase auth sessions on every request.

@@ -2,12 +2,14 @@
 
 import "server-only";
 
-import { requireCSRFToken } from "@/lib/csrf";
-import { logger } from "@/lib/logger";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createServerClient } from "@/lib/supabase/server";
+import { logger } from "@helvety/shared/logger";
+import { createServerClient } from "@helvety/shared/supabase/server";
 
-import type { ActionResponse, UserAuthCredential } from "@/lib/types";
+import { requireCSRFToken } from "@/lib/csrf";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+
+import type { ActionResponse, UserAuthCredential } from "@helvety/shared/types/entities";
 
 // =============================================================================
 // CREDENTIAL MANAGEMENT

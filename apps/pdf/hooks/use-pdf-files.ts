@@ -1,4 +1,5 @@
 // React
+import { logger } from "@helvety/shared/logger";
 import * as React from "react";
 
 // External libraries
@@ -10,7 +11,6 @@ import { safeRevokeObjectURL } from "@/lib/blob-url-utils";
 import { FILE_LIMITS } from "@/lib/constants";
 import { formatValidationErrors } from "@/lib/error-formatting";
 import { processFile } from "@/lib/file-processing";
-import { logger } from "@/lib/logger";
 import { convertImageToPdf } from "@/lib/pdf-conversion";
 import { createPdfErrorInfo, PdfErrorType } from "@/lib/pdf-errors";
 import { loadPdfFromFile } from "@/lib/pdf-loading";

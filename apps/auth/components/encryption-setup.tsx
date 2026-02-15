@@ -1,5 +1,9 @@
 "use client";
 
+import { useEncryptionContext } from "@helvety/shared/crypto";
+import { registerPasskey } from "@helvety/shared/crypto/passkey";
+import { logger } from "@helvety/shared/logger";
+import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import {
   Fingerprint,
   ShieldCheck,
@@ -27,11 +31,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useCSRF } from "@/hooks/use-csrf";
-import { useEncryptionContext } from "@/lib/crypto";
-import { registerPasskey } from "@/lib/crypto/passkey";
 import { isMobileDevice } from "@/lib/device-utils";
-import { logger } from "@/lib/logger";
-import { isValidRedirectUri } from "@/lib/redirect-validation";
+
 
 /**
  * Props for the EncryptionSetup component

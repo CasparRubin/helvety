@@ -3,10 +3,10 @@
  * Automatically cleans up cache when memory pressure is detected.
  */
 
+import { logger } from "@helvety/shared/logger";
 import * as React from "react";
 
 import { getImageBitmapCache } from "@/lib/imagebitmap-cache";
-import { logger } from "@/lib/logger";
 import {
   isMemoryPressureHigh,
   getMemoryUsagePercent,

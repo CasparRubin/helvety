@@ -1,9 +1,9 @@
 "use client";
 
+import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { createBrowserClient } from "@/lib/supabase/client";
 
 /**
  * Handles auth tokens from URL hash fragments on any page.
@@ -54,3 +54,4 @@ export function AuthTokenHandler() {
 
   return null;
 }
+

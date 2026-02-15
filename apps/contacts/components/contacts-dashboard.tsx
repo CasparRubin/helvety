@@ -1,5 +1,7 @@
 "use client";
 
+import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
+import { logger } from "@helvety/shared/logger";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
@@ -28,9 +30,8 @@ import {
   useCategoryAssignment,
 } from "@/hooks";
 import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
-import { useEncryptionContext } from "@/lib/crypto/encryption-context";
 import { downloadContactDataExport } from "@/lib/data-export";
-import { logger } from "@/lib/logger";
+
 
 /**
  * ContactsDashboard - Main dashboard showing all contacts

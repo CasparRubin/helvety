@@ -2,8 +2,9 @@
 
 import "server-only";
 
+import { logger } from "@helvety/shared/logger";
+
 import { authenticateAndRateLimit } from "@/lib/action-helpers";
-import { logger } from "@/lib/logger";
 
 import type {
   ActionResponse,

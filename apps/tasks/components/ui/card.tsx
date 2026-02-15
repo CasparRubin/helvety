@@ -1,6 +1,6 @@
+import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 
 /** Card container component with size variants. */
 function Card({

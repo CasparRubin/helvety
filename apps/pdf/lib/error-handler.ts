@@ -4,7 +4,8 @@
  */
 
 // Internal utilities
-import { logger } from "./logger";
+import { logger } from "@helvety/shared/logger";
+
 import { createPdfErrorInfo, type PdfErrorInfo } from "./pdf-errors";
 
 /**

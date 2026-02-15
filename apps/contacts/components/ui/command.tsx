@@ -1,10 +1,10 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { Command as CommandPrimitive } from "cmdk";
 import { SearchIcon } from "lucide-react";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 
 /** Composable command menu. */
 function Command({

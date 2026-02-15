@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import { Upload } from "lucide-react";
 import * as React from "react";
 
@@ -11,7 +12,6 @@ import { useImageBitmapMemory } from "@/hooks/use-imagebitmap-memory";
 import { usePdfFiles } from "@/hooks/use-pdf-files";
 import { usePdfPageState } from "@/hooks/use-pdf-page-state";
 import { usePdfProcessing } from "@/hooks/use-pdf-processing";
-import { cn } from "@/lib/utils";
 
 /**
  * Main PDF toolkit component.

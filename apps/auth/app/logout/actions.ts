@@ -1,7 +1,7 @@
 "use server";
 
-import { logger } from "@/lib/logger";
-import { createServerClient } from "@/lib/supabase/server";
+import { logger } from "@helvety/shared/logger";
+import { createServerClient } from "@helvety/shared/supabase/server";
 
 /**
  * Server action to sign out the user's Supabase session.

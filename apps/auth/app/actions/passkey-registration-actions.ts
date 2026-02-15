@@ -2,15 +2,16 @@
 
 import "server-only";
 
+import { logger } from "@helvety/shared/logger";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import {
   generateRegistrationOptions as generateRegOptions,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 
 import { requireCSRFToken } from "@/lib/csrf";
-import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createServerClient } from "@/lib/supabase/server";
+
 
 import {
   RP_NAME,
@@ -23,7 +24,7 @@ import {
   clearChallenge,
 } from "./auth-action-helpers";
 
-import type { ActionResponse } from "@/lib/types";
+import type { ActionResponse } from "@helvety/shared/types/entities";
 import type {
   GenerateRegistrationOptionsOpts,
   VerifyRegistrationResponseOpts,

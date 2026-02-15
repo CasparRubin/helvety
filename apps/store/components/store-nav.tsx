@@ -5,11 +5,11 @@
  * Renders four links (Products, Account, Subscriptions, Tenants) below the navbar.
  */
 
+import { cn } from "@helvety/shared/utils";
 import { Package, User, CreditCard, Building2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/products", label: "Products", icon: Package },
@@ -59,3 +59,4 @@ export function StoreNav() {
     </nav>
   );
 }
+
