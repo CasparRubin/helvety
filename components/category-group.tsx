@@ -98,7 +98,9 @@ export function CategoryGroup({
         />
 
         {/* Category name */}
-        <span className="text-sm font-medium">{category.name}</span>
+        <span className="min-w-0 truncate text-sm font-medium">
+          {category.name}
+        </span>
 
         {/* Count */}
         <span className="text-muted-foreground text-xs">({count})</span>
