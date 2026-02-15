@@ -61,7 +61,7 @@ export default function Home() {
               height={300}
               className="mx-auto h-auto w-[90vw] max-w-6xl"
               sizes="(max-width: 768px) 95vw, (max-width: 1280px) 90vw, 1400px"
-              priority
+              loading="eager"
               fetchPriority="high"
             />
           </motion.div>
