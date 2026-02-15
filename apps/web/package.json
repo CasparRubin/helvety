@@ -1,12 +1,13 @@
 {
-  "name": "helvety.com",
+  "name": "@helvety/web",
   "version": "1.16.0",
   "description": "The main Helvety website. Engineered & Designed in Switzerland.",
   "author": "Helvety by Rubin",
   "homepage": "https://helvety.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CasparRubin/helvety.com.git"
+    "url": "https://github.com/CasparRubin/helvety.git",
+    "directory": "apps/web"
   },
   "private": true,
   "license": "UNLICENSED",

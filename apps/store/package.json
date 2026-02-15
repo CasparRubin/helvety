@@ -1,12 +1,13 @@
 {
-  "name": "helvety-store",
+  "name": "@helvety/store",
   "version": "1.15.0",
   "description": "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
   "author": "Helvety by Rubin",
   "homepage": "https://store.helvety.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CasparRubin/helvety-store.git"
+    "url": "https://github.com/CasparRubin/helvety.git",
+    "directory": "apps/store"
   },
   "private": true,
   "license": "UNLICENSED",
@@ -25,8 +26,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "analyze": "ANALYZE=true next build",
-    "sync:check": "node ../helvety.com/scripts/sync-shared.js --check"
+    "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "@fontsource-variable/public-sans": "^5.2.7",
