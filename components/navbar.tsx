@@ -142,7 +142,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
               width={120}
               height={30}
               className="hidden h-8 w-auto sm:block"
-              priority
+              loading="eager"
             />
             <Image
               src="/helvety_Identifier_whiteBg.svg"
@@ -150,7 +150,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
               width={30}
               height={30}
               className="h-8 w-auto sm:hidden"
-              priority
+              loading="eager"
             />
           </a>
           <Link
