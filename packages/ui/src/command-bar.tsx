@@ -18,7 +18,7 @@ export function CommandBar({
   return (
     <nav
       className={cn(
-        "bg-surface-toolbar sticky top-0 z-40 w-full min-[2000px]:border-x border-b",
+        "bg-surface-toolbar sticky top-0 z-40 w-full border-b min-[2000px]:border-x",
         className
       )}
     >
