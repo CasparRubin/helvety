@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 
-import { COOKIE_DOMAIN } from "@helvety/shared/config";
+import { COOKIE_DOMAIN, urls } from "@helvety/shared/config";
 import { getSupabaseKey, getSupabaseUrl } from "@helvety/shared/env-validation";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
@@ -22,6 +22,11 @@ const CSRF_TOKEN_LENGTH = 32;
  * NOT route protection. Use Server Layout Guards for authentication checks.
  */
 export async function proxy(request: NextRequest) {
+  // Set the public-facing URL as a request header so server components
+  // (e.g. requireAuth) can determine the original URL for post-auth redirects.
+  const publicUrl = `${urls.home}${request.nextUrl.pathname}${request.nextUrl.search}`;
+  request.headers.set("x-helvety-url", publicUrl);
+
   let supabaseResponse = NextResponse.next({ request });
 
   let supabaseUrl: string;

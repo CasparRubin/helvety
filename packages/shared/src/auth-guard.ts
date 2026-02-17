@@ -1,5 +1,6 @@
 import "server-only";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getLoginUrl } from "./auth-redirect";
@@ -33,8 +34,11 @@ export async function requireAuth(): Promise<User> {
   const { user, error } = await getUserWithRetry(supabase);
 
   if (error || !user) {
-    // Redirect to auth service login
-    redirect(getLoginUrl());
+    // Read the public-facing URL set by proxy.ts middleware so the user
+    // is redirected back here after authenticating (not to the home page).
+    const headersList = await headers();
+    const currentUrl = headersList.get("x-helvety-url") ?? undefined;
+    redirect(getLoginUrl(currentUrl));
   }
 
   return user;
