@@ -86,10 +86,6 @@ export function useContacts(): UseContactsReturn {
         setError("Encryption not unlocked");
         return null;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return null;
-      }
 
       try {
         const encrypted = await encryptContactInput(input, masterKey);
@@ -138,10 +134,6 @@ export function useContacts(): UseContactsReturn {
     async (id: string, input: Partial<ContactInput>): Promise<boolean> => {
       if (!masterKey) {
         setError("Encryption not unlocked");
-        return false;
-      }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
         return false;
       }
 
@@ -202,11 +194,6 @@ export function useContacts(): UseContactsReturn {
 
   const remove = useCallback(
     async (id: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       // Optimistic delete: remove from state immediately, rollback on failure
       let prevContacts: Contact[] = [];
       setContacts((prev) => {
@@ -239,11 +226,6 @@ export function useContacts(): UseContactsReturn {
    */
   const reorder = useCallback(
     async (updates: ReorderUpdate[]): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       // Optimistic update
       setContacts((prev) => {
         const updated = prev.map((contact) => {
@@ -356,7 +338,7 @@ export function useContact(id: string): UseContactReturn {
 
   const update = useCallback(
     async (input: Partial<ContactInput>): Promise<boolean> => {
-      if (!masterKey || !csrfToken || !id) {
+      if (!masterKey || !id) {
         setError("Encryption not unlocked");
         return false;
       }
@@ -415,8 +397,8 @@ export function useContact(id: string): UseContactReturn {
   );
 
   const remove = useCallback(async (): Promise<boolean> => {
-    if (!csrfToken || !id) {
-      setError("CSRF token not available");
+    if (!id) {
+      setError("Contact ID not available");
       return false;
     }
 

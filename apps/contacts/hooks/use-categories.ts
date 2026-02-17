@@ -145,10 +145,6 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
         setError("Encryption not unlocked");
         return null;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return null;
-      }
 
       try {
         const encrypted = await encryptCategoryInput(input, masterKey);
@@ -185,10 +181,6 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
         setError("Encryption not unlocked");
         return false;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return false;
-      }
 
       try {
         const encrypted = await encryptCategoryUpdate(id, input, masterKey);
@@ -218,11 +210,6 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
         return false;
       }
 
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       try {
         const result = await deleteCategory(id, csrfToken);
         if (!result.success) {
@@ -247,11 +234,6 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
       // Prevent modifications on default configs
       if (isDefault) {
         setError("Cannot modify default configuration");
-        return false;
-      }
-
-      if (!csrfToken) {
-        setError("CSRF token not available");
         return false;
       }
 

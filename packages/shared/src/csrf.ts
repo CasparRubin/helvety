@@ -10,10 +10,14 @@ import { cookies } from "next/headers";
  * Provides Cross-Site Request Forgery protection for Server Actions.
  * Uses the double-submit cookie pattern with timing-safe comparison.
  *
- * Usage:
- * 1. Generate a token with generateCSRFToken() in your page/layout
- * 2. Include the token in forms or pass to client components
- * 3. Validate the token in Server Actions with validateCSRFToken()
+ * Token lifecycle:
+ * 1. The CSRF cookie is generated in proxy.ts on each request (if missing).
+ *    This MUST happen in the proxy -- cookies().set() is NOT allowed in
+ *    Server Components or layouts and will throw at runtime.
+ * 2. The page reads the token via getCSRFToken() and passes it to the
+ *    CSRFProvider for client components.
+ * 3. Server Actions validate the token with validateCSRFToken() /
+ *    requireCSRFToken().
  */
 
 const CSRF_COOKIE_NAME = "csrf_token";
@@ -22,8 +26,12 @@ const CSRF_TOKEN_LENGTH = 32;
 /**
  * Generate a new CSRF token and store it in an HttpOnly cookie.
  *
- * Call this in a Server Component to generate a token that can be
- * passed to client components for form submissions.
+ * WARNING: This function calls cookies().set(), which is only allowed in
+ * Server Actions, Route Handlers, and the proxy (proxy.ts). Do NOT call
+ * this from Server Components or layouts -- it will throw at runtime.
+ *
+ * In practice, CSRF token generation is handled by proxy.ts. This function
+ * is kept for use in Server Actions or Route Handlers if needed.
  *
  * @returns The generated CSRF token
  */
@@ -34,7 +42,7 @@ export async function generateCSRFToken(): Promise<string> {
   cookieStore.set(CSRF_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
     // Token expires in 24 hours (reduced UX failures on long sessions)
     maxAge: 60 * 60 * 24,

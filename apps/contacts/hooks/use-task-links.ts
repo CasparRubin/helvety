@@ -271,11 +271,6 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
    */
   const link = useCallback(
     async (entityType: TaskEntityType, entityId: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return false;
-      }
-
       try {
         const result = await linkTaskEntity(
           entityType,
@@ -304,11 +299,6 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
    */
   const unlink = useCallback(
     async (linkId: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       try {
         const result = await unlinkTaskEntity(linkId, csrfToken);
         if (!result.success) {

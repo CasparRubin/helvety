@@ -81,11 +81,6 @@ export function useLabelAssignment(
 
   const assign = useCallback(
     async (configId: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       try {
         // Default configs are not stored in the database - they're hardcoded.
         // To "assign" a default config, we remove any existing assignment,
@@ -121,11 +116,6 @@ export function useLabelAssignment(
   );
 
   const unassign = useCallback(async (): Promise<boolean> => {
-    if (!csrfToken) {
-      setError("CSRF token not available");
-      return false;
-    }
-
     try {
       const result = await removeLabelAssignment(parentId, csrfToken);
       if (!result.success) {

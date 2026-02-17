@@ -1,4 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
+import { getCSRFToken } from "@helvety/shared/csrf";
 
 import { ContactsDashboard } from "@/components/contacts-dashboard";
 import { EncryptionGate } from "@/components/encryption-gate";
@@ -12,10 +13,11 @@ import { CSRFProvider } from "@/lib/csrf-client";
 export default async function Page(): Promise<React.JSX.Element> {
   // Server-side auth check (includes retry for transient network failures)
   const user = await requireAuth();
+  const csrfToken = (await getCSRFToken()) ?? "";
 
   return (
     <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <CSRFProvider>
+      <CSRFProvider csrfToken={csrfToken}>
         <ContactsDashboard />
       </CSRFProvider>
     </EncryptionGate>

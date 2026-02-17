@@ -140,10 +140,6 @@ export function useLabels(configId: string | null): UseLabelsReturn {
         setError("Encryption not unlocked");
         return null;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return null;
-      }
 
       try {
         const encrypted = await encryptLabelInput(input, masterKey);
@@ -178,10 +174,6 @@ export function useLabels(configId: string | null): UseLabelsReturn {
         setError("Encryption not unlocked");
         return false;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return false;
-      }
 
       try {
         const encrypted = await encryptLabelUpdate(id, input, masterKey);
@@ -209,11 +201,6 @@ export function useLabels(configId: string | null): UseLabelsReturn {
         return false;
       }
 
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       try {
         const result = await deleteLabel(id, csrfToken);
         if (!result.success) {
@@ -236,11 +223,6 @@ export function useLabels(configId: string | null): UseLabelsReturn {
       // Prevent modifications on default configs
       if (isDefault) {
         setError("Cannot modify default configuration");
-        return false;
-      }
-
-      if (!csrfToken) {
-        setError("CSRF token not available");
         return false;
       }
 

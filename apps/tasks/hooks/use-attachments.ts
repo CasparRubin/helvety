@@ -133,7 +133,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
    */
   const upload = useCallback(
     async (file: File): Promise<boolean> => {
-      if (!masterKey || !csrfToken) {
+      if (!masterKey) {
         setError("Encryption not unlocked");
         return false;
       }
@@ -272,11 +272,6 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
    */
   const remove = useCallback(
     async (id: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       try {
         const result = await deleteAttachment(id, csrfToken);
         if (!result.success) {

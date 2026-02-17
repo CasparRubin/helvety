@@ -42,7 +42,7 @@ export async function generateCSRFToken(): Promise<string> {
   cookieStore.set(CSRF_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
     // Token expires in 24 hours (reduced UX failures on long sessions)
     maxAge: 60 * 60 * 24,

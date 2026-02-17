@@ -1,4 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
+import { getCSRFToken } from "@helvety/shared/csrf";
 
 import { EncryptionGate } from "@/components/encryption-gate";
 import { ItemEditor } from "@/components/item-editor";
@@ -19,10 +20,11 @@ export default async function ItemEditorPage({
 
   // Server-side auth check (includes retry for transient network failures)
   const user = await requireAuth();
+  const csrfToken = (await getCSRFToken()) ?? "";
 
   return (
     <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <CSRFProvider>
+      <CSRFProvider csrfToken={csrfToken}>
         <ItemEditor unitId={unitId} spaceId={spaceId} itemId={itemId} />
       </CSRFProvider>
     </EncryptionGate>

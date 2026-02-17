@@ -89,7 +89,7 @@ export async function proxy(request: NextRequest) {
     supabaseResponse.cookies.set(CSRF_COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24, // 24 hours
     });

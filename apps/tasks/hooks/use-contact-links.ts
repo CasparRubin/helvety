@@ -116,11 +116,6 @@ export function useContactLinks(
    */
   const link = useCallback(
     async (contactId: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return false;
-      }
-
       try {
         const result = await linkContact(
           entityType,
@@ -158,11 +153,6 @@ export function useContactLinks(
    */
   const unlink = useCallback(
     async (linkId: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       try {
         const result = await unlinkContact(linkId, csrfToken);
         if (!result.success) {

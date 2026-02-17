@@ -89,10 +89,6 @@ export function useItems(spaceId: string): UseItemsReturn {
         setError("Encryption not unlocked");
         return null;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return null;
-      }
 
       try {
         const encrypted = await encryptItemInput(input, masterKey);
@@ -140,10 +136,6 @@ export function useItems(spaceId: string): UseItemsReturn {
     ): Promise<boolean> => {
       if (!masterKey) {
         setError("Encryption not unlocked");
-        return false;
-      }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
         return false;
       }
 
@@ -203,11 +195,6 @@ export function useItems(spaceId: string): UseItemsReturn {
 
   const remove = useCallback(
     async (id: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       // Optimistic delete: remove from state immediately, rollback on failure
       let prevItems: Item[] = [];
       setItems((prev) => {
@@ -238,11 +225,6 @@ export function useItems(spaceId: string): UseItemsReturn {
    */
   const reorder = useCallback(
     async (updates: ReorderUpdate[]): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       // Optimistic update
       setItems((prev) => {
         const updated = prev.map((item) => {
@@ -353,7 +335,7 @@ export function useItem(id: string): UseItemReturn {
 
   const update = useCallback(
     async (input: Partial<Omit<ItemInput, "space_id">>): Promise<boolean> => {
-      if (!masterKey || !csrfToken || !id) {
+      if (!masterKey || !id) {
         setError("Encryption not unlocked");
         return false;
       }
@@ -411,8 +393,8 @@ export function useItem(id: string): UseItemReturn {
   );
 
   const remove = useCallback(async (): Promise<boolean> => {
-    if (!csrfToken || !id) {
-      setError("CSRF token not available");
+    if (!id) {
+      setError("Invalid or missing ID");
       return false;
     }
 

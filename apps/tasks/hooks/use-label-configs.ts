@@ -111,10 +111,6 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
         setError("Encryption not unlocked");
         return null;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return null;
-      }
 
       try {
         const encrypted = await encryptLabelConfigInput(input, masterKey);
@@ -148,10 +144,6 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
         setError("Encryption not unlocked");
         return false;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return false;
-      }
 
       try {
         const encrypted = await encryptLabelConfigUpdate(id, input, masterKey);
@@ -178,11 +170,6 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
       // Prevent modifications on default configs
       if (isDefaultLabelConfigId(id)) {
         setError("Cannot delete default configuration");
-        return false;
-      }
-
-      if (!csrfToken) {
-        setError("CSRF token not available");
         return false;
       }
 

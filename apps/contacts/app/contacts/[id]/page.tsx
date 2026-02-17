@@ -1,4 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
+import { getCSRFToken } from "@helvety/shared/csrf";
 
 import { ContactEditor } from "@/components/contact-editor";
 import { EncryptionGate } from "@/components/encryption-gate";
@@ -18,10 +19,11 @@ export default async function ContactEditorPage({
 
   // Server-side auth check (includes retry for transient network failures)
   const user = await requireAuth();
+  const csrfToken = (await getCSRFToken()) ?? "";
 
   return (
     <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <CSRFProvider>
+      <CSRFProvider csrfToken={csrfToken}>
         <ContactEditor contactId={contactId} />
       </CSRFProvider>
     </EncryptionGate>

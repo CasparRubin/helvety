@@ -1,4 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
+import { getCSRFToken } from "@helvety/shared/csrf";
 
 import { EncryptionGate } from "@/components/encryption-gate";
 import { SpacesDashboard } from "@/components/spaces-dashboard";
@@ -17,10 +18,11 @@ export default async function SpacesPage({
 
   // Server-side auth check (includes retry for transient network failures)
   const user = await requireAuth();
+  const csrfToken = (await getCSRFToken()) ?? "";
 
   return (
     <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <CSRFProvider>
+      <CSRFProvider csrfToken={csrfToken}>
         <SpacesDashboard unitId={unitId} />
       </CSRFProvider>
     </EncryptionGate>

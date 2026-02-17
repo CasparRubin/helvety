@@ -94,10 +94,6 @@ export function useUnits(): UseUnitsReturn {
         setError("Encryption not unlocked");
         return null;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return null;
-      }
 
       try {
         // Encrypt the input client-side
@@ -145,10 +141,6 @@ export function useUnits(): UseUnitsReturn {
         setError("Encryption not unlocked");
         return false;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return false;
-      }
 
       try {
         // Encrypt the update fields
@@ -193,11 +185,6 @@ export function useUnits(): UseUnitsReturn {
    */
   const remove = useCallback(
     async (id: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       // Optimistic delete: remove from state immediately, rollback on failure
       let prevUnits: Unit[] = [];
       setUnits((prev) => {
@@ -229,11 +216,6 @@ export function useUnits(): UseUnitsReturn {
    */
   const reorder = useCallback(
     async (updates: ReorderUpdate[]): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       // Optimistic update
       setUnits((prev) => {
         const updated = prev.map((unit) => {
@@ -352,7 +334,7 @@ export function useUnit(id: string): UseUnitReturn {
    */
   const update = useCallback(
     async (input: Partial<UnitInput>): Promise<boolean> => {
-      if (!masterKey || !csrfToken || !id) {
+      if (!masterKey || !id) {
         setError("Encryption not unlocked");
         return false;
       }
@@ -394,8 +376,8 @@ export function useUnit(id: string): UseUnitReturn {
    * Delete the unit
    */
   const remove = useCallback(async (): Promise<boolean> => {
-    if (!csrfToken || !id) {
-      setError("CSRF token not available");
+    if (!id) {
+      setError("Invalid or missing ID");
       return false;
     }
 

@@ -96,10 +96,6 @@ export function useSpaces(unitId: string): UseSpacesReturn {
         setError("Encryption not unlocked");
         return null;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return null;
-      }
 
       try {
         // Encrypt the input client-side
@@ -153,10 +149,6 @@ export function useSpaces(unitId: string): UseSpacesReturn {
         setError("Encryption not unlocked");
         return false;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return false;
-      }
 
       try {
         // Encrypt the update fields
@@ -201,11 +193,6 @@ export function useSpaces(unitId: string): UseSpacesReturn {
    */
   const remove = useCallback(
     async (id: string): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       // Optimistic delete: remove from state immediately, rollback on failure
       let prevSpaces: Space[] = [];
       setSpaces((prev) => {
@@ -236,11 +223,6 @@ export function useSpaces(unitId: string): UseSpacesReturn {
    */
   const reorder = useCallback(
     async (updates: ReorderUpdate[]): Promise<boolean> => {
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       // Optimistic update
       setSpaces((prev) => {
         const updated = prev.map((space) => {
@@ -352,7 +334,7 @@ export function useSpace(id: string): UseSpaceReturn {
 
   const update = useCallback(
     async (input: Partial<Omit<SpaceInput, "unit_id">>): Promise<boolean> => {
-      if (!masterKey || !csrfToken || !id) {
+      if (!masterKey || !id) {
         setError("Encryption not unlocked");
         return false;
       }
@@ -391,8 +373,8 @@ export function useSpace(id: string): UseSpaceReturn {
   );
 
   const remove = useCallback(async (): Promise<boolean> => {
-    if (!csrfToken || !id) {
-      setError("CSRF token not available");
+    if (!id) {
+      setError("Invalid or missing ID");
       return false;
     }
 

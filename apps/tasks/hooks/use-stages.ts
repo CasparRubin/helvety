@@ -141,10 +141,6 @@ export function useStages(configId: string | null): UseStagesReturn {
         setError("Encryption not unlocked");
         return null;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return null;
-      }
 
       try {
         const encrypted = await encryptStageInput(input, masterKey);
@@ -179,10 +175,6 @@ export function useStages(configId: string | null): UseStagesReturn {
         setError("Encryption not unlocked");
         return false;
       }
-      if (!csrfToken) {
-        setError("Please wait, initializing security token...");
-        return false;
-      }
 
       try {
         const encrypted = await encryptStageUpdate(id, input, masterKey);
@@ -210,11 +202,6 @@ export function useStages(configId: string | null): UseStagesReturn {
         return false;
       }
 
-      if (!csrfToken) {
-        setError("CSRF token not available");
-        return false;
-      }
-
       try {
         const result = await deleteStage(id, csrfToken);
         if (!result.success) {
@@ -237,11 +224,6 @@ export function useStages(configId: string | null): UseStagesReturn {
       // Prevent modifications on default configs
       if (isDefault) {
         setError("Cannot modify default configuration");
-        return false;
-      }
-
-      if (!csrfToken) {
-        setError("CSRF token not available");
         return false;
       }
 
