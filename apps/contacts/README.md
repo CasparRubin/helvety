@@ -122,8 +122,8 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 **New Users:**
 
 1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
-2. Enter verification code from email → Verify email ownership
-3. Create passkey with PRF extension → Verify passkey → Session established
+2. Enter verification code from email → Verify email ownership → Session established
+3. Create passkey with PRF extension → Encryption key derived automatically
 4. Redirected back to Contacts app → Data encrypted with your passkey
 
 **Returning Users:**

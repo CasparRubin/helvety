@@ -44,7 +44,6 @@ export type LoginStep =
   | "geo-confirmation" // Non-EU confirmation (new users only)
   | "verify-code" // Enter OTP code from email
   | "passkey-signin" // Sign in with existing passkey
-  | "passkey-verify" // Verify newly created passkey
   | "encryption-setup"; // Set up encryption with passkey
 
 /** Return type of the useLoginFlow hook */
@@ -149,12 +148,7 @@ export function useLoginFlow(): LoginFlowState {
       } = await supabase.auth.getUser();
 
       // If user is authenticated and we're on passkey or encryption step, stay on that step
-      if (
-        user &&
-        (step === "passkey-signin" ||
-          step === "passkey-verify" ||
-          step === "encryption-setup")
-      ) {
+      if (user && (step === "passkey-signin" || step === "encryption-setup")) {
         setEmail(user.email ?? "");
         setUserId(user.id);
         setCheckingAuth(false);
@@ -523,8 +517,7 @@ export function useLoginFlow(): LoginFlowState {
   const currentAuthStep: AuthStep = (() => {
     if (step === "geo-confirmation") return "geo_confirmation";
     if (step === "email" || step === "verify-code") return "email";
-    if (step === "passkey-signin" || step === "passkey-verify")
-      return "sign_in";
+    if (step === "passkey-signin") return "sign_in";
     return "create_passkey";
   })();
 

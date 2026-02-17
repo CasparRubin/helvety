@@ -1,8 +1,12 @@
 "use client";
 
 import { useEncryptionContext } from "@helvety/shared/crypto";
+import { storeMasterKey } from "@helvety/shared/crypto/key-storage";
 import { registerPasskey } from "@helvety/shared/crypto/passkey";
-import { PRF_VERSION } from "@helvety/shared/crypto/prf-key-derivation";
+import {
+  deriveKeyFromPRF,
+  PRF_VERSION,
+} from "@helvety/shared/crypto/prf-key-derivation";
 import { cachePRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
@@ -42,6 +46,8 @@ import { isMobileDevice } from "@/lib/device-utils";
 interface EncryptionSetupProps {
   flowType?: AuthFlowType;
   redirectUri?: string;
+  /** Authenticated user's ID, used to store the master key in IndexedDB */
+  userId?: string;
 }
 
 /** Setup step for tracking progress through the flow */
@@ -59,10 +65,12 @@ type SetupStep = "initial" | "registering" | "complete";
  * the PRF extension for single-touch encryption unlock (no separate passkey
  * prompt in E2EE apps like helvety.com/tasks or helvety.com/contacts).
  *
- * For brand-new users, WebAuthn registration does not return PRF output (spec
- * limitation), so the first visit to an E2EE app after signup will still trigger
- * one passkey touch via EncryptionGate. After that, all future logins are
- * single-touch.
+ * On Chrome 132+ (Jan 2025) and other modern browsers, PRF output is returned
+ * during registration itself. When available, the master encryption key is
+ * derived and stored in IndexedDB immediately, so the user lands in E2EE apps
+ * with encryption already unlocked (zero extra passkey touches). On older
+ * browsers that only return { enabled } during registration, EncryptionGate
+ * in E2EE apps handles a one-time fallback unlock on first visit.
  *
  * Device-aware: On mobile, passkey is created on this device (Face ID, fingerprint, PIN).
  * On desktop, user scans QR code with phone and uses the phone for passkey.
@@ -70,6 +78,7 @@ type SetupStep = "initial" | "registering" | "complete";
 export function EncryptionSetup({
   flowType = "new_user",
   redirectUri,
+  userId,
 }: EncryptionSetupProps) {
   const { prfSupported, prfSupportInfo, checkPRFSupport } =
     useEncryptionContext();
@@ -200,11 +209,31 @@ export function EncryptionSetup({
       // Cache the PRF salt so future logins can include PRF for single-touch unlock
       cachePRFSalt(prfSalt, PRF_VERSION);
 
+      // On Chrome 132+ (Jan 2025), PRF output is returned during registration.
+      // If available, derive and store the master key now so the user doesn't
+      // need a separate passkey touch when EncryptionGate loads in E2EE apps.
+      if (regResult.prfOutput && userId) {
+        try {
+          const prfParams = { prfSalt, version: PRF_VERSION };
+          const masterKey = await deriveKeyFromPRF(
+            regResult.prfOutput,
+            prfParams
+          );
+          await storeMasterKey(userId, masterKey);
+
+          logger.info(
+            "Master key derived and stored during passkey registration (zero extra touches)"
+          );
+        } catch (prfError) {
+          // Non-fatal: EncryptionGate will handle unlock as fallback
+          logger.warn(
+            "Failed to derive master key from registration PRF output (will use fallback):",
+            prfError
+          );
+        }
+      }
+
       // Mark as complete and redirect
-      // The session is shared via same-origin cookies. The PRF salt was just
-      // cached, so the next login will include PRF for single-touch encryption
-      // unlock. EncryptionGate in E2EE apps serves as a fallback for this
-      // first session (registration doesn't produce PRF output).
       setSetupStep("complete");
 
       // Validate redirect URI against allowlist to prevent open redirect attacks

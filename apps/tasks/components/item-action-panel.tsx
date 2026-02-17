@@ -9,6 +9,7 @@
 
 import { formatDateTime } from "@helvety/shared/dates";
 import { cn } from "@helvety/shared/utils";
+import { Badge } from "@helvety/ui/badge";
 import { Button } from "@helvety/ui/button";
 import { Card, CardContent } from "@helvety/ui/card";
 import {
@@ -202,6 +203,11 @@ export function ItemActionPanel({
                   placeholder="Set end date & time"
                   disabled={isSavingDates}
                 />
+                {item.end_date && new Date(item.end_date) < new Date() && (
+                  <Badge variant="destructive" className="w-fit text-[10px]">
+                    Overdue
+                  </Badge>
+                )}
               </div>
             </CollapsibleContent>
           </Collapsible>

@@ -145,7 +145,7 @@ function EditorToolbar({
         { type: "horizontalRule" },
         {
           type: "heading",
-          attrs: { level: 3 },
+          attrs: { level: 4 },
           content: [{ type: "text", text: `Comment ${timestamp}` }],
         },
         { type: "paragraph" },
@@ -325,7 +325,7 @@ export function TiptapEditor({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3],
+          levels: [1, 2, 3, 4],
         },
       }),
       Placeholder.configure({
@@ -353,6 +353,7 @@ export function TiptapEditor({
           "[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-6 first:[&_h1]:mt-0",
           "[&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 first:[&_h2]:mt-0",
           "[&_h3]:text-lg [&_h3]:font-medium [&_h3]:mb-2 [&_h3]:mt-4 first:[&_h3]:mt-0",
+          "[&_h4]:text-xs [&_h4]:font-medium [&_h4]:mb-2 [&_h4]:mt-4 [&_h4]:text-muted-foreground first:[&_h4]:mt-0",
           "[&_p]:mb-3 [&_p]:leading-relaxed last:[&_p]:mb-0",
           "[&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-6",
           "[&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6",

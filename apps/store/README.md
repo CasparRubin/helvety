@@ -57,9 +57,9 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 **New Users (when signing in):**
 
 1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
-2. Enter verification code from email → Verify email ownership
+2. Enter verification code from email → Verify email ownership → Session established
 3. Scan QR code with phone → Verify with biometrics (Face ID/fingerprint)
-4. Passkey created → Verify passkey → Session established → Redirected back to store
+4. Passkey created → Redirected back to store
 
 **Returning Users (when signing in):**
 

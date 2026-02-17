@@ -17,7 +17,6 @@ import {
   EmailStep,
   VerifyCodeStep,
   PasskeySignInStep,
-  PasskeyVerifyStep,
 } from "@/components/login";
 import { useLoginFlow } from "@/hooks/use-login-flow";
 
@@ -27,7 +26,6 @@ const STEP_TITLES: Record<string, string> = {
   "geo-confirmation": "Location Confirmation",
   "verify-code": "Check Your Email",
   "passkey-signin": "Sign In with Passkey",
-  "passkey-verify": "Verify Your Passkey",
 };
 
 /** Card descriptions for each login step. */
@@ -39,7 +37,6 @@ const STEP_DESCRIPTIONS: Record<string, string | ((email: string) => string)> =
     "verify-code": (email: string) =>
       `We sent a verification code to ${email}. Check your spam folder if you don\u2019t see it.`,
     "passkey-signin": "Use your passkey to sign in",
-    "passkey-verify": "Verify your new passkey to complete setup",
   };
 
 /** Main login flow component handling email, OTP verification, and passkey steps. */
@@ -78,6 +75,7 @@ function LoginContent() {
           <EncryptionSetup
             flowType={flow.flowType}
             redirectUri={flow.redirectUri ?? undefined}
+            userId={flow.userId}
           />
         )}
 
@@ -130,16 +128,6 @@ function LoginContent() {
                   error={flow.error}
                   passkeySupported={flow.passkeySupported}
                   isMobile={flow.isMobile}
-                />
-              )}
-
-              {flow.step === "passkey-verify" && (
-                <PasskeyVerifyStep
-                  onVerify={flow.handlePasskeySignIn}
-                  onSkip={flow.handleCompleteAuth}
-                  isLoading={flow.isLoading}
-                  error={flow.error}
-                  passkeySupported={flow.passkeySupported}
                 />
               )}
             </CardContent>

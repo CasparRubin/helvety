@@ -288,11 +288,14 @@ export function generateAuthenticationOptions(
 /**
  * Register a new passkey with PRF extension for encryption
  *
- * Note: PRF output is only returned during authentication, not registration.
- * Registration only tells us if PRF is enabled/supported by the authenticator.
+ * On Chrome 132+ (Jan 2025), PRF output is returned during registration
+ * via navigator.credentials.create(). This allows deriving the master
+ * encryption key immediately, eliminating a separate passkey touch for
+ * E2EE unlock. On older browsers, only { enabled } is returned and the
+ * first E2EE unlock requires a separate authentication touch.
  *
  * @param options - Registration options from server or generateRegistrationOptions
- * @returns Registration result (prfEnabled indicates if PRF is supported)
+ * @returns Registration result with prfOutput (if browser supports it) and prfEnabled flag
  */
 export async function registerPasskey(
   options: PublicKeyCredentialCreationOptionsJSON
@@ -300,20 +303,24 @@ export async function registerPasskey(
   try {
     const response = await startRegistration({ optionsJSON: options });
 
-    // During registration, PRF only returns 'enabled' status, not actual output
-    // The actual PRF output is only available during authentication
+    // Check for PRF extension results.
+    // Chrome 132+ (Jan 2025) supports returning PRF output during registration
+    // via navigator.credentials.create(). Older browsers only return { enabled }.
     const clientExtResults = response.clientExtensionResults as {
-      prf?: { enabled?: boolean };
+      prf?: { enabled?: boolean; results?: { first?: ArrayBuffer } };
     };
 
-    // PRF is considered enabled if the extension was processed
-    // Note: Some authenticators return enabled:true, others just include the prf object
-    const prfEnabled = clientExtResults.prf !== undefined;
+    // Extract PRF output if the authenticator returned it during registration
+    const prfOutput = clientExtResults.prf?.results?.first;
+
+    // PRF is considered enabled if the extension was processed or output was returned
+    const prfEnabled =
+      clientExtResults.prf !== undefined || prfOutput !== undefined;
 
     return {
       response,
       credentialId: response.id,
-      prfOutput: undefined, // PRF output only available during authentication
+      prfOutput, // Available on Chrome 132+ during registration, undefined on older browsers
       prfEnabled,
     };
   } catch (error) {

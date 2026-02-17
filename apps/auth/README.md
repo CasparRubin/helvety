@@ -86,10 +86,7 @@ sequenceDiagram
       U->>P: Use this device (Face ID / fingerprint / PIN)
     end
     P->>A: Passkey credential
-    A->>S: Store passkey
-    A->>U: Verify passkey
-    U->>P: Authenticate (same device or phone)
-    P->>A: Passkey response
+    A->>S: Store passkey + PRF params
     A-->>U: Redirect to app
 ```
 
@@ -115,10 +112,11 @@ sequenceDiagram
       U->>P: Use this device
     end
     P->>U: Verify biometrics
-    P->>A: Passkey response
+    P->>A: Passkey response + PRF output
     A->>S: Verify passkey + Create session
     S-->>A: Session created
-    A-->>U: Redirect to app
+    A->>A: Derive encryption key from PRF
+    A-->>U: Redirect to app (signed in + encryption unlocked)
 ```
 
 Note: Passkey authentication creates the session directly server-side (via `verifyOtp`) without requiring the user to navigate through an additional callback URL. This ensures reliable session creation regardless of browser PKCE support.
@@ -287,21 +285,16 @@ Invalid redirect URIs are rejected, and the user is redirected to `helvety.com` 
 
 Helvety Auth handles the encryption setup flow for **Helvety Tasks** and **Helvety Contacts**, the Helvety apps that use end-to-end encryption (E2EE). Auth itself does not encrypt any of its own data.
 
-After passkey authentication, new users are guided through a two-step encryption setup. The flow is **device-aware**:
+After email verification, new users are guided through passkey creation. The flow is **device-aware**:
 
-**Step 1: Create Passkey (Registration)**
+**Passkey Creation (Registration)**
 
 - **On mobile (phone/tablet):** User creates a passkey on this device using Face ID, fingerprint, or device PIN.
 - **On desktop:** User scans a QR code with their phone and creates the passkey on the phone (Face ID or fingerprint).
 - The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential and PRF salt parameters.
-
-**Step 2: Sign In with Passkey (Verification + Session)**
-
-- User authenticates with the newly created passkey (same device on mobile, or phone via QR on desktop).
-- PRF extension derives a deterministic output from the passkey.
-- Client-side HKDF derives the encryption key from PRF output.
-- Server verifies the passkey response and creates a session.
-- User is redirected to destination app with valid session cookies.
+- On modern browsers (Chrome 132+, Jan 2025), PRF output is returned during registration. The encryption key is derived and stored in IndexedDB immediately, so the user arrives at E2EE apps with encryption already unlocked (zero extra passkey touches).
+- On older browsers, EncryptionGate in E2EE apps handles a one-time fallback unlock on first visit (one additional passkey touch).
+- User is redirected to their destination app with an active session (created during OTP verification).
 
 **Key Features:**
 
