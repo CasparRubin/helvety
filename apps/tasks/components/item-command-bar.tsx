@@ -7,7 +7,6 @@
  */
 
 import { cn } from "@helvety/shared/utils";
-import { Badge } from "@helvety/ui/badge";
 import { Button } from "@helvety/ui/button";
 import { CommandBar, CommandBarSpacer } from "@helvety/ui/command-bar";
 import {
@@ -98,6 +97,15 @@ export function ItemCommandBar({
         </>
       );
     }
+    if (hasUnsavedChanges) {
+      return (
+        <>
+          <span className="size-1.5 animate-pulse rounded-full bg-white" />
+          <SaveIcon className="mr-1.5 size-4 shrink-0" />
+          <span>Save Changes</span>
+        </>
+      );
+    }
     return (
       <>
         <SaveIcon className="mr-1.5 size-4 shrink-0" />
@@ -126,39 +134,15 @@ export function ItemCommandBar({
           disabled={isSaving || !hasUnsavedChanges}
           className={cn(
             saveStatus === "error" &&
-              "border-destructive text-destructive hover:bg-destructive/10"
+              "border-destructive text-destructive hover:bg-destructive/10",
+            hasUnsavedChanges &&
+              saveStatus === "idle" &&
+              !isSaving &&
+              "bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
           )}
         >
           {getSaveButtonContent()}
         </Button>
-      )}
-
-      {/* Save status / unsaved changes indicator */}
-      {saveStatus === "saving" && (
-        <Badge variant="secondary" className="hidden md:inline-flex">
-          <Loader2Icon className="size-3 animate-spin" />
-          Saving...
-        </Badge>
-      )}
-      {saveStatus === "saved" && (
-        <Badge variant="secondary" className="hidden md:inline-flex">
-          <CheckIcon className="size-3" />
-          Saved
-        </Badge>
-      )}
-      {saveStatus === "error" && (
-        <Badge variant="destructive" className="hidden md:inline-flex">
-          Failed to save
-        </Badge>
-      )}
-      {hasUnsavedChanges && saveStatus === "idle" && (
-        <Badge
-          variant="outline"
-          className="hidden border-amber-500/50 text-amber-600 md:inline-flex dark:text-amber-400"
-        >
-          <span className="size-1.5 animate-pulse rounded-full bg-amber-500" />
-          Unsaved changes
-        </Badge>
       )}
 
       {/* Desktop only: Refresh */}

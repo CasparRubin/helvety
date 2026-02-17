@@ -26,7 +26,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - Headings (H1, H2, H3)
   - Bullet and numbered lists
   - Link support
-  - Auto-save with unsaved changes indicator
+  - Auto-save with unsaved changes feedback in the Save button
   - **Action panel** - View created/modified dates, set start and end date/time, and set item stage, label, and priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators
 - **Label management** - Categorize items with labels (e.g., Bug, Feature, Improvement)
