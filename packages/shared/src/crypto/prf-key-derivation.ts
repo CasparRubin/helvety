@@ -8,7 +8,9 @@
  */
 
 import { base64Encode, base64Decode, generateSalt } from "./encoding";
-import { CryptoError, CryptoErrorType } from "./types";
+import { CryptoError, CryptoErrorType, type PRFKeyParams } from "./types";
+
+export type { PRFKeyParams };
 
 /** Current PRF encryption version */
 export const PRF_VERSION = 1;
@@ -21,16 +23,6 @@ const PRF_SALT_LENGTH = 32;
  * This is shared across all Helvety apps (pdf, store, auth, etc.)
  */
 const HKDF_INFO = "helvety-e2ee-v1";
-
-/**
- * PRF-based key parameters stored in the database
- */
-export interface PRFKeyParams {
-  /** Base64-encoded PRF salt */
-  prfSalt: string;
-  /** Version for future compatibility */
-  version: number;
-}
 
 /**
  * Generate new PRF parameters for a user

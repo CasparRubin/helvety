@@ -1,11 +1,9 @@
-# Lockfiles (binary)
-bun.lock
-
-# Auto-generated version files
-**/lib/config/version.ts
-
-# Static assets
-**/public/**
-
-# Minified files
+.next
+node_modules
+build
+out
+public
 *.min.js
+pnpm-lock.yaml
+package-lock.json
+**/lib/config/version.ts

@@ -3,7 +3,6 @@
 import { HelvetyLogo } from "@helvety/brand";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import "./page.css";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },

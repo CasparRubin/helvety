@@ -14,7 +14,7 @@ import { cookies } from "next/headers";
  * 1. The CSRF cookie is generated in proxy.ts on each request (if missing).
  *    This MUST happen in the proxy -- cookies().set() is NOT allowed in
  *    Server Components or layouts and will throw at runtime.
- * 2. The page reads the token via getCSRFToken() and passes it to the
+ * 2. The layout reads the token via getCSRFToken() and passes it to the
  *    CSRFProvider for client components.
  * 3. Server Actions validate the token with validateCSRFToken() /
  *    requireCSRFToken().

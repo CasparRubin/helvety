@@ -288,7 +288,7 @@ export function generateAuthenticationOptions(
 /**
  * Register a new passkey with PRF extension for encryption
  *
- * On Chrome 132+ (Jan 2025), PRF output is returned during registration
+ * On Chrome 132+ (released January 2025), PRF output is returned during registration
  * via navigator.credentials.create(). This allows deriving the master
  * encryption key immediately, eliminating a separate passkey touch for
  * E2EE unlock. On older browsers, only { enabled } is returned and the
@@ -304,7 +304,7 @@ export async function registerPasskey(
     const response = await startRegistration({ optionsJSON: options });
 
     // Check for PRF extension results.
-    // Chrome 132+ (Jan 2025) supports returning PRF output during registration
+    // Chrome 132+ (released January 2025) supports returning PRF output during registration
     // via navigator.credentials.create(). Older browsers only return { enabled }.
     const clientExtResults = response.clientExtensionResults as {
       prf?: { enabled?: boolean; results?: { first?: ArrayBuffer } };

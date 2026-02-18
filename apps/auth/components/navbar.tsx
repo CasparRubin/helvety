@@ -199,7 +199,7 @@ export function Navbar({
                 </DialogHeader>
                 <div className="border-t" />
                 <p className="text-muted-foreground text-xs">
-                  {VERSION || "Unknown build time"}
+                  {VERSION || "Development build"}
                 </p>
                 <DialogClose asChild>
                   <Button variant="outline" className="w-full">

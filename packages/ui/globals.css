@@ -10,19 +10,6 @@
   --font-sans:
     var(--font-sans), ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -71,24 +58,11 @@
   --border: oklch(0.9 0.005 35);
   --input: oklch(0.9 0.005 35);
   --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.82 0.11 346);
-  --chart-2: oklch(0.73 0.18 350);
-  --chart-3: oklch(0.66 0.21 354);
-  --chart-4: oklch(0.59 0.22 1);
-  --chart-5: oklch(0.52 0.2 4);
   --radius: 0;
   --surface-chrome: oklch(0.935 0.006 35);
   --surface-toolbar: oklch(0.95 0.005 35);
   --surface-content: oklch(0.985 0.004 35);
   --surface-panel: oklch(0.965 0.005 35);
-  --sidebar: oklch(0.96 0.004 35);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.55 0.258 25);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.93 0.005 35);
-  --sidebar-accent-foreground: oklch(0.145 0 0);
-  --sidebar-border: oklch(0.9 0.005 35);
-  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
@@ -110,23 +84,10 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.82 0.11 346);
-  --chart-2: oklch(0.73 0.18 350);
-  --chart-3: oklch(0.66 0.21 354);
-  --chart-4: oklch(0.59 0.22 1);
-  --chart-5: oklch(0.52 0.2 4);
   --surface-chrome: oklch(0.215 0.01 35);
   --surface-toolbar: oklch(0.195 0.01 35);
   --surface-content: oklch(0.145 0.01 35);
   --surface-panel: oklch(0.175 0.01 35);
-  --sidebar: oklch(0.205 0.01 35);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.65 0.258 25);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.274 0.008 35);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -136,9 +97,6 @@
   body {
     @apply bg-background text-foreground;
   }
-}
-
-@layer base {
   html {
     scroll-behavior: smooth;
   }

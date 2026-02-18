@@ -5,6 +5,8 @@
  * No environment variables needed for these -- they're always the same.
  */
 
+import type { Viewport } from "next";
+
 const isDev = process.env.NODE_ENV === "development";
 
 /** Production domain */
@@ -50,3 +52,14 @@ export const DEV_PORTS = {
   tasks: 3005,
   contacts: 3006,
 } as const;
+
+/** Shared viewport config reused by every app layout */
+export const sharedViewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf8f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#1c1816" },
+  ],
+};

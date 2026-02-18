@@ -1,6 +1,6 @@
+import { urls } from "@helvety/shared/config";
 import { Button } from "@helvety/ui/button";
 import { FileQuestion, ArrowLeft } from "lucide-react";
-import Link from "next/link";
 
 /**
  * Global 404 not found page for Next.js App Router
@@ -26,10 +26,10 @@ export default function NotFound() {
         </div>
 
         <Button asChild>
-          <Link href="/">
+          <a href={urls.home}>
             <ArrowLeft className="size-4" />
             Go home
-          </Link>
+          </a>
         </Button>
       </div>
     </div>

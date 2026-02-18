@@ -65,7 +65,7 @@ type SetupStep = "initial" | "registering" | "complete";
  * the PRF extension for single-touch encryption unlock (no separate passkey
  * prompt in E2EE apps like helvety.com/tasks or helvety.com/contacts).
  *
- * On Chrome 132+ (Jan 2025) and other modern browsers, PRF output is returned
+ * On Chrome 132+ (released January 2025) and other modern browsers, PRF output is returned
  * during registration itself. When available, the master encryption key is
  * derived and stored in IndexedDB immediately, so the user lands in E2EE apps
  * with encryption already unlocked (zero extra passkey touches). On older
@@ -209,7 +209,7 @@ export function EncryptionSetup({
       // Cache the PRF salt so future logins can include PRF for single-touch unlock
       cachePRFSalt(prfSalt, PRF_VERSION);
 
-      // On Chrome 132+ (Jan 2025), PRF output is returned during registration.
+      // On Chrome 132+ (released January 2025), PRF output is returned during registration.
       // If available, derive and store the master key now so the user doesn't
       // need a separate passkey touch when EncryptionGate loads in E2EE apps.
       if (regResult.prfOutput && userId) {

@@ -292,7 +292,7 @@ After email verification, new users are guided through passkey creation. The flo
 - **On mobile (phone/tablet):** User creates a passkey on this device using Face ID, fingerprint, or device PIN.
 - **On desktop:** User scans a QR code with their phone and creates the passkey on the phone (Face ID or fingerprint).
 - The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential and PRF salt parameters.
-- On modern browsers (Chrome 132+, Jan 2025), PRF output is returned during registration. The encryption key is derived and stored in IndexedDB immediately, so the user arrives at E2EE apps with encryption already unlocked (zero extra passkey touches).
+- On modern browsers (Chrome 132+, released January 2025), PRF output is returned during registration. The encryption key is derived and stored in IndexedDB immediately, so the user arrives at E2EE apps with encryption already unlocked (zero extra passkey touches).
 - On older browsers, EncryptionGate in E2EE apps handles a one-time fallback unlock on first visit (one additional passkey touch).
 - User is redirected to their destination app with an active session (created during OTP verification).
 

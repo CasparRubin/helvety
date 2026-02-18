@@ -1,5 +1,6 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
+import { sharedViewport } from "@helvety/shared/config";
 import { EncryptionProvider } from "@helvety/shared/crypto/encryption-context";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { Footer } from "@helvety/ui/footer";
@@ -16,7 +17,7 @@ import { Navbar } from "@/components/navbar";
 import { CSRFProvider } from "@/hooks/use-csrf";
 import { getCSRFToken } from "@/lib/csrf";
 
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 
 // Local Public Sans variable font - no network fetch during build
 const publicSans = localFont({
@@ -34,15 +35,7 @@ const publicSans = localFont({
   display: "swap",
 });
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 5,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf8f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#1c1816" },
-  ],
-};
+export const viewport = sharedViewport;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://helvety.com/auth"),
