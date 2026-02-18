@@ -91,8 +91,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - Sub-app routes (each has its own proxy.ts with its own CSP nonce)
      * - Static assets (svg, png, jpg, etc.)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|auth|store|pdf|tasks|contacts|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

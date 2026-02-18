@@ -86,9 +86,11 @@ export function createSecurityHeaders({ appName } = {}) {
 /**
  * Builds the Content-Security-Policy header value with a per-request nonce.
  *
- * When a nonce is present, browsers automatically ignore 'unsafe-inline' for
- * script-src. The 'unsafe-inline' fallback is kept so that browsers without
- * nonce support still render the page (graceful degradation).
+ * Uses 'strict-dynamic' so scripts loaded by a nonced script are automatically
+ * trusted (cascading trust). With 'strict-dynamic', browsers ignore 'self',
+ * 'unsafe-inline', and URL-based allowlists in script-src — only the nonce
+ * and cascading trust matter. The 'unsafe-inline' and URL fallbacks are kept
+ * for graceful degradation in older browsers without 'strict-dynamic' support.
  *
  * @param {object} opts
  * @param {string} opts.nonce - Cryptographic nonce for this request
@@ -114,7 +116,7 @@ export function buildCsp({
 
   const directives = [
     "default-src 'self'",
-    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${nonceDirective} 'unsafe-inline'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
+    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${nonceDirective} 'strict-dynamic' 'unsafe-inline'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data:${imgBlob ? " blob:" : ""} https://helvety.com https://*.helvety.com https://*.supabase.co`,
     "font-src 'self' data:",
