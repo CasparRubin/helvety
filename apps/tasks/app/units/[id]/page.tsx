@@ -1,9 +1,9 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
 import { getCSRFToken } from "@helvety/shared/csrf";
+import { CSRFProvider } from "@helvety/ui/csrf-provider";
 
 import { EncryptionGate } from "@/components/encryption-gate";
 import { SpacesDashboard } from "@/components/spaces-dashboard";
-import { CSRFProvider } from "@/lib/csrf-client";
 
 /**
  * Spaces page - shows all spaces within a unit

@@ -12,6 +12,11 @@ import {
 } from "@helvety/ui/alert-dialog";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
+import {
+  TiptapEditor,
+  parseRichTextContent,
+  serializeRichTextContent,
+} from "@helvety/ui/tiptap-editor";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -20,15 +25,10 @@ import { ContactActionPanel } from "@/components/contact-action-panel";
 import { ContactEditorCommandBar } from "@/components/contact-editor-command-bar";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { TaskLinksPanel } from "@/components/task-links-panel";
-import {
-  TiptapEditor,
-  parseNotesContent,
-  serializeNotesContent,
-} from "@/components/tiptap-editor";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useContact, useCategories, useCategoryAssignment } from "@/hooks";
 
-import type { TiptapEditorRef } from "@/components/tiptap-editor";
+import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
 
 /** Save status type */
@@ -96,7 +96,7 @@ export function ContactEditor({ contactId }: { contactId: string }) {
       setEmail(contact.email ?? "");
       setPhone(contact.phone ?? "");
       setBirthday(contact.birthday);
-      const parsedNotes = parseNotesContent(contact.notes);
+      const parsedNotes = parseRichTextContent(contact.notes);
       setNotesContent(parsedNotes);
       savedFirstNameRef.current = contact.first_name;
       savedLastNameRef.current = contact.last_name;
@@ -123,7 +123,7 @@ export function ContactEditor({ contactId }: { contactId: string }) {
     const birthdayChanged = birthday !== savedBirthdayRef.current;
 
     const currentNotes = notesContent
-      ? serializeNotesContent(notesContent)
+      ? serializeRichTextContent(notesContent)
       : null;
     const notesChanged = currentNotes !== savedNotesRef.current;
 
@@ -155,7 +155,7 @@ export function ContactEditor({ contactId }: { contactId: string }) {
 
     try {
       const currentNotes = notesContent
-        ? serializeNotesContent(notesContent)
+        ? serializeRichTextContent(notesContent)
         : null;
 
       const success = await update({
@@ -275,7 +275,7 @@ export function ContactEditor({ contactId }: { contactId: string }) {
 
   // Handle notes change: capture editor baseline on first emission, then compare values
   const handleNotesChange = useCallback((content: JSONContent) => {
-    const serialized = serializeNotesContent(content);
+    const serialized = serializeRichTextContent(content);
 
     // On the first emission after mount/refresh, capture the editor's normalized
     // output as the baseline. This accounts for any content normalization TiptapEditor

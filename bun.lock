@@ -12,7 +12,7 @@
     },
     "apps/auth": {
       "name": "@helvety/auth",
-      "version": "2.7.0",
+      "version": "2.10.0",
       "dependencies": {
         "@fontsource-variable/public-sans": "^5.2.7",
         "@helvety/brand": "workspace:*",
@@ -58,7 +58,7 @@
     },
     "apps/contacts": {
       "name": "@helvety/contacts",
-      "version": "2.7.0",
+      "version": "2.10.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -116,7 +116,7 @@
     },
     "apps/pdf": {
       "name": "@helvety/pdf",
-      "version": "2.7.0",
+      "version": "2.10.0",
       "dependencies": {
         "@fontsource-variable/public-sans": "^5.2.7",
         "@helvety/brand": "workspace:*",
@@ -162,7 +162,7 @@
     },
     "apps/store": {
       "name": "@helvety/store",
-      "version": "2.7.0",
+      "version": "2.10.0",
       "dependencies": {
         "@fontsource-variable/public-sans": "^5.2.7",
         "@helvety/brand": "workspace:*",
@@ -207,7 +207,7 @@
     },
     "apps/tasks": {
       "name": "@helvety/tasks",
-      "version": "2.7.0",
+      "version": "2.10.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -265,7 +265,7 @@
     },
     "apps/web": {
       "name": "@helvety/web",
-      "version": "2.7.0",
+      "version": "2.10.0",
       "dependencies": {
         "@fontsource-variable/public-sans": "^5.2.7",
         "@helvety/brand": "workspace:*",
@@ -345,6 +345,7 @@
       "name": "@helvety/shared",
       "version": "0.0.0",
       "dependencies": {
+        "@helvety/config": "workspace:*",
         "@simplewebauthn/browser": "^13.2.2",
         "@supabase/ssr": "^0.8.0",
         "@supabase/supabase-js": "^2.95.3",
@@ -369,6 +370,12 @@
       "version": "0.0.0",
       "dependencies": {
         "@helvety/shared": "workspace:*",
+        "@tiptap/extension-link": "^3.19.0",
+        "@tiptap/extension-placeholder": "^3.19.0",
+        "@tiptap/extension-underline": "^3.19.0",
+        "@tiptap/pm": "^3.19.0",
+        "@tiptap/react": "^3.19.0",
+        "@tiptap/starter-kit": "^3.19.0",
         "class-variance-authority": "^0.7.1",
         "cmdk": "^1.1.1",
         "lucide-react": "^0.564.0",

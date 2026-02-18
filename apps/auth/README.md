@@ -170,10 +170,10 @@ Signs out the user with secure key cleanup and redirects. This is a client-side 
 
 ## Session Management (proxy.ts)
 
-The proxy (`proxy.ts`) handles session validation, CSRF token generation, and same-origin cookie management:
+The proxy (`proxy.ts`, via `@helvety/shared/proxy`) handles session validation, CSRF token generation, and same-origin cookie management:
 
 - **Session Validation & Refresh** - Uses `getClaims()` to validate the JWT locally (no Auth API call when the token is valid). The Supabase Auth API is only called when a token refresh is needed (e.g. near or past expiry). Refreshed tokens are written to cookies automatically. The call is wrapped in try/catch for resilience against transient network failures (VPN, Private Relay, mobile).
-- **Session Sharing** - Sets cookies using the `COOKIE_DOMAIN` constant from `config.ts` (`.helvety.com` in production) for session sharing
+- **Session Sharing** - Sets cookies using the `COOKIE_DOMAIN` constant from `@helvety/shared/config` (`.helvety.com` in production) for session sharing
 - **CSRF Token Generation** - Generates a CSRF token cookie on each request if not already present. The token is read by the layout and passed to client components via `CSRFProvider`. Server Actions validate the token using timing-safe comparison.
 - **Server Component Support** - Ensures server components always have access to fresh session data
 

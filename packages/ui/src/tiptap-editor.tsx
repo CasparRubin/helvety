@@ -127,6 +127,12 @@ function EditorToolbar({
       return;
     }
 
+    // Block unsafe URL schemes to prevent stored XSS (javascript:, data:, vbscript:, etc.)
+    const SAFE_URL_PATTERN = /^(https?:\/\/|mailto:|tel:)/i;
+    if (!SAFE_URL_PATTERN.test(url)) {
+      return;
+    }
+
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
 
@@ -336,6 +342,8 @@ export function TiptapEditor({
       Underline,
       Link.configure({
         openOnClick: false,
+        // Block unsafe URL schemes (javascript:, data:, vbscript:) to prevent stored XSS
+        validate: (href) => /^(https?:\/\/|mailto:|tel:)/i.test(href),
         HTMLAttributes: {
           class: "text-primary underline cursor-pointer",
         },
@@ -406,54 +414,50 @@ export function TiptapEditor({
 }
 
 /**
- * Parse notes content - handles both JSON and legacy plain text
+ * Parse rich text content - handles both JSON and legacy plain text
  */
-export function parseNotesContent(notes: string | null): JSONContent | null {
-  if (!notes) return null;
+export function parseRichTextContent(
+  content: string | null
+): JSONContent | null {
+  if (!content) return null;
 
   try {
-    // Try to parse as JSON (ProseMirror document)
-    const parsed = JSON.parse(notes);
-    // Basic validation that it looks like a ProseMirror doc
+    const parsed = JSON.parse(content);
     if (parsed && typeof parsed === "object" && parsed.type === "doc") {
       return parsed;
     }
-    // If it's JSON but not a valid doc, treat as plain text
     return {
       type: "doc",
       content: [
-        { type: "paragraph", content: [{ type: "text", text: notes }] },
+        { type: "paragraph", content: [{ type: "text", text: content }] },
       ],
     };
   } catch {
-    // Not valid JSON - wrap plain text in a paragraph
     return {
       type: "doc",
       content: [
-        { type: "paragraph", content: [{ type: "text", text: notes }] },
+        { type: "paragraph", content: [{ type: "text", text: content }] },
       ],
     };
   }
 }
 
 /**
- * Serialize editor content to string for storage
+ * Serialize rich text content to string for storage
  */
-export function serializeNotesContent(content: JSONContent): string {
+export function serializeRichTextContent(content: JSONContent): string {
   return JSON.stringify(content);
 }
 
 /**
- * Extract plain text from a notes string (handles both JSON and legacy plain text)
- * Useful for displaying notes in lists/tables where rich formatting isn't needed
+ * Extract plain text from rich text content (handles both JSON and legacy plain text)
  */
-export function getNotesPlainText(notes: string | null): string | null {
-  if (!notes) return null;
+export function getRichTextPlainText(content: string | null): string | null {
+  if (!content) return null;
 
   try {
-    const parsed = JSON.parse(notes);
+    const parsed = JSON.parse(content);
     if (parsed && typeof parsed === "object" && parsed.type === "doc") {
-      // Recursively extract text from all content nodes
       const extractText = (node: Record<string, unknown>): string => {
         if (node.type === "text") return (node.text as string) || "";
         if (node.content && Array.isArray(node.content)) {
@@ -466,10 +470,8 @@ export function getNotesPlainText(notes: string | null): string | null {
       const text = extractText(parsed);
       return text || null;
     }
-    // Not a doc structure, return as-is
-    return notes;
+    return content;
   } catch {
-    // Not valid JSON - return plain text as-is
-    return notes;
+    return content;
   }
 }

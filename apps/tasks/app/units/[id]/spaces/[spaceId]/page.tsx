@@ -1,9 +1,9 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
 import { getCSRFToken } from "@helvety/shared/csrf";
+import { CSRFProvider } from "@helvety/ui/csrf-provider";
 
 import { EncryptionGate } from "@/components/encryption-gate";
 import { ItemsDashboard } from "@/components/items-dashboard";
-import { CSRFProvider } from "@/lib/csrf-client";
 
 /**
  * Items page - shows all items within a space

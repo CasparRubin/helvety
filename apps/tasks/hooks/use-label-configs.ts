@@ -1,5 +1,6 @@
 "use client";
 
+import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useState, useCallback, useEffect, useMemo } from "react";
 
 import {
@@ -18,7 +19,6 @@ import {
   encryptLabelConfigUpdate,
   decryptLabelConfigRows,
 } from "@/lib/crypto";
-import { useCSRFToken } from "@/lib/csrf-client";
 
 import type { LabelConfig, LabelConfigInput } from "@/lib/types";
 

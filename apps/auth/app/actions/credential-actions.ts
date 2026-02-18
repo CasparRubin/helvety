@@ -2,10 +2,10 @@
 
 import "server-only";
 
+import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createServerClient } from "@helvety/shared/supabase/server";
 
-import { requireCSRFToken } from "@/lib/csrf";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import type {

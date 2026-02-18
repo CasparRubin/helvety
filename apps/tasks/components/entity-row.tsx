@@ -5,6 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { formatDateTime } from "@helvety/shared/dates";
 import { Badge } from "@helvety/ui/badge";
 import { Button } from "@helvety/ui/button";
+import { getRichTextPlainText } from "@helvety/ui/tiptap-editor";
 import {
   GripVerticalIcon,
   ChevronUpIcon,
@@ -15,7 +16,6 @@ import {
   BoxIcon,
 } from "lucide-react";
 
-import { getDescriptionPlainText } from "@/components/tiptap-editor";
 import { renderStageIcon } from "@/lib/icons";
 import { getPriorityConfig } from "@/lib/priorities";
 
@@ -133,7 +133,7 @@ export function EntityRow({
         )}
         {entityType !== "item" && description && (
           <span className="text-muted-foreground hidden truncate text-sm md:inline">
-            {getDescriptionPlainText(description)}
+            {getRichTextPlainText(description)}
           </span>
         )}
 

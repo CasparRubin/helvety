@@ -1,9 +1,9 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
 import { getCSRFToken } from "@helvety/shared/csrf";
+import { CSRFProvider } from "@helvety/ui/csrf-provider";
 
 import { ContactsDashboard } from "@/components/contacts-dashboard";
 import { EncryptionGate } from "@/components/encryption-gate";
-import { CSRFProvider } from "@/lib/csrf-client";
 
 /**
  * Main page - server component with auth protection

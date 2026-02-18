@@ -2,7 +2,7 @@
   "name": "@helvety/shared",
   "version": "0.0.0",
   "private": true,
-  "description": "Shared libraries: Supabase clients, auth, CSRF, rate limiting, crypto, types, utilities",
+  "description": "Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, types, utilities",
   "author": "Helvety by Rubin",
   "license": "UNLICENSED",
   "homepage": "https://helvety.com",
@@ -39,9 +39,11 @@
     "./crypto/prf-key-derivation": "./src/crypto/prf-key-derivation.ts",
     "./crypto/prf-salt-cache": "./src/crypto/prf-salt-cache.ts",
     "./crypto/passkey": "./src/crypto/passkey.ts",
-    "./crypto/key-check": "./src/crypto/key-check.ts"
+    "./crypto/key-check": "./src/crypto/key-check.ts",
+    "./proxy": "./src/proxy.ts"
   },
   "dependencies": {
+    "@helvety/config": "workspace:*",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",
     "@upstash/ratelimit": "^2.0.8",

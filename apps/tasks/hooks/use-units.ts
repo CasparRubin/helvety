@@ -1,5 +1,6 @@
 "use client";
 
+import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useState, useCallback, useEffect } from "react";
 
 import {
@@ -17,7 +18,6 @@ import {
   decryptUnitRows,
   decryptUnitRow,
 } from "@/lib/crypto";
-import { useCSRFToken } from "@/lib/csrf-client";
 
 import type { Unit, UnitInput, ReorderUpdate } from "@/lib/types";
 

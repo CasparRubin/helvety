@@ -18,6 +18,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@helvety/ui/breadcrumb";
+import {
+  TiptapEditor,
+  parseRichTextContent,
+  serializeRichTextContent,
+} from "@helvety/ui/tiptap-editor";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -32,11 +37,6 @@ import { LabelConfiguratorContent } from "@/components/label-configurator";
 import { SettingsPanel } from "@/components/settings-panel";
 import { StageConfiguratorContent } from "@/components/stage-configurator";
 import {
-  TiptapEditor,
-  parseDescriptionContent,
-  serializeDescriptionContent,
-} from "@/components/tiptap-editor";
-import {
   useUnit,
   useSpace,
   useItem,
@@ -48,7 +48,7 @@ import {
   useLabels,
 } from "@/hooks";
 
-import type { TiptapEditorRef } from "@/components/tiptap-editor";
+import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
 
 /**
@@ -163,7 +163,7 @@ export function ItemEditor({
       setSaveStatus("saving");
 
       const descriptionString = newDescription
-        ? serializeDescriptionContent(newDescription)
+        ? serializeRichTextContent(newDescription)
         : null;
 
       const success = await update({
@@ -464,7 +464,7 @@ export function ItemEditor({
             <div className="mb-6">
               <TiptapEditor
                 ref={editorRef}
-                content={parseDescriptionContent(item.description)}
+                content={parseRichTextContent(item.description)}
                 onChange={handleDescriptionChange}
                 placeholder="Add a description... Use the toolbar above for formatting."
                 autoFocus={false}

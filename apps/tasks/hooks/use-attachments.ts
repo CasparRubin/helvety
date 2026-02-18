@@ -1,6 +1,7 @@
 "use client";
 
 import { createBrowserClient } from "@helvety/shared/supabase/client";
+import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useState, useCallback, useEffect, useRef } from "react";
 
 import {
@@ -26,7 +27,6 @@ import {
   compressBuffer,
   decompressBuffer,
 } from "@/lib/crypto/compression";
-import { useCSRFToken } from "@/lib/csrf-client";
 import { sanitizeFilename } from "@/lib/sanitize-filename";
 
 import type { Attachment } from "@/lib/types";

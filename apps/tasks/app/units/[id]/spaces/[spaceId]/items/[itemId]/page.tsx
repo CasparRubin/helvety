@@ -1,9 +1,9 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
 import { getCSRFToken } from "@helvety/shared/csrf";
+import { CSRFProvider } from "@helvety/ui/csrf-provider";
 
 import { EncryptionGate } from "@/components/encryption-gate";
 import { ItemEditor } from "@/components/item-editor";
-import { CSRFProvider } from "@/lib/csrf-client";
 
 /**
  * Item Editor page - edit an individual item's title, description, start/end

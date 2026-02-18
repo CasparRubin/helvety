@@ -21,12 +21,12 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 
 ## Shared Packages
 
-| Package                                 | Description                                                                             |
-| --------------------------------------- | --------------------------------------------------------------------------------------- |
-| **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                       |
-| **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, and PostCSS configurations                           |
-| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, rate limiting, crypto, types, utilities |
-| **[@helvety/ui](packages/ui/)**         | Shared UI component library: shadcn/ui components, footer, and theme provider           |
+| Package                                 | Description                                                                                    |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                              |
+| **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, and PostCSS configurations                                  |
+| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, types, utilities |
+| **[@helvety/ui](packages/ui/)**         | Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider          |
 
 ## Getting Started
 

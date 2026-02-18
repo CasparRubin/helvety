@@ -2,11 +2,11 @@
 
 import "server-only";
 
+import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
-import { requireCSRFToken } from "@/lib/csrf";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type {

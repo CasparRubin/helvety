@@ -3,6 +3,7 @@
 import "server-only";
 
 import { logAuthEvent } from "@helvety/shared/auth-logger";
+import { generateCSRFToken, requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
 import { createServerClient } from "@helvety/shared/supabase/server";
@@ -11,7 +12,6 @@ import {
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
 
-import { generateCSRFToken, requireCSRFToken } from "@/lib/csrf";
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 

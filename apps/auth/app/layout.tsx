@@ -2,6 +2,7 @@ import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { sharedViewport } from "@helvety/shared/config";
 import { EncryptionProvider } from "@helvety/shared/crypto/encryption-context";
+import { getCSRFToken } from "@helvety/shared/csrf";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
@@ -16,7 +17,6 @@ import { headers } from "next/headers";
 import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Navbar } from "@/components/navbar";
 import { CSRFProvider } from "@/hooks/use-csrf";
-import { getCSRFToken } from "@/lib/csrf";
 
 import type { Metadata } from "next";
 

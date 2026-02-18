@@ -1,5 +1,6 @@
 "use client";
 
+import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useState, useCallback, useEffect, useRef } from "react";
 
 import {
@@ -9,7 +10,6 @@ import {
   unlinkContact,
 } from "@/app/actions/contact-link-actions";
 import { useEncryptionContext, decryptContactRows } from "@/lib/crypto";
-import { useCSRFToken } from "@/lib/csrf-client";
 
 import type { Contact, EntityContactLinkRow, EntityType } from "@/lib/types";
 

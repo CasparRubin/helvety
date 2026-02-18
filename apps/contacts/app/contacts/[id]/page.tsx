@@ -1,9 +1,9 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
 import { getCSRFToken } from "@helvety/shared/csrf";
+import { CSRFProvider } from "@helvety/ui/csrf-provider";
 
 import { ContactEditor } from "@/components/contact-editor";
 import { EncryptionGate } from "@/components/encryption-gate";
-import { CSRFProvider } from "@/lib/csrf-client";
 
 /**
  * Contact Editor page - edit a contact's names, description, email, phone,

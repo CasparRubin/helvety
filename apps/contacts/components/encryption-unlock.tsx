@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@helvety/ui/card";
+import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { Fingerprint, Lock, Loader2, Smartphone } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -19,7 +20,6 @@ import {
   saveKeyCheckValue,
 } from "@/app/actions/encryption-actions";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
-import { useCSRFToken } from "@/lib/csrf-client";
 
 /** Props for the EncryptionUnlock component */
 interface EncryptionUnlockProps {

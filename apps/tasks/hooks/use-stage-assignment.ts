@@ -1,5 +1,6 @@
 "use client";
 
+import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useState, useCallback, useEffect, useMemo } from "react";
 
 import {
@@ -12,7 +13,6 @@ import {
   isDefaultConfigId,
 } from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";
-import { useCSRFToken } from "@/lib/csrf-client";
 
 import type { StageAssignment, EntityType } from "@/lib/types";
 
