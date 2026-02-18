@@ -175,6 +175,7 @@ export default async function RootLayout({
           }}
         />
         <ThemeProvider
+          nonce={nonce}
           attribute="class"
           defaultTheme="system"
           enableSystem

@@ -24,12 +24,11 @@ const CSP_NONCE_LENGTH = 16;
  * NOT route protection. Use Server Layout Guards for authentication checks.
  */
 export async function proxy(request: NextRequest) {
-  // Generate a per-request nonce for CSP and pass it to server components
   const nonce = randomBytes(CSP_NONCE_LENGTH).toString("base64");
+  const csp = buildCsp({ nonce });
   request.headers.set("x-nonce", nonce);
+  request.headers.set("Content-Security-Policy", csp);
 
-  // Set the public-facing URL as a request header so server components
-  // (e.g. requireAuth) can determine the original URL for post-auth redirects.
   const publicUrl = `${urls.home}${request.nextUrl.pathname}${request.nextUrl.search}`;
   request.headers.set("x-helvety-url", publicUrl);
 
@@ -41,7 +40,7 @@ export async function proxy(request: NextRequest) {
     supabaseUrl = getSupabaseUrl();
     supabaseKey = getSupabaseKey();
   } catch {
-    // Skip auth refresh if env vars are missing or invalid
+    supabaseResponse.headers.set("Content-Security-Policy", csp);
     return supabaseResponse;
   }
 
@@ -102,7 +101,7 @@ export async function proxy(request: NextRequest) {
     });
   }
 
-  supabaseResponse.headers.set("Content-Security-Policy", buildCsp({ nonce }));
+  supabaseResponse.headers.set("Content-Security-Policy", csp);
 
   return supabaseResponse;
 }
