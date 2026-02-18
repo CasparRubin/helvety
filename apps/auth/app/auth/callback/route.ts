@@ -1,3 +1,4 @@
+import { generateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { checkRateLimit, RATE_LIMITS } from "@helvety/shared/rate-limit";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
@@ -8,6 +9,14 @@ import { checkUserPasskeyStatus } from "@/app/actions/auth-action-helpers";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 
 import type { EmailOtpType } from "@supabase/supabase-js";
+
+const ALLOWED_OTP_TYPES = new Set<string>([
+  "magiclink",
+  "signup",
+  "recovery",
+  "invite",
+  "email_change",
+]);
 
 /**
  * Auth callback route for handling Supabase email verification and OAuth
@@ -121,6 +130,7 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
+      await generateCSRFToken();
       const redirectUrl = await buildPasskeyRedirect(supabase);
       return NextResponse.redirect(redirectUrl);
     }
@@ -132,6 +142,10 @@ export async function GET(request: Request) {
   // Handle token hash (email OTP verification link)
   // Supports all Supabase email types: magiclink, signup, recovery, invite, email_change
   if (token_hash && type) {
+    if (!ALLOWED_OTP_TYPES.has(type)) {
+      return NextResponse.redirect(buildErrorRedirect("invalid_type"));
+    }
+
     const supabase = await createServerClient();
     const { error } = await supabase.auth.verifyOtp({
       token_hash,
@@ -139,6 +153,7 @@ export async function GET(request: Request) {
     });
 
     if (!error) {
+      await generateCSRFToken();
       const redirectUrl = await buildPasskeyRedirect(supabase);
       return NextResponse.redirect(redirectUrl);
     }

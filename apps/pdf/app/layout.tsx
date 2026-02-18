@@ -9,6 +9,7 @@ import { TooltipProvider } from "@helvety/ui/tooltip";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
+import { headers } from "next/headers";
 
 import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Navbar } from "@/components/navbar";
@@ -121,6 +122,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
+  const nonce = (await headers()).get("x-nonce") ?? "";
+
   // Fetch initial user server-side to avoid loading flash in Navbar
   const supabase = await createServerClient();
   const {
@@ -132,6 +135,7 @@ export default async function RootLayout({
       <body className="antialiased">
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([
               {
@@ -163,7 +167,7 @@ export default async function RootLayout({
                 offers: {
                   "@type": "Offer",
                   price: "0",
-                  priceCurrency: "USD",
+                  priceCurrency: "CHF",
                 },
                 browserRequirements: "Requires a modern web browser",
               },

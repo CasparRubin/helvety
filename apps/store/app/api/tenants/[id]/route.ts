@@ -11,10 +11,14 @@ import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { NextRequest } from "next/server";
+
+const UUIDSchema = z.string().uuid("Invalid ID format");
+const DisplayNameSchema = z.string().max(200, "Display name too long");
 
 // =============================================================================
 // GET /api/tenants/[id] - Get a specific tenant
@@ -27,6 +31,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    if (!UUIDSchema.safeParse(id).success) {
+      return NextResponse.json({ error: "Invalid tenant ID" }, { status: 400 });
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },
@@ -121,6 +129,10 @@ export async function PATCH(
     }
 
     const { id } = await params;
+    if (!UUIDSchema.safeParse(id).success) {
+      return NextResponse.json({ error: "Invalid tenant ID" }, { status: 400 });
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },
@@ -152,6 +164,13 @@ export async function PATCH(
     if (typeof displayName !== "string") {
       return NextResponse.json(
         { error: "Display name must be a string" },
+        { status: 400 }
+      );
+    }
+
+    if (!DisplayNameSchema.safeParse(displayName).success) {
+      return NextResponse.json(
+        { error: "Display name too long (max 200 characters)" },
         { status: 400 }
       );
     }
@@ -207,6 +226,10 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    if (!UUIDSchema.safeParse(id).success) {
+      return NextResponse.json({ error: "Invalid tenant ID" }, { status: 400 });
+    }
+
     const supabase = await createServerComponentClient();
     const {
       data: { user },

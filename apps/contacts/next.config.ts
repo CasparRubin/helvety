@@ -17,7 +17,6 @@ const nextConfig: NextConfig = {
 
   headers: createSecurityHeaders({
     appName: "contacts",
-    imgBlob: true,
   }),
 
   turbopack: {

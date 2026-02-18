@@ -11,7 +11,7 @@ import {
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
 
-import { requireCSRFToken } from "@/lib/csrf";
+import { generateCSRFToken, requireCSRFToken } from "@/lib/csrf";
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -346,6 +346,10 @@ export async function verifyPasskeyAuthentication(
 
     // Clear the challenge
     await clearChallenge();
+
+    // Rotate CSRF token after authentication state change to prevent
+    // session fixation attacks where an attacker pre-plants a known token
+    await generateCSRFToken();
 
     // Reset rate limits on successful auth
     await resetRateLimit(`passkey_auth:ip:${clientIP}`);

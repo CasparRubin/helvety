@@ -15,12 +15,7 @@ const nextConfig: NextConfig = {
 
   compress: true,
 
-  headers: createSecurityHeaders({
-    appName: "pdf",
-    imgBlob: true,
-    scriptUnsafeEval: "always",
-    workerBlob: true,
-  }),
+  headers: createSecurityHeaders({ appName: "pdf" }),
 
   // Webpack fallback: disables the canvas module to prevent SSR errors with PDF.js
   // (production uses Turbopack; kept for compatibility if webpack is ever used)

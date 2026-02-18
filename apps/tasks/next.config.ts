@@ -15,10 +15,7 @@ const nextConfig: NextConfig = {
 
   compress: true,
 
-  headers: createSecurityHeaders({
-    appName: "tasks",
-    imgBlob: true,
-  }),
+  headers: createSecurityHeaders({ appName: "tasks" }),
 
   turbopack: {
     root: path.resolve("../.."),

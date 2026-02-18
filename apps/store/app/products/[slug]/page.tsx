@@ -1,3 +1,5 @@
+import { headers } from "next/headers";
+
 import { getProductBySlug } from "@/lib/data/products";
 import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
 
@@ -59,6 +61,7 @@ export async function generateMetadata({
  * Login is required only for purchasing.
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
+  const nonce = (await headers()).get("x-nonce") ?? "";
   const { slug } = await params;
   const product = getProductBySlug(slug);
 
@@ -85,6 +88,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       {productJsonLd && (
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
       )}

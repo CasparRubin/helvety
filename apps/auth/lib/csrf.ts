@@ -2,6 +2,7 @@ import "server-only";
 
 import { randomBytes, timingSafeEqual } from "crypto";
 
+import { COOKIE_DOMAIN } from "@helvety/shared/config";
 import { cookies } from "next/headers";
 
 /**
@@ -44,8 +45,8 @@ export async function generateCSRFToken(): Promise<string> {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    // Token expires in 24 hours (reduced UX failures on long sessions)
     maxAge: 60 * 60 * 24,
+    ...(process.env.NODE_ENV === "production" && { domain: COOKIE_DOMAIN }),
   });
 
   return token;

@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 
+import { buildCsp } from "@helvety/config/next-headers";
 import { COOKIE_DOMAIN } from "@helvety/shared/config";
 import { getSupabaseKey, getSupabaseUrl } from "@helvety/shared/env-validation";
 import { createServerClient } from "@supabase/ssr";
@@ -8,6 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // CSRF token cookie configuration (must match @helvety/shared/csrf)
 const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
+const CSP_NONCE_LENGTH = 16;
 
 /**
  * Proxy to refresh Supabase auth sessions on every request.
@@ -22,6 +24,10 @@ const CSRF_TOKEN_LENGTH = 32;
  * NOT route protection. Use Server Layout Guards for authentication checks.
  */
 export async function proxy(request: NextRequest) {
+  // Generate a per-request nonce for CSP and pass it to server components
+  const nonce = randomBytes(CSP_NONCE_LENGTH).toString("base64");
+  request.headers.set("x-nonce", nonce);
+
   let supabaseResponse = NextResponse.next({ request });
 
   let supabaseUrl: string;
@@ -87,8 +93,12 @@ export async function proxy(request: NextRequest) {
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24, // 24 hours
+      ...(process.env.NODE_ENV === "production" && { domain: COOKIE_DOMAIN }),
     });
   }
+
+  // Set per-request CSP with nonce (browsers ignore 'unsafe-inline' when a nonce is present)
+  supabaseResponse.headers.set("Content-Security-Policy", buildCsp({ nonce }));
 
   return supabaseResponse;
 }

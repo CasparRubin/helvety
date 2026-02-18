@@ -1015,7 +1015,7 @@ export default function PrivacyPage() {
                     <td className="border-border border-b p-3">
                       CSRF protection (httpOnly)
                     </td>
-                    <td className="border-border border-b p-3">helvety.com</td>
+                    <td className="border-border border-b p-3">.helvety.com</td>
                     <td className="border-border border-b p-3">24 hours</td>
                   </tr>
                   <tr>

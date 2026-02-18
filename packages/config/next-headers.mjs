@@ -1,32 +1,16 @@
 /**
  * Shared security headers factory for all Helvety Next.js apps.
  *
- * Generates consistent CSP, HSTS, COOP, COEP, and other security headers.
- * Each app calls this with a small options object to customize CSP directives.
- *
- * SECURITY NOTE — `'unsafe-inline'` in script-src:
- * This is required because JSON-LD `<script>` tags use dangerouslySetInnerHTML.
- * To remove it, implement per-request nonces: generate a nonce in each app's
- * proxy.ts, pass it via an `x-nonce` header, include it in the CSP as
- * `'nonce-<value>'`, and apply it to all `<Script>` / inline `<script>` tags.
- * When a nonce is present, modern browsers ignore `'unsafe-inline'`.
+ * Generates consistent HSTS, COOP, COEP, and other security headers.
+ * CSP is generated per-request in proxy.ts with a cryptographic nonce.
  *
  * @param {object} options
  * @param {string} options.appName - App identifier for CSP report logging
- * @param {boolean} [options.imgBlob=false] - Allow blob: in img-src (for decrypted previews)
- * @param {"always" | "dev-only"} [options.scriptUnsafeEval="dev-only"] - When to allow 'unsafe-eval' in script-src
- * @param {boolean} [options.workerBlob=false] - Add worker-src 'self' blob: (for PDF.js web workers)
  * @returns {import("next").NextConfig["headers"]} Next.js headers function
  */
-export function createSecurityHeaders({
-  appName,
-  imgBlob = false,
-  scriptUnsafeEval = "dev-only",
-  workerBlob = false,
-} = {}) {
+export function createSecurityHeaders({ appName } = {}) {
   return async function headers() {
     const isDevelopment = process.env.NODE_ENV === "development";
-    const cspReportEndpoint = "/api/csp-report";
 
     const headersList = [
       {
@@ -53,30 +37,22 @@ export function createSecurityHeaders({
       },
       {
         key: "Permissions-Policy",
-        value: "camera=(), microphone=(), geolocation=()",
+        value:
+          "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()",
       },
       {
         key: "Reporting-Endpoints",
-        value: `csp="${cspReportEndpoint}"`,
+        value: `csp="/api/csp-report"`,
       },
       {
         key: "Report-To",
         value: JSON.stringify({
           group: "csp-endpoint",
           max_age: 10886400,
-          endpoints: [{ url: cspReportEndpoint }],
+          endpoints: [{ url: "/api/csp-report" }],
         }),
       },
-      {
-        key: "Content-Security-Policy",
-        value: buildCsp({
-          isDevelopment,
-          imgBlob,
-          scriptUnsafeEval,
-          workerBlob,
-          cspReportEndpoint,
-        }),
-      },
+      // CSP is set per-request in proxy.ts with a nonce — not as a static header.
     ];
 
     // Production-only security headers
@@ -108,24 +84,37 @@ export function createSecurityHeaders({
 }
 
 /**
- * Builds the Content-Security-Policy header value.
+ * Builds the Content-Security-Policy header value with a per-request nonce.
+ *
+ * When a nonce is present, browsers automatically ignore 'unsafe-inline' for
+ * script-src. The 'unsafe-inline' fallback is kept so that browsers without
+ * nonce support still render the page (graceful degradation).
+ *
  * @param {object} opts
+ * @param {string} opts.nonce - Cryptographic nonce for this request
+ * @param {boolean} [opts.imgBlob=false] - Allow blob: in img-src
+ * @param {"always" | "dev-only"} [opts.scriptUnsafeEval="dev-only"] - When to allow 'unsafe-eval'
+ * @param {boolean} [opts.workerBlob=false] - Add worker-src 'self' blob:
  * @returns {string}
  */
-function buildCsp({
-  isDevelopment,
-  imgBlob,
-  scriptUnsafeEval,
-  workerBlob,
-  cspReportEndpoint,
-}) {
+export function buildCsp({
+  nonce,
+  imgBlob = false,
+  scriptUnsafeEval = "dev-only",
+  workerBlob = false,
+} = {}) {
+  const isDevelopment = process.env.NODE_ENV === "development";
+  const cspReportEndpoint = "/api/csp-report";
+
   const useUnsafeEval =
     scriptUnsafeEval === "always" ||
     (scriptUnsafeEval === "dev-only" && isDevelopment);
 
+  const nonceDirective = nonce ? ` 'nonce-${nonce}'` : "";
+
   const directives = [
     "default-src 'self'",
-    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""} 'unsafe-inline'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
+    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${nonceDirective} 'unsafe-inline'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data:${imgBlob ? " blob:" : ""} https://helvety.com https://*.helvety.com https://*.supabase.co`,
     "font-src 'self' data:",

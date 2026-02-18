@@ -12,7 +12,7 @@ import {
   getAttachmentPathOwner,
   isValidAttachmentStoragePath,
 } from "@/lib/attachment-storage-path";
-import { ATTACHMENT_BUCKET } from "@/lib/constants";
+import { ATTACHMENT_BUCKET, ATTACHMENT_MAX_SIZE_BYTES } from "@/lib/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { ActionResponse, AttachmentRow } from "@/lib/types";
@@ -122,6 +122,34 @@ export async function createAttachment(
         storagePath: validatedData.storage_path,
       });
       return { success: false, error: "Invalid storage path" };
+    }
+
+    // Server-side file size enforcement: verify the uploaded blob in storage
+    // does not exceed the maximum allowed size (client-side check alone is
+    // insufficient since a malicious client can bypass it).
+    const adminClient = createAdminClient();
+    const pathSegments = validatedData.storage_path.split("/");
+    const parentDir = pathSegments.slice(0, -1).join("/");
+    const fileName = pathSegments[pathSegments.length - 1]!;
+    const { data: fileList } = await adminClient.storage
+      .from(ATTACHMENT_BUCKET)
+      .list(parentDir, { search: fileName, limit: 1 });
+
+    const uploadedSize = fileList?.[0]?.metadata?.size;
+    if (
+      typeof uploadedSize === "number" &&
+      uploadedSize > ATTACHMENT_MAX_SIZE_BYTES
+    ) {
+      logger.warn("Attachment exceeds max size:", {
+        userId: user.id,
+        storagePath: validatedData.storage_path,
+        size: uploadedSize,
+        maxSize: ATTACHMENT_MAX_SIZE_BYTES,
+      });
+      await adminClient.storage
+        .from(ATTACHMENT_BUCKET)
+        .remove([validatedData.storage_path]);
+      return { success: false, error: "File exceeds maximum allowed size" };
     }
 
     // Verify user owns the item

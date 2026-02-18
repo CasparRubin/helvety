@@ -10,21 +10,39 @@ import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { getMaxTenantsForTier } from "@/lib/license/validation";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-import type {
-  LicensedTenant,
-  RegisterTenantRequest,
-} from "@/lib/types/entities";
+import type { LicensedTenant } from "@/lib/types/entities";
 import type { NextRequest } from "next/server";
 
 // =============================================================================
-// CONSTANTS
+// CONSTANTS & SCHEMAS
 // =============================================================================
 
 const SPO_EXPLORER_PRODUCT_ID = "helvety-spo-explorer";
+
+const TenantIdSchema = z
+  .string()
+  .min(1, "Tenant ID is required")
+  .max(63, "Tenant ID too long")
+  .regex(
+    /^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$/,
+    "Tenant ID must be lowercase alphanumeric with optional hyphens"
+  );
+
+const DisplayNameSchema = z
+  .string()
+  .max(200, "Display name too long")
+  .optional();
+
+const RegisterTenantBodySchema = z.object({
+  tenantId: TenantIdSchema,
+  displayName: DisplayNameSchema,
+  subscriptionId: z.string().uuid("Invalid subscription ID"),
+});
 
 // =============================================================================
 // GET /api/tenants - List user's registered tenants
@@ -152,37 +170,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse request body
-    const body: RegisterTenantRequest = await request.json();
-    const { tenantId, displayName, subscriptionId } = body;
-
-    // Validate tenant ID
-    if (!tenantId || typeof tenantId !== "string") {
-      return NextResponse.json(
-        { error: "Tenant ID is required" },
-        { status: 400 }
-      );
+    // Parse and validate request body with Zod
+    const body = await request.json();
+    const parseResult = RegisterTenantBodySchema.safeParse(body);
+    if (!parseResult.success) {
+      const firstError =
+        parseResult.error.issues[0]?.message ?? "Invalid request data";
+      return NextResponse.json({ error: firstError }, { status: 400 });
     }
-
-    // Validate tenant ID format (alphanumeric and hyphens only)
+    const { tenantId, displayName, subscriptionId } = parseResult.data;
     const normalizedTenantId = tenantId.toLowerCase().trim();
-    if (!/^[a-zA-Z0-9-]+$/.test(normalizedTenantId)) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid tenant ID format. Only letters, numbers, and hyphens are allowed.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Validate subscription ID
-    if (!subscriptionId || typeof subscriptionId !== "string") {
-      return NextResponse.json(
-        { error: "Subscription ID is required" },
-        { status: 400 }
-      );
-    }
 
     // Verify the subscription belongs to this user and is for SPO Explorer
     const { data: subscription, error: subError } = await supabase
