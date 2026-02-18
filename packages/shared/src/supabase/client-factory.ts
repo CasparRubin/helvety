@@ -45,7 +45,8 @@ export async function createServerComponentClient(): Promise<SupabaseClient> {
           });
         } catch {
           // The `setAll` method was called from a Server Component.
-          // Session refresh happens automatically through Supabase client in server components.
+          // cookies().set() is not allowed there, so the cookie update is
+          // skipped; the request still uses the existing session from the proxy.
         }
       },
     },

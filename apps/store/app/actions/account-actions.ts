@@ -140,7 +140,11 @@ export async function updateUserEmail(
         return { success: false, error: "This email is already in use" };
       }
 
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error:
+          "We couldn't update your email. Please try again or contact contact@helvety.com.",
+      };
     }
 
     logger.info(`Email change requested for user ${user.id}`);

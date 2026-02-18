@@ -146,9 +146,12 @@ export function ProfileTab() {
     try {
       const result = await exportUserData();
       if (!result.success) {
-        toast.error(result.error, {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        toast.error(
+          result.error ?? "Failed to export data. Please try again.",
+          {
+            duration: TOAST_DURATIONS.ERROR,
+          }
+        );
         return;
       }
 

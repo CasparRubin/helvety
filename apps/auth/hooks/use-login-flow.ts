@@ -398,7 +398,7 @@ export function useLoginFlow(): LoginFlowState {
       } catch (err) {
         if (err instanceof Error) {
           if (err.name === "NotAllowedError") {
-            setError("Authentication was cancelled");
+            setError("Authentication was canceled");
           } else if (err.name === "AbortError") {
             setError("Authentication timed out");
           } else {

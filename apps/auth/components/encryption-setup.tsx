@@ -174,9 +174,9 @@ export function EncryptionSetup({
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Passkey registration failed";
-        // Check if user cancelled
+        // Check if user canceled
         if (err instanceof Error && err.name === "NotAllowedError") {
-          setError("Passkey creation was cancelled. Please try again.");
+          setError("Passkey creation was canceled. Please try again.");
         } else {
           setError(message);
         }

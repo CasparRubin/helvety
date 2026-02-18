@@ -316,7 +316,7 @@ export function SubscriptionsTab() {
           duration: TOAST_DURATIONS.SUCCESS,
         });
       } else {
-        toast.error(result.error, {
+        toast.error(result.error ?? "Download failed. Please try again.", {
           duration: TOAST_DURATIONS.ERROR,
         });
       }

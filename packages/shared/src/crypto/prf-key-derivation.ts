@@ -126,7 +126,7 @@ export async function unlockPRFEncryption(
  * - iOS 18+, macOS 15.4+
  * - Android 14+
  * - Chrome 128+, Edge 128+
- * - Firefox 139+ (desktop only; Android not supported)
+ * - Firefox 139+ (desktop only; Android not supported as of early 2026)
  * - Hardware security keys (YubiKey 5+)
  * - Cross-device (phone via QR code) on supported phones
  */

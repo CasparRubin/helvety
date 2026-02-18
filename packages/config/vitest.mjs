@@ -6,7 +6,7 @@ import { defineConfig } from "vitest/config";
 /**
  * Creates the shared Helvety Vitest configuration.
  *
- * @param {string} rootDir - The root directory of the app (use `__dirname`).
+ * @param {string} rootDir - The root directory of the app (e.g. `import.meta.dirname` in ESM or `__dirname` in CJS).
  * @returns {import("vitest/config").UserConfig} The Vitest config.
  */
 export function createVitestConfig(rootDir) {
