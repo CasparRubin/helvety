@@ -96,7 +96,7 @@ export function ProductDetailClient({
     void fetchSubscriptions();
   }, [fetchSubscriptions]);
 
-  // Handle checkout success/cancelled state from URL params
+  // Handle checkout success/canceled state from URL params
   useEffect(() => {
     const checkoutStatus = searchParams.get("checkout");
 
@@ -124,8 +124,8 @@ export function ProductDetailClient({
       void fetchSubscriptions();
       // Clean up URL
       window.history.replaceState({}, "", `/products/${slug}`);
-    } else if (checkoutStatus === "cancelled") {
-      toast.info("Checkout cancelled", {
+    } else if (checkoutStatus === "canceled") {
+      toast.info("Checkout canceled", {
         description: "No payment was made. You can try again anytime.",
         duration: TOAST_DURATIONS.INFO,
       });
@@ -462,7 +462,7 @@ function PricingCard({
         body: JSON.stringify({
           tierId: tier.id,
           successUrl: `/products/${productSlug}?checkout=success`,
-          cancelUrl: `/products/${productSlug}?checkout=cancelled`,
+          cancelUrl: `/products/${productSlug}?checkout=canceled`,
           ...(consent && {
             consentTermsAt: consent.termsAcceptedAt,
             consentVersion: consent.consentVersion,

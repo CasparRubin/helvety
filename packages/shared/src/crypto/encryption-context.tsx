@@ -21,6 +21,7 @@ import {
   isPRFSupported,
   getPRFSupportInfo,
 } from "./passkey";
+import { verifyKeyCheckValue } from "./key-check";
 import {
   deriveKeyFromPRF,
   type PRFKeyParams,
@@ -43,16 +44,32 @@ interface EncryptionState {
   prfSupportInfo: PRFSupportInfo | null;
 }
 
+/**
+ * Callback to verify server-side that the passkey credential belongs to
+ * the current session user. Must return true to proceed with key derivation.
+ */
+export type VerifyCredentialFn = (credentialId: string) => Promise<boolean>;
+
 /** Public API exposed by the encryption context */
 interface EncryptionContextValue extends EncryptionState {
   /**
-   * Unlock encryption with passkey (PRF-based)
-   * Call this on login to derive the master key
+   * Unlock encryption with passkey (PRF-based).
+   *
+   * When `verifyCredential` is provided, the credential returned by WebAuthn
+   * is verified server-side before the master key is derived and stored.
+   * This prevents a wrong passkey (from another account) from silently
+   * corrupting encrypted data.
+   *
+   * When `keyCheckValue` is provided, the derived key is tested against it
+   * before being stored. A mismatch means the wrong key was derived and the
+   * unlock is rejected (defense-in-depth).
    */
   unlockWithPasskey: (
     userId: string,
     prfParams: PRFKeyParams,
-    credentialIds?: string[]
+    credentialIds?: string[],
+    verifyCredential?: VerifyCredentialFn,
+    keyCheckValue?: string | null
   ) => Promise<boolean>;
 
   /**
@@ -191,7 +208,9 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
     async (
       userId: string,
       prfParams: PRFKeyParams,
-      credentialIds?: string[]
+      credentialIds?: string[],
+      verifyCredential?: VerifyCredentialFn,
+      keyCheckValue?: string | null
     ): Promise<boolean> => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
@@ -211,8 +230,39 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
           return false;
         }
 
+        // Verify the credential belongs to the session user before deriving
+        // the key. Without this check, a wrong passkey from another account
+        // would produce an incorrect master key and silently corrupt data.
+        if (verifyCredential) {
+          const isOwner = await verifyCredential(result.credentialId);
+          if (!isOwner) {
+            setState((prev) => ({
+              ...prev,
+              isLoading: false,
+              error:
+                "This passkey belongs to a different account. Please use the correct passkey.",
+            }));
+            return false;
+          }
+        }
+
         // Derive master key from PRF output
         const masterKey = await deriveKeyFromPRF(result.prfOutput, prfParams);
+
+        // If a key check value exists, verify the derived key is correct
+        // before storing it. A mismatch means the wrong passkey was used.
+        if (keyCheckValue) {
+          const isValid = await verifyKeyCheckValue(masterKey, keyCheckValue);
+          if (!isValid) {
+            setState((prev) => ({
+              ...prev,
+              isLoading: false,
+              error:
+                "Wrong passkey used. The derived key does not match your account. Please try again with the correct passkey.",
+            }));
+            return false;
+          }
+        }
 
         // Cache the master key
         await storeMasterKey(userId, masterKey);

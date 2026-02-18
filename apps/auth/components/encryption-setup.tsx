@@ -1,6 +1,7 @@
 "use client";
 
 import { useEncryptionContext } from "@helvety/shared/crypto";
+import { generateKeyCheckValue } from "@helvety/shared/crypto/key-check";
 import { storeMasterKey } from "@helvety/shared/crypto/key-storage";
 import { registerPasskey } from "@helvety/shared/crypto/passkey";
 import {
@@ -28,6 +29,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
+import { saveKeyCheckValue } from "@/app/actions/encryption-actions";
 import {
   generatePasskeyRegistrationOptions,
   verifyPasskeyRegistration,
@@ -220,6 +222,18 @@ export function EncryptionSetup({
             prfParams
           );
           await storeMasterKey(userId, masterKey);
+
+          // Generate and store a key check value so future unlock attempts
+          // can detect if a wrong passkey (wrong key) was used.
+          try {
+            const kcv = await generateKeyCheckValue(masterKey);
+            await saveKeyCheckValue(csrfToken, kcv);
+          } catch (kcvError) {
+            logger.warn(
+              "Failed to save key check value during registration (will be generated on first unlock):",
+              kcvError
+            );
+          }
 
           logger.info(
             "Master key derived and stored during passkey registration (zero extra touches)"

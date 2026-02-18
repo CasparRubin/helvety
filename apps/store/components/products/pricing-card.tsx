@@ -178,7 +178,7 @@ export function PricingCard({
             ? `/products/${productSlug}?checkout=success`
             : undefined,
           cancelUrl: productSlug
-            ? `/products/${productSlug}?checkout=cancelled`
+            ? `/products/${productSlug}?checkout=canceled`
             : undefined,
           ...(consent && {
             consentTermsAt: consent.termsAcceptedAt,

@@ -72,6 +72,9 @@ export type {
   PRFSupportInfo,
 } from "./prf-key-derivation";
 
+// Key Check Value (defense-in-depth against wrong-key derivation)
+export { generateKeyCheckValue, verifyKeyCheckValue } from "./key-check";
+
 // PRF Salt Cache (for single-touch login + encryption unlock)
 export {
   cachePRFSalt,

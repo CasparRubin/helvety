@@ -73,6 +73,8 @@ export function EncryptionGate({
 
   const [hasCheckedParams, setHasCheckedParams] = useState(false);
   const [passkeyParams, setPasskeyParams] = useState<PRFKeyParams | null>(null);
+  const [credentialId, setCredentialId] = useState<string | null>(null);
+  const [keyCheckValue, setKeyCheckValue] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [manualUnlock, setManualUnlock] = useState(false);
 
@@ -104,11 +106,10 @@ export function EncryptionGate({
         }
 
         if (result.data?.type === "passkey" && result.data.passkeyParams) {
-          // User has passkey encryption set up
-          setPasskeyParams({
-            prfSalt: result.data.passkeyParams.prf_salt,
-            version: result.data.passkeyParams.version,
-          });
+          const pp = result.data.passkeyParams;
+          setPasskeyParams({ prfSalt: pp.prf_salt, version: pp.version });
+          setCredentialId(pp.credential_id ?? null);
+          setKeyCheckValue(pp.key_check_value ?? null);
         }
 
         // Success - reset retry counter
@@ -217,6 +218,8 @@ export function EncryptionGate({
         <EncryptionUnlock
           userId={userId}
           passkeyParams={passkeyParams}
+          credentialId={credentialId}
+          keyCheckValue={keyCheckValue}
           onUnlock={handleUnlock}
         />
       </div>

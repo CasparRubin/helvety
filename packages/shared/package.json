@@ -38,7 +38,8 @@
     "./crypto/encryption-context": "./src/crypto/encryption-context.tsx",
     "./crypto/prf-key-derivation": "./src/crypto/prf-key-derivation.ts",
     "./crypto/prf-salt-cache": "./src/crypto/prf-salt-cache.ts",
-    "./crypto/passkey": "./src/crypto/passkey.ts"
+    "./crypto/passkey": "./src/crypto/passkey.ts",
+    "./crypto/key-check": "./src/crypto/key-check.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",

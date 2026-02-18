@@ -9,6 +9,7 @@ import {
 import {
   getCachedPRFSalt,
   cachePRFSalt,
+  clearCachedPRFSalt,
 } from "@helvety/shared/crypto/prf-salt-cache";
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
@@ -17,6 +18,7 @@ import { startAuthentication } from "@simplewebauthn/browser";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 
+import { getPasskeyParams } from "@/app/actions/encryption-actions";
 import {
   checkEmail,
   sendVerificationCode,
@@ -424,6 +426,11 @@ export function useLoginFlow(): LoginFlowState {
       // If PRF output was received, derive and cache the master encryption key.
       // This enables instant encryption unlock in E2EE apps (tasks, contacts)
       // without requiring a separate passkey touch.
+      //
+      // Security: The cached PRF salt may belong to a different user than the
+      // one who actually authenticated (e.g., user entered Account A's email
+      // but signed in with Account B's passkey). We must verify the cached
+      // salt matches the authenticated user's actual params before deriving.
       if (cachedSalt) {
         try {
           const clientExtResults = authResponse.clientExtensionResults as {
@@ -432,19 +439,34 @@ export function useLoginFlow(): LoginFlowState {
           const prfOutput = clientExtResults?.prf?.results?.first;
 
           if (prfOutput) {
-            const prfParams: PRFKeyParams = {
-              prfSalt: cachedSalt.prfSalt,
-              version: cachedSalt.version,
-            };
-            const masterKey = await deriveKeyFromPRF(prfOutput, prfParams);
-            await storeMasterKey(verifyResult.data.userId, masterKey);
+            // Fetch the authenticated user's actual PRF params from the server
+            // and verify the cached salt matches before deriving the key.
+            const paramsResult = await getPasskeyParams();
+            const actualSalt = paramsResult.success
+              ? paramsResult.data?.prf_salt
+              : null;
 
-            // Re-cache the salt (refreshes the cached entry)
-            cachePRFSalt(cachedSalt.prfSalt, cachedSalt.version);
+            if (actualSalt && actualSalt === cachedSalt.prfSalt) {
+              const prfParams: PRFKeyParams = {
+                prfSalt: cachedSalt.prfSalt,
+                version: cachedSalt.version,
+              };
+              const masterKey = await deriveKeyFromPRF(prfOutput, prfParams);
+              await storeMasterKey(verifyResult.data.userId, masterKey);
 
-            logger.info(
-              "Encryption key derived and cached during login (single-touch unlock)"
-            );
+              cachePRFSalt(cachedSalt.prfSalt, cachedSalt.version);
+
+              logger.info(
+                "Encryption key derived and cached during login (single-touch unlock)"
+              );
+            } else {
+              // Cached salt belongs to a different account - discard it.
+              // EncryptionGate will handle unlock with the correct params.
+              clearCachedPRFSalt();
+              logger.warn(
+                "Cached PRF salt does not match authenticated user - skipping key derivation"
+              );
+            }
           }
         } catch (prfError) {
           // PRF key derivation failure is non-fatal - the user can still

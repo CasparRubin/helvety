@@ -46,6 +46,8 @@ export interface UserPasskeyParams {
   credential_id: string;
   /** PRF version for future compatibility */
   version: number;
+  /** Key check value for validating derived keys (JSON-encoded KCV) */
+  key_check_value?: string | null;
   created_at: string;
 }
 

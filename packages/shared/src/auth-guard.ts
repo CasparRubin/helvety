@@ -34,7 +34,7 @@ export async function requireAuth(): Promise<User> {
   const { user, error } = await getUserWithRetry(supabase);
 
   if (error || !user) {
-    // Read the public-facing URL set by proxy.ts middleware so the user
+    // Read the public-facing URL set by the request proxy (proxy.ts) so the user
     // is redirected back here after authenticating (not to the home page).
     const headersList = await headers();
     const currentUrl = headersList.get("x-helvety-url") ?? undefined;

@@ -192,3 +192,58 @@ export async function savePasskeyParams(
     return { success: false, error: "Failed to save encryption settings" };
   }
 }
+
+/**
+ * Save a key check value (KCV) for the authenticated user's passkey params.
+ *
+ * Generated client-side after deriving the master key. Allows future unlock
+ * attempts to detect if a wrong passkey (wrong key) was used.
+ */
+export async function saveKeyCheckValue(
+  csrfToken: string,
+  keyCheckValue: string
+): Promise<ActionResponse> {
+  try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      success: false,
+      error: "Security validation failed. Please refresh and try again.",
+    };
+  }
+
+  try {
+    if (
+      !keyCheckValue ||
+      typeof keyCheckValue !== "string" ||
+      keyCheckValue.length > 4096
+    ) {
+      return { success: false, error: "Invalid key check value" };
+    }
+
+    const supabase = await createServerClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    const { error } = await supabase
+      .from("user_passkey_params")
+      .update({ key_check_value: keyCheckValue })
+      .eq("user_id", user.id);
+
+    if (error) {
+      logger.error("Error saving key check value:", error);
+      return { success: false, error: "Failed to save key check value" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    logger.error("Unexpected error in saveKeyCheckValue:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}

@@ -171,6 +171,104 @@ export async function hasPasskeyEncryptionSetup(): Promise<
 }
 
 /**
+ * Save a key check value (KCV) for the authenticated user's passkey params.
+ *
+ * The KCV is generated client-side after the master key is derived and allows
+ * future unlock attempts to detect if a wrong passkey (wrong key) was used.
+ */
+export async function saveKeyCheckValue(
+  keyCheckValue: string,
+  csrfToken: string
+): Promise<ActionResponse> {
+  try {
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "encryption",
+      rateLimitConfig: RATE_LIMITS.ENCRYPTION_UNLOCK,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
+
+    if (
+      !keyCheckValue ||
+      typeof keyCheckValue !== "string" ||
+      keyCheckValue.length > 4096
+    ) {
+      return { success: false, error: "Invalid key check value" };
+    }
+
+    const { error } = await supabase
+      .from("user_passkey_params")
+      .update({ key_check_value: keyCheckValue })
+      .eq("user_id", user.id);
+
+    if (error) {
+      logger.error("Error saving key check value:", error);
+      return { success: false, error: "Failed to save key check value" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    logger.error("Unexpected error in saveKeyCheckValue:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Verify that a passkey credential belongs to the current session user.
+ *
+ * Called during E2EE unlock to prevent a wrong passkey (from a different
+ * account) from being used to derive an incorrect master key, which would
+ * silently corrupt encrypted data.
+ *
+ * Security:
+ * - Requires authenticated user (session)
+ * - Looks up the credential in user_auth_credentials
+ * - Rejects if the credential's user_id does not match the session user
+ */
+export async function verifyEncryptionPasskey(
+  credentialId: string
+): Promise<ActionResponse<{ verified: boolean }>> {
+  try {
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "encryption",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
+
+    if (!credentialId || typeof credentialId !== "string") {
+      return { success: false, error: "Invalid credential ID" };
+    }
+
+    const { data, error } = await supabase
+      .from("user_auth_credentials")
+      .select("user_id")
+      .eq("credential_id", credentialId)
+      .single();
+
+    if (error || !data) {
+      logger.warn("Credential not found during E2EE unlock verification");
+      return { success: false, error: "Credential not found" };
+    }
+
+    if (data.user_id !== user.id) {
+      logger.warn(
+        "E2EE unlock rejected: passkey credential belongs to a different user"
+      );
+      return {
+        success: true,
+        data: { verified: false },
+      };
+    }
+
+    return { success: true, data: { verified: true } };
+  } catch (error) {
+    logger.error("Unexpected error in verifyEncryptionPasskey:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
  * Get encryption params for a user
  * Only passkey-based encryption is supported
  */

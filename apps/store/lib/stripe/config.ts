@@ -129,7 +129,7 @@ export function getProductFromPriceId(
 export const CHECKOUT_CONFIG = {
   // URLs for checkout redirects
   successUrl: "/products/{slug}?checkout=success",
-  cancelUrl: "/products/{slug}?checkout=cancelled",
+  cancelUrl: "/products/{slug}?checkout=canceled",
 
   // Subscription settings
   subscriptionSettings: {

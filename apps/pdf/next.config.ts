@@ -22,7 +22,8 @@ const nextConfig: NextConfig = {
     workerBlob: true,
   }),
 
-  // Webpack config: disables the canvas module to prevent SSR errors with PDF.js
+  // Webpack fallback: disables the canvas module to prevent SSR errors with PDF.js
+  // (production uses Turbopack; kept for compatibility if webpack is ever used)
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,

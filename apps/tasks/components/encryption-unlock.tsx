@@ -1,6 +1,8 @@
 "use client";
 
+import { generateKeyCheckValue } from "@helvety/shared/crypto/key-check";
 import { cachePRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
+import { logger } from "@helvety/shared/logger";
 import { Button } from "@helvety/ui/button";
 import {
   Card,
@@ -12,7 +14,12 @@ import {
 import { Fingerprint, Lock, Loader2, Smartphone } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import {
+  verifyEncryptionPasskey,
+  saveKeyCheckValue,
+} from "@/app/actions/encryption-actions";
 import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
+import { useCSRFToken } from "@/lib/csrf-client";
 
 /** Props for the EncryptionUnlock component */
 interface EncryptionUnlockProps {
@@ -20,8 +27,20 @@ interface EncryptionUnlockProps {
   userId: string;
   /** PRF-based params for passkey unlock */
   passkeyParams: PRFKeyParams;
+  /** Credential ID for filtering WebAuthn allowCredentials */
+  credentialId?: string | null;
+  /** Key check value for validating the derived key */
+  keyCheckValue?: string | null;
   /** Callback when encryption is successfully unlocked */
   onUnlock?: () => void;
+}
+
+/** Verify server-side that the passkey credential belongs to the session user. */
+async function verifyCredentialOwnership(
+  credentialId: string
+): Promise<boolean> {
+  const result = await verifyEncryptionPasskey(credentialId);
+  return result.success && result.data?.verified === true;
 }
 
 /**
@@ -32,9 +51,12 @@ interface EncryptionUnlockProps {
 export function EncryptionUnlock({
   userId,
   passkeyParams,
+  credentialId,
+  keyCheckValue,
   onUnlock,
 }: EncryptionUnlockProps) {
-  const { unlockWithPasskey } = useEncryptionContext();
+  const { unlockWithPasskey, masterKey } = useEncryptionContext();
+  const csrfToken = useCSRFToken();
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +67,14 @@ export function EncryptionUnlock({
     setIsLoading(true);
 
     try {
-      const success = await unlockWithPasskey(userId, passkeyParams);
+      const credentialIds = credentialId ? [credentialId] : undefined;
+      const success = await unlockWithPasskey(
+        userId,
+        passkeyParams,
+        credentialIds,
+        verifyCredentialOwnership,
+        keyCheckValue
+      );
 
       if (!success) {
         setError("Failed to authenticate with passkey");
@@ -66,7 +95,28 @@ export function EncryptionUnlock({
       setError(message);
       setIsLoading(false);
     }
-  }, [unlockWithPasskey, userId, passkeyParams, onUnlock]);
+  }, [
+    unlockWithPasskey,
+    userId,
+    passkeyParams,
+    credentialId,
+    keyCheckValue,
+    onUnlock,
+  ]);
+
+  // After successful unlock, generate and save a KCV if one doesn't exist yet
+  useEffect(() => {
+    if (!masterKey || keyCheckValue || !csrfToken) return;
+
+    void (async () => {
+      try {
+        const kcv = await generateKeyCheckValue(masterKey);
+        await saveKeyCheckValue(kcv, csrfToken);
+      } catch (err) {
+        logger.warn("Failed to generate/save key check value:", err);
+      }
+    })();
+  }, [masterKey, keyCheckValue, csrfToken]);
 
   // Auto-trigger passkey popup on mount
   useEffect(() => {

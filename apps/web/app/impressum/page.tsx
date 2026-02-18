@@ -106,7 +106,7 @@ export default function ImpressumPage() {
                   Responsible for Content
                 </p>
                 <p className="text-muted-foreground">
-                  Caspar Camille Rubin (Verantwortlich f&uuml;r den Inhalt)
+                  Caspar Camille Rubin (Verantwortlich für den Inhalt)
                 </p>
               </div>
             </div>
