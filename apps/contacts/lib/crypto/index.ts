@@ -43,6 +43,7 @@ export {
   deleteUnitKey,
   clearAllKeys,
   isStorageAvailable,
+  onKeyEvent,
 } from "@helvety/shared/crypto/key-storage";
 
 // Encoding Utilities

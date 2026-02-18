@@ -29,4 +29,6 @@ export const RATE_LIMITS = {
   OTP: { maxRequests: 3, windowMs: 5 * 60 * 1000 },
   /** OTP code verification attempts: 5 per 5 minutes per email */
   OTP_VERIFY: { maxRequests: 5, windowMs: 5 * 60 * 1000 },
+  /** Encryption param saves: 5 per minute per user */
+  ENCRYPTION: { maxRequests: 5, windowMs: 60 * 1000 },
 } as const;

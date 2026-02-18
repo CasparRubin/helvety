@@ -129,6 +129,7 @@ export async function createAttachment(
       .from("items")
       .select("id")
       .eq("id", validatedData.item_id)
+      .eq("user_id", user.id)
       .single();
 
     if (itemError || !item) {

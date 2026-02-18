@@ -4,7 +4,7 @@ import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 
-import { checkUserPasskeyStatus } from "@/app/actions/credential-actions";
+import { checkUserPasskeyStatus } from "@/app/actions/auth-action-helpers";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 
 import type { EmailOtpType } from "@supabase/supabase-js";

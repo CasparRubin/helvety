@@ -18,8 +18,7 @@ import {
 } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-import { getClientIP } from "./auth-action-helpers";
-import { checkUserPasskeyStatus } from "./credential-actions";
+import { getClientIP, checkUserPasskeyStatus } from "./auth-action-helpers";
 import { hasEncryptionSetup } from "./encryption-actions";
 
 import type { ActionResponse } from "@helvety/shared/types/entities";

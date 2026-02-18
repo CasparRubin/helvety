@@ -1,12 +1,17 @@
 "use client";
 
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
+import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState, useRef, useMemo, type ReactNode } from "react";
 
 import { getEncryptionParams } from "@/app/actions/encryption-actions";
 import { EncryptionUnlock } from "@/components/encryption-unlock";
-import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
+import {
+  useEncryptionContext,
+  onKeyEvent,
+  type PRFKeyParams,
+} from "@/lib/crypto";
 
 /** Props for the EncryptionGate component */
 interface EncryptionGateProps {
@@ -68,6 +73,8 @@ export function EncryptionGate({
     isUnlocked,
     isLoading: contextLoading,
     checkEncryptionState,
+    lockEncryption,
+    unlockedForUserId,
     error: contextError,
   } = useEncryptionContext();
 
@@ -130,6 +137,47 @@ export function EncryptionGate({
 
     void checkState();
   }, [userId, checkEncryptionState]);
+
+  // Lock encryption when the authenticated user changes in another tab
+  // (e.g., login as a different account) to prevent using a stale masterKey
+  // that belongs to the previous account.
+  useEffect(() => {
+    const supabase = createBrowserClient();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const sessionUserId = session?.user?.id ?? null;
+      if (
+        unlockedForUserId &&
+        sessionUserId !== null &&
+        sessionUserId !== unlockedForUserId
+      ) {
+        void lockEncryption(unlockedForUserId);
+        setManualUnlock(false);
+      }
+      if (!session) {
+        if (unlockedForUserId) void lockEncryption(unlockedForUserId);
+        setManualUnlock(false);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [unlockedForUserId, lockEncryption]);
+
+  // React to cross-tab key events (e.g., logout in another tab clears keys)
+  useEffect(() => {
+    return onKeyEvent((msg) => {
+      if (msg.type === "keys-cleared") {
+        setManualUnlock(false);
+      }
+      if (
+        msg.type === "master-key-deleted" &&
+        unlockedForUserId &&
+        msg.userId === unlockedForUserId
+      ) {
+        setManualUnlock(false);
+      }
+    });
+  }, [unlockedForUserId]);
 
   // Derive status from state (no setState in effect)
   const status: EncryptionStatus = useMemo(() => {

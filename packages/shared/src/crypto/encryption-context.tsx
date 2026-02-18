@@ -36,6 +36,8 @@ interface EncryptionState {
   isLoading: boolean;
   /** The master key (null if locked) */
   masterKey: CryptoKey | null;
+  /** The userId for which the current masterKey was derived/loaded */
+  unlockedForUserId: string | null;
   /** Error message if something went wrong */
   error: string | null;
   /** Whether passkey/PRF is supported on this device */
@@ -105,6 +107,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
     isUnlocked: false,
     isLoading: true,
     masterKey: null,
+    unlockedForUserId: null,
     error: null,
     prfSupported: null,
     prfSupportInfo: null,
@@ -161,6 +164,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
             isUnlocked: true,
             isLoading: false,
             masterKey: cachedKey,
+            unlockedForUserId: userId,
             error: null,
           }));
         } else {
@@ -169,6 +173,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
             isUnlocked: false,
             isLoading: false,
             masterKey: null,
+            unlockedForUserId: null,
             error: null,
           }));
         }
@@ -197,6 +202,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
       isUnlocked: false,
       isLoading: false,
       masterKey: null,
+      unlockedForUserId: null,
       error: null,
     }));
   }, []);
@@ -272,6 +278,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
           isUnlocked: true,
           isLoading: false,
           masterKey,
+          unlockedForUserId: userId,
           error: null,
         }));
 

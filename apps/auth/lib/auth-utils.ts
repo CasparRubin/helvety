@@ -5,7 +5,7 @@
  * what step the user needs to complete (passkey setup, signin, or complete).
  */
 
-import { checkUserPasskeyStatus } from "@/app/actions/credential-actions";
+import { getOwnPasskeyStatus } from "@/app/actions/credential-actions";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 
 /** The authentication step the user needs to complete */
@@ -41,10 +41,10 @@ export interface AuthStepResult {
  * in verifyPasskeyAuthentication() and the user is redirected to their destination.
  */
 export async function getRequiredAuthStep(
-  userId: string
+  _userId: string
 ): Promise<AuthStepResult> {
-  // Check if user has a passkey registered
-  const passkeyResult = await checkUserPasskeyStatus(userId);
+  // Check if the authenticated user has a passkey registered
+  const passkeyResult = await getOwnPasskeyStatus();
   const hasPasskey = passkeyResult.success && passkeyResult.data?.hasPasskey;
 
   // Check if user has encryption setup (PRF params)

@@ -7,6 +7,7 @@ import { createServerClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
 import { requireCSRFToken } from "@/lib/csrf";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type {
   ActionResponse,
@@ -171,6 +172,19 @@ export async function savePasskeyParams(
       return { success: false, error: "Not authenticated" };
     }
 
+    const rl = await checkRateLimit(
+      `encryption:user:${user.id}`,
+      RATE_LIMITS.ENCRYPTION.maxRequests,
+      RATE_LIMITS.ENCRYPTION.windowMs,
+      "encryption"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
+      };
+    }
+
     const { error } = await supabase.from("user_passkey_params").upsert(
       {
         user_id: user.id,
@@ -229,6 +243,19 @@ export async function saveKeyCheckValue(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    const rl = await checkRateLimit(
+      `encryption:user:${user.id}`,
+      RATE_LIMITS.ENCRYPTION.maxRequests,
+      RATE_LIMITS.ENCRYPTION.windowMs,
+      "encryption"
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
+      };
     }
 
     const { error } = await supabase

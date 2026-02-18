@@ -4,6 +4,13 @@
  * Generates consistent CSP, HSTS, COOP, COEP, and other security headers.
  * Each app calls this with a small options object to customize CSP directives.
  *
+ * SECURITY NOTE — `'unsafe-inline'` in script-src:
+ * This is required because JSON-LD `<script>` tags use dangerouslySetInnerHTML.
+ * To remove it, implement per-request nonces: generate a nonce in each app's
+ * proxy.ts, pass it via an `x-nonce` header, include it in the CSP as
+ * `'nonce-<value>'`, and apply it to all `<Script>` / inline `<script>` tags.
+ * When a nonce is present, modern browsers ignore `'unsafe-inline'`.
+ *
  * @param {object} options
  * @param {string} options.appName - App identifier for CSP report logging
  * @param {boolean} [options.imgBlob=false] - Allow blob: in img-src (for decrypted previews)

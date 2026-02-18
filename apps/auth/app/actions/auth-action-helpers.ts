@@ -1,8 +1,13 @@
 import "server-only";
 
 import { DOMAIN, DEV_PORTS } from "@helvety/shared/config";
+import { logger } from "@helvety/shared/logger";
 import { cookies, headers } from "next/headers";
 import { z } from "zod";
+
+import { createAdminClient } from "@/lib/supabase/admin";
+
+import type { ActionResponse } from "@helvety/shared/types/entities";
 
 // =============================================================================
 // TYPES
@@ -167,4 +172,45 @@ export async function getStoredChallenge(): Promise<StoredChallenge | null> {
 export async function clearChallenge(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(CHALLENGE_COOKIE_NAME);
+}
+
+// =============================================================================
+// PASSKEY STATUS (internal helper — NOT a server action)
+// =============================================================================
+
+/**
+ * Check if a user has any passkey credentials registered.
+ *
+ * This is intentionally NOT in a "use server" file so it cannot be invoked
+ * directly from the client, preventing arbitrary userId enumeration.
+ */
+export async function checkUserPasskeyStatus(
+  userId: string
+): Promise<ActionResponse<{ hasPasskey: boolean; count: number }>> {
+  try {
+    const adminClient = createAdminClient();
+
+    const { data, error, count } = await adminClient
+      .from("user_auth_credentials")
+      .select("id", { count: "exact" })
+      .eq("user_id", userId);
+
+    if (error) {
+      logger.error("Error checking passkey status:", error);
+      return { success: false, error: "Failed to check passkey status" };
+    }
+
+    const credentialCount = count ?? data?.length ?? 0;
+
+    return {
+      success: true,
+      data: {
+        hasPasskey: credentialCount > 0,
+        count: credentialCount,
+      },
+    };
+  } catch (error) {
+    logger.error("Error in checkUserPasskeyStatus:", error);
+    return { success: false, error: "Failed to check passkey status" };
+  }
 }

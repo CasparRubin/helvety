@@ -43,6 +43,7 @@ export {
   deleteUnitKey,
   clearAllKeys,
   isStorageAvailable,
+  onKeyEvent,
 } from "./key-storage";
 
 // Encoding Utilities

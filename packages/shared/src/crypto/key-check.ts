@@ -11,6 +11,8 @@
  * expected constant. A mismatch means the wrong key was derived.
  */
 
+import { constantTimeEqual } from "./encoding";
+
 const KCV_PLAINTEXT = "helvety-kcv-v1";
 const KCV_VERSION = 1;
 
@@ -64,8 +66,9 @@ export async function verifyKeyCheckValue(
       ciphertext.buffer as ArrayBuffer
     );
 
-    const plaintext = new TextDecoder().decode(decrypted);
-    return plaintext === KCV_PLAINTEXT;
+    const expected = new TextEncoder().encode(KCV_PLAINTEXT);
+    const actual = new Uint8Array(decrypted);
+    return constantTimeEqual(actual, expected);
   } catch {
     // Decryption failure (wrong key produces authentication tag mismatch)
     return false;

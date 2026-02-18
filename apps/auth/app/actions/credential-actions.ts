@@ -18,21 +18,32 @@ import type {
 // =============================================================================
 
 /**
- * Check if a user has any passkey credentials registered
+ * Check whether the currently authenticated user has passkey credentials.
  *
- * @param userId - The user's ID
- * @returns Whether the user has passkeys and the count
+ * This is the client-safe version: it requires a valid session and only returns
+ * the authenticated user's own status, preventing user-enumeration attacks.
+ * Server-internal code that needs to check arbitrary userIds should use the
+ * helper in auth-action-helpers.ts instead.
  */
-export async function checkUserPasskeyStatus(
-  userId: string
-): Promise<ActionResponse<{ hasPasskey: boolean; count: number }>> {
+export async function getOwnPasskeyStatus(): Promise<
+  ActionResponse<{ hasPasskey: boolean; count: number }>
+> {
   try {
+    const supabase = await createServerClient();
     const adminClient = createAdminClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return { success: false, error: "Not authenticated" };
+    }
 
     const { data, error, count } = await adminClient
       .from("user_auth_credentials")
       .select("id", { count: "exact" })
-      .eq("user_id", userId);
+      .eq("user_id", user.id);
 
     if (error) {
       logger.error("Error checking passkey status:", error);
@@ -43,13 +54,10 @@ export async function checkUserPasskeyStatus(
 
     return {
       success: true,
-      data: {
-        hasPasskey: credentialCount > 0,
-        count: credentialCount,
-      },
+      data: { hasPasskey: credentialCount > 0, count: credentialCount },
     };
   } catch (error) {
-    logger.error("Error in checkUserPasskeyStatus:", error);
+    logger.error("Error in getOwnPasskeyStatus:", error);
     return { success: false, error: "Failed to check passkey status" };
   }
 }

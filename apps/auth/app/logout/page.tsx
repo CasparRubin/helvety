@@ -42,8 +42,10 @@ export default function LogoutPage() {
         // Continue with logout even if key clearing fails
       }
 
-      // Step 2: Sign out server-side (clears session cookies)
-      await signOutAction();
+      // Step 2: Sign out server-side (clears session cookies).
+      // scope=global revokes ALL sessions across devices.
+      const globalLogout = searchParams.get("scope") === "global";
+      await signOutAction(globalLogout);
 
       // Step 3: Redirect to destination
       const rawRedirectUri = searchParams.get("redirect_uri");
