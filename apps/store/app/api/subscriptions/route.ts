@@ -10,10 +10,7 @@ import { z } from "zod";
 
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-import type {
-  UserSubscriptionSummary,
-  SubscriptionStatus,
-} from "@/lib/types/entities";
+import type { UserSubscriptionSummary, SubscriptionStatus } from "@/lib/types";
 import type { NextRequest } from "next/server";
 
 // =============================================================================

@@ -32,10 +32,7 @@ import { formatPrice, getIntervalShortLabel } from "@/lib/utils/pricing";
 
 import { FeatureList } from "./feature-list";
 
-import type {
-  CreateCheckoutResponse,
-  Subscription,
-} from "@/lib/types/entities";
+import type { CreateCheckoutResponse, Subscription } from "@/lib/types";
 import type { PricingTier } from "@/lib/types/products";
 
 /** Props for the standalone PricingCard component. */

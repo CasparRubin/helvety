@@ -22,7 +22,7 @@ import type {
   Purchase,
   UserSubscriptionSummary,
   SubscriptionStatus,
-} from "@/lib/types/entities";
+} from "@/lib/types";
 
 // =============================================================================
 // INPUT VALIDATION SCHEMAS

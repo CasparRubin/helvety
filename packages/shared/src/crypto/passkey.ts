@@ -84,7 +84,7 @@ export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
 /**
  * Crypto error types for passkey operations
  */
-export enum PasskeyErrorType {
+enum PasskeyErrorType {
   NOT_SUPPORTED = "NOT_SUPPORTED",
   CANCELLED = "CANCELLED",
   ALREADY_EXISTS = "ALREADY_EXISTS",
@@ -95,7 +95,7 @@ export enum PasskeyErrorType {
 /**
  * Passkey error class
  */
-export class PasskeyError extends Error {
+class PasskeyError extends Error {
   constructor(
     public type: PasskeyErrorType,
     message: string,
@@ -109,7 +109,7 @@ export class PasskeyError extends Error {
 /**
  * Passkey registration result with PRF output for encryption setup
  */
-export interface PasskeyRegistrationResult {
+interface PasskeyRegistrationResult {
   /** The WebAuthn registration response to send to server */
   response: RegistrationResponseJSON;
   /** Credential ID (base64url encoded) */

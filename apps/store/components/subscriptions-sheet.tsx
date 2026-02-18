@@ -42,7 +42,7 @@ import {
 } from "@/components/subscription-card";
 import { useCSRF } from "@/hooks/use-csrf";
 
-import type { Subscription } from "@/lib/types/entities";
+import type { Subscription } from "@/lib/types";
 
 /** Props for SubscriptionsSheet. */
 interface SubscriptionsSheetProps {

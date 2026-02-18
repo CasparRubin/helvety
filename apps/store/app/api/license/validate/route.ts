@@ -13,7 +13,7 @@ import { NextResponse } from "next/server";
 import { validateTenantLicense } from "@/lib/license/validation";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-import type { LicenseValidationResponse } from "@/lib/types/entities";
+import type { LicenseValidationResponse } from "@/lib/types";
 import type { NextRequest } from "next/server";
 
 /** Narrowed union of API failure reasons used by this route. */

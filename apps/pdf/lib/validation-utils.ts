@@ -4,7 +4,11 @@
  */
 
 // Internal utilities
-import { validateFileType, isPdfFile } from "./file-validation";
+import {
+  validateFileType,
+  validateFileSize,
+  isPdfFile,
+} from "./file-validation";
 
 // Types
 import type { PdfFile, FileValidationResult } from "./types";
@@ -89,7 +93,7 @@ export function validateFiniteNumber(
 
 /**
  * Validates multiple files for upload.
- * Performs type and size checks (empty file detection only; no maximum size).
+ * Performs type and size checks (100MB max, empty file detection).
  * Duplicate files are allowed and renamed in the upload handler (use-pdf-files.ts).
  *
  * @param files - Array of files to validate
@@ -111,14 +115,13 @@ export function validateFiles(
       continue;
     }
 
-    // Only check if file is empty, no size limit
-    if (file.size === 0) {
-      errors.push(`'${file.name}' is empty.`);
+    const sizeValidation = validateFileSize(file);
+    if (!sizeValidation.valid) {
+      errors.push(
+        sizeValidation.error ?? `'${file.name}' exceeds the maximum file size.`
+      );
       continue;
     }
-
-    // Note: Duplicate files are now allowed - they will be renamed automatically
-    // in the upload handler (use-pdf-files.ts) with suffixes like _2, _3, etc.
   }
 
   return {

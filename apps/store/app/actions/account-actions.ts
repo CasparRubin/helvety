@@ -14,7 +14,7 @@ import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-import type { ActionResponse } from "@/lib/types/entities";
+import type { ActionResponse } from "@/lib/types";
 import type { UserDataExport } from "@/lib/types/store";
 
 // =============================================================================

@@ -14,7 +14,7 @@ import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-import type { ActionResponse } from "@/lib/types/entities";
+import type { ActionResponse } from "@/lib/types";
 import type { PackageDownloadInfo } from "@/lib/types/store";
 
 // =============================================================================

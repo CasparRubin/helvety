@@ -27,7 +27,7 @@ import {
 import { useCSRF } from "@/hooks/use-csrf";
 import { getProductById } from "@/lib/data/products";
 
-import type { Subscription } from "@/lib/types/entities";
+import type { Subscription } from "@/lib/types";
 
 /** Props for the cancel subscription confirmation dialog. */
 interface CancelSubscriptionDialogProps {

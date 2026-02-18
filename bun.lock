@@ -12,7 +12,7 @@
     },
     "apps/auth": {
       "name": "@helvety/auth",
-      "version": "2.4.0",
+      "version": "2.7.0",
       "dependencies": {
         "@fontsource-variable/public-sans": "^5.2.7",
         "@helvety/brand": "workspace:*",
@@ -27,7 +27,6 @@
         "@vercel/analytics": "^1.6.1",
         "@vercel/speed-insights": "^1.3.1",
         "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
         "lucide-react": "^0.564.0",
         "next": "^16.1.6",
         "next-themes": "^0.4.6",
@@ -36,7 +35,6 @@
         "react-dom": "^19.2.4",
         "server-only": "^0.0.1",
         "sonner": "^2.0.7",
-        "tailwind-merge": "^3.4.0",
         "zod": "^4.3.6",
       },
       "devDependencies": {
@@ -60,7 +58,7 @@
     },
     "apps/contacts": {
       "name": "@helvety/contacts",
-      "version": "2.4.0",
+      "version": "2.7.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -84,7 +82,6 @@
         "@vercel/analytics": "^1.6.1",
         "@vercel/speed-insights": "^1.3.1",
         "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
         "date-fns": "^4.1.0",
         "lucide-react": "^0.564.0",
@@ -96,7 +93,6 @@
         "react-dom": "^19.2.4",
         "server-only": "^0.0.1",
         "sonner": "^2.0.7",
-        "tailwind-merge": "^3.4.0",
         "zod": "^4.3.6",
       },
       "devDependencies": {
@@ -120,7 +116,7 @@
     },
     "apps/pdf": {
       "name": "@helvety/pdf",
-      "version": "2.4.0",
+      "version": "2.7.0",
       "dependencies": {
         "@fontsource-variable/public-sans": "^5.2.7",
         "@helvety/brand": "workspace:*",
@@ -133,7 +129,6 @@
         "@vercel/analytics": "^1.6.1",
         "@vercel/speed-insights": "^1.3.1",
         "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
         "lucide-react": "^0.564.0",
         "next": "^16.1.6",
         "next-themes": "^0.4.6",
@@ -145,7 +140,6 @@
         "react-pdf": "^10.3.0",
         "server-only": "^0.0.1",
         "sonner": "^2.0.7",
-        "tailwind-merge": "^3.4.0",
       },
       "devDependencies": {
         "@helvety/config": "workspace:*",
@@ -168,7 +162,7 @@
     },
     "apps/store": {
       "name": "@helvety/store",
-      "version": "2.4.0",
+      "version": "2.7.0",
       "dependencies": {
         "@fontsource-variable/public-sans": "^5.2.7",
         "@helvety/brand": "workspace:*",
@@ -181,7 +175,6 @@
         "@vercel/analytics": "^1.6.1",
         "@vercel/speed-insights": "^1.3.1",
         "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
         "lucide-react": "^0.564.0",
         "next": "^16.1.6",
         "next-themes": "^0.4.6",
@@ -191,7 +184,6 @@
         "server-only": "^0.0.1",
         "sonner": "^2.0.7",
         "stripe": "^20.3.1",
-        "tailwind-merge": "^3.4.0",
         "zod": "^4.3.6",
       },
       "devDependencies": {
@@ -215,7 +207,7 @@
     },
     "apps/tasks": {
       "name": "@helvety/tasks",
-      "version": "2.4.0",
+      "version": "2.7.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -239,7 +231,6 @@
         "@vercel/analytics": "^1.6.1",
         "@vercel/speed-insights": "^1.3.1",
         "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
         "date-fns": "^4.1.0",
         "lucide-react": "^0.564.0",
@@ -251,7 +242,6 @@
         "react-dom": "^19.2.4",
         "server-only": "^0.0.1",
         "sonner": "^2.0.7",
-        "tailwind-merge": "^3.4.0",
         "zod": "^4.3.6",
       },
       "devDependencies": {
@@ -275,7 +265,7 @@
     },
     "apps/web": {
       "name": "@helvety/web",
-      "version": "2.4.0",
+      "version": "2.7.0",
       "dependencies": {
         "@fontsource-variable/public-sans": "^5.2.7",
         "@helvety/brand": "workspace:*",
@@ -289,7 +279,6 @@
         "@vercel/analytics": "^1.6.1",
         "@vercel/speed-insights": "^1.3.1",
         "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
         "framer-motion": "^12.34.0",
         "lucide-react": "^0.564.0",
         "next": "^16.1.6",
@@ -299,7 +288,6 @@
         "react-dom": "^19.2.4",
         "server-only": "^0.0.1",
         "sonner": "^2.0.7",
-        "tailwind-merge": "^3.4.0",
       },
       "devDependencies": {
         "@helvety/config": "workspace:*",

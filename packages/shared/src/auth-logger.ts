@@ -38,7 +38,7 @@ export type LogLevel = "info" | "warn" | "error";
 /**
  * Auth log entry structure
  */
-export interface AuthLogEntry {
+interface AuthLogEntry {
   timestamp: string;
   level: LogLevel;
   event: AuthEvent;

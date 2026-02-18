@@ -4,7 +4,7 @@
  */
 
 /** Swiss timezone identifier (covers Bern, Zurich, Basel, etc.) */
-export const TIMEZONE = "Europe/Zurich";
+const TIMEZONE = "Europe/Zurich";
 
 /**
  * Formats an ISO date string to dd.MM.yyyy HH:mm in the Swiss timezone.

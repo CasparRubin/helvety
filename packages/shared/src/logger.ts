@@ -102,7 +102,7 @@ class ErrorTracker implements ErrorTrackingService {
  * Global error tracker instance
  * Initialize with: errorTracker.init(yourService)
  */
-export const errorTracker = new ErrorTracker();
+const errorTracker = new ErrorTracker();
 
 /**
  * Type guard to check if a value is a record-like object

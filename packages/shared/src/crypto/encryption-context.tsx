@@ -50,7 +50,7 @@ interface EncryptionState {
  * Callback to verify server-side that the passkey credential belongs to
  * the current session user. Must return true to proceed with key derivation.
  */
-export type VerifyCredentialFn = (credentialId: string) => Promise<boolean>;
+type VerifyCredentialFn = (credentialId: string) => Promise<boolean>;
 
 /** Public API exposed by the encryption context */
 interface EncryptionContextValue extends EncryptionState {

@@ -15,7 +15,7 @@ import { z } from "zod";
 import { getMaxTenantsForTier } from "@/lib/license/validation";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-import type { LicensedTenant } from "@/lib/types/entities";
+import type { LicensedTenant } from "@/lib/types";
 import type { NextRequest } from "next/server";
 
 // =============================================================================

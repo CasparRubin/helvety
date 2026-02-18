@@ -48,10 +48,7 @@ import { useCSRF } from "@/hooks/use-csrf";
 import { getProductBySlug } from "@/lib/data/products";
 import { isSoftwareProduct } from "@/lib/types/products";
 
-import type {
-  CreateCheckoutResponse,
-  Subscription,
-} from "@/lib/types/entities";
+import type { CreateCheckoutResponse, Subscription } from "@/lib/types";
 import type { PricingTier } from "@/lib/types/products";
 
 /** Props for the product detail page client component. */

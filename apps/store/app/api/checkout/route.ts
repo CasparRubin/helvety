@@ -31,7 +31,7 @@ import {
 } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-import type { CreateCheckoutResponse } from "@/lib/types/entities";
+import type { CreateCheckoutResponse } from "@/lib/types";
 import type { NextRequest } from "next/server";
 import type Stripe from "stripe";
 
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     if (!productInfo) {
       logger.error(`No product info found for price ID: ${stripePriceId}`);
       return NextResponse.json(
-        { error: "Product configuration error" },
+        { error: "Something went wrong. Please try again later." },
         { status: 500 }
       );
     }

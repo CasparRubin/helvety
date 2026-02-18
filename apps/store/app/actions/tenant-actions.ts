@@ -18,7 +18,7 @@ import type {
   LicensedTenant,
   LicensedTenantWithSubscription,
   RegisterTenantRequest,
-} from "@/lib/types/entities";
+} from "@/lib/types";
 
 const SPO_EXPLORER_PRODUCT_ID = "helvety-spo-explorer";
 

@@ -1,7 +1,10 @@
 import path from "path";
+import { fileURLToPath } from "url";
 
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
+
+const configDir = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Creates the shared Helvety Vitest configuration.
@@ -15,7 +18,7 @@ export function createVitestConfig(rootDir) {
     resolve: {
       alias: {
         "@": path.resolve(rootDir, "."),
-        "server-only": path.resolve(rootDir, "vitest.server-only-mock.ts"),
+        "server-only": path.resolve(configDir, "vitest.server-only-mock.ts"),
       },
     },
     test: {

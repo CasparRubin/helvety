@@ -61,20 +61,6 @@ export function generateIV(): Uint8Array<ArrayBuffer> {
 }
 
 /**
- * Concatenate multiple Uint8Arrays
- */
-export function concatBuffers(...buffers: Uint8Array[]): Uint8Array {
-  const totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
-  const result = new Uint8Array(totalLength);
-  let offset = 0;
-  for (const buffer of buffers) {
-    result.set(buffer, offset);
-    offset += buffer.length;
-  }
-  return result;
-}
-
-/**
  * Compare two Uint8Arrays in constant time to prevent timing attacks
  */
 export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {

@@ -10,7 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type {
   LicenseValidationResponse,
   SubscriptionStatus,
-} from "@/lib/types/entities";
+} from "@/lib/types";
 
 // =============================================================================
 // TIER CONFIGURATION

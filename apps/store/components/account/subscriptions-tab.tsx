@@ -54,7 +54,7 @@ import { useCSRF } from "@/hooks/use-csrf";
 import { getProductById } from "@/lib/data/products";
 import { formatPrice } from "@/lib/utils/pricing";
 
-import type { Subscription, SubscriptionStatus } from "@/lib/types/entities";
+import type { Subscription, SubscriptionStatus } from "@/lib/types";
 
 /**
  * Status badge variant, label, and icon for the subscription list.

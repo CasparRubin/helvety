@@ -58,7 +58,7 @@ import {
 } from "@/app/actions/tenant-actions";
 import { useCSRF } from "@/hooks/use-csrf";
 
-import type { LicensedTenantWithSubscription } from "@/lib/types/entities";
+import type { LicensedTenantWithSubscription } from "@/lib/types";
 
 /**
  * SPO Explorer subscription summary for display (tier, status, tenant usage).

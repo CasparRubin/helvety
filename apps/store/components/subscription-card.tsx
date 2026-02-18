@@ -30,7 +30,7 @@ import {
 import { getProductById } from "@/lib/data/products";
 import { formatPrice } from "@/lib/utils/pricing";
 
-import type { Subscription, SubscriptionStatus } from "@/lib/types/entities";
+import type { Subscription, SubscriptionStatus } from "@/lib/types";
 
 /** Props for SubscriptionCard. */
 interface SubscriptionCardProps {

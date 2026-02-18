@@ -99,7 +99,7 @@ let validatedEnv: Env | null = null;
  * Security: This function validates that only safe environment variables are used.
  * In development, it provides helpful warnings and error messages.
  */
-export function getValidatedEnv(): Env {
+function getValidatedEnv(): Env {
   if (validatedEnv) {
     return validatedEnv;
   }
