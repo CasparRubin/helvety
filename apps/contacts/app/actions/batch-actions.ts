@@ -5,7 +5,6 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
 
-
 import type {
   ActionResponse,
   ContactRow,

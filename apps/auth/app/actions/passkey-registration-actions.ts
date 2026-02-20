@@ -11,7 +11,6 @@ import {
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 
-
 import {
   RP_NAME,
   PRF_VERSION,

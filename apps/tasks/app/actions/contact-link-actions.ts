@@ -6,7 +6,6 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
 import { z } from "zod";
 
-
 import type {
   ActionResponse,
   ContactRow,
