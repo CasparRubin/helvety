@@ -1,20 +1,21 @@
 "use server";
 
+import "server-only";
+
 /**
  * Server actions for subscription management
  * Query and manage user subscriptions
  */
 
+import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { urls } from "@helvety/shared/config";
-import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { isValidRelativePath } from "@helvety/shared/redirect-validation";
-import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { stripe } from "@/lib/stripe";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 import type {
   ActionResponse,
@@ -69,28 +70,12 @@ export async function getUserSubscriptions(): Promise<
   ActionResponse<Subscription[]>
 > {
   try {
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: subscription reads can trigger Stripe API calls for period backfill
-    const rl = await checkRateLimit(
-      `sub-read:${user.id}`,
-      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
-      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
-      "sub-read"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "sub",
+      readRateLimitConfig: RATE_LIMITS.SUBSCRIPTION_READ,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const { data, error } = await supabase
       .from("subscriptions")
@@ -199,27 +184,12 @@ export async function getUserSubscriptions(): Promise<
  */
 export async function getUserPurchases(): Promise<ActionResponse<Purchase[]>> {
   try {
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    const rl = await checkRateLimit(
-      `sub-read:${user.id}`,
-      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
-      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
-      "sub-read"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "sub",
+      readRateLimitConfig: RATE_LIMITS.SUBSCRIPTION_READ,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const { data, error } = await supabase
       .from("purchases")
@@ -254,27 +224,12 @@ export async function hasActiveSubscription(
       return { success: false, error: "Invalid product ID" };
     }
 
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: true, data: false };
-    }
-
-    const rl = await checkRateLimit(
-      `sub-read:${user.id}`,
-      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
-      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
-      "sub-read"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "sub",
+      readRateLimitConfig: RATE_LIMITS.SUBSCRIPTION_READ,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const { data, error } = await supabase
       .from("subscriptions")
@@ -310,27 +265,12 @@ export async function getUserSubscriptionSummary(): Promise<
   ActionResponse<UserSubscriptionSummary>
 > {
   try {
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    const rl = await checkRateLimit(
-      `sub-read:${user.id}`,
-      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
-      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
-      "sub-read"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "sub",
+      readRateLimitConfig: RATE_LIMITS.SUBSCRIPTION_READ,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Fetch subscriptions and purchases in parallel (independent queries)
     const [subsResult, purchasesResult] = await Promise.all([
@@ -395,44 +335,18 @@ export async function cancelSubscription(
   csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
-    // Validate CSRF token (required)
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
-    // Validate input
     const parseResult = UUIDSchema.safeParse(subscriptionId);
     if (!parseResult.success) {
       return { success: false, error: "Invalid subscription ID" };
     }
 
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: Stripe mutation - tight limit
-    const rl = await checkRateLimit(
-      `sub-mutate:${user.id}`,
-      RATE_LIMITS.SUBSCRIPTION_MUTATE.maxRequests,
-      RATE_LIMITS.SUBSCRIPTION_MUTATE.windowMs,
-      "sub-mutate"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "sub",
+      rateLimitConfig: RATE_LIMITS.SUBSCRIPTION_MUTATE,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Verify user owns this subscription
     const { data: subscription, error: fetchError } = await supabase
@@ -480,34 +394,17 @@ export async function getSubscriptionPeriodEnd(
   subscriptionId: string
 ): Promise<ActionResponse<{ current_period_end: string | null }>> {
   try {
-    // Validate input
     const parseResult = UUIDSchema.safeParse(subscriptionId);
     if (!parseResult.success) {
       return { success: false, error: "Invalid subscription ID" };
     }
 
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: triggers Stripe API call
-    const rl = await checkRateLimit(
-      `sub-read:${user.id}`,
-      RATE_LIMITS.SUBSCRIPTION_READ.maxRequests,
-      RATE_LIMITS.SUBSCRIPTION_READ.windowMs,
-      "sub-read"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "sub",
+      readRateLimitConfig: RATE_LIMITS.SUBSCRIPTION_READ,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const { data: row, error } = await supabase
       .from("subscriptions")
@@ -549,44 +446,18 @@ export async function reactivateSubscription(
   csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
-    // Validate CSRF token (required)
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
-    // Validate input
     const parseResult = UUIDSchema.safeParse(subscriptionId);
     if (!parseResult.success) {
       return { success: false, error: "Invalid subscription ID" };
     }
 
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: Stripe mutation - tight limit
-    const rl = await checkRateLimit(
-      `sub-mutate:${user.id}`,
-      RATE_LIMITS.SUBSCRIPTION_MUTATE.maxRequests,
-      RATE_LIMITS.SUBSCRIPTION_MUTATE.windowMs,
-      "sub-mutate"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "sub",
+      rateLimitConfig: RATE_LIMITS.SUBSCRIPTION_MUTATE,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Verify user owns this subscription
     const { data: subscription, error: fetchError } = await supabase
@@ -642,28 +513,12 @@ export async function getCustomerPortalUrl(
   returnUrl?: string
 ): Promise<ActionResponse<string>> {
   try {
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: creates Stripe portal session
-    const rl = await checkRateLimit(
-      `portal:${user.id}`,
-      RATE_LIMITS.PORTAL.maxRequests,
-      RATE_LIMITS.PORTAL.windowMs,
-      "portal"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "portal",
+      readRateLimitConfig: RATE_LIMITS.PORTAL,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Get user's Stripe customer ID
     const { data: profile, error: profileError } = await supabase

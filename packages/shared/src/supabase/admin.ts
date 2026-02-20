@@ -1,13 +1,13 @@
 import "server-only";
 
-import { getSupabaseUrl } from "@helvety/shared/env-validation";
+import { getSupabaseUrl } from "../env-validation";
 import { createClient } from "@supabase/supabase-js";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * Get the service role key from environment
- * This key has full access to the database, bypassing RLS
+ * Get the service role key from environment.
+ * This key has full access to the database, bypassing RLS.
  */
 function getServiceRoleKey(): string {
   const key = process.env.SUPABASE_SECRET_KEY;
@@ -21,10 +21,7 @@ function getServiceRoleKey(): string {
   return key;
 }
 
-/**
- * Singleton instance of the Supabase admin client
- * Uses service role key for full database access (bypasses RLS)
- */
+/** Singleton instance of the Supabase admin client */
 let adminClient: SupabaseClient | null = null;
 
 /**
@@ -36,8 +33,6 @@ let adminClient: SupabaseClient | null = null;
  * - ONLY use this for admin operations that require elevated privileges
  * - NEVER expose this client or its operations to the client
  * - Common use cases: creating sessions, looking up credentials by ID
- *
- * @returns The Supabase admin client instance
  */
 export function createAdminClient(): SupabaseClient {
   if (adminClient) {

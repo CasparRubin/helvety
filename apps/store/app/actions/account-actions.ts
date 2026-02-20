@@ -1,18 +1,19 @@
 "use server";
 
+import "server-only";
+
 /**
  * Server actions for account management
  * Handle user profile updates, account deletion, and data export
  */
 
-import { requireCSRFToken } from "@helvety/shared/csrf";
+import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
-import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { stripe } from "@/lib/stripe";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { ActionResponse } from "@/lib/types";
 import type { UserDataExport } from "@/lib/types/store";
@@ -41,15 +42,11 @@ export async function getCurrentUser(): Promise<
   }>
 > {
   try {
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "acct",
+    });
+    if (!auth.ok) return auth.response;
+    const { user } = auth.ctx;
 
     return {
       success: true,
@@ -78,17 +75,6 @@ export async function updateUserEmail(
   csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
-    // Validate CSRF token (required)
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
-    // Validate email format
     const parseResult = EmailSchema.safeParse(newEmail);
     if (!parseResult.success) {
       const errorMessage =
@@ -96,28 +82,13 @@ export async function updateUserEmail(
       return { success: false, error: errorMessage };
     }
 
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: account mutation
-    const rl = await checkRateLimit(
-      `acct-mutate:${user.id}`,
-      RATE_LIMITS.ACCOUNT_MUTATE.maxRequests,
-      RATE_LIMITS.ACCOUNT_MUTATE.windowMs,
-      "acct-mutate"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "acct",
+      rateLimitConfig: RATE_LIMITS.ACCOUNT_MUTATE,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Check if new email is same as current
     if (user.email?.toLowerCase() === newEmail.toLowerCase()) {
@@ -143,7 +114,7 @@ export async function updateUserEmail(
       return {
         success: false,
         error:
-          "We couldn't update your email. Please try again or contact contact@helvety.com.",
+          "We couldn't update your email. Please try again, or contact us at contact@helvety.com.",
       };
     }
 
@@ -180,38 +151,13 @@ export async function requestAccountDeletion(
   csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
-    // Validate CSRF token
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: account mutation (destructive)
-    const rl = await checkRateLimit(
-      `acct-mutate:${user.id}`,
-      RATE_LIMITS.ACCOUNT_MUTATE.maxRequests,
-      RATE_LIMITS.ACCOUNT_MUTATE.windowMs,
-      "acct-mutate"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "acct",
+      rateLimitConfig: RATE_LIMITS.ACCOUNT_MUTATE,
+    });
+    if (!auth.ok) return auth.response;
+    const { user } = auth.ctx;
 
     const adminClient = createAdminClient();
 
@@ -309,28 +255,12 @@ export async function exportUserData(): Promise<
   ActionResponse<UserDataExport>
 > {
   try {
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: data export pulls from multiple tables
-    const rl = await checkRateLimit(
-      `data-export:${user.id}`,
-      RATE_LIMITS.DATA_EXPORT.maxRequests,
-      RATE_LIMITS.DATA_EXPORT.windowMs,
-      "data-export"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "data-export",
+      readRateLimitConfig: RATE_LIMITS.DATA_EXPORT,
+    });
+    if (!auth.ok) return auth.response;
+    const { user } = auth.ctx;
 
     const adminClient = createAdminClient();
 

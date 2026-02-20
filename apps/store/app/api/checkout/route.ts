@@ -18,6 +18,7 @@ import { urls } from "@helvety/shared/config";
 import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { isValidRelativePath } from "@helvety/shared/redirect-validation";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -29,7 +30,6 @@ import {
   CHECKOUT_CONFIG,
   getProductFromPriceId,
 } from "@/lib/stripe";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { CreateCheckoutResponse } from "@/lib/types";
 import type { NextRequest } from "next/server";

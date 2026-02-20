@@ -18,7 +18,7 @@
  * in accordance with the Privacy Policy.
  */
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 
 import type { LogLevel } from "@helvety/shared/auth-logger";
 

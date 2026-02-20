@@ -32,6 +32,7 @@
     "./footer": "./src/footer.tsx",
     "./input": "./src/input.tsx",
     "./label": "./src/label.tsx",
+    "./loading-spinner": "./src/loading-spinner.tsx",
     "./popover": "./src/popover.tsx",
     "./scroll-area": "./src/scroll-area.tsx",
     "./separator": "./src/separator.tsx",

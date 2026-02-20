@@ -1,5 +1,7 @@
 "use server";
 
+import "server-only";
+
 import { logger } from "@helvety/shared/logger";
 import { createServerClient } from "@helvety/shared/supabase/server";
 

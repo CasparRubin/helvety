@@ -12,6 +12,8 @@
     "directory": "packages/shared"
   },
   "exports": {
+    "./action-helpers": "./src/action-helpers.ts",
+    "./auth-callback": "./src/auth-callback.ts",
     "./config": "./src/config.ts",
     "./csp-report": "./src/csp-report.ts",
     "./utils": "./src/utils.ts",
@@ -27,8 +29,10 @@
     "./rate-limit": "./src/rate-limit.ts",
     "./env-validation": "./src/env-validation.ts",
     "./redirect-validation": "./src/redirect-validation.ts",
+    "./seo": "./src/seo.ts",
     "./supabase/client": "./src/supabase/client.ts",
     "./supabase/server": "./src/supabase/server.ts",
+    "./supabase/admin": "./src/supabase/admin.ts",
     "./supabase/client-factory": "./src/supabase/client-factory.ts",
     "./types/entities": "./src/types/entities.ts",
     "./crypto": "./src/crypto/index.ts",

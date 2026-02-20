@@ -6,6 +6,7 @@ import { logAuthEvent } from "@helvety/shared/auth-logger";
 import { generateCSRFToken, requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import {
   generateAuthenticationOptions as generateAuthOptions,
@@ -13,7 +14,6 @@ import {
 } from "@simplewebauthn/server";
 
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 import {
   getClientIP,

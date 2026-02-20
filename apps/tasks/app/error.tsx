@@ -1,18 +1,18 @@
 "use client";
 
+import { urls } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
 import { Button } from "@helvety/ui/button";
 import { AlertCircle, RefreshCw } from "lucide-react";
-import Link from "next/link";
 import { useEffect } from "react";
 
 /**
- * Global error boundary component for Next.js App Router
+ * Segment error boundary for the root route.
  *
  * Displays a user-friendly error message with options to retry or return home.
  * Logs errors to the application logger for debugging.
  */
-export default function GlobalError({
+export default function Error({
   error,
   reset,
 }: {
@@ -20,7 +20,6 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
     logger.error("Application error:", error);
   }, [error]);
 
@@ -58,7 +57,7 @@ export default function GlobalError({
             Try again
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/">Go home</Link>
+            <a href={urls.home}>Go home</a>
           </Button>
         </div>
       </div>

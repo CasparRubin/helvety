@@ -1,10 +1,9 @@
 import "server-only";
 
-import { getUserWithRetry } from "@helvety/shared/auth-retry";
-import { requireCSRFToken } from "@helvety/shared/csrf";
-import { createServerClient } from "@helvety/shared/supabase/server";
-
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { getUserWithRetry } from "./auth-retry";
+import { requireCSRFToken } from "./csrf";
+import { checkRateLimit, RATE_LIMITS } from "./rate-limit";
+import { createServerClient } from "./supabase/server";
 
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
@@ -20,21 +19,31 @@ export interface AuthContext {
   supabase: SupabaseClient;
 }
 
-/** Discriminated union: either auth succeeded or we have an error response.
- *  The failure response is typed as the failure branch of ActionResponse,
- *  which is assignable to any ActionResponse<T>. */
+/**
+ * Discriminated union: either auth succeeded or we have an error response.
+ * The failure response is typed as the failure branch of ActionResponse,
+ * which is assignable to any ActionResponse<T>.
+ */
 type AuthResult =
   | { ok: true; ctx: AuthContext }
   | { ok: false; response: { success: false; error: string } };
+
+/** Rate limit thresholds for use with `rateLimitConfig` / `readRateLimitConfig` */
+export interface RateLimitThresholds {
+  maxRequests: number;
+  windowMs: number;
+}
 
 /** Options for the authentication guard */
 interface AuthGuardOptions {
   /** CSRF token to validate. Pass `undefined` to skip CSRF validation (read-only actions). */
   csrfToken?: string;
-  /** Rate limit key prefix (e.g. "tasks", "labels"). Appends `:user:{userId}` for mutations or `:read:{userId}` for read-only actions. */
+  /** Rate limit key prefix (e.g. "tasks", "contacts", "store"). Appends `:user:{userId}` for mutations or `:read:{userId}` for read-only actions. */
   rateLimitPrefix: string;
-  /** Rate limit configuration. Defaults to RATE_LIMITS.API. */
-  rateLimitConfig?: { maxRequests: number; windowMs: number };
+  /** Mutation rate limit configuration (when `csrfToken` is provided). Defaults to RATE_LIMITS.API. */
+  rateLimitConfig?: RateLimitThresholds;
+  /** Read-only rate limit configuration (when `csrfToken` is `undefined`). Defaults to RATE_LIMITS.READ. */
+  readRateLimitConfig?: RateLimitThresholds;
 }
 
 // =============================================================================
@@ -50,7 +59,7 @@ interface AuthGuardOptions {
  *
  * @example
  * ```ts
- * export async function createUnit(data, csrfToken) {
+ * export async function createItem(data, csrfToken) {
  *   try {
  *     const auth = await authenticateAndRateLimit({ csrfToken, rateLimitPrefix: "tasks" });
  *     if (!auth.ok) return auth.response;
@@ -67,6 +76,7 @@ export async function authenticateAndRateLimit(
     csrfToken,
     rateLimitPrefix,
     rateLimitConfig = RATE_LIMITS.API,
+    readRateLimitConfig = RATE_LIMITS.READ,
   } = options;
 
   // 1. CSRF validation (skip for read-only actions that don't pass a token)
@@ -97,7 +107,6 @@ export async function authenticateAndRateLimit(
 
   // 3. Rate limiting
   if (csrfToken !== undefined) {
-    // Mutation rate limit (stricter)
     const rateLimit = await checkRateLimit(
       `${rateLimitPrefix}:user:${user.id}`,
       rateLimitConfig.maxRequests,
@@ -114,11 +123,10 @@ export async function authenticateAndRateLimit(
       };
     }
   } else {
-    // Read-only rate limit (softer, prevents scraping/enumeration)
     const readLimit = await checkRateLimit(
       `${rateLimitPrefix}:read:${user.id}`,
-      RATE_LIMITS.READ.maxRequests,
-      RATE_LIMITS.READ.windowMs
+      readRateLimitConfig.maxRequests,
+      readRateLimitConfig.windowMs
     );
 
     if (!readLimit.allowed) {

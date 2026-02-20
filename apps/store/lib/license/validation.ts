@@ -4,8 +4,7 @@
  */
 
 import { logger } from "@helvety/shared/logger";
-
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 
 import type {
   LicenseValidationResponse,

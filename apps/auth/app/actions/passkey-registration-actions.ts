@@ -4,13 +4,13 @@ import "server-only";
 
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import {
   generateRegistrationOptions as generateRegOptions,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 
-import { createAdminClient } from "@/lib/supabase/admin";
 
 import {
   RP_NAME,

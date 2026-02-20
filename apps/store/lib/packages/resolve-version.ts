@@ -1,7 +1,8 @@
 import "server-only";
 
+import { createAdminClient } from "@helvety/shared/supabase/admin";
+
 import { getPackageInfo } from "@/lib/packages/config";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 // =============================================================================
 // VERSION PARSING

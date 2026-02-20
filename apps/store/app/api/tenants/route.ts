@@ -8,7 +8,7 @@
 
 import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
-import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -51,7 +51,7 @@ const RegisterTenantBodySchema = z.object({
 /** Lists all registered tenants for the authenticated user. */
 export async function GET() {
   try {
-    const supabase = await createServerComponentClient();
+    const supabase = await createServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createServerComponentClient();
+    const supabase = await createServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

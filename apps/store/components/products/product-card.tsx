@@ -51,7 +51,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <div
           className="absolute inset-0 bg-cover bg-center grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
           style={{
-            backgroundImage: `url('${process.env.__NEXT_ROUTER_BASEPATH ?? ""}/artwork_1.jpg')`,
+            backgroundImage: "url('/store/artwork_1.jpg')",
           }}
         />
 

@@ -2,10 +2,10 @@ import "server-only";
 
 import { DOMAIN, DEV_PORTS } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { cookies, headers } from "next/headers";
 import { z } from "zod";
 
-import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { ActionResponse } from "@helvety/shared/types/entities";
 

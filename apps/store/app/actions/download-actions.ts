@@ -1,18 +1,20 @@
 "use server";
 
+import "server-only";
+
 /**
  * Server actions for package downloads
  * Validates subscription status and generates signed download URLs
  */
 
+import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
-import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
 import { getPackageInfo, isTierAllowedForPackage } from "@/lib/packages/config";
 import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { ActionResponse } from "@/lib/types";
 import type { PackageDownloadInfo } from "@/lib/types/store";
@@ -57,35 +59,17 @@ export async function getPackageDownloadUrl(
       return { success: false, error: "Invalid package ID" };
     }
 
-    // Get package info
     const packageInfo = getPackageInfo(packageId);
     if (!packageInfo) {
       return { success: false, error: "Package not found" };
     }
 
-    // Verify user is authenticated
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: generates signed URLs
-    const rl = await checkRateLimit(
-      `download-url:${user.id}`,
-      RATE_LIMITS.DOWNLOAD_URL.maxRequests,
-      RATE_LIMITS.DOWNLOAD_URL.windowMs,
-      "download-url"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "download",
+      readRateLimitConfig: RATE_LIMITS.DOWNLOAD_URL,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Check for active subscription with allowed tier
     const { data: subscriptions, error: subError } = await supabase
@@ -178,29 +162,12 @@ export async function getPackageMetadata(
       return { success: false, error: "Package not found" };
     }
 
-    // Verify user is authenticated
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Rate limit: package metadata reads
-    const rl = await checkRateLimit(
-      `pkg-meta:${user.id}`,
-      RATE_LIMITS.PACKAGE_META.maxRequests,
-      RATE_LIMITS.PACKAGE_META.windowMs,
-      "pkg-meta"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "pkg-meta",
+      readRateLimitConfig: RATE_LIMITS.PACKAGE_META,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Check for active subscription
     const { data: subscriptions, error: subError } = await supabase

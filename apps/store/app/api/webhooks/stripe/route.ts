@@ -6,6 +6,7 @@
  */
 
 import { logger } from "@helvety/shared/logger";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -15,7 +16,6 @@ import {
   getProductFromPriceId,
   isHandledWebhookEvent,
 } from "@/lib/stripe";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { NextRequest } from "next/server";
 import type Stripe from "stripe";

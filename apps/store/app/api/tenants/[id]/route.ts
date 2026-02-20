@@ -9,7 +9,7 @@
 
 import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
-import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -35,7 +35,7 @@ export async function GET(
       return NextResponse.json({ error: "Invalid tenant ID" }, { status: 400 });
     }
 
-    const supabase = await createServerComponentClient();
+    const supabase = await createServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -133,7 +133,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid tenant ID" }, { status: 400 });
     }
 
-    const supabase = await createServerComponentClient();
+    const supabase = await createServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -230,7 +230,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid tenant ID" }, { status: 400 });
     }
 
-    const supabase = await createServerComponentClient();
+    const supabase = await createServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

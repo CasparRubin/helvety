@@ -8,13 +8,13 @@
  */
 
 import { logger } from "@helvety/shared/logger";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 
 import { getPackageInfo, isTierAllowedForPackage } from "@/lib/packages/config";
 import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { NextRequest } from "next/server";
 

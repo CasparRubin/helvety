@@ -7,12 +7,12 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 /**
- * Global error boundary component for Next.js App Router
+ * Segment error boundary for the root route.
  *
  * Displays a user-friendly error message with options to retry or return home.
  * Logs errors to the application logger for debugging.
  */
-export default function GlobalError({
+export default function Error({
   error,
   reset,
 }: {

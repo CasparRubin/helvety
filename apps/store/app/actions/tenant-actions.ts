@@ -1,17 +1,18 @@
 "use server";
 
+import "server-only";
+
 /**
  * Server actions for tenant management
  * Manage licensed tenants for Helvety products
  */
 
-import { requireCSRFToken } from "@helvety/shared/csrf";
+import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
-import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
 import { z } from "zod";
 
 import { getMaxTenantsForTier } from "@/lib/license/validation";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type {
   ActionResponse,
@@ -72,27 +73,12 @@ export async function getUserTenants(): Promise<
   ActionResponse<LicensedTenantWithSubscription[]>
 > {
   try {
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    const rl = await checkRateLimit(
-      `tenants:${user.id}`,
-      RATE_LIMITS.TENANTS.maxRequests,
-      RATE_LIMITS.TENANTS.windowMs,
-      "tenants"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "tenants",
+      readRateLimitConfig: RATE_LIMITS.TENANTS,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const { data, error } = await supabase
       .from("licensed_tenants")
@@ -150,27 +136,12 @@ export async function getSpoExplorerSubscriptions(): Promise<
   >
 > {
   try {
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    const rl = await checkRateLimit(
-      `tenants:${user.id}`,
-      RATE_LIMITS.TENANTS.maxRequests,
-      RATE_LIMITS.TENANTS.windowMs,
-      "tenants"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "tenants",
+      readRateLimitConfig: RATE_LIMITS.TENANTS,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Get SPO Explorer subscriptions
     const { data: subscriptions, error: subError } = await supabase
@@ -245,17 +216,6 @@ export async function registerTenant(
   csrfToken: string
 ): Promise<ActionResponse<LicensedTenant>> {
   try {
-    // Validate CSRF token (required)
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
-    // Validate input with Zod
     const parseResult = RegisterTenantRequestSchema.safeParse(request);
     if (!parseResult.success) {
       const errorMessage =
@@ -264,27 +224,13 @@ export async function registerTenant(
       return { success: false, error: errorMessage };
     }
 
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    const rl = await checkRateLimit(
-      `tenants:${user.id}`,
-      RATE_LIMITS.TENANTS.maxRequests,
-      RATE_LIMITS.TENANTS.windowMs,
-      "tenants"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tenants",
+      rateLimitConfig: RATE_LIMITS.TENANTS,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const { tenantId, displayName, subscriptionId } = parseResult.data;
 
@@ -398,17 +344,6 @@ export async function updateTenant(
   csrfToken: string
 ): Promise<ActionResponse<LicensedTenant>> {
   try {
-    // Validate CSRF token (required)
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
-    // Validate inputs
     const tenantIdResult = UUIDSchema.safeParse(tenantId);
     if (!tenantIdResult.success) {
       return { success: false, error: "Invalid tenant ID" };
@@ -419,27 +354,13 @@ export async function updateTenant(
       return { success: false, error: "Display name too long" };
     }
 
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    const rl = await checkRateLimit(
-      `tenants:${user.id}`,
-      RATE_LIMITS.TENANTS.maxRequests,
-      RATE_LIMITS.TENANTS.windowMs,
-      "tenants"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tenants",
+      rateLimitConfig: RATE_LIMITS.TENANTS,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const { data: tenant, error } = await supabase
       .from("licensed_tenants")
@@ -475,43 +396,18 @@ export async function removeTenant(
   csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
-    // Validate CSRF token (required)
-    try {
-      await requireCSRFToken(csrfToken);
-    } catch {
-      return {
-        success: false,
-        error: "Security validation failed. Please refresh and try again.",
-      };
-    }
-
-    // Validate input
     const parseResult = UUIDSchema.safeParse(tenantId);
     if (!parseResult.success) {
       return { success: false, error: "Invalid tenant ID" };
     }
 
-    const supabase = await createServerComponentClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    const rl = await checkRateLimit(
-      `tenants:${user.id}`,
-      RATE_LIMITS.TENANTS.maxRequests,
-      RATE_LIMITS.TENANTS.windowMs,
-      "tenants"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: "Too many requests. Please try again later.",
-      };
-    }
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "tenants",
+      rateLimitConfig: RATE_LIMITS.TENANTS,
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     // Verify tenant exists and belongs to user
     const { data: tenant, error: fetchError } = await supabase

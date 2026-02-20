@@ -5,6 +5,7 @@ import "server-only";
 import { logAuthEvent } from "@helvety/shared/auth-logger";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
@@ -16,7 +17,6 @@ import {
   recordOtpFailureAndCheckLockout,
   resetEscalatingLockout,
 } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 import { getClientIP, checkUserPasskeyStatus } from "./auth-action-helpers";
 import { hasEncryptionSetup } from "./encryption-actions";

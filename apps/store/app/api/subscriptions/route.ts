@@ -4,7 +4,7 @@
  */
 
 import { logger } from "@helvety/shared/logger";
-import { createServerComponentClient } from "@helvety/shared/supabase/client-factory";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -20,7 +20,7 @@ import type { NextRequest } from "next/server";
 /** Get current user's subscriptions. */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerComponentClient();
+    const supabase = await createServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
 /** Quick check for specific product subscription access. */
 export async function HEAD(request: NextRequest) {
   try {
-    const supabase = await createServerComponentClient();
+    const supabase = await createServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
