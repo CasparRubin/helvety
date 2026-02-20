@@ -3,7 +3,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![Turborepo](https://img.shields.io/badge/Turborepo-2-blue?style=flat-square)
-![Bun](https://img.shields.io/badge/Bun-1.3.5-f9f1e1?style=flat-square&logo=bun)
+![Bun](https://img.shields.io/badge/Bun-1.3.9-f9f1e1?style=flat-square&logo=bun)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
 Monorepo for all Helvety applications. Engineered & Designed in Switzerland.

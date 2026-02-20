@@ -37,6 +37,7 @@ export default function LogoutPage() {
   );
 }
 
+/** Reads redirect params and performs key cleanup + sign-out. */
 function LogoutHandler() {
   const searchParams = useSearchParams();
   const hasRun = useRef(false);
@@ -45,6 +46,7 @@ function LogoutHandler() {
     if (hasRun.current) return;
     hasRun.current = true;
 
+    /** Clears IndexedDB keys, signs out, then redirects. */
     async function performLogout() {
       try {
         await clearAllKeys();

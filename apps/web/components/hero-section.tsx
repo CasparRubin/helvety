@@ -1,12 +1,7 @@
 "use client";
 
 import { HelvetyLogo } from "@helvety/brand/logo";
-import {
-  LazyMotion,
-  domAnimation,
-  m,
-  useReducedMotion,
-} from "framer-motion";
+import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const fadeInUp = {
