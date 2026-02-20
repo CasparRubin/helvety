@@ -117,7 +117,9 @@ export function useItems(spaceId: string): UseItemsReturn {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
-          return [...prev, newItem].toSorted((a, b) => a.sort_order - b.sort_order);
+          return [...prev, newItem].toSorted(
+            (a, b) => a.sort_order - b.sort_order
+          );
         });
 
         return result.data;

@@ -34,7 +34,10 @@ export function ProductsCatalog() {
       if (p.type === "software") software++;
       else if (p.type === "physical") physical++;
     }
-    return { all: allProducts.length, software, physical } as Record<FilterType, number>;
+    return { all: allProducts.length, software, physical } as Record<
+      FilterType,
+      number
+    >;
   }, [allProducts]);
 
   // Filter products based on selected filter
@@ -57,7 +60,11 @@ export function ProductsCatalog() {
         <h2 className="text-muted-foreground mb-2 text-sm font-medium">
           Product type
         </h2>
-        <ProductFilters value={filter} onChange={handleFilterChange} counts={counts} />
+        <ProductFilters
+          value={filter}
+          onChange={handleFilterChange}
+          counts={counts}
+        />
       </section>
       <div className={isPending ? "opacity-70 transition-opacity" : ""}>
         <ProductGrid products={filteredProducts} columns={3} />
