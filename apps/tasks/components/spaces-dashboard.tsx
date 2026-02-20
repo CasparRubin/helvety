@@ -23,7 +23,7 @@ import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useTransition } from "react";
 
 import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
@@ -70,7 +70,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
   const { stages } = useStages(effectiveConfigId);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, startCreateTransition] = useTransition();
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -80,16 +80,16 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
     id: string | null;
     name: string | null;
   }>({ open: false, id: null, name: null });
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleting, startDeleteTransition] = useTransition();
   // Unit edit state (for editing the parent unit from command bar)
   const [isEditUnitOpen, setIsEditUnitOpen] = useState(false);
   const [editUnitTitle, setEditUnitTitle] = useState("");
   const [editUnitDescription, setEditUnitDescription] = useState("");
-  const [isUpdatingUnit, setIsUpdatingUnit] = useState(false);
+  const [isUpdatingUnit, startUpdateUnitTransition] = useTransition();
   // Unit delete state (for deleting the parent unit from command bar)
   const [isUnitDeleteOpen, setIsUnitDeleteOpen] = useState(false);
-  const [isDeletingUnit, setIsDeletingUnit] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeletingUnit, startDeleteUnitTransition] = useTransition();
+  const [isRefreshing, startRefreshTransition] = useTransition();
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
   // Get the first stage (lowest sort_order) as the default for new entities
@@ -102,12 +102,11 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
       : null;
 
   const handleCreate = useCallback(
-    async (e: React.FormEvent) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
       if (!newTitle.trim()) return;
 
-      setIsCreating(true);
-      try {
+      startCreateTransition(async () => {
         const result = await create({
           unit_id: unitId,
           title: newTitle.trim(),
@@ -120,27 +119,29 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
           setNewDescription("");
           setIsCreateOpen(false);
         }
-      } finally {
-        setIsCreating(false);
-      }
+      });
     },
-    [newTitle, newDescription, create, unitId, defaultStageId]
+    [
+      newTitle,
+      newDescription,
+      create,
+      unitId,
+      defaultStageId,
+      startCreateTransition,
+    ]
   );
 
   const handleDeleteClick = useCallback((id: string, name: string) => {
     setDeleteState({ open: true, id, name });
   }, []);
 
-  const handleDeleteConfirm = useCallback(async () => {
+  const handleDeleteConfirm = useCallback(() => {
     if (!deleteState.id) return;
-    setIsDeleting(true);
-    try {
-      await remove(deleteState.id);
+    startDeleteTransition(async () => {
+      await remove(deleteState.id!);
       setDeleteState({ open: false, id: null, name: null });
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [deleteState.id, remove]);
+    });
+  }, [deleteState.id, remove, startDeleteTransition]);
 
   const handleEntityClick = useCallback(
     (entity: { id: string }) => {
@@ -160,12 +161,11 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
   }, [unit]);
 
   const handleEditUnitSubmit = useCallback(
-    async (e: React.FormEvent) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
       if (!editUnitTitle.trim()) return;
 
-      setIsUpdatingUnit(true);
-      try {
+      startUpdateUnitTransition(async () => {
         const success = await updateUnit({
           title: editUnitTitle.trim(),
           description: editUnitDescription.trim() || null,
@@ -174,36 +174,28 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
         if (success) {
           setIsEditUnitOpen(false);
         }
-      } finally {
-        setIsUpdatingUnit(false);
-      }
+      });
     },
-    [editUnitTitle, editUnitDescription, updateUnit]
+    [editUnitTitle, editUnitDescription, updateUnit, startUpdateUnitTransition]
   );
 
   const handleDeleteUnit = useCallback(() => {
     setIsUnitDeleteOpen(true);
   }, []);
 
-  const handleDeleteUnitConfirm = useCallback(async () => {
-    setIsDeletingUnit(true);
-    try {
+  const handleDeleteUnitConfirm = useCallback(() => {
+    startDeleteUnitTransition(async () => {
       await removeUnit(unitId);
-      router.push("/");
-    } finally {
-      setIsDeletingUnit(false);
       setIsUnitDeleteOpen(false);
-    }
-  }, [removeUnit, unitId, router]);
+      router.push("/");
+    });
+  }, [removeUnit, unitId, router, startDeleteUnitTransition]);
 
-  const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
+  const handleRefresh = useCallback(() => {
+    startRefreshTransition(async () => {
       await refresh();
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [refresh]);
+    });
+  }, [refresh, startRefreshTransition]);
 
   return (
     <>

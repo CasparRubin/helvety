@@ -25,58 +25,62 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  */
 export function createAuthCallbackHandler() {
   return async function GET(request: Request) {
-    const clientIP =
-      request.headers.get("x-real-ip") ??
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      "unknown";
-
-    const rateLimit = await checkRateLimit(
-      `auth_callback:ip:${clientIP}`,
-      RATE_LIMITS.AUTH_CALLBACK.maxRequests,
-      RATE_LIMITS.AUTH_CALLBACK.windowMs
-    );
-
-    if (!rateLimit.allowed) {
-      return NextResponse.redirect(
-        `${new URL(request.url).origin}/?error=rate_limited`
-      );
-    }
-
-    const { searchParams, origin } = new URL(request.url);
-    const code = searchParams.get("code");
-    const token_hash = searchParams.get("token_hash");
-    const type = searchParams.get("type");
-    const next = getSafeRelativePath(searchParams.get("next"), "/");
-
+    const { origin } = new URL(request.url);
     const authErrorUrl = getLoginUrl(origin);
 
-    if (code) {
-      const supabase = await createServerClient();
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
+    try {
+      const clientIP =
+        request.headers.get("x-real-ip") ??
+        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+        "unknown";
 
-      if (!error) {
-        return NextResponse.redirect(new URL(next, origin));
+      const rateLimit = await checkRateLimit(
+        `auth_callback:ip:${clientIP}`,
+        RATE_LIMITS.AUTH_CALLBACK.maxRequests,
+        RATE_LIMITS.AUTH_CALLBACK.windowMs
+      );
+
+      if (!rateLimit.allowed) {
+        return NextResponse.redirect(`${origin}/?error=rate_limited`);
       }
 
-      logger.error("Auth callback error (code exchange):", error);
-      return NextResponse.redirect(`${authErrorUrl}&error=auth_failed`);
-    }
+      const { searchParams } = new URL(request.url);
+      const code = searchParams.get("code");
+      const token_hash = searchParams.get("token_hash");
+      const type = searchParams.get("type");
+      const next = getSafeRelativePath(searchParams.get("next"), "/");
 
-    if (token_hash && type) {
-      const supabase = await createServerClient();
-      const { error } = await supabase.auth.verifyOtp({
-        token_hash,
-        type: type as EmailOtpType,
-      });
+      if (code) {
+        const supabase = await createServerClient();
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-      if (!error) {
-        return NextResponse.redirect(new URL(next, origin));
+        if (!error) {
+          return NextResponse.redirect(new URL(next, origin));
+        }
+
+        logger.error("Auth callback error (code exchange):", error);
+        return NextResponse.redirect(`${authErrorUrl}&error=auth_failed`);
       }
 
-      logger.error("Auth callback error (token hash):", error);
-      return NextResponse.redirect(`${authErrorUrl}&error=auth_failed`);
-    }
+      if (token_hash && type) {
+        const supabase = await createServerClient();
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash,
+          type: type as EmailOtpType,
+        });
 
-    return NextResponse.redirect(`${authErrorUrl}&error=missing_params`);
+        if (!error) {
+          return NextResponse.redirect(new URL(next, origin));
+        }
+
+        logger.error("Auth callback error (token hash):", error);
+        return NextResponse.redirect(`${authErrorUrl}&error=auth_failed`);
+      }
+
+      return NextResponse.redirect(`${authErrorUrl}&error=missing_params`);
+    } catch (error) {
+      logger.error("Auth callback unexpected error:", error);
+      return NextResponse.redirect(`${authErrorUrl}&error=server_error`);
+    }
   };
 }

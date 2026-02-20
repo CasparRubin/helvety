@@ -7,6 +7,8 @@ import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+
 import type {
   ActionResponse,
   UserAuthCredential,
@@ -37,6 +39,18 @@ export async function getOwnPasskeyStatus(): Promise<
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    const rl = await checkRateLimit(
+      `credential_read:user:${user.id}`,
+      RATE_LIMITS.CREDENTIAL_READ.maxRequests,
+      RATE_LIMITS.CREDENTIAL_READ.windowMs
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
+      };
     }
 
     const { data, error, count } = await adminClient
@@ -78,6 +92,18 @@ export async function getUserCredentials(): Promise<
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    const rl = await checkRateLimit(
+      `credential_read:user:${user.id}`,
+      RATE_LIMITS.CREDENTIAL_READ.maxRequests,
+      RATE_LIMITS.CREDENTIAL_READ.windowMs
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
+      };
     }
 
     // Use adminClient to bypass deny-all RLS policy on user_auth_credentials
@@ -132,6 +158,18 @@ export async function deleteCredential(
     } = await supabase.auth.getUser();
     if (userError || !user) {
       return { success: false, error: "Not authenticated" };
+    }
+
+    const rl = await checkRateLimit(
+      `credential:user:${user.id}`,
+      RATE_LIMITS.CREDENTIAL.maxRequests,
+      RATE_LIMITS.CREDENTIAL.windowMs
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
+      };
     }
 
     // Use adminClient to bypass deny-all RLS policy on user_auth_credentials

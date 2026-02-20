@@ -12,6 +12,7 @@ import { urls } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
 import { isValidRelativePath } from "@helvety/shared/redirect-validation";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { after } from "next/server";
 import { z } from "zod";
 
 import { RATE_LIMITS } from "@/lib/rate-limit";
@@ -174,7 +175,7 @@ export async function getUserSubscriptions(): Promise<
 
     return { success: true, data: subscriptions };
   } catch (error) {
-    logger.error("Error in getUserSubscriptions:", error);
+    after(() => logger.error("Error in getUserSubscriptions:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -205,7 +206,7 @@ export async function getUserPurchases(): Promise<ActionResponse<Purchase[]>> {
 
     return { success: true, data: data ?? [] };
   } catch (error) {
-    logger.error("Error in getUserPurchases:", error);
+    after(() => logger.error("Error in getUserPurchases:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -253,7 +254,7 @@ export async function hasActiveSubscription(
 
     return { success: true, data: isActive };
   } catch (error) {
-    logger.error("Error in hasActiveSubscription:", error);
+    after(() => logger.error("Error in hasActiveSubscription:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -315,7 +316,7 @@ export async function getUserSubscriptionSummary(): Promise<
 
     return { success: true, data: summary };
   } catch (error) {
-    logger.error("Error in getUserSubscriptionSummary:", error);
+    after(() => logger.error("Error in getUserSubscriptionSummary:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -380,7 +381,7 @@ export async function cancelSubscription(
 
     return { success: true };
   } catch (error) {
-    logger.error("Error canceling subscription:", error);
+    after(() => logger.error("Error canceling subscription:", error));
     return { success: false, error: "Failed to cancel subscription" };
   }
 }
@@ -430,7 +431,9 @@ export async function getSubscriptionPeriodEnd(
 
     return { success: true, data: { current_period_end } };
   } catch (err) {
-    logger.error("Error fetching subscription period from Stripe:", err);
+    after(() =>
+      logger.error("Error fetching subscription period from Stripe:", err)
+    );
     return { success: false, error: "Failed to load period end" };
   }
 }
@@ -498,7 +501,7 @@ export async function reactivateSubscription(
 
     return { success: true };
   } catch (error) {
-    logger.error("Error reactivating subscription:", error);
+    after(() => logger.error("Error reactivating subscription:", error));
     return { success: false, error: "Failed to reactivate subscription" };
   }
 }
@@ -547,7 +550,7 @@ export async function getCustomerPortalUrl(
 
     return { success: true, data: portalSession.url };
   } catch (error) {
-    logger.error("Error creating portal session:", error);
+    after(() => logger.error("Error creating portal session:", error));
     return { success: false, error: "Failed to create billing portal session" };
   }
 }

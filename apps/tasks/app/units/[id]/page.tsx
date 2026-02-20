@@ -1,5 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
-import { getCSRFToken } from "@helvety/shared/csrf";
+import { getCachedCSRFToken } from "@helvety/shared/cached-server";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 
 import { EncryptionGate } from "@/components/encryption-gate";
@@ -14,10 +14,10 @@ export default async function SpacesPage({
 }: {
   params: Promise<{ id: string }>;
 }): Promise<React.JSX.Element> {
-  const { id: unitId } = await params;
-  const [user, csrfToken] = await Promise.all([
-    requireAuth(`/tasks/units/${unitId}`),
-    getCSRFToken().then((t) => t ?? ""),
+  const [{ id: unitId }, user, csrfToken] = await Promise.all([
+    params,
+    requireAuth("/tasks"),
+    getCachedCSRFToken().then((t) => t ?? ""),
   ]);
 
   return (

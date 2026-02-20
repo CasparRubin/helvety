@@ -46,6 +46,8 @@ import type { ConsentMetadata } from "@/components/digital-content-consent-dialo
 import type { CreateCheckoutResponse, Subscription } from "@/lib/types";
 import type { PricingTier } from "@/lib/types/products";
 
+const EMPTY_SUBSCRIPTIONS: Subscription[] = [];
+
 const MediaGallery = dynamic(
   () =>
     import("@/components/products/media-gallery").then((m) => m.MediaGallery),
@@ -62,12 +64,15 @@ interface ProductDetailClientProps {
   slug: string;
   /** Tier IDs with Stripe checkout enabled (resolved server-side from env vars). */
   checkoutEnabledTiers: string[];
+  /** Server-prefetched subscriptions (empty array for unauthenticated users). */
+  initialSubscriptions?: Subscription[];
 }
 
 /** Renders the full product detail page with pricing, media, and features. */
 export function ProductDetailClient({
   slug,
   checkoutEnabledTiers,
+  initialSubscriptions = EMPTY_SUBSCRIPTIONS,
 }: ProductDetailClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -75,9 +80,8 @@ export function ProductDetailClient({
   const product = getProductBySlug(slug);
 
   const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
-  const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>(
-    []
-  );
+  const [userSubscriptions, setUserSubscriptions] =
+    useState<Subscription[]>(initialSubscriptions);
 
   /**
    * Fetch user subscriptions
@@ -93,11 +97,12 @@ export function ProductDetailClient({
     }
   }, []);
 
-  // Fetch subscriptions on mount
+  // Fetch subscriptions on mount (skip if server-prefetched)
   useEffect(() => {
+    if (initialSubscriptions.length > 0) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Data fetching on mount is a valid pattern
     void fetchSubscriptions();
-  }, [fetchSubscriptions]);
+  }, [fetchSubscriptions, initialSubscriptions.length]);
 
   // Handle checkout success/canceled state from URL params
   useEffect(() => {

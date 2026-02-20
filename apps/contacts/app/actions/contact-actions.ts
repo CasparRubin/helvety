@@ -4,6 +4,7 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
+import { after } from "next/server";
 import { z } from "zod";
 
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
@@ -136,7 +137,7 @@ export async function createContact(
 
     return { success: true, data: { id: contact.id } };
   } catch (error) {
-    logger.error("Unexpected error in createContact:", error);
+    after(() => logger.error("Unexpected error in createContact:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -169,7 +170,7 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
 
     return { success: true, data: contacts ?? [] };
   } catch (error) {
-    logger.error("Unexpected error in getContacts:", error);
+    after(() => logger.error("Unexpected error in getContacts:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -210,7 +211,7 @@ export async function getContact(
 
     return { success: true, data: contact };
   } catch (error) {
-    logger.error("Unexpected error in getContact:", error);
+    after(() => logger.error("Unexpected error in getContact:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -298,7 +299,7 @@ export async function updateContact(
 
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in updateContact:", error);
+    after(() => logger.error("Unexpected error in updateContact:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -336,7 +337,7 @@ export async function deleteContact(
 
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in deleteContact:", error);
+    after(() => logger.error("Unexpected error in deleteContact:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -401,7 +402,7 @@ export async function reorderContacts(
 
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in reorderContacts:", error);
+    after(() => logger.error("Unexpected error in reorderContacts:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }

@@ -14,7 +14,7 @@ import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useTransition } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
@@ -53,7 +53,7 @@ export function TaskDashboard() {
   const { stages } = useStages(effectiveConfigId);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, startCreateTransition] = useTransition();
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -62,8 +62,8 @@ export function TaskDashboard() {
     id: string | null;
     name: string | null;
   }>({ open: false, id: null, name: null });
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeleting, startDeleteTransition] = useTransition();
+  const [isRefreshing, startRefreshTransition] = useTransition();
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
   // Get the first stage (lowest sort_order) as the default for new entities
@@ -76,12 +76,11 @@ export function TaskDashboard() {
       : null;
 
   const handleCreate = useCallback(
-    async (e: React.FormEvent) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
       if (!newTitle.trim()) return;
 
-      setIsCreating(true);
-      try {
+      startCreateTransition(async () => {
         const result = await create({
           title: newTitle.trim(),
           description: newDescription.trim() || null,
@@ -93,27 +92,22 @@ export function TaskDashboard() {
           setNewDescription("");
           setIsCreateOpen(false);
         }
-      } finally {
-        setIsCreating(false);
-      }
+      });
     },
-    [newTitle, newDescription, create, defaultStageId]
+    [newTitle, newDescription, create, defaultStageId, startCreateTransition]
   );
 
   const handleDeleteClick = useCallback((id: string, name: string) => {
     setDeleteState({ open: true, id, name });
   }, []);
 
-  const handleDeleteConfirm = useCallback(async () => {
+  const handleDeleteConfirm = useCallback(() => {
     if (!deleteState.id) return;
-    setIsDeleting(true);
-    try {
-      await remove(deleteState.id);
+    startDeleteTransition(async () => {
+      await remove(deleteState.id!);
       setDeleteState({ open: false, id: null, name: null });
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [deleteState.id, remove]);
+    });
+  }, [deleteState.id, remove, startDeleteTransition]);
 
   const handleEntityClick = useCallback(
     (entity: { id: string }) => {
@@ -122,14 +116,11 @@ export function TaskDashboard() {
     [router]
   );
 
-  const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
+  const handleRefresh = useCallback(() => {
+    startRefreshTransition(async () => {
       await refresh();
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [refresh]);
+    });
+  }, [refresh, startRefreshTransition]);
 
   return (
     <>

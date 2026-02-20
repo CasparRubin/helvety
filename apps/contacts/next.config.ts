@@ -32,6 +32,7 @@ const nextConfig: NextConfig = {
       "@dnd-kit/sortable",
       "@tiptap/react",
       "@simplewebauthn/browser",
+      "date-fns",
     ],
   },
 };

@@ -4,6 +4,7 @@ import { cache } from "react";
 
 import { cookies } from "next/headers";
 
+import { getUserWithRetry } from "./auth-retry";
 import { createServerClient } from "./supabase/server";
 
 import type { User } from "@supabase/supabase-js";
@@ -11,15 +12,13 @@ import type { User } from "@supabase/supabase-js";
 const CSRF_COOKIE_NAME = "csrf_token";
 
 /**
- * Per-request cached version of getUser().
+ * Per-request cached version of getUser() with retry for transient failures.
  * Deduplicates the Supabase auth call when both the layout and
- * page/server-action need the current user within a single request.
+ * page (via requireAuth) need the current user within a single request.
  */
 export const getCachedUser = cache(async (): Promise<User | null> => {
   const supabase = await createServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getUserWithRetry(supabase);
   return user;
 });
 

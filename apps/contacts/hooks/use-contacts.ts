@@ -19,7 +19,18 @@ import {
   decryptContactRow,
 } from "@/lib/crypto";
 
-import type { Contact, ContactInput, ReorderUpdate } from "@/lib/types";
+import type {
+  Contact,
+  ContactInput,
+  ContactRow,
+  ReorderUpdate,
+} from "@/lib/types";
+
+/** Options for the useContacts hook. */
+interface UseContactsOptions {
+  /** Server-prefetched encrypted contacts. Skips the initial fetch when provided. */
+  initialEncryptedData?: ContactRow[];
+}
 
 /** Return type of the useContacts hook. */
 interface UseContactsReturn {
@@ -42,15 +53,19 @@ interface UseContactsReturn {
 }
 
 /**
- * Hook to manage Contacts with automatic encryption/decryption
+ * Hook to manage Contacts with automatic encryption/decryption.
+ *
+ * When `initialEncryptedData` is provided (server-prefetched), the hook
+ * decrypts it on first unlock instead of making a round-trip to the server.
  */
-export function useContacts(): UseContactsReturn {
+export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked) {
@@ -265,10 +280,32 @@ export function useContacts(): UseContactsReturn {
   );
 
   useEffect(() => {
-    if (isUnlocked && masterKey) {
-      void refresh();
+    if (!isUnlocked || !masterKey) return;
+
+    // Use server-prefetched data on first unlock to avoid a round-trip
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptContactRows(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setContacts(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error ? err.message : "Failed to decrypt contacts"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     contacts,

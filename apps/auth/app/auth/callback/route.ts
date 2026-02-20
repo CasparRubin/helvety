@@ -41,129 +41,133 @@ const ALLOWED_OTP_TYPES = new Set<string>([
  * Rate limited by IP to prevent auth callback abuse.
  */
 export async function GET(request: Request) {
-  // Rate limit auth callbacks by IP to prevent abuse
-  // Prefer x-real-ip (Vercel-trusted) over x-forwarded-for (spoofable)
-  const clientIP =
-    request.headers.get("x-real-ip") ??
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown";
-  const rateLimit = await checkRateLimit(
-    `auth_callback:ip:${clientIP}`,
-    RATE_LIMITS.AUTH_CALLBACK.maxRequests,
-    RATE_LIMITS.AUTH_CALLBACK.windowMs
-  );
-  if (!rateLimit.allowed) {
-    return NextResponse.redirect(
-      `${new URL(request.url).origin}/login?error=rate_limited`
-    );
-  }
+  const { origin } = new URL(request.url);
 
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-  const token_hash = searchParams.get("token_hash");
-  const type = searchParams.get("type");
-  const rawRedirectUri = searchParams.get("redirect_uri");
-
-  // Validate redirect URI against allowlist (prevents open redirect attacks)
-  const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
-
-  // Helper to build login redirect with passkey step
-  const buildPasskeyRedirect = async (
-    supabase: Awaited<ReturnType<typeof createServerClient>>
-  ) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return `${origin}/login?error=auth_failed`;
-    }
-
-    const [passkeyResult, encryptionResult] = await Promise.all([
-      checkUserPasskeyStatus(user.id),
-      hasEncryptionSetup(),
-    ]);
-    const hasPasskey = passkeyResult.success && passkeyResult.data?.hasPasskey;
-    const hasEncryption = encryptionResult.success && encryptionResult.data;
-
-    // Determine the appropriate step
-    let step: string;
-    if (!hasPasskey) {
-      // New user - needs full passkey + encryption setup
-      step = "encryption-setup";
-    } else if (!hasEncryption) {
-      // Has passkey but no encryption - needs encryption setup only
-      step = "encryption-setup";
-    } else {
-      // User has passkey + encryption but hasn't done passkey auth yet
-      // (this is after email verification for returning users)
-      step = "passkey-signin";
-    }
-
-    // Redirect to login with appropriate step
-    const loginUrl = new URL(`${origin}/login`);
-    loginUrl.searchParams.set("step", step);
-    // Pass user status to frontend for stepper display
-    loginUrl.searchParams.set("is_new_user", hasPasskey ? "false" : "true");
-    if (safeRedirectUri) {
-      loginUrl.searchParams.set("redirect_uri", safeRedirectUri);
-    }
-    return loginUrl.toString();
-  };
-
-  // Helper to build error/fallback redirect URL preserving redirect_uri
-  const buildErrorRedirect = (error?: string) => {
+  // Build fallback redirect early so it's available in the catch block
+  const buildErrorRedirect = (error?: string, redirectUri?: string | null) => {
     const loginUrl = new URL(`${origin}/login`);
     if (error) {
       loginUrl.searchParams.set("error", error);
     }
-    if (safeRedirectUri) {
-      loginUrl.searchParams.set("redirect_uri", safeRedirectUri);
+    if (redirectUri) {
+      loginUrl.searchParams.set("redirect_uri", redirectUri);
     }
     return loginUrl.toString();
   };
 
-  // Handle PKCE flow (code exchange)
-  if (code) {
-    const supabase = await createServerClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (!error) {
-      await generateCSRFToken();
-      const redirectUrl = await buildPasskeyRedirect(supabase);
-      return NextResponse.redirect(redirectUrl);
+  try {
+    // Rate limit auth callbacks by IP to prevent abuse
+    // Prefer x-real-ip (Vercel-trusted) over x-forwarded-for (spoofable)
+    const clientIP =
+      request.headers.get("x-real-ip") ??
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      "unknown";
+    const rateLimit = await checkRateLimit(
+      `auth_callback:ip:${clientIP}`,
+      RATE_LIMITS.AUTH_CALLBACK.maxRequests,
+      RATE_LIMITS.AUTH_CALLBACK.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.redirect(`${origin}/login?error=rate_limited`);
     }
 
-    logger.error("Auth callback error (code exchange):", error);
-    return NextResponse.redirect(buildErrorRedirect("auth_failed"));
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get("code");
+    const token_hash = searchParams.get("token_hash");
+    const type = searchParams.get("type");
+    const rawRedirectUri = searchParams.get("redirect_uri");
+
+    // Validate redirect URI against allowlist (prevents open redirect attacks)
+    const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
+
+    const buildPasskeyRedirect = async (
+      supabase: Awaited<ReturnType<typeof createServerClient>>
+    ) => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        return `${origin}/login?error=auth_failed`;
+      }
+
+      const [passkeyResult, encryptionResult] = await Promise.all([
+        checkUserPasskeyStatus(user.id),
+        hasEncryptionSetup(),
+      ]);
+      const hasPasskey =
+        passkeyResult.success && passkeyResult.data?.hasPasskey;
+      const hasEncryption = encryptionResult.success && encryptionResult.data;
+
+      let step: string;
+      if (!hasPasskey) {
+        step = "encryption-setup";
+      } else if (!hasEncryption) {
+        step = "encryption-setup";
+      } else {
+        step = "passkey-signin";
+      }
+
+      const loginUrl = new URL(`${origin}/login`);
+      loginUrl.searchParams.set("step", step);
+      loginUrl.searchParams.set("is_new_user", hasPasskey ? "false" : "true");
+      if (safeRedirectUri) {
+        loginUrl.searchParams.set("redirect_uri", safeRedirectUri);
+      }
+      return loginUrl.toString();
+    };
+
+    // Handle PKCE flow (code exchange)
+    if (code) {
+      const supabase = await createServerClient();
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+      if (!error) {
+        await generateCSRFToken();
+        const redirectUrl = await buildPasskeyRedirect(supabase);
+        return NextResponse.redirect(redirectUrl);
+      }
+
+      logger.error("Auth callback error (code exchange):", error);
+      return NextResponse.redirect(
+        buildErrorRedirect("auth_failed", safeRedirectUri)
+      );
+    }
+
+    // Handle token hash (email OTP verification link)
+    if (token_hash && type) {
+      if (!ALLOWED_OTP_TYPES.has(type)) {
+        return NextResponse.redirect(
+          buildErrorRedirect("invalid_type", safeRedirectUri)
+        );
+      }
+
+      const supabase = await createServerClient();
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash,
+        type: type as EmailOtpType,
+      });
+
+      if (!error) {
+        await generateCSRFToken();
+        const redirectUrl = await buildPasskeyRedirect(supabase);
+        return NextResponse.redirect(redirectUrl);
+      }
+
+      logger.error("Auth callback error (token hash):", error);
+      return NextResponse.redirect(
+        buildErrorRedirect("auth_failed", safeRedirectUri)
+      );
+    }
+
+    // No valid auth params (code or token_hash)
+    // Hash fragments (#access_token=...) are only visible client-side;
+    // redirect to /login preserving redirect_uri for AuthTokenHandler
+    return NextResponse.redirect(
+      buildErrorRedirect(undefined, safeRedirectUri)
+    );
+  } catch (error) {
+    logger.error("Auth callback unexpected error:", error);
+    return NextResponse.redirect(buildErrorRedirect("server_error"));
   }
-
-  // Handle token hash (email OTP verification link)
-  // Supports all Supabase email types: magiclink, signup, recovery, invite, email_change
-  if (token_hash && type) {
-    if (!ALLOWED_OTP_TYPES.has(type)) {
-      return NextResponse.redirect(buildErrorRedirect("invalid_type"));
-    }
-
-    const supabase = await createServerClient();
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash,
-      type: type as EmailOtpType,
-    });
-
-    if (!error) {
-      await generateCSRFToken();
-      const redirectUrl = await buildPasskeyRedirect(supabase);
-      return NextResponse.redirect(redirectUrl);
-    }
-
-    logger.error("Auth callback error (token hash):", error);
-    return NextResponse.redirect(buildErrorRedirect("auth_failed"));
-  }
-
-  // No valid auth params (code or token_hash)
-  // This happens when Supabase uses hash fragments (#access_token=...) instead of query params
-  // The hash fragment is only visible client-side, so we redirect to /login
-  // PRESERVING the redirect_uri so AuthTokenHandler can use it after processing the hash
-  return NextResponse.redirect(buildErrorRedirect());
 }

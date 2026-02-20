@@ -1,5 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
-import { getCSRFToken } from "@helvety/shared/csrf";
+import { getCachedCSRFToken } from "@helvety/shared/cached-server";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 
 import { ContactEditor } from "@/components/contact-editor";
@@ -15,10 +15,10 @@ export default async function ContactEditorPage({
 }: {
   params: Promise<{ id: string }>;
 }): Promise<React.JSX.Element> {
-  const { id: contactId } = await params;
-  const [user, csrfToken] = await Promise.all([
-    requireAuth(`/contacts/${contactId}`),
-    getCSRFToken().then((t) => t ?? ""),
+  const [{ id: contactId }, user, csrfToken] = await Promise.all([
+    params,
+    requireAuth("/contacts"),
+    getCachedCSRFToken().then((t) => t ?? ""),
   ]);
 
   return (

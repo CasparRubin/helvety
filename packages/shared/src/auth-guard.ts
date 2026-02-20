@@ -4,24 +4,23 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getLoginUrl } from "./auth-redirect";
-import { getUserWithRetry } from "./auth-retry";
+import { getCachedUser } from "./cached-server";
 import { urls } from "./config";
-import { createServerClient } from "./supabase/server";
 
 import type { User } from "@supabase/supabase-js";
 
 /**
  * Server-side authentication guard for protected routes.
  *
- * Use this in Server Components or Server Actions to ensure the user is authenticated.
+ * Use this in Server Components to ensure the user is authenticated.
  * Redirects to the auth service login page if not authenticated.
  *
- * Includes a single retry with a short delay to handle transient network
- * failures (VPN, Private Relay, mobile) that would otherwise cause false
- * login redirects.
+ * Internally uses getCachedUser() (React.cache + retry) so that when a
+ * layout already called getCachedUser() for UI purposes, the page's
+ * requireAuth() reuses the same result — no duplicate Supabase call.
  *
  * IMPORTANT: Per CVE-2025-29927, authentication checks should be done in
- * Server Layout Guards or Route Handlers, NOT in proxy.ts.
+ * Server Components (pages) or Route Handlers, NOT in proxy.ts.
  *
  * @param currentPath - The public-facing path of the current page (e.g. "/tasks"
  *   or "/tasks/units/123"). Used to build the redirect-back URL so the user
@@ -37,10 +36,9 @@ import type { User } from "@supabase/supabase-js";
  * }
  */
 export async function requireAuth(currentPath?: string): Promise<User> {
-  const supabase = await createServerClient();
-  const { user, error } = await getUserWithRetry(supabase);
+  const user = await getCachedUser();
 
-  if (error || !user) {
+  if (!user) {
     const headersList = await headers();
     const headerUrl = headersList.get("x-helvety-url") ?? undefined;
     const fallbackUrl = currentPath ? `${urls.home}${currentPath}` : undefined;
@@ -56,9 +54,8 @@ export async function requireAuth(currentPath?: string): Promise<User> {
  * Use this when you want to check if a user is logged in
  * but don't want to redirect if they're not.
  *
- * Note: Unlike requireAuth(), this does NOT retry on failure. A transient
- * network error simply returns null (user not found), which is acceptable
- * for optional/non-critical checks where missing the user is safe.
+ * Uses getCachedUser() internally so it shares the same per-request
+ * cached result with requireAuth() and layout getCachedUser() calls.
  *
  * @example
  * // In a page that shows different content for logged in users
@@ -68,12 +65,7 @@ export async function requireAuth(currentPath?: string): Promise<User> {
  * }
  */
 export async function getOptionalUser(): Promise<User | null> {
-  const supabase = await createServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user;
+  return getCachedUser();
 }
 
 /**

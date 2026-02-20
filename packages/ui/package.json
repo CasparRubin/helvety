@@ -13,6 +13,8 @@
   },
   "exports": {
     "./globals.css": "./globals.css",
+    "./app-error": "./src/app-error.tsx",
+    "./app-not-found": "./src/app-not-found.tsx",
     "./alert-dialog": "./src/alert-dialog.tsx",
     "./badge": "./src/badge.tsx",
     "./breadcrumb": "./src/breadcrumb.tsx",

@@ -2,6 +2,7 @@
 
 import "server-only";
 
+import { PRF_VERSION } from "@helvety/shared/crypto";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
@@ -11,7 +12,7 @@ import {
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 
-import { PRF_VERSION } from "@helvety/shared/crypto";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import {
   RP_NAME,
@@ -85,6 +86,18 @@ export async function generatePasskeyRegistrationOptions(
       return {
         success: false,
         error: "Must be authenticated to register a passkey",
+      };
+    }
+
+    const rl = await checkRateLimit(
+      `passkey_reg:user:${user.id}`,
+      RATE_LIMITS.PASSKEY_REG.maxRequests,
+      RATE_LIMITS.PASSKEY_REG.windowMs
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
       };
     }
 
@@ -205,6 +218,18 @@ export async function verifyPasskeyRegistration(
       return {
         success: false,
         error: "Must be authenticated to verify registration",
+      };
+    }
+
+    const rl = await checkRateLimit(
+      `passkey_reg:user:${user.id}`,
+      RATE_LIMITS.PASSKEY_REG.maxRequests,
+      RATE_LIMITS.PASSKEY_REG.windowMs
+    );
+    if (!rl.allowed) {
+      return {
+        success: false,
+        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
       };
     }
 

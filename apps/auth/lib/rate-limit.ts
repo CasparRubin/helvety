@@ -25,6 +25,12 @@ export type { RateLimitResult } from "@helvety/shared/rate-limit";
 export const RATE_LIMITS = {
   /** Passkey authentication: 10 per minute per IP */
   PASSKEY: { maxRequests: 10, windowMs: 60 * 1000 },
+  /** Passkey registration: 5 per minute per user */
+  PASSKEY_REG: { maxRequests: 5, windowMs: 60 * 1000 },
+  /** Credential management mutations: 10 per minute per user */
+  CREDENTIAL: { maxRequests: 10, windowMs: 60 * 1000 },
+  /** Credential read operations: 30 per minute per user */
+  CREDENTIAL_READ: { maxRequests: 30, windowMs: 60 * 1000 },
   /** Verification code / OTP email requests: 3 per 5 minutes per email */
   OTP: { maxRequests: 3, windowMs: 5 * 60 * 1000 },
   /** OTP code verification attempts: 5 per 5 minutes per email */

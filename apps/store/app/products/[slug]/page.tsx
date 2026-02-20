@@ -1,6 +1,8 @@
+import { getOptionalUser } from "@helvety/shared/auth-guard";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 
+import { getUserSubscriptions } from "@/app/actions/subscription-actions";
 import { getProductBySlug } from "@/lib/data/products";
 import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
 
@@ -62,10 +64,19 @@ export async function generateMetadata({
  * Login is required only for purchasing.
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const [nonce, { slug }] = await Promise.all([
+  const [nonce, { slug }, user] = await Promise.all([
     headers().then((h) => h.get("x-nonce") ?? ""),
     params,
+    getOptionalUser(),
   ]);
+
+  // Prefetch subscriptions server-side when user is authenticated
+  const initialSubscriptions = user
+    ? await getUserSubscriptions().then((r) =>
+        r.success && r.data ? r.data : []
+      )
+    : [];
+
   const product = getProductBySlug(slug);
 
   // Build Product JSON-LD structured data for search engines
@@ -105,6 +116,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         <ProductDetailClient
           slug={slug}
           checkoutEnabledTiers={CHECKOUT_ENABLED_TIERS}
+          initialSubscriptions={initialSubscriptions}
         />
       </Suspense>
     </>

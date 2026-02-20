@@ -32,10 +32,10 @@ export type CreateSessionRefreshProxyOptions = {
  *
  * Use in each app's proxy.ts:
  * ```ts
- * import { createSessionRefreshProxy, defaultMatcher } from "@helvety/shared/proxy";
+ * import { createSessionRefreshProxy } from "@helvety/shared/proxy";
  * const proxy = createSessionRefreshProxy({ buildCspOptions: { imgBlob: true } });
  * export { proxy };
- * export const config = { matcher: ["/((?!...)$).*)"] };
+ * export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"] };
  * ```
  */
 export function createSessionRefreshProxy(

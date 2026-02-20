@@ -15,7 +15,7 @@ import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useTransition } from "react";
 import { toast } from "sonner";
 
 import { CategoryConfiguratorContent } from "@/components/category-configurator";
@@ -32,14 +32,24 @@ import {
 import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
 import { downloadContactDataExport } from "@/lib/data-export";
 
+import type { ContactRow } from "@/lib/types";
+
+/** Props for the main contacts dashboard component. */
+interface ContactsDashboardProps {
+  /** Server-prefetched encrypted contacts to skip initial round-trip */
+  initialEncryptedContacts?: ContactRow[];
+}
+
 /**
  * ContactsDashboard - Main dashboard showing all contacts
  */
-export function ContactsDashboard() {
+export function ContactsDashboard({
+  initialEncryptedContacts,
+}: ContactsDashboardProps = {}) {
   const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const { contacts, isLoading, error, refresh, create, remove, reorder } =
-    useContacts();
+    useContacts({ initialEncryptedData: initialEncryptedContacts });
   const {
     configs,
     create: createConfig,
@@ -54,7 +64,7 @@ export function ContactsDashboard() {
   const { categories } = useCategories(effectiveConfigId);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, startCreateTransition] = useTransition();
   const [newFirstName, setNewFirstName] = useState("");
   const [newLastName, setNewLastName] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -64,9 +74,9 @@ export function ContactsDashboard() {
     id: string | null;
     name: string | null;
   }>({ open: false, id: null, name: null });
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, startDeleteTransition] = useTransition();
+  const [isRefreshing, startRefreshTransition] = useTransition();
+  const [isExporting, startExportTransition] = useTransition();
 
   // Get the first category as default for new contacts
   const defaultCategoryId =
@@ -78,12 +88,11 @@ export function ContactsDashboard() {
       : null;
 
   const handleCreate = useCallback(
-    async (e: React.FormEvent) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
       if (!newFirstName.trim() || !newLastName.trim()) return;
 
-      setIsCreating(true);
-      try {
+      startCreateTransition(async () => {
         const result = await create({
           first_name: newFirstName.trim(),
           last_name: newLastName.trim(),
@@ -101,27 +110,29 @@ export function ContactsDashboard() {
           setNewEmail("");
           setIsCreateOpen(false);
         }
-      } finally {
-        setIsCreating(false);
-      }
+      });
     },
-    [newFirstName, newLastName, newEmail, create, defaultCategoryId]
+    [
+      newFirstName,
+      newLastName,
+      newEmail,
+      create,
+      defaultCategoryId,
+      startCreateTransition,
+    ]
   );
 
   const handleDeleteClick = useCallback((id: string, name: string) => {
     setDeleteState({ open: true, id, name });
   }, []);
 
-  const handleDeleteConfirm = useCallback(async () => {
+  const handleDeleteConfirm = useCallback(() => {
     if (!deleteState.id) return;
-    setIsDeleting(true);
-    try {
-      await remove(deleteState.id);
+    startDeleteTransition(async () => {
+      await remove(deleteState.id!);
       setDeleteState({ open: false, id: null, name: null });
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [deleteState.id, remove]);
+    });
+  }, [deleteState.id, remove, startDeleteTransition]);
 
   const handleContactClick = useCallback(
     (contact: { id: string }) => {
@@ -130,30 +141,26 @@ export function ContactsDashboard() {
     [router]
   );
 
-  const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
+  const handleRefresh = useCallback(() => {
+    startRefreshTransition(async () => {
       await refresh();
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [refresh]);
+    });
+  }, [refresh, startRefreshTransition]);
 
   /** Export decrypted contact data as JSON (nDSG Art. 28 compliance) */
-  const handleExportData = useCallback(async () => {
+  const handleExportData = useCallback(() => {
     if (!masterKey) return;
-    setIsExporting(true);
-    try {
-      await downloadContactDataExport(masterKey);
-    } catch (error) {
-      logger.error("Data export failed:", error);
-      toast.error(ERROR_MESSAGES.EXPORT_FAILED, {
-        duration: TOAST_DURATIONS.ERROR,
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  }, [masterKey]);
+    startExportTransition(async () => {
+      try {
+        await downloadContactDataExport(masterKey);
+      } catch (error) {
+        logger.error("Data export failed:", error);
+        toast.error(ERROR_MESSAGES.EXPORT_FAILED, {
+          duration: TOAST_DURATIONS.ERROR,
+        });
+      }
+    });
+  }, [masterKey, startExportTransition]);
 
   return (
     <>

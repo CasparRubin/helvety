@@ -1,5 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
-import { getCSRFToken } from "@helvety/shared/csrf";
+import { getCachedCSRFToken } from "@helvety/shared/cached-server";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 
 import { EncryptionGate } from "@/components/encryption-gate";
@@ -13,7 +13,7 @@ import { TaskDashboard } from "@/components/task-dashboard";
 export default async function Page(): Promise<React.JSX.Element> {
   const [user, csrfToken] = await Promise.all([
     requireAuth("/tasks"),
-    getCSRFToken().then((t) => t ?? ""),
+    getCachedCSRFToken().then((t) => t ?? ""),
   ]);
 
   return (

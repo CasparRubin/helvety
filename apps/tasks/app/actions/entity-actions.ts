@@ -4,6 +4,7 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
+import { after } from "next/server";
 import { z } from "zod";
 
 import { RATE_LIMITS } from "@/lib/rate-limit";
@@ -129,7 +130,7 @@ export async function reorderEntities(
 
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in reorderEntities:", error);
+    after(() => logger.error("Unexpected error in reorderEntities:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -169,7 +170,7 @@ export async function getSpaceCounts(): Promise<
 
     return { success: true, data: counts };
   } catch (error) {
-    logger.error("Unexpected error in getSpaceCounts:", error);
+    after(() => logger.error("Unexpected error in getSpaceCounts:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -227,7 +228,7 @@ export async function getItemCounts(
 
     return { success: true, data: counts };
   } catch (error) {
-    logger.error("Unexpected error in getItemCounts:", error);
+    after(() => logger.error("Unexpected error in getItemCounts:", error));
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -324,7 +325,9 @@ export async function getAllTaskDataForExport(): Promise<
       },
     };
   } catch (error) {
-    logger.error("Unexpected error in getAllTaskDataForExport:", error);
+    after(() =>
+      logger.error("Unexpected error in getAllTaskDataForExport:", error)
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }
