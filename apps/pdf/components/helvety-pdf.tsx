@@ -141,11 +141,20 @@ export function HelvetyPdf(): React.JSX.Element {
 
   // Handle click on empty drop zone to open file picker
   const handleEmptyZoneClick = React.useCallback((): void => {
-    // Only trigger file picker when no files are present
     if (pdfFiles.length === 0 && fileInputRef.current) {
       fileInputRef.current.click();
     }
   }, [pdfFiles.length]);
+
+  const handleEmptyZoneKeyDown = React.useCallback(
+    (e: React.KeyboardEvent): void => {
+      if ((e.key === "Enter" || e.key === " ") && pdfFiles.length === 0) {
+        e.preventDefault();
+        fileInputRef.current?.click();
+      }
+    },
+    [pdfFiles.length]
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -196,7 +205,10 @@ export function HelvetyPdf(): React.JSX.Element {
                     ? "border-border cursor-pointer border-2 border-dashed"
                     : "border-0"
               )}
+              role={pdfFiles.length === 0 ? "button" : undefined}
+              tabIndex={pdfFiles.length === 0 ? 0 : undefined}
               onClick={handleEmptyZoneClick}
+              onKeyDown={handleEmptyZoneKeyDown}
               aria-label={
                 pdfFiles.length === 0
                   ? "File drop zone and page canvas. Click to select files."

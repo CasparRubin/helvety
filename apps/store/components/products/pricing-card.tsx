@@ -35,6 +35,8 @@ import { FeatureList } from "./feature-list";
 import type { CreateCheckoutResponse, Subscription } from "@/lib/types";
 import type { PricingTier } from "@/lib/types/products";
 
+const EMPTY_SUBSCRIPTIONS: Subscription[] = [];
+
 /** Props for the standalone PricingCard component. */
 interface PricingCardProps {
   tier: PricingTier;
@@ -401,7 +403,7 @@ export function PricingCards({
   selectedTierId,
   disabled = false,
   productSlug,
-  userSubscriptions = [],
+  userSubscriptions = EMPTY_SUBSCRIPTIONS,
   onReactivate,
   checkoutEnabledTiers,
 }: PricingCardsProps) {

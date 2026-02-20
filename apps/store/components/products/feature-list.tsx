@@ -55,10 +55,12 @@ interface FeatureComparisonProps {
   className?: string;
 }
 
+const EMPTY_FEATURES: string[] = [];
+
 /** Renders a comparison list of included and excluded features. */
 export function FeatureComparison({
   included,
-  excluded = [],
+  excluded = EMPTY_FEATURES,
   className,
 }: FeatureComparisonProps) {
   return (

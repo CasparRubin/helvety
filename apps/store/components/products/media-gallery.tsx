@@ -41,15 +41,13 @@ export function MediaGallery({ items, className }: MediaGalleryProps) {
   };
 
   const goToPrevious = () => {
-    if (selectedIndex !== null && selectedIndex > 0) {
-      setSelectedIndex(selectedIndex - 1);
-    }
+    setSelectedIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev));
   };
 
   const goToNext = () => {
-    if (selectedIndex !== null && selectedIndex < validItems.length - 1) {
-      setSelectedIndex(selectedIndex + 1);
-    }
+    setSelectedIndex((prev) =>
+      prev !== null && prev < validItems.length - 1 ? prev + 1 : prev
+    );
   };
 
   // Handle keyboard navigation

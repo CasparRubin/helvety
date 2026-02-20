@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { Suspense } from "react";
 
 import { getProductBySlug } from "@/lib/data/products";
 import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
@@ -94,10 +95,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
       )}
-      <ProductDetailClient
-        slug={slug}
-        checkoutEnabledTiers={CHECKOUT_ENABLED_TIERS}
-      />
+      <Suspense
+        fallback={
+          <div className="container mx-auto px-4 py-8">
+            <div className="h-96 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-800" />
+          </div>
+        }
+      >
+        <ProductDetailClient
+          slug={slug}
+          checkoutEnabledTiers={CHECKOUT_ENABLED_TIERS}
+        />
+      </Suspense>
     </>
   );
 }
