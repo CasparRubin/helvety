@@ -31,14 +31,20 @@ function AccountLoading() {
 
 /**
  * Account page for profile and settings management.
- * Requires authentication.
+ * Requires authentication. Pre-fetches user data to avoid client waterfall.
  */
 export default async function AccountPage() {
-  await requireAuth();
+  const user = await requireAuth("/store/account");
 
   return (
     <Suspense fallback={<AccountLoading />}>
-      <AccountClient />
+      <AccountClient
+        initialUser={{
+          id: user.id,
+          email: user.email ?? "",
+          createdAt: user.created_at,
+        }}
+      />
     </Suspense>
   );
 }

@@ -33,7 +33,7 @@ function TenantsLoading() {
  * Requires authentication.
  */
 export default async function TenantsPage() {
-  await requireAuth();
+  await requireAuth("/store/tenants");
 
   return (
     <Suspense fallback={<TenantsLoading />}>

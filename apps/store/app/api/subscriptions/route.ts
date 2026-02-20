@@ -65,46 +65,47 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get subscriptions
+    // Build queries
     let subscriptionsQuery = supabase
       .from("subscriptions")
       .select("product_id, tier_id, status, current_period_end")
       .eq("user_id", user.id)
       .in("status", ["active", "trialing"]);
 
-    if (productId) {
-      subscriptionsQuery = subscriptionsQuery.eq("product_id", productId);
-    }
-
-    const { data: subscriptions, error: subError } = await subscriptionsQuery;
-
-    if (subError) {
-      logger.error("Error fetching subscriptions:", subError);
-      return NextResponse.json(
-        { error: "Failed to fetch subscriptions" },
-        { status: 500 }
-      );
-    }
-
-    // Get purchases
     let purchasesQuery = supabase
       .from("purchases")
       .select("product_id, tier_id, created_at")
       .eq("user_id", user.id);
 
     if (productId) {
+      subscriptionsQuery = subscriptionsQuery.eq("product_id", productId);
       purchasesQuery = purchasesQuery.eq("product_id", productId);
     }
 
-    const { data: purchases, error: purchaseError } = await purchasesQuery;
+    // Run both queries in parallel
+    const [subscriptionsResult, purchasesResult] = await Promise.all([
+      subscriptionsQuery,
+      purchasesQuery,
+    ]);
 
-    if (purchaseError) {
-      logger.error("Error fetching purchases:", purchaseError);
+    if (subscriptionsResult.error) {
+      logger.error("Error fetching subscriptions:", subscriptionsResult.error);
+      return NextResponse.json(
+        { error: "Failed to fetch subscriptions" },
+        { status: 500 }
+      );
+    }
+
+    if (purchasesResult.error) {
+      logger.error("Error fetching purchases:", purchasesResult.error);
       return NextResponse.json(
         { error: "Failed to fetch purchases" },
         { status: 500 }
       );
     }
+
+    const subscriptions = subscriptionsResult.data;
+    const purchases = purchasesResult.data;
 
     const summary: UserSubscriptionSummary = {
       userId: user.id,

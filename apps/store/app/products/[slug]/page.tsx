@@ -61,8 +61,10 @@ export async function generateMetadata({
  * Login is required only for purchasing.
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const nonce = (await headers()).get("x-nonce") ?? "";
-  const { slug } = await params;
+  const [nonce, { slug }] = await Promise.all([
+    headers().then((h) => h.get("x-nonce") ?? ""),
+    params,
+  ]);
   const product = getProductBySlug(slug);
 
   // Build Product JSON-LD structured data for search engines

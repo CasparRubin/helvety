@@ -11,9 +11,10 @@ import { TaskDashboard } from "@/components/task-dashboard";
  * Wraps content in EncryptionGate to enforce passkey setup
  */
 export default async function Page(): Promise<React.JSX.Element> {
-  // Server-side auth check (includes retry for transient network failures)
-  const user = await requireAuth();
-  const csrfToken = (await getCSRFToken()) ?? "";
+  const [user, csrfToken] = await Promise.all([
+    requireAuth("/tasks"),
+    getCSRFToken().then((t) => t ?? ""),
+  ]);
 
   return (
     <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>

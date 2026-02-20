@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { NextResponse } from "next/server";
 
 import { checkRateLimit } from "./rate-limit";
@@ -44,7 +45,9 @@ export function createCspReportHandler(appName: string) {
       }
 
       const payload = await request.json().catch(() => null);
-      console.warn(`[csp-report] ${appName}`, payload);
+      after(() => {
+        console.warn(`[csp-report] ${appName}`, payload);
+      });
       return new Response(null, { status: 204 });
     } catch (error) {
       console.error("[csp-report] failed to process report", error);

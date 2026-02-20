@@ -13,13 +13,23 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import {
-  TiptapEditor,
   parseRichTextContent,
   serializeRichTextContent,
-} from "@helvety/ui/tiptap-editor";
+} from "@helvety/ui/tiptap-utils";
 import { Loader2Icon } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+
+const TiptapEditor = dynamic(
+  () => import("@helvety/ui/tiptap-editor").then((m) => m.TiptapEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="border-border/40 bg-background dark:bg-input/30 min-h-[200px] animate-pulse rounded-md border" />
+    ),
+  }
+);
 
 import { ContactActionPanel } from "@/components/contact-action-panel";
 import { ContactEditorCommandBar } from "@/components/contact-editor-command-bar";
@@ -64,7 +74,6 @@ export function ContactEditor({ contactId }: { contactId: string }) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingCategory, setIsSavingCategory] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const savedFirstNameRef = useRef("");
   const savedLastNameRef = useRef("");
   const savedDescriptionRef = useRef("");
@@ -107,36 +116,28 @@ export function ContactEditor({ contactId }: { contactId: string }) {
       savedNotesRef.current = contact.notes;
       notesBaselineCaptured.current = false;
       setEditorBaselineCaptured(true);
-      setHasUnsavedChanges(false);
     }
   }, [contact, editorBaselineCaptured]);
 
-  // Track unsaved changes
-  useEffect(() => {
-    if (!editorBaselineCaptured) return;
-
-    const firstNameChanged = firstName !== savedFirstNameRef.current;
-    const lastNameChanged = lastName !== savedLastNameRef.current;
-    const descriptionChanged = description !== savedDescriptionRef.current;
-    const emailChanged = email !== savedEmailRef.current;
-    const phoneChanged = phone !== savedPhoneRef.current;
-    const birthdayChanged = birthday !== savedBirthdayRef.current;
+  // Derive unsaved-changes flag during render instead of in a useEffect
+  const hasUnsavedChanges = useMemo(() => {
+    if (!editorBaselineCaptured) return false;
 
     const currentNotes = notesContent
       ? serializeRichTextContent(notesContent)
       : null;
-    const notesChanged = currentNotes !== savedNotesRef.current;
 
-    setHasUnsavedChanges(
-      firstNameChanged ||
-        lastNameChanged ||
-        descriptionChanged ||
-        emailChanged ||
-        phoneChanged ||
-        birthdayChanged ||
-        notesChanged
+    return (
+      firstName !== savedFirstNameRef.current ||
+      lastName !== savedLastNameRef.current ||
+      description !== savedDescriptionRef.current ||
+      email !== savedEmailRef.current ||
+      phone !== savedPhoneRef.current ||
+      birthday !== savedBirthdayRef.current ||
+      currentNotes !== savedNotesRef.current
     );
   }, [
+    editorBaselineCaptured,
     firstName,
     lastName,
     description,
@@ -144,7 +145,6 @@ export function ContactEditor({ contactId }: { contactId: string }) {
     phone,
     birthday,
     notesContent,
-    editorBaselineCaptured,
   ]);
 
   const handleSave = useCallback(async () => {
@@ -176,7 +176,6 @@ export function ContactEditor({ contactId }: { contactId: string }) {
         savedPhoneRef.current = phone.trim();
         savedBirthdayRef.current = birthday;
         savedNotesRef.current = currentNotes;
-        setHasUnsavedChanges(false);
         setSaveStatus("saved");
         setTimeout(() => setSaveStatus("idle"), 2000);
       } else {

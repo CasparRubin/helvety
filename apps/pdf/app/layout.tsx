@@ -1,7 +1,8 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
+import { getCachedUser } from "@helvety/shared/cached-server";
 import { sharedViewport } from "@helvety/shared/config";
-import { createServerClient } from "@helvety/shared/supabase/server";
+import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
@@ -11,7 +12,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 
-import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Navbar } from "@/components/navbar";
 
 import type { Metadata } from "next";
@@ -122,13 +122,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = (await headers()).get("x-nonce") ?? "";
-
-  // Fetch initial user server-side to avoid loading flash in Navbar
-  const supabase = await createServerClient();
-  const {
-    data: { user: initialUser },
-  } = await supabase.auth.getUser();
+  const [nonce, initialUser] = await Promise.all([
+    headers().then((h) => h.get("x-nonce") ?? ""),
+    getCachedUser(),
+  ]);
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>

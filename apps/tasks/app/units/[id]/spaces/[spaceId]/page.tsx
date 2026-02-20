@@ -15,10 +15,10 @@ export default async function ItemsPage({
   params: Promise<{ id: string; spaceId: string }>;
 }): Promise<React.JSX.Element> {
   const { id: unitId, spaceId } = await params;
-
-  // Server-side auth check (includes retry for transient network failures)
-  const user = await requireAuth();
-  const csrfToken = (await getCSRFToken()) ?? "";
+  const [user, csrfToken] = await Promise.all([
+    requireAuth(`/tasks/units/${unitId}/spaces/${spaceId}`),
+    getCSRFToken().then((t) => t ?? ""),
+  ]);
 
   return (
     <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>

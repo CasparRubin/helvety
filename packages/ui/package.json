@@ -2,7 +2,7 @@
   "name": "@helvety/ui",
   "version": "0.0.0",
   "private": true,
-  "description": "Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider",
+  "description": "Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, navbar building blocks, AuthTokenHandler, SessionRecovery",
   "author": "Helvety by Rubin",
   "license": "UNLICENSED",
   "homepage": "https://helvety.com",
@@ -27,6 +27,7 @@
     "./delete-confirmation-dialog": "./src/delete-confirmation-dialog.tsx",
     "./dialog": "./src/dialog.tsx",
     "./tiptap-editor": "./src/tiptap-editor.tsx",
+    "./tiptap-utils": "./src/tiptap-utils.ts",
     "./dropdown-menu": "./src/dropdown-menu.tsx",
     "./footer": "./src/footer.tsx",
     "./input": "./src/input.tsx",
@@ -40,7 +41,11 @@
     "./sonner": "./src/sonner.tsx",
     "./tabs": "./src/tabs.tsx",
     "./theme-provider": "./src/theme-provider.tsx",
-    "./tooltip": "./src/tooltip.tsx"
+    "./tooltip": "./src/tooltip.tsx",
+    "./theme-switcher": "./src/theme-switcher.tsx",
+    "./app-switcher": "./src/app-switcher.tsx",
+    "./session-recovery": "./src/session-recovery.tsx",
+    "./auth-token-handler": "./src/auth-token-handler.tsx"
   },
   "dependencies": {
     "@helvety/shared": "workspace:*",

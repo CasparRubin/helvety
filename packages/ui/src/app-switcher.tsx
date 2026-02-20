@@ -6,9 +6,9 @@ import { Button } from "@helvety/ui/button";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from "@helvety/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import {
@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-/** Helvety ecosystem app URLs */
 const apps = [
   { name: "Home", href: urls.home, icon: Home },
   { name: "Auth", href: urls.auth, icon: KeyRound },
@@ -32,16 +31,13 @@ const apps = [
   { name: "Contacts", href: urls.contacts, icon: Users },
 ];
 
-/** Props for the AppSwitcher component */
 interface AppSwitcherProps {
-  /** The name of the currently active app to highlight */
   currentApp?: string;
 }
 
 /**
- * App switcher component for navigating between Helvety ecosystem apps.
+ * App switcher for navigating between Helvety ecosystem apps.
  * Displays a grid of available apps in a slide-out sheet.
- * Apps are listed in order: Home, Auth, Store, PDF, Tasks, Contacts.
  */
 export function AppSwitcher({ currentApp }: AppSwitcherProps) {
   const [open, setOpen] = useState(false);
@@ -50,15 +46,12 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
     <Sheet open={open} onOpenChange={setOpen}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            onClick={() => setOpen(true)}
-          >
-            <Grip className="h-4 w-4" />
-            <span className="sr-only">Switch apps</span>
-          </Button>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+              <Grip className="h-4 w-4" />
+              <span className="sr-only">Switch apps</span>
+            </Button>
+          </SheetTrigger>
         </TooltipTrigger>
         <TooltipContent>
           <p>Helvety Ecosystem</p>
@@ -67,9 +60,6 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
       <SheetContent side="left">
         <SheetHeader>
           <SheetTitle>Helvety Ecosystem</SheetTitle>
-          <SheetDescription className="sr-only">
-            Navigate between Helvety apps
-          </SheetDescription>
         </SheetHeader>
         <div className="mt-6 grid grid-cols-3 gap-2">
           {apps.map((app) => {

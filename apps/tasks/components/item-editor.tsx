@@ -19,14 +19,24 @@ import {
   BreadcrumbSeparator,
 } from "@helvety/ui/breadcrumb";
 import {
-  TiptapEditor,
   parseRichTextContent,
   serializeRichTextContent,
-} from "@helvety/ui/tiptap-editor";
+} from "@helvety/ui/tiptap-utils";
 import { Loader2Icon } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
+
+const TiptapEditor = dynamic(
+  () => import("@helvety/ui/tiptap-editor").then((m) => m.TiptapEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="border-border/40 bg-background dark:bg-input/30 min-h-[200px] animate-pulse rounded-md border" />
+    ),
+  }
+);
 
 import { AttachmentPanel } from "@/components/attachment-panel";
 import { ContactLinksPanel } from "@/components/contact-links-panel";

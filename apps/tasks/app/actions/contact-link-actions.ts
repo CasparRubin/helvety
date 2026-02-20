@@ -130,33 +130,34 @@ export async function linkContact(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    // Verify user owns the contact (defense-in-depth)
-    const { data: contact, error: contactError } = await supabase
-      .from("contacts")
-      .select("id")
-      .eq("id", contactId)
-      .eq("user_id", user.id)
-      .single();
-
-    if (contactError || !contact) {
-      return { success: false, error: "Contact not found" };
-    }
-
-    // Verify user owns the entity (defense-in-depth)
     const entityTable =
       entityType === "unit"
         ? "units"
         : entityType === "space"
           ? "spaces"
           : "items";
-    const { data: entity, error: entityError } = await supabase
-      .from(entityTable)
-      .select("id")
-      .eq("id", entityId)
-      .eq("user_id", user.id)
-      .single();
 
-    if (entityError || !entity) {
+    // Verify ownership of both contact and entity in parallel (defense-in-depth)
+    const [contactResult, entityResult] = await Promise.all([
+      supabase
+        .from("contacts")
+        .select("id")
+        .eq("id", contactId)
+        .eq("user_id", user.id)
+        .single(),
+      supabase
+        .from(entityTable)
+        .select("id")
+        .eq("id", entityId)
+        .eq("user_id", user.id)
+        .single(),
+    ]);
+
+    if (contactResult.error || !contactResult.data) {
+      return { success: false, error: "Contact not found" };
+    }
+
+    if (entityResult.error || !entityResult.data) {
       return { success: false, error: "Entity not found" };
     }
 

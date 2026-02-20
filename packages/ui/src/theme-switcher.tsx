@@ -7,10 +7,8 @@ import { useTheme } from "next-themes";
 import * as React from "react";
 
 /**
- * Theme toggle button for switching between light and dark modes
- *
- * Handles system preference by resolving to the actual displayed theme
- * when toggling. Shows sun icon in dark mode, moon icon in light mode.
+ * Theme toggle button for switching between light and dark modes.
+ * Handles system preference by resolving to the actual displayed theme.
  */
 export function ThemeSwitcher(): React.JSX.Element {
   const { setTheme, theme, resolvedTheme } = useTheme();
@@ -22,10 +20,8 @@ export function ThemeSwitcher(): React.JSX.Element {
 
   const toggleTheme = (): void => {
     if (theme === "system") {
-      // If system, toggle based on resolved theme
       setTheme((resolvedTheme ?? "light") === "dark" ? "light" : "dark");
     } else {
-      // Toggle between light and dark
       setTheme(theme === "light" ? "dark" : "light");
     }
   };
@@ -46,7 +42,6 @@ export function ThemeSwitcher(): React.JSX.Element {
     );
   }
 
-  // Show icon based on resolved theme (what user actually sees)
   const isDark = (resolvedTheme ?? "light") === "dark";
 
   return (

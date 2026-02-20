@@ -5,7 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { formatDateTime } from "@helvety/shared/dates";
 import { Badge } from "@helvety/ui/badge";
 import { Button } from "@helvety/ui/button";
-import { getRichTextPlainText } from "@helvety/ui/tiptap-editor";
+import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
 import {
   GripVerticalIcon,
   ChevronUpIcon,

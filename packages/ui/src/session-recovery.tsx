@@ -16,7 +16,6 @@ export function SessionRecovery() {
   useEffect(() => {
     const supabase = createBrowserClient();
 
-    /** Refresh the Supabase session when the tab becomes visible again. */
     function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
         void supabase.auth.getUser();

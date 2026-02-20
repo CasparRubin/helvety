@@ -38,7 +38,6 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import {
-  getCurrentUser,
   updateUserEmail,
   requestAccountDeletion,
   exportUserData,
@@ -52,44 +51,25 @@ interface UserData {
   createdAt: string;
 }
 
+/** Props for the ProfileTab component */
+interface ProfileTabProps {
+  initialUser: UserData;
+}
+
 /**
- * Profile tab component for account settings
+ * Profile tab component for account settings.
+ * Receives pre-fetched user data from the server to avoid a client-side waterfall.
  */
-export function ProfileTab() {
-  // CSRF token for security
+export function ProfileTab({ initialUser }: ProfileTabProps) {
   const csrfToken = useCSRF();
 
-  // User state
-  const [user, setUser] = React.useState<UserData | null>(null);
-  const [isLoadingUser, setIsLoadingUser] = React.useState(true);
+  const [user] = React.useState<UserData>(initialUser);
+  const isLoadingUser = false;
 
   // Email change state
   const [newEmail, setNewEmail] = React.useState("");
   const [isChangingEmail, setIsChangingEmail] = React.useState(false);
   const [emailError, setEmailError] = React.useState<string | null>(null);
-
-  // Load user data on mount
-  React.useEffect(() => {
-    void loadUserData();
-  }, []);
-
-  /** Fetches the current user's profile data. */
-  async function loadUserData() {
-    setIsLoadingUser(true);
-    try {
-      const result = await getCurrentUser();
-      if (result.success && result.data) {
-        setUser(result.data);
-      }
-    } catch (error) {
-      logger.error("Error loading user:", error);
-      toast.error("Failed to load user data", {
-        duration: TOAST_DURATIONS.ERROR,
-      });
-    } finally {
-      setIsLoadingUser(false);
-    }
-  }
 
   /** Handle email change form submission. */
   async function handleEmailChange(e: React.FormEvent) {

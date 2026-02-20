@@ -33,7 +33,7 @@ function SubscriptionsLoading() {
  * Requires authentication.
  */
 export default async function SubscriptionsPage() {
-  await requireAuth();
+  await requireAuth("/store/subscriptions");
 
   return (
     <Suspense fallback={<SubscriptionsLoading />}>

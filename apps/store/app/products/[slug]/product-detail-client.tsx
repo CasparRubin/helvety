@@ -25,6 +25,7 @@ import {
   Globe,
   Github,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { notFound, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
@@ -34,22 +35,27 @@ import {
   getUserSubscriptions,
   reactivateSubscription,
 } from "@/app/actions/subscription-actions";
-import {
-  PurchaseConsentDialog,
-  type ConsentMetadata,
-} from "@/components/digital-content-consent-dialog";
-import {
-  ProductBadge,
-  StatusBadge,
-  FeatureList,
-  MediaGallery,
-} from "@/components/products";
+import { PurchaseConsentDialog } from "@/components/digital-content-consent-dialog";
+import { FeatureList } from "@/components/products/feature-list";
+import { ProductBadge, StatusBadge } from "@/components/products/product-badge";
 import { useCSRF } from "@/hooks/use-csrf";
 import { getProductBySlug } from "@/lib/data/products";
 import { isSoftwareProduct } from "@/lib/types/products";
 
+import type { ConsentMetadata } from "@/components/digital-content-consent-dialog";
 import type { CreateCheckoutResponse, Subscription } from "@/lib/types";
 import type { PricingTier } from "@/lib/types/products";
+
+const MediaGallery = dynamic(
+  () =>
+    import("@/components/products/media-gallery").then((m) => m.MediaGallery),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-muted aspect-video w-full animate-pulse rounded-lg" />
+    ),
+  }
+);
 
 /** Props for the product detail page client component. */
 interface ProductDetailClientProps {

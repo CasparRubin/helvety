@@ -4,6 +4,7 @@ import { HelvetyIdentifier, HelvetyLogo } from "@helvety/brand";
 import { redirectToLogout } from "@helvety/shared/auth-redirect";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
+import { AppSwitcher } from "@helvety/ui/app-switcher";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -29,6 +30,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@helvety/ui/sheet";
+import { ThemeSwitcher } from "@helvety/ui/theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import {
   LogIn,
@@ -47,8 +49,6 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
-import { AppSwitcher } from "@/components/app-switcher";
-import { ThemeSwitcher } from "@/components/theme-switcher";
 import { VERSION } from "@/lib/config/version";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";

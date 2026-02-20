@@ -1,4 +1,4 @@
-import { ProductsCatalog } from "@/components/products";
+import { ProductsCatalog } from "@/components/products/products-catalog";
 
 import type { Metadata } from "next";
 

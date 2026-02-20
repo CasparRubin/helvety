@@ -79,12 +79,11 @@ export async function GET(request: Request) {
       return `${origin}/login?error=auth_failed`;
     }
 
-    // Check if user has a passkey registered
-    const passkeyResult = await checkUserPasskeyStatus(user.id);
+    const [passkeyResult, encryptionResult] = await Promise.all([
+      checkUserPasskeyStatus(user.id),
+      hasEncryptionSetup(),
+    ]);
     const hasPasskey = passkeyResult.success && passkeyResult.data?.hasPasskey;
-
-    // Check if user has encryption setup (PRF params)
-    const encryptionResult = await hasEncryptionSetup();
     const hasEncryption = encryptionResult.success && encryptionResult.data;
 
     // Determine the appropriate step

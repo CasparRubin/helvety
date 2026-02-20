@@ -16,10 +16,10 @@ export default async function ContactEditorPage({
   params: Promise<{ id: string }>;
 }): Promise<React.JSX.Element> {
   const { id: contactId } = await params;
-
-  // Server-side auth check (includes retry for transient network failures)
-  const user = await requireAuth();
-  const csrfToken = (await getCSRFToken()) ?? "";
+  const [user, csrfToken] = await Promise.all([
+    requireAuth(`/contacts/${contactId}`),
+    getCSRFToken().then((t) => t ?? ""),
+  ]);
 
   return (
     <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>

@@ -1,8 +1,11 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
+import {
+  getCachedCSRFToken,
+  getCachedUser,
+} from "@helvety/shared/cached-server";
 import { sharedViewport } from "@helvety/shared/config";
-import { getCSRFToken } from "@helvety/shared/csrf";
-import { createServerClient } from "@helvety/shared/supabase/server";
+import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
 import { Toaster } from "@helvety/ui/sonner";
@@ -13,7 +16,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 
-import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { StoreNav } from "@/components/store-nav";
@@ -113,16 +115,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = (await headers()).get("x-nonce") ?? "";
-
-  // Get CSRF token from cookies (set by proxy.ts if missing)
-  const csrfToken = (await getCSRFToken()) ?? "";
-
-  // Fetch initial user server-side to avoid loading flash in Navbar
-  const supabase = await createServerClient();
-  const {
-    data: { user: initialUser },
-  } = await supabase.auth.getUser();
+  const [nonce, csrfToken, initialUser] = await Promise.all([
+    headers().then((h) => h.get("x-nonce") ?? ""),
+    getCachedCSRFToken().then((t) => t ?? ""),
+    getCachedUser(),
+  ]);
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>

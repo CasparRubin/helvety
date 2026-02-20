@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { getLoginUrl } from "./auth-redirect";
 import { getUserWithRetry } from "./auth-retry";
+import { urls } from "./config";
 import { createServerClient } from "./supabase/server";
 
 import type { User } from "@supabase/supabase-js";
@@ -22,23 +23,28 @@ import type { User } from "@supabase/supabase-js";
  * IMPORTANT: Per CVE-2025-29927, authentication checks should be done in
  * Server Layout Guards or Route Handlers, NOT in proxy.ts.
  *
+ * @param currentPath - The public-facing path of the current page (e.g. "/tasks"
+ *   or "/tasks/units/123"). Used to build the redirect-back URL so the user
+ *   returns here after authenticating. In Next.js 16, custom request headers
+ *   set in proxy.ts do not reach server components, so this parameter is the
+ *   primary source for the redirect URL.
+ *
  * @example
- * // In a protected layout
- * export default async function ProtectedLayout({ children }) {
- *   await requireAuth();
- *   return <>{children}</>;
+ * // In a protected page
+ * export default async function Page() {
+ *   const user = await requireAuth("/tasks");
+ *   return <>{user.email}</>;
  * }
  */
-export async function requireAuth(): Promise<User> {
+export async function requireAuth(currentPath?: string): Promise<User> {
   const supabase = await createServerClient();
   const { user, error } = await getUserWithRetry(supabase);
 
   if (error || !user) {
-    // Read the public-facing URL set by the request proxy (proxy.ts) so the user
-    // is redirected back here after authenticating (not to the home page).
     const headersList = await headers();
-    const currentUrl = headersList.get("x-helvety-url") ?? undefined;
-    redirect(getLoginUrl(currentUrl));
+    const headerUrl = headersList.get("x-helvety-url") ?? undefined;
+    const fallbackUrl = currentPath ? `${urls.home}${currentPath}` : undefined;
+    redirect(getLoginUrl(headerUrl ?? fallbackUrl));
   }
 
   return user;

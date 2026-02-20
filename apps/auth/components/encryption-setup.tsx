@@ -1,6 +1,6 @@
 "use client";
 
-import { useEncryptionContext } from "@helvety/shared/crypto";
+import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { generateKeyCheckValue } from "@helvety/shared/crypto/key-check";
 import { storeMasterKey } from "@helvety/shared/crypto/key-storage";
 import { registerPasskey } from "@helvety/shared/crypto/passkey";
