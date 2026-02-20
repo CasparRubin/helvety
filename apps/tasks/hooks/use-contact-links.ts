@@ -182,9 +182,10 @@ export function useContactLinks(
   }, [isUnlocked, masterKey, entityId, refresh]);
 
   // Derive linkedContacts by joining links with allContacts
+  const contactsById = new Map(allContacts.map((c) => [c.id, c]));
   const linkedContacts: LinkedContact[] = links
     .map((linkRow) => {
-      const contact = allContacts.find((c) => c.id === linkRow.contact_id);
+      const contact = contactsById.get(linkRow.contact_id);
       if (!contact) return null;
       return {
         ...contact,

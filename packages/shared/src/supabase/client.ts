@@ -31,15 +31,17 @@ function fetchWithTimeout(
   const controller = new AbortController();
 
   // Respect any existing signal from the caller
+  const onCallerAbort = () => controller.abort();
   if (init?.signal) {
-    init.signal.addEventListener("abort", () => controller.abort());
+    init.signal.addEventListener("abort", onCallerAbort);
   }
 
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
-  return fetch(input, { ...init, signal: controller.signal }).finally(() =>
-    clearTimeout(timer)
-  );
+  return fetch(input, { ...init, signal: controller.signal }).finally(() => {
+    clearTimeout(timer);
+    init?.signal?.removeEventListener("abort", onCallerAbort);
+  });
 }
 
 /**

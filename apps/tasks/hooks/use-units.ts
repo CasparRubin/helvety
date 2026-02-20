@@ -120,7 +120,7 @@ export function useUnits(): UseUnitsReturn {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
-          return [...prev, newUnit].sort((a, b) => a.sort_order - b.sort_order);
+          return [...prev, newUnit].toSorted((a, b) => a.sort_order - b.sort_order);
         });
 
         return result.data;
@@ -218,8 +218,9 @@ export function useUnits(): UseUnitsReturn {
     async (updates: ReorderUpdate[]): Promise<boolean> => {
       // Optimistic update
       setUnits((prev) => {
+        const updatesById = new Map(updates.map((u) => [u.id, u]));
         const updated = prev.map((unit) => {
-          const match = updates.find((u) => u.id === unit.id);
+          const match = updatesById.get(unit.id);
           if (!match) return unit;
           return {
             ...unit,
@@ -228,7 +229,7 @@ export function useUnits(): UseUnitsReturn {
               match.stage_id !== undefined ? match.stage_id : unit.stage_id,
           };
         });
-        return updated.sort((a, b) => a.sort_order - b.sort_order);
+        return updated.toSorted((a, b) => a.sort_order - b.sort_order);
       });
 
       try {

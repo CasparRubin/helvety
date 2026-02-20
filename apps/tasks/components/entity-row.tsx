@@ -92,10 +92,10 @@ export function EntityRow({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors last:border-b-0 ${
+      className={`group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors last:border-b-0 [contain-intrinsic-size:auto_52px] ${
         isDragging
           ? "bg-muted/80 z-50 rounded-md shadow-lg"
-          : "hover:bg-muted/40"
+          : "hover:bg-muted/40 [content-visibility:auto]"
       }`}
       onClick={onClick}
       role="button"

@@ -134,6 +134,7 @@ export function MediaGallery({ items, className }: MediaGalleryProps) {
                     alt={validItems[selectedIndex].alt}
                     width={1920}
                     height={1080}
+                    sizes="100vw"
                     className="h-auto max-h-[85vh] w-auto max-w-full rounded-lg object-contain"
                     unoptimized
                   />

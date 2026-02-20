@@ -169,11 +169,10 @@ export function ContactLinksPanel({
   );
 
   const filteredContacts = useMemo(() => {
-    const available = allContacts.filter((c) => !linkedContactIds.has(c.id));
-    if (!searchQuery.trim()) return available;
-
-    const query = searchQuery.toLowerCase();
-    return available.filter((c) => {
+    const query = searchQuery.trim().toLowerCase();
+    return allContacts.filter((c) => {
+      if (linkedContactIds.has(c.id)) return false;
+      if (!query) return true;
       const name = formatContactName(c).toLowerCase();
       const email = c.email?.toLowerCase() ?? "";
       return name.includes(query) || email.includes(query);

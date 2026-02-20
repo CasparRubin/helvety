@@ -114,7 +114,7 @@ export function useContacts(): UseContactsReturn {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
-          return [...prev, newContact].sort(
+          return [...prev, newContact].toSorted(
             (a, b) => a.sort_order - b.sort_order
           );
         });
@@ -228,8 +228,9 @@ export function useContacts(): UseContactsReturn {
     async (updates: ReorderUpdate[]): Promise<boolean> => {
       // Optimistic update
       setContacts((prev) => {
+        const updatesById = new Map(updates.map((u) => [u.id, u]));
         const updated = prev.map((contact) => {
-          const match = updates.find((u) => u.id === contact.id);
+          const match = updatesById.get(contact.id);
           if (!match) return contact;
           return {
             ...contact,
@@ -240,7 +241,7 @@ export function useContacts(): UseContactsReturn {
                 : contact.category_id,
           };
         });
-        return updated.sort((a, b) => a.sort_order - b.sort_order);
+        return updated.toSorted((a, b) => a.sort_order - b.sort_order);
       });
 
       try {

@@ -123,7 +123,7 @@ export function useSpaces(unitId: string): UseSpacesReturn {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
-          return [...prev, newSpace].sort(
+          return [...prev, newSpace].toSorted(
             (a, b) => a.sort_order - b.sort_order
           );
         });
@@ -225,8 +225,9 @@ export function useSpaces(unitId: string): UseSpacesReturn {
     async (updates: ReorderUpdate[]): Promise<boolean> => {
       // Optimistic update
       setSpaces((prev) => {
+        const updatesById = new Map(updates.map((u) => [u.id, u]));
         const updated = prev.map((space) => {
-          const match = updates.find((u) => u.id === space.id);
+          const match = updatesById.get(space.id);
           if (!match) return space;
           return {
             ...space,
@@ -235,7 +236,7 @@ export function useSpaces(unitId: string): UseSpacesReturn {
               match.stage_id !== undefined ? match.stage_id : space.stage_id,
           };
         });
-        return updated.sort((a, b) => a.sort_order - b.sort_order);
+        return updated.toSorted((a, b) => a.sort_order - b.sort_order);
       });
 
       try {

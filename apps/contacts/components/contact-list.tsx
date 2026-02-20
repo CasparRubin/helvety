@@ -323,7 +323,7 @@ export function ContactList({
                   isHighlighted={hoveredCategoryId === category.id}
                 >
                   {categoryContacts
-                    .sort(
+                    .toSorted(
                       (a, b) =>
                         new Date(b.updated_at).getTime() -
                         new Date(a.updated_at).getTime()
@@ -368,7 +368,7 @@ export function ContactList({
                   isHighlighted={hoveredCategoryId === "uncategorized"}
                 >
                   {uncategorizedContacts
-                    .sort(
+                    .toSorted(
                       (a, b) =>
                         new Date(b.updated_at).getTime() -
                         new Date(a.updated_at).getTime()

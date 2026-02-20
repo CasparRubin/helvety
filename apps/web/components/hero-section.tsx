@@ -1,6 +1,6 @@
 "use client";
 
-import { HelvetyLogo } from "@helvety/brand";
+import { HelvetyLogo } from "@helvety/brand/logo";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 

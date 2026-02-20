@@ -373,7 +373,7 @@ export function EntityList({
                   isHighlighted={hoveredStageId === stage.id}
                 >
                   {stageEntities
-                    .sort((a, b) => {
+                    .toSorted((a, b) => {
                       const prioA = isItem(a) ? a.priority : 1;
                       const prioB = isItem(b) ? b.priority : 1;
                       if (prioB !== prioA) return prioB - prioA;
@@ -425,7 +425,7 @@ export function EntityList({
                   isHighlighted={hoveredStageId === "unstaged"}
                 >
                   {unstagedEntities
-                    .sort((a, b) => {
+                    .toSorted((a, b) => {
                       const prioA = isItem(a) ? a.priority : 1;
                       const prioB = isItem(b) ? b.priority : 1;
                       if (prioB !== prioA) return prioB - prioA;

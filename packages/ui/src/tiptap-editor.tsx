@@ -34,6 +34,8 @@ import { useCallback, useEffect, useImperativeHandle, type Ref } from "react";
 
 import type { Editor, JSONContent } from "@tiptap/react";
 
+const SAFE_LINK_REGEX = /^(https?:\/\/|mailto:|tel:)/i;
+
 /** Props for the Tiptap rich-text editor. */
 export interface TiptapEditorProps {
   /** Initial content as ProseMirror JSON */
@@ -343,7 +345,7 @@ export function TiptapEditor({
       Link.configure({
         openOnClick: false,
         // Block unsafe URL schemes (javascript:, data:, vbscript:) to prevent stored XSS
-        validate: (href) => /^(https?:\/\/|mailto:|tel:)/i.test(href),
+        validate: (href) => SAFE_LINK_REGEX.test(href),
         HTMLAttributes: {
           class: "text-primary underline cursor-pointer",
         },

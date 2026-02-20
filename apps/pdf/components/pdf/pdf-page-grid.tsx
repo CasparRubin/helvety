@@ -301,7 +301,7 @@ function PdfPageGridComponent({
                 }
               }}
               className={cn(
-                "group border-border relative flex gap-4 border p-4 transition-all",
+                "group border-border relative flex gap-4 border p-4 transition-all [contain-intrinsic-size:auto_280px] [content-visibility:auto]",
                 "focus:ring-primary focus:ring-2 focus:ring-offset-2 focus:outline-none",
                 dragDrop.draggedIndex === index && "opacity-50",
                 dragDrop.dragOverIndex === index &&

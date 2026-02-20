@@ -117,7 +117,7 @@ export function useItems(spaceId: string): UseItemsReturn {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
-          return [...prev, newItem].sort((a, b) => a.sort_order - b.sort_order);
+          return [...prev, newItem].toSorted((a, b) => a.sort_order - b.sort_order);
         });
 
         return result.data;
@@ -227,8 +227,9 @@ export function useItems(spaceId: string): UseItemsReturn {
     async (updates: ReorderUpdate[]): Promise<boolean> => {
       // Optimistic update
       setItems((prev) => {
+        const updatesById = new Map(updates.map((u) => [u.id, u]));
         const updated = prev.map((item) => {
-          const match = updates.find((u) => u.id === item.id);
+          const match = updatesById.get(item.id);
           if (!match) return item;
           return {
             ...item,
@@ -237,7 +238,7 @@ export function useItems(spaceId: string): UseItemsReturn {
               match.stage_id !== undefined ? match.stage_id : item.stage_id,
           };
         });
-        return updated.sort((a, b) => a.sort_order - b.sort_order);
+        return updated.toSorted((a, b) => a.sort_order - b.sort_order);
       });
 
       try {
