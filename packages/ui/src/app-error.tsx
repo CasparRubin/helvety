@@ -7,6 +7,9 @@ import { useEffect } from "react";
 
 import { Button } from "./button";
 
+/**
+ *
+ */
 interface AppErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
@@ -16,6 +19,9 @@ interface AppErrorProps {
   showBackButton?: boolean;
 }
 
+/**
+ *
+ */
 export function AppError({
   error,
   reset,

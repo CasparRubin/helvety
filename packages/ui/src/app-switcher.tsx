@@ -2,15 +2,6 @@
 
 import { urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
-import { Button } from "@helvety/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@helvety/ui/sheet";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import {
   Grip,
   Home,
@@ -22,6 +13,16 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { Button } from "@helvety/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@helvety/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
+
 const apps = [
   { name: "Home", href: urls.home, icon: Home },
   { name: "Auth", href: urls.auth, icon: KeyRound },
@@ -31,6 +32,9 @@ const apps = [
   { name: "Contacts", href: urls.contacts, icon: Users },
 ];
 
+/**
+ *
+ */
 interface AppSwitcherProps {
   currentApp?: string;
 }

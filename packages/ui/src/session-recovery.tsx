@@ -16,6 +16,9 @@ export function SessionRecovery() {
   useEffect(() => {
     const supabase = createBrowserClient();
 
+    /**
+     *
+     */
     function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
         void supabase.auth.getUser();

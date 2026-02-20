@@ -49,7 +49,7 @@ export async function getOwnPasskeyStatus(): Promise<
     if (!rl.allowed) {
       return {
         success: false,
-        error: `Too many requests. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
+        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
       };
     }
 
@@ -102,7 +102,7 @@ export async function getUserCredentials(): Promise<
     if (!rl.allowed) {
       return {
         success: false,
-        error: `Too many requests. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
+        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
       };
     }
 

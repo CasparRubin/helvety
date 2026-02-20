@@ -11,6 +11,10 @@
     "url": "https://github.com/CasparRubin/helvety.git",
     "directory": "packages/ui"
   },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0"
+  },
   "exports": {
     "./globals.css": "./globals.css",
     "./app-error": "./src/app-error.tsx",
@@ -75,7 +79,9 @@
     "react-dom": "^19"
   },
   "devDependencies": {
+    "@helvety/config": "workspace:*",
     "@types/react": "^19",
+    "eslint": "^9",
     "shadcn": "^3.8.5",
     "typescript": "^5"
   }

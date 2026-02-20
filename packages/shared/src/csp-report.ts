@@ -1,5 +1,4 @@
-import { after } from "next/server";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import { checkRateLimit } from "./rate-limit";
 

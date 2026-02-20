@@ -2,11 +2,17 @@ import { FileQuestion, ArrowLeft } from "lucide-react";
 
 import { Button } from "./button";
 
+/**
+ *
+ */
 interface AppNotFoundProps {
   homeHref: string;
   label?: string;
 }
 
+/**
+ *
+ */
 export function AppNotFound({ homeHref, label = "Go home" }: AppNotFoundProps) {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center px-4">

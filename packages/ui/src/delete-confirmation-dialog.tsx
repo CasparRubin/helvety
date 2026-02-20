@@ -1,5 +1,8 @@
 "use client";
 
+import { Loader2Icon } from "lucide-react";
+import * as React from "react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,9 +13,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
-import { Loader2Icon } from "lucide-react";
-import * as React from "react";
 
+/**
+ *
+ */
 export interface DeleteConfirmationDialogProps {
   /** Whether the dialog is open */
   open: boolean;

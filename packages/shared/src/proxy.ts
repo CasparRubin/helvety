@@ -1,21 +1,28 @@
 import { randomBytes } from "crypto";
 
 import { buildCsp } from "@helvety/config/next-headers";
-import { COOKIE_DOMAIN, urls } from "./config";
-import { getSupabaseKey, getSupabaseUrl } from "./env-validation";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+
+import { COOKIE_DOMAIN, urls } from "./config";
+import { getSupabaseKey, getSupabaseUrl } from "./env-validation";
 
 const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
 const CSP_NONCE_LENGTH = 16;
 
+/**
+ *
+ */
 export type BuildCspOptions = {
   imgBlob?: boolean;
   scriptUnsafeEval?: "always" | "dev-only";
   workerBlob?: boolean;
 };
 
+/**
+ *
+ */
 export type CreateSessionRefreshProxyOptions = {
   /** CSP options (imgBlob, scriptUnsafeEval, workerBlob) */
   buildCspOptions?: BuildCspOptions;

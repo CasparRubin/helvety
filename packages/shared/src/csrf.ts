@@ -2,9 +2,9 @@ import "server-only";
 
 import { randomBytes, timingSafeEqual } from "crypto";
 
-import { COOKIE_DOMAIN } from "./config";
-
 import { cookies } from "next/headers";
+
+import { COOKIE_DOMAIN } from "./config";
 
 /**
  * CSRF Protection Module

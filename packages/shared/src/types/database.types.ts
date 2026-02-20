@@ -10,5 +10,7 @@
  * so existing code compiles unchanged.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- placeholder until types are generated
+/**
+ *
+ */
 export interface Database {}

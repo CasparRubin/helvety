@@ -11,6 +11,10 @@
     "url": "https://github.com/CasparRubin/helvety.git",
     "directory": "packages/brand"
   },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./logo": "./src/logo.tsx",
@@ -24,7 +28,9 @@
     "react": "^19"
   },
   "devDependencies": {
+    "@helvety/config": "workspace:*",
     "@types/react": "^19",
+    "eslint": "^9",
     "typescript": "^5"
   }
 }

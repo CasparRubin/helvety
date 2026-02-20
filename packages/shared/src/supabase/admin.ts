@@ -1,7 +1,8 @@
 import "server-only";
 
-import { getSupabaseUrl } from "../env-validation";
 import { createClient } from "@supabase/supabase-js";
+
+import { getSupabaseUrl } from "../env-validation";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 

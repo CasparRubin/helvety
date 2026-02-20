@@ -18,6 +18,9 @@ import { logger } from "../logger";
 
 const PRF_SALT_CACHE_KEY = "helvety-prf-salt";
 
+/**
+ *
+ */
 interface CachedPRFSalt {
   /** Base64-encoded PRF salt */
   prfSalt: string;

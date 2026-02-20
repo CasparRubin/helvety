@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { verifyKeyCheckValue } from "./key-check";
 import {
   storeMasterKey,
   getMasterKey,
@@ -21,7 +22,6 @@ import {
   isPRFSupported,
   getPRFSupportInfo,
 } from "./passkey";
-import { verifyKeyCheckValue } from "./key-check";
 import {
   deriveKeyFromPRF,
   type PRFKeyParams,

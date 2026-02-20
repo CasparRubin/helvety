@@ -7,14 +7,14 @@
  * for E2EE key derivation.
  */
 
-import { DOMAIN, urls } from "../config";
-
 import {
   startRegistration,
   startAuthentication,
   browserSupportsWebAuthn,
   platformAuthenticatorIsAvailable,
 } from "@simplewebauthn/browser";
+
+import { DOMAIN, urls } from "../config";
 
 import type {
   PublicKeyCredentialCreationOptionsJSON,

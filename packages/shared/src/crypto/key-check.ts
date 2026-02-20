@@ -16,6 +16,9 @@ import { constantTimeEqual } from "./encoding";
 const KCV_PLAINTEXT = "helvety-kcv-v1";
 const KCV_VERSION = 1;
 
+/**
+ *
+ */
 interface KeyCheckData {
   iv: string;
   ciphertext: string;
@@ -75,6 +78,9 @@ export async function verifyKeyCheckValue(
   }
 }
 
+/**
+ *
+ */
 function uint8ToBase64(data: Uint8Array): string {
   let binary = "";
   for (let i = 0; i < data.length; i++) {
@@ -86,6 +92,9 @@ function uint8ToBase64(data: Uint8Array): string {
   return btoa(binary);
 }
 
+/**
+ *
+ */
 function base64ToUint8(str: string): Uint8Array {
   const binary = atob(str);
   const bytes = new Uint8Array(binary.length);
