@@ -1,4 +1,5 @@
 import { getOptionalUser } from "@helvety/shared/auth-guard";
+import LoadingSpinner from "@helvety/ui/loading-spinner";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 
@@ -106,13 +107,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
       )}
-      <Suspense
-        fallback={
-          <div className="container mx-auto px-4 py-8">
-            <div className="h-96 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-800" />
-          </div>
-        }
-      >
+      <Suspense fallback={<LoadingSpinner />}>
         <ProductDetailClient
           slug={slug}
           checkoutEnabledTiers={CHECKOUT_ENABLED_TIERS}

@@ -32,7 +32,6 @@ import {
 } from "@helvety/ui/dialog";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
-import { Skeleton } from "@helvety/ui/skeleton";
 import {
   Building2,
   Plus,
@@ -41,6 +40,7 @@ import {
   ExternalLink,
   AlertCircle,
   CheckCircle2,
+  Loader2,
   Pencil,
   X,
   Check,
@@ -322,13 +322,8 @@ export function TenantsTab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-4 w-96" />
-        <div className="grid gap-4">
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
-        </div>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
       </div>
     );
   }

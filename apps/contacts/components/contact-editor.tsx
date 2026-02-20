@@ -26,7 +26,9 @@ const TiptapEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="border-border/40 bg-background dark:bg-input/30 min-h-[200px] animate-pulse rounded-md border" />
+      <div className="border-border/40 flex min-h-[200px] items-center justify-center rounded-md border">
+        <Loader2Icon className="text-muted-foreground h-6 w-6 animate-spin" />
+      </div>
     ),
   }
 );

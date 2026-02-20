@@ -20,7 +20,6 @@ import {
   CardTitle,
 } from "@helvety/ui/card";
 import { Separator } from "@helvety/ui/separator";
-import { Skeleton } from "@helvety/ui/skeleton";
 import {
   CreditCard,
   ExternalLink,
@@ -98,34 +97,6 @@ function formatListDate(dateString: string | null): string {
     month: "short",
     day: "numeric",
   });
-}
-
-/** Loading skeleton for the compact subscriptions list (matches list row layout). */
-function SubscriptionsListSkeleton() {
-  return (
-    <div className="divide-y rounded-md border">
-      {[1, 2, 3, 4].map((i) => (
-        <div
-          key={i}
-          className="flex flex-wrap items-center gap-x-4 gap-y-2 px-3 py-2.5 sm:px-4"
-        >
-          <div className="min-w-0 flex-1 space-y-1.5 sm:flex sm:items-center sm:gap-4">
-            <div className="space-y-1">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-20" />
-            </div>
-            <Skeleton className="h-5 w-14 shrink-0" />
-          </div>
-          <Skeleton className="h-4 w-12 shrink-0" />
-          <Skeleton className="h-4 w-24 shrink-0" />
-          <div className="flex shrink-0 gap-1.5">
-            <Skeleton className="h-8 w-20" />
-            <Skeleton className="h-8 w-16" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
 }
 
 /**
@@ -378,7 +349,9 @@ export function SubscriptionsTab({
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoadingSubscriptions ? (
-            <SubscriptionsListSkeleton />
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+            </div>
           ) : activeSubscriptions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="bg-muted mb-4 rounded-full p-4">

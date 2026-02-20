@@ -36,10 +36,7 @@ import {
   getCustomerPortalUrl,
 } from "@/app/actions/subscription-actions";
 import { CancelSubscriptionDialog } from "@/components/cancel-subscription-dialog";
-import {
-  SubscriptionCard,
-  SubscriptionCardSkeleton,
-} from "@/components/subscription-card";
+import { SubscriptionCard } from "@/components/subscription-card";
 import { useCSRF } from "@/hooks/use-csrf";
 
 import type { Subscription } from "@/lib/types";
@@ -230,10 +227,9 @@ export function SubscriptionsSheet({
           {/* Subscriptions list */}
           <div className="-mx-4 flex-1 overflow-y-auto px-4 py-2">
             {isLoading ? (
-              // Loading skeletons
-              <div className="space-y-4">
-                <SubscriptionCardSkeleton />
-                <SubscriptionCardSkeleton />
+              // Loading spinner
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
               </div>
             ) : activeSubscriptions.length === 0 ? (
               // Empty state

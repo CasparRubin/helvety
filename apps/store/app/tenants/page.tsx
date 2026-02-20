@@ -1,5 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
-import { Skeleton } from "@helvety/ui/skeleton";
+import LoadingSpinner from "@helvety/ui/loading-spinner";
 import { Suspense } from "react";
 
 import { TenantsPageClient } from "@/app/tenants/tenants-page-client";
@@ -12,23 +12,6 @@ export const metadata: Metadata = {
 };
 
 /**
- * Loading skeleton for the tenants page.
- */
-function TenantsLoading() {
-  return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
-      <div className="space-y-6">
-        <div>
-          <Skeleton className="h-8 w-32" />
-          <Skeleton className="mt-2 h-4 w-64" />
-        </div>
-        <Skeleton className="h-64 w-full" />
-      </div>
-    </div>
-  );
-}
-
-/**
  * Tenants page: auth gate and tenant management or empty state.
  * Requires authentication.
  */
@@ -36,7 +19,7 @@ export default async function TenantsPage() {
   await requireAuth("/store/tenants");
 
   return (
-    <Suspense fallback={<TenantsLoading />}>
+    <Suspense fallback={<LoadingSpinner />}>
       <TenantsPageClient />
     </Suspense>
   );

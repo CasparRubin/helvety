@@ -54,7 +54,9 @@ const MediaGallery = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-muted aspect-video w-full animate-pulse rounded-lg" />
+      <div className="border-border/40 flex aspect-video w-full items-center justify-center rounded-lg border">
+        <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+      </div>
     ),
   }
 );

@@ -1,5 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
-import { Skeleton } from "@helvety/ui/skeleton";
+import LoadingSpinner from "@helvety/ui/loading-spinner";
 import { Suspense } from "react";
 
 import { getUserSubscriptions } from "@/app/actions/subscription-actions";
@@ -13,23 +13,6 @@ export const metadata: Metadata = {
 };
 
 /**
- * Loading skeleton for the subscriptions page.
- */
-function SubscriptionsLoading() {
-  return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
-      <div className="space-y-6">
-        <div>
-          <Skeleton className="h-8 w-40" />
-          <Skeleton className="mt-2 h-4 w-72" />
-        </div>
-        <Skeleton className="h-64 w-full" />
-      </div>
-    </div>
-  );
-}
-
-/**
  * Subscriptions page: auth gate and compact subscriptions list (SubscriptionsTab).
  * Server-prefetches subscriptions to eliminate the client-side data waterfall.
  */
@@ -41,7 +24,7 @@ export default async function SubscriptionsPage() {
   );
 
   return (
-    <Suspense fallback={<SubscriptionsLoading />}>
+    <Suspense fallback={<LoadingSpinner />}>
       <SubscriptionsPageClient initialSubscriptions={initialSubscriptions} />
     </Suspense>
   );

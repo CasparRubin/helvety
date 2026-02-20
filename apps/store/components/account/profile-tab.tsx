@@ -24,7 +24,6 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Separator } from "@helvety/ui/separator";
-import { Skeleton } from "@helvety/ui/skeleton";
 import {
   User,
   Mail,
@@ -209,15 +208,8 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           {isLoadingUser ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-9 w-64" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-5 w-48" />
-              </div>
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
             </div>
           ) : user ? (
             <>

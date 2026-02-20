@@ -17,7 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@helvety/ui/card";
-import { Skeleton } from "@helvety/ui/skeleton";
 import {
   Calendar,
   AlertCircle,
@@ -224,30 +223,6 @@ export function SubscriptionCard({
             </a>
           </Button>
         )}
-      </CardFooter>
-    </Card>
-  );
-}
-
-/** Loading skeleton matching SubscriptionCard layout. */
-export function SubscriptionCardSkeleton() {
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="space-y-2">
-            <Skeleton className="h-5 w-32" />
-            <Skeleton className="h-4 w-20" />
-          </div>
-          <Skeleton className="h-5 w-16" />
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3 pb-3">
-        <Skeleton className="h-8 w-24" />
-        <Skeleton className="h-4 w-40" />
-      </CardContent>
-      <CardFooter className="pt-0">
-        <Skeleton className="h-9 w-full" />
       </CardFooter>
     </Card>
   );
