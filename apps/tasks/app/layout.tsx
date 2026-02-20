@@ -6,6 +6,7 @@ import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
 import { SessionRecovery } from "@helvety/ui/session-recovery";
+import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
@@ -128,6 +129,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
+        <SkipToContent />
         <script
           type="application/ld+json"
           nonce={nonce}
@@ -185,7 +187,7 @@ export default async function RootLayout({
                 </header>
                 <ScrollArea className="min-h-0 flex-1">
                   <div className="mx-auto w-full max-w-[2000px]">
-                    <main>{children}</main>
+                    <main id="main-content">{children}</main>
                   </div>
                 </ScrollArea>
                 <Footer className="shrink-0" />

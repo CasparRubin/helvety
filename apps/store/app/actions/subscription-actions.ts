@@ -370,12 +370,13 @@ export async function cancelSubscription(
       cancel_at_period_end: true,
     });
 
-    // Update local record
+    // Update local record (user_id filter is belt-and-suspenders alongside the RLS check above)
     const adminClient = createAdminClient();
     await adminClient
       .from("subscriptions")
       .update({ cancel_at_period_end: true })
-      .eq("id", subscriptionId);
+      .eq("id", subscriptionId)
+      .eq("user_id", user.id);
 
     logger.info(`Subscription ${subscriptionId} scheduled for cancellation`);
 
@@ -490,12 +491,13 @@ export async function reactivateSubscription(
       cancel_at_period_end: false,
     });
 
-    // Update local record
+    // Update local record (user_id filter is belt-and-suspenders alongside the RLS check above)
     const adminClient = createAdminClient();
     await adminClient
       .from("subscriptions")
       .update({ cancel_at_period_end: false })
-      .eq("id", subscriptionId);
+      .eq("id", subscriptionId)
+      .eq("user_id", user.id);
 
     logger.info(`Subscription ${subscriptionId} reactivated`);
 

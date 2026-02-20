@@ -326,7 +326,9 @@ export function EntityList({
   if (error) {
     return (
       <div className="py-12 text-center">
-        <p className="text-destructive">{error}</p>
+        <p role="alert" className="text-destructive">
+          {error}
+        </p>
       </div>
     );
   }

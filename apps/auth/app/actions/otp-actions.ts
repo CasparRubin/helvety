@@ -112,6 +112,28 @@ export async function checkEmail(
 ): Promise<
   ActionResponse<{ hasPasskey: boolean; prfSalt?: string; prfVersion?: number }>
 > {
+  // Constant-time floor: prevent user-existence timing side-channel.
+  // Existing users trigger passkey + PRF lookups which take longer than
+  // non-existent users. By enforcing a minimum response time we ensure
+  // both paths return in a similar window.
+  const MINIMUM_RESPONSE_MS = 250;
+  const start = Date.now();
+
+  const result = await checkEmailInner(email);
+
+  const elapsed = Date.now() - start;
+  if (elapsed < MINIMUM_RESPONSE_MS) {
+    await new Promise((r) => setTimeout(r, MINIMUM_RESPONSE_MS - elapsed));
+  }
+  return result;
+}
+
+/** Inner implementation of checkEmail, called within the constant-time wrapper. */
+async function checkEmailInner(
+  email: string
+): Promise<
+  ActionResponse<{ hasPasskey: boolean; prfSalt?: string; prfVersion?: number }>
+> {
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
 

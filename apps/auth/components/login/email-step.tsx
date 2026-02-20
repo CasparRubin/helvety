@@ -36,13 +36,14 @@ export function EmailStep({
             value={email}
             onChange={(e) => onEmailChange(e.target.value)}
             required
-            autoFocus
             disabled={isLoading}
           />
         </div>
 
         {error && (
-          <p className="text-destructive text-center text-sm">{error}</p>
+          <p role="alert" className="text-destructive text-center text-sm">
+            {error}
+          </p>
         )}
 
         <Button

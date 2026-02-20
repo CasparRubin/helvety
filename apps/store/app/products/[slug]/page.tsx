@@ -64,18 +64,18 @@ export async function generateMetadata({
  * Login is required only for purchasing.
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const [nonce, { slug }, user] = await Promise.all([
+  // Start all independent promises in parallel to avoid sequential waterfalls.
+  // getUserSubscriptions() is a no-op (returns empty via rate-limit rejection)
+  // when not authenticated, so it's safe to start eagerly.
+  const [nonce, { slug }, user, subscriptionsResult] = await Promise.all([
     headers().then((h) => h.get("x-nonce") ?? ""),
     params,
     getOptionalUser(),
+    getUserSubscriptions().then((r) => (r.success && r.data ? r.data : [])),
   ]);
 
-  // Prefetch subscriptions server-side when user is authenticated
-  const initialSubscriptions = user
-    ? await getUserSubscriptions().then((r) =>
-        r.success && r.data ? r.data : []
-      )
-    : [];
+  // Only pass subscriptions when user is authenticated
+  const initialSubscriptions = user ? subscriptionsResult : [];
 
   const product = getProductBySlug(slug);
 

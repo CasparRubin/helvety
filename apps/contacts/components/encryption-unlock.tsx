@@ -160,7 +160,11 @@ export function EncryptionUnlock({
             </div>
           </div>
 
-          {error && <p className="text-destructive text-sm">{error}</p>}
+          {error && (
+            <p role="alert" className="text-destructive text-sm">
+              {error}
+            </p>
+          )}
 
           <Button
             onClick={handleUnlock}

@@ -36,6 +36,57 @@ import type { Editor, JSONContent } from "@tiptap/react";
 
 const SAFE_LINK_REGEX = /^(https?:\/\/|mailto:|tel:)/i;
 
+/**
+ * Sanitize pasted HTML to strip dangerous elements and attributes before
+ * Tiptap's schema filtering runs. Defense-in-depth against XSS via paste.
+ */
+function sanitizePastedHTML(html: string): string {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+
+  const dangerousTags = [
+    "script",
+    "iframe",
+    "object",
+    "embed",
+    "form",
+    "meta",
+    "link",
+    "style",
+    "base",
+  ];
+  for (const tag of dangerousTags) {
+    const els = doc.querySelectorAll(tag);
+    els.forEach((el) => el.remove());
+  }
+
+  const allElements = doc.querySelectorAll("*");
+  allElements.forEach((el) => {
+    const attrs = [...el.attributes];
+    for (const attr of attrs) {
+      if (attr.name.startsWith("on")) {
+        el.removeAttribute(attr.name);
+      }
+    }
+
+    const href = el.getAttribute("href");
+    if (href && /^(javascript|data|vbscript):/i.test(href.trim())) {
+      el.removeAttribute("href");
+    }
+
+    const src = el.getAttribute("src");
+    if (src && /^(javascript|data|vbscript):/i.test(src.trim())) {
+      el.removeAttribute("src");
+    }
+
+    const action = el.getAttribute("action");
+    if (action && /^(javascript|data|vbscript):/i.test(action.trim())) {
+      el.removeAttribute("action");
+    }
+  });
+
+  return doc.body.innerHTML;
+}
+
 /** Props for the Tiptap rich-text editor. */
 export interface TiptapEditorProps {
   /** Initial content as ProseMirror JSON */
@@ -355,6 +406,7 @@ export function TiptapEditor({
     editable: !disabled,
     autofocus: autoFocus,
     editorProps: {
+      transformPastedHTML: sanitizePastedHTML,
       attributes: {
         class: cn(
           "prose prose-sm dark:prose-invert max-w-none",

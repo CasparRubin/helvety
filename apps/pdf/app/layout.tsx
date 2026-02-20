@@ -4,6 +4,7 @@ import { getCachedUser } from "@helvety/shared/cached-server";
 import { sharedViewport } from "@helvety/shared/config";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
+import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
@@ -130,6 +131,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
+        <SkipToContent />
         <script
           type="application/ld+json"
           nonce={nonce}
@@ -184,7 +186,12 @@ export default async function RootLayout({
               <header className="shrink-0">
                 <Navbar initialUser={initialUser} />
               </header>
-              <main className="min-h-0 flex-1 overflow-hidden">{children}</main>
+              <main
+                id="main-content"
+                className="min-h-0 flex-1 overflow-hidden"
+              >
+                {children}
+              </main>
               <Footer className="shrink-0" />
             </div>
             <Toaster />

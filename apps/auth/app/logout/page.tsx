@@ -6,6 +6,8 @@ import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef } from "react";
 
+import { useCSRFSafe } from "@/hooks/use-csrf";
+
 import { signOutAction } from "./actions";
 
 /**
@@ -40,6 +42,7 @@ export default function LogoutPage() {
 /** Reads redirect params and performs key cleanup + sign-out. */
 function LogoutHandler() {
   const searchParams = useSearchParams();
+  const csrfToken = useCSRFSafe();
   const hasRun = useRef(false);
 
   useEffect(() => {
@@ -56,7 +59,7 @@ function LogoutHandler() {
       }
 
       const globalLogout = searchParams.get("scope") === "global";
-      await signOutAction(globalLogout);
+      await signOutAction(csrfToken ?? undefined, globalLogout);
 
       const rawRedirectUri = searchParams.get("redirect_uri");
       const defaultRedirect =
@@ -73,7 +76,7 @@ function LogoutHandler() {
     }
 
     void performLogout();
-  }, [searchParams]);
+  }, [searchParams, csrfToken]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">

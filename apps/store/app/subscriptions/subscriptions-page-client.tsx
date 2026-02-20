@@ -2,10 +2,16 @@
 
 import { SubscriptionsTab } from "@/components/account";
 
+import type { Subscription } from "@/lib/types";
+
 /**
  * Client wrapper for the subscriptions page (title + SubscriptionsTab).
  */
-export function SubscriptionsPageClient() {
+export function SubscriptionsPageClient({
+  initialSubscriptions,
+}: {
+  initialSubscriptions?: Subscription[];
+}) {
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="space-y-6">
@@ -15,7 +21,7 @@ export function SubscriptionsPageClient() {
             View and manage your active subscriptions
           </p>
         </div>
-        <SubscriptionsTab />
+        <SubscriptionsTab initialSubscriptions={initialSubscriptions} />
       </div>
     </div>
   );

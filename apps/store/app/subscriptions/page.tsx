@@ -2,6 +2,7 @@ import { requireAuth } from "@helvety/shared/auth-guard";
 import { Skeleton } from "@helvety/ui/skeleton";
 import { Suspense } from "react";
 
+import { getUserSubscriptions } from "@/app/actions/subscription-actions";
 import { SubscriptionsPageClient } from "@/app/subscriptions/subscriptions-page-client";
 
 import type { Metadata } from "next";
@@ -30,14 +31,18 @@ function SubscriptionsLoading() {
 
 /**
  * Subscriptions page: auth gate and compact subscriptions list (SubscriptionsTab).
- * Requires authentication.
+ * Server-prefetches subscriptions to eliminate the client-side data waterfall.
  */
 export default async function SubscriptionsPage() {
   await requireAuth("/store/subscriptions");
 
+  const initialSubscriptions = await getUserSubscriptions().then((r) =>
+    r.success && r.data ? r.data : []
+  );
+
   return (
     <Suspense fallback={<SubscriptionsLoading />}>
-      <SubscriptionsPageClient />
+      <SubscriptionsPageClient initialSubscriptions={initialSubscriptions} />
     </Suspense>
   );
 }

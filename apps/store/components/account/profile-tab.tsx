@@ -265,7 +265,9 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
                       disabled={isChangingEmail}
                     />
                     {emailError && (
-                      <p className="text-destructive text-sm">{emailError}</p>
+                      <p role="alert" className="text-destructive text-sm">
+                        {emailError}
+                      </p>
                     )}
                   </div>
                   <Button

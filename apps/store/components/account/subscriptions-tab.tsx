@@ -130,15 +130,25 @@ function SubscriptionsListSkeleton() {
 
 /**
  * Renders the subscriptions tab: compact list of active subscriptions with actions and billing portal link.
+ * Accepts optional server-prefetched data to eliminate the client-side loading waterfall.
  */
-export function SubscriptionsTab() {
+export function SubscriptionsTab({
+  initialSubscriptions,
+}: {
+  initialSubscriptions?: Subscription[];
+} = {}) {
   // CSRF token for security
   const csrfToken = useCSRF();
 
+  const hasInitialData =
+    initialSubscriptions && initialSubscriptions.length > 0;
+
   // Subscriptions state
-  const [subscriptions, setSubscriptions] = React.useState<Subscription[]>([]);
+  const [subscriptions, setSubscriptions] = React.useState<Subscription[]>(
+    initialSubscriptions ?? []
+  );
   const [isLoadingSubscriptions, setIsLoadingSubscriptions] =
-    React.useState(true);
+    React.useState(!hasInitialData);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [actionLoadingId, setActionLoadingId] = React.useState<string | null>(
     null
@@ -158,11 +168,13 @@ export function SubscriptionsTab() {
   const [subscriptionToCancel, setSubscriptionToCancel] =
     React.useState<Subscription | null>(null);
 
-  // Load subscriptions on mount
+  // Load subscriptions on mount (skip fetch when server-prefetched data is available)
   React.useEffect(() => {
-    void loadSubscriptions();
+    if (!hasInitialData) {
+      void loadSubscriptions();
+    }
     void loadSpoTenantCount();
-  }, []);
+  }, [hasInitialData]);
 
   // Fetch SPO Explorer package version when user has an active SPO subscription
   React.useEffect(() => {

@@ -25,7 +25,9 @@
     "type-check": "turbo run type-check",
     "test": "turbo run test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:pull": "npx supabase db pull",
+    "db:gen-types": "npx supabase gen types typescript --local > packages/shared/src/types/database.types.ts"
   },
   "patchedDependencies": {
     "next@16.1.6": "patches/next@16.1.6.patch"

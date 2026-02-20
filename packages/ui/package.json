@@ -48,7 +48,8 @@
     "./theme-switcher": "./src/theme-switcher.tsx",
     "./app-switcher": "./src/app-switcher.tsx",
     "./session-recovery": "./src/session-recovery.tsx",
-    "./auth-token-handler": "./src/auth-token-handler.tsx"
+    "./auth-token-handler": "./src/auth-token-handler.tsx",
+    "./skip-to-content": "./src/skip-to-content.tsx"
   },
   "dependencies": {
     "@helvety/shared": "workspace:*",

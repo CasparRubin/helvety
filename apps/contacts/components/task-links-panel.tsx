@@ -452,7 +452,9 @@ export function TaskLinksPanel({
 
         {/* Error state */}
         {error && (
-          <p className="text-destructive py-2 text-center text-xs">{error}</p>
+          <p role="alert" className="text-destructive py-2 text-center text-xs">
+            {error}
+          </p>
         )}
 
         {/* Units section */}

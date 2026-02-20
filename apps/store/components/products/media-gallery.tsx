@@ -134,7 +134,7 @@ export function MediaGallery({ items, className }: MediaGalleryProps) {
                     height={1080}
                     sizes="100vw"
                     className="h-auto max-h-[85vh] w-auto max-w-full rounded-lg object-contain"
-                    unoptimized
+                    priority
                   />
                 )}
               </div>
@@ -206,7 +206,6 @@ function MediaThumbnail({ item, onClick, onError }: MediaThumbnailProps) {
           className="object-cover"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           onError={handleError}
-          unoptimized
         />
       )}
 

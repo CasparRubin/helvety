@@ -1,10 +1,10 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import { getCachedUser } from "@helvety/shared/cached-server";
 import { sharedViewport } from "@helvety/shared/config";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
+import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
@@ -106,25 +106,24 @@ export const metadata: Metadata = {
   },
 };
 
-// Prevent Next.js from caching user-specific data (supabase.auth.getUser) across sessions
-export const dynamic = "force-dynamic";
-
 /**
  * Root layout: fixed header (Navbar), ScrollArea main, fixed footer (contact + legal links).
+ *
+ * The web app serves only public/static pages (home, privacy, terms, impressum).
+ * No force-dynamic — the static shell is edge-cacheable. The Navbar resolves
+ * auth state client-side via its onAuthStateChange listener.
  */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const [nonce, initialUser] = await Promise.all([
-    headers().then((h) => h.get("x-nonce") ?? ""),
-    getCachedUser(),
-  ]);
+  const nonce = await headers().then((h) => h.get("x-nonce") ?? "");
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
+        <SkipToContent />
         <script
           type="application/ld+json"
           nonce={nonce}
@@ -139,7 +138,6 @@ export default async function RootLayout({
                 description:
                   "Software and subscriptions engineered and designed in Switzerland.",
                 sameAs: [
-                  "https://helvety.com",
                   "https://helvety.com/auth",
                   "https://helvety.com/contacts",
                   "https://helvety.com/pdf",
@@ -170,11 +168,11 @@ export default async function RootLayout({
           <TooltipProvider>
             <div className="flex h-screen flex-col overflow-hidden">
               <header className="shrink-0">
-                <Navbar initialUser={initialUser} />
+                <Navbar />
               </header>
               <ScrollArea className="min-h-0 flex-1">
                 <div className="mx-auto w-full max-w-[2000px]">
-                  <main>{children}</main>
+                  <main id="main-content">{children}</main>
                 </div>
               </ScrollArea>
               <Footer className="shrink-0" external={false} />

@@ -9,6 +9,7 @@
 
 import { cn } from "@helvety/shared/utils";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { formatStartingFrom } from "@/lib/utils/pricing";
@@ -48,11 +49,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
         )}
       >
         {/* Background artwork — desaturated at rest, full color on hover */}
-        <div
-          className="absolute inset-0 bg-cover bg-center grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
-          style={{
-            backgroundImage: "url('/store/artwork_1.jpg')",
-          }}
+        <Image
+          src="/store/artwork_1.jpg"
+          alt=""
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
+          priority
         />
 
         {/* Inner layer: solid content panel */}

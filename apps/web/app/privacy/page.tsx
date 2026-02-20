@@ -1007,7 +1007,8 @@ export default function PrivacyPage() {
                     </td>
                     <td className="border-border border-b p-3">.helvety.com</td>
                     <td className="border-border border-b p-3">
-                      24 hours (max)
+                      Session (auto-refreshed; tokens expire after 1 hour of
+                      inactivity)
                     </td>
                   </tr>
                   <tr>
@@ -1026,7 +1027,7 @@ export default function PrivacyPage() {
                       Passkey authentication challenge (httpOnly)
                     </td>
                     <td className="border-border border-b p-3">
-                      helvety.com (path: /auth)
+                      helvety.com (path: /)
                     </td>
                     <td className="border-border border-b p-3">5 minutes</td>
                   </tr>

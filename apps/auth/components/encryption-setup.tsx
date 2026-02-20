@@ -364,7 +364,11 @@ export function EncryptionSetup({
               </div>
             </div>
 
-            {error && <p className="text-destructive text-sm">{error}</p>}
+            {error && (
+              <p role="alert" className="text-destructive text-sm">
+                {error}
+              </p>
+            )}
 
             <div className="flex items-center justify-center py-2">
               <p className="text-muted-foreground text-sm">
@@ -456,7 +460,11 @@ export function EncryptionSetup({
             </ul>
           </div>
 
-          {error && <p className="text-destructive text-sm">{error}</p>}
+          {error && (
+            <p role="alert" className="text-destructive text-sm">
+              {error}
+            </p>
+          )}
 
           <Button
             onClick={handleSetup}

@@ -47,7 +47,11 @@ export function PasskeySignInStep({
           : "Use your passkey to verify your identity and complete sign in."}
       </p>
 
-      {error && <p className="text-destructive text-center text-sm">{error}</p>}
+      {error && (
+        <p role="alert" className="text-destructive text-center text-sm">
+          {error}
+        </p>
+      )}
 
       <Button
         onClick={onSignIn}
