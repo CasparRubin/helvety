@@ -12,6 +12,9 @@ const isDev = process.env.NODE_ENV === "development";
 /** Production domain */
 export const DOMAIN = "helvety.com";
 
+/** Contact email used in error pages, support links, and legal references */
+export const CONTACT_EMAIL = "contact@helvety.com";
+
 /** Development gateway (multi-zone entry point) */
 const DEV_GATEWAY = "http://localhost:3001";
 

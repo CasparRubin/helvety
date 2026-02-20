@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
       "sonner",
       "@dnd-kit/core",
       "@dnd-kit/sortable",
+      "@dnd-kit/utilities",
       "@tiptap/react",
       "@simplewebauthn/browser",
       "date-fns",

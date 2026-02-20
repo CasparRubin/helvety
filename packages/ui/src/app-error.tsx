@@ -1,5 +1,6 @@
 "use client";
 
+import { CONTACT_EMAIL } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
 import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -7,9 +8,7 @@ import { useEffect } from "react";
 
 import { Button } from "./button";
 
-/**
- *
- */
+/** Props for the shared error boundary component. */
 interface AppErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
@@ -19,9 +18,7 @@ interface AppErrorProps {
   showBackButton?: boolean;
 }
 
-/**
- *
- */
+/** Shared error boundary UI used by all app `error.tsx` pages. */
 export function AppError({
   error,
   reset,
@@ -47,10 +44,10 @@ export function AppError({
           <p className="text-muted-foreground max-w-md">
             An unexpected error occurred. Please try again, or contact us at{" "}
             <a
-              href="mailto:contact@helvety.com"
+              href={`mailto:${CONTACT_EMAIL}`}
               className="text-primary underline-offset-4 hover:underline"
             >
-              contact@helvety.com
+              {CONTACT_EMAIL}
             </a>{" "}
             if the problem persists.
           </p>

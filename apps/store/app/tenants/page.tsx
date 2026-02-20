@@ -1,5 +1,5 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
-import LoadingSpinner from "@helvety/ui/loading-spinner";
+import { LoadingSpinner } from "@helvety/ui/loading-spinner";
 import { Suspense } from "react";
 
 import { TenantsPageClient } from "@/app/tenants/tenants-page-client";

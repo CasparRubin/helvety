@@ -1,5 +1,6 @@
 "use client";
 
+import { urls } from "@helvety/shared/config";
 import { storeMasterKey } from "@helvety/shared/crypto/key-storage";
 import { isPasskeySupported } from "@helvety/shared/crypto/passkey";
 import {
@@ -15,7 +16,7 @@ import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { startAuthentication } from "@simplewebauthn/browser";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 
 import { getPasskeyParams } from "@/app/actions/encryption-actions";
@@ -79,7 +80,6 @@ export interface LoginFlowState {
 
 /** Hook encapsulating the entire login flow state and handlers. */
 export function useLoginFlow(): LoginFlowState {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createBrowserClient();
   const csrfToken = useCSRF();
@@ -182,8 +182,7 @@ export function useLoginFlow(): LoginFlowState {
           window.location.href = redirectUri;
           return;
         } else {
-          // Default to helvety.com when no redirect_uri is provided
-          window.location.href = "https://helvety.com";
+          window.location.href = urls.home;
           return;
         }
       }
@@ -491,12 +490,10 @@ export function useLoginFlow(): LoginFlowState {
   const handleCompleteAuth = useCallback(() => {
     if (redirectUri) {
       window.location.href = redirectUri;
-    } else if (process.env.NODE_ENV === "production") {
-      window.location.href = "https://helvety.com";
     } else {
-      router.push("/");
+      window.location.href = urls.home;
     }
-  }, [redirectUri, router]);
+  }, [redirectUri]);
 
   // Auto-trigger passkey authentication for existing users who skipped email verification
   useEffect(() => {

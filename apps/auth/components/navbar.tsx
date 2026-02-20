@@ -2,6 +2,7 @@
 
 import { HelvetyIdentifier, HelvetyLogo } from "@helvety/brand";
 import { redirectToLogout } from "@helvety/shared/auth-redirect";
+import { urls } from "@helvety/shared/config";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { AppSwitcher } from "@helvety/ui/app-switcher";
@@ -126,7 +127,7 @@ export function Navbar({
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <AppSwitcher currentApp="Auth" />
           <a
-            href="https://helvety.com"
+            href={urls.home}
             target="_blank"
             rel="noopener noreferrer"
             className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
@@ -267,7 +268,7 @@ export function Navbar({
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/account"
+                        href={`${urls.store}/account`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -281,7 +282,7 @@ export function Navbar({
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/subscriptions"
+                        href={`${urls.store}/subscriptions`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -399,7 +400,7 @@ export function Navbar({
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/account"
+                        href={`${urls.store}/account`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setMobileMenuOpen(false)}
@@ -414,7 +415,7 @@ export function Navbar({
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/subscriptions"
+                        href={`${urls.store}/subscriptions`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setMobileMenuOpen(false)}

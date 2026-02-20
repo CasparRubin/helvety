@@ -1,3 +1,4 @@
+import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { Button } from "@helvety/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy | Helvety",
   description: "Privacy Policy for Helvety - How we handle your data",
   alternates: {
-    canonical: "https://helvety.com/privacy",
+    canonical: `${urls.home}/privacy`,
   },
 };
 
@@ -182,10 +183,10 @@ export default function PrivacyPage() {
               <br />
               Email:{" "}
               <a
-                href="mailto:contact@helvety.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="hover:text-foreground underline transition-colors"
               >
-                contact@helvety.com
+                {CONTACT_EMAIL}
               </a>
               <br />
               Phone:{" "}
@@ -551,7 +552,7 @@ export default function PrivacyPage() {
                 Clicking the &quot;unsubscribe&quot; link at the bottom of any
                 marketing email
               </li>
-              <li>Contacting us at contact@helvety.com</li>
+              <li>Contacting us at {CONTACT_EMAIL}</li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
               Please note that even if you opt out of marketing communications,
@@ -755,10 +756,10 @@ export default function PrivacyPage() {
               further information about the specific safeguards in place for
               each provider by contacting us at{" "}
               <a
-                href="mailto:contact@helvety.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="hover:text-foreground underline transition-colors"
               >
-                contact@helvety.com
+                {CONTACT_EMAIL}
               </a>
               .
             </p>
@@ -893,7 +894,7 @@ export default function PrivacyPage() {
               You can request deletion of your account directly from your
               account settings at{" "}
               <a
-                href="https://helvety.com/store/account"
+                href={`${urls.store}/account`}
                 className="hover:text-foreground underline transition-colors"
               >
                 helvety.com/store/account
@@ -923,10 +924,10 @@ export default function PrivacyPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               To exercise any of these rights, you may also contact us at{" "}
               <a
-                href="mailto:contact@helvety.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="hover:text-foreground underline transition-colors"
               >
-                contact@helvety.com
+                {CONTACT_EMAIL}
               </a>{" "}
               with the subject line &quot;Data Export Request,&quot;
               &quot;Account Deletion Request,&quot; or a description of the
@@ -1284,10 +1285,10 @@ export default function PrivacyPage() {
               If you are a parent or guardian and believe your child has
               provided us with personal data, please contact us at{" "}
               <a
-                href="mailto:contact@helvety.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="hover:text-foreground underline transition-colors"
               >
-                contact@helvety.com
+                {CONTACT_EMAIL}
               </a>
               . If we become aware that we have collected personal data from a
               child under 18, we will take steps to delete such information
@@ -1342,10 +1343,10 @@ export default function PrivacyPage() {
               <br />
               Email:{" "}
               <a
-                href="mailto:contact@helvety.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="hover:text-foreground underline transition-colors"
               >
-                contact@helvety.com
+                {CONTACT_EMAIL}
               </a>
               <br />
               Phone:{" "}

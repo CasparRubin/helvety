@@ -1,6 +1,6 @@
 "use client";
 
-import { urls } from "@helvety/shared/config";
+import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { useEffect } from "react";
 
 /**
@@ -32,10 +32,10 @@ export default function GlobalError({
               <p className="text-muted-foreground max-w-md">
                 A critical error occurred. Please try again, or contact us at{" "}
                 <a
-                  href="mailto:contact@helvety.com"
+                  href={`mailto:${CONTACT_EMAIL}`}
                   className="text-primary underline-offset-4 hover:underline"
                 >
-                  contact@helvety.com
+                  {CONTACT_EMAIL}
                 </a>{" "}
                 if the problem persists.
               </p>

@@ -40,7 +40,7 @@ interface ErrorTrackingService {
  * Safe internal logger for error tracking failures
  * Uses console directly to avoid circular dependencies when error tracking itself fails
  * This is only used internally and never exposed to prevent bypassing the main logger
- * @param {...any} args
+ * @param {...unknown} args
  */
 function safeInternalErrorLog(...args: unknown[]): void {
   // Direct console.error is necessary here to prevent infinite loops

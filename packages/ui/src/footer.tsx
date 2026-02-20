@@ -1,7 +1,8 @@
+import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
-const LEGAL_BASE = "https://helvety.com";
+const LEGAL_BASE = urls.home;
 
 const linkClass = "hover:text-muted-foreground transition-colors";
 
@@ -16,7 +17,7 @@ const LINKS = [
 /**
  * Site footer: contact email, legal links, and cookie info.
  *
- * @param external - When true, legal links point to absolute https://helvety.com/... URLs
+ * @param external - When true, legal links point to absolute URLs (urls.home)
  *   with target="_blank" (for apps served on sub-paths). When false, links are
  *   relative (for the main web app).
  * @param renderLink - Optional custom link renderer (e.g. Next.js Link). Receives
@@ -74,8 +75,8 @@ export function Footer({
             essential cookies for authentication and security.
           </p>
           <nav className="text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px]">
-            <a href="mailto:contact@helvety.com" className={linkClass}>
-              contact@helvety.com
+            <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
+              {CONTACT_EMAIL}
             </a>
             {LINKS.map(({ href, label }) => (
               <React.Fragment key={href}>

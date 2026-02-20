@@ -11,18 +11,14 @@ const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
 const CSP_NONCE_LENGTH = 16;
 
-/**
- *
- */
+/** Options for building the Content-Security-Policy header in the proxy. */
 export type BuildCspOptions = {
   imgBlob?: boolean;
   scriptUnsafeEval?: "always" | "dev-only";
   workerBlob?: boolean;
 };
 
-/**
- *
- */
+/** Configuration for creating a session-refreshing proxy handler. */
 export type CreateSessionRefreshProxyOptions = {
   /** CSP options (imgBlob, scriptUnsafeEval, workerBlob) */
   buildCspOptions?: BuildCspOptions;

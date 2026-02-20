@@ -1,3 +1,4 @@
+import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { Button } from "@helvety/ui/button";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   title: "Impressum | Helvety",
   description: "Impressum for Helvety - Software and Subscriptions",
   alternates: {
-    canonical: "https://helvety.com/impressum",
+    canonical: `${urls.home}/impressum`,
   },
 };
 
@@ -76,10 +77,10 @@ export default function ImpressumPage() {
                 <p className="text-muted-foreground">
                   Email:{" "}
                   <a
-                    href="mailto:contact@helvety.com"
+                    href={`mailto:${CONTACT_EMAIL}`}
                     className="hover:text-foreground underline transition-colors"
                   >
-                    contact@helvety.com
+                    {CONTACT_EMAIL}
                   </a>
                 </p>
                 <p className="text-muted-foreground">
@@ -148,10 +149,10 @@ export default function ImpressumPage() {
                 <p className="text-muted-foreground">
                   Email:{" "}
                   <a
-                    href="mailto:contact@helvety.com"
+                    href={`mailto:${CONTACT_EMAIL}`}
                     className="hover:text-foreground underline transition-colors"
                   >
-                    contact@helvety.com
+                    {CONTACT_EMAIL}
                   </a>
                 </p>
               </div>
@@ -201,10 +202,10 @@ export default function ImpressumPage() {
               For data protection inquiries or to exercise your rights under the
               Swiss Federal Act on Data Protection (nDSG), please contact us at{" "}
               <a
-                href="mailto:contact@helvety.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="hover:text-foreground transition-colors"
               >
-                contact@helvety.com
+                {CONTACT_EMAIL}
               </a>
               . For full details on how we handle your data, see our{" "}
               <Link

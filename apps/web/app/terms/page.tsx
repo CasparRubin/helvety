@@ -1,3 +1,4 @@
+import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { Button } from "@helvety/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   title: "Terms of Service | Helvety",
   description: "Terms of Service for Helvety - Software and Subscriptions",
   alternates: {
-    canonical: "https://helvety.com/terms",
+    canonical: `${urls.home}/terms`,
   },
 };
 
@@ -947,7 +948,7 @@ export default function TermsPage() {
               </li>
               <li>
                 If you notice an error after completing your purchase, contact
-                us immediately at contact@helvety.com.
+                us immediately at {CONTACT_EMAIL}.
               </li>
             </ul>
 
@@ -1014,7 +1015,7 @@ export default function TermsPage() {
               receive a receipt from Stripe for each renewal charge. You can
               view your subscription status and manage cancellation at{" "}
               <a
-                href="https://helvety.com/store/account"
+                href={`${urls.store}/account`}
                 className="hover:text-foreground underline transition-colors"
               >
                 helvety.com/store/account
@@ -1080,7 +1081,7 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               To exercise this right, you would inform us of your decision to
               return the goods by a clear statement (e.g., email to
-              contact@helvety.com). Products must be returned in their original
+              {CONTACT_EMAIL}). Products must be returned in their original
               condition, unworn and with all tags attached. You will bear the
               cost of returning the goods.
             </p>
@@ -1258,12 +1259,12 @@ export default function TermsPage() {
               You may terminate your account at any time by using the account
               deletion feature at{" "}
               <a
-                href="https://helvety.com/store/account"
+                href={`${urls.store}/account`}
                 className="hover:text-foreground underline transition-colors"
               >
                 helvety.com/store/account
               </a>{" "}
-              or by contacting us at contact@helvety.com. Account deletion is
+              or by contacting us at {CONTACT_EMAIL}. Account deletion is
               permanent and cannot be undone. We recommend exporting your data
               before proceeding. Account termination does not entitle you to any
               refund of fees already paid.
@@ -1285,10 +1286,10 @@ export default function TermsPage() {
                 Amicable Dispute Resolution:
               </strong>{" "}
               Before initiating legal proceedings, we encourage you to contact
-              us at contact@helvety.com to attempt to resolve any dispute
-              amicably. We will endeavor to respond within 14 days. Nothing in
-              this section prevents either party from seeking injunctive or
-              other equitable relief from a court of competent jurisdiction.
+              us at {CONTACT_EMAIL} to attempt to resolve any dispute amicably.
+              We will endeavor to respond within 14 days. Nothing in this
+              section prevents either party from seeking injunctive or other
+              equitable relief from a court of competent jurisdiction.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Any disputes arising out of or relating to these Terms or the
@@ -1340,8 +1341,8 @@ export default function TermsPage() {
               account; or (ii) by posting to the Services. For notices made by
               email, the date of receipt will be deemed the date on which such
               notice is transmitted. You may give us notice by email to
-              contact@helvety.com or by mail to our address listed in the
-              Contact section.
+              {CONTACT_EMAIL} or by mail to our address listed in the Contact
+              section.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Export Compliance:</strong>{" "}
@@ -1403,10 +1404,10 @@ export default function TermsPage() {
               <br />
               Email:{" "}
               <a
-                href="mailto:contact@helvety.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="hover:text-foreground underline transition-colors"
               >
-                contact@helvety.com
+                {CONTACT_EMAIL}
               </a>
               <br />
               Phone:{" "}

@@ -202,11 +202,6 @@ export function getSupabaseKey(): string {
           "Please use the anon/publishable key instead."
       );
     }
-
-    // Validate the key is an anon key (not service role)
-    if (key) {
-      validateAnonKey(key);
-    }
   }
 
   return key;

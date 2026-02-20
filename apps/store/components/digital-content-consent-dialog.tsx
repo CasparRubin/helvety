@@ -16,6 +16,7 @@
  * No EU Consumer Rights Directive provisions apply.
  */
 
+import { urls } from "@helvety/shared/config";
 import { Button } from "@helvety/ui/button";
 import { Checkbox } from "@helvety/ui/checkbox";
 import {
@@ -30,7 +31,7 @@ import { Label } from "@helvety/ui/label";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { useState } from "react";
 
-const LEGAL_BASE = "https://helvety.com";
+const LEGAL_BASE = urls.home;
 
 /** Consent metadata returned when the user confirms. */
 export interface ConsentMetadata {

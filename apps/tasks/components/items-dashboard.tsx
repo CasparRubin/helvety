@@ -1,6 +1,5 @@
 "use client";
 
-import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -45,6 +44,7 @@ import {
   useLabelAssignment,
   useDataExport,
 } from "@/hooks";
+import { useEncryptionContext } from "@/lib/crypto";
 
 /**
  * Items Dashboard - shows all items for a specific space

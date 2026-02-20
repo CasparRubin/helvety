@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
  * Shared loading spinner used as the root loading boundary across all apps.
  * Shown immediately during route transitions while the server component renders.
  */
-export default function LoadingSpinner() {
+export function LoadingSpinner() {
   return (
     <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
       <div className="flex flex-col items-center gap-4">

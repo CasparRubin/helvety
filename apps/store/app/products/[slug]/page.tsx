@@ -1,5 +1,6 @@
 import { getOptionalUser } from "@helvety/shared/auth-guard";
-import LoadingSpinner from "@helvety/ui/loading-spinner";
+import { urls } from "@helvety/shared/config";
+import { LoadingSpinner } from "@helvety/ui/loading-spinner";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 
@@ -38,12 +39,12 @@ export async function generateMetadata({
     description: product.shortDescription,
     keywords: product.metadata?.keywords,
     alternates: {
-      canonical: `https://helvety.com/store/products/${product.slug}`,
+      canonical: `${urls.store}/products/${product.slug}`,
     },
     openGraph: {
       title: `${product.name} | Helvety Store`,
       description: product.shortDescription,
-      url: `https://helvety.com/store/products/${product.slug}`,
+      url: `${urls.store}/products/${product.slug}`,
       ...(ogImage && {
         images: [{ url: ogImage.src, alt: ogImage.alt }],
       }),
@@ -87,7 +88,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         "@type": "Product",
         name: product.name,
         description: product.shortDescription,
-        url: `https://helvety.com/store/products/${product.slug}`,
+        url: `${urls.store}/products/${product.slug}`,
         brand: {
           "@type": "Organization",
           name: "Helvety",

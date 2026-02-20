@@ -1,5 +1,6 @@
 "use client";
 
+import { urls } from "@helvety/shared/config";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { generateKeyCheckValue } from "@helvety/shared/crypto/key-check";
 import { storeMasterKey } from "@helvety/shared/crypto/key-storage";
@@ -254,7 +255,7 @@ export function EncryptionSetup({
       const destination =
         redirectUri && isValidRedirectUri(redirectUri)
           ? redirectUri
-          : "https://helvety.com";
+          : urls.home;
       window.location.href = destination;
     } catch (err) {
       const message =

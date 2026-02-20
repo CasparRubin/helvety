@@ -1,3 +1,5 @@
+import { urls } from "@helvety/shared/config";
+
 import { ProductsCatalog } from "@/components/products/products-catalog";
 
 import type { Metadata } from "next";
@@ -6,7 +8,7 @@ export const metadata: Metadata = {
   title: "Products",
   description: "Browse software and subscriptions from Helvety",
   alternates: {
-    canonical: "https://helvety.com/store/products",
+    canonical: `${urls.store}/products`,
   },
 };
 

@@ -5,6 +5,8 @@
  * what step the user needs to complete (passkey setup, signin, or complete).
  */
 
+import { urls } from "@helvety/shared/config";
+
 import { getOwnPasskeyStatus } from "@/app/actions/credential-actions";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 
@@ -16,7 +18,7 @@ export type AuthStep = "encryption-setup" | "passkey-signin" | "complete";
  * Always redirects to helvety.com when no redirect_uri is provided
  */
 export function getFinalRedirectUrl(redirectUri?: string | null): string {
-  return redirectUri ?? "https://helvety.com";
+  return redirectUri ?? urls.home;
 }
 
 /** Result of checking the required auth step */

@@ -165,7 +165,7 @@ This project is built with modern web technologies:
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
 - **[Lucide React](https://lucide.dev/)** - Icon library
-- **[Zod](https://zod.dev/)** - TypeScript-first schema validation
+- **[Zod 4](https://zod.dev/)** - TypeScript-first schema validation
 - **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
 
 ## Testing

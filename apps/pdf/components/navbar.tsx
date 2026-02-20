@@ -5,6 +5,7 @@ import {
   redirectToLogin,
   redirectToLogout,
 } from "@helvety/shared/auth-redirect";
+import { urls } from "@helvety/shared/config";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { AppSwitcher } from "@helvety/ui/app-switcher";
 import { Button } from "@helvety/ui/button";
@@ -128,7 +129,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <AppSwitcher currentApp="PDF" />
           <a
-            href="https://helvety.com"
+            href={urls.home}
             target="_blank"
             rel="noopener noreferrer"
             className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
@@ -174,9 +175,9 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
                     Privacy-focused, client-side PDF toolkit for merging,
-                    reordering, rotating, and extracting pages. All processing
-                    happens locally in your browser. Free to use, up to 100MB
-                    per file. Engineered & Designed in Switzerland.
+                    reordering, deleting, rotating, and extracting pages. All
+                    processing happens locally in your browser. Free to use, up
+                    to 100MB per file. Engineered & Designed in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
@@ -247,7 +248,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/account"
+                        href={`${urls.store}/account`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -261,7 +262,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/subscriptions"
+                        href={`${urls.store}/subscriptions`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -371,7 +372,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/account"
+                        href={`${urls.store}/account`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setMobileMenuOpen(false)}
@@ -386,7 +387,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/subscriptions"
+                        href={`${urls.store}/subscriptions`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setMobileMenuOpen(false)}

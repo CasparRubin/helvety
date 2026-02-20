@@ -3,6 +3,7 @@
 import "server-only";
 
 import { logAuthEvent } from "@helvety/shared/auth-logger";
+import { urls } from "@helvety/shared/config";
 import { generateCSRFToken, requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
@@ -363,8 +364,7 @@ export async function verifyPasskeyAuthentication(
     // Return the redirect URL - session is already set via cookies
     // Re-validate stored redirectUri as defense-in-depth
     const redirectUrl =
-      getSafeRedirectUri(storedData.redirectUri, "https://helvety.com") ??
-      "https://helvety.com";
+      getSafeRedirectUri(storedData.redirectUri, urls.home) ?? urls.home;
     return {
       success: true,
       data: {

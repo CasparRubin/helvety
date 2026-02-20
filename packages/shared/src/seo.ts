@@ -5,6 +5,8 @@
  * single-entry sitemap and standard robots patterns used by sub-apps.
  */
 
+import { urls } from "./config";
+
 import type { MetadataRoute } from "next";
 
 /** User agents explicitly allowed in robots.txt across all Helvety apps. */
@@ -19,7 +21,7 @@ const ALLOWED_USER_AGENTS = [
   "FacebookBot",
 ] as const;
 
-const DOMAIN = "https://helvety.com";
+const DOMAIN = urls.home;
 
 /**
  * Creates a single-entry sitemap for a sub-app.

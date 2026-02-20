@@ -1,5 +1,6 @@
 "use client";
 
+import { urls } from "@helvety/shared/config";
 import { clearAllKeys } from "@helvety/shared/crypto/key-storage";
 import { clearCachedPRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
@@ -62,10 +63,7 @@ function LogoutHandler() {
       await signOutAction(csrfToken ?? undefined, globalLogout);
 
       const rawRedirectUri = searchParams.get("redirect_uri");
-      const defaultRedirect =
-        process.env.NODE_ENV === "production"
-          ? "https://helvety.com"
-          : `${window.location.origin}/login`;
+      const defaultRedirect = urls.home;
 
       const redirectTo =
         rawRedirectUri && isValidRedirectUri(rawRedirectUri)

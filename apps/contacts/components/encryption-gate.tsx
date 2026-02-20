@@ -1,6 +1,7 @@
 "use client";
 
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
+import { CONTACT_EMAIL } from "@helvety/shared/config";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState, useRef, useMemo, type ReactNode } from "react";
@@ -229,10 +230,10 @@ export function EncryptionGate({
           <p className="text-muted-foreground mt-2 text-sm">
             If this problem persists, contact us at{" "}
             <a
-              href="mailto:contact@helvety.com"
+              href={`mailto:${CONTACT_EMAIL}`}
               className="text-primary underline-offset-4 hover:underline"
             >
-              contact@helvety.com
+              {CONTACT_EMAIL}
             </a>
           </p>
           <button

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -29,6 +28,7 @@ import {
   useStageAssignment,
   useDataExport,
 } from "@/hooks";
+import { useEncryptionContext } from "@/lib/crypto";
 
 /**
  * Task Dashboard - Main view for Units list

@@ -5,6 +5,7 @@ import {
   redirectToLogin,
   redirectToLogout,
 } from "@helvety/shared/auth-redirect";
+import { urls } from "@helvety/shared/config";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { AppSwitcher } from "@helvety/ui/app-switcher";
 import { Button } from "@helvety/ui/button";
@@ -240,7 +241,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/account"
+                        href={`${urls.store}/account`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -254,7 +255,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/subscriptions"
+                        href={`${urls.store}/subscriptions`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -364,7 +365,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/account"
+                        href={`${urls.store}/account`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setMobileMenuOpen(false)}
@@ -379,7 +380,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       asChild
                     >
                       <a
-                        href="https://helvety.com/store/subscriptions"
+                        href={`${urls.store}/subscriptions`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setMobileMenuOpen(false)}

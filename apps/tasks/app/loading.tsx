@@ -1,1 +1,1 @@
-export { default } from "@helvety/ui/loading-spinner";
+export { LoadingSpinner as default } from "@helvety/ui/loading-spinner";

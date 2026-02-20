@@ -1,6 +1,5 @@
 "use client";
 
-import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -41,6 +40,7 @@ import {
   useStageAssignment,
   useDataExport,
 } from "@/hooks";
+import { useEncryptionContext } from "@/lib/crypto";
 
 /**
  * Spaces Dashboard - shows all spaces for a specific unit

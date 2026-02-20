@@ -1,5 +1,6 @@
 "use client";
 
+import { urls } from "@helvety/shared/config";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import {
@@ -181,7 +182,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
 
       // Redirect to homepage after deletion
       setTimeout(() => {
-        window.location.href = "https://helvety.com";
+        window.location.href = urls.home;
       }, 2000);
     } catch (error) {
       logger.error("Error deleting account:", error);

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { logger } from "@helvety/shared/logger";
 import { Button } from "@helvety/ui/button";
 import {
@@ -30,6 +29,7 @@ import {
   useCategoryAssignment,
 } from "@/hooks";
 import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
+import { useEncryptionContext } from "@/lib/crypto";
 import { downloadContactDataExport } from "@/lib/data-export";
 
 import type { ContactRow } from "@/lib/types";

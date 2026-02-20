@@ -8,6 +8,7 @@ import "server-only";
  */
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { CONTACT_EMAIL } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
@@ -113,8 +114,7 @@ export async function updateUserEmail(
 
       return {
         success: false,
-        error:
-          "We couldn't update your email. Please try again, or contact us at contact@helvety.com.",
+        error: `We couldn't update your email. Please try again, or contact us at ${CONTACT_EMAIL}.`,
       };
     }
 
