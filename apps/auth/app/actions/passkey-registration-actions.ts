@@ -11,9 +11,10 @@ import {
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 
+import { PRF_VERSION } from "@helvety/shared/crypto";
+
 import {
   RP_NAME,
-  PRF_VERSION,
   generatePRFSalt,
   getRpId,
   getExpectedOrigins,

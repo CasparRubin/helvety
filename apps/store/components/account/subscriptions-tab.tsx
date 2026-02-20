@@ -191,7 +191,7 @@ export function SubscriptionsTab() {
   }, [subscriptions]);
 
   /**
-   * Load user subscriptions from the API.
+   * Load user subscriptions via server action.
    * @param showRefreshIndicator - If true, show refresh spinner instead of full loading state
    */
   async function loadSubscriptions(showRefreshIndicator = false) {

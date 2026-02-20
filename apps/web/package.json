@@ -34,7 +34,6 @@
     "@helvety/ui": "workspace:*",
     "@fontsource-variable/public-sans": "^5.2.7",
     "radix-ui": "^1.4.3",
-    "@simplewebauthn/browser": "^13.2.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
     "@upstash/ratelimit": "^2.0.8",

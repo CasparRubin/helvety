@@ -44,7 +44,7 @@ export function getLoginUrl(currentUrl?: string): string {
  * Security: The redirect URI is validated against an allowlist to prevent
  * open redirect attacks. Invalid URIs fall back to the default app URL.
  */
-export function getLogoutUrl(redirectUri?: string): string {
+function getLogoutUrl(redirectUri?: string): string {
   // Validate the provided URI; fall back to default if invalid
   const redirect =
     redirectUri && isValidRedirectUri(redirectUri) ? redirectUri : urls.home;

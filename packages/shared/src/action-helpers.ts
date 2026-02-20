@@ -12,7 +12,7 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 // =============================================================================
 
 /** Context provided to server actions after authentication and rate limiting */
-export interface AuthContext {
+interface AuthContext {
   /** The authenticated user */
   user: User;
   /** Supabase client scoped to the request */
@@ -29,7 +29,7 @@ type AuthResult =
   | { ok: false; response: { success: false; error: string } };
 
 /** Rate limit thresholds for use with `rateLimitConfig` / `readRateLimitConfig` */
-export interface RateLimitThresholds {
+interface RateLimitThresholds {
   maxRequests: number;
   windowMs: number;
 }

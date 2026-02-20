@@ -28,7 +28,6 @@ export type StoredChallenge = {
 export const RP_NAME = "Helvety";
 export const CHALLENGE_COOKIE_NAME = "webauthn_challenge";
 export const CHALLENGE_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
-export const PRF_VERSION = 1; // Current PRF encryption version
 export const PRF_SALT_LENGTH = 32; // PRF salt length in bytes
 
 const StoredChallengeSchema = z.object({
@@ -100,9 +99,8 @@ export function getRpId(origin: string): string {
  */
 export function getExpectedOrigins(rpId: string): string[] {
   if (rpId === "localhost") {
-    // All local development ports for Helvety apps
+    // All local development ports for Helvety apps (3001–3006)
     return [
-      "http://localhost:3000",
       ...Object.values(DEV_PORTS).map((port) => `http://localhost:${port}`),
     ];
   }

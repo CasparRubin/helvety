@@ -207,15 +207,6 @@ export interface LicenseValidationResponse {
 // =============================================================================
 
 /**
- * Request to create a checkout session
- */
-export interface CreateCheckoutRequest {
-  tierId: string;
-  successUrl?: string;
-  cancelUrl?: string;
-}
-
-/**
  * Response from creating a checkout session
  */
 export interface CreateCheckoutResponse {
