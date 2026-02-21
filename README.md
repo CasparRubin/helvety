@@ -94,7 +94,7 @@ helvety/
 │   ├── shared/       # Shared libraries
 │   └── ui/           # Shared UI components (shadcn/ui, footer, navbar building blocks, Tiptap editor, auth/session recovery)
 ├── patches/          # Bun dependency patches (applied on install)
-├── supabase/         # Database schema, migrations, and config (supabase.json is gitignored)
+├── supabase/         # Supabase project config (supabase.json is gitignored)
 ├── turbo.json        # Turborepo task configuration
 └── package.json      # Root workspace configuration
 ```

@@ -2,21 +2,19 @@
  * Centralized logging utility
  *
  * LOGGING STRATEGY:
- * - Development: All log levels (log, warn, info, debug, error) are output to console
- * - Production: Only error logs are output (with sanitization), other levels are suppressed
+ * - Development: All log levels output to console in human-readable format
+ * - Production: error and warn always output; info outputs as structured JSON
+ *   for Vercel Log Drains / log aggregators; debug is suppressed
  *
- * RATIONALE:
- * - Errors are critical and need to be logged in production for monitoring/debugging
- * - Other log levels (log, warn, info, debug) are primarily for development debugging
- * - Production error logs are sanitized to prevent exposure of sensitive data
- * - This reduces production log noise while maintaining error visibility
+ * STRUCTURED OUTPUT (production only):
+ * All production logs are emitted as single-line JSON objects:
+ *   { "level": "error", "message": "...", "timestamp": "...", "metadata": {...} }
+ * This makes them filterable in Vercel Logs, Datadog, Loki, etc.
  *
  * SECURITY NOTES (for auditors):
  * - Sensitive keys (passwords, tokens, secrets) are automatically redacted from logged objects
  * - String messages may contain identifiers (user IDs, entity IDs) for debugging
  * - These identifiers are UUIDs/internal IDs, not personal data (no emails, names, etc.)
- * - Info/warn/debug logs containing identifiers are suppressed in production
- * - Only error logs are output in production, and only for critical debugging
  * - Access to production logs should be restricted at the infrastructure level
  *   (e.g., Vercel logs, cloud provider logging services)
  */
@@ -24,8 +22,8 @@
 const isDevelopment = process.env.NODE_ENV === "development";
 
 /**
- * Error tracking service interface
- * Allows integration with services like Sentry, LogRocket, etc.
+ * Error tracking service interface.
+ * Hook for plugging in an external provider if ever needed.
  */
 interface ErrorTrackingService {
   captureException(error: Error, context?: Record<string, unknown>): void;
@@ -61,8 +59,7 @@ class ErrorTracker implements ErrorTrackingService {
   private service: ErrorTrackingService | null = null;
 
   /**
-   * Initialize error tracking service
-   * Call this method to set up integration with services like Sentry
+   * Initialize with an external error tracking provider.
    * @param service
    */
   init(service: ErrorTrackingService): void {
@@ -194,6 +191,70 @@ function sanitizeObject(
   return sanitized;
 }
 
+/**
+ * Builds the message and metadata for a structured log entry.
+ * Extracts a message string and optional metadata from variadic args.
+ */
+function buildStructuredEntry(
+  _level: string,
+  args: unknown[]
+): { message: string; metadata?: Record<string, unknown> } {
+  const first = args[0];
+  let message: string;
+  let metadata: Record<string, unknown> | undefined;
+
+  if (first instanceof Error) {
+    message = first.message;
+    metadata = { stack: first.stack, name: first.name };
+  } else if (typeof first === "string") {
+    message = first;
+  } else {
+    message = String(first);
+  }
+
+  if (args.length > 1) {
+    const rest = args.slice(1);
+    const extra: Record<string, unknown> = {};
+    rest.forEach((arg, i) => {
+      if (isRecord(arg)) {
+        Object.assign(extra, sanitizeObject(arg));
+      } else {
+        extra[`arg${i + 1}`] = arg;
+      }
+    });
+    metadata = { ...metadata, ...extra };
+  }
+
+  if (metadata) {
+    metadata = sanitizeObject(metadata);
+  }
+
+  return { message, metadata };
+}
+
+/** Emits a single-line JSON log entry to the appropriate console method. */
+function emitStructuredLog(level: string, args: unknown[]): void {
+  const { message, metadata } = buildStructuredEntry(level, args);
+  const entry: Record<string, unknown> = {
+    level,
+    message,
+    timestamp: new Date().toISOString(),
+  };
+  if (metadata && Object.keys(metadata).length > 0) {
+    entry.metadata = metadata;
+  }
+
+  const json = JSON.stringify(entry);
+  if (level === "error") {
+    console.error(json);
+  } else if (level === "warn") {
+    console.warn(json);
+  } else {
+    // eslint-disable-next-line no-console -- Structured log output for production log drains
+    console.log(json);
+  }
+}
+
 export const logger = {
   log: (...args: unknown[]): void => {
     if (isDevelopment) {
@@ -206,27 +267,9 @@ export const logger = {
     if (isDevelopment) {
       console.error(...args);
     } else {
-      // In production, sanitize errors before logging
-      // Uses recursive sanitization to handle nested objects and arrays
-      const sanitizedArgs = args.map((arg) => {
-        if (isRecord(arg)) {
-          return sanitizeObject(arg);
-        }
-        // Handle arrays that might contain sensitive objects
-        if (Array.isArray(arg)) {
-          return arg.map((item) => {
-            if (isRecord(item)) {
-              return sanitizeObject(item);
-            }
-            return item;
-          });
-        }
-        return arg;
-      });
-      console.error(...sanitizedArgs);
+      emitStructuredLog("error", args);
     }
 
-    // Send to error tracking service (works in both dev and prod)
     const firstArg = args[0];
     if (firstArg instanceof Error) {
       const context =
@@ -246,6 +289,8 @@ export const logger = {
   warn: (...args: unknown[]): void => {
     if (isDevelopment) {
       console.warn(...args);
+    } else {
+      emitStructuredLog("warn", args);
     }
   },
 
@@ -253,6 +298,8 @@ export const logger = {
     if (isDevelopment) {
       // eslint-disable-next-line no-console -- Intentional: logger utility for development debugging
       console.info(...args);
+    } else {
+      emitStructuredLog("info", args);
     }
   },
 

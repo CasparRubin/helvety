@@ -21,6 +21,8 @@ const nextConfig: NextConfig = {
     root: path.resolve("../.."),
   },
 
+  reactCompiler: true,
+
   experimental: {
     optimizePackageImports: [
       "lucide-react",

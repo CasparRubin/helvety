@@ -13,10 +13,13 @@
   },
   "scripts": {
     "type-check": "tsc --noEmit",
-    "lint": "eslint . --max-warnings 0"
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "exports": {
     "./action-helpers": "./src/action-helpers.ts",
+    "./action-response": "./src/action-response.ts",
     "./auth-callback": "./src/auth-callback.ts",
     "./config": "./src/config.ts",
     "./csp-report": "./src/csp-report.ts",
@@ -53,23 +56,27 @@
   },
   "dependencies": {
     "@helvety/config": "workspace:*",
+    "@simplewebauthn/browser": "^13.2.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.2",
     "clsx": "^2.1.1",
     "server-only": "^0.0.1",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
-    "zod": "^4.3.6",
-    "@simplewebauthn/browser": "^13.2.2"
+    "zod": "^4.3.6"
   },
   "peerDependencies": {
     "next": "^16",
     "react": "^19"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/react": "^19",
+    "@vitejs/plugin-react": "^5.1.4",
     "eslint": "^9",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   }
 }

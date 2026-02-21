@@ -94,6 +94,29 @@ const envSchema = z.object({
     }),
 });
 
+/**
+ * Server-side env schema for apps that use SUPABASE_SECRET_KEY (admin client).
+ * Compose with app-specific schemas via z.object({}).merge().
+ */
+export const serverEnvSchema = z.object({
+  SUPABASE_SECRET_KEY: z
+    .string()
+    .min(40, "SUPABASE_SECRET_KEY is too short to be a valid service role key"),
+});
+
+/**
+ * Upstash Redis env schema for rate limiting.
+ * In production, missing values cause rate limiting to fail closed.
+ */
+export const upstashEnvSchema = z.object({
+  UPSTASH_REDIS_REST_URL: z
+    .string()
+    .url("UPSTASH_REDIS_REST_URL must be a valid URL"),
+  UPSTASH_REDIS_REST_TOKEN: z
+    .string()
+    .min(1, "UPSTASH_REDIS_REST_TOKEN is required"),
+});
+
 /** Validated environment variable types */
 type Env = z.infer<typeof envSchema>;
 

@@ -9,8 +9,6 @@
  * This is a placeholder. Run `bun run db:gen-types` to generate real types
  * from your Supabase schema. Without generated types, all Supabase queries
  * lack compile-time safety against the database schema.
- *
- * CI should verify this file is not a placeholder (see .github/workflows/ci.yml).
  */
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- placeholder until types are generated

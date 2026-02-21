@@ -18,6 +18,7 @@
  * in accordance with the Privacy Policy.
  */
 
+import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 
 import type { LogLevel } from "@helvety/shared/auth-logger";
@@ -100,18 +101,15 @@ async function persistToDatabase(
     });
 
     if (error) {
-      // Log to stderr but don't throw -- audit persistence should never
-      // block the user's operation
-      console.error(
+      logger.error(
         "[ATTACHMENT-AUDIT] Failed to persist audit log to database:",
-        error.message
+        { message: error.message }
       );
     }
   } catch (err) {
-    console.error(
-      "[ATTACHMENT-AUDIT] Unexpected error persisting audit log:",
-      err
-    );
+    logger.error("[ATTACHMENT-AUDIT] Unexpected error persisting audit log:", {
+      error: err instanceof Error ? err.message : String(err),
+    });
   }
 }
 
@@ -184,41 +182,29 @@ export function logAttachmentEvent(
   if (metadata && Object.keys(metadata).length > 0)
     logEntry.metadata = metadata;
 
-  // ── Stdout logging (real-time monitoring) ──────────────────────────
-  if (process.env.NODE_ENV === "production") {
-    // JSON format for log aggregation services
-    const logFn =
-      logEntry.level === "error"
-        ? console.error
-        : logEntry.level === "warn"
-          ? console.warn
-          : // eslint-disable-next-line no-console -- Audit logger intentionally uses console.log
-            console.log;
-    logFn(JSON.stringify({ ...logEntry, source: "attachment-audit" }));
-  } else {
-    // Human-readable format for development
-    const prefix = `[ATTACHMENT:${logEntry.level.toUpperCase()}]`;
-    const maskedUserId =
-      userId.length > 8
-        ? `${userId.slice(0, 4)}...${userId.slice(-4)}`
-        : userId;
-    const message = `${prefix} ${event} (user: ${maskedUserId})`;
-    const details = {
-      ...(attachmentId && { attachmentId }),
-      ...(itemId && { itemId }),
-      ...(storagePath && { storagePath }),
-      ...(fileSizeBytes !== undefined && { fileSizeBytes }),
-      ...(ip && { ip }),
-      ...(metadata && { ...metadata }),
-    };
+  // ── Stdout logging via shared logger ────────────────────────────────
+  const maskedUserId =
+    userId.length > 8 ? `${userId.slice(0, 4)}...${userId.slice(-4)}` : userId;
 
-    if (Object.keys(details).length > 0) {
-      // eslint-disable-next-line no-console -- Audit logger intentionally uses console.log
-      console.log(message, details);
-    } else {
-      // eslint-disable-next-line no-console -- Audit logger intentionally uses console.log
-      console.log(message);
-    }
+  const message = `[ATTACHMENT] ${event} (user: ${maskedUserId})`;
+  const details: Record<string, unknown> = {
+    source: "attachment-audit",
+    event,
+    userId: maskedUserId,
+    ...(attachmentId && { attachmentId }),
+    ...(itemId && { itemId }),
+    ...(storagePath && { storagePath }),
+    ...(fileSizeBytes !== undefined && { fileSizeBytes }),
+    ...(ip && { ip }),
+    ...(metadata && { ...metadata }),
+  };
+
+  if (logEntry.level === "error") {
+    logger.error(message, details);
+  } else if (logEntry.level === "warn") {
+    logger.warn(message, details);
+  } else {
+    logger.info(message, details);
   }
 
   // ── Database persistence (6-month retention) ───────────────────────

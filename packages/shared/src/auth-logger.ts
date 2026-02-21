@@ -2,11 +2,13 @@
  * Authentication Event Logger
  *
  * Provides structured logging for authentication and security events.
- * In production, logs are formatted as JSON for easy parsing by log aggregation services.
- * In development, logs are formatted for human readability.
+ * Routes all output through the shared logger so production gets
+ * structured JSON and dev gets human-readable console output.
  *
  * IMPORTANT: Never log sensitive data like passwords, tokens, or full credentials.
  */
+
+import { logger } from "./logger";
 
 /**
  * Authentication event types
@@ -34,19 +36,6 @@ export type AuthEvent =
  * Log severity levels
  */
 export type LogLevel = "info" | "warn" | "error";
-
-/**
- * Auth log entry structure
- */
-interface AuthLogEntry {
-  timestamp: string;
-  level: LogLevel;
-  event: AuthEvent;
-  userId?: string;
-  metadata?: Record<string, unknown>;
-  userAgent?: string;
-  ip?: string;
-}
 
 /**
  * Map events to their default severity levels
@@ -128,19 +117,12 @@ function getUserAgent(): string | undefined {
  * @param options.level - Override the default log level for this event
  *
  * @example
- * // Log a successful login
  * logAuthEvent("login_success", { userId: "user_123" });
  *
- * // Log a failed login with reason
+ * @example
  * logAuthEvent("login_failed", {
  *   metadata: { reason: "invalid_email" },
  *   ip: "192.168.1.1"
- * });
- *
- * // Log rate limiting
- * logAuthEvent("rate_limit_exceeded", {
- *   metadata: { endpoint: "/login", retryAfter: 60 },
- *   ip: clientIp
  * });
  */
 export function logAuthEvent(
@@ -154,63 +136,36 @@ export function logAuthEvent(
 ): void {
   const { userId, metadata, ip, level } = options;
 
-  const logEntry: AuthLogEntry = {
-    timestamp: new Date().toISOString(),
-    level: level ?? EVENT_LEVELS[event],
+  const resolvedLevel = level ?? EVENT_LEVELS[event];
+
+  const maskedUserId =
+    userId && userId.length > 8
+      ? `${userId.slice(0, 4)}...${userId.slice(-4)}`
+      : userId;
+
+  const sanitizedMeta =
+    metadata && Object.keys(metadata).length > 0
+      ? sanitizeMetadata(metadata)
+      : undefined;
+
+  const userAgent = getUserAgent();
+
+  const details: Record<string, unknown> = {
+    source: "auth",
     event,
+    ...(maskedUserId && { userId: maskedUserId }),
+    ...(sanitizedMeta && { ...sanitizedMeta }),
+    ...(userAgent && { userAgent }),
+    ...(ip && { ip }),
   };
 
-  // Add user ID (partially masked for privacy)
-  if (userId) {
-    logEntry.userId =
-      userId.length > 8
-        ? `${userId.slice(0, 4)}...${userId.slice(-4)}`
-        : userId;
-  }
+  const message = `[AUTH] ${event}`;
 
-  // Add sanitized metadata
-  if (metadata && Object.keys(metadata).length > 0) {
-    logEntry.metadata = sanitizeMetadata(metadata);
-  }
-
-  // Add user agent (client-side only)
-  const userAgent = getUserAgent();
-  if (userAgent) {
-    logEntry.userAgent = userAgent;
-  }
-
-  // Add IP (if provided)
-  if (ip) {
-    logEntry.ip = ip;
-  }
-
-  // Output the log
-  if (process.env.NODE_ENV === "production") {
-    // JSON format for log aggregation services
-    const logFn =
-      logEntry.level === "error"
-        ? console.error
-        : logEntry.level === "warn"
-          ? console.warn
-          : // eslint-disable-next-line no-console -- Logger module intentionally uses console.log
-            console.log;
-    logFn(JSON.stringify({ ...logEntry, source: "auth" }));
+  if (resolvedLevel === "error") {
+    logger.error(message, details);
+  } else if (resolvedLevel === "warn") {
+    logger.warn(message, details);
   } else {
-    // Human-readable format for development
-    const prefix = `[AUTH:${logEntry.level.toUpperCase()}]`;
-    const message = `${prefix} ${event}`;
-    const details = {
-      ...(logEntry.userId && { userId: logEntry.userId }),
-      ...(logEntry.metadata && { ...logEntry.metadata }),
-      ...(logEntry.ip && { ip: logEntry.ip }),
-    };
-
-    if (Object.keys(details).length > 0) {
-      // eslint-disable-next-line no-console -- Logger module intentionally uses console.log
-      console.log(message, details);
-    } else {
-      // eslint-disable-next-line no-console -- Logger module intentionally uses console.log
-      console.log(message);
-    }
+    logger.info(message, details);
   }
 }

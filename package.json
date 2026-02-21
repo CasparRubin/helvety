@@ -26,13 +26,13 @@
     "test": "turbo run test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:pull": "npx supabase db pull",
-    "db:gen-types": "npx supabase gen types typescript --local > packages/shared/src/types/database.types.ts"
+    "db:gen-types": "npx supabase gen types typescript --linked > packages/shared/src/types/database.types.ts"
   },
   "patchedDependencies": {
     "next@16.1.6": "patches/next@16.1.6.patch"
   },
   "devDependencies": {
+    "babel-plugin-react-compiler": "^1.0.0",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "turbo": "^2"

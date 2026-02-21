@@ -49,12 +49,13 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                  |
-| -------------------------------------- | -------- | ----------- | -------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                         |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                |
-| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required. |
-| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                 |
+| Variable                               | Required | Server-only | Description                                   |
+| -------------------------------------- | -------- | ----------- | --------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                          |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                 |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key; bypasses RLS. Never expose. |
+| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.  |
+| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                  |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 

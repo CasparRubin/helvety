@@ -35,14 +35,13 @@ export async function createServerComponentClient(): Promise<SupabaseClient> {
         }>
       ): void {
         try {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            // Add domain for session sharing
-            const cookieOptions = {
-              ...options,
-              ...(cookieDomain && { domain: cookieDomain }),
-            } as Parameters<typeof cookieStore.set>[2];
-            cookieStore.set(name, value, cookieOptions);
-          });
+          for (const { name, value, options } of cookiesToSet) {
+            const merged = {
+              ...(options ?? {}),
+              ...(cookieDomain ? { domain: cookieDomain } : {}),
+            };
+            cookieStore.set(name, value, merged);
+          }
         } catch {
           // The `setAll` method was called from a Server Component.
           // cookies().set() is not allowed there, so the cookie update is

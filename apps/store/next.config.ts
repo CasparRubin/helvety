@@ -31,6 +31,8 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  reactCompiler: true,
+
   experimental: {
     optimizePackageImports: ["lucide-react", "radix-ui", "sonner"],
   },

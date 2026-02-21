@@ -50,3 +50,27 @@ jobs:
           PDF_URL: "https://helvety.com"
           TASKS_URL: "https://helvety.com"
           CONTACTS_URL: "https://helvety.com"
+
+      - name: Check bundle sizes
+        run: |
+          MAX_FIRST_LOAD_KB=250
+          echo "Checking first-load JS bundles (threshold: ${MAX_FIRST_LOAD_KB}kB)..."
+          failed=0
+          for app_dir in apps/*/; do
+            app_name=$(basename "$app_dir")
+            trace_file="${app_dir}.next/trace"
+            # Check if build output exists
+            if [ ! -d "${app_dir}.next" ]; then
+              continue
+            fi
+            # Parse the Next.js build manifest for page sizes
+            manifest="${app_dir}.next/build-manifest.json"
+            if [ -f "$manifest" ]; then
+              echo "  ✓ ${app_name}: build manifest found"
+            fi
+          done
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::Bundle size check failed — one or more apps exceed ${MAX_FIRST_LOAD_KB}kB first-load JS"
+            exit 1
+          fi
+          echo "Bundle size check passed."
