@@ -49,7 +49,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 | Variable                               | Required | Server-only | Description                                                   |
 | -------------------------------------- | -------- | ----------- | ------------------------------------------------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                          |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                                        |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                 |
 | `AUTH_URL`                             | Prod     | **Yes**     | Internal Vercel URL for Auth app (gateway rewrite target)     |
 | `STORE_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Store app (gateway rewrite target)    |
 | `PDF_URL`                              | Prod     | **Yes**     | Internal Vercel URL for PDF app (gateway rewrite target)      |

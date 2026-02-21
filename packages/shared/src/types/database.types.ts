@@ -6,11 +6,12 @@
  *
  * Requires: supabase link --project-ref <your-project-ref>
  *
- * Until types are generated, this re-exports a permissive placeholder
- * so existing code compiles unchanged.
+ * This is a placeholder. Run `bun run db:gen-types` to generate real types
+ * from your Supabase schema. Without generated types, all Supabase queries
+ * lack compile-time safety against the database schema.
+ *
+ * CI should verify this file is not a placeholder (see .github/workflows/ci.yml).
  */
 
-/**
- *
- */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- placeholder until types are generated
 export interface Database {}

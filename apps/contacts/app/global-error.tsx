@@ -1,6 +1,7 @@
 "use client";
 
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
+import { logger } from "@helvety/shared/logger";
 import { useEffect } from "react";
 
 /**
@@ -17,7 +18,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Root layout error:", error);
+    logger.error("Root layout error:", error);
   }, [error]);
 
   return (

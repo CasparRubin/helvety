@@ -57,7 +57,7 @@ export function TenantsPageClient() {
             </p>
           </div>
           <div className="text-muted-foreground py-8 text-center text-sm">
-            Loading…
+            Loading...
           </div>
         </div>
       </div>

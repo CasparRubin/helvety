@@ -1,3 +1,4 @@
+import { urls } from "@helvety/shared/config";
 import { generateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { checkRateLimit, RATE_LIMITS } from "@helvety/shared/rate-limit";
@@ -41,11 +42,10 @@ const ALLOWED_OTP_TYPES = new Set<string>([
  * Rate limited by IP to prevent auth callback abuse.
  */
 export async function GET(request: Request) {
-  const { origin } = new URL(request.url);
+  const authBase = urls.auth;
 
-  // Build fallback redirect early so it's available in the catch block
   const buildErrorRedirect = (error?: string, redirectUri?: string | null) => {
-    const loginUrl = new URL(`${origin}/login`);
+    const loginUrl = new URL(`${authBase}/login`);
     if (error) {
       loginUrl.searchParams.set("error", error);
     }
@@ -68,7 +68,7 @@ export async function GET(request: Request) {
       RATE_LIMITS.AUTH_CALLBACK.windowMs
     );
     if (!rateLimit.allowed) {
-      return NextResponse.redirect(`${origin}/login?error=rate_limited`);
+      return NextResponse.redirect(`${authBase}/login?error=rate_limited`);
     }
 
     const { searchParams } = new URL(request.url);
@@ -88,7 +88,7 @@ export async function GET(request: Request) {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        return `${origin}/login?error=auth_failed`;
+        return `${authBase}/login?error=auth_failed`;
       }
 
       const [passkeyResult, encryptionResult] = await Promise.all([
@@ -108,7 +108,7 @@ export async function GET(request: Request) {
         step = "passkey-signin";
       }
 
-      const loginUrl = new URL(`${origin}/login`);
+      const loginUrl = new URL(`${authBase}/login`);
       loginUrl.searchParams.set("step", step);
       loginUrl.searchParams.set("is_new_user", hasPasskey ? "false" : "true");
       if (safeRedirectUri) {

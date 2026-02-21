@@ -1,7 +1,7 @@
 import path from "path";
 
 import { createSecurityHeaders } from "@helvety/config/next-headers";
-import { DEV_PORTS, DOMAIN } from "@helvety/shared/config";
+import { DEV_PORTS } from "@helvety/shared/config";
 import bundleAnalyzer from "@next/bundle-analyzer";
 
 import type { NextConfig } from "next";
@@ -17,19 +17,22 @@ const nextConfig: NextConfig = {
   async rewrites() {
     const isDev = process.env.NODE_ENV === "development";
     const devUrl = (port: number) => `http://localhost:${port}`;
-    const prodFallback = `https://${DOMAIN}`;
 
-    const authUrl =
-      process.env.AUTH_URL ?? (isDev ? devUrl(DEV_PORTS.auth) : prodFallback);
-    const tasksUrl =
-      process.env.TASKS_URL ?? (isDev ? devUrl(DEV_PORTS.tasks) : prodFallback);
-    const contactsUrl =
-      process.env.CONTACTS_URL ??
-      (isDev ? devUrl(DEV_PORTS.contacts) : prodFallback);
-    const storeUrl =
-      process.env.STORE_URL ?? (isDev ? devUrl(DEV_PORTS.store) : prodFallback);
-    const pdfUrl =
-      process.env.PDF_URL ?? (isDev ? devUrl(DEV_PORTS.pdf) : prodFallback);
+    /** Resolves the internal Vercel URL for a sub-app, falling back to localhost in dev. */
+    function getAppUrl(envVar: string, devPort: number): string {
+      const value = process.env[envVar];
+      if (value) return value;
+      if (isDev) return devUrl(devPort);
+      throw new Error(
+        `${envVar} is required in production. Set it to the Vercel deployment URL for this app.`
+      );
+    }
+
+    const authUrl = getAppUrl("AUTH_URL", DEV_PORTS.auth);
+    const tasksUrl = getAppUrl("TASKS_URL", DEV_PORTS.tasks);
+    const contactsUrl = getAppUrl("CONTACTS_URL", DEV_PORTS.contacts);
+    const storeUrl = getAppUrl("STORE_URL", DEV_PORTS.store);
+    const pdfUrl = getAppUrl("PDF_URL", DEV_PORTS.pdf);
 
     return {
       beforeFiles: [

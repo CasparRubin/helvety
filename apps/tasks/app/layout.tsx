@@ -1,8 +1,12 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import { getCachedUser } from "@helvety/shared/cached-server";
+import {
+  getCachedCSRFToken,
+  getCachedUser,
+} from "@helvety/shared/cached-server";
 import { sharedViewport } from "@helvety/shared/config";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
+import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
 import { SessionRecovery } from "@helvety/ui/session-recovery";
@@ -121,8 +125,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const [nonce, initialUser] = await Promise.all([
+  const [nonce, csrfToken, initialUser] = await Promise.all([
     headers().then((h) => h.get("x-nonce") ?? ""),
+    getCachedCSRFToken().then((t) => t ?? ""),
     getCachedUser(),
   ]);
 
@@ -149,6 +154,7 @@ export default async function RootLayout({
                   "https://helvety.com/contacts",
                   "https://helvety.com/pdf",
                   "https://helvety.com/store",
+                  "https://helvety.com/tasks",
                   "https://github.com/CasparRubin",
                 ],
               },
@@ -180,20 +186,22 @@ export default async function RootLayout({
           <AuthTokenHandler />
           <SessionRecovery />
           <TooltipProvider>
-            <EncryptionProvider>
-              <div className="flex h-screen flex-col overflow-hidden">
-                <header className="shrink-0">
-                  <Navbar initialUser={initialUser} />
-                </header>
-                <ScrollArea className="min-h-0 flex-1">
-                  <div className="mx-auto w-full max-w-[2000px]">
-                    <main id="main-content">{children}</main>
-                  </div>
-                </ScrollArea>
-                <Footer className="shrink-0" />
-              </div>
-              <Toaster />
-            </EncryptionProvider>
+            <CSRFProvider csrfToken={csrfToken}>
+              <EncryptionProvider>
+                <div className="flex h-screen flex-col overflow-hidden">
+                  <header className="shrink-0">
+                    <Navbar initialUser={initialUser} />
+                  </header>
+                  <ScrollArea className="min-h-0 flex-1">
+                    <div className="mx-auto w-full max-w-[2000px]">
+                      <main id="main-content">{children}</main>
+                    </div>
+                  </ScrollArea>
+                  <Footer className="shrink-0" />
+                </div>
+                <Toaster />
+              </EncryptionProvider>
+            </CSRFProvider>
           </TooltipProvider>
         </ThemeProvider>
         <Analytics />

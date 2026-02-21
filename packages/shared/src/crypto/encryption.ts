@@ -14,6 +14,23 @@ const ENCRYPTION_VERSION = 1;
 /** Current key version - increment when rotating encryption keys */
 const CURRENT_KEY_VERSION = 1;
 
+const ALLOWED_AAD_TABLES = new Set([
+  "units",
+  "spaces",
+  "items",
+  "stages",
+  "stage_configs",
+  "labels",
+  "label_configs",
+  "item_attachments",
+  "contacts",
+  "categories",
+  "category_configs",
+]);
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-7][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 /**
  * Build Additional Authenticated Data (AAD) for AES-GCM encryption.
  * AAD binds ciphertext to its database record, preventing encrypted data from being moved
@@ -24,6 +41,18 @@ const CURRENT_KEY_VERSION = 1;
  * @returns AAD string in the format "table:recordId"
  */
 export function buildAAD(table: string, recordId: string): string {
+  if (!ALLOWED_AAD_TABLES.has(table)) {
+    throw new CryptoError(
+      CryptoErrorType.ENCRYPTION_FAILED,
+      `Invalid AAD table name: ${table}`
+    );
+  }
+  if (!UUID_REGEX.test(recordId)) {
+    throw new CryptoError(
+      CryptoErrorType.ENCRYPTION_FAILED,
+      "Invalid AAD record ID: expected UUID format"
+    );
+  }
   return `${table}:${recordId}`;
 }
 

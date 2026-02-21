@@ -48,7 +48,10 @@ bun install
 # Copy env templates for each app you want to run
 cp apps/web/env.template apps/web/.env.local
 cp apps/auth/env.template apps/auth/.env.local
-# ... etc. for each app
+cp apps/store/env.template apps/store/.env.local
+cp apps/pdf/env.template apps/pdf/.env.local
+cp apps/tasks/env.template apps/tasks/.env.local
+cp apps/contacts/env.template apps/contacts/.env.local
 ```
 
 ### Development
@@ -91,7 +94,7 @@ helvety/
 │   ├── shared/       # Shared libraries
 │   └── ui/           # Shared UI components (shadcn/ui, footer, navbar building blocks, Tiptap editor, auth/session recovery)
 ├── patches/          # Bun dependency patches (applied on install)
-├── supabase/         # Database schema export & SQL scripts (gitignored export)
+├── supabase/         # Database schema, migrations, and config (supabase.json is gitignored)
 ├── turbo.json        # Turborepo task configuration
 └── package.json      # Root workspace configuration
 ```

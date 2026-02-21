@@ -59,7 +59,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 | Variable                               | Required | Server-only | Description                                            |
 | -------------------------------------- | -------- | ----------- | ------------------------------------------------------ |
 | `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                   |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Anon key (RLS applies)                                 |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                          |
 | `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for attachment storage. Never expose. |
 | `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.           |
 | `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                           |

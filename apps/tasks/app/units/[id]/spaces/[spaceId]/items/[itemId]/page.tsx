@@ -1,6 +1,4 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
-import { getCachedCSRFToken } from "@helvety/shared/cached-server";
-import { CSRFProvider } from "@helvety/ui/csrf-provider";
 
 import { EncryptionGate } from "@/components/encryption-gate";
 import { ItemEditor } from "@/components/item-editor";
@@ -16,17 +14,14 @@ export default async function ItemEditorPage({
 }: {
   params: Promise<{ id: string; spaceId: string; itemId: string }>;
 }): Promise<React.JSX.Element> {
-  const [{ id: unitId, spaceId, itemId }, user, csrfToken] = await Promise.all([
+  const [{ id: unitId, spaceId, itemId }, user] = await Promise.all([
     params,
     requireAuth("/tasks"),
-    getCachedCSRFToken().then((t) => t ?? ""),
   ]);
 
   return (
     <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <CSRFProvider csrfToken={csrfToken}>
-        <ItemEditor unitId={unitId} spaceId={spaceId} itemId={itemId} />
-      </CSRFProvider>
+      <ItemEditor unitId={unitId} spaceId={spaceId} itemId={itemId} />
     </EncryptionGate>
   );
 }

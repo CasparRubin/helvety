@@ -5,7 +5,7 @@
  * CSP is generated per-request in proxy.ts with a cryptographic nonce.
  *
  * @param {object} options
- * @param {string} options.appName - App identifier for CSP report logging
+ * @param {string} options.appName - App identifier used in X-Helvety-App header for debugging and CSP report correlation
  * @returns {import("next").NextConfig["headers"]} Next.js headers function
  */
 export function createSecurityHeaders({ appName } = {}) {
@@ -13,6 +13,7 @@ export function createSecurityHeaders({ appName } = {}) {
     const isDevelopment = process.env.NODE_ENV === "development";
 
     const headersList = [
+      ...(appName ? [{ key: "X-Helvety-App", value: appName }] : []),
       {
         key: "X-DNS-Prefetch-Control",
         value: "on",

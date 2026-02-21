@@ -144,6 +144,7 @@ export default async function RootLayout({
                   "https://helvety.com/auth",
                   "https://helvety.com/contacts",
                   "https://helvety.com/pdf",
+                  "https://helvety.com/store",
                   "https://helvety.com/tasks",
                   "https://github.com/CasparRubin",
                 ],
@@ -155,6 +156,8 @@ export default async function RootLayout({
                 url: "https://helvety.com/store",
                 description:
                   "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
+                applicationCategory: "ShoppingApplication",
+                operatingSystem: "Any",
               },
             ]),
           }}

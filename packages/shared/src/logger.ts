@@ -125,6 +125,8 @@ const SENSITIVE_KEYS = new Set([
   "authorization",
   "credential",
   "private",
+  "csrf",
+  "nonce",
 ]);
 
 /**

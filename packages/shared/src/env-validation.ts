@@ -3,7 +3,7 @@ import { z } from "zod";
 import { logger } from "./logger";
 
 /**
- * Validates that a Supabase key appears to be an anon key (not service role key)
+ * Validates that a Supabase key appears to be an anon/publishable key (not service role key)
  * Security: Prevents accidentally using service role key in client-side code
  *
  * Note: This is a best-effort check. Supabase supports multiple key formats:
@@ -75,7 +75,14 @@ const envSchema = z.object({
     .url("NEXT_PUBLIC_SUPABASE_URL must be a valid URL")
     .refine((url) => url.startsWith("https://") || url.startsWith("http://"), {
       message: "NEXT_PUBLIC_SUPABASE_URL must start with http:// or https://",
-    }),
+    })
+    .refine(
+      (url) =>
+        process.env.NODE_ENV !== "production" || url.startsWith("https://"),
+      {
+        message: "NEXT_PUBLIC_SUPABASE_URL must use HTTPS in production",
+      }
+    ),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z
     .string()
     .min(1, "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required")
@@ -163,9 +170,9 @@ export function getSupabaseUrl(): string {
 
 /**
  * Gets Supabase publishable key with validation
- * Security: Ensures the key is an anon key format (not service role key)
+ * Security: Ensures the key is an anon/publishable key format (not service role key)
  *
- * WARNING: This key will be exposed to the client. Only use the anon key here.
+ * WARNING: This key will be exposed to the client. Only use the anon/publishable key here.
  * Never use the service role key in NEXT_PUBLIC_ environment variables.
  */
 export function getSupabaseKey(): string {
@@ -175,7 +182,7 @@ export function getSupabaseKey(): string {
   // Additional runtime check (in case validation was bypassed)
   if (!validateAnonKey(key)) {
     const errorMessage =
-      "SECURITY WARNING: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY does not appear to be a valid anon key. " +
+      "SECURITY WARNING: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY does not appear to be a valid anon/publishable key. " +
       "Ensure you are using the anon/public key, not the service role key. " +
       "Service role keys should NEVER be exposed to the client.";
 

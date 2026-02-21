@@ -426,7 +426,8 @@ export async function getUnitKey(unitId: number): Promise<CryptoKey | null> {
         db.close();
       };
     });
-  } catch {
+  } catch (error) {
+    logger.error("Failed to retrieve unit key:", error);
     return null;
   }
 }

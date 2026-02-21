@@ -90,7 +90,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 | Variable                                                 | Required | Server-only | Description                                        |
 | -------------------------------------------------------- | -------- | ----------- | -------------------------------------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`                               | Yes      | No          | Supabase project URL                               |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                   | Yes      | No          | Anon key (RLS applies)                             |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                   | Yes      | No          | Publishable key (RLS applies)                      |
 | `SUPABASE_SECRET_KEY`                                    | Yes      | **Yes**     | Service role key; bypasses RLS. Never expose.      |
 | `STRIPE_SECRET_KEY`                                      | Yes      | **Yes**     | Stripe API key. Never expose.                      |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`                     | Yes      | No          | Stripe publishable key (client-side)               |

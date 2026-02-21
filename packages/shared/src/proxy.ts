@@ -11,6 +11,8 @@ const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
 const CSP_NONCE_LENGTH = 16;
 
+let hasLoggedEnvError = false;
+
 /** Options for building the Content-Security-Policy header in the proxy. */
 export type BuildCspOptions = {
   imgBlob?: boolean;
@@ -79,8 +81,16 @@ export function createSessionRefreshProxy(
     try {
       supabaseUrl = getSupabaseUrl();
       supabaseKey = getSupabaseKey();
-    } catch {
+    } catch (error) {
+      if (!hasLoggedEnvError) {
+        hasLoggedEnvError = true;
+        console.error(
+          "[proxy] Supabase env validation failed — session refresh disabled:",
+          error instanceof Error ? error.message : error
+        );
+      }
       supabaseResponse.headers.set("Content-Security-Policy", csp);
+      supabaseResponse.headers.set("x-supabase-config", "error");
       return supabaseResponse;
     }
 
@@ -111,8 +121,11 @@ export function createSessionRefreshProxy(
 
     try {
       await supabase.auth.getClaims();
-    } catch {
-      // Session refresh failed - continue without refresh
+    } catch (error) {
+      console.error(
+        "[proxy] Session refresh failed:",
+        error instanceof Error ? error.message : "unknown error"
+      );
     }
 
     if (includeCsrf && !request.cookies.get(CSRF_COOKIE_NAME)?.value) {

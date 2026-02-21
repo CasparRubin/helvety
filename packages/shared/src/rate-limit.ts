@@ -118,11 +118,12 @@ interface RateLimitRecord {
 }
 
 const inMemoryStore = new Map<string, RateLimitRecord>();
+const MAX_IN_MEMORY_ENTRIES = 10_000;
 
 const CLEANUP_INTERVAL = 60 * 1000;
 let cleanupTimer: NodeJS.Timeout | null = null;
 
-/** Start periodic cleanup of expired in-memory records. */
+/** Start periodic cleanup of expired in-memory records and enforce size cap. */
 function startCleanup(): void {
   if (cleanupTimer) return;
 
@@ -131,6 +132,14 @@ function startCleanup(): void {
     for (const [key, record] of inMemoryStore.entries()) {
       if (now > record.resetTime) {
         inMemoryStore.delete(key);
+      }
+    }
+    if (inMemoryStore.size > MAX_IN_MEMORY_ENTRIES) {
+      const excess = inMemoryStore.size - MAX_IN_MEMORY_ENTRIES;
+      const keys = inMemoryStore.keys();
+      for (let i = 0; i < excess; i++) {
+        const next = keys.next();
+        if (!next.done) inMemoryStore.delete(next.value);
       }
     }
   }, CLEANUP_INTERVAL);
@@ -298,7 +307,8 @@ const FAILURE_COUNTER_TTL_SECONDS = 24 * 60 * 60;
 export async function recordOtpFailureAndCheckLockout(
   email: string
 ): Promise<RateLimitResult> {
-  const redisKey = `otp_lockout:${email}`;
+  const normalizedEmail = email.trim().toLowerCase();
+  const redisKey = `otp_lockout:${normalizedEmail}`;
 
   const redisClient = getRedis();
   if (redisClient) {
@@ -334,7 +344,7 @@ export async function recordOtpFailureAndCheckLockout(
 
   // Development fallback: in-memory tracking
   const now = Date.now();
-  const memKey = `lockout:${email}`;
+  const memKey = `lockout:${normalizedEmail}`;
   const record = inMemoryStore.get(memKey);
 
   if (!record || now > record.resetTime) {
@@ -371,7 +381,8 @@ export async function recordOtpFailureAndCheckLockout(
 export async function checkEscalatingLockout(
   email: string
 ): Promise<RateLimitResult> {
-  const redisKey = `otp_lockout:${email}`;
+  const normalizedEmail = email.trim().toLowerCase();
+  const redisKey = `otp_lockout:${normalizedEmail}`;
 
   const redisClient = getRedis();
   if (redisClient) {
@@ -399,7 +410,7 @@ export async function checkEscalatingLockout(
   }
 
   // Development fallback
-  const memKey = `lockout:${email}`;
+  const memKey = `lockout:${normalizedEmail}`;
   const record = inMemoryStore.get(memKey);
   if (record && Date.now() <= record.resetTime) {
     for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
@@ -423,7 +434,8 @@ export async function checkEscalatingLockout(
  * @param email - Normalized email address
  */
 export async function resetEscalatingLockout(email: string): Promise<void> {
-  const redisKey = `otp_lockout:${email}`;
+  const normalizedEmail = email.trim().toLowerCase();
+  const redisKey = `otp_lockout:${normalizedEmail}`;
 
   const redisClient = getRedis();
   if (redisClient) {
@@ -434,7 +446,7 @@ export async function resetEscalatingLockout(email: string): Promise<void> {
     }
   }
 
-  inMemoryStore.delete(`lockout:${email}`);
+  inMemoryStore.delete(`lockout:${normalizedEmail}`);
 }
 
 // =============================================================================

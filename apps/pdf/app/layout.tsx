@@ -149,6 +149,7 @@ export default async function RootLayout({
                   "https://helvety.com",
                   "https://helvety.com/auth",
                   "https://helvety.com/contacts",
+                  "https://helvety.com/pdf",
                   "https://helvety.com/store",
                   "https://helvety.com/tasks",
                   "https://github.com/CasparRubin",
