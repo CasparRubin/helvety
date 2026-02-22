@@ -58,37 +58,41 @@ export function ProductCard({ product, className }: ProductCardProps) {
           priority
         />
 
+        {/* Badges: positioned over the image */}
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+          <ProductBadge type={product.type} showIcon={false} />
+          {product.status !== "available" && (
+            <StatusBadge status={product.status} />
+          )}
+        </div>
+
         {/* Inner layer: solid content panel */}
         <div className="bg-card/95 relative mx-3 mt-auto mb-3 flex flex-col rounded-lg shadow-sm backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-1">
-          {/* Header: name + badges */}
-          <div className="space-y-2 px-5 pt-5">
+          {/* Header: name */}
+          <div className="px-5 pt-5">
             <h3 className="text-card-foreground line-clamp-1 text-lg leading-tight font-semibold">
               {product.name}
             </h3>
-            <div className="flex items-center gap-2">
-              <ProductBadge type={product.type} showIcon={false} />
-              {product.status !== "available" && (
-                <StatusBadge status={product.status} />
-              )}
-            </div>
           </div>
 
-          {/* Content: description */}
-          <div className="flex-1 px-5 pt-3">
-            <p className="text-muted-foreground line-clamp-4 text-sm leading-relaxed">
-              {product.shortDescription}
-            </p>
+          {/* Description: hidden at rest, revealed on hover */}
+          <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-hover:grid-rows-[1fr]">
+            <div className="overflow-hidden">
+              <p className="text-muted-foreground line-clamp-4 px-5 pt-3 text-sm leading-relaxed">
+                {product.shortDescription}
+              </p>
+            </div>
           </div>
 
           {/* Footer: pricing + CTA */}
           <div className="flex items-center justify-between gap-4 px-5 pt-4 pb-5">
             <div className="text-sm font-medium">
               {product.pricing.hasFreeTier ? (
-                <span className="text-green-600 dark:text-green-400">
-                  Free to start
-                </span>
+                <span className="text-green-600 dark:text-green-400">Free</span>
               ) : (
-                <span className="text-muted-foreground">{priceDisplay}</span>
+                <span className="text-blue-600 dark:text-blue-400">
+                  {priceDisplay}
+                </span>
               )}
             </div>
             <span
