@@ -1,11 +1,11 @@
 /**
- * Product type badge component
- * Displays a colored badge indicating the product type (SaaS, Software, Physical)
+ * Product badge components
+ * Displays colored badges for product type, availability status, and artwork artist
  */
 
 import { cn } from "@helvety/shared/utils";
 import { Badge } from "@helvety/ui/badge";
-import { Cloud, Download, Package } from "lucide-react";
+import { Cloud, Download, Package, Palette } from "lucide-react";
 
 import type { ProductType, ProductStatus } from "@/lib/types/products";
 
@@ -44,7 +44,7 @@ const typeConfig: Record<
   },
 };
 
-/** Renders a product type badge (software or physical). */
+/** Renders a product type badge (SaaS, software, or physical). */
 export function ProductBadge({
   type,
   className,
@@ -98,6 +98,33 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <Badge variant="outline" className={cn(config.className, className)}>
       {config.label}
+    </Badge>
+  );
+}
+
+/** Props for the artist badge component. */
+interface ArtistBadgeProps {
+  artist: string;
+  className?: string;
+  showIcon?: boolean;
+}
+
+/** Renders a badge showing the artwork artist name. */
+export function ArtistBadge({
+  artist,
+  className,
+  showIcon = true,
+}: ArtistBadgeProps) {
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        "bg-stone-600/90 text-white border-stone-500/40 dark:bg-stone-500/90",
+        className
+      )}
+    >
+      {showIcon && <Palette className="size-3" />}
+      {artist}
     </Badge>
   );
 }

@@ -24,6 +24,7 @@ export const helvetyExplorer: SoftwareProduct = {
   shortDescription:
     "A privacy-focused SharePoint site navigator. Browse, search, and favorite all your accessible sites with a lightning-fast interface. All preferences stored locally - no external data collection.",
   image: "/store/artwork_1.jpg",
+  artist: "Alexandre Calame",
   description: `Helvety SPO Explorer is a privacy-focused SharePoint Framework (SPFx) application customizer that gives you a fast way to navigate your Microsoft 365 environment.
 
 Privacy First - All data processing happens client-side. User preferences (favorites and settings) are stored locally in the browser's localStorage. The application does not collect or transmit user data to external servers.
@@ -194,6 +195,7 @@ No login, no account, no limits. Upload files up to 100MB each and process unlim
   category: "utilities",
   status: "available",
   image: "/store/artwork_2.jpg",
+  artist: "Rudolf Koller",
   features: [
     "100% client-side processing - files never leave your device",
     "Merge multiple PDFs and images into one document",
@@ -285,6 +287,7 @@ Your data is protected by Swiss law (nDSG) and end-to-end encryption. We have ze
   category: "productivity",
   status: "available",
   image: "/store/artwork_3.jpg",
+  artist: "Rudolf Koller",
   features: [
     "End-to-end encryption for all task content",
     "Units, Spaces, and Items hierarchy",
@@ -376,6 +379,7 @@ Your contacts are protected by Swiss law (nDSG) and end-to-end encryption. We ha
   category: "productivity",
   status: "available",
   image: "/store/artwork_4.jpg",
+  artist: "Alexandre Calame",
   features: [
     "End-to-end encryption for all contact data",
     "Rich contact fields (name, email, phone, birthday)",

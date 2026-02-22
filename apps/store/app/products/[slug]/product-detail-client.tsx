@@ -31,7 +31,11 @@ import {
 } from "@/app/actions/subscription-actions";
 import { PurchaseConsentDialog } from "@/components/digital-content-consent-dialog";
 import { FeatureList } from "@/components/products/feature-list";
-import { ProductBadge, StatusBadge } from "@/components/products/product-badge";
+import {
+  ArtistBadge,
+  ProductBadge,
+  StatusBadge,
+} from "@/components/products/product-badge";
 import { useCSRF } from "@/hooks/use-csrf";
 import { getProductBySlug } from "@/lib/data/products";
 import { isSaaSProduct, isSoftwareProduct } from "@/lib/types/products";
@@ -204,6 +208,7 @@ export function ProductDetailClient({
           {product.status !== "available" && (
             <StatusBadge status={product.status} />
           )}
+          {product.artist && <ArtistBadge artist={product.artist} />}
         </div>
         <p className="text-muted-foreground max-w-2xl text-lg">
           {product.shortDescription}

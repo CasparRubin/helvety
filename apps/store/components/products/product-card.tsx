@@ -14,7 +14,7 @@ import Link from "next/link";
 
 import { formatStartingFrom } from "@/lib/utils/pricing";
 
-import { ProductBadge, StatusBadge } from "./product-badge";
+import { ArtistBadge, ProductBadge, StatusBadge } from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
 
@@ -59,10 +59,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
         />
 
         {/* Badges: positioned over the image */}
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+        <div className="absolute top-3 right-3 z-10 flex flex-wrap items-center justify-end gap-2">
           <ProductBadge type={product.type} showIcon={false} />
           {product.status !== "available" && (
             <StatusBadge status={product.status} />
+          )}
+          {product.artist && (
+            <ArtistBadge artist={product.artist} showIcon={false} />
           )}
         </div>
 

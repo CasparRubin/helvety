@@ -135,6 +135,8 @@ export interface Product {
   status: ProductStatus;
   /** Product image URL */
   image?: string;
+  /** Artist name for the product artwork */
+  artist?: string;
   /** Hero/banner image URL */
   heroImage?: string;
   /** Key features list */
