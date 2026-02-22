@@ -361,7 +361,8 @@ export function SubscriptionsTab({
                 No active subscriptions
               </h3>
               <p className="text-muted-foreground max-w-[300px] text-sm">
-                Browse our products to find a subscription that fits your needs.
+                You have no paid subscriptions. Many of our products are free -
+                browse the store to see what&apos;s available.
               </p>
               <Button variant="outline" className="mt-4" asChild>
                 <Link href="/products">Browse Products</Link>

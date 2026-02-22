@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.
+Official Helvety Store. Products and services engineered & designed in Switzerland.
 
 **Store:** [helvety.com/store](https://helvety.com/store)
 
@@ -21,7 +21,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
 
 The store has four main sections, linked from the store nav bar (below the top navbar). The profile dropdown in the top navbar (when signed in) shows your email and links to Account, Subscriptions, and Sign out:
 
-- **Products** (`/products`) - Product catalog with filters; product detail at `/products/[slug]`
+- **Products** (`/products`) - Product catalog with filters (All, SaaS, Software); product detail at `/products/[slug]`. Lists both free products (Helvety PDF, Helvety Tasks, Helvety Contacts) and paid subscriptions (Helvety SPO Explorer)
 - **Account** (`/account`) - Profile and account settings
 - **Subscriptions** (`/subscriptions`) - Compact list of active subscriptions; SPO Explorer rows link to Tenants
 - **Tenants** (`/tenants`) - Register and manage SharePoint tenant IDs for SPO Explorer
@@ -34,7 +34,7 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 
 ## Features
 
-- **Product Catalog** - Browse Helvety software products with detailed descriptions and pricing
+- **Product Catalog** - Browse all Helvety products: free tools (Helvety PDF), free-for-early-adopters SaaS (Helvety Tasks, Helvety Contacts - free for the first 10,000 users), and paid subscriptions (Helvety SPO Explorer)
 - **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout (CHF only). Before every purchase, a consent dialog requires acceptance of the Terms of Service and Privacy Policy. Consent is required on each purchase and is not cached.
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
 - **Account Management** - Profile and account settings (Account page)
@@ -157,6 +157,6 @@ You may NOT:
 - Sell, sublicense, or commercially exploit the code
 - Reverse engineer or decompile the code
 
-**Purchasing a subscription grants access to use the hosted service at [helvety.com/store](https://helvety.com/store) only.** Subscriptions do not grant any rights to the source code.
+**Using Helvety products (whether free or via subscription) grants access to the hosted service at [helvety.com](https://helvety.com) only.** Neither free access nor paid subscriptions grant any rights to the source code.
 
 See [LICENSE](./LICENSE) for full legal terms.

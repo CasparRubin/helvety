@@ -14,7 +14,7 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 | ------------------------------ | ---------------------------------------------------- | ------------------------------------------------------------- |
 | **[Web](apps/web/)**           | [helvety.com](https://helvety.com)                   | Main website, legal pages, landing                            |
 | **[Auth](apps/auth/)**         | [helvety.com/auth](https://helvety.com/auth)         | Centralized passwordless authentication (email + passkey SSO) |
-| **[Store](apps/store/)**       | [helvety.com/store](https://helvety.com/store)       | Product catalog, subscriptions, Stripe payments               |
+| **[Store](apps/store/)**       | [helvety.com/store](https://helvety.com/store)       | Product catalog (free & paid), subscriptions, Stripe payments |
 | **[PDF](apps/pdf/)**           | [helvety.com/pdf](https://helvety.com/pdf)           | Client-side PDF toolkit (merge, reorder, rotate, extract)     |
 | **[Tasks](apps/tasks/)**       | [helvety.com/tasks](https://helvety.com/tasks)       | End-to-end encrypted task management                          |
 | **[Contacts](apps/contacts/)** | [helvety.com/contacts](https://helvety.com/contacts) | End-to-end encrypted contact management                       |

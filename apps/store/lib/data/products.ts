@@ -4,6 +4,7 @@
 
 import type {
   Product,
+  SaaSProduct,
   SoftwareProduct,
   ProductFilters,
   ProductType,
@@ -22,6 +23,7 @@ export const helvetyExplorer: SoftwareProduct = {
   name: "Helvety SPO Explorer",
   shortDescription:
     "A privacy-focused SharePoint site navigator. Browse, search, and favorite all your accessible sites with a lightning-fast interface. All preferences stored locally - no external data collection.",
+  image: "/store/artwork_1.jpg",
   description: `Helvety SPO Explorer is a privacy-focused SharePoint Framework (SPFx) application customizer that gives you a fast way to navigate your Microsoft 365 environment.
 
 Privacy First - All data processing happens client-side. User preferences (favorites and settings) are stored locally in the browser's localStorage. The application does not collect or transmit user data to external servers.
@@ -163,13 +165,289 @@ Install it once in your SharePoint App Catalog and give all users instant access
 };
 
 // =============================================================================
+// HELVETY PDF
+// =============================================================================
+
+/**
+ * Helvety PDF - Free PDF Toolkit
+ */
+export const helvetyPdf: SaaSProduct = {
+  id: "helvety-pdf",
+  slug: "helvety-pdf",
+  name: "Helvety PDF",
+  shortDescription:
+    "A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. 100% browser-based - your files never leave your device.",
+  description: `Helvety PDF is a free, privacy-focused PDF toolkit that runs entirely in your browser. No files are ever uploaded to our servers - all processing happens client-side on your device.
+
+Free Forever - Helvety PDF is completely free with no account required. All features are available to everyone with no restrictions.
+
+Key Features:
+• Multi-file Merging - Combine multiple PDF files and images into a single document
+• Page Reordering - Drag and drop to rearrange pages visually with thumbnail previews
+• Page Rotation - Rotate individual pages by 90° increments
+• Page Extraction - Extract individual pages as separate PDF files
+• Page Deletion - Remove unwanted pages from your documents
+• Image Support - Upload and convert images (PNG, JPEG, WebP, GIF) alongside PDF files
+
+No login, no account, no limits. Upload files up to 100MB each and process unlimited pages. Your documents stay private because they never leave your browser.`,
+  type: "saas",
+  category: "utilities",
+  status: "available",
+  image: "/store/artwork_2.jpg",
+  features: [
+    "100% client-side processing - files never leave your device",
+    "Merge multiple PDFs and images into one document",
+    "Drag & drop page reordering with thumbnails",
+    "Rotate pages by 90° increments",
+    "Extract individual pages as separate PDFs",
+    "Image support (PNG, JPEG, WebP, GIF)",
+    "Up to 100MB per file, unlimited pages",
+    "No login or account required",
+    "Dark & light mode support",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    hasYearlyPricing: false,
+    tiers: [
+      {
+        id: "helvety-pdf-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "All PDF tools included",
+          "Unlimited files and pages",
+          "Up to 100MB per file",
+          "No account required",
+          "Free forever",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.com/pdf",
+  },
+  saas: {
+    appUrl: "https://helvety.com/pdf",
+    trialDays: 0,
+    trialRequiresCard: false,
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: ["Anyone who works with PDFs", "Privacy-conscious users"],
+    platforms: ["Web"],
+    keywords: [
+      "pdf",
+      "merge",
+      "split",
+      "rotate",
+      "extract",
+      "privacy",
+      "free",
+      "client-side",
+    ],
+    featured: true,
+    sortOrder: 3,
+  },
+};
+
+// =============================================================================
+// HELVETY TASKS
+// =============================================================================
+
+/**
+ * Helvety Tasks - E2E Encrypted Task Management
+ */
+export const helvetyTasks: SaaSProduct = {
+  id: "helvety-tasks",
+  slug: "helvety-tasks",
+  name: "Helvety Tasks",
+  shortDescription:
+    "A private and secure task management app with end-to-end encryption. Organize work with Units, Spaces, and Items - all encrypted so only you can read your content.",
+  description: `Helvety Tasks is an end-to-end encrypted task management app where all your content is encrypted client-side before it ever reaches our servers. Only you can decrypt and read your tasks.
+
+Free for the First 10'000 Users - Be among the first to use Helvety Tasks for free. Pricing details will be announced later.
+
+Key Features:
+• End-to-End Encryption - All task content is encrypted using your passkey; we never see your data
+• Hierarchical Organization - Units (top-level containers) → Spaces (projects) → Items (tasks)
+• Rich Text Descriptions - Full formatting toolbar with headings, lists, and links
+• Stage Management - Customizable workflow stages with colors and icons (e.g., To Do, In Progress, Done)
+• Label & Priority System - Categorize and prioritize items with color-coded indicators
+• Encrypted File Attachments - Upload files that are compressed and encrypted before storage
+• Contact Linking - Link contacts from Helvety Contacts to any Unit, Space, or Item
+• Drag & Drop - Reorder items within and between stages
+
+Your data is protected by Swiss law (nDSG) and end-to-end encryption. We have zero access to your task content.`,
+  type: "saas",
+  category: "productivity",
+  status: "available",
+  image: "/store/artwork_3.jpg",
+  features: [
+    "End-to-end encryption for all task content",
+    "Units, Spaces, and Items hierarchy",
+    "Rich text editor with formatting",
+    "Customizable stages with colors and icons",
+    "Labels and priority levels",
+    "Encrypted file attachments",
+    "Contact linking with Helvety Contacts",
+    "Drag & drop reordering",
+    "Dark & light mode support",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    hasYearlyPricing: false,
+    tiers: [
+      {
+        id: "helvety-tasks-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "All features included",
+          "End-to-end encryption",
+          "Unlimited tasks and spaces",
+          "File attachments",
+          "Free for the first 10'000 users",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.com/tasks",
+  },
+  saas: {
+    appUrl: "https://helvety.com/tasks",
+    trialDays: 0,
+    trialRequiresCard: false,
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: [
+      "Privacy-conscious professionals",
+      "Teams and individuals",
+    ],
+    platforms: ["Web"],
+    keywords: [
+      "tasks",
+      "project management",
+      "encrypted",
+      "e2e",
+      "privacy",
+      "productivity",
+    ],
+    featured: true,
+    sortOrder: 4,
+  },
+};
+
+// =============================================================================
+// HELVETY CONTACTS
+// =============================================================================
+
+/**
+ * Helvety Contacts - E2E Encrypted Contact Management
+ */
+export const helvetyContacts: SaaSProduct = {
+  id: "helvety-contacts",
+  slug: "helvety-contacts",
+  name: "Helvety Contacts",
+  shortDescription:
+    "A private and secure contact management app with end-to-end encryption. Store names, emails, phone numbers, birthdays, and notes - all encrypted so only you can read them.",
+  description: `Helvety Contacts is an end-to-end encrypted contact management app. All your contact data is encrypted client-side before storage - we never see your contacts' information.
+
+Free for the First 10'000 Users - Be among the first to use Helvety Contacts for free. Pricing details will be announced later.
+
+Key Features:
+• End-to-End Encryption - All contact content is encrypted using your passkey; we have zero access
+• Rich Contact Fields - Store first name(s), last name(s), description, email, phone, birthday, and notes
+• Rich Text Notes - Full formatting toolbar with timestamped comments
+• Category Management - Organize contacts with customizable categories, colors, and icons
+• Task Linking - Link task entities from Helvety Tasks directly on contacts
+• Drag & Drop - Rearrange contacts within and between categories
+• Data Export - Export all your contacts as a decrypted JSON file (nDSG Art. 28 compliance)
+
+Your contacts are protected by Swiss law (nDSG) and end-to-end encryption. We have zero access to your contact data.`,
+  type: "saas",
+  category: "productivity",
+  status: "available",
+  image: "/store/artwork_4.jpg",
+  features: [
+    "End-to-end encryption for all contact data",
+    "Rich contact fields (name, email, phone, birthday)",
+    "Rich text notes with timestamped comments",
+    "Customizable categories with colors and icons",
+    "Task linking with Helvety Tasks",
+    "Drag & drop reordering",
+    "Self-service encrypted data export",
+    "Dark & light mode support",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    hasYearlyPricing: false,
+    tiers: [
+      {
+        id: "helvety-contacts-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "All features included",
+          "End-to-end encryption",
+          "Unlimited contacts",
+          "Rich text notes",
+          "Free for the first 10'000 users",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.com/contacts",
+  },
+  saas: {
+    appUrl: "https://helvety.com/contacts",
+    trialDays: 0,
+    trialRequiresCard: false,
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: [
+      "Privacy-conscious professionals",
+      "Individuals managing personal contacts",
+    ],
+    platforms: ["Web"],
+    keywords: [
+      "contacts",
+      "address book",
+      "encrypted",
+      "e2e",
+      "privacy",
+      "crm",
+    ],
+    featured: true,
+    sortOrder: 5,
+  },
+};
+
+// =============================================================================
 // ALL PRODUCTS
 // =============================================================================
 
 /**
  * All available products
  */
-export const products: Product[] = [helvetyExplorer];
+export const products: Product[] = [
+  helvetyExplorer,
+  helvetyPdf,
+  helvetyTasks,
+  helvetyContacts,
+];
 
 // =============================================================================
 // DATA ACCESS FUNCTIONS

@@ -1,6 +1,6 @@
 # Helvety
 
-> The main Helvety website. Software and subscriptions engineered and designed in Switzerland.
+> The main Helvety website. Products and services engineered and designed in Switzerland.
 
 ## Core Pages
 - [Home](https://helvety.com): Main landing page for Helvety
@@ -9,7 +9,7 @@
 - [Impressum](https://helvety.com/impressum): Legal information and company details
 
 ## Helvety Ecosystem
-- [Helvety Store](https://helvety.com/store): Official store for Helvety software products and subscriptions
+- [Helvety Store](https://helvety.com/store): Official store for Helvety products and services (free tools, SaaS, and paid subscriptions)
 - [Helvety PDF](https://helvety.com/pdf): Free, privacy-focused PDF toolkit that processes files locally in the browser
 - [Helvety Auth](https://helvety.com/auth): Centralized authentication service for all Helvety apps
 - [Helvety Contacts](https://helvety.com/contacts): End-to-end encrypted contact management

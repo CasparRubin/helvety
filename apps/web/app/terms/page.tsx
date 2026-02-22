@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Helvety",
-  description: "Terms of Service for Helvety - Software and Subscriptions",
+  description: "Terms of Service for Helvety - Products and Services",
   alternates: {
     canonical: `${urls.home}/terms`,
   },
@@ -989,10 +989,37 @@ export default function TermsPage() {
               purchase, you agree to Stripe&apos;s terms of service. We do not
               store your complete payment card information on our servers.
             </p>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               You agree to pay all charges incurred by you or any users of your
               account at the prices in effect when such charges are incurred.
               You are responsible for any taxes applicable to your purchases.
+            </p>
+            <h3 className="mb-3 text-lg font-medium">9.1 Free Products</h3>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Certain Helvety products are offered free of charge. No purchase
+              or subscription is required to use these products:
+            </p>
+            <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+              <li>
+                <strong className="text-foreground">Helvety PDF</strong> is free
+                forever. No account or login is required. All features are
+                available to all users at no cost.
+              </li>
+              <li>
+                <strong className="text-foreground">
+                  Helvety Tasks and Helvety Contacts
+                </strong>{" "}
+                are free for the first 10&apos;000 users. Pricing may be
+                introduced for new users at a later date; existing free users
+                will be notified in advance of any changes to their access
+                terms.
+              </li>
+            </ul>
+            <p className="text-muted-foreground text-sm">
+              Free products are provided &quot;as is&quot; under the same terms
+              as paid products (see Section 4.4). Helvety reserves the right to
+              modify, suspend, or discontinue free product offerings at any time
+              with reasonable notice.
             </p>
           </section>
 

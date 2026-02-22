@@ -30,11 +30,13 @@ export function ProductsCatalog() {
   const counts = useMemo(() => {
     let software = 0;
     let physical = 0;
+    let saas = 0;
     for (const p of allProducts) {
       if (p.type === "software") software++;
       else if (p.type === "physical") physical++;
+      else if (p.type === "saas") saas++;
     }
-    return { all: allProducts.length, software, physical } as Record<
+    return { all: allProducts.length, software, physical, saas } as Record<
       FilterType,
       number
     >;
@@ -53,7 +55,7 @@ export function ProductsCatalog() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Products</h1>
         <p className="text-muted-foreground mt-1">
-          Browse software and subscriptions from Helvety
+          Browse products and services from Helvety
         </p>
       </div>
       <section className="mb-6">

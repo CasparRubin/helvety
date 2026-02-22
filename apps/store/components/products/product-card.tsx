@@ -50,7 +50,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       >
         {/* Background artwork — desaturated at rest, full color on hover */}
         <Image
-          src="/store/artwork_1.jpg"
+          src={product.image ?? "/store/artwork_1.jpg"}
           alt=""
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

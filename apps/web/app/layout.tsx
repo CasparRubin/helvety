@@ -39,11 +39,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://helvety.com"),
   title: {
     default:
-      "Helvety | Software & Subscriptions | Engineered & Designed in Switzerland",
+      "Helvety | Products & Services | Engineered & Designed in Switzerland",
     template: "%s | Helvety",
   },
   description:
-    "Swiss-engineered software for encrypted task management, contact management, and PDF tools. Private, secure, and designed in Switzerland.",
+    "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Private, secure, and designed in Switzerland.",
   keywords: [
     "Helvety",
     "Swiss software",
@@ -68,9 +68,9 @@ export const metadata: Metadata = {
     url: "https://helvety.com",
     siteName: "Helvety",
     title:
-      "Helvety | Software & Subscriptions | Engineered & Designed in Switzerland",
+      "Helvety | Products & Services | Engineered & Designed in Switzerland",
     description:
-      "Swiss-engineered software for encrypted task management, contact management, and PDF tools. Private, secure, and designed in Switzerland.",
+      "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Private, secure, and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -83,9 +83,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title:
-      "Helvety | Software & Subscriptions | Engineered & Designed in Switzerland",
+      "Helvety | Products & Services | Engineered & Designed in Switzerland",
     description:
-      "Swiss-engineered software for encrypted task management, contact management, and PDF tools. Private, secure, and designed in Switzerland.",
+      "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Private, secure, and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -139,7 +139,7 @@ export default async function RootLayout({
                 url: "https://helvety.com",
                 logo: brandAssets.identifierPng,
                 description:
-                  "Software and subscriptions engineered and designed in Switzerland.",
+                  "Products and services engineered and designed in Switzerland.",
                 sameAs: [
                   "https://helvety.com",
                   "https://helvety.com/auth",
@@ -156,7 +156,7 @@ export default async function RootLayout({
                 name: "Helvety",
                 url: "https://helvety.com",
                 description:
-                  "Swiss-engineered software for encrypted task management, contact management, and PDF tools. Private, secure, and designed in Switzerland.",
+                  "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Private, secure, and designed in Switzerland.",
               },
             ]),
           }}

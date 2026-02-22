@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Impressum | Helvety",
-  description: "Impressum for Helvety - Software and Subscriptions",
+  description: "Impressum for Helvety - Products and Services",
   alternates: {
     canonical: `${urls.home}/impressum`,
   },
@@ -117,8 +117,11 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Business Activity</h2>
             <p className="text-muted-foreground text-sm">
-              Helvety by Rubin develops and sells software and
-              software-as-a-service (SaaS) subscriptions. Physical products
+              Helvety by Rubin develops and offers software, free tools, and
+              software-as-a-service (SaaS) products. Current products include
+              Helvety SPO Explorer (paid SharePoint extension), Helvety PDF
+              (free PDF toolkit), Helvety Tasks (encrypted task management), and
+              Helvety Contacts (encrypted contact management). Physical products
               (such as apparel) are planned for the future. All products are
               designed and developed in Switzerland.
             </p>

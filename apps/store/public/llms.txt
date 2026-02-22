@@ -1,11 +1,14 @@
 # Helvety Store
 
-> Official Helvety Store. Software and subscriptions engineered and designed in Switzerland.
+> Official Helvety Store. Products and services engineered and designed in Switzerland.
 
 ## Core Pages
 - [Home](https://helvety.com/store): Browse the Helvety product catalog
-- [Products](https://helvety.com/store/products): Full listing of all available software products and subscriptions
-- [SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint Online Explorer product page
+- [Products](https://helvety.com/store/products): Full listing of all available Helvety products and services
+- [SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint Online Explorer - paid subscription (Solo CHF 450/mo, Supported CHF 650/mo)
+- [Helvety PDF](https://helvety.com/store/products/helvety-pdf): Free PDF toolkit - no account required, free forever
+- [Helvety Tasks](https://helvety.com/store/products/helvety-tasks): E2E encrypted task management - free for the first 10,000 users
+- [Helvety Contacts](https://helvety.com/store/products/helvety-contacts): E2E encrypted contact management - free for the first 10,000 users
 
 ## Helvety Ecosystem
 - [Helvety](https://helvety.com): Main Helvety website with company information and legal pages

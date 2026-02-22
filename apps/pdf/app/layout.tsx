@@ -144,7 +144,7 @@ export default async function RootLayout({
                 url: "https://helvety.com",
                 logo: brandAssets.identifierPng,
                 description:
-                  "Software and subscriptions engineered and designed in Switzerland.",
+                  "Products and services engineered and designed in Switzerland.",
                 sameAs: [
                   "https://helvety.com",
                   "https://helvety.com/auth",

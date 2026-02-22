@@ -45,12 +45,24 @@ export const viewport = sharedViewport;
 export const metadata: Metadata = {
   metadataBase: new URL("https://helvety.com/store"),
   title: {
-    default: "Helvety Store | Software & Subscriptions",
+    default: "Helvety Store | Products & Services",
     template: "%s | Helvety Store",
   },
   description:
-    "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
-  keywords: ["Helvety Store", "software", "subscriptions", "Swiss", "shop"],
+    "Official Helvety Store. Products and services engineered & designed in Switzerland.",
+  keywords: [
+    "Helvety Store",
+    "software",
+    "saas",
+    "subscriptions",
+    "free tools",
+    "pdf",
+    "tasks",
+    "contacts",
+    "privacy",
+    "Swiss",
+    "shop",
+  ],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
   publisher: "Helvety",
@@ -64,9 +76,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://helvety.com/store",
     siteName: "Helvety Store",
-    title: "Helvety Store | Software & Subscriptions",
+    title: "Helvety Store | Products & Services",
     description:
-      "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
+      "Official Helvety Store. Products and services engineered & designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -78,9 +90,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Helvety Store | Software & Subscriptions",
+    title: "Helvety Store | Products & Services",
     description:
-      "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
+      "Official Helvety Store. Products and services engineered & designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -138,7 +150,7 @@ export default async function RootLayout({
                 url: "https://helvety.com",
                 logo: brandAssets.identifierPng,
                 description:
-                  "Software and subscriptions engineered and designed in Switzerland.",
+                  "Products and services engineered and designed in Switzerland.",
                 sameAs: [
                   "https://helvety.com",
                   "https://helvety.com/auth",
@@ -155,7 +167,7 @@ export default async function RootLayout({
                 name: "Helvety Store",
                 url: "https://helvety.com/store",
                 description:
-                  "Official Helvety Store. Software and subscriptions engineered & designed in Switzerland.",
+                  "Official Helvety Store. Products and services engineered & designed in Switzerland.",
                 applicationCategory: "ShoppingApplication",
                 operatingSystem: "Any",
               },

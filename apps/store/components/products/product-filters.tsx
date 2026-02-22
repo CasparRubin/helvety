@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@helvety/ui/dropdown-menu";
-import { ChevronDownIcon, MonitorCloud, LayoutGrid } from "lucide-react";
+import { ChevronDownIcon, Cloud, MonitorCloud, LayoutGrid } from "lucide-react";
 
 import type { ProductType } from "@/lib/types/products";
 
@@ -36,6 +36,7 @@ const filterOptions: {
   icon: typeof LayoutGrid;
 }[] = [
   { value: "all", label: "All Products", icon: LayoutGrid },
+  { value: "saas", label: "SaaS", icon: Cloud },
   { value: "software", label: "Software", icon: MonitorCloud },
 ];
 

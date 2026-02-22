@@ -10,22 +10,16 @@ import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@helvety/ui/collapsible";
 import { Separator } from "@helvety/ui/separator";
 import {
   Check,
-  ChevronDown,
+  ExternalLink,
   Loader2,
   RotateCcw,
   ArrowLeft,
   Globe,
   Github,
 } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { notFound, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
@@ -40,26 +34,13 @@ import { FeatureList } from "@/components/products/feature-list";
 import { ProductBadge, StatusBadge } from "@/components/products/product-badge";
 import { useCSRF } from "@/hooks/use-csrf";
 import { getProductBySlug } from "@/lib/data/products";
-import { isSoftwareProduct } from "@/lib/types/products";
+import { isSaaSProduct, isSoftwareProduct } from "@/lib/types/products";
 
 import type { ConsentMetadata } from "@/components/digital-content-consent-dialog";
 import type { CreateCheckoutResponse, Subscription } from "@/lib/types";
 import type { PricingTier } from "@/lib/types/products";
 
 const EMPTY_SUBSCRIPTIONS: Subscription[] = [];
-
-const MediaGallery = dynamic(
-  () =>
-    import("@/components/products/media-gallery").then((m) => m.MediaGallery),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="border-border/40 flex aspect-video w-full items-center justify-center rounded-lg border">
-        <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
-      </div>
-    ),
-  }
-);
 
 /** Props for the product detail page client component. */
 interface ProductDetailClientProps {
@@ -70,7 +51,7 @@ interface ProductDetailClientProps {
   initialSubscriptions?: Subscription[];
 }
 
-/** Renders the full product detail page with pricing, media, and features. */
+/** Renders the full product detail page with pricing and features. */
 export function ProductDetailClient({
   slug,
   checkoutEnabledTiers,
@@ -152,6 +133,19 @@ export function ProductDetailClient({
   const monthlyTiers = product.pricing.tiers.filter(
     (tier) => tier.interval !== "yearly"
   );
+
+  const isEntirelyFree = product.pricing.tiers.every(
+    (tier) => tier.isFree === true || tier.price === 0
+  );
+
+  const appUrl = isSaaSProduct(product)
+    ? product.saas?.appUrl
+    : product.links?.website;
+
+  const freeTagline =
+    product.pricing.tiers[0]?.features
+      .filter((f) => f.toLowerCase().includes("free"))
+      .join(" · ") || "No purchase necessary"; // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing -- empty string must trigger fallback
 
   const handleTierSelect = (tier: PricingTier) => {
     setSelectedTier(tier);
@@ -238,33 +232,53 @@ export function ProductDetailClient({
             <div className="mb-6">
               <h2 className="text-xl font-semibold">Pricing</h2>
               <p className="text-muted-foreground mt-1 text-sm">
-                Choose the plan that works best for you
+                {isEntirelyFree
+                  ? "This product is free"
+                  : "Choose the plan that works best for you"}
               </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-6">
-              {monthlyTiers.map((tier) => {
-                // Find subscription for this tier
-                const tierSubscription =
-                  userSubscriptions.find(
-                    (sub) =>
-                      sub.tier_id === tier.id &&
-                      (sub.status === "active" || sub.status === "trialing")
-                  ) ?? null;
+            {isEntirelyFree ? (
+              <div className="bg-card flex flex-col items-center rounded-2xl border px-6 py-8 text-center">
+                <span className="text-4xl font-bold tracking-tight text-green-600 dark:text-green-400">
+                  Free
+                </span>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  {freeTagline}
+                </p>
+                {appUrl && (
+                  <Button className="mt-6" asChild>
+                    <a href={appUrl} target="_blank" rel="noopener noreferrer">
+                      Go to App
+                      <ExternalLink className="ml-1.5 size-4" />
+                    </a>
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-wrap justify-center gap-6">
+                {monthlyTiers.map((tier) => {
+                  const tierSubscription =
+                    userSubscriptions.find(
+                      (sub) =>
+                        sub.tier_id === tier.id &&
+                        (sub.status === "active" || sub.status === "trialing")
+                    ) ?? null;
 
-                return (
-                  <PricingCard
-                    key={tier.id}
-                    tier={tier}
-                    selected={selectedTier?.id === tier.id}
-                    onSelect={() => handleTierSelect(tier)}
-                    productSlug={slug}
-                    userSubscription={tierSubscription}
-                    onReactivate={fetchSubscriptions}
-                    checkoutEnabledTiers={checkoutEnabledTiers}
-                  />
-                );
-              })}
-            </div>
+                  return (
+                    <PricingCard
+                      key={tier.id}
+                      tier={tier}
+                      selected={selectedTier?.id === tier.id}
+                      onSelect={() => handleTierSelect(tier)}
+                      productSlug={slug}
+                      userSubscription={tierSubscription}
+                      onReactivate={fetchSubscriptions}
+                      checkoutEnabledTiers={checkoutEnabledTiers}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </section>
         </div>
 
@@ -295,46 +309,6 @@ export function ProductDetailClient({
               </>
             )}
           </div>
-
-          {/* Media (Screencaptures & Screenshots) - Collapsible */}
-          {product.media &&
-            ((product.media.screencaptures?.length ?? 0) > 0 ||
-              (product.media.screenshots?.length ?? 0) > 0) && (
-              <div className="bg-surface-panel rounded-xl border p-6 shadow-sm">
-                <Collapsible defaultOpen={false}>
-                  <CollapsibleTrigger className="flex w-full items-center justify-between transition-opacity hover:opacity-80">
-                    <h2 className="text-lg font-semibold">Media</h2>
-                    <ChevronDown className="text-muted-foreground size-5 transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="mt-4 space-y-6">
-                      {/* Screencaptures */}
-                      {product.media.screencaptures &&
-                        product.media.screencaptures.length > 0 && (
-                          <div>
-                            <h3 className="text-muted-foreground mb-3 text-sm font-medium">
-                              Screencaptures
-                            </h3>
-                            <MediaGallery
-                              items={product.media.screencaptures}
-                            />
-                          </div>
-                        )}
-                      {/* Screenshots */}
-                      {product.media.screenshots &&
-                        product.media.screenshots.length > 0 && (
-                          <div>
-                            <h3 className="text-muted-foreground mb-3 text-sm font-medium">
-                              Screenshots
-                            </h3>
-                            <MediaGallery items={product.media.screenshots} />
-                          </div>
-                        )}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
-            )}
         </div>
       </div>
     </div>
