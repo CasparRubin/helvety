@@ -17,8 +17,7 @@ const nextConfig: NextConfig = {
 
   headers: createSecurityHeaders({ appName: "pdf" }),
 
-  // Webpack fallback: disables the canvas module to prevent SSR errors with PDF.js
-  // (production uses Turbopack; kept for compatibility if webpack is ever used)
+  // Disables the canvas module to prevent SSR errors with PDF.js
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,

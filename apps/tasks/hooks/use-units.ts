@@ -19,7 +19,13 @@ import {
   decryptUnitRow,
 } from "@/lib/crypto";
 
-import type { Unit, UnitInput, ReorderUpdate } from "@/lib/types";
+import type { Unit, UnitInput, UnitRow, ReorderUpdate } from "@/lib/types";
+
+/** Options for useUnits hook */
+interface UseUnitsOptions {
+  /** Server-prefetched encrypted rows. Skips the initial fetch when provided. */
+  initialEncryptedData?: UnitRow[];
+}
 
 /** Return type of useUnits hook (units list, CRUD, reorder). */
 interface UseUnitsReturn {
@@ -45,13 +51,14 @@ interface UseUnitsReturn {
  * Hook to manage Units with automatic encryption/decryption
  * Handles fetching, creating, updating, and deleting units
  */
-export function useUnits(): UseUnitsReturn {
+export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [units, setUnits] = useState<Unit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   /**
    * Fetch and decrypt all units
@@ -256,10 +263,31 @@ export function useUnits(): UseUnitsReturn {
 
   // Fetch units when encryption is unlocked
   useEffect(() => {
-    if (isUnlocked && masterKey) {
-      void refresh();
+    if (!isUnlocked || !masterKey) return;
+
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptUnitRows(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setUnits(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error ? err.message : "Failed to decrypt units"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     units,

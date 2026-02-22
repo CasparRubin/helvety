@@ -18,9 +18,7 @@ import { logger } from "../logger";
 
 const PRF_SALT_CACHE_KEY = "helvety-prf-salt";
 
-/**
- *
- */
+/** Cached PRF salt stored in localStorage for single-touch unlock on subsequent logins */
 interface CachedPRFSalt {
   /** Base64-encoded PRF salt */
   prfSalt: string;

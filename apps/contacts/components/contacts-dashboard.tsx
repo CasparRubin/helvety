@@ -32,12 +32,20 @@ import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
 import { useEncryptionContext } from "@/lib/crypto";
 import { downloadContactDataExport } from "@/lib/data-export";
 
-import type { ContactRow } from "@/lib/types";
+import type {
+  ContactRow,
+  CategoryConfigRow,
+  CategoryAssignment,
+} from "@/lib/types";
 
 /** Props for the main contacts dashboard component. */
 interface ContactsDashboardProps {
   /** Server-prefetched encrypted contacts to skip initial round-trip */
   initialEncryptedContacts?: ContactRow[];
+  /** Server-prefetched encrypted category configs */
+  initialEncryptedCategoryConfigs?: CategoryConfigRow[];
+  /** Server-prefetched category assignment (not encrypted) */
+  initialCategoryAssignment?: CategoryAssignment | null;
 }
 
 /**
@@ -45,6 +53,8 @@ interface ContactsDashboardProps {
  */
 export function ContactsDashboard({
   initialEncryptedContacts,
+  initialEncryptedCategoryConfigs,
+  initialCategoryAssignment,
 }: ContactsDashboardProps = {}) {
   const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
@@ -55,12 +65,14 @@ export function ContactsDashboard({
     create: createConfig,
     remove: removeConfig,
     update: updateConfig,
-  } = useCategoryConfigs();
+  } = useCategoryConfigs({
+    initialEncryptedData: initialEncryptedCategoryConfigs,
+  });
   const {
     effectiveConfigId,
     assign: assignCategory,
     unassign: unassignCategory,
-  } = useCategoryAssignment();
+  } = useCategoryAssignment({ initialData: initialCategoryAssignment });
   const { categories } = useCategories(effectiveConfigId);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -268,7 +280,7 @@ export function ContactsDashboard({
           {
             id: "categories",
             label: "Categories",
-            content: (
+            content: isSettingsOpen ? (
               <CategoryConfiguratorContent
                 configs={configs}
                 assignedConfigId={effectiveConfigId}
@@ -278,7 +290,7 @@ export function ContactsDashboard({
                 onAssignConfig={assignCategory}
                 onUnassignConfig={unassignCategory}
               />
-            ),
+            ) : null,
           },
         ]}
       />

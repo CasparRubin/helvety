@@ -5,6 +5,12 @@ import { useState, useCallback, useEffect } from "react";
 import { getSpaceCounts, getItemCounts } from "@/app/actions/task-actions";
 import { useEncryptionContext } from "@/lib/crypto";
 
+/** Options for useChildCounts hook */
+interface UseChildCountsOptions {
+  /** Server-prefetched counts. Skips the initial fetch when provided. */
+  initialData?: Record<string, number>;
+}
+
 /**
  * Hook to fetch child entity counts for display in entity lists.
  *
@@ -13,12 +19,17 @@ import { useEncryptionContext } from "@/lib/crypto";
  */
 export function useChildCounts(
   entityType: "unit" | "space",
-  parentId?: string
+  parentId?: string,
+  options?: UseChildCountsOptions
 ): { counts: Record<string, number>; isLoading: boolean } {
   const { isUnlocked } = useEncryptionContext();
 
-  const [counts, setCounts] = useState<Record<string, number>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const hasInitialData = options?.initialData !== undefined;
+  const [counts, setCounts] = useState<Record<string, number>>(
+    options?.initialData ?? {}
+  );
+  const [isLoading, setIsLoading] = useState(!hasInitialData);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!isUnlocked) {
@@ -55,10 +66,15 @@ export function useChildCounts(
   }, [entityType, parentId, isUnlocked]);
 
   useEffect(() => {
-    if (isUnlocked) {
-      void refresh();
+    if (!isUnlocked) return;
+
+    if (hasInitialData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      return;
     }
-  }, [isUnlocked, refresh]);
+
+    void refresh();
+  }, [isUnlocked, refresh, hasInitialData, initialDataConsumed]);
 
   return { counts, isLoading };
 }

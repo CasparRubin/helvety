@@ -14,14 +14,14 @@ import {
   CheckIcon,
   XIcon,
   PencilIcon,
-  CircleIcon,
+  EyeIcon,
   InfoIcon,
 } from "lucide-react";
-import * as LucideIcons from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { useCategories } from "@/hooks";
+import { getLucideIcon } from "@/lib/icons";
 
 import type { CategoryConfig } from "@/lib/types";
 
@@ -171,32 +171,6 @@ const SUGGESTED_ICONS = [
   "x",
   "zoom-in",
 ];
-
-// =============================================================================
-// Helpers
-// =============================================================================
-
-/** Convert a kebab-case string to PascalCase. */
-function toPascalCase(str: string): string {
-  return str
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join("");
-}
-
-/** Props accepted by a Lucide icon component. */
-type LucideIconComponent = React.ComponentType<{
-  className?: string;
-  style?: React.CSSProperties;
-}>;
-
-/** Look up a Lucide icon by kebab-case name, falling back to CircleIcon. */
-function getLucideIcon(iconName: string): LucideIconComponent {
-  const pascalName = toPascalCase(iconName);
-  const icons = LucideIcons as unknown as Record<string, LucideIconComponent>;
-  const IconComponent = icons[pascalName];
-  return IconComponent ?? CircleIcon;
-}
 
 // =============================================================================
 // Main Category Configurator
@@ -506,7 +480,7 @@ export function CategoryConfiguratorContent({
                             onClick={() => handleSelectConfig(config.id)}
                           >
                             {isDefault ? (
-                              <LucideIcons.Eye className="size-3.5" />
+                              <EyeIcon className="size-3.5" />
                             ) : (
                               <PencilIcon className="size-3.5" />
                             )}

@@ -422,7 +422,7 @@ export function ItemsDashboard({
           {
             id: "stages",
             label: "Stages",
-            content: (
+            content: isSettingsOpen ? (
               <StageConfiguratorContent
                 entityType="item"
                 configs={configs}
@@ -433,12 +433,12 @@ export function ItemsDashboard({
                 onAssignConfig={assignStage}
                 onUnassignConfig={unassignStage}
               />
-            ),
+            ) : null,
           },
           {
             id: "labels",
             label: "Labels",
-            content: (
+            content: isSettingsOpen ? (
               <LabelConfiguratorContent
                 configs={labelConfigs}
                 assignedConfigId={effectiveLabelConfigId}
@@ -450,7 +450,7 @@ export function ItemsDashboard({
                 onAssignConfig={assignLabel}
                 onUnassignConfig={unassignLabel}
               />
-            ),
+            ) : null,
           },
         ]}
       />

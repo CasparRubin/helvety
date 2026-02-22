@@ -1,7 +1,7 @@
 {
   "name": "@helvety/web",
   "version": "2.15.0",
-  "description": "The main Helvety website. Engineered & Designed in Switzerland.",
+  "description": "Gateway application that routes to all Helvety sub-apps. Engineered & Designed in Switzerland.",
   "author": "Helvety by Rubin",
   "homepage": "https://helvety.com",
   "repository": {

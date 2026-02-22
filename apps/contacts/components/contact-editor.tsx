@@ -40,11 +40,19 @@ import { TaskLinksPanel } from "@/components/task-links-panel";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useContact, useCategories, useCategoryAssignment } from "@/hooks";
 
+import type { ContactRow } from "@/lib/types";
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
 
 /** Save status type */
 type SaveStatus = "idle" | "saving" | "saved" | "error";
+
+/** Props for ContactEditor */
+interface ContactEditorProps {
+  contactId: string;
+  /** Server-prefetched encrypted contact to skip initial round-trip */
+  initialEncryptedContact?: ContactRow;
+}
 
 /**
  * ContactEditor - Full editor for a single contact.
@@ -53,10 +61,15 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
  * On mobile the action panel is displayed above the form fields (via flex-col-reverse)
  * for consistency with the Tasks app.
  */
-export function ContactEditor({ contactId }: { contactId: string }) {
+export function ContactEditor({
+  contactId,
+  initialEncryptedContact,
+}: ContactEditorProps) {
   const router = useRouter();
-  const { contact, isLoading, error, refresh, update, remove } =
-    useContact(contactId);
+  const { contact, isLoading, error, refresh, update, remove } = useContact(
+    contactId,
+    { initialEncryptedData: initialEncryptedContact }
+  );
 
   const { effectiveConfigId } = useCategoryAssignment();
   const { categories, isLoading: isLoadingCategories } =

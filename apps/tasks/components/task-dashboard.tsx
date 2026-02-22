@@ -30,25 +30,49 @@ import {
 } from "@/hooks";
 import { useEncryptionContext } from "@/lib/crypto";
 
+import type { UnitRow, StageConfigRow, StageAssignment } from "@/lib/types";
+
+/** Props for the main task dashboard component. */
+interface TaskDashboardProps {
+  /** Server-prefetched encrypted units */
+  initialEncryptedUnits?: UnitRow[];
+  /** Server-prefetched space counts per unit */
+  initialSpaceCounts?: Record<string, number>;
+  /** Server-prefetched encrypted stage configs */
+  initialEncryptedStageConfigs?: StageConfigRow[];
+  /** Server-prefetched stage assignment (not encrypted) */
+  initialStageAssignment?: StageAssignment | null;
+}
+
 /**
  * Task Dashboard - Main view for Units list
  * Uses EntityList for list/table display with stage support and DnD
  */
-export function TaskDashboard() {
+export function TaskDashboard({
+  initialEncryptedUnits,
+  initialSpaceCounts,
+  initialEncryptedStageConfigs,
+  initialStageAssignment,
+}: TaskDashboardProps = {}) {
   const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const { units, isLoading, error, refresh, create, remove, reorder } =
-    useUnits();
-  const { counts: childCounts } = useChildCounts("unit");
+    useUnits({ initialEncryptedData: initialEncryptedUnits });
+  const { counts: childCounts } = useChildCounts("unit", undefined, {
+    initialData: initialSpaceCounts,
+  });
   const {
     configs,
     create: createConfig,
     remove: removeConfig,
     update: updateConfig,
-  } = useStageConfigs("unit");
+  } = useStageConfigs("unit", {
+    initialEncryptedData: initialEncryptedStageConfigs,
+  });
   const { effectiveConfigId, assign, unassign } = useStageAssignment(
     "unit",
-    null
+    null,
+    { initialData: initialStageAssignment }
   );
   const { stages } = useStages(effectiveConfigId);
 
@@ -216,7 +240,7 @@ export function TaskDashboard() {
           {
             id: "stages",
             label: "Stages",
-            content: (
+            content: isSettingsOpen ? (
               <StageConfiguratorContent
                 entityType="unit"
                 configs={configs}
@@ -227,7 +251,7 @@ export function TaskDashboard() {
                 onAssignConfig={assign}
                 onUnassignConfig={unassign}
               />
-            ),
+            ) : null,
           },
         ]}
       />

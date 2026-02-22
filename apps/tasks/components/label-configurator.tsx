@@ -14,14 +14,14 @@ import {
   CheckIcon,
   XIcon,
   PencilIcon,
-  CircleIcon,
+  EyeIcon,
   InfoIcon,
 } from "lucide-react";
-import * as LucideIcons from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { useLabels } from "@/hooks";
+import { getLucideIcon } from "@/lib/icons";
 
 import type { LabelConfig } from "@/lib/types";
 
@@ -98,36 +98,6 @@ const SUGGESTED_ICONS = [
   "users",
   "wrench",
 ];
-
-// =============================================================================
-// Helper: Convert kebab-case to PascalCase for Lucide icons
-// =============================================================================
-
-/** Convert kebab-case string to PascalCase. */
-function toPascalCase(str: string): string {
-  return str
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join("");
-}
-
-// =============================================================================
-// Helper: Get Lucide icon component by name
-// =============================================================================
-
-/** Lucide icon component type. */
-type LucideIconComponent = React.ComponentType<{
-  className?: string;
-  style?: React.CSSProperties;
-}>;
-
-/** Get Lucide icon component by kebab-case name. */
-function getLucideIcon(iconName: string): LucideIconComponent {
-  const pascalName = toPascalCase(iconName);
-  const icons = LucideIcons as unknown as Record<string, LucideIconComponent>;
-  const IconComponent = icons[pascalName];
-  return IconComponent ?? CircleIcon;
-}
 
 // =============================================================================
 // Main Label Configurator Dialog
@@ -437,7 +407,7 @@ export function LabelConfiguratorContent({
                             onClick={() => handleSelectConfig(config.id)}
                           >
                             {isDefault ? (
-                              <LucideIcons.Eye className="size-3.5" />
+                              <EyeIcon className="size-3.5" />
                             ) : (
                               <PencilIcon className="size-3.5" />
                             )}

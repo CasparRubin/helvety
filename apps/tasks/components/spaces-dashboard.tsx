@@ -383,7 +383,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
           {
             id: "stages",
             label: "Stages",
-            content: (
+            content: isSettingsOpen ? (
               <StageConfiguratorContent
                 entityType="space"
                 configs={configs}
@@ -394,7 +394,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
                 onAssignConfig={assign}
                 onUnassignConfig={unassign}
               />
-            ),
+            ) : null,
           },
         ]}
       />

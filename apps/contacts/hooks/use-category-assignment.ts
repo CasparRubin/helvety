@@ -16,6 +16,12 @@ import { useEncryptionContext } from "@/lib/crypto";
 
 import type { CategoryAssignment } from "@/lib/types";
 
+/** Options for useCategoryAssignment hook */
+interface UseCategoryAssignmentOptions {
+  /** Server-prefetched assignment. Skips the initial fetch when provided. */
+  initialData?: CategoryAssignment | null;
+}
+
 /**
  * Return type for useCategoryAssignment hook
  */
@@ -39,13 +45,19 @@ interface UseCategoryAssignmentReturn {
 /**
  * Hook to manage the category assignment for the contacts list
  */
-export function useCategoryAssignment(): UseCategoryAssignmentReturn {
+export function useCategoryAssignment(
+  options?: UseCategoryAssignmentOptions
+): UseCategoryAssignmentReturn {
   const { isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
-  const [assignment, setAssignment] = useState<CategoryAssignment | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const hasInitialData = options?.initialData !== undefined;
+  const [assignment, setAssignment] = useState<CategoryAssignment | null>(
+    hasInitialData ? (options.initialData ?? null) : null
+  );
+  const [isLoading, setIsLoading] = useState(!hasInitialData);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!isUnlocked) {
@@ -137,10 +149,15 @@ export function useCategoryAssignment(): UseCategoryAssignmentReturn {
   }, [csrfToken, refresh]);
 
   useEffect(() => {
-    if (isUnlocked) {
-      void refresh();
+    if (!isUnlocked) return;
+
+    if (hasInitialData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      return;
     }
-  }, [isUnlocked, refresh]);
+
+    void refresh();
+  }, [isUnlocked, refresh, hasInitialData, initialDataConsumed]);
 
   // Always fall back to the default config
   const effectiveConfigId = useMemo(() => {

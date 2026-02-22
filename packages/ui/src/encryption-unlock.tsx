@@ -1,8 +1,12 @@
 "use client";
 
+import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { generateKeyCheckValue } from "@helvety/shared/crypto/key-check";
 import { cachePRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { logger } from "@helvety/shared/logger";
+import { Fingerprint, Loader2, Lock, Smartphone } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { Button } from "@helvety/ui/button";
 import {
   Card,
@@ -12,41 +16,37 @@ import {
   CardTitle,
 } from "@helvety/ui/card";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { Fingerprint, Lock, Loader2, Smartphone } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 
-import {
-  verifyEncryptionPasskey,
-  saveKeyCheckValue,
-} from "@/app/actions/encryption-actions";
-import { useEncryptionContext, type PRFKeyParams } from "@/lib/crypto";
+import type { PRFKeyParams } from "@helvety/shared/crypto/types";
+import type { ActionResponse } from "@helvety/shared/types/entities";
 
-/** Props for the EncryptionUnlock component */
-interface EncryptionUnlockProps {
-  /** The authenticated user's ID */
-  userId: string;
-  /** PRF-based params for passkey unlock */
-  passkeyParams: PRFKeyParams;
-  /** Credential ID for filtering WebAuthn allowCredentials */
-  credentialId?: string | null;
-  /** Key check value for validating the derived key */
-  keyCheckValue?: string | null;
-  /** Callback when encryption is successfully unlocked */
-  onUnlock?: () => void;
+/**
+ * Server actions that EncryptionUnlock needs injected by the consuming app.
+ * These are app-local "use server" functions that cannot live in a shared package.
+ */
+export interface EncryptionUnlockActions {
+  verifyEncryptionPasskey: (
+    credentialId: string
+  ) => Promise<ActionResponse<{ verified: boolean }>>;
+  saveKeyCheckValue: (
+    kcv: string,
+    csrfToken: string
+  ) => Promise<ActionResponse>;
 }
 
-/** Verify server-side that the passkey credential belongs to the session user. */
-async function verifyCredentialOwnership(
-  credentialId: string
-): Promise<boolean> {
-  const result = await verifyEncryptionPasskey(credentialId);
-  return result.success && result.data?.verified === true;
+/** Props for the shared EncryptionUnlock component */
+export interface EncryptionUnlockProps {
+  userId: string;
+  passkeyParams: PRFKeyParams;
+  credentialId?: string | null;
+  keyCheckValue?: string | null;
+  onUnlock?: () => void;
+  actions: EncryptionUnlockActions;
 }
 
 /**
- * Component for unlocking encryption with passkey.
- * Shown to users who have set up passkey encryption but need to unlock.
- * Auto-triggers the passkey popup on mount for a seamless unlock flow.
+ * Passkey-based encryption unlock component. Auto-triggers the passkey popup
+ * on mount and generates a key check value after first successful unlock.
  */
 export function EncryptionUnlock({
   userId,
@@ -54,7 +54,9 @@ export function EncryptionUnlock({
   credentialId,
   keyCheckValue,
   onUnlock,
+  actions,
 }: EncryptionUnlockProps) {
+  const { verifyEncryptionPasskey, saveKeyCheckValue } = actions;
   const { unlockWithPasskey, masterKey } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
@@ -72,7 +74,10 @@ export function EncryptionUnlock({
         userId,
         passkeyParams,
         credentialIds,
-        verifyCredentialOwnership,
+        async (credId: string) => {
+          const result = await verifyEncryptionPasskey(credId);
+          return result.success && result.data?.verified === true;
+        },
         keyCheckValue
       );
 
@@ -82,10 +87,8 @@ export function EncryptionUnlock({
         return;
       }
 
-      // Cache PRF salt so future logins can include PRF for single-touch unlock
       cachePRFSalt(passkeyParams.prfSalt, passkeyParams.version);
 
-      // Success
       if (onUnlock) {
         onUnlock();
       }
@@ -102,9 +105,9 @@ export function EncryptionUnlock({
     credentialId,
     keyCheckValue,
     onUnlock,
+    verifyEncryptionPasskey,
   ]);
 
-  // After successful unlock, generate and save a KCV if one doesn't exist yet
   useEffect(() => {
     if (!masterKey || keyCheckValue || !csrfToken) return;
 
@@ -116,13 +119,11 @@ export function EncryptionUnlock({
         logger.warn("Failed to generate/save key check value:", err);
       }
     })();
-  }, [masterKey, keyCheckValue, csrfToken]);
+  }, [masterKey, keyCheckValue, csrfToken, saveKeyCheckValue]);
 
-  // Auto-trigger passkey popup on mount
   useEffect(() => {
     if (!hasAttemptedAutoUnlock.current) {
       hasAttemptedAutoUnlock.current = true;
-      // Use timeout to defer execution (avoids synchronous setState in effect)
       const timer = setTimeout(() => {
         void handleUnlock();
       }, 0);

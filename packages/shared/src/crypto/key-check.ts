@@ -16,9 +16,7 @@ import { constantTimeEqual } from "./encoding";
 const KCV_PLAINTEXT = "helvety-kcv-v1";
 const KCV_VERSION = 1;
 
-/**
- *
- */
+/** Serialized KCV structure stored in the database */
 interface KeyCheckData {
   iv: string;
   ciphertext: string;
@@ -78,9 +76,7 @@ export async function verifyKeyCheckValue(
   }
 }
 
-/**
- *
- */
+/** Encode a Uint8Array to a standard base64 string. */
 function uint8ToBase64(data: Uint8Array): string {
   let binary = "";
   for (let i = 0; i < data.length; i++) {
@@ -92,9 +88,7 @@ function uint8ToBase64(data: Uint8Array): string {
   return btoa(binary);
 }
 
-/**
- *
- */
+/** Decode a standard base64 string to a Uint8Array. */
 function base64ToUint8(str: string): Uint8Array {
   const binary = atob(str);
   const bytes = new Uint8Array(binary.length);

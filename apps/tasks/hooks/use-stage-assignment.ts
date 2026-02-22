@@ -16,6 +16,12 @@ import { useEncryptionContext } from "@/lib/crypto";
 
 import type { StageAssignment, EntityType } from "@/lib/types";
 
+/** Options for useStageAssignment hook */
+interface UseStageAssignmentOptions {
+  /** Server-prefetched assignment. Skips the initial fetch when provided. */
+  initialData?: StageAssignment | null;
+}
+
 /**
  * Return type for useStageAssignment hook
  */
@@ -41,14 +47,19 @@ interface UseStageAssignmentReturn {
  */
 export function useStageAssignment(
   entityType: EntityType,
-  parentId: string | null
+  parentId: string | null,
+  options?: UseStageAssignmentOptions
 ): UseStageAssignmentReturn {
   const { isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
-  const [assignment, setAssignment] = useState<StageAssignment | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const hasInitialData = options?.initialData !== undefined;
+  const [assignment, setAssignment] = useState<StageAssignment | null>(
+    hasInitialData ? (options.initialData ?? null) : null
+  );
+  const [isLoading, setIsLoading] = useState(!hasInitialData);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!isUnlocked) {
@@ -147,10 +158,15 @@ export function useStageAssignment(
   }, [entityType, parentId, csrfToken, refresh]);
 
   useEffect(() => {
-    if (isUnlocked) {
-      void refresh();
+    if (!isUnlocked) return;
+
+    if (hasInitialData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      return;
     }
-  }, [isUnlocked, refresh]);
+
+    void refresh();
+  }, [isUnlocked, refresh, hasInitialData, initialDataConsumed]);
 
   // Always fall back to the default config for this entity type
   const effectiveConfigId = useMemo(() => {

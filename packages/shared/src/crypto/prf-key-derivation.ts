@@ -2,7 +2,6 @@
  * PRF Key Derivation Module
  * Derives encryption keys from WebAuthn PRF extension output using HKDF
  *
- * This replaces password-based key derivation (Argon2id) with passkey-based derivation.
  * The PRF (Pseudo-Random Function) extension in WebAuthn generates cryptographic material
  * that is deterministic per passkey + salt combination.
  */
@@ -20,7 +19,7 @@ const PRF_SALT_LENGTH = 32;
 
 /**
  * HKDF info string for cross-app compatibility
- * This is shared across all Helvety apps (pdf, store, auth, etc.)
+ * Shared across E2EE apps (Tasks, Contacts) and Auth (for setup)
  */
 const HKDF_INFO = "helvety-e2ee-v1";
 

@@ -14,14 +14,14 @@ import {
   CheckIcon,
   XIcon,
   PencilIcon,
-  CircleIcon,
+  EyeIcon,
   InfoIcon,
 } from "lucide-react";
-import * as LucideIcons from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { useStages } from "@/hooks";
+import { getLucideIcon } from "@/lib/icons";
 
 import type { StageConfig, EntityType } from "@/lib/types";
 
@@ -171,44 +171,6 @@ const SUGGESTED_ICONS = [
   "x",
   "zoom-in",
 ];
-
-// =============================================================================
-// Helper: Convert kebab-case to PascalCase for Lucide icons
-// =============================================================================
-
-/**
- * Converts a kebab-case string to PascalCase.
- * Used to transform icon names like "check-circle" to "CheckCircle" for Lucide.
- */
-function toPascalCase(str: string): string {
-  return str
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join("");
-}
-
-// =============================================================================
-// Helper: Get Lucide icon component by name
-// =============================================================================
-
-/**
- * Type for a Lucide icon component with optional className and style props.
- */
-type LucideIconComponent = React.ComponentType<{
-  className?: string;
-  style?: React.CSSProperties;
-}>;
-
-/**
- * Retrieves a Lucide icon component by its kebab-case name.
- * Falls back to CircleIcon if the icon is not found.
- */
-function getLucideIcon(iconName: string): LucideIconComponent {
-  const pascalName = toPascalCase(iconName);
-  const icons = LucideIcons as unknown as Record<string, LucideIconComponent>;
-  const IconComponent = icons[pascalName];
-  return IconComponent ?? CircleIcon;
-}
 
 // =============================================================================
 // Main Stage Configurator Dialog
@@ -533,7 +495,7 @@ export function StageConfiguratorContent({
                             onClick={() => handleSelectConfig(config.id)}
                           >
                             {isDefault ? (
-                              <LucideIcons.Eye className="size-3.5" />
+                              <EyeIcon className="size-3.5" />
                             ) : (
                               <PencilIcon className="size-3.5" />
                             )}

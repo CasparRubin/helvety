@@ -82,7 +82,8 @@ interface EncryptionContextValue extends EncryptionState {
   lockEncryption: (userId: string) => Promise<void>;
 
   /**
-   * Check if encryption is set up for a user
+   * Check if a cached master key exists in IndexedDB for the user
+   * and update context state accordingly
    */
   checkEncryptionState: (userId: string) => Promise<void>;
 

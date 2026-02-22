@@ -319,6 +319,12 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   };
 }
 
+/** Options for useContact hook */
+interface UseContactOptions {
+  /** Server-prefetched encrypted row. Skips the initial fetch when provided. */
+  initialEncryptedData?: ContactRow;
+}
+
 /** Return type of the useContact hook for a single contact. */
 interface UseContactReturn {
   /** The decrypted contact */
@@ -338,13 +344,17 @@ interface UseContactReturn {
 /**
  * Hook to manage a single Contact by ID
  */
-export function useContact(id: string): UseContactReturn {
+export function useContact(
+  id: string,
+  options?: UseContactOptions
+): UseContactReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [contact, setContact] = useState<Contact | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked || !id) {
@@ -456,10 +466,32 @@ export function useContact(id: string): UseContactReturn {
   }, [id, csrfToken]);
 
   useEffect(() => {
-    if (isUnlocked && masterKey && id) {
-      void refresh();
+    if (!isUnlocked || !masterKey || !id) return;
+
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptContactRow(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setContact(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error ? err.message : "Failed to decrypt contact"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, id, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    id,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     contact,

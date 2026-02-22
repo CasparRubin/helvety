@@ -2,19 +2,21 @@ import { requireAuth } from "@helvety/shared/auth-guard";
 import { LoadingSpinner } from "@helvety/ui/loading-spinner";
 import { Suspense } from "react";
 
-import { getContacts } from "@/app/actions/contact-actions";
+import { getContactsDashboardData } from "@/app/actions/batch-actions";
 import { ContactsDashboard } from "@/components/contacts-dashboard";
 import { EncryptionGate } from "@/components/encryption-gate";
 
-/** Server component that prefetches encrypted contacts for streaming. */
+/** Server component that prefetches all encrypted dashboard data for streaming. */
 async function PrefetchedDashboard(): Promise<React.JSX.Element> {
-  const contactsResult = await getContacts();
-  const initialEncryptedContacts = contactsResult.success
-    ? contactsResult.data
-    : undefined;
+  const result = await getContactsDashboardData();
+  const initialData = result.success ? result.data : undefined;
 
   return (
-    <ContactsDashboard initialEncryptedContacts={initialEncryptedContacts} />
+    <ContactsDashboard
+      initialEncryptedContacts={initialData?.contacts}
+      initialEncryptedCategoryConfigs={initialData?.categoryConfigs}
+      initialCategoryAssignment={initialData?.categoryAssignment}
+    />
   );
 }
 

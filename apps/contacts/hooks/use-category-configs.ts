@@ -20,7 +20,17 @@ import {
   decryptCategoryConfigRows,
 } from "@/lib/crypto";
 
-import type { CategoryConfig, CategoryConfigInput } from "@/lib/types";
+import type {
+  CategoryConfig,
+  CategoryConfigInput,
+  CategoryConfigRow,
+} from "@/lib/types";
+
+/** Options for useCategoryConfigs hook */
+interface UseCategoryConfigsOptions {
+  /** Server-prefetched encrypted rows. Skips the initial fetch when provided. */
+  initialEncryptedData?: CategoryConfigRow[];
+}
 
 /**
  * Return type for useCategoryConfigs hook
@@ -59,13 +69,16 @@ function getDefaultConfigAsCategoryConfig(): CategoryConfig {
 /**
  * Hook to manage CategoryConfigs with automatic encryption/decryption
  */
-export function useCategoryConfigs(): UseCategoryConfigsReturn {
+export function useCategoryConfigs(
+  options?: UseCategoryConfigsOptions
+): UseCategoryConfigsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [userConfigs, setUserConfigs] = useState<CategoryConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   // Get the default config
   const defaultConfig = useMemo(() => getDefaultConfigAsCategoryConfig(), []);
@@ -211,10 +224,33 @@ export function useCategoryConfigs(): UseCategoryConfigsReturn {
   );
 
   useEffect(() => {
-    if (isUnlocked && masterKey) {
-      void refresh();
+    if (!isUnlocked || !masterKey) return;
+
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptCategoryConfigRows(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setUserConfigs(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to decrypt category configs"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     configs,
