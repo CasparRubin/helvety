@@ -89,22 +89,28 @@ export function EncryptionGate({
   // Track auto-retry count to avoid infinite loops
   const retryCountRef = useRef(0);
 
-  // Check encryption state on mount (with auto-retry on transient errors)
+  // Check encryption state on mount (with auto-retry on transient errors).
+  // Returns a cleanup function that sets a `cancelled` flag so stale async
+  // work (including retry timeouts) from a previous mount cannot mutate
+  // state or the shared EncryptionProvider context after navigation.
   useEffect(() => {
-    /** Checks encryption state on mount (cached key and DB params). */
+    let cancelled = false;
+    retryCountRef.current = 0;
+
+    /** Checks encryption state and fetches DB params (with retry). */
     async function checkState() {
       try {
-        // First check if we have a cached key
         await checkEncryptionState(userId);
+        if (cancelled) return;
 
-        // Then check if user has encryption params in DB
         const result = await getEncryptionParams();
+        if (cancelled) return;
 
         if (!result.success) {
-          // Auto-retry once on transient errors before showing error screen
           if (retryCountRef.current < MAX_AUTO_RETRIES) {
             retryCountRef.current += 1;
             await new Promise((r) => setTimeout(r, AUTO_RETRY_DELAY_MS));
+            if (cancelled) return;
             void checkState();
             return;
           }
@@ -120,14 +126,14 @@ export function EncryptionGate({
           setKeyCheckValue(pp.key_check_value ?? null);
         }
 
-        // Success - reset retry counter
         retryCountRef.current = 0;
         setHasCheckedParams(true);
       } catch {
-        // Auto-retry once on unexpected errors (network failure, etc.)
+        if (cancelled) return;
         if (retryCountRef.current < MAX_AUTO_RETRIES) {
           retryCountRef.current += 1;
           await new Promise((r) => setTimeout(r, AUTO_RETRY_DELAY_MS));
+          if (cancelled) return;
           void checkState();
           return;
         }
@@ -137,6 +143,9 @@ export function EncryptionGate({
     }
 
     void checkState();
+    return () => {
+      cancelled = true;
+    };
   }, [userId, checkEncryptionState]);
 
   // Lock encryption when the authenticated user changes in another tab

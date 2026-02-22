@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useRef,
   useState,
   useCallback,
   type ReactNode,
@@ -113,6 +114,12 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
     prfSupportInfo: null,
   });
 
+  // Ref tracking current state so checkEncryptionState can read it without
+  // adding state to its dependency array (which would recreate the callback
+  // on every render and defeat the purpose of the early-return optimisation).
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
   /**
    * Check PRF/passkey support
    */
@@ -141,6 +148,22 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
    */
   const checkEncryptionState = useCallback(
     async (userId: string) => {
+      // Already unlocked for this user — skip the IndexedDB read entirely.
+      // This prevents the isLoading toggle and a new CryptoKey reference
+      // (IndexedDB structured-clone always returns a fresh object) from
+      // cascading through every data hook and triggering mass re-fetches.
+      const current = stateRef.current;
+      if (
+        current.isUnlocked &&
+        current.unlockedForUserId === userId &&
+        current.masterKey
+      ) {
+        if (current.isLoading) {
+          setState((prev) => ({ ...prev, isLoading: false }));
+        }
+        return;
+      }
+
       if (!isStorageAvailable()) {
         setState((prev) => ({
           ...prev,
