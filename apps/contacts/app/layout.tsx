@@ -5,6 +5,7 @@ import {
   getCachedUser,
 } from "@helvety/shared/cached-server";
 import { sharedViewport } from "@helvety/shared/config";
+import { logger } from "@helvety/shared/logger";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { Footer } from "@helvety/ui/footer";
@@ -19,6 +20,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 
+import { EncryptionGate } from "@/components/encryption-gate";
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
 
@@ -125,11 +127,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const [nonce, csrfToken, initialUser] = await Promise.all([
-    headers().then((h) => h.get("x-nonce") ?? ""),
-    getCachedCSRFToken().then((t) => t ?? ""),
-    getCachedUser(),
-  ]);
+  let nonce = "";
+  let csrfToken = "";
+  let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
+
+  try {
+    [nonce, csrfToken, initialUser] = await Promise.all([
+      headers().then((h) => h.get("x-nonce") ?? ""),
+      getCachedCSRFToken().then((t) => t ?? ""),
+      getCachedUser(),
+    ]);
+  } catch (error) {
+    logger.error("Layout initialization failed:", error);
+  }
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
@@ -194,7 +204,18 @@ export default async function RootLayout({
                   </header>
                   <ScrollArea className="min-h-0 flex-1">
                     <div className="mx-auto w-full max-w-[2000px]">
-                      <main id="main-content">{children}</main>
+                      <main id="main-content">
+                        {initialUser ? (
+                          <EncryptionGate
+                            userId={initialUser.id}
+                            userEmail={initialUser.email ?? ""}
+                          >
+                            {children}
+                          </EncryptionGate>
+                        ) : (
+                          children
+                        )}
+                      </main>
                     </div>
                   </ScrollArea>
                   <Footer className="shrink-0" />

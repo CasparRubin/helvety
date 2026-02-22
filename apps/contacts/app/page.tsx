@@ -4,7 +4,6 @@ import { Suspense } from "react";
 
 import { getContactsDashboardData } from "@/app/actions/batch-actions";
 import { ContactsDashboard } from "@/components/contacts-dashboard";
-import { EncryptionGate } from "@/components/encryption-gate";
 
 /** Server component that prefetches all encrypted dashboard data for streaming. */
 async function PrefetchedDashboard(): Promise<React.JSX.Element> {
@@ -20,19 +19,13 @@ async function PrefetchedDashboard(): Promise<React.JSX.Element> {
   );
 }
 
-/**
- * Main page - server component with auth protection.
- * Auth resolves first (cached, fast), then EncryptionGate renders
- * immediately while the contacts prefetch streams in via Suspense.
- */
+/** Main page - server component with auth protection. */
 export default async function Page(): Promise<React.JSX.Element> {
-  const user = await requireAuth("/contacts");
+  await requireAuth("/contacts");
 
   return (
-    <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <Suspense fallback={<LoadingSpinner />}>
-        <PrefetchedDashboard />
-      </Suspense>
-    </EncryptionGate>
+    <Suspense fallback={<LoadingSpinner />}>
+      <PrefetchedDashboard />
+    </Suspense>
   );
 }

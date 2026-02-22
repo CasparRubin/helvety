@@ -4,7 +4,6 @@ import { Suspense } from "react";
 
 import { getContact } from "@/app/actions/contact-actions";
 import { ContactEditor } from "@/components/contact-editor";
-import { EncryptionGate } from "@/components/encryption-gate";
 
 /** Server component that prefetches the encrypted contact for streaming. */
 async function PrefetchedEditor({
@@ -23,26 +22,18 @@ async function PrefetchedEditor({
   );
 }
 
-/**
- * Contact Editor page - edit a contact's names, description, email, phone,
- * birthday, notes, and category.
- * Uses a WYSIWYG rich text editor for notes and an action panel for category selection.
- */
+/** Contact Editor page - edit a contact with rich text notes and category selection. */
 export default async function ContactEditorPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }): Promise<React.JSX.Element> {
-  const [{ id: contactId }, user] = await Promise.all([
-    params,
-    requireAuth("/contacts"),
-  ]);
+  const { id: contactId } = await params;
+  await requireAuth(`/contacts/contacts/${contactId}`);
 
   return (
-    <EncryptionGate userId={user.id} userEmail={user.email ?? ""}>
-      <Suspense fallback={<LoadingSpinner />}>
-        <PrefetchedEditor contactId={contactId} />
-      </Suspense>
-    </EncryptionGate>
+    <Suspense fallback={<LoadingSpinner />}>
+      <PrefetchedEditor contactId={contactId} />
+    </Suspense>
   );
 }

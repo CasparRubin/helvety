@@ -43,13 +43,16 @@ export const metadata: Metadata = {
     template: "%s | Helvety",
   },
   description:
-    "The main Helvety website. Engineered & Designed in Switzerland.",
+    "Swiss-engineered software for encrypted task management, contact management, and PDF tools. Private, secure, and designed in Switzerland.",
   keywords: [
     "Helvety",
     "Swiss software",
-    "Swiss subscriptions",
+    "encrypted tasks",
+    "encrypted contacts",
+    "PDF tools",
+    "end-to-end encryption",
+    "privacy",
     "Switzerland",
-    "software development",
   ],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -67,7 +70,7 @@ export const metadata: Metadata = {
     title:
       "Helvety | Software & Subscriptions | Engineered & Designed in Switzerland",
     description:
-      "The main Helvety website. Engineered & Designed in Switzerland.",
+      "Swiss-engineered software for encrypted task management, contact management, and PDF tools. Private, secure, and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -82,7 +85,7 @@ export const metadata: Metadata = {
     title:
       "Helvety | Software & Subscriptions | Engineered & Designed in Switzerland",
     description:
-      "The main Helvety website. Engineered & Designed in Switzerland.",
+      "Swiss-engineered software for encrypted task management, contact management, and PDF tools. Private, secure, and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -153,7 +156,7 @@ export default async function RootLayout({
                 name: "Helvety",
                 url: "https://helvety.com",
                 description:
-                  "The main Helvety website. Engineered & Designed in Switzerland.",
+                  "Swiss-engineered software for encrypted task management, contact management, and PDF tools. Private, secure, and designed in Switzerland.",
               },
             ]),
           }}
