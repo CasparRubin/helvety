@@ -28,19 +28,19 @@ const typeConfig: Record<
     label: "SaaS",
     icon: Cloud,
     className:
-      "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+      "bg-blue-600/90 text-white border-blue-500/40 dark:bg-blue-500/90",
   },
   software: {
     label: "Software",
     icon: Download,
     className:
-      "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+      "bg-purple-600/90 text-white border-purple-500/40 dark:bg-purple-500/90",
   },
   physical: {
     label: "Physical",
     icon: Package,
     className:
-      "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      "bg-amber-600/90 text-white border-amber-500/40 dark:bg-amber-500/90",
   },
 };
 
@@ -77,17 +77,17 @@ const statusConfig: Record<
   available: {
     label: "Available",
     className:
-      "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20",
+      "bg-green-600/90 text-white border-green-500/40 dark:bg-green-500/90",
   },
   "coming-soon": {
     label: "Coming Soon",
     className:
-      "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20",
+      "bg-yellow-500/90 text-white border-yellow-400/40 dark:bg-yellow-500/90",
   },
   discontinued: {
     label: "Discontinued",
     className:
-      "bg-neutral-500/10 text-neutral-600 dark:text-neutral-400 border-neutral-500/20",
+      "bg-neutral-600/90 text-white border-neutral-500/40 dark:bg-neutral-500/90",
   },
 };
 
