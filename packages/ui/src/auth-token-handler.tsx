@@ -35,11 +35,13 @@ export function AuthTokenHandler() {
         refresh_token: refreshToken,
       })
       .then(({ error }) => {
-        window.history.replaceState(null, "", window.location.pathname);
-
-        if (!error) {
-          router.refresh();
+        if (error) {
+          return;
         }
+
+        const cleanUrl = `${window.location.pathname}${window.location.search}`;
+        window.history.replaceState(null, "", cleanUrl);
+        router.refresh();
       });
   }, [router, supabase]);
 

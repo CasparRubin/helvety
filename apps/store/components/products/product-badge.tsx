@@ -119,7 +119,7 @@ export function ArtistBadge({
     <Badge
       variant="outline"
       className={cn(
-        "bg-stone-600/90 text-white border-stone-500/40 dark:bg-stone-500/90",
+        "border-stone-500/40 bg-stone-600/90 text-white dark:bg-stone-500/90",
         className
       )}
     >

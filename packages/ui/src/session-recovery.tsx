@@ -16,14 +16,20 @@ export function SessionRecovery() {
   useEffect(() => {
     const supabase = createBrowserClient();
 
-    /**
-     *
-     */
+    const recoverSession = () => {
+      void supabase.auth.getUser();
+    };
+
+    /** Refresh auth state when tab visibility returns. */
     function handleVisibilityChange() {
-      if (document.visibilityState === "visible") {
-        void supabase.auth.getUser();
+      if (document.visibilityState !== "visible") {
+        return;
       }
+      recoverSession();
     }
+
+    // First-visit recovery: refresh auth state on mount as well.
+    recoverSession();
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () =>

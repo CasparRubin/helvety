@@ -3,7 +3,6 @@
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { getRequiredAuthStep, buildLoginUrl } from "@/lib/auth-utils";
@@ -26,7 +25,6 @@ import { getRequiredAuthStep, buildLoginUrl } from "@/lib/auth-utils";
  * regardless of which page the user lands on.
  */
 export function AuthTokenHandler() {
-  const router = useRouter();
   const supabase = createBrowserClient();
   const processingRef = useRef(false);
 
@@ -68,16 +66,16 @@ export function AuthTokenHandler() {
           refresh_token: refreshToken,
         });
 
-        // Clear hash but preserve query params
-        const currentUrl = new URL(window.location.href);
-        currentUrl.hash = "";
-        window.history.replaceState(null, "", currentUrl.toString());
-
         if (error) {
           logger.error("Failed to set session from hash tokens:", error);
           processingRef.current = false;
           return;
         }
+
+        // Clear hash but preserve query params after successful session set.
+        const currentUrl = new URL(window.location.href);
+        currentUrl.hash = "";
+        window.history.replaceState(null, "", currentUrl.toString());
 
         const user = data.user;
         if (!user) {
@@ -97,7 +95,7 @@ export function AuthTokenHandler() {
         processingRef.current = false;
       }
     })();
-  }, [router, supabase]);
+  }, [supabase]);
 
   return null;
 }

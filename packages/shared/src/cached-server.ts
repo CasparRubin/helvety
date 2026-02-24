@@ -6,18 +6,29 @@ import { cache } from "react";
 import { getUserWithRetry } from "./auth-retry";
 import { createServerClient } from "./supabase/server";
 
-import type { User } from "@supabase/supabase-js";
+import type { AuthError, User } from "@supabase/supabase-js";
 
 const CSRF_COOKIE_NAME = "csrf_token";
 
 /**
- * Per-request cached version of getUser() with retry for transient failures.
- * Deduplicates the Supabase auth call when both the layout and
- * page (via requireAuth) need the current user within a single request.
+ * Per-request cached auth lookup result with retry for transient failures.
+ * Keeps the last auth error so guards can distinguish:
+ * - clean unauthenticated state (user: null, error: null)
+ * - transient auth lookup failure (user: null, error: AuthError)
+ */
+export const getCachedAuthLookup = cache(
+  async (): Promise<{ user: User | null; error: AuthError | null }> => {
+    const supabase = await createServerClient();
+    return getUserWithRetry(supabase);
+  }
+);
+
+/**
+ * Per-request cached version of getUser() for layout/navbar consumers.
+ * Deduplicates auth lookups when both layout and page need current user.
  */
 export const getCachedUser = cache(async (): Promise<User | null> => {
-  const supabase = await createServerClient();
-  const { user } = await getUserWithRetry(supabase);
+  const { user } = await getCachedAuthLookup();
   return user;
 });
 

@@ -4,8 +4,10 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getLoginUrl } from "./auth-redirect";
-import { getCachedUser } from "./cached-server";
+import { getUserWithRetry } from "./auth-retry";
+import { getCachedAuthLookup, getCachedUser } from "./cached-server";
 import { urls } from "./config";
+import { createServerClient } from "./supabase/server";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -15,9 +17,10 @@ import type { User } from "@supabase/supabase-js";
  * Use this in Server Components to ensure the user is authenticated.
  * Redirects to the auth service login page if not authenticated.
  *
- * Internally uses getCachedUser() (React.cache + retry) so that when a
- * layout already called getCachedUser() for UI purposes, the page's
- * requireAuth() reuses the same result — no duplicate Supabase call.
+ * Internally uses a cached auth lookup (React.cache + transient retry) so that
+ * when a layout already fetched user state for UI purposes, requireAuth()
+ * usually reuses that result. On transient auth errors, requireAuth() performs
+ * one uncached confirmation check before redirecting.
  *
  * IMPORTANT: Per CVE-2025-29927, authentication checks should be done in
  * Server Components (pages) or Route Handlers, NOT in proxy.ts.
@@ -36,16 +39,26 @@ import type { User } from "@supabase/supabase-js";
  * }
  */
 export async function requireAuth(currentPath?: string): Promise<User> {
-  const user = await getCachedUser();
+  const { user, error } = await getCachedAuthLookup();
 
-  if (!user) {
-    const headersList = await headers();
-    const headerUrl = headersList.get("x-helvety-url") ?? undefined;
-    const fallbackUrl = currentPath ? `${urls.home}${currentPath}` : undefined;
-    redirect(getLoginUrl(headerUrl ?? fallbackUrl));
+  if (user) {
+    return user;
   }
 
-  return user;
+  // If the cached attempt failed due to a transient auth/network error,
+  // confirm once more without relying on the cached value before redirecting.
+  if (error) {
+    const supabase = await createServerClient();
+    const recovery = await getUserWithRetry(supabase);
+    if (recovery.user) {
+      return recovery.user;
+    }
+  }
+
+  const headersList = await headers();
+  const headerUrl = headersList.get("x-helvety-url") ?? undefined;
+  const fallbackUrl = currentPath ? `${urls.home}${currentPath}` : undefined;
+  redirect(getLoginUrl(headerUrl ?? fallbackUrl));
 }
 
 /**

@@ -2,13 +2,49 @@ import "server-only";
 
 import type { AuthError, SupabaseClient, User } from "@supabase/supabase-js";
 
+const TRANSIENT_AUTH_ERROR_PATTERNS = [
+  "failed to fetch",
+  "network",
+  "timeout",
+  "timed out",
+  "connection",
+  "econnreset",
+  "econnrefused",
+  "etimedout",
+  "temporary",
+  "temporarily unavailable",
+];
+
+/** Returns true when the auth error appears transient/retriable. */
+function isTransientAuthError(error: AuthError | null): boolean {
+  if (!error) {
+    return false;
+  }
+
+  if (typeof error.status === "number") {
+    if (error.status === 408 || error.status === 425 || error.status === 429) {
+      return true;
+    }
+
+    if (error.status >= 500) {
+      return true;
+    }
+  }
+
+  const message = error.message.toLowerCase();
+  return TRANSIENT_AUTH_ERROR_PATTERNS.some((pattern) =>
+    message.includes(pattern)
+  );
+}
+
 /**
  * Retry-aware wrapper around supabase.auth.getUser().
  *
  * On unreliable networks (VPN, Private Relay, mobile), a single getUser()
  * call can fail due to transient issues (DNS hiccup, TCP reset, timeout).
- * This helper retries once with a short delay before giving up, preventing
- * unnecessary login redirects caused by momentary network blips.
+ * This helper retries transient auth/network failures with a short delay
+ * before giving up, preventing unnecessary login redirects caused by
+ * momentary network blips.
  *
  * @param supabase - Supabase client instance
  * @param maxRetries - Number of retries after the initial attempt (default: 1)
@@ -31,8 +67,10 @@ export async function getUserWithRetry(
       return { user, error: null };
     }
 
-    // Last attempt failed - return the error
-    if (attempt >= maxRetries) {
+    // Retry only when we have evidence of a transient auth/network failure.
+    const shouldRetry =
+      attempt < maxRetries && isTransientAuthError(error ?? null);
+    if (!shouldRetry) {
       return { user: null, error: error ?? null };
     }
 
