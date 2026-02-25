@@ -64,12 +64,12 @@ function evictLRUEntry(
 }
 
 /**
- * Generates a unique ID using timestamp and random string.
+ * Generates a collision-resistant file ID.
  *
  * @returns A unique identifier string
  */
 export function generateFileId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+  return crypto.randomUUID();
 }
 
 /**

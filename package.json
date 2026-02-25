@@ -26,6 +26,7 @@
     "test": "turbo run test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "ci:check": "bun run format:check && bun run lint && bun run type-check && bun run test",
     "db:gen-types": "bunx supabase gen types typescript --linked > packages/shared/src/types/database.types.ts"
   },
   "patchedDependencies": {

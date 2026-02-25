@@ -60,6 +60,8 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
     "Access-Control-Allow-Headers":
       "Content-Type, X-License-Timestamp, X-License-Signature",
     "Access-Control-Max-Age": "86400", // 24 hours
+    "Cache-Control": "private, no-store, max-age=0",
+    Vary: "Origin",
   };
 
   if (!origin) return headers;
@@ -151,7 +153,10 @@ export async function OPTIONS(request: NextRequest) {
 
   return new NextResponse(null, {
     status: 204,
-    headers: getCorsHeaders(origin),
+    headers: {
+      ...getCorsHeaders(origin),
+      Vary: "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    },
   });
 }
 
@@ -322,17 +327,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Uniform cache headers for all responses (prevents enumeration via cache behavior)
-    const cacheHeaders = {
-      "Cache-Control": "private, no-store, max-age=0",
-    };
-
     return NextResponse.json(result, {
       status: 200,
-      headers: {
-        ...corsHeaders,
-        ...cacheHeaders,
-      },
+      headers: corsHeaders,
     });
   } catch (error) {
     logger.error("Error in license validation API:", error);
