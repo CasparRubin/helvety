@@ -140,6 +140,13 @@ export function TaskDashboard({
     [router]
   );
 
+  const handleEntityPrefetch = useCallback(
+    (entity: { id: string }) => {
+      void router.prefetch(`/units/${entity.id}`);
+    },
+    [router]
+  );
+
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
       await refresh();
@@ -169,6 +176,7 @@ export function TaskDashboard({
           stages={stages}
           childCounts={childCounts}
           onEntityClick={handleEntityClick}
+          onEntityPrefetch={handleEntityPrefetch}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
         />

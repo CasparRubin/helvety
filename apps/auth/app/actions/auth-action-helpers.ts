@@ -16,6 +16,8 @@ import type { ActionResponse } from "@helvety/shared/types/entities";
 export type StoredChallenge = {
   challenge: string;
   userId?: string; // For authenticated user flows
+  expectedUserId?: string; // For strict account-bound passkey sign-in flows
+  expectedEmail?: string; // Normalized email tied to the expected credential owner
   timestamp: number;
   redirectUri?: string;
   prfSalt?: string; // PRF salt for encryption (base64 encoded)
@@ -33,6 +35,8 @@ export const PRF_SALT_LENGTH = 32; // PRF salt length in bytes
 const StoredChallengeSchema = z.object({
   challenge: z.string().min(1),
   userId: z.string().uuid().optional(),
+  expectedUserId: z.string().uuid().optional(),
+  expectedEmail: z.string().email().optional(),
   timestamp: z.number().int().nonnegative(),
   redirectUri: z.string().url().optional(),
   prfSalt: z.string().min(1).optional(),

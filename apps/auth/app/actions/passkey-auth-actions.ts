@@ -39,6 +39,37 @@ import type {
 } from "@simplewebauthn/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
+/** Minimal user payload returned from email lookup RPC. */
+type EmailLookupUser = {
+  id: string;
+  email: string;
+};
+
+/**
+ * Resolve an auth user by normalized email using the indexed RPC helper.
+ */
+async function findUserByEmail(email: string): Promise<EmailLookupUser | null> {
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient.rpc("get_auth_user_by_email", {
+    lookup_email: email,
+  });
+
+  if (error || !data) {
+    return null;
+  }
+
+  if (Array.isArray(data) && data.length === 0) {
+    return null;
+  }
+
+  const user = Array.isArray(data) ? data[0] : data;
+  if (!user?.id || !user?.email) {
+    return null;
+  }
+
+  return { id: user.id, email: user.email };
+}
+
 // =============================================================================
 // AUTHENTICATION (returning users)
 // =============================================================================
@@ -57,14 +88,14 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  * @param csrfToken - CSRF token for request validation
  * @param origin - The origin URL
  * @param redirectUri - Optional redirect URI to preserve through auth flow
- * @param options - Optional { isMobile } to choose platform vs hybrid flow
+ * @param options - Optional { isMobile, expectedEmail } to choose platform/hybrid and bind passkey to account
  * @returns Authentication options to pass to the WebAuthn API
  */
 export async function generatePasskeyAuthOptions(
   csrfToken: string,
   origin: string,
   redirectUri?: string,
-  authOptions?: { isMobile?: boolean }
+  authOptions?: { isMobile?: boolean; expectedEmail?: string }
 ): Promise<ActionResponse<PublicKeyCredentialRequestOptionsJSON>> {
   try {
     await requireCSRFToken(csrfToken);
@@ -76,6 +107,9 @@ export async function generatePasskeyAuthOptions(
   }
 
   const isMobile = authOptions?.isMobile === true;
+  const normalizedExpectedEmail = authOptions?.expectedEmail
+    ?.toLowerCase()
+    .trim();
   const clientIP = await getClientIP();
 
   // Rate limit by IP
@@ -103,15 +137,56 @@ export async function generatePasskeyAuthOptions(
 
   try {
     const rpId = getRpId(origin);
+    const adminClient = createAdminClient();
+    let expectedUserId: string | undefined;
+    let allowCredentials: GenerateAuthenticationOptionsOpts["allowCredentials"] =
+      [];
 
-    // For discoverable credentials (passkeys), we don't need to specify allowCredentials
-    // The authenticator will discover which credentials are available
+    if (normalizedExpectedEmail) {
+      const user = await findUserByEmail(normalizedExpectedEmail);
+      if (!user) {
+        logAuthEvent("passkey_auth_failed", {
+          metadata: { reason: "expected_user_not_found" },
+          ip: clientIP,
+        });
+        return {
+          success: false,
+          error: "No passkey found for this account. Please sign in again.",
+        };
+      }
+
+      expectedUserId = user.id;
+
+      const { data: credentials, error: credentialsError } = await adminClient
+        .from("user_auth_credentials")
+        .select("credential_id, transports")
+        .eq("user_id", user.id);
+
+      if (credentialsError || !credentials || credentials.length === 0) {
+        logger.error("No passkey credentials found for expected user", {
+          credentialsError,
+          userId: user.id,
+        });
+        return {
+          success: false,
+          error:
+            "No passkey is available for this account. Please sign in with email again.",
+        };
+      }
+
+      allowCredentials = credentials.map((item) => ({
+        id: item.credential_id,
+        transports: (item.transports ?? []) as AuthenticatorTransportFuture[],
+      }));
+    }
+
     const opts: GenerateAuthenticationOptionsOpts = {
       rpID: rpId,
       userVerification: "required",
       timeout: 60000,
-      // Empty allowCredentials means "discover credentials" (resident keys)
-      allowCredentials: [],
+      // Empty allowCredentials preserves discoverable-credential flow.
+      // When expectedEmail is provided, credentials are strictly account-bound.
+      allowCredentials,
     };
 
     const authOpts = await generateAuthOptions(opts);
@@ -129,10 +204,13 @@ export async function generatePasskeyAuthOptions(
     // Validate redirectUri against allowlist before storing (prevent open redirect)
     const safeRedirectUri = getSafeRedirectUri(redirectUri) ?? undefined;
 
-    // Store challenge for verification (no userId yet - we don't know who's authenticating)
+    // Store challenge for verification, including expected account context
+    // when login was initiated from a specific email.
     await storeChallenge({
       challenge: authOpts.challenge,
       redirectUri: safeRedirectUri,
+      expectedUserId,
+      expectedEmail: normalizedExpectedEmail,
     });
 
     return { success: true, data: optionsWithHints };
@@ -240,6 +318,21 @@ export async function verifyPasskeyAuthentication(
 
     const credential = credentialData as UserAuthCredential;
 
+    if (
+      storedData.expectedUserId &&
+      credential.user_id !== storedData.expectedUserId
+    ) {
+      logAuthEvent("passkey_auth_failed", {
+        userId: credential.user_id,
+        metadata: { reason: "credential_owner_mismatch" },
+        ip: clientIP,
+      });
+      return {
+        success: false,
+        error: "PASSKEY_ACCOUNT_MISMATCH",
+      };
+    }
+
     // Convert stored public key from base64url back to Uint8Array
     const publicKeyUint8 = new Uint8Array(
       Buffer.from(credential.public_key, "base64url")
@@ -316,6 +409,21 @@ export async function verifyPasskeyAuthentication(
 
     if (!userData.user.email) {
       return { success: false, error: "User has no email" };
+    }
+
+    if (
+      storedData.expectedEmail &&
+      userData.user.email.toLowerCase() !== storedData.expectedEmail
+    ) {
+      logAuthEvent("passkey_auth_failed", {
+        userId: credential.user_id,
+        metadata: { reason: "credential_email_mismatch" },
+        ip: clientIP,
+      });
+      return {
+        success: false,
+        error: "PASSKEY_ACCOUNT_MISMATCH",
+      };
     }
 
     // Generate an auth token for the user and verify it server-side immediately

@@ -153,8 +153,25 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
           setError(result.error);
           return null;
         }
-
-        await refresh();
+        setCategories((prev) => {
+          const maxSortOrder =
+            prev.length > 0 ? Math.max(...prev.map((c) => c.sort_order)) : -1;
+          const createdAt = new Date().toISOString();
+          return [
+            ...prev,
+            {
+              id: result.data.id,
+              config_id: input.config_id,
+              user_id: prev[0]?.user_id ?? "",
+              name: input.name,
+              color: input.color ?? null,
+              icon: input.icon ?? "circle",
+              sort_order: input.sort_order ?? maxSortOrder + 1,
+              default_rows_shown: input.default_rows_shown ?? 20,
+              created_at: createdAt,
+            },
+          ].toSorted((a, b) => a.sort_order - b.sort_order);
+        });
         return result.data;
       } catch (err) {
         setError(
@@ -163,7 +180,7 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
         return null;
       }
     },
-    [masterKey, csrfToken, refresh, isDefault]
+    [masterKey, csrfToken, isDefault]
   );
 
   const update = useCallback(
@@ -189,8 +206,23 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
           setError(result.error ?? "Failed to update category");
           return false;
         }
-
-        await refresh();
+        setCategories((prev) =>
+          prev.map((category) => {
+            if (category.id !== id) return category;
+            return {
+              ...category,
+              ...(input.name !== undefined && { name: input.name }),
+              ...(input.color !== undefined && { color: input.color ?? null }),
+              ...(input.icon !== undefined && { icon: input.icon }),
+              ...(input.sort_order !== undefined && {
+                sort_order: input.sort_order,
+              }),
+              ...(input.default_rows_shown !== undefined && {
+                default_rows_shown: input.default_rows_shown,
+              }),
+            };
+          })
+        );
         return true;
       } catch (err) {
         setError(
@@ -199,7 +231,7 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
         return false;
       }
     },
-    [masterKey, csrfToken, refresh, isDefault]
+    [masterKey, csrfToken, isDefault]
   );
 
   const remove = useCallback(
@@ -210,23 +242,29 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
         return false;
       }
 
+      let prevCategories: Category[] = [];
+      setCategories((prev) => {
+        prevCategories = prev;
+        return prev.filter((category) => category.id !== id);
+      });
+
       try {
         const result = await deleteCategory(id, csrfToken);
         if (!result.success) {
+          setCategories(prevCategories);
           setError(result.error ?? "Failed to delete category");
           return false;
         }
-
-        await refresh();
         return true;
       } catch (err) {
+        setCategories(prevCategories);
         setError(
           err instanceof Error ? err.message : "Failed to delete category"
         );
         return false;
       }
     },
-    [csrfToken, refresh, isDefault]
+    [csrfToken, isDefault]
   );
 
   const reorder = useCallback(
@@ -237,23 +275,36 @@ export function useCategories(configId: string | null): UseCategoriesReturn {
         return false;
       }
 
+      let prevCategories: Category[] = [];
+      setCategories((prev) => {
+        prevCategories = prev;
+        const updatesById = new Map(updates.map((u) => [u.id, u.sort_order]));
+        return prev
+          .map((category) => {
+            const nextSortOrder = updatesById.get(category.id);
+            if (nextSortOrder === undefined) return category;
+            return { ...category, sort_order: nextSortOrder };
+          })
+          .toSorted((a, b) => a.sort_order - b.sort_order);
+      });
+
       try {
         const result = await reorderCategories(updates, csrfToken);
         if (!result.success) {
+          setCategories(prevCategories);
           setError(result.error ?? "Failed to reorder categories");
           return false;
         }
-
-        await refresh();
         return true;
       } catch (err) {
+        setCategories(prevCategories);
         setError(
           err instanceof Error ? err.message : "Failed to reorder categories"
         );
         return false;
       }
     },
-    [csrfToken, refresh, isDefault]
+    [csrfToken, isDefault]
   );
 
   useEffect(() => {

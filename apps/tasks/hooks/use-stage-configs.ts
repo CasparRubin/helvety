@@ -143,8 +143,17 @@ export function useStageConfigs(
           setError(result.error);
           return null;
         }
-
-        await refresh();
+        const now = new Date().toISOString();
+        setUserConfigs((prev) => [
+          ...prev,
+          {
+            id: result.data.id,
+            user_id: prev[0]?.user_id ?? "",
+            name: input.name,
+            created_at: now,
+            updated_at: now,
+          },
+        ]);
         return result.data;
       } catch (err) {
         setError(
@@ -153,7 +162,7 @@ export function useStageConfigs(
         return null;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const update = useCallback(
@@ -176,8 +185,16 @@ export function useStageConfigs(
           setError(result.error ?? "Failed to update stage config");
           return false;
         }
-
-        await refresh();
+        setUserConfigs((prev) =>
+          prev.map((config) => {
+            if (config.id !== id) return config;
+            return {
+              ...config,
+              ...(input.name !== undefined && { name: input.name }),
+              updated_at: new Date().toISOString(),
+            };
+          })
+        );
         return true;
       } catch (err) {
         setError(
@@ -186,7 +203,7 @@ export function useStageConfigs(
         return false;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const remove = useCallback(
@@ -197,23 +214,29 @@ export function useStageConfigs(
         return false;
       }
 
+      let prevConfigs: StageConfig[] = [];
+      setUserConfigs((prev) => {
+        prevConfigs = prev;
+        return prev.filter((config) => config.id !== id);
+      });
+
       try {
         const result = await deleteStageConfig(id, csrfToken);
         if (!result.success) {
+          setUserConfigs(prevConfigs);
           setError(result.error ?? "Failed to delete stage config");
           return false;
         }
-
-        await refresh();
         return true;
       } catch (err) {
+        setUserConfigs(prevConfigs);
         setError(
           err instanceof Error ? err.message : "Failed to delete stage config"
         );
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken]
   );
 
   useEffect(() => {

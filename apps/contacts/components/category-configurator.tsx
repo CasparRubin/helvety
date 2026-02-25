@@ -852,19 +852,41 @@ export function CategoryConfiguratorContent({
                                   >
                                     <div className="mb-2">
                                       <Input
+                                        id={`icon-input-${category.id}`}
                                         placeholder="Type icon name..."
                                         defaultValue={category.icon}
-                                        onChange={(e) => {
-                                          const value =
-                                            e.target.value.toLowerCase();
-                                          if (value) {
-                                            void updateCategory(category.id, {
-                                              icon: value,
-                                            });
-                                          }
+                                        onKeyDown={(e) => {
+                                          if (e.key !== "Enter") return;
+                                          const value = e.currentTarget.value
+                                            .trim()
+                                            .toLowerCase();
+                                          if (!value) return;
+                                          void updateCategory(category.id, {
+                                            icon: value,
+                                          });
                                         }}
                                         className="h-8 text-base md:text-sm"
                                       />
+                                    </div>
+                                    <div className="mb-2 flex justify-end">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                          const input = document.getElementById(
+                                            `icon-input-${category.id}`
+                                          ) as HTMLInputElement | null;
+                                          const value = input?.value
+                                            .trim()
+                                            .toLowerCase();
+                                          if (!value) return;
+                                          void updateCategory(category.id, {
+                                            icon: value,
+                                          });
+                                        }}
+                                      >
+                                        Apply Icon
+                                      </Button>
                                     </div>
                                     <div className="grid max-h-48 grid-cols-6 gap-1 overflow-y-auto">
                                       {SUGGESTED_ICONS.map((iconName) => {

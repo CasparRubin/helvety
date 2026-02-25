@@ -13,9 +13,9 @@ Official Helvety Store. Products and services engineered & designed in Switzerla
 
 ## Service Availability
 
-Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
+Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
 
-As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [helvety.com/auth](https://helvety.com/auth) that they are located in Switzerland before any personal data is stored.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored.
 
 ## Navigation
 
@@ -28,7 +28,7 @@ The store has four main sections, linked from the store nav bar (below the top n
 
 The root path (`/`) redirects all users to `/products`. No login is required to browse products.
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [helvety.com/auth](https://helvety.com/auth) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
@@ -58,14 +58,14 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 
 1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
 2. Enter verification code from email → Verify email ownership → Session established
-3. Scan QR code with phone → Verify with biometrics (Face ID/fingerprint)
+3. Complete passkey setup with biometrics (on mobile: on this device; on desktop: scan QR code with your phone)
 4. Passkey created → Redirected back to store
 
 **Returning Users (when signing in):**
 
 1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
 2. Sign in with passkey (no email sent; existing users with a passkey skip email verification)
-3. Scan QR code → Verify with biometrics → Session created
+3. Sign in with biometrics (on mobile: on this device; on desktop: scan QR code with your phone) → Session created
 4. Redirected back to store
 
 Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
@@ -77,7 +77,7 @@ Sessions are shared across all Helvety apps via cookie-based SSO (all apps are s
 This application includes the following security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
-- **Server Layout Guards** - Authentication checks in Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (CVE-2025-29927 compliant)
+- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (CVE-2025-29927 compliant)
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks

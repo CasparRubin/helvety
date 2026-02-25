@@ -31,7 +31,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 14, 2026
+              Last updated: February 25, 2026
             </p>
           </header>
 
@@ -46,12 +46,12 @@ export default function PrivacyPage() {
             applicable data protection laws.
           </p>
           <p className="text-muted-foreground text-sm">
-            Our services are intended exclusively for customers located in
-            Switzerland. We do not offer services to individuals located in the
-            European Union (EU) or European Economic Area (EEA). This Privacy
-            Policy is governed exclusively by the Swiss Federal Act on Data
-            Protection (nDSG); the EU General Data Protection Regulation (GDPR)
-            does not apply.
+            Our services are primarily intended for customers located in
+            Switzerland. We do not actively target users in the European Union
+            (EU) or European Economic Area (EEA). This Privacy Policy is based
+            on the Swiss Federal Act on Data Protection (nDSG). Where mandatory
+            law in another jurisdiction applies in a specific case, we comply
+            with applicable legal obligations.
           </p>
 
           {/* Table of Contents */}
@@ -391,9 +391,9 @@ export default function PrivacyPage() {
                 <strong className="text-foreground">
                   helvety.com (Main Website):
                 </strong>{" "}
-                No personal data collection beyond authentication session
-                cookies. Only essential cookies, anonymous Vercel Analytics, and
-                Vercel Speed Insights performance monitoring.
+                Uses essential cookies and privacy-focused analytics/performance
+                telemetry (Vercel Analytics and Vercel Speed Insights). We do
+                not use advertising trackers or cross-site profiling.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -411,9 +411,12 @@ export default function PrivacyPage() {
                 </strong>{" "}
                 All file processing is performed entirely client-side in your
                 browser. Your files are not uploaded to, stored on, or
-                transmitted to our servers. No login or account is required, and
-                no server-side processing or checks occur. Helvety PDF is a free
-                tool with a maximum file size of 100MB per file.
+                transmitted to our servers for file conversion. No login or
+                account is required. The service still uses minimal server-side
+                endpoints for platform and security functions (for example auth
+                callback handling, CSP reporting, and session/security proxy
+                logic). Helvety PDF is a free tool with a maximum file size of
+                100MB per file.
               </li>
               <li>
                 <strong className="text-foreground">

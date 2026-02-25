@@ -19,7 +19,13 @@ import {
   decryptSpaceRow,
 } from "@/lib/crypto";
 
-import type { Space, SpaceInput, ReorderUpdate } from "@/lib/types";
+import type { Space, SpaceInput, SpaceRow, ReorderUpdate } from "@/lib/types";
+
+/** Options for useSpaces hook */
+interface UseSpacesOptions {
+  /** Server-prefetched encrypted rows. Skips the initial fetch when provided. */
+  initialEncryptedData?: SpaceRow[];
+}
 
 /** Return type of useSpaces hook (spaces list, CRUD, reorder). */
 interface UseSpacesReturn {
@@ -47,13 +53,17 @@ interface UseSpacesReturn {
 /**
  * Hook to manage Spaces for a specific Unit with automatic encryption/decryption
  */
-export function useSpaces(unitId: string): UseSpacesReturn {
+export function useSpaces(
+  unitId: string,
+  options?: UseSpacesOptions
+): UseSpacesReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   /**
    * Fetch and decrypt all spaces for the unit
@@ -261,10 +271,32 @@ export function useSpaces(unitId: string): UseSpacesReturn {
 
   // Fetch spaces when encryption is unlocked
   useEffect(() => {
-    if (isUnlocked && masterKey && unitId) {
-      void refresh();
+    if (!isUnlocked || !masterKey || !unitId) return;
+
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptSpaceRows(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setSpaces(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error ? err.message : "Failed to decrypt spaces"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, unitId, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    unitId,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     spaces,
@@ -294,16 +326,26 @@ interface UseSpaceReturn {
   remove: () => Promise<boolean>;
 }
 
+/** Options for useSpace hook. */
+interface UseSpaceOptions {
+  /** Server-prefetched encrypted row. Skips the initial fetch when provided. */
+  initialEncryptedData?: SpaceRow;
+}
+
 /**
  * Hook to manage a single Space by ID
  */
-export function useSpace(id: string): UseSpaceReturn {
+export function useSpace(
+  id: string,
+  options?: UseSpaceOptions
+): UseSpaceReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [space, setSpace] = useState<Space | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked || !id) {
@@ -395,10 +437,32 @@ export function useSpace(id: string): UseSpaceReturn {
   }, [id, csrfToken]);
 
   useEffect(() => {
-    if (isUnlocked && masterKey && id) {
-      void refresh();
+    if (!isUnlocked || !masterKey || !id) return;
+
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptSpaceRow(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setSpace(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error ? err.message : "Failed to decrypt space"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, id, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    id,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     space,

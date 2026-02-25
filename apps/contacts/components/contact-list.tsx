@@ -36,6 +36,8 @@ interface ContactListProps {
   categories: Category[];
   /** Callback when a contact row is clicked */
   onContactClick?: (contact: Contact) => void;
+  /** Callback used to prefetch a contact route on hover/focus */
+  onContactPrefetch?: (contact: Contact) => void;
   /** Callback to delete a contact */
   onContactDelete?: (id: string, name: string) => void;
   /** Callback for batch reorder (drag-and-drop) */
@@ -55,6 +57,7 @@ export function ContactList({
   error,
   categories,
   onContactClick,
+  onContactPrefetch,
   onContactDelete,
   onReorder,
   emptyTitle = "No contacts yet",
@@ -108,6 +111,14 @@ export function ContactList({
     }
     return map;
   }, [categories]);
+
+  const updatedAtMsById = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const contact of contacts) {
+      map.set(contact.id, Date.parse(contact.updated_at));
+    }
+    return map;
+  }, [contacts]);
 
   // Group contacts by category
   const groupedContacts = useMemo(() => {
@@ -327,8 +338,8 @@ export function ContactList({
                   {categoryContacts
                     .toSorted(
                       (a, b) =>
-                        new Date(b.updated_at).getTime() -
-                        new Date(a.updated_at).getTime()
+                        (updatedAtMsById.get(b.id) ?? 0) -
+                        (updatedAtMsById.get(a.id) ?? 0)
                     )
                     .map((contact) => (
                       <ContactRow
@@ -342,6 +353,7 @@ export function ContactList({
                         isFirst={isFirstCategory}
                         isLast={isLastCategory}
                         onClick={() => onContactClick?.(contact)}
+                        onPrefetch={() => onContactPrefetch?.(contact)}
                         onDelete={
                           onContactDelete
                             ? () =>
@@ -372,8 +384,8 @@ export function ContactList({
                   {uncategorizedContacts
                     .toSorted(
                       (a, b) =>
-                        new Date(b.updated_at).getTime() -
-                        new Date(a.updated_at).getTime()
+                        (updatedAtMsById.get(b.id) ?? 0) -
+                        (updatedAtMsById.get(a.id) ?? 0)
                     )
                     .map((contact) => (
                       <ContactRow
@@ -386,6 +398,7 @@ export function ContactList({
                         isFirst={false}
                         isLast={true}
                         onClick={() => onContactClick?.(contact)}
+                        onPrefetch={() => onContactPrefetch?.(contact)}
                         onDelete={
                           onContactDelete
                             ? () =>
@@ -435,6 +448,7 @@ export function ContactList({
                   isFirst={idx === 0}
                   isLast={idx === sortedContacts.length - 1}
                   onClick={() => onContactClick?.(contact)}
+                  onPrefetch={() => onContactPrefetch?.(contact)}
                   onDelete={
                     onContactDelete
                       ? () =>

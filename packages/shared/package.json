@@ -75,7 +75,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@types/react": "^19",
     "@vitejs/plugin-react": "^5.1.4",
-    "eslint": "^9",
+    "eslint": "^9.39.3",
     "typescript": "^5",
     "vitest": "^4.0.18"
   }

@@ -70,7 +70,8 @@ interface ItemActionPanelProps {
 /**
  * Renders the action panel for an item editor.
  * Each section (dates, stage, priority, label) is wrapped in a collapsible;
- * stage, priority, and label start collapsed; dates remain open.
+ * stage, priority, and label are open by default on desktop and collapsed by
+ * default on mobile; dates remain open.
  */
 export function ItemActionPanel({
   item,

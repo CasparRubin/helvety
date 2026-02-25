@@ -17,9 +17,9 @@ Helvety PDF is a 100% free tool with no login required. All features are availab
 
 ## Service Availability
 
-Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
+Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
 
-As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [helvety.com/auth](https://helvety.com/auth) that they are located in Switzerland before any personal data is stored. Note: Helvety PDF itself requires no login or account - this applies to other Helvety apps that require authentication.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored. Note: Helvety PDF itself requires no login or account; this confirmation applies to other Helvety apps that require authentication.
 
 ## Features
 
@@ -57,7 +57,7 @@ This application includes the following security hardening:
 - **File Size Validation** - Maximum 100MB per file enforced client-side
 - **Redirect URI Validation** - All redirect URIs validated against allowlist
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [helvety.com/auth](https://helvety.com/auth) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 

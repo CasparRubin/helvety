@@ -12,7 +12,7 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 
 | App                            | URL                                                  | Description                                                   |
 | ------------------------------ | ---------------------------------------------------- | ------------------------------------------------------------- |
-| **[Web](apps/web/)**           | [helvety.com](https://helvety.com)                   | Main website, legal pages, landing                            |
+| **[Web](apps/web/)**           | [helvety.com](https://helvety.com)                   | Gateway app (multi-zone rewrites), main website, legal pages  |
 | **[Auth](apps/auth/)**         | [helvety.com/auth](https://helvety.com/auth)         | Centralized passwordless authentication (email + passkey SSO) |
 | **[Store](apps/store/)**       | [helvety.com/store](https://helvety.com/store)       | Product catalog (free & paid), subscriptions, Stripe payments |
 | **[PDF](apps/pdf/)**           | [helvety.com/pdf](https://helvety.com/pdf)           | Client-side PDF toolkit (merge, reorder, rotate, extract)     |
@@ -52,6 +52,16 @@ cp apps/store/env.template apps/store/.env.local
 cp apps/pdf/env.template apps/pdf/.env.local
 cp apps/tasks/env.template apps/tasks/.env.local
 cp apps/contacts/env.template apps/contacts/.env.local
+```
+
+```powershell
+# Windows PowerShell equivalent
+Copy-Item "apps/web/env.template" "apps/web/.env.local"
+Copy-Item "apps/auth/env.template" "apps/auth/.env.local"
+Copy-Item "apps/store/env.template" "apps/store/.env.local"
+Copy-Item "apps/pdf/env.template" "apps/pdf/.env.local"
+Copy-Item "apps/tasks/env.template" "apps/tasks/.env.local"
+Copy-Item "apps/contacts/env.template" "apps/contacts/.env.local"
 ```
 
 ### Development
@@ -113,7 +123,7 @@ helvety/
 
 ## Service Availability
 
-Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
+Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
 
 ## Developer
 

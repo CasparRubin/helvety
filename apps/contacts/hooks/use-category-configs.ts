@@ -134,8 +134,17 @@ export function useCategoryConfigs(
           setError(result.error);
           return null;
         }
-
-        await refresh();
+        const now = new Date().toISOString();
+        setUserConfigs((prev) => [
+          ...prev,
+          {
+            id: result.data.id,
+            user_id: prev[0]?.user_id ?? "",
+            name: input.name,
+            created_at: now,
+            updated_at: now,
+          },
+        ]);
         return result.data;
       } catch (err) {
         setError(
@@ -146,7 +155,7 @@ export function useCategoryConfigs(
         return null;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const update = useCallback(
@@ -179,8 +188,16 @@ export function useCategoryConfigs(
           setError(result.error ?? "Failed to update category config");
           return false;
         }
-
-        await refresh();
+        setUserConfigs((prev) =>
+          prev.map((config) => {
+            if (config.id !== id) return config;
+            return {
+              ...config,
+              ...(input.name !== undefined && { name: input.name }),
+              updated_at: new Date().toISOString(),
+            };
+          })
+        );
         return true;
       } catch (err) {
         setError(
@@ -191,7 +208,7 @@ export function useCategoryConfigs(
         return false;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const remove = useCallback(
@@ -202,16 +219,22 @@ export function useCategoryConfigs(
         return false;
       }
 
+      let prevConfigs: CategoryConfig[] = [];
+      setUserConfigs((prev) => {
+        prevConfigs = prev;
+        return prev.filter((config) => config.id !== id);
+      });
+
       try {
         const result = await deleteCategoryConfig(id, csrfToken);
         if (!result.success) {
+          setUserConfigs(prevConfigs);
           setError(result.error ?? "Failed to delete category config");
           return false;
         }
-
-        await refresh();
         return true;
       } catch (err) {
+        setUserConfigs(prevConfigs);
         setError(
           err instanceof Error
             ? err.message
@@ -220,7 +243,7 @@ export function useCategoryConfigs(
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken]
   );
 
   useEffect(() => {

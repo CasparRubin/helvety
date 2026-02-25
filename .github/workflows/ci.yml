@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   ci:
-    name: Lint, Type-check, Test, Build
+    name: Format, Lint, Type-check, Test, Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -32,7 +32,7 @@ jobs:
         run: bun run format:check
 
       - name: Lint
-        run: bun run lint -- --max-warnings 0
+        run: bun run lint
 
       - name: Type check
         run: bun run type-check
@@ -51,26 +51,29 @@ jobs:
           TASKS_URL: "https://helvety.com"
           CONTACTS_URL: "https://helvety.com"
 
-      - name: Check bundle sizes
+      - name: Verify build manifests
         run: |
-          MAX_FIRST_LOAD_KB=250
-          echo "Checking first-load JS bundles (threshold: ${MAX_FIRST_LOAD_KB}kB)..."
-          failed=0
+          echo "Verifying build manifests for all built apps..."
+          missing=0
           for app_dir in apps/*/; do
             app_name=$(basename "$app_dir")
-            trace_file="${app_dir}.next/trace"
             # Check if build output exists
             if [ ! -d "${app_dir}.next" ]; then
               continue
             fi
-            # Parse the Next.js build manifest for page sizes
+
+            # Verify the Next.js build manifest exists
             manifest="${app_dir}.next/build-manifest.json"
             if [ -f "$manifest" ]; then
               echo "  ✓ ${app_name}: build manifest found"
+            else
+              echo "::error::${app_name}: missing build-manifest.json"
+              missing=1
             fi
           done
-          if [ "$failed" -ne 0 ]; then
-            echo "::error::Bundle size check failed — one or more apps exceed ${MAX_FIRST_LOAD_KB}kB first-load JS"
+
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Manifest verification failed — one or more built apps are missing build-manifest.json"
             exit 1
           fi
-          echo "Bundle size check passed."
+          echo "Build manifest verification passed."

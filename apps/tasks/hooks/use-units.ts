@@ -317,16 +317,23 @@ interface UseUnitReturn {
   remove: () => Promise<boolean>;
 }
 
+/** Options for useUnit hook. */
+interface UseUnitOptions {
+  /** Server-prefetched encrypted row. Skips the initial fetch when provided. */
+  initialEncryptedData?: UnitRow;
+}
+
 /**
  * Hook to manage a single Unit by ID
  */
-export function useUnit(id: string): UseUnitReturn {
+export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [unit, setUnit] = useState<Unit | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   /**
    * Fetch and decrypt the unit
@@ -429,10 +436,32 @@ export function useUnit(id: string): UseUnitReturn {
 
   // Fetch unit when encryption is unlocked
   useEffect(() => {
-    if (isUnlocked && masterKey && id) {
-      void refresh();
+    if (!isUnlocked || !masterKey || !id) return;
+
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptUnitRow(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setUnit(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error ? err.message : "Failed to decrypt unit"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, id, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    id,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     unit,

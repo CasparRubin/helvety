@@ -25,6 +25,7 @@ interface ContactRowProps {
   isFirst?: boolean;
   isLast?: boolean;
   onClick?: () => void;
+  onPrefetch?: () => void;
   onDelete?: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
@@ -46,6 +47,7 @@ export function ContactRow({
   isFirst = false,
   isLast = false,
   onClick,
+  onPrefetch,
   onDelete,
   onMoveUp,
   onMoveDown,
@@ -76,6 +78,8 @@ export function ContactRow({
           : "hover:bg-muted/40 [content-visibility:auto]"
       }`}
       onClick={onClick}
+      onMouseEnter={() => onPrefetch?.()}
+      onFocus={() => onPrefetch?.()}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {

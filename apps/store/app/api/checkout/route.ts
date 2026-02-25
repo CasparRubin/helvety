@@ -1,6 +1,6 @@
 /**
  * Stripe Checkout API Route
- * Creates checkout sessions for subscription purchases (Switzerland-only).
+ * Creates checkout sessions for subscription purchases.
  *
  * Security:
  * - CSRF token validation via X-CSRF-Token header
@@ -8,7 +8,7 @@
  * - Rate limiting to prevent abuse
  * - successUrl and cancelUrl parameters are validated to prevent open redirect attacks
  *
- * Legal: Helvety services are exclusively available to customers in Switzerland.
+ * Legal: Helvety services are primarily intended for customers in Switzerland.
  * All prices are in CHF. The consent audit trail records that the customer
  * accepted the Terms of Service and Privacy Policy before purchase (Swiss
  * contract law compliance).

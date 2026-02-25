@@ -23,6 +23,39 @@ const ALLOWED_USER_AGENTS = [
 
 const DOMAIN = urls.home;
 
+/** Normalizes path shape to compare disallow and sitemap paths safely. */
+function normalizePath(path: string): string {
+  const trimmedPath = path.trim();
+  if (!trimmedPath) return "";
+  if (trimmedPath === "/") return "/";
+
+  const normalizedPath = trimmedPath.startsWith("/")
+    ? trimmedPath
+    : `/${trimmedPath}`;
+  return normalizedPath.endsWith("/")
+    ? normalizedPath.slice(0, -1)
+    : normalizedPath;
+}
+
+/**
+ * Prevents self-blocking robots rules by removing:
+ * - the sitemap file path itself
+ * - the canonical app URL advertised by that sitemap
+ */
+function sanitizeDisallowedPaths(
+  disallowedPaths: string[],
+  sitemapPath: string
+): string[] {
+  const normalizedSitemapPath = normalizePath(sitemapPath);
+  const canonicalAppPath =
+    normalizedSitemapPath.replace(/\/sitemap\.xml$/, "") || "/";
+
+  return [...new Set(disallowedPaths.map((path) => normalizePath(path)))]
+    .filter((path) => path !== "")
+    .filter((path) => path !== normalizedSitemapPath)
+    .filter((path) => path !== canonicalAppPath);
+}
+
 /**
  * Creates a single-entry sitemap for a sub-app.
  *
@@ -55,12 +88,17 @@ export function createAppRobots(
   disallowedPaths: string[],
   sitemapPath: string
 ): () => MetadataRoute.Robots {
+  const sanitizedDisallowedPaths = sanitizeDisallowedPaths(
+    disallowedPaths,
+    sitemapPath
+  );
+
   return function robots(): MetadataRoute.Robots {
     return {
       rules: ALLOWED_USER_AGENTS.map((userAgent) => ({
         userAgent,
         allow: "/",
-        disallow: disallowedPaths,
+        disallow: sanitizedDisallowedPaths,
       })),
       sitemap: `${DOMAIN}${sitemapPath}`,
     };

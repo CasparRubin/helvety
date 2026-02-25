@@ -64,6 +64,8 @@ interface EntityListProps {
   labels?: Label[];
   /** Callback when an entity row is clicked */
   onEntityClick?: (entity: AnyEntity) => void;
+  /** Callback used to prefetch an entity route on hover/focus */
+  onEntityPrefetch?: (entity: AnyEntity) => void;
   /** Callback to delete an entity (receives id and title for confirmation dialog) */
   onEntityDelete?: (id: string, title: string) => void;
   /** Callback for batch reorder (drag-and-drop) */
@@ -93,6 +95,7 @@ export function EntityList({
   childCounts,
   labels,
   onEntityClick,
+  onEntityPrefetch,
   onEntityDelete,
   onReorder,
   emptyTitle = "Nothing here yet",
@@ -158,6 +161,25 @@ export function EntityList({
     }
     return map;
   }, [labels]);
+
+  const entityMetrics = useMemo(() => {
+    const metrics = new Map<
+      string,
+      {
+        priority: number;
+        updatedAtMs: number;
+      }
+    >();
+
+    for (const entity of entities) {
+      metrics.set(entity.id, {
+        priority: isItem(entity) ? entity.priority : 1,
+        updatedAtMs: Date.parse(entity.updated_at),
+      });
+    }
+
+    return metrics;
+  }, [entities]);
 
   // Group entities by stage
   const groupedEntities = useMemo(() => {
@@ -376,12 +398,14 @@ export function EntityList({
                 >
                   {stageEntities
                     .toSorted((a, b) => {
-                      const prioA = isItem(a) ? a.priority : 1;
-                      const prioB = isItem(b) ? b.priority : 1;
+                      const metricsA = entityMetrics.get(a.id);
+                      const metricsB = entityMetrics.get(b.id);
+                      const prioA = metricsA?.priority ?? 1;
+                      const prioB = metricsB?.priority ?? 1;
                       if (prioB !== prioA) return prioB - prioA;
                       return (
-                        new Date(b.updated_at).getTime() -
-                        new Date(a.updated_at).getTime()
+                        (metricsB?.updatedAtMs ?? 0) -
+                        (metricsA?.updatedAtMs ?? 0)
                       );
                     })
                     .map((entity) => (
@@ -403,6 +427,7 @@ export function EntityList({
                         isFirst={isFirstStage}
                         isLast={isLastStage}
                         onClick={() => onEntityClick?.(entity)}
+                        onPrefetch={() => onEntityPrefetch?.(entity)}
                         onDelete={
                           onEntityDelete
                             ? () => onEntityDelete(entity.id, entity.title)
@@ -428,12 +453,14 @@ export function EntityList({
                 >
                   {unstagedEntities
                     .toSorted((a, b) => {
-                      const prioA = isItem(a) ? a.priority : 1;
-                      const prioB = isItem(b) ? b.priority : 1;
+                      const metricsA = entityMetrics.get(a.id);
+                      const metricsB = entityMetrics.get(b.id);
+                      const prioA = metricsA?.priority ?? 1;
+                      const prioB = metricsB?.priority ?? 1;
                       if (prioB !== prioA) return prioB - prioA;
                       return (
-                        new Date(b.updated_at).getTime() -
-                        new Date(a.updated_at).getTime()
+                        (metricsB?.updatedAtMs ?? 0) -
+                        (metricsA?.updatedAtMs ?? 0)
                       );
                     })
                     .map((entity) => (
@@ -454,6 +481,7 @@ export function EntityList({
                         isFirst={false}
                         isLast={true}
                         onClick={() => onEntityClick?.(entity)}
+                        onPrefetch={() => onEntityPrefetch?.(entity)}
                         onDelete={
                           onEntityDelete
                             ? () => onEntityDelete(entity.id, entity.title)
@@ -506,6 +534,7 @@ export function EntityList({
                   isFirst={idx === 0}
                   isLast={idx === sortedEntities.length - 1}
                   onClick={() => onEntityClick?.(entity)}
+                  onPrefetch={() => onEntityPrefetch?.(entity)}
                   onDelete={
                     onEntityDelete
                       ? () => onEntityDelete(entity.id, entity.title)

@@ -12,8 +12,8 @@
  * and Privacy Policy before purchase. Consent metadata (timestamp + version) is
  * stored in Stripe session metadata for audit trail purposes.
  *
- * Note: Helvety services are exclusively available to customers in Switzerland.
- * No EU Consumer Rights Directive provisions apply.
+ * Note: Helvety services are primarily intended for customers in Switzerland.
+ * Mandatory consumer protection law may still apply depending on jurisdiction.
  */
 
 import { urls } from "@helvety/shared/config";
@@ -81,7 +81,7 @@ export function PurchaseConsentDialog({
     if (hasAcceptedTerms) {
       onConfirm({
         termsAcceptedAt: new Date().toISOString(),
-        consentVersion: "2026-02-14",
+        consentVersion: "2026-02-25",
       });
     }
   };

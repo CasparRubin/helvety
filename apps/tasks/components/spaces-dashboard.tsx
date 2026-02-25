@@ -20,6 +20,7 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useTransition } from "react";
@@ -28,7 +29,6 @@ import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
 import { SettingsPanel } from "@/components/settings-panel";
-import { StageConfiguratorContent } from "@/components/stage-configurator";
 import { TaskCommandBar } from "@/components/task-command-bar";
 import {
   useUnit,
@@ -42,30 +42,70 @@ import {
 } from "@/hooks";
 import { useEncryptionContext } from "@/lib/crypto";
 
+import type {
+  SpaceRow,
+  StageAssignment,
+  StageConfigRow,
+  UnitRow,
+} from "@/lib/types";
+
+const StageConfiguratorContent = dynamic(
+  () =>
+    import("@/components/stage-configurator").then(
+      (mod) => mod.StageConfiguratorContent
+    ),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-8">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
 /**
  * Spaces Dashboard - shows all spaces for a specific unit
  */
-export function SpacesDashboard({ unitId }: { unitId: string }) {
+export function SpacesDashboard({
+  unitId,
+  initialEncryptedUnit,
+  initialEncryptedSpaces,
+  initialItemCounts,
+  initialEncryptedStageConfigs,
+  initialStageAssignment,
+}: {
+  unitId: string;
+  initialEncryptedUnit?: UnitRow;
+  initialEncryptedSpaces?: SpaceRow[];
+  initialItemCounts?: Record<string, number>;
+  initialEncryptedStageConfigs?: StageConfigRow[];
+  initialStageAssignment?: StageAssignment | null;
+}) {
   const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const {
     unit,
     isLoading: isLoadingUnit,
     update: updateUnit,
-  } = useUnit(unitId);
+  } = useUnit(unitId, { initialEncryptedData: initialEncryptedUnit });
   const { remove: removeUnit } = useUnits();
   const { spaces, isLoading, error, refresh, create, remove, reorder } =
-    useSpaces(unitId);
-  const { counts: childCounts } = useChildCounts("space", unitId);
+    useSpaces(unitId, { initialEncryptedData: initialEncryptedSpaces });
+  const { counts: childCounts } = useChildCounts("space", unitId, {
+    initialData: initialItemCounts,
+  });
   const {
     configs,
     create: createConfig,
     remove: removeConfig,
     update: updateConfig,
-  } = useStageConfigs("space");
+  } = useStageConfigs("space", {
+    initialEncryptedData: initialEncryptedStageConfigs,
+  });
   const { effectiveConfigId, assign, unassign } = useStageAssignment(
     "space",
-    unitId
+    unitId,
+    { initialData: initialStageAssignment }
   );
   const { stages } = useStages(effectiveConfigId);
 
@@ -146,6 +186,13 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
   const handleEntityClick = useCallback(
     (entity: { id: string }) => {
       router.push(`/units/${unitId}/spaces/${entity.id}`);
+    },
+    [router, unitId]
+  );
+
+  const handleEntityPrefetch = useCallback(
+    (entity: { id: string }) => {
+      void router.prefetch(`/units/${unitId}/spaces/${entity.id}`);
     },
     [router, unitId]
   );
@@ -242,6 +289,7 @@ export function SpacesDashboard({ unitId }: { unitId: string }) {
           stages={stages}
           childCounts={childCounts}
           onEntityClick={handleEntityClick}
+          onEntityPrefetch={handleEntityPrefetch}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
         />

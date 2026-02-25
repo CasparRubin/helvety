@@ -31,7 +31,7 @@ export default function ImpressumPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Impressum</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 14, 2026
+              Last updated: February 25, 2026
             </p>
             <p className="text-muted-foreground mt-1 text-sm">
               Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant
@@ -275,8 +275,10 @@ export default function ImpressumPage() {
               are subject to Swiss copyright law. Reproduction, editing,
               distribution, and any kind of use outside the limits of copyright
               law require the written consent of the respective author or
-              creator. Downloads and copies of this site are only permitted for
-              private, non-commercial use.
+              creator. Downloads and copies of this site are permitted only for
+              personal viewing. This does not grant any rights to source code or
+              software; source code usage is governed exclusively by the
+              repository LICENSE (all rights reserved).
             </p>
           </section>
 
@@ -291,9 +293,10 @@ export default function ImpressumPage() {
               jurisdiction is Basel-Stadt, Switzerland.
             </p>
             <p className="text-muted-foreground text-sm">
-              Our services are offered exclusively to customers in Switzerland.
-              We do not target or offer services to individuals in the European
-              Union (EU) or European Economic Area (EEA).
+              Our services are primarily intended for customers in Switzerland.
+              We do not actively target users in the European Union (EU) or
+              European Economic Area (EEA). Access from outside Switzerland may
+              still occur.
             </p>
           </section>
 

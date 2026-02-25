@@ -11,9 +11,9 @@ Centralized authentication service for the Helvety ecosystem, providing password
 
 ## Service Availability
 
-Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
+Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
 
-As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [helvety.com/auth](https://helvety.com/auth) that they are located in Switzerland before any personal data is stored.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored.
 
 ## Overview
 
@@ -92,7 +92,7 @@ sequenceDiagram
 
 ### Returning User Flow
 
-Existing users with a passkey do not receive an email. After entering their email, the passkey prompt appears automatically (no button click required).
+Existing users with a passkey do not receive an email. After entering their email, the passkey prompt appears automatically (no button click required). The passkey challenge is bound to that email's account so only passkeys registered to that account are accepted.
 
 Same device logic: **mobile** = sign in on this device; **desktop** = scan QR with phone and authenticate on phone.
 
@@ -113,7 +113,7 @@ sequenceDiagram
     end
     P->>U: Verify biometrics
     P->>A: Passkey response + PRF output
-    A->>S: Verify passkey + Create session
+    A->>S: Verify account-bound passkey + Create session
     S-->>A: Session created
     A->>A: Derive encryption key from PRF
     A-->>U: Redirect to app (signed in + encryption unlocked)
@@ -126,6 +126,7 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 - **Email required** - Users provide an email address for authentication and account recovery
 - **Verification code only for new users** - New users (and existing users without a passkey) receive an OTP code by email; existing users with a passkey sign in directly with passkey
 - **Passkey security** - Biometric verification (Face ID, fingerprint, or PIN) via WebAuthn
+- **Account-bound sign-in** - Returning-user passkey authentication is bound to the entered email/account, preventing cross-account passkey mismatches on shared devices
 
 ## API Routes
 
@@ -241,6 +242,7 @@ CREATE TABLE user_passkey_params (
 - **PKCE Flow** - Supabase uses PKCE for OAuth code exchange
 - **OTP Code Expiry** - Verification codes expire after 1 hour
 - **Passkey Verification** - Strict origin and RP ID validation
+- **Expected Account Binding** - Returning-user passkey verification enforces the expected account from the login email/challenge metadata
 - **Session Cookies** - Session sharing via `COOKIE_DOMAIN` constant (`.helvety.com` in production)
 - **Counter Tracking** - Prevents passkey replay attacks
 - **Redirect URI Validation** - All redirect URIs are validated against a strict allowlist to prevent open redirect attacks
@@ -255,7 +257,7 @@ The auth service includes the following security hardening:
   - Passkey authentication (generation and verification): 10 per minute per IP
   - Rate limits reset on successful authentication
 - **CSRF Protection** - Token-based protection with timing-safe comparison for all state-changing Server Actions
-- **Server Layout Guards** - Authentication checks in Server Components (CVE-2025-29927 compliant - auth NOT in proxy)
+- **Server-side Action/Handler Enforcement** - Authentication and security checks are enforced in Server Actions and route handlers (CVE-2025-29927 compliant - auth NOT in proxy)
 - **Audit Logging** - Structured logging for all authentication events:
   - Login attempts (success/failure)
   - Verification code sent/failed
@@ -319,7 +321,7 @@ Browser requirements for encryption:
 
 **Note:** Firefox for Android does not support the PRF extension.
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and new users confirm Switzerland-based usage during account creation (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 

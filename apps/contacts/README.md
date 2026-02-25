@@ -13,9 +13,9 @@ A private and secure contact management app with end-to-end encryption. All your
 
 ## Service Availability
 
-Helvety services are intended exclusively for customers located in Switzerland. **We are not able to serve customers in the EU/EEA.**
+Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
 
-As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data Protection (nDSG). Because we do not target or serve customers in the EU/EEA, the GDPR does not apply. For this reason, new users are asked to confirm during account creation on [helvety.com/auth](https://helvety.com/auth) that they are located in Switzerland before any personal data is stored.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored.
 
 ## Features
 
@@ -27,7 +27,7 @@ As a Swiss company, Helvety operates solely under the Swiss Federal Act on Data 
   - Bullet and numbered lists
   - Link support
   - Unsaved changes detection with confirmation dialog
-  - **Comment with Timestamp** - Insert timestamped comments into notes with a single click
+  - Manual note editing with unsaved-changes detection
   - **Action panel** - View dates and set contact category directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
 - **Category management** - Organize contacts into categories (e.g., Work, Family, Friends)
   - **Default categories** - Built-in category set: Work, Family, Friends
@@ -142,13 +142,13 @@ Sessions are shared across all Helvety apps via cookie-based SSO (all apps are s
 This application includes the following security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
-- **Server Layout Guards** - Authentication checks in Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (CVE-2025-29927 compliant)
+- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (CVE-2025-29927 compliant)
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
 - **Security Headers** - CSP, HSTS, and other security headers
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are exclusively available to customers in Switzerland and are not offered to EU/EEA residents; new users must confirm they are located in Switzerland during account creation on [helvety.com/auth](https://helvety.com/auth) (before any personal data is stored). Only the Swiss Federal Act on Data Protection (nDSG) applies; the GDPR does not apply. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
@@ -207,6 +207,6 @@ You may NOT:
 - Sell, sublicense, or commercially exploit the code
 - Reverse engineer or decompile the code
 
-**This is a free contact management application accessible at [helvety.com/contacts](https://helvety.com/contacts).** No subscription is required.
+**Helvety Contacts is currently free for early adopters (first 10'000 users) at [helvety.com/contacts](https://helvety.com/contacts).** Pricing for new users may be introduced later.
 
 See [LICENSE](./LICENSE) for full legal terms.

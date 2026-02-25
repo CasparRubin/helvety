@@ -13,11 +13,11 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useTransition } from "react";
 import { toast } from "sonner";
 
-import { CategoryConfiguratorContent } from "@/components/category-configurator";
 import { ContactCommandBar } from "@/components/contact-command-bar";
 import { ContactList } from "@/components/contact-list";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
@@ -37,6 +37,20 @@ import type {
   CategoryConfigRow,
   CategoryAssignment,
 } from "@/lib/types";
+
+const CategoryConfiguratorContent = dynamic(
+  () =>
+    import("@/components/category-configurator").then(
+      (mod) => mod.CategoryConfiguratorContent
+    ),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-8">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
 
 /** Props for the main contacts dashboard component. */
 interface ContactsDashboardProps {
@@ -153,6 +167,13 @@ export function ContactsDashboard({
     [router]
   );
 
+  const handleContactPrefetch = useCallback(
+    (contact: { id: string }) => {
+      void router.prefetch(`/contacts/${contact.id}`);
+    },
+    [router]
+  );
+
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
       await refresh();
@@ -194,6 +215,7 @@ export function ContactsDashboard({
           error={error}
           categories={categories}
           onContactClick={handleContactClick}
+          onContactPrefetch={handleContactPrefetch}
           onContactDelete={handleDeleteClick}
           onReorder={reorder}
         />

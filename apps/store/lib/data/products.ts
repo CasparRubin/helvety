@@ -190,7 +190,7 @@ Key Features:
 • Page Deletion - Remove unwanted pages from your documents
 • Image Support - Upload and convert images (PNG, JPEG, WebP, GIF) alongside PDF files
 
-No login, no account, no limits. Upload files up to 100MB each and process unlimited pages. Your documents stay private because they never leave your browser.`,
+No login, no account, and no file/page count limits. Files are limited to 100MB each. Your documents stay private because they never leave your browser.`,
   type: "saas",
   category: "utilities",
   status: "available",
@@ -368,7 +368,7 @@ Free for the First 10'000 Users - Be among the first to use Helvety Contacts for
 Key Features:
 • End-to-End Encryption - All contact content is encrypted using your passkey; we have zero access
 • Rich Contact Fields - Store first name(s), last name(s), description, email, phone, birthday, and notes
-• Rich Text Notes - Full formatting toolbar with timestamped comments
+• Rich Text Notes - Full formatting toolbar for structured note editing
 • Category Management - Organize contacts with customizable categories, colors, and icons
 • Task Linking - Link task entities from Helvety Tasks directly on contacts
 • Drag & Drop - Rearrange contacts within and between categories
@@ -383,7 +383,7 @@ Your contacts are protected by Swiss law (nDSG) and end-to-end encryption. We ha
   features: [
     "End-to-end encryption for all contact data",
     "Rich contact fields (name, email, phone, birthday)",
-    "Rich text notes with timestamped comments",
+    "Rich text notes with formatting",
     "Customizable categories with colors and icons",
     "Task linking with Helvety Tasks",
     "Drag & drop reordering",

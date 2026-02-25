@@ -20,7 +20,17 @@ import {
   decryptLabelConfigRows,
 } from "@/lib/crypto";
 
-import type { LabelConfig, LabelConfigInput } from "@/lib/types";
+import type {
+  LabelConfig,
+  LabelConfigInput,
+  LabelConfigRow,
+} from "@/lib/types";
+
+/** Options for useLabelConfigs hook */
+interface UseLabelConfigsOptions {
+  /** Server-prefetched encrypted rows. Skips the initial fetch when provided. */
+  initialEncryptedData?: LabelConfigRow[];
+}
 
 /**
  * Return type for useLabelConfigs hook
@@ -59,13 +69,16 @@ function getDefaultConfigAsLabelConfig(): LabelConfig {
 /**
  * Hook to manage LabelConfigs with automatic encryption/decryption
  */
-export function useLabelConfigs(): UseLabelConfigsReturn {
+export function useLabelConfigs(
+  options?: UseLabelConfigsOptions
+): UseLabelConfigsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [userConfigs, setUserConfigs] = useState<LabelConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   // Get the default config
   const defaultConfig = useMemo(() => getDefaultConfigAsLabelConfig(), []);
@@ -119,8 +132,17 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
           setError(result.error);
           return null;
         }
-
-        await refresh();
+        const now = new Date().toISOString();
+        setUserConfigs((prev) => [
+          ...prev,
+          {
+            id: result.data.id,
+            user_id: prev[0]?.user_id ?? "",
+            name: input.name,
+            created_at: now,
+            updated_at: now,
+          },
+        ]);
         return result.data;
       } catch (err) {
         setError(
@@ -129,7 +151,7 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
         return null;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const update = useCallback(
@@ -152,8 +174,16 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
           setError(result.error ?? "Failed to update label config");
           return false;
         }
-
-        await refresh();
+        setUserConfigs((prev) =>
+          prev.map((config) => {
+            if (config.id !== id) return config;
+            return {
+              ...config,
+              ...(input.name !== undefined && { name: input.name }),
+              updated_at: new Date().toISOString(),
+            };
+          })
+        );
         return true;
       } catch (err) {
         setError(
@@ -162,7 +192,7 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
         return false;
       }
     },
-    [masterKey, csrfToken, refresh]
+    [masterKey, csrfToken]
   );
 
   const remove = useCallback(
@@ -173,30 +203,59 @@ export function useLabelConfigs(): UseLabelConfigsReturn {
         return false;
       }
 
+      let prevConfigs: LabelConfig[] = [];
+      setUserConfigs((prev) => {
+        prevConfigs = prev;
+        return prev.filter((config) => config.id !== id);
+      });
+
       try {
         const result = await deleteLabelConfig(id, csrfToken);
         if (!result.success) {
+          setUserConfigs(prevConfigs);
           setError(result.error ?? "Failed to delete label config");
           return false;
         }
-
-        await refresh();
         return true;
       } catch (err) {
+        setUserConfigs(prevConfigs);
         setError(
           err instanceof Error ? err.message : "Failed to delete label config"
         );
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken]
   );
 
   useEffect(() => {
-    if (isUnlocked && masterKey) {
-      void refresh();
+    if (!isUnlocked || !masterKey) return;
+
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptLabelConfigRows(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setUserConfigs(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to decrypt label configs"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     configs,

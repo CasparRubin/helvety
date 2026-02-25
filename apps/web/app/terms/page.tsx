@@ -31,7 +31,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 14, 2026
+              Last updated: February 25, 2026
             </p>
           </header>
 
@@ -219,14 +219,13 @@ export default function TermsPage() {
               you must not access or use the Services.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              The Services are offered exclusively to customers located in
+              The Services are primarily intended for customers located in
               Switzerland. By accessing or using the Services, you confirm that
               you are located in Switzerland and are not a resident of the
               European Union (EU) or European Economic Area (EEA). We do not
-              target or offer services to individuals outside Switzerland. If
-              you access the Services from outside Switzerland despite our
-              geo-restriction measures, you do so at your own responsibility and
-              Swiss law applies exclusively.
+              actively target users outside Switzerland. Access from outside
+              Switzerland may still occur; in such cases, you remain responsible
+              for compliance with applicable local law.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               These Terms constitute a legally binding agreement between you and
@@ -655,7 +654,8 @@ export default function TermsPage() {
               <li>
                 To use any automated means (including bots, scrapers, or
                 crawlers) to access the Services without our prior written
-                permission
+                permission, except for search indexing and bot access explicitly
+                permitted by our robots.txt rules
               </li>
               <li>
                 To circumvent, disable, or otherwise interfere with any
@@ -747,10 +747,16 @@ export default function TermsPage() {
 
             <h3 className="mb-3 text-lg font-medium">7.4 Our Rights</h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              We reserve the right, but have no obligation, to monitor, review,
-              or remove User Content at our sole discretion, for any reason or
-              no reason, including User Content that we believe violates these
-              Terms or is otherwise objectionable.
+              We reserve the right, but have no obligation, to restrict or
+              remove User Content where technically possible and legally
+              required, including content that we believe violates these Terms
+              or applicable law.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
+              For end-to-end encrypted content in Helvety Tasks and Helvety
+              Contacts, we generally cannot review plaintext content. In those
+              cases, enforcement may rely on metadata, user reports, and valid
+              legal orders.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               We may immediately suspend or terminate accounts and delete all

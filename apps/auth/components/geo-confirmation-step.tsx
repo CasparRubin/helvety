@@ -8,11 +8,9 @@
  * Switzerland and are not an EU/EEA resident before we create their account or
  * store any personal data.
  *
- * Legal basis: Helvety services are exclusively available to customers in
- * Switzerland. This self-certification establishes that Helvety does not target
- * EU/EEA customers and is therefore not subject to the GDPR (Regulation (EU)
- * 2016/679) or EU consumer protection directives. Only the Swiss Federal Act on
- * Data Protection (nDSG) applies.
+ * Legal positioning: Helvety services are intended for customers in
+ * Switzerland. This self-certification supports our Swiss-focused service model
+ * and helps communicate regional availability before account creation.
  *
  * The notice is displayed in English plus 6 additional languages (DE, FR, IT,
  * ES, PT, NL) to ensure EU/EEA visitors can understand the restriction.
@@ -52,10 +50,8 @@ export function GeoConfirmationStep({
       </div>
 
       <p className="text-muted-foreground text-center text-xs">
-        We show this notice for legal reasons. As a small Swiss company without
-        a representative in the European Union, we are required to limit our
-        services to Switzerland (Art.&nbsp;3(2) and Art.&nbsp;27, Regulation
-        (EU) 2016/679 / GDPR).
+        We show this notice for legal and service-availability reasons. Helvety
+        is currently intended for customers located in Switzerland.
       </p>
 
       <p className="text-foreground text-center text-sm font-medium">

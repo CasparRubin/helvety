@@ -1,7 +1,10 @@
 "use client";
 
 import { urls } from "@helvety/shared/config";
-import { storeMasterKey } from "@helvety/shared/crypto/key-storage";
+import {
+  clearAllKeys,
+  storeMasterKey,
+} from "@helvety/shared/crypto/key-storage";
 import { isPasskeySupported } from "@helvety/shared/crypto/passkey";
 import {
   deriveKeyFromPRF,
@@ -119,6 +122,7 @@ export function useLoginFlow(): LoginFlowState {
   const [skippedToPasskey, setSkippedToPasskey] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const hasAutoTriggered = useRef(false);
+  const hasAutoRetriedMismatch = useRef(false);
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
 
@@ -337,6 +341,11 @@ export function useLoginFlow(): LoginFlowState {
     }
   }, [email, resendCooldown, isNewUser, csrfToken]);
 
+  const clearStalePasskeyBootstrapState = useCallback(async () => {
+    clearCachedPRFSalt();
+    await clearAllKeys();
+  }, []);
+
   // Handle passkey sign in (for existing users or verification after setup)
   // Includes PRF extension for single-touch encryption unlock when PRF salt is cached
   const handlePasskeySignIn = useCallback(async () => {
@@ -345,146 +354,181 @@ export function useLoginFlow(): LoginFlowState {
       return;
     }
 
+    hasAutoRetriedMismatch.current = false;
     setError("");
     setIsLoading(true);
 
     try {
-      const origin = window.location.origin;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const origin = window.location.origin;
 
-      // Get authentication options from server
-      const optionsResult = await generatePasskeyAuthOptions(
-        csrfToken,
-        origin,
-        redirectUri ?? undefined,
-        { isMobile: isMobileDevice() }
-      );
-      if (!optionsResult.success) {
-        setError(optionsResult.error);
-        setIsLoading(false);
-        return;
-      }
-
-      // Check for cached PRF salt to enable single-touch encryption unlock.
-      // The PRF salt is not sensitive (it's a public parameter) - caching it
-      // allows us to request the PRF extension during login authentication,
-      // so the user doesn't need a separate passkey touch for encryption.
-      const cachedSalt = getCachedPRFSalt();
-      const authOptions = optionsResult.data;
-
-      if (cachedSalt) {
-        // Add PRF extension to the authentication options
-        const saltBytes = Uint8Array.from(atob(cachedSalt.prfSalt), (c) =>
-          c.charCodeAt(0)
+        // Get authentication options from server
+        const optionsResult = await generatePasskeyAuthOptions(
+          csrfToken,
+          origin,
+          redirectUri ?? undefined,
+          {
+            isMobile: isMobileDevice(),
+            expectedEmail: email ? email.toLowerCase().trim() : undefined,
+          }
         );
-        Object.assign(authOptions, {
-          extensions: {
-            ...authOptions.extensions,
-            prf: {
-              eval: {
-                first: saltBytes,
+        if (!optionsResult.success) {
+          setError(optionsResult.error);
+          setIsLoading(false);
+          return;
+        }
+
+        // Check for cached PRF salt to enable single-touch encryption unlock.
+        // The PRF salt is not sensitive (it's a public parameter) - caching it
+        // allows us to request the PRF extension during login authentication,
+        // so the user doesn't need a separate passkey touch for encryption.
+        const cachedSalt = getCachedPRFSalt();
+        const authOptions = optionsResult.data;
+
+        if (cachedSalt) {
+          // Add PRF extension to the authentication options
+          const saltBytes = Uint8Array.from(atob(cachedSalt.prfSalt), (c) =>
+            c.charCodeAt(0)
+          );
+          Object.assign(authOptions, {
+            extensions: {
+              ...authOptions.extensions,
+              prf: {
+                eval: {
+                  first: saltBytes,
+                },
               },
             },
-          },
-        });
-      }
+          });
+        }
 
-      // Start WebAuthn authentication (with PRF if salt was cached)
-      let authResponse;
-      try {
-        authResponse = await startAuthentication({
-          optionsJSON: authOptions,
-        });
-      } catch (err) {
-        if (err instanceof Error) {
-          if (err.name === "NotAllowedError") {
-            setError("Authentication was canceled");
-          } else if (err.name === "AbortError") {
-            setError("Authentication timed out");
+        // Start WebAuthn authentication (with PRF if salt was cached)
+        let authResponse;
+        try {
+          authResponse = await startAuthentication({
+            optionsJSON: authOptions,
+          });
+        } catch (err) {
+          if (err instanceof Error) {
+            if (err.name === "NotAllowedError") {
+              setError("Authentication was canceled");
+            } else if (err.name === "AbortError") {
+              setError("Authentication timed out");
+            } else {
+              setError("Failed to authenticate with passkey");
+            }
           } else {
             setError("Failed to authenticate with passkey");
           }
-        } else {
-          setError("Failed to authenticate with passkey");
+          setIsLoading(false);
+          return;
         }
-        setIsLoading(false);
-        return;
-      }
 
-      // Verify authentication server-side
-      const verifyResult = await verifyPasskeyAuthentication(
-        csrfToken,
-        authResponse,
-        origin
-      );
-      if (!verifyResult.success) {
-        setError(verifyResult.error);
-        setIsLoading(false);
-        return;
-      }
-
-      // If PRF output was received, derive and cache the master encryption key.
-      // This enables instant encryption unlock in E2EE apps (tasks, contacts)
-      // without requiring a separate passkey touch.
-      //
-      // Security: The cached PRF salt may belong to a different user than the
-      // one who actually authenticated (e.g., user entered Account A's email
-      // but signed in with Account B's passkey). We must verify the cached
-      // salt matches the authenticated user's actual params before deriving.
-      if (cachedSalt) {
-        try {
-          const clientExtResults = authResponse.clientExtensionResults as {
-            prf?: { results?: { first?: ArrayBuffer } };
-          };
-          const prfOutput = clientExtResults?.prf?.results?.first;
-
-          if (prfOutput) {
-            // Fetch the authenticated user's actual PRF params from the server
-            // and verify the cached salt matches before deriving the key.
-            const paramsResult = await getPasskeyParams();
-            const actualSalt = paramsResult.success
-              ? paramsResult.data?.prf_salt
-              : null;
-
-            if (actualSalt && actualSalt === cachedSalt.prfSalt) {
-              const prfParams: PRFKeyParams = {
-                prfSalt: cachedSalt.prfSalt,
-                version: cachedSalt.version,
-              };
-              const masterKey = await deriveKeyFromPRF(prfOutput, prfParams);
-              await storeMasterKey(verifyResult.data.userId, masterKey);
-
-              cachePRFSalt(cachedSalt.prfSalt, cachedSalt.version);
-
-              logger.info(
-                "Encryption key derived and cached during login (single-touch unlock)"
-              );
-            } else {
-              // Cached salt belongs to a different account - discard it.
-              // EncryptionGate will handle unlock with the correct params.
-              clearCachedPRFSalt();
-              logger.warn(
-                "Cached PRF salt does not match authenticated user - skipping key derivation"
-              );
-            }
+        // Verify authentication server-side
+        const verifyResult = await verifyPasskeyAuthentication(
+          csrfToken,
+          authResponse,
+          origin
+        );
+        if (!verifyResult.success) {
+          if (
+            verifyResult.error === "PASSKEY_ACCOUNT_MISMATCH" &&
+            attempt === 0
+          ) {
+            hasAutoRetriedMismatch.current = true;
+            await clearStalePasskeyBootstrapState();
+            setError(
+              "We detected a passkey mismatch and are retrying for your selected account."
+            );
+            continue;
           }
-        } catch (prfError) {
-          // PRF key derivation failure is non-fatal - the user can still
-          // unlock encryption manually via the EncryptionGate fallback
-          logger.warn(
-            "Failed to derive encryption key during login (will use fallback):",
-            prfError
-          );
-        }
-      }
 
-      // Redirect to final destination (session already created server-side)
-      window.location.href = verifyResult.data.redirectUrl;
+          if (verifyResult.error === "PASSKEY_ACCOUNT_MISMATCH") {
+            setError(
+              "This passkey belongs to a different account. Please use the passkey for the email you entered."
+            );
+            hasAutoRetriedMismatch.current = false;
+          } else {
+            setError(verifyResult.error);
+            hasAutoRetriedMismatch.current = false;
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        hasAutoRetriedMismatch.current = false;
+
+        // If PRF output was received, derive and cache the master encryption key.
+        // This enables instant encryption unlock in E2EE apps (tasks, contacts)
+        // without requiring a separate passkey touch.
+        //
+        // Security: The cached PRF salt may belong to a different user than the
+        // one who actually authenticated (e.g., user entered Account A's email
+        // but signed in with Account B's passkey). We must verify the cached
+        // salt matches the authenticated user's actual params before deriving.
+        if (cachedSalt) {
+          try {
+            const clientExtResults = authResponse.clientExtensionResults as {
+              prf?: { results?: { first?: ArrayBuffer } };
+            };
+            const prfOutput = clientExtResults?.prf?.results?.first;
+
+            if (prfOutput) {
+              // Fetch the authenticated user's actual PRF params from the server
+              // and verify the cached salt matches before deriving the key.
+              const paramsResult = await getPasskeyParams();
+              const actualSalt = paramsResult.success
+                ? paramsResult.data?.prf_salt
+                : null;
+
+              if (actualSalt && actualSalt === cachedSalt.prfSalt) {
+                const prfParams: PRFKeyParams = {
+                  prfSalt: cachedSalt.prfSalt,
+                  version: cachedSalt.version,
+                };
+                const masterKey = await deriveKeyFromPRF(prfOutput, prfParams);
+                await storeMasterKey(verifyResult.data.userId, masterKey);
+
+                cachePRFSalt(cachedSalt.prfSalt, cachedSalt.version);
+
+                logger.info(
+                  "Encryption key derived and cached during login (single-touch unlock)"
+                );
+              } else {
+                // Cached salt belongs to a different account - discard it.
+                // EncryptionGate will handle unlock with the correct params.
+                clearCachedPRFSalt();
+                logger.warn(
+                  "Cached PRF salt does not match authenticated user - skipping key derivation"
+                );
+              }
+            }
+          } catch (prfError) {
+            // PRF key derivation failure is non-fatal - the user can still
+            // unlock encryption manually via the EncryptionGate fallback
+            logger.warn(
+              "Failed to derive encryption key during login (will use fallback):",
+              prfError
+            );
+          }
+        }
+
+        // Redirect to final destination (session already created server-side)
+        window.location.href = verifyResult.data.redirectUrl;
+        return;
+      }
     } catch (err) {
       logger.error("Passkey auth error:", err);
       setError("An unexpected error occurred");
       setIsLoading(false);
     }
-  }, [passkeySupported, redirectUri, csrfToken]);
+  }, [
+    clearStalePasskeyBootstrapState,
+    csrfToken,
+    email,
+    passkeySupported,
+    redirectUri,
+  ]);
 
   // Complete auth after passkey verification
   const handleCompleteAuth = useCallback(() => {
@@ -530,6 +574,7 @@ export function useLoginFlow(): LoginFlowState {
     hasAutoTriggered.current = false;
     setOtpCode("");
     setResendCooldown(0);
+    hasAutoRetriedMismatch.current = false;
   };
 
   // Determine current stepper step

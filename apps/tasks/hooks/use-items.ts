@@ -19,7 +19,13 @@ import {
   decryptItemRow,
 } from "@/lib/crypto";
 
-import type { Item, ItemInput, ReorderUpdate } from "@/lib/types";
+import type { Item, ItemInput, ItemRow, ReorderUpdate } from "@/lib/types";
+
+/** Options for useItems hook */
+interface UseItemsOptions {
+  /** Server-prefetched encrypted rows. Skips the initial fetch when provided. */
+  initialEncryptedData?: ItemRow[];
+}
 
 /** Return type of the useItems hook. */
 interface UseItemsReturn {
@@ -47,13 +53,17 @@ interface UseItemsReturn {
 /**
  * Hook to manage Items for a specific Space with automatic encryption/decryption
  */
-export function useItems(spaceId: string): UseItemsReturn {
+export function useItems(
+  spaceId: string,
+  options?: UseItemsOptions
+): UseItemsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked || !spaceId) {
@@ -264,10 +274,32 @@ export function useItems(spaceId: string): UseItemsReturn {
   );
 
   useEffect(() => {
-    if (isUnlocked && masterKey && spaceId) {
-      void refresh();
+    if (!isUnlocked || !masterKey || !spaceId) return;
+
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptItemRows(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setItems(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error ? err.message : "Failed to decrypt items"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, spaceId, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    spaceId,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     items,
@@ -297,16 +329,23 @@ interface UseItemReturn {
   remove: () => Promise<boolean>;
 }
 
+/** Options for useItem hook. */
+interface UseItemOptions {
+  /** Server-prefetched encrypted row. Skips the initial fetch when provided. */
+  initialEncryptedData?: ItemRow;
+}
+
 /**
  * Hook to manage a single Item by ID
  */
-export function useItem(id: string): UseItemReturn {
+export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [item, setItem] = useState<Item | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked || !id) {
@@ -417,10 +456,32 @@ export function useItem(id: string): UseItemReturn {
   }, [id, csrfToken]);
 
   useEffect(() => {
-    if (isUnlocked && masterKey && id) {
-      void refresh();
+    if (!isUnlocked || !masterKey || !id) return;
+
+    if (options?.initialEncryptedData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      decryptItemRow(options.initialEncryptedData, masterKey)
+        .then((decrypted) => setItem(decrypted))
+        .catch((err) =>
+          setError(
+            err instanceof Error ? err.message : "Failed to decrypt item"
+          )
+        )
+        .finally(() => setIsLoading(false));
+      return;
     }
-  }, [isUnlocked, masterKey, id, refresh]);
+
+    void refresh();
+  }, [
+    isUnlocked,
+    masterKey,
+    id,
+    refresh,
+    options?.initialEncryptedData,
+    initialDataConsumed,
+  ]);
 
   return {
     item,

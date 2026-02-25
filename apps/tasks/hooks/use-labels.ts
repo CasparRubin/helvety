@@ -148,15 +148,31 @@ export function useLabels(configId: string | null): UseLabelsReturn {
           setError(result.error);
           return null;
         }
-
-        await refresh();
+        setLabels((prev) => {
+          const maxSortOrder =
+            prev.length > 0 ? Math.max(...prev.map((l) => l.sort_order)) : -1;
+          const createdAt = new Date().toISOString();
+          return [
+            ...prev,
+            {
+              id: result.data.id,
+              config_id: input.config_id,
+              user_id: prev[0]?.user_id ?? "",
+              name: input.name,
+              color: input.color ?? null,
+              icon: input.icon ?? "circle",
+              sort_order: input.sort_order ?? maxSortOrder + 1,
+              created_at: createdAt,
+            },
+          ].toSorted((a, b) => a.sort_order - b.sort_order);
+        });
         return result.data;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to create label");
         return null;
       }
     },
-    [masterKey, csrfToken, refresh, isDefault]
+    [masterKey, csrfToken, isDefault]
   );
 
   const update = useCallback(
@@ -182,15 +198,27 @@ export function useLabels(configId: string | null): UseLabelsReturn {
           setError(result.error ?? "Failed to update label");
           return false;
         }
-
-        await refresh();
+        setLabels((prev) =>
+          prev.map((label) => {
+            if (label.id !== id) return label;
+            return {
+              ...label,
+              ...(input.name !== undefined && { name: input.name }),
+              ...(input.color !== undefined && { color: input.color ?? null }),
+              ...(input.icon !== undefined && { icon: input.icon }),
+              ...(input.sort_order !== undefined && {
+                sort_order: input.sort_order,
+              }),
+            };
+          })
+        );
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update label");
         return false;
       }
     },
-    [masterKey, csrfToken, refresh, isDefault]
+    [masterKey, csrfToken, isDefault]
   );
 
   const remove = useCallback(
@@ -201,21 +229,27 @@ export function useLabels(configId: string | null): UseLabelsReturn {
         return false;
       }
 
+      let prevLabels: Label[] = [];
+      setLabels((prev) => {
+        prevLabels = prev;
+        return prev.filter((label) => label.id !== id);
+      });
+
       try {
         const result = await deleteLabel(id, csrfToken);
         if (!result.success) {
+          setLabels(prevLabels);
           setError(result.error ?? "Failed to delete label");
           return false;
         }
-
-        await refresh();
         return true;
       } catch (err) {
+        setLabels(prevLabels);
         setError(err instanceof Error ? err.message : "Failed to delete label");
         return false;
       }
     },
-    [csrfToken, refresh, isDefault]
+    [csrfToken, isDefault]
   );
 
   const reorder = useCallback(
@@ -226,23 +260,36 @@ export function useLabels(configId: string | null): UseLabelsReturn {
         return false;
       }
 
+      let prevLabels: Label[] = [];
+      setLabels((prev) => {
+        prevLabels = prev;
+        const updatesById = new Map(updates.map((u) => [u.id, u.sort_order]));
+        return prev
+          .map((label) => {
+            const nextSortOrder = updatesById.get(label.id);
+            if (nextSortOrder === undefined) return label;
+            return { ...label, sort_order: nextSortOrder };
+          })
+          .toSorted((a, b) => a.sort_order - b.sort_order);
+      });
+
       try {
         const result = await reorderLabels(updates, csrfToken);
         if (!result.success) {
+          setLabels(prevLabels);
           setError(result.error ?? "Failed to reorder labels");
           return false;
         }
-
-        await refresh();
         return true;
       } catch (err) {
+        setLabels(prevLabels);
         setError(
           err instanceof Error ? err.message : "Failed to reorder labels"
         );
         return false;
       }
     },
-    [csrfToken, refresh, isDefault]
+    [csrfToken, isDefault]
   );
 
   useEffect(() => {

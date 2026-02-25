@@ -20,6 +20,7 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
@@ -27,9 +28,7 @@ import { useState, useCallback } from "react";
 import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
-import { LabelConfiguratorContent } from "@/components/label-configurator";
 import { SettingsPanel } from "@/components/settings-panel";
-import { StageConfiguratorContent } from "@/components/stage-configurator";
 import { TaskCommandBar } from "@/components/task-command-bar";
 import {
   useUnit,
@@ -46,38 +45,96 @@ import {
 } from "@/hooks";
 import { useEncryptionContext } from "@/lib/crypto";
 
+import type {
+  ItemRow,
+  LabelAssignment,
+  LabelConfigRow,
+  SpaceRow,
+  StageAssignment,
+  StageConfigRow,
+  UnitRow,
+} from "@/lib/types";
+
+const StageConfiguratorContent = dynamic(
+  () =>
+    import("@/components/stage-configurator").then(
+      (mod) => mod.StageConfiguratorContent
+    ),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-8">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
+const LabelConfiguratorContent = dynamic(
+  () =>
+    import("@/components/label-configurator").then(
+      (mod) => mod.LabelConfiguratorContent
+    ),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-8">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
 /**
  * Items Dashboard - shows all items for a specific space
  */
 export function ItemsDashboard({
   unitId,
   spaceId,
+  initialEncryptedUnit,
+  initialEncryptedSpace,
+  initialEncryptedItems,
+  initialEncryptedStageConfigs,
+  initialStageAssignment,
+  initialEncryptedLabelConfigs,
+  initialLabelAssignment,
 }: {
   unitId: string;
   spaceId: string;
+  initialEncryptedUnit?: UnitRow;
+  initialEncryptedSpace?: SpaceRow;
+  initialEncryptedItems?: ItemRow[];
+  initialEncryptedStageConfigs?: StageConfigRow[];
+  initialStageAssignment?: StageAssignment | null;
+  initialEncryptedLabelConfigs?: LabelConfigRow[];
+  initialLabelAssignment?: LabelAssignment | null;
 }) {
   const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
-  const { unit, isLoading: isLoadingUnit } = useUnit(unitId);
+  const { unit, isLoading: isLoadingUnit } = useUnit(unitId, {
+    initialEncryptedData: initialEncryptedUnit,
+  });
   const {
     space,
     isLoading: isLoadingSpace,
     update: updateSpace,
-  } = useSpace(spaceId);
+  } = useSpace(spaceId, { initialEncryptedData: initialEncryptedSpace });
   const { remove: removeSpace } = useSpaces(unitId);
   const { items, isLoading, error, refresh, create, remove, reorder } =
-    useItems(spaceId);
+    useItems(spaceId, { initialEncryptedData: initialEncryptedItems });
   const {
     configs,
     create: createConfig,
     remove: removeConfig,
     update: updateConfig,
-  } = useStageConfigs("item");
+  } = useStageConfigs("item", {
+    initialEncryptedData: initialEncryptedStageConfigs,
+  });
   const {
     effectiveConfigId: effectiveStageConfigId,
     assign: assignStage,
     unassign: unassignStage,
-  } = useStageAssignment("item", spaceId);
+  } = useStageAssignment("item", spaceId, {
+    initialData: initialStageAssignment,
+  });
   const { stages } = useStages(effectiveStageConfigId);
 
   // Label configuration hooks
@@ -86,12 +143,12 @@ export function ItemsDashboard({
     create: createLabelConfig,
     remove: removeLabelConfig,
     update: updateLabelConfig,
-  } = useLabelConfigs();
+  } = useLabelConfigs({ initialEncryptedData: initialEncryptedLabelConfigs });
   const {
     effectiveConfigId: effectiveLabelConfigId,
     assign: assignLabel,
     unassign: unassignLabel,
-  } = useLabelAssignment(spaceId);
+  } = useLabelAssignment(spaceId, { initialData: initialLabelAssignment });
   const { labels } = useLabels(effectiveLabelConfigId);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -174,6 +231,15 @@ export function ItemsDashboard({
   const handleEntityClick = useCallback(
     (entity: { id: string }) => {
       router.push(`/units/${unitId}/spaces/${spaceId}/items/${entity.id}`);
+    },
+    [router, unitId, spaceId]
+  );
+
+  const handleEntityPrefetch = useCallback(
+    (entity: { id: string }) => {
+      void router.prefetch(
+        `/units/${unitId}/spaces/${spaceId}/items/${entity.id}`
+      );
     },
     [router, unitId, spaceId]
   );
@@ -283,6 +349,7 @@ export function ItemsDashboard({
           stages={stages}
           labels={labels}
           onEntityClick={handleEntityClick}
+          onEntityPrefetch={handleEntityPrefetch}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
         />

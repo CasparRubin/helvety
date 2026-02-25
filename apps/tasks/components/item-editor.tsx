@@ -40,14 +40,10 @@ const TiptapEditor = dynamic(
   }
 );
 
-import { AttachmentPanel } from "@/components/attachment-panel";
-import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemActionPanel } from "@/components/item-action-panel";
 import { ItemCommandBar } from "@/components/item-command-bar";
-import { LabelConfiguratorContent } from "@/components/label-configurator";
 import { SettingsPanel } from "@/components/settings-panel";
-import { StageConfiguratorContent } from "@/components/stage-configurator";
 import {
   useUnit,
   useSpace,
@@ -62,6 +58,57 @@ import {
 
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
+
+const AttachmentPanel = dynamic(
+  () => import("@/components/attachment-panel").then((m) => m.AttachmentPanel),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
+const ContactLinksPanel = dynamic(
+  () =>
+    import("@/components/contact-links-panel").then((m) => m.ContactLinksPanel),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
+const StageConfiguratorContent = dynamic(
+  () =>
+    import("@/components/stage-configurator").then(
+      (m) => m.StageConfiguratorContent
+    ),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
+const LabelConfiguratorContent = dynamic(
+  () =>
+    import("@/components/label-configurator").then(
+      (m) => m.LabelConfiguratorContent
+    ),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
 
 /**
  * Save status for the editor
@@ -522,7 +569,7 @@ export function ItemEditor({
           {
             id: "stages",
             label: "Stages",
-            content: (
+            content: isSettingsOpen ? (
               <StageConfiguratorContent
                 entityType="item"
                 configs={stageConfigs}
@@ -535,12 +582,12 @@ export function ItemEditor({
                 onAssignConfig={assignStage}
                 onUnassignConfig={unassignStage}
               />
-            ),
+            ) : null,
           },
           {
             id: "labels",
             label: "Labels",
-            content: (
+            content: isSettingsOpen ? (
               <LabelConfiguratorContent
                 configs={labelConfigs}
                 assignedConfigId={effectiveLabelConfigId}
@@ -552,7 +599,7 @@ export function ItemEditor({
                 onAssignConfig={assignLabel}
                 onUnassignConfig={unassignLabel}
               />
-            ),
+            ) : null,
           },
         ]}
       />

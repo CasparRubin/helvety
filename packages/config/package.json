@@ -19,18 +19,18 @@
     "./next-headers": "./next-headers.mjs"
   },
   "peerDependencies": {
-    "eslint": "^9",
+    "eslint": "^9.39.3",
     "vitest": "^4"
   },
   "dependencies": {
-    "eslint": "^9",
+    "eslint": "^9.39.3",
     "eslint-config-next": "^16.1.6",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import-x": "^4.16.1",
-    "eslint-plugin-jsdoc": "^62.7.0",
-    "typescript-eslint": "^8.56.0",
-    "@tailwindcss/postcss": "^4",
+    "eslint-plugin-jsdoc": "^62.7.1",
+    "typescript-eslint": "^8.56.1",
+    "@tailwindcss/postcss": "^4.2.1",
     "@vitejs/plugin-react": "^5.1.4"
   }
 }
