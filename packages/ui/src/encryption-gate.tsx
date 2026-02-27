@@ -8,11 +8,6 @@ import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
-import {
-  EncryptionUnlock,
-  type EncryptionUnlockActions,
-} from "./encryption-unlock";
-
 import type { PRFKeyParams } from "@helvety/shared/crypto/types";
 import type {
   ActionResponse,
@@ -21,10 +16,8 @@ import type {
 
 /**
  * Server actions that EncryptionGate needs injected by the consuming app.
- * Extends EncryptionUnlockActions since the gate passes them through to the
- * unlock component.
  */
-export interface EncryptionGateActions extends EncryptionUnlockActions {
+export interface EncryptionGateActions {
   getEncryptionParams: () => Promise<
     ActionResponse<{
       type: "passkey" | null;
@@ -44,6 +37,7 @@ export interface EncryptionGateProps {
 /** Encryption gate status states */
 type EncryptionStatus =
   | "loading"
+  | "needs_login"
   | "needs_setup"
   | "needs_unlock"
   | "unlocked"
@@ -62,9 +56,16 @@ function getAuthSetupUrl(): string {
   return url.toString();
 }
 
+/** Build the auth URL for a normal login flow (with redirect back). */
+function getAuthLoginUrl(): string {
+  return getLoginUrl(
+    typeof window !== "undefined" ? window.location.href : undefined
+  );
+}
+
 /**
  * Gate component that ensures encryption is set up and unlocked before
- * rendering children. Includes automatic retry on transient errors.
+ * rendering children. Any unlock/setup requirement is handled in /auth.
  */
 export function EncryptionGate({
   userId,
@@ -87,75 +88,96 @@ export function EncryptionGate({
 
   const [hasCheckedParams, setHasCheckedParams] = useState(alreadyUnlocked);
   const [passkeyParams, setPasskeyParams] = useState<PRFKeyParams | null>(null);
-  const [credentialId, setCredentialId] = useState<string | null>(null);
-  const [keyCheckValue, setKeyCheckValue] = useState<string | null>(null);
+  const [needsLogin, setNeedsLogin] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [manualUnlock, setManualUnlock] = useState(false);
+  const redirectingRef = useRef(false);
 
   const retryCountRef = useRef(0);
 
   useEffect(() => {
     if (alreadyUnlocked) {
-      setHasCheckedParams(true);
       return;
     }
 
     let cancelled = false;
     retryCountRef.current = 0;
 
-    /**
-     *
-     */
+    const scheduleRetry = () => {
+      if (retryCountRef.current >= MAX_AUTO_RETRIES) {
+        return false;
+      }
+      retryCountRef.current += 1;
+      setTimeout(() => {
+        if (!cancelled) {
+          runStateCheck();
+        }
+      }, AUTO_RETRY_DELAY_MS);
+      return true;
+    };
+
     /** Fetch encryption params with retry logic. */
-    async function checkState() {
-      try {
-        await checkEncryptionState(userId);
-        if (cancelled) return;
+    const runStateCheck = () => {
+      void checkEncryptionState(userId)
+        .then(() => {
+          if (cancelled) return null;
+          return getEncryptionParams();
+        })
+        .then((result) => {
+          if (cancelled || !result) return;
 
-        const result = await getEncryptionParams();
-        if (cancelled) return;
+          if (!result.success) {
+            if (result.error === "Not authenticated") {
+              if (unlockedForUserId) {
+                void lockEncryption(unlockedForUserId);
+              }
+              setNeedsLogin(true);
+              setHasCheckedParams(true);
+              setPasskeyParams(null);
+              return;
+            }
 
-        if (!result.success) {
-          if (retryCountRef.current < MAX_AUTO_RETRIES) {
-            retryCountRef.current += 1;
-            await new Promise((r) => setTimeout(r, AUTO_RETRY_DELAY_MS));
-            if (cancelled) return;
-            void checkState();
+            if (scheduleRetry()) {
+              return;
+            }
+            setError(result.error ?? "Failed to check encryption status");
+            setHasCheckedParams(true);
             return;
           }
-          setError(result.error ?? "Failed to check encryption status");
+
+          if (result.data?.type === "passkey" && result.data.passkeyParams) {
+            const pp = result.data.passkeyParams;
+            setNeedsLogin(false);
+            setPasskeyParams({ prfSalt: pp.prf_salt, version: pp.version });
+          } else {
+            setNeedsLogin(false);
+            setPasskeyParams(null);
+          }
+
+          retryCountRef.current = 0;
           setHasCheckedParams(true);
-          return;
-        }
-
-        if (result.data?.type === "passkey" && result.data.passkeyParams) {
-          const pp = result.data.passkeyParams;
-          setPasskeyParams({ prfSalt: pp.prf_salt, version: pp.version });
-          setCredentialId(pp.credential_id ?? null);
-          setKeyCheckValue(pp.key_check_value ?? null);
-        }
-
-        retryCountRef.current = 0;
-        setHasCheckedParams(true);
-      } catch {
-        if (cancelled) return;
-        if (retryCountRef.current < MAX_AUTO_RETRIES) {
-          retryCountRef.current += 1;
-          await new Promise((r) => setTimeout(r, AUTO_RETRY_DELAY_MS));
+        })
+        .catch(() => {
           if (cancelled) return;
-          void checkState();
-          return;
-        }
-        setError("Failed to check encryption status");
-        setHasCheckedParams(true);
-      }
-    }
+          if (scheduleRetry()) {
+            return;
+          }
+          setError("Failed to check encryption status");
+          setHasCheckedParams(true);
+        });
+    };
 
-    void checkState();
+    runStateCheck();
     return () => {
       cancelled = true;
     };
-  }, [userId, checkEncryptionState, alreadyUnlocked, getEncryptionParams]);
+  }, [
+    userId,
+    checkEncryptionState,
+    alreadyUnlocked,
+    getEncryptionParams,
+    unlockedForUserId,
+    lockEncryption,
+  ]);
 
   useEffect(() => {
     const supabase = createBrowserClient();
@@ -169,11 +191,9 @@ export function EncryptionGate({
         sessionUserId !== unlockedForUserId
       ) {
         void lockEncryption(unlockedForUserId);
-        setManualUnlock(false);
       }
       if (!session) {
         if (unlockedForUserId) void lockEncryption(unlockedForUserId);
-        setManualUnlock(false);
       }
     });
     return () => subscription.unsubscribe();
@@ -181,41 +201,45 @@ export function EncryptionGate({
 
   useEffect(() => {
     return onKeyEvent((msg) => {
-      if (msg.type === "keys-cleared") {
-        setManualUnlock(false);
+      if (msg.type === "keys-cleared" && unlockedForUserId) {
+        void lockEncryption(unlockedForUserId);
       }
-      if (
-        msg.type === "master-key-deleted" &&
-        unlockedForUserId &&
-        msg.userId === unlockedForUserId
-      ) {
-        setManualUnlock(false);
+      if (msg.type === "master-key-deleted" && unlockedForUserId) {
+        if (msg.userId === unlockedForUserId) {
+          void lockEncryption(unlockedForUserId);
+        }
       }
     });
-  }, [unlockedForUserId]);
+  }, [unlockedForUserId, lockEncryption]);
 
   const status: EncryptionStatus = useMemo(() => {
     if (error || contextError) return "error";
+    if (alreadyUnlocked) return "unlocked";
     if (contextLoading || !hasCheckedParams) return "loading";
-    if (isUnlocked || manualUnlock) return "unlocked";
+    if (needsLogin) return "needs_login";
     if (passkeyParams) return "needs_unlock";
     return "needs_setup";
   }, [
+    alreadyUnlocked,
     error,
     contextError,
     contextLoading,
     hasCheckedParams,
-    isUnlocked,
-    manualUnlock,
+    needsLogin,
     passkeyParams,
   ]);
 
-  const handleUnlock = () => {
-    setManualUnlock(true);
-  };
-
   useEffect(() => {
+    if (redirectingRef.current) return;
+
+    if (status === "needs_login" || status === "needs_unlock") {
+      redirectingRef.current = true;
+      window.location.href = getAuthLoginUrl();
+      return;
+    }
+
     if (status === "needs_setup") {
+      redirectingRef.current = true;
       window.location.href = getAuthSetupUrl();
     }
   }, [status]);
@@ -258,30 +282,19 @@ export function EncryptionGate({
     );
   }
 
-  if (status === "needs_setup") {
+  if (
+    status === "needs_setup" ||
+    status === "needs_unlock" ||
+    status === "needs_login"
+  ) {
     return (
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
           <p className="text-muted-foreground text-sm">
-            Redirecting to set up encryption...
+            Redirecting to authentication...
           </p>
         </div>
-      </div>
-    );
-  }
-
-  if (status === "needs_unlock" && passkeyParams) {
-    return (
-      <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
-        <EncryptionUnlock
-          userId={userId}
-          passkeyParams={passkeyParams}
-          credentialId={credentialId}
-          keyCheckValue={keyCheckValue}
-          onUnlock={handleUnlock}
-          actions={actions}
-        />
       </div>
     );
   }

@@ -56,12 +56,9 @@ export function createSessionRefreshProxy(
     const nonce = randomBytes(CSP_NONCE_LENGTH).toString("base64");
     const csp = buildCsp({ nonce, ...buildCspOptions });
 
-    // NOTE: In Next.js 16 (proxy.ts), custom request headers set here do NOT
-    // reach server components via headers(). The { request: { headers } } pattern
-    // is the documented API but does not propagate in practice (16.1.6).
-    // CSP is also set as a response header below; x-nonce may resolve to ""
-    // in layouts. For auth redirects, requireAuth() accepts a currentPath
-    // parameter instead of relying on x-helvety-url.
+    // NOTE: Header propagation from proxy to Server Components can vary by
+    // runtime/version. Treat x-helvety-url and x-nonce as best-effort signals.
+    // Auth redirects should rely on explicit currentPath values where available.
     request.headers.set("x-nonce", nonce);
     request.headers.set("Content-Security-Policy", csp);
 

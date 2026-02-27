@@ -4,6 +4,7 @@ import { sharedViewport } from "@helvety/shared/config";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
+import { SessionRecovery } from "@helvety/ui/session-recovery";
 import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
@@ -170,6 +171,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <AuthTokenHandler />
+          <SessionRecovery />
           <TooltipProvider>
             <div className="flex h-screen flex-col overflow-hidden">
               <header className="shrink-0">

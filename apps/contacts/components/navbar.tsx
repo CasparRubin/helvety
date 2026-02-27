@@ -67,7 +67,11 @@ import type { User } from "@supabase/supabase-js";
  * - Burger menu (below sm): E2EE, About, GitHub, theme toggle, account, sign in/out
  */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
-  const { isUnlocked, isLoading: encryptionLoading } = useEncryptionContext();
+  const {
+    isUnlocked,
+    isLoading: encryptionLoading,
+    unlockedForUserId,
+  } = useEncryptionContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -123,6 +127,8 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   };
 
   const isAuthenticated = !!user;
+  const isEncryptedForCurrentUser =
+    isUnlocked && !!user?.id && unlockedForUserId === user.id;
 
   return (
     <nav className="bg-surface-chrome/80 supports-[backdrop-filter]:bg-surface-chrome/60 sticky top-0 z-50 w-full border-b backdrop-blur">
@@ -155,7 +161,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
         <div className="flex shrink-0 items-center gap-2">
           {/* Desktop: E2EE, About, GitHub, theme, sign in, profile — hidden below sm */}
           <div className="hidden items-center gap-2 sm:flex">
-            {!encryptionLoading && isUnlocked && (
+            {!encryptionLoading && isEncryptedForCurrentUser && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm">
@@ -168,16 +174,15 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <TooltipContent className="max-w-xs space-y-2 p-3">
                   <p className="font-semibold">End-to-End Encrypted</p>
                   <p>
-                    All your content is encrypted on your device before it
-                    leaves your browser. Only you can read it. Not even we can
-                    access your contacts or any other content. Some structural
-                    metadata (such as timestamps and display preferences) is
-                    stored unencrypted to enable app functionality.
+                    Sensitive contact content fields are encrypted on your
+                    device before storage. Some structural metadata (such as
+                    timestamps, relationships, and display preferences) remains
+                    plaintext to support app functionality.
                   </p>
                   <p>
                     Encryption is tied to your passkey. If you lose your
-                    passkey, your encrypted content cannot be recovered by
-                    anyone, including us. There is no reset or backup option.
+                    available passkeys, encrypted content may be unrecoverable.
+                    Use a synced passkey manager to reduce lockout risk.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -204,8 +209,8 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
                     Private and secure contact management with end-to-end
-                    encryption. All your content is encrypted and only you can
-                    read it. Engineered & Designed in Switzerland.
+                    encryption for sensitive content fields. Engineered &
+                    Designed in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
@@ -331,7 +336,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-2 px-4">
-                {!encryptionLoading && isUnlocked && (
+                {!encryptionLoading && isEncryptedForCurrentUser && (
                   <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
                     <ShieldCheck className="h-4 w-4 shrink-0 text-green-500" />
                     <span>End-to-end encrypted</span>

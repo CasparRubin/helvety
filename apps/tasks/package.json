@@ -36,8 +36,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@fontsource-variable/public-sans": "^5.2.7",
-    "@simplewebauthn/browser": "^13.2.2",
-    "@simplewebauthn/server": "^13.2.3",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
     "@tiptap/extension-link": "^3.20.0",

@@ -78,22 +78,6 @@ export type {
   PRFSupportInfo,
 } from "@helvety/shared/crypto/prf-key-derivation";
 
-// Passkey Operations (Authentication only - setup is in helvety.com/auth)
-export {
-  isPasskeySupported,
-  isPlatformAuthenticatorAvailable,
-  getRPConfig,
-  generateAuthenticationOptions,
-  authenticateWithPasskey,
-  authenticatePasskeyWithEncryption,
-  isPRFSupported as isPasskeyPRFSupported,
-  getPRFSupportInfo as getPasskeyPRFSupportInfo,
-} from "@helvety/shared/crypto/passkey";
-export type {
-  RPConfig,
-  PasskeyAuthenticationResult,
-} from "@helvety/shared/crypto/passkey";
-
 // Task-specific Encryption (Tasks app only)
 export {
   // Unit encryption

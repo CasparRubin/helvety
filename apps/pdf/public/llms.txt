@@ -1,6 +1,6 @@
 # Helvety PDF
 
-> Free, privacy-focused PDF toolkit. Merge, reorder, delete, rotate, and extract PDF pages entirely in the browser. No uploads, no servers, 100% client-side processing. Engineered and designed in Switzerland.
+> Free, privacy-focused PDF toolkit. Merge, reorder, delete, rotate, and extract PDF pages in the browser. File contents are not uploaded to Helvety servers for processing. Engineered and designed in Switzerland.
 
 ## Core Pages
 - [Home](https://helvety.com/pdf): PDF toolkit with merge, reorder, rotate, delete, and extract features

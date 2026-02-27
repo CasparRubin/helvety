@@ -26,7 +26,7 @@ export function getLoginUrl(currentUrl?: string): string {
     // Use provided URL if it passes validation
     redirectUri = currentUrl;
   } else if (typeof window !== "undefined") {
-    // Client-side: use current location (always valid as it's from the browser)
+    // Client-side: use current location, then enforce allowlist validation.
     const windowUrl = window.location.href;
     redirectUri = isValidRedirectUri(windowUrl) ? windowUrl : urls.home;
   } else {

@@ -15,7 +15,8 @@ export type AuthStep = "encryption-setup" | "passkey-signin" | "complete";
 
 /**
  * Determines the final redirect destination
- * Always redirects to helvety.com when no redirect_uri is provided
+ * Uses redirect_uri when provided, otherwise falls back to urls.home
+ * (gateway in development, helvety.com in production).
  */
 export function getFinalRedirectUrl(redirectUri?: string | null): string {
   return redirectUri ?? urls.home;

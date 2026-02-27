@@ -1008,17 +1008,15 @@ export default function TermsPage() {
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">Helvety PDF</strong> is free
-                forever. No account or login is required. All features are
-                available to all users at no cost.
+                at the time of writing. No account or login is required. See the
+                relevant product page for current pricing and availability.
               </li>
               <li>
                 <strong className="text-foreground">
                   Helvety Tasks and Helvety Contacts
                 </strong>{" "}
-                are free for the first 10&apos;000 users. Pricing may be
-                introduced for new users at a later date; existing free users
-                will be notified in advance of any changes to their access
-                terms.
+                may have introductory or early-access pricing phases. See the
+                relevant product pages for current terms and pricing details.
               </li>
             </ul>
             <p className="text-muted-foreground text-sm">

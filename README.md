@@ -21,12 +21,12 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 
 ## Shared Packages
 
-| Package                                 | Description                                                                                                                                                                                           |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                                                                                                                                     |
-| **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, PostCSS, and Next.js security-header configurations                                                                                                                |
-| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, types, utilities                                                                                 |
-| **[@helvety/ui](packages/ui/)**         | Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, EncryptionUnlock, AppSwitcher, ThemeSwitcher, AuthTokenHandler, SessionRecovery, SkipToContent |
+| Package                                 | Description                                                                                                                                                                         |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                                                                                                                   |
+| **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, PostCSS, and Next.js security-header configurations                                                                                              |
+| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, types, utilities                                                               |
+| **[@helvety/ui](packages/ui/)**         | Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, AuthTokenHandler, SessionRecovery, SkipToContent |
 
 ## Getting Started
 

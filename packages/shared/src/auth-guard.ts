@@ -27,9 +27,9 @@ import type { User } from "@supabase/supabase-js";
  *
  * @param currentPath - The public-facing path of the current page (e.g. "/tasks"
  *   or "/tasks/units/123"). Used to build the redirect-back URL so the user
- *   returns here after authenticating. In Next.js 16, custom request headers
- *   set in proxy.ts do not reach server components, so this parameter is the
- *   primary source for the redirect URL.
+ *   returns here after authenticating. In Next.js 16, proxy-provided request
+ *   headers may not be available in Server Components in all environments, so
+ *   this parameter is the canonical redirect source.
  *
  * @example
  * // In a protected page
@@ -56,6 +56,7 @@ export async function requireAuth(currentPath?: string): Promise<User> {
   }
 
   const headersList = await headers();
+  // Best-effort fallback from proxy/header context when present.
   const headerUrl = headersList.get("x-helvety-url") ?? undefined;
   const fallbackUrl = currentPath ? `${urls.home}${currentPath}` : undefined;
   redirect(getLoginUrl(headerUrl ?? fallbackUrl));

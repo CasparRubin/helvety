@@ -8,10 +8,11 @@
 /**
  * Explicit allowlist of trusted redirect hosts.
  *
- * All apps are served under helvety.com via path-based routing (multi-zone):
- *   helvety.com/auth, helvety.com/tasks, helvety.com/contacts, etc.
+ * Current production deployment serves apps under helvety.com via path-based
+ * routing (multi-zone), e.g. helvety.com/auth, /tasks, /contacts.
  *
- * Only the root domain is needed since all apps share the same origin.
+ * If deployment topology changes (preview domains, additional hosts), this
+ * allowlist must be updated accordingly.
  */
 const ALLOWED_REDIRECT_HOSTS = new Set(["helvety.com"]);
 

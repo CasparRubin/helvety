@@ -5,15 +5,15 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images with 100% client-side processing. All file processing happens entirely in your browser - your files are never uploaded to our servers. Engineered & Designed in Switzerland.
+A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images with browser-based processing. File contents are processed in your browser and are not uploaded to Helvety servers for processing. Engineered & Designed in Switzerland.
 
 **App:** [helvety.com/pdf](https://helvety.com/pdf)
 
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/pdf/`. See the root README for monorepo setup instructions.
 
-**Privacy First** - 100% Client-Side Processing. All file processing happens entirely in your browser. Your file data is never uploaded to our servers. We use Vercel Analytics for anonymous page view statistics only (see [Privacy Policy](https://helvety.com/privacy)).
+**Privacy First** - File contents are processed in your browser and are not uploaded to Helvety servers for processing. We use Vercel Analytics for anonymous page view statistics only (see [Privacy Policy](https://helvety.com/privacy)).
 
-Helvety PDF is a 100% free tool with no login required. All features are available to everyone - unlimited files, unlimited pages, up to 100MB per file.
+Helvety PDF currently requires no login and is available at no cost. There is no product-imposed file or page count limit, but practical limits depend on your browser/device resources, with a 100MB per-file cap.
 
 ## Service Availability
 
@@ -35,7 +35,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Customizable grid layout** - Adjust pages per row to accommodate different page sizes
 - **Dark & Light mode support** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
-- **Unlimited files and pages** - Up to 100MB per file, no limit on number of files or pages
+- **No product-imposed file/page count limit** - Up to 100MB per file; practical throughput depends on browser/device memory and performance
 - **No login required** - Use the tool instantly, no account needed
 
 ## How It Works

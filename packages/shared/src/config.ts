@@ -1,8 +1,8 @@
 /**
  * Centralized configuration for all Helvety apps.
  *
- * Derives all predictable values (URLs, cookie domain, ports) from NODE_ENV.
- * No environment variables needed for these -- they're always the same.
+ * Derives default values (URLs, cookie domain, ports) from NODE_ENV for the
+ * current Helvety deployment model.
  */
 
 import type { Viewport } from "next";

@@ -34,7 +34,7 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 
 ## Features
 
-- **Product Catalog** - Browse all Helvety products: free tools (Helvety PDF), free-for-early-adopters SaaS (Helvety Tasks, Helvety Contacts - free for the first 10,000 users), and paid subscriptions (Helvety SPO Explorer)
+- **Product Catalog** - Browse all Helvety products: currently free tools (Helvety PDF), early-access SaaS offers (Helvety Tasks, Helvety Contacts), and paid subscriptions (Helvety SPO Explorer)
 - **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout (CHF only). Before every purchase, a consent dialog requires acceptance of the Terms of Service and Privacy Policy. Consent is required on each purchase and is not cached.
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
 - **Account Management** - Profile and account settings (Account page)
@@ -42,7 +42,7 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 - **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer (Tenants page: compact subscription summary, Registered Tenants list with Add Tenant above it)
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing; optional HMAC-signed machine-to-machine mode available)
-- **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog; immediately cancels active Stripe subscriptions and permanently removes all user data via cascade deletes
+- **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog; attempts to cancel active Stripe subscriptions and remove account-linked data, with backend safeguards and cleanup retries
 - **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (nDSG Art. 28 compliance)
 - **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in both Stripe session metadata and a dedicated `consent_events` database table for audit compliance
 - **Dark & Light mode** - Switch between dark and light themes

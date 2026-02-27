@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A private and secure task management app with end-to-end encryption. All your content is encrypted and only you can read it. Engineered & Designed in Switzerland.
+A private and secure task management app with end-to-end encryption. Sensitive task content fields are encrypted client-side, while required structural metadata remains plaintext for app functionality. Engineered & Designed in Switzerland.
 
 **App:** [helvety.com/tasks](https://helvety.com/tasks)
 
@@ -19,7 +19,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 ## Features
 
-- **End-to-end encryption** - All task content is encrypted client-side using your passkey; we never see your content (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
+- **End-to-end encryption** - Sensitive task content fields are encrypted client-side using your passkey (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
 - **Units, Spaces, and Items** - Hierarchical organization: Units (top-level containers) → Spaces (teams/projects) → Items (tasks)
 - **Rich text descriptions** - Rich text editor for item descriptions with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
@@ -70,7 +70,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ### End-to-End Encryption
 
-Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. Your task content is encrypted and decrypted entirely in your browser using a key derived from your passkey. The server stores only encrypted ciphertext and PRF salt parameters. The server never possesses your encryption key.
+Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. In supported browser flows, task content fields are encrypted and decrypted in your browser using a key derived from your passkey. The server stores encrypted ciphertext plus PRF salt parameters, and does not receive your raw encryption key.
 
 **How it works:**
 
@@ -82,7 +82,7 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. Your 
 6. Record identifiers for encrypted data are generated on your device, not by the server
 7. The server stores only encrypted ciphertext and PRF salt values
 
-**Important:** Your passkey is the only way to decrypt your content. If you lose access to your passkey, your encrypted content cannot be recovered. To protect against device loss, we recommend saving your passkey to your device's built-in password manager (Passwords on iPhone or Google Password Manager on Android), which syncs it automatically to the cloud and allows recovery on a new device.
+**Important:** Your passkey controls decryption access to encrypted content. If you lose access to your passkeys and do not have any synced or backup passkey available, encrypted content may be unrecoverable. To reduce this risk, we recommend saving passkeys in a synced password manager.
 
 #### Encrypted vs. Non-Encrypted Fields
 
@@ -145,7 +145,7 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 
 1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
 2. Sign in with passkey (no email sent; existing users with a passkey skip email verification)
-3. Redirected back to Tasks app → Encryption unlocked automatically (single-touch SSO; the passkey ceremony at helvety.com/auth includes PRF for key derivation, so no second passkey prompt is needed)
+3. Redirected back to Tasks app → In many supported flows, encryption is already unlocked from the auth ceremony; depending on browser/session state, an additional auth-managed step may still be required
 
 Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
 

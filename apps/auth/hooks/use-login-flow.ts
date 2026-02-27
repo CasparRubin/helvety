@@ -496,7 +496,7 @@ export function useLoginFlow(): LoginFlowState {
                 );
               } else {
                 // Cached salt belongs to a different account - discard it.
-                // EncryptionGate will handle unlock with the correct params.
+                // Keep /auth as the single place that resolves unlock/setup.
                 clearCachedPRFSalt();
                 logger.warn(
                   "Cached PRF salt does not match authenticated user - skipping key derivation"
@@ -504,10 +504,10 @@ export function useLoginFlow(): LoginFlowState {
               }
             }
           } catch (prfError) {
-            // PRF key derivation failure is non-fatal - the user can still
-            // unlock encryption manually via the EncryptionGate fallback
+            // PRF key derivation failure is non-fatal. After redirect, /auth
+            // continues the required passkey/encryption step if still needed.
             logger.warn(
-              "Failed to derive encryption key during login (will use fallback):",
+              "Failed to derive encryption key during login (will continue in /auth flow):",
               prfError
             );
           }
