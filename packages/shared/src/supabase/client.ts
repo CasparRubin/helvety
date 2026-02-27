@@ -124,20 +124,24 @@ export function createBrowserClient(): SupabaseClient<DatabaseSchema> {
   const supabaseUrl = getSupabaseUrl();
   const supabaseKey = getSupabaseKey();
 
-  browserClient = createSSRBrowserClient(supabaseUrl, supabaseKey, {
-    global: {
-      fetch: fetchWithTimeout,
-    },
-    auth: {
-      // AuthTokenHandler explicitly handles hash-fragment tokens in the root
-      // layout, so we disable the built-in detection to avoid race conditions
-      // where Supabase tries to consume the hash before our handler runs.
-      detectSessionInUrl: false,
-      // Prevent navigator.locks deadlocks on Safari iOS and Android Chrome.
-      // The default lock uses infinite timeouts which can hang permanently
-      // when tabs are suspended/resumed.
-      lock: lockWithTimeout,
-    },
-  });
+  browserClient = createSSRBrowserClient<DatabaseSchema, "public">(
+    supabaseUrl,
+    supabaseKey,
+    {
+      global: {
+        fetch: fetchWithTimeout,
+      },
+      auth: {
+        // AuthTokenHandler explicitly handles hash-fragment tokens in the root
+        // layout, so we disable the built-in detection to avoid race conditions
+        // where Supabase tries to consume the hash before our handler runs.
+        detectSessionInUrl: false,
+        // Prevent navigator.locks deadlocks on Safari iOS and Android Chrome.
+        // The default lock uses infinite timeouts which can hang permanently
+        // when tabs are suspended/resumed.
+        lock: lockWithTimeout,
+      },
+    }
+  );
   return browserClient;
 }

@@ -33,7 +33,7 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 ### Prerequisites
 
 - [Bun](https://bun.sh/) >= 1.3
-- [Node.js](https://nodejs.org/) >= 20.9
+- [Node.js](https://nodejs.org/) 22.x
 
 ### Setup
 

@@ -22,7 +22,7 @@ interface StepConfig {
 /** Step configurations for each flow type */
 const FLOW_STEPS: Record<AuthFlowType, StepConfig[]> = {
   new_user: [
-    { id: "geo_confirmation", label: "Non-EU Confirmation" },
+    { id: "geo_confirmation", label: "Location Confirmation" },
     { id: "email", label: "Email Verification" },
     { id: "create_passkey", label: "Passkey Setup" },
   ],

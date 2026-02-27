@@ -26,35 +26,39 @@ export async function createServerComponentClient(): Promise<
   const cookieStore = await cookies();
   const cookieDomain = COOKIE_DOMAIN;
 
-  return createServerClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(
-        cookiesToSet: Array<{
-          name: string;
-          value: string;
-          options?: Record<string, unknown>;
-        }>
-      ): void {
-        try {
-          for (const { name, value, options } of cookiesToSet) {
-            const merged = {
-              ...(options ?? {}),
-              ...(cookieDomain ? { domain: cookieDomain } : {}),
-            };
-            cookieStore.set(name, value, merged);
+  return createServerClient<DatabaseSchema, "public">(
+    supabaseUrl,
+    supabaseKey,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(
+          cookiesToSet: Array<{
+            name: string;
+            value: string;
+            options?: Record<string, unknown>;
+          }>
+        ): void {
+          try {
+            for (const { name, value, options } of cookiesToSet) {
+              const merged = {
+                ...(options ?? {}),
+                ...(cookieDomain ? { domain: cookieDomain } : {}),
+              };
+              cookieStore.set(name, value, merged);
+            }
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // cookies().set() is not allowed there, so the cookie update is
+            // skipped; the request still uses the existing session from the proxy.
+            logger.warn(
+              "Supabase cookie write skipped in createServerComponentClient (likely Server Component context). Session refresh may require proxy/action context."
+            );
           }
-        } catch {
-          // The `setAll` method was called from a Server Component.
-          // cookies().set() is not allowed there, so the cookie update is
-          // skipped; the request still uses the existing session from the proxy.
-          logger.warn(
-            "Supabase cookie write skipped in createServerComponentClient (likely Server Component context). Session refresh may require proxy/action context."
-          );
-        }
+        },
       },
-    },
-  });
+    }
+  );
 }

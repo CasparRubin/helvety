@@ -79,6 +79,8 @@ function mapStripeEventTypeToInternalType(
       return "subscription.renewed";
     case "invoice.payment_failed":
       return "subscription.payment_failed";
+    default:
+      throw new Error(`Unhandled Stripe event type: ${stripeEventType}`);
   }
 }
 

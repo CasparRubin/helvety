@@ -221,11 +221,12 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               The Services are primarily intended for customers located in
               Switzerland. By accessing or using the Services, you confirm that
-              you are located in Switzerland and are not a resident of the
-              European Union (EU) or European Economic Area (EEA). We do not
-              actively target users outside Switzerland. Access from outside
-              Switzerland may still occur; in such cases, you remain responsible
-              for compliance with applicable local law.
+              you are located in Switzerland and acknowledge that service
+              availability may be restricted for users in certain regions,
+              including the European Union (EU) and European Economic Area
+              (EEA). We do not actively target users outside Switzerland. Access
+              from outside Switzerland may still occur; in such cases, you
+              remain responsible for compliance with applicable local law.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               These Terms constitute a legally binding agreement between you and
@@ -293,13 +294,14 @@ export default function TermsPage() {
               To access certain features of the Services, you must create an
               account. Account creation requires your email address and passkey
               setup. During registration, new users must first confirm that they
-              are located in Switzerland and are not residents of the EU or EEA;
-              this confirmation is required before a new account is created.
-              After confirmation, new users receive a verification code via
-              email to verify their identity; existing users with a passkey sign
-              in directly with their passkey. You then authenticate using your
-              device&apos;s biometrics (Face ID, fingerprint, or PIN) to set up
-              or use your passkey.
+              are located in Switzerland and acknowledge that service
+              availability may be restricted for EU/EEA users; this confirmation
+              is required before a new account is created. After confirmation,
+              new users receive a verification code via email to verify their
+              identity; existing users with a passkey sign in directly with
+              their passkey. You then authenticate using your device&apos;s
+              biometrics (Face ID, fingerprint, or PIN) to set up or use your
+              passkey.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               By creating an account, you agree to:

@@ -56,7 +56,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ## Authentication Flows
 
-New users must first confirm they are located in Switzerland (non-EU/EEA), then receive a verification code by email to verify their address, then complete passkey setup. Existing users with a passkey skip the email and sign in with passkey directly.
+New users must first confirm they are located in Switzerland and acknowledge that service availability may be restricted for EU/EEA users, then receive a verification code by email to verify their address, then complete passkey setup. Existing users with a passkey skip the email and sign in with passkey directly.
 
 ### New User Flow
 
@@ -71,7 +71,7 @@ sequenceDiagram
 
     U->>A: Enter email address
     A->>A: Check if new user (read-only, no DB write)
-    A->>U: Show Non-EU Confirmation step
+    A->>U: Show location confirmation step
     U->>A: Confirm Switzerland location
     A->>S: Create user + Send OTP code
     S-->>U: Email with verification code

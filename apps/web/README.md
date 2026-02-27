@@ -55,10 +55,11 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 | `PDF_URL`                              | Prod     | **Yes**     | Internal Vercel URL for PDF app (gateway rewrite target)      |
 | `TASKS_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Tasks app (gateway rewrite target)    |
 | `CONTACTS_URL`                         | Prod     | **Yes**     | Internal Vercel URL for Contacts app (gateway rewrite target) |
+| `INTERNAL_APP_HOST_ALLOWLIST`          | Optional | **Yes**     | Comma-separated trusted hosts for rewrite target validation   |
 | `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.                  |
 | `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                                  |
 
-> **Note:** App URLs and cookie domain are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed for those. The gateway rewrite URLs (`AUTH_URL`, `STORE_URL`, etc.) are only needed on Vercel production — they point to each sub-app's internal Vercel deployment URL (not `helvety.com`). In development, they fall back to localhost ports. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+> **Note:** App URLs and cookie domain are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed for those. The gateway rewrite URLs (`AUTH_URL`, `STORE_URL`, etc.) are only needed on Vercel production — they point to each sub-app's internal Vercel deployment URL (not `helvety.com`). In development, they fall back to localhost ports. `INTERNAL_APP_HOST_ALLOWLIST` is optional and can be used to explicitly trust additional internal hosts for rewrite validation. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
 ## Tech Stack
 

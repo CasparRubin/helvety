@@ -214,12 +214,14 @@ export default function PrivacyPage() {
               When you create an account, we collect your email address for
               authentication purposes. We use a secure authentication process:
               new users must first confirm that they are located in Switzerland
-              and are not residents of the EU or EEA before any personal data is
-              stored. After this confirmation, new users (and existing users
-              without a passkey) receive a verification code by email, then
-              passkey setup or verification; existing users with a passkey sign
-              in directly with their passkey (biometrics via your device). We
-              store:
+              and acknowledge that service availability may be restricted for
+              EU/EEA users before a new account is created. Limited technical
+              and security data (for example, anti-abuse/rate-limit data) may be
+              processed before account creation. After this confirmation, new
+              users (and existing users without a passkey) receive a
+              verification code by email, then passkey setup or verification;
+              existing users with a passkey sign in directly with their passkey
+              (biometrics via your device). We store:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -1017,8 +1019,8 @@ export default function PrivacyPage() {
                     </td>
                     <td className="border-border border-b p-3">.helvety.com</td>
                     <td className="border-border border-b p-3">
-                      Session (auto-refreshed; tokens expire after 1 hour of
-                      inactivity)
+                      Session (short-lived tokens with automatic refresh and
+                      expiration controls)
                     </td>
                   </tr>
                   <tr>
@@ -1164,7 +1166,10 @@ export default function PrivacyPage() {
                 CSRF (Cross-Site Request Forgery) protection using secure token
                 validation
               </li>
-              <li>Automatic session timeout after periods of inactivity</li>
+              <li>
+                Short-lived session tokens with automatic refresh and expiry
+                controls
+              </li>
               <li>
                 Security event logging for audit trails and incident response
               </li>

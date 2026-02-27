@@ -5,7 +5,8 @@
  *
  * Displayed as a step in the auth flow BEFORE any user record is created in the
  * database. The user must tick the checkbox confirming they are located in
- * Switzerland and are not an EU/EEA resident before we create their account.
+ * Switzerland and acknowledge that service availability may be restricted for
+ * EU/EEA users before we create their account.
  *
  * Legal positioning: Helvety services are intended for customers in
  * Switzerland. This self-certification supports our Swiss-focused service model
