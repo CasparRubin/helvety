@@ -14,6 +14,7 @@
  * contract law compliance).
  */
 
+import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { urls } from "@helvety/shared/config";
 import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
@@ -30,6 +31,7 @@ import {
   CHECKOUT_CONFIG,
   getProductFromPriceId,
 } from "@/lib/stripe";
+import { appendQueryParam } from "@/lib/stripe/url-utils";
 
 import type { CreateCheckoutResponse } from "@/lib/types";
 import type { NextRequest } from "next/server";
@@ -54,32 +56,13 @@ const CheckoutRequestSchema = z.object({
     ),
   successUrl: z.string().max(500).optional(),
   cancelUrl: z.string().max(500).optional(),
-  // Consent audit trail: records that the customer accepted Terms & Privacy
-  // Policy before purchase (Swiss contract law compliance, ISO 8601 timestamps)
-  consentTermsAt: z.string().datetime().optional(),
-  consentVersion: z.string().max(50).optional(),
+  // Client only attests consent was checked; server stamps authoritative audit fields.
+  consentGiven: z.boolean().optional(),
 });
 
 // =============================================================================
 // POST /api/checkout - Create a Stripe Checkout Session
 // =============================================================================
-
-/**
- * Get client IP for rate limiting.
- * Prefers x-real-ip (set by Vercel from the true client IP, not spoofable)
- * over x-forwarded-for (client-controllable when not behind a trusted proxy).
- */
-function getClientIP(request: NextRequest): string | null {
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) return realIp;
-
-  // In production, require trusted proxy headers and fail closed.
-  if (process.env.NODE_ENV === "production") {
-    return null;
-  }
-
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
-}
 
 /**
  * Create a Stripe Checkout Session
@@ -92,7 +75,9 @@ function getClientIP(request: NextRequest): string | null {
  * @param request - The incoming request
  */
 export async function POST(request: NextRequest) {
-  const clientIP = getClientIP(request);
+  const clientIP = getTrustedClientIp(request.headers, {
+    requireTrustedProxyInProduction: true,
+  });
   if (!clientIP) {
     return NextResponse.json(
       { error: "Unable to determine client IP" },
@@ -151,8 +136,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { tierId, successUrl, cancelUrl, consentTermsAt, consentVersion } =
-      validationResult.data;
+    const {
+      tierId,
+      successUrl,
+      cancelUrl,
+      consentGiven = false,
+    } = validationResult.data;
 
     // Get Stripe Price ID for the tier
     const stripePriceId = getStripePriceId(tierId);
@@ -205,16 +194,28 @@ export async function POST(request: NextRequest) {
         stripeCustomerId = customer.id;
 
         // Save customer ID to profile (upsert in case profile doesn't exist)
-        await adminClient.from("user_profiles").upsert(
-          {
-            id: user.id,
-            email: user.email!,
-            stripe_customer_id: customer.id,
-          },
-          {
-            onConflict: "id",
-          }
-        );
+        const { error: profileUpsertError } = await adminClient
+          .from("user_profiles")
+          .upsert(
+            {
+              id: user.id,
+              email: user.email!,
+              stripe_customer_id: customer.id,
+            },
+            {
+              onConflict: "id",
+            }
+          );
+        if (profileUpsertError) {
+          logger.error(
+            "Failed to persist Stripe customer mapping for user profile:",
+            profileUpsertError
+          );
+          return NextResponse.json(
+            { error: "Could not prepare checkout. Please try again." },
+            { status: 500 }
+          );
+        }
       }
     }
 
@@ -250,17 +251,22 @@ export async function POST(request: NextRequest) {
       metadata.supabase_user_id = user.id;
     }
 
-    // Consent audit trail: stored in Stripe session metadata so the burden of
-    // proof (Terms & Privacy accepted) can be satisfied on audit.
-    if (consentTermsAt) {
-      metadata.consent_terms_at = consentTermsAt;
-    }
-    if (consentVersion) {
-      metadata.consent_version = consentVersion;
+    if (!consentGiven) {
+      return NextResponse.json(
+        { error: "You must accept the Terms and Privacy Policy to continue." },
+        { status: 400 }
+      );
     }
 
+    const consentTermsAt = new Date().toISOString();
+    const consentVersion = CHECKOUT_CONFIG.consentVersion;
+
+    // Consent audit trail is server-stamped to keep evidence trustworthy.
+    metadata.consent_terms_at = consentTermsAt;
+    metadata.consent_version = consentVersion;
+
     // Persist consent event in Supabase for audit trail (nDSG compliance)
-    if (user && adminClient && consentTermsAt && consentVersion) {
+    if (user && adminClient) {
       try {
         await adminClient.from("consent_events").insert({
           user_id: user.id,
@@ -287,7 +293,11 @@ export async function POST(request: NextRequest) {
       const params: Stripe.Checkout.SessionCreateParams = {
         mode: "subscription",
         line_items: [{ price: stripePriceId, quantity: 1 }],
-        success_url: `${resolvedSuccessUrl}&session_id={CHECKOUT_SESSION_ID}`,
+        success_url: appendQueryParam(
+          resolvedSuccessUrl,
+          "session_id",
+          "{CHECKOUT_SESSION_ID}"
+        ),
         cancel_url: resolvedCancelUrl,
         metadata,
         allow_promotion_codes: true,
@@ -316,7 +326,11 @@ export async function POST(request: NextRequest) {
       const params: Stripe.Checkout.SessionCreateParams = {
         mode: "payment",
         line_items: [{ price: stripePriceId, quantity: 1 }],
-        success_url: `${resolvedSuccessUrl}&session_id={CHECKOUT_SESSION_ID}`,
+        success_url: appendQueryParam(
+          resolvedSuccessUrl,
+          "session_id",
+          "{CHECKOUT_SESSION_ID}"
+        ),
         cancel_url: resolvedCancelUrl,
         metadata,
         allow_promotion_codes: true,

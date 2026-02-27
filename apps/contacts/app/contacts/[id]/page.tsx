@@ -29,7 +29,7 @@ export default async function ContactEditorPage({
   params: Promise<{ id: string }>;
 }): Promise<React.JSX.Element> {
   const { id: contactId } = await params;
-  await requireAuth(`/contacts/${contactId}`);
+  await requireAuth(`/contacts/contacts/${contactId}`);
 
   return (
     <Suspense fallback={<LoadingSpinner />}>

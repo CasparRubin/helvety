@@ -367,8 +367,9 @@ export function ItemsDashboard({
             <DialogHeader>
               <DialogTitle>Create Item</DialogTitle>
               <DialogDescription>
-                Create a new item in this space. All content is encrypted
-                end-to-end.
+                Create a new item in this space. Sensitive content fields are
+                end-to-end encrypted; some structural metadata remains
+                unencrypted for app functionality.
               </DialogDescription>
             </DialogHeader>
 
@@ -425,8 +426,9 @@ export function ItemsDashboard({
             <DialogHeader>
               <DialogTitle>Edit Space</DialogTitle>
               <DialogDescription>
-                Update the space name and description. All content is encrypted
-                end-to-end.
+                Update the space name and description. Sensitive content fields
+                are end-to-end encrypted; some structural metadata remains
+                unencrypted for app functionality.
               </DialogDescription>
             </DialogHeader>
 

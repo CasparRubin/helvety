@@ -10,6 +10,7 @@
 import { NextResponse } from "next/server";
 
 import { getLoginUrl } from "./auth-redirect";
+import { getTrustedClientIp } from "./client-ip";
 import { logger } from "./logger";
 import { checkRateLimit, RATE_LIMITS } from "./rate-limit";
 import { getSafeRelativePath } from "./redirect-validation";
@@ -29,15 +30,19 @@ export function createAuthCallbackHandler() {
     const authErrorUrl = getLoginUrl(origin);
 
     try {
-      const clientIP =
-        request.headers.get("x-real-ip") ??
-        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-        "unknown";
+      const clientIP = getTrustedClientIp(request.headers, {
+        requireTrustedProxyInProduction: true,
+      });
+      if (!clientIP) {
+        return NextResponse.redirect(`${origin}/?error=missing_client_ip`);
+      }
 
       const rateLimit = await checkRateLimit(
         `auth_callback:ip:${clientIP}`,
         RATE_LIMITS.AUTH_CALLBACK.maxRequests,
-        RATE_LIMITS.AUTH_CALLBACK.windowMs
+        RATE_LIMITS.AUTH_CALLBACK.windowMs,
+        "auth",
+        "soft"
       );
 
       if (!rateLimit.allowed) {
@@ -63,6 +68,20 @@ export function createAuthCallbackHandler() {
       }
 
       if (token_hash && type) {
+        const otpType: EmailOtpType[] = [
+          "signup",
+          "invite",
+          "magiclink",
+          "recovery",
+          "email_change",
+          "email",
+        ];
+        if (!otpType.includes(type as EmailOtpType)) {
+          return NextResponse.redirect(
+            `${authErrorUrl}&error=invalid_otp_type`
+          );
+        }
+
         const supabase = await createServerClient();
         const { error } = await supabase.auth.verifyOtp({
           token_hash,

@@ -47,11 +47,11 @@ export const viewport = sharedViewport;
 export const metadata: Metadata = {
   metadataBase: new URL("https://helvety.com/tasks"),
   title: {
-    default: "Helvety Tasks | Task Management | Private and Secure",
+    default: "Helvety Tasks | Task Management",
     template: "%s | Helvety Tasks",
   },
   description:
-    "Manage your tasks with ease. Private, secure, and encrypted task management. Engineered & Designed in Switzerland.",
+    "Manage your tasks with ease. Privacy-focused task management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
   keywords: [
     "Helvety Tasks",
     "task management",
@@ -75,9 +75,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://helvety.com/tasks",
     siteName: "Helvety Tasks",
-    title: "Helvety Tasks | Task Management | Private and Secure",
+    title: "Helvety Tasks | Task Management",
     description:
-      "Manage your tasks with ease. Private, secure, and encrypted task management. Engineered & Designed in Switzerland.",
+      "Manage your tasks with ease. Privacy-focused task management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -89,9 +89,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Helvety Tasks | Task Management | Private and Secure",
+    title: "Helvety Tasks | Task Management",
     description:
-      "Manage your tasks with ease. Private, secure, and encrypted task management. Engineered & Designed in Switzerland.",
+      "Manage your tasks with ease. Privacy-focused task management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -174,7 +174,7 @@ export default async function RootLayout({
                 name: "Helvety Tasks",
                 url: "https://helvety.com/tasks",
                 description:
-                  "Private and secure task management with end-to-end encryption. Engineered & Designed in Switzerland.",
+                  "Privacy-focused task management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
                 applicationCategory: "BusinessApplication",
                 operatingSystem: "Any",
                 offers: {

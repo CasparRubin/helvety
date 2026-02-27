@@ -5,25 +5,25 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images with browser-based processing. File contents are processed in your browser and are not uploaded to Helvety servers for processing. Engineered & Designed in Switzerland.
+A privacy-focused, browser-based PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. In the current architecture, file contents are processed in your browser for supported operations and are not intended to be uploaded to Helvety servers for file conversion. Engineered & Designed in Switzerland.
 
 **App:** [helvety.com/pdf](https://helvety.com/pdf)
 
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/pdf/`. See the root README for monorepo setup instructions.
 
-**Privacy First** - File contents are processed in your browser and are not uploaded to Helvety servers for processing. We use Vercel Analytics for anonymous page view statistics only (see [Privacy Policy](https://helvety.com/privacy)).
+**Privacy Approach** - File contents are processed in your browser and are not intended to be uploaded to Helvety servers for file conversion. We use Vercel Analytics and Speed Insights for usage/performance metrics (see [Privacy Policy](https://helvety.com/privacy)).
 
-Helvety PDF currently requires no login and is available at no cost. There is no product-imposed file or page count limit, but practical limits depend on your browser/device resources, with a 100MB per-file cap.
+Helvety PDF currently does not require login and is currently available at no cost. The app currently does not enforce a page-count cap, but practical limits depend on browser/device resources, and it enforces a 100MB per-file cap.
 
 ## Service Availability
 
-Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
+Helvety services are currently focused on customers located in Switzerland. We do not actively market services to users in the EU/EEA.
 
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored. Note: Helvety PDF itself requires no login or account; this confirmation applies to other Helvety apps that require authentication.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created. Note: Helvety PDF itself requires no login or account; this confirmation applies to other Helvety apps that require authentication.
 
 ## Features
 
-- **Client-side file processing** - All operations happen in your browser
+- **Browser-based file processing** - Core operations run in your browser
 - **PDF and image support** - Upload PDF files and images (PNG, JPEG, WebP, GIF, etc.)
 - **Page thumbnails preview** - Visual preview of all pages before processing
 - **Drag & drop reordering** - Rearrange pages by dragging thumbnails
@@ -35,8 +35,8 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Customizable grid layout** - Adjust pages per row to accommodate different page sizes
 - **Dark & Light mode support** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
-- **No product-imposed file/page count limit** - Up to 100MB per file; practical throughput depends on browser/device memory and performance
-- **No login required** - Use the tool instantly, no account needed
+- **Current limits** - Up to 100MB per file; no app-enforced page-count cap in the current version. Practical throughput depends on browser/device memory and performance
+- **No login currently required** - Use the tool without an account in the current version
 
 ## How It Works
 
@@ -57,7 +57,7 @@ This application includes the following security hardening:
 - **File Size Validation** - Maximum 100MB per file enforced client-side
 - **Redirect URI Validation** - All redirect URIs validated against allowlist
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
@@ -78,8 +78,8 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 This project is built with modern web technologies:
 
-- **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
-- **[React 19.2.4](https://react.dev/)** - UI library
+- **[Next.js 16.x](https://nextjs.org/)** - React framework with App Router
+- **[React 19.x](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[pdf-lib](https://pdf-lib.js.org/)** - PDF manipulation and creation
 - **[react-pdf](https://www.npmjs.com/package/react-pdf)** - React components for PDF display
@@ -125,7 +125,7 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 > **This is NOT open source software.**
 
-This monorepo is public so users can inspect and verify the application's behavior and security.
+This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 

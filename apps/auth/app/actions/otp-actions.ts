@@ -20,65 +20,13 @@ import {
 
 import { getClientIP, checkUserPasskeyStatus } from "./auth-action-helpers";
 import { hasEncryptionSetup } from "./encryption-actions";
+import { findUserByEmail } from "./user-lookup";
 
 import type { ActionResponse } from "@helvety/shared/types/entities";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
 // =============================================================================
 // HELPERS
 // =============================================================================
-
-/**
- * Find a user by email using a direct database lookup via Postgres RPC.
- *
- * Uses the `get_auth_user_by_email` Postgres function to perform an O(1) index
- * lookup on `auth.users.email`. This replaces the previous approach of
- * paginating through all users via `listUsers()`, which was O(n) and loaded
- * all user data into server memory on every login attempt.
- *
- * PREREQUISITE: The following SQL must be run once in your Supabase project
- * (Dashboard → SQL Editor):
- *
- * ```sql
- * CREATE OR REPLACE FUNCTION public.get_auth_user_by_email(lookup_email text)
- * RETURNS TABLE(id uuid, email text)
- * LANGUAGE sql
- * SECURITY DEFINER
- * SET search_path = ''
- * AS $$
- *   SELECT id, email
- *   FROM auth.users
- *   WHERE lower(email) = lower(lookup_email)
- *   LIMIT 1;
- * $$;
- *
- * -- Restrict access to service_role only (prevents client-side abuse)
- * REVOKE EXECUTE ON FUNCTION public.get_auth_user_by_email(text) FROM PUBLIC;
- * REVOKE EXECUTE ON FUNCTION public.get_auth_user_by_email(text) FROM anon;
- * REVOKE EXECUTE ON FUNCTION public.get_auth_user_by_email(text) FROM authenticated;
- * GRANT EXECUTE ON FUNCTION public.get_auth_user_by_email(text) TO service_role;
- * ```
- */
-async function findUserByEmail(
-  adminClient: SupabaseClient,
-  email: string
-): Promise<{ id: string; email: string } | null> {
-  const { data, error } = await adminClient.rpc("get_auth_user_by_email", {
-    lookup_email: email,
-  });
-
-  if (error) {
-    logger.error("Error looking up user by email via RPC:", error);
-    return null;
-  }
-
-  if (!data || (Array.isArray(data) && data.length === 0)) {
-    return null;
-  }
-
-  const user = Array.isArray(data) ? data[0] : data;
-  return { id: user.id, email: user.email ?? email };
-}
 
 // =============================================================================
 // EMAIL + OTP CODE AUTHENTICATION
@@ -89,8 +37,8 @@ async function findUserByEmail(
  *
  * This action performs NO writes. It only checks existence and passkey status.
  * Used as the first step of the auth flow so we can branch new vs returning
- * users BEFORE creating any database records (critical for geo-restriction
- * compliance: no EU user data may be stored before confirmation).
+ * users BEFORE creating account records (critical for the geo-restriction
+ * flow and reducing pre-confirmation persistence risk).
  *
  * When the user has a passkey, also returns their PRF salt and version so the
  * client can cache them before the passkey ceremony. This enables single-touch
@@ -138,16 +86,18 @@ async function checkEmailInner(
   const clientIP = await getClientIP();
 
   // Rate limit by email AND IP to prevent enumeration
-  const emailRateLimit = await checkRateLimit(
-    `check:email:${normalizedEmail}`,
-    RATE_LIMITS.OTP.maxRequests,
-    RATE_LIMITS.OTP.windowMs
-  );
-  const ipRateLimit = await checkRateLimit(
-    `check:ip:${clientIP}`,
-    RATE_LIMITS.OTP.maxRequests * 3,
-    RATE_LIMITS.OTP.windowMs
-  );
+  const [emailRateLimit, ipRateLimit] = await Promise.all([
+    checkRateLimit(
+      `check:email:${normalizedEmail}`,
+      RATE_LIMITS.OTP.maxRequests,
+      RATE_LIMITS.OTP.windowMs
+    ),
+    checkRateLimit(
+      `check:ip:${clientIP}`,
+      RATE_LIMITS.OTP.maxRequests * 3,
+      RATE_LIMITS.OTP.windowMs
+    ),
+  ]);
 
   if (!emailRateLimit.allowed || !ipRateLimit.allowed) {
     const retryAfter =
@@ -175,7 +125,7 @@ async function checkEmailInner(
     }
 
     // Check if user exists (read-only, direct O(1) lookup via RPC)
-    const existingUser = await findUserByEmail(adminClient, normalizedEmail);
+    const existingUser = await findUserByEmail(normalizedEmail, adminClient);
 
     if (!existingUser) {
       return {
@@ -250,7 +200,7 @@ async function checkEmailInner(
  * - CSRF token validation
  * - Rate limited to prevent email spam attacks
  * - Email is normalized to prevent duplicates
- * - New user creation gated behind geo confirmation (GDPR compliance)
+ * - New user creation gated behind geo confirmation (supports regional access controls)
  * - Logs all attempts for audit trail
  *
  * @param csrfToken - CSRF token for request validation
@@ -276,16 +226,18 @@ export async function sendVerificationCode(
   const clientIP = await getClientIP();
 
   // Rate limit by email AND IP to prevent abuse
-  const emailRateLimit = await checkRateLimit(
-    `otp:email:${normalizedEmail}`,
-    RATE_LIMITS.OTP.maxRequests,
-    RATE_LIMITS.OTP.windowMs
-  );
-  const ipRateLimit = await checkRateLimit(
-    `otp:ip:${clientIP}`,
-    RATE_LIMITS.OTP.maxRequests * 3, // Allow more per IP (multiple users)
-    RATE_LIMITS.OTP.windowMs
-  );
+  const [emailRateLimit, ipRateLimit] = await Promise.all([
+    checkRateLimit(
+      `otp:email:${normalizedEmail}`,
+      RATE_LIMITS.OTP.maxRequests,
+      RATE_LIMITS.OTP.windowMs
+    ),
+    checkRateLimit(
+      `otp:ip:${clientIP}`,
+      RATE_LIMITS.OTP.maxRequests * 3, // Allow more per IP (multiple users)
+      RATE_LIMITS.OTP.windowMs
+    ),
+  ]);
 
   if (!emailRateLimit.allowed || !ipRateLimit.allowed) {
     const retryAfter =
@@ -318,7 +270,7 @@ export async function sendVerificationCode(
     }
 
     // Check if user exists (direct O(1) lookup via RPC)
-    const existingUser = await findUserByEmail(adminClient, normalizedEmail);
+    const existingUser = await findUserByEmail(normalizedEmail, adminClient);
 
     // If user exists, check if they have a passkey
     if (existingUser) {
@@ -340,8 +292,9 @@ export async function sendVerificationCode(
     let isNewUser = false;
 
     if (!existingUser) {
-      // GUARD: Require geo confirmation before creating any user record.
-      // This ensures no EU/EEA user data is ever persisted in the database.
+      // GUARD: Require geo confirmation before creating user records.
+      // This reduces pre-confirmation persistence and aligns with the current
+      // region-gating flow.
       if (!options?.geoConfirmed) {
         return {
           success: false,
@@ -471,16 +424,18 @@ export async function verifyEmailCode(
   }
 
   // Rate limit by email AND IP to prevent brute force (short-term sliding window)
-  const emailRateLimit = await checkRateLimit(
-    `otp_verify:email:${normalizedEmail}`,
-    RATE_LIMITS.OTP_VERIFY.maxRequests,
-    RATE_LIMITS.OTP_VERIFY.windowMs
-  );
-  const ipRateLimit = await checkRateLimit(
-    `otp_verify:ip:${clientIP}`,
-    RATE_LIMITS.OTP_VERIFY.maxRequests * 3,
-    RATE_LIMITS.OTP_VERIFY.windowMs
-  );
+  const [emailRateLimit, ipRateLimit] = await Promise.all([
+    checkRateLimit(
+      `otp_verify:email:${normalizedEmail}`,
+      RATE_LIMITS.OTP_VERIFY.maxRequests,
+      RATE_LIMITS.OTP_VERIFY.windowMs
+    ),
+    checkRateLimit(
+      `otp_verify:ip:${clientIP}`,
+      RATE_LIMITS.OTP_VERIFY.maxRequests * 3,
+      RATE_LIMITS.OTP_VERIFY.windowMs
+    ),
+  ]);
 
   if (!emailRateLimit.allowed || !ipRateLimit.allowed) {
     const retryAfter =
@@ -543,9 +498,11 @@ export async function verifyEmailCode(
     const user = data.user;
 
     // Reset rate limit and escalating lockout on successful verification
-    await resetRateLimit(`otp_verify:email:${normalizedEmail}`);
-    await resetRateLimit(`otp_verify:ip:${clientIP}`);
-    await resetEscalatingLockout(normalizedEmail);
+    await Promise.all([
+      resetRateLimit(`otp_verify:email:${normalizedEmail}`),
+      resetRateLimit(`otp_verify:ip:${clientIP}`),
+      resetEscalatingLockout(normalizedEmail),
+    ]);
 
     logAuthEvent("login_success", {
       userId: user.id,

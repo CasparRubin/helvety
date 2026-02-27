@@ -126,7 +126,7 @@ let validatedEnv: Env | null = null;
  * Validates and returns environment variables
  * Throws an error if validation fails
  *
- * Security: This function validates that only safe environment variables are used.
+ * Security: This function validates the expected environment variables.
  * In development, it provides helpful warnings and error messages.
  */
 function getValidatedEnv(): Env {
@@ -193,7 +193,7 @@ export function getSupabaseUrl(): string {
 
 /**
  * Gets Supabase publishable key with validation
- * Security: Ensures the key is an anon/publishable key format (not service role key)
+ * Security: Applies best-effort checks that the key looks like an anon/publishable key (not service role key)
  *
  * WARNING: This key will be exposed to the client. Only use the anon/publishable key here.
  * Never use the service role key in NEXT_PUBLIC_ environment variables.

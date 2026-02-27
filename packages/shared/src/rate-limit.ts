@@ -4,9 +4,10 @@ import "server-only";
  * Rate Limiting Module
  *
  * Provides distributed rate limiting using Upstash Redis for production
- * environments. In production, fails closed (rejects requests) when Redis
- * is unavailable or when Upstash credentials are not configured. Falls back
- * to in-memory rate limiting only in development.
+ * environments. In production with strict policy, failures are fail-closed
+ * (requests rejected) when Redis is unavailable or credentials are missing.
+ * Soft policy can allow requests in production during Redis outages. Falls
+ * back to in-memory rate limiting only in development.
  *
  * Production: Uses @upstash/ratelimit with sliding window algorithm.
  *   - Works across serverless invocations and multiple instances
@@ -37,6 +38,9 @@ export interface RateLimitResult {
   /** Seconds until the rate limit resets (only if not allowed) */
   retryAfter?: number;
 }
+
+/** Rate limit behavior during Redis outages in production. */
+export type RateLimitPolicy = "strict" | "soft";
 
 // =============================================================================
 // Upstash Redis Client (singleton)
@@ -120,6 +124,7 @@ interface RateLimitRecord {
 }
 
 const inMemoryStore = new Map<string, RateLimitRecord>();
+const inMemoryLockoutStore = new Map<string, number>();
 const MAX_IN_MEMORY_ENTRIES = 10_000;
 
 const CLEANUP_INTERVAL = 60 * 1000;
@@ -142,6 +147,11 @@ function startCleanup(): void {
       for (let i = 0; i < excess; i++) {
         const next = keys.next();
         if (!next.done) inMemoryStore.delete(next.value);
+      }
+    }
+    for (const [key, lockoutUntil] of inMemoryLockoutStore.entries()) {
+      if (now > lockoutUntil) {
+        inMemoryLockoutStore.delete(key);
       }
     }
   }, CLEANUP_INTERVAL);
@@ -181,9 +191,11 @@ function checkInMemoryRateLimit(
 /**
  * Check if a request is allowed under the rate limit.
  *
- * Uses Upstash Redis in production (distributed). In production, fails closed
- * (rejects requests) if Redis is unavailable or if credentials are not configured.
- * In development, falls back to in-memory when credentials are not configured.
+ * Uses Upstash Redis in production (distributed). In production with strict
+ * policy, requests are rejected if Redis is unavailable or credentials are not
+ * configured. With soft policy, requests may be allowed in those failure
+ * conditions. In development, falls back to in-memory when credentials are not
+ * configured.
  *
  * @param key - Unique identifier for the rate limit (e.g., IP + endpoint)
  * @param maxRequests - Maximum number of requests allowed in the window
@@ -196,7 +208,8 @@ export async function checkRateLimit(
   key: string,
   maxRequests: number = 5,
   windowMs: number = 60000,
-  prefix: string = "api"
+  prefix: string = "api",
+  policy: RateLimitPolicy = "strict"
 ): Promise<RateLimitResult> {
   const limiter = getUpstashLimiter(prefix, maxRequests, windowMs);
 
@@ -218,12 +231,19 @@ export async function checkRateLimit(
       // In production, fail closed (reject the request) when Redis is unavailable.
       // In-memory fallback does not persist across serverless invocations,
       // making it ineffective for distributed rate limiting.
-      if (process.env.NODE_ENV === "production") {
+      if (process.env.NODE_ENV === "production" && policy === "strict") {
         logger.error(
           "Upstash rate limit failed in production — failing closed:",
           error
         );
         return { allowed: false, remaining: 0, retryAfter: 30 };
+      }
+      if (process.env.NODE_ENV === "production" && policy === "soft") {
+        logger.warn(
+          "Upstash rate limit failed in production for soft policy — allowing request:",
+          error
+        );
+        return { allowed: true, remaining: 0 };
       }
       // In development, fall through to in-memory as a convenience
       logger.warn(
@@ -231,11 +251,16 @@ export async function checkRateLimit(
         error
       );
     }
-  } else if (process.env.NODE_ENV === "production") {
+  } else if (process.env.NODE_ENV === "production" && policy === "strict") {
     // Fail closed in production when Redis credentials are not configured.
     // In-memory rate limiting does not persist across serverless invocations,
     // so it provides no real protection in production.
     return { allowed: false, remaining: 0, retryAfter: 30 };
+  } else if (process.env.NODE_ENV === "production" && policy === "soft") {
+    logger.warn(
+      "Redis credentials missing in production for soft rate-limit policy — allowing request."
+    );
+    return { allowed: true, remaining: 0 };
   }
 
   // Development fallback: in-memory rate limiting (single-server only)
@@ -310,22 +335,30 @@ export async function recordOtpFailureAndCheckLockout(
   email: string
 ): Promise<RateLimitResult> {
   const normalizedEmail = email.trim().toLowerCase();
-  const redisKey = `otp_lockout:${normalizedEmail}`;
+  const failureCounterKey = `otp_lockout:failures:${normalizedEmail}`;
+  const lockoutUntilKey = `otp_lockout:until:${normalizedEmail}`;
 
   const redisClient = getRedis();
   if (redisClient) {
     try {
-      // Atomically increment and set TTL
-      const count = await redisClient.incr(redisKey);
-      if (count === 1) {
-        // First failure — set the TTL
-        await redisClient.expire(redisKey, FAILURE_COUNTER_TTL_SECONDS);
-      }
+      // Keep this as one transaction-like operation so the counter always has TTL.
+      const txResult = await redisClient
+        .multi()
+        .incr(failureCounterKey)
+        .expire(failureCounterKey, FAILURE_COUNTER_TTL_SECONDS)
+        .exec();
+      const countResult = txResult[0];
+      const count =
+        typeof countResult === "number" ? countResult : Number(countResult);
 
       // Check thresholds (highest first)
       for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
         const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
         if (count >= threshold.attempts) {
+          const lockoutUntil = Date.now() + threshold.lockoutSeconds * 1000;
+          await redisClient.set(lockoutUntilKey, lockoutUntil, {
+            ex: threshold.lockoutSeconds,
+          });
           return {
             allowed: false,
             remaining: 0,
@@ -346,14 +379,16 @@ export async function recordOtpFailureAndCheckLockout(
 
   // Development fallback: in-memory tracking
   const now = Date.now();
-  const memKey = `lockout:${normalizedEmail}`;
-  const record = inMemoryStore.get(memKey);
+  const memFailureKey = `lockout:failures:${normalizedEmail}`;
+  const memLockoutKey = `lockout:until:${normalizedEmail}`;
+  const record = inMemoryStore.get(memFailureKey);
 
   if (!record || now > record.resetTime) {
-    inMemoryStore.set(memKey, {
+    inMemoryStore.set(memFailureKey, {
       count: 1,
       resetTime: now + FAILURE_COUNTER_TTL_SECONDS * 1000,
     });
+    inMemoryLockoutStore.delete(memLockoutKey);
     return { allowed: true, remaining: 0 };
   }
 
@@ -362,6 +397,8 @@ export async function recordOtpFailureAndCheckLockout(
   for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
     const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
     if (record.count >= threshold.attempts) {
+      const lockoutUntil = now + threshold.lockoutSeconds * 1000;
+      inMemoryLockoutStore.set(memLockoutKey, lockoutUntil);
       return {
         allowed: false,
         remaining: 0,
@@ -384,22 +421,20 @@ export async function checkEscalatingLockout(
   email: string
 ): Promise<RateLimitResult> {
   const normalizedEmail = email.trim().toLowerCase();
-  const redisKey = `otp_lockout:${normalizedEmail}`;
+  const lockoutUntilKey = `otp_lockout:until:${normalizedEmail}`;
 
   const redisClient = getRedis();
   if (redisClient) {
     try {
-      const count = (await redisClient.get<number>(redisKey)) ?? 0;
-
-      for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
-        const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
-        if (count >= threshold.attempts) {
-          return {
-            allowed: false,
-            remaining: 0,
-            retryAfter: threshold.lockoutSeconds,
-          };
-        }
+      const lockoutUntil = await redisClient.get<number>(lockoutUntilKey);
+      const now = Date.now();
+      if (typeof lockoutUntil === "number" && lockoutUntil > now) {
+        const retryAfter = Math.ceil((lockoutUntil - now) / 1000);
+        return {
+          allowed: false,
+          remaining: 0,
+          retryAfter: Math.max(retryAfter, 1),
+        };
       }
 
       return { allowed: true, remaining: 0 };
@@ -412,20 +447,17 @@ export async function checkEscalatingLockout(
   }
 
   // Development fallback
-  const memKey = `lockout:${normalizedEmail}`;
-  const record = inMemoryStore.get(memKey);
-  if (record && Date.now() <= record.resetTime) {
-    for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
-      const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
-      if (record.count >= threshold.attempts) {
-        return {
-          allowed: false,
-          remaining: 0,
-          retryAfter: threshold.lockoutSeconds,
-        };
-      }
-    }
+  const memLockoutKey = `lockout:until:${normalizedEmail}`;
+  const lockoutUntil = inMemoryLockoutStore.get(memLockoutKey);
+  const now = Date.now();
+  if (typeof lockoutUntil === "number" && lockoutUntil > now) {
+    return {
+      allowed: false,
+      remaining: 0,
+      retryAfter: Math.max(Math.ceil((lockoutUntil - now) / 1000), 1),
+    };
   }
+  inMemoryLockoutStore.delete(memLockoutKey);
 
   return { allowed: true, remaining: 0 };
 }
@@ -437,18 +469,20 @@ export async function checkEscalatingLockout(
  */
 export async function resetEscalatingLockout(email: string): Promise<void> {
   const normalizedEmail = email.trim().toLowerCase();
-  const redisKey = `otp_lockout:${normalizedEmail}`;
+  const failureCounterKey = `otp_lockout:failures:${normalizedEmail}`;
+  const lockoutUntilKey = `otp_lockout:until:${normalizedEmail}`;
 
   const redisClient = getRedis();
   if (redisClient) {
     try {
-      await redisClient.del(redisKey);
+      await redisClient.del(failureCounterKey, lockoutUntilKey);
     } catch (error) {
       logger.warn("Failed to reset escalating lockout:", error);
     }
   }
 
-  inMemoryStore.delete(`lockout:${normalizedEmail}`);
+  inMemoryStore.delete(`lockout:failures:${normalizedEmail}`);
+  inMemoryLockoutStore.delete(`lockout:until:${normalizedEmail}`);
 }
 
 // =============================================================================

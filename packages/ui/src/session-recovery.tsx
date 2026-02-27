@@ -11,21 +11,64 @@ import { useEffect } from "react";
  * When a tab is suspended, JavaScript timers are paused, which means
  * Supabase's auto-refresh timer may not fire before the access token
  * expires. This component listens for visibility changes and performs
- * a session check; if no valid user is returned, it redirects to /auth login.
+ * a session check; in required mode, if no valid user is returned and errors are
+ * not transient, it redirects to /auth login.
  */
-export function SessionRecovery() {
+type SessionRecoveryMode = "optional" | "required";
+
+/** Props for SessionRecovery component. */
+interface SessionRecoveryProps {
+  mode?: SessionRecoveryMode;
+}
+
+/** Backoff delays for transient Supabase auth/network errors. */
+const RETRY_DELAYS_MS = [300, 900] as const;
+
+/** Rechecks auth session after visibility changes with transient-error tolerance. */
+export function SessionRecovery({ mode = "required" }: SessionRecoveryProps) {
   useEffect(() => {
     const supabase = createBrowserClient();
     let redirecting = false;
 
-    const recoverSession = async () => {
-      const { data, error } = await supabase.auth.getUser();
+    const canRedirect = mode === "required";
 
+    /** Small helper for transient auth retry backoff. */
+    const sleep = (ms: number) =>
+      new Promise<void>((resolve) => {
+        window.setTimeout(resolve, ms);
+      });
+
+    const recoverSession = async () => {
       if (redirecting) {
         return;
       }
 
-      if (error || !data.user) {
+      let shouldRetry = false;
+      for (const delay of RETRY_DELAYS_MS) {
+        const { data, error } = await supabase.auth.getUser();
+        if (data.user) {
+          return;
+        }
+
+        if (!error) {
+          // Clear unauthenticated state (no transient error): safe to redirect on protected apps.
+          if (canRedirect) {
+            redirecting = true;
+            window.location.href = getLoginUrl(window.location.href);
+          }
+          return;
+        }
+
+        shouldRetry = true;
+        await sleep(delay);
+      }
+
+      // Persistent network/auth errors should not force-login users.
+      if (shouldRetry || !canRedirect) {
+        return;
+      }
+
+      if (canRedirect) {
         redirecting = true;
         window.location.href = getLoginUrl(window.location.href);
       }

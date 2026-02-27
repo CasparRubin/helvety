@@ -30,12 +30,115 @@ interface SubscriptionPeriod {
   periodEnd: number | undefined;
 }
 
+/** Internal normalized event types persisted in subscription_events. */
+type SubscriptionEventType =
+  | "checkout.completed"
+  | "subscription.created"
+  | "subscription.updated"
+  | "subscription.canceled"
+  | "subscription.renewed"
+  | "subscription.payment_failed"
+  | "subscription.skipped_unknown_price";
+
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /** Type guard for canonical UUID strings. */
 function isUuid(value: string | undefined): value is string {
   return !!value && UUID_REGEX.test(value);
+}
+
+/** Throw on Supabase write errors so webhook retries happen correctly. */
+function ensureWriteSucceeded(
+  context: string,
+  error: { message?: string } | null
+): void {
+  if (!error) {
+    return;
+  }
+  logger.error(`Supabase write failed (${context}):`, error);
+  throw new Error(
+    error.message ? `Supabase write failed: ${error.message}` : context
+  );
+}
+
+/** Internal event type used in subscription_events for a Stripe event. */
+function mapStripeEventTypeToInternalType(
+  stripeEventType: Stripe.Event["type"]
+): SubscriptionEventType {
+  switch (stripeEventType) {
+    case "checkout.session.completed":
+      return "checkout.completed";
+    case "customer.subscription.created":
+      return "subscription.created";
+    case "customer.subscription.updated":
+      return "subscription.updated";
+    case "customer.subscription.deleted":
+      return "subscription.canceled";
+    case "invoice.paid":
+      return "subscription.renewed";
+    case "invoice.payment_failed":
+      return "subscription.payment_failed";
+  }
+}
+
+/** Returns true when the Postgres error represents a unique key violation. */
+function isUniqueViolation(error: { code?: string } | null): boolean {
+  return error?.code === "23505";
+}
+
+/**
+ * Atomically claims an event by inserting subscription_events row keyed by stripe_event_id.
+ * Duplicate inserts fail fast and are treated as already-processed events.
+ */
+async function claimWebhookEvent(
+  eventId: string,
+  internalType: SubscriptionEventType,
+  stripeEventType: string
+): Promise<boolean> {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("subscription_events").insert({
+    event_type: internalType,
+    stripe_event_id: eventId,
+    user_id: null as string | null,
+    subscription_id: null as string | null,
+    metadata: {
+      stripe_event_type: stripeEventType,
+      processing_status: "claimed",
+    },
+  });
+
+  if (!error) {
+    return true;
+  }
+  if (isUniqueViolation(error)) {
+    return false;
+  }
+  ensureWriteSucceeded("webhook event claim insert", error);
+  return false;
+}
+
+/** Finalize/update a claimed webhook event row after processing. */
+async function finalizeWebhookEvent(
+  eventId: string,
+  payload: {
+    eventType: SubscriptionEventType;
+    userId?: string | null;
+    subscriptionId?: string | null;
+    metadata?: Record<string, unknown>;
+  }
+): Promise<void> {
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("subscription_events")
+    .update({
+      event_type: payload.eventType,
+      user_id: payload.userId ?? null,
+      subscription_id: payload.subscriptionId ?? null,
+      metadata: payload.metadata ?? {},
+    })
+    .eq("stripe_event_id", eventId);
+  ensureWriteSucceeded("webhook event finalize update", error);
 }
 
 /**
@@ -170,16 +273,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  const supabase = createAdminClient();
-
-  // Check for duplicate events (idempotency)
-  const { data: existingEvent } = await supabase
-    .from("subscription_events")
-    .select("id")
-    .eq("stripe_event_id", event.id)
-    .single();
-
-  if (existingEvent) {
+  const claimed = await claimWebhookEvent(
+    event.id,
+    mapStripeEventTypeToInternalType(event.type),
+    event.type
+  );
+  if (!claimed) {
     logger.info(`Duplicate event ignored: ${event.id}`);
     return NextResponse.json({ received: true });
   }
@@ -213,6 +312,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   } catch (error) {
     logger.error(`Error processing webhook ${event.type}:`, error);
+    try {
+      await finalizeWebhookEvent(event.id, {
+        eventType: mapStripeEventTypeToInternalType(event.type),
+        metadata: {
+          stripe_event_type: event.type,
+          processing_status: "failed",
+        },
+      });
+    } catch (finalizeError) {
+      logger.error("Failed to persist webhook failure status:", finalizeError);
+    }
     return NextResponse.json(
       { error: "Webhook processing failed" },
       { status: 500 }
@@ -251,11 +361,11 @@ async function handleCheckoutCompleted(
     // Guest checkout - we'll handle this when they sign up
     logger.info(`Guest checkout completed: ${session.id}`);
 
-    // Log the event without user association for now
-    // Guest checkout events can be linked to users later via customer_email in metadata
-    await supabase.from("subscription_events").insert({
-      event_type: "checkout.completed",
-      stripe_event_id: eventId,
+    // Guest checkout events can be linked to users later via metadata fields.
+    await finalizeWebhookEvent(eventId, {
+      eventType: "checkout.completed",
+      userId: null,
+      subscriptionId: null,
       metadata: {
         session_id: session.id,
         customer_id: customerId,
@@ -266,36 +376,42 @@ async function handleCheckoutCompleted(
         supplied_user_id: metadataUserId ?? null,
         is_guest_checkout: true,
         metadata_mismatch: metadataMismatch,
+        processing_status: "processed",
       },
-      // user_id is nullable for guest checkouts - will be linked when user signs up
-      user_id: null as string | null,
     });
     return;
   }
 
   // Update user profile with Stripe customer ID
-  await supabase.from("user_profiles").upsert(
-    {
-      id: userId,
-      email: session.customer_email ?? "",
-      stripe_customer_id: customerId,
-    },
-    {
+  const profileUpsertPayload: {
+    id: string;
+    stripe_customer_id: string;
+    email?: string;
+  } = {
+    id: userId,
+    stripe_customer_id: customerId,
+  };
+  if (session.customer_email) {
+    profileUpsertPayload.email = session.customer_email;
+  }
+  const { error: profileUpsertError } = await supabase
+    .from("user_profiles")
+    .upsert(profileUpsertPayload, {
       onConflict: "id",
-    }
-  );
+    });
+  ensureWriteSucceeded("checkout profile upsert", profileUpsertError);
 
-  // Log the checkout event
-  await supabase.from("subscription_events").insert({
-    user_id: userId,
-    event_type: "checkout.completed",
-    stripe_event_id: eventId,
+  await finalizeWebhookEvent(eventId, {
+    eventType: "checkout.completed",
+    userId,
+    subscriptionId: null,
     metadata: {
       session_id: session.id,
       customer_id: customerId,
       subscription_id: subscriptionId,
       supplied_user_id: metadataUserId ?? null,
       metadata_mismatch: metadataMismatch,
+      processing_status: "processed",
     },
   });
 
@@ -373,17 +489,16 @@ async function upsertSubscription(
           `Check that STRIPE_PRICE_IDS env var is configured correctly.`
       );
 
-      // Still log the event for audit trail, but skip the subscription upsert
-      const supabaseForEvent = createAdminClient();
-      await supabaseForEvent.from("subscription_events").insert({
-        user_id: userId,
-        event_type: "subscription.skipped_unknown_price",
-        stripe_event_id: eventId,
+      await finalizeWebhookEvent(eventId, {
+        eventType: "subscription.skipped_unknown_price",
+        userId,
+        subscriptionId: null,
         metadata: {
           subscription_id: subscription.id,
           price_id: priceId,
           status: subscription.status,
           reason: "Unknown price ID with no metadata fallback",
+          processing_status: "processed",
         },
       });
       return;
@@ -435,19 +550,18 @@ async function upsertSubscription(
     throw error ?? new Error("Upsert returned no data");
   }
 
-  // Log the event (subscription_id = our subscriptions.id for JOINs)
-  await supabase.from("subscription_events").insert({
-    user_id: userId,
-    subscription_id: upsertedSub.id,
-    event_type:
+  await finalizeWebhookEvent(eventId, {
+    eventType:
       subscription.status === "active"
         ? "subscription.created"
         : "subscription.updated",
-    stripe_event_id: eventId,
+    userId,
+    subscriptionId: upsertedSub.id,
     metadata: {
       subscription_id: subscription.id,
       status: subscription.status,
       price_id: priceId,
+      processing_status: "processed",
     },
   });
 
@@ -495,14 +609,13 @@ async function handleSubscriptionDeleted(
     throw error;
   }
 
-  // Log the event (subscription_id = our subscriptions.id for JOINs)
-  await supabase.from("subscription_events").insert({
-    user_id: existingSub.user_id,
-    subscription_id: existingSub.id,
-    event_type: "subscription.canceled",
-    stripe_event_id: eventId,
+  await finalizeWebhookEvent(eventId, {
+    eventType: "subscription.canceled",
+    userId: existingSub.user_id,
+    subscriptionId: existingSub.id,
     metadata: {
       subscription_id: subscription.id,
+      processing_status: "processed",
     },
   });
 
@@ -550,7 +663,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice, eventId: string) {
       | undefined
   );
 
-  await supabase
+  const { error: invoicePaidUpdateError } = await supabase
     .from("subscriptions")
     .update({
       status: "active",
@@ -562,17 +675,20 @@ async function handleInvoicePaid(invoice: Stripe.Invoice, eventId: string) {
         : null,
     })
     .eq("stripe_subscription_id", subscriptionId);
+  ensureWriteSucceeded(
+    "invoice paid subscription update",
+    invoicePaidUpdateError
+  );
 
-  // Log the renewal (subscription_id = our subscriptions.id for JOINs)
-  await supabase.from("subscription_events").insert({
-    user_id: sub.user_id,
-    subscription_id: sub.id,
-    event_type: "subscription.renewed",
-    stripe_event_id: eventId,
+  await finalizeWebhookEvent(eventId, {
+    eventType: "subscription.renewed",
+    userId: sub.user_id,
+    subscriptionId: sub.id,
     metadata: {
       subscription_id: subscriptionId,
       invoice_id: invoice.id,
       amount_paid: invoice.amount_paid,
+      processing_status: "processed",
     },
   });
 
@@ -617,23 +733,26 @@ async function handleInvoicePaymentFailed(
   }
 
   // Update subscription status
-  await supabase
+  const { error: paymentFailedUpdateError } = await supabase
     .from("subscriptions")
     .update({
       status: "past_due",
     })
     .eq("stripe_subscription_id", subscriptionId);
+  ensureWriteSucceeded(
+    "invoice payment_failed subscription update",
+    paymentFailedUpdateError
+  );
 
-  // Log the failure (subscription_id = our subscriptions.id for JOINs)
-  await supabase.from("subscription_events").insert({
-    user_id: sub.user_id,
-    subscription_id: sub.id,
-    event_type: "subscription.payment_failed",
-    stripe_event_id: eventId,
+  await finalizeWebhookEvent(eventId, {
+    eventType: "subscription.payment_failed",
+    userId: sub.user_id,
+    subscriptionId: sub.id,
     metadata: {
       subscription_id: subscriptionId,
       invoice_id: invoice.id,
       attempt_count: invoiceData.attempt_count,
+      processing_status: "processed",
     },
   });
 

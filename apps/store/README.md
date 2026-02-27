@@ -13,9 +13,9 @@ Official Helvety Store. Products and services engineered & designed in Switzerla
 
 ## Service Availability
 
-Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
+Helvety services are currently focused on customers located in Switzerland. We do not actively market services to users in the EU/EEA.
 
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created.
 
 ## Navigation
 
@@ -28,14 +28,14 @@ The store has four main sections, linked from the store nav bar (below the top n
 
 The root path (`/`) redirects all users to `/products`. No login is required to browse products.
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
 ## Features
 
 - **Product Catalog** - Browse all Helvety products: currently free tools (Helvety PDF), early-access SaaS offers (Helvety Tasks, Helvety Contacts), and paid subscriptions (Helvety SPO Explorer)
-- **Stripe Integration** - Secure subscription and one-time payment processing via Stripe Checkout (CHF only). Before every purchase, a consent dialog requires acceptance of the Terms of Service and Privacy Policy. Consent is required on each purchase and is not cached.
+- **Stripe Integration** - Subscription and one-time payment processing via Stripe Checkout (currently CHF). Before each purchase, a consent dialog requires acceptance of the Terms of Service and Privacy Policy. Consent is requested for each purchase and is not persisted in the checkout dialog state.
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
 - **Account Management** - Profile and account settings (Account page)
 - **Subscription Management** - Compact list to view, cancel, or reactivate subscriptions; SPO Explorer subscriptions link to the Tenants page
@@ -43,7 +43,7 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing; optional HMAC-signed machine-to-machine mode available)
 - **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog; attempts to cancel active Stripe subscriptions and remove account-linked data, with backend safeguards and cleanup retries
-- **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (nDSG Art. 28 compliance)
+- **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (designed to support nDSG Art. 28 data portability requests)
 - **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in both Stripe session metadata and a dedicated `consent_events` database table for audit compliance
 - **Dark & Light mode** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
@@ -70,14 +70,14 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 
 Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
 
-**Privacy Note:** Your email address is used solely for authentication (verification codes for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
+**Privacy Note:** Your email address is used primarily for authentication (verification codes for new users, passkey for returning), account recovery, and essential service communications. We do not share your email with third parties for marketing purposes.
 
 ### Security Hardening
 
 This application includes the following security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
-- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (CVE-2025-29927 compliant)
+- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (aligned with published CVE-2025-29927 mitigation guidance)
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
@@ -107,8 +107,8 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 This project is built with modern web technologies:
 
-- **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
-- **[React 19.2.4](https://react.dev/)** - UI library
+- **[Next.js 16.x](https://nextjs.org/)** - React framework with App Router
+- **[React 19.x](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript with strict configuration
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at [helvety.com/auth](https://helvety.com/auth))
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
@@ -143,7 +143,7 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 > **This is NOT open source software.**
 
-This monorepo is public so users can inspect and verify the application's behavior and security.
+This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 

@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety",
   },
   description:
-    "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Private, secure, and designed in Switzerland.",
+    "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
   keywords: [
     "Helvety",
     "Swiss software",
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     title:
       "Helvety | Products & Services | Engineered & Designed in Switzerland",
     description:
-      "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Private, secure, and designed in Switzerland.",
+      "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
     title:
       "Helvety | Products & Services | Engineered & Designed in Switzerland",
     description:
-      "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Private, secure, and designed in Switzerland.",
+      "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -158,7 +158,7 @@ export default async function RootLayout({
                 name: "Helvety",
                 url: "https://helvety.com",
                 description:
-                  "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Private, secure, and designed in Switzerland.",
+                  "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
               },
             ]),
           }}
@@ -171,7 +171,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <AuthTokenHandler />
-          <SessionRecovery />
+          <SessionRecovery mode="optional" />
           <TooltipProvider>
             <div className="flex h-screen flex-col overflow-hidden">
               <header className="shrink-0">

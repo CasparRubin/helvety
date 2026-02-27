@@ -2,7 +2,8 @@
  * E2EE Crypto Module - Public API
  *
  * This module provides end-to-end encryption for user content.
- * All encryption/decryption happens client-side; the server never sees plaintext content.
+ * Encryption/decryption is designed to happen client-side; plaintext should
+ * not be intentionally sent to the server.
  *
  * Uses passkey-based (PRF) key derivation for secure, passwordless encryption.
  * Setup is handled by helvety.com/auth - this module only handles unlock and usage.

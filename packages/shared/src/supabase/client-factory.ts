@@ -5,7 +5,9 @@ import { cookies } from "next/headers";
 
 import { COOKIE_DOMAIN } from "../config";
 import { getSupabaseUrl, getSupabaseKey } from "../env-validation";
+import { logger } from "../logger";
 
+import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -16,7 +18,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * @returns Promise that resolves to a Supabase client instance
  */
-export async function createServerComponentClient(): Promise<SupabaseClient> {
+export async function createServerComponentClient(): Promise<
+  SupabaseClient<DatabaseSchema>
+> {
   const supabaseUrl = getSupabaseUrl();
   const supabaseKey = getSupabaseKey();
   const cookieStore = await cookies();
@@ -46,6 +50,9 @@ export async function createServerComponentClient(): Promise<SupabaseClient> {
           // The `setAll` method was called from a Server Component.
           // cookies().set() is not allowed there, so the cookie update is
           // skipped; the request still uses the existing session from the proxy.
+          logger.warn(
+            "Supabase cookie write skipped in createServerComponentClient (likely Server Component context). Session refresh may require proxy/action context."
+          );
         }
       },
     },

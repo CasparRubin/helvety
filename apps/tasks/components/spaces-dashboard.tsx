@@ -307,8 +307,9 @@ export function SpacesDashboard({
             <DialogHeader>
               <DialogTitle>Create Space</DialogTitle>
               <DialogDescription>
-                Create a new space within this unit. All content is encrypted
-                end-to-end.
+                Create a new space within this unit. Sensitive content fields
+                are end-to-end encrypted; some structural metadata remains
+                unencrypted for app functionality.
               </DialogDescription>
             </DialogHeader>
 
@@ -367,8 +368,9 @@ export function SpacesDashboard({
             <DialogHeader>
               <DialogTitle>Edit Unit</DialogTitle>
               <DialogDescription>
-                Update the unit name and description. All content is encrypted
-                end-to-end.
+                Update the unit name and description. Sensitive content fields
+                are end-to-end encrypted; some structural metadata remains
+                unencrypted for app functionality.
               </DialogDescription>
             </DialogHeader>
 

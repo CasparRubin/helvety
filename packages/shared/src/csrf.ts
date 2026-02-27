@@ -13,9 +13,8 @@ import { COOKIE_DOMAIN } from "./config";
  * Uses the double-submit cookie pattern with timing-safe comparison.
  *
  * Token lifecycle:
- * 1. The CSRF cookie is generated in proxy.ts on each request (if missing).
- *    This MUST happen in the proxy -- cookies().set() is NOT allowed in
- *    Server Components or layouts and will throw at runtime.
+ * 1. The CSRF cookie is typically generated in proxy.ts on each request (if missing).
+ *    cookies().set() is not allowed in Server Components or layouts and will throw at runtime.
  * 2. The layout reads the token via getCSRFToken() and passes it to the
  *    CSRFProvider for client components.
  * 3. Server Actions validate the token with validateCSRFToken() /
@@ -32,8 +31,8 @@ const CSRF_TOKEN_LENGTH = 32;
  * Server Actions, Route Handlers, and the proxy (proxy.ts). Do NOT call
  * this from Server Components or layouts -- it will throw at runtime.
  *
- * In practice, CSRF token generation is handled by proxy.ts. This function
- * is kept for use in Server Actions or Route Handlers if needed.
+ * In practice, CSRF token generation is usually handled by proxy.ts. This
+ * function is kept for use in Server Actions or Route Handlers when needed.
  *
  * @returns The generated CSRF token
  */

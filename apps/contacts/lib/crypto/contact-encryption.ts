@@ -3,7 +3,8 @@
  * Convenience functions for encrypting/decrypting Contacts,
  * CategoryConfigs, and Categories client-side.
  *
- * The server only ever sees encrypted data.
+ * This module is designed so the server receives encrypted payloads for
+ * protected fields; validate API and logging paths to keep this invariant.
  */
 
 import {

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 /** Terms of Service page for Helvety */
 export default function TermsPage() {
   return (
-    <main className="min-h-screen px-6 py-12">
+    <section className="min-h-screen px-6 py-12">
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
           <Button variant="ghost" size="sm" asChild>
@@ -215,8 +215,8 @@ export default function TermsPage() {
               applications (&quot;the Services&quot;), operated by Helvety by
               Rubin (&quot;we,&quot; &quot;us,&quot; or &quot;the
               Company&quot;), you agree to be bound by these Terms of Service
-              (&quot;Terms&quot;). If you do not agree to all of these Terms,
-              you must not access or use the Services.
+              (&quot;Terms&quot;). If you do not agree to these Terms, do not
+              use the Services.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               The Services are primarily intended for customers located in
@@ -294,12 +294,12 @@ export default function TermsPage() {
               account. Account creation requires your email address and passkey
               setup. During registration, new users must first confirm that they
               are located in Switzerland and are not residents of the EU or EEA;
-              this confirmation is required before any personal data is stored
-              or a verification code is sent. After confirmation, new users
-              receive a verification code via email to verify their identity;
-              existing users with a passkey sign in directly with their passkey.
-              You then authenticate using your device&apos;s biometrics (Face
-              ID, fingerprint, or PIN) to set up or use your passkey.
+              this confirmation is required before a new account is created.
+              After confirmation, new users receive a verification code via
+              email to verify their identity; existing users with a passkey sign
+              in directly with their passkey. You then authenticate using your
+              device&apos;s biometrics (Face ID, fingerprint, or PIN) to set up
+              or use your passkey.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               By creating an account, you agree to:
@@ -713,9 +713,9 @@ export default function TermsPage() {
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               For end-to-end encrypted content in Helvety Tasks and Helvety
-              Contacts, we have no technical ability to access or use your
-              content. This license applies only to encrypted data as stored on
-              our infrastructure; we cannot and do not access plaintext content.
+              Contacts, our systems are designed to prevent routine access to
+              plaintext content. This license applies to encrypted data as
+              stored on our infrastructure.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -804,11 +804,11 @@ export default function TermsPage() {
               <li>
                 You are solely responsible for maintaining access to your
                 passkey. If you lose your passkey and cannot recover it through
-                account recovery, your encrypted data will become permanently
-                inaccessible.
+                account recovery, your encrypted data may become inaccessible.
               </li>
               <li>
-                We cannot recover or decrypt your encrypted data on your behalf.
+                We are not expected to recover or decrypt encrypted data on your
+                behalf.
               </li>
               <li>
                 We recommend keeping your passkey synced across devices using
@@ -817,14 +817,15 @@ export default function TermsPage() {
               </li>
               <li>
                 Encrypted data is protected by a zero-knowledge architecture;
-                our architecture is designed so that we cannot access the
-                plaintext content of your encrypted data.
+                our architecture is designed so that we generally cannot access
+                the plaintext content of your encrypted data during normal
+                operation.
               </li>
             </ul>
             <p className="text-muted-foreground text-sm">
               End-to-end encryption requires a modern browser with WebAuthn PRF
-              support (Chrome 128+, Edge 128+, Safari 18+, Firefox 139+ desktop
-              only). Firefox for Android does not support encryption features.
+              support. Browser compatibility can change over time; refer to the
+              current product documentation for supported platforms.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -840,10 +841,11 @@ export default function TermsPage() {
               services.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              Due to our zero-knowledge architecture, we cannot decrypt or
-              provide access to the plaintext content of end-to-end encrypted
-              data. However, we may provide the following non-encrypted metadata
-              in response to valid legal requests:
+              Due to our zero-knowledge-oriented architecture, we are generally
+              unable to decrypt or provide access to plaintext end-to-end
+              encrypted data during normal operation. However, we may provide
+              the following non-encrypted metadata in response to valid legal
+              requests:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -1060,10 +1062,10 @@ export default function TermsPage() {
               until the end of your paid period.
             </p>
             <p className="text-muted-foreground text-sm">
-              <strong className="text-foreground">Price Changes:</strong> We
-              reserve the right to modify subscription prices. You will be
-              notified of any price changes at least 30 days before they take
-              effect. Continued use after price changes constitutes acceptance.
+              <strong className="text-foreground">Price Changes:</strong> We may
+              modify subscription prices. Where applicable, we provide prior
+              notice before changes take effect. Continued use after a change
+              takes effect is treated as acceptance of the updated price.
             </p>
           </section>
 
@@ -1081,10 +1083,10 @@ export default function TermsPage() {
               4.1).
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              Due to the nature of digital goods, all sales of Digital Products
-              are final once the product has been delivered or download access
-              has been provided. No refunds will be issued for Digital Products
-              except where required by applicable law or at our sole discretion.
+              Due to the nature of digital goods, sales of Digital Products are
+              generally final once the product has been delivered or download
+              access has been provided. Refunds are available where required by
+              applicable law and may also be granted at our discretion.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -1460,6 +1462,6 @@ export default function TermsPage() {
           </footer>
         </article>
       </div>
-    </main>
+    </section>
   );
 }

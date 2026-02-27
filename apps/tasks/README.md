@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A private and secure task management app with end-to-end encryption. Sensitive task content fields are encrypted client-side, while required structural metadata remains plaintext for app functionality. Engineered & Designed in Switzerland.
+A privacy-focused task management app with client-side encryption for sensitive fields. Required structural metadata remains plaintext for app functionality. Engineered & Designed in Switzerland.
 
 **App:** [helvety.com/tasks](https://helvety.com/tasks)
 
@@ -13,9 +13,9 @@ A private and secure task management app with end-to-end encryption. Sensitive t
 
 ## Service Availability
 
-Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
+Helvety services are currently focused on customers located in Switzerland. We do not actively market services to users in the EU/EEA.
 
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created.
 
 ## Features
 
@@ -46,9 +46,9 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Searchable picker** - Search your contacts by name or email and link them with one click
   - **Contact display** - Shows name and email; description, phone, and birthday are decrypted but not displayed in the compact link view. A flag indicates whether the contact has notes
   - **Deep links** - Click any contact row to view or edit the full contact details in the Contacts app (opens in a new tab)
-  - **Privacy** - Contact notes content is never decrypted in the Tasks app; only a has-notes indicator is shown
+  - **Privacy** - Contact notes content is not decrypted in the Tasks app by design; only a has-notes indicator is shown
 - **Drag & drop reordering** - Rearrange items within and between stages on desktop; mobile uses up/down arrows to move items between stages
-- **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (nDSG Art. 28 compliance). Export is only available while your encryption context is unlocked.
+- **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Switch between dark and light themes
 
@@ -115,20 +115,20 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. In su
 | Stage/Label/Contact assignments               | Linking tables (all fields plaintext)                |
 | Audit logs                                    | Timestamps, IPs, file sizes, user IDs, storage paths |
 
-Browser requirements for end-to-end encryption:
+Browser compatibility for end-to-end encryption depends on WebAuthn PRF support and can evolve over time:
 
 **Desktop:**
 
-- Chrome 128+ or Edge 128+
-- Safari 18+ on Mac
-- Firefox 139+ (desktop only)
+- Chrome/Edge (recent versions)
+- Safari on macOS (recent versions)
+- Firefox desktop (recent versions)
 
 **Mobile:**
 
-- iPhone with iOS 18+
-- Android 14+ with Chrome
+- iPhone/iPad (recent iOS/iPadOS versions)
+- Android (recent versions) with Chrome
 
-**Note:** Firefox for Android does not support the PRF extension.
+**Note:** Firefox on Android may not support the PRF extension in current tested flows.
 
 ### Authentication Flow
 
@@ -149,32 +149,32 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 
 Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
 
-**Privacy Note:** Your email address is used solely for authentication (verification codes for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
+**Privacy Note:** Your email address is used primarily for authentication (verification codes for new users, passkey for returning), account recovery, and essential service communications. We do not share your email with third parties for marketing purposes.
 
 ### Security Hardening
 
 This application includes the following security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
-- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (CVE-2025-29927 compliant)
+- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (aligned with published CVE-2025-29927 mitigation guidance)
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
 - **Attachment Audit Logging** - Structured logging for file attachment upload and deletion events (persisted to `attachment_audit_logs` table with 6-month retention)
 - **Security Headers** - CSP, HSTS, and other security headers
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
-**Attachment Audit Logging:** File attachment uploads and deletions are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs) to the `attachment_audit_logs` database table. This audit trail is retained for up to 6 months in accordance with the Privacy Policy and supports law enforcement cooperation under valid Swiss court orders. Encrypted file content and metadata are never logged.
+**Attachment Audit Logging:** File attachment uploads and deletions are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs) to the `attachment_audit_logs` database table. This audit trail is configured for retention up to 6 months in accordance with the Privacy Policy and supports law enforcement cooperation under valid Swiss court orders. Encrypted file content and encrypted metadata are not intended to be logged.
 
 ## Tech Stack
 
 This project is built with modern web technologies:
 
-- **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
-- **[React 19.2.4](https://react.dev/)** - UI library
+- **[Next.js 16.x](https://nextjs.org/)** - React framework with App Router
+- **[React 19.x](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at helvety.com/auth)
 - **[Tiptap](https://tiptap.dev/)** - Headless WYSIWYG rich text editor
@@ -210,7 +210,7 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 > **This is NOT open source software.**
 
-This monorepo is public so users can inspect and verify the application's behavior and security.
+This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 
@@ -224,6 +224,6 @@ You may NOT:
 - Sell, sublicense, or commercially exploit the code
 - Reverse engineer or decompile the code
 
-**Helvety Tasks is currently free for early adopters (first 10'000 users) at [helvety.com/tasks](https://helvety.com/tasks).** Pricing for new users may be introduced later.
+**Helvety Tasks availability and pricing can change over time.** See [helvety.com/tasks](https://helvety.com/tasks) and related store pages for current terms.
 
 See [LICENSE](./LICENSE) for full legal terms.

@@ -2,13 +2,14 @@ import { createBrowserClient as createSSRBrowserClient } from "@supabase/ssr";
 
 import { getSupabaseUrl, getSupabaseKey } from "../env-validation";
 
+import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Singleton instance of the Supabase client for browser usage.
  * This prevents creating multiple client instances, improving performance.
  */
-let browserClient: SupabaseClient | null = null;
+let browserClient: SupabaseClient<DatabaseSchema> | null = null;
 
 /**
  * Timeout for fetch requests to the Supabase API (ms).
@@ -101,7 +102,7 @@ async function lockWithTimeout<R>(
  *
  * SECURITY NOTES:
  * - This client uses the anon/publishable key (NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
- * - All database operations are protected by Row Level Security (RLS) policies
+ * - This client relies on currently configured Row Level Security (RLS) policies
  * - For mutations (insert, update, delete), prefer using server actions when possible
  * - Server actions provide additional validation and authorization checks
  * - Direct client mutations are acceptable when RLS policies are properly configured
@@ -114,7 +115,7 @@ async function lockWithTimeout<R>(
  *
  * @returns The Supabase client instance
  */
-export function createBrowserClient(): SupabaseClient {
+export function createBrowserClient(): SupabaseClient<DatabaseSchema> {
   // Return existing client if available (singleton pattern)
   if (browserClient) {
     return browserClient;

@@ -47,11 +47,11 @@ export const viewport = sharedViewport;
 export const metadata: Metadata = {
   metadataBase: new URL("https://helvety.com/contacts"),
   title: {
-    default: "Helvety Contacts | Contact Management | Private and Secure",
+    default: "Helvety Contacts | Contact Management",
     template: "%s | Helvety Contacts",
   },
   description:
-    "Manage your contacts with ease. Private, secure, and encrypted contact management. Engineered & Designed in Switzerland.",
+    "Manage your contacts with ease. Privacy-focused contact management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
   keywords: [
     "Helvety Contacts",
     "contact management",
@@ -75,9 +75,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://helvety.com/contacts",
     siteName: "Helvety Contacts",
-    title: "Helvety Contacts | Contact Management | Private and Secure",
+    title: "Helvety Contacts | Contact Management",
     description:
-      "Manage your contacts with ease. Private, secure, and encrypted contact management. Engineered & Designed in Switzerland.",
+      "Manage your contacts with ease. Privacy-focused contact management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -89,9 +89,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Helvety Contacts | Contact Management | Private and Secure",
+    title: "Helvety Contacts | Contact Management",
     description:
-      "Manage your contacts with ease. Private, secure, and encrypted contact management. Engineered & Designed in Switzerland.",
+      "Manage your contacts with ease. Privacy-focused contact management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -174,7 +174,7 @@ export default async function RootLayout({
                 name: "Helvety Contacts",
                 url: "https://helvety.com/contacts",
                 description:
-                  "Private and secure contact management with end-to-end encryption. Engineered & Designed in Switzerland.",
+                  "Privacy-focused contact management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
                 applicationCategory: "BusinessApplication",
                 operatingSystem: "Any",
                 offers: {

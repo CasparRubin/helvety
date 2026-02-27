@@ -16,7 +16,7 @@ let stripeClient: Stripe | null = null;
 
 /**
  * Validates and returns the Stripe secret key from environment
- * Security: Validates the key format to ensure it's a secret key (sk_*)
+ * Security: Applies format checks to reduce the chance of using the wrong key type
  * @throws Error if the key is missing or has an invalid format
  */
 function getStripeSecretKey(): string {
@@ -31,7 +31,7 @@ function getStripeSecretKey(): string {
     );
   }
 
-  // Validate key format: must start with sk_test_ or sk_live_
+  // Validate expected key prefixes used by Stripe secret keys in current formats
   if (!key.startsWith("sk_test_") && !key.startsWith("sk_live_")) {
     throw new Error(
       "STRIPE_SECRET_KEY has an invalid format. " +
@@ -54,7 +54,7 @@ function getStripeSecretKey(): string {
 
 /**
  * Validates and returns the Stripe webhook secret from environment
- * Security: Validates the key format to ensure it's a webhook secret (whsec_*)
+ * Security: Applies format checks to reduce the chance of using the wrong secret type
  * @throws Error if the key is missing or has an invalid format
  */
 export function getStripeWebhookSecret(): string {
@@ -101,7 +101,7 @@ export function getStripeClient(): Stripe {
   const secretKey = getStripeSecretKey();
 
   stripeClient = new Stripe(secretKey, {
-    apiVersion: "2026-01-28.clover",
+    apiVersion: "2026-02-25.clover",
     typescript: true,
     appInfo: {
       name: "Helvety Store",

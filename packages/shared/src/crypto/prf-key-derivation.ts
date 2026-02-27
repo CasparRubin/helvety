@@ -121,13 +121,8 @@ export async function unlockPRFEncryption(
 /**
  * Check if the browser supports WebAuthn PRF extension
  *
- * PRF is supported on:
- * - iOS 18+, macOS 15.4+
- * - Android 14+
- * - Chrome 128+, Edge 128+
- * - Firefox 139+ (desktop only; Android not supported as of early 2026)
- * - Hardware security keys (YubiKey 5+)
- * - Cross-device (phone via QR code) on supported phones
+ * PRF support varies by browser/platform and changes over time.
+ * The checks below reflect currently tested compatibility heuristics.
  */
 export async function isPRFSupported(): Promise<boolean> {
   // Check if WebAuthn is available

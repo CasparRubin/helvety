@@ -13,9 +13,9 @@ The main Helvety website. Engineered & Designed in Switzerland.
 
 ## Service Availability
 
-Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
+Helvety services are currently focused on customers located in Switzerland. We do not actively market services to users in the EU/EEA.
 
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created.
 
 ## Features
 
@@ -23,9 +23,9 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Sign in** - Sign in when not authenticated (centralized auth)
 - **Profile menu** - When signed in: user email, links to Store (Account, Subscriptions), Sign out
 - **Dark & Light mode** - Switch between dark and light themes
-- **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations.
+- **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations.
 - **Abuse reporting** - The Impressum includes an abuse reporting section ([helvety.com/impressum#abuse](https://helvety.com/impressum#abuse)) with guidance for users and law enforcement. Abuse contact: [contact@helvety.com](mailto:contact@helvety.com).
-- **Cookie notice** - Informational notice in the footer about essential cookies only (Swiss nDSG / FMG compliant); no consent collected
+- **Cookie notice** - Informational notice in the footer about essential cookies in the current setup (Swiss nDSG / FMG positioning); analytics usage is documented separately in the Privacy Policy; no separate consent flow is currently collected
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
 - **Animated logo** - Subtle glow effect on the main logo
 
@@ -64,8 +64,8 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 This project is built with modern web technologies:
 
-- **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
-- **[React 19.2.4](https://react.dev/)** - UI library
+- **[Next.js 16.x](https://nextjs.org/)** - React framework with App Router
+- **[React 19.x](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
@@ -98,7 +98,7 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 > **This is NOT open source software.**
 
-This monorepo is public so users can inspect and verify the application's behavior and security.
+This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 

@@ -11,9 +11,9 @@ Centralized authentication service for the Helvety ecosystem, providing password
 
 ## Service Availability
 
-Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
+Helvety services are currently focused on customers located in Switzerland. We do not actively market services to users in the EU/EEA.
 
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created.
 
 ## Overview
 
@@ -48,7 +48,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ## Tech Stack
 
-- **Framework**: Next.js 16.1.6 (App Router)
+- **Framework**: Next.js 16.x (App Router)
 - **Language**: TypeScript
 - **Authentication**: Supabase Auth + SimpleWebAuthn
 - **Styling**: Tailwind CSS 4 + shadcn/ui
@@ -151,7 +151,7 @@ Handles authentication callbacks from email verification (backwards-compatible f
   - New users or missing encryption: `/login?step=encryption-setup`
   - Returning users after email verification: `/login?step=passkey-signin`
 - If no `redirect_uri` is provided, defaults to `https://helvety.com`
-- **Always preserves `redirect_uri`** through the entire auth flow, including when handling hash fragment authentication (where tokens arrive as `#access_token=...` instead of query params)
+- **Designed to preserve `redirect_uri`** through the auth flow, including hash-fragment authentication handling (where tokens arrive as `#access_token=...` instead of query params)
 
 ### `/logout` (Client-Side Page)
 
@@ -176,7 +176,7 @@ The proxy (`proxy.ts`, via `@helvety/shared/proxy`) handles session validation, 
 - **Session Validation & Refresh** - Uses `getClaims()` to validate the JWT locally (no Auth API call when the token is valid). The Supabase Auth API is only called when a token refresh is needed (e.g. near or past expiry). Refreshed tokens are written to cookies automatically. The call is wrapped in try/catch for resilience against transient network failures (VPN, Private Relay, mobile).
 - **Session Sharing** - Sets cookies using the `COOKIE_DOMAIN` constant from `@helvety/shared/config` (`.helvety.com` in production) for session sharing
 - **CSRF Token Generation** - Generates a CSRF token cookie on each request if not already present. The token is read by the layout and passed to client components via `CSRFProvider`. Server Actions validate the token using timing-safe comparison.
-- **Server Component Support** - Ensures server components always have access to fresh session data
+- **Server Component Support** - Helps keep server components aligned with current session state
 
 The proxy runs on all routes except static assets and handles the Supabase session lifecycle automatically.
 
@@ -234,11 +234,11 @@ CREATE TABLE user_passkey_params (
 );
 ```
 
-**Note:** Each user has at most one passkey params row (keyed by `user_id`). The row can be deleted when the user removes their last passkey (via the `user_passkey_params` DELETE policy). The `prf_salt` is used during PRF evaluation to derive the encryption key. The actual encryption key is never stored. It is derived client-side during passkey authentication.
+**Note:** Each user has at most one passkey params row (keyed by `user_id`). The row can be deleted when the user removes their last passkey (via the `user_passkey_params` DELETE policy). The `prf_salt` is used during PRF evaluation to derive the encryption key. The actual encryption key is intended to remain client-side and is derived during passkey authentication.
 
 ## Security Considerations
 
-- **httpOnly Cookies** - Challenge storage uses secure httpOnly cookies
+- **httpOnly Cookies** - Challenge storage uses HttpOnly cookies (`Secure` in production)
 - **PKCE Flow** - Supabase uses PKCE for OAuth code exchange
 - **OTP Code Expiry** - Verification codes expire after 1 hour
 - **Passkey Verification** - Strict origin and RP ID validation
@@ -257,7 +257,7 @@ The auth service includes the following security hardening:
   - Passkey authentication (generation and verification): 10 per minute per IP
   - Rate limits reset on successful authentication
 - **CSRF Protection** - Token-based protection with timing-safe comparison for all state-changing Server Actions
-- **Server-side Action/Handler Enforcement** - Authentication and security checks are enforced in Server Actions and route handlers (CVE-2025-29927 compliant - auth NOT in proxy)
+- **Server-side Action/Handler Enforcement** - Authentication and security checks are enforced in Server Actions and route handlers (aligned with published CVE-2025-29927 mitigation guidance - auth NOT in proxy)
 - **Audit Logging** - Structured logging for all authentication events:
   - Login attempts (success/failure)
   - Verification code sent/failed
@@ -279,7 +279,7 @@ The auth service validates all `redirect_uri` parameters to prevent open redirec
 - `http://localhost:*` - Any port (development only, gated behind `NODE_ENV`)
 - `http://127.0.0.1:*` - Any port (development only, gated behind `NODE_ENV`)
 
-All apps share the same hostname (`helvety.com`) with path-based routing, so redirect validation in `packages/shared/src/redirect-validation.ts` already allows all paths under `helvety.com`. No changes are needed when adding a new app.
+All apps share the same hostname (`helvety.com`) with path-based routing, so redirect validation in `packages/shared/src/redirect-validation.ts` already allows all paths under `helvety.com`. In the current routing model, adding a new app path typically does not require redirect-validation changes.
 
 Invalid redirect URIs are rejected, and the user is redirected to `helvety.com` by default.
 
@@ -294,34 +294,34 @@ After email verification, new users are guided through passkey creation. The flo
 - **On mobile (phone/tablet):** User creates a passkey on this device using Face ID, fingerprint, or device PIN.
 - **On desktop:** User scans a QR code with their phone and creates the passkey on the phone (Face ID or fingerprint).
 - The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential and PRF salt parameters.
-- On modern browsers (Chrome 132+, released January 2025), PRF output is returned during registration. The encryption key is derived and stored in IndexedDB immediately, so the user arrives at E2EE apps with encryption already unlocked (zero extra passkey touches).
-- On older browsers, users may need an additional passkey touch in `/auth` to complete encryption readiness before returning to E2EE apps.
+- In many modern browser flows, PRF output is returned during registration. When available, the encryption key is derived and stored in IndexedDB immediately, so users can arrive at E2EE apps with encryption already unlocked.
+- In other browser flows, users may need an additional passkey interaction in `/auth` to complete encryption readiness before returning to E2EE apps.
 - User is redirected to their destination app with an active session (created during OTP verification).
 
 **Key Features:**
 
 - **Encryption Passkey** - A passkey created using the WebAuthn PRF (Pseudo-Random Function) extension
 - **Key Derivation** - Encryption keys are derived client-side from the PRF output using HKDF
-- **Zero-Knowledge** - The server stores only PRF parameters (salt values); encryption keys are never transmitted
+- **Zero-Knowledge-Oriented Design** - The server stores only PRF parameters (salt values); encryption keys are designed to remain client-side
 - **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all Helvety apps; however, E2EE is only active in Helvety Tasks and Helvety Contacts
 - **Cloud Sync Recommendation** - During passkey creation, the UI recommends saving the passkey to the device's built-in password manager (Passwords on iPhone or Google Password Manager on Android). These sync automatically to iCloud or Google's cloud, so the passkey can be recovered on a new device if the original is lost or replaced. Third-party password managers that support passkey sync also work.
 
-Browser requirements for encryption:
+Browser compatibility for encryption depends on WebAuthn PRF support and can evolve over time:
 
 **Desktop:**
 
-- Chrome 128+ or Edge 128+
-- Safari 18+ on Mac
-- Firefox 139+ (desktop only)
+- Chrome/Edge (recent versions)
+- Safari on macOS (recent versions)
+- Firefox desktop (recent versions)
 
 **Mobile:**
 
-- iPhone with iOS 18+
-- Android 14+ with Chrome
+- iPhone/iPad (recent iOS/iPadOS versions)
+- Android (recent versions) with Chrome
 
-**Note:** Firefox for Android does not support the PRF extension.
+**Note:** Firefox on Android may not support the PRF extension in current tested flows.
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and new users confirm Switzerland-based usage during account creation (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and new users confirm Switzerland-based usage during account creation (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
@@ -349,7 +349,7 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 > **This is NOT open source software.**
 
-This monorepo is public so users can inspect and verify the application's behavior and security.
+This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 
@@ -363,6 +363,6 @@ You may NOT:
 - Sell, sublicense, or commercially exploit the code
 - Reverse engineer or decompile the code
 
-**This is a free centralized authentication service accessible at [helvety.com/auth](https://helvety.com/auth).** No subscription is required to use the authentication service.
+**This is a centralized authentication service accessible at [helvety.com/auth](https://helvety.com/auth).** It is currently available without a subscription.
 
 See [LICENSE](./LICENSE) for full legal terms.

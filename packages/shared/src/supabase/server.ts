@@ -2,6 +2,7 @@ import "server-only";
 
 import { createServerComponentClient } from "./client-factory";
 
+import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -16,13 +17,15 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * SECURITY NOTES:
  * - This client uses the anon/publishable key (same as client-side)
- * - All database operations are protected by Row Level Security (RLS) policies
+ * - This client relies on currently configured Row Level Security (RLS) policies
  * - Server-side code can perform additional authorization checks before operations
  * - Use this for server components and server actions that need database access
  * - Never use service role key in this client - it bypasses RLS
  *
  * @returns Promise that resolves to a Supabase client instance
  */
-export async function createServerClient(): Promise<SupabaseClient> {
+export async function createServerClient(): Promise<
+  SupabaseClient<DatabaseSchema>
+> {
   return createServerComponentClient();
 }

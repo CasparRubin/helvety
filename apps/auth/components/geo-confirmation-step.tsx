@@ -5,8 +5,7 @@
  *
  * Displayed as a step in the auth flow BEFORE any user record is created in the
  * database. The user must tick the checkbox confirming they are located in
- * Switzerland and are not an EU/EEA resident before we create their account or
- * store any personal data.
+ * Switzerland and are not an EU/EEA resident before we create their account.
  *
  * Legal positioning: Helvety services are intended for customers in
  * Switzerland. This self-certification supports our Swiss-focused service model
@@ -55,41 +54,42 @@ export function GeoConfirmationStep({
       </p>
 
       <p className="text-foreground text-center text-sm font-medium">
-        Our services are intended exclusively for customers located in
-        Switzerland. We do not offer services to individuals located in the
-        European Union (EU) or European Economic Area (EEA).
+        Helvety currently targets customers located in Switzerland and may limit
+        or decline service in certain regions, including the European Union (EU)
+        and European Economic Area (EEA).
       </p>
 
       {/* Multilingual notices: Swiss national languages + major EU languages */}
       <div className="border-border bg-muted/30 space-y-1.5 rounded-lg border p-3 text-[11px]">
         <p>
-          <strong>DE:</strong> Unsere Dienste sind ausschliesslich f&uuml;r
-          Kunden in der Schweiz bestimmt. Wir bieten keine Dienste f&uuml;r
-          Personen in der EU/EWR an.
+          <strong>DE:</strong> Unsere Dienste sind derzeit haupts&auml;chlich
+          f&uuml;r Kunden in der Schweiz vorgesehen. Wir vermarkten unsere
+          Dienste nicht aktiv an Personen in der EU/EWR.
         </p>
         <p>
-          <strong>FR:</strong> Nos services sont exclusivement destin&eacute;s
-          aux clients situ&eacute;s en Suisse. Nous n&apos;offrons pas de
-          services aux personnes situ&eacute;es dans l&apos;UE/EEE.
+          <strong>FR:</strong> Nos services sont actuellement principalement
+          destin&eacute;s aux clients situ&eacute;s en Suisse. Nous ne ciblons
+          pas activement les personnes situ&eacute;es dans l&apos;UE/EEE.
         </p>
         <p>
-          <strong>IT:</strong> I nostri servizi sono destinati esclusivamente ai
-          clienti in Svizzera. Non offriamo servizi a persone nell&apos;UE/SEE.
+          <strong>IT:</strong> I nostri servizi sono attualmente rivolti
+          principalmente ai clienti in Svizzera. Non promuoviamo attivamente i
+          servizi verso persone nell&apos;UE/SEE.
         </p>
         <p>
-          <strong>ES:</strong> Nuestros servicios est&aacute;n destinados
-          exclusivamente a clientes en Suiza. No ofrecemos servicios a personas
-          en la UE/EEE.
+          <strong>ES:</strong> Nuestros servicios est&aacute;n actualmente
+          orientados principalmente a clientes en Suiza. No comercializamos
+          activamente servicios a personas en la UE/EEE.
         </p>
         <p>
-          <strong>PT:</strong> Os nossos servi&ccedil;os destinam-se
-          exclusivamente a clientes na Su&iacute;&ccedil;a. N&atilde;o
-          oferecemos servi&ccedil;os a pessoas na UE/EEE.
+          <strong>PT:</strong> Os nossos servi&ccedil;os destinam-se atualmente
+          principalmente a clientes na Su&iacute;&ccedil;a. N&atilde;o
+          comercializamos ativamente servi&ccedil;os para pessoas na UE/EEE.
         </p>
         <p>
-          <strong>NL:</strong> Onze diensten zijn uitsluitend bedoeld voor
-          klanten in Zwitserland. Wij bieden geen diensten aan personen in de
-          EU/EER.
+          <strong>NL:</strong> Onze diensten zijn momenteel voornamelijk bedoeld
+          voor klanten in Zwitserland. Wij richten onze diensten niet actief op
+          personen in de EU/EER.
         </p>
       </div>
 
@@ -103,8 +103,8 @@ export function GeoConfirmationStep({
           className="mt-0.5 h-4 w-4 shrink-0 rounded accent-current"
         />
         <span className="text-foreground text-sm font-medium">
-          I confirm that I am currently located in Switzerland and am not a
-          resident of the EU or EEA.
+          I confirm that I am currently located in Switzerland and understand
+          service availability may be restricted for EU/EEA users.
         </span>
       </label>
 

@@ -280,7 +280,8 @@ function UploadProgressCard({
  * Attachment panel for displaying, uploading, and managing encrypted file
  * attachments on an item. Renders below the description editor.
  *
- * All file operations are fully E2EE:
+ * File payloads are encrypted client-side before upload and decrypted
+ * client-side on access:
  * - Upload: file is compressed (if beneficial) then encrypted client-side before upload
  * - Download/Preview: encrypted blob is decrypted then decompressed (if needed) client-side
  * - Metadata (filename, type, size, compression flag) is encrypted in the database
@@ -462,7 +463,8 @@ export function AttachmentPanel({
           </p>
           <p className="text-muted-foreground/60 mt-0.5 text-[10px]">
             Max {Math.round(ATTACHMENT_MAX_SIZE_BYTES / (1024 * 1024))}MB per
-            file &middot; Files are end-to-end encrypted
+            file &middot; Files and attachment metadata are encrypted before
+            upload
           </p>
           <input
             ref={fileInputRef}

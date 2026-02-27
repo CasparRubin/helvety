@@ -68,12 +68,12 @@ type SetupStep = "initial" | "registering" | "complete";
  * the PRF extension for single-touch encryption unlock (no separate passkey
  * prompt in E2EE apps like helvety.com/tasks or helvety.com/contacts).
  *
- * On Chrome 132+ (released January 2025) and other modern browsers, PRF output is returned
- * during registration itself. When available, the master encryption key is
- * derived and stored in IndexedDB immediately, so the user lands in E2EE apps
- * with encryption already unlocked (zero extra passkey touches). On older
- * browsers that only return { enabled } during registration, EncryptionGate
- * in E2EE apps handles a one-time fallback unlock on first visit.
+ * In many modern browser flows, PRF output is returned during registration.
+ * When available, the master encryption key is derived and stored in
+ * IndexedDB immediately, so the user may land in E2EE apps with encryption
+ * already unlocked. In other flows that only return { enabled } during
+ * registration, EncryptionGate in E2EE apps handles a one-time fallback
+ * unlock on first visit.
  *
  * Device-aware: On mobile, passkey is created on this device (Face ID, fingerprint, PIN).
  * On desktop, user scans QR code with phone and uses the phone for passkey.
@@ -83,6 +83,8 @@ export function EncryptionSetup({
   redirectUri,
   userId,
 }: EncryptionSetupProps) {
+  "use no memo";
+
   const { prfSupported, prfSupportInfo, checkPRFSupport } =
     useEncryptionContext();
   const csrfToken = useCSRF();
@@ -152,36 +154,42 @@ export function EncryptionSetup({
       // Show registering step UI before triggering WebAuthn
       setSetupStep("registering");
 
-      let regResult;
-      try {
-        // Cast to allow PRF extension (not in standard types but supported by browsers)
-        const optionsWithPRF = serverOptions.data as Parameters<
-          typeof registerPasskey
-        >[0] & {
-          extensions?: Record<string, unknown>;
-        };
+      // Cast to allow PRF extension (not in standard types but supported by browsers)
+      const optionsWithPRF = serverOptions.data as Parameters<
+        typeof registerPasskey
+      >[0] & {
+        extensions?: Record<string, unknown>;
+      };
 
-        // Add PRF extension for encryption key derivation
-        optionsWithPRF.extensions = {
-          ...(optionsWithPRF.extensions ?? {}),
-          prf: {
-            eval: {
-              first: new Uint8Array(Buffer.from(prfSalt, "base64")),
-            },
-          },
-        };
+      // Add PRF extension for encryption key derivation
+      const mergedExtensions: Record<string, unknown> = {};
+      if (
+        optionsWithPRF.extensions &&
+        typeof optionsWithPRF.extensions === "object"
+      ) {
+        Object.assign(mergedExtensions, optionsWithPRF.extensions);
+      }
+      mergedExtensions.prf = {
+        eval: {
+          first: new Uint8Array(Buffer.from(prfSalt, "base64")),
+        },
+      };
+      optionsWithPRF.extensions = mergedExtensions;
 
-        regResult = await registerPasskey(optionsWithPRF);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Passkey registration failed";
-        // Check if user canceled
-        if (err instanceof Error && err.name === "NotAllowedError") {
-          setError("Passkey creation was canceled. Please try again.");
-        } else {
-          setError(message);
+      const regResult = await registerPasskey(optionsWithPRF).catch(
+        (err: unknown) => {
+          const message =
+            err instanceof Error ? err.message : "Passkey registration failed";
+          if (err instanceof Error && err.name === "NotAllowedError") {
+            setError("Passkey creation was canceled. Please try again.");
+          } else {
+            setError(message);
+          }
+          resetSetup();
+          return null;
         }
-        resetSetup();
+      );
+      if (!regResult) {
         return;
       }
 
@@ -303,16 +311,18 @@ export function EncryptionSetup({
               </p>
             </div>
             <div className="text-muted-foreground text-sm">
-              <p className="mb-2 font-medium">Supported browsers:</p>
+              <p className="mb-2 font-medium">Commonly supported browsers:</p>
               <ul className="list-inside list-disc space-y-1">
-                <li>Chrome 128+ or Edge 128+ on desktop</li>
-                <li>Safari 18+ on Mac</li>
-                <li>Firefox 139+ on desktop</li>
+                <li>Chrome or Edge on recent desktop versions</li>
+                <li>Safari on recent macOS versions</li>
+                <li>Firefox on recent desktop versions</li>
               </ul>
-              <p className="mt-3 mb-2 font-medium">Supported phones:</p>
+              <p className="mt-3 mb-2 font-medium">
+                Commonly supported phones:
+              </p>
               <ul className="list-inside list-disc space-y-1">
-                <li>iPhone with iOS 18+</li>
-                <li>Android 14+ with Chrome</li>
+                <li>iPhone/iPad on recent iOS/iPadOS versions</li>
+                <li>Android on recent versions with Chrome</li>
               </ul>
             </div>
           </CardContent>
@@ -408,8 +418,8 @@ export function EncryptionSetup({
                 <p className="font-medium">Important</p>
                 <p className="mt-1 text-amber-500/80">
                   {isMobile
-                    ? "Your passkey is the only way to decrypt your data. If you remove the passkey from this device, your data cannot be recovered."
-                    : "Your passkey is the only way to decrypt your data. If you remove the passkey from your phone, your data cannot be recovered."}
+                    ? "Your passkey is required to decrypt your data. If you remove the passkey from this device, data recovery may be limited or unavailable."
+                    : "Your passkey is required to decrypt your data. If you remove the passkey from your phone, data recovery may be limited or unavailable."}
                 </p>
               </div>
             </div>
@@ -423,8 +433,8 @@ export function EncryptionSetup({
                 <p className="font-medium">Recommended</p>
                 <p className="mt-1 text-blue-500/80">
                   {isMobile
-                    ? "When prompted, save your passkey using your device's built-in password manager — Passwords on iPhone or Google Password Manager on Android. These sync automatically to iCloud or your Google account, so if you ever lose or replace your device, your passkey is restored as soon as you sign in on a new one. Third-party password managers may also work, as long as they support passkey sync."
-                    : "When saving your passkey, use your phone's built-in password manager — Passwords on iPhone or Google Password Manager on Android. These sync automatically to iCloud or your Google account, so if you ever lose or replace your phone, your passkey is restored as soon as you sign in on a new device. Third-party password managers may also work, as long as they support passkey sync."}
+                    ? "When prompted, save your passkey using your device's built-in password manager — Passwords on iPhone or Google Password Manager on Android. These usually sync to iCloud or your Google account, which can reduce lockout risk if you replace your device. Third-party password managers may also work when they support passkey sync."
+                    : "When saving your passkey, use your phone's built-in password manager — Passwords on iPhone or Google Password Manager on Android. These usually sync to iCloud or your Google account, which can reduce lockout risk if you replace your phone. Third-party password managers may also work when they support passkey sync."}
                 </p>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { DOMAIN, DEV_PORTS } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
@@ -59,12 +60,11 @@ export function generatePRFSalt(): string {
  */
 export async function getClientIP(): Promise<string> {
   const headersList = await headers();
-  // Prefer x-real-ip (set by Vercel from the true client IP, not spoofable)
-  // over x-forwarded-for (client-controllable when not behind a trusted proxy)
   return (
-    headersList.get("x-real-ip") ??
-    headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown"
+    getTrustedClientIp(headersList, {
+      requireTrustedProxyInProduction: false,
+      fallback: "unknown",
+    }) ?? "unknown"
   );
 }
 
@@ -87,7 +87,7 @@ export function getRpId(origin: string): string {
     if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
       return "localhost";
     }
-    // In production, always use the root domain for passkey sharing across all apps
+    // In production topology, use the root domain for passkey sharing across app paths
     return DOMAIN;
   } catch {
     // Fallback to production domain
@@ -117,7 +117,7 @@ export function getExpectedOrigins(rpId: string): string[] {
 // =============================================================================
 
 /**
- * Store challenge in a secure httpOnly cookie
+ * Store challenge in an HttpOnly cookie (Secure in production)
  */
 export async function storeChallenge(
   data: Omit<StoredChallenge, "timestamp">
@@ -182,8 +182,8 @@ export async function clearChallenge(): Promise<void> {
 /**
  * Check if a user has any passkey credentials registered.
  *
- * This is intentionally NOT in a "use server" file so it cannot be invoked
- * directly from the client, preventing arbitrary userId enumeration.
+ * This helper is intentionally not exposed as a server action. Keep explicit
+ * authz checks at call sites to prevent arbitrary userId enumeration.
  */
 export async function checkUserPasskeyStatus(
   userId: string

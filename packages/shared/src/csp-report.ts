@@ -14,9 +14,8 @@ const CSP_REPORT_RATE_LIMIT = { maxRequests: 30, windowMs: 60 * 1000 };
  * Accepts CSP violation reports emitted by browser enforcement/report-only mode.
  *
  * NOTE: Uses console.warn/error directly instead of the logger utility because:
- * - logger.warn() is suppressed in production; CSP reports must be visible in prod
- * - logger.error() sanitizes payloads; browser CSP reports contain no user secrets
- *   and need full detail for debugging policy violations
+ * - CSP report payloads are operational diagnostics and are easier to inspect as raw output
+ * - The shared logger may apply formatting/sanitization that is less useful for CSP debugging
  *
  * @param appName - The name of the app (used in log prefix)
  * @returns A POST handler function for the CSP report route
@@ -37,7 +36,8 @@ export function createCspReportHandler(appName: string) {
         `csp_report:ip:${ip}`,
         CSP_REPORT_RATE_LIMIT.maxRequests,
         CSP_REPORT_RATE_LIMIT.windowMs,
-        "csp"
+        "csp",
+        "soft"
       );
       if (!rateLimit.allowed) {
         return new Response(null, { status: 429 });

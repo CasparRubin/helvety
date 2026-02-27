@@ -75,6 +75,8 @@ export function PricingCard({
   onReactivate,
   checkoutEnabledTiers,
 }: PricingCardProps) {
+  "use no memo";
+
   // CSRF token for security
   const csrfToken = useCSRF();
 
@@ -121,34 +123,31 @@ export function PricingCard({
     if (!userSubscription) return;
 
     setIsReactivating(true);
-
-    try {
-      const result = await reactivateSubscription(
-        userSubscription.id,
-        csrfToken
-      );
-
-      if (!result.success) {
-        throw new Error(result.error ?? "Failed to reactivate subscription");
-      }
-
-      toast.success("Subscription reactivated", {
-        description: "Your subscription will continue as normal.",
-        duration: TOAST_DURATIONS.SUCCESS,
-      });
-
-      onReactivate?.();
-    } catch (error) {
+    const result = await reactivateSubscription(
+      userSubscription.id,
+      csrfToken
+    ).catch((error: unknown) => {
       logger.error("Reactivate subscription error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to reactivate subscription. Please try again.",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
-    } finally {
+      toast.error("Failed to reactivate subscription. Please try again.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       setIsReactivating(false);
+      return null;
+    });
+    if (!result) return;
+    if (!result.success) {
+      toast.error(result.error ?? "Failed to reactivate subscription", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
+      setIsReactivating(false);
+      return;
     }
+    toast.success("Subscription reactivated", {
+      description: "Your subscription will continue as normal.",
+      duration: TOAST_DURATIONS.SUCCESS,
+    });
+    onReactivate?.();
+    setIsReactivating(false);
   };
 
   /**
@@ -165,46 +164,43 @@ export function PricingCard({
 
     setIsLoading(true);
 
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          tierId: tier.id,
-          successUrl: productSlug
-            ? `/products/${productSlug}?checkout=success`
-            : undefined,
-          cancelUrl: productSlug
-            ? `/products/${productSlug}?checkout=canceled`
-            : undefined,
-          ...(consent && {
-            consentTermsAt: consent.termsAcceptedAt,
-            consentVersion: consent.consentVersion,
-          }),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error ?? "Failed to create checkout session");
-      }
-
-      const data: CreateCheckoutResponse = await response.json();
-
-      // Redirect to Stripe Checkout
-      window.location.href = data.checkoutUrl;
-    } catch (error) {
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken,
+      },
+      body: JSON.stringify({
+        tierId: tier.id,
+        successUrl: productSlug
+          ? `/products/${productSlug}?checkout=success`
+          : undefined,
+        cancelUrl: productSlug
+          ? `/products/${productSlug}?checkout=canceled`
+          : undefined,
+        consentGiven: Boolean(consent),
+      }),
+    }).catch((error: unknown) => {
       logger.error("Checkout error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to start checkout. Please try again.",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
+      toast.error("Failed to start checkout. Please try again.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       setIsLoading(false);
+      return null;
+    });
+    if (!response) return;
+    if (!response.ok) {
+      const errorData = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+      toast.error(errorData?.error ?? "Failed to create checkout session", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
+      setIsLoading(false);
+      return;
     }
+    const data: CreateCheckoutResponse = await response.json();
+    window.location.href = data.checkoutUrl;
   };
 
   /**

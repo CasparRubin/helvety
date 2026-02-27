@@ -61,6 +61,8 @@ interface ProfileTabProps {
  * Receives pre-fetched user data from the server to avoid a client-side waterfall.
  */
 export function ProfileTab({ initialUser }: ProfileTabProps) {
+  "use no memo";
+
   const csrfToken = useCSRF();
 
   const [user] = React.useState<UserData>(initialUser);
@@ -82,26 +84,27 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
     }
 
     setIsChangingEmail(true);
-    try {
-      const result = await updateUserEmail(newEmail.trim(), csrfToken);
-
-      if (!result.success) {
-        setEmailError(result.error ?? "Failed to update email");
-        return;
+    const result = await updateUserEmail(newEmail.trim(), csrfToken).catch(
+      (error: unknown) => {
+        logger.error("Error changing email:", error);
+        setEmailError("An unexpected error occurred");
+        setIsChangingEmail(false);
+        return null;
       }
-
-      toast.success("Confirmation email sent", {
-        description:
-          "Please check your new email address and click the confirmation link.",
-        duration: TOAST_DURATIONS.SUCCESS,
-      });
-      setNewEmail("");
-    } catch (error) {
-      logger.error("Error changing email:", error);
-      setEmailError("An unexpected error occurred");
-    } finally {
+    );
+    if (!result) return;
+    if (!result.success) {
+      setEmailError(result.error ?? "Failed to update email");
       setIsChangingEmail(false);
+      return;
     }
+    toast.success("Confirmation email sent", {
+      description:
+        "Please check your new email address and click the confirmation link.",
+      duration: TOAST_DURATIONS.SUCCESS,
+    });
+    setNewEmail("");
+    setIsChangingEmail(false);
   }
 
   /** Format a date string for display. */
@@ -120,79 +123,82 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
 
-  /** Exports all user data as a JSON download (nDSG Art. 28 compliance). */
+  /** Exports all user data as a JSON download (supports nDSG Art. 28 data portability). */
   async function handleDataExport() {
     setIsExporting(true);
-    try {
-      const result = await exportUserData();
-      if (!result.success) {
-        toast.error(
-          result.error ?? "Failed to export data. Please try again.",
-          {
-            duration: TOAST_DURATIONS.ERROR,
-          }
-        );
-        return;
-      }
-
-      // Download as JSON file
-      const blob = new Blob([JSON.stringify(result.data, null, 2)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `helvety-data-export-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast.success("Data exported successfully", {
-        description: "Your data has been downloaded as a JSON file.",
-        duration: TOAST_DURATIONS.SUCCESS,
-      });
-    } catch (error) {
+    const result = await exportUserData().catch((error: unknown) => {
       logger.error("Error exporting data:", error);
       toast.error("An unexpected error occurred", {
         duration: TOAST_DURATIONS.ERROR,
       });
-    } finally {
       setIsExporting(false);
+      return null;
+    });
+    if (!result) return;
+    if (!result.success) {
+      toast.error(result.error ?? "Failed to export data. Please try again.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
+      setIsExporting(false);
+      return;
     }
+
+    // Download as JSON file
+    const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `helvety-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast.success("Data exported successfully", {
+      description: "Your data has been downloaded as a JSON file.",
+      duration: TOAST_DURATIONS.SUCCESS,
+    });
+    setIsExporting(false);
   }
 
   /** Requests permanent account deletion after confirmation. */
   async function handleAccountDeletion() {
     setIsDeleting(true);
-    try {
-      const result = await requestAccountDeletion(csrfToken);
-      if (!result.success) {
-        toast.error(result.error ?? "Failed to delete account", {
+    const result = await requestAccountDeletion(csrfToken).catch(
+      (error: unknown) => {
+        logger.error("Error deleting account:", error);
+        toast.error("An unexpected error occurred", {
           duration: TOAST_DURATIONS.ERROR,
         });
-        return;
+        setIsDeleting(false);
+        setDeleteConfirmText("");
+        return null;
       }
-
-      toast.success("Account deleted", {
-        description:
-          "Your account has been permanently deleted. You will be redirected shortly.",
-        duration: TOAST_DURATIONS.SUCCESS,
-      });
-
-      // Redirect to homepage after deletion
-      setTimeout(() => {
-        window.location.href = urls.home;
-      }, 2000);
-    } catch (error) {
-      logger.error("Error deleting account:", error);
-      toast.error("An unexpected error occurred", {
+    );
+    if (!result) return;
+    if (!result.success) {
+      toast.error(result.error ?? "Failed to delete account", {
         duration: TOAST_DURATIONS.ERROR,
       });
-    } finally {
       setIsDeleting(false);
       setDeleteConfirmText("");
+      return;
     }
+
+    toast.success("Account deleted", {
+      description:
+        "Your account has been permanently deleted. You will be redirected shortly.",
+      duration: TOAST_DURATIONS.SUCCESS,
+    });
+
+    // Redirect to homepage after deletion
+    setTimeout(() => {
+      window.location.href = urls.home;
+    }, 2000);
+    setIsDeleting(false);
+    setDeleteConfirmText("");
   }
 
   return (
@@ -339,21 +345,21 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground text-sm">
-            This action is irreversible. Deleting your account will:
+            This action is intended to be permanent. Deleting your account will
+            initiate the following:
           </p>
           <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-            <li>Cancel all active subscriptions immediately</li>
+            <li>Request cancellation of active subscriptions</li>
             <li>Delete your profile, credentials, and passkeys</li>
             <li>
-              Delete all task data and encrypted file attachments (Helvety
-              Tasks)
+              Delete task data and encrypted file attachments (Helvety Tasks)
             </li>
-            <li>Delete all contact data and notes (Helvety Contacts)</li>
+            <li>Delete contact data and notes (Helvety Contacts)</li>
             <li>Remove all tenant registrations</li>
           </ul>
           <p className="text-muted-foreground text-sm">
-            Transaction records required for Swiss tax compliance (Art. 958f OR)
-            will be retained in anonymized form for 10 years.
+            Transaction records may be retained as required for Swiss tax
+            compliance (Art. 958f OR), typically up to 10 years.
           </p>
 
           <AlertDialog>
@@ -368,9 +374,10 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription className="space-y-3">
                   <span className="block">
-                    This action cannot be undone. Your account and all
-                    associated data will be permanently deleted across all
-                    Helvety services.
+                    This action cannot be undone. We initiate deletion of your
+                    account and associated data across Helvety services without
+                    undue delay, subject to technical processing time and
+                    legally required retention.
                   </span>
                   <span className="block">
                     We recommend exporting your data before proceeding.

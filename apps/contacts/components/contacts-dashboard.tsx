@@ -180,7 +180,7 @@ export function ContactsDashboard({
     });
   }, [refresh, startRefreshTransition]);
 
-  /** Export decrypted contact data as JSON (nDSG Art. 28 compliance) */
+  /** Export decrypted contact data as JSON (supports nDSG Art. 28 data portability) */
   const handleExportData = useCallback(() => {
     if (!masterKey) return;
     startExportTransition(async () => {
@@ -228,7 +228,9 @@ export function ContactsDashboard({
             <DialogHeader>
               <DialogTitle>Create Contact</DialogTitle>
               <DialogDescription>
-                Create a new contact. All content is encrypted end-to-end.
+                Create a new contact. Sensitive content fields are end-to-end
+                encrypted; some structural metadata remains unencrypted for app
+                functionality.
               </DialogDescription>
             </DialogHeader>
 

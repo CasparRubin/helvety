@@ -24,6 +24,7 @@ import {
   getStoredChallenge,
   clearChallenge,
 } from "./auth-action-helpers";
+import { findUserByEmail } from "./user-lookup";
 
 import type {
   ActionResponse,
@@ -38,37 +39,6 @@ import type {
   AuthenticatorTransportFuture,
 } from "@simplewebauthn/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
-
-/** Minimal user payload returned from email lookup RPC. */
-type EmailLookupUser = {
-  id: string;
-  email: string;
-};
-
-/**
- * Resolve an auth user by normalized email using the indexed RPC helper.
- */
-async function findUserByEmail(email: string): Promise<EmailLookupUser | null> {
-  const adminClient = createAdminClient();
-  const { data, error } = await adminClient.rpc("get_auth_user_by_email", {
-    lookup_email: email,
-  });
-
-  if (error || !data) {
-    return null;
-  }
-
-  if (Array.isArray(data) && data.length === 0) {
-    return null;
-  }
-
-  const user = Array.isArray(data) ? data[0] : data;
-  if (!user?.id || !user?.email) {
-    return null;
-  }
-
-  return { id: user.id, email: user.email };
-}
 
 // =============================================================================
 // AUTHENTICATION (returning users)
@@ -294,192 +264,201 @@ export async function verifyPasskeyAuthentication(
       return { success: false, error: "Challenge expired or not found" };
     }
 
-    const rpId = getRpId(origin);
-    const expectedOrigins = getExpectedOrigins(rpId);
-
-    // Use admin client to look up the credential (before authentication)
-    const adminClient = createAdminClient();
-
-    // Find the credential by ID
-    const { data: credentialData, error: credError } = await adminClient
-      .from("user_auth_credentials")
-      .select("*")
-      .eq("credential_id", response.id)
-      .single();
-
-    if (credError || !credentialData) {
-      logger.error("Credential not found:", credError);
-      logAuthEvent("passkey_auth_failed", {
-        metadata: { reason: "credential_not_found" },
-        ip: clientIP,
-      });
-      return { success: false, error: "Credential not found" };
-    }
-
-    const credential = credentialData as UserAuthCredential;
-
-    if (
-      storedData.expectedUserId &&
-      credential.user_id !== storedData.expectedUserId
-    ) {
-      logAuthEvent("passkey_auth_failed", {
-        userId: credential.user_id,
-        metadata: { reason: "credential_owner_mismatch" },
-        ip: clientIP,
-      });
-      return {
-        success: false,
-        error: "PASSKEY_ACCOUNT_MISMATCH",
-      };
-    }
-
-    // Convert stored public key from base64url back to Uint8Array
-    const publicKeyUint8 = new Uint8Array(
-      Buffer.from(credential.public_key, "base64url")
-    );
-
-    const opts: VerifyAuthenticationResponseOpts = {
-      response,
-      expectedChallenge: storedData.challenge,
-      expectedOrigin: expectedOrigins,
-      expectedRPID: rpId,
-      credential: {
-        id: credential.credential_id,
-        publicKey: publicKeyUint8,
-        counter: credential.counter,
-        transports: (credential.transports ||
-          []) as AuthenticatorTransportFuture[],
-      },
-      requireUserVerification: true,
-    };
-
-    let verification: VerifiedAuthenticationResponse;
+    // One challenge must be single-use: clear it after the first verification attempt
+    // regardless of success/failure to prevent replay within challenge TTL.
     try {
-      verification = await verifyAuthenticationResponse(opts);
-    } catch (error) {
-      logger.error("Authentication verification failed:", error);
-      logAuthEvent("passkey_auth_failed", {
-        userId: credential.user_id,
-        metadata: { reason: "verification_error" },
-        ip: clientIP,
-      });
-      return { success: false, error: "Authentication verification failed" };
-    }
+      const rpId = getRpId(origin);
+      const expectedOrigins = getExpectedOrigins(rpId);
 
-    if (!verification.verified) {
-      logAuthEvent("passkey_auth_failed", {
-        userId: credential.user_id,
-        metadata: { reason: "verification_failed" },
-        ip: clientIP,
-      });
-      return { success: false, error: "Authentication verification failed" };
-    }
+      // Use admin client to look up the credential (before authentication)
+      const adminClient = createAdminClient();
 
-    // Update the counter to prevent replay attacks
-    // Security: Counter update is CRITICAL - if it fails, we must fail the
-    // authentication to prevent replay attacks where the same authentication
-    // response is used multiple times.
-    const { error: updateError } = await adminClient
-      .from("user_auth_credentials")
-      .update({
-        counter: verification.authenticationInfo.newCounter,
-        last_used_at: new Date().toISOString(),
-      })
-      .eq("credential_id", response.id);
+      // Find the credential by ID
+      const { data: credentialData, error: credError } = await adminClient
+        .from("user_auth_credentials")
+        .select("*")
+        .eq("credential_id", response.id)
+        .single();
 
-    if (updateError) {
-      logger.error(
-        "Error updating counter - failing auth for security:",
-        updateError
+      if (credError || !credentialData) {
+        logger.error("Credential not found:", credError);
+        logAuthEvent("passkey_auth_failed", {
+          metadata: { reason: "credential_not_found" },
+          ip: clientIP,
+        });
+        return { success: false, error: "Credential not found" };
+      }
+
+      const credential = credentialData as UserAuthCredential;
+
+      if (
+        storedData.expectedUserId &&
+        credential.user_id !== storedData.expectedUserId
+      ) {
+        logAuthEvent("passkey_auth_failed", {
+          userId: credential.user_id,
+          metadata: { reason: "credential_owner_mismatch" },
+          ip: clientIP,
+        });
+        return {
+          success: false,
+          error: "PASSKEY_ACCOUNT_MISMATCH",
+        };
+      }
+
+      // Convert stored public key from base64url back to Uint8Array
+      const publicKeyUint8 = new Uint8Array(
+        Buffer.from(credential.public_key, "base64url")
       );
-      return {
-        success: false,
-        error: "Authentication failed - please try again",
+
+      const opts: VerifyAuthenticationResponseOpts = {
+        response,
+        expectedChallenge: storedData.challenge,
+        expectedOrigin: expectedOrigins,
+        expectedRPID: rpId,
+        credential: {
+          id: credential.credential_id,
+          publicKey: publicKeyUint8,
+          counter: credential.counter,
+          transports: (credential.transports ||
+            []) as AuthenticatorTransportFuture[],
+        },
+        requireUserVerification: true,
       };
-    }
 
-    // Get user email for generating auth token
-    const { data: userData, error: userError } =
-      await adminClient.auth.admin.getUserById(credential.user_id);
+      let verification: VerifiedAuthenticationResponse;
+      try {
+        verification = await verifyAuthenticationResponse(opts);
+      } catch (error) {
+        logger.error("Authentication verification failed:", error);
+        logAuthEvent("passkey_auth_failed", {
+          userId: credential.user_id,
+          metadata: { reason: "verification_error" },
+          ip: clientIP,
+        });
+        return { success: false, error: "Authentication verification failed" };
+      }
 
-    if (userError || !userData.user) {
-      logger.error("Error getting user:", userError);
-      return { success: false, error: "User not found" };
-    }
+      if (!verification.verified) {
+        logAuthEvent("passkey_auth_failed", {
+          userId: credential.user_id,
+          metadata: { reason: "verification_failed" },
+          ip: clientIP,
+        });
+        return { success: false, error: "Authentication verification failed" };
+      }
 
-    if (!userData.user.email) {
-      return { success: false, error: "User has no email" };
-    }
+      // Update the counter to prevent replay attacks
+      // Security: Counter update is CRITICAL - if it fails, we must fail the
+      // authentication to prevent replay attacks where the same authentication
+      // response is used multiple times.
+      const { error: updateError } = await adminClient
+        .from("user_auth_credentials")
+        .update({
+          counter: verification.authenticationInfo.newCounter,
+          last_used_at: new Date().toISOString(),
+        })
+        .eq("credential_id", response.id);
 
-    if (
-      storedData.expectedEmail &&
-      userData.user.email.toLowerCase() !== storedData.expectedEmail
-    ) {
-      logAuthEvent("passkey_auth_failed", {
+      if (updateError) {
+        logger.error(
+          "Error updating counter - failing auth for security:",
+          updateError
+        );
+        return {
+          success: false,
+          error: "Authentication failed - please try again",
+        };
+      }
+
+      // Get user email for generating auth token
+      const { data: userData, error: userError } =
+        await adminClient.auth.admin.getUserById(credential.user_id);
+
+      if (userError || !userData.user) {
+        logger.error("Error getting user:", userError);
+        return { success: false, error: "User not found" };
+      }
+
+      if (!userData.user.email) {
+        return { success: false, error: "User has no email" };
+      }
+
+      if (
+        storedData.expectedEmail &&
+        userData.user.email.toLowerCase() !== storedData.expectedEmail
+      ) {
+        logAuthEvent("passkey_auth_failed", {
+          userId: credential.user_id,
+          metadata: { reason: "credential_email_mismatch" },
+          ip: clientIP,
+        });
+        return {
+          success: false,
+          error: "PASSKEY_ACCOUNT_MISMATCH",
+        };
+      }
+
+      // Generate an auth token for the user and verify it server-side immediately
+      // This creates the session directly without requiring client navigation to Supabase
+      // which would lose the session tokens in hash fragments during server redirect
+      const { data: linkData, error: linkError } =
+        await adminClient.auth.admin.generateLink({
+          type: "magiclink",
+          email: userData.user.email,
+        });
+
+      if (linkError || !linkData.properties?.hashed_token) {
+        logger.error("Error generating auth link:", linkError);
+        return { success: false, error: "Failed to create session" };
+      }
+
+      // Verify the auth token server-side to create the session immediately
+      // This avoids the PKCE/hash fragment issue where tokens are lost on server redirect
+      const supabase = await createServerClient();
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: linkData.properties.hashed_token,
+        type: linkData.properties.verification_type as EmailOtpType,
+      });
+
+      if (verifyError) {
+        logger.error("Error verifying OTP:", verifyError);
+        return { success: false, error: "Failed to create session" };
+      }
+
+      // Rotate CSRF token after authentication state change to prevent
+      // session fixation attacks where an attacker pre-plants a known token
+      await generateCSRFToken();
+
+      // Reset rate limits on successful auth
+      await Promise.all([
+        resetRateLimit(`passkey_auth:ip:${clientIP}`),
+        resetRateLimit(`passkey_verify:ip:${clientIP}`),
+      ]);
+
+      logAuthEvent("passkey_auth_success", {
         userId: credential.user_id,
-        metadata: { reason: "credential_email_mismatch" },
         ip: clientIP,
       });
+
+      // Return the redirect URL - session is already set via cookies
+      // Re-validate stored redirectUri as defense-in-depth
+      const redirectUrl =
+        getSafeRedirectUri(storedData.redirectUri, urls.home) ?? urls.home;
       return {
-        success: false,
-        error: "PASSKEY_ACCOUNT_MISMATCH",
+        success: true,
+        data: {
+          redirectUrl,
+          userId: credential.user_id,
+        },
       };
+    } finally {
+      try {
+        await clearChallenge();
+      } catch (clearError) {
+        logger.warn("Failed to clear passkey auth challenge:", clearError);
+      }
     }
-
-    // Generate an auth token for the user and verify it server-side immediately
-    // This creates the session directly without requiring client navigation to Supabase
-    // which would lose the session tokens in hash fragments during server redirect
-    const { data: linkData, error: linkError } =
-      await adminClient.auth.admin.generateLink({
-        type: "magiclink",
-        email: userData.user.email,
-      });
-
-    if (linkError || !linkData.properties?.hashed_token) {
-      logger.error("Error generating auth link:", linkError);
-      return { success: false, error: "Failed to create session" };
-    }
-
-    // Verify the auth token server-side to create the session immediately
-    // This avoids the PKCE/hash fragment issue where tokens are lost on server redirect
-    const supabase = await createServerClient();
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      token_hash: linkData.properties.hashed_token,
-      type: linkData.properties.verification_type as EmailOtpType,
-    });
-
-    if (verifyError) {
-      logger.error("Error verifying OTP:", verifyError);
-      return { success: false, error: "Failed to create session" };
-    }
-
-    // Clear the challenge
-    await clearChallenge();
-
-    // Rotate CSRF token after authentication state change to prevent
-    // session fixation attacks where an attacker pre-plants a known token
-    await generateCSRFToken();
-
-    // Reset rate limits on successful auth
-    await resetRateLimit(`passkey_auth:ip:${clientIP}`);
-    await resetRateLimit(`passkey_verify:ip:${clientIP}`);
-
-    logAuthEvent("passkey_auth_success", {
-      userId: credential.user_id,
-      ip: clientIP,
-    });
-
-    // Return the redirect URL - session is already set via cookies
-    // Re-validate stored redirectUri as defense-in-depth
-    const redirectUrl =
-      getSafeRedirectUri(storedData.redirectUri, urls.home) ?? urls.home;
-    return {
-      success: true,
-      data: {
-        redirectUrl,
-        userId: credential.user_id,
-      },
-    };
   } catch (error) {
     logger.error("Error verifying authentication:", error);
     logAuthEvent("passkey_auth_failed", {

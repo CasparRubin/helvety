@@ -189,8 +189,9 @@ export function TaskDashboard({
             <DialogHeader>
               <DialogTitle>Create Unit</DialogTitle>
               <DialogDescription>
-                Create a new unit to organize your spaces and tasks. All content
-                is encrypted end-to-end.
+                Create a new unit to organize your spaces and tasks. Sensitive
+                content fields are end-to-end encrypted; some structural
+                metadata remains unencrypted for app functionality.
               </DialogDescription>
             </DialogHeader>
 

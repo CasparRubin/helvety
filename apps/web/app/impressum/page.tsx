@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 /** Legal notice / Impressum page for Helvety */
 export default function ImpressumPage() {
   return (
-    <main className="min-h-screen px-6 py-12">
+    <section className="min-h-screen px-6 py-12">
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
           <Button variant="ghost" size="sm" asChild>
@@ -117,13 +117,13 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Business Activity</h2>
             <p className="text-muted-foreground text-sm">
-              Helvety by Rubin develops and offers software, free tools, and
-              software-as-a-service (SaaS) products. Current products include
-              Helvety SPO Explorer (paid SharePoint extension), Helvety PDF
-              (free PDF toolkit), Helvety Tasks (encrypted task management), and
-              Helvety Contacts (encrypted contact management). Physical products
-              (such as apparel) are planned for the future. All products are
-              designed and developed in Switzerland.
+              Helvety by Rubin develops and offers software, currently free
+              tools, and software-as-a-service (SaaS) products. Current products
+              include Helvety SPO Explorer (paid SharePoint extension), Helvety
+              PDF (free PDF toolkit), Helvety Tasks (encrypted task management),
+              and Helvety Contacts (encrypted contact management). Physical
+              products (such as apparel) are planned for the future. All
+              products are designed and developed in Switzerland.
             </p>
           </section>
 
@@ -131,8 +131,8 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Trademark</h2>
             <p className="text-muted-foreground text-sm">
-              The Helvety name is a registered word mark (Wortmarke) of Helvety
-              by Rubin. All rights reserved.
+              The Helvety name is used as a trademark by Helvety by Rubin. All
+              rights reserved to the extent permitted by law.
             </p>
           </section>
 
@@ -182,9 +182,10 @@ export default function ImpressumPage() {
                   Legal requests must be issued in accordance with applicable
                   Swiss law. We respond to valid Swiss court orders and binding
                   legal requests. Due to our zero-knowledge, end-to-end
-                  encryption architecture, we can only provide non-encrypted
-                  metadata (account information, IP addresses, timestamps,
-                  storage usage). We cannot decrypt user content.
+                  encryption architecture, we can provide non-encrypted metadata
+                  (account information, IP addresses, timestamps, storage
+                  usage). We are generally unable to decrypt user content during
+                  normal operation.
                 </p>
               </div>
               <div>
@@ -192,7 +193,8 @@ export default function ImpressumPage() {
                   Response Commitment
                 </p>
                 <p className="text-muted-foreground">
-                  We acknowledge abuse reports within 48 hours on business days.
+                  We aim to acknowledge abuse reports promptly, typically within
+                  two business days.
                 </p>
               </div>
             </div>
@@ -328,12 +330,12 @@ export default function ImpressumPage() {
           {/* Final Notice */}
           <footer className="border-border border-t pt-8">
             <p className="text-muted-foreground text-center text-xs">
-              By using Helvety services, you acknowledge that you have read and
-              understood this Impressum.
+              By using Helvety services, you acknowledge that this Impressum
+              applies to your use of the services.
             </p>
           </footer>
         </article>
       </div>
-    </main>
+    </section>
   );
 }

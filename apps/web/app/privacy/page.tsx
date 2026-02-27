@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 /** Privacy Policy page for Helvety */
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen px-6 py-12">
+    <section className="min-h-screen px-6 py-12">
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
           <Button variant="ghost" size="sm" asChild>
@@ -243,10 +243,10 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
-              Your email address is used solely for authentication (verification
-              codes for new users, passkey for returning users) and important
-              account notifications. We do not share your email with third
-              parties for marketing purposes.
+              Your email address is used primarily for authentication
+              (verification codes for new users, passkey for returning users),
+              account recovery, and important account notifications. We do not
+              share your email with third parties for marketing purposes.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -303,7 +303,7 @@ export default function PrivacyPage() {
                 Does not include personal data, only your organization&apos;s
                 tenant identifier
               </li>
-              <li>Is used solely to verify your subscription status</li>
+              <li>Is used to verify your subscription status</li>
               <li>Is processed in accordance with this Privacy Policy</li>
               <li>
                 Is cached locally to minimize API calls and ensure offline
@@ -365,18 +365,18 @@ export default function PrivacyPage() {
               <strong className="text-foreground">Important:</strong> Encryption
               keys are derived client-side in your browser using the WebAuthn
               PRF extension. We do not have access to your actual encryption
-              keys. This zero-knowledge architecture means that even if our
-              servers were compromised, your encrypted data is designed to
-              remain protected. Additionally, encryption uses Additional
-              Authenticated Data (AAD) to bind each ciphertext to its specific
-              database record, preventing encrypted data from being moved or
-              replayed in a different context.
+              keys. This architecture is designed so that even if our servers
+              were compromised, your encrypted data is designed to remain
+              protected. Additionally, encryption uses Additional Authenticated
+              Data (AAD) to bind each ciphertext to its specific database
+              record, preventing encrypted data from being moved or replayed in
+              a different context.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Browser Requirements:</strong>{" "}
               End-to-end encryption requires a modern browser with WebAuthn PRF
-              support (Chrome 128+, Edge 128+, Safari 18+, Firefox 139+ desktop
-              only). Firefox for Android does not support the PRF extension.
+              support. Browser compatibility can change over time; refer to the
+              current product documentation for supported platforms.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -409,14 +409,14 @@ export default function PrivacyPage() {
                 <strong className="text-foreground">
                   Helvety PDF (helvety.com/pdf):
                 </strong>{" "}
-                All file processing is performed entirely client-side in your
-                browser. Your files are not uploaded to, stored on, or
-                transmitted to our servers for file conversion. No login or
-                account is required. The service still uses minimal server-side
-                endpoints for platform and security functions (for example auth
-                callback handling, CSP reporting, and session/security proxy
-                logic). Helvety PDF is a free tool with a maximum file size of
-                100MB per file.
+                For supported operations in the current architecture, file
+                contents are processed in your browser and are not intended to
+                be uploaded to our servers for file conversion. No login or
+                account is currently required. The service still uses minimal
+                server-side endpoints for platform and security functions (for
+                example auth callback handling, CSP reporting, and
+                session/security proxy logic). Helvety PDF is currently
+                available at no cost with a maximum file size of 100MB per file.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -440,9 +440,10 @@ export default function PrivacyPage() {
                 are derived from your passkey and do not leave your device.
                 Record identifiers for encrypted data are generated on your
                 device and bound to the ciphertext via Additional Authenticated
-                Data (AAD). Our architecture is designed so that we cannot read
-                your task content. Non-encrypted structural metadata is stored
-                in plaintext to enable application functionality: record
+                Data (AAD). Our architecture is designed so that we are
+                generally unable to access your task content in plaintext during
+                normal operation. Non-encrypted structural metadata is stored in
+                plaintext to enable application functionality: record
                 identifiers, timestamps, priority levels, display preferences
                 (colors, icons, sort orders), entity relationships (e.g., which
                 stage, label, or space an item belongs to), and file operation
@@ -459,8 +460,9 @@ export default function PrivacyPage() {
                 keys are derived from your passkey and do not leave your device.
                 Record identifiers for encrypted data are generated on your
                 device and bound to the ciphertext via Additional Authenticated
-                Data (AAD). Our architecture is designed so that we cannot read
-                your contact content. Non-encrypted structural metadata is
+                Data (AAD). Our architecture is designed so that we are
+                generally unable to access your contact content in plaintext
+                during normal operation. Non-encrypted structural metadata is
                 stored in plaintext to enable application functionality: record
                 identifiers, timestamps, display preferences (colors, icons,
                 sort orders), and category assignments.
@@ -604,12 +606,14 @@ export default function PrivacyPage() {
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
-                We cannot and will not decrypt end-to-end encrypted content,
+                We do not have access to the encryption keys for end-to-end
+                encrypted content.
               </strong>{" "}
-              even in response to a court order. Our zero-knowledge architecture
-              means we do not possess the encryption keys necessary to decrypt
-              your data. Only non-encrypted metadata as described above can be
-              provided.
+              Our architecture is designed so encryption keys remain on your
+              device. As a result, we are generally not able to provide
+              plaintext encrypted content in response to legal requests. The
+              data categories we can typically provide are limited to
+              non-encrypted metadata as described above.
             </p>
             <p className="text-muted-foreground text-sm">
               Where legally permitted, we will notify affected users of legal
@@ -827,8 +831,8 @@ export default function PrivacyPage() {
                 blobs), storage paths, IP addresses, and user identifiers -- is
                 retained for up to 6 months for service security and legal
                 compliance purposes. This metadata does not include the content
-                of your files, which is end-to-end encrypted and inaccessible to
-                us.
+                of your files, which is end-to-end encrypted and generally not
+                accessible to us in plaintext during normal operation.
               </li>
               <li>
                 <strong className="text-foreground">Subscription data:</strong>{" "}
@@ -903,13 +907,14 @@ export default function PrivacyPage() {
                 helvety.com/store/account
               </a>
               . Upon confirmation, your account and personal data will be
-              permanently deleted across all Helvety services, including
+              deleted across Helvety services without undue delay, including
               authentication credentials, subscription records, task data,
-              contact data, and file attachments. This action is immediate and
-              cannot be undone. We recommend exporting your data before
-              proceeding. Transaction records required for legal compliance
-              (Art. 958f Swiss Code of Obligations) will be retained in
-              anonymized form for 10 years.
+              contact data, and file attachments, subject to technical
+              processing time and legally required retention. This action cannot
+              be undone. We recommend exporting your data before proceeding.
+              Transaction records required for legal compliance (Art. 958f Swiss
+              Code of Obligations) will be retained in anonymized form for 10
+              years.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
@@ -934,8 +939,9 @@ export default function PrivacyPage() {
               </a>{" "}
               with the subject line &quot;Data Export Request,&quot;
               &quot;Account Deletion Request,&quot; or a description of the
-              right you wish to exercise. We will verify your identity and
-              respond to your request within 30 days.
+              right you wish to exercise. We will verify your identity and aim
+              to respond to your request within 30 days, subject to legal and
+              operational constraints.
             </p>
             <p className="text-muted-foreground text-sm">
               <strong className="text-foreground">
@@ -1073,8 +1079,9 @@ export default function PrivacyPage() {
               .
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              We do not use any other analytics services, advertising trackers,
-              or cross-site tracking technologies.
+              As of the last update date of this policy, we use Vercel
+              Analytics/Speed Insights and do not operate advertising trackers
+              or cross-site profiling technologies.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Essential cookies do not require consent under Swiss law as they
@@ -1222,11 +1229,11 @@ export default function PrivacyPage() {
                 device to re-derive the same key
               </li>
               <li>
-                We cannot decrypt your content as we do not possess your
-                encryption key
+                We are generally unable to decrypt your content because we do
+                not store your encryption key
               </li>
               <li>
-                Your passkey (stored on your device) is the only way to access
+                Your passkey (stored on your device) is required to access
                 encrypted content
               </li>
               <li>
@@ -1269,8 +1276,8 @@ export default function PrivacyPage() {
             <p className="text-muted-foreground text-sm">
               This approach is designed to protect your encrypted content even
               in the event of a data breach on our servers. Browser requirements
-              for end-to-end encryption: Chrome 128+, Edge 128+, Safari 18+,
-              Firefox 139+ (desktop only).
+              for end-to-end encryption can change over time; refer to the
+              current product documentation for supported platforms.
             </p>
           </section>
 
@@ -1365,12 +1372,12 @@ export default function PrivacyPage() {
           {/* Final Notice */}
           <footer className="border-border border-t pt-8">
             <p className="text-muted-foreground text-center text-xs">
-              By using Helvety services, you acknowledge that you have read and
-              understood this Privacy Policy.
+              By using Helvety services, you acknowledge that this Privacy
+              Policy applies to your use of the services.
             </p>
           </footer>
         </article>
       </div>
-    </main>
+    </section>
   );
 }

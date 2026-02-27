@@ -1,3 +1,4 @@
+import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { urls } from "@helvety/shared/config";
 import { generateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
@@ -56,21 +57,6 @@ export async function GET(request: Request) {
   };
 
   try {
-    // Rate limit auth callbacks by IP to prevent abuse
-    // Prefer x-real-ip (Vercel-trusted) over x-forwarded-for (spoofable)
-    const clientIP =
-      request.headers.get("x-real-ip") ??
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      "unknown";
-    const rateLimit = await checkRateLimit(
-      `auth_callback:ip:${clientIP}`,
-      RATE_LIMITS.AUTH_CALLBACK.maxRequests,
-      RATE_LIMITS.AUTH_CALLBACK.windowMs
-    );
-    if (!rateLimit.allowed) {
-      return NextResponse.redirect(`${authBase}/login?error=rate_limited`);
-    }
-
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
     const token_hash = searchParams.get("token_hash");
@@ -79,6 +65,24 @@ export async function GET(request: Request) {
 
     // Validate redirect URI against allowlist (prevents open redirect attacks)
     const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
+
+    // Rate limit auth callbacks by IP to prevent abuse.
+    const clientIP = getTrustedClientIp(request.headers, {
+      requireTrustedProxyInProduction: true,
+    });
+    if (!clientIP) {
+      return NextResponse.redirect(
+        buildErrorRedirect("missing_client_ip", safeRedirectUri)
+      );
+    }
+    const rateLimit = await checkRateLimit(
+      `auth_callback:ip:${clientIP}`,
+      RATE_LIMITS.AUTH_CALLBACK.maxRequests,
+      RATE_LIMITS.AUTH_CALLBACK.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.redirect(`${authBase}/login?error=rate_limited`);
+    }
 
     const buildPasskeyRedirect = async (
       supabase: Awaited<ReturnType<typeof createServerClient>>

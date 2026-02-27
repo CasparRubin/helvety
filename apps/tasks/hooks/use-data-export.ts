@@ -8,7 +8,7 @@ import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
 import { downloadTaskDataExport } from "@/lib/data-export";
 
 /**
- * Hook for exporting decrypted task data as JSON (nDSG Art. 28 compliance).
+ * Hook for exporting decrypted task data as JSON (supports nDSG Art. 28 data portability).
  *
  * Encapsulates the export flow: loading state, error handling, and toast
  * notifications. Used by all three dashboard components (units, spaces, items).

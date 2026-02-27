@@ -5,7 +5,7 @@
  * These logs serve as an audit trail for legal compliance and law enforcement cooperation.
  *
  * Logs are persisted to the `attachment_audit_logs` database table (via admin client,
- * bypassing RLS) for reliable 6-month retention as promised in the Privacy Policy.
+ * bypassing RLS). Retention duration is managed by database/operations policy.
  * Additionally, logs are output to stdout for real-time monitoring.
  *
  * In production, stdout logs are formatted as JSON for log aggregation services.
@@ -14,8 +14,8 @@
  * IMPORTANT: Never log encrypted content, encryption keys, or decrypted metadata.
  * Only non-encrypted operational metadata (timestamps, file sizes, paths, IPs) is logged.
  *
- * RETENTION: File operation metadata is retained for up to 6 months
- * in accordance with the Privacy Policy.
+ * RETENTION: File operation metadata retention is configured for up to 6 months
+ * in accordance with the Privacy Policy and operational settings.
  */
 
 import { logger } from "@helvety/shared/logger";
@@ -117,7 +117,7 @@ async function persistToDatabase(
  * Log an attachment operation event
  *
  * Writes to both stdout (for real-time monitoring) and the
- * `attachment_audit_logs` database table (for 6-month retention).
+ * `attachment_audit_logs` database table (retention controlled by policy/configuration).
  *
  * @param event - The type of attachment event
  * @param options - Event details
@@ -207,7 +207,7 @@ export function logAttachmentEvent(
     logger.info(message, details);
   }
 
-  // ── Database persistence (6-month retention) ───────────────────────
+  // ── Database persistence (retention controlled by policy/configuration) ──
   // Fire-and-forget: don't await, don't block the caller
   void persistToDatabase(event, {
     userId,

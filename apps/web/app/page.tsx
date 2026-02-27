@@ -5,8 +5,8 @@ import { HeroSection } from "@/components/hero-section";
  */
 export default function Home() {
   return (
-    <main>
+    <section>
       <HeroSection />
-    </main>
+    </section>
   );
 }

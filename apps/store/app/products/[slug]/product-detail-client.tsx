@@ -7,41 +7,25 @@
  */
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
-import { logger } from "@helvety/shared/logger";
-import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import { Separator } from "@helvety/ui/separator";
-import {
-  Check,
-  ExternalLink,
-  Loader2,
-  RotateCcw,
-  ArrowLeft,
-  Globe,
-  Github,
-} from "lucide-react";
+import { ArrowLeft, Check, ExternalLink, Github, Globe } from "lucide-react";
 import Link from "next/link";
 import { notFound, useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
-import {
-  getUserSubscriptions,
-  reactivateSubscription,
-} from "@/app/actions/subscription-actions";
-import { PurchaseConsentDialog } from "@/components/digital-content-consent-dialog";
 import { FeatureList } from "@/components/products/feature-list";
+import { PricingCard } from "@/components/products/pricing-card";
 import {
   ArtistBadge,
   ProductBadge,
   StatusBadge,
 } from "@/components/products/product-badge";
-import { useCSRF } from "@/hooks/use-csrf";
 import { getProductBySlug } from "@/lib/data/products";
 import { isSaaSProduct, isSoftwareProduct } from "@/lib/types/products";
 
-import type { ConsentMetadata } from "@/components/digital-content-consent-dialog";
-import type { CreateCheckoutResponse, Subscription } from "@/lib/types";
+import type { Subscription } from "@/lib/types";
 import type { PricingTier } from "@/lib/types/products";
 
 const EMPTY_SUBSCRIPTIONS: Subscription[] = [];
@@ -61,35 +45,15 @@ export function ProductDetailClient({
   checkoutEnabledTiers,
   initialSubscriptions = EMPTY_SUBSCRIPTIONS,
 }: ProductDetailClientProps) {
+  "use no memo";
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const product = getProductBySlug(slug);
 
   const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
-  const [userSubscriptions, setUserSubscriptions] =
-    useState<Subscription[]>(initialSubscriptions);
-
-  /**
-   * Fetch user subscriptions
-   */
-  const fetchSubscriptions = useCallback(async () => {
-    try {
-      const result = await getUserSubscriptions();
-      if (result.success && result.data) {
-        setUserSubscriptions(result.data);
-      }
-    } catch (error) {
-      logger.error("Error fetching subscriptions:", error);
-    }
-  }, []);
-
-  // Fetch subscriptions on mount (skip if server-prefetched)
-  useEffect(() => {
-    if (initialSubscriptions.length > 0) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Data fetching on mount is a valid pattern
-    void fetchSubscriptions();
-  }, [fetchSubscriptions, initialSubscriptions.length]);
+  const userSubscriptions = initialSubscriptions;
 
   // Handle checkout success/canceled state from URL params
   useEffect(() => {
@@ -114,9 +78,8 @@ export function ProductDetailClient({
           duration: TOAST_DURATIONS.SUCCESS,
         });
       }
-      // Refresh subscriptions after successful checkout
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Data fetching after checkout is valid
-      void fetchSubscriptions();
+      // Refresh server data after successful checkout
+      router.refresh();
       // Clean up URL
       window.history.replaceState({}, "", `/products/${slug}`);
     } else if (checkoutStatus === "canceled") {
@@ -127,7 +90,10 @@ export function ProductDetailClient({
       // Clean up URL
       window.history.replaceState({}, "", `/products/${slug}`);
     }
-  }, [searchParams, slug, fetchSubscriptions, product?.id, router]);
+  }, [searchParams, slug, product?.id, router]);
+  const refreshSubscriptions = () => {
+    router.refresh();
+  };
 
   if (!product) {
     notFound();
@@ -238,7 +204,7 @@ export function ProductDetailClient({
               <h2 className="text-xl font-semibold">Pricing</h2>
               <p className="text-muted-foreground mt-1 text-sm">
                 {isEntirelyFree
-                  ? "This product is free"
+                  ? "This product is currently available at no cost"
                   : "Choose the plan that works best for you"}
               </p>
             </div>
@@ -274,10 +240,10 @@ export function ProductDetailClient({
                       key={tier.id}
                       tier={tier}
                       selected={selectedTier?.id === tier.id}
-                      onSelect={() => handleTierSelect(tier)}
+                      onSelect={handleTierSelect}
                       productSlug={slug}
                       userSubscription={tierSubscription}
-                      onReactivate={fetchSubscriptions}
+                      onReactivate={refreshSubscriptions}
                       checkoutEnabledTiers={checkoutEnabledTiers}
                     />
                   );
@@ -316,318 +282,6 @@ export function ProductDetailClient({
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-/** Props for an inline pricing card on the product detail page. */
-interface PricingCardProps {
-  tier: PricingTier;
-  selected: boolean;
-  onSelect: () => void;
-  productSlug: string;
-  userSubscription?: Subscription | null;
-  onReactivate?: () => void;
-  /** Tier IDs with Stripe checkout enabled (resolved server-side). */
-  checkoutEnabledTiers: string[];
-}
-
-/** Renders a pricing tier card with checkout or reactivation actions. */
-function PricingCard({
-  tier,
-  selected,
-  onSelect,
-  productSlug,
-  userSubscription,
-  onReactivate,
-  checkoutEnabledTiers,
-}: PricingCardProps) {
-  // CSRF token for security
-  const csrfToken = useCSRF();
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isReactivating, setIsReactivating] = useState(false);
-  const [showConsentDialog, setShowConsentDialog] = useState(false);
-  const isRecurring = tier.interval === "monthly" || tier.interval === "yearly";
-  const intervalLabel = isRecurring
-    ? "/month"
-    : tier.interval === "one-time"
-      ? "one-time"
-      : "";
-  // Check checkout eligibility based on tier ID (resolved server-side)
-  const hasPaidCheckout =
-    !tier.isFree && checkoutEnabledTiers.includes(tier.id);
-
-  // Subscription state checks
-  const hasActiveSubscription =
-    userSubscription &&
-    (userSubscription.status === "active" ||
-      userSubscription.status === "trialing") &&
-    !userSubscription.cancel_at_period_end;
-  const isPendingCancellation =
-    userSubscription &&
-    (userSubscription.status === "active" ||
-      userSubscription.status === "trialing") &&
-    userSubscription.cancel_at_period_end;
-
-  const formatPrice = (cents: number) => {
-    if (cents === 0) return "Free";
-    return `CHF ${(cents / 100).toFixed(2).replace(".00", "")}`;
-  };
-
-  /**
-   * Handle reactivate subscription
-   */
-  const handleReactivate = async () => {
-    if (!userSubscription) return;
-
-    setIsReactivating(true);
-
-    try {
-      const result = await reactivateSubscription(
-        userSubscription.id,
-        csrfToken
-      );
-
-      if (!result.success) {
-        throw new Error(result.error ?? "Failed to reactivate subscription");
-      }
-
-      toast.success("Subscription reactivated", {
-        description: "Your subscription will continue as normal.",
-        duration: TOAST_DURATIONS.SUCCESS,
-      });
-
-      onReactivate?.();
-    } catch (error) {
-      logger.error("Reactivate subscription error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to reactivate subscription. Please try again.",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
-    } finally {
-      setIsReactivating(false);
-    }
-  };
-
-  /**
-   * Handle button click - shows pre-checkout dialog (Terms & Policy + digital content consent) for paid digital products
-   */
-  const handleButtonClick = () => {
-    // Handle reactivation
-    if (isPendingCancellation) {
-      void handleReactivate();
-      return;
-    }
-
-    // Already subscribed - do nothing
-    if (hasActiveSubscription) {
-      return;
-    }
-
-    if (tier.isFree || !hasPaidCheckout) {
-      onSelect();
-      return;
-    }
-
-    // Show pre-checkout dialog (Terms & Privacy Policy consent)
-    setShowConsentDialog(true);
-  };
-
-  /**
-   * Handle checkout for paid tiers via Stripe (called after Terms & Privacy consent)
-   */
-  const handleCheckout = async (consent?: ConsentMetadata) => {
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          tierId: tier.id,
-          successUrl: `/products/${productSlug}?checkout=success`,
-          cancelUrl: `/products/${productSlug}?checkout=canceled`,
-          ...(consent && {
-            consentTermsAt: consent.termsAcceptedAt,
-            consentVersion: consent.consentVersion,
-          }),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error ?? "Failed to create checkout session");
-      }
-
-      const data: CreateCheckoutResponse = await response.json();
-
-      // Redirect to Stripe Checkout
-      window.location.href = data.checkoutUrl;
-    } catch (error) {
-      logger.error("Checkout error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to start checkout. Please try again.",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div
-      className={cn(
-        "bg-card relative flex w-80 flex-col rounded-2xl border px-6 py-8 text-center transition-all duration-200",
-        hasActiveSubscription &&
-          "border-green-500 bg-green-500/5 ring-2 ring-green-500",
-        isPendingCancellation &&
-          "border-amber-500 bg-amber-500/5 ring-2 ring-amber-500",
-        !hasActiveSubscription &&
-          !isPendingCancellation &&
-          selected &&
-          "border-primary ring-primary ring-2",
-        !hasActiveSubscription &&
-          !isPendingCancellation &&
-          tier.highlighted &&
-          !selected &&
-          "border-primary shadow-xl",
-        !hasActiveSubscription &&
-          !isPendingCancellation &&
-          !tier.highlighted &&
-          !selected &&
-          "hover:border-primary/50 hover:shadow-lg"
-      )}
-    >
-      {/* Current Plan badge */}
-      {hasActiveSubscription && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="flex items-center gap-1 rounded-full bg-green-500 px-3 py-1 text-xs font-medium text-white shadow-md">
-            <Check className="size-3" />
-            Current Plan
-          </span>
-        </div>
-      )}
-      {/* Canceling badge */}
-      {isPendingCancellation && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-medium text-white shadow-md">
-            Canceling
-          </span>
-        </div>
-      )}
-      {/* Recommended badge - only show if not subscribed */}
-      {tier.highlighted && !hasActiveSubscription && !isPendingCancellation && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-medium shadow-md">
-            Recommended
-          </span>
-        </div>
-      )}
-
-      {/* Tier name */}
-      <h3 className="text-xl font-bold">{tier.name}</h3>
-
-      {/* Price */}
-      <div className="mt-5">
-        <div className="flex items-baseline justify-center gap-1">
-          <span className="text-4xl font-bold tracking-tight">
-            {formatPrice(tier.price)}
-          </span>
-        </div>
-        {intervalLabel && tier.price > 0 && (
-          <p className="text-muted-foreground mt-1 text-sm">{intervalLabel}</p>
-        )}
-      </div>
-
-      {/* Divider */}
-      <Separator className="my-5" />
-
-      {/* Features */}
-      <ul className="flex-1 space-y-3 text-left">
-        {tier.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-2">
-            <Check className="mt-0.5 size-4 shrink-0 text-green-500" />
-            <span className="text-sm">{feature}</span>
-          </li>
-        ))}
-      </ul>
-
-      {/* Limits info */}
-      {tier.limits && Object.keys(tier.limits).length > 0 && (
-        <div className="bg-muted/50 mt-5 rounded-lg p-3 text-left">
-          <ul className="text-muted-foreground space-y-1 text-xs">
-            {tier.limits.maxFiles !== undefined && (
-              <li>
-                {tier.limits.maxFiles === -1
-                  ? "✓ Unlimited files"
-                  : `Up to ${tier.limits.maxFiles} files`}
-              </li>
-            )}
-            {tier.limits.maxFileSize && (
-              <li>Max file size: {tier.limits.maxFileSize}</li>
-            )}
-          </ul>
-        </div>
-      )}
-
-      {/* CTA - Only show for paid tiers */}
-      {!tier.isFree && (
-        <Button
-          className="mt-6 w-full"
-          variant={
-            hasActiveSubscription
-              ? "outline"
-              : isPendingCancellation
-                ? "default"
-                : tier.highlighted
-                  ? "default"
-                  : "outline"
-          }
-          onClick={handleButtonClick}
-          disabled={
-            isLoading ||
-            isReactivating ||
-            !hasPaidCheckout ||
-            !!hasActiveSubscription
-          }
-        >
-          {isLoading || isReactivating ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              {isReactivating ? "Reactivating..." : "Processing..."}
-            </>
-          ) : hasActiveSubscription ? (
-            <>
-              <Check className="mr-2 size-4" />
-              Current Plan
-            </>
-          ) : isPendingCancellation ? (
-            <>
-              <RotateCcw className="mr-2 size-4" />
-              Reactivate
-            </>
-          ) : hasPaidCheckout ? (
-            "Subscribe Now"
-          ) : (
-            "Coming Soon"
-          )}
-        </Button>
-      )}
-
-      {/* Pre-checkout consent dialog (Terms & Privacy Policy) */}
-      <PurchaseConsentDialog
-        open={showConsentDialog}
-        onOpenChange={setShowConsentDialog}
-        onConfirm={handleCheckout}
-        isLoading={isLoading}
-        productName={tier.name}
-      />
     </div>
   );
 }

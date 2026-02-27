@@ -10,6 +10,45 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+const DEFAULT_ALLOWED_PRODUCTION_HOST_SUFFIXES = [
+  ".vercel.app",
+  ".helvety.com",
+];
+
+/** Parse and validate an absolute URL from environment config. */
+function normalizeUrl(rawUrl: string, envVar: string): URL {
+  try {
+    return new URL(rawUrl);
+  } catch {
+    throw new Error(
+      `${envVar} must be a valid absolute URL (e.g. https://your-app.vercel.app).`
+    );
+  }
+}
+
+/** Restrict production rewrites to trusted internal hosts. */
+function isAllowedProductionHost(hostname: string): boolean {
+  if (hostname === "helvety.com") {
+    return true;
+  }
+  if (
+    DEFAULT_ALLOWED_PRODUCTION_HOST_SUFFIXES.some((suffix) =>
+      hostname.endsWith(suffix)
+    )
+  ) {
+    return true;
+  }
+  const customAllowedHosts = process.env.INTERNAL_APP_HOST_ALLOWLIST;
+  if (!customAllowedHosts) {
+    return false;
+  }
+  const allowedHosts = customAllowedHosts
+    .split(",")
+    .map((host) => host.trim().toLowerCase())
+    .filter(Boolean);
+  return allowedHosts.includes(hostname.toLowerCase());
+}
+
 const nextConfig: NextConfig = {
   compress: true,
 
@@ -21,7 +60,26 @@ const nextConfig: NextConfig = {
     /** Resolves the internal Vercel URL for a sub-app, falling back to localhost in dev. */
     function getAppUrl(envVar: string, devPort: number): string {
       const value = process.env[envVar];
-      if (value) return value;
+      if (value) {
+        const parsed = normalizeUrl(value, envVar);
+        if (isDev) {
+          if (!["http:", "https:"].includes(parsed.protocol)) {
+            throw new Error(
+              `${envVar} must use http:// or https:// in development.`
+            );
+          }
+          return parsed.origin;
+        }
+        if (parsed.protocol !== "https:") {
+          throw new Error(`${envVar} must use https:// in production.`);
+        }
+        if (!isAllowedProductionHost(parsed.hostname)) {
+          throw new Error(
+            `${envVar} host "${parsed.hostname}" is not allowed. Use a *.vercel.app, *.helvety.com host, or add it to INTERNAL_APP_HOST_ALLOWLIST.`
+          );
+        }
+        return parsed.origin;
+      }
       if (isDev) return devUrl(devPort);
       throw new Error(
         `${envVar} is required in production. Set it to the Vercel deployment URL for this app.`

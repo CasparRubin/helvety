@@ -4,16 +4,16 @@
 
 ## Core Pages
 - [Home](https://helvety.com): Main landing page for Helvety
-- [Privacy Policy](https://helvety.com/privacy): How Helvety handles user data, compliant with Swiss nDSG
+- [Privacy Policy](https://helvety.com/privacy): How Helvety handles user data under the current published policy
 - [Terms of Service](https://helvety.com/terms): Terms governing use of Helvety services
 - [Impressum](https://helvety.com/impressum): Legal information and company details
 
 ## Helvety Ecosystem
-- [Helvety Store](https://helvety.com/store): Official store for Helvety products and services (free tools, SaaS, and paid subscriptions)
-- [Helvety PDF](https://helvety.com/pdf): Free, privacy-focused PDF toolkit that processes files locally in the browser
+- [Helvety Store](https://helvety.com/store): Official store for Helvety products and services (currently free tools, SaaS, and paid subscriptions)
+- [Helvety PDF](https://helvety.com/pdf): PDF toolkit that currently processes files locally in the browser for supported operations
 - [Helvety Auth](https://helvety.com/auth): Centralized authentication service for all Helvety apps
-- [Helvety Contacts](https://helvety.com/contacts): End-to-end encrypted contact management
-- [Helvety Tasks](https://helvety.com/tasks): End-to-end encrypted task management
+- [Helvety Contacts](https://helvety.com/contacts): Contact management with client-side encryption for sensitive fields
+- [Helvety Tasks](https://helvety.com/tasks): Task management with client-side encryption for sensitive fields
 
 ## Optional
 - [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (source-visible, not open source)

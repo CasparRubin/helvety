@@ -19,8 +19,8 @@ export const metadata: Metadata = {
  */
 export default function ProductsPage() {
   return (
-    <main>
+    <section>
       <ProductsCatalog />
-    </main>
+    </section>
   );
 }

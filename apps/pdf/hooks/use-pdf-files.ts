@@ -370,7 +370,7 @@ export function usePdfFiles(): UsePdfFilesReturn {
       }
 
       // Update state with successfully processed files
-      if (pdfFilesToAdd.length > 0 && validationErrors.length === 0) {
+      if (pdfFilesToAdd.length > 0) {
         setPdfFiles((prev) => [...prev, ...pdfFilesToAdd]);
       }
 

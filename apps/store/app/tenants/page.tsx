@@ -9,6 +9,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Tenants",
   description: "Manage your licensed SharePoint tenants for SPO Explorer",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 /**

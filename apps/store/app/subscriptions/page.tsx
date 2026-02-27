@@ -10,6 +10,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Subscriptions",
   description: "Manage your active subscriptions and billing",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 /**
@@ -17,9 +21,11 @@ export const metadata: Metadata = {
  * Server-prefetches subscriptions to eliminate the client-side data waterfall.
  */
 export default async function SubscriptionsPage() {
+  // Start data fetch before auth gate resolves to reduce server waterfall.
+  const subscriptionsPromise = getUserSubscriptions();
   await requireAuth("/store/subscriptions");
 
-  const initialSubscriptions = await getUserSubscriptions().then((r) =>
+  const initialSubscriptions = await subscriptionsPromise.then((r) =>
     r.success && r.data ? r.data : []
   );
 

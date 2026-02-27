@@ -7,6 +7,7 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { logger } from "@helvety/shared/logger";
 import { NextResponse } from "next/server";
 
@@ -246,10 +247,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check IP-based rate limit (prevents abuse from a single source)
-    // Prefer x-real-ip (Vercel-trusted, not spoofable) over x-forwarded-for
-    const trustedIp = request.headers.get("x-real-ip");
-    if (process.env.NODE_ENV === "production" && !trustedIp) {
+    // Check IP-based rate limit (prevents abuse from a single source).
+    const clientIP = getTrustedClientIp(request.headers, {
+      requireTrustedProxyInProduction: true,
+    });
+    if (!clientIP) {
       logger.warn("License validation request missing x-real-ip in production");
       return NextResponse.json(
         {
@@ -262,10 +264,7 @@ export async function GET(request: NextRequest) {
         }
       );
     }
-    const clientIP =
-      trustedIp ??
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      "unknown";
+
     const ipRateLimit = await checkRateLimit(
       `license:ip:${clientIP}`,
       30,
@@ -282,7 +281,7 @@ export async function GET(request: NextRequest) {
           status: 429,
           headers: {
             ...corsHeaders,
-            "Retry-After": "60",
+            "Retry-After": String(ipRateLimit.retryAfter ?? 60),
           },
         }
       );
@@ -305,14 +304,14 @@ export async function GET(request: NextRequest) {
           status: 429,
           headers: {
             ...corsHeaders,
-            "Retry-After": "60",
+            "Retry-After": String(rateLimit.retryAfter ?? 60),
           },
         }
       );
     }
 
-    // Constant-time floor: ensure all responses take at least 200-300ms
-    // to prevent timing-based enumeration of valid vs invalid tenants
+    // Constant-time floor on the validation path (not on earlier rejects):
+    // helps reduce timing-based enumeration of valid vs invalid tenants.
     const startTime = Date.now();
 
     // Validate the license for the specific product

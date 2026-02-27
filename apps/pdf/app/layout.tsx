@@ -1,6 +1,5 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import { getCachedUser } from "@helvety/shared/cached-server";
 import { sharedViewport } from "@helvety/shared/config";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
@@ -38,11 +37,11 @@ export const viewport = sharedViewport;
 export const metadata: Metadata = {
   metadataBase: new URL("https://helvety.com/pdf"),
   title: {
-    default: "Helvety PDF | Free PDF Tool | Private and Secure",
+    default: "Helvety PDF | PDF Tool",
     template: "%s | Helvety PDF",
   },
   description:
-    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Private, secure, and 100% free, up to 100MB per file. Engineered & Designed in Switzerland.",
+    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Free to use with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
   keywords: [
     "Helvety PDF",
     "PDF merge",
@@ -71,9 +70,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://helvety.com/pdf",
     siteName: "Helvety PDF",
-    title: "Helvety PDF | Free PDF Tool | Private and Secure",
+    title: "Helvety PDF | PDF Tool",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Private, secure, and 100% free, up to 100MB per file. Engineered & Designed in Switzerland.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Free to use with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -85,9 +84,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Helvety PDF | Free PDF Tool | Private and Secure",
+    title: "Helvety PDF | PDF Tool",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser. Private, secure, and 100% free, up to 100MB per file. Engineered & Designed in Switzerland.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Free to use with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -112,9 +111,6 @@ export const metadata: Metadata = {
   category: "productivity",
 };
 
-// Prevent Next.js from caching user-specific data (supabase.auth.getUser) across sessions
-export const dynamic = "force-dynamic";
-
 /**
  * Root layout: fixed header (Navbar), overflow-hidden main (PDF toolkit manages its own scroll), fixed footer.
  */
@@ -123,10 +119,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const [nonce, initialUser] = await Promise.all([
-    headers().then((h) => h.get("x-nonce") ?? ""),
-    getCachedUser(),
-  ]);
+  const nonce = await headers().then((h) => h.get("x-nonce") ?? "");
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
@@ -185,7 +178,7 @@ export default async function RootLayout({
           <TooltipProvider>
             <div className="flex h-screen flex-col overflow-hidden">
               <header className="shrink-0">
-                <Navbar initialUser={initialUser} />
+                <Navbar />
               </header>
               <main
                 id="main-content"

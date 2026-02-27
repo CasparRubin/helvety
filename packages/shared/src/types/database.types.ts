@@ -1,15 +1,17 @@
 /**
- * Supabase Database Types
+ * Supabase database types.
  *
- * AUTO-GENERATED — do not edit manually.
- * Regenerate with: bun run db:gen-types
- *
- * Requires: supabase link --project-ref <your-project-ref>
- *
- * This is a placeholder. Run `bun run db:gen-types` to generate real types
- * from your Supabase schema. Without generated types, all Supabase queries
- * lack compile-time safety against the database schema.
+ * This file must be generated from your linked Supabase project:
+ * `npx supabase gen types typescript --linked > packages/shared/src/types/database.types.ts`
  */
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- placeholder until types are generated
 export interface Database {}
+
+type GeneratedDatabaseGuard = keyof Database extends never
+  ? "ERROR: Supabase types are not generated. Run: npx supabase gen types typescript --linked > packages/shared/src/types/database.types.ts"
+  : true;
+
+const generatedDatabaseGuard: GeneratedDatabaseGuard = true;
+void generatedDatabaseGuard;
+
+export type DatabaseSchema = Database;

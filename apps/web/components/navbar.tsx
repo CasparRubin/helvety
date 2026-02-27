@@ -156,6 +156,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                     variant="ghost"
                     size="icon"
                     className="h-9 w-9"
+                    aria-label="Open about dialog"
                     onClick={() => setAboutOpen(true)}
                   >
                     <Info className="h-4 w-4" />
@@ -215,7 +216,11 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
             {isAuthenticated && !isLoading && (
               <Popover open={profileOpen} onOpenChange={setProfileOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Open profile menu"
+                  >
                     <UserIcon className="h-5 w-5" />
                   </Button>
                 </PopoverTrigger>
@@ -286,7 +291,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
           {/* Burger menu — only below sm */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild className="inline-flex sm:hidden">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" aria-label="Open menu">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open menu</span>
               </Button>

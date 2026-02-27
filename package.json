@@ -24,9 +24,11 @@
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
     "test": "turbo run test",
+    "ci:guard:supabase-types": "node scripts/ci/guard-generated-types.mjs",
+    "ci:guard:admin-client": "node scripts/ci/guard-admin-client-usage.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "ci:check": "bun run format:check && bun run lint && bun run type-check && bun run test",
+    "ci:check": "bun run ci:guard:supabase-types && bun run ci:guard:admin-client && bun run format:check && bun run lint && bun run type-check && bun run test",
     "db:gen-types": "bunx supabase gen types typescript --linked > packages/shared/src/types/database.types.ts"
   },
   "patchedDependencies": {

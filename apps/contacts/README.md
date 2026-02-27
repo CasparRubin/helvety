@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A private and secure contact management app with end-to-end encryption. Sensitive contact content fields are encrypted client-side, while required structural metadata remains plaintext for app functionality. Engineered & Designed in Switzerland.
+A privacy-focused contact management app with client-side encryption for sensitive fields. Required structural metadata remains plaintext for app functionality. Engineered & Designed in Switzerland.
 
 **App:** [helvety.com/contacts](https://helvety.com/contacts)
 
@@ -13,9 +13,9 @@ A private and secure contact management app with end-to-end encryption. Sensitiv
 
 ## Service Availability
 
-Helvety services are primarily intended for customers located in Switzerland. We do not actively target users in the EU/EEA.
+Helvety services are currently focused on customers located in Switzerland. We do not actively market services to users in the EU/EEA.
 
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before personal data is stored.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created.
 
 ## Features
 
@@ -40,8 +40,8 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Bidirectional** - Link and unlink task entities from either the Contacts app or the Tasks app for consistent cross-app UX
   - **Searchable picker** - Search your task entities by title and link them with one click
   - **Deep links** - Click any task row to open the linked Unit, Space, or Item in the Tasks app (opens in a new tab)
-  - **Privacy** - Task entity titles are decrypted client-side; the server never sees plaintext
-- **Self-Service Data Export** - Export all your contact data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (nDSG Art. 28 compliance). Export is only available while your encryption context is unlocked.
+  - **Privacy** - Task entity titles are decrypted client-side; plaintext should not be intentionally sent to the server
+- **Self-Service Data Export** - Export all your contact data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Switch between dark and light themes
 
@@ -101,20 +101,20 @@ Helvety Contacts uses end-to-end encryption (E2EE), as does Helvety Tasks. In su
 | `config_id` (Category)          | Parent config reference                            |
 | Category assignments            | Linking table (all fields plaintext)               |
 
-Browser requirements for end-to-end encryption:
+Browser compatibility for end-to-end encryption depends on WebAuthn PRF support and can evolve over time:
 
 **Desktop:**
 
-- Chrome 128+ or Edge 128+
-- Safari 18+ on Mac
-- Firefox 139+ (desktop only)
+- Chrome/Edge (recent versions)
+- Safari on macOS (recent versions)
+- Firefox desktop (recent versions)
 
 **Mobile:**
 
-- iPhone with iOS 18+
-- Android 14+ with Chrome
+- iPhone/iPad (recent iOS/iPadOS versions)
+- Android (recent versions) with Chrome
 
-**Note:** Firefox for Android does not support the PRF extension.
+**Note:** Firefox on Android may not support the PRF extension in current tested flows.
 
 ### Authentication Flow
 
@@ -135,20 +135,20 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 
 Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
 
-**Privacy Note:** Your email address is used solely for authentication (verification codes for new users, passkey for returning) and account recovery. We do not share your email with third parties for marketing purposes.
+**Privacy Note:** Your email address is used primarily for authentication (verification codes for new users, passkey for returning), account recovery, and essential service communications. We do not share your email with third parties for marketing purposes.
 
 ### Security Hardening
 
 This application includes the following security hardening:
 
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
-- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (CVE-2025-29927 compliant)
+- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (aligned with published CVE-2025-29927 mitigation guidance)
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
 - **Security Headers** - CSP, HSTS, and other security headers
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before personal data is stored). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
@@ -156,8 +156,8 @@ This application includes the following security hardening:
 
 This project is built with modern web technologies:
 
-- **[Next.js 16.1.6](https://nextjs.org/)** - React framework with App Router
-- **[React 19.2.4](https://react.dev/)** - UI library
+- **[Next.js 16.x](https://nextjs.org/)** - React framework with App Router
+- **[React 19.x](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at helvety.com/auth)
 - **[Tiptap](https://tiptap.dev/)** - Headless WYSIWYG rich text editor
@@ -193,7 +193,7 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 > **This is NOT open source software.**
 
-This monorepo is public so users can inspect and verify the application's behavior and security.
+This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
 
 **All Rights Reserved.** No license is granted for any use of this code. You may:
 
@@ -207,6 +207,6 @@ You may NOT:
 - Sell, sublicense, or commercially exploit the code
 - Reverse engineer or decompile the code
 
-**Helvety Contacts is currently free for early adopters (first 10'000 users) at [helvety.com/contacts](https://helvety.com/contacts).** Pricing for new users may be introduced later.
+**Helvety Contacts availability and pricing can change over time.** See [helvety.com/contacts](https://helvety.com/contacts) and related store pages for current terms.
 
 See [LICENSE](./LICENSE) for full legal terms.

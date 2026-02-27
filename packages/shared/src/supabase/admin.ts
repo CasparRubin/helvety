@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import { getSupabaseUrl } from "../env-validation";
 
+import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -36,7 +37,7 @@ function getServiceRoleKey(): string {
 }
 
 /** Singleton instance of the Supabase admin client */
-let adminClient: SupabaseClient | null = null;
+let adminClient: SupabaseClient<DatabaseSchema> | null = null;
 
 /**
  * Creates or returns the existing Supabase admin client instance.
@@ -48,7 +49,7 @@ let adminClient: SupabaseClient | null = null;
  * - NEVER expose this client or its operations to the client
  * - Common use cases: creating sessions, looking up credentials by ID
  */
-export function createAdminClient(): SupabaseClient {
+export function createAdminClient(): SupabaseClient<DatabaseSchema> {
   if (adminClient) {
     return adminClient;
   }

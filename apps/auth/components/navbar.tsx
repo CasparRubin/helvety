@@ -152,23 +152,24 @@ export function Navbar({
                   <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm">
                     <ShieldCheck className="h-4 w-4 text-green-500" />
                     <span className="hidden md:inline">
-                      End-to-end encrypted
+                      Client-side encryption enabled
                     </span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs space-y-2 p-3">
-                  <p className="font-semibold">End-to-End Encrypted</p>
+                  <p className="font-semibold">Client-Side Encryption</p>
                   <p>
-                    All your content is encrypted on your device before it
-                    leaves your browser. Only you can read it. Not even we can
-                    access your contacts or any other content. Some structural
-                    metadata (such as timestamps and display preferences) is
-                    stored unencrypted to enable app functionality.
+                    Sensitive content is encrypted on your device before it
+                    leaves your browser. The system is designed so Helvety is
+                    generally unable to access encrypted content in plaintext
+                    during normal operation. Some structural metadata (such as
+                    timestamps and display preferences) is stored unencrypted to
+                    enable app functionality.
                   </p>
                   <p>
-                    Encryption is tied to your passkey. If you lose your
-                    passkey, your encrypted content cannot be recovered by
-                    anyone, including us. There is no reset or backup option.
+                    Encryption is tied to your passkey. If you lose passkey
+                    access, recovery of encrypted content may be limited or
+                    unavailable.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -326,7 +327,7 @@ export function Navbar({
                 {!encryptionLoading && isUnlocked && (
                   <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
                     <ShieldCheck className="h-4 w-4 shrink-0 text-green-500" />
-                    <span>End-to-end encrypted</span>
+                    <span>Client-side encryption enabled</span>
                   </div>
                 )}
                 <Button
