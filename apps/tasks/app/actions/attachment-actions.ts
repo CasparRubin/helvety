@@ -40,6 +40,16 @@ async function getClientIp(): Promise<string | undefined> {
   }
 }
 
+/** Extract client user agent from request headers for audit logs. */
+async function getClientUserAgent(): Promise<string | undefined> {
+  try {
+    const headersList = await headers();
+    return headersList.get("user-agent") ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
@@ -195,6 +205,7 @@ export async function createAttachment(
 
     // Capture IP for audit logging
     const clientIp = await getClientIp();
+    const clientUserAgent = await getClientUserAgent();
 
     // Insert attachment record
     const { data: attachment, error } = await supabase
@@ -217,6 +228,7 @@ export async function createAttachment(
         itemId: validatedData.item_id,
         storagePath: validatedData.storage_path,
         ip: clientIp,
+        userAgent: clientUserAgent,
         metadata: { reason: "db_insert_failed" },
       });
       return { success: false, error: "Failed to create attachment" };
@@ -229,6 +241,7 @@ export async function createAttachment(
       itemId: validatedData.item_id,
       storagePath: validatedData.storage_path,
       ip: clientIp,
+      userAgent: clientUserAgent,
     });
 
     return { success: true, data: { id: attachment.id } };
@@ -317,6 +330,7 @@ export async function deleteAttachment(
 
     // Capture IP for audit logging
     const clientIp = await getClientIp();
+    const clientUserAgent = await getClientUserAgent();
 
     // Defense-in-depth: refuse storage deletion if path is malformed/corrupted.
     if (
@@ -333,6 +347,7 @@ export async function deleteAttachment(
         attachmentId: attachment.id,
         storagePath: attachment.storage_path,
         ip: clientIp,
+        userAgent: clientUserAgent,
         metadata: { reason: "invalid_storage_path" },
       });
       return { success: false, error: "Invalid attachment storage path" };
@@ -367,6 +382,7 @@ export async function deleteAttachment(
         attachmentId: id,
         storagePath: attachment.storage_path,
         ip: clientIp,
+        userAgent: clientUserAgent,
         metadata: { reason: "db_delete_failed" },
       });
       return { success: false, error: "Failed to delete attachment" };
@@ -378,11 +394,65 @@ export async function deleteAttachment(
       attachmentId: id,
       storagePath: attachment.storage_path,
       ip: clientIp,
+      userAgent: clientUserAgent,
     });
 
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in deleteAttachment:", error);
     return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Log a successful attachment download event for legal/security auditability.
+ */
+export async function logAttachmentDownload(
+  id: string,
+  csrfToken: string
+): Promise<ActionResponse<void>> {
+  try {
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "attachments",
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
+
+    if (!z.string().uuid().safeParse(id).success) {
+      return { success: false, error: "Invalid attachment ID" };
+    }
+
+    const { data: attachment, error } = await supabase
+      .from("item_attachments")
+      .select("id, item_id, storage_path")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (error || !attachment) {
+      if (error?.code === "PGRST116") {
+        return { success: false, error: "Attachment not found" };
+      }
+      logger.error("Error fetching attachment for download audit log:", error);
+      return { success: false, error: "Failed to log attachment download" };
+    }
+
+    const clientIp = await getClientIp();
+    const clientUserAgent = await getClientUserAgent();
+
+    logAttachmentEvent("attachment_download", {
+      userId: user.id,
+      attachmentId: attachment.id,
+      itemId: attachment.item_id,
+      storagePath: attachment.storage_path,
+      ip: clientIp,
+      userAgent: clientUserAgent,
+    });
+
+    return { success: true };
+  } catch (error) {
+    logger.error("Unexpected error in logAttachmentDownload:", error);
+    return { success: false, error: "Failed to log attachment download" };
   }
 }

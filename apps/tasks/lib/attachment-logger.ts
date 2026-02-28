@@ -22,18 +22,21 @@ import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 
 import type { LogLevel } from "@helvety/shared/auth-logger";
+import type { Json } from "@helvety/shared/types/database";
 
 /**
  * Attachment operation event types
  */
-export type AttachmentEvent =
-  | "attachment_upload_started"
-  | "attachment_upload_success"
-  | "attachment_upload_failed"
-  | "attachment_download"
-  | "attachment_deleted"
-  | "attachment_delete_failed"
-  | "attachment_rate_limited";
+export const ATTACHMENT_AUDIT_EVENT_TYPES = [
+  "attachment_upload_success",
+  "attachment_upload_failed",
+  "attachment_download",
+  "attachment_deleted",
+  "attachment_delete_failed",
+] as const;
+
+/** Supported attachment audit event union type. */
+export type AttachmentEvent = (typeof ATTACHMENT_AUDIT_EVENT_TYPES)[number];
 
 /**
  * Attachment audit log entry structure
@@ -56,13 +59,11 @@ export interface AttachmentLogEntry {
  * Map events to their default severity levels
  */
 const EVENT_LEVELS: Record<AttachmentEvent, LogLevel> = {
-  attachment_upload_started: "info",
   attachment_upload_success: "info",
   attachment_upload_failed: "warn",
   attachment_download: "info",
   attachment_deleted: "info",
   attachment_delete_failed: "warn",
-  attachment_rate_limited: "warn",
 };
 
 /**
@@ -97,7 +98,7 @@ async function persistToDatabase(
       file_size_bytes: options.fileSizeBytes ?? null,
       ip_address: options.ip ?? null,
       user_agent: options.userAgent ?? null,
-      metadata: options.metadata ?? null,
+      metadata: (options.metadata ?? null) as Json | null,
     });
 
     if (error) {

@@ -9,6 +9,7 @@ import {
   getAttachments,
   createAttachment,
   deleteAttachment,
+  logAttachmentDownload,
 } from "@/app/actions/attachment-actions";
 import {
   buildAttachmentStoragePath,
@@ -372,6 +373,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         // Cache the URL
         urlCacheRef.current.set(attachment.id, url);
 
+        // Non-blocking server-side audit event (IP/timestamp/user linkage).
+        void logAttachmentDownload(attachment.id, csrfToken);
+
         return url;
       } catch (err) {
         setError(
@@ -380,7 +384,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         return null;
       }
     },
-    [masterKey]
+    [masterKey, csrfToken]
   );
 
   /**

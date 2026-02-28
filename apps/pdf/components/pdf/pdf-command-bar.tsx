@@ -92,7 +92,7 @@ export function PdfCommandBar({
                 <AlertDialogTitle>Clear All Files?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This will remove all files and pages from the canvas. This
-                  action cannot be undone.
+                  action is intended to be permanent and may not be reversible.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -149,7 +149,7 @@ export function PdfCommandBar({
             <AlertDialogTitle>Clear All Files?</AlertDialogTitle>
             <AlertDialogDescription>
               This will remove all files and pages from the canvas. This action
-              cannot be undone.
+              is intended to be permanent and may not be reversible.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

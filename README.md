@@ -87,6 +87,24 @@ bun run test
 bun run format
 ```
 
+### Automation
+
+- GitHub Actions workflows are intentionally not configured in this repository.
+- Quality checks (`lint`, `type-check`, `test`, `format:check`, and `ci:*` scripts) are run manually/local as needed.
+- Deployments are handled by Vercel via Git integration.
+
+### Supabase Workflow (Remote-First)
+
+- We do not run a local Supabase stack in this repo.
+- Database changes are applied directly in the hosted Supabase project (SQL Editor / SQL migrations).
+- Keep `supabase/getSupabase.sql` for full-schema export/audit queries.
+- Keep `supabase/supabase.json` local-only (gitignored) because it may contain sensitive metadata.
+- Regenerate shared DB types only when needed:
+
+```bash
+SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
+```
+
 ### Project Structure
 
 ```
@@ -104,7 +122,7 @@ helvety/
 │   ├── shared/       # Shared libraries
 │   └── ui/           # Shared UI components (shadcn/ui, footer, navbar building blocks, Tiptap editor, auth/session recovery)
 ├── patches/          # Bun dependency patches (applied on install)
-├── supabase/         # Supabase project config (supabase.json is gitignored)
+├── supabase/         # Remote-first Supabase SQL/export helpers (supabase.json is gitignored)
 ├── turbo.json        # Turborepo task configuration
 └── package.json      # Root workspace configuration
 ```

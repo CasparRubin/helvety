@@ -231,7 +231,8 @@ export function SubscriptionsTab({
       }
 
       toast.success("Subscription reactivated", {
-        description: "Your subscription will continue as normal.",
+        description:
+          "Your subscription reactivation has been processed and should continue as normal.",
         duration: TOAST_DURATIONS.SUCCESS,
       });
 
@@ -295,7 +296,7 @@ export function SubscriptionsTab({
 
       if (result.success) {
         window.location.href = result.data.downloadUrl;
-        toast.success(`Downloading ${result.data.filename}`, {
+        toast.success(`Preparing download for ${result.data.filename}`, {
           duration: TOAST_DURATIONS.SUCCESS,
         });
       } else {

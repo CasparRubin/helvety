@@ -1,6 +1,6 @@
 /**
  * Stripe client initialization
- * Server-side only - never import this in client components
+ * Server-side only - do not import this in client components
  */
 
 import "server-only";

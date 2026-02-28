@@ -108,7 +108,7 @@ async function claimWebhookEvent(
       stripe_event_type: stripeEventType,
       processing_status: "claimed",
     },
-  });
+  } as never);
 
   if (!error) {
     return true;
@@ -138,7 +138,7 @@ async function finalizeWebhookEvent(
       user_id: payload.userId ?? null,
       subscription_id: payload.subscriptionId ?? null,
       metadata: payload.metadata ?? {},
-    })
+    } as never)
     .eq("stripe_event_id", eventId);
   ensureWriteSucceeded("webhook event finalize update", error);
 }

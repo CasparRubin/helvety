@@ -260,7 +260,8 @@ export async function saveKeyCheckValue(
 
     const { error } = await supabase
       .from("user_passkey_params")
-      .update({ key_check_value: keyCheckValue })
+      // `key_check_value` exists in newer schema versions but may lag in generated types.
+      .update({ key_check_value: keyCheckValue } as never)
       .eq("user_id", user.id);
 
     if (error) {

@@ -186,7 +186,11 @@ export default function ImpressumPage() {
                   plaintext user content during normal operation. Depending on
                   the service and legal basis, we may provide available
                   non-encrypted metadata (for example account identifiers, IP
-                  addresses, timestamps, and storage usage information).
+                  addresses, timestamps, and storage usage information). Typical
+                  security/abuse metadata retention windows are up to 6 months,
+                  while legally required contract/accounting evidence may be
+                  retained longer (for example up to 10 years where required by
+                  Swiss law).
                 </p>
               </div>
               <div>
@@ -246,13 +250,14 @@ export default function ImpressumPage() {
               Our website may contain links to external third-party websites
               over whose content we have no influence. Therefore, we cannot
               accept any liability for this third-party content. The respective
-              provider or operator of the linked pages is always responsible for
-              the content of the linked pages. The linked pages were checked for
-              possible legal violations at the time of linking. Illegal content
-              was not recognizable at the time of linking. Permanent monitoring
-              of the content of the linked pages is not reasonable without
-              concrete evidence of a legal violation. Upon notification of
-              violations, we will remove such links immediately.
+              provider or operator of the linked pages is generally responsible
+              for the content of the linked pages. The linked pages were checked
+              for possible legal violations at the time of linking. Illegal
+              content was not recognizable at the time of linking. Permanent
+              monitoring of the content of the linked pages is not reasonable
+              without concrete evidence of a legal violation. Upon notification
+              of violations, we will remove such links as soon as reasonably
+              practicable.
             </p>
 
             <h3 className="mt-6 mb-3 text-lg font-medium">

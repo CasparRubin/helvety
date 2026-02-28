@@ -54,13 +54,14 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                                                                   |
-| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                          |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                 |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for server-side admin operations (including attachment storage); bypasses RLS. Never expose. |
-| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.                                                                  |
-| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                                                                                  |
+| Variable                               | Required | Server-only | Description                                                                                                          |
+| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                                 |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                        |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for server-side admin operations (including attachment storage); bypasses RLS. Must not be exposed. |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.                                     |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.                                   |
+| `ANALYZE`                              | Optional | **Yes**     | Set to `true` to enable Next.js bundle analyzer during build.                                                        |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
@@ -151,14 +152,14 @@ This application includes the following security hardening:
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
-- **Attachment Audit Logging** - Structured logging for file attachment upload and deletion events (persisted to `attachment_audit_logs` table with 6-month retention)
+- **Attachment Audit Logging** - Structured logging for file attachment upload, download, and deletion events (persisted to `attachment_audit_logs` table; retained up to 6 months / 183 days by default, unless legal hold/dispute requirements apply)
 - **Security Headers** - CSP, HSTS, and other security headers
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics and Speed Insights).
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
-**Attachment Audit Logging:** File attachment uploads and deletions are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs) to the `attachment_audit_logs` database table. This audit trail is configured for retention up to 6 months in accordance with the Privacy Policy and supports law enforcement cooperation under valid Swiss court orders. Encrypted file content and encrypted metadata are not intended to be logged.
+**Attachment Audit Logging:** File attachment uploads, downloads, and deletions are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs, randomized storage paths, and user agent) to the `attachment_audit_logs` database table. This audit trail is retained for up to 6 months (183 days) by default in accordance with the Privacy Policy and supports law enforcement cooperation under valid Swiss court orders. After account deletion, direct user references are removed or de-identified where applicable. Encrypted file content and encrypted metadata are not intended to be logged.
 
 ## Tech Stack
 

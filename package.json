@@ -31,7 +31,7 @@
     "ci:check": "bun run ci:guard:supabase-types && bun run ci:guard:admin-client && bun run format:check && bun run lint && bun run type-check && bun run test",
     "deps:audit": "bun audit",
     "deps:outdated": "bun outdated",
-    "db:gen-types": "bunx supabase gen types typescript --linked > packages/shared/src/types/database.types.ts"
+    "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"
   },
   "patchedDependencies": {
     "next@16.1.6": "patches/next@16.1.6.patch"

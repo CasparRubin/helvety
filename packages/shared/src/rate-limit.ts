@@ -64,7 +64,7 @@ function getRedis(): Redis | null {
       hasWarnedMissingRedis = true;
       logger.warn(
         "UPSTASH_REDIS_REST_URL and/or UPSTASH_REDIS_REST_TOKEN are not configured. " +
-          "Rate limiting will fail closed (reject all rate-limited requests) in production. " +
+          "Rate limiting will fail closed (reject all rate-limited requests) in production with strict policy. " +
           "Configure Upstash Redis for distributed rate limiting: https://console.upstash.com/"
       );
     }
@@ -228,7 +228,8 @@ export async function checkRateLimit(
 
       return { allowed: true, remaining: result.remaining };
     } catch (error) {
-      // In production, fail closed (reject the request) when Redis is unavailable.
+      // In production with strict policy, fail closed when Redis is unavailable.
+      // With soft policy, allow requests during Redis outages.
       // In-memory fallback does not persist across serverless invocations,
       // making it ineffective for distributed rate limiting.
       if (process.env.NODE_ENV === "production" && policy === "strict") {
@@ -341,7 +342,7 @@ export async function recordOtpFailureAndCheckLockout(
   const redisClient = getRedis();
   if (redisClient) {
     try {
-      // Keep this as one transaction-like operation so the counter always has TTL.
+      // Keep this as one transaction-like operation so the counter has TTL when it succeeds.
       const txResult = await redisClient
         .multi()
         .incr(failureCounterKey)
@@ -370,7 +371,7 @@ export async function recordOtpFailureAndCheckLockout(
       return { allowed: true, remaining: 0 };
     } catch (error) {
       logger.error("Failed to check escalating lockout:", error);
-      // Fail closed in production
+      // Fail closed in production (OTP lockout is security-critical; no soft policy)
       if (process.env.NODE_ENV === "production") {
         return { allowed: false, remaining: 0, retryAfter: 300 };
       }

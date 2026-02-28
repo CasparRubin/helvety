@@ -143,7 +143,8 @@ export function PricingCard({
       return;
     }
     toast.success("Subscription reactivated", {
-      description: "Your subscription will continue as normal.",
+      description:
+        "Your subscription reactivation has been processed and should continue as normal.",
       duration: TOAST_DURATIONS.SUCCESS,
     });
     onReactivate?.();

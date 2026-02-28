@@ -251,7 +251,8 @@ export default function PrivacyPage() {
               Your email address is used primarily for authentication
               (verification codes for new users, passkey for returning users),
               account recovery, and important account notifications. We do not
-              share your email with third parties for marketing purposes.
+              share your email with third parties for marketing purposes, except
+              where required by law or described in this Privacy Policy.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -370,12 +371,12 @@ export default function PrivacyPage() {
               <strong className="text-foreground">Important:</strong> Encryption
               keys are derived client-side in your browser using the WebAuthn
               PRF extension. We do not have access to your actual encryption
-              keys. This architecture is designed so that even if our servers
-              were compromised, your encrypted data is designed to remain
-              protected. Additionally, encryption uses Additional Authenticated
-              Data (AAD) to bind each ciphertext to its specific database
-              record, preventing encrypted data from being moved or replayed in
-              a different context.
+              keys. This architecture is designed to help protect your encrypted
+              data even if our servers are compromised, but no security measure
+              can provide absolute protection. Additionally, encryption uses
+              Additional Authenticated Data Data (AAD) to bind each ciphertext
+              to its specific database record, helping prevent encrypted data
+              from being moved or replayed in a different context.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Browser Requirements:</strong>{" "}
@@ -613,8 +614,9 @@ export default function PrivacyPage() {
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
-                We do not have access to the encryption keys for end-to-end
-                encrypted content.
+                Our architecture is designed so that we generally do not have
+                access to encryption keys for end-to-end encrypted content
+                during normal operation.
               </strong>{" "}
               Our architecture is designed so encryption keys remain on your
               device. As a result, we are generally not able to provide
@@ -788,19 +790,18 @@ export default function PrivacyPage() {
                 <strong className="text-foreground">Account data:</strong> Your
                 account consists of your email address, an internal identifier
                 (UUID), and passkey credentials. This data is retained while
-                your account is active and may be retained for a limited period
-                after account closure where required for legal, security, or
-                abuse-prevention reasons.
+                your account is active. After account deletion, core account
+                records are deleted, except where retention is required for
+                legal, security, abuse-prevention, or dispute purposes.
               </li>
               <li>
                 <strong className="text-foreground">Transaction data:</strong>{" "}
-                Subscription and purchase records in Helvety systems are deleted
-                during account deletion flows unless retention is legally
-                required. Payment processors and other parties may retain
-                transaction records where required by applicable accounting and
-                tax law (including Swiss Code of Obligations requirements where
-                applicable). Payment card details are handled by Stripe, not
-                stored in full by Helvety.
+                Purchase and subscription transaction evidence may be retained
+                for up to 10 years where required by Swiss accounting and
+                commercial law (including Art. 958f Swiss Code of Obligations).
+                Where possible, direct account linkage is removed or minimized
+                after account deletion. Payment card details are handled by
+                Stripe, not stored in full by Helvety.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -809,8 +810,9 @@ export default function PrivacyPage() {
                 When you accept the Terms of Service and Privacy Policy during
                 checkout, we record a consent event including your IP address,
                 timestamp, and the versions of the documents you accepted. This
-                data may be retained as legally required evidence of contract
-                and consent history.
+                evidence may be retained for up to 10 years for contract and
+                consent proof. After account deletion, direct user linkage may
+                be removed where legally and operationally appropriate.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -822,7 +824,9 @@ export default function PrivacyPage() {
               <li>
                 <strong className="text-foreground">Technical logs:</strong>{" "}
                 Retained for a limited period for security, fraud-prevention,
-                service reliability, and incident response.
+                service reliability, and incident response (up to 6 months / 183
+                days by default, unless a longer retention period is legally
+                required for a specific incident, dispute, or legal hold).
               </li>
               <li>
                 <strong className="text-foreground">Rate limiting data:</strong>{" "}
@@ -839,10 +843,12 @@ export default function PrivacyPage() {
                 Non-encrypted metadata associated with file uploads, downloads,
                 and deletions -- including timestamps, file sizes (of encrypted
                 blobs), randomized storage paths, IP addresses, and user
-                identifiers -- is retained for a limited period for service
-                security and legal compliance purposes. This metadata does not
-                include the content of your files, which is end-to-end encrypted
-                and generally not accessible to us in plaintext during normal
+                identifiers -- is retained for service security and legal
+                compliance purposes for up to 6 months (183 days) by default.
+                After account deletion, direct user references are removed or
+                de-identified where applicable. This metadata does not include
+                the content of your files, which is end-to-end encrypted and
+                generally not accessible to us in plaintext during normal
                 operation.
               </li>
               <li>
@@ -916,16 +922,19 @@ export default function PrivacyPage() {
               >
                 helvety.com/store/account
               </a>
-              . Upon confirmation, your account and personal data will be
-              deleted across Helvety services without undue delay, including
-              authentication credentials, subscription records, task data,
-              contact data, and file attachments, subject to technical
-              processing time and legally required retention. Depending on
-              system architecture and legal obligations, some records may be
-              deleted, de-identified, or retained in restricted form for
-              compliance, fraud-prevention, dispute handling, or security
-              purposes. This action cannot be undone. We recommend exporting
-              your data before proceeding.
+              . Upon confirmation, your account and personal data are scheduled
+              for deletion across Helvety services without undue delay (target:
+              within 30 days), including authentication credentials,
+              subscription records, task data, contact data, and file
+              attachments, subject to technical processing time and legally
+              required retention. Depending on system architecture and legal
+              obligations, some records may be deleted, de-identified, or
+              retained in restricted form for compliance, fraud-prevention,
+              dispute handling, or security purposes (for example,
+              limited-period non-content audit/security metadata such as file
+              operation logs). This action is intended to be permanent and may
+              not be reversible. We recommend exporting your data before
+              proceeding.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
@@ -1248,8 +1257,10 @@ export default function PrivacyPage() {
                 device to re-derive the same key
               </li>
               <li>
-                We are generally unable to decrypt your content because we do
-                not store your encryption key
+                Our architecture is designed so that we are generally unable to
+                decrypt your content during normal operation because encryption
+                keys are derived client-side and are not intentionally stored on
+                our servers
               </li>
               <li>
                 Your passkey (stored on your device) is required to access
@@ -1292,7 +1303,7 @@ export default function PrivacyPage() {
               and immutable built-in taxonomy references (category IDs).
             </p>
             <p className="text-muted-foreground text-sm">
-              This approach is designed to protect your encrypted content even
+              This approach is designed to help protect your encrypted content
               in the event of a data breach on our servers. Browser requirements
               for end-to-end encryption can change over time; refer to the
               current product documentation for supported platforms.

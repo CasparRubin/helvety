@@ -42,9 +42,9 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 - **Tenant Management** - Register SharePoint tenant IDs for SPO Explorer (Tenants page: compact subscription summary, Registered Tenants list with Add Tenant above it)
 - **Download Management** - Access and download purchased software packages
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing; optional HMAC-signed machine-to-machine mode available)
-- **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog; attempts to cancel active Stripe subscriptions and remove account-linked data, with backend safeguards and cleanup retries
+- **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog; active Stripe subscriptions are canceled, account-linked data is removed across services, and storage cleanup includes orphan-path sweeps plus post-delete verification checks (target completion within 30 days, subject to legal retention)
 - **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (designed to support nDSG Art. 28 data portability requests)
-- **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is always recorded in Stripe session metadata; for signed-in checkouts, consent is also recorded in a dedicated `consent_events` database table for auditability
+- **Consent Audit Trail** - For completed checkout sessions, pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in Stripe session metadata; for signed-in checkouts, consent is also recorded in a dedicated `consent_events` database table. Consent/contract evidence may be retained up to 10 years where legally required, with direct user linkage minimized after account deletion where applicable
 - **Dark & Light mode** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 
@@ -70,7 +70,7 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 
 Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
 
-**Privacy Note:** Your email address is used primarily for authentication (verification codes for new users, passkey for returning), account recovery, and essential service communications. We do not share your email with third parties for marketing purposes.
+**Privacy Note:** Your email address is used primarily for authentication (verification codes for new users, passkey for returning), account recovery, and essential service communications. We do not share your email with third parties for marketing purposes, except where required by law or described in our Privacy Policy.
 
 ### Security Hardening
 
@@ -89,19 +89,20 @@ This application includes the following security hardening:
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                                                 | Required | Server-only | Description                                                                     |
-| -------------------------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`                               | Yes      | No          | Supabase project URL                                                            |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                   | Yes      | No          | Publishable key (RLS applies)                                                   |
-| `SUPABASE_SECRET_KEY`                                    | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Never expose. |
-| `STRIPE_SECRET_KEY`                                      | Yes      | **Yes**     | Stripe API key. Never expose.                                                   |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`                     | Yes      | No          | Stripe publishable key (client-side)                                            |
-| `STRIPE_WEBHOOK_SECRET`                                  | Yes      | **Yes**     | Webhook signature verification. Never expose.                                   |
-| `STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID`      | Optional | **Yes**     | Stripe price ID for Solo plan (required only if this paid tier is enabled)      |
-| `STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID` | Optional | **Yes**     | Stripe price ID for Supported plan (required only if this paid tier is enabled) |
-| `LICENSE_VALIDATION_SHARED_SECRET`                       | No       | **Yes**     | HMAC secret for SPFx license validation. Optional.                              |
-| `UPSTASH_REDIS_REST_URL`                                 | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.                                    |
-| `UPSTASH_REDIS_REST_TOKEN`                               | Prod     | **Yes**     | Redis token. Prod: required.                                                    |
+| Variable                                                 | Required | Server-only | Description                                                                            |
+| -------------------------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`                               | Yes      | No          | Supabase project URL                                                                   |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                   | Yes      | No          | Publishable key (RLS applies)                                                          |
+| `SUPABASE_SECRET_KEY`                                    | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Must not be exposed. |
+| `STRIPE_SECRET_KEY`                                      | Yes      | **Yes**     | Stripe API key. Must not be exposed.                                                   |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`                     | Yes      | No          | Stripe publishable key (client-side)                                                   |
+| `STRIPE_WEBHOOK_SECRET`                                  | Yes      | **Yes**     | Webhook signature verification. Must not be exposed.                                   |
+| `STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID`      | Optional | **Yes**     | Stripe price ID for Solo plan (required only if this paid tier is enabled)             |
+| `STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID` | Optional | **Yes**     | Stripe price ID for Supported plan (required only if this paid tier is enabled)        |
+| `LICENSE_VALIDATION_SHARED_SECRET`                       | Optional | **Yes**     | Optional, security-recommended HMAC secret for SPFx license validation.                |
+| `UPSTASH_REDIS_REST_URL`                                 | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.       |
+| `UPSTASH_REDIS_REST_TOKEN`                               | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.     |
+| `ANALYZE`                                                | Optional | **Yes**     | Set to `true` to enable Next.js bundle analyzer during build.                          |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 

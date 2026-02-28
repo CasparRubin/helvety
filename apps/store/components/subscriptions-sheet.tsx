@@ -147,7 +147,8 @@ export function SubscriptionsSheet({
       }
 
       toast.success("Subscription reactivated", {
-        description: "Your subscription will continue as normal.",
+        description:
+          "Your subscription reactivation has been processed. It should continue as normal, but may take a moment to reflect in your account.",
         duration: TOAST_DURATIONS.SUCCESS,
       });
 

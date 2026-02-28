@@ -1,44 +1,636 @@
-/**
- * Supabase database types.
- *
- * Keep this file committed so CI/Vercel type-checking does not depend on
- * runtime type generation.
- */
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
 
-type TableDefinition = {
-  Row: Record<string, any>;
-  Insert: Record<string, any>;
-  Update: Record<string, any>;
-  Relationships: never[];
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.1";
+  };
+  public: {
+    Tables: {
+      attachment_audit_logs: {
+        Row: {
+          attachment_id: string | null;
+          created_at: string;
+          event: string;
+          file_size_bytes: number | null;
+          id: string;
+          ip_address: string | null;
+          item_id: string | null;
+          metadata: Json | null;
+          storage_path: string | null;
+          user_agent: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          attachment_id?: string | null;
+          created_at?: string;
+          event: string;
+          file_size_bytes?: number | null;
+          id?: string;
+          ip_address?: string | null;
+          item_id?: string | null;
+          metadata?: Json | null;
+          storage_path?: string | null;
+          user_agent?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          attachment_id?: string | null;
+          created_at?: string;
+          event?: string;
+          file_size_bytes?: number | null;
+          id?: string;
+          ip_address?: string | null;
+          item_id?: string | null;
+          metadata?: Json | null;
+          storage_path?: string | null;
+          user_agent?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      consent_events: {
+        Row: {
+          created_at: string;
+          event_type: string;
+          id: string;
+          ip_address: string | null;
+          metadata: Json | null;
+          privacy_version: string;
+          terms_version: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          event_type: string;
+          id?: string;
+          ip_address?: string | null;
+          metadata?: Json | null;
+          privacy_version: string;
+          terms_version: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          event_type?: string;
+          id?: string;
+          ip_address?: string | null;
+          metadata?: Json | null;
+          privacy_version?: string;
+          terms_version?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      contacts: {
+        Row: {
+          category_id: string;
+          created_at: string;
+          encrypted_birthday: string | null;
+          encrypted_description: string | null;
+          encrypted_email: string | null;
+          encrypted_first_name: string;
+          encrypted_last_name: string;
+          encrypted_notes: string | null;
+          encrypted_phone: string | null;
+          id: string;
+          sort_order: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          category_id: string;
+          created_at?: string;
+          encrypted_birthday?: string | null;
+          encrypted_description?: string | null;
+          encrypted_email?: string | null;
+          encrypted_first_name: string;
+          encrypted_last_name: string;
+          encrypted_notes?: string | null;
+          encrypted_phone?: string | null;
+          id?: string;
+          sort_order?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          category_id?: string;
+          created_at?: string;
+          encrypted_birthday?: string | null;
+          encrypted_description?: string | null;
+          encrypted_email?: string | null;
+          encrypted_first_name?: string;
+          encrypted_last_name?: string;
+          encrypted_notes?: string | null;
+          encrypted_phone?: string | null;
+          id?: string;
+          sort_order?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      entity_contact_links: {
+        Row: {
+          contact_id: string;
+          created_at: string;
+          entity_id: string;
+          entity_type: string;
+          id: string;
+          user_id: string;
+        };
+        Insert: {
+          contact_id: string;
+          created_at?: string;
+          entity_id: string;
+          entity_type: string;
+          id?: string;
+          user_id: string;
+        };
+        Update: {
+          contact_id?: string;
+          created_at?: string;
+          entity_id?: string;
+          entity_type?: string;
+          id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "entity_contact_links_contact_id_fkey";
+            columns: ["contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      item_attachments: {
+        Row: {
+          created_at: string;
+          encrypted_metadata: string;
+          id: string;
+          item_id: string;
+          sort_order: number;
+          storage_path: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          encrypted_metadata: string;
+          id?: string;
+          item_id: string;
+          sort_order?: number;
+          storage_path: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          encrypted_metadata?: string;
+          id?: string;
+          item_id?: string;
+          sort_order?: number;
+          storage_path?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "item_attachments_item_id_fkey";
+            columns: ["item_id"];
+            isOneToOne: false;
+            referencedRelation: "items";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      items: {
+        Row: {
+          created_at: string;
+          encrypted_description: string | null;
+          encrypted_end_date: string | null;
+          encrypted_start_date: string | null;
+          encrypted_title: string;
+          id: string;
+          label_id: string;
+          priority: number;
+          sort_order: number;
+          space_id: string;
+          stage_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          encrypted_description?: string | null;
+          encrypted_end_date?: string | null;
+          encrypted_start_date?: string | null;
+          encrypted_title: string;
+          id?: string;
+          label_id: string;
+          priority?: number;
+          sort_order?: number;
+          space_id: string;
+          stage_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          encrypted_description?: string | null;
+          encrypted_end_date?: string | null;
+          encrypted_start_date?: string | null;
+          encrypted_title?: string;
+          id?: string;
+          label_id?: string;
+          priority?: number;
+          sort_order?: number;
+          space_id?: string;
+          stage_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "items_space_id_fkey";
+            columns: ["space_id"];
+            isOneToOne: false;
+            referencedRelation: "spaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      licensed_tenants: {
+        Row: {
+          created_at: string;
+          display_name: string | null;
+          id: string;
+          subscription_id: string;
+          tenant_domain: string;
+          tenant_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          display_name?: string | null;
+          id?: string;
+          subscription_id: string;
+          tenant_domain: string;
+          tenant_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          display_name?: string | null;
+          id?: string;
+          subscription_id?: string;
+          tenant_domain?: string;
+          tenant_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "licensed_tenants_subscription_id_fkey";
+            columns: ["subscription_id"];
+            isOneToOne: false;
+            referencedRelation: "subscriptions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      purchases: {
+        Row: {
+          amount_paid: number;
+          created_at: string;
+          currency: string;
+          id: string;
+          product_id: string;
+          stripe_payment_intent_id: string | null;
+          stripe_price_id: string;
+          tier_id: string;
+          user_id: string;
+        };
+        Insert: {
+          amount_paid: number;
+          created_at?: string;
+          currency?: string;
+          id?: string;
+          product_id: string;
+          stripe_payment_intent_id?: string | null;
+          stripe_price_id: string;
+          tier_id: string;
+          user_id: string;
+        };
+        Update: {
+          amount_paid?: number;
+          created_at?: string;
+          currency?: string;
+          id?: string;
+          product_id?: string;
+          stripe_payment_intent_id?: string | null;
+          stripe_price_id?: string;
+          tier_id?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      spaces: {
+        Row: {
+          created_at: string;
+          encrypted_description: string | null;
+          encrypted_title: string;
+          id: string;
+          sort_order: number;
+          stage_id: string;
+          unit_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          encrypted_description?: string | null;
+          encrypted_title: string;
+          id?: string;
+          sort_order?: number;
+          stage_id: string;
+          unit_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          encrypted_description?: string | null;
+          encrypted_title?: string;
+          id?: string;
+          sort_order?: number;
+          stage_id?: string;
+          unit_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "spaces_unit_id_fkey";
+            columns: ["unit_id"];
+            isOneToOne: false;
+            referencedRelation: "units";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      subscription_events: {
+        Row: {
+          created_at: string;
+          event_type: string;
+          id: string;
+          metadata: Json | null;
+          purchase_id: string | null;
+          stripe_event_id: string | null;
+          subscription_id: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          event_type: string;
+          id?: string;
+          metadata?: Json | null;
+          purchase_id?: string | null;
+          stripe_event_id?: string | null;
+          subscription_id?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          event_type?: string;
+          id?: string;
+          metadata?: Json | null;
+          purchase_id?: string | null;
+          stripe_event_id?: string | null;
+          subscription_id?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscription_events_purchase_id_fkey";
+            columns: ["purchase_id"];
+            isOneToOne: false;
+            referencedRelation: "purchases";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscription_events_subscription_id_fkey";
+            columns: ["subscription_id"];
+            isOneToOne: false;
+            referencedRelation: "subscriptions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null;
+          canceled_at: string | null;
+          created_at: string;
+          current_period_end: string | null;
+          current_period_start: string | null;
+          id: string;
+          product_id: string;
+          status: Database["public"]["Enums"]["subscription_status"];
+          stripe_price_id: string;
+          stripe_subscription_id: string | null;
+          tier_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          cancel_at_period_end?: boolean | null;
+          canceled_at?: string | null;
+          created_at?: string;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          id?: string;
+          product_id: string;
+          status?: Database["public"]["Enums"]["subscription_status"];
+          stripe_price_id: string;
+          stripe_subscription_id?: string | null;
+          tier_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          cancel_at_period_end?: boolean | null;
+          canceled_at?: string | null;
+          created_at?: string;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          id?: string;
+          product_id?: string;
+          status?: Database["public"]["Enums"]["subscription_status"];
+          stripe_price_id?: string;
+          stripe_subscription_id?: string | null;
+          tier_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      units: {
+        Row: {
+          created_at: string;
+          encrypted_description: string | null;
+          encrypted_title: string;
+          id: string;
+          sort_order: number;
+          stage_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          encrypted_description?: string | null;
+          encrypted_title: string;
+          id?: string;
+          sort_order?: number;
+          stage_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          encrypted_description?: string | null;
+          encrypted_title?: string;
+          id?: string;
+          sort_order?: number;
+          stage_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      user_auth_credentials: {
+        Row: {
+          backed_up: boolean | null;
+          counter: number;
+          created_at: string;
+          credential_id: string;
+          device_type: string | null;
+          id: string;
+          last_used_at: string | null;
+          public_key: string;
+          transports: string[] | null;
+          user_id: string;
+        };
+        Insert: {
+          backed_up?: boolean | null;
+          counter?: number;
+          created_at?: string;
+          credential_id: string;
+          device_type?: string | null;
+          id?: string;
+          last_used_at?: string | null;
+          public_key: string;
+          transports?: string[] | null;
+          user_id: string;
+        };
+        Update: {
+          backed_up?: boolean | null;
+          counter?: number;
+          created_at?: string;
+          credential_id?: string;
+          device_type?: string | null;
+          id?: string;
+          last_used_at?: string | null;
+          public_key?: string;
+          transports?: string[] | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      user_passkey_params: {
+        Row: {
+          created_at: string;
+          credential_id: string;
+          prf_salt: string;
+          user_id: string;
+          version: number;
+        };
+        Insert: {
+          created_at?: string;
+          credential_id: string;
+          prf_salt: string;
+          user_id: string;
+          version?: number;
+        };
+        Update: {
+          created_at?: string;
+          credential_id?: string;
+          prf_salt?: string;
+          user_id?: string;
+          version?: number;
+        };
+        Relationships: [];
+      };
+      user_profiles: {
+        Row: {
+          created_at: string;
+          email: string | null;
+          id: string;
+          stripe_customer_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          email?: string | null;
+          id: string;
+          stripe_customer_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          email?: string | null;
+          id?: string;
+          stripe_customer_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      get_auth_user_by_email: {
+        Args: { lookup_email: string };
+        Returns: {
+          email: string;
+          id: string;
+        }[];
+      };
+    };
+    Enums: {
+      subscription_status:
+        | "incomplete"
+        | "incomplete_expired"
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "canceled"
+        | "unpaid"
+        | "paused";
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
 };
-
-type FunctionDefinition = {
-  Args: Record<string, any>;
-  Returns: any;
-};
-
-type SchemaDefinition = {
-  Tables: Record<string, TableDefinition>;
-  Views: Record<string, never>;
-  Functions: Record<string, FunctionDefinition>;
-  Enums: Record<string, string>;
-  CompositeTypes: Record<string, never>;
-};
-
-export interface Database {
-  public: SchemaDefinition;
-  auth: SchemaDefinition;
-  storage: SchemaDefinition;
-  graphql_public: SchemaDefinition;
-  realtime: SchemaDefinition;
-  vault: SchemaDefinition;
-}
-
-type GeneratedDatabaseGuard = keyof Database extends never
-  ? "ERROR: Supabase types are not generated. Run: bun run db:gen-types"
-  : true;
-
-const generatedDatabaseGuard: GeneratedDatabaseGuard = true;
-void generatedDatabaseGuard;
 
 export type DatabaseSchema = Database;

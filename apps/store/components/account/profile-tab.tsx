@@ -100,7 +100,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
     }
     toast.success("Confirmation email sent", {
       description:
-        "Please check your new email address and click the confirmation link.",
+        "Please check your new email address and click the confirmation link. If you do not see it, check your spam folder.",
       duration: TOAST_DURATIONS.SUCCESS,
     });
     setNewEmail("");
@@ -156,8 +156,9 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    toast.success("Data exported successfully", {
-      description: "Your data has been downloaded as a JSON file.",
+    toast.success("Data export completed", {
+      description:
+        "Your data export has been prepared. If the download did not start, check your browser download settings.",
       duration: TOAST_DURATIONS.SUCCESS,
     });
     setIsExporting(false);
@@ -187,9 +188,9 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
       return;
     }
 
-    toast.success("Account deleted", {
+    toast.success("Account deletion initiated", {
       description:
-        "Your account has been permanently deleted. You will be redirected shortly.",
+        "Your account deletion request has been processed. You should be redirected shortly. Deletion may take some time to complete across all systems.",
       duration: TOAST_DURATIONS.SUCCESS,
     });
 
@@ -245,7 +246,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
                 <div>
                   <h3 className="font-medium">Change Email Address</h3>
                   <p className="text-muted-foreground text-sm">
-                    A confirmation link will be sent to your new email address
+                    A confirmation link should be sent to your new email address
                   </p>
                 </div>
                 <form onSubmit={handleEmailChange} className="space-y-4">
@@ -352,7 +353,8 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
             <li>Request cancellation of active subscriptions</li>
             <li>Delete your profile, credentials, and passkeys</li>
             <li>
-              Delete task data and encrypted file attachments (Helvety Tasks)
+              Delete task data and remove encrypted file attachments (Helvety
+              Tasks)
             </li>
             <li>Delete contact data and notes (Helvety Contacts)</li>
             <li>Remove all tenant registrations</li>
@@ -361,7 +363,10 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
             Your Helvety account data is deleted through the account deletion
             flow. Payment processors and other parties may retain transaction
             records where required for legal, tax, fraud-prevention, or dispute
-            obligations under applicable law.
+            obligations under applicable law. Certain non-content
+            security/compliance records (for example, file operation metadata)
+            may be retained for a limited period as described in our Privacy
+            Policy.
           </p>
 
           <AlertDialog>
@@ -376,10 +381,11 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription className="space-y-3">
                   <span className="block">
-                    This action cannot be undone. We initiate deletion of your
-                    account and associated data across Helvety services without
-                    undue delay, subject to technical processing time and
-                    legally required retention.
+                    This action is intended to be permanent and may not be
+                    reversible. We initiate deletion of your account and
+                    associated data across Helvety services without undue delay,
+                    subject to technical processing time and legally required
+                    retention.
                   </span>
                   <span className="block">
                     We recommend exporting your data before proceeding.

@@ -89,7 +89,7 @@ const envSchema = z.object({
     .refine((key) => validateAnonKey(key), {
       message:
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be a valid Supabase anon/publishable key. " +
-        "WARNING: Do NOT use the service role key here - it should only be used server-side and never exposed to the client. " +
+        "WARNING: Do NOT use the service role key here - it should only be used server-side and must not be exposed to the client. " +
         "Get your anon/publishable key from: Supabase Dashboard > Project Settings > API > Project API keys > anon/public key or Publishable key",
     }),
 });
@@ -106,7 +106,8 @@ export const serverEnvSchema = z.object({
 
 /**
  * Upstash Redis env schema for rate limiting.
- * In production, missing values cause rate limiting to fail closed.
+ * In production with strict policy, missing values cause rate limiting to fail closed.
+ * With soft policy, requests may be allowed when credentials are missing.
  */
 export const upstashEnvSchema = z.object({
   UPSTASH_REDIS_REST_URL: z
@@ -173,7 +174,7 @@ function getValidatedEnv(): Env {
       "See env.template for an example.\n\n" +
       "Security Note: NEXT_PUBLIC_ variables are exposed to the client. " +
       "Only use safe, public keys (anon/publishable keys) in these variables. " +
-      "Never use service role keys or other sensitive credentials.";
+      "Do not use service role keys or other sensitive credentials.";
 
     throw new Error(errorMessage);
   }
@@ -196,7 +197,7 @@ export function getSupabaseUrl(): string {
  * Security: Applies best-effort checks that the key looks like an anon/publishable key (not service role key)
  *
  * WARNING: This key will be exposed to the client. Only use the anon/publishable key here.
- * Never use the service role key in NEXT_PUBLIC_ environment variables.
+ * Do not use the service role key in NEXT_PUBLIC_ environment variables.
  */
 export function getSupabaseKey(): string {
   const env = getValidatedEnv();
@@ -207,7 +208,7 @@ export function getSupabaseKey(): string {
     const errorMessage =
       "SECURITY WARNING: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY does not appear to be a valid anon/publishable key. " +
       "Ensure you are using the anon/public key, not the service role key. " +
-      "Service role keys should NEVER be exposed to the client.";
+      "Service role keys must not be exposed to the client.";
 
     logger.error(errorMessage);
 
@@ -228,7 +229,7 @@ export function getSupabaseKey(): string {
     if (key.length > 200 && key.includes("service_role")) {
       logger.warn(
         "⚠️  WARNING: Your NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY appears to contain 'service_role'. " +
-          "This is likely a service role key, which should NEVER be exposed to the client. " +
+          "This is likely a service role key, which must not be exposed to the client. " +
           "Please use the anon/publishable key instead."
       );
     }

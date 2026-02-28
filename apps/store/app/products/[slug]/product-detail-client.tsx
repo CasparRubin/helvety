@@ -73,8 +73,9 @@ export function ProductDetailClient({
         });
       } else {
         // Default success message
-        toast.success("Payment successful! Thank you for your purchase.", {
-          description: "Your subscription is now active.",
+        toast.success("Payment processed successfully", {
+          description:
+            "Your subscription should become active shortly. If you do not see it, refresh the page.",
           duration: TOAST_DURATIONS.SUCCESS,
         });
       }

@@ -389,7 +389,7 @@ export async function cancelSubscription(
 
 /**
  * Fetch current_period_end from Stripe for a subscription (e.g. when Supabase has null).
- * Used by the cancel dialog so "access until" always shows a date when possible.
+ * Used by the cancel dialog so "access until" shows a date when available.
  * @param subscriptionId - Our subscriptions.id
  */
 export async function getSubscriptionPeriodEnd(

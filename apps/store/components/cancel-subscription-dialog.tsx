@@ -113,7 +113,7 @@ export function CancelSubscriptionDialog({
       }
 
       toast.success("Subscription canceled", {
-        description: `Your ${productName} subscription will end on ${formatDate(displayPeriodEnd)}.`,
+        description: `Your ${productName} subscription is scheduled to end on ${formatDate(displayPeriodEnd)}.`,
         duration: TOAST_DURATIONS.SUCCESS,
       });
 
@@ -160,7 +160,7 @@ export function CancelSubscriptionDialog({
                     {formatDate(displayPeriodEnd)}
                   </strong>
                 </li>
-                <li>No further charges will be made</li>
+                <li>No further charges should be made</li>
                 <li>You can reactivate anytime before the end date</li>
               </ul>
             </div>

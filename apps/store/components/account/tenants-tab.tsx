@@ -175,7 +175,7 @@ export function TenantsTab() {
       );
 
       if (result.success) {
-        toast.success("Tenant registered successfully", {
+        toast.success("Tenant registration processed", {
           duration: TOAST_DURATIONS.SUCCESS,
         });
         setIsAddDialogOpen(false);
@@ -706,7 +706,7 @@ export function TenantsTab() {
             <AlertDialogDescription>
               This will disable SPO Explorer for{" "}
               <strong>{tenantToDelete?.tenantId}.sharepoint.com</strong>. Users
-              in this tenant will no longer have access to the extension.
+              in this tenant should lose access to the extension shortly.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -2,7 +2,8 @@
 -- Returns EVERYTHING about the database in a single JSON object
 -- Perfect for documentation, version control, AI coding agents, and security audits
 --
--- Usage: Run this in Supabase SQL Editor and copy the JSON output
+-- Usage: Run this in Supabase SQL Editor and copy the JSON output.
+-- Save the output to supabase/supabase.json for local reference only (gitignored).
 --
 -- REQUIRED EXTENSIONS (pre-installed on Supabase):
 --   pg_net, vault (supabase_vault), pgsodium

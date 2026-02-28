@@ -25,7 +25,7 @@ const EntityTypeSchema = z.enum(["unit", "space", "item"]);
 /**
  * Get all Contacts for the current user.
  * Returns encrypted data that must be decrypted client-side.
- * The Tasks app only reads contacts and never creates or edits them.
+ * The Tasks app only reads contacts and does not create or edit them.
  */
 export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
   try {

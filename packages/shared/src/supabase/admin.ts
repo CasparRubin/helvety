@@ -70,7 +70,7 @@ function getServiceRoleKey(): string {
     throw new Error(
       "SUPABASE_SECRET_KEY is not set. " +
         "This key is required for admin operations like creating sessions. " +
-        "Add it to your .env.local file (never commit this key to git)."
+        "Add it to your .env.local file (do not commit this key to git)."
     );
   }
   if (key.length < 40) {
@@ -99,7 +99,7 @@ let adminClient: SupabaseClient<DatabaseSchema> | null = null;
  * SECURITY NOTES:
  * - This client uses the SERVICE ROLE key which bypasses RLS
  * - ONLY use this for admin operations that require elevated privileges
- * - NEVER expose this client or its operations to the client
+ * - This client and its operations must not be exposed to the client
  * - Common use cases: creating sessions, looking up credentials by ID
  */
 export function createAdminClient(): SupabaseClient<DatabaseSchema> {
@@ -125,7 +125,7 @@ export function createAdminClient(): SupabaseClient<DatabaseSchema> {
 }
 
 /**
- * Returns a scoped admin query helper that always applies user ownership filters.
+ * Returns a scoped admin query helper that applies user ownership filters.
  *
  * SECURITY NOTES:
  * - This is defense-in-depth around the service-role client.

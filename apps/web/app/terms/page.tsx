@@ -438,7 +438,7 @@ export default function TermsPage() {
                 Custom and Personalized Items:
               </strong>{" "}
               Custom or personalized products are made specifically for you and
-              cannot be returned or exchanged unless they are defective or we
+              may not be returned or exchanged unless they are defective or we
               made an error in production. Please review all customization
               details carefully before placing your order.
             </p>
@@ -781,7 +781,9 @@ export default function TermsPage() {
               </li>
               <li>
                 Upon account termination, all associated encrypted files and
-                database records will be permanently deleted
+                core account database records are scheduled for permanent
+                deletion, subject to technical processing time and legally
+                required retention (target completion within 30 days)
               </li>
               <li>
                 You will not be entitled to any refund of fees already paid in
@@ -863,8 +865,8 @@ export default function TermsPage() {
                 IP addresses and timestamps associated with account activity
               </li>
               <li>
-                Storage usage information (file sizes, upload timestamps,
-                randomized storage paths)
+                Storage usage information (file sizes, upload/download/deletion
+                timestamps, randomized storage paths)
               </li>
               <li>Subscription and billing metadata</li>
               <li>
@@ -879,8 +881,13 @@ export default function TermsPage() {
               suspend or terminate the account in question. Suspension includes
               freezing all stored data (encrypted files remain on our
               infrastructure but become inaccessible to the user). All
-              associated encrypted files will be permanently deleted upon
-              account termination.
+              associated encrypted files are scheduled for permanent deletion
+              upon account termination, subject to technical processing time and
+              legally required retention. Limited non-content
+              security/compliance metadata may be retained for defined periods
+              (including up to 6 months for attachment operation metadata and up
+              to 10 years for contract/accounting evidence) as described in the
+              Privacy Policy.
             </p>
             <p className="text-muted-foreground text-sm">
               We are under no obligation to provide advance notice to users when
@@ -1318,9 +1325,9 @@ export default function TermsPage() {
                 helvety.com/store/account
               </a>{" "}
               or by contacting us at {CONTACT_EMAIL}. Account deletion is
-              permanent and cannot be undone. We recommend exporting your data
-              before proceeding. Account termination does not entitle you to any
-              refund of fees already paid.
+              intended to be permanent and may not be reversible. We recommend
+              exporting your data before proceeding. Account termination does
+              not entitle you to any refund of fees already paid.
             </p>
           </section>
 

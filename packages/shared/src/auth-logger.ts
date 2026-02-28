@@ -5,7 +5,7 @@
  * Routes all output through the shared logger so production gets
  * structured JSON and dev gets human-readable console output.
  *
- * IMPORTANT: Never log sensitive data like passwords, tokens, or full credentials.
+ * IMPORTANT: Do not log sensitive data like passwords, tokens, or full credentials.
  */
 
 import { logger } from "./logger";

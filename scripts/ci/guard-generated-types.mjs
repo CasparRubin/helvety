@@ -9,7 +9,7 @@ const content = readFileSync(databaseTypesPath, "utf8");
 
 if (content.includes("export interface Database {}")) {
   console.error(
-    "Supabase types are not generated. Run: bun run db:gen-types and commit updated database types."
+    "Supabase types are not generated. Run: SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types and commit updated database types."
   );
   process.exit(1);
 }

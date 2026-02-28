@@ -83,7 +83,7 @@ export async function validateTenantLicense(
     const normalizedTenantId = tenantId.toLowerCase().trim();
 
     // Step 1: Get licensed_tenants rows for this tenant (subscription_id only - no embed).
-    // This guarantees we get subscription_id; PostgREST often omits it when embedding.
+    // This helps ensure we get subscription_id; PostgREST often omits it when embedding.
     // A tenant can have multiple rows (one per product); we filter by product in step 2.
     const { data: licensedRows, error: licensedError } = await supabase
       .from("licensed_tenants")

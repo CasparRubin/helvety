@@ -28,6 +28,7 @@
     "./logger": "./src/logger.ts",
     "./constants": "./src/constants.ts",
     "./dates": "./src/dates.ts",
+    "./data-retention": "./src/data-retention.ts",
     "./csrf": "./src/csrf.ts",
     "./cached-server": "./src/cached-server.ts",
     "./auth-guard": "./src/auth-guard.ts",

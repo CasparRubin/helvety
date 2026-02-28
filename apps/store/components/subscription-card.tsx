@@ -175,7 +175,7 @@ export function SubscriptionCard({
             <div className="flex items-start gap-2">
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               <p>
-                Your subscription will end on{" "}
+                Your subscription is scheduled to end on{" "}
                 <strong>{formatDate(subscription.current_period_end)}</strong>.
                 You can reactivate it before then to keep your access.
               </p>
