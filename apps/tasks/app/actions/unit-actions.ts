@@ -8,7 +8,10 @@ import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
-import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
+import {
+  DEFAULT_STAGE_CONFIGS,
+  DEFAULT_UNIT_STAGE_ID,
+} from "@/lib/config/default-stages";
 import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
@@ -23,7 +26,6 @@ const ALLOWED_UNIT_STAGE_IDS = DEFAULT_STAGE_CONFIGS.unit.stages.map(
   (stage) => stage.id
 ) as [string, ...string[]];
 const StageIdSchema = z.enum(ALLOWED_UNIT_STAGE_IDS).optional();
-const DEFAULT_UNIT_STAGE_ID = DEFAULT_STAGE_CONFIGS.unit.stages[0]?.id;
 
 /** Schema for creating a Unit */
 const CreateUnitSchema = z.object({

@@ -157,6 +157,11 @@ export const DEFAULT_STAGE_CONFIGS: Record<EntityType, DefaultStageConfig> = {
   item: ITEM_DEFAULT,
 };
 
+/** First stage ID per entity — use when stage_id is required and omitted. */
+export const DEFAULT_UNIT_STAGE_ID = DEFAULT_STAGE_CONFIGS.unit.stages[0]?.id;
+export const DEFAULT_SPACE_STAGE_ID = DEFAULT_STAGE_CONFIGS.space.stages[0]?.id;
+export const DEFAULT_ITEM_STAGE_ID = DEFAULT_STAGE_CONFIGS.item.stages[0]?.id;
+
 /** Returns true when a config ID is a built-in default ID. */
 export function isDefaultConfigId(configId: string): boolean {
   return configId.startsWith("default-");

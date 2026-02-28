@@ -27,9 +27,10 @@
     "ci:guard:supabase-types": "node scripts/ci/guard-generated-types.mjs",
     "ci:guard:admin-client": "node scripts/ci/guard-admin-client-usage.mjs",
     "ci:guard:proxy-policy": "node scripts/ci/guard-proxy-policy.mjs",
+    "ci:guard:deprecated": "node scripts/ci/guard-deprecated-patterns.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "ci:check": "bun run ci:guard:supabase-types && bun run ci:guard:admin-client && bun run ci:guard:proxy-policy && bun run format:check && bun run lint && bun run type-check && bun run test",
+    "ci:check": "bun run ci:guard:supabase-types && bun run ci:guard:admin-client && bun run ci:guard:proxy-policy && bun run ci:guard:deprecated && bun run format:check && bun run lint && bun run type-check && bun run test",
     "deps:audit": "bun audit",
     "deps:outdated": "bun outdated",
     "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"

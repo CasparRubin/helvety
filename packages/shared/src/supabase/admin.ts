@@ -75,15 +75,15 @@ function getServiceRoleKey(): string {
   }
   if (key.length < 40) {
     throw new Error(
-      "SUPABASE_SECRET_KEY appears too short to be a valid service role key. " +
-        "Ensure you are using the service_role key from Supabase Dashboard > Project Settings > API."
+      "SUPABASE_SECRET_KEY appears too short. " +
+        "Use the secret key (legacy: service_role) from Supabase Dashboard > Project Settings > API."
     );
   }
   const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (publishableKey && key === publishableKey) {
     throw new Error(
       "SUPABASE_SECRET_KEY must not be the same as NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY. " +
-        "Use the service_role key for SUPABASE_SECRET_KEY and the anon/public key for NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
+        "Use the secret key (legacy: service_role) for SUPABASE_SECRET_KEY and the publishable/anon key for NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
     );
   }
   return key;

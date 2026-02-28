@@ -61,7 +61,7 @@ export function HeroSection() {
           >
             <HelvetyLogo
               aria-label="Helvety logo"
-              className="h-auto w-full max-w-6xl"
+              className="mx-auto h-auto w-[min(92vw,1400px)] max-w-[1400px]"
             />
           </m.div>
 

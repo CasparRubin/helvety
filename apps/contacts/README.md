@@ -29,7 +29,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Unsaved changes detection with confirmation dialog
   - Manual note editing with unsaved-changes detection
   - **Action panel** - View dates and the immutable built-in contact categories directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
-- **Fixed categories** - An immutable built-in category set is enforced for all contacts (Work, Family, Friends)
+- **Fixed categories** - An immutable built-in category set is enforced for all contacts (Work, Family, Friends). New contacts are assigned the first category (Work) when none is specified.
 - **Drag & drop reordering** - Rearrange contacts on desktop; mobile uses up/down arrows for ordering controls
 - **Task linking** - Link, unlink, and view task entities from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
   - **Bidirectional** - Link and unlink task entities from either the Contacts app or the Tasks app for consistent cross-app UX

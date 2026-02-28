@@ -8,8 +8,14 @@ import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
-import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
-import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
+import {
+  DEFAULT_ITEM_LABEL_ID,
+  DEFAULT_LABEL_CONFIG,
+} from "@/lib/config/default-labels";
+import {
+  DEFAULT_ITEM_STAGE_ID,
+  DEFAULT_STAGE_CONFIGS,
+} from "@/lib/config/default-stages";
 import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
@@ -83,6 +89,11 @@ export async function createItem(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
+    if (!DEFAULT_ITEM_STAGE_ID) {
+      logger.error("Missing default item stage configuration");
+      return { success: false, error: "Failed to create item" };
+    }
+
     const auth = await authenticateAndRateLimit({
       csrfToken,
       rateLimitPrefix: "tasks",
@@ -132,7 +143,7 @@ export async function createItem(
       };
     }
 
-    // Insert item
+    // Insert item (stage_id and label_id are NOT NULL in DB; use defaults when omitted)
     const insertObj: Record<string, unknown> = {
       id: validatedData.id,
       space_id: validatedData.space_id,
@@ -141,8 +152,8 @@ export async function createItem(
       encrypted_description: validatedData.encrypted_description,
       encrypted_start_date: validatedData.encrypted_start_date,
       encrypted_end_date: validatedData.encrypted_end_date,
-      stage_id: validatedData.stage_id ?? null,
-      label_id: validatedData.label_id ?? null,
+      stage_id: validatedData.stage_id ?? DEFAULT_ITEM_STAGE_ID,
+      label_id: validatedData.label_id ?? DEFAULT_ITEM_LABEL_ID,
     };
     if (validatedData.priority !== undefined) {
       insertObj.priority = validatedData.priority;
@@ -155,7 +166,11 @@ export async function createItem(
       .single();
 
     if (error || !item) {
-      logger.error("Error creating item:", error);
+      logger.error("Error creating item:", {
+        code: error?.code,
+        message: error?.message,
+        details: error?.details,
+      });
       return { success: false, error: "Failed to create item" };
     }
 

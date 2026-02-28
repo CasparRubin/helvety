@@ -8,7 +8,10 @@ import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
-import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
+import {
+  DEFAULT_SPACE_STAGE_ID,
+  DEFAULT_STAGE_CONFIGS,
+} from "@/lib/config/default-stages";
 import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
@@ -61,6 +64,11 @@ export async function createSpace(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
+    if (!DEFAULT_SPACE_STAGE_ID) {
+      logger.error("Missing default space stage configuration");
+      return { success: false, error: "Failed to create space" };
+    }
+
     const auth = await authenticateAndRateLimit({
       csrfToken,
       rateLimitPrefix: "tasks",
@@ -119,7 +127,7 @@ export async function createSpace(
         user_id: user.id,
         encrypted_title: validatedData.encrypted_title,
         encrypted_description: validatedData.encrypted_description,
-        stage_id: validatedData.stage_id ?? null,
+        stage_id: validatedData.stage_id ?? DEFAULT_SPACE_STAGE_ID,
       })
       .select("id")
       .single();

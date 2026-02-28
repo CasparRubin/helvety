@@ -101,7 +101,10 @@ const envSchema = z.object({
 export const serverEnvSchema = z.object({
   SUPABASE_SECRET_KEY: z
     .string()
-    .min(40, "SUPABASE_SECRET_KEY is too short to be a valid service role key"),
+    .min(
+      40,
+      "SUPABASE_SECRET_KEY is too short (use the secret key from Supabase Dashboard > API)"
+    ),
 });
 
 /**

@@ -8,7 +8,10 @@ import { logger } from "@helvety/shared/logger";
 import { after } from "next/server";
 import { z } from "zod";
 
-import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
+import {
+  DEFAULT_CATEGORY_CONFIG,
+  DEFAULT_CONTACT_CATEGORY_ID,
+} from "@/lib/config/default-categories";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
@@ -25,7 +28,6 @@ const ALLOWED_CATEGORY_IDS = DEFAULT_CATEGORY_CONFIG.categories.map(
   (category) => category.id
 ) as [string, ...string[]];
 const CategoryIdSchema = z.enum(ALLOWED_CATEGORY_IDS).optional();
-const DEFAULT_CONTACT_CATEGORY_ID = DEFAULT_CATEGORY_CONFIG.categories[0]?.id;
 
 /** Schema for creating a Contact */
 const CreateContactSchema = z.object({

@@ -78,6 +78,12 @@ const CONTACT_DEFAULT: DefaultCategoryConfig = {
 export const DEFAULT_CATEGORY_CONFIG: DefaultCategoryConfig = CONTACT_DEFAULT;
 
 /**
+ * First category ID — use when category_id is required and omitted.
+ */
+export const DEFAULT_CONTACT_CATEGORY_ID =
+  DEFAULT_CATEGORY_CONFIG.categories[0]?.id;
+
+/**
  * Check if a config ID is a default config
  */
 export function isDefaultConfigId(configId: string): boolean {

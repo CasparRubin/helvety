@@ -29,6 +29,13 @@ export type CreateSecurityProxyOptions = {
 /**
  * Creates a lightweight proxy function for Next.js proxy.ts.
  *
+ * DESIGN: This proxy is intentionally optimistic-only (CSP, CSRF, headers).
+ * Supabase's default SSR guide recommends proxy-based token refresh; we instead
+ * rely on Server Actions and Route Handlers to refresh sessions. Session refresh
+ * requires cookie writes, which Server Components cannot do; our createServerClient
+ * handles refresh in action/route context. CI guard-proxy-policy enforces this
+ * separation.
+ *
  * Config must be exported separately in each app (Next.js requires static config).
  *
  * Use in each app's proxy.ts:
@@ -83,9 +90,3 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
     return response;
   };
 }
-
-/**
- * @deprecated Use createSecurityProxy().
- * Kept for compatibility while imports migrate.
- */
-export const createSessionRefreshProxy = createSecurityProxy;
