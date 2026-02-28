@@ -7,6 +7,59 @@ import { getSupabaseUrl } from "../env-validation";
 import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+/** Public tables that are user-owned and can be safely auto-scoped by user ID. */
+type ScopedTable =
+  | "attachment_audit_logs"
+  | "consent_events"
+  | "contacts"
+  | "entity_contact_links"
+  | "item_attachments"
+  | "items"
+  | "licensed_tenants"
+  | "purchases"
+  | "spaces"
+  | "subscriptions"
+  | "units"
+  | "user_auth_credentials"
+  | "user_passkey_params"
+  | "user_profiles";
+
+const USER_SCOPE_COLUMNS: Record<ScopedTable, "user_id" | "id"> = {
+  attachment_audit_logs: "user_id",
+  consent_events: "user_id",
+  contacts: "user_id",
+  entity_contact_links: "user_id",
+  item_attachments: "user_id",
+  items: "user_id",
+  licensed_tenants: "user_id",
+  purchases: "user_id",
+  spaces: "user_id",
+  subscriptions: "user_id",
+  units: "user_id",
+  user_auth_credentials: "user_id",
+  user_passkey_params: "user_id",
+  user_profiles: "id",
+};
+
+/**
+ * Forces the owner column on insert/upsert payloads.
+ * This prevents missing/incorrect ownership values in scoped write paths.
+ */
+function withScopeValue<T>(
+  table: ScopedTable,
+  payload: T | T[],
+  userId: string
+): T | T[] {
+  const scopeColumn = USER_SCOPE_COLUMNS[table];
+  const applyScope = (item: T) =>
+    ({
+      ...(item as object),
+      [scopeColumn]: userId,
+    }) as T;
+
+  return Array.isArray(payload) ? payload.map(applyScope) : applyScope(payload);
+}
+
 /**
  * Get the service role key from environment.
  * This key has full access to the database, bypassing RLS.
@@ -69,4 +122,58 @@ export function createAdminClient(): SupabaseClient<DatabaseSchema> {
   );
 
   return adminClient;
+}
+
+/**
+ * Returns a scoped admin query helper that always applies user ownership filters.
+ *
+ * SECURITY NOTES:
+ * - This is defense-in-depth around the service-role client.
+ * - SELECT/UPDATE/DELETE/UPSERT paths automatically apply the owner predicate.
+ * - INSERT/UPSERT force owner fields on payloads so callers cannot omit/mismatch ownership.
+ * - Keep raw createAdminClient() for system flows without a user context (webhooks, public APIs, etc.).
+ */
+export function createScopedAdminQuery(userId: string) {
+  if (!userId) {
+    throw new Error("createScopedAdminQuery requires a non-empty userId.");
+  }
+
+  const admin = createAdminClient();
+
+  return {
+    userId,
+    client: admin,
+    from(table: ScopedTable) {
+      const query = admin.from(table as never) as ReturnType<
+        SupabaseClient<DatabaseSchema>["from"]
+      >;
+      const scopeColumn = USER_SCOPE_COLUMNS[table];
+
+      return {
+        select(columns = "*", options?: Record<string, unknown>) {
+          return query.select(columns, options).eq(scopeColumn, userId);
+        },
+        update(values: Record<string, unknown>) {
+          return query.update(values).eq(scopeColumn, userId);
+        },
+        delete() {
+          return query.delete().eq(scopeColumn, userId);
+        },
+        insert(
+          values: Record<string, unknown> | Record<string, unknown>[],
+          options?: Record<string, unknown>
+        ) {
+          return query.insert(withScopeValue(table, values, userId), options);
+        },
+        upsert(
+          values: Record<string, unknown> | Record<string, unknown>[],
+          options?: Record<string, unknown>
+        ) {
+          return query
+            .upsert(withScopeValue(table, values, userId), options)
+            .eq(scopeColumn, userId);
+        },
+      };
+    },
+  };
 }

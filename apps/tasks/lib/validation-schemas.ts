@@ -14,10 +14,18 @@ export const EncryptedDataSchema = z
     (val) => {
       try {
         const parsed = JSON.parse(val);
+        const base64Regex = /^[A-Za-z0-9+/]+=*$/;
         return (
           typeof parsed.iv === "string" &&
+          parsed.iv.length >= 16 &&
+          parsed.iv.length <= 128 &&
+          base64Regex.test(parsed.iv) &&
           typeof parsed.ciphertext === "string" &&
-          typeof parsed.version === "number"
+          parsed.ciphertext.length >= 24 &&
+          base64Regex.test(parsed.ciphertext) &&
+          typeof parsed.version === "number" &&
+          Number.isInteger(parsed.version) &&
+          parsed.version >= 1
         );
       } catch {
         return false;

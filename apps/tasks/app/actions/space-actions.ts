@@ -3,10 +3,13 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
+import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, SpaceRow } from "@/lib/types";
@@ -15,10 +18,11 @@ import type { ActionResponse, SpaceRow } from "@/lib/types";
 // Input Validation Schemas
 // =============================================================================
 
-/** Schema for stage_id - accepts only the fixed default space stage ID */
-const StageIdSchema = z
-  .literal(DEFAULT_STAGE_CONFIGS.space.stages[0]!.id)
-  .optional();
+/** Schema for stage_id - accepts only built-in default space stage IDs */
+const ALLOWED_SPACE_STAGE_IDS = DEFAULT_STAGE_CONFIGS.space.stages.map(
+  (stage) => stage.id
+) as [string, ...string[]];
+const StageIdSchema = z.enum(ALLOWED_SPACE_STAGE_IDS).nullable().optional();
 
 /** Schema for creating a Space */
 const CreateSpaceSchema = z.object({
@@ -67,7 +71,12 @@ export async function createSpace(
     // Validate input
     const validationResult = CreateSpaceSchema.safeParse(data);
     if (!validationResult.success) {
-      logger.warn("Invalid space data:", validationResult.error.format());
+      logger.warn("Invalid space data", {
+        fields: validationResult.error.issues.map((issue) =>
+          issue.path.join(".")
+        ),
+        issueCount: validationResult.error.issues.length,
+      });
       return { success: false, error: "Invalid space data" };
     }
     const validatedData = validationResult.data;
@@ -82,6 +91,23 @@ export async function createSpace(
 
     if (unitError || !unit) {
       return { success: false, error: "Unit not found" };
+    }
+
+    // Enforce per-unit Space limit before insert.
+    const { count: spaceCount, error: countError } = await supabase
+      .from("spaces")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("unit_id", validatedData.unit_id);
+    if (countError) {
+      logger.error("Error counting spaces for unit:", countError);
+      return { success: false, error: "Failed to create space" };
+    }
+    if ((spaceCount ?? 0) >= ENTITY_LIMITS.MAX_SPACES_PER_UNIT) {
+      return {
+        success: false,
+        error: `Space limit reached (max ${ENTITY_LIMITS.MAX_SPACES_PER_UNIT} per unit)`,
+      };
     }
 
     // Insert space
@@ -208,10 +234,12 @@ export async function updateSpace(
     // Validate input
     const validationResult = UpdateSpaceSchema.safeParse(data);
     if (!validationResult.success) {
-      logger.warn(
-        "Invalid space update data:",
-        validationResult.error.format()
-      );
+      logger.warn("Invalid space update data", {
+        fields: validationResult.error.issues.map((issue) =>
+          issue.path.join(".")
+        ),
+        issueCount: validationResult.error.issues.length,
+      });
       return { success: false, error: "Invalid space data" };
     }
     const validatedData = validationResult.data;
@@ -254,8 +282,8 @@ export async function updateSpace(
 
 /**
  * Delete a Space (cascades to all Items and their Attachments).
- * Encrypted attachment files are automatically removed from storage
- * by the `on_attachment_deleted` database trigger.
+ * Cascading deletes remove related item and attachment rows in Postgres.
+ * Storage cleanup for cascaded attachment files is handled separately.
  */
 export async function deleteSpace(
   id: string,
@@ -273,6 +301,39 @@ export async function deleteSpace(
       return { success: false, error: "Invalid space ID" };
     }
 
+    // Collect storage paths for attachments under this space before delete.
+    const { data: items, error: itemsError } = await supabase
+      .from("items")
+      .select("id")
+      .eq("space_id", id)
+      .eq("user_id", user.id);
+    if (itemsError) {
+      logger.error("Error fetching space items for cleanup:", itemsError);
+      return { success: false, error: "Failed to delete space" };
+    }
+
+    const itemIds = (items ?? []).map((item) => item.id);
+    let attachmentPaths: string[] = [];
+    if (itemIds.length > 0) {
+      const { data: attachments, error: attachmentsError } = await supabase
+        .from("item_attachments")
+        .select("storage_path")
+        .in("item_id", itemIds)
+        .eq("user_id", user.id);
+      if (attachmentsError) {
+        logger.error(
+          "Error fetching space attachment paths for cleanup:",
+          attachmentsError
+        );
+        return { success: false, error: "Failed to delete space" };
+      }
+      attachmentPaths = (attachments ?? [])
+        .map((row) => row.storage_path)
+        .filter(
+          (path): path is string => typeof path === "string" && path.length > 0
+        );
+    }
+
     // Delete space (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
       .from("spaces")
@@ -283,6 +344,19 @@ export async function deleteSpace(
     if (error) {
       logger.error("Error deleting space:", error);
       return { success: false, error: "Failed to delete space" };
+    }
+
+    if (attachmentPaths.length > 0) {
+      const adminClient = createAdminClient();
+      const { error: storageError } = await adminClient.storage
+        .from(ATTACHMENT_BUCKET)
+        .remove(attachmentPaths);
+      if (storageError) {
+        logger.error(
+          "Error deleting cascaded space attachment files:",
+          storageError
+        );
+      }
     }
 
     return { success: true };

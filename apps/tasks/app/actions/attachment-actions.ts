@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { headers } from "next/headers";
@@ -55,9 +56,15 @@ const EncryptedMetadataSchema = z
     (val) => {
       try {
         const parsed = JSON.parse(val);
+        const base64Regex = /^[A-Za-z0-9+/]+=*$/;
         return (
           typeof parsed.iv === "string" &&
+          parsed.iv.length >= 16 &&
+          parsed.iv.length <= 128 &&
+          base64Regex.test(parsed.iv) &&
           typeof parsed.ciphertext === "string" &&
+          parsed.ciphertext.length >= 24 &&
+          base64Regex.test(parsed.ciphertext) &&
           typeof parsed.version === "number"
         );
       } catch {
@@ -106,7 +113,12 @@ export async function createAttachment(
     // Validate input
     const validationResult = CreateAttachmentSchema.safeParse(data);
     if (!validationResult.success) {
-      logger.warn("Invalid attachment data:", validationResult.error.format());
+      logger.warn("Invalid attachment data", {
+        fields: validationResult.error.issues.map((issue) =>
+          issue.path.join(".")
+        ),
+        issueCount: validationResult.error.issues.length,
+      });
       return { success: false, error: "Invalid attachment data" };
     }
     const validatedData = validationResult.data;
@@ -162,6 +174,23 @@ export async function createAttachment(
 
     if (itemError || !item) {
       return { success: false, error: "Item not found" };
+    }
+
+    // Enforce per-item attachment count limit before insert.
+    const { count: attachmentCount, error: countError } = await supabase
+      .from("item_attachments")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("item_id", validatedData.item_id);
+    if (countError) {
+      logger.error("Error counting item attachments:", countError);
+      return { success: false, error: "Failed to create attachment" };
+    }
+    if ((attachmentCount ?? 0) >= ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM) {
+      return {
+        success: false,
+        error: `Attachment limit reached (max ${ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM} per item)`,
+      };
     }
 
     // Capture IP for audit logging

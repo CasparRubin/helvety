@@ -1,6 +1,6 @@
 /**
  * Fixed category catalog for Contacts.
- * One immutable category exists across all contacts.
+ * Categories are immutable and defined in code.
  */
 
 // =============================================================================
@@ -37,16 +37,32 @@ export interface DefaultCategoryConfig {
 // =============================================================================
 
 const CONTACT_DEFAULT: DefaultCategoryConfig = {
-  id: "default-contact-category-config",
-  name: "Contact Category",
+  id: "default-contact",
+  name: "Contacts Default",
   isDefault: true,
   categories: [
     {
-      id: "default-contact-category",
-      name: "Default",
+      id: "default-contact-work",
+      name: "Work",
       color: "#0ea5e9",
-      icon: "user",
+      icon: "briefcase",
       sort_order: 0,
+      default_rows_shown: 20,
+    },
+    {
+      id: "default-contact-family",
+      name: "Family",
+      color: "#22c55e",
+      icon: "home",
+      sort_order: 1,
+      default_rows_shown: 20,
+    },
+    {
+      id: "default-contact-friends",
+      name: "Friends",
+      color: "#8b5cf6",
+      icon: "users",
+      sort_order: 2,
       default_rows_shown: 20,
     },
   ],

@@ -11,7 +11,7 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { urls } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
 import { isValidRelativePath } from "@helvety/shared/redirect-validation";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { after } from "next/server";
 import { z } from "zod";
 
@@ -100,7 +100,7 @@ export async function getUserSubscriptions(): Promise<
 
     // Batch fetch from Stripe in parallel (fixes N+1 query pattern)
     if (subsNeedingBackfill.length > 0) {
-      const adminClient = createAdminClient();
+      const scopedAdmin = createScopedAdminQuery(user.id);
 
       const stripeResults = await Promise.allSettled(
         subsNeedingBackfill.map(async (sub) => {
@@ -147,7 +147,7 @@ export async function getUserSubscriptions(): Promise<
           sub.current_period_start = periodStart ?? sub.current_period_start;
 
           // Update database (fire and forget - don't block the response)
-          adminClient
+          scopedAdmin
             .from("subscriptions")
             .update({
               current_period_end: periodEnd,
@@ -156,7 +156,8 @@ export async function getUserSubscriptions(): Promise<
               }),
             })
             .eq("id", sub.id)
-            .then(({ error }) => {
+            .then((result: { error: unknown }) => {
+              const { error } = result;
               if (error) {
                 logger.warn(
                   `Could not update period for subscription ${sub.id}:`,
@@ -370,13 +371,12 @@ export async function cancelSubscription(
       cancel_at_period_end: true,
     });
 
-    // Update local record (user_id filter is belt-and-suspenders alongside the RLS check above)
-    const adminClient = createAdminClient();
-    await adminClient
+    // Update local record through scoped admin query (auto-enforces user scope).
+    const scopedAdmin = createScopedAdminQuery(user.id);
+    await scopedAdmin
       .from("subscriptions")
       .update({ cancel_at_period_end: true })
-      .eq("id", subscriptionId)
-      .eq("user_id", user.id);
+      .eq("id", subscriptionId);
 
     logger.info(`Subscription ${subscriptionId} scheduled for cancellation`);
 
@@ -491,13 +491,12 @@ export async function reactivateSubscription(
       cancel_at_period_end: false,
     });
 
-    // Update local record (user_id filter is belt-and-suspenders alongside the RLS check above)
-    const adminClient = createAdminClient();
-    await adminClient
+    // Update local record through scoped admin query (auto-enforces user scope).
+    const scopedAdmin = createScopedAdminQuery(user.id);
+    await scopedAdmin
       .from("subscriptions")
       .update({ cancel_at_period_end: false })
-      .eq("id", subscriptionId)
-      .eq("user_id", user.id);
+      .eq("id", subscriptionId);
 
     logger.info(`Subscription ${subscriptionId} reactivated`);
 

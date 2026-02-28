@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => {
         })),
       };
     }
-    return { eq: credentialEq };
+    return credentialEq();
   });
 
   return {
@@ -76,6 +76,9 @@ vi.mock("@helvety/shared/supabase/admin", () => ({
         generateLink: mocks.adminGenerateLink,
       },
     },
+  })),
+  createScopedAdminQuery: vi.fn(() => ({
+    from: mocks.adminFrom,
   })),
 }));
 

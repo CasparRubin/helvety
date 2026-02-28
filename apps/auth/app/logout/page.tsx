@@ -47,6 +47,7 @@ function LogoutHandler() {
   const hasRun = useRef(false);
 
   useEffect(() => {
+    if (!csrfToken) return;
     if (hasRun.current) return;
     hasRun.current = true;
 

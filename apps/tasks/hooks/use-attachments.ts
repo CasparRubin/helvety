@@ -1,5 +1,6 @@
 "use client";
 
+import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useState, useCallback, useEffect, useRef } from "react";
@@ -11,6 +12,7 @@ import {
 } from "@/app/actions/attachment-actions";
 import {
   buildAttachmentStoragePath,
+  generateAttachmentStoragePrefix,
   getAttachmentPathOwner,
   isValidAttachmentStoragePath,
 } from "@/lib/attachment-storage-path";
@@ -138,6 +140,13 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         return false;
       }
 
+      if (attachments.length >= ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM) {
+        setError(
+          `Attachment limit reached. Maximum is ${ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM} per item.`
+        );
+        return false;
+      }
+
       // Client-side file size validation
       if (file.size > ATTACHMENT_MAX_SIZE_BYTES) {
         const maxMB = Math.round(ATTACHMENT_MAX_SIZE_BYTES / (1024 * 1024));
@@ -195,7 +204,12 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
           throw new Error("Not authenticated");
         }
 
-        const storagePath = buildAttachmentStoragePath(user.id, attachmentId);
+        const storagePrefix = generateAttachmentStoragePrefix();
+        const storagePath = buildAttachmentStoragePath(
+          user.id,
+          attachmentId,
+          storagePrefix
+        );
         const encryptedBlob = new Blob([encryptedBuffer], {
           type: "application/octet-stream",
         });
@@ -264,7 +278,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         return false;
       }
     },
-    [masterKey, csrfToken, itemId, refresh]
+    [masterKey, attachments.length, csrfToken, itemId, refresh]
   );
 
   /**

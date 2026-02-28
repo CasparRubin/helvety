@@ -10,7 +10,7 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { CONTACT_EMAIL } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
 import { RATE_LIMITS } from "@/lib/rate-limit";
@@ -159,24 +159,29 @@ export async function requestAccountDeletion(
     if (!auth.ok) return auth.response;
     const { user } = auth.ctx;
 
-    const adminClient = createAdminClient();
+    const scopedAdmin = createScopedAdminQuery(user.id);
+    const adminClient = scopedAdmin.client;
 
     // 1. Cancel all active Stripe subscriptions
-    const { data: subscriptions } = await adminClient
+    const { data: subscriptions } = await scopedAdmin
       .from("subscriptions")
       .select("stripe_subscription_id, status")
-      .eq("user_id", user.id)
       .in("status", ["active", "trialing", "past_due"]);
 
     if (subscriptions && subscriptions.length > 0) {
       const cancellableSubscriptions = subscriptions.filter(
-        (sub) => sub.stripe_subscription_id
+        (sub: {
+          stripe_subscription_id: string | null;
+        }): sub is { stripe_subscription_id: string } =>
+          typeof sub.stripe_subscription_id === "string" &&
+          sub.stripe_subscription_id.length > 0
       );
 
       if (cancellableSubscriptions.length > 0) {
         const results = await Promise.allSettled(
-          cancellableSubscriptions.map((sub) =>
-            stripe.subscriptions.cancel(sub.stripe_subscription_id)
+          cancellableSubscriptions.map(
+            (sub: { stripe_subscription_id: string }) =>
+              stripe.subscriptions.cancel(sub.stripe_subscription_id)
           )
         );
 
@@ -262,32 +267,28 @@ export async function exportUserData(): Promise<
     if (!auth.ok) return auth.response;
     const { user } = auth.ctx;
 
-    const adminClient = createAdminClient();
+    const scopedAdmin = createScopedAdminQuery(user.id);
 
     // Fetch all user data in parallel (independent queries)
     const [profileResult, subscriptionsResult, purchasesResult, tenantsResult] =
       await Promise.all([
-        adminClient
+        scopedAdmin
           .from("user_profiles")
           .select("email, display_name, created_at")
-          .eq("id", user.id)
           .single(),
-        adminClient
+        scopedAdmin
           .from("subscriptions")
           .select(
             "product_id, tier_id, status, created_at, current_period_end, cancel_at_period_end"
           )
-          .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
-        adminClient
+        scopedAdmin
           .from("purchases")
           .select("product_id, tier_id, amount_paid, currency, created_at")
-          .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
-        adminClient
+        scopedAdmin
           .from("licensed_tenants")
           .select("tenant_id, tenant_domain, display_name, created_at")
-          .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
       ]);
 
@@ -303,27 +304,51 @@ export async function exportUserData(): Promise<
         displayName: profile?.display_name ?? null,
         createdAt: profile?.created_at ?? user.created_at,
       },
-      subscriptions: (subscriptions ?? []).map((s) => ({
-        productId: s.product_id,
-        tierId: s.tier_id,
-        status: s.status,
-        createdAt: s.created_at,
-        currentPeriodEnd: s.current_period_end,
-        cancelAtPeriodEnd: s.cancel_at_period_end,
-      })),
-      purchases: (purchases ?? []).map((p) => ({
-        productId: p.product_id,
-        tierId: p.tier_id,
-        amountPaid: p.amount_paid,
-        currency: p.currency,
-        createdAt: p.created_at,
-      })),
-      tenants: (tenants ?? []).map((t) => ({
-        tenantId: t.tenant_id,
-        tenantDomain: t.tenant_domain,
-        displayName: t.display_name,
-        createdAt: t.created_at,
-      })),
+      subscriptions: (subscriptions ?? []).map(
+        (s: {
+          product_id: string;
+          tier_id: string;
+          status: string;
+          created_at: string;
+          current_period_end: string | null;
+          cancel_at_period_end: boolean | null;
+        }) => ({
+          productId: s.product_id,
+          tierId: s.tier_id,
+          status: s.status,
+          createdAt: s.created_at,
+          currentPeriodEnd: s.current_period_end,
+          cancelAtPeriodEnd: s.cancel_at_period_end,
+        })
+      ),
+      purchases: (purchases ?? []).map(
+        (p: {
+          product_id: string;
+          tier_id: string;
+          amount_paid: number | null;
+          currency: string | null;
+          created_at: string;
+        }) => ({
+          productId: p.product_id,
+          tierId: p.tier_id,
+          amountPaid: p.amount_paid,
+          currency: p.currency,
+          createdAt: p.created_at,
+        })
+      ),
+      tenants: (tenants ?? []).map(
+        (t: {
+          tenant_id: string;
+          tenant_domain: string | null;
+          display_name: string | null;
+          created_at: string;
+        }) => ({
+          tenantId: t.tenant_id,
+          tenantDomain: t.tenant_domain,
+          displayName: t.display_name,
+          createdAt: t.created_at,
+        })
+      ),
     };
 
     logger.info(`Data export requested for user ${user.id}`);

@@ -31,7 +31,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 25, 2026
+              Last updated: February 28, 2026
             </p>
           </header>
 
@@ -864,13 +864,14 @@ export default function TermsPage() {
               </li>
               <li>
                 Storage usage information (file sizes, upload timestamps,
-                storage paths)
+                randomized storage paths)
               </li>
               <li>Subscription and billing metadata</li>
               <li>
                 Non-encrypted structural metadata from Helvety Tasks and Helvety
                 Contacts (priority levels, display preferences such as sort
-                orders, entity relationships, and fixed category references)
+                orders, entity relationships, and immutable built-in taxonomy
+                references)
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -1028,7 +1029,8 @@ export default function TermsPage() {
                   Helvety Tasks and Helvety Contacts
                 </strong>{" "}
                 may have introductory or early-access pricing phases. See the
-                relevant product pages for current terms and pricing details.
+                relevant product pages for current terms, pricing details, and
+                current usage limits.
               </li>
             </ul>
             <p className="text-muted-foreground text-sm">
@@ -1054,9 +1056,9 @@ export default function TermsPage() {
               <strong className="text-foreground">Auto-Renewal:</strong> By
               subscribing, you authorize us to charge your payment method
               automatically at the start of each billing period. Before each
-              renewal, Stripe will charge your payment method and you will
-              receive a receipt from Stripe for each renewal charge. You can
-              view your subscription status and manage cancellation in the
+              renewal, Stripe will charge your payment method. Stripe may send
+              receipts according to your Stripe billing and email settings. You
+              can view your subscription status and manage cancellation in the
               subscriptions area at{" "}
               <a
                 href={`${urls.store}/subscriptions`}

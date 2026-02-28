@@ -1,6 +1,6 @@
 /**
  * Fixed stage catalog for Tasks entities.
- * One immutable stage exists for each entity type.
+ * Stages are immutable and defined in code.
  */
 
 import type { EntityType } from "@/lib/types";
@@ -24,49 +24,129 @@ export interface DefaultStageConfig {
 }
 
 const UNIT_DEFAULT: DefaultStageConfig = {
-  id: "default-unit-config",
-  name: "Unit Stage",
+  id: "default-unit",
+  name: "Units Default",
   isDefault: true,
   stages: [
     {
-      id: "default-unit-stage",
-      name: "Default",
+      id: "default-unit-work",
+      name: "Work",
       color: "#0ea5e9",
-      icon: "layers",
+      icon: "briefcase",
       sort_order: 0,
+      default_rows_shown: 20,
+    },
+    {
+      id: "default-unit-home",
+      name: "Home",
+      color: "#84cc16",
+      icon: "home",
+      sort_order: 1,
       default_rows_shown: 20,
     },
   ],
 };
 
 const SPACE_DEFAULT: DefaultStageConfig = {
-  id: "default-space-config",
-  name: "Space Stage",
+  id: "default-space",
+  name: "Spaces Default",
   isDefault: true,
   stages: [
     {
-      id: "default-space-stage",
-      name: "Default",
+      id: "default-space-upcoming",
+      name: "Upcoming",
       color: "#6366f1",
-      icon: "layers",
+      icon: "calendar",
       sort_order: 0,
       default_rows_shown: 20,
+    },
+    {
+      id: "default-space-progress",
+      name: "In Progress",
+      color: "#f97316",
+      icon: "loader",
+      sort_order: 1,
+      default_rows_shown: 20,
+    },
+    {
+      id: "default-space-completed",
+      name: "Completed",
+      color: "#22c55e",
+      icon: "check-circle",
+      sort_order: 2,
+      default_rows_shown: 5,
     },
   ],
 };
 
 const ITEM_DEFAULT: DefaultStageConfig = {
-  id: "default-item-config",
-  name: "Item Stage",
+  id: "default-item",
+  name: "Items Default",
   isDefault: true,
   stages: [
     {
-      id: "default-item-stage",
-      name: "Default",
+      id: "default-item-backlog",
+      name: "Backlog",
       color: "#64748b",
-      icon: "layers",
+      icon: "inbox",
       sort_order: 0,
+      default_rows_shown: 5,
+    },
+    {
+      id: "default-item-discovery",
+      name: "Discovery",
+      color: "#8b5cf6",
+      icon: "search",
+      sort_order: 1,
       default_rows_shown: 20,
+    },
+    {
+      id: "default-item-ready",
+      name: "Ready",
+      color: "#06b6d4",
+      icon: "clock-arrow-down",
+      sort_order: 2,
+      default_rows_shown: 20,
+    },
+    {
+      id: "default-item-progress",
+      name: "In Progress",
+      color: "#eab308",
+      icon: "loader",
+      sort_order: 3,
+      default_rows_shown: 20,
+    },
+    {
+      id: "default-item-testing",
+      name: "Testing",
+      color: "#d946ef",
+      icon: "flask-conical",
+      sort_order: 4,
+      default_rows_shown: 20,
+    },
+    {
+      id: "default-item-acceptance",
+      name: "Acceptance",
+      color: "#ec4899",
+      icon: "thumbs-up",
+      sort_order: 5,
+      default_rows_shown: 20,
+    },
+    {
+      id: "default-item-completed",
+      name: "Completed",
+      color: "#10b981",
+      icon: "check-circle",
+      sort_order: 6,
+      default_rows_shown: 5,
+    },
+    {
+      id: "default-item-void",
+      name: "The Void",
+      color: "#581c87",
+      icon: "circle-off",
+      sort_order: 7,
+      default_rows_shown: 0,
     },
   ],
 };

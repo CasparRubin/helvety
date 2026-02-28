@@ -3,11 +3,14 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
 import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
+import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ItemRow } from "@/lib/types";
@@ -16,13 +19,17 @@ import type { ActionResponse, ItemRow } from "@/lib/types";
 // Input Validation Schemas
 // =============================================================================
 
-/** Schema for stage_id - accepts only the fixed default item stage ID */
-const StageIdSchema = z
-  .literal(DEFAULT_STAGE_CONFIGS.item.stages[0]!.id)
-  .optional();
+/** Schema for stage_id - accepts only built-in default item stage IDs */
+const ALLOWED_ITEM_STAGE_IDS = DEFAULT_STAGE_CONFIGS.item.stages.map(
+  (stage) => stage.id
+) as [string, ...string[]];
+const StageIdSchema = z.enum(ALLOWED_ITEM_STAGE_IDS).nullable().optional();
 
-/** Schema for label_id - accepts only the fixed default item label ID */
-const LabelIdSchema = z.literal(DEFAULT_LABEL_CONFIG.labels[0]!.id).optional();
+/** Schema for label_id - accepts only built-in default item label IDs */
+const ALLOWED_ITEM_LABEL_IDS = DEFAULT_LABEL_CONFIG.labels.map(
+  (label) => label.id
+) as [string, ...string[]];
+const LabelIdSchema = z.enum(ALLOWED_ITEM_LABEL_IDS).nullable().optional();
 
 /** Priority validation: smallint 0-3 */
 const PrioritySchema = z.number().int().min(0).max(3).optional();
@@ -86,7 +93,12 @@ export async function createItem(
     // Validate input
     const validationResult = CreateItemSchema.safeParse(data);
     if (!validationResult.success) {
-      logger.warn("Invalid item data:", validationResult.error.format());
+      logger.warn("Invalid item data", {
+        fields: validationResult.error.issues.map((issue) =>
+          issue.path.join(".")
+        ),
+        issueCount: validationResult.error.issues.length,
+      });
       return { success: false, error: "Invalid item data" };
     }
     const validatedData = validationResult.data;
@@ -101,6 +113,23 @@ export async function createItem(
 
     if (spaceError || !space) {
       return { success: false, error: "Space not found" };
+    }
+
+    // Enforce per-space Item limit before insert.
+    const { count: itemCount, error: countError } = await supabase
+      .from("items")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("space_id", validatedData.space_id);
+    if (countError) {
+      logger.error("Error counting items for space:", countError);
+      return { success: false, error: "Failed to create item" };
+    }
+    if ((itemCount ?? 0) >= ENTITY_LIMITS.MAX_ITEMS_PER_SPACE) {
+      return {
+        success: false,
+        error: `Item limit reached (max ${ENTITY_LIMITS.MAX_ITEMS_PER_SPACE} per space)`,
+      };
     }
 
     // Insert item
@@ -239,7 +268,12 @@ export async function updateItem(
     // Validate input
     const validationResult = UpdateItemSchema.safeParse(data);
     if (!validationResult.success) {
-      logger.warn("Invalid item update data:", validationResult.error.format());
+      logger.warn("Invalid item update data", {
+        fields: validationResult.error.issues.map((issue) =>
+          issue.path.join(".")
+        ),
+        issueCount: validationResult.error.issues.length,
+      });
       return { success: false, error: "Invalid item data" };
     }
     const validatedData = validationResult.data;
@@ -294,8 +328,8 @@ export async function updateItem(
 
 /**
  * Delete an Item (cascades to all Attachments).
- * Encrypted attachment files are automatically removed from storage
- * by the `on_attachment_deleted` database trigger.
+ * Cascading deletes remove attachment rows in Postgres.
+ * Storage cleanup for cascaded attachment files is handled separately.
  */
 export async function deleteItem(
   id: string,
@@ -313,6 +347,20 @@ export async function deleteItem(
       return { success: false, error: "Invalid item ID" };
     }
 
+    // Read storage paths before deleting row so we can clean up blobs.
+    const { data: attachments, error: attachmentsError } = await supabase
+      .from("item_attachments")
+      .select("storage_path")
+      .eq("item_id", id)
+      .eq("user_id", user.id);
+    if (attachmentsError) {
+      logger.error(
+        "Error fetching item attachments for cleanup:",
+        attachmentsError
+      );
+      return { success: false, error: "Failed to delete item" };
+    }
+
     // Delete item (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
       .from("items")
@@ -323,6 +371,24 @@ export async function deleteItem(
     if (error) {
       logger.error("Error deleting item:", error);
       return { success: false, error: "Failed to delete item" };
+    }
+
+    const pathsToDelete = (attachments ?? [])
+      .map((row) => row.storage_path)
+      .filter(
+        (path): path is string => typeof path === "string" && path.length > 0
+      );
+    if (pathsToDelete.length > 0) {
+      const adminClient = createAdminClient();
+      const { error: storageError } = await adminClient.storage
+        .from(ATTACHMENT_BUCKET)
+        .remove(pathsToDelete);
+      if (storageError) {
+        logger.error(
+          "Error deleting cascaded item attachment files:",
+          storageError
+        );
+      }
     }
 
     return { success: true };

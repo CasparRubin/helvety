@@ -66,6 +66,14 @@ export async function GET(request: Request) {
     // Validate redirect URI against allowlist (prevents open redirect attacks)
     const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
 
+    // Validate OTP type early to avoid consuming callback rate-limit budget
+    // with malformed requests.
+    if (token_hash && type && !ALLOWED_OTP_TYPES.has(type)) {
+      return NextResponse.redirect(
+        buildErrorRedirect("invalid_type", safeRedirectUri)
+      );
+    }
+
     // Rate limit auth callbacks by IP to prevent abuse.
     const clientIP = getTrustedClientIp(request.headers, {
       requireTrustedProxyInProduction: true,
@@ -140,12 +148,6 @@ export async function GET(request: Request) {
 
     // Handle token hash (email OTP verification link)
     if (token_hash && type) {
-      if (!ALLOWED_OTP_TYPES.has(type)) {
-        return NextResponse.redirect(
-          buildErrorRedirect("invalid_type", safeRedirectUri)
-        );
-      }
-
       const supabase = await createServerClient();
       const { error } = await supabase.auth.verifyOtp({
         token_hash,

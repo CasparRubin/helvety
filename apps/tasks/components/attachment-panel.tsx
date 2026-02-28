@@ -1,5 +1,6 @@
 "use client";
 
+import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { cn } from "@helvety/shared/utils";
 import {
@@ -321,7 +322,19 @@ export function AttachmentPanel({
   const handleFiles = useCallback(
     async (files: FileList | File[]) => {
       const fileArray = Array.from(files);
-      for (const file of fileArray) {
+      const activeAttachmentCount =
+        attachments.length + uploads.filter((u) => u.status !== "error").length;
+      const remainingSlots =
+        ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM - activeAttachmentCount;
+
+      if (remainingSlots <= 0) {
+        logger.warn(
+          `Attachment limit reached: max ${ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM} per item`
+        );
+        return;
+      }
+
+      for (const file of fileArray.slice(0, remainingSlots)) {
         if (file.size > ATTACHMENT_MAX_SIZE_BYTES) {
           const maxMB = Math.round(ATTACHMENT_MAX_SIZE_BYTES / (1024 * 1024));
           // Skip oversized files with a warning (the hook also validates)
@@ -332,7 +345,7 @@ export function AttachmentPanel({
         await upload(file);
       }
     },
-    [upload]
+    [attachments.length, uploads, upload]
   );
 
   // Drag-and-drop handlers
@@ -463,8 +476,9 @@ export function AttachmentPanel({
           </p>
           <p className="text-muted-foreground/60 mt-0.5 text-[10px]">
             Max {Math.round(ATTACHMENT_MAX_SIZE_BYTES / (1024 * 1024))}MB per
-            file &middot; Files and attachment metadata are encrypted before
-            upload
+            file &middot; Max {ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM}{" "}
+            attachments per item &middot; Files and attachment metadata are
+            encrypted before upload
           </p>
           <input
             ref={fileInputRef}

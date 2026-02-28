@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { after } from "next/server";
 import { z } from "zod";
@@ -12,17 +13,18 @@ import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
 
-const MAX_REORDER_ITEMS = 200;
+const MAX_REORDER_ITEMS = ENTITY_LIMITS.MAX_CONTACTS_PER_USER;
 const REORDER_CHUNK_SIZE = 50;
 
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
 
-/** Schema for category_id - accepts only the fixed default category ID */
-const CategoryIdSchema = z
-  .literal(DEFAULT_CATEGORY_CONFIG.categories[0]!.id)
-  .optional();
+/** Schema for category_id - accepts only built-in default category IDs */
+const ALLOWED_CATEGORY_IDS = DEFAULT_CATEGORY_CONFIG.categories.map(
+  (category) => category.id
+) as [string, ...string[]];
+const CategoryIdSchema = z.enum(ALLOWED_CATEGORY_IDS).nullable().optional();
 
 /** Schema for creating a Contact */
 const CreateContactSchema = z.object({
@@ -99,10 +101,31 @@ export async function createContact(
     // Validate input
     const validationResult = CreateContactSchema.safeParse(data);
     if (!validationResult.success) {
-      logger.warn("Invalid contact data:", validationResult.error.format());
+      logger.warn("Invalid contact data", {
+        fields: validationResult.error.issues.map((issue) =>
+          issue.path.join(".")
+        ),
+        issueCount: validationResult.error.issues.length,
+      });
       return { success: false, error: "Invalid contact data" };
     }
     const validatedData = validationResult.data;
+
+    // Enforce per-user Contact limit before insert.
+    const { count: contactCount, error: countError } = await supabase
+      .from("contacts")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+    if (countError) {
+      logger.error("Error counting contacts:", countError);
+      return { success: false, error: "Failed to create contact" };
+    }
+    if ((contactCount ?? 0) >= ENTITY_LIMITS.MAX_CONTACTS_PER_USER) {
+      return {
+        success: false,
+        error: `Contact limit reached (max ${ENTITY_LIMITS.MAX_CONTACTS_PER_USER} per user)`,
+      };
+    }
 
     // Insert contact
     const { data: contact, error } = await supabase
@@ -237,10 +260,12 @@ export async function updateContact(
     // Validate input
     const validationResult = UpdateContactSchema.safeParse(data);
     if (!validationResult.success) {
-      logger.warn(
-        "Invalid contact update data:",
-        validationResult.error.format()
-      );
+      logger.warn("Invalid contact update data", {
+        fields: validationResult.error.issues.map((issue) =>
+          issue.path.join(".")
+        ),
+        issueCount: validationResult.error.issues.length,
+      });
       return { success: false, error: "Invalid contact data" };
     }
     const validatedData = validationResult.data;
@@ -352,7 +377,12 @@ export async function reorderContacts(
 
     const validationResult = ReorderSchema.safeParse(updates);
     if (!validationResult.success) {
-      logger.warn("Invalid reorder data:", validationResult.error.format());
+      logger.warn("Invalid reorder data", {
+        fields: validationResult.error.issues.map((issue) =>
+          issue.path.join(".")
+        ),
+        issueCount: validationResult.error.issues.length,
+      });
       return { success: false, error: "Invalid reorder data" };
     }
     const validatedUpdates = validationResult.data;

@@ -19,7 +19,7 @@ import { urls } from "@helvety/shared/config";
 import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { isValidRelativePath } from "@helvety/shared/redirect-validation";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -170,15 +170,14 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     let stripeCustomerId: string | undefined;
-    const adminClient = user ? createAdminClient() : null;
+    const scopedAdmin = user ? createScopedAdminQuery(user.id) : null;
 
     // If user is logged in, get or create their Stripe customer
-    if (user && adminClient) {
+    if (user && scopedAdmin) {
       // Check if user has a profile with Stripe customer ID
-      const { data: profile } = await adminClient
+      const { data: profile } = await scopedAdmin
         .from("user_profiles")
         .select("stripe_customer_id")
-        .eq("id", user.id)
         .single();
 
       if (profile?.stripe_customer_id) {
@@ -194,7 +193,7 @@ export async function POST(request: NextRequest) {
         stripeCustomerId = customer.id;
 
         // Save customer ID to profile (upsert in case profile doesn't exist)
-        const { error: profileUpsertError } = await adminClient
+        const { error: profileUpsertError } = await scopedAdmin
           .from("user_profiles")
           .upsert(
             {
@@ -266,10 +265,9 @@ export async function POST(request: NextRequest) {
     metadata.consent_version = consentVersion;
 
     // Persist consent event in Supabase for audit trail (nDSG compliance)
-    if (user && adminClient) {
+    if (user && scopedAdmin) {
       try {
-        await adminClient.from("consent_events").insert({
-          user_id: user.id,
+        await scopedAdmin.from("consent_events").insert({
           event_type: "checkout_consent",
           terms_version: consentVersion,
           privacy_version: consentVersion,

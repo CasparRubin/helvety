@@ -28,7 +28,7 @@ The store has four main sections, linked from the store nav bar (below the top n
 
 The root path (`/`) redirects all users to `/products`. No login is required to browse products.
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used. A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics and Speed Insights). A pre-checkout consent dialog records acceptance of the Terms of Service and Privacy Policy.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
@@ -44,7 +44,7 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 - **License Validation** - API for validating tenant licenses per product (supports multi-product licensing; optional HMAC-signed machine-to-machine mode available)
 - **Self-Service Account Deletion** - Delete your account from the Account page with a confirmation dialog; attempts to cancel active Stripe subscriptions and remove account-linked data, with backend safeguards and cleanup retries
 - **Self-Service Data Export** - Export your profile, subscription history, purchase history, and tenant registrations as a JSON file from the Account page (designed to support nDSG Art. 28 data portability requests)
-- **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is recorded in both Stripe session metadata and a dedicated `consent_events` database table for audit compliance
+- **Consent Audit Trail** - Pre-checkout consent (Terms of Service & Privacy Policy acceptance) is always recorded in Stripe session metadata; for signed-in checkouts, consent is also recorded in a dedicated `consent_events` database table for auditability
 - **Dark & Light mode** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 
@@ -79,27 +79,29 @@ This application includes the following security hardening:
 - **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
 - **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (aligned with published CVE-2025-29927 mitigation guidance)
 - **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
-- **CSRF Protection** - Token-based protection for state-changing operations
+- **CSRF Protection** - Token-based protection is enforced on high-impact browser-initiated mutations; server-to-server webhook endpoints use Stripe signature verification instead of CSRF tokens
 - **Rate Limiting** - Protection against brute force attacks
 - **Security Headers** - CSP, HSTS, and other security headers
+- **RLS Write Boundaries (Billing Data)** - `public.purchases` allows user-scoped `SELECT` only; direct authenticated `INSERT/UPDATE/DELETE` are denied by active RLS policies. Any purchase writes must run through privileged server-side flows using the Supabase service-role client.
+- **RLS Delete Boundaries (Profiles)** - `public.user_profiles` direct authenticated `DELETE` is explicitly denied. Profile row removal is handled by `ON DELETE CASCADE` from `auth.users` during account deletion flows.
 
 ## Environment Variables
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                                                 | Required | Server-only | Description                                        |
-| -------------------------------------------------------- | -------- | ----------- | -------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`                               | Yes      | No          | Supabase project URL                               |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                   | Yes      | No          | Publishable key (RLS applies)                      |
-| `SUPABASE_SECRET_KEY`                                    | Yes      | **Yes**     | Service role key; bypasses RLS. Never expose.      |
-| `STRIPE_SECRET_KEY`                                      | Yes      | **Yes**     | Stripe API key. Never expose.                      |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`                     | Yes      | No          | Stripe publishable key (client-side)               |
-| `STRIPE_WEBHOOK_SECRET`                                  | Yes      | **Yes**     | Webhook signature verification. Never expose.      |
-| `STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID`      | Yes      | **Yes**     | Stripe price ID for Solo plan                      |
-| `STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID` | Yes      | **Yes**     | Stripe price ID for Supported plan                 |
-| `LICENSE_VALIDATION_SHARED_SECRET`                       | No       | **Yes**     | HMAC secret for SPFx license validation. Optional. |
-| `UPSTASH_REDIS_REST_URL`                                 | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.       |
-| `UPSTASH_REDIS_REST_TOKEN`                               | Prod     | **Yes**     | Redis token. Prod: required.                       |
+| Variable                                                 | Required | Server-only | Description                                                                     |
+| -------------------------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`                               | Yes      | No          | Supabase project URL                                                            |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                   | Yes      | No          | Publishable key (RLS applies)                                                   |
+| `SUPABASE_SECRET_KEY`                                    | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Never expose. |
+| `STRIPE_SECRET_KEY`                                      | Yes      | **Yes**     | Stripe API key. Never expose.                                                   |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`                     | Yes      | No          | Stripe publishable key (client-side)                                            |
+| `STRIPE_WEBHOOK_SECRET`                                  | Yes      | **Yes**     | Webhook signature verification. Never expose.                                   |
+| `STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID`      | Optional | **Yes**     | Stripe price ID for Solo plan (required only if this paid tier is enabled)      |
+| `STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID` | Optional | **Yes**     | Stripe price ID for Supported plan (required only if this paid tier is enabled) |
+| `LICENSE_VALIDATION_SHARED_SECRET`                       | No       | **Yes**     | HMAC secret for SPFx license validation. Optional.                              |
+| `UPSTASH_REDIS_REST_URL`                                 | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.                                    |
+| `UPSTASH_REDIS_REST_TOKEN`                               | Prod     | **Yes**     | Redis token. Prod: required.                                                    |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 

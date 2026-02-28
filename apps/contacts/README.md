@@ -28,8 +28,8 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Link support
   - Unsaved changes detection with confirmation dialog
   - Manual note editing with unsaved-changes detection
-  - **Action panel** - View dates and the fixed contact category directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
-- **Fixed category** - A single immutable default category is enforced for all contacts
+  - **Action panel** - View dates and the immutable built-in contact categories directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
+- **Fixed categories** - An immutable built-in category set is enforced for all contacts (Work, Family, Friends)
 - **Drag & drop reordering** - Rearrange contacts on desktop; mobile uses up/down arrows for ordering controls
 - **Task linking** - Link, unlink, and view task entities from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
   - **Bidirectional** - Link and unlink task entities from either the Contacts app or the Tasks app for consistent cross-app UX
@@ -40,17 +40,21 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Switch between dark and light themes
 
+## Current Usage Limits
+
+- Max **250 contacts** per user
+
 ## Environment Variables
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                   |
-| -------------------------------------- | -------- | ----------- | --------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                          |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                 |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key; bypasses RLS. Never expose. |
-| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.  |
-| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                  |
+| Variable                               | Required | Server-only | Description                                                                     |
+| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                            |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                   |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Never expose. |
+| `UPSTASH_REDIS_REST_URL`               | Prod     | **Yes**     | Redis URL for rate limiting. Prod: required.                                    |
+| `UPSTASH_REDIS_REST_TOKEN`             | Prod     | **Yes**     | Redis token. Prod: required.                                                    |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
@@ -88,7 +92,7 @@ Helvety Contacts uses end-to-end encryption (E2EE), as does Helvety Tasks. In su
 | `user_id`                  | Row Level Security (RLS)                           |
 | `created_at`, `updated_at` | Timestamps                                         |
 | `sort_order`               | Display ordering                                   |
-| `category_id` (Contact)    | Fixed default category reference                   |
+| `category_id` (Contact)    | Immutable built-in category reference              |
 
 Browser compatibility for end-to-end encryption depends on WebAuthn PRF support and can evolve over time:
 
@@ -137,7 +141,7 @@ This application includes the following security hardening:
 - **Rate Limiting** - Protection against brute force attacks
 - **Security Headers** - CSP, HSTS, and other security headers
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice informs visitors that only essential cookies are used.
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics and Speed Insights).
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 

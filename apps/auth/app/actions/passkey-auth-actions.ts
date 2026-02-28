@@ -7,7 +7,10 @@ import { urls } from "@helvety/shared/config";
 import { generateCSRFToken, requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
+import {
+  createAdminClient,
+  createScopedAdminQuery,
+} from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import {
   generateAuthenticationOptions as generateAuthOptions,
@@ -107,7 +110,6 @@ export async function generatePasskeyAuthOptions(
 
   try {
     const rpId = getRpId(origin);
-    const adminClient = createAdminClient();
     let expectedUserId: string | undefined;
     let allowCredentials: GenerateAuthenticationOptionsOpts["allowCredentials"] =
       [];
@@ -126,11 +128,11 @@ export async function generatePasskeyAuthOptions(
       }
 
       expectedUserId = user.id;
+      const scopedAdmin = createScopedAdminQuery(user.id);
 
-      const { data: credentials, error: credentialsError } = await adminClient
+      const { data: credentials, error: credentialsError } = await scopedAdmin
         .from("user_auth_credentials")
-        .select("credential_id, transports")
-        .eq("user_id", user.id);
+        .select("credential_id, transports");
 
       if (credentialsError || !credentials || credentials.length === 0) {
         logger.error("No passkey credentials found for expected user", {
@@ -144,10 +146,12 @@ export async function generatePasskeyAuthOptions(
         };
       }
 
-      allowCredentials = credentials.map((item) => ({
-        id: item.credential_id,
-        transports: (item.transports ?? []) as AuthenticatorTransportFuture[],
-      }));
+      allowCredentials = credentials.map(
+        (item: { credential_id: string; transports: string[] | null }) => ({
+          id: item.credential_id,
+          transports: (item.transports ?? []) as AuthenticatorTransportFuture[],
+        })
+      );
     }
 
     const opts: GenerateAuthenticationOptionsOpts = {
@@ -352,17 +356,21 @@ export async function verifyPasskeyAuthentication(
       // Security: Counter update is CRITICAL - if it fails, we must fail the
       // authentication to prevent replay attacks where the same authentication
       // response is used multiple times.
-      const { error: updateError } = await adminClient
+      const scopedAdmin = createScopedAdminQuery(credential.user_id);
+      const { data: updatedCredential, error: updateError } = await scopedAdmin
         .from("user_auth_credentials")
         .update({
           counter: verification.authenticationInfo.newCounter,
           last_used_at: new Date().toISOString(),
         })
-        .eq("credential_id", response.id);
+        .eq("credential_id", response.id)
+        .eq("counter", credential.counter)
+        .select("credential_id")
+        .maybeSingle();
 
-      if (updateError) {
+      if (updateError || !updatedCredential) {
         logger.error(
-          "Error updating counter - failing auth for security:",
+          "Error updating counter (or concurrent counter change) - failing auth for security:",
           updateError
         );
         return {

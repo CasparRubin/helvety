@@ -5,7 +5,7 @@ import "server-only";
 import { PRF_VERSION } from "@helvety/shared/crypto";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import {
   generateRegistrationOptions as generateRegOptions,
@@ -75,7 +75,6 @@ export async function generatePasskeyRegistrationOptions(
 
   try {
     const supabase = await createServerClient();
-    const adminClient = createAdminClient();
 
     // Get current user - must be authenticated to register a passkey
     const {
@@ -101,19 +100,22 @@ export async function generatePasskeyRegistrationOptions(
       };
     }
 
+    const scopedAdmin = createScopedAdminQuery(user.id);
     const rpId = getRpId(origin);
 
-    // Use adminClient to bypass deny-all RLS policy on user_auth_credentials
-    const { data: existingCredentials } = await adminClient
+    // Use scoped admin query (service-role client under the hood) because
+    // user_auth_credentials has deny-all RLS for client roles.
+    const { data: existingCredentials } = await scopedAdmin
       .from("user_auth_credentials")
-      .select("credential_id, transports")
-      .eq("user_id", user.id);
+      .select("credential_id, transports");
 
     const excludeCredentials =
-      existingCredentials?.map((cred) => ({
-        id: cred.credential_id,
-        transports: (cred.transports ?? []) as AuthenticatorTransportFuture[],
-      })) ?? [];
+      existingCredentials?.map(
+        (cred: { credential_id: string; transports: string[] | null }) => ({
+          id: cred.credential_id,
+          transports: (cred.transports ?? []) as AuthenticatorTransportFuture[],
+        })
+      ) ?? [];
 
     const opts: GenerateRegistrationOptionsOpts = {
       rpName: RP_NAME,
@@ -207,7 +209,6 @@ export async function verifyPasskeyRegistration(
 
   try {
     const supabase = await createServerClient();
-    const adminClient = createAdminClient();
 
     // Get current user
     const {
@@ -233,6 +234,7 @@ export async function verifyPasskeyRegistration(
       };
     }
 
+    const scopedAdmin = createScopedAdminQuery(user.id);
     // Retrieve stored challenge
     const storedData = await getStoredChallenge();
     if (!storedData) {
@@ -276,11 +278,11 @@ export async function verifyPasskeyRegistration(
       "base64url"
     );
 
-    // Use adminClient to bypass deny-all RLS policy on user_auth_credentials
-    const { error: insertError } = await adminClient
+    // Use scoped admin query (service-role client under the hood) because
+    // user_auth_credentials has deny-all RLS for client roles.
+    const { error: insertError } = await scopedAdmin
       .from("user_auth_credentials")
       .insert({
-        user_id: user.id,
         credential_id: credential.id,
         public_key: publicKeyBase64,
         counter: credential.counter,

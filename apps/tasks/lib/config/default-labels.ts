@@ -1,6 +1,6 @@
 /**
  * Fixed label catalog for Items.
- * One immutable label exists across all items.
+ * Labels are immutable and defined in code.
  */
 
 // =============================================================================
@@ -35,16 +35,44 @@ export interface DefaultLabelConfig {
 // =============================================================================
 
 const ITEM_DEFAULT: DefaultLabelConfig = {
-  id: "default-item-label-config",
-  name: "Item Label",
+  id: "default-labels",
+  name: "Default Labels",
   isDefault: true,
   labels: [
     {
-      id: "default-item-label",
-      name: "Default",
-      color: "#4f46e5",
-      icon: "tag",
+      id: "default-label-bug",
+      name: "Bug",
+      color: "#f87171",
+      icon: "bug",
       sort_order: 0,
+    },
+    {
+      id: "default-label-change-request",
+      name: "Change Request",
+      color: "#fb923c",
+      icon: "refresh-cw",
+      sort_order: 1,
+    },
+    {
+      id: "default-label-feature",
+      name: "Feature",
+      color: "#4ade80",
+      icon: "star",
+      sort_order: 2,
+    },
+    {
+      id: "default-label-improvement",
+      name: "Improvement",
+      color: "#60a5fa",
+      icon: "trending-up",
+      sort_order: 3,
+    },
+    {
+      id: "default-label-internal-task",
+      name: "Internal Task",
+      color: "#a78bfa",
+      icon: "briefcase",
+      sort_order: 4,
     },
   ],
 };

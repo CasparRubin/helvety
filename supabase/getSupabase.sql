@@ -54,7 +54,7 @@
 --       - Security Summary (replicates Supabase Security Advisor lints):
 --           0001: Unindexed foreign keys
 --           0002: auth.users exposed in views
---           0003: RLS policies without (SELECT ...) wrapper on auth calls
+--           0003: RLS policies using deprecated auth helpers
 --           0004: Tables without primary keys
 --           0006: Multiple permissive policies per command
 --           0010: Security definer views (missing security_invoker)
@@ -1603,40 +1603,38 @@ SELECT json_build_object(
       ),
 
       -- =================================================================
-      -- LINT 0003: RLS Policies Without (SELECT ...) Wrapper
-      -- Policies using auth.uid() or auth.jwt() without wrapping in
-      -- (SELECT auth.uid()) cause the function to evaluate per-row
-      -- instead of once, hurting performance and potentially security.
-      -- Note: pg_policies deparses scalar subqueries as ( SELECT auth.uid() AS uid),
-      -- so we treat "wrapped" as containing "select auth.uid()" (subquery form).
+      -- LINT 0003: RLS Policies Using Deprecated auth.* Helpers
+      -- Flags policies that still reference deprecated auth helpers instead
+      -- of claim-based expressions (e.g. (auth.jwt() ->> 'sub')::uuid).
       -- =================================================================
-      'auth_rls_without_select_wrapper', (
+      'deprecated_auth_helpers_in_policies', (
         SELECT COALESCE(json_agg(
           json_build_object(
             'schema', schemaname,
             'table_name', tablename,
             'policy_name', policyname,
             'command', cmd,
-            'has_unwrapped_auth_uid',
-              (COALESCE(qual, '') ILIKE '%auth.uid()%'
-               AND COALESCE(qual, '') NOT ILIKE '%select auth.uid()%')
-              OR (COALESCE(with_check, '') ILIKE '%auth.uid()%'
-                  AND COALESCE(with_check, '') NOT ILIKE '%select auth.uid()%'),
-            'has_unwrapped_auth_jwt',
-              (COALESCE(qual, '') ILIKE '%auth.jwt()%'
-               AND COALESCE(qual, '') NOT ILIKE '%select auth.jwt()%')
-              OR (COALESCE(with_check, '') ILIKE '%auth.jwt()%'
-                  AND COALESCE(with_check, '') NOT ILIKE '%select auth.jwt()%')
+            'uses_auth_uid',
+              COALESCE(qual, '') ILIKE '%auth.uid()%'
+              OR COALESCE(with_check, '') ILIKE '%auth.uid()%',
+            'uses_auth_role',
+              COALESCE(qual, '') ILIKE '%auth.role()%'
+              OR COALESCE(with_check, '') ILIKE '%auth.role()%',
+            'uses_auth_email',
+              COALESCE(qual, '') ILIKE '%auth.email()%'
+              OR COALESCE(with_check, '') ILIKE '%auth.email()%'
           )
           ORDER BY schemaname, tablename, policyname
         ), '[]'::json)
         FROM pg_policies
         WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
           AND (
-            (COALESCE(qual, '') ILIKE '%auth.uid()%' AND COALESCE(qual, '') NOT ILIKE '%select auth.uid()%')
-            OR (COALESCE(with_check, '') ILIKE '%auth.uid()%' AND COALESCE(with_check, '') NOT ILIKE '%select auth.uid()%')
-            OR (COALESCE(qual, '') ILIKE '%auth.jwt()%' AND COALESCE(qual, '') NOT ILIKE '%select auth.jwt()%')
-            OR (COALESCE(with_check, '') ILIKE '%auth.jwt()%' AND COALESCE(with_check, '') NOT ILIKE '%select auth.jwt()%')
+            COALESCE(qual, '') ILIKE '%auth.uid()%'
+            OR COALESCE(with_check, '') ILIKE '%auth.uid()%'
+            OR COALESCE(qual, '') ILIKE '%auth.role()%'
+            OR COALESCE(with_check, '') ILIKE '%auth.role()%'
+            OR COALESCE(qual, '') ILIKE '%auth.email()%'
+            OR COALESCE(with_check, '') ILIKE '%auth.email()%'
           )
       ),
 

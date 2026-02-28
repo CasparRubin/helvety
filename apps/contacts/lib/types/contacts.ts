@@ -60,7 +60,7 @@ export interface ContactInput {
   /** ISO date string, e.g. "2000-01-15" */
   birthday: string | null;
   notes: string | null;
-  /** Optional category ID - must be the fixed default category ID ("default-contact-category"). */
+  /** Optional category ID - must be one of the built-in immutable category IDs. */
   category_id?: string | null;
 }
 

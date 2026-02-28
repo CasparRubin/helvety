@@ -56,7 +56,7 @@ export interface Unit {
 export interface UnitInput {
   title: string;
   description: string | null;
-  /** Optional stage ID - must be the fixed default unit stage ID ("default-unit-stage"). */
+  /** Optional stage ID - must be one of the built-in immutable unit stage IDs. */
   stage_id?: string | null;
 }
 
@@ -98,7 +98,7 @@ export interface SpaceInput {
   unit_id: string;
   title: string;
   description: string | null;
-  /** Optional stage ID - must be the fixed default space stage ID ("default-space-stage"). */
+  /** Optional stage ID - must be one of the built-in immutable space stage IDs. */
   stage_id?: string | null;
 }
 
@@ -156,9 +156,9 @@ export interface ItemInput {
   start_date?: string | null;
   /** Optional ISO datetime string for the end date/time */
   end_date?: string | null;
-  /** Optional stage ID - must be the fixed default item stage ID ("default-item-stage"). */
+  /** Optional stage ID - must be one of the built-in immutable item stage IDs. */
   stage_id?: string | null;
-  /** Optional label ID - must be the fixed default item label ID ("default-item-label"). */
+  /** Optional label ID - must be one of the built-in immutable item label IDs. */
   label_id?: string | null;
   /** Optional priority (0=low, 1=normal, 2=high, 3=urgent). Defaults to 1 (normal) in DB. */
   priority?: number;
@@ -374,7 +374,10 @@ export interface AttachmentRow {
   id: string;
   item_id: string;
   user_id: string;
-  /** Path in the Supabase Storage bucket (e.g., "{user_id}/{attachment_id}") */
+  /**
+   * Path in the Supabase Storage bucket
+   * (e.g., "{random_prefix}/{user_id}/{attachment_id}").
+   */
   storage_path: string;
   /** AES-256-GCM encrypted JSON string containing AttachmentMetadata */
   encrypted_metadata: string;
@@ -387,7 +390,7 @@ export interface Attachment {
   id: string;
   item_id: string;
   user_id: string;
-  /** Path in the Supabase Storage bucket */
+  /** Path in the Supabase Storage bucket ("{random_prefix}/{user_id}/{attachment_id}") */
   storage_path: string;
   /** Decrypted file metadata */
   metadata: AttachmentMetadata;

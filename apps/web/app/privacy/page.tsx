@@ -31,7 +31,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 25, 2026
+              Last updated: February 28, 2026
             </p>
           </header>
 
@@ -451,7 +451,8 @@ export default function PrivacyPage() {
                 functionality: record identifiers, timestamps, priority levels,
                 display preferences (sort orders), entity relationships (e.g.,
                 stage, label, space), and file operation audit logs (IP
-                addresses, file sizes, storage paths).
+                addresses, file sizes, randomized storage paths). Service-level
+                usage limits may apply and are listed on the product pages.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -469,7 +470,9 @@ export default function PrivacyPage() {
                 operation. Non-encrypted structural metadata is stored in
                 plaintext to enable application functionality: record
                 identifiers, timestamps, display preferences (sort orders), and
-                fixed category references.
+                immutable built-in taxonomy references (category IDs).
+                Service-level usage limits may apply and are listed on the
+                product pages.
               </li>
             </ul>
           </section>
@@ -598,7 +601,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 File operation metadata (upload timestamps, encrypted file
-                sizes, storage paths)
+                sizes, randomized storage paths)
               </li>
               <li>Subscription and billing metadata</li>
               <li>
@@ -791,10 +794,13 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-foreground">Transaction data:</strong>{" "}
-                Subscription and purchase records may be retained for the period
-                required by applicable accounting and tax law (including Swiss
-                Code of Obligations requirements where applicable). Payment card
-                details are handled by Stripe, not stored in full by Helvety.
+                Subscription and purchase records in Helvety systems are deleted
+                during account deletion flows unless retention is legally
+                required. Payment processors and other parties may retain
+                transaction records where required by applicable accounting and
+                tax law (including Swiss Code of Obligations requirements where
+                applicable). Payment card details are handled by Stripe, not
+                stored in full by Helvety.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -820,9 +826,11 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-foreground">Rate limiting data:</strong>{" "}
-                IP-based identifiers used for rate limiting are stored
-                temporarily in Redis (Upstash) and automatically expire within 1
-                to 5 minutes depending on the endpoint.
+                IP-based identifiers used for rate limiting are stored in Redis
+                (Upstash). Standard rate-limit windows are short-lived
+                (typically 1 to 5 minutes depending on the endpoint); some
+                anti-abuse lockout counters and lockout state can be retained
+                longer (up to 24 hours) for account security.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -830,11 +838,12 @@ export default function PrivacyPage() {
                 </strong>{" "}
                 Non-encrypted metadata associated with file uploads, downloads,
                 and deletions -- including timestamps, file sizes (of encrypted
-                blobs), storage paths, IP addresses, and user identifiers -- is
-                retained for a limited period for service security and legal
-                compliance purposes. This metadata does not include the content
-                of your files, which is end-to-end encrypted and generally not
-                accessible to us in plaintext during normal operation.
+                blobs), randomized storage paths, IP addresses, and user
+                identifiers -- is retained for a limited period for service
+                security and legal compliance purposes. This metadata does not
+                include the content of your files, which is end-to-end encrypted
+                and generally not accessible to us in plaintext during normal
+                operation.
               </li>
               <li>
                 <strong className="text-foreground">Subscription data:</strong>{" "}
@@ -924,12 +933,12 @@ export default function PrivacyPage() {
               </strong>{" "}
               You can export your personal data from your account settings. The
               export includes your profile information, subscription history,
-              and tenant registrations in JSON format. For Helvety Tasks and
-              Helvety Contacts (end-to-end encrypted data), you can initiate an
-              export from within the app while authenticated with your passkey;
-              the data is decrypted client-side and exported locally.
-              Server-side exports of encrypted data are available only in
-              encrypted form.
+              purchase history, and tenant registrations in JSON format. For
+              Helvety Tasks and Helvety Contacts (end-to-end encrypted data),
+              you can initiate an export from within the app while authenticated
+              with your passkey; the data is decrypted client-side and exported
+              locally. Server-side exports of encrypted data are available only
+              in encrypted form.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               To exercise any of these rights, you may also contact us at{" "}
@@ -1044,7 +1053,7 @@ export default function PrivacyPage() {
                     <td className="border-border border-b p-3">
                       helvety.com (path: /)
                     </td>
-                    <td className="border-border border-b p-3">5 minutes</td>
+                    <td className="border-border border-b p-3">3 minutes</td>
                   </tr>
                   <tr>
                     <td className="p-3">Theme preference (localStorage)</td>
@@ -1268,7 +1277,7 @@ export default function PrivacyPage() {
               record identifiers, timestamps, priority levels, display
               preferences (sort orders), entity relationships (e.g., stage,
               label, or space references), and file operation audit logs (IP
-              addresses, file sizes, storage paths).
+              addresses, file sizes, randomized storage paths).
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
@@ -1280,7 +1289,7 @@ export default function PrivacyPage() {
                 Non-encrypted structural metadata:
               </strong>{" "}
               record identifiers, timestamps, display preferences (sort orders),
-              and fixed category references.
+              and immutable built-in taxonomy references (category IDs).
             </p>
             <p className="text-muted-foreground text-sm">
               This approach is designed to protect your encrypted content even

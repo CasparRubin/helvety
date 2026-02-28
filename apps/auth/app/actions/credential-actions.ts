@@ -4,7 +4,7 @@ import "server-only";
 
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -31,7 +31,6 @@ export async function getOwnPasskeyStatus(): Promise<
 > {
   try {
     const supabase = await createServerClient();
-    const adminClient = createAdminClient();
 
     const {
       data: { user },
@@ -53,10 +52,10 @@ export async function getOwnPasskeyStatus(): Promise<
       };
     }
 
-    const { data, error, count } = await adminClient
+    const scopedAdmin = createScopedAdminQuery(user.id);
+    const { data, error, count } = await scopedAdmin
       .from("user_auth_credentials")
-      .select("id", { count: "exact" })
-      .eq("user_id", user.id);
+      .select("id", { count: "exact" });
 
     if (error) {
       logger.error("Error checking passkey status:", error);
@@ -84,7 +83,6 @@ export async function getUserCredentials(): Promise<
 > {
   try {
     const supabase = await createServerClient();
-    const adminClient = createAdminClient();
 
     const {
       data: { user },
@@ -106,11 +104,12 @@ export async function getUserCredentials(): Promise<
       };
     }
 
-    // Use adminClient to bypass deny-all RLS policy on user_auth_credentials
-    const { data, error } = await adminClient
+    const scopedAdmin = createScopedAdminQuery(user.id);
+    // Use scoped admin query (service-role client under the hood) because
+    // user_auth_credentials has deny-all RLS for client roles.
+    const { data, error } = await scopedAdmin
       .from("user_auth_credentials")
       .select("*")
-      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -150,7 +149,6 @@ export async function deleteCredential(
 
   try {
     const supabase = await createServerClient();
-    const adminClient = createAdminClient();
 
     const {
       data: { user },
@@ -172,11 +170,12 @@ export async function deleteCredential(
       };
     }
 
-    // Use adminClient to bypass deny-all RLS policy on user_auth_credentials
-    const { error } = await adminClient
+    const scopedAdmin = createScopedAdminQuery(user.id);
+    // Use scoped admin query (service-role client under the hood) because
+    // user_auth_credentials has deny-all RLS for client roles.
+    const { error } = await scopedAdmin
       .from("user_auth_credentials")
       .delete()
-      .eq("user_id", user.id)
       .eq("credential_id", credentialId);
 
     if (error) {

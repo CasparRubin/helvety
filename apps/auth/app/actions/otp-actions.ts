@@ -5,7 +5,10 @@ import "server-only";
 import { logAuthEvent } from "@helvety/shared/auth-logger";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
+import {
+  createAdminClient,
+  createScopedAdminQuery,
+} from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
@@ -149,10 +152,10 @@ async function checkEmailInner(
     // Fetch PRF params so the client can include PRF in the passkey ceremony.
     // This enables single-touch login + encryption unlock on any device.
     try {
-      const { data: prfData, error: prfError } = await adminClient
+      const scopedAdmin = createScopedAdminQuery(existingUser.id);
+      const { data: prfData, error: prfError } = await scopedAdmin
         .from("user_passkey_params")
         .select("prf_salt, version")
-        .eq("user_id", existingUser.id)
         .single();
 
       if (!prfError && prfData) {

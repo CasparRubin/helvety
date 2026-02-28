@@ -358,8 +358,10 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
             <li>Remove all tenant registrations</li>
           </ul>
           <p className="text-muted-foreground text-sm">
-            Transaction records may be retained as required for Swiss tax
-            compliance (Art. 958f OR), typically up to 10 years.
+            Your Helvety account data is deleted through the account deletion
+            flow. Payment processors and other parties may retain transaction
+            records where required for legal, tax, fraud-prevention, or dispute
+            obligations under applicable law.
           </p>
 
           <AlertDialog>

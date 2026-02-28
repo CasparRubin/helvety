@@ -46,9 +46,13 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Dependency audit (informational)
+        continue-on-error: true
+        run: bun run deps:audit
+
       - name: Quality checks (affected on PR)
         if: github.event_name == 'pull_request'
-        run: bun run format:check && bunx turbo run lint type-check test --affected --continue=never
+        run: bun run ci:guard:admin-client && bun run format:check && bunx turbo run lint type-check test --affected --continue=never
 
       - name: Quality checks (full on main)
         if: github.event_name != 'pull_request'

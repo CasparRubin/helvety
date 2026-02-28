@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { after } from "next/server";
 import { z } from "zod";
@@ -20,14 +21,15 @@ import type {
   EncryptedTaskExport,
 } from "@/lib/types";
 
-const MAX_REORDER_ITEMS = 200;
+const MAX_REORDER_ITEMS = ENTITY_LIMITS.MAX_ITEMS_PER_SPACE;
 const REORDER_CHUNK_SIZE = 50;
 const MAX_EXPORT_ROWS_PER_TABLE = 5000;
-const ALLOWED_STAGE_IDS = [
-  DEFAULT_STAGE_CONFIGS.unit.stages[0]!.id,
-  DEFAULT_STAGE_CONFIGS.space.stages[0]!.id,
-  DEFAULT_STAGE_CONFIGS.item.stages[0]!.id,
-] as const;
+const ALLOWED_STAGE_IDS = Object.values(DEFAULT_STAGE_CONFIGS)
+  .flatMap((config) => config.stages.map((stage) => stage.id))
+  .filter((id, index, allIds) => allIds.indexOf(id) === index) as [
+  string,
+  ...string[],
+];
 
 // =============================================================================
 // Input Validation Schemas
@@ -61,7 +63,8 @@ const EntityTypeSchema = z.enum(["unit", "space", "item"]);
 export async function reorderEntities(
   entityType: EntityType,
   updates: ReorderUpdate[],
-  csrfToken: string
+  csrfToken: string,
+  parentId?: string
 ): Promise<ActionResponse> {
   try {
     const auth = await authenticateAndRateLimit({
@@ -78,13 +81,57 @@ export async function reorderEntities(
 
     const validationResult = ReorderSchema.safeParse(updates);
     if (!validationResult.success) {
-      logger.warn("Invalid reorder data:", validationResult.error.format());
+      logger.warn("Invalid reorder data", {
+        fields: validationResult.error.issues.map((issue) =>
+          issue.path.join(".")
+        ),
+        issueCount: validationResult.error.issues.length,
+      });
       return { success: false, error: "Invalid reorder data" };
     }
     const validatedUpdates = validationResult.data;
 
     if (validatedUpdates.length === 0) {
       return { success: true };
+    }
+
+    if (entityType !== "unit") {
+      if (!z.string().uuid().safeParse(parentId).success) {
+        return { success: false, error: "Invalid parent ID" };
+      }
+    }
+
+    // Ensure all entities being reordered belong to the expected parent scope
+    // (unit for spaces, space for items). This prevents cross-parent reorders.
+    const updateIds = validatedUpdates.map((update) => update.id);
+    if (entityType === "space") {
+      const { data: allowedRows, error: allowedRowsError } = await supabase
+        .from("spaces")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("unit_id", parentId!)
+        .in("id", updateIds);
+      if (allowedRowsError) {
+        logger.error("Error validating space reorder scope:", allowedRowsError);
+        return { success: false, error: "Failed to reorder spaces" };
+      }
+      if ((allowedRows ?? []).length !== updateIds.length) {
+        return { success: false, error: "Invalid space reorder scope" };
+      }
+    } else if (entityType === "item") {
+      const { data: allowedRows, error: allowedRowsError } = await supabase
+        .from("items")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("space_id", parentId!)
+        .in("id", updateIds);
+      if (allowedRowsError) {
+        logger.error("Error validating item reorder scope:", allowedRowsError);
+        return { success: false, error: "Failed to reorder items" };
+      }
+      if ((allowedRows ?? []).length !== updateIds.length) {
+        return { success: false, error: "Invalid item reorder scope" };
+      }
     }
 
     const tableName =

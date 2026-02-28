@@ -250,7 +250,12 @@ export function useSpaces(
       });
 
       try {
-        const result = await reorderEntities("space", updates, csrfToken);
+        const result = await reorderEntities(
+          "space",
+          updates,
+          csrfToken,
+          unitId
+        );
         if (!result.success) {
           setError(result.error ?? "Failed to reorder spaces");
           await refresh();
@@ -266,7 +271,7 @@ export function useSpaces(
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken, refresh, unitId]
   );
 
   // Fetch spaces when encryption is unlocked

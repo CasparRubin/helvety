@@ -276,7 +276,7 @@ Key Features:
 • End-to-End Encryption - Sensitive task content is encrypted using your passkey
 • Hierarchical Organization - Units (top-level containers) → Spaces (projects) → Items (tasks)
 • Rich Text Descriptions - Full formatting toolbar with headings, lists, and links
-• Stage Management - Customizable workflow stages with colors and icons (e.g., To Do, In Progress, Done)
+• Stage Management - Immutable built-in workflow stages with consistent colors and icons (e.g., To Do, In Progress, Done)
 • Label & Priority System - Categorize and prioritize items with color-coded indicators
 • Encrypted File Attachments - Upload files that are compressed and encrypted before storage
 • Contact Linking - Link contacts from Helvety Contacts to any Unit, Space, or Item
@@ -292,7 +292,7 @@ Your data is protected by Swiss law (nDSG). The system is designed so encrypted 
     "End-to-end encryption for sensitive task content fields",
     "Units, Spaces, and Items hierarchy",
     "Rich text editor with formatting",
-    "Customizable stages with colors and icons",
+    "Immutable built-in stages with consistent colors and icons",
     "Labels and priority levels",
     "Encrypted file attachments",
     "Contact linking with Helvety Contacts",
@@ -313,8 +313,8 @@ Your data is protected by Swiss law (nDSG). The system is designed so encrypted 
         features: [
           "All features included",
           "End-to-end encryption",
-          "Unlimited tasks and spaces",
-          "File attachments",
+          "Up to 10 Units, 15 Spaces per Unit, and 250 Items per Space",
+          "File attachments (max 2 per Item)",
           "Currently offered at no cost for early adopters",
         ],
       },
@@ -369,7 +369,7 @@ Key Features:
 • End-to-End Encryption - Sensitive contact content is encrypted using your passkey
 • Rich Contact Fields - Store first name(s), last name(s), description, email, phone, birthday, and notes
 • Rich Text Notes - Full formatting toolbar for structured note editing
-• Category Management - Organize contacts with customizable categories, colors, and icons
+• Category Management - Organize contacts with immutable built-in categories (Work, Family, Friends)
 • Task Linking - Link task entities from Helvety Tasks directly on contacts
 • Drag & Drop - Rearrange contacts within and between categories
 • Data Export - Export all your contacts as a decrypted JSON file (supports nDSG Art. 28 data portability requests)
@@ -384,7 +384,7 @@ Your contacts are protected by Swiss law (nDSG). The system is designed so encry
     "End-to-end encryption for sensitive contact fields",
     "Rich contact fields (name, email, phone, birthday)",
     "Rich text notes with formatting",
-    "Customizable categories with colors and icons",
+    "Immutable built-in categories (Work, Family, Friends)",
     "Task linking with Helvety Tasks",
     "Drag & drop reordering",
     "Self-service encrypted data export",
@@ -404,7 +404,7 @@ Your contacts are protected by Swiss law (nDSG). The system is designed so encry
         features: [
           "All features included",
           "End-to-end encryption",
-          "Unlimited contacts",
+          "Up to 250 contacts per user",
           "Rich text notes",
           "Currently offered at no cost for early adopters",
         ],

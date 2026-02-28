@@ -2,7 +2,6 @@
 
 import { HelvetyLogo } from "@helvety/brand/logo";
 import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -28,13 +27,9 @@ const noStagger = { initial: {}, animate: {} };
  */
 export function HeroSection() {
   const prefersReducedMotion = useReducedMotion();
-  const [isFirefox, setIsFirefox] = useState(false);
-
-  useEffect(() => {
-    const userAgent = navigator.userAgent.toLowerCase();
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: browser detection on mount
-    setIsFirefox(userAgent.indexOf("firefox") > -1);
-  }, []);
+  const isFirefox =
+    typeof navigator !== "undefined" &&
+    navigator.userAgent.toLowerCase().includes("firefox");
 
   return (
     <LazyMotion features={domAnimation}>
@@ -66,7 +61,7 @@ export function HeroSection() {
           >
             <HelvetyLogo
               aria-label="Helvety logo"
-              className="mx-auto h-auto w-[90vw] max-w-6xl"
+              className="h-auto w-full max-w-6xl"
             />
           </m.div>
 

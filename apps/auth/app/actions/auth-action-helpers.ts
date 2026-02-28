@@ -3,7 +3,7 @@ import "server-only";
 import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { DOMAIN, DEV_PORTS } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { cookies, headers } from "next/headers";
 import { z } from "zod";
 
@@ -30,7 +30,7 @@ export type StoredChallenge = {
 
 export const RP_NAME = "Helvety";
 export const CHALLENGE_COOKIE_NAME = "webauthn_challenge";
-export const CHALLENGE_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+export const CHALLENGE_EXPIRY_MS = 3 * 60 * 1000; // 3 minutes
 export const PRF_SALT_LENGTH = 32; // PRF salt length in bytes
 
 const StoredChallengeSchema = z.object({
@@ -131,7 +131,7 @@ export async function storeChallenge(
   cookieStore.set(CHALLENGE_COOKIE_NAME, JSON.stringify(challengeData), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax", // Allow cross-site for redirects
+    sameSite: "strict",
     maxAge: CHALLENGE_EXPIRY_MS / 1000,
     path: "/",
   });
@@ -189,12 +189,11 @@ export async function checkUserPasskeyStatus(
   userId: string
 ): Promise<ActionResponse<{ hasPasskey: boolean; count: number }>> {
   try {
-    const adminClient = createAdminClient();
+    const scopedAdmin = createScopedAdminQuery(userId);
 
-    const { data, error, count } = await adminClient
+    const { data, error, count } = await scopedAdmin
       .from("user_auth_credentials")
-      .select("id", { count: "exact" })
-      .eq("user_id", userId);
+      .select("id", { count: "exact" });
 
     if (error) {
       logger.error("Error checking passkey status:", error);

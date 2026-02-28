@@ -20,13 +20,11 @@ export async function signOutAction(
   global = false
 ): Promise<{ success: boolean }> {
   try {
-    // Best-effort CSRF check — log but don't block logout if missing/invalid,
-    // since failing to sign out is worse than a CSRF bypass on logout.
-    if (csrfToken) {
-      const valid = await validateCSRFToken(csrfToken);
-      if (!valid) {
-        logger.warn("Logout called with invalid CSRF token");
-      }
+    // Enforce CSRF on logout to avoid cross-site forced sign-outs.
+    const valid = await validateCSRFToken(csrfToken);
+    if (!valid) {
+      logger.warn("Logout blocked due to missing/invalid CSRF token");
+      return { success: false };
     }
 
     const supabase = await createServerClient();

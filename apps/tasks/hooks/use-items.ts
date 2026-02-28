@@ -254,7 +254,12 @@ export function useItems(
       });
 
       try {
-        const result = await reorderEntities("item", updates, csrfToken);
+        const result = await reorderEntities(
+          "item",
+          updates,
+          csrfToken,
+          spaceId
+        );
         if (!result.success) {
           setError(result.error ?? "Failed to reorder items");
           await refresh();
@@ -270,7 +275,7 @@ export function useItems(
         return false;
       }
     },
-    [csrfToken, refresh]
+    [csrfToken, refresh, spaceId]
   );
 
   useEffect(() => {
