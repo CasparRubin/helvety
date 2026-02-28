@@ -28,14 +28,9 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Link support
   - Unsaved changes detection with confirmation dialog
   - Manual note editing with unsaved-changes detection
-  - **Action panel** - View dates and set contact category directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
-- **Category management** - Organize contacts into categories (e.g., Work, Family, Friends)
-  - **Default categories** - Built-in category set: Work, Family, Friends
-  - **Custom category configurations** - Create your own category setups with custom names, colors, and Lucide icons
-  - **Color picker** - Choose from preset colors or use the custom color picker for any hex color
-  - **Icon support** - Each category can have a Lucide icon for visual identification
-  - **Rows shown by default** - Control how many contacts are visible per category (0 = collapsed, N = show N contacts with "Show all" link)
-- **Drag & drop reordering** - Rearrange contacts within and between categories on desktop; mobile uses up/down arrows to move contacts between categories
+  - **Action panel** - View dates and the fixed contact category directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
+- **Fixed category** - A single immutable default category is enforced for all contacts
+- **Drag & drop reordering** - Rearrange contacts on desktop; mobile uses up/down arrows for ordering controls
 - **Task linking** - Link, unlink, and view task entities from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
   - **Bidirectional** - Link and unlink task entities from either the Contacts app or the Tasks app for consistent cross-app UX
   - **Searchable picker** - Search your task entities by title and link them with one click
@@ -81,25 +76,19 @@ Helvety Contacts uses end-to-end encryption (E2EE), as does Helvety Tasks. In su
 
 **Encrypted fields** (AES-256-GCM, client-side before storage):
 
-| Entity         | Encrypted Fields                                                                |
-| -------------- | ------------------------------------------------------------------------------- |
-| Contact        | `first_name`, `last_name`, `description`, `email`, `phone`, `birthday`, `notes` |
-| CategoryConfig | `name`                                                                          |
-| Category       | `name`                                                                          |
+| Entity  | Encrypted Fields                                                                |
+| ------- | ------------------------------------------------------------------------------- |
+| Contact | `first_name`, `last_name`, `description`, `email`, `phone`, `birthday`, `notes` |
 
 **Non-encrypted structural metadata** (stored in plaintext to enable application functionality):
 
-| Field                           | Purpose                                            |
-| ------------------------------- | -------------------------------------------------- |
-| Record identifiers (`id`)       | Generated client-side; bound to ciphertext via AAD |
-| `user_id`                       | Row Level Security (RLS)                           |
-| `created_at`, `updated_at`      | Timestamps                                         |
-| `sort_order`                    | Display ordering                                   |
-| `category_id` (Contact)         | Category assignment                                |
-| `color`, `icon` (Category)      | Display preferences                                |
-| `default_rows_shown` (Category) | UI preference                                      |
-| `config_id` (Category)          | Parent config reference                            |
-| Category assignments            | Linking table (all fields plaintext)               |
+| Field                      | Purpose                                            |
+| -------------------------- | -------------------------------------------------- |
+| Record identifiers (`id`)  | Generated client-side; bound to ciphertext via AAD |
+| `user_id`                  | Row Level Security (RLS)                           |
+| `created_at`, `updated_at` | Timestamps                                         |
+| `sort_order`               | Display ordering                                   |
+| `category_id` (Contact)    | Fixed default category reference                   |
 
 Browser compatibility for end-to-end encryption depends on WebAuthn PRF support and can evolve over time:
 

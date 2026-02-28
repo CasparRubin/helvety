@@ -23,10 +23,6 @@ async function PrefetchedItemsDashboard({
       initialEncryptedUnit={initialData?.unit}
       initialEncryptedSpace={initialData?.space}
       initialEncryptedItems={initialData?.items}
-      initialEncryptedStageConfigs={initialData?.stageConfigs}
-      initialStageAssignment={initialData?.stageAssignment}
-      initialEncryptedLabelConfigs={initialData?.labelConfigs}
-      initialLabelAssignment={initialData?.labelAssignment}
     />
   );
 }

@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 /** Terms of Service page for Helvety */
 export default function TermsPage() {
   return (
-    <section className="min-h-screen px-6 py-12">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-8">
+    <section className="legal-page-section">
+      <div className="legal-page-container">
+        <div className="legal-page-back">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -27,7 +27,7 @@ export default function TermsPage() {
           </Button>
         </div>
 
-        <article className="space-y-10">
+        <article className="legal-page-article">
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
@@ -38,7 +38,7 @@ export default function TermsPage() {
           {/* Table of Contents */}
           <nav className="bg-card border-border border p-6">
             <h2 className="mb-4 text-lg font-semibold">Table of Contents</h2>
-            <ol className="text-muted-foreground list-inside list-decimal space-y-1 text-sm">
+            <ol className="text-muted-foreground list-outside list-decimal space-y-1 pl-5 text-sm">
               <li>
                 <a
                   href="#acceptance"
@@ -220,13 +220,14 @@ export default function TermsPage() {
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               The Services are primarily intended for customers located in
-              Switzerland. By accessing or using the Services, you confirm that
-              you are located in Switzerland and acknowledge that service
-              availability may be restricted for users in certain regions,
-              including the European Union (EU) and European Economic Area
-              (EEA). We do not actively target users outside Switzerland. Access
-              from outside Switzerland may still occur; in such cases, you
-              remain responsible for compliance with applicable local law.
+              Switzerland. Service availability may be restricted for users in
+              certain regions, including the European Union (EU) and European
+              Economic Area (EEA). New account creation currently includes a
+              Switzerland location confirmation step, but this is not equivalent
+              to strict geoblocking. Access from outside Switzerland may still
+              occur; in such cases, you remain responsible for compliance with
+              applicable local law, and mandatory consumer/data-protection rules
+              in your jurisdiction may still apply.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               These Terms constitute a legally binding agreement between you and
@@ -339,11 +340,11 @@ export default function TermsPage() {
               your encryption passkey, encrypted content will become permanently
               inaccessible. Certain non-encrypted structural metadata (such as
               record identifiers, timestamps, priority levels, display
-              preferences, and entity relationships) is stored in plaintext to
-              enable application functionality; see our Privacy Policy for
-              field-level details. Other Helvety services (helvety.com, Helvety
-              Auth, Helvety PDF, Helvety Store) do not use end-to-end
-              encryption.
+              preferences (e.g., sort orders), and entity relationships is
+              stored in plaintext to enable application functionality; see our
+              Privacy Policy for field-level details. Other Helvety services
+              (helvety.com, Helvety Auth, Helvety PDF, Helvety Store) do not use
+              end-to-end encryption.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Age Requirement:</strong> You
@@ -515,9 +516,12 @@ export default function TermsPage() {
                 The extension periodically contacts
                 helvety.com/store/api/license/validate to verify your
                 subscription status. Only your organization&apos;s tenant
-                identifier and product identifier are transmitted during
-                validation; no personal data is sent. Results are cached locally
-                to minimize API calls and ensure offline reliability.
+                identifier and product identifier are part of the business
+                payload used for validation. Depending on configuration,
+                additional technical security metadata (for example request
+                signatures/timestamps and network metadata such as IP addresses
+                used for abuse prevention) may also be processed. Results are
+                cached locally to minimize API calls and improve reliability.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -821,16 +825,17 @@ export default function TermsPage() {
                 Encrypted data is protected by a zero-knowledge architecture;
                 our architecture is designed so that we generally cannot access
                 the plaintext content of your encrypted data during normal
-                operation.
+                operation, subject to technical limitations and future product
+                changes described in applicable documentation.
               </li>
             </ul>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground mb-4 text-sm">
               End-to-end encryption requires a modern browser with WebAuthn PRF
               support. Browser compatibility can change over time; refer to the
               current product documentation for supported platforms.
             </p>
 
-            <h3 className="mb-3 text-lg font-medium">
+            <h3 className="mt-8 mb-3 text-lg font-medium">
               7.7 Law Enforcement Cooperation
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -864,9 +869,8 @@ export default function TermsPage() {
               <li>Subscription and billing metadata</li>
               <li>
                 Non-encrypted structural metadata from Helvety Tasks and Helvety
-                Contacts (priority levels, display preferences such as colors
-                and icons, sort orders, entity relationships, and category
-                assignments)
+                Contacts (priority levels, display preferences such as sort
+                orders, entity relationships, and fixed category references)
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -930,9 +934,12 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Contract Formation:</strong>{" "}
               Your order constitutes an offer to purchase. A binding contract is
-              formed when we send you an order confirmation email. We reserve
-              the right to reject orders at our discretion (e.g., due to pricing
-              errors or suspected fraud).
+              formed when your order is accepted and payment processing
+              succeeds. You will typically receive a confirmation from Stripe
+              and/or us at the email address provided during checkout. We
+              reserve the right to reject or cancel orders before provisioning
+              (e.g., due to pricing errors, compliance checks, or suspected
+              fraud).
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -968,17 +975,18 @@ export default function TermsPage() {
             </p>
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
-                An order confirmation email from Stripe to the email address
-                associated with your Helvety account.
+                A confirmation email from Stripe to the email address used
+                during checkout.
               </li>
               <li>
                 The confirmation includes: product details, price, and
                 applicable taxes.
               </li>
               <li>
-                For digital products and SaaS subscriptions, access is
-                automatically linked to your Helvety account. You can access
-                purchased features by signing in with your passkey.
+                For digital products and SaaS subscriptions, access is linked to
+                the relevant customer/account context. Where an active Helvety
+                account is required for use, you access purchased features by
+                signing in with your passkey.
               </li>
             </ul>
           </section>
@@ -1048,14 +1056,22 @@ export default function TermsPage() {
               automatically at the start of each billing period. Before each
               renewal, Stripe will charge your payment method and you will
               receive a receipt from Stripe for each renewal charge. You can
-              view your subscription status and manage cancellation at{" "}
+              view your subscription status and manage cancellation in the
+              subscriptions area at{" "}
+              <a
+                href={`${urls.store}/subscriptions`}
+                className="hover:text-foreground underline transition-colors"
+              >
+                helvety.com/store/subscriptions
+              </a>{" "}
+              (or, where available, from account settings at{" "}
               <a
                 href={`${urls.store}/account`}
                 className="hover:text-foreground underline transition-colors"
               >
                 helvety.com/store/account
               </a>
-              . You may cancel auto-renewal at any time.
+              ) . You may cancel auto-renewal at any time.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Cancellation:</strong> You may
@@ -1317,6 +1333,11 @@ export default function TermsPage() {
               conflict of law provisions.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
+              If you are a consumer residing outside Switzerland, mandatory
+              protections under the laws of your country of residence may apply
+              to the extent they cannot be contractually excluded.
+            </p>
+            <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
                 Amicable Dispute Resolution:
               </strong>{" "}
@@ -1329,7 +1350,8 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               Any disputes arising out of or relating to these Terms or the
               Services shall be subject to the exclusive jurisdiction of the
-              courts of Basel-Stadt, Switzerland.
+              courts of Basel-Stadt, Switzerland, except where mandatory law
+              provides otherwise.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Language:</strong> These Terms

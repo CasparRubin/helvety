@@ -25,14 +25,7 @@ export interface EntityConfig {
  * Entity type identifiers
  * Extend this union type when adding new entity types
  */
-export type EntityTypeId =
-  | "unit"
-  | "space"
-  | "item"
-  | "stageConfig"
-  | "stage"
-  | "labelConfig"
-  | "label";
+export type EntityTypeId = "unit" | "space" | "item" | "stage" | "label";
 
 /**
  * Centralized entity configuration registry
@@ -56,22 +49,10 @@ export const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
     plural: "items",
     hasChildren: false, // Currently leaf node - update when sub-items are added
   },
-  stageConfig: {
-    name: "stage configuration",
-    plural: "stage configurations",
-    childExamples: ["stages"],
-    hasChildren: true,
-  },
   stage: {
     name: "stage",
     plural: "stages",
     hasChildren: false,
-  },
-  labelConfig: {
-    name: "label configuration",
-    plural: "label configurations",
-    childExamples: ["labels"],
-    hasChildren: true,
   },
   label: {
     name: "label",

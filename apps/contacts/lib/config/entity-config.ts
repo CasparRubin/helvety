@@ -20,7 +20,7 @@ export interface EntityConfig {
 /**
  * Entity type identifiers
  */
-export type EntityTypeId = "contact" | "categoryConfig" | "category";
+export type EntityTypeId = "contact" | "category";
 
 /**
  * Centralized entity configuration registry
@@ -30,12 +30,6 @@ export const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
     name: "contact",
     plural: "contacts",
     hasChildren: false,
-  },
-  categoryConfig: {
-    name: "category configuration",
-    plural: "category configurations",
-    childExamples: ["categories"],
-    hasChildren: true,
   },
   category: {
     name: "category",

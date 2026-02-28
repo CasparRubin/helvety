@@ -43,18 +43,9 @@ const TiptapEditor = dynamic(
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemActionPanel } from "@/components/item-action-panel";
 import { ItemCommandBar } from "@/components/item-command-bar";
-import { SettingsPanel } from "@/components/settings-panel";
-import {
-  useUnit,
-  useSpace,
-  useItem,
-  useStageConfigs,
-  useStageAssignment,
-  useStages,
-  useLabelConfigs,
-  useLabelAssignment,
-  useLabels,
-} from "@/hooks";
+import { useUnit, useSpace, useItem, useStages, useLabels } from "@/hooks";
+import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
+import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
@@ -73,34 +64,6 @@ const AttachmentPanel = dynamic(
 const ContactLinksPanel = dynamic(
   () =>
     import("@/components/contact-links-panel").then((m) => m.ContactLinksPanel),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center py-4">
-        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-      </div>
-    ),
-  }
-);
-
-const StageConfiguratorContent = dynamic(
-  () =>
-    import("@/components/stage-configurator").then(
-      (m) => m.StageConfiguratorContent
-    ),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center py-4">
-        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-      </div>
-    ),
-  }
-);
-
-const LabelConfiguratorContent = dynamic(
-  () =>
-    import("@/components/label-configurator").then(
-      (m) => m.LabelConfiguratorContent
-    ),
   {
     loading: () => (
       <div className="flex items-center justify-center py-4">
@@ -141,36 +104,16 @@ export function ItemEditor({
   } = useItem(itemId);
 
   // Stage data for the action panel
-  const {
-    effectiveConfigId,
-    assign: assignStage,
-    unassign: unassignStage,
-  } = useStageAssignment("item", spaceId);
-  const { stages, isLoading: isLoadingStages } = useStages(effectiveConfigId);
+  const { stages, isLoading: isLoadingStages } = useStages(
+    DEFAULT_STAGE_CONFIGS.item.id
+  );
   const [isSavingStage, setIsSavingStage] = useState(false);
-  const {
-    configs: stageConfigs,
-    create: createStageConfig,
-    remove: removeStageConfig,
-    update: updateStageConfig,
-  } = useStageConfigs("item");
 
   // Label data for the action panel
-  const {
-    effectiveConfigId: effectiveLabelConfigId,
-    assign: assignLabel,
-    unassign: unassignLabel,
-  } = useLabelAssignment(spaceId);
   const { labels, isLoading: isLoadingLabels } = useLabels(
-    effectiveLabelConfigId
+    DEFAULT_LABEL_CONFIG.id
   );
   const [isSavingLabel, setIsSavingLabel] = useState(false);
-  const {
-    configs: labelConfigs,
-    create: createLabelConfig,
-    remove: removeLabelConfig,
-    update: updateLabelConfig,
-  } = useLabelConfigs();
 
   const [isSavingPriority, setIsSavingPriority] = useState(false);
   const [isSavingDates, setIsSavingDates] = useState(false);
@@ -188,9 +131,6 @@ export function ItemEditor({
   // Delete item state
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Settings panel state
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Unsaved changes confirmation state
   const [pendingAction, setPendingAction] = useState<"back" | "refresh" | null>(
@@ -366,7 +306,7 @@ export function ItemEditor({
 
   // Handle stage change - saves immediately, independent of title/description save flow
   const handleStageChange = useCallback(
-    async (stageId: string | null) => {
+    async (stageId: string) => {
       setIsSavingStage(true);
       try {
         await update({ stage_id: stageId });
@@ -379,7 +319,7 @@ export function ItemEditor({
 
   // Handle label change - saves immediately, independent of title/description save flow
   const handleLabelChange = useCallback(
-    async (labelId: string | null) => {
+    async (labelId: string) => {
       setIsSavingLabel(true);
       try {
         await update({ label_id: labelId });
@@ -447,7 +387,6 @@ export function ItemEditor({
           onBack={handleBack}
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing}
-          onSettings={() => setIsSettingsOpen(true)}
         />
         <div className="container mx-auto px-4 py-8">
           <div className="text-destructive">{error ?? "Item not found"}</div>
@@ -466,7 +405,6 @@ export function ItemEditor({
         isSaving={saveStatus === "saving"}
         hasUnsavedChanges={hasUnsavedChanges}
         saveStatus={saveStatus}
-        onSettings={() => setIsSettingsOpen(true)}
         onDelete={() => setIsDeleteOpen(true)}
         deleteLabel="Delete Item"
       />
@@ -560,49 +498,6 @@ export function ItemEditor({
           />
         </div>
       </div>
-
-      {/* Settings Panel */}
-      <SettingsPanel
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-        sections={[
-          {
-            id: "stages",
-            label: "Stages",
-            content: isSettingsOpen ? (
-              <StageConfiguratorContent
-                entityType="item"
-                configs={stageConfigs}
-                assignedConfigId={effectiveConfigId}
-                onCreateConfig={async (name) => createStageConfig({ name })}
-                onDeleteConfig={removeStageConfig}
-                onUpdateConfig={async (id, name) =>
-                  updateStageConfig(id, { name })
-                }
-                onAssignConfig={assignStage}
-                onUnassignConfig={unassignStage}
-              />
-            ) : null,
-          },
-          {
-            id: "labels",
-            label: "Labels",
-            content: isSettingsOpen ? (
-              <LabelConfiguratorContent
-                configs={labelConfigs}
-                assignedConfigId={effectiveLabelConfigId}
-                onCreateConfig={async (name) => createLabelConfig({ name })}
-                onDeleteConfig={removeLabelConfig}
-                onUpdateConfig={async (id, name) =>
-                  updateLabelConfig(id, { name })
-                }
-                onAssignConfig={assignLabel}
-                onUnassignConfig={unassignLabel}
-              />
-            ) : null,
-          },
-        ]}
-      />
 
       {/* Delete Item Confirmation Dialog */}
       <DeleteConfirmationDialog

@@ -33,7 +33,7 @@ interface ContactCommandBarProps {
   /** Whether a refresh operation is in progress */
   isRefreshing?: boolean;
   /** Callback to open the settings panel */
-  onSettings: () => void;
+  onSettings?: () => void;
   /** Callback to export contact data (if provided, shows export button) */
   onExport?: () => void;
   /** Whether an export operation is in progress */
@@ -97,15 +97,17 @@ export function ContactCommandBar({
           <span>{isExporting ? "Exporting..." : "Export Data"}</span>
         </Button>
       )}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onSettings}
-        className="hidden md:inline-flex"
-      >
-        <SettingsIcon className="mr-1.5 size-4 shrink-0" />
-        <span>Settings</span>
-      </Button>
+      {onSettings && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onSettings}
+          className="hidden md:inline-flex"
+        >
+          <SettingsIcon className="mr-1.5 size-4 shrink-0" />
+          <span>Settings</span>
+        </Button>
+      )}
 
       {/* Mobile only: overflow dropdown */}
       <DropdownMenu>
@@ -128,10 +130,12 @@ export function ContactCommandBar({
               <span>{isExporting ? "Exporting..." : "Export Data"}</span>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={onSettings}>
-            <SettingsIcon className="mr-2 size-4" />
-            <span>Settings</span>
-          </DropdownMenuItem>
+          {onSettings && (
+            <DropdownMenuItem onClick={onSettings}>
+              <SettingsIcon className="mr-2 size-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </CommandBar>

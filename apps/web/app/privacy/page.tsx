@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 /** Privacy Policy page for Helvety */
 export default function PrivacyPage() {
   return (
-    <section className="min-h-screen px-6 py-12">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-8">
+    <section className="legal-page-section">
+      <div className="legal-page-container">
+        <div className="legal-page-back">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
           </Button>
         </div>
 
-        <article className="space-y-10">
+        <article className="legal-page-article">
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
@@ -36,28 +36,31 @@ export default function PrivacyPage() {
           </header>
 
           {/* Introduction */}
-          <p className="text-muted-foreground text-sm">
-            Helvety by Rubin (&quot;we,&quot; &quot;us,&quot; or &quot;the
-            Company&quot;) respects your privacy and takes the protection of
-            your personal data seriously. This Privacy Policy explains how we
-            collect, use, disclose, and safeguard your information when you use
-            Helvety services (&quot;the Services&quot;). This policy complies
-            with the Swiss Federal Act on Data Protection (nDSG) and other
-            applicable data protection laws.
-          </p>
-          <p className="text-muted-foreground text-sm">
-            Our services are primarily intended for customers located in
-            Switzerland. We do not actively target users in the European Union
-            (EU) or European Economic Area (EEA). This Privacy Policy is based
-            on the Swiss Federal Act on Data Protection (nDSG). Where mandatory
-            law in another jurisdiction applies in a specific case, we comply
-            with applicable legal obligations.
-          </p>
+          <section className="space-y-4">
+            <p className="text-muted-foreground text-sm">
+              Helvety by Rubin (&quot;we,&quot; &quot;us,&quot; or &quot;the
+              Company&quot;) respects your privacy and takes the protection of
+              your personal data seriously. This Privacy Policy explains how we
+              collect, use, disclose, and safeguard your information when you
+              use Helvety services (&quot;the Services&quot;). This policy
+              complies with the Swiss Federal Act on Data Protection (nDSG) and
+              other applicable data protection laws.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Our services are primarily intended for customers located in
+              Switzerland. New account creation currently includes a Switzerland
+              location confirmation step, but access from outside Switzerland
+              may still occur. This Privacy Policy is primarily based on the
+              Swiss Federal Act on Data Protection (nDSG). Where mandatory law
+              in another jurisdiction applies in a specific case, we comply with
+              applicable legal obligations.
+            </p>
+          </section>
 
           {/* Table of Contents */}
           <nav className="bg-card border-border border p-6">
             <h2 className="mb-4 text-lg font-semibold">Table of Contents</h2>
-            <ol className="text-muted-foreground list-inside list-decimal space-y-1 text-sm">
+            <ol className="text-muted-foreground list-outside list-decimal space-y-1 pl-5 text-sm">
               <li>
                 <a
                   href="#controller"
@@ -436,20 +439,19 @@ export default function PrivacyPage() {
                 </strong>{" "}
                 Task content is end-to-end encrypted client-side before storage.
                 Encrypted fields include: titles, descriptions, start/end dates,
-                stage names, label names, and file attachments (both file
-                content and file metadata such as filename, type, and size). Our
-                servers store only ciphertext for these fields. Encryption keys
-                are derived from your passkey and do not leave your device.
-                Record identifiers for encrypted data are generated on your
-                device and bound to the ciphertext via Additional Authenticated
-                Data (AAD). Our architecture is designed so that we are
-                generally unable to access your task content in plaintext during
-                normal operation. Non-encrypted structural metadata is stored in
-                plaintext to enable application functionality: record
-                identifiers, timestamps, priority levels, display preferences
-                (colors, icons, sort orders), entity relationships (e.g., which
-                stage, label, or space an item belongs to), and file operation
-                audit logs (IP addresses, file sizes, storage paths).
+                and file attachments (both file content and file metadata such
+                as filename, type, and size). Our servers store only ciphertext
+                for these fields. Encryption keys are derived from your passkey
+                and do not leave your device. Record identifiers for encrypted
+                data are generated on your device and bound to the ciphertext
+                via Additional Authenticated Data (AAD). Our architecture is
+                designed so that we are generally unable to access your task
+                content in plaintext during normal operation. Non-encrypted
+                structural metadata is stored in plaintext to enable application
+                functionality: record identifiers, timestamps, priority levels,
+                display preferences (sort orders), entity relationships (e.g.,
+                stage, label, space), and file operation audit logs (IP
+                addresses, file sizes, storage paths).
               </li>
               <li>
                 <strong className="text-foreground">
@@ -457,17 +459,17 @@ export default function PrivacyPage() {
                 </strong>{" "}
                 Contact content is end-to-end encrypted client-side before
                 storage. Encrypted fields include: first and last names,
-                description, email, phone, birthday, notes, and category names.
-                Our servers store only ciphertext for these fields. Encryption
-                keys are derived from your passkey and do not leave your device.
-                Record identifiers for encrypted data are generated on your
-                device and bound to the ciphertext via Additional Authenticated
-                Data (AAD). Our architecture is designed so that we are
-                generally unable to access your contact content in plaintext
-                during normal operation. Non-encrypted structural metadata is
-                stored in plaintext to enable application functionality: record
-                identifiers, timestamps, display preferences (colors, icons,
-                sort orders), and category assignments.
+                description, email, phone, birthday, and notes. Our servers
+                store only ciphertext for these fields. Encryption keys are
+                derived from your passkey and do not leave your device. Record
+                identifiers for encrypted data are generated on your device and
+                bound to the ciphertext via Additional Authenticated Data (AAD).
+                Our architecture is designed so that we are generally unable to
+                access your contact content in plaintext during normal
+                operation. Non-encrypted structural metadata is stored in
+                plaintext to enable application functionality: record
+                identifiers, timestamps, display preferences (sort orders), and
+                fixed category references.
               </li>
             </ul>
           </section>
@@ -729,28 +731,23 @@ export default function PrivacyPage() {
               where our service providers are located.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              For transfers to the USA, we rely on one or more of the following
-              safeguards in accordance with nDSG Art. 16 and Art. 17:
+              For transfers outside Switzerland, we rely on one or more
+              safeguards in accordance with nDSG Art. 16 and Art. 17, depending
+              on the provider and transfer context:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">
-                  Swiss-US Data Privacy Framework:
+                  Adequacy decisions and recognized frameworks:
                 </strong>{" "}
-                The Swiss Federal Data Protection and Information Commissioner
-                (FDPIC) has recognized the Swiss-US Data Privacy Framework
-                (effective September 15, 2024) as providing adequate protection
-                for data transfers to certified US organizations. Where
-                applicable, our US-based providers may be certified under this
-                framework.
+                where available and applicable under Swiss law.
               </li>
               <li>
                 <strong className="text-foreground">
-                  Standard Contractual Clauses (SCCs):
+                  Standard contractual safeguards:
                 </strong>{" "}
-                Where available, we rely on Standard Contractual Clauses offered
-                by service providers as contractual safeguards for an adequate
-                level of data protection.
+                such as Standard Contractual Clauses (or equivalent clauses)
+                where available.
               </li>
               <li>
                 <strong className="text-foreground">Contract necessity:</strong>{" "}
@@ -779,23 +776,25 @@ export default function PrivacyPage() {
             <h2 className="mb-4 text-xl font-semibold">7. Data Retention</h2>
             <p className="text-muted-foreground mb-4 text-sm">
               We retain data only for as long as necessary to fulfill the
-              purposes for which it was collected:
+              purposes for which it was collected, to operate the Services, and
+              to meet legal, tax, accounting, fraud-prevention, and security
+              obligations:
             </p>
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
                 <strong className="text-foreground">Account data:</strong> Your
                 account consists of your email address, an internal identifier
                 (UUID), and passkey credentials. This data is retained while
-                your account is active and for up to 2 years after account
-                deletion for legal compliance.
+                your account is active and may be retained for a limited period
+                after account closure where required for legal, security, or
+                abuse-prevention reasons.
               </li>
               <li>
                 <strong className="text-foreground">Transaction data:</strong>{" "}
-                Subscription and purchase records (linked to your account ID and
-                Stripe customer ID) are retained for 10 years as required by
-                Art. 958f Swiss Code of Obligations (accounting and tax
-                retention). Note that your email and billing details are stored
-                by Stripe, not by Helvety.
+                Subscription and purchase records may be retained for the period
+                required by applicable accounting and tax law (including Swiss
+                Code of Obligations requirements where applicable). Payment card
+                details are handled by Stripe, not stored in full by Helvety.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -804,19 +803,20 @@ export default function PrivacyPage() {
                 When you accept the Terms of Service and Privacy Policy during
                 checkout, we record a consent event including your IP address,
                 timestamp, and the versions of the documents you accepted. This
-                data is retained for 10 years alongside transaction data as
-                legally required proof of consent (Art. 958f Swiss Code of
-                Obligations).
+                data may be retained as legally required evidence of contract
+                and consent history.
               </li>
               <li>
                 <strong className="text-foreground">
                   Communication records:
                 </strong>{" "}
-                Retained for up to 3 years after last contact.
+                Retained for as long as needed to process inquiries, resolve
+                disputes, and comply with legal obligations.
               </li>
               <li>
                 <strong className="text-foreground">Technical logs:</strong>{" "}
-                Retained for up to 90 days for security purposes.
+                Retained for a limited period for security, fraud-prevention,
+                service reliability, and incident response.
               </li>
               <li>
                 <strong className="text-foreground">Rate limiting data:</strong>{" "}
@@ -831,18 +831,17 @@ export default function PrivacyPage() {
                 Non-encrypted metadata associated with file uploads, downloads,
                 and deletions -- including timestamps, file sizes (of encrypted
                 blobs), storage paths, IP addresses, and user identifiers -- is
-                retained for up to 6 months for service security and legal
+                retained for a limited period for service security and legal
                 compliance purposes. This metadata does not include the content
                 of your files, which is end-to-end encrypted and generally not
                 accessible to us in plaintext during normal operation.
               </li>
               <li>
                 <strong className="text-foreground">Subscription data:</strong>{" "}
-                Retained for the duration of your subscription plus 10 years for
-                tax and accounting compliance (Art. 958f Swiss Code of
-                Obligations). Subscription history (plan changes, upgrades,
-                downgrades, cancellations) is retained as part of transaction
-                records.
+                Retained for the duration of your subscription and for any
+                legally required period thereafter. Subscription history (plan
+                changes, upgrades, downgrades, cancellations) may be retained as
+                part of transaction and service records.
               </li>
             </ul>
           </section>
@@ -912,11 +911,12 @@ export default function PrivacyPage() {
               deleted across Helvety services without undue delay, including
               authentication credentials, subscription records, task data,
               contact data, and file attachments, subject to technical
-              processing time and legally required retention. This action cannot
-              be undone. We recommend exporting your data before proceeding.
-              Transaction records required for legal compliance (Art. 958f Swiss
-              Code of Obligations) will be retained in anonymized form for 10
-              years.
+              processing time and legally required retention. Depending on
+              system architecture and legal obligations, some records may be
+              deleted, de-identified, or retained in restricted form for
+              compliance, fraud-prevention, dispute handling, or security
+              purposes. This action cannot be undone. We recommend exporting
+              your data before proceeding.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
@@ -941,9 +941,10 @@ export default function PrivacyPage() {
               </a>{" "}
               with the subject line &quot;Data Export Request,&quot;
               &quot;Account Deletion Request,&quot; or a description of the
-              right you wish to exercise. We will verify your identity and aim
-              to respond to your request within 30 days, subject to legal and
-              operational constraints.
+              right you wish to exercise. We will verify your identity and
+              respond within the timeframe required by applicable law, and in
+              many cases within 30 days, subject to legal and operational
+              constraints.
             </p>
             <p className="text-muted-foreground text-sm">
               <strong className="text-foreground">
@@ -972,8 +973,10 @@ export default function PrivacyPage() {
               9. Cookies and Tracking
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
-              We use only essential cookies that are strictly necessary for the
-              operation of the Services. These include:
+              We use essential cookies and similar storage technologies that are
+              necessary for operation and security of the Services. Depending on
+              the service, we may also use privacy-focused telemetry tools for
+              product analytics and performance monitoring. Examples include:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -1067,9 +1070,11 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
-              Vercel Analytics does not use cookies and does not track
-              individual users across sessions. Data is aggregated and
-              anonymized. You can learn more at{" "}
+              Based on our current implementation and vendor documentation,
+              Vercel Analytics is designed to operate without advertising
+              trackers and without cross-site profiling by us. Analytics data is
+              typically aggregated and pseudonymized/anonymized by provider
+              tooling. You can learn more at{" "}
               <a
                 href="https://vercel.com/docs/analytics/privacy-policy"
                 target="_blank"
@@ -1082,8 +1087,8 @@ export default function PrivacyPage() {
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               As of the last update date of this policy, we use Vercel
-              Analytics/Speed Insights and do not operate advertising trackers
-              or cross-site profiling technologies.
+              Analytics/Speed Insights and do not intentionally operate
+              advertising trackers or cross-site profiling technologies.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Essential cookies do not require consent under Swiss law as they
@@ -1097,9 +1102,8 @@ export default function PrivacyPage() {
               &quot;Do Not Track&quot; (DNT) is a browser setting that requests
               websites not to track the user. We do not currently respond to DNT
               signals in a standardized manner, as there is no industry-wide
-              standard for DNT. However, because we do not engage in cross-site
-              tracking or sell your personal information, the practical effect
-              is the same regardless of your DNT setting.
+              standard for DNT. Our current analytics configuration is described
+              above in this Section 9.
             </p>
 
             <h3 className="mb-3 text-lg font-medium">
@@ -1151,8 +1155,9 @@ export default function PrivacyPage() {
                 (for applicable services)
               </li>
               <li>
-                Zero-knowledge architecture where encryption keys are not
-                transmitted to or stored on our servers
+                Zero-knowledge-oriented architecture in which encryption keys
+                are derived client-side and are not intentionally stored on our
+                servers
               </li>
               <li>Secure authentication mechanisms</li>
               <li>
@@ -1173,7 +1178,7 @@ export default function PrivacyPage() {
               <li>
                 Security event logging for audit trails and incident response
               </li>
-              <li>Regular security assessments</li>
+              <li>Periodic internal security reviews</li>
               <li>Secure hosting infrastructure</li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -1226,8 +1231,8 @@ export default function PrivacyPage() {
                 PRF (Pseudo-Random Function) extension
               </li>
               <li>
-                All encryption and decryption operations occur locally in your
-                browser
+                Encryption and decryption operations are designed to occur
+                locally in your browser
               </li>
               <li>
                 We store only PRF parameters (salt values) that allow your
@@ -1255,28 +1260,27 @@ export default function PrivacyPage() {
               <strong className="text-foreground">
                 Helvety Tasks encrypted fields:
               </strong>{" "}
-              titles, descriptions, start/end dates, stage names, label names,
-              and file attachments (both file content and file metadata such as
-              filename, type, and size).{" "}
+              titles, descriptions, start/end dates, and file attachments (both
+              file content and file metadata such as filename, type, and size).{" "}
               <strong className="text-foreground">
                 Non-encrypted structural metadata:
               </strong>{" "}
               record identifiers, timestamps, priority levels, display
-              preferences (colors, icons, sort orders), entity relationships
-              (e.g., which stage, label, or space an item belongs to), and file
-              operation audit logs (IP addresses, file sizes, storage paths).
+              preferences (sort orders), entity relationships (e.g., stage,
+              label, or space references), and file operation audit logs (IP
+              addresses, file sizes, storage paths).
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
                 Helvety Contacts encrypted fields:
               </strong>{" "}
-              first and last names, description, email, phone, birthday, notes,
-              and category names.{" "}
+              first and last names, description, email, phone, birthday, and
+              notes.{" "}
               <strong className="text-foreground">
                 Non-encrypted structural metadata:
               </strong>{" "}
-              record identifiers, timestamps, display preferences (colors,
-              icons, sort orders), and category assignments.
+              record identifiers, timestamps, display preferences (sort orders),
+              and fixed category references.
             </p>
             <p className="text-muted-foreground text-sm">
               This approach is designed to protect your encrypted content even

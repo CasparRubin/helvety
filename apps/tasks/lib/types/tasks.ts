@@ -56,7 +56,7 @@ export interface Unit {
 export interface UnitInput {
   title: string;
   description: string | null;
-  /** Optional stage ID - can be a UUID (custom) or default stage ID (e.g., "default-unit-work") */
+  /** Optional stage ID - must be the fixed default unit stage ID ("default-unit-stage"). */
   stage_id?: string | null;
 }
 
@@ -98,7 +98,7 @@ export interface SpaceInput {
   unit_id: string;
   title: string;
   description: string | null;
-  /** Optional stage ID - can be a UUID (custom) or default stage ID (e.g., "default-space-upcoming") */
+  /** Optional stage ID - must be the fixed default space stage ID ("default-space-stage"). */
   stage_id?: string | null;
 }
 
@@ -156,16 +156,16 @@ export interface ItemInput {
   start_date?: string | null;
   /** Optional ISO datetime string for the end date/time */
   end_date?: string | null;
-  /** Optional stage ID - can be a UUID (custom) or default stage ID (e.g., "default-item-backlog") */
+  /** Optional stage ID - must be the fixed default item stage ID ("default-item-stage"). */
   stage_id?: string | null;
-  /** Optional label ID - can be a UUID (custom) or default label ID (e.g., "default-label-bug") */
+  /** Optional label ID - must be the fixed default item label ID ("default-item-label"). */
   label_id?: string | null;
   /** Optional priority (0=low, 1=normal, 2=high, 3=urgent). Defaults to 1 (normal) in DB. */
   priority?: number;
 }
 
 // =============================================================================
-// STAGE CONFIGURATION TYPES
+// LEGACY STAGE CONFIGURATION TYPES
 // =============================================================================
 
 /**
@@ -180,7 +180,7 @@ export interface StageConfigRow {
   updated_at: string;
 }
 
-/** Decrypted StageConfig (client-side only) */
+/** @deprecated Legacy type kept for compatibility with historical data contracts. */
 export interface StageConfig {
   id: string;
   user_id: string;
@@ -191,7 +191,7 @@ export interface StageConfig {
   isDefault?: boolean;
 }
 
-/** Input for creating a StageConfig (plaintext, encrypted before sending) */
+/** @deprecated Legacy type kept for compatibility with historical data contracts. */
 export interface StageConfigInput {
   name: string;
 }
@@ -201,8 +201,7 @@ export interface StageConfigInput {
 // =============================================================================
 
 /**
- * Stage row as stored in the database (encrypted fields)
- * An individual stage within a StageConfig (e.g., "To Do", "In Progress")
+ * @deprecated Legacy database shape for configurable stages.
  */
 export interface StageRow {
   id: string;
@@ -233,7 +232,7 @@ export interface Stage {
   created_at: string;
 }
 
-/** Input for creating a Stage (plaintext, encrypted before sending) */
+/** @deprecated Legacy type kept for compatibility with historical data contracts. */
 export interface StageInput {
   config_id: string;
   name: string;
@@ -246,12 +245,11 @@ export interface StageInput {
 }
 
 // =============================================================================
-// STAGE ASSIGNMENT TYPES
+// LEGACY STAGE ASSIGNMENT TYPES
 // =============================================================================
 
 /**
- * Links a stage configuration to a specific entity type context
- * (e.g., "use this config for spaces within unit X")
+ * @deprecated Legacy type kept for compatibility with historical data contracts.
  */
 export interface StageAssignment {
   id: string;
@@ -263,12 +261,11 @@ export interface StageAssignment {
 }
 
 // =============================================================================
-// LABEL CONFIGURATION TYPES
+// LEGACY LABEL CONFIGURATION TYPES
 // =============================================================================
 
 /**
- * Label configuration row as stored in the database (encrypted fields)
- * A named set of labels that can be applied to items within a space
+ * @deprecated Legacy database shape for configurable labels.
  */
 export interface LabelConfigRow {
   id: string;
@@ -278,7 +275,7 @@ export interface LabelConfigRow {
   updated_at: string;
 }
 
-/** Decrypted LabelConfig (client-side only) */
+/** @deprecated Legacy type kept for compatibility with historical data contracts. */
 export interface LabelConfig {
   id: string;
   user_id: string;
@@ -289,7 +286,7 @@ export interface LabelConfig {
   isDefault?: boolean;
 }
 
-/** Input for creating a LabelConfig (plaintext, encrypted before sending) */
+/** @deprecated Legacy type kept for compatibility with historical data contracts. */
 export interface LabelConfigInput {
   name: string;
 }
@@ -299,8 +296,7 @@ export interface LabelConfigInput {
 // =============================================================================
 
 /**
- * Label row as stored in the database (encrypted fields)
- * An individual label within a LabelConfig (e.g., "Bug", "Feature")
+ * Label row shape used by fixed in-code labels.
  */
 export interface LabelRow {
   id: string;
@@ -327,7 +323,7 @@ export interface Label {
   created_at: string;
 }
 
-/** Input for creating a Label (plaintext, encrypted before sending) */
+/** @deprecated Legacy type kept for compatibility with historical data contracts. */
 export interface LabelInput {
   config_id: string;
   name: string;
@@ -338,12 +334,11 @@ export interface LabelInput {
 }
 
 // =============================================================================
-// LABEL ASSIGNMENT TYPES
+// LEGACY LABEL ASSIGNMENT TYPES
 // =============================================================================
 
 /**
- * Links a label configuration to a specific space's items
- * (e.g., "use this label config for items within space X")
+ * @deprecated Legacy type kept for compatibility with historical data contracts.
  */
 export interface LabelAssignment {
   id: string;

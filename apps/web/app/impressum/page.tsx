@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 /** Legal notice / Impressum page for Helvety */
 export default function ImpressumPage() {
   return (
-    <section className="min-h-screen px-6 py-12">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-8">
+    <section className="legal-page-section">
+      <div className="legal-page-container">
+        <div className="legal-page-back">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -27,7 +27,7 @@ export default function ImpressumPage() {
           </Button>
         </div>
 
-        <article className="space-y-10">
+        <article className="legal-page-article">
           <header>
             <h1 className="mb-2 text-3xl font-bold">Impressum</h1>
             <p className="text-muted-foreground text-sm">
@@ -163,7 +163,7 @@ export default function ImpressumPage() {
                 <p className="text-foreground mb-1 font-medium">
                   What to Include in a Report
                 </p>
-                <ul className="text-muted-foreground list-inside list-disc space-y-1">
+                <ul className="text-muted-foreground list-outside list-disc space-y-1 pl-5 text-sm">
                   <li>
                     Description of the suspected illegal activity or content
                   </li>
@@ -181,11 +181,12 @@ export default function ImpressumPage() {
                 <p className="text-muted-foreground">
                   Legal requests must be issued in accordance with applicable
                   Swiss law. We respond to valid Swiss court orders and binding
-                  legal requests. Due to our zero-knowledge, end-to-end
-                  encryption architecture, we can provide non-encrypted metadata
-                  (account information, IP addresses, timestamps, storage
-                  usage). We are generally unable to decrypt user content during
-                  normal operation.
+                  legal requests. For services using end-to-end encryption, our
+                  architecture is designed so we generally cannot access
+                  plaintext user content during normal operation. Depending on
+                  the service and legal basis, we may provide available
+                  non-encrypted metadata (for example account identifiers, IP
+                  addresses, timestamps, and storage usage information).
                 </p>
               </div>
               <div>
@@ -194,7 +195,7 @@ export default function ImpressumPage() {
                 </p>
                 <p className="text-muted-foreground">
                   We aim to acknowledge abuse reports promptly, typically within
-                  two business days.
+                  two business days, subject to request volume and complexity.
                 </p>
               </div>
             </div>
@@ -292,13 +293,15 @@ export default function ImpressumPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               This Impressum and any disputes arising from or in connection with
               this website are governed by Swiss law. The exclusive place of
-              jurisdiction is Basel-Stadt, Switzerland.
+              jurisdiction is Basel-Stadt, Switzerland, except where mandatory
+              law provides otherwise.
             </p>
             <p className="text-muted-foreground text-sm">
               Our services are primarily intended for customers in Switzerland.
-              We do not actively target users in the European Union (EU) or
-              European Economic Area (EEA). Access from outside Switzerland may
-              still occur.
+              New account creation currently includes a Switzerland location
+              confirmation step, but access from outside Switzerland may still
+              occur. Where mandatory law in another jurisdiction applies, such
+              mandatory provisions remain unaffected.
             </p>
           </section>
 

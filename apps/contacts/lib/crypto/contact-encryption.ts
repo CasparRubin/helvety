@@ -1,10 +1,11 @@
 /**
  * Contact Encryption Helpers
- * Convenience functions for encrypting/decrypting Contacts,
- * CategoryConfigs, and Categories client-side.
+ * Convenience functions for encrypting/decrypting Contacts client-side.
  *
  * This module is designed so the server receives encrypted payloads for
  * protected fields; validate API and logging paths to keep this invariant.
+ * Legacy category config helpers are retained only for backward-compatible
+ * internal contracts and are not used by the fixed-taxonomy runtime.
  */
 
 import {
@@ -265,10 +266,11 @@ export async function encryptContactUpdate(
 }
 
 // =============================================================================
-// CATEGORY CONFIG ENCRYPTION
+// LEGACY CATEGORY CONFIG ENCRYPTION
 // =============================================================================
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt a CategoryConfig for database storage
  */
 export async function encryptCategoryConfigInput(
@@ -285,6 +287,7 @@ export async function encryptCategoryConfigInput(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt a CategoryConfig row from the database
  */
 export async function decryptCategoryConfigRow(
@@ -304,6 +307,7 @@ export async function decryptCategoryConfigRow(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt multiple CategoryConfig rows
  */
 export async function decryptCategoryConfigRows(
@@ -314,6 +318,7 @@ export async function decryptCategoryConfigRows(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt fields for updating a CategoryConfig
  */
 export async function encryptCategoryConfigUpdate(
@@ -333,10 +338,11 @@ export async function encryptCategoryConfigUpdate(
 }
 
 // =============================================================================
-// CATEGORY ENCRYPTION
+// LEGACY CATEGORY ENCRYPTION
 // =============================================================================
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt a Category for database storage
  */
 export async function encryptCategoryInput(
@@ -367,6 +373,7 @@ export async function encryptCategoryInput(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt a Category row from the database
  */
 export async function decryptCategoryRow(
@@ -390,6 +397,7 @@ export async function decryptCategoryRow(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt multiple Category rows
  */
 export async function decryptCategoryRows(
@@ -400,6 +408,7 @@ export async function decryptCategoryRows(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt fields for updating a Category
  */
 export async function encryptCategoryUpdate(

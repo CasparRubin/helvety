@@ -20,7 +20,6 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
@@ -28,60 +27,21 @@ import { useState, useCallback } from "react";
 import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
-import { SettingsPanel } from "@/components/settings-panel";
 import { TaskCommandBar } from "@/components/task-command-bar";
 import {
   useUnit,
   useSpace,
   useSpaces,
   useItems,
-  useStageConfigs,
   useStages,
-  useStageAssignment,
-  useLabelConfigs,
   useLabels,
-  useLabelAssignment,
   useDataExport,
 } from "@/hooks";
+import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
+import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";
 
-import type {
-  ItemRow,
-  LabelAssignment,
-  LabelConfigRow,
-  SpaceRow,
-  StageAssignment,
-  StageConfigRow,
-  UnitRow,
-} from "@/lib/types";
-
-const StageConfiguratorContent = dynamic(
-  () =>
-    import("@/components/stage-configurator").then(
-      (mod) => mod.StageConfiguratorContent
-    ),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center py-8">
-        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-      </div>
-    ),
-  }
-);
-
-const LabelConfiguratorContent = dynamic(
-  () =>
-    import("@/components/label-configurator").then(
-      (mod) => mod.LabelConfiguratorContent
-    ),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center py-8">
-        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-      </div>
-    ),
-  }
-);
+import type { ItemRow, SpaceRow, UnitRow } from "@/lib/types";
 
 /**
  * Items Dashboard - shows all items for a specific space
@@ -92,20 +52,12 @@ export function ItemsDashboard({
   initialEncryptedUnit,
   initialEncryptedSpace,
   initialEncryptedItems,
-  initialEncryptedStageConfigs,
-  initialStageAssignment,
-  initialEncryptedLabelConfigs,
-  initialLabelAssignment,
 }: {
   unitId: string;
   spaceId: string;
   initialEncryptedUnit?: UnitRow;
   initialEncryptedSpace?: SpaceRow;
   initialEncryptedItems?: ItemRow[];
-  initialEncryptedStageConfigs?: StageConfigRow[];
-  initialStageAssignment?: StageAssignment | null;
-  initialEncryptedLabelConfigs?: LabelConfigRow[];
-  initialLabelAssignment?: LabelAssignment | null;
 }) {
   const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
@@ -120,42 +72,13 @@ export function ItemsDashboard({
   const { remove: removeSpace } = useSpaces(unitId);
   const { items, isLoading, error, refresh, create, remove, reorder } =
     useItems(spaceId, { initialEncryptedData: initialEncryptedItems });
-  const {
-    configs,
-    create: createConfig,
-    remove: removeConfig,
-    update: updateConfig,
-  } = useStageConfigs("item", {
-    initialEncryptedData: initialEncryptedStageConfigs,
-  });
-  const {
-    effectiveConfigId: effectiveStageConfigId,
-    assign: assignStage,
-    unassign: unassignStage,
-  } = useStageAssignment("item", spaceId, {
-    initialData: initialStageAssignment,
-  });
-  const { stages } = useStages(effectiveStageConfigId);
-
-  // Label configuration hooks
-  const {
-    configs: labelConfigs,
-    create: createLabelConfig,
-    remove: removeLabelConfig,
-    update: updateLabelConfig,
-  } = useLabelConfigs({ initialEncryptedData: initialEncryptedLabelConfigs });
-  const {
-    effectiveConfigId: effectiveLabelConfigId,
-    assign: assignLabel,
-    unassign: unassignLabel,
-  } = useLabelAssignment(spaceId, { initialData: initialLabelAssignment });
-  const { labels } = useLabels(effectiveLabelConfigId);
+  const { stages } = useStages(DEFAULT_STAGE_CONFIGS.item.id);
+  const { labels } = useLabels(DEFAULT_LABEL_CONFIG.id);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   // Item delete state (for individual items in the list)
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
@@ -304,7 +227,6 @@ export function ItemsDashboard({
         createLabel="New Item"
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
-        onSettings={() => setIsSettingsOpen(true)}
         onEdit={handleEditSpaceOpen}
         editLabel="Edit Space"
         onDelete={handleDeleteSpace}
@@ -482,47 +404,6 @@ export function ItemsDashboard({
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Settings Panel */}
-      <SettingsPanel
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-        sections={[
-          {
-            id: "stages",
-            label: "Stages",
-            content: isSettingsOpen ? (
-              <StageConfiguratorContent
-                entityType="item"
-                configs={configs}
-                assignedConfigId={effectiveStageConfigId}
-                onCreateConfig={async (name) => createConfig({ name })}
-                onDeleteConfig={removeConfig}
-                onUpdateConfig={async (id, name) => updateConfig(id, { name })}
-                onAssignConfig={assignStage}
-                onUnassignConfig={unassignStage}
-              />
-            ) : null,
-          },
-          {
-            id: "labels",
-            label: "Labels",
-            content: isSettingsOpen ? (
-              <LabelConfiguratorContent
-                configs={labelConfigs}
-                assignedConfigId={effectiveLabelConfigId}
-                onCreateConfig={async (name) => createLabelConfig({ name })}
-                onDeleteConfig={removeLabelConfig}
-                onUpdateConfig={async (id, name) =>
-                  updateLabelConfig(id, { name })
-                }
-                onAssignConfig={assignLabel}
-                onUnassignConfig={unassignLabel}
-              />
-            ) : null,
-          },
-        ]}
-      />
 
       {/* Delete Item Confirmation Dialog */}
       <DeleteConfirmationDialog

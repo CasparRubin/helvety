@@ -1,0 +1,222 @@
+[
+  {
+    "route": "/impressum",
+    "viewport": {
+      "width": 280,
+      "height": 800
+    },
+    "overflow": {
+      "viewportWidth": 280,
+      "docScrollWidth": 280,
+      "bodyScrollWidth": 280,
+      "maxRight": 280,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": null
+  },
+  {
+    "route": "/impressum",
+    "viewport": {
+      "width": 320,
+      "height": 800
+    },
+    "overflow": {
+      "viewportWidth": 320,
+      "docScrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "maxRight": 320,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": null
+  },
+  {
+    "route": "/impressum",
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "overflow": {
+      "viewportWidth": 360,
+      "docScrollWidth": 360,
+      "bodyScrollWidth": 360,
+      "maxRight": 360,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": null
+  },
+  {
+    "route": "/impressum",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "overflow": {
+      "viewportWidth": 768,
+      "docScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "maxRight": 768,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": null
+  },
+  {
+    "route": "/privacy",
+    "viewport": {
+      "width": 280,
+      "height": 800
+    },
+    "overflow": {
+      "viewportWidth": 280,
+      "docScrollWidth": 280,
+      "bodyScrollWidth": 280,
+      "maxRight": 280,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": null
+  },
+  {
+    "route": "/privacy",
+    "viewport": {
+      "width": 320,
+      "height": 800
+    },
+    "overflow": {
+      "viewportWidth": 320,
+      "docScrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "maxRight": 320,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": null
+  },
+  {
+    "route": "/privacy",
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "overflow": {
+      "viewportWidth": 360,
+      "docScrollWidth": 360,
+      "bodyScrollWidth": 360,
+      "maxRight": 360,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": null
+  },
+  {
+    "route": "/privacy",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "overflow": {
+      "viewportWidth": 768,
+      "docScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "maxRight": 768,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": null
+  },
+  {
+    "route": "/terms",
+    "viewport": {
+      "width": 280,
+      "height": 800
+    },
+    "overflow": {
+      "viewportWidth": 280,
+      "docScrollWidth": 280,
+      "bodyScrollWidth": 280,
+      "maxRight": 280,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": {
+      "found": true,
+      "text": "7.7 Law Enforcement Cooperation",
+      "gapFrom76": 680,
+      "gapTo78": null,
+      "marginTop77": "32px",
+      "marginBottom77": "12px"
+    }
+  },
+  {
+    "route": "/terms",
+    "viewport": {
+      "width": 320,
+      "height": 800
+    },
+    "overflow": {
+      "viewportWidth": 320,
+      "docScrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "maxRight": 320,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": {
+      "found": true,
+      "text": "7.7 Law Enforcement Cooperation",
+      "gapFrom76": 580,
+      "gapTo78": null,
+      "marginTop77": "32px",
+      "marginBottom77": "12px"
+    }
+  },
+  {
+    "route": "/terms",
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "overflow": {
+      "viewportWidth": 360,
+      "docScrollWidth": 360,
+      "bodyScrollWidth": 360,
+      "maxRight": 360,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": {
+      "found": true,
+      "text": "7.7 Law Enforcement Cooperation",
+      "gapFrom76": 520,
+      "gapTo78": null,
+      "marginTop77": "32px",
+      "marginBottom77": "12px"
+    }
+  },
+  {
+    "route": "/terms",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "overflow": {
+      "viewportWidth": 768,
+      "docScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "maxRight": 768,
+      "minLeft": 0,
+      "offenderCount": 0
+    },
+    "terms77": {
+      "found": true,
+      "text": "7.7 Law Enforcement Cooperation",
+      "gapFrom76": 300,
+      "gapTo78": null,
+      "marginTop77": "32px",
+      "marginBottom77": "12px"
+    }
+  }
+]

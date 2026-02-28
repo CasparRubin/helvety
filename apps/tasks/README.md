@@ -27,19 +27,10 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Bullet and numbered lists
   - Link support
   - Manual save with unsaved-changes feedback in the Save button
-  - **Action panel** - View created/modified dates, set start and end date/time, and set item stage, label, and priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
+  - **Action panel** - View created/modified dates, set start and end date/time, view fixed item stage/label, and set priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators
-- **Label management** - Categorize items with labels (e.g., Bug, Feature, Improvement)
-  - **Default labels** - Built-in label set applied to every space: Bug, Change Request, Feature, Improvement, Internal Task
-  - **Custom label configurations** - Create your own label setups with custom names, colors, and Lucide icons
-  - **One label per item** - Each item can have exactly one label assigned
-  - **Space-level configuration** - All items within a space share the same label config
-- **Stage management** - Create and manage reusable stage configurations for organizing items (e.g., To Do, In Progress, Done)
-  - **Default configurations** - Built-in stage setups for Units (Work/Home), Spaces (Upcoming/In Progress/Completed), and Items (full workflow from Backlog to Completed)
-  - **Custom configurations** - Create your own stage setups with custom names, colors, and Lucide icons
-  - **Color picker** - Choose from preset colors or use the custom color picker for any hex color
-  - **Icon support** - Each stage can have a Lucide icon for visual identification
-  - **Rows shown by default** - Control how many items are visible per stage (0 = collapsed, N = show N items with "Show all" link)
+- **Fixed labels** - A single immutable default item label is enforced across the app
+- **Fixed stages** - A single immutable default stage is enforced for Units, Spaces, and Items
 - **Encrypted file attachments** - Upload, download, and manage file attachments on items (images, documents, etc.) with drag-and-drop support; files are losslessly compressed (when beneficial) then encrypted client-side before upload
 - **Contact linking** - Link contacts from [Helvety Contacts](https://helvety.com/contacts) to any Unit, Space, or Item
   - **Bidirectional** - Link and unlink from either the Tasks app or the Contacts app for consistent cross-app UX
@@ -47,7 +38,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Contact display** - Shows name and email; description, phone, and birthday are decrypted but not displayed in the compact link view. A flag indicates whether the contact has notes
   - **Deep links** - Click any contact row to view or edit the full contact details in the Contacts app (opens in a new tab)
   - **Privacy** - Contact notes content is not decrypted in the Tasks app by design; only a has-notes indicator is shown
-- **Drag & drop reordering** - Rearrange items within and between stages on desktop; mobile uses up/down arrows to move items between stages
+- **Drag & drop reordering** - Rearrange entries on desktop; mobile uses up/down arrows for ordering controls
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Switch between dark and light themes
@@ -88,16 +79,12 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. In su
 
 **Encrypted fields** (AES-256-GCM, client-side before storage):
 
-| Entity      | Encrypted Fields                                                                |
-| ----------- | ------------------------------------------------------------------------------- |
-| Unit        | `title`, `description`                                                          |
-| Space       | `title`, `description`                                                          |
-| Item        | `title`, `description`, `start_date`, `end_date`                                |
-| StageConfig | `name`                                                                          |
-| Stage       | `name`                                                                          |
-| LabelConfig | `name`                                                                          |
-| Label       | `name`                                                                          |
-| Attachment  | file content (binary), metadata (`filename`, `mime_type`, `size`, `compressed`) |
+| Entity     | Encrypted Fields                                                                |
+| ---------- | ------------------------------------------------------------------------------- |
+| Unit       | `title`, `description`                                                          |
+| Space      | `title`, `description`                                                          |
+| Item       | `title`, `description`, `start_date`, `end_date`                                |
+| Attachment | file content (binary), metadata (`filename`, `mime_type`, `size`, `compressed`) |
 
 **Non-encrypted structural metadata** (stored in plaintext to enable application functionality):
 
@@ -109,10 +96,7 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. In su
 | `sort_order`                                  | Display ordering                                     |
 | `priority` (Item)                             | Priority level (0-3 numeric)                         |
 | `stage_id`, `label_id`, `space_id`, `unit_id` | Entity relationships                                 |
-| `color`, `icon` (Stage/Label)                 | Display preferences                                  |
-| `default_rows_shown` (Stage)                  | UI preference                                        |
 | `storage_path` (Attachment)                   | Storage location                                     |
-| Stage/Label/Contact assignments               | Linking tables (all fields plaintext)                |
 | Audit logs                                    | Timestamps, IPs, file sizes, user IDs, storage paths |
 
 Browser compatibility for end-to-end encryption depends on WebAuthn PRF support and can evolve over time:

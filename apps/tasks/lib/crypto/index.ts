@@ -96,26 +96,6 @@ export {
   encryptItemUpdate,
   decryptItemRow,
   decryptItemRows,
-  // StageConfig encryption
-  encryptStageConfigInput,
-  encryptStageConfigUpdate,
-  decryptStageConfigRow,
-  decryptStageConfigRows,
-  // Stage encryption
-  encryptStageInput,
-  encryptStageUpdate,
-  decryptStageRow,
-  decryptStageRows,
-  // LabelConfig encryption
-  encryptLabelConfigInput,
-  encryptLabelConfigUpdate,
-  decryptLabelConfigRow,
-  decryptLabelConfigRows,
-  // Label encryption
-  encryptLabelInput,
-  encryptLabelUpdate,
-  decryptLabelRow,
-  decryptLabelRows,
   // Attachment encryption
   encryptAttachmentMetadata,
   decryptAttachmentRow,

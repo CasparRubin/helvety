@@ -1,7 +1,6 @@
 /**
- * Default category configurations for Contacts.
- * These are hardcoded and read-only - users cannot modify them.
- * If users want custom categories, they must create their own configuration.
+ * Fixed category catalog for Contacts.
+ * One immutable category exists across all contacts.
  */
 
 // =============================================================================
@@ -37,37 +36,17 @@ export interface DefaultCategoryConfig {
 // Default Category Configuration
 // =============================================================================
 
-/**
- * Default category config for Contacts
- * Simple 3-category setup: Work, Family, Friends
- */
 const CONTACT_DEFAULT: DefaultCategoryConfig = {
-  id: "default-contact",
-  name: "Contacts Default",
+  id: "default-contact-category-config",
+  name: "Contact Category",
   isDefault: true,
   categories: [
     {
-      id: "default-contact-work",
-      name: "Work",
+      id: "default-contact-category",
+      name: "Default",
       color: "#0ea5e9",
-      icon: "briefcase",
+      icon: "user",
       sort_order: 0,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-contact-family",
-      name: "Family",
-      color: "#22c55e",
-      icon: "home",
-      sort_order: 1,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-contact-friends",
-      name: "Friends",
-      color: "#8b5cf6",
-      icon: "users",
-      sort_order: 2,
       default_rows_shown: 20,
     },
   ],

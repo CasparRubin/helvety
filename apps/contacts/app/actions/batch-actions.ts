@@ -5,12 +5,7 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
 
-import type {
-  ActionResponse,
-  ContactRow,
-  CategoryConfigRow,
-  CategoryAssignment,
-} from "@/lib/types";
+import type { ActionResponse, ContactRow } from "@/lib/types";
 
 const MAX_DASHBOARD_ROWS = 3000;
 
@@ -21,8 +16,6 @@ const MAX_DASHBOARD_ROWS = 3000;
 /** Data returned by the Contacts dashboard batch fetch */
 export interface ContactsDashboardData {
   contacts: ContactRow[];
-  categoryConfigs: CategoryConfigRow[];
-  categoryAssignment: CategoryAssignment | null;
 }
 
 // =============================================================================
@@ -33,8 +26,7 @@ export interface ContactsDashboardData {
  * Batch fetch all data needed for the Contacts dashboard.
  * Performs a single auth + rate-limit check, then runs all DB queries in parallel.
  *
- * Replaces 3 separate server actions on initial load:
- *   getContacts, getCategoryConfigs, getCategoryAssignment
+ * Replaces a single contacts list fetch with one auth/rate-limit check.
  */
 export async function getContactsDashboardData(): Promise<
   ActionResponse<ContactsDashboardData>
@@ -46,37 +38,19 @@ export async function getContactsDashboardData(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [contactsResult, categoryConfigsResult, assignmentResult] =
-      await Promise.all([
-        supabase
-          .from("contacts")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("sort_order", { ascending: true })
-          .limit(MAX_DASHBOARD_ROWS + 1)
-          .returns<ContactRow[]>(),
-        supabase
-          .from("category_configs")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: true })
-          .returns<CategoryConfigRow[]>(),
-        supabase
-          .from("category_assignments")
-          .select("*")
-          .eq("user_id", user.id)
-          .limit(1),
-      ]);
+    const [contactsResult] = await Promise.all([
+      supabase
+        .from("contacts")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("sort_order", { ascending: true })
+        .limit(MAX_DASHBOARD_ROWS + 1)
+        .returns<ContactRow[]>(),
+    ]);
 
-    if (
-      contactsResult.error ||
-      categoryConfigsResult.error ||
-      assignmentResult.error
-    ) {
+    if (contactsResult.error) {
       logger.error("Error in getContactsDashboardData:", {
         contacts: contactsResult.error,
-        categoryConfigs: categoryConfigsResult.error,
-        categoryAssignment: assignmentResult.error,
       });
       return { success: false, error: "Failed to load dashboard data" };
     }
@@ -92,9 +66,6 @@ export async function getContactsDashboardData(): Promise<
       success: true,
       data: {
         contacts: contactsResult.data ?? [],
-        categoryConfigs: categoryConfigsResult.data ?? [],
-        categoryAssignment:
-          (assignmentResult.data?.[0] as CategoryAssignment) ?? null,
       },
     };
   } catch (error) {

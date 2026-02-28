@@ -19,7 +19,7 @@ import {
 import { Loader2Icon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
-import { CategoryGroup, UncategorizedGroup } from "@/components/category-group";
+import { CategoryGroup } from "@/components/category-group";
 import { ContactRow } from "@/components/contact-row";
 
 import type { Contact, Category, ReorderUpdate } from "@/lib/types";
@@ -32,7 +32,7 @@ interface ContactListProps {
   isLoading: boolean;
   /** Error message if any */
   error: string | null;
-  /** Available categories for the current config */
+  /** Available categories for the current view */
   categories: Category[];
   /** Callback when a contact row is clicked */
   onContactClick?: (contact: Contact) => void;
@@ -91,13 +91,13 @@ export function ContactList({
       }
 
       if (over.data?.current?.type === "category") {
-        setHoveredCategoryId(over.data.current.categoryId ?? "uncategorized");
+        setHoveredCategoryId(over.data.current.categoryId ?? null);
         return;
       }
 
       const overContact = contacts.find((c) => c.id === over.id);
       if (overContact) {
-        setHoveredCategoryId(overContact.category_id ?? "uncategorized");
+        setHoveredCategoryId(overContact.category_id ?? null);
       }
     },
     [contacts]
@@ -124,23 +124,18 @@ export function ContactList({
   const groupedContacts = useMemo(() => {
     if (!hasCategories) return null;
 
-    const groups = new Map<string | null, Contact[]>();
+    const groups = new Map<string, Contact[]>();
 
     // Initialize groups in category order
     for (const c of categories) {
       groups.set(c.id, []);
     }
-    groups.set(null, []); // Uncategorized group
-
     for (const contact of contacts) {
       const key = contact.category_id;
+      if (!key) continue;
       const group = groups.get(key);
       if (group) {
         group.push(contact);
-      } else {
-        // Contact has a category_id not in current config -> uncategorized
-        const uncategorized = groups.get(null);
-        if (uncategorized) uncategorized.push(contact);
       }
     }
 
@@ -162,7 +157,7 @@ export function ContactList({
       const activeId = active.id as string;
       const overId = over.id as string;
 
-      let targetCategoryId: string | null | undefined;
+      let targetCategoryId: string | undefined;
 
       if (
         over.data?.current?.type === "category" &&
@@ -176,7 +171,7 @@ export function ContactList({
 
       if (!activeContact) return;
 
-      if (overContact && targetCategoryId === undefined) {
+      if (overContact?.category_id && targetCategoryId === undefined) {
         targetCategoryId = overContact.category_id;
       }
 
@@ -198,7 +193,7 @@ export function ContactList({
           id: c.id,
           sort_order: index,
         };
-        if (c.id === activeId && targetCategoryId !== undefined) {
+        if (c.id === activeId && typeof targetCategoryId === "string") {
           update.category_id = targetCategoryId;
         }
         return update;
@@ -363,58 +358,21 @@ export function ContactList({
                                 )
                             : undefined
                         }
-                        onMoveUp={() => handleMoveUp(contact.id)}
-                        onMoveDown={() => handleMoveDown(contact.id)}
+                        onMoveUp={
+                          categories.length > 1
+                            ? () => handleMoveUp(contact.id)
+                            : undefined
+                        }
+                        onMoveDown={
+                          categories.length > 1
+                            ? () => handleMoveDown(contact.id)
+                            : undefined
+                        }
                       />
                     ))}
                 </CategoryGroup>
               );
             })}
-
-            {/* Uncategorized contacts */}
-            {(() => {
-              const uncategorizedContacts = groupedContacts?.get(null) ?? [];
-              if (uncategorizedContacts.length === 0) return null;
-              return (
-                <UncategorizedGroup
-                  contactIds={uncategorizedContacts.map((c) => c.id)}
-                  count={uncategorizedContacts.length}
-                  isHighlighted={hoveredCategoryId === "uncategorized"}
-                >
-                  {uncategorizedContacts
-                    .toSorted(
-                      (a, b) =>
-                        (updatedAtMsById.get(b.id) ?? 0) -
-                        (updatedAtMsById.get(a.id) ?? 0)
-                    )
-                    .map((contact) => (
-                      <ContactRow
-                        key={contact.id}
-                        id={contact.id}
-                        firstName={contact.first_name}
-                        lastName={contact.last_name}
-                        email={contact.email}
-                        createdAt={contact.created_at}
-                        isFirst={false}
-                        isLast={true}
-                        onClick={() => onContactClick?.(contact)}
-                        onPrefetch={() => onContactPrefetch?.(contact)}
-                        onDelete={
-                          onContactDelete
-                            ? () =>
-                                onContactDelete(
-                                  contact.id,
-                                  `${contact.first_name} ${contact.last_name}`
-                                )
-                            : undefined
-                        }
-                        onMoveUp={() => handleMoveUp(contact.id)}
-                        onMoveDown={() => handleMoveDown(contact.id)}
-                      />
-                    ))}
-                </UncategorizedGroup>
-              );
-            })()}
           </div>
         </DndContext>
       ) : contacts.length === 0 ? (
@@ -458,8 +416,16 @@ export function ContactList({
                           )
                       : undefined
                   }
-                  onMoveUp={() => handleMoveUp(contact.id)}
-                  onMoveDown={() => handleMoveDown(contact.id)}
+                  onMoveUp={
+                    categories.length > 1
+                      ? () => handleMoveUp(contact.id)
+                      : undefined
+                  }
+                  onMoveDown={
+                    categories.length > 1
+                      ? () => handleMoveDown(contact.id)
+                      : undefined
+                  }
                 />
               ))}
             </SortableContext>

@@ -6,16 +6,7 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
 import { z } from "zod";
 
-import type {
-  ActionResponse,
-  UnitRow,
-  SpaceRow,
-  ItemRow,
-  StageConfigRow,
-  LabelConfigRow,
-  StageAssignment,
-  LabelAssignment,
-} from "@/lib/types";
+import type { ActionResponse, UnitRow, SpaceRow, ItemRow } from "@/lib/types";
 
 const MAX_DASHBOARD_ROWS = 2000;
 const MAX_COUNT_ROWS = 10000;
@@ -28,8 +19,6 @@ const MAX_COUNT_ROWS = 10000;
 export interface UnitsDashboardData {
   units: UnitRow[];
   spaceCounts: Record<string, number>;
-  stageConfigs: StageConfigRow[];
-  stageAssignment: StageAssignment | null;
 }
 
 /** Data returned by the Spaces dashboard batch fetch */
@@ -37,8 +26,6 @@ export interface SpacesDashboardData {
   unit: UnitRow;
   spaces: SpaceRow[];
   itemCounts: Record<string, number>;
-  stageConfigs: StageConfigRow[];
-  stageAssignment: StageAssignment | null;
 }
 
 /** Data returned by the Items dashboard batch fetch */
@@ -46,10 +33,6 @@ export interface ItemsDashboardData {
   unit: UnitRow;
   space: SpaceRow;
   items: ItemRow[];
-  stageConfigs: StageConfigRow[];
-  stageAssignment: StageAssignment | null;
-  labelConfigs: LabelConfigRow[];
-  labelAssignment: LabelAssignment | null;
 }
 
 // =============================================================================
@@ -60,8 +43,8 @@ export interface ItemsDashboardData {
  * Batch fetch all data needed for the Units (top-level) dashboard.
  * Performs a single auth + rate-limit check, then runs all DB queries in parallel.
  *
- * Replaces 4 separate server actions on initial load:
- *   getUnits, getSpaceCounts, getStageConfigs, getStageAssignment("unit", null)
+ * Replaces 2 separate server actions on initial load:
+ *   getUnits, getSpaceCounts
  */
 export async function getUnitsDashboardData(): Promise<
   ActionResponse<UnitsDashboardData>
@@ -71,47 +54,26 @@ export async function getUnitsDashboardData(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [unitsResult, spacesResult, stageConfigsResult, assignmentResult] =
-      await Promise.all([
-        supabase
-          .from("units")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("sort_order", { ascending: true })
-          .order("created_at", { ascending: false })
-          .limit(MAX_DASHBOARD_ROWS + 1)
-          .returns<UnitRow[]>(),
-        supabase
-          .from("spaces")
-          .select("unit_id")
-          .eq("user_id", user.id)
-          .limit(MAX_COUNT_ROWS + 1),
-        supabase
-          .from("stage_configs")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: true })
-          .returns<StageConfigRow[]>(),
-        supabase
-          .from("stage_assignments")
-          .select("*")
-          .eq("user_id", user.id)
-          .eq("entity_type", "unit")
-          .is("parent_id", null)
-          .limit(1),
-      ]);
+    const [unitsResult, spacesResult] = await Promise.all([
+      supabase
+        .from("units")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false })
+        .limit(MAX_DASHBOARD_ROWS + 1)
+        .returns<UnitRow[]>(),
+      supabase
+        .from("spaces")
+        .select("unit_id")
+        .eq("user_id", user.id)
+        .limit(MAX_COUNT_ROWS + 1),
+    ]);
 
-    if (
-      unitsResult.error ||
-      spacesResult.error ||
-      stageConfigsResult.error ||
-      assignmentResult.error
-    ) {
+    if (unitsResult.error || spacesResult.error) {
       logger.error("Error in getUnitsDashboardData:", {
         units: unitsResult.error,
         spaces: spacesResult.error,
-        stageConfigs: stageConfigsResult.error,
-        stageAssignment: assignmentResult.error,
       });
       return { success: false, error: "Failed to load dashboard data" };
     }
@@ -140,9 +102,6 @@ export async function getUnitsDashboardData(): Promise<
       data: {
         units: unitsResult.data ?? [],
         spaceCounts,
-        stageConfigs: stageConfigsResult.data ?? [],
-        stageAssignment:
-          (assignmentResult.data?.[0] as StageAssignment) ?? null,
       },
     };
   } catch (error) {
@@ -155,8 +114,8 @@ export async function getUnitsDashboardData(): Promise<
  * Batch fetch all data needed for the Spaces dashboard (within a Unit).
  * Performs a single auth + rate-limit check, then runs all DB queries in parallel.
  *
- * Replaces 5 separate server actions on initial load:
- *   getUnit, getSpaces, getItemCounts, getStageConfigs, getStageAssignment("space", unitId)
+ * Replaces 3 separate server actions on initial load:
+ *   getUnit, getSpaces, getItemCounts
  */
 export async function getSpacesDashboardData(
   unitId: string
@@ -170,38 +129,24 @@ export async function getSpacesDashboardData(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [unitResult, spacesResult, stageConfigsResult, assignmentResult] =
-      await Promise.all([
-        supabase
-          .from("units")
-          .select("*")
-          .eq("id", unitId)
-          .eq("user_id", user.id)
-          .returns<UnitRow[]>()
-          .single(),
-        supabase
-          .from("spaces")
-          .select("*")
-          .eq("unit_id", unitId)
-          .eq("user_id", user.id)
-          .order("sort_order", { ascending: true })
-          .order("created_at", { ascending: false })
-          .limit(MAX_DASHBOARD_ROWS + 1)
-          .returns<SpaceRow[]>(),
-        supabase
-          .from("stage_configs")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: true })
-          .returns<StageConfigRow[]>(),
-        supabase
-          .from("stage_assignments")
-          .select("*")
-          .eq("user_id", user.id)
-          .eq("entity_type", "space")
-          .eq("parent_id", unitId)
-          .limit(1),
-      ]);
+    const [unitResult, spacesResult] = await Promise.all([
+      supabase
+        .from("units")
+        .select("*")
+        .eq("id", unitId)
+        .eq("user_id", user.id)
+        .returns<UnitRow[]>()
+        .single(),
+      supabase
+        .from("spaces")
+        .select("*")
+        .eq("unit_id", unitId)
+        .eq("user_id", user.id)
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false })
+        .limit(MAX_DASHBOARD_ROWS + 1)
+        .returns<SpaceRow[]>(),
+    ]);
 
     if (unitResult.error || !unitResult.data) {
       const err = unitResult.error;
@@ -212,15 +157,9 @@ export async function getSpacesDashboardData(
       return { success: false, error: "Failed to load dashboard data" };
     }
 
-    if (
-      spacesResult.error ||
-      stageConfigsResult.error ||
-      assignmentResult.error
-    ) {
+    if (spacesResult.error) {
       logger.error("Error in getSpacesDashboardData:", {
         spaces: spacesResult.error,
-        stageConfigs: stageConfigsResult.error,
-        stageAssignment: assignmentResult.error,
       });
       return { success: false, error: "Failed to load dashboard data" };
     }
@@ -266,9 +205,6 @@ export async function getSpacesDashboardData(
         unit: unitResult.data,
         spaces: spacesResult.data ?? [],
         itemCounts,
-        stageConfigs: stageConfigsResult.data ?? [],
-        stageAssignment:
-          (assignmentResult.data?.[0] as StageAssignment) ?? null,
       },
     };
   } catch (error) {
@@ -281,9 +217,8 @@ export async function getSpacesDashboardData(
  * Batch fetch all data needed for the Items dashboard (within a Space).
  * Performs a single auth + rate-limit check, then runs all DB queries in parallel.
  *
- * Replaces 7 separate server actions on initial load:
- *   getUnit, getSpace, getItems, getStageConfigs, getStageAssignment("item", spaceId),
- *   getLabelConfigs, getLabelAssignment(spaceId)
+ * Replaces 3 separate server actions on initial load:
+ *   getUnit, getSpace, getItems
  */
 export async function getItemsDashboardData(
   unitId: string,
@@ -301,15 +236,7 @@ export async function getItemsDashboardData(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [
-      unitResult,
-      spaceResult,
-      itemsResult,
-      stageConfigsResult,
-      stageAssignmentResult,
-      labelConfigsResult,
-      labelAssignmentResult,
-    ] = await Promise.all([
+    const [unitResult, spaceResult, itemsResult] = await Promise.all([
       supabase
         .from("units")
         .select("*")
@@ -333,31 +260,6 @@ export async function getItemsDashboardData(
         .order("created_at", { ascending: false })
         .limit(MAX_DASHBOARD_ROWS + 1)
         .returns<ItemRow[]>(),
-      supabase
-        .from("stage_configs")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: true })
-        .returns<StageConfigRow[]>(),
-      supabase
-        .from("stage_assignments")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("entity_type", "item")
-        .eq("parent_id", spaceId)
-        .limit(1),
-      supabase
-        .from("label_configs")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: true })
-        .returns<LabelConfigRow[]>(),
-      supabase
-        .from("label_assignments")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("parent_id", spaceId)
-        .limit(1),
     ]);
 
     if (unitResult.error || !unitResult.data) {
@@ -378,19 +280,9 @@ export async function getItemsDashboardData(
       return { success: false, error: "Failed to load dashboard data" };
     }
 
-    if (
-      itemsResult.error ||
-      stageConfigsResult.error ||
-      stageAssignmentResult.error ||
-      labelConfigsResult.error ||
-      labelAssignmentResult.error
-    ) {
+    if (itemsResult.error) {
       logger.error("Error in getItemsDashboardData:", {
         items: itemsResult.error,
-        stageConfigs: stageConfigsResult.error,
-        stageAssignment: stageAssignmentResult.error,
-        labelConfigs: labelConfigsResult.error,
-        labelAssignment: labelAssignmentResult.error,
       });
       return { success: false, error: "Failed to load dashboard data" };
     }
@@ -408,12 +300,6 @@ export async function getItemsDashboardData(
         unit: unitResult.data,
         space: spaceResult.data,
         items: itemsResult.data ?? [],
-        stageConfigs: stageConfigsResult.data ?? [],
-        stageAssignment:
-          (stageAssignmentResult.data?.[0] as StageAssignment) ?? null,
-        labelConfigs: labelConfigsResult.data ?? [],
-        labelAssignment:
-          (labelAssignmentResult.data?.[0] as LabelAssignment) ?? null,
       },
     };
   } catch (error) {

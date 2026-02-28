@@ -2,7 +2,7 @@
 
 /**
  * Item Action Panel - sidebar panel for item properties.
- * Displays date metadata, stage selection, priority picker, and label assignment
+ * Displays date metadata, fixed stage/label metadata, and priority controls
  * in collapsible sections. On desktop, all sections are open by default. On
  * mobile/stacked layouts, all sections start collapsed except Dates.
  */
@@ -22,7 +22,6 @@ import { Separator } from "@helvety/ui/separator";
 import {
   CalendarIcon,
   ChevronRightIcon,
-  CircleHelpIcon,
   Loader2Icon,
   PencilIcon,
 } from "lucide-react";
@@ -44,7 +43,7 @@ interface ItemActionPanelProps {
   /** Whether stages are still loading */
   isLoadingStages: boolean;
   /** Callback when the user selects a different stage */
-  onStageChange: (stageId: string | null) => void;
+  onStageChange: (stageId: string) => void;
   /** Whether a stage change is currently being saved */
   isSavingStage?: boolean;
   /** Available labels for this item's space */
@@ -52,7 +51,7 @@ interface ItemActionPanelProps {
   /** Whether labels are still loading */
   isLoadingLabels: boolean;
   /** Callback when the user selects a different label */
-  onLabelChange: (labelId: string | null) => void;
+  onLabelChange: (labelId: string) => void;
   /** Whether a label change is currently being saved */
   isSavingLabel?: boolean;
   /** Callback when the user selects a different priority */
@@ -105,7 +104,7 @@ export function ItemActionPanel({
   const labelOpen = labelOverride ?? !isMobile;
 
   const handleStageClick = useCallback(
-    (stageId: string | null) => {
+    (stageId: string) => {
       // Don't fire if already on this stage
       if (item.stage_id === stageId) return;
       onStageChange(stageId);
@@ -114,7 +113,7 @@ export function ItemActionPanel({
   );
 
   const handleLabelClick = useCallback(
-    (labelId: string | null) => {
+    (labelId: string) => {
       // Don't fire if already on this label
       if (item.label_id === labelId) return;
       onLabelChange(labelId);
@@ -281,30 +280,6 @@ export function ItemActionPanel({
                       </Button>
                     );
                   })}
-
-                  {/* Unstaged option */}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    disabled={isSavingStage}
-                    className={cn(
-                      "h-auto justify-start gap-2 px-2.5 py-1.5",
-                      item.stage_id === null && "ring-ring/30 bg-muted ring-1"
-                    )}
-                    onClick={() => handleStageClick(null)}
-                  >
-                    <CircleHelpIcon className="text-muted-foreground size-4 shrink-0" />
-                    <span className="bg-muted-foreground/40 size-2 shrink-0 rounded-full" />
-                    <span
-                      className={cn(
-                        "text-muted-foreground truncate text-sm",
-                        item.stage_id === null ? "font-medium" : "font-normal"
-                      )}
-                    >
-                      Unstaged
-                    </span>
-                  </Button>
                 </div>
               )}
             </CollapsibleContent>
@@ -438,30 +413,6 @@ export function ItemActionPanel({
                       </Button>
                     );
                   })}
-
-                  {/* No Label option */}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    disabled={isSavingLabel}
-                    className={cn(
-                      "h-auto justify-start gap-2 px-2.5 py-1.5",
-                      item.label_id === null && "ring-ring/30 bg-muted ring-1"
-                    )}
-                    onClick={() => handleLabelClick(null)}
-                  >
-                    <CircleHelpIcon className="text-muted-foreground size-4 shrink-0" />
-                    <span className="bg-muted-foreground/40 size-2 shrink-0 rounded-full" />
-                    <span
-                      className={cn(
-                        "text-muted-foreground truncate text-sm",
-                        item.label_id === null ? "font-medium" : "font-normal"
-                      )}
-                    >
-                      No Label
-                    </span>
-                  </Button>
                 </div>
               )}
             </CollapsibleContent>

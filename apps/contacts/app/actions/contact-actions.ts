@@ -7,6 +7,7 @@ import { logger } from "@helvety/shared/logger";
 import { after } from "next/server";
 import { z } from "zod";
 
+import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
@@ -18,18 +19,9 @@ const REORDER_CHUNK_SIZE = 50;
 // Input Validation Schemas
 // =============================================================================
 
-/** Strict allowlist of valid default category IDs */
-const ALLOWED_DEFAULT_CATEGORY_IDS = [
-  "default-contact",
-  "default-contact-work",
-  "default-contact-family",
-  "default-contact-friends",
-] as const;
-
-/** Schema for category_id - accepts UUIDs (custom) or strict allowlist of default IDs */
+/** Schema for category_id - accepts only the fixed default category ID */
 const CategoryIdSchema = z
-  .union([z.string().uuid(), z.enum(ALLOWED_DEFAULT_CATEGORY_IDS)])
-  .nullable()
+  .literal(DEFAULT_CATEGORY_CONFIG.categories[0]!.id)
   .optional();
 
 /** Schema for creating a Contact */

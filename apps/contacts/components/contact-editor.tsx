@@ -38,7 +38,8 @@ import { ContactEditorCommandBar } from "@/components/contact-editor-command-bar
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { TaskLinksPanel } from "@/components/task-links-panel";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useContact, useCategories, useCategoryAssignment } from "@/hooks";
+import { useContact, useCategories } from "@/hooks";
+import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
 
 import type { ContactRow } from "@/lib/types";
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
@@ -71,9 +72,9 @@ export function ContactEditor({
     { initialEncryptedData: initialEncryptedContact }
   );
 
-  const { effectiveConfigId } = useCategoryAssignment();
-  const { categories, isLoading: isLoadingCategories } =
-    useCategories(effectiveConfigId);
+  const { categories, isLoading: isLoadingCategories } = useCategories(
+    DEFAULT_CATEGORY_CONFIG.id
+  );
 
   // Form state
   const [firstName, setFirstName] = useState("");
@@ -215,7 +216,7 @@ export function ContactEditor({
   ]);
 
   const handleCategoryChange = useCallback(
-    async (categoryId: string | null) => {
+    async (categoryId: string) => {
       if (!contact) return;
       setIsSavingCategory(true);
       try {

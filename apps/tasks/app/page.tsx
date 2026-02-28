@@ -14,8 +14,6 @@ async function PrefetchedDashboard(): Promise<React.JSX.Element> {
     <TaskDashboard
       initialEncryptedUnits={initialData?.units}
       initialSpaceCounts={initialData?.spaceCounts}
-      initialEncryptedStageConfigs={initialData?.stageConfigs}
-      initialStageAssignment={initialData?.stageAssignment}
     />
   );
 }

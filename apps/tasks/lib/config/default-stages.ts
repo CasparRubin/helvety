@@ -1,33 +1,21 @@
 /**
- * Default stage configurations for Units, Spaces, and Items.
- * These are hardcoded and read-only - users cannot modify them.
- * If users want custom stages, they must create their own configuration.
+ * Fixed stage catalog for Tasks entities.
+ * One immutable stage exists for each entity type.
  */
 
 import type { EntityType } from "@/lib/types";
 
-// =============================================================================
-// Types for Default Stage Configs
-// =============================================================================
-
-/**
- * Represents a single stage within a default stage configuration.
- * These stages are read-only and cannot be modified by users.
- */
+/** Fixed default stage shape. */
 export interface DefaultStage {
   id: string;
   name: string;
   color: string;
   icon: string;
   sort_order: number;
-  /** Number of rows to show by default (0 = collapsed) */
   default_rows_shown: number;
 }
 
-/**
- * Represents a default stage configuration for an entity type.
- * Default configs are hardcoded and cannot be edited by users.
- */
+/** Fixed default stage config shape. */
 export interface DefaultStageConfig {
   id: string;
   name: string;
@@ -35,182 +23,73 @@ export interface DefaultStageConfig {
   stages: DefaultStage[];
 }
 
-// =============================================================================
-// Default Stage Configurations
-// =============================================================================
-
-/**
- * Default stage config for Units
- * Simple 2-stage setup: Work and Home
- */
 const UNIT_DEFAULT: DefaultStageConfig = {
-  id: "default-unit",
-  name: "Units Default",
+  id: "default-unit-config",
+  name: "Unit Stage",
   isDefault: true,
   stages: [
     {
-      id: "default-unit-work",
-      name: "Work",
+      id: "default-unit-stage",
+      name: "Default",
       color: "#0ea5e9",
-      icon: "briefcase",
+      icon: "layers",
       sort_order: 0,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-unit-home",
-      name: "Home",
-      color: "#84cc16",
-      icon: "home",
-      sort_order: 1,
       default_rows_shown: 20,
     },
   ],
 };
 
-/**
- * Default stage config for Spaces
- * 3-stage workflow: Upcoming, In Progress, Completed
- */
 const SPACE_DEFAULT: DefaultStageConfig = {
-  id: "default-space",
-  name: "Spaces Default",
+  id: "default-space-config",
+  name: "Space Stage",
   isDefault: true,
   stages: [
     {
-      id: "default-space-upcoming",
-      name: "Upcoming",
+      id: "default-space-stage",
+      name: "Default",
       color: "#6366f1",
-      icon: "calendar",
+      icon: "layers",
       sort_order: 0,
       default_rows_shown: 20,
-    },
-    {
-      id: "default-space-progress",
-      name: "In Progress",
-      color: "#f97316",
-      icon: "loader",
-      sort_order: 1,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-space-completed",
-      name: "Completed",
-      color: "#22c55e",
-      icon: "check-circle",
-      sort_order: 2,
-      default_rows_shown: 5,
     },
   ],
 };
 
-/**
- * Default stage config for Items
- * Full workflow: Backlog -> Discovery -> Ready -> In Progress -> Testing -> Acceptance -> Completed -> The Void
- */
 const ITEM_DEFAULT: DefaultStageConfig = {
-  id: "default-item",
-  name: "Items Default",
+  id: "default-item-config",
+  name: "Item Stage",
   isDefault: true,
   stages: [
     {
-      id: "default-item-backlog",
-      name: "Backlog",
+      id: "default-item-stage",
+      name: "Default",
       color: "#64748b",
-      icon: "inbox",
+      icon: "layers",
       sort_order: 0,
-      default_rows_shown: 5,
-    },
-    {
-      id: "default-item-discovery",
-      name: "Discovery",
-      color: "#8b5cf6",
-      icon: "search",
-      sort_order: 1,
       default_rows_shown: 20,
-    },
-    {
-      id: "default-item-ready",
-      name: "Ready",
-      color: "#06b6d4",
-      icon: "clock-arrow-down",
-      sort_order: 2,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-item-progress",
-      name: "In Progress",
-      color: "#eab308",
-      icon: "loader",
-      sort_order: 3,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-item-testing",
-      name: "Testing",
-      color: "#d946ef",
-      icon: "flask-conical",
-      sort_order: 4,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-item-acceptance",
-      name: "Acceptance",
-      color: "#ec4899",
-      icon: "thumbs-up",
-      sort_order: 5,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-item-completed",
-      name: "Completed",
-      color: "#10b981",
-      icon: "check-circle",
-      sort_order: 6,
-      default_rows_shown: 5,
-    },
-    {
-      id: "default-item-void",
-      name: "The Void",
-      color: "#581c87",
-      icon: "circle-off",
-      sort_order: 7,
-      default_rows_shown: 0,
     },
   ],
 };
 
-// =============================================================================
-// Exports
-// =============================================================================
-
-/**
- * Map of entity type to default stage config
- */
 export const DEFAULT_STAGE_CONFIGS: Record<EntityType, DefaultStageConfig> = {
   unit: UNIT_DEFAULT,
   space: SPACE_DEFAULT,
   item: ITEM_DEFAULT,
 };
 
-/**
- * Check if a config ID is a default config
- */
+/** Returns true when a config ID is a built-in default ID. */
 export function isDefaultConfigId(configId: string): boolean {
   return configId.startsWith("default-");
 }
 
-/**
- * Get the default config for an entity type
- */
+/** Returns the immutable default config for an entity type. */
 export function getDefaultConfigForEntityType(
   entityType: EntityType
 ): DefaultStageConfig {
   return DEFAULT_STAGE_CONFIGS[entityType];
 }
 
-/**
- * Get stages for a default config by ID
- */
+/** Returns default stages for a specific built-in config ID. */
 export function getDefaultStages(configId: string): DefaultStage[] | null {
   for (const config of Object.values(DEFAULT_STAGE_CONFIGS)) {
     if (config.id === configId) {

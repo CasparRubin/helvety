@@ -13,7 +13,6 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useTransition } from "react";
 import { toast } from "sonner";
@@ -21,45 +20,18 @@ import { toast } from "sonner";
 import { ContactCommandBar } from "@/components/contact-command-bar";
 import { ContactList } from "@/components/contact-list";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
-import { SettingsPanel } from "@/components/settings-panel";
-import {
-  useContacts,
-  useCategoryConfigs,
-  useCategories,
-  useCategoryAssignment,
-} from "@/hooks";
+import { useContacts, useCategories } from "@/hooks";
+import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
 import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
 import { useEncryptionContext } from "@/lib/crypto";
 import { downloadContactDataExport } from "@/lib/data-export";
 
-import type {
-  ContactRow,
-  CategoryConfigRow,
-  CategoryAssignment,
-} from "@/lib/types";
-
-const CategoryConfiguratorContent = dynamic(
-  () =>
-    import("@/components/category-configurator").then(
-      (mod) => mod.CategoryConfiguratorContent
-    ),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center py-8">
-        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-      </div>
-    ),
-  }
-);
+import type { ContactRow } from "@/lib/types";
 
 /** Props for the main contacts dashboard component. */
 interface ContactsDashboardProps {
   /** Server-prefetched encrypted contacts to skip initial round-trip */
   initialEncryptedContacts?: ContactRow[];
-  /** Server-prefetched encrypted category configs */
-  initialEncryptedCategoryConfigs?: CategoryConfigRow[];
-  /** Server-prefetched category assignment (not encrypted) */
-  initialCategoryAssignment?: CategoryAssignment | null;
 }
 
 /**
@@ -67,34 +39,18 @@ interface ContactsDashboardProps {
  */
 export function ContactsDashboard({
   initialEncryptedContacts,
-  initialEncryptedCategoryConfigs,
-  initialCategoryAssignment,
 }: ContactsDashboardProps = {}) {
   const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const { contacts, isLoading, error, refresh, create, remove, reorder } =
     useContacts({ initialEncryptedData: initialEncryptedContacts });
-  const {
-    configs,
-    create: createConfig,
-    remove: removeConfig,
-    update: updateConfig,
-  } = useCategoryConfigs({
-    initialEncryptedData: initialEncryptedCategoryConfigs,
-  });
-  const {
-    effectiveConfigId,
-    assign: assignCategory,
-    unassign: unassignCategory,
-  } = useCategoryAssignment({ initialData: initialCategoryAssignment });
-  const { categories } = useCategories(effectiveConfigId);
+  const { categories } = useCategories(DEFAULT_CATEGORY_CONFIG.id);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, startCreateTransition] = useTransition();
   const [newFirstName, setNewFirstName] = useState("");
   const [newLastName, setNewLastName] = useState("");
   const [newEmail, setNewEmail] = useState("");
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     id: string | null;
@@ -201,7 +157,6 @@ export function ContactsDashboard({
         onCreateClick={() => setIsCreateOpen(true)}
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
-        onSettings={() => setIsSettingsOpen(true)}
         onExport={isUnlocked && masterKey ? handleExportData : undefined}
         isExporting={isExporting}
       />
@@ -295,29 +250,6 @@ export function ContactsDashboard({
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Settings Panel */}
-      <SettingsPanel
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-        sections={[
-          {
-            id: "categories",
-            label: "Categories",
-            content: isSettingsOpen ? (
-              <CategoryConfiguratorContent
-                configs={configs}
-                assignedConfigId={effectiveConfigId}
-                onCreateConfig={async (name) => createConfig({ name })}
-                onDeleteConfig={removeConfig}
-                onUpdateConfig={async (id, name) => updateConfig(id, { name })}
-                onAssignConfig={assignCategory}
-                onUnassignConfig={unassignCategory}
-              />
-            ) : null,
-          },
-        ]}
-      />
 
       {/* Delete Contact Confirmation Dialog */}
       <DeleteConfirmationDialog

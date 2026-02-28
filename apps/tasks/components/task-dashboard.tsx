@@ -17,20 +17,12 @@ import { useState, useCallback, useTransition } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
-import { SettingsPanel } from "@/components/settings-panel";
-import { StageConfiguratorContent } from "@/components/stage-configurator";
 import { TaskCommandBar } from "@/components/task-command-bar";
-import {
-  useUnits,
-  useChildCounts,
-  useStageConfigs,
-  useStages,
-  useStageAssignment,
-  useDataExport,
-} from "@/hooks";
+import { useUnits, useChildCounts, useStages, useDataExport } from "@/hooks";
+import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";
 
-import type { UnitRow, StageConfigRow, StageAssignment } from "@/lib/types";
+import type { UnitRow } from "@/lib/types";
 
 /** Props for the main task dashboard component. */
 interface TaskDashboardProps {
@@ -38,10 +30,6 @@ interface TaskDashboardProps {
   initialEncryptedUnits?: UnitRow[];
   /** Server-prefetched space counts per unit */
   initialSpaceCounts?: Record<string, number>;
-  /** Server-prefetched encrypted stage configs */
-  initialEncryptedStageConfigs?: StageConfigRow[];
-  /** Server-prefetched stage assignment (not encrypted) */
-  initialStageAssignment?: StageAssignment | null;
 }
 
 /**
@@ -51,8 +39,6 @@ interface TaskDashboardProps {
 export function TaskDashboard({
   initialEncryptedUnits,
   initialSpaceCounts,
-  initialEncryptedStageConfigs,
-  initialStageAssignment,
 }: TaskDashboardProps = {}) {
   const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
@@ -61,26 +47,12 @@ export function TaskDashboard({
   const { counts: childCounts } = useChildCounts("unit", undefined, {
     initialData: initialSpaceCounts,
   });
-  const {
-    configs,
-    create: createConfig,
-    remove: removeConfig,
-    update: updateConfig,
-  } = useStageConfigs("unit", {
-    initialEncryptedData: initialEncryptedStageConfigs,
-  });
-  const { effectiveConfigId, assign, unassign } = useStageAssignment(
-    "unit",
-    null,
-    { initialData: initialStageAssignment }
-  );
-  const { stages } = useStages(effectiveConfigId);
+  const { stages } = useStages(DEFAULT_STAGE_CONFIGS.unit.id);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, startCreateTransition] = useTransition();
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     id: string | null;
@@ -160,7 +132,6 @@ export function TaskDashboard({
         createLabel="New Unit"
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
-        onSettings={() => setIsSettingsOpen(true)}
         onExport={isUnlocked && masterKey ? handleExportData : undefined}
         isExporting={isExporting}
       />
@@ -240,30 +211,6 @@ export function TaskDashboard({
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Settings Panel */}
-      <SettingsPanel
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-        sections={[
-          {
-            id: "stages",
-            label: "Stages",
-            content: isSettingsOpen ? (
-              <StageConfiguratorContent
-                entityType="unit"
-                configs={configs}
-                assignedConfigId={effectiveConfigId}
-                onCreateConfig={async (name) => createConfig({ name })}
-                onDeleteConfig={removeConfig}
-                onUpdateConfig={async (id, name) => updateConfig(id, { name })}
-                onAssignConfig={assign}
-                onUnassignConfig={unassign}
-              />
-            ) : null,
-          },
-        ]}
-      />
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog

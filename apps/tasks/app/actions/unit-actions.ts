@@ -6,6 +6,7 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
 import { z } from "zod";
 
+import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, UnitRow } from "@/lib/types";
@@ -14,16 +15,9 @@ import type { ActionResponse, UnitRow } from "@/lib/types";
 // Input Validation Schemas
 // =============================================================================
 
-/** Schema for stage_id - accepts both UUIDs (custom stages) and constrained default stage IDs */
+/** Schema for stage_id - accepts only the fixed default unit stage ID */
 const StageIdSchema = z
-  .union([
-    z.string().uuid(),
-    z
-      .string()
-      .regex(/^default-[a-z0-9-]+$/)
-      .max(50),
-  ])
-  .nullable()
+  .literal(DEFAULT_STAGE_CONFIGS.unit.stages[0]!.id)
   .optional();
 
 /** Schema for creating a Unit */

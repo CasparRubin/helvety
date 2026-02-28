@@ -20,10 +20,8 @@ export {
 // Contact hooks with E2EE
 export { useContacts, useContact } from "./use-contacts";
 
-// Category hooks with E2EE
-export { useCategoryConfigs } from "./use-category-configs";
+// Category hooks
 export { useCategories } from "./use-categories";
-export { useCategoryAssignment } from "./use-category-assignment";
 
 // Task link hooks with E2EE (cross-app, bidirectional)
 export { useTaskLinks } from "./use-task-links";

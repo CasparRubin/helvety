@@ -60,17 +60,16 @@ export interface ContactInput {
   /** ISO date string, e.g. "2000-01-15" */
   birthday: string | null;
   notes: string | null;
-  /** Optional category ID - can be a UUID (custom) or default category ID (e.g., "default-contact-work") */
+  /** Optional category ID - must be the fixed default category ID ("default-contact-category"). */
   category_id?: string | null;
 }
 
 // =============================================================================
-// CATEGORY CONFIGURATION TYPES
+// LEGACY CATEGORY CONFIGURATION TYPES
 // =============================================================================
 
 /**
- * Category configuration row as stored in the database (encrypted fields)
- * A named set of categories that can be applied to contacts
+ * @deprecated Legacy database shape for configurable categories.
  */
 export interface CategoryConfigRow {
   id: string;
@@ -80,7 +79,7 @@ export interface CategoryConfigRow {
   updated_at: string;
 }
 
-/** Decrypted CategoryConfig (client-side only) */
+/** @deprecated Legacy type kept for compatibility with historical data contracts. */
 export interface CategoryConfig {
   id: string;
   user_id: string;
@@ -91,7 +90,7 @@ export interface CategoryConfig {
   isDefault?: boolean;
 }
 
-/** Input for creating a CategoryConfig (plaintext, encrypted before sending) */
+/** @deprecated Legacy type kept for compatibility with historical data contracts. */
 export interface CategoryConfigInput {
   name: string;
 }
@@ -101,8 +100,7 @@ export interface CategoryConfigInput {
 // =============================================================================
 
 /**
- * Category row as stored in the database (encrypted fields)
- * An individual category within a CategoryConfig (e.g., "Work", "Family")
+ * Category row shape used by fixed in-code categories.
  */
 export interface CategoryRow {
   id: string;
@@ -133,7 +131,7 @@ export interface Category {
   created_at: string;
 }
 
-/** Input for creating a Category (plaintext, encrypted before sending) */
+/** @deprecated Legacy type kept for compatibility with historical data contracts. */
 export interface CategoryInput {
   config_id: string;
   name: string;
@@ -146,11 +144,11 @@ export interface CategoryInput {
 }
 
 // =============================================================================
-// CATEGORY ASSIGNMENT TYPES
+// LEGACY CATEGORY ASSIGNMENT TYPES
 // =============================================================================
 
 /**
- * Links a category configuration to the contacts list
+ * @deprecated Legacy type kept for compatibility with historical data contracts.
  */
 export interface CategoryAssignment {
   id: string;

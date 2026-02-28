@@ -20,7 +20,6 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useTransition } from "react";
@@ -28,40 +27,19 @@ import { useState, useCallback, useTransition } from "react";
 import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
-import { SettingsPanel } from "@/components/settings-panel";
 import { TaskCommandBar } from "@/components/task-command-bar";
 import {
   useUnit,
   useUnits,
   useSpaces,
   useChildCounts,
-  useStageConfigs,
   useStages,
-  useStageAssignment,
   useDataExport,
 } from "@/hooks";
+import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";
 
-import type {
-  SpaceRow,
-  StageAssignment,
-  StageConfigRow,
-  UnitRow,
-} from "@/lib/types";
-
-const StageConfiguratorContent = dynamic(
-  () =>
-    import("@/components/stage-configurator").then(
-      (mod) => mod.StageConfiguratorContent
-    ),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center py-8">
-        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-      </div>
-    ),
-  }
-);
+import type { SpaceRow, UnitRow } from "@/lib/types";
 
 /**
  * Spaces Dashboard - shows all spaces for a specific unit
@@ -71,15 +49,11 @@ export function SpacesDashboard({
   initialEncryptedUnit,
   initialEncryptedSpaces,
   initialItemCounts,
-  initialEncryptedStageConfigs,
-  initialStageAssignment,
 }: {
   unitId: string;
   initialEncryptedUnit?: UnitRow;
   initialEncryptedSpaces?: SpaceRow[];
   initialItemCounts?: Record<string, number>;
-  initialEncryptedStageConfigs?: StageConfigRow[];
-  initialStageAssignment?: StageAssignment | null;
 }) {
   const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
@@ -94,26 +68,12 @@ export function SpacesDashboard({
   const { counts: childCounts } = useChildCounts("space", unitId, {
     initialData: initialItemCounts,
   });
-  const {
-    configs,
-    create: createConfig,
-    remove: removeConfig,
-    update: updateConfig,
-  } = useStageConfigs("space", {
-    initialEncryptedData: initialEncryptedStageConfigs,
-  });
-  const { effectiveConfigId, assign, unassign } = useStageAssignment(
-    "space",
-    unitId,
-    { initialData: initialStageAssignment }
-  );
-  const { stages } = useStages(effectiveConfigId);
+  const { stages } = useStages(DEFAULT_STAGE_CONFIGS.space.id);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, startCreateTransition] = useTransition();
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   // Space delete state (for individual spaces in the list)
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
@@ -252,7 +212,6 @@ export function SpacesDashboard({
         createLabel="New Space"
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
-        onSettings={() => setIsSettingsOpen(true)}
         onEdit={handleEditUnitOpen}
         editLabel="Edit Unit"
         onDelete={handleDeleteUnit}
@@ -424,30 +383,6 @@ export function SpacesDashboard({
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Settings Panel */}
-      <SettingsPanel
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-        sections={[
-          {
-            id: "stages",
-            label: "Stages",
-            content: isSettingsOpen ? (
-              <StageConfiguratorContent
-                entityType="space"
-                configs={configs}
-                assignedConfigId={effectiveConfigId}
-                onCreateConfig={async (name) => createConfig({ name })}
-                onDeleteConfig={removeConfig}
-                onUpdateConfig={async (id, name) => updateConfig(id, { name })}
-                onAssignConfig={assign}
-                onUnassignConfig={unassign}
-              />
-            ) : null,
-          },
-        ]}
-      />
 
       {/* Delete Space Confirmation Dialog */}
       <DeleteConfirmationDialog

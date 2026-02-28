@@ -1,6 +1,6 @@
 # Helvety Tasks
 
-> Task management with client-side encryption for sensitive fields in current supported flows. Organize tasks across spaces and stages with drag-and-drop. Engineered and designed in Switzerland.
+> Task management with client-side encryption for sensitive fields in current supported flows. Organize tasks across spaces with fixed default stages and drag-and-drop ordering. Engineered and designed in Switzerland.
 
 ## Core Pages
 - [Home](https://helvety.com/tasks): Task management app with client-side encryption for sensitive fields

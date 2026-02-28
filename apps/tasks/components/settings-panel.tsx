@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Settings Panel - Side sheet with tabbed navigation for app configuration.
+ * Settings Panel - Side sheet with tabbed navigation for app preferences.
  * Accepts a flexible sections array so dashboards can define which tabs appear.
  * Designed to be scalable for future settings categories.
  */
@@ -57,9 +57,7 @@ export function SettingsPanel({
             <SettingsIcon className="size-4" />
             Settings
           </SheetTitle>
-          <SheetDescription>
-            Configure stages, labels, and other preferences.
-          </SheetDescription>
+          <SheetDescription>Manage app preferences.</SheetDescription>
         </SheetHeader>
 
         {sections.length === 1 ? (

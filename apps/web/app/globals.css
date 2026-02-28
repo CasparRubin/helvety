@@ -37,3 +37,33 @@
       0 0 90px rgba(255, 0, 0, 0.15);
   }
 }
+
+/* Shared legal page rhythm and small-screen readability guards */
+.legal-page-section {
+  min-height: 100vh;
+  padding: 2.5rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .legal-page-section {
+    padding: 3rem 1.5rem;
+  }
+}
+
+.legal-page-container {
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.legal-page-back {
+  margin-bottom: 2rem;
+}
+
+.legal-page-article {
+  display: grid;
+  gap: 2.5rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}

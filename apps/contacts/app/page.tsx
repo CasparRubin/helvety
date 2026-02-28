@@ -10,13 +10,7 @@ async function PrefetchedDashboard(): Promise<React.JSX.Element> {
   const result = await getContactsDashboardData();
   const initialData = result.success ? result.data : undefined;
 
-  return (
-    <ContactsDashboard
-      initialEncryptedContacts={initialData?.contacts}
-      initialEncryptedCategoryConfigs={initialData?.categoryConfigs}
-      initialCategoryAssignment={initialData?.categoryAssignment}
-    />
-  );
+  return <ContactsDashboard initialEncryptedContacts={initialData?.contacts} />;
 }
 
 /** Main page - server component with auth protection. */

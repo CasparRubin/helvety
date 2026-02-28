@@ -1,11 +1,12 @@
 /**
  * Task Encryption Helpers
  * Convenience functions for encrypting/decrypting Units, Spaces, Items,
- * StageConfigs, Stages, LabelConfigs, Labels, Attachments, and Contacts
- * client-side.
+ * Attachments, and Contacts client-side.
  *
  * This module is designed so the server receives encrypted payloads for
  * protected fields; validate API and logging paths to keep this invariant.
+ * Legacy stage/label config helpers are retained only for backward-compatible
+ * internal contracts and are not used by the fixed-taxonomy runtime.
  *
  * Note: Contact decryption is read-only - contacts are created and edited
  * in the Contacts app. Name, description, email, phone, and birthday are
@@ -337,10 +338,11 @@ export async function decryptItemRows(
 }
 
 // =============================================================================
-// STAGE CONFIG ENCRYPTION
+// LEGACY STAGE CONFIG ENCRYPTION
 // =============================================================================
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt a StageConfig for database storage
  */
 export async function encryptStageConfigInput(
@@ -357,6 +359,7 @@ export async function encryptStageConfigInput(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt a StageConfig row from the database
  */
 export async function decryptStageConfigRow(
@@ -376,6 +379,7 @@ export async function decryptStageConfigRow(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt multiple StageConfig rows
  */
 export async function decryptStageConfigRows(
@@ -386,6 +390,7 @@ export async function decryptStageConfigRows(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt fields for updating a StageConfig
  */
 export async function encryptStageConfigUpdate(
@@ -405,10 +410,11 @@ export async function encryptStageConfigUpdate(
 }
 
 // =============================================================================
-// STAGE ENCRYPTION
+// LEGACY STAGE ENCRYPTION
 // =============================================================================
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt a Stage for database storage
  */
 export async function encryptStageInput(
@@ -439,6 +445,7 @@ export async function encryptStageInput(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt a Stage row from the database
  */
 export async function decryptStageRow(
@@ -462,6 +469,7 @@ export async function decryptStageRow(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt multiple Stage rows
  */
 export async function decryptStageRows(
@@ -472,6 +480,7 @@ export async function decryptStageRows(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt fields for updating a Stage
  */
 export async function encryptStageUpdate(
@@ -519,10 +528,11 @@ export async function encryptStageUpdate(
 }
 
 // =============================================================================
-// LABEL CONFIG ENCRYPTION
+// LEGACY LABEL CONFIG ENCRYPTION
 // =============================================================================
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt a LabelConfig for database storage
  */
 export async function encryptLabelConfigInput(
@@ -539,6 +549,7 @@ export async function encryptLabelConfigInput(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt a LabelConfig row from the database
  */
 export async function decryptLabelConfigRow(
@@ -558,6 +569,7 @@ export async function decryptLabelConfigRow(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt multiple LabelConfig rows
  */
 export async function decryptLabelConfigRows(
@@ -568,6 +580,7 @@ export async function decryptLabelConfigRows(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt fields for updating a LabelConfig
  */
 export async function encryptLabelConfigUpdate(
@@ -587,10 +600,11 @@ export async function encryptLabelConfigUpdate(
 }
 
 // =============================================================================
-// LABEL ENCRYPTION
+// LEGACY LABEL ENCRYPTION
 // =============================================================================
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt a Label for database storage
  */
 export async function encryptLabelInput(
@@ -619,6 +633,7 @@ export async function encryptLabelInput(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt a Label row from the database
  */
 export async function decryptLabelRow(
@@ -641,6 +656,7 @@ export async function decryptLabelRow(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Decrypt multiple Label rows
  */
 export async function decryptLabelRows(
@@ -651,6 +667,7 @@ export async function decryptLabelRows(
 }
 
 /**
+ * @deprecated Legacy helper retained for compatibility only.
  * Encrypt fields for updating a Label
  */
 export async function encryptLabelUpdate(

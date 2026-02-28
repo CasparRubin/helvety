@@ -18,7 +18,6 @@ import { Separator } from "@helvety/ui/separator";
 import {
   CalendarIcon,
   ChevronRightIcon,
-  CircleHelpIcon,
   Loader2Icon,
   PencilIcon,
 } from "lucide-react";
@@ -38,7 +37,7 @@ interface ContactActionPanelProps {
   /** Whether categories are still loading */
   isLoadingCategories: boolean;
   /** Callback when the user selects a different category */
-  onCategoryChange: (categoryId: string | null) => void;
+  onCategoryChange: (categoryId: string) => void;
   /** Whether a category change is currently being saved */
   isSavingCategory?: boolean;
 }
@@ -64,7 +63,7 @@ export function ContactActionPanel({
   const categoryOpen = categoryOverride ?? !isMobile;
 
   const handleCategoryClick = useCallback(
-    (categoryId: string | null) => {
+    (categoryId: string) => {
       if (contact.category_id === categoryId) return;
       onCategoryChange(categoryId);
     },
@@ -185,33 +184,6 @@ export function ContactActionPanel({
                       </Button>
                     );
                   })}
-
-                  {/* Uncategorized option */}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    disabled={isSavingCategory}
-                    className={cn(
-                      "h-auto justify-start gap-2 px-2.5 py-1.5",
-                      contact.category_id === null &&
-                        "ring-ring/30 bg-muted ring-1"
-                    )}
-                    onClick={() => handleCategoryClick(null)}
-                  >
-                    <CircleHelpIcon className="text-muted-foreground size-4 shrink-0" />
-                    <span className="bg-muted-foreground/40 size-2 shrink-0 rounded-full" />
-                    <span
-                      className={cn(
-                        "text-muted-foreground truncate text-sm",
-                        contact.category_id === null
-                          ? "font-medium"
-                          : "font-normal"
-                      )}
-                    >
-                      Uncategorized
-                    </span>
-                  </Button>
                 </div>
               )}
             </CollapsibleContent>

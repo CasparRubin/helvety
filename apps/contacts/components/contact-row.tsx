@@ -35,7 +35,7 @@ interface ContactRowProps {
  * ContactRow - A single row in the contacts list.
  *
  * Desktop: drag handle, icon (category-colored), full name, email (subtle), date, actions
- * Mobile: icon (category-colored), full name, category arrows + delete
+ * Mobile: icon (category-colored), full name, optional group arrows + delete
  */
 export function ContactRow({
   id,
@@ -120,7 +120,7 @@ export function ContactRow({
         {formatDateTime(createdAt)}
       </span>
 
-      {/* Actions: Mobile category arrows + Delete */}
+      {/* Actions: Mobile group arrows + Delete */}
       <div className="flex shrink-0 items-center gap-0.5">
         {(onMoveUp ?? onMoveDown) && (
           <div className="flex items-center gap-0.5 md:hidden">
@@ -133,7 +133,7 @@ export function ContactRow({
                 onMoveUp?.();
               }}
               disabled={isFirst}
-              aria-label="Move to previous category"
+              aria-label="Move to previous group"
             >
               <ChevronUpIcon className="size-4" />
             </Button>
@@ -146,7 +146,7 @@ export function ContactRow({
                 onMoveDown?.();
               }}
               disabled={isLast}
-              aria-label="Move to next category"
+              aria-label="Move to next group"
             >
               <ChevronDownIcon className="size-4" />
             </Button>

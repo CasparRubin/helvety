@@ -20,8 +20,6 @@ async function PrefetchedSpacesDashboard({
       initialEncryptedUnit={initialData?.unit}
       initialEncryptedSpaces={initialData?.spaces}
       initialItemCounts={initialData?.itemCounts}
-      initialEncryptedStageConfigs={initialData?.stageConfigs}
-      initialStageAssignment={initialData?.stageAssignment}
     />
   );
 }

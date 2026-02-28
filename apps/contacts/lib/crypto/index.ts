@@ -67,14 +67,6 @@ export {
   decryptContactRow,
   decryptContactRows,
   encryptContactUpdate,
-  encryptCategoryConfigInput,
-  decryptCategoryConfigRow,
-  decryptCategoryConfigRows,
-  encryptCategoryConfigUpdate,
-  encryptCategoryInput,
-  decryptCategoryRow,
-  decryptCategoryRows,
-  encryptCategoryUpdate,
 } from "./contact-encryption";
 
 // PRF Key Derivation (Passkey-based)

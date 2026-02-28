@@ -42,7 +42,7 @@ interface TaskCommandBarProps {
   /** Whether a refresh operation is in progress */
   isRefreshing?: boolean;
   /** Callback to open the settings panel */
-  onSettings: () => void;
+  onSettings?: () => void;
   /** Callback to open the edit dialog (if provided, shows edit button) */
   onEdit?: () => void;
   /** Label for the edit button - "Edit Unit", "Edit Space" */
@@ -133,15 +133,17 @@ export function TaskCommandBar({
           <span>{isExporting ? "Exporting..." : "Export Data"}</span>
         </Button>
       )}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onSettings}
-        className="hidden md:inline-flex"
-      >
-        <SettingsIcon className="mr-1.5 size-4 shrink-0" />
-        <span>Settings</span>
-      </Button>
+      {onSettings && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onSettings}
+          className="hidden md:inline-flex"
+        >
+          <SettingsIcon className="mr-1.5 size-4 shrink-0" />
+          <span>Settings</span>
+        </Button>
+      )}
       {onEdit && editLabel && (
         <Button
           variant="outline"
@@ -186,10 +188,12 @@ export function TaskCommandBar({
               <span>{isExporting ? "Exporting..." : "Export Data"}</span>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={onSettings}>
-            <SettingsIcon className="mr-2 size-4" />
-            <span>Settings</span>
-          </DropdownMenuItem>
+          {onSettings && (
+            <DropdownMenuItem onClick={onSettings}>
+              <SettingsIcon className="mr-2 size-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+          )}
           {onEdit && editLabel && (
             <DropdownMenuItem onClick={onEdit}>
               <PencilIcon className="mr-2 size-4" />

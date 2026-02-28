@@ -7,6 +7,7 @@ import { logger } from "@helvety/shared/logger";
 import { after } from "next/server";
 import { z } from "zod";
 
+import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type {
@@ -22,6 +23,11 @@ import type {
 const MAX_REORDER_ITEMS = 200;
 const REORDER_CHUNK_SIZE = 50;
 const MAX_EXPORT_ROWS_PER_TABLE = 5000;
+const ALLOWED_STAGE_IDS = [
+  DEFAULT_STAGE_CONFIGS.unit.stages[0]!.id,
+  DEFAULT_STAGE_CONFIGS.space.stages[0]!.id,
+  DEFAULT_STAGE_CONFIGS.item.stages[0]!.id,
+] as const;
 
 // =============================================================================
 // Input Validation Schemas
@@ -33,17 +39,8 @@ const ReorderSchema = z
     z.object({
       id: z.string().uuid(),
       sort_order: z.number().int().min(0),
-      // Accept both UUIDs (custom stages) and constrained default stage IDs
-      stage_id: z
-        .union([
-          z.string().uuid(),
-          z
-            .string()
-            .regex(/^default-[a-z0-9-]+$/)
-            .max(50),
-        ])
-        .nullable()
-        .optional(),
+      // Accept constrained default stage IDs only
+      stage_id: z.enum(ALLOWED_STAGE_IDS).optional(),
     })
   )
   .max(

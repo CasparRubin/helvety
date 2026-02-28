@@ -1,8 +1,6 @@
 /**
- * Default label configuration for Items.
- * These are hardcoded and read-only - users cannot modify them.
- * If users want custom labels, they must create their own configuration.
- * Labels are item-only; spaces and units cannot have labels.
+ * Fixed label catalog for Items.
+ * One immutable label exists across all items.
  */
 
 // =============================================================================
@@ -36,49 +34,17 @@ export interface DefaultLabelConfig {
 // Default Label Configuration
 // =============================================================================
 
-/**
- * Default label config for Items
- * 5 standard labels: Bug, Change Request, Feature, Improvement, Internal Task
- */
 const ITEM_DEFAULT: DefaultLabelConfig = {
-  id: "default-labels",
-  name: "Default Labels",
+  id: "default-item-label-config",
+  name: "Item Label",
   isDefault: true,
   labels: [
     {
-      id: "default-label-bug",
-      name: "Bug",
-      color: "#f87171",
-      icon: "bug",
+      id: "default-item-label",
+      name: "Default",
+      color: "#4f46e5",
+      icon: "tag",
       sort_order: 0,
-    },
-    {
-      id: "default-label-change-request",
-      name: "Change Request",
-      color: "#fb923c",
-      icon: "refresh-cw",
-      sort_order: 1,
-    },
-    {
-      id: "default-label-feature",
-      name: "Feature",
-      color: "#4ade80",
-      icon: "star",
-      sort_order: 2,
-    },
-    {
-      id: "default-label-improvement",
-      name: "Improvement",
-      color: "#60a5fa",
-      icon: "trending-up",
-      sort_order: 3,
-    },
-    {
-      id: "default-label-internal-task",
-      name: "Internal Task",
-      color: "#a78bfa",
-      icon: "briefcase",
-      sort_order: 4,
     },
   ],
 };
@@ -88,7 +54,7 @@ const ITEM_DEFAULT: DefaultLabelConfig = {
 // =============================================================================
 
 /**
- * The default label config (applied to every space unless overridden)
+ * The default label config (applied to every space)
  */
 export const DEFAULT_LABEL_CONFIG: DefaultLabelConfig = ITEM_DEFAULT;
 

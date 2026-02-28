@@ -20,7 +20,7 @@ import { Loader2Icon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
 import { EntityRow } from "@/components/entity-row";
-import { StageGroup, UnstagedGroup } from "@/components/stage-group";
+import { StageGroup } from "@/components/stage-group";
 import { isItem } from "@/lib/types";
 
 import type {
@@ -56,11 +56,11 @@ interface EntityListProps {
   isLoading: boolean;
   /** Error message if any */
   error: string | null;
-  /** Available stages for the current config (empty if no config assigned) */
+  /** Available stages for the current view */
   stages: Stage[];
   /** Map of entity id -> child count (spaces for units, items for spaces) */
   childCounts?: Record<string, number>;
-  /** Available labels for the current config (items only) */
+  /** Available labels for the current view (items only) */
   labels?: Label[];
   /** Callback when an entity row is clicked */
   onEntityClick?: (entity: AnyEntity) => void;
@@ -70,9 +70,9 @@ interface EntityListProps {
   onEntityDelete?: (id: string, title: string) => void;
   /** Callback for batch reorder (drag-and-drop) */
   onReorder?: (updates: ReorderUpdate[]) => Promise<boolean>;
-  /** Empty state title (only shown when no stages configured) */
+  /** Empty state title (only shown when no stages available) */
   emptyTitle?: string;
-  /** Empty state description (only shown when no stages configured) */
+  /** Empty state description (only shown when no stages available) */
   emptyDescription?: string;
 }
 
@@ -80,8 +80,8 @@ interface EntityListProps {
  * EntityList - Generic list/table component for Units, Spaces, or Items.
  *
  * Features:
- * - Always shows stage groups when stages are configured (even with no entities)
- * - Flat list fallback (when no stages configured)
+ * - Always shows stage groups when stages are available (even with no entities)
+ * - Flat list fallback (when no stages are available)
  * - Drag-and-drop reordering within and between stages (desktop)
  * - Mobile: up/down arrows to move entities between stages
  * - Consistent row layout across all entity types
@@ -128,16 +128,14 @@ export function EntityList({
         return;
       }
 
-      // If over a stage directly
       if (over.data?.current?.type === "stage") {
-        setHoveredStageId(over.data.current.stageId ?? "unstaged");
+        setHoveredStageId(over.data.current.stageId ?? null);
         return;
       }
 
-      // If over an entity, find which stage it belongs to
       const overEntity = entities.find((e) => e.id === over.id);
       if (overEntity) {
-        setHoveredStageId(overEntity.stage_id ?? "unstaged");
+        setHoveredStageId(overEntity.stage_id ?? null);
       }
     },
     [entities]
@@ -185,23 +183,18 @@ export function EntityList({
   const groupedEntities = useMemo(() => {
     if (!hasStages) return null;
 
-    const groups = new Map<string | null, AnyEntity[]>();
+    const groups = new Map<string, AnyEntity[]>();
 
     // Initialize groups in stage order
     for (const s of stages) {
       groups.set(s.id, []);
     }
-    groups.set(null, []); // Unstaged group
-
     for (const entity of entities) {
       const key = entity.stage_id;
+      if (!key) continue;
       const group = groups.get(key);
       if (group) {
         group.push(entity);
-      } else {
-        // Entity has a stage_id not in current config -> unstaged
-        const unstaged = groups.get(null);
-        if (unstaged) unstaged.push(entity);
       }
     }
 
@@ -225,7 +218,7 @@ export function EntityList({
       const overId = over.id as string;
 
       // Determine target stage
-      let targetStageId: string | null | undefined;
+      let targetStageId: string | undefined;
 
       // Check if dropped on a stage group
       if (
@@ -242,7 +235,7 @@ export function EntityList({
       if (!activeEntity) return;
 
       // If dropped over another entity, inherit that entity's stage
-      if (overEntity && targetStageId === undefined) {
+      if (overEntity?.stage_id && targetStageId === undefined) {
         targetStageId = overEntity.stage_id;
       }
 
@@ -268,7 +261,7 @@ export function EntityList({
           id: e.id,
           sort_order: index,
         };
-        if (e.id === activeId && targetStageId !== undefined) {
+        if (e.id === activeId && typeof targetStageId === "string") {
           update.stage_id = targetStageId;
         }
         return update;
@@ -289,12 +282,7 @@ export function EntityList({
       const currentStageIdx = stages.findIndex((s) => s.id === entity.stage_id);
 
       let newStageId: string;
-      if (currentStageIdx === -1) {
-        // Unstaged → move to last stage
-        const lastStage = stages[stages.length - 1];
-        if (!lastStage) return;
-        newStageId = lastStage.id;
-      } else if (currentStageIdx <= 0) {
+      if (currentStageIdx <= 0) {
         // Already in the first stage, cannot move up
         return;
       } else {
@@ -319,9 +307,8 @@ export function EntityList({
 
       const currentStageIdx = stages.findIndex((s) => s.id === entity.stage_id);
 
-      // Unstaged or already in the last stage → cannot move down
-      if (currentStageIdx === -1 || currentStageIdx >= stages.length - 1)
-        return;
+      // Missing stage or already in the last stage → cannot move down
+      if (currentStageIdx < 0 || currentStageIdx >= stages.length - 1) return;
 
       const nextStage = stages[currentStageIdx + 1];
       if (!nextStage) return;
@@ -433,67 +420,21 @@ export function EntityList({
                             ? () => onEntityDelete(entity.id, entity.title)
                             : undefined
                         }
-                        onMoveUp={() => handleMoveUp(entity.id)}
-                        onMoveDown={() => handleMoveDown(entity.id)}
+                        onMoveUp={
+                          stages.length > 1
+                            ? () => handleMoveUp(entity.id)
+                            : undefined
+                        }
+                        onMoveDown={
+                          stages.length > 1
+                            ? () => handleMoveDown(entity.id)
+                            : undefined
+                        }
                       />
                     ))}
                 </StageGroup>
               );
             })}
-
-            {/* Unstaged entities */}
-            {(() => {
-              const unstagedEntities = groupedEntities?.get(null) ?? [];
-              if (unstagedEntities.length === 0) return null;
-              return (
-                <UnstagedGroup
-                  entityIds={unstagedEntities.map((e) => e.id)}
-                  count={unstagedEntities.length}
-                  isHighlighted={hoveredStageId === "unstaged"}
-                >
-                  {unstagedEntities
-                    .toSorted((a, b) => {
-                      const metricsA = entityMetrics.get(a.id);
-                      const metricsB = entityMetrics.get(b.id);
-                      const prioA = metricsA?.priority ?? 1;
-                      const prioB = metricsB?.priority ?? 1;
-                      if (prioB !== prioA) return prioB - prioA;
-                      return (
-                        (metricsB?.updatedAtMs ?? 0) -
-                        (metricsA?.updatedAtMs ?? 0)
-                      );
-                    })
-                    .map((entity) => (
-                      <EntityRow
-                        key={entity.id}
-                        id={entity.id}
-                        title={entity.title}
-                        description={entity.description}
-                        createdAt={entity.created_at}
-                        entityType={entityType}
-                        priority={isItem(entity) ? entity.priority : null}
-                        label={
-                          isItem(entity) && entity.label_id
-                            ? (labelMap?.get(entity.label_id) ?? null)
-                            : null
-                        }
-                        childCount={childCounts?.[entity.id]}
-                        isFirst={false}
-                        isLast={true}
-                        onClick={() => onEntityClick?.(entity)}
-                        onPrefetch={() => onEntityPrefetch?.(entity)}
-                        onDelete={
-                          onEntityDelete
-                            ? () => onEntityDelete(entity.id, entity.title)
-                            : undefined
-                        }
-                        onMoveUp={() => handleMoveUp(entity.id)}
-                        onMoveDown={() => handleMoveDown(entity.id)}
-                      />
-                    ))}
-                </UnstagedGroup>
-              );
-            })()}
           </div>
         </DndContext>
       ) : entities.length === 0 ? (
@@ -540,8 +481,16 @@ export function EntityList({
                       ? () => onEntityDelete(entity.id, entity.title)
                       : undefined
                   }
-                  onMoveUp={() => handleMoveUp(entity.id)}
-                  onMoveDown={() => handleMoveDown(entity.id)}
+                  onMoveUp={
+                    stages.length > 1
+                      ? () => handleMoveUp(entity.id)
+                      : undefined
+                  }
+                  onMoveDown={
+                    stages.length > 1
+                      ? () => handleMoveDown(entity.id)
+                      : undefined
+                  }
                 />
               ))}
             </SortableContext>

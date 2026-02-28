@@ -4,7 +4,7 @@ import { z } from "zod";
  * Schema for encrypted data fields.
  * Validates that the encrypted data is valid JSON with required fields (iv, ciphertext, version).
  *
- * Shared across contact-actions and category-actions.
+ * Shared across contact server actions.
  */
 export const EncryptedDataSchema = z
   .string()
