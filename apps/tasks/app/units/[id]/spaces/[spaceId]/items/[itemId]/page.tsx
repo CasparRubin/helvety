@@ -1,4 +1,6 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
+import { LoadingSpinner } from "@helvety/ui/loading-spinner";
+import { Suspense } from "react";
 
 import { getItemEditorData } from "@/app/actions/batch-actions";
 import { ItemEditor } from "@/components/item-editor";
@@ -11,6 +13,24 @@ export default async function ItemEditorPage({
 }): Promise<React.JSX.Element> {
   const { id: unitId, spaceId, itemId } = await params;
   await requireAuth(`/tasks/units/${unitId}/spaces/${spaceId}/items/${itemId}`);
+
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <ItemEditorData unitId={unitId} spaceId={spaceId} itemId={itemId} />
+    </Suspense>
+  );
+}
+
+/** Loads and renders the item editor with server-fetched encrypted entities. */
+async function ItemEditorData({
+  unitId,
+  spaceId,
+  itemId,
+}: {
+  unitId: string;
+  spaceId: string;
+  itemId: string;
+}): Promise<React.JSX.Element> {
   const batchResult = await getItemEditorData(unitId, spaceId, itemId);
 
   return (

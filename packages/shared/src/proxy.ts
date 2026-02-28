@@ -1,17 +1,13 @@
 import { randomBytes } from "crypto";
 
 import { buildCsp } from "@helvety/config/next-headers";
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { COOKIE_DOMAIN, urls } from "./config";
-import { getSupabaseKey, getSupabaseUrl } from "./env-validation";
 
 const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
 const CSP_NONCE_LENGTH = 16;
-
-let hasLoggedEnvError = false;
 
 /** Options for building the Content-Security-Policy header in the proxy. */
 export type BuildCspOptions = {
@@ -20,8 +16,8 @@ export type BuildCspOptions = {
   workerBlob?: boolean;
 };
 
-/** Configuration for creating a session-refreshing proxy handler. */
-export type CreateSessionRefreshProxyOptions = {
+/** Configuration for creating a lightweight security proxy handler. */
+export type CreateSecurityProxyOptions = {
   /** CSP options (imgBlob, scriptUnsafeEval, workerBlob) */
   buildCspOptions?: BuildCspOptions;
   /** Whether to set x-helvety-url header (default: true). Web gateway uses false. */
@@ -31,21 +27,19 @@ export type CreateSessionRefreshProxyOptions = {
 };
 
 /**
- * Creates a session refresh proxy function for Next.js proxy.ts.
+ * Creates a lightweight proxy function for Next.js proxy.ts.
  *
  * Config must be exported separately in each app (Next.js requires static config).
  *
  * Use in each app's proxy.ts:
  * ```ts
- * import { createSessionRefreshProxy } from "@helvety/shared/proxy";
- * const proxy = createSessionRefreshProxy({ buildCspOptions: { imgBlob: true } });
+ * import { createSecurityProxy } from "@helvety/shared/proxy";
+ * const proxy = createSecurityProxy({ buildCspOptions: { imgBlob: true } });
  * export { proxy };
  * export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"] };
  * ```
  */
-export function createSessionRefreshProxy(
-  options: CreateSessionRefreshProxyOptions = {}
-) {
+export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
   const {
     buildCspOptions = {},
     includeHelvetyUrl = true,
@@ -67,62 +61,15 @@ export function createSessionRefreshProxy(
       request.headers.set("x-helvety-url", publicUrl);
     }
 
-    const cloneRequestHeaders = () => new Headers(request.headers);
-
-    let supabaseResponse = NextResponse.next({
-      request: { headers: cloneRequestHeaders() },
+    // Proxy remains intentionally lightweight and optimistic-only:
+    // no DB hits and no Supabase token refresh work.
+    const response = NextResponse.next({
+      request: { headers: new Headers(request.headers) },
     });
-
-    let supabaseUrl: string;
-    let supabaseKey: string;
-    try {
-      supabaseUrl = getSupabaseUrl();
-      supabaseKey = getSupabaseKey();
-    } catch (error) {
-      if (!hasLoggedEnvError) {
-        hasLoggedEnvError = true;
-        console.error(
-          "[proxy] Supabase env validation failed — session refresh disabled:",
-          error instanceof Error ? error.message : error
-        );
-      }
-      supabaseResponse.headers.set("Content-Security-Policy", csp);
-      supabaseResponse.headers.set("x-supabase-config", "error");
-      return supabaseResponse;
-    }
-
-    const supabase = createServerClient(supabaseUrl, supabaseKey, {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          supabaseResponse = NextResponse.next({
-            request: { headers: cloneRequestHeaders() },
-          });
-          cookiesToSet.forEach(({ name, value, options }) => {
-            const cookieOptions = {
-              ...options,
-              ...(process.env.NODE_ENV === "production" && {
-                domain: COOKIE_DOMAIN,
-              }),
-            };
-            supabaseResponse.cookies.set(name, value, cookieOptions);
-          });
-        },
-      },
-    });
-
-    // Proxy must stay lightweight (optimistic checks only).
-    // Do not perform session/auth refresh work here.
-    void supabase;
 
     if (includeCsrf && !request.cookies.get(CSRF_COOKIE_NAME)?.value) {
       const token = randomBytes(CSRF_TOKEN_LENGTH).toString("hex");
-      supabaseResponse.cookies.set(CSRF_COOKIE_NAME, token, {
+      response.cookies.set(CSRF_COOKIE_NAME, token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
@@ -132,7 +79,13 @@ export function createSessionRefreshProxy(
       });
     }
 
-    supabaseResponse.headers.set("Content-Security-Policy", csp);
-    return supabaseResponse;
+    response.headers.set("Content-Security-Policy", csp);
+    return response;
   };
 }
+
+/**
+ * @deprecated Use createSecurityProxy().
+ * Kept for compatibility while imports migrate.
+ */
+export const createSessionRefreshProxy = createSecurityProxy;

@@ -23,7 +23,8 @@ import { usePdfProcessing } from "@/hooks/use-pdf-processing";
  * - Merge all pages into a single PDF
  *
  * For supported PDF/image operations, file content processing happens client-side.
- * Completely free (up to 100MB per file) and no login required.
+ * As of February 28, 2026, available at no cost (up to 100MB per file) and no
+ * login required.
  *
  * @returns The main PDF toolkit interface
  */

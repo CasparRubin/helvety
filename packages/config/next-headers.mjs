@@ -27,8 +27,8 @@ export function createSecurityHeaders({ appName } = {}) {
         value: "nosniff",
       },
       {
-        // Disabled: modern best practice relies on CSP instead.
-        // "1; mode=block" is deprecated and can introduce vulnerabilities in older browsers.
+        // Disabled: X-XSS-Protection is deprecated.
+        // Modern browsers rely on CSP; setting "0" disables the legacy filter.
         key: "X-XSS-Protection",
         value: "0",
       },

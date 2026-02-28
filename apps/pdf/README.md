@@ -13,7 +13,7 @@ A privacy-focused, browser-based PDF toolkit. Merge, reorder, rotate, and extrac
 
 **Privacy Approach** - File contents are processed in your browser and are not intended to be uploaded to Helvety servers for file conversion. We use Vercel Analytics and Speed Insights for usage/performance metrics (see [Privacy Policy](https://helvety.com/privacy)).
 
-Helvety PDF currently does not require login and is currently available at no cost. The app currently does not enforce a page-count cap, but practical limits depend on browser/device resources, and it enforces a 100MB per-file cap.
+As of February 28, 2026, Helvety PDF does not require login and is available at no cost. The app does not enforce a page-count cap, but practical limits depend on browser/device resources, and it enforces a 100MB per-file cap.
 
 ## Service Availability
 
@@ -36,7 +36,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Dark & Light mode support** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Current limits** - Up to 100MB per file; no app-enforced page-count cap in the current version. Practical throughput depends on browser/device memory and performance
-- **No login currently required** - Use the tool without an account in the current version
+- **No login required** - Use the tool without an account in the current version
 
 ## How It Works
 

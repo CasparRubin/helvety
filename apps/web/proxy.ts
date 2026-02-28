@@ -1,6 +1,6 @@
-import { createSessionRefreshProxy } from "@helvety/shared/proxy";
+import { createSecurityProxy } from "@helvety/shared/proxy";
 
-const proxy = createSessionRefreshProxy({
+const proxy = createSecurityProxy({
   includeHelvetyUrl: false,
   includeCsrf: false,
 });

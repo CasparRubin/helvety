@@ -31,7 +31,7 @@ export default function ImpressumPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Impressum</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 28, 2026
+              Last reviewed: February 28, 2026
             </p>
             <p className="text-muted-foreground mt-1 text-sm">
               Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant
@@ -117,13 +117,14 @@ export default function ImpressumPage() {
           <section>
             <h2 className="mb-4 text-xl font-semibold">Business Activity</h2>
             <p className="text-muted-foreground text-sm">
-              Helvety by Rubin develops and offers software, currently free
-              tools, and software-as-a-service (SaaS) products. Current products
+              Helvety by Rubin develops and offers software, including free
+              tools and software-as-a-service (SaaS) products. Current products
               include Helvety SPO Explorer (paid SharePoint extension), Helvety
-              PDF (free PDF toolkit), Helvety Tasks (encrypted task management),
-              and Helvety Contacts (encrypted contact management). Physical
-              products (such as apparel) are planned for the future. Our
-              products are primarily designed and developed in Switzerland.
+              PDF (available at no cost as of February 28, 2026), Helvety Tasks
+              (encrypted task management), and Helvety Contacts (encrypted
+              contact management). Physical products (such as apparel) may be
+              offered in the future. Our products are primarily designed and
+              developed in Switzerland.
             </p>
           </section>
 

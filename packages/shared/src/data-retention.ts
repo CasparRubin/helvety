@@ -19,7 +19,7 @@ export const DATA_RETENTION = {
   /** Standard anti-abuse lockout state retention upper bound. */
   RATE_LIMIT_LOCKOUT_RETENTION_HOURS: 24,
 
-  /** Contract and accounting evidence retention under Swiss obligations. */
+  /** Contract/accounting evidence retention under Swiss obligations (last reviewed: 2026-02-28). */
   CONTRACT_EVIDENCE_RETENTION_YEARS: 10,
   TRANSACTION_EVIDENCE_RETENTION_YEARS: 10,
 } as const;

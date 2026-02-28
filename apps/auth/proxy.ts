@@ -1,6 +1,6 @@
-import { createSessionRefreshProxy } from "@helvety/shared/proxy";
+import { createSecurityProxy } from "@helvety/shared/proxy";
 
-const proxy = createSessionRefreshProxy();
+const proxy = createSecurityProxy();
 export { proxy };
 export const config = {
   matcher: [

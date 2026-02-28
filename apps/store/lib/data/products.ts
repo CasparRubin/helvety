@@ -172,7 +172,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
 // =============================================================================
 
 /**
- * Helvety PDF - Free PDF Toolkit
+ * Helvety PDF - PDF Toolkit (currently no-cost)
  */
 export const helvetyPdf: SaaSProduct = {
   id: "helvety-pdf",
@@ -180,9 +180,9 @@ export const helvetyPdf: SaaSProduct = {
   name: "Helvety PDF",
   shortDescription:
     "A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. Browser-based processing for supported operations.",
-  description: `Helvety PDF is a free, privacy-focused PDF toolkit that runs in your browser for supported operations. File content is processed client-side and is not uploaded to Helvety servers for processing.
+  description: `Helvety PDF is a privacy-focused PDF toolkit that runs in your browser for supported operations. File content is processed client-side and is not uploaded to Helvety servers for processing.
 
-Pricing and Limits - Helvety PDF is currently offered at no cost with no account required. Current limits and pricing may change.
+Pricing and Limits - As of February 28, 2026, Helvety PDF is available at no cost with no account required. Pricing and limits are subject to change.
 
 Key Features:
 • Multi-file Merging - Combine multiple PDF files and images into a single document
@@ -192,7 +192,7 @@ Key Features:
 • Page Deletion - Remove unwanted pages from your documents
 • Image Support - Upload and convert images (PNG, JPEG, WebP, GIF) alongside PDF files
 
-No login or account is required. Files are currently limited to 100MB each, and practical throughput depends on browser/device resources.`,
+No login or account is required. Files are limited to 100MB each, and practical throughput depends on browser/device resources.`,
   type: "saas",
   category: "utilities",
   status: "available",
@@ -225,7 +225,7 @@ No login or account is required. Files are currently limited to 100MB each, and 
           "No app-enforced page-count cap in the current version",
           "Up to 100MB per file",
           "No account required",
-          "Currently offered at no cost",
+          "Available at no cost as of February 28, 2026",
         ],
       },
     ],
@@ -272,7 +272,7 @@ export const helvetyTasks: SaaSProduct = {
     "A privacy-focused task management app with client-side encryption for sensitive fields. Organize work with Units, Spaces, and Items.",
   description: `Helvety Tasks is an end-to-end encrypted task management app where sensitive content is encrypted client-side before storage.
 
-Early Access Pricing - Helvety Tasks is currently offered at no cost for early adopters. Pricing may change.
+Early Access Pricing - As of February 28, 2026, Helvety Tasks is available at no cost for early adopters. Pricing may change.
 
 Key Features:
 • End-to-End Encryption - Sensitive task content is encrypted using your passkey
@@ -284,7 +284,7 @@ Key Features:
 • Contact Linking - Link contacts from Helvety Contacts to any Unit, Space, or Item
 • Drag & Drop - Reorder items within and between stages
 
-Your data is protected by Swiss law (nDSG). The system is designed so encrypted task content is not readable by Helvety during normal operation.`,
+Your data is protected under applicable Swiss data protection law (including nDSG where applicable). The system is designed so encrypted task content is not readable by Helvety during normal operation.`,
   type: "saas",
   category: "productivity",
   status: "available",
@@ -317,7 +317,7 @@ Your data is protected by Swiss law (nDSG). The system is designed so encrypted 
           "End-to-end encryption",
           "Up to 10 Units, 15 Spaces per Unit, and 250 Items per Space",
           "File attachments (max 2 per Item)",
-          "Currently offered at no cost for early adopters",
+          "Available at no cost for early adopters as of February 28, 2026",
         ],
       },
     ],
@@ -365,7 +365,7 @@ export const helvetyContacts: SaaSProduct = {
     "A privacy-focused contact management app with client-side encryption for sensitive fields. Store names, emails, phone numbers, birthdays, and notes.",
   description: `Helvety Contacts is an end-to-end encrypted contact management app. Sensitive contact data is encrypted client-side before storage.
 
-Early Access Pricing - Helvety Contacts is currently offered at no cost for early adopters. Pricing may change.
+Early Access Pricing - As of February 28, 2026, Helvety Contacts is available at no cost for early adopters. Pricing may change.
 
 Key Features:
 • End-to-End Encryption - Sensitive contact content is encrypted using your passkey
@@ -376,7 +376,7 @@ Key Features:
 • Drag & Drop - Rearrange contacts within and between categories
 • Data Export - Export all your contacts as a decrypted JSON file (supports nDSG Art. 28 data portability requests)
 
-Your contacts are protected by Swiss law (nDSG). The system is designed so encrypted contact content is not readable by Helvety during normal operation.`,
+Your contacts are protected under applicable Swiss data protection law (including nDSG where applicable). The system is designed so encrypted contact content is not readable by Helvety during normal operation.`,
   type: "saas",
   category: "productivity",
   status: "available",
@@ -408,7 +408,7 @@ Your contacts are protected by Swiss law (nDSG). The system is designed so encry
           "End-to-end encryption",
           "Up to 250 contacts per user",
           "Rich text notes",
-          "Currently offered at no cost for early adopters",
+          "Available at no cost for early adopters as of February 28, 2026",
         ],
       },
     ],

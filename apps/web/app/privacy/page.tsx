@@ -31,7 +31,7 @@ export default function PrivacyPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Privacy Policy</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 28, 2026
+              Last reviewed: February 28, 2026
             </p>
           </header>
 
@@ -424,8 +424,9 @@ export default function PrivacyPage() {
                 account is currently required. The service still uses minimal
                 server-side endpoints for platform and security functions (for
                 example auth callback handling, CSP reporting, and
-                session/security proxy logic). Helvety PDF is currently
-                available at no cost with a maximum file size of 100MB per file.
+                session/security proxy logic). As of February 28, 2026, Helvety
+                PDF is available at no cost with a maximum file size of 100MB
+                per file.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -1116,9 +1117,9 @@ export default function PrivacyPage() {
               .
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
-              As of the last update date of this policy, we use Vercel
-              Analytics/Speed Insights and do not intentionally operate
-              advertising trackers or cross-site profiling technologies.
+              As of February 28, 2026, we use Vercel Analytics/Speed Insights
+              and do not intentionally operate advertising trackers or
+              cross-site profiling technologies.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Essential cookies do not require consent under Swiss law as they

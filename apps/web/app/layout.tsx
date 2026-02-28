@@ -1,6 +1,10 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { sharedViewport } from "@helvety/shared/config";
+import {
+  createHelvetyOrganizationSchema,
+  DEFAULT_THEME_PROVIDER_PROPS,
+} from "@helvety/shared/layout-primitives";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
@@ -132,24 +136,7 @@ export default async function RootLayout({
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([
-              {
-                "@context": "https://schema.org",
-                "@type": "Organization",
-                name: "Helvety",
-                url: "https://helvety.com",
-                logo: brandAssets.identifierPng,
-                description:
-                  "Products and services engineered and designed in Switzerland.",
-                sameAs: [
-                  "https://helvety.com",
-                  "https://helvety.com/auth",
-                  "https://helvety.com/contacts",
-                  "https://helvety.com/pdf",
-                  "https://helvety.com/store",
-                  "https://helvety.com/tasks",
-                  "https://github.com/CasparRubin",
-                ],
-              },
+              createHelvetyOrganizationSchema(brandAssets.identifierPng),
               {
                 "@context": "https://schema.org",
                 "@type": "WebSite",
@@ -161,13 +148,7 @@ export default async function RootLayout({
             ]),
           }}
         />
-        <ThemeProvider
-          nonce={nonce}
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
           <AuthTokenHandler />
           <SessionRecovery mode="optional" />
           <TooltipProvider>

@@ -5,7 +5,8 @@ import { cookies } from "next/headers";
 
 import { COOKIE_DOMAIN } from "../config";
 import { getSupabaseUrl, getSupabaseKey } from "../env-validation";
-import { logger } from "../logger";
+
+import { handleSupabaseCookieWriteFailure } from "./cookie-write-failure";
 
 import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -49,13 +50,14 @@ export async function createServerComponentClient(): Promise<
               };
               cookieStore.set(name, value, merged);
             }
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // cookies().set() is not allowed there, so the cookie update is
-            // skipped; the request still uses the existing session from the proxy.
-            logger.warn(
-              "Supabase cookie write skipped in createServerComponentClient (likely Server Component context). Session refresh may require proxy/action context."
-            );
+          } catch (error) {
+            // The `setAll` method can run in a Server Component context where
+            // cookies().set() is disallowed by Next.js.
+            handleSupabaseCookieWriteFailure({
+              error,
+              cookieCount: cookiesToSet.length,
+              context: "createServerComponentClient.setAll",
+            });
           }
         },
       },

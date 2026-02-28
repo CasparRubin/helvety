@@ -1,6 +1,10 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { sharedViewport } from "@helvety/shared/config";
+import {
+  createHelvetyOrganizationSchema,
+  DEFAULT_THEME_PROVIDER_PROPS,
+} from "@helvety/shared/layout-primitives";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
 import { SkipToContent } from "@helvety/ui/skip-to-content";
@@ -40,7 +44,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety PDF",
   },
   description:
-    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Free to use with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
+    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Available at no cost as of February 28, 2026, with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
   keywords: [
     "Helvety PDF",
     "PDF merge",
@@ -71,7 +75,7 @@ export const metadata: Metadata = {
     siteName: "Helvety PDF",
     title: "Helvety PDF | PDF Tool",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Free to use with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Available at no cost as of February 28, 2026, with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -85,7 +89,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety PDF | PDF Tool",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Free to use with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Available at no cost as of February 28, 2026, with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -129,24 +133,7 @@ export default async function RootLayout({
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([
-              {
-                "@context": "https://schema.org",
-                "@type": "Organization",
-                name: "Helvety",
-                url: "https://helvety.com",
-                logo: brandAssets.identifierPng,
-                description:
-                  "Products and services engineered and designed in Switzerland.",
-                sameAs: [
-                  "https://helvety.com",
-                  "https://helvety.com/auth",
-                  "https://helvety.com/contacts",
-                  "https://helvety.com/pdf",
-                  "https://helvety.com/store",
-                  "https://helvety.com/tasks",
-                  "https://github.com/CasparRubin",
-                ],
-              },
+              createHelvetyOrganizationSchema(brandAssets.identifierPng),
               {
                 "@context": "https://schema.org",
                 "@type": "WebApplication",
@@ -166,13 +153,7 @@ export default async function RootLayout({
             ]),
           }}
         />
-        <ThemeProvider
-          nonce={nonce}
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
           <AuthTokenHandler />
           <TooltipProvider>
             <div className="flex h-screen flex-col overflow-hidden">

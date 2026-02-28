@@ -9,7 +9,7 @@
 - [Impressum](https://helvety.com/impressum): Legal information and company details
 
 ## Helvety Ecosystem
-- [Helvety Store](https://helvety.com/store): Official store for Helvety products and services (currently free tools, SaaS, and paid subscriptions)
+- [Helvety Store](https://helvety.com/store): Official store for Helvety products and services (no-cost offerings, SaaS, and paid subscriptions; see store for current terms)
 - [Helvety PDF](https://helvety.com/pdf): PDF toolkit that currently processes files locally in the browser for supported operations
 - [Helvety Auth](https://helvety.com/auth): Centralized authentication service for all Helvety apps
 - [Helvety Contacts](https://helvety.com/contacts): Contact management with client-side encryption for sensitive fields

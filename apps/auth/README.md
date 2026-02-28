@@ -259,7 +259,7 @@ The auth service includes the following security hardening:
   - Passkey authentication (generation and verification): 10 per minute per IP
   - Rate limits reset on successful authentication
 - **CSRF Protection** - Token-based protection with timing-safe comparison for all state-changing Server Actions
-- **Server-side Action/Handler Enforcement** - Authentication and security checks are enforced in Server Actions and route handlers (aligned with published CVE-2025-29927 mitigation guidance - auth NOT in proxy)
+- **Server-side Action/Handler Enforcement** - Authentication and security checks are enforced in Server Actions and route handlers (aligned with current Next.js security guidance; auth checks are not enforced in proxy)
 - **Audit Logging** - Structured logging for all authentication events:
   - Login attempts (success/failure)
   - Verification code sent/failed

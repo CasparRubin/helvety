@@ -36,6 +36,7 @@
     "./auth-logger": "./src/auth-logger.ts",
     "./rate-limit": "./src/rate-limit.ts",
     "./env-validation": "./src/env-validation.ts",
+    "./layout-primitives": "./src/layout-primitives.ts",
     "./redirect-validation": "./src/redirect-validation.ts",
     "./seo": "./src/seo.ts",
     "./supabase/client": "./src/supabase/client.ts",

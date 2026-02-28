@@ -34,8 +34,8 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 
 ## Features
 
-- **Product Catalog** - Browse all Helvety products: currently free tools (Helvety PDF), early-access SaaS offers (Helvety Tasks, Helvety Contacts), and paid subscriptions (Helvety SPO Explorer)
-- **Stripe Integration** - Subscription and one-time payment processing via Stripe Checkout (currently CHF). Before each purchase, a consent dialog requires acceptance of the Terms of Service and Privacy Policy. Consent is requested for each purchase and is not persisted in the checkout dialog state.
+- **Product Catalog** - Browse all Helvety products: no-cost offerings as of February 28, 2026 (Helvety PDF), early-access SaaS offers (Helvety Tasks, Helvety Contacts), and paid subscriptions (Helvety SPO Explorer)
+- **Stripe Integration** - Subscription and one-time payment processing via Stripe Checkout (CHF as of February 28, 2026). Before each purchase, a consent dialog requires acceptance of the Terms of Service and Privacy Policy. Consent is requested for each purchase and is not persisted in the checkout dialog state.
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
 - **Account Management** - Profile and account settings (Account page)
 - **Subscription Management** - Compact list to view, cancel, or reactivate subscriptions; SPO Explorer subscriptions link to the Tenants page
@@ -77,7 +77,7 @@ Sessions are shared across all Helvety apps via cookie-based SSO (all apps are s
 This application includes the following security hardening:
 
 - **Session Management** - `proxy.ts` performs lightweight request setup (CSP headers and CSRF bootstrap). Session/auth checks are enforced in page-level/server-side handlers.
-- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (aligned with published CVE-2025-29927 mitigation guidance)
+- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (aligned with current Next.js security guidance that proxy-only checks are insufficient)
 - **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated via `@helvety/shared/redirect-validation` to reduce open-redirect risk
 - **CSRF Protection** - Token-based protection is enforced on high-impact browser-initiated mutations; server-to-server webhook endpoints use Stripe signature verification instead of CSRF tokens
 - **Rate Limiting** - Protection against brute force attacks

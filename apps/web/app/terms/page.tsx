@@ -31,7 +31,7 @@ export default function TermsPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Terms of Service</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 28, 2026
+              Last reviewed: February 28, 2026
             </p>
           </header>
 
@@ -1007,9 +1007,9 @@ export default function TermsPage() {
             </h2>
             <p className="text-muted-foreground mb-4 text-sm">
               All prices are displayed in Swiss Francs (CHF). Prices are subject
-              to change without notice. Helvety by Rubin is currently not
-              registered for Swiss VAT (MWST). Should this change, applicable
-              taxes will be calculated and displayed at checkout.
+              to change without notice. Helvety by Rubin is not registered for
+              Swiss VAT (MWST) as of February 28, 2026. Should this change,
+              applicable taxes will be calculated and displayed at checkout.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Payment processing is handled by Stripe, Inc. By making a
@@ -1028,9 +1028,10 @@ export default function TermsPage() {
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
-                <strong className="text-foreground">Helvety PDF</strong> is free
-                at the time of writing. No account or login is required. See the
-                relevant product page for current pricing and availability.
+                <strong className="text-foreground">Helvety PDF</strong> is
+                available at no cost as of February 28, 2026. No account or
+                login is required. See the relevant product page for current
+                pricing and availability.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -1045,7 +1046,8 @@ export default function TermsPage() {
               Free products are provided &quot;as is&quot; under the same terms
               as paid products (see Section 4.4). Helvety reserves the right to
               modify, suspend, or discontinue free product offerings at any time
-              with reasonable notice.
+              with at least 30 days notice, except where immediate changes are
+              required for security, legal, or abuse-prevention reasons.
             </p>
           </section>
 

@@ -12,7 +12,7 @@ import { Separator } from "@helvety/ui/separator";
 import { ArrowLeft, Check, ExternalLink, Github, Globe } from "lucide-react";
 import Link from "next/link";
 import { notFound, useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { FeatureList } from "@/components/products/feature-list";
@@ -39,6 +39,13 @@ interface ProductDetailClientProps {
   initialSubscriptions?: Subscription[];
 }
 
+/** Server-verified checkout status response. */
+interface VerifyCheckoutResponse {
+  status: "complete" | "open";
+  productId: string | null;
+  tierId: string | null;
+}
+
 /** Renders the full product detail page with pricing and features. */
 export function ProductDetailClient({
   slug,
@@ -53,43 +60,110 @@ export function ProductDetailClient({
   const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
   const userSubscriptions = initialSubscriptions;
 
+  const cleanCheckoutParamsFromUrl = useCallback(() => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete("checkout");
+    nextParams.delete("session_id");
+    const query = nextParams.toString();
+    const nextPath = query ? `/products/${slug}?${query}` : `/products/${slug}`;
+    window.history.replaceState({}, "", nextPath);
+  }, [searchParams, slug]);
+
   // Handle checkout success/canceled state from URL params
   useEffect(() => {
     const checkoutStatus = searchParams.get("checkout");
+    const sessionId = searchParams.get("session_id");
 
     if (checkoutStatus === "success") {
-      // Show product-specific success message
-      if (product?.id === "helvety-spo-explorer") {
-        // SPO Explorer: Guide users to register tenants
-        toast.success("Welcome to SPO Explorer!", {
-          description: "Register your SharePoint tenant to get started.",
-          action: {
-            label: "Register Tenant",
-            onClick: () => router.push("/tenants"),
-          },
-          duration: TOAST_DURATIONS.SUCCESS * 2, // Extra long for actionable toast
-        });
-      } else {
-        // Default success message
-        toast.success("Checkout completed", {
+      if (!sessionId) {
+        toast.error("Checkout could not be verified", {
           description:
-            "We're confirming payment and activating your access. If you do not see it shortly, refresh the page.",
-          duration: TOAST_DURATIONS.SUCCESS,
+            "Missing checkout session reference. Please refresh and check your account status.",
+          duration: TOAST_DURATIONS.ERROR,
         });
+        cleanCheckoutParamsFromUrl();
+        return undefined;
       }
-      // Refresh server data after successful checkout
-      router.refresh();
-      // Clean up URL
-      window.history.replaceState({}, "", `/products/${slug}`);
+
+      let cancelled = false;
+
+      const verifyCheckout = async () => {
+        const response = await fetch(
+          `/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`,
+          {
+            method: "GET",
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Checkout verification failed");
+        }
+
+        const verification = (await response.json()) as VerifyCheckoutResponse;
+        const isValidSuccess =
+          verification.status === "complete" && verification.productId === slug;
+
+        if (cancelled) {
+          return;
+        }
+
+        if (!isValidSuccess) {
+          toast.error("Payment verification incomplete", {
+            description:
+              "We could not confirm payment for this product yet. Please refresh in a moment.",
+            duration: TOAST_DURATIONS.ERROR,
+          });
+          cleanCheckoutParamsFromUrl();
+          return;
+        }
+
+        // Show product-specific success message after server verification.
+        if (product?.id === "helvety-spo-explorer") {
+          toast.success("Welcome to SPO Explorer!", {
+            description: "Register your SharePoint tenant to get started.",
+            action: {
+              label: "Register Tenant",
+              onClick: () => router.push("/tenants"),
+            },
+            duration: TOAST_DURATIONS.SUCCESS * 2,
+          });
+        } else {
+          toast.success("Checkout completed", {
+            description:
+              "Payment was verified and your access is being activated. If you do not see it shortly, refresh the page.",
+            duration: TOAST_DURATIONS.SUCCESS,
+          });
+        }
+
+        router.refresh();
+        cleanCheckoutParamsFromUrl();
+      };
+
+      void verifyCheckout().catch(() => {
+        if (cancelled) {
+          return;
+        }
+        toast.error("Checkout verification failed", {
+          description:
+            "We could not verify your payment right now. Please refresh and try again.",
+          duration: TOAST_DURATIONS.ERROR,
+        });
+        cleanCheckoutParamsFromUrl();
+      });
+
+      return () => {
+        cancelled = true;
+      };
     } else if (checkoutStatus === "canceled") {
       toast.info("Checkout canceled", {
         description: "No payment was made. You can try again anytime.",
         duration: TOAST_DURATIONS.INFO,
       });
-      // Clean up URL
-      window.history.replaceState({}, "", `/products/${slug}`);
+      cleanCheckoutParamsFromUrl();
     }
-  }, [searchParams, slug, product?.id, router]);
+    return undefined;
+  }, [searchParams, slug, product?.id, router, cleanCheckoutParamsFromUrl]);
   const refreshSubscriptions = () => {
     router.refresh();
   };
@@ -203,7 +277,7 @@ export function ProductDetailClient({
               <h2 className="text-xl font-semibold">Pricing</h2>
               <p className="text-muted-foreground mt-1 text-sm">
                 {isEntirelyFree
-                  ? "This product is currently available at no cost"
+                  ? "This product is available at no cost as of February 28, 2026"
                   : "Choose the plan that works best for you"}
               </p>
             </div>

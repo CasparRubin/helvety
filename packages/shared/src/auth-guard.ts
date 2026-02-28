@@ -22,8 +22,9 @@ import type { User } from "@supabase/supabase-js";
  * usually reuses that result. On transient auth errors, requireAuth() performs
  * one uncached confirmation check before redirecting.
  *
- * IMPORTANT: Per CVE-2025-29927, authentication checks should be done in
- * Server Components (pages) or Route Handlers, NOT in proxy.ts.
+ * IMPORTANT: Authentication checks should be done in Server Components (pages)
+ * or Route Handlers, NOT in proxy.ts. Proxy is an optimistic routing layer and
+ * should not be treated as an authoritative access control boundary.
  *
  * @param currentPath - The public-facing path of the current page (e.g. "/tasks"
  *   or "/tasks/units/123"). Used to build the redirect-back URL so the user
