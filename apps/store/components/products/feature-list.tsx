@@ -4,7 +4,7 @@
  */
 
 import { cn } from "@helvety/shared/utils";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 
 /** Props for the FeatureList component. */
 interface FeatureListProps {
@@ -42,41 +42,6 @@ export function FeatureList({
             )}
           />
           <span className="text-muted-foreground">{feature}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** Props for the feature comparison list. */
-interface FeatureComparisonProps {
-  included: string[];
-  excluded?: string[];
-  className?: string;
-}
-
-const EMPTY_FEATURES: string[] = [];
-
-/** Renders a comparison list of included and excluded features. */
-export function FeatureComparison({
-  included,
-  excluded = EMPTY_FEATURES,
-  className,
-}: FeatureComparisonProps) {
-  return (
-    <ul className={cn("space-y-2", className)}>
-      {included.map((feature) => (
-        <li key={`included-${feature}`} className="flex items-start gap-2">
-          <Check className="mt-0.5 size-4 shrink-0 text-green-500 dark:text-green-400" />
-          <span className="text-muted-foreground">{feature}</span>
-        </li>
-      ))}
-      {excluded.map((feature) => (
-        <li key={`excluded-${feature}`} className="flex items-start gap-2">
-          <X className="mt-0.5 size-4 shrink-0 text-neutral-400 dark:text-neutral-500" />
-          <span className="text-muted-foreground/60 line-through">
-            {feature}
-          </span>
         </li>
       ))}
     </ul>

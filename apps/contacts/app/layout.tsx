@@ -12,6 +12,7 @@ import {
 import { logger } from "@helvety/shared/logger";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
+import { EncryptionGateApp } from "@helvety/ui/encryption-gate-app";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
 import { SessionRecovery } from "@helvety/ui/session-recovery";
@@ -24,7 +25,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 
-import { EncryptionGate } from "@/components/encryption-gate";
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
 
@@ -187,12 +187,12 @@ export default async function RootLayout({
                     <div className="mx-auto w-full max-w-[2000px]">
                       <main id="main-content">
                         {initialUser ? (
-                          <EncryptionGate
+                          <EncryptionGateApp
                             userId={initialUser.id}
                             userEmail={initialUser.email ?? ""}
                           >
                             {children}
-                          </EncryptionGate>
+                          </EncryptionGateApp>
                         ) : (
                           children
                         )}

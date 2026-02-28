@@ -65,8 +65,3 @@ export function isTierAllowedForPackage(
   if (!packageInfo) return false;
   return packageInfo.allowedTiers.includes(tierId);
 }
-
-/** Returns all available package IDs from the configuration */
-export function getAllPackageIds(): string[] {
-  return Object.keys(PACKAGE_CONFIG);
-}

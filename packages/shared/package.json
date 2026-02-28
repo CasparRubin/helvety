@@ -54,7 +54,9 @@
     "./crypto/prf-salt-cache": "./src/crypto/prf-salt-cache.ts",
     "./crypto/passkey": "./src/crypto/passkey.ts",
     "./crypto/key-check": "./src/crypto/key-check.ts",
-    "./proxy": "./src/proxy.ts"
+    "./proxy": "./src/proxy.ts",
+    "./validation/encrypted-data": "./src/validation/encrypted-data.ts",
+    "./encryption-actions": "./src/encryption-actions.ts"
   },
   "dependencies": {
     "@helvety/config": "workspace:*",

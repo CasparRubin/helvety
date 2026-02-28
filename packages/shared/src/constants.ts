@@ -13,6 +13,14 @@ export const TOAST_DURATIONS = {
 } as const;
 
 /**
+ * Reusable user-facing error messages
+ */
+export const ERROR_MESSAGES = {
+  /** Data export failure */
+  EXPORT_FAILED: "Failed to export data. Please try again.",
+} as const;
+
+/**
  * Cross-app entity limits (business quotas).
  * Keep these values in sync with database-enforced limits and app-side checks.
  */

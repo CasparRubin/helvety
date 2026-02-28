@@ -323,16 +323,6 @@ export interface ProductFilters {
 // =============================================================================
 
 /**
- * Type guard to check if product is a physical product
- * @param product
- */
-export function isPhysicalProduct(
-  product: Product
-): product is PhysicalProduct {
-  return product.type === "physical" && "physical" in product;
-}
-
-/**
  * Type guard to check if product is a software product
  * @param product
  */

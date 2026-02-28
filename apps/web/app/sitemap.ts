@@ -1,3 +1,5 @@
+import { urls } from "@helvety/shared/config";
+
 import type { MetadataRoute } from "next";
 
 /**
@@ -11,25 +13,25 @@ const lastModified = new Date();
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: "https://helvety.com",
+      url: urls.home,
       lastModified,
       changeFrequency: "monthly",
       priority: 1,
     },
     {
-      url: "https://helvety.com/impressum",
+      url: `${urls.home}/impressum`,
       lastModified,
       changeFrequency: "yearly",
       priority: 0.5,
     },
     {
-      url: "https://helvety.com/privacy",
+      url: `${urls.home}/privacy`,
       lastModified,
       changeFrequency: "yearly",
       priority: 0.5,
     },
     {
-      url: "https://helvety.com/terms",
+      url: `${urls.home}/terms`,
       lastModified,
       changeFrequency: "yearly",
       priority: 0.5,

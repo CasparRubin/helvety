@@ -14,9 +14,7 @@ import {
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
 
-/**
- *
- */
+/** Props for the base DeleteConfirmationDialog */
 export interface DeleteConfirmationDialogProps {
   /** Whether the dialog is open */
   open: boolean;
@@ -75,4 +73,34 @@ export function DeleteConfirmationDialog({
       </AlertDialogContent>
     </AlertDialog>
   );
+}
+
+/**
+ * Factory that creates an entity-aware DeleteConfirmationDialog.
+ * Use with app-specific buildDeleteMessage from entity-config.
+ */
+export function createEntityDeleteDialog<EntityTypeId extends string>(
+  buildDeleteMessage: (
+    entityType: EntityTypeId,
+    entityName?: string
+  ) => { title: string; description: string }
+) {
+  const EntityDeleteDialog = ({
+    entityType,
+    entityName,
+    ...props
+  }: Omit<DeleteConfirmationDialogProps, "title" | "description"> & {
+    entityType: EntityTypeId;
+    entityName?: string;
+  }): React.JSX.Element => {
+    const { title, description } = buildDeleteMessage(entityType, entityName);
+    return (
+      <DeleteConfirmationDialog
+        {...props}
+        title={title}
+        description={description}
+      />
+    );
+  };
+  return EntityDeleteDialog;
 }

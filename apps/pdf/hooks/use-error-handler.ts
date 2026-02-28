@@ -1,7 +1,8 @@
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { TOAST_DURATIONS, CRITICAL_ERROR_PATTERNS } from "@/lib/constants";
+import { CRITICAL_ERROR_PATTERNS } from "@/lib/constants";
 
 /** Return type of useErrorHandler: setError and dismissError. */
 interface UseErrorHandlerReturn {

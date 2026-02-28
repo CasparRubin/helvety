@@ -1,5 +1,6 @@
 "use client";
 
+import { ERROR_MESSAGES, TOAST_DURATIONS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { Button } from "@helvety/ui/button";
 import {
@@ -22,7 +23,6 @@ import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialo
 import { useCategories } from "@/hooks/use-categories";
 import { useContacts } from "@/hooks/use-contacts";
 import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
-import { ERROR_MESSAGES, TOAST_DURATIONS } from "@/lib/constants";
 import { useEncryptionContext } from "@/lib/crypto";
 import { downloadContactDataExport } from "@/lib/data-export";
 
