@@ -2,6 +2,8 @@
  * Static product data for the Store app (@helvety/store)
  */
 
+import { getStripePriceId } from "@/lib/stripe/config";
+
 import type {
   Product,
   SaaSProduct,
@@ -63,8 +65,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
         price: 45000,
         currency: "CHF",
         interval: "monthly",
-        stripePriceId:
-          process.env.STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID,
+        stripePriceId: getStripePriceId("helvety-spo-explorer-solo-monthly"),
         features: [
           "Full extension features",
           "All sites navigation",
@@ -80,8 +81,9 @@ Install it once in your SharePoint App Catalog and give all users instant access
         currency: "CHF",
         interval: "monthly",
         highlighted: true,
-        stripePriceId:
-          process.env.STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID,
+        stripePriceId: getStripePriceId(
+          "helvety-spo-explorer-supported-monthly"
+        ),
         features: [
           "Full extension features",
           "All sites navigation",

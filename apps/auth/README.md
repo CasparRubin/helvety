@@ -45,6 +45,8 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.     |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+>
+> **Auth stack note:** Helvety Auth uses Supabase Auth + passkeys (WebAuthn), not NextAuth/Auth.js. `NEXTAUTH_SECRET`/`AUTH_SECRET` are not used.
 
 ## Tech Stack
 

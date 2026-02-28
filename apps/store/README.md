@@ -89,18 +89,25 @@ This application includes the following security hardening:
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                                            |
-| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                   |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                          |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Must not be exposed. |
-| `STRIPE_SECRET_KEY`                    | Yes      | **Yes**     | Stripe API key. Must not be exposed.                                                   |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`   | Yes      | No          | Stripe publishable key (client-side)                                                   |
-| `STRIPE_WEBHOOK_SECRET`                | Yes      | **Yes**     | Webhook signature verification. Must not be exposed.                                   |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.       |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.     |
+| Variable                                                 | Required | Server-only | Description                                                                            |
+| -------------------------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`                               | Yes      | No          | Supabase project URL                                                                   |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                   | Yes      | No          | Publishable key (RLS applies)                                                          |
+| `SUPABASE_SECRET_KEY`                                    | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Must not be exposed. |
+| `STRIPE_SECRET_KEY`                                      | Yes      | **Yes**     | Stripe API key. Must not be exposed.                                                   |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`                     | Yes      | No          | Stripe publishable key (client-side)                                                   |
+| `STRIPE_WEBHOOK_SECRET`                                  | Yes      | **Yes**     | Webhook signature verification. Must not be exposed.                                   |
+| `STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID`      | Yes      | **Yes**     | Stripe Price ID for SPO Explorer Solo monthly tier (`price_*`).                        |
+| `STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID` | Yes      | **Yes**     | Stripe Price ID for SPO Explorer Supported monthly tier (`price_*`).                   |
+| `LICENSE_VALIDATION_SHARED_SECRET`                       | No       | **Yes**     | Optional shared secret for signed server-to-server license validation calls.           |
+| `UPSTASH_REDIS_REST_URL`                                 | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.       |
+| `UPSTASH_REDIS_REST_TOKEN`                               | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.     |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+>
+> **Auth stack note:** This app does not use NextAuth/Auth.js; do not set `NEXTAUTH_SECRET`/`AUTH_SECRET` for this project.
+>
+> **License signing note:** Browser clients (including the SPO Explorer SPFx extension) call `/api/license/validate` without a shared secret. `LICENSE_VALIDATION_SHARED_SECRET` should only be configured when a trusted backend signs requests.
 
 ## Tech Stack
 

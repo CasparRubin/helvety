@@ -95,9 +95,10 @@ const SIGNATURE_TTL_SECONDS = 300;
 /**
  * Validate HMAC request signature for machine-to-machine callers.
  *
- * Signature verification is optional: if LICENSE_VALIDATION_SHARED_SECRET is
- * set in the environment, requests carrying signature headers are verified.
- * If the secret is not configured, signature verification is skipped entirely.
+ * Signature verification is optional overall:
+ * - If LICENSE_VALIDATION_SHARED_SECRET is NOT configured, signature checks are skipped.
+ * - If LICENSE_VALIDATION_SHARED_SECRET IS configured, signed requests are verified.
+ *   Unsigned requests are still allowed for browser-based callers.
  */
 function verifyRequestSignature(
   request: NextRequest,
@@ -112,7 +113,12 @@ function verifyRequestSignature(
   const timestampHeader = request.headers.get("x-license-timestamp");
   const signatureHeader = request.headers.get("x-license-signature");
 
-  // Secret is configured but headers are absent — reject.
+  // No signature headers provided — allow unsigned callers (e.g. browser/SPFx).
+  if (!timestampHeader && !signatureHeader) {
+    return { ok: true };
+  }
+
+  // Partial signature headers provided — reject malformed signed request.
   if (!timestampHeader || !signatureHeader) {
     return { ok: false, reason: "missing_signature" };
   }

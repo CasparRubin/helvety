@@ -25,6 +25,23 @@ const storeEnvSchema = serverEnvSchema.merge(upstashEnvSchema).merge(
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z
       .string()
       .min(1, "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is required"),
+    STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID: z
+      .string()
+      .min(1, "STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID is required")
+      .refine(
+        (v) => v.startsWith("price_"),
+        "STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID must start with price_"
+      ),
+    STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID: z
+      .string()
+      .min(
+        1,
+        "STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID is required"
+      )
+      .refine(
+        (v) => v.startsWith("price_"),
+        "STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID must start with price_"
+      ),
   })
 );
 
@@ -46,6 +63,12 @@ export function getValidatedStoreEnv(): z.infer<typeof storeEnvSchema> {
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET?.trim() ?? "",
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ?? "",
+    STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID:
+      process.env.STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID?.trim() ??
+      "",
+    STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID:
+      process.env.STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID?.trim() ??
+      "",
   };
 
   const result = storeEnvSchema.safeParse(raw);
