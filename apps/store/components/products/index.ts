@@ -5,7 +5,6 @@
 
 export { ProductBadge, StatusBadge } from "./product-badge";
 export { FeatureList, FeatureComparison } from "./feature-list";
-export { PricingToggle, type BillingPeriod } from "./pricing-toggle";
 export { PricingCard, PricingCards } from "./pricing-card";
 export { ProductCard } from "./product-card";
 export { ProductGrid } from "./product-grid";
@@ -15,4 +14,3 @@ export {
   type FilterType,
 } from "./product-filters";
 export { ProductsCatalog } from "./products-catalog";
-export { MediaGallery } from "./media-gallery";

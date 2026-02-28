@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   // Multi-zone: serve this app under helvety.com/tasks
   basePath: "/tasks",
 
+  // Multi-zones: avoid asset conflicts with other zones
+  assetPrefix: "/tasks-static",
+
   compress: true,
 
   headers: createSecurityHeaders({ appName: "tasks" }),

@@ -94,16 +94,24 @@ const nextConfig: NextConfig = {
           destination: `${tasksUrl}/tasks`,
         },
         {
-          source: "/tasks/:path*",
-          destination: `${tasksUrl}/tasks/:path*`,
+          source: "/tasks/:path+",
+          destination: `${tasksUrl}/tasks/:path+`,
+        },
+        {
+          source: "/tasks-static/:path+",
+          destination: `${tasksUrl}/tasks-static/:path+`,
         },
         {
           source: "/contacts",
           destination: `${contactsUrl}/contacts`,
         },
         {
-          source: "/contacts/:path*",
-          destination: `${contactsUrl}/contacts/:path*`,
+          source: "/contacts/:path+",
+          destination: `${contactsUrl}/contacts/:path+`,
+        },
+        {
+          source: "/contacts-static/:path+",
+          destination: `${contactsUrl}/contacts-static/:path+`,
         },
         {
           source: "/store",

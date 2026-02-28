@@ -1,7 +1,8 @@
 "use client";
 
 import { urls } from "@helvety/shared/config";
-import { useEffect } from "react";
+import { logger } from "@helvety/shared/logger";
+import { useEffect, useRef } from "react";
 
 /**
  * Handles legacy hash-fragment auth tokens in a safe way.
@@ -15,8 +16,14 @@ import { useEffect } from "react";
  * redirects the user to the auth app login screen with a safe error.
  */
 export function AuthTokenHandler() {
+  const processingRef = useRef(false);
+
   useEffect(() => {
     if (typeof window === "undefined" || !window.location.hash) {
+      return;
+    }
+
+    if (processingRef.current) {
       return;
     }
 
@@ -28,10 +35,19 @@ export function AuthTokenHandler() {
       return;
     }
 
-    const cleanUrl = `${window.location.pathname}${window.location.search}`;
-    window.history.replaceState(null, "", cleanUrl);
-    // Enforce callback-only auth completion.
-    window.location.href = `${urls.auth}/login?error=callback_required`;
+    processingRef.current = true;
+
+    void (async () => {
+      try {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.hash = "";
+        window.history.replaceState(null, "", currentUrl.toString());
+        window.location.href = `${urls.auth}/login?error=callback_required`;
+      } catch (err) {
+        logger.error("Error handling legacy hash auth tokens:", err);
+        processingRef.current = false;
+      }
+    })();
   }, []);
 
   return null;

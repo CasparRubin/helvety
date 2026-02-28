@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   // Multi-zone: serve this app under helvety.com/contacts
   basePath: "/contacts",
 
+  // Multi-zones: avoid asset conflicts with other zones
+  assetPrefix: "/contacts-static",
+
   compress: true,
 
   headers: createSecurityHeaders({

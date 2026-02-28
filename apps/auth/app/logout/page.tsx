@@ -4,10 +4,9 @@ import { urls } from "@helvety/shared/config";
 import { clearAllKeys } from "@helvety/shared/crypto/key-storage";
 import { clearCachedPRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
+import { useCSRFSafe } from "@helvety/ui/csrf-provider";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef } from "react";
-
-import { useCSRFSafe } from "@/hooks/use-csrf";
 
 import { signOutAction } from "./actions";
 

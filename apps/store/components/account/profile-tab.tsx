@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@helvety/ui/card";
+import { useCSRF } from "@helvety/ui/csrf-provider";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Separator } from "@helvety/ui/separator";
@@ -42,7 +43,6 @@ import {
   requestAccountDeletion,
   exportUserData,
 } from "@/app/actions/account-actions";
-import { useCSRF } from "@/hooks/use-csrf";
 
 /** User profile data returned from the API. */
 interface UserData {

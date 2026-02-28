@@ -1,11 +1,11 @@
 // React
 import { logger } from "@helvety/shared/logger";
+import { isMobileDevice } from "@helvety/ui/use-is-mobile";
 import * as React from "react";
 
 // External libraries
 
 // Internal utilities
-import { isMobileDevice } from "@/hooks/use-is-mobile";
 import { yieldToBrowserIfNeeded } from "@/lib/batch-processing";
 import { safeRevokeObjectURL } from "@/lib/blob-url-utils";
 import { FILE_LIMITS } from "@/lib/constants";

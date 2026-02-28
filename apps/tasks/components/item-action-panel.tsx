@@ -19,6 +19,7 @@ import {
 } from "@helvety/ui/collapsible";
 import { Label as FormLabel } from "@helvety/ui/label";
 import { Separator } from "@helvety/ui/separator";
+import { useIsMobile } from "@helvety/ui/use-is-mobile";
 import {
   CalendarIcon,
   ChevronRightIcon,
@@ -28,7 +29,6 @@ import {
 import { useCallback, useState } from "react";
 
 import { DateTimePicker } from "@/components/ui/date-time-picker";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import { renderStageIcon } from "@/lib/icons";
 import { PRIORITIES, getPriorityConfig } from "@/lib/priorities";
 

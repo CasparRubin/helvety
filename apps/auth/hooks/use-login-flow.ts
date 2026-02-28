@@ -19,6 +19,7 @@ import {
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
+import { useCSRF } from "@helvety/ui/csrf-provider";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -34,7 +35,6 @@ import {
   generatePasskeyAuthOptions,
   verifyPasskeyAuthentication,
 } from "@/app/actions/passkey-auth-actions";
-import { useCSRF } from "@/hooks/use-csrf";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isMobileDevice } from "@/lib/device-utils";
 import { consumeSignupPasskeyCompleted } from "@/lib/signup-completion";

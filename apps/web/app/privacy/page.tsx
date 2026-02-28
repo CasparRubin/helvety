@@ -1361,7 +1361,8 @@ export default function PrivacyPage() {
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
-                Update the &quot;Last updated&quot; date at the top of this page
+                Update the &quot;Last reviewed&quot; date at the top of this
+                page
               </li>
               <li>
                 Notify you via email (if you have an account) or through a

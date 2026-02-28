@@ -8,6 +8,7 @@
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { Button } from "@helvety/ui/button";
+import { useCSRF } from "@helvety/ui/csrf-provider";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +25,6 @@ import {
   cancelSubscription,
   getSubscriptionPeriodEnd,
 } from "@/app/actions/subscription-actions";
-import { useCSRF } from "@/hooks/use-csrf";
 import { getProductById } from "@/lib/data/products";
 
 import type { Subscription } from "@/lib/types";

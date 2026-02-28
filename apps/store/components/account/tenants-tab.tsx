@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@helvety/ui/card";
+import { useCSRF } from "@helvety/ui/csrf-provider";
 import {
   Dialog,
   DialogContent,
@@ -56,7 +57,6 @@ import {
   removeTenant,
   updateTenant,
 } from "@/app/actions/tenant-actions";
-import { useCSRF } from "@/hooks/use-csrf";
 
 import type { LicensedTenantWithSubscription } from "@/lib/types";
 

@@ -386,6 +386,8 @@ export function TiptapEditor({
         heading: {
           levels: [1, 2, 3, 4],
         },
+        link: false, // We add Link explicitly with custom config
+        underline: false, // We add Underline explicitly
       }),
       Placeholder.configure({
         placeholder,

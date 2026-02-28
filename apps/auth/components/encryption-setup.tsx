@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@helvety/ui/card";
+import { useCSRF } from "@helvety/ui/csrf-provider";
 import {
   Fingerprint,
   ShieldCheck,
@@ -42,7 +43,6 @@ import {
   getSetupStep,
   type AuthFlowType,
 } from "@/components/encryption-stepper";
-import { useCSRF } from "@/hooks/use-csrf";
 import { isMobileDevice } from "@/lib/device-utils";
 import { markSignupPasskeyCompleted } from "@/lib/signup-completion";
 

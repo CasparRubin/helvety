@@ -4,8 +4,7 @@
  * Subscriptions tab: compact list of active subscriptions for the /subscriptions page.
  * Renders one row per subscription (product, tier, status, price, renewal date, actions).
  * SPO Explorer (SPFx) subscriptions show a link to /tenants and a Download button.
- * Cancel/Reactivate and billing portal are supported. Uses SubscriptionCard only in
- * other contexts (e.g. SubscriptionsSheet); this tab uses an inline list.
+ * Cancel/Reactivate and billing portal are supported. This tab uses an inline list.
  */
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
@@ -19,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@helvety/ui/card";
+import { useCSRF } from "@helvety/ui/csrf-provider";
 import { Separator } from "@helvety/ui/separator";
 import {
   CreditCard,
@@ -49,7 +49,6 @@ import {
 } from "@/app/actions/subscription-actions";
 import { getSpoExplorerSubscriptions } from "@/app/actions/tenant-actions";
 import { CancelSubscriptionDialog } from "@/components/cancel-subscription-dialog";
-import { useCSRF } from "@/hooks/use-csrf";
 import { getProductById } from "@/lib/data/products";
 import { formatPrice } from "@/lib/utils/pricing";
 

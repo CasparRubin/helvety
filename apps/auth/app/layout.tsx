@@ -10,6 +10,8 @@ import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
 } from "@helvety/shared/layout-primitives";
+import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
+import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
 import { SkipToContent } from "@helvety/ui/skip-to-content";
@@ -21,9 +23,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 
-import { AuthTokenHandler } from "@/components/auth-token-handler";
 import { Navbar } from "@/components/navbar";
-import { CSRFProvider } from "@/hooks/use-csrf";
 
 import type { Metadata } from "next";
 

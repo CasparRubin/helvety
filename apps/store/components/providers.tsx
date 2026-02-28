@@ -1,8 +1,7 @@
 "use client";
 
+import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { type ReactNode } from "react";
-
-import { CSRFProvider } from "@/hooks/use-csrf";
 
 /**
  * Props for the Providers component

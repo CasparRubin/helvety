@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@helvety/ui/card";
+import { useCSRF } from "@helvety/ui/csrf-provider";
 import { Check, Sparkles, Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -27,7 +28,6 @@ import {
   PurchaseConsentDialog,
   type ConsentMetadata,
 } from "@/components/digital-content-consent-dialog";
-import { useCSRF } from "@/hooks/use-csrf";
 import { formatPrice, getIntervalShortLabel } from "@/lib/utils/pricing";
 
 import { FeatureList } from "./feature-list";
