@@ -22,7 +22,8 @@ import type { ActionResponse, UnitRow } from "@/lib/types";
 const ALLOWED_UNIT_STAGE_IDS = DEFAULT_STAGE_CONFIGS.unit.stages.map(
   (stage) => stage.id
 ) as [string, ...string[]];
-const StageIdSchema = z.enum(ALLOWED_UNIT_STAGE_IDS).nullable().optional();
+const StageIdSchema = z.enum(ALLOWED_UNIT_STAGE_IDS).optional();
+const DEFAULT_UNIT_STAGE_ID = DEFAULT_STAGE_CONFIGS.unit.stages[0]?.id;
 
 /** Schema for creating a Unit */
 const CreateUnitSchema = z.object({
@@ -60,6 +61,11 @@ export async function createUnit(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
+    if (!DEFAULT_UNIT_STAGE_ID) {
+      logger.error("Missing default unit stage configuration");
+      return { success: false, error: "Failed to create unit" };
+    }
+
     const auth = await authenticateAndRateLimit({
       csrfToken,
       rateLimitPrefix: "tasks",
@@ -68,7 +74,10 @@ export async function createUnit(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = CreateUnitSchema.safeParse(data);
+    const validationResult = CreateUnitSchema.safeParse({
+      ...data,
+      stage_id: data.stage_id ?? undefined,
+    });
     if (!validationResult.success) {
       logger.warn("Invalid unit data", {
         fields: validationResult.error.issues.map((issue) =>
@@ -104,7 +113,7 @@ export async function createUnit(
         user_id: user.id,
         encrypted_title: validatedData.encrypted_title,
         encrypted_description: validatedData.encrypted_description,
-        stage_id: validatedData.stage_id ?? null,
+        stage_id: validatedData.stage_id ?? DEFAULT_UNIT_STAGE_ID,
       })
       .select("id")
       .single();
@@ -211,7 +220,10 @@ export async function updateUnit(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = UpdateUnitSchema.safeParse(data);
+    const validationResult = UpdateUnitSchema.safeParse({
+      ...data,
+      stage_id: data.stage_id ?? undefined,
+    });
     if (!validationResult.success) {
       logger.warn("Invalid unit update data", {
         fields: validationResult.error.issues.map((issue) =>

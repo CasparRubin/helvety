@@ -16,6 +16,7 @@ import { TooltipProvider } from "@helvety/ui/tooltip";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
+import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
 
@@ -125,7 +126,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = "";
+  const nonce = (await headers()).get("x-nonce") ?? "";
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>

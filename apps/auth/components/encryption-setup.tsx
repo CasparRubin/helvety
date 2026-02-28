@@ -42,6 +42,7 @@ import {
 } from "@/components/encryption-stepper";
 import { useCSRF } from "@/hooks/use-csrf";
 import { isMobileDevice } from "@/lib/device-utils";
+import { markSignupPasskeyCompleted } from "@/lib/signup-completion";
 
 /**
  * Props for the EncryptionSetup component
@@ -258,6 +259,10 @@ export function EncryptionSetup({
 
       // Mark as complete and redirect
       setSetupStep("complete");
+
+      if (flowType === "new_user") {
+        markSignupPasskeyCompleted();
+      }
 
       // Validate redirect URI against allowlist to prevent open redirect attacks
       const destination =

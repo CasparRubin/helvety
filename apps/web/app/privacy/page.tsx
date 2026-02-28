@@ -371,13 +371,14 @@ export default function PrivacyPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Important:</strong> Encryption
               keys are derived client-side in your browser using the WebAuthn
-              PRF extension. We do not have access to your actual encryption
-              keys. This architecture is designed to help protect your encrypted
-              data even if our servers are compromised, but no security measure
-              can provide absolute protection. Additionally, encryption uses
-              Additional Authenticated Data Data (AAD) to bind each ciphertext
-              to its specific database record, helping prevent encrypted data
-              from being moved or replayed in a different context.
+              PRF extension. Our architecture is designed so we are generally
+              unable to access your raw encryption keys during normal operation.
+              This architecture is intended to reduce exposure risk if our
+              servers are compromised, but no technical measure can provide
+              absolute protection. Additionally, encryption uses Additional
+              Authenticated Data (AAD) to bind each ciphertext to its specific
+              database record, helping prevent encrypted data from being moved
+              or replayed in a different context.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Browser Requirements:</strong>{" "}
@@ -625,9 +626,9 @@ export default function PrivacyPage() {
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
-                Our architecture is designed so that we generally do not have
-                access to encryption keys for end-to-end encrypted content
-                during normal operation.
+                Our architecture is designed so we are generally unable to
+                access encryption keys for end-to-end encrypted content during
+                normal operation.
               </strong>{" "}
               Our architecture is designed so encryption keys remain on your
               device. As a result, we are generally not able to provide
@@ -1187,8 +1188,8 @@ export default function PrivacyPage() {
               </li>
               <li>
                 Zero-knowledge-oriented architecture in which encryption keys
-                are derived client-side and are not intentionally stored on our
-                servers
+                are derived client-side and are designed not to be persisted on
+                our servers
               </li>
               <li>Secure authentication mechanisms</li>
               <li>

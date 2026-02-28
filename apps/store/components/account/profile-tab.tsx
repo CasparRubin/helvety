@@ -244,7 +244,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
                 <div>
                   <h3 className="font-medium">Change Email Address</h3>
                   <p className="text-muted-foreground text-sm">
-                    A confirmation link should be sent to your new email address
+                    A confirmation link will be sent to your new email address
                   </p>
                 </div>
                 <form onSubmit={handleEmailChange} className="space-y-4">

@@ -8,7 +8,8 @@
  * - Rate limiting to prevent abuse
  * - successUrl and cancelUrl parameters are validated to prevent open redirect attacks
  *
- * Legal: Helvety services are primarily intended for customers in Switzerland.
+ * Legal: Helvety services are primarily intended for customers in Switzerland,
+ * but mandatory law in other jurisdictions may still apply in specific cases.
  * All prices are in CHF. The consent audit trail records that the customer
  * accepted the Terms of Service and Privacy Policy before purchase (supports
  * contractual evidence requirements under Swiss law).

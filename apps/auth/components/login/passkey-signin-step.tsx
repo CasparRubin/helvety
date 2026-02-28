@@ -24,8 +24,8 @@ export function PasskeySignInStep({
     <div className="space-y-4">
       {!passkeySupported && (
         <div className="bg-destructive/10 text-destructive rounded-lg p-3 text-sm">
-          Your browser doesn&apos;t support passkeys. Please use Chrome 128+,
-          Edge 128+, Safari 18+, or Firefox 139+ on desktop.
+          Your browser doesn&apos;t support passkeys in this flow. Please try a
+          current version of Chrome, Edge, Safari, or Firefox.
         </div>
       )}
 
@@ -64,7 +64,7 @@ export function PasskeySignInStep({
         ) : (
           <KeyRound className="mr-2 h-4 w-4" />
         )}
-        {isLoading ? "Authenticating..." : "Sign In with Passkey"}
+        {isLoading ? "Authenticating..." : "Sign in with passkey"}
       </Button>
     </div>
   );

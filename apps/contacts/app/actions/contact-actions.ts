@@ -24,7 +24,8 @@ const REORDER_CHUNK_SIZE = 50;
 const ALLOWED_CATEGORY_IDS = DEFAULT_CATEGORY_CONFIG.categories.map(
   (category) => category.id
 ) as [string, ...string[]];
-const CategoryIdSchema = z.enum(ALLOWED_CATEGORY_IDS).nullable().optional();
+const CategoryIdSchema = z.enum(ALLOWED_CATEGORY_IDS).optional();
+const DEFAULT_CONTACT_CATEGORY_ID = DEFAULT_CATEGORY_CONFIG.categories[0]?.id;
 
 /** Schema for creating a Contact */
 const CreateContactSchema = z.object({
@@ -91,6 +92,11 @@ export async function createContact(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
+    if (!DEFAULT_CONTACT_CATEGORY_ID) {
+      logger.error("Missing default contact category configuration");
+      return { success: false, error: "Failed to create contact" };
+    }
+
     const auth = await authenticateAndRateLimit({
       csrfToken,
       rateLimitPrefix: "contacts",
@@ -99,7 +105,10 @@ export async function createContact(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = CreateContactSchema.safeParse(data);
+    const validationResult = CreateContactSchema.safeParse({
+      ...data,
+      category_id: data.category_id ?? undefined,
+    });
     if (!validationResult.success) {
       logger.warn("Invalid contact data", {
         fields: validationResult.error.issues.map((issue) =>
@@ -140,7 +149,7 @@ export async function createContact(
         encrypted_phone: validatedData.encrypted_phone,
         encrypted_birthday: validatedData.encrypted_birthday,
         encrypted_notes: validatedData.encrypted_notes,
-        category_id: validatedData.category_id ?? null,
+        category_id: validatedData.category_id ?? DEFAULT_CONTACT_CATEGORY_ID,
       })
       .select("id")
       .single();
@@ -258,7 +267,10 @@ export async function updateContact(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = UpdateContactSchema.safeParse(data);
+    const validationResult = UpdateContactSchema.safeParse({
+      ...data,
+      category_id: data.category_id ?? undefined,
+    });
     if (!validationResult.success) {
       logger.warn("Invalid contact update data", {
         fields: validationResult.error.issues.map((issue) =>

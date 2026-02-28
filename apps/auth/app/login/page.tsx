@@ -25,7 +25,7 @@ const STEP_TITLES: Record<string, string> = {
   email: "Welcome to Helvety",
   "geo-confirmation": "Location Confirmation",
   "verify-code": "Check Your Email",
-  "passkey-signin": "Sign In with Passkey",
+  "passkey-signin": "Sign in with passkey",
 };
 
 /** Card descriptions for each login step. */

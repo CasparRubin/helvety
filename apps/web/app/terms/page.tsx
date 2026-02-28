@@ -824,11 +824,10 @@ export default function TermsPage() {
                 Google Password Manager, etc.).
               </li>
               <li>
-                Encrypted data is protected by a zero-knowledge architecture;
-                our architecture is designed so that we generally cannot access
-                the plaintext content of your encrypted data during normal
-                operation, subject to technical limitations and future product
-                changes described in applicable documentation.
+                Encrypted data is protected by a zero-knowledge-oriented
+                architecture; our systems are designed so we are generally
+                unable to access the plaintext content of your encrypted data
+                during normal operation.
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -851,10 +850,9 @@ export default function TermsPage() {
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Due to our zero-knowledge-oriented architecture, we are generally
-              unable to decrypt or provide access to plaintext end-to-end
-              encrypted data during normal operation. However, we may provide
-              the following non-encrypted metadata in response to valid legal
-              requests:
+              unable to decrypt or provide plaintext end-to-end encrypted data
+              during normal operation. However, we may provide the following
+              non-encrypted metadata in response to valid legal requests:
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
@@ -1107,10 +1105,10 @@ export default function TermsPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               Before completing a purchase of Digital Products or SaaS
               subscriptions, you expressly consent to immediate access to the
-              digital content or service and acknowledge that you waive any
-              right of withdrawal once access is granted. This consent is
-              recorded as part of the pre-checkout confirmation (see Section
-              4.1).
+              digital content or service. Where applicable law permits, this may
+              reduce or exclude withdrawal/cancellation rights once access is
+              granted. This acknowledgement is recorded as part of the
+              pre-checkout confirmation (see Section 4.1).
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               Due to the nature of digital goods, sales of Digital Products are

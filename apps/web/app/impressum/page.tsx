@@ -183,7 +183,7 @@ export default function ImpressumPage() {
                   Legal requests must be issued in accordance with applicable
                   Swiss law. We respond to valid Swiss court orders and binding
                   legal requests. For services using end-to-end encryption, our
-                  architecture is designed so we generally cannot access
+                  architecture is designed so we are generally unable to access
                   plaintext user content during normal operation. Depending on
                   the service and legal basis, we may provide available
                   non-encrypted metadata (for example account identifiers, IP
@@ -307,9 +307,10 @@ export default function ImpressumPage() {
             <p className="text-muted-foreground text-sm">
               Our services are primarily intended for customers in Switzerland.
               New account creation currently includes a Switzerland location
-              confirmation step, but access from outside Switzerland may still
-              occur. Where mandatory law in another jurisdiction applies, such
-              mandatory provisions remain unaffected.
+              confirmation step, but technical access from outside Switzerland
+              may still occur. Where mandatory law in another jurisdiction
+              applies in a specific case, those mandatory provisions remain
+              unaffected.
             </p>
           </section>
 

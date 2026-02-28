@@ -35,6 +35,7 @@ import {
 import { useCSRF } from "@/hooks/use-csrf";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isMobileDevice } from "@/lib/device-utils";
+import { consumeSignupPasskeyCompleted } from "@/lib/signup-completion";
 
 import type { AuthStep, AuthFlowType } from "@/components/encryption-stepper";
 
@@ -168,6 +169,15 @@ export function useLoginFlow(): LoginFlowState {
 
         // Check passkey/encryption status to determine next step
         const { step: requiredStep } = await getRequiredAuthStep(user.id);
+        const justCompletedSignup = consumeSignupPasskeyCompleted();
+
+        // After signup passkey setup, skip one immediate passkey-signin bounce.
+        // If unlock/auth is still required, downstream app guards will redirect
+        // back to /auth and the normal passkey step will run.
+        if (requiredStep === "passkey-signin" && justCompletedSignup) {
+          window.location.href = redirectUri ?? urls.home;
+          return;
+        }
 
         if (
           requiredStep === "encryption-setup" ||
@@ -350,7 +360,7 @@ export function useLoginFlow(): LoginFlowState {
   // Includes PRF extension for single-touch encryption unlock when PRF salt is cached
   const handlePasskeySignIn = useCallback(async () => {
     if (!passkeySupported) {
-      setError("Your browser doesn't support passkeys");
+      setError("Your browser does not support passkeys in this flow");
       return;
     }
 

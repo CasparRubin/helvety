@@ -143,8 +143,9 @@ export function PurchaseConsentDialog({
               >
                 I have read and understood the Terms of Service and Privacy
                 Policy above. I consent to immediate access to digital
-                content/service. Where applicable law allows, this may affect
-                withdrawal or cancellation rights after access is granted.
+                content/service. Where applicable law permits, this may reduce
+                or exclude withdrawal/cancellation rights once access is
+                granted.
               </Label>
             </div>
           </div>

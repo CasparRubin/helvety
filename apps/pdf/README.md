@@ -17,7 +17,7 @@ As of February 28, 2026, Helvety PDF does not require login and is available at 
 
 ## Service Availability
 
-Helvety services are currently focused on customers located in Switzerland. We do not actively market services to users in the EU/EEA.
+Helvety services are primarily intended for customers in Switzerland. New account creation currently includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
 
 Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created. Note: Helvety PDF itself requires no login or account; this confirmation applies to other Helvety apps that require authentication.
 
