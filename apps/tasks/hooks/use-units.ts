@@ -1,7 +1,9 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { useState, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import {
   getUnits,
@@ -76,7 +78,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
     try {
       const result = await getUnits();
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch units";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setUnits([]);
         return;
       }
@@ -85,7 +89,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
       const decrypted = await decryptUnitRows(result.data, masterKey);
       setUnits(decrypted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch units");
+      const msg = err instanceof Error ? err.message : "Failed to fetch units";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setUnits([]);
     } finally {
       setIsLoading(false);
@@ -98,7 +104,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
   const create = useCallback(
     async (input: UnitInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return null;
       }
 
@@ -109,7 +117,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
         // Send encrypted data to server
         const result = await createUnit(encrypted, csrfToken);
         if (!result.success) {
-          setError(result.error);
+          toast.error(result.error ?? "Failed to create unit", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return null;
         }
 
@@ -134,7 +144,10 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
 
         return result.data;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to create unit");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to create unit",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return null;
       }
     },
@@ -147,7 +160,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
   const update = useCallback(
     async (id: string, input: Partial<UnitInput>): Promise<boolean> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
@@ -158,7 +173,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
         // Send encrypted data to server
         const result = await updateUnit({ id, ...encrypted }, csrfToken);
         if (!result.success) {
-          setError(result.error ?? "Failed to update unit");
+          toast.error(result.error ?? "Failed to update unit", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -182,7 +199,10 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
 
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update unit");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to update unit",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -205,14 +225,19 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
         const result = await deleteUnit(id, csrfToken);
         if (!result.success) {
           setUnits(prevUnits);
-          setError(result.error ?? "Failed to delete unit");
+          toast.error(result.error ?? "Failed to delete unit", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
         return true;
       } catch (err) {
         setUnits(prevUnits);
-        setError(err instanceof Error ? err.message : "Failed to delete unit");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to delete unit",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -244,15 +269,18 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
       try {
         const result = await reorderEntities("unit", updates, csrfToken);
         if (!result.success) {
-          setError(result.error ?? "Failed to reorder units");
+          toast.error(result.error ?? "Failed to reorder units", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           await refresh();
           return false;
         }
 
         return true;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to reorder units"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to reorder units",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         await refresh();
         return false;
@@ -271,11 +299,12 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
       setError(null);
       decryptUnitRows(options.initialEncryptedData, masterKey)
         .then((decrypted) => setUnits(decrypted))
-        .catch((err) =>
-          setError(
-            err instanceof Error ? err.message : "Failed to decrypt units"
-          )
-        )
+        .catch((err) => {
+          const msg =
+            err instanceof Error ? err.message : "Failed to decrypt units";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        })
         .finally(() => setIsLoading(false));
       return;
     }
@@ -351,7 +380,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
     try {
       const result = await getUnit(id);
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch unit";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setUnit(null);
         return;
       }
@@ -360,7 +391,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
       const decrypted = await decryptUnitRow(result.data, masterKey);
       setUnit(decrypted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch unit");
+      const msg = err instanceof Error ? err.message : "Failed to fetch unit";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setUnit(null);
     } finally {
       setIsLoading(false);
@@ -373,7 +406,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
   const update = useCallback(
     async (input: Partial<UnitInput>): Promise<boolean> => {
       if (!masterKey || !id) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
@@ -381,7 +416,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
         const encrypted = await encryptUnitUpdate(id, input, masterKey);
         const result = await updateUnit({ id, ...encrypted }, csrfToken);
         if (!result.success) {
-          setError(result.error ?? "Failed to update unit");
+          toast.error(result.error ?? "Failed to update unit", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -403,7 +440,10 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
 
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update unit");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to update unit",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -415,21 +455,28 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
    */
   const remove = useCallback(async (): Promise<boolean> => {
     if (!id) {
-      setError("Invalid or missing ID");
+      toast.error("Invalid or missing ID", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       return false;
     }
 
     try {
       const result = await deleteUnit(id, csrfToken);
       if (!result.success) {
-        setError(result.error ?? "Failed to delete unit");
+        toast.error(result.error ?? "Failed to delete unit", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
       setUnit(null);
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete unit");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete unit",
+        { duration: TOAST_DURATIONS.ERROR }
+      );
       return false;
     }
   }, [id, csrfToken]);
@@ -444,11 +491,12 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
       setError(null);
       decryptUnitRow(options.initialEncryptedData, masterKey)
         .then((decrypted) => setUnit(decrypted))
-        .catch((err) =>
-          setError(
-            err instanceof Error ? err.message : "Failed to decrypt unit"
-          )
-        )
+        .catch((err) => {
+          const msg =
+            err instanceof Error ? err.message : "Failed to decrypt unit";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        })
         .finally(() => setIsLoading(false));
       return;
     }

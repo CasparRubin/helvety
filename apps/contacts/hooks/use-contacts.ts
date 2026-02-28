@@ -1,7 +1,9 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { useState, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import {
   getContacts,
@@ -80,7 +82,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     try {
       const result = await getContacts();
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch contacts";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setContacts([]);
         return;
       }
@@ -88,7 +92,10 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       const decrypted = await decryptContactRows(result.data, masterKey);
       setContacts(decrypted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch contacts");
+      const msg =
+        err instanceof Error ? err.message : "Failed to fetch contacts";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setContacts([]);
     } finally {
       setIsLoading(false);
@@ -98,7 +105,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const create = useCallback(
     async (input: ContactInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return null;
       }
 
@@ -106,7 +115,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         const encrypted = await encryptContactInput(input, masterKey);
         const result = await createContact(encrypted, csrfToken);
         if (!result.success) {
-          setError(result.error);
+          toast.error(result.error ?? "Failed to create contact", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return null;
         }
 
@@ -136,8 +147,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
         return result.data;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to create contact"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to create contact",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         return null;
       }
@@ -148,7 +160,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const update = useCallback(
     async (id: string, input: Partial<ContactInput>): Promise<boolean> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
@@ -165,7 +179,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
           csrfToken
         );
         if (!result.success) {
-          setError(result.error ?? "Failed to update contact");
+          toast.error(result.error ?? "Failed to update contact", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -198,8 +214,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
         return true;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to update contact"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to update contact",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         return false;
       }
@@ -220,15 +237,18 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         const result = await deleteContact(id, csrfToken);
         if (!result.success) {
           setContacts(prevContacts);
-          setError(result.error ?? "Failed to delete contact");
+          toast.error(result.error ?? "Failed to delete contact", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
         return true;
       } catch (err) {
         setContacts(prevContacts);
-        setError(
-          err instanceof Error ? err.message : "Failed to delete contact"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to delete contact",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         return false;
       }
@@ -262,15 +282,18 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       try {
         const result = await reorderContacts(updates, csrfToken);
         if (!result.success) {
-          setError(result.error ?? "Failed to reorder contacts");
+          toast.error(result.error ?? "Failed to reorder contacts", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           await refresh();
           return false;
         }
 
         return true;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to reorder contacts"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to reorder contacts",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         await refresh();
         return false;
@@ -289,11 +312,12 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       setError(null);
       decryptContactRows(options.initialEncryptedData, masterKey)
         .then((decrypted) => setContacts(decrypted))
-        .catch((err) =>
-          setError(
-            err instanceof Error ? err.message : "Failed to decrypt contacts"
-          )
-        )
+        .catch((err) => {
+          const msg =
+            err instanceof Error ? err.message : "Failed to decrypt contacts";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        })
         .finally(() => setIsLoading(false));
       return;
     }
@@ -369,7 +393,9 @@ export function useContact(
     try {
       const result = await getContact(id);
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch contact";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setContact(null);
         return;
       }
@@ -387,7 +413,9 @@ export function useContact(
   const update = useCallback(
     async (input: Partial<ContactInput>): Promise<boolean> => {
       if (!masterKey || !id) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
@@ -404,7 +432,9 @@ export function useContact(
           csrfToken
         );
         if (!result.success) {
-          setError(result.error ?? "Failed to update contact");
+          toast.error(result.error ?? "Failed to update contact", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -435,8 +465,9 @@ export function useContact(
 
         return true;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to update contact"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to update contact",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         return false;
       }
@@ -446,21 +477,28 @@ export function useContact(
 
   const remove = useCallback(async (): Promise<boolean> => {
     if (!id) {
-      setError("Contact ID not available");
+      toast.error("Contact ID not available", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       return false;
     }
 
     try {
       const result = await deleteContact(id, csrfToken);
       if (!result.success) {
-        setError(result.error ?? "Failed to delete contact");
+        toast.error(result.error ?? "Failed to delete contact", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
       setContact(null);
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete contact");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete contact",
+        { duration: TOAST_DURATIONS.ERROR }
+      );
       return false;
     }
   }, [id, csrfToken]);
@@ -474,11 +512,12 @@ export function useContact(
       setError(null);
       decryptContactRow(options.initialEncryptedData, masterKey)
         .then((decrypted) => setContact(decrypted))
-        .catch((err) =>
-          setError(
-            err instanceof Error ? err.message : "Failed to decrypt contact"
-          )
-        )
+        .catch((err) => {
+          const msg =
+            err instanceof Error ? err.message : "Failed to decrypt contact";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        })
         .finally(() => setIsLoading(false));
       return;
     }

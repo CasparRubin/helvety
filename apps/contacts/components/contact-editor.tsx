@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
+import { Button } from "@helvety/ui/button";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import {
@@ -314,18 +315,21 @@ export function ContactEditor({
     );
   }
 
-  // Error state
+  // Error state - friendly UI with retry (toast already shown by hooks)
   if (error || !contact) {
     return (
-      <div className="py-24 text-center">
-        <p className="text-destructive mb-4">{error ?? "Contact not found"}</p>
-        <button
-          type="button"
-          className="text-primary underline"
-          onClick={() => router.push("/")}
-        >
-          Back to Contacts
-        </button>
+      <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-24">
+        <p className="text-muted-foreground text-sm">
+          {error ? "Something went wrong" : "Contact not found"}
+        </p>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleRefresh}>
+            Retry
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => router.push("/")}>
+            Back to Contacts
+          </Button>
+        </div>
       </div>
     );
   }

@@ -13,7 +13,6 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState, useCallback, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -41,7 +40,6 @@ interface ContactsDashboardProps {
 export function ContactsDashboard({
   initialEncryptedContacts,
 }: ContactsDashboardProps = {}) {
-  const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const { contacts, isLoading, error, refresh, create, remove, reorder } =
     useContacts({ initialEncryptedData: initialEncryptedContacts });
@@ -117,19 +115,9 @@ export function ContactsDashboard({
     });
   }, [deleteState.id, remove, startDeleteTransition]);
 
-  const handleContactClick = useCallback(
-    (contact: { id: string }) => {
-      router.push(`/contacts/${contact.id}`);
-    },
-    [router]
-  );
-
-  const handleContactPrefetch = useCallback(
-    (contact: { id: string }) => {
-      void router.prefetch(`/contacts/${contact.id}`);
-    },
-    [router]
-  );
+  const getContactHref = useCallback((contact: { id: string }) => {
+    return `/contacts/${contact.id}`;
+  }, []);
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
@@ -169,9 +157,9 @@ export function ContactsDashboard({
           contacts={contacts}
           isLoading={isLoading}
           error={error}
+          onRetry={refresh}
           categories={categories}
-          onContactClick={handleContactClick}
-          onContactPrefetch={handleContactPrefetch}
+          contactHref={getContactHref}
           onContactDelete={handleDeleteClick}
           onReorder={reorder}
         />

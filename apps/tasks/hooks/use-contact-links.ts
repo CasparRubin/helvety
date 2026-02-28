@@ -1,7 +1,9 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import {
   getContacts,
@@ -83,12 +85,16 @@ export function useContactLinks(
       ]);
 
       if (!contactsResult.success) {
-        setError(contactsResult.error);
+        const msg = contactsResult.error ?? "Failed to fetch contacts";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;
       }
 
       if (!linksResult.success) {
-        setError(linksResult.error);
+        const msg = linksResult.error ?? "Failed to fetch links";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;
       }
 
@@ -101,9 +107,10 @@ export function useContactLinks(
       contactsCacheRef.current = decrypted;
       setLinks(linksResult.data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch contact data"
-      );
+      const msg =
+        err instanceof Error ? err.message : "Failed to fetch contact data";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setAllContacts([]);
       setLinks([]);
     } finally {
@@ -124,7 +131,9 @@ export function useContactLinks(
           csrfToken
         );
         if (!result.success) {
-          setError(result.error);
+          toast.error(result.error ?? "Failed to link contact", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -141,7 +150,10 @@ export function useContactLinks(
 
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to link contact");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to link contact",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -156,7 +168,9 @@ export function useContactLinks(
       try {
         const result = await unlinkContact(linkId, csrfToken);
         if (!result.success) {
-          setError(result.error ?? "Failed to unlink contact");
+          toast.error(result.error ?? "Failed to unlink contact", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -165,8 +179,9 @@ export function useContactLinks(
 
         return true;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to unlink contact"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to unlink contact",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         return false;
       }

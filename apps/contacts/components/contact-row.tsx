@@ -11,6 +11,7 @@ import {
   TrashIcon,
   UserIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 import type { Category } from "@/lib/types";
 
@@ -24,6 +25,8 @@ interface ContactRowProps {
   category?: Category | null;
   isFirst?: boolean;
   isLast?: boolean;
+  /** Navigation URL — when provided, renders Link for stable client-side nav (avoids router.push race) */
+  href?: string;
   onClick?: () => void;
   onPrefetch?: () => void;
   onDelete?: () => void;
@@ -46,6 +49,7 @@ export function ContactRow({
   category,
   isFirst = false,
   isLast = false,
+  href,
   onClick,
   onPrefetch,
   onDelete,
@@ -68,27 +72,14 @@ export function ContactRow({
 
   const fullName = `${firstName} ${lastName}`.trim();
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
-        isDragging
-          ? "bg-muted/80 z-50 rounded-md shadow-lg"
-          : "hover:bg-muted/40 [content-visibility:auto]"
-      }`}
-      onClick={onClick}
-      onMouseEnter={() => onPrefetch?.()}
-      onFocus={() => onPrefetch?.()}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick?.();
-        }
-      }}
-    >
+  const rowClassName = `group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
+    isDragging
+      ? "bg-muted/80 z-50 rounded-md shadow-lg"
+      : "hover:bg-muted/40 [content-visibility:auto]"
+  }`;
+
+  const rowContent = (
+    <>
       {/* Desktop: Drag Handle */}
       <button
         type="button"
@@ -166,6 +157,48 @@ export function ContactRow({
           </Button>
         )}
       </div>
+    </>
+  );
+
+  const sharedProps = {
+    ref: setNodeRef,
+    style,
+    className: rowClassName,
+    onMouseEnter: () => onPrefetch?.(),
+    onFocus: () => onPrefetch?.(),
+  };
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        {...sharedProps}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            (e.currentTarget as HTMLAnchorElement).click();
+          }
+        }}
+      >
+        {rowContent}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      {...sharedProps}
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+    >
+      {rowContent}
     </div>
   );
 }

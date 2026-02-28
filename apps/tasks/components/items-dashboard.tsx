@@ -148,20 +148,11 @@ export function ItemsDashboard({
     router.push(`/units/${unitId}`);
   }, [router, unitId]);
 
-  const handleEntityClick = useCallback(
+  const getEntityHref = useCallback(
     (entity: { id: string }) => {
-      router.push(`/units/${unitId}/spaces/${spaceId}/items/${entity.id}`);
+      return `/units/${unitId}/spaces/${spaceId}/items/${entity.id}`;
     },
-    [router, unitId, spaceId]
-  );
-
-  const handleEntityPrefetch = useCallback(
-    (entity: { id: string }) => {
-      void router.prefetch(
-        `/units/${unitId}/spaces/${spaceId}/items/${entity.id}`
-      );
-    },
-    [router, unitId, spaceId]
+    [unitId, spaceId]
   );
 
   const handleEditSpaceOpen = useCallback(() => {
@@ -265,10 +256,10 @@ export function ItemsDashboard({
           entities={items}
           isLoading={isLoading}
           error={error}
+          onRetry={refresh}
           stages={stages}
           labels={labels}
-          onEntityClick={handleEntityClick}
-          onEntityPrefetch={handleEntityPrefetch}
+          entityHref={getEntityHref}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
         />

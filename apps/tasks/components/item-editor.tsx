@@ -18,6 +18,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@helvety/ui/breadcrumb";
+import { Button } from "@helvety/ui/button";
 import {
   parseRichTextContent,
   serializeRichTextContent,
@@ -396,7 +397,7 @@ export function ItemEditor({
     );
   }
 
-  // Error state
+  // Error state - friendly UI with retry (toast already shown by hooks)
   if (error || !item) {
     return (
       <>
@@ -406,7 +407,14 @@ export function ItemEditor({
           isRefreshing={isRefreshing}
         />
         <div className="container mx-auto px-4 py-8">
-          <div className="text-destructive">{error ?? "Item not found"}</div>
+          <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
+            <p className="text-muted-foreground text-sm">
+              {error ? "Something went wrong" : "Item not found"}
+            </p>
+            <Button variant="outline" size="sm" onClick={handleRefresh}>
+              Retry
+            </Button>
+          </div>
         </div>
       </>
     );
@@ -481,7 +489,6 @@ export function ItemEditor({
                 content={parseRichTextContent(item.description)}
                 onChange={handleDescriptionChange}
                 placeholder="Add a description... Use the toolbar above for formatting."
-                autoFocus={false}
               />
             </div>
 

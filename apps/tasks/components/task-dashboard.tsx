@@ -12,7 +12,6 @@ import {
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Loader2Icon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState, useCallback, useTransition } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
@@ -43,7 +42,6 @@ export function TaskDashboard({
   initialEncryptedUnits,
   initialSpaceCounts,
 }: TaskDashboardProps = {}) {
-  const router = useRouter();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const { units, isLoading, error, refresh, create, remove, reorder } =
     useUnits({ initialEncryptedData: initialEncryptedUnits });
@@ -108,19 +106,9 @@ export function TaskDashboard({
     });
   }, [deleteState.id, remove, startDeleteTransition]);
 
-  const handleEntityClick = useCallback(
-    (entity: { id: string }) => {
-      router.push(`/units/${entity.id}`);
-    },
-    [router]
-  );
-
-  const handleEntityPrefetch = useCallback(
-    (entity: { id: string }) => {
-      void router.prefetch(`/units/${entity.id}`);
-    },
-    [router]
-  );
+  const getEntityHref = useCallback((entity: { id: string }) => {
+    return `/units/${entity.id}`;
+  }, []);
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
@@ -147,10 +135,10 @@ export function TaskDashboard({
           entities={units}
           isLoading={isLoading}
           error={error}
+          onRetry={refresh}
           stages={stages}
           childCounts={childCounts}
-          onEntityClick={handleEntityClick}
-          onEntityPrefetch={handleEntityPrefetch}
+          entityHref={getEntityHref}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
         />

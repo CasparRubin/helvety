@@ -1,7 +1,9 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import {
   getContactTaskLinks,
@@ -212,7 +214,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
     try {
       const result = await getContactTaskLinks(contactId);
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch task links";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setUnits([]);
         setSpaces([]);
         setItems([]);
@@ -224,9 +228,10 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       setSpaces(decrypted.spaces);
       setItems(decrypted.items);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch task links"
-      );
+      const msg =
+        err instanceof Error ? err.message : "Failed to fetch task links";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setUnits([]);
       setSpaces([]);
       setItems([]);
@@ -252,7 +257,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
     try {
       const result = await getTaskEntities();
       if (!result.success) {
-        setError(result.error);
+        toast.error(result.error ?? "Failed to fetch entities", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return;
       }
 
@@ -260,7 +267,10 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       entitiesCacheRef.current = decrypted;
       setAllEntities(decrypted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch entities");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to fetch entities",
+        { duration: TOAST_DURATIONS.ERROR }
+      );
     } finally {
       setIsLoadingEntities(false);
     }
@@ -279,7 +289,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
           csrfToken
         );
         if (!result.success) {
-          setError(result.error);
+          toast.error(result.error ?? "Failed to link entity", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -287,7 +299,10 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
         await refresh();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to link entity");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to link entity",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -302,7 +317,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       try {
         const result = await unlinkTaskEntity(linkId, csrfToken);
         if (!result.success) {
-          setError(result.error ?? "Failed to unlink entity");
+          toast.error(result.error ?? "Failed to unlink entity", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -313,8 +330,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
 
         return true;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to unlink entity"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to unlink entity",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         return false;
       }

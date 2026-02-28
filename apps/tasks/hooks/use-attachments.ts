@@ -1,9 +1,10 @@
 "use client";
 
-import { ENTITY_LIMITS } from "@helvety/shared/constants";
+import { ENTITY_LIMITS, TOAST_DURATIONS } from "@helvety/shared/constants";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import {
   getAttachments,
@@ -114,7 +115,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
     try {
       const result = await getAttachments(itemId);
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch attachments";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setAttachments([]);
         return;
       }
@@ -122,9 +125,10 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
       const decrypted = await decryptAttachmentRows(result.data, masterKey);
       setAttachments(decrypted);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch attachments"
-      );
+      const msg =
+        err instanceof Error ? err.message : "Failed to fetch attachments";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setAttachments([]);
     } finally {
       setIsLoading(false);
@@ -137,21 +141,24 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
   const upload = useCallback(
     async (file: File): Promise<boolean> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
       if (attachments.length >= ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM) {
-        setError(
-          `Attachment limit reached. Maximum is ${ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM} per item.`
-        );
+        const msg = `Attachment limit reached. Maximum is ${ENTITY_LIMITS.MAX_ATTACHMENTS_PER_ITEM} per item.`;
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
 
       // Client-side file size validation
       if (file.size > ATTACHMENT_MAX_SIZE_BYTES) {
         const maxMB = Math.round(ATTACHMENT_MAX_SIZE_BYTES / (1024 * 1024));
-        setError(`File too large. Maximum size is ${maxMB}MB.`);
+        toast.error(`File too large. Maximum size is ${maxMB}MB.`, {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
@@ -275,7 +282,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
           setUploads((prev) => prev.filter((u) => u.id !== uploadId));
         }, 5000);
 
-        setError(errorMessage);
+        toast.error(errorMessage, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -290,7 +297,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
       try {
         const result = await deleteAttachment(id, csrfToken);
         if (!result.success) {
-          setError(result.error ?? "Failed to delete attachment");
+          toast.error(result.error ?? "Failed to delete attachment", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -304,8 +313,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         await refresh();
         return true;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to delete attachment"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to delete attachment",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         return false;
       }
@@ -320,7 +330,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
   const downloadUrl = useCallback(
     async (attachment: Attachment): Promise<string | null> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return null;
       }
 
@@ -378,8 +390,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
 
         return url;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to download file"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to download file",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         return null;
       }

@@ -1,6 +1,7 @@
 "use client";
 
 import { urls } from "@helvety/shared/config";
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { generateKeyCheckValue } from "@helvety/shared/crypto/key-check";
 import { storeMasterKey } from "@helvety/shared/crypto/key-storage";
@@ -28,7 +29,8 @@ import {
   Loader2,
   Smartphone,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { saveKeyCheckValue } from "@/app/actions/encryption-actions";
 import {
@@ -144,7 +146,9 @@ export function EncryptionSetup({
         }
       );
       if (!serverOptions.success) {
-        setError(serverOptions.error);
+        const msg = serverOptions.error ?? "Failed to get passkey options";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         resetSetup();
         return;
       }
@@ -180,12 +184,13 @@ export function EncryptionSetup({
       const regResult = await registerPasskey(optionsWithPRF).catch(
         (err: unknown) => {
           const message =
-            err instanceof Error ? err.message : "Passkey registration failed";
-          if (err instanceof Error && err.name === "NotAllowedError") {
-            setError("Passkey creation was canceled. Please try again.");
-          } else {
-            setError(message);
-          }
+            err instanceof Error && err.name === "NotAllowedError"
+              ? "Passkey creation was canceled. Please try again."
+              : err instanceof Error
+                ? err.message
+                : "Passkey registration failed";
+          setError(message);
+          toast.error(message, { duration: TOAST_DURATIONS.ERROR });
           resetSetup();
           return null;
         }
@@ -195,9 +200,10 @@ export function EncryptionSetup({
       }
 
       if (!regResult.prfEnabled) {
-        setError(
-          "Your authenticator does not support encryption. Please try a different device."
-        );
+        const msg =
+          "Your authenticator does not support encryption. Please try a different device.";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         resetSetup();
         return;
       }
@@ -211,9 +217,10 @@ export function EncryptionSetup({
       );
       if (!verifyResult.success) {
         logger.error("Failed to store auth credential:", verifyResult.error);
-        setError(
-          verifyResult.error ?? "Failed to complete passkey registration"
-        );
+        const msg =
+          verifyResult.error ?? "Failed to complete passkey registration";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         resetSetup();
         return;
       }
@@ -274,6 +281,7 @@ export function EncryptionSetup({
       const message =
         err instanceof Error ? err.message : "An unexpected error occurred";
       setError(message);
+      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
       resetSetup();
     }
   };

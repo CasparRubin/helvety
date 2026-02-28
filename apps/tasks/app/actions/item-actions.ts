@@ -331,7 +331,10 @@ export async function updateItem(
 
     if (error) {
       logger.error("Error updating item:", error);
-      return { success: false, error: "Failed to update item" };
+      return {
+        success: false,
+        error: error.message ?? "Failed to update item",
+      };
     }
 
     return { success: true };

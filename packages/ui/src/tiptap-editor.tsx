@@ -100,8 +100,6 @@ export interface TiptapEditorProps {
   disabled?: boolean;
   /** Additional class names for the editor container */
   className?: string;
-  /** Whether to auto-focus the editor */
-  autoFocus?: boolean;
   /** Ref to access imperative editor methods */
   ref?: Ref<TiptapEditorRef>;
 }
@@ -369,7 +367,9 @@ function EditorToolbar({
 }
 
 /**
- * Tiptap WYSIWYG editor component
+ * Tiptap WYSIWYG editor component.
+ * Auto-focus is intentionally not supported for accessibility (screen readers, reduced motion).
+ * Use ref.focus() when programmatic focus is needed.
  */
 export function TiptapEditor({
   content,
@@ -377,7 +377,6 @@ export function TiptapEditor({
   placeholder = "Start typing...",
   disabled = false,
   className,
-  autoFocus = false,
   ref,
 }: TiptapEditorProps) {
   const editor = useEditor({
@@ -405,7 +404,6 @@ export function TiptapEditor({
     ],
     content: content ?? undefined,
     editable: !disabled,
-    autofocus: autoFocus,
     editorProps: {
       transformPastedHTML: sanitizePastedHTML,
       attributes: {

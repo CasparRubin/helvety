@@ -16,6 +16,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { Button } from "@helvety/ui/button";
 import { Loader2Icon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -56,23 +57,27 @@ interface EntityListProps {
   isLoading: boolean;
   /** Error message if any */
   error: string | null;
+  /** Callback to retry after error (e.g. refresh) */
+  onRetry?: () => void;
   /** Available stages for the current view */
   stages: Stage[];
   /** Map of entity id -> child count (spaces for units, items for spaces) */
   childCounts?: Record<string, number>;
   /** Available labels for the current view (items only) */
   labels?: Label[];
-  /** Callback when an entity row is clicked */
+  /** Callback when an entity row is clicked (fallback when entityHref not provided) */
   onEntityClick?: (entity: AnyEntity) => void;
+  /** URL for entity navigation — use Link instead of router.push to avoid race conditions */
+  entityHref?: (entity: AnyEntity) => string;
   /** Callback used to prefetch an entity route on hover/focus */
   onEntityPrefetch?: (entity: AnyEntity) => void;
   /** Callback to delete an entity (receives id and title for confirmation dialog) */
   onEntityDelete?: (id: string, title: string) => void;
   /** Callback for batch reorder (drag-and-drop) */
   onReorder?: (updates: ReorderUpdate[]) => Promise<boolean>;
-  /** Empty state title (only shown when no stages available) */
+  /** Empty state title (shown when no stages and no entities) */
   emptyTitle?: string;
-  /** Empty state description (only shown when no stages available) */
+  /** Empty state description (shown when no stages and no entities) */
   emptyDescription?: string;
 }
 
@@ -91,10 +96,12 @@ export function EntityList({
   entities,
   isLoading,
   error,
+  onRetry,
   stages,
   childCounts,
   labels,
   onEntityClick,
+  entityHref,
   onEntityPrefetch,
   onEntityDelete,
   onReorder,
@@ -331,13 +338,18 @@ export function EntityList({
     );
   }
 
-  // Error state
+  // Error state - friendly UI with retry (toast already shown by hooks)
   if (error) {
     return (
-      <div className="py-12 text-center">
-        <p role="alert" className="text-destructive">
-          {error}
+      <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
+        <p role="alert" className="text-muted-foreground text-sm">
+          Something went wrong
         </p>
+        {onRetry && (
+          <Button variant="outline" size="sm" onClick={() => onRetry()}>
+            Retry
+          </Button>
+        )}
       </div>
     );
   }
@@ -413,6 +425,7 @@ export function EntityList({
                         childCount={childCounts?.[entity.id]}
                         isFirst={isFirstStage}
                         isLast={isLastStage}
+                        href={entityHref?.(entity)}
                         onClick={() => onEntityClick?.(entity)}
                         onPrefetch={() => onEntityPrefetch?.(entity)}
                         onDelete={
@@ -474,6 +487,7 @@ export function EntityList({
                   childCount={childCounts?.[entity.id]}
                   isFirst={idx === 0}
                   isLast={idx === sortedEntities.length - 1}
+                  href={entityHref?.(entity)}
                   onClick={() => onEntityClick?.(entity)}
                   onPrefetch={() => onEntityPrefetch?.(entity)}
                   onDelete={

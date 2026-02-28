@@ -1,7 +1,9 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { useState, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import {
   getSpaces,
@@ -81,7 +83,9 @@ export function useSpaces(
     try {
       const result = await getSpaces(unitId);
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch spaces";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setSpaces([]);
         return;
       }
@@ -90,7 +94,9 @@ export function useSpaces(
       const decrypted = await decryptSpaceRows(result.data, masterKey);
       setSpaces(decrypted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch spaces");
+      const msg = err instanceof Error ? err.message : "Failed to fetch spaces";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setSpaces([]);
     } finally {
       setIsLoading(false);
@@ -103,7 +109,9 @@ export function useSpaces(
   const create = useCallback(
     async (input: SpaceInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return null;
       }
 
@@ -114,7 +122,9 @@ export function useSpaces(
         // Send encrypted data to server
         const result = await createSpace(encrypted, csrfToken);
         if (!result.success) {
-          setError(result.error);
+          toast.error(result.error ?? "Failed to create space", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return null;
         }
 
@@ -140,7 +150,10 @@ export function useSpaces(
 
         return result.data;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to create space");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to create space",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return null;
       }
     },
@@ -156,7 +169,9 @@ export function useSpaces(
       input: Partial<Omit<SpaceInput, "unit_id">>
     ): Promise<boolean> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
@@ -167,7 +182,9 @@ export function useSpaces(
         // Send encrypted data to server
         const result = await updateSpace({ id, ...encrypted }, csrfToken);
         if (!result.success) {
-          setError(result.error ?? "Failed to update space");
+          toast.error(result.error ?? "Failed to update space", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -191,7 +208,10 @@ export function useSpaces(
 
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update space");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to update space",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -214,14 +234,19 @@ export function useSpaces(
         const result = await deleteSpace(id, csrfToken);
         if (!result.success) {
           setSpaces(prevSpaces);
-          setError(result.error ?? "Failed to delete space");
+          toast.error(result.error ?? "Failed to delete space", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
         return true;
       } catch (err) {
         setSpaces(prevSpaces);
-        setError(err instanceof Error ? err.message : "Failed to delete space");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to delete space",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -257,15 +282,18 @@ export function useSpaces(
           unitId
         );
         if (!result.success) {
-          setError(result.error ?? "Failed to reorder spaces");
+          toast.error(result.error ?? "Failed to reorder spaces", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           await refresh();
           return false;
         }
 
         return true;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to reorder spaces"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to reorder spaces",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         await refresh();
         return false;
@@ -284,11 +312,12 @@ export function useSpaces(
       setError(null);
       decryptSpaceRows(options.initialEncryptedData, masterKey)
         .then((decrypted) => setSpaces(decrypted))
-        .catch((err) =>
-          setError(
-            err instanceof Error ? err.message : "Failed to decrypt spaces"
-          )
-        )
+        .catch((err) => {
+          const msg =
+            err instanceof Error ? err.message : "Failed to decrypt spaces";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        })
         .finally(() => setIsLoading(false));
       return;
     }
@@ -365,7 +394,9 @@ export function useSpace(
     try {
       const result = await getSpace(id);
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch space";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setSpace(null);
         return;
       }
@@ -373,7 +404,9 @@ export function useSpace(
       const decrypted = await decryptSpaceRow(result.data, masterKey);
       setSpace(decrypted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch space");
+      const msg = err instanceof Error ? err.message : "Failed to fetch space";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setSpace(null);
     } finally {
       setIsLoading(false);
@@ -383,7 +416,9 @@ export function useSpace(
   const update = useCallback(
     async (input: Partial<Omit<SpaceInput, "unit_id">>): Promise<boolean> => {
       if (!masterKey || !id) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
@@ -391,7 +426,9 @@ export function useSpace(
         const encrypted = await encryptSpaceUpdate(id, input, masterKey);
         const result = await updateSpace({ id, ...encrypted }, csrfToken);
         if (!result.success) {
-          setError(result.error ?? "Failed to update space");
+          toast.error(result.error ?? "Failed to update space", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -413,7 +450,10 @@ export function useSpace(
 
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update space");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to update space",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -422,21 +462,28 @@ export function useSpace(
 
   const remove = useCallback(async (): Promise<boolean> => {
     if (!id) {
-      setError("Invalid or missing ID");
+      toast.error("Invalid or missing ID", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       return false;
     }
 
     try {
       const result = await deleteSpace(id, csrfToken);
       if (!result.success) {
-        setError(result.error ?? "Failed to delete space");
+        toast.error(result.error ?? "Failed to delete space", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
       setSpace(null);
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete space");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete space",
+        { duration: TOAST_DURATIONS.ERROR }
+      );
       return false;
     }
   }, [id, csrfToken]);
@@ -450,11 +497,12 @@ export function useSpace(
       setError(null);
       decryptSpaceRow(options.initialEncryptedData, masterKey)
         .then((decrypted) => setSpace(decrypted))
-        .catch((err) =>
-          setError(
-            err instanceof Error ? err.message : "Failed to decrypt space"
-          )
-        )
+        .catch((err) => {
+          const msg =
+            err instanceof Error ? err.message : "Failed to decrypt space";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        })
         .finally(() => setIsLoading(false));
       return;
     }

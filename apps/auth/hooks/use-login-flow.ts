@@ -1,6 +1,7 @@
 "use client";
 
 import { urls } from "@helvety/shared/config";
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import {
   clearAllKeys,
   storeMasterKey,
@@ -20,7 +21,8 @@ import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { getPasskeyParams } from "@/app/actions/encryption-actions";
 import {
@@ -218,7 +220,9 @@ export function useLoginFlow(): LoginFlowState {
         const result = await checkEmail(email);
 
         if (!result.success) {
-          setError(result.error ?? "Failed to check email");
+          const msg = result.error ?? "Failed to check email";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
           setIsLoading(false);
           return;
         }
@@ -246,7 +250,9 @@ export function useLoginFlow(): LoginFlowState {
               setIsLoading(false);
               return;
             }
-            setError(otpResult.error ?? "Failed to send verification email");
+            const msg = otpResult.error ?? "Failed to send verification email";
+            setError(msg);
+            toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
             setIsLoading(false);
             return;
           }
@@ -257,7 +263,9 @@ export function useLoginFlow(): LoginFlowState {
         setIsLoading(false);
       } catch (err) {
         logger.error("Email submission error:", err);
-        setError("An unexpected error occurred");
+        const msg = "An unexpected error occurred";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setIsLoading(false);
       }
     },
@@ -276,7 +284,9 @@ export function useLoginFlow(): LoginFlowState {
       });
 
       if (!result.success) {
-        setError(result.error ?? "Failed to send verification email");
+        const msg = result.error ?? "Failed to send verification email";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setIsLoading(false);
         return;
       }
@@ -287,7 +297,9 @@ export function useLoginFlow(): LoginFlowState {
       setIsLoading(false);
     } catch (err) {
       logger.error("Geo confirmation error:", err);
-      setError("An unexpected error occurred");
+      const msg = "An unexpected error occurred";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setIsLoading(false);
     }
   }, [email, csrfToken]);
@@ -303,7 +315,9 @@ export function useLoginFlow(): LoginFlowState {
         const result = await verifyEmailCode(csrfToken, email, otpCode);
 
         if (!result.success) {
-          setError(result.error ?? "Verification failed");
+          const msg = result.error ?? "Verification failed";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
           setIsLoading(false);
           return;
         }
@@ -315,7 +329,9 @@ export function useLoginFlow(): LoginFlowState {
         setIsLoading(false);
       } catch (err) {
         logger.error("Code verification error:", err);
-        setError("An unexpected error occurred");
+        const msg = "An unexpected error occurred";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setIsLoading(false);
       }
     },
@@ -338,7 +354,9 @@ export function useLoginFlow(): LoginFlowState {
       );
 
       if (!result.success) {
-        setError(result.error ?? "Failed to resend code");
+        const msg = result.error ?? "Failed to resend code";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       } else {
         setResendCooldown(RESEND_COOLDOWN_SECONDS);
         setOtpCode("");
@@ -346,7 +364,9 @@ export function useLoginFlow(): LoginFlowState {
       setIsLoading(false);
     } catch (err) {
       logger.error("Resend code error:", err);
-      setError("An unexpected error occurred");
+      const msg = "An unexpected error occurred";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setIsLoading(false);
     }
   }, [email, resendCooldown, isNewUser, csrfToken]);
@@ -360,7 +380,9 @@ export function useLoginFlow(): LoginFlowState {
   // Includes PRF extension for single-touch encryption unlock when PRF salt is cached
   const handlePasskeySignIn = useCallback(async () => {
     if (!passkeySupported) {
-      setError("Your browser does not support passkeys in this flow");
+      const msg = "Your browser does not support passkeys in this flow";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       return;
     }
 
@@ -383,7 +405,9 @@ export function useLoginFlow(): LoginFlowState {
           }
         );
         if (!optionsResult.success) {
-          setError(optionsResult.error);
+          const msg = optionsResult.error ?? "Failed to get passkey options";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
           setIsLoading(false);
           return;
         }
@@ -419,17 +443,16 @@ export function useLoginFlow(): LoginFlowState {
             optionsJSON: authOptions,
           });
         } catch (err) {
-          if (err instanceof Error) {
-            if (err.name === "NotAllowedError") {
-              setError("Authentication was canceled");
-            } else if (err.name === "AbortError") {
-              setError("Authentication timed out");
-            } else {
-              setError("Failed to authenticate with passkey");
-            }
-          } else {
-            setError("Failed to authenticate with passkey");
-          }
+          const msg =
+            err instanceof Error
+              ? err.name === "NotAllowedError"
+                ? "Authentication was canceled"
+                : err.name === "AbortError"
+                  ? "Authentication timed out"
+                  : "Failed to authenticate with passkey"
+              : "Failed to authenticate with passkey";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
           setIsLoading(false);
           return;
         }
@@ -454,12 +477,15 @@ export function useLoginFlow(): LoginFlowState {
           }
 
           if (verifyResult.error === "PASSKEY_ACCOUNT_MISMATCH") {
-            setError(
-              "This passkey belongs to a different account. Please use the passkey for the email you entered."
-            );
+            const mismatchMsg =
+              "This passkey belongs to a different account. Please use the passkey for the email you entered.";
+            setError(mismatchMsg);
+            toast.error(mismatchMsg, { duration: TOAST_DURATIONS.ERROR });
             hasAutoRetriedMismatch.current = false;
           } else {
-            setError(verifyResult.error);
+            const msg = verifyResult.error ?? "Passkey verification failed";
+            setError(msg);
+            toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
             hasAutoRetriedMismatch.current = false;
           }
           setIsLoading(false);
@@ -529,7 +555,9 @@ export function useLoginFlow(): LoginFlowState {
       }
     } catch (err) {
       logger.error("Passkey auth error:", err);
-      setError("An unexpected error occurred");
+      const msg = "An unexpected error occurred";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setIsLoading(false);
     }
   }, [

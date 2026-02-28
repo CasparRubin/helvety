@@ -16,6 +16,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { Button } from "@helvety/ui/button";
 import { Loader2Icon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -32,10 +33,14 @@ interface ContactListProps {
   isLoading: boolean;
   /** Error message if any */
   error: string | null;
+  /** Callback to retry after error */
+  onRetry?: () => void;
   /** Available categories for the current view */
   categories: Category[];
-  /** Callback when a contact row is clicked */
+  /** Callback when a contact row is clicked (fallback when contactHref not provided) */
   onContactClick?: (contact: Contact) => void;
+  /** URL for contact navigation — use Link instead of router.push to avoid race conditions */
+  contactHref?: (contact: Contact) => string;
   /** Callback used to prefetch a contact route on hover/focus */
   onContactPrefetch?: (contact: Contact) => void;
   /** Callback to delete a contact */
@@ -55,8 +60,10 @@ export function ContactList({
   contacts,
   isLoading,
   error,
+  onRetry,
   categories,
   onContactClick,
+  contactHref,
   onContactPrefetch,
   onContactDelete,
   onReorder,
@@ -281,13 +288,18 @@ export function ContactList({
     );
   }
 
-  // Error state
+  // Error state - friendly UI with retry (toast already shown by hooks)
   if (error) {
     return (
-      <div className="py-12 text-center">
-        <p role="alert" className="text-destructive">
-          {error}
+      <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
+        <p role="alert" className="text-muted-foreground text-sm">
+          Something went wrong
         </p>
+        {onRetry && (
+          <Button variant="outline" size="sm" onClick={() => onRetry()}>
+            Retry
+          </Button>
+        )}
       </div>
     );
   }
@@ -347,6 +359,7 @@ export function ContactList({
                         category={categoryMap.get(contact.category_id ?? "")}
                         isFirst={isFirstCategory}
                         isLast={isLastCategory}
+                        href={contactHref?.(contact)}
                         onClick={() => onContactClick?.(contact)}
                         onPrefetch={() => onContactPrefetch?.(contact)}
                         onDelete={
@@ -405,6 +418,7 @@ export function ContactList({
                   createdAt={contact.created_at}
                   isFirst={idx === 0}
                   isLast={idx === sortedContacts.length - 1}
+                  href={contactHref?.(contact)}
                   onClick={() => onContactClick?.(contact)}
                   onPrefetch={() => onContactPrefetch?.(contact)}
                   onDelete={

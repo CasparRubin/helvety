@@ -2,11 +2,13 @@
 
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { CONTACT_EMAIL } from "@helvety/shared/config";
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { onKeyEvent } from "@helvety/shared/crypto/key-storage";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 
 import type { PRFKeyParams } from "@helvety/shared/crypto/types";
 import type {
@@ -244,6 +246,14 @@ export function EncryptionGate({
     }
   }, [status]);
 
+  // Toast when error state is first shown
+  useEffect(() => {
+    if (status === "error") {
+      const errorMsg = error ?? contextError ?? "An error occurred";
+      toast.error(errorMsg, { duration: TOAST_DURATIONS.ERROR });
+    }
+  }, [status, error, contextError]);
+
   if (status === "loading") {
     return (
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
@@ -258,11 +268,9 @@ export function EncryptionGate({
   if (status === "error") {
     return (
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
-        <div className="text-center">
-          <p className="text-destructive">
-            {error ?? contextError ?? "An error occurred"}
-          </p>
-          <p className="text-muted-foreground mt-2 text-sm">
+        <div className="bg-muted/30 flex flex-col items-center gap-3 rounded-lg p-6 text-center">
+          <p className="text-muted-foreground text-sm">Something went wrong</p>
+          <p className="text-muted-foreground text-xs">
             If this problem persists, contact us at{" "}
             <a
               href={`mailto:${CONTACT_EMAIL}`}
@@ -273,7 +281,7 @@ export function EncryptionGate({
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="text-muted-foreground mt-4 text-sm hover:underline"
+            className="text-primary mt-2 text-sm font-medium underline-offset-4 hover:underline"
           >
             Try again
           </button>

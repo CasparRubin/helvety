@@ -1,7 +1,9 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { useState, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import {
   getItems,
@@ -78,7 +80,9 @@ export function useItems(
     try {
       const result = await getItems(spaceId);
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch items";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setItems([]);
         return;
       }
@@ -86,7 +90,9 @@ export function useItems(
       const decrypted = await decryptItemRows(result.data, masterKey);
       setItems(decrypted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch items");
+      const msg = err instanceof Error ? err.message : "Failed to fetch items";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setItems([]);
     } finally {
       setIsLoading(false);
@@ -96,7 +102,9 @@ export function useItems(
   const create = useCallback(
     async (input: ItemInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return null;
       }
 
@@ -104,7 +112,9 @@ export function useItems(
         const encrypted = await encryptItemInput(input, masterKey);
         const result = await createItem(encrypted, csrfToken);
         if (!result.success) {
-          setError(result.error);
+          toast.error(result.error ?? "Failed to create item", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return null;
         }
 
@@ -134,7 +144,10 @@ export function useItems(
 
         return result.data;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to create item");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to create item",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return null;
       }
     },
@@ -147,7 +160,9 @@ export function useItems(
       input: Partial<Omit<ItemInput, "space_id">>
     ): Promise<boolean> => {
       if (!masterKey) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
@@ -164,7 +179,9 @@ export function useItems(
           csrfToken
         );
         if (!result.success) {
-          setError(result.error ?? "Failed to update item");
+          toast.error(result.error ?? "Failed to update item", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -198,7 +215,10 @@ export function useItems(
 
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update item");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to update item",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -218,14 +238,19 @@ export function useItems(
         const result = await deleteItem(id, csrfToken);
         if (!result.success) {
           setItems(prevItems);
-          setError(result.error ?? "Failed to delete item");
+          toast.error(result.error ?? "Failed to delete item", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
         return true;
       } catch (err) {
         setItems(prevItems);
-        setError(err instanceof Error ? err.message : "Failed to delete item");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to delete item",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -261,15 +286,18 @@ export function useItems(
           spaceId
         );
         if (!result.success) {
-          setError(result.error ?? "Failed to reorder items");
+          toast.error(result.error ?? "Failed to reorder items", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           await refresh();
           return false;
         }
 
         return true;
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to reorder items"
+        toast.error(
+          err instanceof Error ? err.message : "Failed to reorder items",
+          { duration: TOAST_DURATIONS.ERROR }
         );
         await refresh();
         return false;
@@ -287,11 +315,12 @@ export function useItems(
       setError(null);
       decryptItemRows(options.initialEncryptedData, masterKey)
         .then((decrypted) => setItems(decrypted))
-        .catch((err) =>
-          setError(
-            err instanceof Error ? err.message : "Failed to decrypt items"
-          )
-        )
+        .catch((err) => {
+          const msg =
+            err instanceof Error ? err.message : "Failed to decrypt items";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        })
         .finally(() => setIsLoading(false));
       return;
     }
@@ -365,7 +394,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     try {
       const result = await getItem(id);
       if (!result.success) {
-        setError(result.error);
+        const msg = result.error ?? "Failed to fetch item";
+        setError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setItem(null);
         return;
       }
@@ -373,7 +404,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       const decrypted = await decryptItemRow(result.data, masterKey);
       setItem(decrypted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch item");
+      const msg = err instanceof Error ? err.message : "Failed to fetch item";
+      setError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setItem(null);
     } finally {
       setIsLoading(false);
@@ -383,7 +416,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
   const update = useCallback(
     async (input: Partial<Omit<ItemInput, "space_id">>): Promise<boolean> => {
       if (!masterKey || !id) {
-        setError("Encryption not unlocked");
+        toast.error("Encryption not unlocked", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
@@ -400,7 +435,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
           csrfToken
         );
         if (!result.success) {
-          setError(result.error ?? "Failed to update item");
+          toast.error(result.error ?? "Failed to update item", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
           return false;
         }
 
@@ -432,7 +469,10 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
 
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update item");
+        toast.error(
+          err instanceof Error ? err.message : "Failed to update item",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
         return false;
       }
     },
@@ -441,21 +481,28 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
 
   const remove = useCallback(async (): Promise<boolean> => {
     if (!id) {
-      setError("Invalid or missing ID");
+      toast.error("Invalid or missing ID", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       return false;
     }
 
     try {
       const result = await deleteItem(id, csrfToken);
       if (!result.success) {
-        setError(result.error ?? "Failed to delete item");
+        toast.error(result.error ?? "Failed to delete item", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
 
       setItem(null);
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete item");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete item",
+        { duration: TOAST_DURATIONS.ERROR }
+      );
       return false;
     }
   }, [id, csrfToken]);
@@ -469,11 +516,12 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       setError(null);
       decryptItemRow(options.initialEncryptedData, masterKey)
         .then((decrypted) => setItem(decrypted))
-        .catch((err) =>
-          setError(
-            err instanceof Error ? err.message : "Failed to decrypt item"
-          )
-        )
+        .catch((err) => {
+          const msg =
+            err instanceof Error ? err.message : "Failed to decrypt item";
+          setError(msg);
+          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        })
         .finally(() => setIsLoading(false));
       return;
     }

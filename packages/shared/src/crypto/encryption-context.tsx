@@ -3,9 +3,10 @@
 import {
   createContext,
   useContext,
+  useCallback,
+  useEffect,
   useRef,
   useState,
-  useCallback,
   type ReactNode,
 } from "react";
 
@@ -118,8 +119,11 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
   // Ref tracking current state so checkEncryptionState can read it without
   // adding state to its dependency array (which would recreate the callback
   // on every render and defeat the purpose of the early-return optimisation).
+  // Synced in useEffect to avoid ref access during render (React rule, Compiler).
   const stateRef = useRef(state);
-  stateRef.current = state;
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   /**
    * Check PRF/passkey support

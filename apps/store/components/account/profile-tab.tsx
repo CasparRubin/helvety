@@ -85,14 +85,18 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
     const result = await updateUserEmail(newEmail.trim(), csrfToken).catch(
       (error: unknown) => {
         logger.error("Error changing email:", error);
-        setEmailError("An unexpected error occurred");
+        const msg = "An unexpected error occurred";
+        setEmailError(msg);
+        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setIsChangingEmail(false);
         return null;
       }
     );
     if (!result) return;
     if (!result.success) {
-      setEmailError(result.error ?? "Failed to update email");
+      const msg = result.error ?? "Failed to update email";
+      setEmailError(msg);
+      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setIsChangingEmail(false);
       return;
     }

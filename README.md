@@ -120,7 +120,7 @@ helvety/
 │   ├── brand/        # Shared brand assets (SVG components, asset URLs)
 │   ├── config/       # Shared tooling configs
 │   ├── shared/       # Shared libraries
-│   └── ui/           # Shared UI components (shadcn/ui, footer, navbar building blocks, Tiptap editor, auth/session recovery)
+│   └── ui/           # Shared UI components (shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, AuthTokenHandler, SessionRecovery, SkipToContent)
 ├── patches/          # Bun dependency patches (applied on install)
 ├── supabase/         # Remote-first Supabase SQL/export helpers (supabase.json is gitignored)
 ├── turbo.json        # Turborepo task configuration

@@ -140,18 +140,11 @@ export function SpacesDashboard({
     });
   }, [deleteState.id, remove, startDeleteTransition]);
 
-  const handleEntityClick = useCallback(
+  const getEntityHref = useCallback(
     (entity: { id: string }) => {
-      router.push(`/units/${unitId}/spaces/${entity.id}`);
+      return `/units/${unitId}/spaces/${entity.id}`;
     },
-    [router, unitId]
-  );
-
-  const handleEntityPrefetch = useCallback(
-    (entity: { id: string }) => {
-      void router.prefetch(`/units/${unitId}/spaces/${entity.id}`);
-    },
-    [router, unitId]
+    [unitId]
   );
 
   const handleBack = useCallback(() => {
@@ -242,10 +235,10 @@ export function SpacesDashboard({
           entities={spaces}
           isLoading={isLoading}
           error={error}
+          onRetry={refresh}
           stages={stages}
           childCounts={childCounts}
-          onEntityClick={handleEntityClick}
-          onEntityPrefetch={handleEntityPrefetch}
+          entityHref={getEntityHref}
           onEntityDelete={handleDeleteClick}
           onReorder={reorder}
         />
