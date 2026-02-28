@@ -1,13 +1,8 @@
 import path from "path";
 
 import { createSecurityHeaders } from "@helvety/config/next-headers";
-import bundleAnalyzer from "@next/bundle-analyzer";
 
 import type { NextConfig } from "next";
-
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-});
 
 const nextConfig: NextConfig = {
   // Multi-zone: serve this app under helvety.com/auth
@@ -33,4 +28,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer(nextConfig);
+export default nextConfig;

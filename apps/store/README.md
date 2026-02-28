@@ -89,20 +89,16 @@ This application includes the following security hardening:
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                                                 | Required | Server-only | Description                                                                            |
-| -------------------------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`                               | Yes      | No          | Supabase project URL                                                                   |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                   | Yes      | No          | Publishable key (RLS applies)                                                          |
-| `SUPABASE_SECRET_KEY`                                    | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Must not be exposed. |
-| `STRIPE_SECRET_KEY`                                      | Yes      | **Yes**     | Stripe API key. Must not be exposed.                                                   |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`                     | Yes      | No          | Stripe publishable key (client-side)                                                   |
-| `STRIPE_WEBHOOK_SECRET`                                  | Yes      | **Yes**     | Webhook signature verification. Must not be exposed.                                   |
-| `STRIPE_HELVETY_SPO_EXPLORER_SOLO_MONTHLY_PRICE_ID`      | Optional | **Yes**     | Stripe price ID for Solo plan (required only if this paid tier is enabled)             |
-| `STRIPE_HELVETY_SPO_EXPLORER_SUPPORTED_MONTHLY_PRICE_ID` | Optional | **Yes**     | Stripe price ID for Supported plan (required only if this paid tier is enabled)        |
-| `LICENSE_VALIDATION_SHARED_SECRET`                       | Optional | **Yes**     | Optional, security-recommended HMAC secret for SPFx license validation.                |
-| `UPSTASH_REDIS_REST_URL`                                 | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.       |
-| `UPSTASH_REDIS_REST_TOKEN`                               | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.     |
-| `ANALYZE`                                                | Optional | **Yes**     | Set to `true` to enable Next.js bundle analyzer during build.                          |
+| Variable                               | Required | Server-only | Description                                                                            |
+| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                   |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                          |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Must not be exposed. |
+| `STRIPE_SECRET_KEY`                    | Yes      | **Yes**     | Stripe API key. Must not be exposed.                                                   |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`   | Yes      | No          | Stripe publishable key (client-side)                                                   |
+| `STRIPE_WEBHOOK_SECRET`                | Yes      | **Yes**     | Webhook signature verification. Must not be exposed.                                   |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.       |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.     |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 

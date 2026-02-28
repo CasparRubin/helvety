@@ -65,11 +65,10 @@ This application includes the following security hardening:
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                   |
-| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL (auth callback)                          |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                 |
-| `ANALYZE`                              | Optional | **Yes**     | Set to `true` to enable Next.js bundle analyzer during build. |
+| Variable                               | Required | Server-only | Description                          |
+| -------------------------------------- | -------- | ----------- | ------------------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL (auth callback) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)        |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 

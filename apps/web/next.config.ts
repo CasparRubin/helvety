@@ -2,13 +2,8 @@ import path from "path";
 
 import { createSecurityHeaders } from "@helvety/config/next-headers";
 import { DEV_PORTS } from "@helvety/shared/config";
-import bundleAnalyzer from "@next/bundle-analyzer";
 
 import type { NextConfig } from "next";
-
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-});
 
 const DEFAULT_ALLOWED_PRODUCTION_HOST_SUFFIXES = [
   ".vercel.app",
@@ -38,15 +33,7 @@ function isAllowedProductionHost(hostname: string): boolean {
   ) {
     return true;
   }
-  const customAllowedHosts = process.env.INTERNAL_APP_HOST_ALLOWLIST;
-  if (!customAllowedHosts) {
-    return false;
-  }
-  const allowedHosts = customAllowedHosts
-    .split(",")
-    .map((host) => host.trim().toLowerCase())
-    .filter(Boolean);
-  return allowedHosts.includes(hostname.toLowerCase());
+  return false;
 }
 
 const nextConfig: NextConfig = {
@@ -75,7 +62,7 @@ const nextConfig: NextConfig = {
         }
         if (!isAllowedProductionHost(parsed.hostname)) {
           throw new Error(
-            `${envVar} host "${parsed.hostname}" is not allowed. Use a *.vercel.app, *.helvety.com host, or add it to INTERNAL_APP_HOST_ALLOWLIST.`
+            `${envVar} host "${parsed.hostname}" is not allowed. Use a *.vercel.app or *.helvety.com host.`
           );
         }
         return parsed.origin;
@@ -156,4 +143,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer(nextConfig);
+export default nextConfig;

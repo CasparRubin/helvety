@@ -25,8 +25,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "analyze": "ANALYZE=true next build"
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@helvety/brand": "workspace:*",
@@ -53,7 +52,6 @@
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
-    "@next/bundle-analyzer": "^16.1.6",
     "@tailwindcss/postcss": "^4.2.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
