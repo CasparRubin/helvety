@@ -28,8 +28,6 @@ export type CreateSessionRefreshProxyOptions = {
   includeHelvetyUrl?: boolean;
   /** Whether to generate CSRF token cookie (default: true). Web gateway uses false. */
   includeCsrf?: boolean;
-  /** Timeout for Supabase claims refresh in ms (default: 1500). */
-  sessionRefreshTimeoutMs?: number;
 };
 
 /**
@@ -52,7 +50,6 @@ export function createSessionRefreshProxy(
     buildCspOptions = {},
     includeHelvetyUrl = true,
     includeCsrf = true,
-    sessionRefreshTimeoutMs = 1500,
   } = options;
 
   return async function proxy(request: NextRequest) {
@@ -119,31 +116,9 @@ export function createSessionRefreshProxy(
       },
     });
 
-    const hasSessionCookie = request.cookies
-      .getAll()
-      .some(
-        (cookie) =>
-          cookie.name.startsWith("sb-") && cookie.name.includes("auth-token")
-      );
-
-    if (hasSessionCookie) {
-      try {
-        await Promise.race([
-          supabase.auth.getClaims(),
-          new Promise<never>((_, reject) => {
-            setTimeout(
-              () => reject(new Error("Session refresh timeout in proxy")),
-              sessionRefreshTimeoutMs
-            );
-          }),
-        ]);
-      } catch (error) {
-        console.error(
-          "[proxy] Session refresh failed:",
-          error instanceof Error ? error.message : "unknown error"
-        );
-      }
-    }
+    // Proxy must stay lightweight (optimistic checks only).
+    // Do not perform session/auth refresh work here.
+    void supabase;
 
     if (includeCsrf && !request.cookies.get(CSRF_COOKIE_NAME)?.value) {
       const token = randomBytes(CSRF_TOKEN_LENGTH).toString("hex");

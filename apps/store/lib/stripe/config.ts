@@ -142,11 +142,11 @@ export const CHECKOUT_CONFIG = {
   // Payment method types to accept
   paymentMethodTypes: ["card"] as const,
 
-  // Allowed countries for billing
+  // Billing country preference metadata (not currently enforced server-side)
   allowedCountries: ["CH"] as const,
 
   // Server-side legal policy version for consent audit trail
-  consentVersion: "2026-02-25",
+  consentVersion: "2026-02-28",
 } as const;
 
 // =============================================================================

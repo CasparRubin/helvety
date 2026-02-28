@@ -51,7 +51,7 @@ export function generateSalt(length: number = 16): Uint8Array<ArrayBuffer> {
  * - Typical usage is well under 1 million encryptions per key lifetime
  * - Each user has their own key (no key sharing between users)
  * The collision probability is negligibly small (~2^-56 for 10^6 operations).
- * This is considered safe for the current and foreseeable usage patterns.
+ * Under current assumptions and expected volume, collision risk remains very low.
  */
 export function generateIV(): Uint8Array<ArrayBuffer> {
   const buffer = new ArrayBuffer(12);
@@ -61,7 +61,8 @@ export function generateIV(): Uint8Array<ArrayBuffer> {
 }
 
 /**
- * Compare two Uint8Arrays in constant time to prevent timing attacks
+ * Compare two Uint8Arrays using constant-time byte comparison when lengths
+ * match. Returns early on length mismatch.
  */
 export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) {

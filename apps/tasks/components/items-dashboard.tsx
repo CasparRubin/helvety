@@ -28,15 +28,12 @@ import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
 import { TaskCommandBar } from "@/components/task-command-bar";
-import {
-  useUnit,
-  useSpace,
-  useSpaces,
-  useItems,
-  useStages,
-  useLabels,
-  useDataExport,
-} from "@/hooks";
+import { useDataExport } from "@/hooks/use-data-export";
+import { useItems } from "@/hooks/use-items";
+import { useLabels } from "@/hooks/use-labels";
+import { useSpace, useSpaces } from "@/hooks/use-spaces";
+import { useStages } from "@/hooks/use-stages";
+import { useUnit } from "@/hooks/use-units";
 import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";

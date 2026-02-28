@@ -88,9 +88,9 @@ export function createSecurityHeaders({ appName } = {}) {
  * Builds the Content-Security-Policy header value with a per-request nonce.
  *
  * Uses 'strict-dynamic' so scripts loaded by a nonced script are automatically
- * trusted (cascading trust). With 'strict-dynamic', browsers ignore 'self',
- * 'unsafe-inline', and URL-based allowlists in script-src — only the nonce
- * and cascading trust matter. The 'unsafe-inline' and URL fallbacks are kept
+ * trusted (cascading trust). In supporting browsers, 'strict-dynamic' shifts
+ * trust primarily to nonce-seeded script execution chains. The
+ * 'unsafe-inline' and URL fallbacks are kept
  * for graceful degradation in older browsers without 'strict-dynamic' support.
  *
  * @param {object} opts

@@ -76,9 +76,9 @@ Sessions are shared across all Helvety apps via cookie-based SSO (all apps are s
 
 This application includes the following security hardening:
 
-- **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
+- **Session Management** - `proxy.ts` performs lightweight request setup (CSP headers and CSRF bootstrap). Session/auth checks are enforced in page-level/server-side handlers.
 - **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (aligned with published CVE-2025-29927 mitigation guidance)
-- **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
+- **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated via `@helvety/shared/redirect-validation` to reduce open-redirect risk
 - **CSRF Protection** - Token-based protection is enforced on high-impact browser-initiated mutations; server-to-server webhook endpoints use Stripe signature verification instead of CSRF tokens
 - **Rate Limiting** - Protection against brute force attacks
 - **Security Headers** - CSP, HSTS, and other security headers
@@ -141,7 +141,7 @@ Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source t
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
-Vercel Analytics and Vercel Speed Insights are used across all Helvety apps for privacy-focused, anonymous page view and performance statistics. See our [Privacy Policy](https://helvety.com/privacy) for details.
+Vercel Analytics and Vercel Speed Insights are used across Helvety apps for privacy-oriented, aggregated/pseudonymized page-view and performance metrics. See our [Privacy Policy](https://helvety.com/privacy) for details.
 
 For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 

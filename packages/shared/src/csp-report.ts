@@ -1,5 +1,6 @@
 import { after, NextResponse } from "next/server";
 
+import { getTrustedClientIp } from "./client-ip";
 import { checkRateLimit } from "./rate-limit";
 
 /** Max body size for CSP reports (10 KB) */
@@ -31,7 +32,10 @@ export function createCspReportHandler(appName: string) {
         return new Response(null, { status: 413 });
       }
 
-      const ip = request.headers.get("x-real-ip") ?? "unknown";
+      const ip =
+        getTrustedClientIp(request.headers, {
+          requireTrustedProxyInProduction: true,
+        }) ?? "unknown";
       const rateLimit = await checkRateLimit(
         `csp_report:ip:${ip}`,
         CSP_REPORT_RATE_LIMIT.maxRequests,

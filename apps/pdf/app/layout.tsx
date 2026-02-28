@@ -10,7 +10,6 @@ import { TooltipProvider } from "@helvety/ui/tooltip";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
-import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
 
@@ -119,7 +118,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = await headers().then((h) => h.get("x-nonce") ?? "");
+  const nonce = "";
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
@@ -154,7 +153,7 @@ export default async function RootLayout({
                 name: "Helvety PDF",
                 url: "https://helvety.com/pdf",
                 description:
-                  "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. All processing happens locally in your browser.",
+                  "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages in one place. For supported operations, file content processing happens locally in your browser.",
                 applicationCategory: "UtilitiesApplication",
                 operatingSystem: "Any",
                 offers: {

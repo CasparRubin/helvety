@@ -55,7 +55,7 @@ This application includes the following security hardening:
 - **Security Headers** - CSP, HSTS, and other security headers
 - **Rate Limiting** - Auth callback rate limited by IP to prevent abuse
 - **File Size Validation** - Maximum 100MB per file enforced client-side
-- **Redirect URI Validation** - All redirect URIs validated against allowlist
+- **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics and Speed Insights).
 
@@ -115,7 +115,7 @@ Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source t
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
-Vercel Analytics and Vercel Speed Insights are used across all Helvety apps for privacy-focused, anonymous page view and performance statistics. See our [Privacy Policy](https://helvety.com/privacy) for details.
+Vercel Analytics and Vercel Speed Insights are used across Helvety apps for privacy-oriented, aggregated/pseudonymized page-view and performance metrics. See our [Privacy Policy](https://helvety.com/privacy) for details.
 
 For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 

@@ -1,9 +1,10 @@
 /**
- * Shared trusted client IP extraction.
+ * Shared client IP extraction based on proxy headers.
  *
- * - Uses x-real-ip as the primary trusted source.
+ * - Uses x-real-ip as the primary source.
  * - Optionally falls back to x-forwarded-for outside production.
  * - Can require trusted proxy headers in production (fail closed).
+ * - Header trust depends on upstream proxy configuration.
  */
 
 /** Minimal header accessor used by the client IP helper. */

@@ -45,8 +45,6 @@ export function ProductDetailClient({
   checkoutEnabledTiers,
   initialSubscriptions = EMPTY_SUBSCRIPTIONS,
 }: ProductDetailClientProps) {
-  "use no memo";
-
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -73,9 +71,9 @@ export function ProductDetailClient({
         });
       } else {
         // Default success message
-        toast.success("Payment processed successfully", {
+        toast.success("Checkout completed", {
           description:
-            "Your subscription should become active shortly. If you do not see it, refresh the page.",
+            "We're confirming payment and activating your access. If you do not see it shortly, refresh the page.",
           duration: TOAST_DURATIONS.SUCCESS,
         });
       }

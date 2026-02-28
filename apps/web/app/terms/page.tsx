@@ -885,9 +885,10 @@ export default function TermsPage() {
               upon account termination, subject to technical processing time and
               legally required retention. Limited non-content
               security/compliance metadata may be retained for defined periods
-              (including up to 6 months for attachment operation metadata and up
-              to 10 years for contract/accounting evidence) as described in the
-              Privacy Policy.
+              (including a target window up to 6 months for attachment operation
+              metadata under current operational policy, and up to 10 years for
+              contract/accounting evidence where legally required) as described
+              in the Privacy Policy.
             </p>
             <p className="text-muted-foreground text-sm">
               We are under no obligation to provide advance notice to users when
@@ -979,7 +980,7 @@ export default function TermsPage() {
 
             <h3 className="mb-3 text-lg font-medium">8.3 Order Confirmation</h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              Upon successful completion of your purchase, you will receive:
+              Upon successful completion of your purchase, you should receive:
             </p>
             <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
               <li>
@@ -1135,8 +1136,9 @@ export default function TermsPage() {
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               While Swiss law does not provide a statutory withdrawal right for
-              online purchases, we will voluntarily offer a 14-day return policy
-              for physical products as a gesture of goodwill.
+              online purchases, if physical products are offered, we currently
+              intend to provide a 14-day voluntary return policy, subject to the
+              policy published at launch.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               To exercise this right, you would inform us of your decision to

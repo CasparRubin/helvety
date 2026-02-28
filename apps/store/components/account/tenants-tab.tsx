@@ -63,7 +63,7 @@ import type { LicensedTenantWithSubscription } from "@/lib/types";
 /**
  * SPO Explorer subscription summary for display (tier, status, tenant usage).
  */
-interface SpoSubscription {
+export interface SpoSubscription {
   id: string;
   tier_id: string;
   status: string;
@@ -77,15 +77,20 @@ interface SpoSubscription {
  * Layout: page header, compact full-width subscription bar, then Registered Tenants card
  * with Add Tenant and Refresh in the card header above the list.
  */
-export function TenantsTab() {
+export function TenantsTab({
+  initialSpoSubscriptions,
+}: {
+  initialSpoSubscriptions?: SpoSubscription[];
+} = {}) {
   // CSRF token for security
   const csrfToken = useCSRF();
 
   const [tenants, setTenants] = React.useState<
     LicensedTenantWithSubscription[]
   >([]);
+  const hasInitialSubscriptions = initialSpoSubscriptions !== undefined;
   const [subscriptions, setSubscriptions] = React.useState<SpoSubscription[]>(
-    []
+    initialSpoSubscriptions ?? []
   );
   const [isLoading, setIsLoading] = React.useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
@@ -112,28 +117,29 @@ export function TenantsTab() {
 
   // Load data on mount
   React.useEffect(() => {
-    void loadData();
-  }, []);
+    void loadData(!hasInitialSubscriptions);
+  }, [hasInitialSubscriptions]);
+
+  React.useEffect(() => {
+    if (subscriptions.length === 1 && subscriptions[0]) {
+      setSelectedSubscription(subscriptions[0].id);
+    }
+  }, [subscriptions]);
 
   /** Load tenants and SPO Explorer subscriptions. */
-  async function loadData() {
+  async function loadData(includeSubscriptions = true) {
     setIsLoading(true);
     try {
-      const [tenantsResult, subscriptionsResult] = await Promise.all([
-        getUserTenants(),
-        getSpoExplorerSubscriptions(),
-      ]);
+      const tenantsResult = await getUserTenants();
 
       if (tenantsResult.success && tenantsResult.data) {
         setTenants(tenantsResult.data);
       }
 
-      if (subscriptionsResult.success && subscriptionsResult.data) {
-        setSubscriptions(subscriptionsResult.data);
-        // Auto-select first subscription if only one
-        const firstSub = subscriptionsResult.data[0];
-        if (subscriptionsResult.data.length === 1 && firstSub) {
-          setSelectedSubscription(firstSub.id);
+      if (includeSubscriptions) {
+        const subscriptionsResult = await getSpoExplorerSubscriptions();
+        if (subscriptionsResult.success && subscriptionsResult.data) {
+          setSubscriptions(subscriptionsResult.data);
         }
       }
     } catch (error) {

@@ -2,11 +2,11 @@
  * Redirect URI validation utilities
  *
  * Prevents open redirect vulnerabilities by validating redirect URIs
- * against a strict allowlist of trusted domains.
+ * against a configured allowlist of domains.
  */
 
 /**
- * Explicit allowlist of trusted redirect hosts.
+ * Explicit allowlist of redirect hosts.
  *
  * Current production deployment serves apps under helvety.com via path-based
  * routing (multi-zone), e.g. helvety.com/auth, /tasks, /contacts.
@@ -67,7 +67,8 @@ export function isValidRedirectUri(uri: string | null | undefined): boolean {
 }
 
 /**
- * Validates and returns a safe redirect URI
+ * Validates against the configured host/protocol allowlist and returns
+ * an allowed redirect URI.
  */
 export function getSafeRedirectUri(
   uri: string | null | undefined,

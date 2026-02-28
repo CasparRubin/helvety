@@ -75,10 +75,10 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. In su
 1. During setup at helvety.com/auth, you create a passkey with the WebAuthn PRF (Pseudo-Random Function) extension
 2. The PRF extension produces a deterministic output tied to your passkey
 3. Your browser derives an AES-256-GCM encryption key from the PRF output using HKDF
-4. All encryption and decryption happens locally in your browser
+4. In supported flows, encryption and decryption of protected task content happens locally in your browser
 5. Additional Authenticated Data (AAD) binds each ciphertext to its specific record, preventing encrypted data from being moved or replayed in a different context
 6. Record identifiers for encrypted data are generated on your device, not by the server
-7. The server stores only encrypted ciphertext and PRF salt values
+7. For encrypted content fields, the server stores encrypted ciphertext and PRF salt values; required structural metadata is stored separately in plaintext for app functionality
 
 **Important:** Your passkey controls decryption access to encrypted content. If you lose access to your passkeys and do not have any synced or backup passkey available, encrypted content may be unrecoverable. To reduce this risk, we recommend saving passkeys in a synced password manager.
 
@@ -146,19 +146,19 @@ Sessions are shared across all Helvety apps via cookie-based SSO (all apps are s
 
 This application includes the following security hardening:
 
-- **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
+- **Session Management** - `proxy.ts` performs lightweight request setup (CSP headers and CSRF bootstrap). Session/auth checks are enforced in page-level/server-side handlers.
 - **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (aligned with published CVE-2025-29927 mitigation guidance)
-- **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
+- **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated via `@helvety/shared/redirect-validation` to reduce open-redirect risk
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
-- **Attachment Audit Logging** - Structured logging for file attachment upload, download, and deletion events (persisted to `attachment_audit_logs` table; retained up to 6 months / 183 days by default, unless legal hold/dispute requirements apply)
+- **Attachment Audit Logging** - Structured logging for file attachment upload, download, and deletion events (persisted to `attachment_audit_logs` table; target retention up to 6 months / 183 days under current operational policy, subject to legal hold/dispute requirements)
 - **Security Headers** - CSP, HSTS, and other security headers
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics and Speed Insights).
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
-**Attachment Audit Logging:** File attachment uploads, downloads, and deletions are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs, randomized storage paths, and user agent) to the `attachment_audit_logs` database table. This audit trail is retained for up to 6 months (183 days) by default in accordance with the Privacy Policy and supports law enforcement cooperation under valid Swiss court orders. After account deletion, direct user references are removed or de-identified where applicable. Encrypted file content and encrypted metadata are not intended to be logged.
+**Attachment Audit Logging:** File attachment uploads, downloads, and deletions are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs, randomized storage paths, and user agent) to the `attachment_audit_logs` database table. This audit trail has a target retention window up to 6 months (183 days) under current operational policy, subject to legal hold, incident handling, and platform constraints. It supports law enforcement cooperation under valid Swiss court orders. After account deletion, direct user references are removed or de-identified where applicable. Encrypted file content and encrypted metadata are not intended to be logged.
 
 ## Tech Stack
 
@@ -193,7 +193,7 @@ Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source t
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
-Vercel Analytics and Vercel Speed Insights are used across all Helvety apps for privacy-focused, anonymous page view and performance statistics. See our [Privacy Policy](https://helvety.com/privacy) for details.
+Vercel Analytics and Vercel Speed Insights are used across Helvety apps for privacy-oriented, aggregated/pseudonymized page-view and performance metrics. See our [Privacy Policy](https://helvety.com/privacy) for details.
 
 For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 

@@ -306,8 +306,9 @@ export default function PrivacyPage() {
             </p>
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
-                Does not include personal data, only your organization&apos;s
-                tenant identifier
+                Typically includes your organization&apos;s tenant identifier
+                and is generally treated as business-identifying data, though it
+                may qualify as personal data depending on context
               </li>
               <li>Is used to verify your subscription status</li>
               <li>Is processed in accordance with this Privacy Policy</li>
@@ -408,8 +409,10 @@ export default function PrivacyPage() {
                 Email address, passkey credentials, PRF encryption parameters,
                 geo-confirmation status (confirmation that you are located in
                 Switzerland and the timestamp of that confirmation), IP address
-                (for rate limiting), and user agent (for device detection). All
-                data is used strictly for authentication and security purposes.
+                (for rate limiting), and user agent (for device detection). This
+                data is primarily used for authentication and security, and may
+                also be processed where necessary for legal compliance, abuse
+                prevention, and service reliability.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -441,19 +444,21 @@ export default function PrivacyPage() {
                 Task content is end-to-end encrypted client-side before storage.
                 Encrypted fields include: titles, descriptions, start/end dates,
                 and file attachments (both file content and file metadata such
-                as filename, type, and size). Our servers store only ciphertext
-                for these fields. Encryption keys are derived from your passkey
-                and do not leave your device. Record identifiers for encrypted
-                data are generated on your device and bound to the ciphertext
-                via Additional Authenticated Data (AAD). Our architecture is
-                designed so that we are generally unable to access your task
-                content in plaintext during normal operation. Non-encrypted
-                structural metadata is stored in plaintext to enable application
-                functionality: record identifiers, timestamps, priority levels,
-                display preferences (sort orders), entity relationships (e.g.,
-                stage, label, space), and file operation audit logs (IP
-                addresses, file sizes, randomized storage paths). Service-level
-                usage limits may apply and are listed on the product pages.
+                as filename, type, and size). These fields are designed to be
+                stored as encrypted ciphertext at rest on our servers.
+                Encryption keys are derived from your passkey on your device and
+                are not intended to be transmitted to Helvety servers. Record
+                identifiers for encrypted data are generated on your device and
+                bound to the ciphertext via Additional Authenticated Data (AAD).
+                Our architecture is designed so that we are generally unable to
+                access your task content in plaintext during normal operation.
+                Non-encrypted structural metadata is stored in plaintext to
+                enable application functionality: record identifiers,
+                timestamps, priority levels, display preferences (sort orders),
+                entity relationships (e.g., stage, label, space), and file
+                operation audit logs (IP addresses, file sizes, randomized
+                storage paths). Service-level usage limits may apply and are
+                listed on the product pages.
               </li>
               <li>
                 <strong className="text-foreground">
@@ -461,19 +466,23 @@ export default function PrivacyPage() {
                 </strong>{" "}
                 Contact content is end-to-end encrypted client-side before
                 storage. Encrypted fields include: first and last names,
-                description, email, phone, birthday, and notes. Our servers
-                store only ciphertext for these fields. Encryption keys are
-                derived from your passkey and do not leave your device. Record
-                identifiers for encrypted data are generated on your device and
-                bound to the ciphertext via Additional Authenticated Data (AAD).
-                Our architecture is designed so that we are generally unable to
-                access your contact content in plaintext during normal
-                operation. Non-encrypted structural metadata is stored in
-                plaintext to enable application functionality: record
-                identifiers, timestamps, display preferences (sort orders), and
-                immutable built-in taxonomy references (category IDs).
-                Service-level usage limits may apply and are listed on the
-                product pages.
+                description, email, phone, birthday, and notes. These fields are
+                designed to be stored as encrypted ciphertext at rest on our
+                servers. Encryption keys are derived from your passkey on your
+                device and are not intended to be transmitted to Helvety
+                servers. Record identifiers for encrypted data are generated on
+                your device and bound to the ciphertext via Additional
+                Authenticated Data (AAD). Our architecture is designed so that
+                we are generally unable to access your contact content in
+                plaintext during normal operation. Non-encrypted structural
+                metadata is stored in plaintext to enable application
+                functionality: record identifiers, timestamps, display
+                preferences (sort orders), and immutable built-in taxonomy
+                references (category IDs). When linking contacts with task
+                entities, additional non-encrypted relationship metadata (link
+                identifiers, linked entity identifiers/types, and timestamps) is
+                stored to enable the cross-app linking feature. Service-level
+                usage limits may apply and are listed on the product pages.
               </li>
             </ul>
           </section>
@@ -551,9 +560,10 @@ export default function PrivacyPage() {
               4.1 Marketing Communications
             </h3>
             <p className="text-muted-foreground mb-4 text-sm">
-              We will only send you marketing communications (such as
-              newsletters, promotional offers, or product announcements) if you
-              have given us your explicit consent to do so.
+              We intend to send marketing communications (such as newsletters,
+              promotional offers, or product announcements) only where we have a
+              valid legal basis, typically your consent where required by
+              applicable law.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Opt-Out:</strong> You can
@@ -824,9 +834,10 @@ export default function PrivacyPage() {
               <li>
                 <strong className="text-foreground">Technical logs:</strong>{" "}
                 Retained for a limited period for security, fraud-prevention,
-                service reliability, and incident response (up to 6 months / 183
-                days by default, unless a longer retention period is legally
-                required for a specific incident, dispute, or legal hold).
+                service reliability, and incident response (target retention up
+                to 6 months / 183 days under current operational policy, unless
+                a longer period is required for a specific incident, dispute, or
+                legal hold).
               </li>
               <li>
                 <strong className="text-foreground">Rate limiting data:</strong>{" "}
@@ -843,9 +854,10 @@ export default function PrivacyPage() {
                 Non-encrypted metadata associated with file uploads, downloads,
                 and deletions -- including timestamps, file sizes (of encrypted
                 blobs), randomized storage paths, IP addresses, and user
-                identifiers -- is retained for service security and legal
-                compliance purposes for up to 6 months (183 days) by default.
-                After account deletion, direct user references are removed or
+                identifiers -- has a target retention window of up to 6 months
+                (183 days) under current operational policy, subject to legal
+                hold, incident handling, and technical constraints. After
+                account deletion, direct user references are removed or
                 de-identified where applicable. This metadata does not include
                 the content of your files, which is end-to-end encrypted and
                 generally not accessible to us in plaintext during normal

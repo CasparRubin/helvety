@@ -14,8 +14,9 @@
  * IMPORTANT: Never log encrypted content, encryption keys, or decrypted metadata.
  * Only non-encrypted operational metadata (timestamps, file sizes, paths, IPs) is logged.
  *
- * RETENTION: File operation metadata retention is configured for up to 6 months
- * in accordance with the Privacy Policy and operational settings.
+ * RETENTION: File operation metadata uses a target retention window up to
+ * 6 months under current operational policy, subject to legal hold, incident
+ * handling, and platform constraints.
  */
 
 import { logger } from "@helvety/shared/logger";

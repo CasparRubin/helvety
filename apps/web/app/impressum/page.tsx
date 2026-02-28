@@ -31,7 +31,7 @@ export default function ImpressumPage() {
           <header>
             <h1 className="mb-2 text-3xl font-bold">Impressum</h1>
             <p className="text-muted-foreground text-sm">
-              Last updated: February 25, 2026
+              Last updated: February 28, 2026
             </p>
             <p className="text-muted-foreground mt-1 text-sm">
               Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant
@@ -122,8 +122,8 @@ export default function ImpressumPage() {
               include Helvety SPO Explorer (paid SharePoint extension), Helvety
               PDF (free PDF toolkit), Helvety Tasks (encrypted task management),
               and Helvety Contacts (encrypted contact management). Physical
-              products (such as apparel) are planned for the future. All
-              products are designed and developed in Switzerland.
+              products (such as apparel) are planned for the future. Our
+              products are primarily designed and developed in Switzerland.
             </p>
           </section>
 
@@ -187,10 +187,12 @@ export default function ImpressumPage() {
                   the service and legal basis, we may provide available
                   non-encrypted metadata (for example account identifiers, IP
                   addresses, timestamps, and storage usage information). Typical
-                  security/abuse metadata retention windows are up to 6 months,
-                  while legally required contract/accounting evidence may be
-                  retained longer (for example up to 10 years where required by
-                  Swiss law).
+                  security/abuse metadata has a target retention window up to 6
+                  months under current operational policy (subject to legal
+                  hold, incident handling, and technical constraints), while
+                  legally required contract/accounting evidence may be retained
+                  longer (for example up to 10 years where required by Swiss
+                  law).
                 </p>
               </div>
               <div>

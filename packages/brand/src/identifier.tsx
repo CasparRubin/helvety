@@ -1,7 +1,7 @@
 /**
  * Helvety identifier / icon (white background, red "H" mark).
  *
- * Renders inline SVG -- no network request, single source of truth.
+ * Renders inline SVG -- no network request, canonical component implementation in this package.
  * Original viewBox: 500x500
  */
 export function HelvetyIdentifier(props: React.SVGProps<SVGSVGElement>) {

@@ -5,7 +5,8 @@
  * and Helvety Contacts. All encryption/decryption is designed to happen
  * client-side; plaintext should not be intentionally sent to the server.
  *
- * Uses passkey-based (PRF) key derivation for secure, passwordless encryption.
+ * Uses passkey-based (PRF) key derivation for passwordless client-side
+ * encryption workflows.
  * Encryption setup is handled by helvety.com/auth.
  */
 

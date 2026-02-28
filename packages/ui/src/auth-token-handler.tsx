@@ -1,21 +1,20 @@
 "use client";
 
-import { createBrowserClient } from "@helvety/shared/supabase/client";
-import { useRouter } from "next/navigation";
+import { urls } from "@helvety/shared/config";
 import { useEffect } from "react";
 
 /**
- * Handles auth tokens from URL hash fragments on any page.
+ * Handles legacy hash-fragment auth tokens in a safe way.
  *
- * Safety net for email verification flows when Supabase redirects
- * with hash fragments (#access_token=...) instead of query params.
- * Place in the root layout to ensure tokens are processed
- * regardless of which page the user lands on.
+ * We no longer accept raw hash tokens on arbitrary pages because they are not
+ * state-bound and can be abused for session swapping/login CSRF.
+ * This UI expects auth completion through `/auth/callback` using query
+ * parameters (PKCE or token_hash).
+ *
+ * If legacy hash tokens are detected, this handler clears the fragment and
+ * redirects the user to the auth app login screen with a safe error.
  */
 export function AuthTokenHandler() {
-  const router = useRouter();
-  const supabase = createBrowserClient();
-
   useEffect(() => {
     if (typeof window === "undefined" || !window.location.hash) {
       return;
@@ -29,21 +28,11 @@ export function AuthTokenHandler() {
       return;
     }
 
-    void supabase.auth
-      .setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      })
-      .then(({ error }) => {
-        if (error) {
-          return;
-        }
-
-        const cleanUrl = `${window.location.pathname}${window.location.search}`;
-        window.history.replaceState(null, "", cleanUrl);
-        router.refresh();
-      });
-  }, [router, supabase]);
+    const cleanUrl = `${window.location.pathname}${window.location.search}`;
+    window.history.replaceState(null, "", cleanUrl);
+    // Enforce callback-only auth completion.
+    window.location.href = `${urls.auth}/login?error=callback_required`;
+  }, []);
 
   return null;
 }

@@ -1,31 +1,18 @@
 "use client";
 
+import { urls } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
-import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
-import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useEffect, useRef } from "react";
 
-import { getRequiredAuthStep, buildLoginUrl } from "@/lib/auth-utils";
-
 /**
- * Handles auth tokens from URL hash fragments on any page.
+ * Handles legacy hash-fragment auth tokens in a safe way.
  *
- * This component provides a safety net for email verification flows when
- * Supabase redirects to a page other than /auth/callback. Hash fragments
- * (#access_token=...) are not sent to the server, so we handle them client-side.
- *
- * Note: The primary sign-in flow now uses OTP codes (verification codes typed by
- * the user), so this component primarily handles edge cases and legacy flows
- * (account recovery, invite, email change confirmation links).
- *
- * After setting the session, this component checks if the user needs to complete
- * passkey/encryption setup before redirecting to the final destination.
- *
- * Place this component in the root layout to ensure tokens are processed
- * regardless of which page the user lands on.
+ * We do not accept `#access_token` / `#refresh_token` on arbitrary routes
+ * anymore. This UI expects auth completion through `/auth/callback` where
+ * server-side checks
+ * and redirect validation are applied.
  */
 export function AuthTokenHandler() {
-  const supabase = createBrowserClient();
   const processingRef = useRef(false);
 
   useEffect(() => {
@@ -49,53 +36,18 @@ export function AuthTokenHandler() {
 
     processingRef.current = true;
 
-    // Read search params directly from the URL (avoids useSearchParams which
-    // requires Suspense and can cause hydration mismatches with Radix IDs)
-    const queryParams = new URLSearchParams(window.location.search);
-    const rawRedirectUri = queryParams.get("redirect_uri");
-    // Validate redirect URI against allowlist to prevent open redirect attacks
-    const redirectUri = isValidRedirectUri(rawRedirectUri)
-      ? rawRedirectUri
-      : null;
-
-    // Set the session from hash tokens
     void (async () => {
       try {
-        const { error, data } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        });
-
-        if (error) {
-          logger.error("Failed to set session from hash tokens:", error);
-          processingRef.current = false;
-          return;
-        }
-
-        // Clear hash but preserve query params after successful session set.
         const currentUrl = new URL(window.location.href);
         currentUrl.hash = "";
         window.history.replaceState(null, "", currentUrl.toString());
-
-        const user = data.user;
-        if (!user) {
-          logger.error("Session set but no user found");
-          processingRef.current = false;
-          return;
-        }
-
-        // Check what auth step the user needs to complete
-        const { step } = await getRequiredAuthStep(user.id);
-
-        // User needs to complete setup or passkey auth
-        const loginUrl = buildLoginUrl(step, redirectUri);
-        window.location.href = loginUrl;
+        window.location.href = `${urls.auth}/login?error=callback_required`;
       } catch (err) {
-        logger.error("Error processing hash tokens:", err);
+        logger.error("Error handling legacy hash auth tokens:", err);
         processingRef.current = false;
       }
     })();
-  }, [supabase]);
+  }, []);
 
   return null;
 }

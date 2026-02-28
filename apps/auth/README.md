@@ -121,7 +121,7 @@ sequenceDiagram
     A-->>U: Redirect to app (signed in + encryption unlocked)
 ```
 
-Note: Passkey authentication creates the session directly server-side (via `verifyOtp`) without requiring the user to navigate through an additional callback URL. This ensures reliable session creation regardless of browser PKCE support.
+Note: Passkey authentication creates the session directly server-side (via `verifyOtp`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs.
 
 ### Key Points
 
@@ -173,14 +173,14 @@ Signs out the user with secure key cleanup and redirects. This is a client-side 
 
 ## Session Management (proxy.ts)
 
-The proxy (`proxy.ts`, via `@helvety/shared/proxy`) handles session validation, CSRF token generation, and same-origin cookie management:
+The proxy (`proxy.ts`, via `@helvety/shared/proxy`) handles lightweight request setup and same-origin cookie management:
 
-- **Session Validation & Refresh** - Uses `getClaims()` to validate the JWT locally (no Auth API call when the token is valid). The Supabase Auth API is only called when a token refresh is needed (e.g. near or past expiry). Refreshed tokens are written to cookies automatically. The call is wrapped in try/catch for resilience against transient network failures (VPN, Private Relay, mobile).
+- **Proxy Scope** - Sets lightweight request headers/CSP and CSRF cookie bootstrap. Authentication and authorization checks are enforced in pages, Server Actions, and Route Handlers.
 - **Session Sharing** - Sets cookies using the `COOKIE_DOMAIN` constant from `@helvety/shared/config` (`.helvety.com` in production) for session sharing
 - **CSRF Token Generation** - Generates a CSRF token cookie on each request if not already present. The token is read by the layout and passed to client components via `CSRFProvider`. Server Actions validate the token using timing-safe comparison.
 - **Server Component Support** - Helps keep server components aligned with current session state
 
-The proxy runs on all routes except static assets and handles the Supabase session lifecycle automatically.
+The proxy runs on all routes except static assets and is not the primary auth enforcement boundary.
 
 ## Cross-App Authentication
 
@@ -343,7 +343,7 @@ Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source t
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
-Vercel Analytics and Vercel Speed Insights are used across all Helvety apps for privacy-focused, anonymous page view and performance statistics. See our [Privacy Policy](https://helvety.com/privacy) for details.
+Vercel Analytics and Vercel Speed Insights are used across Helvety apps for privacy-oriented, aggregated/pseudonymized page-view and performance metrics. See our [Privacy Policy](https://helvety.com/privacy) for details.
 
 For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 

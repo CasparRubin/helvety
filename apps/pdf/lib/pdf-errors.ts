@@ -24,11 +24,14 @@ export interface PdfErrorInfo {
 }
 
 /**
- * Sanitizes error messages to prevent XSS and remove sensitive information.
- * Removes HTML tags, script content, and limits message length.
+ * Normalizes error text for display by stripping HTML-like tags and risky
+ * substrings, then truncating overly long messages.
  *
- * @param message - The error message to sanitize
- * @returns A sanitized error message safe for display
+ * This is a defensive cleanup step for UI rendering; it is not a complete XSS
+ * sanitizer or secret-redaction guarantee.
+ *
+ * @param message - The error message to normalize
+ * @returns A normalized error message for display
  */
 function sanitizeErrorMessage(message: string): string {
   let sanitized = message
@@ -83,7 +86,7 @@ function detectErrorType(errorMessage: string): PdfErrorType {
 /**
  * Formats file processing errors (PDFs and images) into user-friendly messages.
  *
- * Sanitizes error messages to prevent XSS and ensure safe display.
+ * Normalizes raw error text before rendering in user-visible messages.
  *
  * @param error - The error object (can be Error, string, or unknown)
  * @param context - Context string for the error (e.g., "Can't load 'filename.pdf':" or "Can't extract page:")

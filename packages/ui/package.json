@@ -13,7 +13,8 @@
   },
   "scripts": {
     "type-check": "tsc --noEmit",
-    "lint": "eslint . --max-warnings 0"
+    "lint": "eslint . --max-warnings 0",
+    "test": "echo \"No tests in @helvety/ui\""
   },
   "exports": {
     "./globals.css": "./globals.css",
@@ -44,12 +45,12 @@
     "./scroll-area": "./src/scroll-area.tsx",
     "./separator": "./src/separator.tsx",
     "./sheet": "./src/sheet.tsx",
-    "./skeleton": "./src/skeleton.tsx",
     "./slider": "./src/slider.tsx",
     "./sonner": "./src/sonner.tsx",
     "./tabs": "./src/tabs.tsx",
     "./theme-provider": "./src/theme-provider.tsx",
     "./tooltip": "./src/tooltip.tsx",
+    "./use-is-mobile": "./src/use-is-mobile.ts",
     "./theme-switcher": "./src/theme-switcher.tsx",
     "./app-switcher": "./src/app-switcher.tsx",
     "./session-recovery": "./src/session-recovery.tsx",

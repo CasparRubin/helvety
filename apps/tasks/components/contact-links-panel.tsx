@@ -35,9 +35,9 @@ import {
 } from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 
-import { useContactLinks } from "@/hooks";
+import { useContactLinks } from "@/hooks/use-contact-links";
 
-import type { LinkedContact } from "@/hooks";
+import type { LinkedContact } from "@/hooks/use-contact-links";
 import type { EntityType, Contact } from "@/lib/types";
 
 // =============================================================================

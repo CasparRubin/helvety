@@ -103,6 +103,9 @@ export function getStripeClient(): Stripe {
   stripeClient = new Stripe(secretKey, {
     apiVersion: "2026-02-25.clover",
     typescript: true,
+    // Enable resilient defaults for transient network and upstream errors.
+    maxNetworkRetries: 2,
+    timeout: 30_000,
     appInfo: {
       name: "Helvety Store",
       version: appVersion,

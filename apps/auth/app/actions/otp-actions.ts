@@ -3,7 +3,7 @@
 import "server-only";
 
 import { logAuthEvent } from "@helvety/shared/auth-logger";
-import { requireCSRFToken } from "@helvety/shared/csrf";
+import { generateCSRFToken, requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import {
   createAdminClient,
@@ -499,6 +499,9 @@ export async function verifyEmailCode(
     }
 
     const user = data.user;
+
+    // Rotate CSRF token after successful auth state change.
+    await generateCSRFToken();
 
     // Reset rate limit and escalating lockout on successful verification
     await Promise.all([

@@ -48,7 +48,7 @@ import {
 } from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 
-import { useTaskLinks } from "@/hooks";
+import { useTaskLinks } from "@/hooks/use-task-links";
 
 import type {
   LinkedUnit,

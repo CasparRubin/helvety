@@ -111,8 +111,7 @@ export function SubscriptionsTab({
   // CSRF token for security
   const csrfToken = useCSRF();
 
-  const hasInitialData =
-    initialSubscriptions && initialSubscriptions.length > 0;
+  const hasInitialData = initialSubscriptions !== undefined;
 
   // Subscriptions state
   const [subscriptions, setSubscriptions] = React.useState<Subscription[]>(

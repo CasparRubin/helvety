@@ -65,7 +65,8 @@ export async function getCSRFToken(): Promise<string | null> {
 /**
  * Validate a CSRF token against the stored cookie value.
  *
- * Uses timing-safe comparison to prevent timing attacks.
+ * Uses timingSafeEqual for equal-length token comparison to reduce timing
+ * leakage during CSRF validation.
  *
  * @param token - The token to validate (from form submission or header)
  * @returns true if the token is valid, false otherwise
@@ -84,7 +85,7 @@ export async function validateCSRFToken(
     return false;
   }
 
-  // Use timing-safe comparison to prevent timing attacks
+  // Use timing-safe comparison for equal-length buffers
   try {
     const tokenBuffer = Buffer.from(token, "utf8");
     const cookieBuffer = Buffer.from(cookieToken, "utf8");

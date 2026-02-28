@@ -1,7 +1,7 @@
 /**
  * Helvety full logo (white background, red "HELVETY" text).
  *
- * Renders inline SVG -- no network request, single source of truth.
+ * Renders inline SVG -- no network request, canonical component implementation in this package.
  * Original viewBox: 4000x1000
  */
 export function HelvetyLogo(props: React.SVGProps<SVGSVGElement>) {

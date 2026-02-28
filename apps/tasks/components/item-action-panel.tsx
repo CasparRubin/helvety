@@ -28,7 +28,7 @@ import {
 import { useCallback, useState } from "react";
 
 import { DateTimePicker } from "@/components/ui/date-time-picker";
-import { useIsMobile } from "@/hooks";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { renderStageIcon } from "@/lib/icons";
 import { PRIORITIES, getPriorityConfig } from "@/lib/priorities";
 

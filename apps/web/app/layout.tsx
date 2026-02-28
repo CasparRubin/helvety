@@ -12,7 +12,6 @@ import { TooltipProvider } from "@helvety/ui/tooltip";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
-import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
 
@@ -114,16 +113,15 @@ export const metadata: Metadata = {
  * Root layout: fixed header (Navbar), ScrollArea main, fixed footer (contact + legal links).
  *
  * The web app serves only public/static pages (home, privacy, terms, impressum).
- * No explicit force-dynamic export. Because this layout reads headers() for the
- * CSP nonce, rendering is still request-aware. The Navbar resolves auth state
- * client-side via its onAuthStateChange listener.
+ * No explicit force-dynamic export. This layout is kept static-friendly; auth
+ * state is resolved client-side in Navbar via onAuthStateChange.
  */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = await headers().then((h) => h.get("x-nonce") ?? "");
+  const nonce = "";
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>

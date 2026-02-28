@@ -166,9 +166,7 @@ export async function GET(request: Request) {
       );
     }
 
-    // No valid auth params (code or token_hash)
-    // Hash fragments (#access_token=...) are only visible client-side;
-    // redirect to /login preserving redirect_uri for AuthTokenHandler
+    // No valid auth params (code or token_hash) for callback-based auth flow.
     return NextResponse.redirect(
       buildErrorRedirect(undefined, safeRedirectUri)
     );

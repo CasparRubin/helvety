@@ -43,10 +43,15 @@ const TiptapEditor = dynamic(
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemActionPanel } from "@/components/item-action-panel";
 import { ItemCommandBar } from "@/components/item-command-bar";
-import { useUnit, useSpace, useItem, useStages, useLabels } from "@/hooks";
+import { useItem } from "@/hooks/use-items";
+import { useLabels } from "@/hooks/use-labels";
+import { useSpace } from "@/hooks/use-spaces";
+import { useStages } from "@/hooks/use-stages";
+import { useUnit } from "@/hooks/use-units";
 import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 
+import type { ItemRow, SpaceRow, UnitRow } from "@/lib/types";
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
 
@@ -86,14 +91,24 @@ export function ItemEditor({
   unitId,
   spaceId,
   itemId,
+  initialEncryptedUnit,
+  initialEncryptedSpace,
+  initialEncryptedItem,
 }: {
   unitId: string;
   spaceId: string;
   itemId: string;
+  initialEncryptedUnit?: UnitRow;
+  initialEncryptedSpace?: SpaceRow;
+  initialEncryptedItem?: ItemRow;
 }) {
   const router = useRouter();
-  const { unit, isLoading: isLoadingUnit } = useUnit(unitId);
-  const { space, isLoading: isLoadingSpace } = useSpace(spaceId);
+  const { unit, isLoading: isLoadingUnit } = useUnit(unitId, {
+    initialEncryptedData: initialEncryptedUnit,
+  });
+  const { space, isLoading: isLoadingSpace } = useSpace(spaceId, {
+    initialEncryptedData: initialEncryptedSpace,
+  });
   const {
     item,
     isLoading: isLoadingItem,
@@ -101,7 +116,9 @@ export function ItemEditor({
     update,
     refresh,
     remove,
-  } = useItem(itemId);
+  } = useItem(itemId, {
+    initialEncryptedData: initialEncryptedItem,
+  });
 
   // Stage data for the action panel
   const { stages, isLoading: isLoadingStages } = useStages(

@@ -11,6 +11,7 @@ import { NextResponse } from "next/server";
 
 import { getLoginUrl } from "./auth-redirect";
 import { getTrustedClientIp } from "./client-ip";
+import { generateCSRFToken } from "./csrf";
 import { logger } from "./logger";
 import { checkRateLimit, RATE_LIMITS } from "./rate-limit";
 import { getSafeRelativePath } from "./redirect-validation";
@@ -60,6 +61,7 @@ export function createAuthCallbackHandler() {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
+          await generateCSRFToken();
           return NextResponse.redirect(new URL(next, origin));
         }
 
@@ -89,6 +91,7 @@ export function createAuthCallbackHandler() {
         });
 
         if (!error) {
+          await generateCSRFToken();
           return NextResponse.redirect(new URL(next, origin));
         }
 

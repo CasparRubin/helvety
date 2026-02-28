@@ -17,6 +17,7 @@ import { z } from "zod";
 
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { stripe } from "@/lib/stripe";
+import { createStripeIdempotencyKey } from "@/lib/stripe/idempotency";
 
 import type {
   ActionResponse,
@@ -367,9 +368,19 @@ export async function cancelSubscription(
     }
 
     // Cancel in Stripe (at period end)
-    await stripe.subscriptions.update(subscription.stripe_subscription_id, {
-      cancel_at_period_end: true,
-    });
+    const idempotencyWindow = Math.floor(Date.now() / (10 * 60 * 1000));
+    await stripe.subscriptions.update(
+      subscription.stripe_subscription_id,
+      {
+        cancel_at_period_end: true,
+      },
+      {
+        idempotencyKey: createStripeIdempotencyKey(
+          "subscription_cancel_at_period_end",
+          [user.id, subscriptionId, idempotencyWindow]
+        ),
+      }
+    );
 
     // Update local record through scoped admin query (auto-enforces user scope).
     const scopedAdmin = createScopedAdminQuery(user.id);
@@ -487,9 +498,20 @@ export async function reactivateSubscription(
     }
 
     // Reactivate in Stripe
-    await stripe.subscriptions.update(subscription.stripe_subscription_id, {
-      cancel_at_period_end: false,
-    });
+    const idempotencyWindow = Math.floor(Date.now() / (10 * 60 * 1000));
+    await stripe.subscriptions.update(
+      subscription.stripe_subscription_id,
+      {
+        cancel_at_period_end: false,
+      },
+      {
+        idempotencyKey: createStripeIdempotencyKey("subscription_reactivate", [
+          user.id,
+          subscriptionId,
+          idempotencyWindow,
+        ]),
+      }
+    );
 
     // Update local record through scoped admin query (auto-enforces user scope).
     const scopedAdmin = createScopedAdminQuery(user.id);
@@ -544,10 +566,21 @@ export async function getCustomerPortalUrl(
         : `${appBaseUrl}/account`;
 
     // Create portal session
-    const portalSession = await stripe.billingPortal.sessions.create({
-      customer: profile.stripe_customer_id,
-      return_url: safeReturnUrl,
-    });
+    const idempotencyWindow = Math.floor(Date.now() / (2 * 60 * 1000));
+    const portalSession = await stripe.billingPortal.sessions.create(
+      {
+        customer: profile.stripe_customer_id,
+        return_url: safeReturnUrl,
+      },
+      {
+        idempotencyKey: createStripeIdempotencyKey("billing_portal_session", [
+          user.id,
+          profile.stripe_customer_id,
+          safeReturnUrl,
+          idempotencyWindow,
+        ]),
+      }
+    );
 
     return { success: true, data: portalSession.url };
   } catch (error) {

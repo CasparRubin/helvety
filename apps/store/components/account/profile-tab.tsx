@@ -61,8 +61,6 @@ interface ProfileTabProps {
  * Receives pre-fetched user data from the server to avoid a client-side waterfall.
  */
 export function ProfileTab({ initialUser }: ProfileTabProps) {
-  "use no memo";
-
   const csrfToken = useCSRF();
 
   const [user] = React.useState<UserData>(initialUser);
@@ -341,7 +339,8 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
             Delete Account
           </CardTitle>
           <CardDescription>
-            Permanently delete your account and all associated data
+            Request permanent account deletion and removal of account-linked
+            data, subject to legal retention obligations
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

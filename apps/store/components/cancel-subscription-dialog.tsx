@@ -160,7 +160,10 @@ export function CancelSubscriptionDialog({
                     {formatDate(displayPeriodEnd)}
                   </strong>
                 </li>
-                <li>No further charges should be made</li>
+                <li>
+                  No new renewal charges are expected after the current period
+                  ends (subject to any already-pending invoice adjustments)
+                </li>
                 <li>You can reactivate anytime before the end date</li>
               </ul>
             </div>

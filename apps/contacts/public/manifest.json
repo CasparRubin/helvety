@@ -1,7 +1,7 @@
 {
   "name": "Helvety Contacts",
   "short_name": "Helvety Contacts",
-  "description": "Private and secure contact management with end-to-end encryption. Engineered & Designed in Switzerland.",
+  "description": "Privacy-focused contact management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
   "start_url": "/contacts",
   "display": "standalone",
   "background_color": "#faf8f7",
@@ -20,7 +20,10 @@
       "purpose": "any"
     }
   ],
-  "categories": ["productivity", "utilities"],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
   "lang": "en-US",
   "dir": "ltr"
 }

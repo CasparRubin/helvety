@@ -35,6 +35,13 @@ export interface ItemsDashboardData {
   items: ItemRow[];
 }
 
+/** Data returned by the Item editor batch fetch. */
+export interface ItemEditorData {
+  unit: UnitRow;
+  space: SpaceRow;
+  item: ItemRow;
+}
+
 // =============================================================================
 // BATCH READ ACTIONS
 // =============================================================================
@@ -304,6 +311,100 @@ export async function getItemsDashboardData(
     };
   } catch (error) {
     logger.error("Unexpected error in getItemsDashboardData:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Batch fetch all data needed for the Item editor route.
+ * Performs a single auth + rate-limit check, then runs all DB queries in parallel.
+ *
+ * Replaces 3 separate server actions on initial load:
+ *   getUnit, getSpace, getItem
+ */
+export async function getItemEditorData(
+  unitId: string,
+  spaceId: string,
+  itemId: string
+): Promise<ActionResponse<ItemEditorData>> {
+  try {
+    if (!z.string().uuid().safeParse(unitId).success) {
+      return { success: false, error: "Invalid unit ID" };
+    }
+    if (!z.string().uuid().safeParse(spaceId).success) {
+      return { success: false, error: "Invalid space ID" };
+    }
+    if (!z.string().uuid().safeParse(itemId).success) {
+      return { success: false, error: "Invalid item ID" };
+    }
+
+    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
+
+    const [unitResult, spaceResult, itemResult] = await Promise.all([
+      supabase
+        .from("units")
+        .select("*")
+        .eq("id", unitId)
+        .eq("user_id", user.id)
+        .returns<UnitRow[]>()
+        .single(),
+      supabase
+        .from("spaces")
+        .select("*")
+        .eq("id", spaceId)
+        .eq("unit_id", unitId)
+        .eq("user_id", user.id)
+        .returns<SpaceRow[]>()
+        .single(),
+      supabase
+        .from("items")
+        .select("*")
+        .eq("id", itemId)
+        .eq("space_id", spaceId)
+        .eq("user_id", user.id)
+        .returns<ItemRow[]>()
+        .single(),
+    ]);
+
+    if (unitResult.error || !unitResult.data) {
+      const err = unitResult.error;
+      if (err?.code === "PGRST116" || !unitResult.data) {
+        return { success: false, error: "Unit not found" };
+      }
+      logger.error("Error fetching unit in item editor batch:", err);
+      return { success: false, error: "Failed to load item editor data" };
+    }
+
+    if (spaceResult.error || !spaceResult.data) {
+      const err = spaceResult.error;
+      if (err?.code === "PGRST116" || !spaceResult.data) {
+        return { success: false, error: "Space not found" };
+      }
+      logger.error("Error fetching space in item editor batch:", err);
+      return { success: false, error: "Failed to load item editor data" };
+    }
+
+    if (itemResult.error || !itemResult.data) {
+      const err = itemResult.error;
+      if (err?.code === "PGRST116" || !itemResult.data) {
+        return { success: false, error: "Item not found" };
+      }
+      logger.error("Error fetching item in item editor batch:", err);
+      return { success: false, error: "Failed to load item editor data" };
+    }
+
+    return {
+      success: true,
+      data: {
+        unit: unitResult.data,
+        space: spaceResult.data,
+        item: itemResult.data,
+      },
+    };
+  } catch (error) {
+    logger.error("Unexpected error in getItemEditorData:", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

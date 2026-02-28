@@ -38,7 +38,8 @@ import { ContactEditorCommandBar } from "@/components/contact-editor-command-bar
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { TaskLinksPanel } from "@/components/task-links-panel";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useContact, useCategories } from "@/hooks";
+import { useCategories } from "@/hooks/use-categories";
+import { useContact } from "@/hooks/use-contacts";
 import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
 
 import type { ContactRow } from "@/lib/types";

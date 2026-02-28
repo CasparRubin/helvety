@@ -34,10 +34,10 @@ import {
 } from "lucide-react";
 import { useState, useCallback, useRef, useEffect } from "react";
 
-import { useAttachments } from "@/hooks";
+import { useAttachments } from "@/hooks/use-attachments";
 import { ATTACHMENT_MAX_SIZE_BYTES } from "@/lib/constants";
 
-import type { UploadProgress } from "@/hooks";
+import type { UploadProgress } from "@/hooks/use-attachments";
 import type { Attachment } from "@/lib/types";
 
 // =============================================================================

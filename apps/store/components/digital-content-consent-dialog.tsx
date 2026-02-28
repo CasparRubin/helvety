@@ -8,7 +8,7 @@
  * Privacy Policy. The checkbox is required; the choice is not saved. The dialog
  * is shown on every purchase with the checkbox unchecked by default.
  *
- * Legal basis: Swiss contract law. Proof that the customer accepted the Terms
+ * Legal basis: Swiss contract law. Records evidence that the customer accepted the Terms
  * and Privacy Policy before purchase. Consent metadata (timestamp + version) is
  * stored in Stripe session metadata for audit trail purposes.
  *
@@ -30,6 +30,8 @@ import {
 import { Label } from "@helvety/ui/label";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { useState } from "react";
+
+import { CHECKOUT_CONFIG } from "@/lib/stripe/config";
 
 const LEGAL_BASE = urls.home;
 
@@ -81,7 +83,7 @@ export function PurchaseConsentDialog({
     if (hasAcceptedTerms) {
       onConfirm({
         termsAcceptedAt: new Date().toISOString(),
-        consentVersion: "2026-02-25",
+        consentVersion: CHECKOUT_CONFIG.consentVersion,
       });
     }
   };

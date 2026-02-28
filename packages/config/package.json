@@ -11,6 +11,11 @@
     "url": "https://github.com/CasparRubin/helvety.git",
     "directory": "packages/config"
   },
+  "scripts": {
+    "type-check": "echo \"No TypeScript sources in @helvety/config\"",
+    "lint": "eslint --config eslint.mjs . --max-warnings 0",
+    "test": "echo \"No tests in @helvety/config\""
+  },
   "exports": {
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./eslint": "./eslint.mjs",

@@ -64,7 +64,7 @@ function getAuthLoginUrl(): string {
 }
 
 /**
- * Gate component that ensures encryption is set up and unlocked before
+ * Gate component that requires encryption setup/unlock in this UI flow before
  * rendering children. Any unlock/setup requirement is handled in /auth.
  */
 export function EncryptionGate({

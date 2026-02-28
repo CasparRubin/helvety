@@ -28,14 +28,11 @@ import { ContactLinksPanel } from "@/components/contact-links-panel";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
 import { TaskCommandBar } from "@/components/task-command-bar";
-import {
-  useUnit,
-  useUnits,
-  useSpaces,
-  useChildCounts,
-  useStages,
-  useDataExport,
-} from "@/hooks";
+import { useChildCounts } from "@/hooks/use-child-counts";
+import { useDataExport } from "@/hooks/use-data-export";
+import { useSpaces } from "@/hooks/use-spaces";
+import { useStages } from "@/hooks/use-stages";
+import { useUnit, useUnits } from "@/hooks/use-units";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";
 

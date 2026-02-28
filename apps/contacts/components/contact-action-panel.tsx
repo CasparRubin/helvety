@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useCallback, useState } from "react";
 
-import { useIsMobile } from "@/hooks";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { renderCategoryIcon } from "@/lib/icons";
 
 import type { Contact, Category } from "@/lib/types";

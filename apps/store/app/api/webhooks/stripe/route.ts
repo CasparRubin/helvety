@@ -40,6 +40,9 @@ type SubscriptionEventType =
   | "subscription.payment_failed"
   | "subscription.skipped_unknown_price";
 
+/** Processing lifecycle state stored in subscription_events metadata. */
+type ProcessingStatus = "claimed" | "claimed_retry" | "processed" | "failed";
+
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -89,6 +92,67 @@ function isUniqueViolation(error: { code?: string } | null): boolean {
   return error?.code === "23505";
 }
 
+/** Extract processing status from metadata payload defensively. */
+function getProcessingStatus(metadata: unknown): ProcessingStatus | undefined {
+  if (!metadata || typeof metadata !== "object") {
+    return undefined;
+  }
+  const value = (metadata as Record<string, unknown>).processing_status;
+  if (
+    value === "claimed" ||
+    value === "claimed_retry" ||
+    value === "processed" ||
+    value === "failed"
+  ) {
+    return value;
+  }
+  return undefined;
+}
+
+/**
+ * Reclaim a previously failed webhook event so Stripe retries can be processed.
+ * Returns true when the event was transitioned back to a claimed state.
+ */
+async function reclaimFailedWebhookEvent(eventId: string): Promise<boolean> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("subscription_events")
+    .select("metadata")
+    .eq("stripe_event_id", eventId)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) {
+      logger.error("Failed to load existing webhook event for reclaim:", error);
+    }
+    return false;
+  }
+
+  const existingMetadata =
+    data.metadata &&
+    typeof data.metadata === "object" &&
+    !Array.isArray(data.metadata)
+      ? (data.metadata as Record<string, unknown>)
+      : {};
+  const processingStatus = getProcessingStatus(existingMetadata);
+
+  if (processingStatus !== "failed") {
+    return false;
+  }
+
+  const { error: updateError } = await supabase
+    .from("subscription_events")
+    .update({
+      metadata: {
+        ...existingMetadata,
+        processing_status: "claimed_retry",
+      },
+    } as never)
+    .eq("stripe_event_id", eventId);
+  ensureWriteSucceeded("webhook event reclaim update", updateError);
+  return true;
+}
+
 /**
  * Atomically claims an event by inserting subscription_events row keyed by stripe_event_id.
  * Duplicate inserts fail fast and are treated as already-processed events.
@@ -114,7 +178,7 @@ async function claimWebhookEvent(
     return true;
   }
   if (isUniqueViolation(error)) {
-    return false;
+    return await reclaimFailedWebhookEvent(eventId);
   }
   ensureWriteSucceeded("webhook event claim insert", error);
   return false;
@@ -271,7 +335,10 @@ export async function POST(request: NextRequest) {
 
   // Check if we handle this event type
   if (!isHandledWebhookEvent(event.type)) {
-    logger.info(`Ignoring unhandled event type: ${event.type}`);
+    logger.info(`Ignoring unhandled event type: ${event.type}`, {
+      stripe_event_id: event.id,
+      stripe_event_type: event.type,
+    });
     return NextResponse.json({ received: true });
   }
 
@@ -281,7 +348,10 @@ export async function POST(request: NextRequest) {
     event.type
   );
   if (!claimed) {
-    logger.info(`Duplicate event ignored: ${event.id}`);
+    logger.info(`Duplicate event ignored: ${event.id}`, {
+      stripe_event_id: event.id,
+      stripe_event_type: event.type,
+    });
     return NextResponse.json({ received: true });
   }
 
@@ -310,10 +380,17 @@ export async function POST(request: NextRequest) {
         break;
     }
 
-    logger.info(`Webhook processed: ${event.type} (${event.id})`);
+    logger.info(`Webhook processed: ${event.type} (${event.id})`, {
+      stripe_event_id: event.id,
+      stripe_event_type: event.type,
+    });
     return NextResponse.json({ received: true });
   } catch (error) {
-    logger.error(`Error processing webhook ${event.type}:`, error);
+    logger.error(`Error processing webhook ${event.type}:`, {
+      error,
+      stripe_event_id: event.id,
+      stripe_event_type: event.type,
+    });
     try {
       await finalizeWebhookEvent(event.id, {
         eventType: mapStripeEventTypeToInternalType(event.type),
@@ -429,21 +506,33 @@ async function handleSubscriptionUpsert(
   subscription: Stripe.Subscription,
   eventId: string
 ) {
-  const customerId = subscription.customer as string;
+  // Stripe event ordering is not guaranteed, so reconcile using the latest
+  // canonical subscription state from Stripe before writing.
+  let latestSubscription: Stripe.Subscription = subscription;
+  try {
+    latestSubscription = await stripe.subscriptions.retrieve(subscription.id);
+  } catch (error) {
+    logger.warn(
+      `Could not retrieve latest Stripe subscription ${subscription.id}; falling back to event payload:`,
+      error
+    );
+  }
+
+  const customerId = latestSubscription.customer as string;
   const { userId } = await resolveTrustedUserId(
-    subscription.metadata?.supabase_user_id,
+    latestSubscription.metadata?.supabase_user_id,
     customerId,
-    `subscription.upsert:${subscription.id}`
+    `subscription.upsert:${latestSubscription.id}`
   );
 
   if (!userId) {
     logger.warn(
-      `No trusted user found for subscription ${subscription.id}, customer ${customerId}`
+      `No trusted user found for subscription ${latestSubscription.id}, customer ${customerId}`
     );
     return;
   }
 
-  await upsertSubscription(subscription, userId, eventId);
+  await upsertSubscription(latestSubscription, userId, eventId);
 }
 
 /**
@@ -582,6 +671,32 @@ async function handleSubscriptionDeleted(
   eventId: string
 ) {
   const supabase = createAdminClient();
+
+  try {
+    const latestSubscription = await stripe.subscriptions.retrieve(
+      subscription.id
+    );
+    if (latestSubscription.status !== "canceled") {
+      await finalizeWebhookEvent(eventId, {
+        eventType: "subscription.updated",
+        metadata: {
+          subscription_id: subscription.id,
+          reason: "stale_deleted_event_ignored",
+          latest_status: latestSubscription.status,
+          processing_status: "processed",
+        },
+      });
+      logger.warn(
+        `Ignored stale deleted event for subscription ${subscription.id}; latest status is ${latestSubscription.status}`
+      );
+      return;
+    }
+  } catch (error) {
+    logger.warn(
+      `Could not verify latest status for deleted event ${subscription.id}:`,
+      error
+    );
+  }
 
   // Update subscription status to canceled
   const { data: existingSub } = await supabase

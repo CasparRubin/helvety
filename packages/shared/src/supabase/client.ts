@@ -21,7 +21,7 @@ const FETCH_TIMEOUT_MS = 15_000;
  * Fetch wrapper with timeout via AbortController.
  *
  * On unreliable networks (VPN, Private Relay, mobile on iOS), requests to
- * the Supabase Auth API can hang indefinitely. This wrapper ensures we
+ * the Supabase Auth API can hang indefinitely. This wrapper attempts to
  * abort after FETCH_TIMEOUT_MS and surface the error promptly so retry
  * logic at higher layers can kick in.
  */
@@ -98,7 +98,8 @@ async function lockWithTimeout<R>(
 
 /**
  * Creates or returns the existing Supabase browser client instance.
- * Uses a singleton pattern to ensure only one client instance exists per browser context.
+ * Uses a module-level singleton to reuse one client instance per loaded
+ * module context.
  *
  * SECURITY NOTES:
  * - This client uses the anon/publishable key (NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
@@ -110,8 +111,8 @@ async function lockWithTimeout<R>(
  * RESILIENCE NOTES:
  * - Uses a custom fetch wrapper with a 15-second timeout to prevent indefinite
  *   hangs on flaky networks (VPN, Private Relay, mobile Safari)
- * - detectSessionInUrl is disabled because AuthTokenHandler handles hash tokens
- *   explicitly, avoiding race conditions on initial page load
+ * - detectSessionInUrl is disabled because auth completion is callback-route based
+ *   (`/auth/callback` with code/token_hash), not hash-fragment token consumption
  *
  * @returns The Supabase client instance
  */
@@ -132,9 +133,9 @@ export function createBrowserClient(): SupabaseClient<DatabaseSchema> {
         fetch: fetchWithTimeout,
       },
       auth: {
-        // AuthTokenHandler explicitly handles hash-fragment tokens in the root
-        // layout, so we disable the built-in detection to avoid race conditions
-        // where Supabase tries to consume the hash before our handler runs.
+        // Auth is completed via callback routes using query parameters.
+        // Keep hash-fragment session detection disabled to avoid accepting
+        // non-state-bound token fragments on arbitrary routes.
         detectSessionInUrl: false,
         // Prevent navigator.locks deadlocks on Safari iOS and Android Chrome.
         // The default lock uses infinite timeouts which can hang permanently

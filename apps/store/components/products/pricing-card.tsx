@@ -75,8 +75,6 @@ export function PricingCard({
   onReactivate,
   checkoutEnabledTiers,
 }: PricingCardProps) {
-  "use no memo";
-
   // CSRF token for security
   const csrfToken = useCSRF();
 

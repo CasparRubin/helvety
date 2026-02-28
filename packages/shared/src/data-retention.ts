@@ -1,7 +1,7 @@
 /**
  * Swiss legal retention/deletion defaults used across Helvety services.
  *
- * These constants provide a single source of truth for implementation and
+ * These constants provide a canonical reference for implementation and
  * legal copy alignment. Values represent standard retention periods and may be
  * extended when a documented legal hold, dispute, or binding order applies.
  */

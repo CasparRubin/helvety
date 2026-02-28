@@ -7,7 +7,7 @@ import { getSupabaseUrl } from "../env-validation";
 import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-/** Public tables that are user-owned and can be safely auto-scoped by user ID. */
+/** Public tables that are user-owned and intended for user-ID scoping. */
 type ScopedTable =
   | "attachment_audit_logs"
   | "consent_events"
@@ -130,7 +130,7 @@ export function createAdminClient(): SupabaseClient<DatabaseSchema> {
  * SECURITY NOTES:
  * - This is defense-in-depth around the service-role client.
  * - SELECT/UPDATE/DELETE/UPSERT paths automatically apply the owner predicate.
- * - INSERT/UPSERT force owner fields on payloads so callers cannot omit/mismatch ownership.
+ * - INSERT/UPSERT force owner fields on payloads to reduce ownership mismatch risk.
  * - Keep raw createAdminClient() for system flows without a user context (webhooks, public APIs, etc.).
  */
 export function createScopedAdminQuery(userId: string) {

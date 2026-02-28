@@ -33,8 +33,8 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 This application includes the following security hardening:
 
-- **Session Management** - Session validation and refresh via `proxy.ts` using `getClaims()` (local JWT validation; Auth API only when refresh is needed; wrapped in try/catch for resilience against transient network failures)
-- **Redirect URI Validation** - All redirect URIs validated against allowlist via `@helvety/shared/redirect-validation` to prevent open redirect attacks
+- **Session Management** - `proxy.ts` performs lightweight request setup (CSP headers and CSRF bootstrap). Session/auth checks are enforced in pages, Server Actions, and Route Handlers.
+- **Redirect URI Validation** - Redirect URIs are allowlist-validated in core auth flows via `@helvety/shared/redirect-validation` to reduce open-redirect risk
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Security Headers** - CSP, HSTS, and other security headers
 
@@ -88,7 +88,7 @@ Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source t
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
 
-Vercel Analytics and Vercel Speed Insights are used across all Helvety apps for privacy-focused, anonymous page view and performance statistics. See our [Privacy Policy](https://helvety.com/privacy) for details.
+Vercel Analytics and Vercel Speed Insights are used across Helvety apps for privacy-oriented, aggregated/pseudonymized page-view and performance metrics. See our [Privacy Policy](https://helvety.com/privacy) for details.
 
 For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 

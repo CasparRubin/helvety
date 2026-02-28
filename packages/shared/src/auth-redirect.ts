@@ -4,7 +4,8 @@
  * These functions handle redirects to/from the centralized auth service
  * at helvety.com/auth for login and logout flows.
  *
- * Security: All redirect URIs are validated against an allowlist to prevent
+ * Security: Redirect URIs passed through these helpers are validated against
+ * an allowlist to reduce
  * open redirect attacks.
  */
 

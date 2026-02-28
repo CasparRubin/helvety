@@ -22,7 +22,7 @@ import { usePdfProcessing } from "@/hooks/use-pdf-processing";
  * - Extract individual pages
  * - Merge all pages into a single PDF
  *
- * All processing happens client-side for privacy and security.
+ * For supported PDF/image operations, file content processing happens client-side.
  * Completely free (up to 100MB per file) and no login required.
  *
  * @returns The main PDF toolkit interface

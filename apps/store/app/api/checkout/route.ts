@@ -10,8 +10,8 @@
  *
  * Legal: Helvety services are primarily intended for customers in Switzerland.
  * All prices are in CHF. The consent audit trail records that the customer
- * accepted the Terms of Service and Privacy Policy before purchase (Swiss
- * contract law compliance).
+ * accepted the Terms of Service and Privacy Policy before purchase (supports
+ * contractual evidence requirements under Swiss law).
  */
 
 import { getTrustedClientIp } from "@helvety/shared/client-ip";
@@ -22,6 +22,7 @@ import { isValidRelativePath } from "@helvety/shared/redirect-validation";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 import { z } from "zod";
 
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -31,11 +32,11 @@ import {
   CHECKOUT_CONFIG,
   getProductFromPriceId,
 } from "@/lib/stripe";
+import { createStripeIdempotencyKey } from "@/lib/stripe/idempotency";
 import { appendQueryParam } from "@/lib/stripe/url-utils";
 
 import type { CreateCheckoutResponse } from "@/lib/types";
 import type { NextRequest } from "next/server";
-import type Stripe from "stripe";
 
 // =============================================================================
 // Input Validation Schema
@@ -59,6 +60,27 @@ const CheckoutRequestSchema = z.object({
   // Client only attests consent was checked; server stamps authoritative audit fields.
   consentGiven: z.boolean().optional(),
 });
+
+/** Maps Stripe API errors to user-safe checkout messages. */
+function getCheckoutErrorMessage(error: unknown): string {
+  if (error instanceof Stripe.errors.StripeCardError) {
+    return "Your card was declined. Please use a different payment method.";
+  }
+  if (error instanceof Stripe.errors.StripeRateLimitError) {
+    return "Too many payment attempts. Please wait a moment and try again.";
+  }
+  if (
+    error instanceof Stripe.errors.StripeInvalidRequestError ||
+    error instanceof Stripe.errors.StripeAuthenticationError ||
+    error instanceof Stripe.errors.StripePermissionError
+  ) {
+    return "We couldn't start checkout. Please try again shortly.";
+  }
+  if (error instanceof Stripe.errors.StripeAPIError) {
+    return "Payment provider is temporarily unavailable. Please try again.";
+  }
+  return "An unexpected error occurred";
+}
 
 // =============================================================================
 // POST /api/checkout - Create a Stripe Checkout Session
@@ -171,6 +193,8 @@ export async function POST(request: NextRequest) {
 
     let stripeCustomerId: string | undefined;
     const scopedAdmin = user ? createScopedAdminQuery(user.id) : null;
+    const idempotencyWindow = Math.floor(Date.now() / (10 * 60 * 1000));
+    const idempotencyScope = user?.id ?? `guest:${clientIP}`;
 
     // If user is logged in, get or create their Stripe customer
     if (user && scopedAdmin) {
@@ -184,12 +208,20 @@ export async function POST(request: NextRequest) {
         stripeCustomerId = profile.stripe_customer_id;
       } else {
         // Create a new Stripe customer
-        const customer = await stripe.customers.create({
-          email: user.email,
-          metadata: {
-            supabase_user_id: user.id,
+        const customer = await stripe.customers.create(
+          {
+            email: user.email,
+            metadata: {
+              supabase_user_id: user.id,
+            },
           },
-        });
+          {
+            idempotencyKey: createStripeIdempotencyKey(
+              "checkout_customer_create",
+              [idempotencyScope, user.email ?? "no-email", idempotencyWindow]
+            ),
+          }
+        );
         stripeCustomerId = customer.id;
 
         // Save customer ID to profile (upsert in case profile doesn't exist)
@@ -264,7 +296,7 @@ export async function POST(request: NextRequest) {
     metadata.consent_terms_at = consentTermsAt;
     metadata.consent_version = consentVersion;
 
-    // Persist consent event in Supabase for audit trail (nDSG compliance)
+    // Persist consent event in Supabase for audit/evidence logging (nDSG-aligned design)
     if (user && scopedAdmin) {
       try {
         await scopedAdmin.from("consent_events").insert({
@@ -318,7 +350,19 @@ export async function POST(request: NextRequest) {
         params.customer_email = user.email;
       }
 
-      session = await stripe.checkout.sessions.create(params);
+      session = await stripe.checkout.sessions.create(params, {
+        idempotencyKey: createStripeIdempotencyKey(
+          "checkout_session_subscription",
+          [
+            idempotencyScope,
+            tierId,
+            productInfo.productId,
+            resolvedSuccessUrl,
+            resolvedCancelUrl,
+            idempotencyWindow,
+          ]
+        ),
+      });
     } else {
       // One-time payment checkout
       const params: Stripe.Checkout.SessionCreateParams = {
@@ -351,7 +395,16 @@ export async function POST(request: NextRequest) {
         params.customer_email = user.email;
       }
 
-      session = await stripe.checkout.sessions.create(params);
+      session = await stripe.checkout.sessions.create(params, {
+        idempotencyKey: createStripeIdempotencyKey("checkout_session_payment", [
+          idempotencyScope,
+          tierId,
+          productInfo.productId,
+          resolvedSuccessUrl,
+          resolvedCancelUrl,
+          idempotencyWindow,
+        ]),
+      });
     }
 
     if (!session.url) {
@@ -362,7 +415,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    logger.info(`Checkout session created: ${session.id} for tier: ${tierId}`);
+    logger.info(`Checkout session created: ${session.id} for tier: ${tierId}`, {
+      stripe_session_id: session.id,
+      tier_id: tierId,
+      product_id: productInfo.productId,
+      user_id: user?.id ?? null,
+      is_subscription: isSubscription,
+    });
 
     const response: CreateCheckoutResponse = {
       checkoutUrl: session.url,
@@ -375,7 +434,7 @@ export async function POST(request: NextRequest) {
     logger.error("Error creating checkout session:", error);
 
     return NextResponse.json(
-      { error: "An unexpected error occurred" },
+      { error: getCheckoutErrorMessage(error) },
       { status: 500 }
     );
   }

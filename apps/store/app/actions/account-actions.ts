@@ -17,6 +17,7 @@ import { z } from "zod";
 import { hasAccountDeletionVerificationFailures } from "@/lib/account-deletion-compliance";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 import { stripe } from "@/lib/stripe";
+import { createStripeIdempotencyKey } from "@/lib/stripe/idempotency";
 
 import type { ActionResponse } from "@/lib/types";
 import type { UserDataExport } from "@/lib/types/store";
@@ -306,10 +307,20 @@ export async function requestAccountDeletion(
       );
 
       if (cancellableSubscriptions.length > 0) {
+        const idempotencyWindow = Math.floor(Date.now() / (10 * 60 * 1000));
         const results = await Promise.allSettled(
           cancellableSubscriptions.map(
             (sub: { stripe_subscription_id: string }) =>
-              stripe.subscriptions.cancel(sub.stripe_subscription_id)
+              stripe.subscriptions.cancel(
+                sub.stripe_subscription_id,
+                undefined,
+                {
+                  idempotencyKey: createStripeIdempotencyKey(
+                    "account_delete_subscription_cancel",
+                    [user.id, sub.stripe_subscription_id, idempotencyWindow]
+                  ),
+                }
+              )
           )
         );
 
