@@ -1,6 +1,8 @@
 "use client";
 
 import { HelvetyLogo } from "@helvety/brand/logo";
+import { urls } from "@helvety/shared/config";
+import { Button } from "@helvety/ui/button";
 import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 
 const fadeInUp = {
@@ -76,6 +78,11 @@ export function HeroSection() {
                 Engineered & Designed in{" "}
                 <span className="font-medium text-[#FF0000]">Switzerland</span>
               </p>
+            </m.div>
+            <m.div variants={prefersReducedMotion ? noMotion : fadeInUp}>
+              <Button asChild size="lg">
+                <a href={urls.store}>Visit Store</a>
+              </Button>
             </m.div>
           </m.div>
         </div>
