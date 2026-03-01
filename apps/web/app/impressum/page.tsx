@@ -1,7 +1,15 @@
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
-import { Button } from "@helvety/ui/button";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+
+import {
+  LegalCard,
+  LegalFooterNote,
+  LegalHeader,
+  LegalPageShell,
+  LegalSection,
+  LegalSubsection,
+} from "@/components/legal-document";
 
 import type { Metadata } from "next";
 
@@ -16,337 +24,309 @@ export const metadata: Metadata = {
 /** Legal notice / Impressum page for Helvety */
 export default function ImpressumPage() {
   return (
-    <section className="legal-page-section">
-      <div className="legal-page-container">
-        <div className="legal-page-back">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Link>
-          </Button>
-        </div>
+    <LegalPageShell>
+      <LegalHeader
+        title="Impressum"
+        lastReviewed="February 28, 2026"
+        subtitle={
+          <>
+            Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
+            Swiss Unfair Competition Act
+          </>
+        }
+      />
 
-        <article className="legal-page-article">
-          <header>
-            <h1 className="mb-2 text-3xl font-bold">Impressum</h1>
-            <p className="text-muted-foreground text-sm">
-              Last reviewed: February 28, 2026
+      {/* Company Information */}
+      <LegalSection title="Company Information">
+        <LegalCard>
+          <div>
+            <p className="text-foreground font-medium">Helvety by Rubin</p>
+            <p className="text-muted-foreground">
+              Einzelfirma (Sole Proprietorship)
             </p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant
-              to Swiss Unfair Competition Act
+          </div>
+
+          <div>
+            <p className="text-foreground mb-1 font-medium">Owner</p>
+            <p className="text-muted-foreground">
+              <a
+                href="https://casparrubin.ch"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground inline-flex items-center gap-1 transition-colors"
+              >
+                Caspar Camille Rubin
+                <ExternalLink className="h-3 w-3" />
+              </a>
             </p>
-          </header>
+          </div>
 
-          {/* Company Information */}
-          <section>
-            <h2 className="mb-4 text-xl font-semibold">Company Information</h2>
-            <div className="border-border bg-card space-y-4 border p-6 text-sm">
-              <div>
-                <p className="text-foreground font-medium">Helvety by Rubin</p>
-                <p className="text-muted-foreground">
-                  Einzelfirma (Sole Proprietorship)
-                </p>
-              </div>
+          <div>
+            <p className="text-foreground mb-1 font-medium">Address</p>
+            <p className="text-muted-foreground">Holeestrasse 116</p>
+            <p className="text-muted-foreground">4054 Basel</p>
+            <p className="text-muted-foreground">Switzerland</p>
+          </div>
 
-              <div>
-                <p className="text-foreground mb-1 font-medium">Owner</p>
-                <p className="text-muted-foreground">
-                  <a
-                    href="https://casparrubin.ch"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-foreground inline-flex items-center gap-1 transition-colors"
-                  >
-                    Caspar Camille Rubin
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </p>
-              </div>
-
-              <div>
-                <p className="text-foreground mb-1 font-medium">Address</p>
-                <p className="text-muted-foreground">Holeestrasse 116</p>
-                <p className="text-muted-foreground">4054 Basel</p>
-                <p className="text-muted-foreground">Switzerland</p>
-              </div>
-
-              <div>
-                <p className="text-foreground mb-1 font-medium">Contact</p>
-                <p className="text-muted-foreground">
-                  Email:{" "}
-                  <a
-                    href={`mailto:${CONTACT_EMAIL}`}
-                    className="hover:text-foreground underline transition-colors"
-                  >
-                    {CONTACT_EMAIL}
-                  </a>
-                </p>
-                <p className="text-muted-foreground">
-                  Phone:{" "}
-                  <a
-                    href="tel:+41798700208"
-                    className="hover:text-foreground underline transition-colors"
-                  >
-                    +41 79 870 02 08
-                  </a>
-                </p>
-              </div>
-
-              <div>
-                <p className="text-foreground mb-1 font-medium">Registration</p>
-                <p className="text-muted-foreground">
-                  Registered in the Commercial Register of Basel-Stadt
-                </p>
-                <p className="text-muted-foreground">UID: CHE-356.266.592</p>
-              </div>
-
-              <div>
-                <p className="text-foreground mb-1 font-medium">
-                  Responsible for Content
-                </p>
-                <p className="text-muted-foreground">
-                  Caspar Camille Rubin (Verantwortlich für den Inhalt)
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Business Activity */}
-          <section>
-            <h2 className="mb-4 text-xl font-semibold">Business Activity</h2>
-            <p className="text-muted-foreground text-sm">
-              Helvety by Rubin develops and offers software, including free
-              tools and software-as-a-service (SaaS) products. Current products
-              include Helvety SPO Explorer (paid SharePoint extension), Helvety
-              PDF (available at no cost as of February 28, 2026), Helvety Tasks
-              (encrypted task management), and Helvety Contacts (encrypted
-              contact management). Physical products (such as apparel) may be
-              offered in the future. Our products are primarily designed and
-              developed in Switzerland.
-            </p>
-          </section>
-
-          {/* Trademark */}
-          <section>
-            <h2 className="mb-4 text-xl font-semibold">Trademark</h2>
-            <p className="text-muted-foreground text-sm">
-              The Helvety name is used as a trademark by Helvety by Rubin. All
-              rights reserved to the extent permitted by law.
-            </p>
-          </section>
-
-          {/* Abuse Reporting */}
-          <section id="abuse">
-            <h2 className="mb-4 text-xl font-semibold">Abuse Reporting</h2>
-            <p className="text-muted-foreground mb-4 text-sm">
-              If you believe that our Services are being used for illegal
-              activity, or if you are a law enforcement authority with a legal
-              request, please contact us:
-            </p>
-            <div className="border-border bg-card space-y-4 border p-6 text-sm">
-              <div>
-                <p className="text-foreground mb-1 font-medium">
-                  Contact for Abuse Reports
-                </p>
-                <p className="text-muted-foreground">
-                  Email:{" "}
-                  <a
-                    href={`mailto:${CONTACT_EMAIL}`}
-                    className="hover:text-foreground underline transition-colors"
-                  >
-                    {CONTACT_EMAIL}
-                  </a>
-                </p>
-              </div>
-              <div>
-                <p className="text-foreground mb-1 font-medium">
-                  What to Include in a Report
-                </p>
-                <ul className="text-muted-foreground list-outside list-disc space-y-1 pl-5 text-sm">
-                  <li>
-                    Description of the suspected illegal activity or content
-                  </li>
-                  <li>
-                    Any account identifiers you may have (e.g., email address)
-                  </li>
-                  <li>Your contact information for follow-up</li>
-                  <li>Reference to the applicable legal basis (if known)</li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-foreground mb-1 font-medium">
-                  For Law Enforcement
-                </p>
-                <p className="text-muted-foreground">
-                  Legal requests must be issued in accordance with applicable
-                  Swiss law. We respond to valid Swiss court orders and binding
-                  legal requests. For services using end-to-end encryption, our
-                  systems do not have decryption keys, so we cannot access
-                  plaintext user content. Depending on the service and legal
-                  basis, we provide available non-encrypted metadata (for
-                  example account identifiers, IP addresses, timestamps, and
-                  storage usage information). Typical security/abuse metadata
-                  has a target retention window up to 6 months under current
-                  operational policy (subject to legal hold, incident handling,
-                  and technical constraints), while legally required
-                  contract/accounting evidence may be retained longer (for
-                  example up to 10 years where required by Swiss law).
-                </p>
-              </div>
-              <div>
-                <p className="text-foreground mb-1 font-medium">
-                  Response Commitment
-                </p>
-                <p className="text-muted-foreground">
-                  We aim to acknowledge abuse reports promptly, typically within
-                  two business days, subject to request volume and complexity.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Data Protection */}
-          <section>
-            <h2 className="mb-4 text-xl font-semibold">Data Protection</h2>
-            <p className="text-muted-foreground text-sm">
-              For data protection inquiries or to exercise your rights under the
-              Swiss Federal Act on Data Protection (nDSG), please contact us at{" "}
+          <div>
+            <p className="text-foreground mb-1 font-medium">Contact</p>
+            <p className="text-muted-foreground">
+              Email:{" "}
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
-                className="hover:text-foreground transition-colors"
+                className="hover:text-foreground underline transition-colors"
               >
                 {CONTACT_EMAIL}
               </a>
-              . For full details on how we handle your data, see our{" "}
-              <Link
-                href="/privacy"
+            </p>
+            <p className="text-muted-foreground">
+              Phone:{" "}
+              <a
+                href="tel:+41798700208"
                 className="hover:text-foreground underline transition-colors"
               >
-                Privacy Policy
-              </Link>
-              .
+                +41 79 870 02 08
+              </a>
             </p>
-          </section>
+          </div>
 
-          {/* Disclaimer */}
-          <section>
-            <h2 className="mb-4 text-xl font-semibold">Disclaimer</h2>
-
-            <h3 className="mb-3 text-lg font-medium">Liability for Content</h3>
-            <p className="text-muted-foreground mb-4 text-sm">
-              We strive to keep the content of this website accurate and up to
-              date. However, we cannot guarantee the accuracy, completeness, or
-              timeliness of the content. As a service provider, we are
-              responsible for our own content on these pages in accordance with
-              general laws. However, we are not obligated to monitor transmitted
-              or stored third-party information or to investigate circumstances
-              that indicate illegal activity.
+          <div>
+            <p className="text-foreground mb-1 font-medium">Registration</p>
+            <p className="text-muted-foreground">
+              Registered in the Commercial Register of Basel-Stadt
             </p>
+            <p className="text-muted-foreground">UID: CHE-356.266.592</p>
+          </div>
 
-            <h3 className="mt-6 mb-3 text-lg font-medium">
-              Liability for Links
-            </h3>
-            <p className="text-muted-foreground mb-4 text-sm">
-              Our website may contain links to external third-party websites
-              over whose content we have no influence. Therefore, we cannot
-              accept any liability for this third-party content. The respective
-              provider or operator of the linked pages is generally responsible
-              for the content of the linked pages. The linked pages were checked
-              for possible legal violations at the time of linking. Illegal
-              content was not recognizable at the time of linking. Permanent
-              monitoring of the content of the linked pages is not reasonable
-              without concrete evidence of a legal violation. Upon notification
-              of violations, we will remove such links as soon as reasonably
-              practicable.
+          <div>
+            <p className="text-foreground mb-1 font-medium">
+              Responsible for Content
             </p>
+            <p className="text-muted-foreground">
+              Caspar Camille Rubin (Verantwortlich für den Inhalt)
+            </p>
+          </div>
+        </LegalCard>
+      </LegalSection>
 
-            <h3 className="mt-6 mb-3 text-lg font-medium">
-              Liability for Software and SaaS
-            </h3>
-            <p className="text-muted-foreground mb-4 text-sm">
-              Our software and SaaS products are provided without guarantee of
-              uninterrupted or error-free operation and without obligation to
-              provide updates. Detailed disclaimers and limitations are set out
-              in our{" "}
-              <Link
-                href="/terms"
+      {/* Business Activity */}
+      <LegalSection title="Business Activity">
+        <p className="text-muted-foreground text-sm">
+          Helvety by Rubin develops and offers software, including free tools
+          and software-as-a-service (SaaS) products. Current products include
+          Helvety SPO Explorer (paid SharePoint extension), Helvety PDF
+          (available at no cost as of February 28, 2026), Helvety Tasks
+          (encrypted task management), and Helvety Contacts (encrypted contact
+          management). Physical products (such as apparel) may be offered in the
+          future. Our products are primarily designed and developed in
+          Switzerland.
+        </p>
+      </LegalSection>
+
+      {/* Trademark */}
+      <LegalSection title="Trademark">
+        <p className="text-muted-foreground text-sm">
+          The Helvety name is used as a trademark by Helvety by Rubin. All
+          rights reserved to the extent permitted by law.
+        </p>
+      </LegalSection>
+
+      {/* Abuse Reporting */}
+      <LegalSection id="abuse" title="Abuse Reporting">
+        <p className="text-muted-foreground mb-4 text-sm">
+          If you believe that our Services are being used for illegal activity,
+          or if you are a law enforcement authority with a legal request, please
+          contact us:
+        </p>
+        <LegalCard>
+          <div>
+            <p className="text-foreground mb-1 font-medium">
+              Contact for Abuse Reports
+            </p>
+            <p className="text-muted-foreground">
+              Email:{" "}
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="hover:text-foreground underline transition-colors"
               >
-                Terms of Service
-              </Link>
-              .
+                {CONTACT_EMAIL}
+              </a>
             </p>
-
-            <h3 className="mt-6 mb-3 text-lg font-medium">Copyright</h3>
-            <p className="text-muted-foreground text-sm">
-              The content and works created by the site operators on these pages
-              are subject to Swiss copyright law. Reproduction, editing,
-              distribution, and any kind of use outside the limits of copyright
-              law require the written consent of the respective author or
-              creator. Downloads and copies of this site are permitted only for
-              personal viewing. This does not grant any rights to source code or
-              software; source code usage is governed exclusively by the
-              repository LICENSE (all rights reserved).
+          </div>
+          <div>
+            <p className="text-foreground mb-1 font-medium">
+              What to Include in a Report
             </p>
-          </section>
-
-          {/* Applicable Law */}
-          <section>
-            <h2 className="mb-4 text-xl font-semibold">
-              Applicable Law and Jurisdiction
-            </h2>
-            <p className="text-muted-foreground mb-4 text-sm">
-              This Impressum and any disputes arising from or in connection with
-              this website are governed by Swiss law. The exclusive place of
-              jurisdiction is Basel-Stadt, Switzerland, except where mandatory
-              law provides otherwise.
-            </p>
-            <p className="text-muted-foreground text-sm">
-              Our services are primarily intended for customers in Switzerland.
-              New account creation currently includes a Switzerland location
-              confirmation step, but technical access from outside Switzerland
-              may still occur. Where mandatory law in another jurisdiction
-              applies in a specific case, those mandatory provisions remain
-              unaffected.
-            </p>
-          </section>
-
-          {/* Related Documents */}
-          <section>
-            <h2 className="mb-4 text-xl font-semibold">Related Documents</h2>
-            <ul className="text-muted-foreground space-y-2 text-sm">
+            <ul className="text-muted-foreground list-outside list-disc space-y-1 pl-5 text-sm">
+              <li>Description of the suspected illegal activity or content</li>
               <li>
-                <Link
-                  href="/terms"
-                  className="hover:text-foreground underline transition-colors"
-                >
-                  Terms of Service
-                </Link>
-                {" - "}Usage terms, disclaimers, and limitations
+                Any account identifiers you may have (e.g., email address)
               </li>
-              <li>
-                <Link
-                  href="/privacy"
-                  className="hover:text-foreground underline transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-                {" - "}How your data is handled and protected
-              </li>
+              <li>Your contact information for follow-up</li>
+              <li>Reference to the applicable legal basis (if known)</li>
             </ul>
-          </section>
-
-          {/* Final Notice */}
-          <footer className="border-border border-t pt-8">
-            <p className="text-muted-foreground text-center text-xs">
-              By using Helvety services, you acknowledge that this Impressum
-              applies to your use of the services.
+          </div>
+          <div>
+            <p className="text-foreground mb-1 font-medium">
+              For Law Enforcement
             </p>
-          </footer>
-        </article>
-      </div>
-    </section>
+            <p className="text-muted-foreground">
+              Legal requests must be issued in accordance with applicable Swiss
+              law. We respond to valid Swiss court orders and binding legal
+              requests. For services using end-to-end encryption, our
+              architecture is designed so we are generally unable to access
+              plaintext user content during normal operation. Depending on the
+              service and legal basis, we may provide available non-encrypted
+              metadata (for example account identifiers, IP addresses,
+              timestamps, and storage usage information). Typical security/abuse
+              metadata has a target retention window up to 6 months under
+              current operational policy (subject to legal hold, incident
+              handling, and technical constraints), while legally required
+              contract/accounting evidence may be retained longer (for example
+              up to 10 years where required by Swiss law).
+            </p>
+          </div>
+          <div>
+            <p className="text-foreground mb-1 font-medium">
+              Response Commitment
+            </p>
+            <p className="text-muted-foreground">
+              We aim to acknowledge abuse reports promptly, typically within two
+              business days, subject to request volume and complexity.
+            </p>
+          </div>
+        </LegalCard>
+      </LegalSection>
+
+      {/* Data Protection */}
+      <LegalSection title="Data Protection">
+        <p className="text-muted-foreground text-sm">
+          For data protection inquiries or to exercise your rights under the
+          Swiss Federal Act on Data Protection (nDSG), please contact us at{" "}
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="hover:text-foreground transition-colors"
+          >
+            {CONTACT_EMAIL}
+          </a>
+          . For full details on how we handle your data, see our{" "}
+          <Link
+            href="/privacy"
+            className="hover:text-foreground underline transition-colors"
+          >
+            Privacy Policy
+          </Link>
+          .
+        </p>
+      </LegalSection>
+
+      {/* Disclaimer */}
+      <LegalSection title="Disclaimer">
+        <LegalSubsection title="Liability for Content">
+          <p className="text-muted-foreground mb-4 text-sm">
+            We strive to keep the content of this website accurate and up to
+            date. However, we cannot guarantee the accuracy, completeness, or
+            timeliness of the content. As a service provider, we are responsible
+            for our own content on these pages in accordance with general laws.
+            However, we are not obligated to monitor transmitted or stored
+            third-party information or to investigate circumstances that
+            indicate illegal activity.
+          </p>
+        </LegalSubsection>
+
+        <LegalSubsection title="Liability for Links">
+          <p className="text-muted-foreground mb-4 text-sm">
+            Our website may contain links to external third-party websites over
+            whose content we have no influence. Therefore, we cannot accept any
+            liability for this third-party content. The respective provider or
+            operator of the linked pages is generally responsible for the
+            content of the linked pages. The linked pages were checked for
+            possible legal violations at the time of linking. Illegal content
+            was not recognizable at the time of linking. Permanent monitoring of
+            the content of the linked pages is not reasonable without concrete
+            evidence of a legal violation. Upon notification of violations, we
+            will remove such links as soon as reasonably practicable.
+          </p>
+        </LegalSubsection>
+
+        <LegalSubsection title="Liability for Software and SaaS">
+          <p className="text-muted-foreground mb-4 text-sm">
+            Our software and SaaS products are provided without guarantee of
+            uninterrupted or error-free operation and without obligation to
+            provide updates. Detailed disclaimers and limitations are set out in
+            our{" "}
+            <Link
+              href="/terms"
+              className="hover:text-foreground underline transition-colors"
+            >
+              Terms of Service
+            </Link>
+            .
+          </p>
+        </LegalSubsection>
+
+        <LegalSubsection title="Copyright">
+          <p className="text-muted-foreground text-sm">
+            The content and works created by the site operators on these pages
+            are subject to Swiss copyright law. Reproduction, editing,
+            distribution, and any kind of use outside the limits of copyright
+            law require the written consent of the respective author or creator.
+            Downloads and copies of this site are permitted only for personal
+            viewing. This does not grant any rights to source code or software;
+            source code usage is governed exclusively by the repository LICENSE
+            (all rights reserved).
+          </p>
+        </LegalSubsection>
+      </LegalSection>
+
+      {/* Applicable Law */}
+      <LegalSection title="Applicable Law and Jurisdiction">
+        <p className="text-muted-foreground mb-4 text-sm">
+          This Impressum and any disputes arising from or in connection with
+          this website are governed by Swiss law. The exclusive place of
+          jurisdiction is Basel-Stadt, Switzerland, except where mandatory law
+          provides otherwise.
+        </p>
+        <p className="text-muted-foreground text-sm">
+          Our services are primarily intended for customers in Switzerland. New
+          account creation currently includes a Switzerland location
+          confirmation step, but technical access from outside Switzerland may
+          still occur. Where mandatory law in another jurisdiction applies in a
+          specific case, those mandatory provisions remain unaffected.
+        </p>
+      </LegalSection>
+
+      {/* Related Documents */}
+      <LegalSection title="Related Documents">
+        <ul className="text-muted-foreground space-y-2 text-sm">
+          <li>
+            <Link
+              href="/terms"
+              className="hover:text-foreground underline transition-colors"
+            >
+              Terms of Service
+            </Link>
+            {" - "}Usage terms, disclaimers, and limitations
+          </li>
+          <li>
+            <Link
+              href="/privacy"
+              className="hover:text-foreground underline transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            {" - "}How your data is handled and protected
+          </li>
+        </ul>
+      </LegalSection>
+
+      {/* Final Notice */}
+      <LegalFooterNote>
+        <p className="text-muted-foreground text-center text-xs">
+          By using Helvety services, you acknowledge that this Impressum applies
+          to your use of the services.
+        </p>
+      </LegalFooterNote>
+    </LegalPageShell>
   );
 }
