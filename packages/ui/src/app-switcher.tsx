@@ -2,17 +2,17 @@
 
 import { urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
-import {
-  Grip,
-  Home,
-  FileText,
-  ShoppingBag,
-  KeyRound,
-  CheckSquare,
-  Users,
-} from "lucide-react";
 import { useState } from "react";
 
+import {
+  CheckSquare,
+  FileText,
+  Grip,
+  Home,
+  KeyRound,
+  ShoppingBag,
+  Users,
+} from "@helvety/ui/animated-icons";
 import { Button } from "@helvety/ui/button";
 import {
   Sheet,

@@ -2,6 +2,7 @@
 
 import { HelvetyLogo } from "@helvety/brand/logo";
 import { urls } from "@helvety/shared/config";
+import { Plane } from "@helvety/ui/animated-icons";
 import { Button } from "@helvety/ui/button";
 import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 
@@ -81,7 +82,16 @@ export function HeroSection() {
             </m.div>
             <m.div variants={prefersReducedMotion ? noMotion : fadeInUp}>
               <Button asChild size="lg">
-                <a href={urls.store}>Visit Store</a>
+                <a
+                  className="group inline-flex items-center gap-2"
+                  href={urls.store}
+                >
+                  <Plane
+                    aria-hidden="true"
+                    className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  />
+                  <span>Browser Products</span>
+                </a>
               </Button>
             </m.div>
           </m.div>

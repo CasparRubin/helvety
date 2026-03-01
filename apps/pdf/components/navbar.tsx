@@ -7,6 +7,18 @@ import {
 } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
+import {
+  CreditCard,
+  Github,
+  Info,
+  LogIn,
+  LogOut,
+  Menu,
+  Moon,
+  Settings,
+  Sun,
+  User as UserIcon,
+} from "@helvety/ui/animated-icons";
 import { AppSwitcher } from "@helvety/ui/app-switcher";
 import { Button } from "@helvety/ui/button";
 import {
@@ -36,18 +48,6 @@ import {
 } from "@helvety/ui/sheet";
 import { ThemeSwitcher } from "@helvety/ui/theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
-import {
-  CreditCard,
-  Github,
-  Menu,
-  Moon,
-  Sun,
-  Info,
-  LogIn,
-  LogOut,
-  User as UserIcon,
-  Settings,
-} from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";

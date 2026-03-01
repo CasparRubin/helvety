@@ -8,6 +8,13 @@
  */
 
 import { cn } from "@helvety/shared/utils";
+import {
+  Building2,
+  ChevronDownIcon,
+  CreditCard,
+  Package,
+  User,
+} from "@helvety/ui/animated-icons";
 import { Button } from "@helvety/ui/button";
 import { CommandBar } from "@helvety/ui/command-bar";
 import {
@@ -16,13 +23,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@helvety/ui/dropdown-menu";
-import {
-  Package,
-  User,
-  CreditCard,
-  Building2,
-  ChevronDownIcon,
-} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
