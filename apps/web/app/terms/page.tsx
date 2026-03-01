@@ -827,9 +827,8 @@ export default function TermsPage() {
               </li>
               <li>
                 Encrypted data is protected by a zero-knowledge-oriented
-                architecture; our systems are designed so we are generally
-                unable to access the plaintext content of your encrypted data
-                during normal operation.
+                architecture; Helvety does not have your decryption keys and
+                cannot access the plaintext content of your encrypted data.
               </li>
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
@@ -1329,9 +1328,9 @@ export default function TermsPage() {
                 helvety.com/store/account
               </a>{" "}
               or by contacting us at {CONTACT_EMAIL}. Account deletion is
-              intended to be permanent and may not be reversible. We recommend
-              exporting your data before proceeding. Account termination does
-              not entitle you to any refund of fees already paid.
+              permanent and cannot be undone. We recommend exporting your data
+              before proceeding. Account termination does not entitle you to any
+              refund of fees already paid.
             </p>
           </section>
 

@@ -183,17 +183,16 @@ export default function ImpressumPage() {
                   Legal requests must be issued in accordance with applicable
                   Swiss law. We respond to valid Swiss court orders and binding
                   legal requests. For services using end-to-end encryption, our
-                  architecture is designed so we are generally unable to access
-                  plaintext user content during normal operation. Depending on
-                  the service and legal basis, we may provide available
-                  non-encrypted metadata (for example account identifiers, IP
-                  addresses, timestamps, and storage usage information). Typical
-                  security/abuse metadata has a target retention window up to 6
-                  months under current operational policy (subject to legal
-                  hold, incident handling, and technical constraints), while
-                  legally required contract/accounting evidence may be retained
-                  longer (for example up to 10 years where required by Swiss
-                  law).
+                  systems do not have decryption keys, so we cannot access
+                  plaintext user content. Depending on the service and legal
+                  basis, we provide available non-encrypted metadata (for
+                  example account identifiers, IP addresses, timestamps, and
+                  storage usage information). Typical security/abuse metadata
+                  has a target retention window up to 6 months under current
+                  operational policy (subject to legal hold, incident handling,
+                  and technical constraints), while legally required
+                  contract/accounting evidence may be retained longer (for
+                  example up to 10 years where required by Swiss law).
                 </p>
               </div>
               <div>

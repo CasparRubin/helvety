@@ -431,8 +431,8 @@ export function EncryptionSetup({
                 <p className="font-medium">Important</p>
                 <p className="mt-1 text-amber-500/80">
                   {isMobile
-                    ? "Your passkey is required to decrypt your data. If you lose or remove this passkey, your data cannot be recovered. We cannot help restore access."
-                    : "Your passkey is required to decrypt your data. If you lose or remove this passkey from your phone, your data cannot be recovered. We cannot help restore access."}
+                    ? "Your passkey is required to decrypt your data. If you lose or remove this passkey, your encrypted data cannot be recovered by Helvety."
+                    : "Your passkey is required to decrypt your data. If you lose or remove this passkey from your phone, your encrypted data cannot be recovered by Helvety."}
                 </p>
               </div>
             </div>

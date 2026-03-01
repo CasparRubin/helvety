@@ -371,14 +371,14 @@ export default function PrivacyPage() {
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Important:</strong> Encryption
               keys are derived client-side in your browser using the WebAuthn
-              PRF extension. Our architecture is designed so we are generally
-              unable to access your raw encryption keys during normal operation.
-              This architecture is intended to reduce exposure risk if our
-              servers are compromised, but no technical measure can provide
-              absolute protection. Additionally, encryption uses Additional
-              Authenticated Data (AAD) to bind each ciphertext to its specific
-              database record, helping prevent encrypted data from being moved
-              or replayed in a different context.
+              PRF extension. Helvety does not receive or store your raw
+              decryption keys during normal operation. This architecture is
+              intended to reduce exposure risk if our servers are compromised,
+              but no technical measure can provide absolute protection.
+              Additionally, encryption uses Additional Authenticated Data (AAD)
+              to bind each ciphertext to its specific database record, helping
+              prevent encrypted data from being moved or replayed in a different
+              context.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Browser Requirements:</strong>{" "}
@@ -449,11 +449,10 @@ export default function PrivacyPage() {
                 as filename, type, and size). These fields are designed to be
                 stored as encrypted ciphertext at rest on our servers.
                 Encryption keys are derived from your passkey on your device and
-                are not intended to be transmitted to Helvety servers. Record
-                identifiers for encrypted data are generated on your device and
-                bound to the ciphertext via Additional Authenticated Data (AAD).
-                Our architecture is designed so that we are generally unable to
-                access your task content in plaintext during normal operation.
+                are not transmitted to Helvety servers. Record identifiers for
+                encrypted data are generated on your device and bound to the
+                ciphertext via Additional Authenticated Data (AAD). Helvety
+                cannot decrypt or access your task content in plaintext.
                 Non-encrypted structural metadata is stored in plaintext to
                 enable application functionality: record identifiers,
                 timestamps, priority levels, display preferences (sort orders),
@@ -471,20 +470,19 @@ export default function PrivacyPage() {
                 description, email, phone, birthday, and notes. These fields are
                 designed to be stored as encrypted ciphertext at rest on our
                 servers. Encryption keys are derived from your passkey on your
-                device and are not intended to be transmitted to Helvety
-                servers. Record identifiers for encrypted data are generated on
-                your device and bound to the ciphertext via Additional
-                Authenticated Data (AAD). Our architecture is designed so that
-                we are generally unable to access your contact content in
-                plaintext during normal operation. Non-encrypted structural
-                metadata is stored in plaintext to enable application
-                functionality: record identifiers, timestamps, display
-                preferences (sort orders), and immutable built-in taxonomy
-                references (category IDs). When linking contacts with task
-                entities, additional non-encrypted relationship metadata (link
-                identifiers, linked entity identifiers/types, and timestamps) is
-                stored to enable the cross-app linking feature. Service-level
-                usage limits may apply and are listed on the product pages.
+                device and are not transmitted to Helvety servers. Record
+                identifiers for encrypted data are generated on your device and
+                bound to the ciphertext via Additional Authenticated Data (AAD).
+                Helvety cannot decrypt or access your contact content in
+                plaintext. Non-encrypted structural metadata is stored in
+                plaintext to enable application functionality: record
+                identifiers, timestamps, display preferences (sort orders), and
+                immutable built-in taxonomy references (category IDs). When
+                linking contacts with task entities, additional non-encrypted
+                relationship metadata (link identifiers, linked entity
+                identifiers/types, and timestamps) is stored to enable the
+                cross-app linking feature. Service-level usage limits may apply
+                and are listed on the product pages.
               </li>
             </ul>
           </section>
@@ -626,14 +624,12 @@ export default function PrivacyPage() {
             </ul>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
-                Our architecture is designed so we are generally unable to
-                access encryption keys for end-to-end encrypted content during
-                normal operation.
+                Helvety does not have access to decryption keys for end-to-end
+                encrypted content.
               </strong>{" "}
-              Our architecture is designed so encryption keys remain on your
-              device. As a result, we are generally not able to provide
-              plaintext encrypted content in response to legal requests. The
-              data categories we can typically provide are limited to
+              Decryption keys remain on your device. As a result, Helvety cannot
+              provide plaintext encrypted content in response to legal requests.
+              The data categories we can typically provide are limited to
               non-encrypted metadata as described above.
             </p>
             <p className="text-muted-foreground text-sm">
@@ -946,9 +942,8 @@ export default function PrivacyPage() {
               retained in restricted form for compliance, fraud-prevention,
               dispute handling, or security purposes (for example,
               limited-period non-content audit/security metadata such as file
-              operation logs). This action is intended to be permanent and may
-              not be reversible. We recommend exporting your data before
-              proceeding.
+              operation logs). This action is permanent and cannot be undone. We
+              recommend exporting your data before proceeding.
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">
@@ -1271,10 +1266,8 @@ export default function PrivacyPage() {
                 device to re-derive the same key
               </li>
               <li>
-                Our architecture is designed so that we are generally unable to
-                decrypt your content during normal operation because encryption
-                keys are derived client-side and are not intentionally stored on
-                our servers
+                Helvety cannot decrypt your content because encryption keys are
+                derived client-side and are not stored on our servers
               </li>
               <li>
                 Your passkey (stored on your device) is required to access

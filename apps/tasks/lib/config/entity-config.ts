@@ -87,8 +87,7 @@ export function buildDeleteMessage(
     // Fallback for unknown types
     return {
       title: entityName ? `Delete "${entityName}"?` : "Delete this item?",
-      description:
-        "This action is intended to be permanent and may not be reversible.",
+      description: "This action is permanent and cannot be undone.",
     };
   }
 
@@ -105,9 +104,9 @@ export function buildDeleteMessage(
       ? config.childExamples.join(", ")
       : "nested content";
 
-    description = `This will permanently delete this ${config.name} and all its contents, including ${childList} and any other nested data. This action is intended to be permanent and may not be reversible.`;
+    description = `This will permanently delete this ${config.name} and all its contents, including ${childList} and any other nested data. This action is permanent and cannot be undone.`;
   } else {
-    description = `This will permanently delete this ${config.name}. This action is intended to be permanent and may not be reversible.`;
+    description = `This will permanently delete this ${config.name}. This action is permanent and cannot be undone.`;
   }
 
   return { title, description };

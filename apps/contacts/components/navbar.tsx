@@ -183,8 +183,9 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   <p>
                     Encryption is tied to your passkey. If you lose your
                     available passkeys, encrypted content cannot be recovered.
-                    We cannot restore access. Use your platform&apos;s built-in
-                    password app with cloud sync to reduce lockout risk.
+                    Helvety cannot restore access. Use your platform&apos;s
+                    built-in password app with cloud sync to reduce lockout
+                    risk.
                   </p>
                 </TooltipContent>
               </Tooltip>

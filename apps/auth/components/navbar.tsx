@@ -161,16 +161,16 @@ export function Navbar({
                   <p className="font-semibold">Client-Side Encryption</p>
                   <p>
                     Sensitive content is encrypted on your device before it
-                    leaves your browser. The system is designed so Helvety is
-                    generally unable to access encrypted content in plaintext
-                    during normal operation. Some structural metadata (such as
-                    timestamps and display preferences) is stored unencrypted to
-                    enable app functionality.
+                    leaves your browser. Helvety does not have your decryption
+                    keys and cannot access encrypted content in plaintext. Some
+                    structural metadata (such as timestamps and display
+                    preferences) is stored unencrypted to enable app
+                    functionality.
                   </p>
                   <p>
                     Encryption is tied to your passkey. If you lose passkey
-                    access, encrypted content cannot be recovered, and we cannot
-                    restore access.
+                    access, encrypted content cannot be recovered, and Helvety
+                    cannot restore access.
                   </p>
                 </TooltipContent>
               </Tooltip>

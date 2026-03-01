@@ -74,7 +74,7 @@ Helvety Contacts uses end-to-end encryption (E2EE), as does Helvety Tasks. In su
 6. Record identifiers for encrypted data are generated on your device, not by the server
 7. For encrypted content fields, the server stores encrypted ciphertext and PRF salt values; required structural metadata is stored separately in plaintext for app functionality
 
-**Important:** Your passkey controls decryption access to encrypted content. If you lose access to your passkeys, encrypted content cannot be recovered and Helvety cannot restore access. To reduce this risk, save passkeys in your platform's built-in password app with cloud sync enabled.
+**Important:** Your passkey controls decryption access to encrypted content. If you lose access to all passkeys for your account, encrypted content cannot be recovered by Helvety. To reduce this risk, save passkeys in your platform's built-in password app with cloud sync enabled.
 
 #### Encrypted vs. Non-Encrypted Fields
 

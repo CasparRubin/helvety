@@ -297,16 +297,16 @@ After email verification, new users are guided through passkey creation. The flo
 - **On desktop:** User scans a QR code with their phone and creates the passkey on the phone (Face ID or fingerprint).
 - The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential and PRF salt parameters.
 - In many modern browser flows, PRF output is returned during registration. When available, the encryption key is derived and stored in IndexedDB immediately, so users can arrive at E2EE apps with encryption already unlocked.
-- In other browser flows, users may need an additional passkey interaction in `/auth` to complete encryption readiness before returning to E2EE apps.
+- In browser flows where PRF output is not returned during registration, users must complete one additional passkey interaction in `/auth` before returning to E2EE apps.
 - User is redirected to their destination app with an active session (created during OTP verification).
 
 **Key Features:**
 
 - **Encryption Passkey** - A passkey created using the WebAuthn PRF (Pseudo-Random Function) extension
 - **Key Derivation** - Encryption keys are derived client-side from the PRF output using HKDF
-- **Zero-Knowledge-Oriented Design** - The server stores only PRF parameters (salt values); encryption keys are designed to remain client-side
+- **Zero-Knowledge-Oriented Design** - The server stores only PRF parameters (salt values); encryption keys remain client-side and are not stored by Helvety
 - **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all Helvety apps; however, E2EE is only active in Helvety Tasks and Helvety Contacts
-- **Cloud Sync Recommendation** - During passkey creation, the UI recommends saving the passkey to the device's built-in password app (Passwords on iPhone or Google Password Manager on Android) with cloud sync enabled. If all synced passkeys are lost, encrypted content cannot be recovered.
+- **Cloud Sync Recommendation** - During passkey creation, the UI recommends saving the passkey to the device's built-in password app (Passwords on iPhone or Google Password Manager on Android) with cloud sync enabled. If all synced passkeys are lost, encrypted content cannot be recovered by Helvety.
 
 Browser compatibility for encryption depends on WebAuthn PRF support and can evolve over time:
 

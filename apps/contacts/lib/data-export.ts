@@ -7,8 +7,8 @@
  * Legal basis: nDSG Art. 28 (right to data portability; data must be
  * provided in a structured, commonly used format).
  *
- * IMPORTANT: Decryption happens client-side. The system is designed so
- * plaintext contact data is not intentionally sent to the server.
+ * IMPORTANT: Decryption happens client-side.
+ * Plaintext contact data is not sent to the server.
  */
 
 import { getContacts } from "@/app/actions/contact-actions";
@@ -20,7 +20,7 @@ import type { Contact } from "@/lib/types";
 export interface DecryptedContactExport {
   exportedAt: string;
   service: "Helvety Contacts";
-  note: "This export was decrypted client-side using your passkey. The system is designed so plaintext contact content is not intentionally sent to Helvety servers.";
+  note: "This export was decrypted client-side using your passkey. Plaintext contact content is not sent to Helvety servers.";
   contacts: Array<{
     id: string;
     firstName: string;
@@ -58,7 +58,7 @@ export async function exportDecryptedContactData(
   return {
     exportedAt: new Date().toISOString(),
     service: "Helvety Contacts",
-    note: "This export was decrypted client-side using your passkey. The system is designed so plaintext contact content is not intentionally sent to Helvety servers.",
+    note: "This export was decrypted client-side using your passkey. Plaintext contact content is not sent to Helvety servers.",
     contacts: contacts.map((contact) => ({
       id: contact.id,
       firstName: contact.first_name,

@@ -3,7 +3,7 @@
  * Convenience functions for encrypting/decrypting Units, Spaces, Items,
  * Attachments, and Contacts client-side.
  *
- * This module is designed so the server receives encrypted payloads for
+ * This module ensures the server receives encrypted payloads for
  * protected fields; validate API and logging paths to keep this invariant.
  * Legacy stage/label config helpers are retained only for backward-compatible
  * internal contracts and are not used by the fixed-taxonomy runtime.

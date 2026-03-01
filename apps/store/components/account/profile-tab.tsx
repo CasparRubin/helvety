@@ -349,8 +349,8 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground text-sm">
-            This action is intended to be permanent. Deleting your account will
-            initiate the following:
+            This action is permanent and cannot be undone. Deleting your account
+            will initiate the following:
           </p>
           <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
             <li>Request cancellation of active subscriptions</li>
@@ -384,11 +384,10 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription className="space-y-3">
                   <span className="block">
-                    This action is intended to be permanent and may not be
-                    reversible. We initiate deletion of your account and
-                    associated data across Helvety services without undue delay,
-                    subject to technical processing time and legally required
-                    retention.
+                    This action is permanent and cannot be undone. We initiate
+                    deletion of your account and associated data across Helvety
+                    services without undue delay, subject to technical
+                    processing time and legally required retention.
                   </span>
                   <span className="block">
                     We recommend exporting your data before proceeding.

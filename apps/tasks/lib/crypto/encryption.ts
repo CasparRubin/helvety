@@ -130,7 +130,7 @@ export async function decrypt(
   } catch (error) {
     throw new CryptoError(
       CryptoErrorType.DECRYPTION_FAILED,
-      "Failed to decrypt data - possibly wrong key or corrupted data",
+      "Failed to decrypt data. The decryption key does not match this data, or the data is corrupted.",
       error instanceof Error ? error : undefined
     );
   }
@@ -360,7 +360,7 @@ export async function decryptBinary(
   } catch (error) {
     throw new CryptoError(
       CryptoErrorType.DECRYPTION_FAILED,
-      "Failed to decrypt binary data - possibly wrong key or corrupted data",
+      "Failed to decrypt binary data. The decryption key does not match this data, or the data is corrupted.",
       error instanceof Error ? error : undefined
     );
   }

@@ -7,8 +7,8 @@
  * Legal basis: nDSG Art. 28 (right to data portability; data must be
  * provided in a structured, commonly used format).
  *
- * IMPORTANT: Decryption happens client-side. The system is designed so
- * plaintext task data is not intentionally sent to the server.
+ * IMPORTANT: Decryption happens client-side.
+ * Plaintext task data is not sent to the server.
  */
 
 import { getAllTaskDataForExport } from "@/app/actions/task-actions";
@@ -24,7 +24,7 @@ import type { Unit, Space, Item } from "@/lib/types";
 export interface DecryptedTaskExport {
   exportedAt: string;
   service: "Helvety Tasks";
-  note: "This export was decrypted client-side using your passkey. The system is designed so plaintext task content is not intentionally sent to Helvety servers.";
+  note: "This export was decrypted client-side using your passkey. Plaintext task content is not sent to Helvety servers.";
   units: Array<{
     id: string;
     title: string;
@@ -92,7 +92,7 @@ export async function exportDecryptedTaskData(
   return {
     exportedAt: new Date().toISOString(),
     service: "Helvety Tasks",
-    note: "This export was decrypted client-side using your passkey. The system is designed so plaintext task content is not intentionally sent to Helvety servers.",
+    note: "This export was decrypted client-side using your passkey. Plaintext task content is not sent to Helvety servers.",
     units: units.map((unit) => ({
       id: unit.id,
       title: unit.title,

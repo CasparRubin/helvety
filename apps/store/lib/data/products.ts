@@ -284,7 +284,7 @@ Key Features:
 • Contact Linking - Link contacts from Helvety Contacts to any Unit, Space, or Item
 • Drag & Drop - Reorder items within and between stages
 
-Your data is protected under applicable Swiss data protection law (including nDSG where applicable). The system is designed so encrypted task content is not readable by Helvety during normal operation.`,
+Your data is protected under applicable Swiss data protection law (including nDSG where applicable). Helvety does not have decryption keys and cannot read encrypted task content in plaintext.`,
   type: "saas",
   category: "productivity",
   status: "available",
@@ -376,7 +376,7 @@ Key Features:
 • Drag & Drop - Rearrange contacts within and between categories
 • Data Export - Export all your contacts as a decrypted JSON file (supports nDSG Art. 28 data portability requests)
 
-Your contacts are protected under applicable Swiss data protection law (including nDSG where applicable). The system is designed so encrypted contact content is not readable by Helvety during normal operation.`,
+Your contacts are protected under applicable Swiss data protection law (including nDSG where applicable). Helvety does not have decryption keys and cannot read encrypted contact content in plaintext.`,
   type: "saas",
   category: "productivity",
   status: "available",
