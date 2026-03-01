@@ -187,10 +187,7 @@ export default async function RootLayout({
                     <div className="mx-auto w-full max-w-[2000px]">
                       <main id="main-content">
                         {initialUser ? (
-                          <EncryptionGateApp
-                            userId={initialUser.id}
-                            userEmail={initialUser.email ?? ""}
-                          >
+                          <EncryptionGateApp userId={initialUser.id}>
                             {children}
                           </EncryptionGateApp>
                         ) : (

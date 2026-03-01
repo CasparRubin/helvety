@@ -63,8 +63,6 @@ export {
   generatePRFParams,
   getPRFSaltBytes,
   deriveKeyFromPRF,
-  initializePRFEncryption,
-  unlockPRFEncryption,
   isPRFSupported,
   getPRFSupportInfo,
   PRF_VERSION,
@@ -87,12 +85,6 @@ export {
 // Passkey Operations (Authentication only - setup is in helvety.com/auth)
 export {
   isPasskeySupported,
-  isPlatformAuthenticatorAvailable,
-  getRPConfig,
-  generateAuthenticationOptions,
-  authenticateWithPasskey,
-  authenticatePasskeyWithEncryption,
   isPRFSupported as isPasskeyPRFSupported,
   getPRFSupportInfo as getPasskeyPRFSupportInfo,
 } from "./passkey";
-export type { RPConfig, PasskeyAuthenticationResult } from "./passkey";

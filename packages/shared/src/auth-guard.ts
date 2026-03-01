@@ -3,7 +3,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { getLoginUrl } from "./auth-redirect";
+import { getLoginUrl, getLogoutUrl } from "./auth-redirect";
 import { getUserWithRetry } from "./auth-retry";
 import { getCachedAuthLookup, getCachedUser } from "./cached-server";
 import { urls } from "./config";
@@ -60,7 +60,11 @@ export async function requireAuth(currentPath?: string): Promise<User> {
   // Best-effort fallback from proxy/header context when present.
   const headerUrl = headersList.get("x-helvety-url") ?? undefined;
   const fallbackUrl = currentPath ? `${urls.home}${currentPath}` : undefined;
-  redirect(getLoginUrl(headerUrl ?? fallbackUrl));
+  redirect(
+    getLogoutUrl(getLoginUrl(headerUrl ?? fallbackUrl), {
+      global: true,
+    })
+  );
 }
 
 /**

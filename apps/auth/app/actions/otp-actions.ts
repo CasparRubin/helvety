@@ -221,7 +221,7 @@ export async function sendVerificationCode(
   } catch {
     return {
       success: false,
-      error: "Security validation failed. Please refresh and try again.",
+      error: "Security validation failed. Please sign in again.",
     };
   }
 
@@ -400,7 +400,7 @@ export async function verifyEmailCode(
   } catch {
     return {
       success: false,
-      error: "Security validation failed. Please refresh and try again.",
+      error: "Security validation failed. Please sign in again.",
     };
   }
 

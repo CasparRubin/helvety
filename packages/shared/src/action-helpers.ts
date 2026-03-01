@@ -1,5 +1,6 @@
 import "server-only";
 
+import { buildAuthRequiredError } from "./auth-errors";
 import { getUserWithRetry } from "./auth-retry";
 import { requireCSRFToken } from "./csrf";
 import { checkRateLimit, RATE_LIMITS } from "./rate-limit";
@@ -101,7 +102,7 @@ export async function authenticateAndRateLimit(
   if (userError || !user) {
     return {
       ok: false,
-      response: { success: false, error: "Not authenticated" },
+      response: { success: false, error: buildAuthRequiredError() },
     };
   }
 

@@ -12,19 +12,19 @@ import { createServerClient } from "@helvety/shared/supabase/server";
  *
  * @param csrfToken - CSRF token for request validation (defense-in-depth)
  * @param global - When true, revoke ALL refresh tokens for this user across
- *                 all devices/browsers (Supabase `scope: "global"`). Use this
- *                 when an account may be compromised.
+ *                 all devices/browsers (Supabase `scope: "global"`). Used by
+ *                 strict hard-logout paths when auth/e2ee state is invalid.
  */
 export async function signOutAction(
   csrfToken?: string,
   global = false
-): Promise<{ success: boolean }> {
+): Promise<{ success: boolean; reason?: string }> {
   try {
     // Enforce CSRF on logout to avoid cross-site forced sign-outs.
     const valid = await validateCSRFToken(csrfToken);
     if (!valid) {
       logger.warn("Logout blocked due to missing/invalid CSRF token");
-      return { success: false };
+      return { success: false, reason: "Invalid CSRF token" };
     }
 
     const supabase = await createServerClient();
@@ -32,7 +32,6 @@ export async function signOutAction(
     return { success: true };
   } catch (error) {
     logger.error("Logout error:", error);
-    // Return success even on error - we still want to clear the session client-side
-    return { success: false };
+    return { success: false, reason: "Server signout failed" };
   }
 }

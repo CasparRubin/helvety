@@ -3,6 +3,11 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import {
+  buildAuthRequiredError,
+  isAuthRequiredError,
+  normalizeActionError,
+} from "@helvety/shared/auth-errors";
 import { logger } from "@helvety/shared/logger";
 
 import type {
@@ -67,9 +72,16 @@ export async function getEncryptionParams(): Promise<
     // Propagate errors (auth failure, rate limit, etc.) instead of
     // silently treating them as "no encryption set up"
     if (!passkeyResult.success) {
+      const normalizedError = normalizeActionError(passkeyResult.error);
+      if (isAuthRequiredError(passkeyResult.error)) {
+        return {
+          success: false,
+          error: buildAuthRequiredError(normalizedError ?? "Not authenticated"),
+        };
+      }
       return {
         success: false,
-        error: passkeyResult.error ?? "Failed to check encryption status",
+        error: normalizedError ?? "Failed to check encryption status",
       };
     }
 

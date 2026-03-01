@@ -2,25 +2,14 @@
  * Client-side auth utilities for determining the required authentication step
  *
  * These utilities help both AuthTokenHandler and the login page determine
- * what step the user needs to complete (passkey setup, signin, or complete).
+ * what step the user needs to complete (passkey setup or sign-in).
  */
-
-import { urls } from "@helvety/shared/config";
 
 import { getOwnPasskeyStatus } from "@/app/actions/credential-actions";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 
 /** The authentication step the user needs to complete */
-export type AuthStep = "encryption-setup" | "passkey-signin" | "complete";
-
-/**
- * Determines the final redirect destination
- * Uses redirect_uri when provided, otherwise falls back to urls.home
- * (gateway in development, helvety.com in production).
- */
-export function getFinalRedirectUrl(redirectUri?: string | null): string {
-  return redirectUri ?? urls.home;
-}
+export type AuthStep = "encryption-setup" | "passkey-signin";
 
 /** Result of checking the required auth step */
 export interface AuthStepResult {
@@ -72,25 +61,4 @@ export async function getRequiredAuthStep(
     hasPasskey: !!hasPasskey,
     hasEncryption: !!hasEncryption,
   };
-}
-
-/**
- * Builds a login URL with the appropriate step and redirect_uri
- *
- * @param step - The authentication step
- * @param redirectUri - Optional redirect URI to preserve
- * @param baseUrl - Base URL for the login page (defaults to /login)
- * @returns The complete login URL
- */
-export function buildLoginUrl(
-  step: AuthStep,
-  redirectUri?: string | null,
-  baseUrl: string = "/login"
-): string {
-  const url = new URL(baseUrl, window.location.origin);
-  url.searchParams.set("step", step);
-  if (redirectUri) {
-    url.searchParams.set("redirect_uri", redirectUri);
-  }
-  return url.toString();
 }

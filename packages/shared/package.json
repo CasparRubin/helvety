@@ -32,6 +32,7 @@
     "./cached-server": "./src/cached-server.ts",
     "./auth-guard": "./src/auth-guard.ts",
     "./auth-redirect": "./src/auth-redirect.ts",
+    "./auth-errors": "./src/auth-errors.ts",
     "./auth-retry": "./src/auth-retry.ts",
     "./auth-logger": "./src/auth-logger.ts",
     "./rate-limit": "./src/rate-limit.ts",

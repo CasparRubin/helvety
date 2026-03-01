@@ -1,8 +1,13 @@
 "use client";
 
+import {
+  normalizeActionError,
+  shouldForceHardLogout,
+} from "@helvety/shared/auth-errors";
 import { ENTITY_LIMITS, TOAST_DURATIONS } from "@helvety/shared/constants";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -71,6 +76,16 @@ interface UseAttachmentsReturn {
   downloadFile: (attachment: Attachment) => Promise<void>;
 }
 
+/** Force the centralized logout flow when auth/E2EE state is invalid. */
+function triggerHardLogoutForError(rawError?: string | null): boolean {
+  const normalized = normalizeActionError(rawError);
+  if (!shouldForceHardLogout(normalized)) {
+    return false;
+  }
+  void forceHardLogout(window.location.href);
+  return true;
+}
+
 /**
  * Hook to manage encrypted file attachments for a specific Item.
  *
@@ -115,6 +130,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
     try {
       const result = await getAttachments(itemId);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch attachments";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -127,6 +145,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch attachments";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setAttachments([]);
@@ -141,9 +162,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
   const upload = useCallback(
     async (file: File): Promise<boolean> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return false;
       }
 
@@ -249,6 +268,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         );
 
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           // Try to clean up the uploaded file on failure
           await supabase.storage.from(ATTACHMENT_BUCKET).remove([storagePath]);
           throw new Error(result.error ?? "Failed to save attachment");
@@ -269,6 +291,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to upload file";
+        if (triggerHardLogoutForError(errorMessage)) {
+          return false;
+        }
         setUploads((prev) =>
           prev.map((u) =>
             u.id === uploadId
@@ -297,6 +322,9 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
       try {
         const result = await deleteAttachment(id, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to delete attachment", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -313,10 +341,12 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
         await refresh();
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to delete attachment",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to delete attachment";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -330,9 +360,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
   const downloadUrl = useCallback(
     async (attachment: Attachment): Promise<string | null> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return null;
       }
 
@@ -390,10 +418,12 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
 
         return url;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to download file",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to download file";
+        if (triggerHardLogoutForError(message)) {
+          return null;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return null;
       }
     },

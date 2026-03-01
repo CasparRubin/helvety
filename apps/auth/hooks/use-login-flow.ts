@@ -80,7 +80,6 @@ export interface LoginFlowState {
   handleCodeVerify: (e: React.FormEvent) => Promise<void>;
   handleResendCode: () => Promise<void>;
   handlePasskeySignIn: () => Promise<void>;
-  handleCompleteAuth: () => void;
   handleBack: () => void;
 }
 
@@ -191,16 +190,9 @@ export function useLoginFlow(): LoginFlowState {
           return;
         }
 
-        // requiredStep is "complete" - user has everything set up
-        // This shouldn't normally happen (callback handles this),
-        // but as a fallback, redirect to final destination
-        if (redirectUri) {
-          window.location.href = redirectUri;
-          return;
-        } else {
-          window.location.href = urls.home;
-          return;
-        }
+        // Any non-step state returns to the canonical destination.
+        window.location.href = redirectUri ?? urls.home;
+        return;
       }
 
       setCheckingAuth(false);
@@ -568,15 +560,6 @@ export function useLoginFlow(): LoginFlowState {
     redirectUri,
   ]);
 
-  // Complete auth after passkey verification
-  const handleCompleteAuth = useCallback(() => {
-    if (redirectUri) {
-      window.location.href = redirectUri;
-    } else {
-      window.location.href = urls.home;
-    }
-  }, [redirectUri]);
-
   // Auto-trigger passkey authentication for existing users who skipped email verification
   useEffect(() => {
     if (
@@ -654,7 +637,6 @@ export function useLoginFlow(): LoginFlowState {
     handleCodeVerify,
     handleResendCode,
     handlePasskeySignIn,
-    handleCompleteAuth,
     handleBack,
   };
 }

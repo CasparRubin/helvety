@@ -1,7 +1,12 @@
 "use client";
 
+import {
+  normalizeActionError,
+  shouldForceHardLogout,
+} from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -66,6 +71,16 @@ export interface UseTaskLinksReturn {
   link: (entityType: TaskEntityType, entityId: string) => Promise<boolean>;
   /** Unlink a task entity from this contact */
   unlink: (linkId: string) => Promise<boolean>;
+}
+
+/** Force the centralized logout flow when auth/E2EE state is invalid. */
+function triggerHardLogoutForError(rawError?: string | null): boolean {
+  const normalized = normalizeActionError(rawError);
+  if (!shouldForceHardLogout(normalized)) {
+    return false;
+  }
+  void forceHardLogout(window.location.href);
+  return true;
 }
 
 // =============================================================================
@@ -214,6 +229,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
     try {
       const result = await getContactTaskLinks(contactId);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch task links";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -230,6 +248,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch task links";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setUnits([]);
@@ -257,6 +278,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
     try {
       const result = await getTaskEntities();
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         toast.error(result.error ?? "Failed to fetch entities", {
           duration: TOAST_DURATIONS.ERROR,
         });
@@ -267,10 +291,12 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       entitiesCacheRef.current = decrypted;
       setAllEntities(decrypted);
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to fetch entities",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
+      const message =
+        err instanceof Error ? err.message : "Failed to fetch entities";
+      if (triggerHardLogoutForError(message)) {
+        return;
+      }
+      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
     } finally {
       setIsLoadingEntities(false);
     }
@@ -289,6 +315,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
           csrfToken
         );
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to link entity", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -299,10 +328,12 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
         await refresh();
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to link entity",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to link entity";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -317,6 +348,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       try {
         const result = await unlinkTaskEntity(linkId, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to unlink entity", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -330,10 +364,12 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to unlink entity",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to unlink entity";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },

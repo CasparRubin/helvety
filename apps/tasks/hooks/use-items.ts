@@ -1,7 +1,12 @@
 "use client";
 
+import {
+  normalizeActionError,
+  shouldForceHardLogout,
+} from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -52,6 +57,16 @@ interface UseItemsReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
 }
 
+/** Force the centralized logout flow when auth/E2EE state is invalid. */
+function triggerHardLogoutForError(rawError?: string | null): boolean {
+  const normalized = normalizeActionError(rawError);
+  if (!shouldForceHardLogout(normalized)) {
+    return false;
+  }
+  void forceHardLogout(window.location.href);
+  return true;
+}
+
 /**
  * Hook to manage Items for a specific Space with automatic encryption/decryption
  */
@@ -80,6 +95,9 @@ export function useItems(
     try {
       const result = await getItems(spaceId);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch items";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -91,6 +109,9 @@ export function useItems(
       setItems(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch items";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setItems([]);
@@ -102,9 +123,7 @@ export function useItems(
   const create = useCallback(
     async (input: ItemInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return null;
       }
 
@@ -112,6 +131,9 @@ export function useItems(
         const encrypted = await encryptItemInput(input, masterKey);
         const result = await createItem(encrypted, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return null;
+          }
           toast.error(result.error ?? "Failed to create item", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -144,10 +166,12 @@ export function useItems(
 
         return result.data;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to create item",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to create item";
+        if (triggerHardLogoutForError(message)) {
+          return null;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return null;
       }
     },
@@ -160,9 +184,7 @@ export function useItems(
       input: Partial<Omit<ItemInput, "space_id">>
     ): Promise<boolean> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return false;
       }
 
@@ -179,6 +201,9 @@ export function useItems(
           csrfToken
         );
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to update item", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -215,10 +240,12 @@ export function useItems(
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to update item",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to update item";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -237,6 +264,9 @@ export function useItems(
       try {
         const result = await deleteItem(id, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           setItems(prevItems);
           toast.error(result.error ?? "Failed to delete item", {
             duration: TOAST_DURATIONS.ERROR,
@@ -246,11 +276,13 @@ export function useItems(
 
         return true;
       } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to delete item";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
         setItems(prevItems);
-        toast.error(
-          err instanceof Error ? err.message : "Failed to delete item",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -286,6 +318,9 @@ export function useItems(
           spaceId
         );
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to reorder items", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -295,10 +330,12 @@ export function useItems(
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to reorder items",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to reorder items";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         await refresh();
         return false;
       }
@@ -318,6 +355,9 @@ export function useItems(
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt items";
+          if (triggerHardLogoutForError(msg)) {
+            return;
+          }
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         })
@@ -394,6 +434,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     try {
       const result = await getItem(id);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch item";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -405,6 +448,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       setItem(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch item";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setItem(null);
@@ -416,9 +462,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
   const update = useCallback(
     async (input: Partial<Omit<ItemInput, "space_id">>): Promise<boolean> => {
       if (!masterKey || !id) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return false;
       }
 
@@ -435,6 +479,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
           csrfToken
         );
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to update item", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -469,10 +516,12 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to update item",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to update item";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -490,6 +539,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     try {
       const result = await deleteItem(id, csrfToken);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return false;
+        }
         toast.error(result.error ?? "Failed to delete item", {
           duration: TOAST_DURATIONS.ERROR,
         });
@@ -499,10 +551,12 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       setItem(null);
       return true;
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to delete item",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
+      const message =
+        err instanceof Error ? err.message : "Failed to delete item";
+      if (triggerHardLogoutForError(message)) {
+        return false;
+      }
+      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
       return false;
     }
   }, [id, csrfToken]);
@@ -519,6 +573,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt item";
+          if (triggerHardLogoutForError(msg)) {
+            return;
+          }
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         })

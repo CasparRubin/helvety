@@ -11,19 +11,20 @@ import { Suspense, useEffect, useRef } from "react";
 import { signOutAction } from "./actions";
 
 /**
- * Logout page - clears encryption keys from IndexedDB before signing out.
+ * Logout page - clears local encryption artifacts before sign-out.
  *
  * This is a client-side page (not a route handler) so that we can access
  * IndexedDB to clear cached encryption keys before the session is destroyed.
- * Without this, keys would persist in IndexedDB for up to 24 hours after
- * logout, creating a risk on shared devices.
+ * Without this, keys could persist on shared devices after logout.
  *
  * Flow:
- * 1. Clear all encryption keys from IndexedDB (master + unit keys)
- * 2. Call server action to sign out Supabase session
+ * 1. Clear encryption keys from IndexedDB and clear cached PRF salt
+ * 2. Call server action to sign out Supabase session (optionally global scope)
  * 3. Redirect to the specified destination (or default)
  *
- * Usage: /logout?redirect_uri=https://helvety.com/pdf
+ * Usage:
+ * - /logout?redirect_uri=https://helvety.com/pdf
+ * - /logout?redirect_uri=https://helvety.com/tasks&scope=global
  */
 export default function LogoutPage() {
   return (
@@ -46,7 +47,6 @@ function LogoutHandler() {
   const hasRun = useRef(false);
 
   useEffect(() => {
-    if (!csrfToken) return;
     if (hasRun.current) return;
     hasRun.current = true;
 

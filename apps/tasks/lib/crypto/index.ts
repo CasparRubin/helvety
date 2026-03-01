@@ -68,8 +68,6 @@ export {
   generatePRFParams,
   getPRFSaltBytes,
   deriveKeyFromPRF,
-  initializePRFEncryption,
-  unlockPRFEncryption,
   isPRFSupported,
   getPRFSupportInfo,
   PRF_VERSION,

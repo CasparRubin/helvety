@@ -75,7 +75,7 @@ export async function generatePasskeyAuthOptions(
   } catch {
     return {
       success: false,
-      error: "Security validation failed. Please refresh and try again.",
+      error: "Security validation failed. Please sign in again.",
     };
   }
 
@@ -230,7 +230,7 @@ export async function verifyPasskeyAuthentication(
   } catch {
     return {
       success: false,
-      error: "Security validation failed. Please refresh and try again.",
+      error: "Security validation failed. Please sign in again.",
     };
   }
 

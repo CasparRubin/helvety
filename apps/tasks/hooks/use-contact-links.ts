@@ -1,7 +1,12 @@
 "use client";
 
+import {
+  normalizeActionError,
+  shouldForceHardLogout,
+} from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -41,6 +46,16 @@ interface UseContactLinksReturn {
   link: (contactId: string) => Promise<boolean>;
   /** Unlink a contact from this entity */
   unlink: (linkId: string) => Promise<boolean>;
+}
+
+/** Force the centralized logout flow when auth/E2EE state is invalid. */
+function triggerHardLogoutForError(rawError?: string | null): boolean {
+  const normalized = normalizeActionError(rawError);
+  if (!shouldForceHardLogout(normalized)) {
+    return false;
+  }
+  void forceHardLogout(window.location.href);
+  return true;
 }
 
 /**
@@ -85,6 +100,9 @@ export function useContactLinks(
       ]);
 
       if (!contactsResult.success) {
+        if (triggerHardLogoutForError(contactsResult.error)) {
+          return;
+        }
         const msg = contactsResult.error ?? "Failed to fetch contacts";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -92,6 +110,9 @@ export function useContactLinks(
       }
 
       if (!linksResult.success) {
+        if (triggerHardLogoutForError(linksResult.error)) {
+          return;
+        }
         const msg = linksResult.error ?? "Failed to fetch links";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -109,6 +130,9 @@ export function useContactLinks(
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch contact data";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setAllContacts([]);
@@ -131,6 +155,9 @@ export function useContactLinks(
           csrfToken
         );
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to link contact", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -150,10 +177,12 @@ export function useContactLinks(
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to link contact",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to link contact";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -168,6 +197,9 @@ export function useContactLinks(
       try {
         const result = await unlinkContact(linkId, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to unlink contact", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -179,10 +211,12 @@ export function useContactLinks(
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to unlink contact",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to unlink contact";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },

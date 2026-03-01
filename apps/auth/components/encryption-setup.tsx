@@ -75,8 +75,8 @@ type SetupStep = "initial" | "registering" | "complete";
  * When available, the master encryption key is derived and stored in
  * IndexedDB immediately, so the user may land in E2EE apps with encryption
  * already unlocked. In other flows that only return { enabled } during
- * registration, EncryptionGate in E2EE apps handles a one-time fallback
- * unlock on first visit.
+ * registration, E2EE apps enforce a centralized hard logout and return the
+ * user to /auth for a clean re-authentication flow.
  *
  * Device-aware: On mobile, passkey is created on this device (Face ID, fingerprint, PIN).
  * On desktop, user scans QR code with phone and uses the phone for passkey.

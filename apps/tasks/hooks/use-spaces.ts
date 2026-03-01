@@ -1,7 +1,12 @@
 "use client";
 
+import {
+  normalizeActionError,
+  shouldForceHardLogout,
+} from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -52,6 +57,16 @@ interface UseSpacesReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
 }
 
+/** Force the centralized logout flow when auth/E2EE state is invalid. */
+function triggerHardLogoutForError(rawError?: string | null): boolean {
+  const normalized = normalizeActionError(rawError);
+  if (!shouldForceHardLogout(normalized)) {
+    return false;
+  }
+  void forceHardLogout(window.location.href);
+  return true;
+}
+
 /**
  * Hook to manage Spaces for a specific Unit with automatic encryption/decryption
  */
@@ -83,6 +98,9 @@ export function useSpaces(
     try {
       const result = await getSpaces(unitId);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch spaces";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -95,6 +113,9 @@ export function useSpaces(
       setSpaces(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch spaces";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setSpaces([]);
@@ -109,9 +130,7 @@ export function useSpaces(
   const create = useCallback(
     async (input: SpaceInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return null;
       }
 
@@ -122,6 +141,9 @@ export function useSpaces(
         // Send encrypted data to server
         const result = await createSpace(encrypted, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return null;
+          }
           toast.error(result.error ?? "Failed to create space", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -150,10 +172,12 @@ export function useSpaces(
 
         return result.data;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to create space",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to create space";
+        if (triggerHardLogoutForError(message)) {
+          return null;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return null;
       }
     },
@@ -169,9 +193,7 @@ export function useSpaces(
       input: Partial<Omit<SpaceInput, "unit_id">>
     ): Promise<boolean> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return false;
       }
 
@@ -182,6 +204,9 @@ export function useSpaces(
         // Send encrypted data to server
         const result = await updateSpace({ id, ...encrypted }, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to update space", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -208,10 +233,12 @@ export function useSpaces(
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to update space",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to update space";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -233,6 +260,9 @@ export function useSpaces(
       try {
         const result = await deleteSpace(id, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           setSpaces(prevSpaces);
           toast.error(result.error ?? "Failed to delete space", {
             duration: TOAST_DURATIONS.ERROR,
@@ -242,11 +272,13 @@ export function useSpaces(
 
         return true;
       } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to delete space";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
         setSpaces(prevSpaces);
-        toast.error(
-          err instanceof Error ? err.message : "Failed to delete space",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -282,6 +314,9 @@ export function useSpaces(
           unitId
         );
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to reorder spaces", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -291,10 +326,12 @@ export function useSpaces(
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to reorder spaces",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to reorder spaces";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         await refresh();
         return false;
       }
@@ -315,6 +352,9 @@ export function useSpaces(
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt spaces";
+          if (triggerHardLogoutForError(msg)) {
+            return;
+          }
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         })
@@ -394,6 +434,9 @@ export function useSpace(
     try {
       const result = await getSpace(id);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch space";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -405,6 +448,9 @@ export function useSpace(
       setSpace(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch space";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setSpace(null);
@@ -416,9 +462,7 @@ export function useSpace(
   const update = useCallback(
     async (input: Partial<Omit<SpaceInput, "unit_id">>): Promise<boolean> => {
       if (!masterKey || !id) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return false;
       }
 
@@ -426,6 +470,9 @@ export function useSpace(
         const encrypted = await encryptSpaceUpdate(id, input, masterKey);
         const result = await updateSpace({ id, ...encrypted }, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to update space", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -450,10 +497,12 @@ export function useSpace(
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to update space",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to update space";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -471,6 +520,9 @@ export function useSpace(
     try {
       const result = await deleteSpace(id, csrfToken);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return false;
+        }
         toast.error(result.error ?? "Failed to delete space", {
           duration: TOAST_DURATIONS.ERROR,
         });
@@ -480,10 +532,12 @@ export function useSpace(
       setSpace(null);
       return true;
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to delete space",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
+      const message =
+        err instanceof Error ? err.message : "Failed to delete space";
+      if (triggerHardLogoutForError(message)) {
+        return false;
+      }
+      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
       return false;
     }
   }, [id, csrfToken]);
@@ -500,6 +554,9 @@ export function useSpace(
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt space";
+          if (triggerHardLogoutForError(msg)) {
+            return;
+          }
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         })

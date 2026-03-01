@@ -1,7 +1,12 @@
 "use client";
 
+import {
+  normalizeActionError,
+  shouldForceHardLogout,
+} from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -49,6 +54,16 @@ interface UseUnitsReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
 }
 
+/** Force the centralized logout flow when auth/E2EE state is invalid. */
+function triggerHardLogoutForError(rawError?: string | null): boolean {
+  const normalized = normalizeActionError(rawError);
+  if (!shouldForceHardLogout(normalized)) {
+    return false;
+  }
+  void forceHardLogout(window.location.href);
+  return true;
+}
+
 /**
  * Hook to manage Units with automatic encryption/decryption
  * Handles fetching, creating, updating, and deleting units
@@ -78,6 +93,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
     try {
       const result = await getUnits();
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch units";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -90,6 +108,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
       setUnits(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch units";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setUnits([]);
@@ -104,9 +125,7 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
   const create = useCallback(
     async (input: UnitInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return null;
       }
 
@@ -117,6 +136,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
         // Send encrypted data to server
         const result = await createUnit(encrypted, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return null;
+          }
           toast.error(result.error ?? "Failed to create unit", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -144,10 +166,12 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
 
         return result.data;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to create unit",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to create unit";
+        if (triggerHardLogoutForError(message)) {
+          return null;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return null;
       }
     },
@@ -160,9 +184,7 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
   const update = useCallback(
     async (id: string, input: Partial<UnitInput>): Promise<boolean> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return false;
       }
 
@@ -173,6 +195,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
         // Send encrypted data to server
         const result = await updateUnit({ id, ...encrypted }, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to update unit", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -199,10 +224,12 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to update unit",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to update unit";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -224,6 +251,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
       try {
         const result = await deleteUnit(id, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           setUnits(prevUnits);
           toast.error(result.error ?? "Failed to delete unit", {
             duration: TOAST_DURATIONS.ERROR,
@@ -233,11 +263,13 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
 
         return true;
       } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to delete unit";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
         setUnits(prevUnits);
-        toast.error(
-          err instanceof Error ? err.message : "Failed to delete unit",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -269,6 +301,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
       try {
         const result = await reorderEntities("unit", updates, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to reorder units", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -278,10 +313,12 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to reorder units",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to reorder units";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         await refresh();
         return false;
       }
@@ -302,6 +339,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt units";
+          if (triggerHardLogoutForError(msg)) {
+            return;
+          }
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         })
@@ -380,6 +420,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
     try {
       const result = await getUnit(id);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch unit";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -392,6 +435,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
       setUnit(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch unit";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setUnit(null);
@@ -406,9 +452,7 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
   const update = useCallback(
     async (input: Partial<UnitInput>): Promise<boolean> => {
       if (!masterKey || !id) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return false;
       }
 
@@ -416,6 +460,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
         const encrypted = await encryptUnitUpdate(id, input, masterKey);
         const result = await updateUnit({ id, ...encrypted }, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to update unit", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -440,10 +487,12 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to update unit",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to update unit";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -464,6 +513,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
     try {
       const result = await deleteUnit(id, csrfToken);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return false;
+        }
         toast.error(result.error ?? "Failed to delete unit", {
           duration: TOAST_DURATIONS.ERROR,
         });
@@ -473,10 +525,12 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
       setUnit(null);
       return true;
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to delete unit",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
+      const message =
+        err instanceof Error ? err.message : "Failed to delete unit";
+      if (triggerHardLogoutForError(message)) {
+        return false;
+      }
+      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
       return false;
     }
   }, [id, csrfToken]);
@@ -494,6 +548,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt unit";
+          if (triggerHardLogoutForError(msg)) {
+            return;
+          }
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         })

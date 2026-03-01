@@ -13,15 +13,13 @@ const actions = {
 /** App-level EncryptionGate using shared encryption actions (tasks, contacts). */
 export function EncryptionGateApp({
   userId,
-  userEmail,
   children,
 }: {
   userId: string;
-  userEmail: string;
   children: ReactNode;
 }) {
   return (
-    <EncryptionGate userId={userId} userEmail={userEmail} actions={actions}>
+    <EncryptionGate userId={userId} actions={actions}>
       {children}
     </EncryptionGate>
   );

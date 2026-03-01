@@ -157,19 +157,23 @@ Handles authentication callbacks from email verification (backwards-compatible f
 
 ### `/logout` (Client-Side Page)
 
-Signs out the user with secure key cleanup and redirects. This is a client-side page (not a route handler) so that encryption keys can be cleared from IndexedDB before the session is destroyed.
+Signs out the user with strict local cleanup and redirect support. This is a client-side page (not a route handler) so encryption artifacts can be cleared from browser storage before the session is destroyed.
 
 **Flow:**
 
-1. Clears all encryption keys from IndexedDB (master + unit keys)
-2. Calls server action to sign out the Supabase session
+1. Clears local encryption artifacts (IndexedDB keys + cached PRF salt)
+2. Calls server action to sign out the Supabase session (`scope=global` when requested)
 3. Redirects to the specified destination
 
 **Query Parameters:**
 
 - `redirect_uri` - Where to redirect after logout (default: helvety.com)
+- `scope` - Optional; set to `global` to revoke all refresh tokens and force full re-authentication
 
-**Example:** `/logout?redirect_uri=https://helvety.com/pdf`
+**Examples:**
+
+- `/logout?redirect_uri=https://helvety.com/pdf`
+- `/logout?redirect_uri=https://helvety.com/tasks&scope=global`
 
 ## Session Management (proxy.ts)
 

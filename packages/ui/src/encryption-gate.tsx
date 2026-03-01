@@ -1,16 +1,14 @@
 "use client";
 
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
-import { CONTACT_EMAIL } from "@helvety/shared/config";
-import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { onKeyEvent } from "@helvety/shared/crypto/key-storage";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { toast } from "sonner";
 
-import type { PRFKeyParams } from "@helvety/shared/crypto/types";
+import { forceHardLogout } from "./hard-logout";
+
 import type {
   ActionResponse,
   UserPasskeyParams,
@@ -31,32 +29,12 @@ export interface EncryptionGateActions {
 /** Props for the shared EncryptionGate component */
 export interface EncryptionGateProps {
   userId: string;
-  userEmail: string;
   children: ReactNode;
   actions: EncryptionGateActions;
 }
 
 /** Encryption gate status states */
-type EncryptionStatus =
-  | "loading"
-  | "needs_login"
-  | "needs_setup"
-  | "needs_unlock"
-  | "unlocked"
-  | "error";
-
-const MAX_AUTO_RETRIES = 1;
-const AUTO_RETRY_DELAY_MS = 1_000;
-
-/** Build the auth URL for encryption setup, redirecting back to the current page. */
-function getAuthSetupUrl(): string {
-  const loginUrl = getLoginUrl(
-    typeof window !== "undefined" ? window.location.href : undefined
-  );
-  const url = new URL(loginUrl);
-  url.searchParams.set("step", "encryption-setup");
-  return url.toString();
-}
+type EncryptionStatus = "loading" | "needs_logout" | "unlocked";
 
 /** Build the auth URL for a normal login flow (with redirect back). */
 function getAuthLoginUrl(): string {
@@ -71,7 +49,6 @@ function getAuthLoginUrl(): string {
  */
 export function EncryptionGate({
   userId,
-  userEmail: _userEmail,
   children,
   actions,
 }: EncryptionGateProps) {
@@ -89,12 +66,8 @@ export function EncryptionGate({
   const alreadyUnlocked = isUnlocked && unlockedForUserId === userId;
 
   const [hasCheckedParams, setHasCheckedParams] = useState(alreadyUnlocked);
-  const [passkeyParams, setPasskeyParams] = useState<PRFKeyParams | null>(null);
-  const [needsLogin, setNeedsLogin] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [needsLogout, setNeedsLogout] = useState(false);
   const redirectingRef = useRef(false);
-
-  const retryCountRef = useRef(0);
 
   useEffect(() => {
     if (alreadyUnlocked) {
@@ -102,22 +75,8 @@ export function EncryptionGate({
     }
 
     let cancelled = false;
-    retryCountRef.current = 0;
 
-    const scheduleRetry = () => {
-      if (retryCountRef.current >= MAX_AUTO_RETRIES) {
-        return false;
-      }
-      retryCountRef.current += 1;
-      setTimeout(() => {
-        if (!cancelled) {
-          runStateCheck();
-        }
-      }, AUTO_RETRY_DELAY_MS);
-      return true;
-    };
-
-    /** Fetch encryption params with retry logic. */
+    /** Fetch encryption params and force clean logout on invalid state. */
     const runStateCheck = () => {
       void checkEncryptionState(userId)
         .then(() => {
@@ -128,42 +87,22 @@ export function EncryptionGate({
           if (cancelled || !result) return;
 
           if (!result.success) {
-            if (result.error === "Not authenticated") {
-              if (unlockedForUserId) {
-                void lockEncryption(unlockedForUserId);
-              }
-              setNeedsLogin(true);
-              setHasCheckedParams(true);
-              setPasskeyParams(null);
-              return;
+            if (unlockedForUserId) {
+              void lockEncryption(unlockedForUserId);
             }
-
-            if (scheduleRetry()) {
-              return;
-            }
-            setError(result.error ?? "Failed to check encryption status");
+            setNeedsLogout(true);
             setHasCheckedParams(true);
             return;
           }
 
-          if (result.data?.type === "passkey" && result.data.passkeyParams) {
-            const pp = result.data.passkeyParams;
-            setNeedsLogin(false);
-            setPasskeyParams({ prfSalt: pp.prf_salt, version: pp.version });
-          } else {
-            setNeedsLogin(false);
-            setPasskeyParams(null);
-          }
-
-          retryCountRef.current = 0;
+          // This app never unlocks in-place. If we are not already unlocked,
+          // enforce a clean logout + centralized auth flow.
+          setNeedsLogout(!alreadyUnlocked);
           setHasCheckedParams(true);
         })
         .catch(() => {
           if (cancelled) return;
-          if (scheduleRetry()) {
-            return;
-          }
-          setError("Failed to check encryption status");
+          setNeedsLogout(true);
           setHasCheckedParams(true);
         });
     };
@@ -193,9 +132,11 @@ export function EncryptionGate({
         sessionUserId !== unlockedForUserId
       ) {
         void lockEncryption(unlockedForUserId);
+        setNeedsLogout(true);
       }
       if (!session) {
         if (unlockedForUserId) void lockEncryption(unlockedForUserId);
+        setNeedsLogout(true);
       }
     });
     return () => subscription.unsubscribe();
@@ -205,102 +146,58 @@ export function EncryptionGate({
     return onKeyEvent((msg) => {
       if (msg.type === "keys-cleared" && unlockedForUserId) {
         void lockEncryption(unlockedForUserId);
+        setNeedsLogout(true);
       }
       if (msg.type === "master-key-deleted" && unlockedForUserId) {
         if (msg.userId === unlockedForUserId) {
           void lockEncryption(unlockedForUserId);
+          setNeedsLogout(true);
         }
       }
     });
   }, [unlockedForUserId, lockEncryption]);
 
   const status: EncryptionStatus = useMemo(() => {
-    if (error || contextError) return "error";
     if (alreadyUnlocked) return "unlocked";
     if (contextLoading || !hasCheckedParams) return "loading";
-    if (needsLogin) return "needs_login";
-    if (passkeyParams) return "needs_unlock";
-    return "needs_setup";
+    return needsLogout || contextError ? "needs_logout" : "loading";
   }, [
     alreadyUnlocked,
-    error,
     contextError,
     contextLoading,
     hasCheckedParams,
-    needsLogin,
-    passkeyParams,
+    needsLogout,
   ]);
 
   useEffect(() => {
     if (redirectingRef.current) return;
 
-    if (status === "needs_login" || status === "needs_unlock") {
+    if (status === "needs_logout") {
       redirectingRef.current = true;
-      window.location.href = getAuthLoginUrl();
-      return;
-    }
-
-    if (status === "needs_setup") {
-      redirectingRef.current = true;
-      window.location.href = getAuthSetupUrl();
+      void forceHardLogout(getAuthLoginUrl());
     }
   }, [status]);
-
-  // Toast when error state is first shown
-  useEffect(() => {
-    if (status === "error") {
-      const errorMsg = error ?? contextError ?? "An error occurred";
-      toast.error(errorMsg, { duration: TOAST_DURATIONS.ERROR });
-    }
-  }, [status, error, contextError]);
 
   if (status === "loading") {
     return (
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-          <p className="text-muted-foreground text-sm">Loading encryption...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === "error") {
-    return (
-      <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
-        <div className="bg-muted/30 flex flex-col items-center gap-3 rounded-lg p-6 text-center">
-          <p className="text-muted-foreground text-sm">Something went wrong</p>
-          <p className="text-muted-foreground text-xs">
-            If this problem persists, contact us at{" "}
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="text-primary underline-offset-4 hover:underline"
-            >
-              {CONTACT_EMAIL}
-            </a>
+          <p className="text-muted-foreground text-sm">
+            Verifying secure session...
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="text-primary mt-2 text-sm font-medium underline-offset-4 hover:underline"
-          >
-            Try again
-          </button>
         </div>
       </div>
     );
   }
 
-  if (
-    status === "needs_setup" ||
-    status === "needs_unlock" ||
-    status === "needs_login"
-  ) {
+  if (status === "needs_logout") {
     return (
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
           <p className="text-muted-foreground text-sm">
-            Redirecting to authentication...
+            Signing out and redirecting to authentication...
           </p>
         </div>
       </div>

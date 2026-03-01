@@ -1,7 +1,12 @@
 "use client";
 
+import {
+  normalizeActionError,
+  shouldForceHardLogout,
+} from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -54,6 +59,16 @@ interface UseContactsReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
 }
 
+/** Force the centralized logout flow when auth/E2EE state is invalid. */
+function triggerHardLogoutForError(rawError?: string | null): boolean {
+  const normalized = normalizeActionError(rawError);
+  if (!shouldForceHardLogout(normalized)) {
+    return false;
+  }
+  void forceHardLogout(window.location.href);
+  return true;
+}
+
 /**
  * Hook to manage Contacts with automatic encryption/decryption.
  *
@@ -82,6 +97,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     try {
       const result = await getContacts();
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch contacts";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -94,6 +112,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch contacts";
+      if (triggerHardLogoutForError(msg)) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setContacts([]);
@@ -105,9 +126,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const create = useCallback(
     async (input: ContactInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return null;
       }
 
@@ -115,6 +134,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         const encrypted = await encryptContactInput(input, masterKey);
         const result = await createContact(encrypted, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return null;
+          }
           toast.error(result.error ?? "Failed to create contact", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -147,10 +169,12 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
         return result.data;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to create contact",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to create contact";
+        if (triggerHardLogoutForError(message)) {
+          return null;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return null;
       }
     },
@@ -160,9 +184,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const update = useCallback(
     async (id: string, input: Partial<ContactInput>): Promise<boolean> => {
       if (!masterKey) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return false;
       }
 
@@ -179,6 +201,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
           csrfToken
         );
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to update contact", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -214,10 +239,12 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to update contact",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to update contact";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -236,6 +263,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       try {
         const result = await deleteContact(id, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           setContacts(prevContacts);
           toast.error(result.error ?? "Failed to delete contact", {
             duration: TOAST_DURATIONS.ERROR,
@@ -245,11 +275,13 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
         return true;
       } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to delete contact";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
         setContacts(prevContacts);
-        toast.error(
-          err instanceof Error ? err.message : "Failed to delete contact",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -282,6 +314,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       try {
         const result = await reorderContacts(updates, csrfToken);
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to reorder contacts", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -291,10 +326,12 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to reorder contacts",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to reorder contacts";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         await refresh();
         return false;
       }
@@ -315,6 +352,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt contacts";
+          if (triggerHardLogoutForError(msg)) {
+            return;
+          }
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         })
@@ -393,6 +433,9 @@ export function useContact(
     try {
       const result = await getContact(id);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return;
+        }
         const msg = result.error ?? "Failed to fetch contact";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -403,7 +446,12 @@ export function useContact(
       const decrypted = await decryptContactRow(result.data, masterKey);
       setContact(decrypted);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch contact");
+      const message =
+        err instanceof Error ? err.message : "Failed to fetch contact";
+      if (triggerHardLogoutForError(message)) {
+        return;
+      }
+      setError(message);
       setContact(null);
     } finally {
       setIsLoading(false);
@@ -413,9 +461,7 @@ export function useContact(
   const update = useCallback(
     async (input: Partial<ContactInput>): Promise<boolean> => {
       if (!masterKey || !id) {
-        toast.error("Encryption not unlocked", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        void forceHardLogout(window.location.href);
         return false;
       }
 
@@ -432,6 +478,9 @@ export function useContact(
           csrfToken
         );
         if (!result.success) {
+          if (triggerHardLogoutForError(result.error)) {
+            return false;
+          }
           toast.error(result.error ?? "Failed to update contact", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -465,10 +514,12 @@ export function useContact(
 
         return true;
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Failed to update contact",
-          { duration: TOAST_DURATIONS.ERROR }
-        );
+        const message =
+          err instanceof Error ? err.message : "Failed to update contact";
+        if (triggerHardLogoutForError(message)) {
+          return false;
+        }
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -486,6 +537,9 @@ export function useContact(
     try {
       const result = await deleteContact(id, csrfToken);
       if (!result.success) {
+        if (triggerHardLogoutForError(result.error)) {
+          return false;
+        }
         toast.error(result.error ?? "Failed to delete contact", {
           duration: TOAST_DURATIONS.ERROR,
         });
@@ -495,10 +549,12 @@ export function useContact(
       setContact(null);
       return true;
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to delete contact",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
+      const message =
+        err instanceof Error ? err.message : "Failed to delete contact";
+      if (triggerHardLogoutForError(message)) {
+        return false;
+      }
+      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
       return false;
     }
   }, [id, csrfToken]);
@@ -515,6 +571,9 @@ export function useContact(
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt contact";
+          if (triggerHardLogoutForError(msg)) {
+            return;
+          }
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         })

@@ -41,16 +41,21 @@ export function getLoginUrl(currentUrl?: string): string {
 /**
  * Get the logout URL for signing out via the auth service.
  * Includes an optional redirect_uri parameter for post-logout navigation.
+ * Set `global: true` to revoke all refresh tokens.
  *
  * Security: The redirect URI is validated against an allowlist to prevent
  * open redirect attacks. Invalid URIs fall back to the default app URL.
  */
-function getLogoutUrl(redirectUri?: string): string {
+export function getLogoutUrl(
+  redirectUri?: string,
+  options?: { global?: boolean }
+): string {
   // Validate the provided URI; fall back to default if invalid
   const redirect =
     redirectUri && isValidRedirectUri(redirectUri) ? redirectUri : urls.home;
+  const scopeParam = options?.global ? "&scope=global" : "";
 
-  return `${urls.auth}/logout?redirect_uri=${encodeURIComponent(redirect)}`;
+  return `${urls.auth}/logout?redirect_uri=${encodeURIComponent(redirect)}${scopeParam}`;
 }
 
 /**
@@ -72,5 +77,15 @@ export function redirectToLogin(currentUrl?: string): void {
 export function redirectToLogout(redirectUri?: string): void {
   if (typeof window !== "undefined") {
     window.location.href = getLogoutUrl(redirectUri);
+  }
+}
+
+/**
+ * Redirect to global logout.
+ * Use this when auth/e2ee session state is invalid and all sessions must end.
+ */
+export function redirectToGlobalLogout(redirectUri?: string): void {
+  if (typeof window !== "undefined") {
+    window.location.href = getLogoutUrl(redirectUri, { global: true });
   }
 }

@@ -4,6 +4,8 @@ import { urls } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
 import { useEffect, useRef } from "react";
 
+import { forceHardLogout } from "./hard-logout";
+
 /**
  * Handles legacy hash-fragment auth tokens in a safe way.
  *
@@ -42,7 +44,7 @@ export function AuthTokenHandler() {
         const currentUrl = new URL(window.location.href);
         currentUrl.hash = "";
         window.history.replaceState(null, "", currentUrl.toString());
-        window.location.href = `${urls.auth}/login?error=callback_required`;
+        await forceHardLogout(`${urls.auth}/login?error=callback_required`);
       } catch (err) {
         logger.error("Error handling legacy hash auth tokens:", err);
         processingRef.current = false;

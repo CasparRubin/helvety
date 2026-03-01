@@ -56,6 +56,7 @@
     "./app-switcher": "./src/app-switcher.tsx",
     "./animated-icons": "./src/animated-icons.ts",
     "./session-recovery": "./src/session-recovery.tsx",
+    "./hard-logout": "./src/hard-logout.ts",
     "./auth-token-handler": "./src/auth-token-handler.tsx",
     "./skip-to-content": "./src/skip-to-content.tsx"
   },

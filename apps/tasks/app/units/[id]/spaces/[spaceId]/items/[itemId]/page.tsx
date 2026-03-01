@@ -1,5 +1,9 @@
+import { shouldForceHardLogout } from "@helvety/shared/auth-errors";
 import { requireAuth } from "@helvety/shared/auth-guard";
+import { getLogoutUrl } from "@helvety/shared/auth-redirect";
+import { urls } from "@helvety/shared/config";
 import { LoadingSpinner } from "@helvety/ui/loading-spinner";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { getItemEditorData } from "@/app/actions/batch-actions";
@@ -32,6 +36,14 @@ async function ItemEditorData({
   itemId: string;
 }): Promise<React.JSX.Element> {
   const batchResult = await getItemEditorData(unitId, spaceId, itemId);
+  if (!batchResult.success && shouldForceHardLogout(batchResult.error)) {
+    redirect(
+      getLogoutUrl(
+        `${urls.home}/tasks/units/${unitId}/spaces/${spaceId}/items/${itemId}`,
+        { global: true }
+      )
+    );
+  }
 
   return (
     <ItemEditor

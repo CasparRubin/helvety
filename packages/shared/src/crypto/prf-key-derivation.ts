@@ -90,35 +90,6 @@ export async function deriveKeyFromPRF(
 }
 
 /**
- * Initialize encryption for a new user using passkey PRF
- *
- * @param prfOutput - The raw PRF output from passkey registration
- * @returns The PRF params to store and the derived master key
- */
-export async function initializePRFEncryption(prfOutput: ArrayBuffer): Promise<{
-  params: PRFKeyParams;
-  masterKey: CryptoKey;
-}> {
-  const params = generatePRFParams();
-  const masterKey = await deriveKeyFromPRF(prfOutput, params);
-  return { params, masterKey };
-}
-
-/**
- * Unlock user encryption using passkey PRF
- *
- * @param prfOutput - The raw PRF output from passkey authentication
- * @param params - The stored PRF parameters
- * @returns The derived master key
- */
-export async function unlockPRFEncryption(
-  prfOutput: ArrayBuffer,
-  params: PRFKeyParams
-): Promise<CryptoKey> {
-  return deriveKeyFromPRF(prfOutput, params);
-}
-
-/**
  * Check if the browser supports WebAuthn PRF extension
  *
  * PRF support varies by browser/platform and changes over time.
