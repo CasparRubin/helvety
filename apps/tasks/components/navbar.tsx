@@ -16,7 +16,6 @@ import {
   Menu,
   Moon,
   Settings,
-  ShieldCheck,
   Sun,
   User as UserIcon,
 } from "@helvety/ui/animated-icons";
@@ -49,6 +48,7 @@ import {
 } from "@helvety/ui/sheet";
 import { ThemeSwitcher } from "@helvety/ui/theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
+import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -167,9 +167,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <TooltipTrigger asChild>
                   <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm">
                     <ShieldCheck className="h-4 w-4 text-green-500" />
-                    <span className="hidden md:inline">
-                      Client-side encryption enabled
-                    </span>
+                    <span className="hidden md:inline">Encryption enabled</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs space-y-2 p-3">
@@ -350,7 +348,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 {!encryptionLoading && isEncryptedForCurrentUser && (
                   <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
                     <ShieldCheck className="h-4 w-4 shrink-0 text-green-500" />
-                    <span>Client-side encryption enabled</span>
+                    <span>Encryption enabled</span>
                   </div>
                 )}
                 {!isAuthenticated && !isLoading && (
