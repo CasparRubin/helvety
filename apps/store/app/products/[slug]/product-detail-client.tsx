@@ -17,11 +17,7 @@ import { toast } from "sonner";
 
 import { FeatureList } from "@/components/products/feature-list";
 import { PricingCard } from "@/components/products/pricing-card";
-import {
-  ArtistBadge,
-  ProductBadge,
-  StatusBadge,
-} from "@/components/products/product-badge";
+import { ProductBadge, StatusBadge } from "@/components/products/product-badge";
 import { getProductBySlug } from "@/lib/data/products";
 import { isSaaSProduct, isSoftwareProduct } from "@/lib/types/products";
 
@@ -247,7 +243,6 @@ export function ProductDetailClient({
           {product.status !== "available" && (
             <StatusBadge status={product.status} />
           )}
-          {product.artist && <ArtistBadge artist={product.artist} />}
         </div>
         <p className="text-muted-foreground max-w-2xl text-lg">
           {product.shortDescription}

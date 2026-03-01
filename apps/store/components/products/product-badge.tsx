@@ -109,7 +109,7 @@ interface ArtistBadgeProps {
   showIcon?: boolean;
 }
 
-/** Renders a badge showing the artwork artist name. */
+/** Renders a badge showing artwork credit as "Art by <name>". */
 export function ArtistBadge({
   artist,
   className,
@@ -124,7 +124,7 @@ export function ArtistBadge({
       )}
     >
       {showIcon && <Palette className="size-3" />}
-      {artist}
+      {`Art by ${artist}`}
     </Badge>
   );
 }
