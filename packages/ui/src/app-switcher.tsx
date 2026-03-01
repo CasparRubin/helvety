@@ -17,6 +17,7 @@ import { Button } from "@helvety/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -64,6 +65,9 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
       <SheetContent side="left">
         <SheetHeader>
           <SheetTitle>Helvety Ecosystem</SheetTitle>
+          <SheetDescription className="sr-only">
+            Select an app from the Helvety ecosystem.
+          </SheetDescription>
         </SheetHeader>
         <div className="mt-6 grid grid-cols-3 gap-2">
           {apps.map((app) => {

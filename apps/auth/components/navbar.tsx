@@ -27,6 +27,7 @@ import { Separator } from "@helvety/ui/separator";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -60,8 +61,8 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
  * Features:
  * - App switcher for navigating between Helvety ecosystem apps
  * - Logo and branding
- * - Desktop (sm+): E2EE indicator, About dialog, GitHub link, theme switcher, profile menu
- * - Burger menu (below sm): E2EE, About, GitHub, theme toggle, account, sign in/out
+ * - Desktop (sm+): E2EE indicator, auth entry, About dialog, GitHub link, theme switcher
+ * - Burger menu (below sm): E2EE, auth entry, About, GitHub, theme toggle
  */
 export function Navbar({
   initialUser = null,
@@ -144,7 +145,7 @@ export function Navbar({
           </a>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {/* Desktop: E2EE, About, GitHub, theme, sign in, profile — hidden below sm */}
+          {/* Desktop: E2EE, sign in/profile, About, GitHub, theme — hidden below sm */}
           <div className="hidden items-center gap-2 sm:flex">
             {!encryptionLoading && isUnlocked && (
               <Tooltip>
@@ -174,62 +175,6 @@ export function Navbar({
                 </TooltipContent>
               </Tooltip>
             )}
-
-            <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={() => setAboutOpen(true)}
-                  >
-                    <Info className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>About</p>
-                </TooltipContent>
-              </Tooltip>
-              <DialogContent>
-                <DialogHeader className="pr-8">
-                  <DialogTitle>About</DialogTitle>
-                  <DialogDescription className="pt-2">
-                    Centralized authentication service for the Helvety
-                    ecosystem. Engineered & Designed in Switzerland.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="border-t" />
-                <p className="text-muted-foreground text-xs">
-                  {VERSION || "Development build"}
-                </p>
-                <DialogClose asChild>
-                  <Button variant="outline" className="w-full">
-                    Close
-                  </Button>
-                </DialogClose>
-              </DialogContent>
-            </Dialog>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <a
-                  href="https://github.com/CasparRubin/helvety"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="View source code on GitHub"
-                >
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
-                    <Github className="h-4 w-4" />
-                  </Button>
-                </a>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>View source code on GitHub</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <ThemeSwitcher />
 
             {!user && !isLoading && (
               <Button variant="default" size="sm" asChild>
@@ -309,6 +254,62 @@ export function Navbar({
                 </PopoverContent>
               </Popover>
             )}
+
+            <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9"
+                    onClick={() => setAboutOpen(true)}
+                  >
+                    <Info className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>About</p>
+                </TooltipContent>
+              </Tooltip>
+              <DialogContent>
+                <DialogHeader className="pr-8">
+                  <DialogTitle>About</DialogTitle>
+                  <DialogDescription className="pt-2">
+                    Centralized authentication service for the Helvety
+                    ecosystem. Engineered & Designed in Switzerland.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  {VERSION || "Development build"}
+                </p>
+                <DialogClose asChild>
+                  <Button variant="outline" className="w-full">
+                    Close
+                  </Button>
+                </DialogClose>
+              </DialogContent>
+            </Dialog>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  href="https://github.com/CasparRubin/helvety"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="View source code on GitHub"
+                >
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <Github className="h-4 w-4" />
+                  </Button>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>View source code on GitHub</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <ThemeSwitcher />
           </div>
 
           {/* Burger menu — only below sm */}
@@ -322,6 +323,9 @@ export function Navbar({
             <SheetContent side="right">
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Auth navigation menu
+                </SheetDescription>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-2 px-4">
                 {!encryptionLoading && isUnlocked && (
@@ -330,48 +334,6 @@ export function Navbar({
                     <span>Client-side encryption enabled</span>
                   </div>
                 )}
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setAboutOpen(true);
-                  }}
-                >
-                  <Info className="h-4 w-4" />
-                  About
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  asChild
-                >
-                  <a
-                    href="https://github.com/CasparRubin/helvety"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Github className="h-4 w-4" />
-                    GitHub
-                  </a>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    toggleTheme();
-                  }}
-                >
-                  {isDark ? (
-                    <Sun className="h-4 w-4" />
-                  ) : (
-                    <Moon className="h-4 w-4" />
-                  )}
-                  {isDark ? "Light mode" : "Dark mode"}
-                </Button>
-                <Separator />
                 {!user && !isLoading && (
                   <Button
                     variant="default"
@@ -439,6 +401,48 @@ export function Navbar({
                     </Button>
                   </>
                 )}
+                <Separator />
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setAboutOpen(true);
+                  }}
+                >
+                  <Info className="h-4 w-4" />
+                  About
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  asChild
+                >
+                  <a
+                    href="https://github.com/CasparRubin/helvety"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Github className="h-4 w-4" />
+                    GitHub
+                  </a>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    toggleTheme();
+                  }}
+                >
+                  {isDark ? (
+                    <Sun className="h-4 w-4" />
+                  ) : (
+                    <Moon className="h-4 w-4" />
+                  )}
+                  {isDark ? "Light mode" : "Dark mode"}
+                </Button>
               </nav>
             </SheetContent>
           </Sheet>
