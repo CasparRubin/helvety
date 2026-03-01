@@ -431,8 +431,8 @@ export function EncryptionSetup({
                 <p className="font-medium">Important</p>
                 <p className="mt-1 text-amber-500/80">
                   {isMobile
-                    ? "Your passkey is required to decrypt your data. If you remove the passkey from this device, data recovery may be limited or unavailable."
-                    : "Your passkey is required to decrypt your data. If you remove the passkey from your phone, data recovery may be limited or unavailable."}
+                    ? "Your passkey is required to decrypt your data. If you lose or remove this passkey, your data cannot be recovered. We cannot help restore access."
+                    : "Your passkey is required to decrypt your data. If you lose or remove this passkey from your phone, your data cannot be recovered. We cannot help restore access."}
                 </p>
               </div>
             </div>
@@ -446,8 +446,8 @@ export function EncryptionSetup({
                 <p className="font-medium">Recommended</p>
                 <p className="mt-1 text-blue-500/80">
                   {isMobile
-                    ? "When prompted, save your passkey using your device's built-in password manager — Passwords on iPhone or Google Password Manager on Android. These usually sync to iCloud or your Google account, which can reduce lockout risk if you replace your device. Third-party password managers may also work when they support passkey sync."
-                    : "When saving your passkey, use your phone's built-in password manager — Passwords on iPhone or Google Password Manager on Android. These usually sync to iCloud or your Google account, which can reduce lockout risk if you replace your phone. Third-party password managers may also work when they support passkey sync."}
+                    ? "When prompted, save your passkey in your device's built-in password app (Passwords on iPhone or Google Password Manager on Android). Keep cloud sync enabled so you can restore access if you lose this device."
+                    : "When saving your passkey, use your phone's built-in password app (Passwords on iPhone or Google Password Manager on Android). Keep cloud sync enabled so you can restore access if you lose your phone."}
                 </p>
               </div>
             </div>

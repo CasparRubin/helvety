@@ -30,7 +30,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Action panel** - View created/modified dates, set start and end date/time, view immutable built-in item stages/labels, and set priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators. Default is Normal when not specified.
 - **Fixed labels** - An immutable built-in item label set is enforced across the app. New items use a default label when none is specified.
-- **Fixed stages** - Immutable built-in stage sets are enforced for Units, Spaces, and Items. New entities are assigned the first stage when none is specified (Units: Work, Spaces: Upcoming, Items: Backlog).
+- **Fixed stages** - Immutable built-in stage sets are enforced for Units, Spaces, and Items. New entities are assigned the first stage when none is specified (Units: Work, Home, Hobbies; Spaces: Upcoming; Items: Backlog).
 - **Encrypted file attachments** - Upload, download, and manage file attachments on items (images, documents, etc.) with drag-and-drop support; files are losslessly compressed (when beneficial) then encrypted client-side before upload
 - **Contact linking** - Link contacts from [Helvety Contacts](https://helvety.com/contacts) to any Unit, Space, or Item
   - **Bidirectional** - Link and unlink from either the Tasks app or the Contacts app for consistent cross-app UX
@@ -80,7 +80,7 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. In su
 6. Record identifiers for encrypted data are generated on your device, not by the server
 7. For encrypted content fields, the server stores encrypted ciphertext and PRF salt values; required structural metadata is stored separately in plaintext for app functionality
 
-**Important:** Your passkey controls decryption access to encrypted content. If you lose access to your passkeys and do not have any synced or backup passkey available, encrypted content may be unrecoverable. To reduce this risk, we recommend saving passkeys in a synced password manager.
+**Important:** Your passkey controls decryption access to encrypted content. If you lose access to your passkeys, encrypted content cannot be recovered and Helvety cannot restore access. To reduce this risk, save passkeys in your platform's built-in password app with cloud sync enabled.
 
 #### Encrypted vs. Non-Encrypted Fields
 

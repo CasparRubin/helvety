@@ -325,9 +325,11 @@ export default function TermsPage() {
               <strong className="text-foreground">Account Recovery:</strong> If
               you lose access to your passkey, you can request a new
               verification code sent to your registered email address to
-              re-authenticate and set up a new passkey. We recommend keeping
-              your passkey synced across your devices via iCloud Keychain,
-              Google Password Manager, or similar services.
+              re-authenticate and set up a new passkey. This restores account
+              sign-in only and does not recover previously encrypted data. We
+              recommend keeping your passkeys synced in your platform&apos;s
+              built-in password app (for example, iCloud Keychain or Google
+              Password Manager).
             </p>
             <p className="text-muted-foreground mb-4 text-sm">
               <strong className="text-foreground">Encryption Setup:</strong>{" "}
@@ -811,11 +813,11 @@ export default function TermsPage() {
             <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
               <li>
                 You are solely responsible for maintaining access to your
-                passkey. If you lose your passkey and cannot recover it through
-                account recovery, your encrypted data may become inaccessible.
+                passkey. If you lose your passkey, encrypted data cannot be
+                recovered.
               </li>
               <li>
-                We are not expected to recover or decrypt encrypted data on your
+                We cannot recover, decrypt, or restore encrypted data on your
                 behalf.
               </li>
               <li>

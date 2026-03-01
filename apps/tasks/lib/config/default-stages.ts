@@ -44,6 +44,14 @@ const UNIT_DEFAULT: DefaultStageConfig = {
       sort_order: 1,
       default_rows_shown: 20,
     },
+    {
+      id: "default-unit-hobbies",
+      name: "Hobbies",
+      color: "#a855f7",
+      icon: "sparkles",
+      sort_order: 2,
+      default_rows_shown: 20,
+    },
   ],
 };
 

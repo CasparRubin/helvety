@@ -366,9 +366,6 @@ export function EntityList({
           <span className="w-4 shrink-0" /> {/* drag handle space */}
           <span className="w-4 shrink-0" /> {/* icon space */}
           <span className="flex-1">Title</span>
-          {hasStages && (
-            <span className="w-24 shrink-0 text-center">Stage</span>
-          )}
           <span className="w-24 shrink-0 text-right">Created</span>
           <span className="w-8 shrink-0" /> {/* actions space */}
         </div>

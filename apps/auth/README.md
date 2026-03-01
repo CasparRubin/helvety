@@ -306,7 +306,7 @@ After email verification, new users are guided through passkey creation. The flo
 - **Key Derivation** - Encryption keys are derived client-side from the PRF output using HKDF
 - **Zero-Knowledge-Oriented Design** - The server stores only PRF parameters (salt values); encryption keys are designed to remain client-side
 - **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all Helvety apps; however, E2EE is only active in Helvety Tasks and Helvety Contacts
-- **Cloud Sync Recommendation** - During passkey creation, the UI recommends saving the passkey to the device's built-in password manager (Passwords on iPhone or Google Password Manager on Android). These sync automatically to iCloud or Google's cloud, so the passkey can be recovered on a new device if the original is lost or replaced. Third-party password managers that support passkey sync also work.
+- **Cloud Sync Recommendation** - During passkey creation, the UI recommends saving the passkey to the device's built-in password app (Passwords on iPhone or Google Password Manager on Android) with cloud sync enabled. If all synced passkeys are lost, encrypted content cannot be recovered.
 
 Browser compatibility for encryption depends on WebAuthn PRF support and can evolve over time:
 

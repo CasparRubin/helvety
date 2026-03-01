@@ -168,8 +168,8 @@ export function Navbar({
                   </p>
                   <p>
                     Encryption is tied to your passkey. If you lose passkey
-                    access, recovery of encrypted content may be limited or
-                    unavailable.
+                    access, encrypted content cannot be recovered, and we cannot
+                    restore access.
                   </p>
                 </TooltipContent>
               </Tooltip>
