@@ -56,8 +56,8 @@ interface EntityRowProps {
 /**
  * EntityRow - A single row in the entity list/table.
  *
- * Desktop: drag handle, icon (stage-colored), title, description (subtle), date, actions
- * Mobile: icon (stage-colored), title, stage arrows + delete (right-side actions)
+ * Shows drag handle, icon (stage-colored), title, description (subtle), date, and actions.
+ * Stage move arrows and delete actions are available across screen sizes.
  */
 export function EntityRow({
   id,
@@ -174,15 +174,16 @@ export function EntityRow({
         {formatDateTime(createdAt)}
       </span>
 
-      {/* Actions: Mobile stage arrows + Delete */}
+      {/* Actions: Stage arrows + Delete */}
       <div className="flex shrink-0 items-center gap-0.5">
         {(onMoveUp ?? onMoveDown) && (
-          <div className="flex items-center gap-0.5 md:hidden">
+          <div className="flex items-center gap-0.5">
             <Button
               variant="ghost"
               size="icon-sm"
               className="text-muted-foreground size-7"
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 onMoveUp?.();
               }}
@@ -196,6 +197,7 @@ export function EntityRow({
               size="icon-sm"
               className="text-muted-foreground size-7"
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 onMoveDown?.();
               }}

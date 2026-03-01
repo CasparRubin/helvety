@@ -88,7 +88,7 @@ interface EntityListProps {
  * - Always shows stage groups when stages are available (even with no entities)
  * - Flat list fallback (when no stages are available)
  * - Drag-and-drop reordering within and between stages (desktop)
- * - Mobile: up/down arrows to move entities between stages
+ * - Up/down arrows to move entities between stages on all screen sizes
  * - Consistent row layout across all entity types
  */
 export function EntityList({

@@ -37,8 +37,8 @@ interface ContactRowProps {
 /**
  * ContactRow - A single row in the contacts list.
  *
- * Desktop: drag handle, icon (category-colored), full name, email (subtle), date, actions
- * Mobile: icon (category-colored), full name, optional group arrows + delete
+ * Shows drag handle, icon (category-colored), full name, email (subtle), date, and actions.
+ * Group move arrows and delete actions are available across screen sizes.
  */
 export function ContactRow({
   id,
@@ -111,15 +111,16 @@ export function ContactRow({
         {formatDateTime(createdAt)}
       </span>
 
-      {/* Actions: Mobile group arrows + Delete */}
+      {/* Actions: Group arrows + Delete */}
       <div className="flex shrink-0 items-center gap-0.5">
         {(onMoveUp ?? onMoveDown) && (
-          <div className="flex items-center gap-0.5 md:hidden">
+          <div className="flex items-center gap-0.5">
             <Button
               variant="ghost"
               size="icon-sm"
               className="text-muted-foreground size-7"
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 onMoveUp?.();
               }}
@@ -133,6 +134,7 @@ export function ContactRow({
               size="icon-sm"
               className="text-muted-foreground size-7"
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 onMoveDown?.();
               }}
