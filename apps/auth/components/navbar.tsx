@@ -151,7 +151,7 @@ export function Navbar({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm">
-                    <ShieldCheck className="h-4 w-4 text-green-500" />
+                    <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
                     <span className="hidden md:inline">
                       Client-side encryption enabled
                     </span>
@@ -330,7 +330,7 @@ export function Navbar({
               <nav className="mt-6 flex flex-col gap-2 px-4">
                 {!encryptionLoading && isUnlocked && (
                   <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
-                    <ShieldCheck className="h-4 w-4 shrink-0 text-green-500" />
+                    <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-green-500" />
                     <span>Client-side encryption enabled</span>
                   </div>
                 )}

@@ -21,12 +21,12 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 
 ## Shared Packages
 
-| Package                                 | Description                                                                                                                                                                                                       |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                                                                                                                                                 |
-| **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, PostCSS, and Next.js security-header configurations                                                                                                                            |
-| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, types, utilities                                                                                             |
-| **[@helvety/ui](packages/ui/)**         | Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, animated Lucide icon aliases, AuthTokenHandler, SessionRecovery, SkipToContent |
+| Package                                 | Description                                                                                                                                                                                                                     |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                                                                                                                                                               |
+| **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, PostCSS, and Next.js security-header configurations                                                                                                                                          |
+| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, types, utilities                                                                                                           |
+| **[@helvety/ui](packages/ui/)**         | Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, navbar-scoped animated Lucide icon aliases, AuthTokenHandler, SessionRecovery, SkipToContent |
 
 ## Getting Started
 
@@ -120,7 +120,7 @@ helvety/
 │   ├── brand/        # Shared brand assets (SVG components, asset URLs)
 │   ├── config/       # Shared tooling configs
 │   ├── shared/       # Shared libraries
-│   └── ui/           # Shared UI components (shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, animated Lucide icon aliases, AuthTokenHandler, SessionRecovery, SkipToContent)
+│   └── ui/           # Shared UI components (shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, navbar-scoped animated Lucide icon aliases, AuthTokenHandler, SessionRecovery, SkipToContent)
 ├── patches/          # Bun dependency patches (applied on install)
 ├── supabase/         # Remote-first Supabase SQL/export helpers (supabase.json is gitignored)
 ├── turbo.json        # Turborepo task configuration
