@@ -94,12 +94,14 @@ const nextConfig: NextConfig = {
           destination: `${tasksUrl}/tasks`,
         },
         {
-          source: "/tasks/:path+",
-          destination: `${tasksUrl}/tasks/:path+`,
+          // Use :path* so trailing-slash and empty-subpath variants
+          // (including some App Router RSC prefetch forms) are forwarded too.
+          source: "/tasks/:path*",
+          destination: `${tasksUrl}/tasks/:path*`,
         },
         {
-          source: "/tasks-static/:path+",
-          destination: `${tasksUrl}/tasks-static/:path+`,
+          source: "/tasks-static/:path*",
+          destination: `${tasksUrl}/tasks-static/:path*`,
         },
         {
           source: "/contacts",
