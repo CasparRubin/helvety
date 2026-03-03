@@ -235,7 +235,7 @@ export function ItemsDashboard({
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href={`/units/${unitId}`}>
+                <Link href={`/units/${unitId}`} prefetch={false}>
                   {isLoadingUnit ? "..." : (unit?.title ?? "Unknown")}
                 </Link>
               </BreadcrumbLink>

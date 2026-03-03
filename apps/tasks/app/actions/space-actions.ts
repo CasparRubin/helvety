@@ -18,12 +18,14 @@ import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, SpaceRow } from "@/lib/types";
 
-/** Revalidate space list/detail routes impacted by space mutations. */
-function revalidateSpaceRoutes(unitId: string, spaceId?: string): void {
+/** Revalidate space list routes impacted by structural space mutations. */
+function revalidateSpaceListRoute(unitId: string): void {
   revalidatePath(`/tasks/units/${unitId}`);
-  if (spaceId) {
-    revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`);
-  }
+}
+
+/** Revalidate a space detail route impacted by space mutations. */
+function revalidateSpaceDetailRoute(unitId: string, spaceId: string): void {
+  revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`);
 }
 
 // =============================================================================
@@ -146,7 +148,8 @@ export async function createSpace(
       return { success: false, error: "Failed to create space" };
     }
 
-    revalidateSpaceRoutes(validatedData.unit_id, space.id);
+    revalidateSpaceListRoute(validatedData.unit_id);
+    revalidateSpaceDetailRoute(validatedData.unit_id, space.id);
     return { success: true, data: { id: space.id } };
   } catch (error) {
     logger.error("Unexpected error in createSpace:", error);
@@ -307,7 +310,7 @@ export async function updateSpace(
       return { success: false, error: "Failed to update space" };
     }
 
-    revalidateSpaceRoutes(spaceScope.unit_id, validatedData.id);
+    revalidateSpaceDetailRoute(spaceScope.unit_id, validatedData.id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in updateSpace:", error);
@@ -411,7 +414,8 @@ export async function deleteSpace(
       }
     }
 
-    revalidateSpaceRoutes(spaceScope.unit_id, id);
+    revalidateSpaceListRoute(spaceScope.unit_id);
+    revalidateSpaceDetailRoute(spaceScope.unit_id, id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in deleteSpace:", error);

@@ -18,9 +18,13 @@ import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, UnitRow } from "@/lib/types";
 
-/** Revalidate unit list/detail routes impacted by unit mutations. */
-function revalidateUnitRoutes(unitId: string): void {
+/** Revalidate unit list route impacted by structural unit mutations. */
+function revalidateUnitListRoute(): void {
   revalidatePath("/tasks");
+}
+
+/** Revalidate a unit detail route impacted by unit mutations. */
+function revalidateUnitDetailRoute(unitId: string): void {
   revalidatePath(`/tasks/units/${unitId}`);
 }
 
@@ -274,7 +278,7 @@ export async function updateUnit(
       return { success: false, error: "Failed to update unit" };
     }
 
-    revalidateUnitRoutes(validatedData.id);
+    revalidateUnitDetailRoute(validatedData.id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in updateUnit:", error);
@@ -376,7 +380,8 @@ export async function deleteUnit(
       }
     }
 
-    revalidateUnitRoutes(id);
+    revalidateUnitListRoute();
+    revalidateUnitDetailRoute(id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in deleteUnit:", error);

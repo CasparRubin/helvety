@@ -446,7 +446,7 @@ export function ItemEditor({
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href={`/units/${unitId}`}>
+                  <Link href={`/units/${unitId}`} prefetch={false}>
                     {isLoadingUnit ? "..." : (unit?.title ?? "Unknown")}
                   </Link>
                 </BreadcrumbLink>
@@ -454,7 +454,10 @@ export function ItemEditor({
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href={`/units/${unitId}/spaces/${spaceId}`}>
+                  <Link
+                    href={`/units/${unitId}/spaces/${spaceId}`}
+                    prefetch={false}
+                  >
                     {isLoadingSpace ? "..." : (space?.title ?? "Unknown")}
                   </Link>
                 </BreadcrumbLink>

@@ -22,17 +22,19 @@ import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ItemRow } from "@/lib/types";
 
-/** Revalidate item list/detail routes impacted by item mutations. */
-function revalidateItemRoutes(
-  unitId: string,
-  spaceId: string,
-  itemId?: string
-): void {
+/** Revalidate item list routes impacted by structural item mutations. */
+function revalidateItemListRoutes(unitId: string, spaceId: string): void {
   revalidatePath(`/tasks/units/${unitId}`);
   revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`);
-  if (itemId) {
-    revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}/items/${itemId}`);
-  }
+}
+
+/** Revalidate item detail route impacted by item mutations. */
+function revalidateItemDetailRoute(
+  unitId: string,
+  spaceId: string,
+  itemId: string
+): void {
+  revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}/items/${itemId}`);
 }
 
 // =============================================================================
@@ -188,7 +190,8 @@ export async function createItem(
       return { success: false, error: "Failed to create item" };
     }
 
-    revalidateItemRoutes(space.unit_id, validatedData.space_id, item.id);
+    revalidateItemListRoutes(space.unit_id, validatedData.space_id);
+    revalidateItemDetailRoute(space.unit_id, validatedData.space_id, item.id);
     return { success: true, data: { id: item.id } };
   } catch (error) {
     logger.error("Unexpected error in createItem:", error);
@@ -384,7 +387,7 @@ export async function updateItem(
       };
     }
 
-    revalidateItemRoutes(
+    revalidateItemDetailRoute(
       spaceScope.unit_id,
       itemScope.space_id,
       validatedData.id
@@ -494,7 +497,8 @@ export async function deleteItem(
       }
     }
 
-    revalidateItemRoutes(spaceScope.unit_id, itemScope.space_id, id);
+    revalidateItemListRoutes(spaceScope.unit_id, itemScope.space_id);
+    revalidateItemDetailRoute(spaceScope.unit_id, itemScope.space_id, id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in deleteItem:", error);
