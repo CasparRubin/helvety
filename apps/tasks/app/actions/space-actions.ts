@@ -20,10 +20,9 @@ import type { ActionResponse, SpaceRow } from "@/lib/types";
 
 /** Revalidate space list/detail routes impacted by space mutations. */
 function revalidateSpaceRoutes(unitId: string, spaceId?: string): void {
-  revalidatePath("/tasks");
-  revalidatePath(`/tasks/units/${unitId}`, "layout");
+  revalidatePath(`/tasks/units/${unitId}`);
   if (spaceId) {
-    revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`, "layout");
+    revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`);
   }
 }
 

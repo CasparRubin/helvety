@@ -28,9 +28,8 @@ function revalidateItemRoutes(
   spaceId: string,
   itemId?: string
 ): void {
-  revalidatePath("/tasks");
-  revalidatePath(`/tasks/units/${unitId}`, "layout");
-  revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`, "layout");
+  revalidatePath(`/tasks/units/${unitId}`);
+  revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`);
   if (itemId) {
     revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}/items/${itemId}`);
   }

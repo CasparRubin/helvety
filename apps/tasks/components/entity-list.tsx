@@ -167,25 +167,6 @@ export function EntityList({
     return map;
   }, [labels]);
 
-  const entityMetrics = useMemo(() => {
-    const metrics = new Map<
-      string,
-      {
-        priority: number;
-        updatedAtMs: number;
-      }
-    >();
-
-    for (const entity of entities) {
-      metrics.set(entity.id, {
-        priority: isItem(entity) ? entity.priority : 1,
-        updatedAtMs: Date.parse(entity.updated_at),
-      });
-    }
-
-    return metrics;
-  }, [entities]);
-
   // Group entities by stage
   const groupedEntities = useMemo(() => {
     if (!hasStages) return null;
@@ -203,6 +184,10 @@ export function EntityList({
       if (group) {
         group.push(entity);
       }
+    }
+
+    for (const group of groups.values()) {
+      group.sort((a, b) => a.sort_order - b.sort_order);
     }
 
     return groups;
@@ -262,17 +247,49 @@ export function EntityList({
       const insertAt = newIndex === -1 ? sortedEntities.length : newIndex;
       sortedEntities.splice(insertAt, 0, activeEntity);
 
-      // Generate updates with new sort_orders
-      const updates: ReorderUpdate[] = sortedEntities.map((e, index) => {
+      // Generate only the minimal changed range to reduce rerender/load.
+      const startIndex = Math.min(oldIndex, insertAt);
+      const endIndex = Math.max(oldIndex, insertAt);
+      const updates: ReorderUpdate[] = [];
+      for (let index = startIndex; index <= endIndex; index++) {
+        const entityAtIndex = sortedEntities[index];
+        if (!entityAtIndex) continue;
+        const originalEntity = entities.find((e) => e.id === entityAtIndex.id);
+        if (!originalEntity) continue;
+
+        const hasSortOrderChange = originalEntity.sort_order !== index;
+        const isActiveEntity = entityAtIndex.id === activeId;
+        const hasStageChange =
+          isActiveEntity &&
+          typeof targetStageId === "string" &&
+          originalEntity.stage_id !== targetStageId;
+
+        if (!hasSortOrderChange && !hasStageChange) continue;
+
         const update: ReorderUpdate = {
-          id: e.id,
+          id: entityAtIndex.id,
           sort_order: index,
         };
-        if (e.id === activeId && typeof targetStageId === "string") {
+        if (hasStageChange) {
           update.stage_id = targetStageId;
         }
-        return update;
-      });
+        updates.push(update);
+      }
+
+      // Handle category-only moves where index did not change.
+      if (
+        updates.length === 0 &&
+        typeof targetStageId === "string" &&
+        activeEntity.stage_id !== targetStageId
+      ) {
+        updates.push({
+          id: activeEntity.id,
+          sort_order: activeEntity.sort_order,
+          stage_id: targetStageId,
+        });
+      }
+
+      if (updates.length === 0) return;
 
       await onReorder(updates);
     },
@@ -392,56 +409,44 @@ export function EntityList({
                   count={stageEntities.length}
                   isHighlighted={hoveredStageId === stage.id}
                 >
-                  {stageEntities
-                    .toSorted((a, b) => {
-                      const metricsA = entityMetrics.get(a.id);
-                      const metricsB = entityMetrics.get(b.id);
-                      const prioA = metricsA?.priority ?? 1;
-                      const prioB = metricsB?.priority ?? 1;
-                      if (prioB !== prioA) return prioB - prioA;
-                      return (
-                        (metricsB?.updatedAtMs ?? 0) -
-                        (metricsA?.updatedAtMs ?? 0)
-                      );
-                    })
-                    .map((entity) => (
-                      <EntityRow
-                        key={entity.id}
-                        id={entity.id}
-                        title={entity.title}
-                        description={entity.description}
-                        createdAt={entity.created_at}
-                        entityType={entityType}
-                        stage={stageMap.get(entity.stage_id ?? "")}
-                        priority={isItem(entity) ? entity.priority : null}
-                        label={
-                          isItem(entity) && entity.label_id
-                            ? (labelMap?.get(entity.label_id) ?? null)
-                            : null
-                        }
-                        childCount={childCounts?.[entity.id]}
-                        isFirst={isFirstStage}
-                        isLast={isLastStage}
-                        href={entityHref?.(entity)}
-                        onClick={() => onEntityClick?.(entity)}
-                        onPrefetch={() => onEntityPrefetch?.(entity)}
-                        onDelete={
-                          onEntityDelete
-                            ? () => onEntityDelete(entity.id, entity.title)
-                            : undefined
-                        }
-                        onMoveUp={
-                          stages.length > 1
-                            ? () => handleMoveUp(entity.id)
-                            : undefined
-                        }
-                        onMoveDown={
-                          stages.length > 1
-                            ? () => handleMoveDown(entity.id)
-                            : undefined
-                        }
-                      />
-                    ))}
+                  {stageEntities.map((entity) => (
+                    <EntityRow
+                      key={entity.id}
+                      id={entity.id}
+                      title={entity.title}
+                      description={entity.description}
+                      createdAt={entity.created_at}
+                      entityType={entityType}
+                      stage={stageMap.get(entity.stage_id ?? "")}
+                      priority={isItem(entity) ? entity.priority : null}
+                      label={
+                        isItem(entity) && entity.label_id
+                          ? (labelMap?.get(entity.label_id) ?? null)
+                          : null
+                      }
+                      childCount={childCounts?.[entity.id]}
+                      isFirst={isFirstStage}
+                      isLast={isLastStage}
+                      href={entityHref?.(entity)}
+                      onClick={() => onEntityClick?.(entity)}
+                      onPrefetch={() => onEntityPrefetch?.(entity)}
+                      onDelete={
+                        onEntityDelete
+                          ? () => onEntityDelete(entity.id, entity.title)
+                          : undefined
+                      }
+                      onMoveUp={
+                        stages.length > 1
+                          ? () => handleMoveUp(entity.id)
+                          : undefined
+                      }
+                      onMoveDown={
+                        stages.length > 1
+                          ? () => handleMoveDown(entity.id)
+                          : undefined
+                      }
+                    />
+                  ))}
                 </StageGroup>
               );
             })}

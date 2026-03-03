@@ -2,9 +2,7 @@ import { shouldForceHardLogout } from "@helvety/shared/auth-errors";
 import { requireAuth } from "@helvety/shared/auth-guard";
 import { getLogoutUrl } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
-import { LoadingSpinner } from "@helvety/ui/loading-spinner";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 
 import { getContact } from "@/app/actions/contact-actions";
 import { ContactEditor } from "@/components/contact-editor";
@@ -42,9 +40,5 @@ export default async function ContactEditorPage({
   const { id: contactId } = await params;
   await requireAuth(`/contacts/contacts/${contactId}`);
 
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <PrefetchedEditor contactId={contactId} />
-    </Suspense>
-  );
+  return <PrefetchedEditor contactId={contactId} />;
 }

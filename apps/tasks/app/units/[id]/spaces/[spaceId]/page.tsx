@@ -2,9 +2,7 @@ import { shouldForceHardLogout } from "@helvety/shared/auth-errors";
 import { requireAuth } from "@helvety/shared/auth-guard";
 import { getLogoutUrl } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
-import { LoadingSpinner } from "@helvety/ui/loading-spinner";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 
 import { getItemsDashboardData } from "@/app/actions/batch-actions";
 import { ItemsDashboard } from "@/components/items-dashboard";
@@ -47,9 +45,5 @@ export default async function ItemsPage({
   const { id: unitId, spaceId } = await params;
   await requireAuth(`/tasks/units/${unitId}/spaces/${spaceId}`);
 
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <PrefetchedItemsDashboard unitId={unitId} spaceId={spaceId} />
-    </Suspense>
-  );
+  return <PrefetchedItemsDashboard unitId={unitId} spaceId={spaceId} />;
 }

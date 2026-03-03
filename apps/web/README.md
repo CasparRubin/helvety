@@ -33,7 +33,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 - Sub-apps are forwarded by gateway rewrites in `apps/web/next.config.ts`.
 - Use wildcard segment patterns (prefer `:path*`) for zone forwarding rules so App Router Flight/RSC prefetch requests (`?_rsc=...`) and trailing-slash variants are forwarded consistently.
-- Current config uses `:path*` for auth/tasks/store/pdf and still uses `:path+` for contacts routes; migrating contacts to `:path*` is recommended for consistency.
+- Keep wildcard usage consistent across zones (`auth`, `tasks`, `contacts`, `store`, `pdf`) to avoid edge-case misses and preserve smooth prefetch behavior.
 
 ## Security Features
 

@@ -193,14 +193,12 @@ export async function reorderEntities(
       return { success: false, error: `Failed to reorder ${entityType}s` };
     }
 
-    revalidatePath("/tasks");
-    if (entityType === "space") {
-      revalidatePath(`/tasks/units/${parentId!}`, "layout");
+    if (entityType === "unit") {
+      revalidatePath("/tasks");
+    } else if (entityType === "space") {
+      revalidatePath(`/tasks/units/${parentId!}`);
     } else if (entityType === "item" && itemUnitId) {
-      revalidatePath(
-        `/tasks/units/${itemUnitId}/spaces/${parentId!}`,
-        "layout"
-      );
+      revalidatePath(`/tasks/units/${itemUnitId}/spaces/${parentId!}`);
     }
 
     return { success: true };

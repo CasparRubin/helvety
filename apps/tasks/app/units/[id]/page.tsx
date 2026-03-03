@@ -2,9 +2,7 @@ import { shouldForceHardLogout } from "@helvety/shared/auth-errors";
 import { requireAuth } from "@helvety/shared/auth-guard";
 import { getLogoutUrl } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
-import { LoadingSpinner } from "@helvety/ui/loading-spinner";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 
 import { getSpacesDashboardData } from "@/app/actions/batch-actions";
 import { SpacesDashboard } from "@/components/spaces-dashboard";
@@ -42,9 +40,5 @@ export default async function SpacesPage({
   const { id: unitId } = await params;
   await requireAuth(`/tasks/units/${unitId}`);
 
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <PrefetchedSpacesDashboard unitId={unitId} />
-    </Suspense>
-  );
+  return <PrefetchedSpacesDashboard unitId={unitId} />;
 }

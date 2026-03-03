@@ -12,6 +12,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { memo } from "react";
 
 import type { Category } from "@/lib/types";
 
@@ -40,167 +41,173 @@ interface ContactRowProps {
  * Shows drag handle, icon (category-colored), full name, email (subtle), date, and actions.
  * Group move arrows and delete actions are available across screen sizes.
  */
-export function ContactRow({
-  id,
-  firstName,
-  lastName,
-  email,
-  createdAt,
-  category,
-  isFirst = false,
-  isLast = false,
-  href,
-  onClick,
-  onPrefetch,
-  onDelete,
-  onMoveUp,
-  onMoveDown,
-}: ContactRowProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
+export const ContactRow = memo(
+  ({
+    id,
+    firstName,
+    lastName,
+    email,
+    createdAt,
+    category,
+    isFirst = false,
+    isLast = false,
+    href,
+    onClick,
+    onPrefetch,
+    onDelete,
+    onMoveUp,
+    onMoveDown,
+  }: ContactRowProps) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
 
-  const fullName = `${firstName} ${lastName}`.trim();
+    const fullName = `${firstName} ${lastName}`.trim();
 
-  const rowClassName = `group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
-    isDragging
-      ? "bg-muted/80 z-50 rounded-md shadow-lg"
-      : "hover:bg-muted/40 [content-visibility:auto]"
-  }`;
+    const rowClassName = `group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
+      isDragging
+        ? "bg-muted/80 z-50 rounded-md shadow-lg"
+        : "hover:bg-muted/40 [content-visibility:auto]"
+    }`;
 
-  const rowContent = (
-    <>
-      {/* Desktop: Drag Handle */}
-      <button
-        type="button"
-        className="text-muted-foreground hover:text-foreground hidden shrink-0 cursor-grab touch-none focus-visible:outline-none md:flex"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVerticalIcon className="size-4" />
-      </button>
+    const rowContent = (
+      <>
+        {/* Desktop: Drag Handle */}
+        <button
+          type="button"
+          className="text-muted-foreground hover:text-foreground hidden shrink-0 cursor-grab touch-none focus-visible:outline-none md:flex"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVerticalIcon className="size-4" />
+        </button>
 
-      {/* Icon */}
-      <UserIcon
-        className="size-4 shrink-0"
-        style={category?.color ? { color: category.color } : undefined}
-      />
+        {/* Icon */}
+        <UserIcon
+          className="size-4 shrink-0"
+          style={category?.color ? { color: category.color } : undefined}
+        />
 
-      {/* Name + Email */}
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        <span className="truncate font-medium">{fullName}</span>
-        {email && (
-          <span className="text-muted-foreground hidden truncate text-sm md:inline">
-            {email}
-          </span>
-        )}
-      </div>
+        {/* Name + Email */}
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <span className="truncate font-medium">{fullName}</span>
+          {email && (
+            <span className="text-muted-foreground hidden truncate text-sm md:inline">
+              {email}
+            </span>
+          )}
+        </div>
 
-      {/* Date (desktop only) */}
-      <span className="text-muted-foreground hidden shrink-0 text-xs md:inline">
-        {formatDateTime(createdAt)}
-      </span>
+        {/* Date (desktop only) */}
+        <span className="text-muted-foreground hidden shrink-0 text-xs md:inline">
+          {formatDateTime(createdAt)}
+        </span>
 
-      {/* Actions: Group arrows + Delete */}
-      <div className="flex shrink-0 items-center gap-0.5">
-        {(onMoveUp ?? onMoveDown) && (
-          <div className="flex items-center gap-0.5">
+        {/* Actions: Group arrows + Delete */}
+        <div className="flex shrink-0 items-center gap-0.5">
+          {(onMoveUp ?? onMoveDown) && (
+            <div className="flex items-center gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="text-muted-foreground size-7"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onMoveUp?.();
+                }}
+                disabled={isFirst}
+                aria-label="Move to previous group"
+              >
+                <ChevronUpIcon className="size-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="text-muted-foreground size-7"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onMoveDown?.();
+                }}
+                disabled={isLast}
+                aria-label="Move to next group"
+              >
+                <ChevronDownIcon className="size-4" />
+              </Button>
+            </div>
+          )}
+          {onDelete && (
             <Button
               variant="ghost"
               size="icon-sm"
-              className="text-muted-foreground size-7"
+              className="text-muted-foreground hover:text-destructive shrink-0"
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
-                onMoveUp?.();
+                onDelete();
               }}
-              disabled={isFirst}
-              aria-label="Move to previous group"
             >
-              <ChevronUpIcon className="size-4" />
+              <TrashIcon className="size-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-muted-foreground size-7"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onMoveDown?.();
-              }}
-              disabled={isLast}
-              aria-label="Move to next group"
-            >
-              <ChevronDownIcon className="size-4" />
-            </Button>
-          </div>
-        )}
-        {onDelete && (
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-muted-foreground hover:text-destructive shrink-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-          >
-            <TrashIcon className="size-4" />
-          </Button>
-        )}
-      </div>
-    </>
-  );
+          )}
+        </div>
+      </>
+    );
 
-  const sharedProps = {
-    ref: setNodeRef,
-    style,
-    className: rowClassName,
-    onMouseEnter: () => onPrefetch?.(),
-    onFocus: () => onPrefetch?.(),
-  };
+    const sharedProps = {
+      ref: setNodeRef,
+      style,
+      className: rowClassName,
+      onMouseEnter: () => onPrefetch?.(),
+      onFocus: () => onPrefetch?.(),
+    };
 
-  if (href) {
+    if (href) {
+      return (
+        <Link
+          href={href}
+          // Avoid noisy RSC prefetch 404s from stale/deleted dynamic IDs in dense lists.
+          prefetch={false}
+          {...sharedProps}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              (e.currentTarget as HTMLAnchorElement).click();
+            }
+          }}
+        >
+          {rowContent}
+        </Link>
+      );
+    }
+
     return (
-      <Link
-        href={href}
+      <div
         {...sharedProps}
+        role="button"
+        tabIndex={0}
+        onClick={onClick}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            (e.currentTarget as HTMLAnchorElement).click();
+            onClick?.();
           }
         }}
       >
         {rowContent}
-      </Link>
+      </div>
     );
   }
+);
 
-  return (
-    <div
-      {...sharedProps}
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick?.();
-        }
-      }}
-    >
-      {rowContent}
-    </div>
-  );
-}
+ContactRow.displayName = "ContactRow";

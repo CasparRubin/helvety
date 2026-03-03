@@ -21,7 +21,7 @@ import type { ActionResponse, UnitRow } from "@/lib/types";
 /** Revalidate unit list/detail routes impacted by unit mutations. */
 function revalidateUnitRoutes(unitId: string): void {
   revalidatePath("/tasks");
-  revalidatePath(`/tasks/units/${unitId}`, "layout");
+  revalidatePath(`/tasks/units/${unitId}`);
 }
 
 // =============================================================================

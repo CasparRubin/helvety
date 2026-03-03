@@ -119,14 +119,6 @@ export function ContactList({
     return map;
   }, [categories]);
 
-  const updatedAtMsById = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const contact of contacts) {
-      map.set(contact.id, Date.parse(contact.updated_at));
-    }
-    return map;
-  }, [contacts]);
-
   // Group contacts by category
   const groupedContacts = useMemo(() => {
     if (!hasCategories) return null;
@@ -144,6 +136,10 @@ export function ContactList({
       if (group) {
         group.push(contact);
       }
+    }
+
+    for (const group of groups.values()) {
+      group.sort((a, b) => a.sort_order - b.sort_order);
     }
 
     return groups;
@@ -195,16 +191,49 @@ export function ContactList({
       const insertAt = newIndex === -1 ? sortedContacts.length : newIndex;
       sortedContacts.splice(insertAt, 0, activeContact);
 
-      const updates: ReorderUpdate[] = sortedContacts.map((c, index) => {
+      const startIndex = Math.min(oldIndex, insertAt);
+      const endIndex = Math.max(oldIndex, insertAt);
+      const updates: ReorderUpdate[] = [];
+      for (let index = startIndex; index <= endIndex; index++) {
+        const contactAtIndex = sortedContacts[index];
+        if (!contactAtIndex) continue;
+        const originalContact = contacts.find(
+          (c) => c.id === contactAtIndex.id
+        );
+        if (!originalContact) continue;
+
+        const hasSortOrderChange = originalContact.sort_order !== index;
+        const isActiveContact = contactAtIndex.id === activeId;
+        const hasCategoryChange =
+          isActiveContact &&
+          typeof targetCategoryId === "string" &&
+          originalContact.category_id !== targetCategoryId;
+
+        if (!hasSortOrderChange && !hasCategoryChange) continue;
+
         const update: ReorderUpdate = {
-          id: c.id,
+          id: contactAtIndex.id,
           sort_order: index,
         };
-        if (c.id === activeId && typeof targetCategoryId === "string") {
+        if (hasCategoryChange) {
           update.category_id = targetCategoryId;
         }
-        return update;
-      });
+        updates.push(update);
+      }
+
+      if (
+        updates.length === 0 &&
+        typeof targetCategoryId === "string" &&
+        activeContact.category_id !== targetCategoryId
+      ) {
+        updates.push({
+          id: activeContact.id,
+          sort_order: activeContact.sort_order,
+          category_id: targetCategoryId,
+        });
+      }
+
+      if (updates.length === 0) return;
 
       await onReorder(updates);
     },
@@ -342,47 +371,41 @@ export function ContactList({
                   count={categoryContacts.length}
                   isHighlighted={hoveredCategoryId === category.id}
                 >
-                  {categoryContacts
-                    .toSorted(
-                      (a, b) =>
-                        (updatedAtMsById.get(b.id) ?? 0) -
-                        (updatedAtMsById.get(a.id) ?? 0)
-                    )
-                    .map((contact) => (
-                      <ContactRow
-                        key={contact.id}
-                        id={contact.id}
-                        firstName={contact.first_name}
-                        lastName={contact.last_name}
-                        email={contact.email}
-                        createdAt={contact.created_at}
-                        category={categoryMap.get(contact.category_id ?? "")}
-                        isFirst={isFirstCategory}
-                        isLast={isLastCategory}
-                        href={contactHref?.(contact)}
-                        onClick={() => onContactClick?.(contact)}
-                        onPrefetch={() => onContactPrefetch?.(contact)}
-                        onDelete={
-                          onContactDelete
-                            ? () =>
-                                onContactDelete(
-                                  contact.id,
-                                  `${contact.first_name} ${contact.last_name}`
-                                )
-                            : undefined
-                        }
-                        onMoveUp={
-                          categories.length > 1
-                            ? () => handleMoveUp(contact.id)
-                            : undefined
-                        }
-                        onMoveDown={
-                          categories.length > 1
-                            ? () => handleMoveDown(contact.id)
-                            : undefined
-                        }
-                      />
-                    ))}
+                  {categoryContacts.map((contact) => (
+                    <ContactRow
+                      key={contact.id}
+                      id={contact.id}
+                      firstName={contact.first_name}
+                      lastName={contact.last_name}
+                      email={contact.email}
+                      createdAt={contact.created_at}
+                      category={categoryMap.get(contact.category_id ?? "")}
+                      isFirst={isFirstCategory}
+                      isLast={isLastCategory}
+                      href={contactHref?.(contact)}
+                      onClick={() => onContactClick?.(contact)}
+                      onPrefetch={() => onContactPrefetch?.(contact)}
+                      onDelete={
+                        onContactDelete
+                          ? () =>
+                              onContactDelete(
+                                contact.id,
+                                `${contact.first_name} ${contact.last_name}`
+                              )
+                          : undefined
+                      }
+                      onMoveUp={
+                        categories.length > 1
+                          ? () => handleMoveUp(contact.id)
+                          : undefined
+                      }
+                      onMoveDown={
+                        categories.length > 1
+                          ? () => handleMoveDown(contact.id)
+                          : undefined
+                      }
+                    />
+                  ))}
                 </CategoryGroup>
               );
             })}
