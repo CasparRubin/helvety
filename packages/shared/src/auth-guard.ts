@@ -13,14 +13,6 @@ import { createServerClient } from "./supabase/server";
 import type { User } from "@supabase/supabase-js";
 
 /**
- * Returns true when the auth lookup failure indicates a broken/invalid session
- * that should force a global logout before restarting the login flow.
- */
-function shouldUseGlobalLogout(errorMessage?: string | null): boolean {
-  return shouldForceHardLogout(errorMessage);
-}
-
-/**
  * Server-side authentication guard for protected routes.
  *
  * Use this in Server Components to ensure the user is authenticated.
@@ -75,9 +67,9 @@ export async function requireAuth(currentPath?: string): Promise<User> {
   const fallbackUrl = currentPath ? `${urls.home}${currentPath}` : undefined;
   const destination = headerUrl ?? fallbackUrl;
 
-  if (shouldUseGlobalLogout(authErrorMessage)) {
+  if (shouldForceHardLogout(authErrorMessage)) {
     redirect(
-      getLogoutUrl(getLoginUrl(destination), {
+      getLogoutUrl(destination, {
         global: true,
       })
     );

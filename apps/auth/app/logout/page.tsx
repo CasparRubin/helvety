@@ -11,36 +11,6 @@ import { Suspense, useEffect, useRef } from "react";
 
 import { signOutAction } from "./actions";
 
-/** Returns true when a redirect target points back to the logout route. */
-function isLogoutRedirectTarget(uri: string): boolean {
-  try {
-    const targetUrl = new URL(uri);
-    const authBaseUrl = new URL(urls.auth);
-    const authBasePath = authBaseUrl.pathname.replace(/\/$/, "");
-    const logoutPath = `${authBasePath}/logout`;
-    return (
-      targetUrl.origin === authBaseUrl.origin &&
-      targetUrl.pathname === logoutPath
-    );
-  } catch {
-    return false;
-  }
-}
-
-/** Validates and sanitizes post-logout redirects to avoid recursive loops. */
-function getSafeLogoutRedirect(
-  redirectUri: string | null,
-  defaultRedirect: string
-): string {
-  if (!redirectUri || !isValidRedirectUri(redirectUri)) {
-    return defaultRedirect;
-  }
-  if (isLogoutRedirectTarget(redirectUri)) {
-    return defaultRedirect;
-  }
-  return redirectUri;
-}
-
 /**
  * Logout page - clears local encryption artifacts before sign-out.
  *
@@ -51,8 +21,7 @@ function getSafeLogoutRedirect(
  * Flow:
  * 1. Clear encryption keys from IndexedDB and clear cached PRF salt
  * 2. Call server action to sign out Supabase session (optionally global scope)
- * 3. On sign-out success, redirect to the specified destination (or default)
- * 4. On sign-out failure, route to /auth/login with force_login=1
+ * 3. Always route to /auth/login with force_login=1 and redirect_uri preserved
  *
  * Usage:
  * - /logout?redirect_uri=https://helvety.com/pdf
@@ -94,18 +63,14 @@ function LogoutHandler() {
       const globalLogout = searchParams.get("scope") === "global";
       const rawRedirectUri = searchParams.get("redirect_uri");
       const defaultRedirect = urls.home;
-      const redirectTo = getSafeLogoutRedirect(rawRedirectUri, defaultRedirect);
+      const redirectTarget =
+        rawRedirectUri && isValidRedirectUri(rawRedirectUri)
+          ? rawRedirectUri
+          : defaultRedirect;
+      const loginUrl = getLoginUrl(redirectTarget, { forceLogin: true });
 
-      const signOutResult = await signOutAction(
-        csrfToken ?? undefined,
-        globalLogout
-      );
-      if (!signOutResult.success) {
-        window.location.href = getLoginUrl(redirectTo, { forceLogin: true });
-        return;
-      }
-
-      window.location.href = redirectTo;
+      await signOutAction(csrfToken ?? undefined, globalLogout);
+      window.location.href = loginUrl;
     }
 
     void performLogout();

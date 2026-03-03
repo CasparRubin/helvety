@@ -87,7 +87,7 @@ export function Navbar({
 
   const handleLogout = () => {
     // Redirect to centralized auth service for logout
-    redirectToLogout(window.location.origin);
+    redirectToLogout(window.location.href);
   };
 
   return (

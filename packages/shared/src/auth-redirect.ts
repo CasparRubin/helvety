@@ -51,7 +51,8 @@ export function getLoginUrl(
 
 /**
  * Get the logout URL for signing out via the auth service.
- * Includes an optional redirect_uri parameter for post-logout navigation.
+ * Includes an optional redirect_uri parameter for post-login return after the
+ * logout page hands off to /auth/login.
  * Set `global: true` to revoke all refresh tokens.
  *
  * Security: The redirect URI is validated against an allowlist to prevent
