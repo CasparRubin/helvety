@@ -61,8 +61,8 @@ function withScopeValue<T>(
 }
 
 /**
- * Get the service role key from environment.
- * This key has full access to the database, bypassing RLS.
+ * Get the Supabase secret key from environment (legacy name: service_role key).
+ * This key has full access to the database and bypasses RLS.
  */
 function getServiceRoleKey(): string {
   const key = process.env.SUPABASE_SECRET_KEY;
@@ -97,7 +97,7 @@ let adminClient: SupabaseClient<DatabaseSchema> | null = null;
  * Uses a singleton pattern for efficiency.
  *
  * SECURITY NOTES:
- * - This client uses the SERVICE ROLE key which bypasses RLS
+ * - This client uses the Supabase secret key (legacy service_role), which bypasses RLS
  * - ONLY use this for admin operations that require elevated privileges
  * - This client and its operations must not be exposed to the client
  * - Common use cases: creating sessions, looking up credentials by ID

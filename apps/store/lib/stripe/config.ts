@@ -146,7 +146,7 @@ export const CHECKOUT_CONFIG = {
   allowedCountries: ["CH"] as const,
 
   // Server-side legal policy version for consent audit trail
-  consentVersion: "2026-02-28",
+  consentVersion: "2026-03-03",
 } as const;
 
 // =============================================================================

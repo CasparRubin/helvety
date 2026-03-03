@@ -1,7 +1,7 @@
 # Helvety.com
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)
+![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
@@ -13,7 +13,7 @@ The main Helvety website. Engineered & Designed in Switzerland.
 
 ## Service Availability
 
-Helvety services are primarily intended for customers in Switzerland. New account creation currently includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
+Helvety services are primarily intended for customers in Switzerland. New account creation includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
 
 Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created.
 
@@ -25,15 +25,15 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Dark & Light mode** - Switch between dark and light themes
 - **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations.
 - **Abuse reporting** - The Impressum includes an abuse reporting section ([helvety.com/impressum#abuse](https://helvety.com/impressum#abuse)) with guidance for users and law enforcement. Abuse contact: [contact@helvety.com](mailto:contact@helvety.com).
-- **Cookie notice** - Informational notice in the footer about essential cookies in the current setup (Swiss nDSG / FMG positioning); analytics usage is documented separately in the Privacy Policy; no separate consent flow is currently collected
+- **Cookie notice** - Informational notice in the footer about essential cookies under the current published policy (Swiss nDSG / FMG positioning); analytics usage is documented separately in the Privacy Policy
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
 - **Animated logo** - Subtle glow effect on the main logo
 
 ## Multi-Zone Routing Notes
 
 - Sub-apps are forwarded by gateway rewrites in `apps/web/next.config.ts`.
-- Use wildcard segment patterns (`:path*`) for zone forwarding rules (for example `/tasks/:path*`) so App Router Flight/RSC prefetch requests (`?_rsc=...`) and trailing-slash variants are forwarded consistently.
-- Avoid narrowing these patterns to `:path+`; that can miss edge-case request shapes and produce noisy 404s during client prefetch.
+- Use wildcard segment patterns (prefer `:path*`) for zone forwarding rules so App Router Flight/RSC prefetch requests (`?_rsc=...`) and trailing-slash variants are forwarded consistently.
+- Current config uses `:path*` for auth/tasks/store/pdf and still uses `:path+` for contacts routes; migrating contacts to `:path*` is recommended for consistency.
 
 ## Security Features
 

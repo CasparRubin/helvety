@@ -172,7 +172,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
 // =============================================================================
 
 /**
- * Helvety PDF - PDF Toolkit (currently no-cost)
+ * Helvety PDF - PDF Toolkit
  */
 export const helvetyPdf: SaaSProduct = {
   id: "helvety-pdf",
@@ -182,7 +182,7 @@ export const helvetyPdf: SaaSProduct = {
     "A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. Browser-based processing for supported operations.",
   description: `Helvety PDF is a privacy-focused PDF toolkit that runs in your browser for supported operations. File content is processed client-side and is not uploaded to Helvety servers for processing.
 
-Pricing and Limits - As of February 28, 2026, Helvety PDF is available at no cost with no account required. Pricing and limits are subject to change.
+Pricing and Limits - Helvety PDF is currently available at no cost with no account required. Pricing and limits are subject to change.
 
 Key Features:
 • Multi-file Merging - Combine multiple PDF files and images into a single document
@@ -205,7 +205,7 @@ No login or account is required. Files are limited to 100MB each, and practical 
     "Rotate pages by 90° increments",
     "Extract individual pages as separate PDFs",
     "Image support (PNG, JPEG, WebP, GIF)",
-    "Up to 100MB per file; no app-enforced page-count cap in the current version",
+    "Up to 100MB per file; no app-enforced page-count cap",
     "No login or account required",
     "Dark & light mode support",
   ],
@@ -222,10 +222,10 @@ No login or account is required. Files are limited to 100MB each, and practical 
         isFree: true,
         features: [
           "All PDF tools included",
-          "No app-enforced page-count cap in the current version",
+          "No app-enforced page-count cap",
           "Up to 100MB per file",
           "No account required",
-          "Available at no cost as of February 28, 2026",
+          "Currently available at no cost",
         ],
       },
     ],
@@ -272,7 +272,7 @@ export const helvetyTasks: SaaSProduct = {
     "A privacy-focused task management app with client-side encryption for sensitive fields. Organize work with Units, Spaces, and Items.",
   description: `Helvety Tasks is an end-to-end encrypted task management app where sensitive content is encrypted client-side before storage.
 
-Early Access Pricing - As of February 28, 2026, Helvety Tasks is available at no cost for early adopters. Pricing may change.
+Early Access Pricing - Helvety Tasks is currently available at no cost for early adopters. Pricing may change.
 
 Key Features:
 • End-to-End Encryption - Sensitive task content is encrypted using your passkey
@@ -317,7 +317,7 @@ Your data is protected under applicable Swiss data protection law (including nDS
           "End-to-end encryption",
           "Up to 10 Units, 15 Spaces per Unit, and 250 Items per Space",
           "File attachments (max 2 per Item)",
-          "Available at no cost for early adopters as of February 28, 2026",
+          "Currently available at no cost for early adopters",
         ],
       },
     ],
@@ -365,7 +365,7 @@ export const helvetyContacts: SaaSProduct = {
     "A privacy-focused contact management app with client-side encryption for sensitive fields. Store names, emails, phone numbers, birthdays, and notes.",
   description: `Helvety Contacts is an end-to-end encrypted contact management app. Sensitive contact data is encrypted client-side before storage.
 
-Early Access Pricing - As of February 28, 2026, Helvety Contacts is available at no cost for early adopters. Pricing may change.
+Early Access Pricing - Helvety Contacts is currently available at no cost for early adopters. Pricing may change.
 
 Key Features:
 • End-to-End Encryption - Sensitive contact content is encrypted using your passkey
@@ -408,7 +408,7 @@ Your contacts are protected under applicable Swiss data protection law (includin
           "End-to-end encryption",
           "Up to 250 contacts per user",
           "Rich text notes",
-          "Available at no cost for early adopters as of February 28, 2026",
+          "Currently available at no cost for early adopters",
         ],
       },
     ],

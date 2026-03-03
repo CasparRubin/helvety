@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="February 28, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="March 3, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -205,12 +205,12 @@ export default function TermsPage() {
           The Services are primarily intended for customers located in
           Switzerland. Service availability may be restricted for users in
           certain regions, including the European Union (EU) and European
-          Economic Area (EEA). New account creation currently includes a
-          Switzerland location confirmation step, but this is not equivalent to
-          strict geoblocking. Access from outside Switzerland may still occur;
-          in such cases, you remain responsible for compliance with applicable
-          local law, and mandatory consumer/data-protection rules in your
-          jurisdiction may still apply.
+          Economic Area (EEA). New account creation includes a Switzerland
+          location confirmation step, but this is not equivalent to strict
+          geoblocking. Access from outside Switzerland may still occur; in such
+          cases, you remain responsible for compliance with applicable local
+          law, and mandatory consumer/data-protection rules in your jurisdiction
+          may still apply.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           These Terms constitute a legally binding agreement between you and
@@ -570,8 +570,8 @@ export default function TermsPage() {
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
-            In any way that violates any applicable federal, state, local, or
-            international law or regulation
+            In any way that violates applicable Swiss law or any other mandatory
+            law or regulation applicable to your use of the Services
           </li>
           <li>
             To store, upload, transmit, or distribute child sexual abuse
@@ -952,7 +952,7 @@ export default function TermsPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           All prices are displayed in Swiss Francs (CHF). Prices are subject to
           change without notice. Helvety by Rubin is not registered for Swiss
-          VAT (MWST) as of February 28, 2026. Should this change, applicable
+          VAT (MWST) under the current setup. Should this change, applicable
           taxes will be calculated and displayed at checkout.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -973,8 +973,8 @@ export default function TermsPage() {
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
             <strong className="text-foreground">Helvety PDF</strong> is
-            available at no cost as of February 28, 2026. No account or login is
-            required. See the relevant product page for current pricing and
+            available at no cost under the current offering. No account or login
+            is required. See the relevant product page for current pricing and
             availability.
           </li>
           <li>

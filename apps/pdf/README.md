@@ -1,7 +1,7 @@
 # Helvety PDF
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)
+![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
@@ -13,11 +13,11 @@ A privacy-focused, browser-based PDF toolkit. Merge, reorder, rotate, and extrac
 
 **Privacy Approach** - File contents are processed in your browser and are not intended to be uploaded to Helvety servers for file conversion. We use Vercel Analytics and Speed Insights for usage/performance metrics (see [Privacy Policy](https://helvety.com/privacy)).
 
-As of February 28, 2026, Helvety PDF does not require login and is available at no cost. The app does not enforce a page-count cap, but practical limits depend on browser/device resources, and it enforces a 100MB per-file cap.
+Helvety PDF does not require login and is currently offered at no cost. The app does not enforce a page-count cap, but practical limits depend on browser/device resources, and it enforces a 100MB per-file cap.
 
 ## Service Availability
 
-Helvety services are primarily intended for customers in Switzerland. New account creation currently includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
+Helvety services are primarily intended for customers in Switzerland. New account creation includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
 
 Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created. Note: Helvety PDF itself requires no login or account; this confirmation applies to other Helvety apps that require authentication.
 
@@ -35,8 +35,8 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Customizable grid layout** - Adjust pages per row to accommodate different page sizes
 - **Dark & Light mode support** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
-- **Current limits** - Up to 100MB per file; no app-enforced page-count cap in the current version. Practical throughput depends on browser/device memory and performance
-- **No login required** - Use the tool without an account in the current version
+- **Current limits** - Up to 100MB per file; no app-enforced page-count cap. Practical throughput depends on browser/device memory and performance
+- **No login required** - Use the tool without an account
 
 ## How It Works
 

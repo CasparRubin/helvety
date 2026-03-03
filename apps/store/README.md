@@ -1,7 +1,7 @@
 # Helvety Store
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)
+![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
@@ -13,7 +13,7 @@ Official Helvety Store. Products and services engineered & designed in Switzerla
 
 ## Service Availability
 
-Helvety services are primarily intended for customers in Switzerland. New account creation currently includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
+Helvety services are primarily intended for customers in Switzerland. New account creation includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
 
 Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created.
 
@@ -34,8 +34,8 @@ The root path (`/`) redirects all users to `/products`. No login is required to 
 
 ## Features
 
-- **Product Catalog** - Browse all Helvety products: no-cost offerings as of February 28, 2026 (Helvety PDF), early-access SaaS offers (Helvety Tasks, Helvety Contacts), and paid subscriptions (Helvety SPO Explorer)
-- **Stripe Integration** - Subscription and one-time payment processing via Stripe Checkout (CHF as of February 28, 2026). Before each purchase, a consent dialog requires acceptance of the Terms of Service and Privacy Policy. Consent is requested for each purchase and is not persisted in the checkout dialog state.
+- **Product Catalog** - Browse all Helvety products: no-cost offerings (for example, Helvety PDF), early-access SaaS offers (Helvety Tasks, Helvety Contacts), and paid subscriptions (Helvety SPO Explorer)
+- **Stripe Integration** - Subscription and one-time payment processing via Stripe Checkout (CHF pricing). Before each purchase, a consent dialog requires acceptance of the Terms of Service and Privacy Policy. Consent is requested for each purchase and is not persisted in the checkout dialog state.
 - **Multi-App Support** - One user profile with subscriptions that work across all Helvety apps
 - **Account Management** - Profile and account settings (Account page)
 - **Subscription Management** - Compact list to view, cancel, or reactivate subscriptions; SPO Explorer subscriptions link to the Tenants page

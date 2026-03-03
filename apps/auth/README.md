@@ -1,7 +1,7 @@
 # Helvety Auth
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)
+![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
@@ -11,7 +11,7 @@ Centralized authentication service for the Helvety ecosystem, providing password
 
 ## Service Availability
 
-Helvety services are primarily intended for customers in Switzerland. New account creation currently includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
+Helvety services are primarily intended for customers in Switzerland. New account creation includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
 
 Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created.
 
@@ -163,7 +163,8 @@ Signs out the user with strict local cleanup and redirect support. This is a cli
 
 1. Clears local encryption artifacts (IndexedDB keys + cached PRF salt)
 2. Calls server action to sign out the Supabase session (`scope=global` when requested)
-3. Redirects to the specified destination
+3. On success, redirects to the specified destination
+4. On sign-out failure, redirects to `/auth/login` with `force_login=1` and preserves the validated `redirect_uri`
 
 **Query Parameters:**
 
@@ -369,6 +370,6 @@ You may NOT:
 - Sell, sublicense, or commercially exploit the code
 - Reverse engineer or decompile the code
 
-**This is a centralized authentication service accessible at [helvety.com/auth](https://helvety.com/auth).** It is currently available without a subscription.
+**This is a centralized authentication service accessible at [helvety.com/auth](https://helvety.com/auth).** Access to this service may change over time as product terms evolve.
 
 See [LICENSE](./LICENSE) for full legal terms.

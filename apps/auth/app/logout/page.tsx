@@ -1,5 +1,6 @@
 "use client";
 
+import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import { clearAllKeys } from "@helvety/shared/crypto/key-storage";
 import { clearCachedPRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
@@ -20,7 +21,8 @@ import { signOutAction } from "./actions";
  * Flow:
  * 1. Clear encryption keys from IndexedDB and clear cached PRF salt
  * 2. Call server action to sign out Supabase session (optionally global scope)
- * 3. Redirect to the specified destination (or default)
+ * 3. On sign-out success, redirect to the specified destination (or default)
+ * 4. On sign-out failure, route to /auth/login with force_login=1
  *
  * Usage:
  * - /logout?redirect_uri=https://helvety.com/pdf
@@ -50,7 +52,7 @@ function LogoutHandler() {
     if (hasRun.current) return;
     hasRun.current = true;
 
-    /** Clears IndexedDB keys, signs out, then redirects. */
+    /** Clears keys, attempts sign-out, then routes safely. */
     async function performLogout() {
       try {
         await clearAllKeys();
@@ -60,15 +62,21 @@ function LogoutHandler() {
       }
 
       const globalLogout = searchParams.get("scope") === "global";
-      await signOutAction(csrfToken ?? undefined, globalLogout);
-
       const rawRedirectUri = searchParams.get("redirect_uri");
       const defaultRedirect = urls.home;
-
       const redirectTo =
         rawRedirectUri && isValidRedirectUri(rawRedirectUri)
           ? rawRedirectUri
           : defaultRedirect;
+
+      const signOutResult = await signOutAction(
+        csrfToken ?? undefined,
+        globalLogout
+      );
+      if (!signOutResult.success) {
+        window.location.href = getLoginUrl(redirectTo, { forceLogin: true });
+        return;
+      }
 
       window.location.href = redirectTo;
     }

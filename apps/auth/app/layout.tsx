@@ -4,7 +4,7 @@ import {
   getCachedCSRFToken,
   getCachedUser,
 } from "@helvety/shared/cached-server";
-import { sharedViewport } from "@helvety/shared/config";
+import { sharedViewport, urls } from "@helvety/shared/config";
 import { EncryptionProvider } from "@helvety/shared/crypto/encryption-context";
 import {
   createHelvetyOrganizationSchema,
@@ -46,7 +46,7 @@ const publicSans = localFont({
 export const viewport = sharedViewport;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://helvety.com/auth"),
+  metadataBase: new URL(urls.auth),
   title: {
     default: "Sign In | Helvety",
     template: "%s | Helvety",
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://helvety.com/auth",
+    url: urls.auth,
     siteName: "Helvety Auth",
     title: "Sign In | Helvety",
     description:
@@ -103,7 +103,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://helvety.com/auth",
+    canonical: urls.auth,
   },
 };
 
@@ -138,7 +138,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "WebApplication",
                 name: "Helvety Auth",
-                url: "https://helvety.com/auth",
+                url: urls.auth,
                 description:
                   "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
                 applicationCategory: "SecurityApplication",

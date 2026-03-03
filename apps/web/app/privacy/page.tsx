@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="February 28, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="March 3, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -36,12 +36,12 @@ export default function PrivacyPage() {
         </p>
         <p className="text-muted-foreground text-sm">
           Our services are primarily intended for customers located in
-          Switzerland. New account creation currently includes a Switzerland
-          location confirmation step, but access from outside Switzerland may
-          still occur. This Privacy Policy is primarily based on the Swiss
-          Federal Act on Data Protection (nDSG). Where mandatory law in another
-          jurisdiction applies in a specific case, we comply with applicable
-          legal obligations.
+          Switzerland. New account creation includes a Switzerland location
+          confirmation step, but access from outside Switzerland may still
+          occur. This Privacy Policy is primarily based on the Swiss Federal Act
+          on Data Protection (nDSG). Where mandatory law in another jurisdiction
+          applies in a specific case, we comply with applicable legal
+          obligations.
         </p>
       </section>
 
@@ -398,12 +398,12 @@ export default function PrivacyPage() {
             </strong>{" "}
             For supported operations in the current architecture, file contents
             are processed in your browser and are not intended to be uploaded to
-            our servers for file conversion. No login or account is currently
-            required. The service still uses minimal server-side endpoints for
-            platform and security functions (for example auth callback handling,
-            CSP reporting, and session/security proxy logic). As of February 28,
-            2026, Helvety PDF is available at no cost with a maximum file size
-            of 100MB per file.
+            our servers for file conversion. No login or account is required.
+            The service still uses minimal server-side endpoints for platform
+            and security functions (for example auth callback handling, CSP
+            reporting, and session/security proxy logic). Helvety PDF is
+            currently available at no cost with a maximum file size of 100MB per
+            file.
           </li>
           <li>
             <strong className="text-foreground">
@@ -1063,9 +1063,8 @@ export default function PrivacyPage() {
           .
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          As of February 28, 2026, we use Vercel Analytics/Speed Insights and do
-          not intentionally operate advertising trackers or cross-site profiling
-          technologies.
+          We use Vercel Analytics/Speed Insights and do not intentionally
+          operate advertising trackers or cross-site profiling technologies.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Essential cookies do not require consent under Swiss law as they are
@@ -1290,15 +1289,16 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           We may update this Privacy Policy from time to time to reflect changes
           in our practices or applicable laws. When we make material changes, we
-          will:
+          will update the &quot;Last reviewed&quot; date and, where required by
+          law or reasonably practicable, provide notice:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
             Update the &quot;Last reviewed&quot; date at the top of this page
           </li>
           <li>
-            Notify you via email (if you have an account) or through a notice on
-            the Services
+            Via email (for account holders) and/or through a notice on the
+            Services
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">

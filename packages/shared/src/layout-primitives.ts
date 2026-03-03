@@ -3,6 +3,8 @@
  * Keeps common font/provider/schema settings in one place.
  */
 
+import { urls } from "./config";
+
 export const PUBLIC_SANS_LOCAL_FONT_SRC = [
   {
     path: "../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2",
@@ -22,12 +24,12 @@ export const DEFAULT_THEME_PROVIDER_PROPS = {
 };
 
 export const HELVETY_SAME_AS_URLS = [
-  "https://helvety.com",
-  "https://helvety.com/auth",
-  "https://helvety.com/contacts",
-  "https://helvety.com/pdf",
-  "https://helvety.com/store",
-  "https://helvety.com/tasks",
+  urls.home,
+  urls.auth,
+  urls.contacts,
+  urls.pdf,
+  urls.store,
+  urls.tasks,
   "https://github.com/CasparRubin",
 ];
 
@@ -37,7 +39,7 @@ export function createHelvetyOrganizationSchema(logoUrl: string) {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Helvety",
-    url: "https://helvety.com",
+    url: urls.home,
     logo: logoUrl,
     description:
       "Products and services engineered and designed in Switzerland.",

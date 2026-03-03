@@ -72,7 +72,9 @@ export function Footer({
         <div className="text-muted-foreground flex flex-col items-center gap-1 text-center text-xs">
           <p>
             &copy; {new Date().getFullYear()} Helvety &middot; This site uses
-            essential cookies for authentication and security.
+            essential cookies and similar storage technologies for security and
+            core functionality; account-based services also use authentication
+            cookies.
           </p>
           <nav className="text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px]">
             <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>

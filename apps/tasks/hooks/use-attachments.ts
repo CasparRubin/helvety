@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  normalizeActionError,
-  shouldForceHardLogout,
-} from "@helvety/shared/auth-errors";
+import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
 import { ENTITY_LIMITS, TOAST_DURATIONS } from "@helvety/shared/constants";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
@@ -78,8 +75,7 @@ interface UseAttachmentsReturn {
 
 /** Force the centralized logout flow when auth/E2EE state is invalid. */
 function triggerHardLogoutForError(rawError?: string | null): boolean {
-  const normalized = normalizeActionError(rawError);
-  if (!shouldForceHardLogout(normalized)) {
+  if (!shouldForceHardLogoutFromActionError(rawError)) {
     return false;
   }
   void forceHardLogout(window.location.href);

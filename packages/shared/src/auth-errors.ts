@@ -56,3 +56,13 @@ export function shouldForceHardLogout(error?: string | null): boolean {
   const value = error.toLowerCase();
   return HARD_LOGOUT_ERROR_TOKENS.some((token) => value.includes(token));
 }
+
+/**
+ * True when a raw action error should force a hard logout.
+ * Normalizes machine-readable action prefixes before token matching.
+ */
+export function shouldForceHardLogoutFromActionError(
+  rawError?: string | null
+): boolean {
+  return shouldForceHardLogout(normalizeActionError(rawError));
+}

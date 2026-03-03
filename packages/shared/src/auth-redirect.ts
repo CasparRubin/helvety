@@ -2,7 +2,7 @@
  * Auth redirect utilities for centralized authentication
  *
  * These functions handle redirects to/from the centralized auth service
- * at helvety.com/auth for login and logout flows.
+ * at urls.auth (https://helvety.com/auth in production) for login/logout flows.
  *
  * Security: Redirect URIs passed through these helpers are validated against
  * an allowlist to reduce
@@ -15,11 +15,15 @@ import { isValidRedirectUri } from "./redirect-validation";
 /**
  * Get the login URL for redirecting to the auth service.
  * Includes the current URL as redirect_uri parameter for post-login return.
+ * Optionally appends force_login=1 to suppress auto-return behavior.
  *
  * Security: The redirect URI is validated against an allowlist to prevent
  * open redirect attacks. Invalid URIs fall back to the default app URL.
  */
-export function getLoginUrl(currentUrl?: string): string {
+export function getLoginUrl(
+  currentUrl?: string,
+  options?: { forceLogin?: boolean }
+): string {
   // Determine the redirect URI with validation
   let redirectUri: string;
 
@@ -35,7 +39,14 @@ export function getLoginUrl(currentUrl?: string): string {
     redirectUri = urls.home;
   }
 
-  return `${urls.auth}/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
+  const params = new URLSearchParams({
+    redirect_uri: redirectUri,
+  });
+  if (options?.forceLogin) {
+    params.set("force_login", "1");
+  }
+
+  return `${urls.auth}/login?${params.toString()}`;
 }
 
 /**
@@ -61,11 +72,15 @@ export function getLogoutUrl(
 /**
  * Redirect to the login page.
  * Call this from client components when user needs to authenticate.
+ * Set forceLogin=true when the login UI must be shown explicitly.
  * Uses window.location.href to navigate to the auth service.
  */
-export function redirectToLogin(currentUrl?: string): void {
+export function redirectToLogin(
+  currentUrl?: string,
+  options?: { forceLogin?: boolean }
+): void {
   if (typeof window !== "undefined") {
-    window.location.href = getLoginUrl(currentUrl);
+    window.location.href = getLoginUrl(currentUrl, options);
   }
 }
 

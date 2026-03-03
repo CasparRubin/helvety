@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  normalizeActionError,
-  shouldForceHardLogout,
-} from "@helvety/shared/auth-errors";
+import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { forceHardLogout } from "@helvety/ui/hard-logout";
@@ -59,8 +56,7 @@ interface UseItemsReturn {
 
 /** Force the centralized logout flow when auth/E2EE state is invalid. */
 function triggerHardLogoutForError(rawError?: string | null): boolean {
-  const normalized = normalizeActionError(rawError);
-  if (!shouldForceHardLogout(normalized)) {
+  if (!shouldForceHardLogoutFromActionError(rawError)) {
     return false;
   }
   void forceHardLogout(window.location.href);

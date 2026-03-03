@@ -1,6 +1,6 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import { sharedViewport } from "@helvety/shared/config";
+import { sharedViewport, urls } from "@helvety/shared/config";
 import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
@@ -38,13 +38,13 @@ const publicSans = localFont({
 export const viewport = sharedViewport;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://helvety.com/pdf"),
+  metadataBase: new URL(urls.pdf),
   title: {
     default: "Helvety PDF | PDF Tool",
     template: "%s | Helvety PDF",
   },
   description:
-    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Available at no cost as of February 28, 2026, with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
+    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Currently available at no cost, with file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
   keywords: [
     "Helvety PDF",
     "PDF merge",
@@ -71,11 +71,11 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://helvety.com/pdf",
+    url: urls.pdf,
     siteName: "Helvety PDF",
     title: "Helvety PDF | PDF Tool",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Available at no cost as of February 28, 2026, with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Currently available at no cost, with file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -89,7 +89,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety PDF | PDF Tool",
     description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Available at no cost as of February 28, 2026, with current file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
+      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Currently available at no cost, with file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -109,7 +109,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://helvety.com/pdf",
+    canonical: urls.pdf,
   },
   category: "productivity",
 };
@@ -138,7 +138,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "WebApplication",
                 name: "Helvety PDF",
-                url: "https://helvety.com/pdf",
+                url: urls.pdf,
                 description:
                   "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages in one place. For supported operations, file content processing happens locally in your browser.",
                 applicationCategory: "UtilitiesApplication",

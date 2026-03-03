@@ -1,6 +1,6 @@
 # Deprecation Audit Report
 
-Generated as part of the Full Deprecation & Legacy Audit Plan. This document serves as the baseline inventory and findings matrix. Last reviewed: February 28, 2026.
+Generated as part of the Full Deprecation & Legacy Audit Plan. This document is a historical baseline inventory and findings matrix captured on February 28, 2026.
 
 ## 1. Dependency Baseline (Framework-Critical)
 
@@ -34,7 +34,7 @@ Generated as part of the Full Deprecation & Legacy Audit Plan. This document ser
 
 ### Package Manager
 
-- `bun@1.3.9` — keep updated; Bun releases frequently
+- `bun@1.3.9` at audit time — keep updated; Bun releases frequently
 
 ## 2. Apps & Packages Inventory
 
@@ -103,7 +103,7 @@ Generated as part of the Full Deprecation & Legacy Audit Plan. This document ser
 
 ## 5. Prioritized Findings
 
-### Must change now (deprecated/removed)
+### Must change now (as of 2026-02-28 audit snapshot)
 
 | ID  | Finding                                      | Files                        | Action                                                |
 | --- | -------------------------------------------- | ---------------------------- | ----------------------------------------------------- |
@@ -143,4 +143,4 @@ Generated as part of the Full Deprecation & Legacy Audit Plan. This document ser
 
 ## 8. Verification (ci:check)
 
-All checks pass: guard-generated-types, guard-admin-client, guard-proxy-policy, guard-deprecated, format:check, lint, type-check, test.
+As of the 2026-02-28 audit run, checks passed: guard-generated-types, guard-admin-client, guard-proxy-policy, guard-deprecated, format:check, lint, type-check, test.

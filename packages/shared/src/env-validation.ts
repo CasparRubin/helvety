@@ -3,8 +3,8 @@ import { z } from "zod";
 import { logger } from "./logger";
 
 /**
- * Validates that a Supabase key appears to be an anon/publishable key (not service role key)
- * Security: Prevents accidentally using service role key in client-side code
+ * Validates that a Supabase key appears to be an anon/publishable key (not Supabase secret key / legacy service_role key)
+ * Security: Prevents accidentally using secret keys in client-side code
  *
  * Note: This is a best-effort check. Supabase supports multiple key formats:
  * - Legacy JWT format (starts with "eyJ")
@@ -54,7 +54,7 @@ function validateAnonKey(key: string): boolean {
       if (!trimmedKey.startsWith("eyJ")) {
         logger.warn(
           "WARNING: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY appears to be JWT format but doesn't start with 'eyJ'. " +
-            "Ensure this is the anon/public key, not the service role key."
+            "Ensure this is the anon/public key, not the Supabase secret key (legacy service_role)."
         );
       }
     }
@@ -89,7 +89,7 @@ const envSchema = z.object({
     .refine((key) => validateAnonKey(key), {
       message:
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be a valid Supabase anon/publishable key. " +
-        "WARNING: Do NOT use the service role key here - it should only be used server-side and must not be exposed to the client. " +
+        "Do NOT use the Supabase secret key (legacy service_role) here - it should only be used server-side and must not be exposed to the client. " +
         "Get your anon/publishable key from: Supabase Dashboard > Project Settings > API > Project API keys > anon/public key or Publishable key",
     }),
 });
@@ -177,7 +177,7 @@ function getValidatedEnv(): Env {
       "See env.template for an example.\n\n" +
       "Security Note: NEXT_PUBLIC_ variables are exposed to the client. " +
       "Only use safe, public keys (anon/publishable keys) in these variables. " +
-      "Do not use service role keys or other sensitive credentials.";
+      "Do not use Supabase secret keys (legacy service_role keys) or other sensitive credentials.";
 
     throw new Error(errorMessage);
   }
@@ -197,10 +197,10 @@ export function getSupabaseUrl(): string {
 
 /**
  * Gets Supabase publishable key with validation
- * Security: Applies best-effort checks that the key looks like an anon/publishable key (not service role key)
+ * Security: Applies best-effort checks that the key looks like an anon/publishable key (not Supabase secret key / legacy service_role key)
  *
  * WARNING: This key will be exposed to the client. Only use the anon/publishable key here.
- * Do not use the service role key in NEXT_PUBLIC_ environment variables.
+ * Do not use the Supabase secret key (legacy service_role) in NEXT_PUBLIC_ environment variables.
  */
 export function getSupabaseKey(): string {
   const env = getValidatedEnv();
@@ -210,8 +210,8 @@ export function getSupabaseKey(): string {
   if (!validateAnonKey(key)) {
     const errorMessage =
       "SECURITY WARNING: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY does not appear to be a valid anon/publishable key. " +
-      "Ensure you are using the anon/public key, not the service role key. " +
-      "Service role keys must not be exposed to the client.";
+      "Ensure you are using the anon/public key, not the Supabase secret key (legacy service_role). " +
+      "Supabase secret keys must not be exposed to the client.";
 
     logger.error(errorMessage);
 
@@ -228,11 +228,11 @@ export function getSupabaseKey(): string {
 
   // Development warning for common mistakes
   if (process.env.NODE_ENV === "development") {
-    // Check for obvious service role key patterns (though format may vary)
+    // Check for obvious secret-key patterns (legacy service_role naming may appear)
     if (key.length > 200 && key.includes("service_role")) {
       logger.warn(
         "⚠️  WARNING: Your NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY appears to contain 'service_role'. " +
-          "This is likely a service role key, which must not be exposed to the client. " +
+          "This is likely a Supabase secret key, which must not be exposed to the client. " +
           "Please use the anon/publishable key instead."
       );
     }

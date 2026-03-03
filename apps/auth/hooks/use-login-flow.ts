@@ -99,6 +99,7 @@ export function useLoginFlow(): LoginFlowState {
   const redirectUri = isValidRedirectUri(rawRedirectUri)
     ? rawRedirectUri
     : null;
+  const forceLogin = searchParams.get("force_login") === "1";
   const stepParam = searchParams.get("step") as LoginStep | null;
   const authError = searchParams.get("error");
   const isNewUserParam = searchParams.get("is_new_user");
@@ -190,15 +191,21 @@ export function useLoginFlow(): LoginFlowState {
           return;
         }
 
-        // Any non-step state returns to the canonical destination.
-        window.location.href = redirectUri ?? urls.home;
+        // Any non-step state returns to the canonical destination unless
+        // force-login was requested (e.g., after a failed logout hop).
+        if (!forceLogin) {
+          window.location.href = redirectUri ?? urls.home;
+          return;
+        }
+
+        setCheckingAuth(false);
         return;
       }
 
       setCheckingAuth(false);
     };
     void init();
-  }, [supabase, step, redirectUri]);
+  }, [supabase, step, redirectUri, forceLogin]);
 
   // Handle email submission and branch by passkey availability.
   const handleEmailSubmit = useCallback(

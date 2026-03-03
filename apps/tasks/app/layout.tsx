@@ -4,7 +4,7 @@ import {
   getCachedCSRFToken,
   getCachedUser,
 } from "@helvety/shared/cached-server";
-import { sharedViewport } from "@helvety/shared/config";
+import { sharedViewport, urls } from "@helvety/shared/config";
 import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
@@ -49,7 +49,7 @@ const publicSans = localFont({
 export const viewport = sharedViewport;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://helvety.com/tasks"),
+  metadataBase: new URL(urls.tasks),
   title: {
     default: "Helvety Tasks | Task Management",
     template: "%s | Helvety Tasks",
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://helvety.com/tasks",
+    url: urls.tasks,
     siteName: "Helvety Tasks",
     title: "Helvety Tasks | Task Management",
     description:
@@ -115,7 +115,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://helvety.com/tasks",
+    canonical: urls.tasks,
   },
   category: "productivity",
 };
@@ -159,7 +159,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "SoftwareApplication",
                 name: "Helvety Tasks",
-                url: "https://helvety.com/tasks",
+                url: urls.tasks,
                 description:
                   "Privacy-focused task management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
                 applicationCategory: "BusinessApplication",

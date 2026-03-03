@@ -272,7 +272,7 @@ export function ProductDetailClient({
               <h2 className="text-xl font-semibold">Pricing</h2>
               <p className="text-muted-foreground mt-1 text-sm">
                 {isEntirelyFree
-                  ? "This product is available at no cost as of February 28, 2026"
+                  ? "This product is currently available at no cost"
                   : "Choose the plan that works best for you"}
               </p>
             </div>

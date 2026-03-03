@@ -4,7 +4,6 @@ import { HelvetyIdentifier, HelvetyLogo } from "@helvety/brand";
 import { redirectToLogout } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
-import { createBrowserClient } from "@helvety/shared/supabase/client";
 import {
   CreditCard,
   Github,
@@ -46,10 +45,11 @@ import {
 } from "@helvety/ui/sheet";
 import { ThemeSwitcher } from "@helvety/ui/theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
+import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
 import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { VERSION } from "@/lib/config/version";
 
@@ -70,12 +70,10 @@ export function Navbar({
   initialUser?: SupabaseUser | null;
 }) {
   const { isUnlocked, isLoading: encryptionLoading } = useEncryptionContext();
-  const supabase = createBrowserClient();
-  const [user, setUser] = useState<SupabaseUser | null>(initialUser);
+  const { user, isLoading } = useNavbarAuthState(initialUser);
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(!initialUser);
   const { resolvedTheme, setTheme, theme: currentTheme } = useTheme();
 
   const isDark = (resolvedTheme ?? "light") === "dark";
@@ -86,36 +84,6 @@ export function Navbar({
       setTheme(currentTheme === "light" ? "dark" : "light");
     }
   };
-
-  useEffect(() => {
-    if (initialUser) {
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null);
-      });
-      return () => subscription.unsubscribe();
-    }
-
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      setIsLoading(false);
-    };
-    void getUser();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase.auth, initialUser]);
 
   const handleLogout = () => {
     // Redirect to centralized auth service for logout

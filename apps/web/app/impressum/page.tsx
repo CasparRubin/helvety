@@ -27,7 +27,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="February 28, 2026"
+        lastReviewed="March 3, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -115,11 +115,10 @@ export default function ImpressumPage() {
           Helvety by Rubin develops and offers software, including free tools
           and software-as-a-service (SaaS) products. Current products include
           Helvety SPO Explorer (paid SharePoint extension), Helvety PDF
-          (available at no cost as of February 28, 2026), Helvety Tasks
-          (encrypted task management), and Helvety Contacts (encrypted contact
-          management). Physical products (such as apparel) may be offered in the
-          future. Our products are primarily designed and developed in
-          Switzerland.
+          (currently available at no cost), Helvety Tasks (encrypted task
+          management), and Helvety Contacts (encrypted contact management).
+          Physical products (such as apparel) may be offered in the future. Our
+          products are primarily designed and developed in Switzerland.
         </p>
       </LegalSection>
 
@@ -191,8 +190,9 @@ export default function ImpressumPage() {
               Response Commitment
             </p>
             <p className="text-muted-foreground">
-              We aim to acknowledge abuse reports promptly, typically within two
-              business days, subject to request volume and complexity.
+              We aim to acknowledge abuse reports as promptly as reasonably
+              possible, subject to request volume, legal requirements, and case
+              complexity.
             </p>
           </div>
         </LegalCard>
@@ -289,10 +289,10 @@ export default function ImpressumPage() {
         </p>
         <p className="text-muted-foreground text-sm">
           Our services are primarily intended for customers in Switzerland. New
-          account creation currently includes a Switzerland location
-          confirmation step, but technical access from outside Switzerland may
-          still occur. Where mandatory law in another jurisdiction applies in a
-          specific case, those mandatory provisions remain unaffected.
+          account creation includes a Switzerland location confirmation step,
+          but technical access from outside Switzerland may still occur. Where
+          mandatory law in another jurisdiction applies in a specific case,
+          those mandatory provisions remain unaffected.
         </p>
       </LegalSection>
 

@@ -1,6 +1,6 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import { sharedViewport } from "@helvety/shared/config";
+import { sharedViewport, urls } from "@helvety/shared/config";
 import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
@@ -41,7 +41,7 @@ const publicSans = localFont({
 export const viewport = sharedViewport;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://helvety.com"),
+  metadataBase: new URL(urls.home),
   title: {
     default:
       "Helvety | Products & Services | Engineered & Designed in Switzerland",
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://helvety.com",
+    url: urls.home,
     siteName: "Helvety",
     title:
       "Helvety | Products & Services | Engineered & Designed in Switzerland",
@@ -110,7 +110,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://helvety.com",
+    canonical: urls.home,
   },
 };
 
@@ -142,7 +142,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "WebSite",
                 name: "Helvety",
-                url: "https://helvety.com",
+                url: urls.home,
                 description:
                   "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
               },

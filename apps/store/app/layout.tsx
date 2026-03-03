@@ -4,7 +4,7 @@ import {
   getCachedCSRFToken,
   getCachedUser,
 } from "@helvety/shared/cached-server";
-import { sharedViewport } from "@helvety/shared/config";
+import { sharedViewport, urls } from "@helvety/shared/config";
 import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
@@ -47,7 +47,7 @@ const publicSans = localFont({
 export const viewport = sharedViewport;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://helvety.com/store"),
+  metadataBase: new URL(urls.store),
   title: {
     default: "Helvety Store | Products & Services",
     template: "%s | Helvety Store",
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://helvety.com/store",
+    url: urls.store,
     siteName: "Helvety Store",
     title: "Helvety Store | Products & Services",
     description:
@@ -116,7 +116,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://helvety.com/store",
+    canonical: urls.store,
   },
   category: "shopping",
 };
@@ -152,7 +152,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "WebApplication",
                 name: "Helvety Store",
-                url: "https://helvety.com/store",
+                url: urls.store,
                 description:
                   "Official Helvety Store. Products and services engineered & designed in Switzerland.",
                 applicationCategory: "ShoppingApplication",
