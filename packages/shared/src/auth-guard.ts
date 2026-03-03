@@ -3,6 +3,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { shouldForceHardLogout } from "./auth-errors";
 import { getLoginUrl, getLogoutUrl } from "./auth-redirect";
 import { getUserWithRetry } from "./auth-retry";
 import { getCachedAuthLookup, getCachedUser } from "./cached-server";
@@ -12,10 +13,20 @@ import { createServerClient } from "./supabase/server";
 import type { User } from "@supabase/supabase-js";
 
 /**
+ * Returns true when the auth lookup failure indicates a broken/invalid session
+ * that should force a global logout before restarting the login flow.
+ */
+function shouldUseGlobalLogout(errorMessage?: string | null): boolean {
+  return shouldForceHardLogout(errorMessage);
+}
+
+/**
  * Server-side authentication guard for protected routes.
  *
  * Use this in Server Components to ensure the user is authenticated.
- * Redirects to the auth service login page if not authenticated.
+ * Redirect behavior:
+ * - clean logged-out state -> auth login
+ * - invalid/broken auth state -> global logout, then auth login
  *
  * Internally uses a cached auth lookup (React.cache + transient retry) so that
  * when a layout already fetched user state for UI purposes, requireAuth()
@@ -48,23 +59,31 @@ export async function requireAuth(currentPath?: string): Promise<User> {
 
   // If the cached attempt failed due to a transient auth/network error,
   // confirm once more without relying on the cached value before redirecting.
+  let authErrorMessage = error?.message ?? null;
   if (error) {
     const supabase = await createServerClient();
     const recovery = await getUserWithRetry(supabase);
     if (recovery.user) {
       return recovery.user;
     }
+    authErrorMessage = recovery.error?.message ?? authErrorMessage;
   }
 
   const headersList = await headers();
   // Best-effort fallback from proxy/header context when present.
   const headerUrl = headersList.get("x-helvety-url") ?? undefined;
   const fallbackUrl = currentPath ? `${urls.home}${currentPath}` : undefined;
-  redirect(
-    getLogoutUrl(getLoginUrl(headerUrl ?? fallbackUrl), {
-      global: true,
-    })
-  );
+  const destination = headerUrl ?? fallbackUrl;
+
+  if (shouldUseGlobalLogout(authErrorMessage)) {
+    redirect(
+      getLogoutUrl(getLoginUrl(destination), {
+        global: true,
+      })
+    );
+  }
+
+  redirect(getLoginUrl(destination));
 }
 
 /**

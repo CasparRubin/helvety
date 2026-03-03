@@ -11,6 +11,36 @@ import { Suspense, useEffect, useRef } from "react";
 
 import { signOutAction } from "./actions";
 
+/** Returns true when a redirect target points back to the logout route. */
+function isLogoutRedirectTarget(uri: string): boolean {
+  try {
+    const targetUrl = new URL(uri);
+    const authBaseUrl = new URL(urls.auth);
+    const authBasePath = authBaseUrl.pathname.replace(/\/$/, "");
+    const logoutPath = `${authBasePath}/logout`;
+    return (
+      targetUrl.origin === authBaseUrl.origin &&
+      targetUrl.pathname === logoutPath
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Validates and sanitizes post-logout redirects to avoid recursive loops. */
+function getSafeLogoutRedirect(
+  redirectUri: string | null,
+  defaultRedirect: string
+): string {
+  if (!redirectUri || !isValidRedirectUri(redirectUri)) {
+    return defaultRedirect;
+  }
+  if (isLogoutRedirectTarget(redirectUri)) {
+    return defaultRedirect;
+  }
+  return redirectUri;
+}
+
 /**
  * Logout page - clears local encryption artifacts before sign-out.
  *
@@ -64,10 +94,7 @@ function LogoutHandler() {
       const globalLogout = searchParams.get("scope") === "global";
       const rawRedirectUri = searchParams.get("redirect_uri");
       const defaultRedirect = urls.home;
-      const redirectTo =
-        rawRedirectUri && isValidRedirectUri(rawRedirectUri)
-          ? rawRedirectUri
-          : defaultRedirect;
+      const redirectTo = getSafeLogoutRedirect(rawRedirectUri, defaultRedirect);
 
       const signOutResult = await signOutAction(
         csrfToken ?? undefined,

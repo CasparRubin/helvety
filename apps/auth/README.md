@@ -163,7 +163,7 @@ Signs out the user with strict local cleanup and redirect support. This is a cli
 
 1. Clears local encryption artifacts (IndexedDB keys + cached PRF salt)
 2. Calls server action to sign out the Supabase session (`scope=global` when requested)
-3. On success, redirects to the specified destination
+3. On success, redirects to the specified destination (after redirect URI validation and loop-safe sanitization)
 4. On sign-out failure, redirects to `/auth/login` with `force_login=1` and preserves the validated `redirect_uri`
 
 **Query Parameters:**

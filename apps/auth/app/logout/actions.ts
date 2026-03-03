@@ -28,7 +28,16 @@ export async function signOutAction(
     }
 
     const supabase = await createServerClient();
-    await supabase.auth.signOut(global ? { scope: "global" } : undefined);
+    const { error } = await supabase.auth.signOut(
+      global ? { scope: "global" } : undefined
+    );
+    if (error) {
+      logger.warn("Logout failed during Supabase signOut", {
+        message: error.message,
+        status: error.status,
+      });
+      return { success: false, reason: "Supabase signout failed" };
+    }
     return { success: true };
   } catch (error) {
     logger.error("Logout error:", error);
