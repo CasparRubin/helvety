@@ -1,6 +1,6 @@
 # Deprecation Audit Report
 
-Generated as part of the Full Deprecation & Legacy Audit Plan. This document is a historical baseline inventory and findings matrix captured on February 28, 2026.
+Generated as part of the Full Deprecation & Legacy Audit Plan. This document is a historical baseline inventory and findings matrix captured on February 28, 2026. Version references in this file are snapshot values and may differ from current `package.json` values.
 
 ## 1. Dependency Baseline (Framework-Critical)
 
@@ -10,7 +10,7 @@ Generated as part of the Full Deprecation & Legacy Audit Plan. This document is 
 | react                 | ^19.2.4            | 19.x          | Current    | React 19 removed legacy APIs (findDOMNode, string refs, etc.) |
 | react-dom             | ^19.2.4            | 19.x          | Current    | —                                                             |
 | @supabase/supabase-js | ^2.98.0            | 2.x           | Current    | —                                                             |
-| @supabase/ssr         | ^0.8.0             | 0.x           | Pre-1.0    | Replaces deprecated auth-helpers packages                     |
+| @supabase/ssr         | ^0.9.0             | 0.x           | Pre-1.0    | Replaces deprecated auth-helpers packages                     |
 | stripe                | ^20.4.0            | 20.x          | Current    | —                                                             |
 | ajv                   | 6.14.0 (override)  | 8.x           | **Legacy** | v6 EOL Feb 2021; v8 recommended                               |
 | minimatch             | 3.1.4 (override)   | 9.x           | **Legacy** | v3 old; transitive compatibility pin                          |
@@ -34,7 +34,7 @@ Generated as part of the Full Deprecation & Legacy Audit Plan. This document is 
 
 ### Package Manager
 
-- `bun@1.3.9` at audit time — keep updated; Bun releases frequently
+- `bun@1.3.10` at latest doc refresh — keep updated; Bun releases frequently
 
 ## 2. Apps & Packages Inventory
 
@@ -46,7 +46,7 @@ Generated as part of the Full Deprecation & Legacy Audit Plan. This document is 
 | apps/pdf        | ^16.1.6 | ^19.2.4  | supabase-js ^2.98.0             | —       | vitest ^4, RTL ^16 |
 | apps/tasks      | ^16.1.6 | ^19.2.4  | supabase-js ^2.98.0             | —       | vitest ^4, RTL ^16 |
 | apps/contacts   | ^16.1.6 | ^19.2.4  | supabase-js ^2.98.0             | —       | vitest ^4, RTL ^16 |
-| packages/shared | —       | peer ^19 | supabase-js ^2.98.0, ssr ^0.8.0 | —       | vitest ^4          |
+| packages/shared | —       | peer ^19 | supabase-js ^2.98.0, ssr ^0.9.0 | —       | vitest ^4          |
 | packages/ui     | —       | peer ^19 | —                               | —       | —                  |
 | packages/config | —       | —        | —                               | —       | —                  |
 | packages/brand  | —       | peer ^19 | —                               | —       | —                  |

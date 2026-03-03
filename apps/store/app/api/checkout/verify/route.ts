@@ -39,7 +39,10 @@ export async function GET(request: Request) {
     return NextResponse.json(normalizeCheckoutVerification(session));
   } catch {
     return NextResponse.json(
-      { error: "Could not verify checkout session." },
+      {
+        error:
+          "We couldn't verify this checkout right now. Please try again in a moment.",
+      },
       { status: 400 }
     );
   }

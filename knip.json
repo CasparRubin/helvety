@@ -1,0 +1,7 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignore": [
+    "apps/pdf/public/pdf.worker.min.mjs",
+    "packages/config/vitest.server-only-mock.ts"
+  ]
+}

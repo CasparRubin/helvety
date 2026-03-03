@@ -98,6 +98,10 @@ export function PricingCard({
     (userSubscription.status === "active" ||
       userSubscription.status === "trialing") &&
     userSubscription.cancel_at_period_end;
+  const shouldUseCompactHeader =
+    Boolean(tier.highlighted) ||
+    Boolean(hasActiveSubscription) ||
+    Boolean(isPendingCancellation);
 
   // Calculate monthly equivalent for yearly plans
   const monthlyEquivalent =
@@ -273,16 +277,7 @@ export function PricingCard({
         </div>
       )}
 
-      <CardHeader
-        className={cn(
-          /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- Boolean OR is intentional for boolean expression */
-          (tier.highlighted ||
-            hasActiveSubscription ||
-            isPendingCancellation) &&
-            /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
-            "pt-4"
-        )}
-      >
+      <CardHeader className={cn(shouldUseCompactHeader && "pt-4")}>
         <CardTitle className="flex items-center justify-between">
           <span>{tier.name}</span>
           {tier.isFree && (

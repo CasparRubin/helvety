@@ -181,10 +181,14 @@ export function ProductDetailClient({
     ? product.saas?.appUrl
     : product.links?.website;
 
+  const freeFeatureLines =
+    product.pricing.tiers[0]?.features.filter((f) =>
+      f.toLowerCase().includes("free")
+    ) ?? [];
   const freeTagline =
-    product.pricing.tiers[0]?.features
-      .filter((f) => f.toLowerCase().includes("free"))
-      .join(" · ") || "No purchase necessary"; // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing -- empty string must trigger fallback
+    freeFeatureLines.length > 0
+      ? freeFeatureLines.join(" · ")
+      : "No purchase necessary";
 
   const handleTierSelect = (tier: PricingTier) => {
     setSelectedTier(tier);

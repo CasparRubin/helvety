@@ -71,7 +71,6 @@ export function CancelSubscriptionDialog({
       subscription.current_period_end != null ||
       !subscription.stripe_subscription_id
     ) {
-      setPeriodEndFromStripe(null);
       return;
     }
     let cancelled = false;
@@ -100,36 +99,40 @@ export function CancelSubscriptionDialog({
   const tierName = tier?.name ?? "Unknown Tier";
 
   const displayPeriodEnd =
-    subscription.current_period_end ?? periodEndFromStripe;
+    subscription.current_period_end ??
+    (open && subscription.stripe_subscription_id ? periodEndFromStripe : null);
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
     setIsLoading(true);
+    void cancelSubscription(subscription.id, csrfToken)
+      .then((result) => {
+        if (!result.success) {
+          toast.error(result.error ?? "Failed to cancel subscription", {
+            duration: TOAST_DURATIONS.ERROR,
+          });
+          return;
+        }
 
-    try {
-      const result = await cancelSubscription(subscription.id, csrfToken);
+        toast.success("Cancellation scheduled", {
+          description: `Your ${productName} subscription is scheduled to end on ${formatDate(displayPeriodEnd)}.`,
+          duration: TOAST_DURATIONS.SUCCESS,
+        });
 
-      if (!result.success) {
-        throw new Error(result.error ?? "Failed to cancel subscription");
-      }
-
-      toast.success("Subscription canceled", {
-        description: `Your ${productName} subscription is scheduled to end on ${formatDate(displayPeriodEnd)}.`,
-        duration: TOAST_DURATIONS.SUCCESS,
+        onSuccess();
+        onOpenChange(false);
+      })
+      .catch((error: unknown) => {
+        logger.error("Cancel subscription error:", error);
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to cancel subscription. Please try again.",
+          { duration: TOAST_DURATIONS.ERROR }
+        );
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-
-      onSuccess();
-      onOpenChange(false);
-    } catch (error) {
-      logger.error("Cancel subscription error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to cancel subscription. Please try again.",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (
