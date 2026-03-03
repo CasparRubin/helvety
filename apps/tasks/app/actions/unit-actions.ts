@@ -6,6 +6,7 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import {
@@ -16,6 +17,12 @@ import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, UnitRow } from "@/lib/types";
+
+/** Revalidate unit list/detail routes impacted by unit mutations. */
+function revalidateUnitRoutes(unitId: string): void {
+  revalidatePath("/tasks");
+  revalidatePath(`/tasks/units/${unitId}`, "layout");
+}
 
 // =============================================================================
 // Input Validation Schemas
@@ -125,6 +132,7 @@ export async function createUnit(
       return { success: false, error: "Failed to create unit" };
     }
 
+    revalidatePath("/tasks");
     return { success: true, data: { id: unit.id } };
   } catch (error) {
     logger.error("Unexpected error in createUnit:", error);
@@ -266,6 +274,7 @@ export async function updateUnit(
       return { success: false, error: "Failed to update unit" };
     }
 
+    revalidateUnitRoutes(validatedData.id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in updateUnit:", error);
@@ -367,6 +376,7 @@ export async function deleteUnit(
       }
     }
 
+    revalidateUnitRoutes(id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in deleteUnit:", error);

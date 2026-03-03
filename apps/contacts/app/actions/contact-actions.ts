@@ -5,6 +5,7 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
+import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
 
@@ -15,6 +16,14 @@ import {
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
+
+/** Revalidate list/detail routes impacted by contact mutations. */
+function revalidateContactRoutes(contactId?: string): void {
+  revalidatePath("/contacts");
+  if (contactId) {
+    revalidatePath(`/contacts/contacts/${contactId}`);
+  }
+}
 
 const MAX_REORDER_ITEMS = ENTITY_LIMITS.MAX_CONTACTS_PER_USER;
 const REORDER_CHUNK_SIZE = 50;
@@ -161,6 +170,7 @@ export async function createContact(
       return { success: false, error: "Failed to create contact" };
     }
 
+    revalidateContactRoutes();
     return { success: true, data: { id: contact.id } };
   } catch (error) {
     after(() => logger.error("Unexpected error in createContact:", error));
@@ -328,6 +338,7 @@ export async function updateContact(
       return { success: false, error: "Failed to update contact" };
     }
 
+    revalidateContactRoutes(validatedData.id);
     return { success: true };
   } catch (error) {
     after(() => logger.error("Unexpected error in updateContact:", error));
@@ -366,6 +377,7 @@ export async function deleteContact(
       return { success: false, error: "Failed to delete contact" };
     }
 
+    revalidateContactRoutes(id);
     return { success: true };
   } catch (error) {
     after(() => logger.error("Unexpected error in deleteContact:", error));
@@ -436,6 +448,7 @@ export async function reorderContacts(
       return { success: false, error: "Failed to reorder contacts" };
     }
 
+    revalidateContactRoutes();
     return { success: true };
   } catch (error) {
     after(() => logger.error("Unexpected error in reorderContacts:", error));

@@ -7,28 +7,32 @@
  * Breakpoint values for responsive column layout (in pixels)
  */
 export const BREAKPOINTS = {
-  /** Minimum width for multi-column layout (2+ columns) */
+  /** Minimum width for showing the desktop/tablet column control */
   MULTI_COLUMN: 1231,
-  /** Minimum width for three-column layout */
-  THREE_COLUMN: 1655,
+  /** Width threshold for 2-column default (below this is 1) */
+  TWO_COLUMN_DEFAULT: 1200,
+  /** Width threshold for 3-column default (below this is 2) */
+  THREE_COLUMN_DEFAULT: 1600,
+  /** Width threshold for 4-column default (below this is 3) */
+  FOUR_COLUMN_DEFAULT: 1900,
 } as const;
 
 /**
  * Column configuration
  */
 export const COLUMNS = {
-  /** Minimum number of columns for validation (allows defaults) */
-  MIN: 2,
+  /** Minimum number of columns for validation */
+  MIN: 1,
   /** Maximum number of columns */
   MAX: 6,
-  /** Minimum number of columns in slider (user input) */
-  SLIDER_MIN: 3,
-  /** Default number of columns for small screens */
+  /** Default number of columns for widths below 1200px */
   DEFAULT_SMALL: 1,
-  /** Default number of columns for medium screens */
+  /** Default number of columns for widths from 1200px to 1599px */
   DEFAULT_MEDIUM: 2,
-  /** Default number of columns for large screens */
+  /** Default number of columns for widths from 1600px to 1899px */
   DEFAULT_LARGE: 3,
+  /** Default number of columns for widths at or above 1900px */
+  DEFAULT_XL: 4,
 } as const;
 
 /**

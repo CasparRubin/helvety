@@ -4,7 +4,7 @@ import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-error
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { forceHardLogout } from "@helvety/ui/hard-logout";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -77,6 +77,7 @@ export function useSpaces(
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
+  const latestRefreshTokenRef = useRef(0);
 
   /**
    * Fetch and decrypt all spaces for the unit
@@ -88,6 +89,7 @@ export function useSpaces(
       return;
     }
 
+    const refreshToken = ++latestRefreshTokenRef.current;
     setIsLoading(true);
     setError(null);
 
@@ -98,6 +100,9 @@ export function useSpaces(
           return;
         }
         const msg = result.error ?? "Failed to fetch spaces";
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setSpaces([]);
@@ -106,17 +111,25 @@ export function useSpaces(
 
       // Decrypt all spaces client-side
       const decrypted = await decryptSpaceRows(result.data, masterKey);
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setSpaces(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch spaces";
       if (triggerHardLogoutForError(msg)) {
         return;
       }
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setSpaces([]);
     } finally {
-      setIsLoading(false);
+      if (refreshToken === latestRefreshTokenRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [unitId, masterKey, isUnlocked]);
 
@@ -416,6 +429,7 @@ export function useSpace(
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
+  const latestRefreshTokenRef = useRef(0);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked || !id) {
@@ -424,6 +438,7 @@ export function useSpace(
       return;
     }
 
+    const refreshToken = ++latestRefreshTokenRef.current;
     setIsLoading(true);
     setError(null);
 
@@ -434,6 +449,9 @@ export function useSpace(
           return;
         }
         const msg = result.error ?? "Failed to fetch space";
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setSpace(null);
@@ -441,17 +459,25 @@ export function useSpace(
       }
 
       const decrypted = await decryptSpaceRow(result.data, masterKey);
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setSpace(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch space";
       if (triggerHardLogoutForError(msg)) {
         return;
       }
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setSpace(null);
     } finally {
-      setIsLoading(false);
+      if (refreshToken === latestRefreshTokenRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [id, masterKey, isUnlocked]);
 

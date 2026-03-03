@@ -26,7 +26,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "postinstall": "node -e \"require('fs').copyFileSync('node_modules/pdfjs-dist/build/pdf.worker.min.mjs', 'public/pdf.worker.min.mjs')\""
+    "postinstall": "node -e \"const fs=require('fs');const path=require('path');const reactPdfDir=path.dirname(require.resolve('react-pdf/package.json'));const pdfjsPkg=require.resolve('pdfjs-dist/package.json',{paths:[reactPdfDir]});const src=path.join(path.dirname(pdfjsPkg),'build','pdf.worker.min.mjs');const dst=path.join(process.cwd(),'public','pdf.worker.min.mjs');fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(src,dst);\""
   },
   "dependencies": {
     "@helvety/brand": "workspace:*",

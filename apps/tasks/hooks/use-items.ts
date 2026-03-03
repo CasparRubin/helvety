@@ -4,7 +4,7 @@ import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-error
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { forceHardLogout } from "@helvety/ui/hard-logout";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -77,6 +77,7 @@ export function useItems(
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
+  const latestRefreshTokenRef = useRef(0);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked || !spaceId) {
@@ -85,6 +86,7 @@ export function useItems(
       return;
     }
 
+    const refreshToken = ++latestRefreshTokenRef.current;
     setIsLoading(true);
     setError(null);
 
@@ -95,6 +97,9 @@ export function useItems(
           return;
         }
         const msg = result.error ?? "Failed to fetch items";
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setItems([]);
@@ -102,17 +107,25 @@ export function useItems(
       }
 
       const decrypted = await decryptItemRows(result.data, masterKey);
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setItems(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch items";
       if (triggerHardLogoutForError(msg)) {
         return;
       }
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setItems([]);
     } finally {
-      setIsLoading(false);
+      if (refreshToken === latestRefreshTokenRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [spaceId, masterKey, isUnlocked]);
 
@@ -416,6 +429,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
+  const latestRefreshTokenRef = useRef(0);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked || !id) {
@@ -424,6 +438,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       return;
     }
 
+    const refreshToken = ++latestRefreshTokenRef.current;
     setIsLoading(true);
     setError(null);
 
@@ -434,6 +449,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
           return;
         }
         const msg = result.error ?? "Failed to fetch item";
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setItem(null);
@@ -441,17 +459,25 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       }
 
       const decrypted = await decryptItemRow(result.data, masterKey);
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setItem(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch item";
       if (triggerHardLogoutForError(msg)) {
         return;
       }
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setItem(null);
     } finally {
-      setIsLoading(false);
+      if (refreshToken === latestRefreshTokenRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [id, masterKey, isUnlocked]);
 

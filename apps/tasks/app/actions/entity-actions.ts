@@ -5,6 +5,7 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
+import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
 
@@ -140,6 +141,26 @@ export async function reorderEntities(
         : entityType === "space"
           ? "spaces"
           : "items";
+    let itemUnitId: string | null = null;
+    if (entityType === "item") {
+      const { data: parentSpace, error: parentSpaceError } = await supabase
+        .from("spaces")
+        .select("unit_id")
+        .eq("id", parentId!)
+        .eq("user_id", user.id)
+        .maybeSingle<{ unit_id: string }>();
+      if (parentSpaceError) {
+        logger.error(
+          "Error resolving parent unit for item reorder revalidation:",
+          parentSpaceError
+        );
+        return { success: false, error: "Failed to reorder items" };
+      }
+      if (!parentSpace?.unit_id) {
+        return { success: false, error: "Space not found" };
+      }
+      itemUnitId = parentSpace.unit_id;
+    }
 
     // Batch updates in chunks to avoid saturating DB connections.
     const now = new Date().toISOString();
@@ -170,6 +191,16 @@ export async function reorderEntities(
     if (failedResult?.error) {
       logger.error(`Error reordering ${entityType}:`, failedResult.error);
       return { success: false, error: `Failed to reorder ${entityType}s` };
+    }
+
+    revalidatePath("/tasks");
+    if (entityType === "space") {
+      revalidatePath(`/tasks/units/${parentId!}`, "layout");
+    } else if (entityType === "item" && itemUnitId) {
+      revalidatePath(
+        `/tasks/units/${itemUnitId}/spaces/${parentId!}`,
+        "layout"
+      );
     }
 
     return { success: true };

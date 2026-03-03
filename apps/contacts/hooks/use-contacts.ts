@@ -4,7 +4,7 @@ import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-error
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { forceHardLogout } from "@helvety/ui/hard-logout";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -69,7 +69,9 @@ function triggerHardLogoutForError(rawError?: string | null): boolean {
  * Hook to manage Contacts with automatic encryption/decryption.
  *
  * When `initialEncryptedData` is provided (server-prefetched), the hook
- * decrypts it on first unlock instead of making a round-trip to the server.
+ * decrypts it on first unlock before continuing with guarded refreshes.
+ * Refresh responses are token-checked so stale requests cannot overwrite
+ * newer optimistic UI state.
  */
 export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
@@ -79,6 +81,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
+  const latestRefreshTokenRef = useRef(0);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked) {
@@ -87,6 +90,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       return;
     }
 
+    const refreshToken = ++latestRefreshTokenRef.current;
     setIsLoading(true);
     setError(null);
 
@@ -97,6 +101,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
           return;
         }
         const msg = result.error ?? "Failed to fetch contacts";
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setContacts([]);
@@ -104,6 +111,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       }
 
       const decrypted = await decryptContactRows(result.data, masterKey);
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setContacts(decrypted);
     } catch (err) {
       const msg =
@@ -111,11 +121,16 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       if (triggerHardLogoutForError(msg)) {
         return;
       }
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setContacts([]);
     } finally {
-      setIsLoading(false);
+      if (refreshToken === latestRefreshTokenRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [masterKey, isUnlocked]);
 
@@ -415,6 +430,7 @@ export function useContact(
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
+  const latestRefreshTokenRef = useRef(0);
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked || !id) {
@@ -423,6 +439,7 @@ export function useContact(
       return;
     }
 
+    const refreshToken = ++latestRefreshTokenRef.current;
     setIsLoading(true);
     setError(null);
 
@@ -433,6 +450,9 @@ export function useContact(
           return;
         }
         const msg = result.error ?? "Failed to fetch contact";
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setContact(null);
@@ -440,6 +460,9 @@ export function useContact(
       }
 
       const decrypted = await decryptContactRow(result.data, masterKey);
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setContact(decrypted);
     } catch (err) {
       const message =
@@ -447,10 +470,15 @@ export function useContact(
       if (triggerHardLogoutForError(message)) {
         return;
       }
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setError(message);
       setContact(null);
     } finally {
-      setIsLoading(false);
+      if (refreshToken === latestRefreshTokenRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [id, masterKey, isUnlocked]);
 

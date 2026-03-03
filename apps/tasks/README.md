@@ -39,6 +39,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Deep links** - Click any contact row to view or edit the full contact details in the Contacts app (opens in a new tab)
   - **Privacy** - Contact notes content is not decrypted in the Tasks app by design; only a has-notes indicator is shown
 - **Drag & drop reordering** - Rearrange entries on desktop; mobile uses up/down arrows for ordering controls
+- **Consistency safeguards for stage/status moves** - UI keeps optimistic interactions snappy while discarding stale in-flight refresh responses; server mutations also trigger targeted route revalidation so prefetched pages stay aligned
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Switch between dark and light themes

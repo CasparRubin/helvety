@@ -8,6 +8,9 @@ import * as React from "react";
 
 import { PDF_RENDER } from "@/lib/constants";
 
+const PDF_BASE_PATH = "/pdf";
+const PDF_WORKER_PUBLIC_PATH = `${PDF_BASE_PATH}/pdf.worker.min.mjs`;
+
 // Shared Promise for worker initialization (resolves when worker is ready)
 let workerInitPromise: Promise<void> | null = null;
 
@@ -24,9 +27,9 @@ export interface UsePdfWorkerReturn {
 /**
  * Custom hook for initializing PDF.js worker.
  *
- * The worker is configured to use a local worker file from the public folder,
- * which is automatically kept in sync with the installed pdfjs-dist version via
- * the postinstall script in package.json.
+ * The worker is configured to use a basePath-prefixed local worker file from
+ * the public folder, which is automatically kept in sync with the `pdfjs-dist`
+ * version resolved from `react-pdf` via the postinstall script in package.json.
  *
  * Uses a module-level promise to ensure only one worker is initialized across
  * all component instances.
@@ -57,8 +60,7 @@ export function usePdfWorker(fileType: "pdf" | "image"): UsePdfWorkerReturn {
     // Create and cache the initialization Promise
     workerInitPromise = import("react-pdf")
       .then((mod) => {
-        // Use local worker file from public folder (auto-synced via postinstall script)
-        mod.pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+        mod.pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_PUBLIC_PATH;
         // Wait a bit to ensure worker is fully initialized
         return new Promise<void>((resolve) => {
           setTimeout(() => {

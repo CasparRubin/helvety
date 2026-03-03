@@ -4,7 +4,6 @@ import { cn } from "@helvety/shared/utils";
 import { Badge } from "@helvety/ui/badge";
 import { Button } from "@helvety/ui/button";
 import { Label } from "@helvety/ui/label";
-import { Slider } from "@helvety/ui/slider";
 import { X } from "lucide-react";
 import * as React from "react";
 
@@ -38,12 +37,12 @@ function PdfToolkitComponent({
   columns,
   onColumnsChange,
 }: PdfToolkitProps): React.JSX.Element {
-  const [showColumnSlider, setShowColumnSlider] = React.useState(false);
+  const [showColumnSelector, setShowColumnSelector] = React.useState(false);
 
-  // Detect screen width for column slider visibility
+  // Detect screen width for column selector visibility
   React.useEffect(() => {
     const checkScreenWidth = (): void => {
-      setShowColumnSlider(window.innerWidth >= BREAKPOINTS.MULTI_COLUMN);
+      setShowColumnSelector(window.innerWidth >= BREAKPOINTS.MULTI_COLUMN);
     };
 
     // Check on mount
@@ -70,33 +69,48 @@ function PdfToolkitComponent({
           "flex-1 overflow-y-auto"
         )}
       >
-        {/* Display - Column Slider (only show when screen width >= 1231px and files are uploaded) */}
+        {/* Display - Column selector (desktop/tablet only, and only when files are uploaded) */}
         {pdfFiles.length > 0 &&
-          showColumnSlider &&
+          showColumnSelector &&
           columns !== undefined &&
           onColumnsChange && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold">Display</h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="column-slider" className="text-sm">
+                  <Label htmlFor="column-selector" className="text-sm">
                     Pages per row
                   </Label>
                   <span className="text-muted-foreground text-xs">
                     {columns} {columns === 1 ? "page" : "pages"}
                   </span>
                 </div>
-                <Slider
-                  id="column-slider"
-                  min={COLUMNS.SLIDER_MIN}
-                  max={COLUMNS.MAX}
-                  step={1}
-                  value={[columns]}
-                  onValueChange={(value) =>
-                    onColumnsChange(value[0] ?? COLUMNS.SLIDER_MIN)
-                  }
-                  className="w-full"
-                />
+                <select
+                  id="column-selector"
+                  value={columns}
+                  onChange={(event) => {
+                    const parsed = Number.parseInt(event.target.value, 10);
+                    onColumnsChange(
+                      Number.isNaN(parsed) ? COLUMNS.DEFAULT_LARGE : parsed
+                    );
+                  }}
+                  className={cn(
+                    "bg-background border-border text-foreground h-9 w-full rounded-md border px-3 text-sm",
+                    "focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                  )}
+                >
+                  {Array.from(
+                    { length: COLUMNS.MAX - COLUMNS.MIN + 1 },
+                    (_, index) => {
+                      const value = COLUMNS.MIN + index;
+                      return (
+                        <option key={value} value={value}>
+                          {value} {value === 1 ? "page" : "pages"}
+                        </option>
+                      );
+                    }
+                  )}
+                </select>
               </div>
             </div>
           )}

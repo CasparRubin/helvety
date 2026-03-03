@@ -6,6 +6,7 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import {
@@ -20,6 +21,20 @@ import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ItemRow } from "@/lib/types";
+
+/** Revalidate item list/detail routes impacted by item mutations. */
+function revalidateItemRoutes(
+  unitId: string,
+  spaceId: string,
+  itemId?: string
+): void {
+  revalidatePath("/tasks");
+  revalidatePath(`/tasks/units/${unitId}`, "layout");
+  revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`, "layout");
+  if (itemId) {
+    revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}/items/${itemId}`);
+  }
+}
 
 // =============================================================================
 // Input Validation Schemas
@@ -117,7 +132,7 @@ export async function createItem(
     // Verify user owns the space
     const { data: space, error: spaceError } = await supabase
       .from("spaces")
-      .select("id")
+      .select("id,unit_id")
       .eq("id", validatedData.space_id)
       .eq("user_id", user.id)
       .single();
@@ -174,6 +189,7 @@ export async function createItem(
       return { success: false, error: "Failed to create item" };
     }
 
+    revalidateItemRoutes(space.unit_id, validatedData.space_id, item.id);
     return { success: true, data: { id: item.id } };
   } catch (error) {
     logger.error("Unexpected error in createItem:", error);
@@ -292,6 +308,38 @@ export async function updateItem(
       return { success: false, error: "Invalid item data" };
     }
     const validatedData = validationResult.data;
+    const { data: itemScope, error: itemScopeError } = await supabase
+      .from("items")
+      .select("space_id")
+      .eq("id", validatedData.id)
+      .eq("user_id", user.id)
+      .maybeSingle<{ space_id: string }>();
+    if (itemScopeError) {
+      logger.error(
+        "Error reading item scope for revalidation:",
+        itemScopeError
+      );
+      return { success: false, error: "Failed to update item" };
+    }
+    if (!itemScope?.space_id) {
+      return { success: false, error: "Item not found" };
+    }
+    const { data: spaceScope, error: spaceScopeError } = await supabase
+      .from("spaces")
+      .select("unit_id")
+      .eq("id", itemScope.space_id)
+      .eq("user_id", user.id)
+      .maybeSingle<{ unit_id: string }>();
+    if (spaceScopeError) {
+      logger.error("Error reading item parent scope for revalidation:", {
+        itemId: validatedData.id,
+        error: spaceScopeError,
+      });
+      return { success: false, error: "Failed to update item" };
+    }
+    if (!spaceScope?.unit_id) {
+      return { success: false, error: "Space not found" };
+    }
 
     // Build update object
     const updateObj: Record<string, unknown> = {
@@ -337,6 +385,11 @@ export async function updateItem(
       };
     }
 
+    revalidateItemRoutes(
+      spaceScope.unit_id,
+      itemScope.space_id,
+      validatedData.id
+    );
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in updateItem:", error);
@@ -363,6 +416,39 @@ export async function deleteItem(
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid item ID" };
+    }
+
+    const { data: itemScope, error: itemScopeError } = await supabase
+      .from("items")
+      .select("space_id")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle<{ space_id: string }>();
+    if (itemScopeError) {
+      logger.error("Error reading item scope for delete revalidation:", {
+        id,
+        error: itemScopeError,
+      });
+      return { success: false, error: "Failed to delete item" };
+    }
+    if (!itemScope?.space_id) {
+      return { success: false, error: "Item not found" };
+    }
+    const { data: spaceScope, error: spaceScopeError } = await supabase
+      .from("spaces")
+      .select("unit_id")
+      .eq("id", itemScope.space_id)
+      .eq("user_id", user.id)
+      .maybeSingle<{ unit_id: string }>();
+    if (spaceScopeError) {
+      logger.error("Error reading item parent scope for delete revalidation:", {
+        id,
+        error: spaceScopeError,
+      });
+      return { success: false, error: "Failed to delete item" };
+    }
+    if (!spaceScope?.unit_id) {
+      return { success: false, error: "Space not found" };
     }
 
     // Read storage paths before deleting row so we can clean up blobs.
@@ -409,6 +495,7 @@ export async function deleteItem(
       }
     }
 
+    revalidateItemRoutes(spaceScope.unit_id, itemScope.space_id, id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in deleteItem:", error);

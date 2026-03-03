@@ -6,6 +6,7 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import {
@@ -16,6 +17,15 @@ import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, SpaceRow } from "@/lib/types";
+
+/** Revalidate space list/detail routes impacted by space mutations. */
+function revalidateSpaceRoutes(unitId: string, spaceId?: string): void {
+  revalidatePath("/tasks");
+  revalidatePath(`/tasks/units/${unitId}`, "layout");
+  if (spaceId) {
+    revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`, "layout");
+  }
+}
 
 // =============================================================================
 // Input Validation Schemas
@@ -137,6 +147,7 @@ export async function createSpace(
       return { success: false, error: "Failed to create space" };
     }
 
+    revalidateSpaceRoutes(validatedData.unit_id, space.id);
     return { success: true, data: { id: space.id } };
   } catch (error) {
     logger.error("Unexpected error in createSpace:", error);
@@ -251,6 +262,22 @@ export async function updateSpace(
       return { success: false, error: "Invalid space data" };
     }
     const validatedData = validationResult.data;
+    const { data: spaceScope, error: spaceScopeError } = await supabase
+      .from("spaces")
+      .select("unit_id")
+      .eq("id", validatedData.id)
+      .eq("user_id", user.id)
+      .maybeSingle<{ unit_id: string }>();
+    if (spaceScopeError) {
+      logger.error(
+        "Error reading space scope for revalidation:",
+        spaceScopeError
+      );
+      return { success: false, error: "Failed to update space" };
+    }
+    if (!spaceScope?.unit_id) {
+      return { success: false, error: "Space not found" };
+    }
 
     // Build update object
     const updateObj: Record<string, unknown> = {
@@ -281,6 +308,7 @@ export async function updateSpace(
       return { success: false, error: "Failed to update space" };
     }
 
+    revalidateSpaceRoutes(spaceScope.unit_id, validatedData.id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in updateSpace:", error);
@@ -307,6 +335,23 @@ export async function deleteSpace(
 
     if (!z.string().uuid().safeParse(id).success) {
       return { success: false, error: "Invalid space ID" };
+    }
+
+    const { data: spaceScope, error: spaceScopeError } = await supabase
+      .from("spaces")
+      .select("unit_id")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle<{ unit_id: string }>();
+    if (spaceScopeError) {
+      logger.error("Error reading space scope for delete revalidation:", {
+        id,
+        error: spaceScopeError,
+      });
+      return { success: false, error: "Failed to delete space" };
+    }
+    if (!spaceScope?.unit_id) {
+      return { success: false, error: "Space not found" };
     }
 
     // Collect storage paths for attachments under this space before delete.
@@ -367,6 +412,7 @@ export async function deleteSpace(
       }
     }
 
+    revalidateSpaceRoutes(spaceScope.unit_id, id);
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in deleteSpace:", error);

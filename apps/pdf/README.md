@@ -94,6 +94,7 @@ This application is built with performance and code quality in mind:
 
 - **LRU Cache Strategy** - Uses Least Recently Used (LRU) cache eviction for optimal memory management
 - **Batch Processing** - Processes PDF pages in adaptive batches (3-10 pages) to prevent UI blocking
+- **PDF.js Worker Delivery** - Uses a local, basePath-aware worker URL (`/pdf/pdf.worker.min.mjs`) sourced from `react-pdf`'s resolved `pdfjs-dist` dependency to keep API and worker versions aligned in multi-zone routing
 - **Optimized Memoization** - Memoization with early short-circuiting to reduce re-renders
 - **Strict TypeScript** - Strict type safety with `noUncheckedIndexedAccess`, `noImplicitReturns`, `noUnusedLocals`, and other strict compiler options
 - **Error Handling** - Centralized error handling with detailed context and recovery strategies

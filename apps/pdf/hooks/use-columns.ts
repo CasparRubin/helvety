@@ -11,8 +11,9 @@ import { BREAKPOINTS, COLUMNS, STORAGE_KEYS } from "@/lib/constants";
 function getDefaultColumns(): number {
   if (typeof window === "undefined") return COLUMNS.DEFAULT_MEDIUM;
   const width = window.innerWidth;
-  if (width >= BREAKPOINTS.THREE_COLUMN) return COLUMNS.DEFAULT_LARGE;
-  if (width >= BREAKPOINTS.MULTI_COLUMN) return COLUMNS.DEFAULT_MEDIUM;
+  if (width >= BREAKPOINTS.FOUR_COLUMN_DEFAULT) return COLUMNS.DEFAULT_XL;
+  if (width >= BREAKPOINTS.THREE_COLUMN_DEFAULT) return COLUMNS.DEFAULT_LARGE;
+  if (width >= BREAKPOINTS.TWO_COLUMN_DEFAULT) return COLUMNS.DEFAULT_MEDIUM;
   return COLUMNS.DEFAULT_SMALL;
 }
 
@@ -41,14 +42,9 @@ export function useColumns(): [number | undefined, (columns: number) => void] {
 
     const width = window.innerWidth;
 
-    // Always force 1 column on small screens (< MULTI_COLUMN), regardless of localStorage
-    if (width < BREAKPOINTS.MULTI_COLUMN) {
-      return COLUMNS.DEFAULT_SMALL;
-    }
-
     // On large screens (>= MULTI_COLUMN), use localStorage if available
     const stored = localStorage.getItem(STORAGE_KEYS.COLUMNS);
-    if (stored) {
+    if (width >= BREAKPOINTS.MULTI_COLUMN && stored) {
       const parsed = parseInt(stored, 10);
       if (!isNaN(parsed) && parsed >= COLUMNS.MIN && parsed <= COLUMNS.MAX) {
         return parsed;

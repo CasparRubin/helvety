@@ -4,7 +4,7 @@ import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-error
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { forceHardLogout } from "@helvety/ui/hard-logout";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -72,6 +72,7 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
+  const latestRefreshTokenRef = useRef(0);
 
   /**
    * Fetch and decrypt all units
@@ -83,6 +84,7 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
       return;
     }
 
+    const refreshToken = ++latestRefreshTokenRef.current;
     setIsLoading(true);
     setError(null);
 
@@ -93,6 +95,9 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
           return;
         }
         const msg = result.error ?? "Failed to fetch units";
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setUnits([]);
@@ -101,17 +106,25 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
 
       // Decrypt all units client-side
       const decrypted = await decryptUnitRows(result.data, masterKey);
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setUnits(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch units";
       if (triggerHardLogoutForError(msg)) {
         return;
       }
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setUnits([]);
     } finally {
-      setIsLoading(false);
+      if (refreshToken === latestRefreshTokenRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [masterKey, isUnlocked]);
 
@@ -399,6 +412,7 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
+  const latestRefreshTokenRef = useRef(0);
 
   /**
    * Fetch and decrypt the unit
@@ -410,6 +424,7 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
       return;
     }
 
+    const refreshToken = ++latestRefreshTokenRef.current;
     setIsLoading(true);
     setError(null);
 
@@ -420,6 +435,9 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
           return;
         }
         const msg = result.error ?? "Failed to fetch unit";
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setUnit(null);
@@ -428,17 +446,25 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
 
       // Decrypt the unit client-side
       const decrypted = await decryptUnitRow(result.data, masterKey);
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setUnit(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch unit";
       if (triggerHardLogoutForError(msg)) {
         return;
       }
+      if (refreshToken !== latestRefreshTokenRef.current) {
+        return;
+      }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setUnit(null);
     } finally {
-      setIsLoading(false);
+      if (refreshToken === latestRefreshTokenRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [id, masterKey, isUnlocked]);
 

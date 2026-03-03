@@ -163,11 +163,7 @@ function PdfPageGridComponent({
       : { marginTop: 0, paddingTop: 0 };
   }, [columns]);
 
-  const gridClassName = React.useMemo(() => {
-    return columns
-      ? "grid gap-6"
-      : "grid grid-cols-1 grid-cols-2-at-1230 grid-cols-3-at-1655 gap-6";
-  }, [columns]);
+  const gridClassName = "grid gap-6";
 
   // Virtual scrolling optimization is handled by intersection observer in PdfPageThumbnail
 
