@@ -32,6 +32,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Fixed categories** - An immutable built-in category set is enforced for all contacts (Work, Family, Friends). New contacts are assigned the first category (Work) when none is specified.
 - **Drag & drop reordering** - Rearrange contacts on desktop; mobile uses up/down arrows for ordering controls
 - **Controlled row-link prefetching** - Dense contact lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
+- **Route-instance navigation guards** - Async/deferred client navigations are gated so callbacks from prior route instances are ignored after you move to a newer route
 - **Consistency safeguards for category moves** - UI keeps optimistic interactions fast while ignoring stale in-flight refresh responses; server mutations also trigger targeted route revalidation so prefetched pages stay aligned
 - **Task linking** - Link, unlink, and view task entities from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
   - **Bidirectional** - Link and unlink task entities from either the Contacts app or the Tasks app for consistent cross-app UX

@@ -67,7 +67,7 @@ interface EntityListProps {
   labels?: Label[];
   /** Callback when an entity row is clicked (fallback when entityHref not provided) */
   onEntityClick?: (entity: AnyEntity) => void;
-  /** URL for entity navigation — use Link instead of router.push to avoid race conditions */
+  /** URL for entity navigation — use Link instead of imperative router.push callbacks where possible */
   entityHref?: (entity: AnyEntity) => string;
   /** Callback used to prefetch an entity route on hover/focus */
   onEntityPrefetch?: (entity: AnyEntity) => void;

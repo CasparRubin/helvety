@@ -30,6 +30,7 @@ import { EntityList } from "@/components/entity-list";
 import { TaskCommandBar } from "@/components/task-command-bar";
 import { useChildCounts } from "@/hooks/use-child-counts";
 import { useDataExport } from "@/hooks/use-data-export";
+import { useRouteInstanceGuard } from "@/hooks/use-route-instance-guard";
 import { useSpaces } from "@/hooks/use-spaces";
 import { useStages } from "@/hooks/use-stages";
 import { useUnit, useUnits } from "@/hooks/use-units";
@@ -53,6 +54,7 @@ export function SpacesDashboard({
   initialItemCounts?: Record<string, number>;
 }) {
   const router = useRouter();
+  const { canNavigate } = useRouteInstanceGuard();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const {
     unit,
@@ -184,9 +186,11 @@ export function SpacesDashboard({
     startDeleteUnitTransition(async () => {
       await removeUnit(unitId);
       setIsUnitDeleteOpen(false);
-      router.push("/");
+      if (canNavigate()) {
+        router.push("/");
+      }
     });
-  }, [removeUnit, unitId, router, startDeleteUnitTransition]);
+  }, [removeUnit, unitId, router, startDeleteUnitTransition, canNavigate]);
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {

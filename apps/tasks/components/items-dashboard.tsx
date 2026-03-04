@@ -31,6 +31,7 @@ import { TaskCommandBar } from "@/components/task-command-bar";
 import { useDataExport } from "@/hooks/use-data-export";
 import { useItems } from "@/hooks/use-items";
 import { useLabels } from "@/hooks/use-labels";
+import { useRouteInstanceGuard } from "@/hooks/use-route-instance-guard";
 import { useSpace, useSpaces } from "@/hooks/use-spaces";
 import { useStages } from "@/hooks/use-stages";
 import { useUnit } from "@/hooks/use-units";
@@ -57,6 +58,7 @@ export function ItemsDashboard({
   initialEncryptedItems?: ItemRow[];
 }) {
   const router = useRouter();
+  const { canNavigate } = useRouteInstanceGuard();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const { unit, isLoading: isLoadingUnit } = useUnit(unitId, {
     initialEncryptedData: initialEncryptedUnit,
@@ -191,12 +193,14 @@ export function ItemsDashboard({
     setIsDeletingSpace(true);
     try {
       await removeSpace(spaceId);
-      router.push(`/units/${unitId}`);
+      if (canNavigate()) {
+        router.push(`/units/${unitId}`);
+      }
     } finally {
       setIsDeletingSpace(false);
       setIsSpaceDeleteOpen(false);
     }
-  }, [removeSpace, spaceId, unitId, router]);
+  }, [removeSpace, spaceId, unitId, router, canNavigate]);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);

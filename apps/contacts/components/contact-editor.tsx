@@ -41,6 +41,7 @@ import { TaskLinksPanel } from "@/components/task-links-panel";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useCategories } from "@/hooks/use-categories";
 import { useContact } from "@/hooks/use-contacts";
+import { useRouteInstanceGuard } from "@/hooks/use-route-instance-guard";
 import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
 
 import type { ContactRow } from "@/lib/types";
@@ -69,6 +70,7 @@ export function ContactEditor({
   initialEncryptedContact,
 }: ContactEditorProps) {
   const router = useRouter();
+  const { canNavigate } = useRouteInstanceGuard();
   const { contact, isLoading, error, refresh, update, remove } = useContact(
     contactId,
     { initialEncryptedData: initialEncryptedContact }
@@ -230,13 +232,19 @@ export function ContactEditor({
     [contact, update]
   );
 
+  const doBack = useCallback(() => {
+    if (canNavigate()) {
+      router.push("/");
+    }
+  }, [canNavigate, router]);
+
   const handleBack = useCallback(() => {
     if (hasUnsavedChanges) {
       setPendingAction("back");
       return;
     }
-    router.push("/");
-  }, [router, hasUnsavedChanges]);
+    doBack();
+  }, [hasUnsavedChanges, doBack]);
 
   const handleRefresh = useCallback(() => {
     if (hasUnsavedChanges) {
@@ -260,7 +268,7 @@ export function ContactEditor({
     setPendingAction(null);
 
     if (action === "back") {
-      router.push("/");
+      doBack();
     } else if (action === "refresh") {
       setIsRefreshing(true);
       setEditorBaselineCaptured(false);
@@ -271,7 +279,7 @@ export function ContactEditor({
         setIsRefreshing(false);
       }
     }
-  }, [pendingAction, router, refresh]);
+  }, [pendingAction, doBack, refresh]);
 
   const handleDelete = useCallback(() => {
     setIsDeleteOpen(true);
@@ -281,14 +289,14 @@ export function ContactEditor({
     setIsDeletingContact(true);
     try {
       const success = await remove();
-      if (success) {
+      if (success && canNavigate()) {
         router.push("/");
       }
     } finally {
       setIsDeletingContact(false);
       setIsDeleteOpen(false);
     }
-  }, [remove, router]);
+  }, [remove, router, canNavigate]);
 
   // Handle notes change: capture editor baseline on first emission, then compare values
   const handleNotesChange = useCallback((content: JSONContent) => {

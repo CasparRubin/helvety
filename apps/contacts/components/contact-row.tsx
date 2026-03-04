@@ -26,7 +26,7 @@ interface ContactRowProps {
   category?: Category | null;
   isFirst?: boolean;
   isLast?: boolean;
-  /** Navigation URL — when provided, renders Link for stable client-side nav (avoids router.push race) */
+  /** Navigation URL — when provided, renders Link for declarative nav to reduce stale imperative-push callbacks */
   href?: string;
   onClick?: () => void;
   onPrefetch?: () => void;

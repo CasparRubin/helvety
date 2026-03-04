@@ -39,7 +39,7 @@ interface ContactListProps {
   categories: Category[];
   /** Callback when a contact row is clicked (fallback when contactHref not provided) */
   onContactClick?: (contact: Contact) => void;
-  /** URL for contact navigation — use Link instead of router.push to avoid race conditions */
+  /** URL for contact navigation — use Link instead of imperative router.push callbacks where possible */
   contactHref?: (contact: Contact) => string;
   /** Callback used to prefetch a contact route on hover/focus */
   onContactPrefetch?: (contact: Contact) => void;

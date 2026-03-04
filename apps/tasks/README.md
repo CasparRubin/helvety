@@ -40,6 +40,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Privacy** - Contact notes content is not decrypted in the Tasks app by design; only a has-notes indicator is shown
 - **Drag & drop reordering** - Rearrange entries on desktop; mobile uses up/down arrows for ordering controls
 - **Controlled row-link prefetching** - Dense unit/space/item lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
+- **Route-instance navigation guards** - Async/deferred client navigations are gated so callbacks from prior route instances are ignored after you move to a newer route
 - **Consistency safeguards for stage/status moves** - UI keeps optimistic interactions snappy while discarding stale in-flight refresh responses; server mutations also trigger targeted route revalidation so prefetched pages stay aligned
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
