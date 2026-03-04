@@ -5,8 +5,9 @@
  *
  * Shown before every purchase, before redirecting to Stripe Checkout. The user
  * must confirm that they have read and understood our Terms of Service and
- * Privacy Policy. The checkbox is required; the choice is not saved. The dialog
- * is shown on every purchase with the checkbox unchecked by default.
+ * Privacy Policy. The checkbox state is not persisted in client UI state and
+ * is reset for every purchase flow. Consent evidence is recorded server-side
+ * during checkout processing.
  *
  * Legal basis: Swiss contract law. Records evidence that the customer accepted the Terms
  * and Privacy Policy before purchase. Consent metadata (timestamp + version) is

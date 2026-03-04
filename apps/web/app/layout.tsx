@@ -117,9 +117,10 @@ export const metadata: Metadata = {
 /**
  * Root layout: fixed header (Navbar), ScrollArea main, fixed footer (contact + legal links).
  *
- * The web app serves only public/static pages (home, privacy, terms, impressum).
- * No explicit force-dynamic export. This layout is kept static-friendly; auth
- * state is resolved client-side in Navbar via onAuthStateChange.
+ * The web app serves only public pages (home, privacy, terms, impressum).
+ * No explicit force-dynamic export. This layout reads request headers for CSP
+ * nonce propagation, while auth state in Navbar is resolved client-side via
+ * onAuthStateChange.
  */
 export default async function RootLayout({
   children,

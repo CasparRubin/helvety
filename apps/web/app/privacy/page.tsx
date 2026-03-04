@@ -779,10 +779,12 @@ export default function PrivacyPage() {
             <strong className="text-foreground">Consent audit records:</strong>{" "}
             When you accept the Terms of Service and Privacy Policy during
             checkout, we record a consent event including your IP address,
-            timestamp, and the versions of the documents you accepted. This
-            evidence may be retained for up to 10 years for contract and consent
-            proof. After account deletion, direct user linkage may be removed
-            where legally and operationally appropriate.
+            timestamp, and the legal version identifier in effect for that
+            checkout flow. Under the current implementation, this is captured as
+            a shared consent version value used for both Terms and Privacy
+            acceptance records. This evidence may be retained for up to 10 years
+            for contract and consent proof. After account deletion, direct user
+            linkage may be removed where legally and operationally appropriate.
           </li>
           <li>
             <strong className="text-foreground">Communication records:</strong>{" "}

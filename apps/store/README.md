@@ -129,6 +129,8 @@ This project is built with modern web technologies:
 
 Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom environment with type-checking enabled.
 
+Run these commands from `apps/store`:
+
 | Script                  | Description                       |
 | ----------------------- | --------------------------------- |
 | `bun run test`          | Run all tests once                |

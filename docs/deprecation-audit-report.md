@@ -2,6 +2,8 @@
 
 Generated as part of the Full Deprecation & Legacy Audit Plan. This document is a historical baseline inventory and findings matrix captured on February 28, 2026. Version references in this file are snapshot values and may differ from current `package.json` values.
 
+Historical snapshot only: do not treat this report as current operational status. Validate live versions and remediation state against the current repository files (`package.json`, workspace manifests, and active scripts).
+
 ## 1. Dependency Baseline (Framework-Critical)
 
 | Package               | Version in Repo    | Latest Stable | Status     | Deprecation Notes                                             |
@@ -103,7 +105,7 @@ Generated as part of the Full Deprecation & Legacy Audit Plan. This document is 
 
 ## 5. Prioritized Findings
 
-### Must change now (as of 2026-02-28 audit snapshot)
+### Must change now (historical as-of 2026-02-28)
 
 | ID  | Finding                                      | Files                        | Action                                                |
 | --- | -------------------------------------------- | ---------------------------- | ----------------------------------------------------- |

@@ -152,7 +152,7 @@ Handles authentication callbacks from email verification (backwards-compatible f
 - Redirects based on user status:
   - New users or missing encryption: `/login?step=encryption-setup`
   - Returning users after email verification: `/login?step=passkey-signin`
-- If no `redirect_uri` is provided, defaults to `https://helvety.com`
+- If no `redirect_uri` is provided, it falls back to the default home URL from `@helvety/shared/config` (development: `http://localhost:3001`, production: `https://helvety.com`)
 - **Designed to preserve `redirect_uri`** through the auth flow, including hash-fragment authentication handling (where tokens arrive as `#access_token=...` instead of query params)
 
 ### `/logout` (Client-Side Page)
@@ -335,6 +335,8 @@ Browser compatibility for encryption depends on WebAuthn PRF support and can evo
 ## Testing
 
 Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom environment with type-checking enabled.
+
+Run these commands from `apps/auth`:
 
 | Script                  | Description                       |
 | ----------------------- | --------------------------------- |

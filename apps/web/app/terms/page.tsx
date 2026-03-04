@@ -329,10 +329,11 @@ export default function TermsPage() {
           least 18 years old.
         </p>
         <p className="text-muted-foreground text-sm">
-          We reserve the right to suspend or terminate your account at our sole
-          discretion, without prior notice, for conduct that we determine
-          violates these Terms or is harmful to other users, us, or third
-          parties, or for any other reason.
+          We may suspend or terminate accounts for cause, including violations
+          of these Terms, unlawful use, abuse, fraud, or security risks. Where
+          reasonably practicable, we provide prior notice; immediate action may
+          be taken where notice is legally restricted or would increase risk to
+          users, third parties, or our Services (see Section 15).
         </p>
       </section>
 
@@ -524,9 +525,11 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           We reserve the right to modify, suspend, or discontinue any Free
-          Services at any time, with or without notice. We shall have no
-          liability to you or any third party for any modification, suspension,
-          or discontinuation of Free Services.
+          Services at any time. Where reasonably practicable, we provide prior
+          notice; immediate changes may occur for security, legal, or
+          abuse-prevention reasons. To the extent permitted by applicable law,
+          we shall have no liability to you or any third party for modification,
+          suspension, or discontinuation of Free Services.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
