@@ -114,14 +114,14 @@ sequenceDiagram
       U->>P: Use this device
     end
     P->>U: Verify biometrics
-    P->>A: Passkey response + PRF output
+    P->>A: Passkey response (+ PRF output when available)
     A->>S: Verify account-bound passkey + Create session
     S-->>A: Session created
-    A->>A: Derive encryption key from PRF
-    A-->>U: Redirect to app (signed in + encryption unlocked)
+    U->>U: Browser derives/stores encryption key from PRF
+    A-->>U: Redirect to app (signed in; encryption usually unlocked)
 ```
 
-Note: Passkey authentication creates the session directly server-side (via `verifyOtp`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs.
+Note: Passkey authentication creates the session directly server-side (via `verifyOtp`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs. During returning-user login, auth options include PRF bootstrap parameters when available so first-login-on-device can still request PRF in the same passkey ceremony.
 
 ### Key Points
 

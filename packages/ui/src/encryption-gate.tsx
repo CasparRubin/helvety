@@ -1,5 +1,6 @@
 "use client";
 
+import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { onKeyEvent } from "@helvety/shared/crypto/key-storage";
@@ -34,7 +35,7 @@ export interface EncryptionGateProps {
 }
 
 /** Encryption gate status states */
-type EncryptionStatus = "loading" | "needs_logout" | "unlocked";
+type EncryptionStatus = "loading" | "needs_login" | "needs_logout" | "unlocked";
 
 /** Build the auth URL for a normal login flow (with redirect back). */
 function getAuthLoginUrl(): string {
@@ -66,6 +67,7 @@ export function EncryptionGate({
   const alreadyUnlocked = isUnlocked && unlockedForUserId === userId;
 
   const [hasCheckedParams, setHasCheckedParams] = useState(alreadyUnlocked);
+  const [needsLogin, setNeedsLogin] = useState(false);
   const [needsLogout, setNeedsLogout] = useState(false);
   const redirectingRef = useRef(false);
 
@@ -87,17 +89,21 @@ export function EncryptionGate({
           if (cancelled || !result) return;
 
           if (!result.success) {
-            if (unlockedForUserId) {
-              void lockEncryption(unlockedForUserId);
+            if (shouldForceHardLogoutFromActionError(result.error)) {
+              if (unlockedForUserId) {
+                void lockEncryption(unlockedForUserId);
+              }
+              setNeedsLogout(true);
+            } else {
+              setNeedsLogin(true);
             }
-            setNeedsLogout(true);
             setHasCheckedParams(true);
             return;
           }
 
           // This app never unlocks in-place. If we are not already unlocked,
-          // enforce a clean logout + centralized auth flow.
-          setNeedsLogout(!alreadyUnlocked);
+          // return to centralized auth flow without forcing global logout.
+          setNeedsLogin(!alreadyUnlocked);
           setHasCheckedParams(true);
         })
         .catch(() => {
@@ -160,12 +166,15 @@ export function EncryptionGate({
   const status: EncryptionStatus = useMemo(() => {
     if (alreadyUnlocked) return "unlocked";
     if (contextLoading || !hasCheckedParams) return "loading";
-    return needsLogout || contextError ? "needs_logout" : "loading";
+    if (needsLogout || contextError) return "needs_logout";
+    if (needsLogin) return "needs_login";
+    return "loading";
   }, [
     alreadyUnlocked,
     contextError,
     contextLoading,
     hasCheckedParams,
+    needsLogin,
     needsLogout,
   ]);
 
@@ -175,6 +184,12 @@ export function EncryptionGate({
     if (status === "needs_logout") {
       redirectingRef.current = true;
       void forceHardLogout(getAuthLoginUrl());
+      return;
+    }
+
+    if (status === "needs_login") {
+      redirectingRef.current = true;
+      window.location.href = getAuthLoginUrl();
     }
   }, [status]);
 
@@ -198,6 +213,19 @@ export function EncryptionGate({
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
           <p className="text-muted-foreground text-sm">
             Signing out and redirecting to authentication...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "needs_login") {
+    return (
+      <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground text-sm">
+            Redirecting to authentication...
           </p>
         </div>
       </div>

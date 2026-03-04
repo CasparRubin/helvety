@@ -411,16 +411,31 @@ export function useLoginFlow(): LoginFlowState {
           return;
         }
 
-        // Check for cached PRF salt to enable single-touch encryption unlock.
-        // The PRF salt is not sensitive (it's a public parameter) - caching it
-        // allows us to request the PRF extension during login authentication,
-        // so the user doesn't need a separate passkey touch for encryption.
-        const cachedSalt = getCachedPRFSalt();
-        const authOptions = optionsResult.data;
+        // Resolve PRF bootstrap from local cache first, then server-provided
+        // fallback from passkey options. This keeps first-login-on-device
+        // flows single-touch even when local storage is initially empty.
+        const authOptionsResult = optionsResult.data;
+        const fallbackSalt =
+          authOptionsResult.prfSalt && authOptionsResult.prfVersion != null
+            ? {
+                prfSalt: authOptionsResult.prfSalt,
+                version: authOptionsResult.prfVersion,
+              }
+            : null;
+        const bootstrapSalt = getCachedPRFSalt() ?? fallbackSalt;
+        const {
+          prfSalt: _prfSalt,
+          prfVersion: _prfVersion,
+          ...authOptions
+        } = authOptionsResult;
 
-        if (cachedSalt) {
+        if (bootstrapSalt && !getCachedPRFSalt()) {
+          cachePRFSalt(bootstrapSalt.prfSalt, bootstrapSalt.version);
+        }
+
+        if (bootstrapSalt) {
           // Add PRF extension to the authentication options
-          const saltBytes = Uint8Array.from(atob(cachedSalt.prfSalt), (c) =>
+          const saltBytes = Uint8Array.from(atob(bootstrapSalt.prfSalt), (c) =>
             c.charCodeAt(0)
           );
           Object.assign(authOptions, {
@@ -435,7 +450,7 @@ export function useLoginFlow(): LoginFlowState {
           });
         }
 
-        // Start WebAuthn authentication (with PRF if salt was cached)
+        // Start WebAuthn authentication (with PRF when bootstrap salt exists)
         let authResponse;
         try {
           authResponse = await startAuthentication({
@@ -501,7 +516,7 @@ export function useLoginFlow(): LoginFlowState {
         // one who actually authenticated (e.g., user entered Account A's email
         // but signed in with Account B's passkey). We must verify the cached
         // salt matches the authenticated user's actual params before deriving.
-        if (cachedSalt) {
+        if (bootstrapSalt) {
           try {
             const clientExtResults = authResponse.clientExtensionResults as {
               prf?: { results?: { first?: ArrayBuffer } };
@@ -516,15 +531,15 @@ export function useLoginFlow(): LoginFlowState {
                 ? paramsResult.data?.prf_salt
                 : null;
 
-              if (actualSalt && actualSalt === cachedSalt.prfSalt) {
+              if (actualSalt && actualSalt === bootstrapSalt.prfSalt) {
                 const prfParams: PRFKeyParams = {
-                  prfSalt: cachedSalt.prfSalt,
-                  version: cachedSalt.version,
+                  prfSalt: bootstrapSalt.prfSalt,
+                  version: bootstrapSalt.version,
                 };
                 const masterKey = await deriveKeyFromPRF(prfOutput, prfParams);
                 await storeMasterKey(verifyResult.data.userId, masterKey);
 
-                cachePRFSalt(cachedSalt.prfSalt, cachedSalt.version);
+                cachePRFSalt(bootstrapSalt.prfSalt, bootstrapSalt.version);
 
                 logger.info(
                   "Encryption key derived and cached during login (single-touch unlock)"

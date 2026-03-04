@@ -43,6 +43,12 @@ import type {
 } from "@simplewebauthn/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
+/** Passkey auth options payload with optional PRF bootstrap metadata. */
+type PasskeyAuthOptionsResponse = PublicKeyCredentialRequestOptionsJSON & {
+  prfSalt?: string;
+  prfVersion?: number;
+};
+
 // =============================================================================
 // AUTHENTICATION (returning users)
 // =============================================================================
@@ -62,14 +68,14 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  * @param origin - The origin URL
  * @param redirectUri - Optional redirect URI to preserve through auth flow
  * @param options - Optional { isMobile, expectedEmail } to choose platform/hybrid and bind passkey to account
- * @returns Authentication options to pass to the WebAuthn API
+ * @returns Authentication options for WebAuthn plus optional PRF bootstrap metadata
  */
 export async function generatePasskeyAuthOptions(
   csrfToken: string,
   origin: string,
   redirectUri?: string,
   authOptions?: { isMobile?: boolean; expectedEmail?: string }
-): Promise<ActionResponse<PublicKeyCredentialRequestOptionsJSON>> {
+): Promise<ActionResponse<PasskeyAuthOptionsResponse>> {
   try {
     await requireCSRFToken(csrfToken);
   } catch {
@@ -113,6 +119,12 @@ export async function generatePasskeyAuthOptions(
     let expectedUserId: string | undefined;
     let allowCredentials: GenerateAuthenticationOptionsOpts["allowCredentials"] =
       [];
+    let prfBootstrap:
+      | {
+          prfSalt: string;
+          prfVersion: number;
+        }
+      | undefined;
 
     if (normalizedExpectedEmail) {
       const user = await findUserByEmail(normalizedExpectedEmail);
@@ -152,6 +164,28 @@ export async function generatePasskeyAuthOptions(
           transports: (item.transports ?? []) as AuthenticatorTransportFuture[],
         })
       );
+
+      // Fetch PRF bootstrap params so passkey sign-in can request PRF output
+      // even when local cache is empty (e.g. first login on a new device).
+      try {
+        const { data: prfData, error: prfError } = await scopedAdmin
+          .from("user_passkey_params")
+          .select("prf_salt, version")
+          .single();
+
+        if (!prfError && prfData) {
+          prfBootstrap = {
+            prfSalt: prfData.prf_salt,
+            prfVersion: prfData.version,
+          };
+        }
+      } catch (prfBootstrapError) {
+        // Non-fatal: authentication can still proceed without PRF bootstrap.
+        logger.warn(
+          "Failed to fetch PRF bootstrap during passkey auth options generation:",
+          prfBootstrapError
+        );
+      }
     }
 
     const opts: GenerateAuthenticationOptionsOpts = {
@@ -173,6 +207,7 @@ export async function generatePasskeyAuthOptions(
         | "security-key"
         | "client-device"
       )[],
+      ...(prfBootstrap ?? {}),
     };
 
     // Validate redirectUri against allowlist before storing (prevent open redirect)
