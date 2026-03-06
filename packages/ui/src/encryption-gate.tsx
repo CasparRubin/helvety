@@ -1,6 +1,6 @@
 "use client";
 
-import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
+import { classifyActionAuthError } from "@helvety/shared/auth-errors";
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { onKeyEvent } from "@helvety/shared/crypto/key-storage";
@@ -8,7 +8,7 @@ import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
-import { forceHardLogout } from "./hard-logout";
+import { redirectToLoginOnce, triggerHardLogoutOnce } from "./auth-navigation";
 
 import type {
   ActionResponse,
@@ -78,7 +78,7 @@ export function EncryptionGate({
 
     let cancelled = false;
 
-    /** Fetch encryption params and force clean logout on invalid state. */
+    /** Fetch encryption params and classify login vs hard-logout states. */
     const runStateCheck = () => {
       void checkEncryptionState(userId)
         .then(() => {
@@ -89,7 +89,8 @@ export function EncryptionGate({
           if (cancelled || !result) return;
 
           if (!result.success) {
-            if (shouldForceHardLogoutFromActionError(result.error)) {
+            const intent = classifyActionAuthError(result.error);
+            if (intent === "hard_logout") {
               if (unlockedForUserId) {
                 void lockEncryption(unlockedForUserId);
               }
@@ -108,7 +109,7 @@ export function EncryptionGate({
         })
         .catch(() => {
           if (cancelled) return;
-          setNeedsLogout(true);
+          setNeedsLogin(true);
           setHasCheckedParams(true);
         });
     };
@@ -142,7 +143,7 @@ export function EncryptionGate({
       }
       if (!session) {
         if (unlockedForUserId) void lockEncryption(unlockedForUserId);
-        setNeedsLogout(true);
+        setNeedsLogin(true);
       }
     });
     return () => subscription.unsubscribe();
@@ -152,12 +153,12 @@ export function EncryptionGate({
     return onKeyEvent((msg) => {
       if (msg.type === "keys-cleared" && unlockedForUserId) {
         void lockEncryption(unlockedForUserId);
-        setNeedsLogout(true);
+        setNeedsLogin(true);
       }
       if (msg.type === "master-key-deleted" && unlockedForUserId) {
         if (msg.userId === unlockedForUserId) {
           void lockEncryption(unlockedForUserId);
-          setNeedsLogout(true);
+          setNeedsLogin(true);
         }
       }
     });
@@ -183,13 +184,13 @@ export function EncryptionGate({
 
     if (status === "needs_logout") {
       redirectingRef.current = true;
-      void forceHardLogout(getAuthLoginUrl());
+      triggerHardLogoutOnce(getAuthLoginUrl(), "encryption-gate");
       return;
     }
 
     if (status === "needs_login") {
       redirectingRef.current = true;
-      window.location.href = getAuthLoginUrl();
+      redirectToLoginOnce(getAuthLoginUrl(), "encryption-gate");
     }
   }, [status]);
 

@@ -1,9 +1,11 @@
 "use client";
 
-import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import {
+  handleAuthErrorNavigation,
+  triggerHardLogoutOnce,
+} from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -56,13 +58,13 @@ interface UseContactsReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
 }
 
-/** Force the centralized logout flow when auth/E2EE state is invalid. */
+/** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
 function triggerHardLogoutForError(rawError?: string | null): boolean {
-  if (!shouldForceHardLogoutFromActionError(rawError)) {
-    return false;
-  }
-  void forceHardLogout(window.location.href);
-  return true;
+  return handleAuthErrorNavigation(
+    rawError,
+    window.location.href,
+    "contacts-use-contacts"
+  );
 }
 
 /**
@@ -137,7 +139,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const create = useCallback(
     async (input: ContactInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "contacts-use-contacts");
         return null;
       }
 
@@ -195,7 +197,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const update = useCallback(
     async (id: string, input: Partial<ContactInput>): Promise<boolean> => {
       if (!masterKey) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "contacts-use-contacts");
         return false;
       }
 
@@ -485,7 +487,7 @@ export function useContact(
   const update = useCallback(
     async (input: Partial<ContactInput>): Promise<boolean> => {
       if (!masterKey || !id) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "contacts-use-contacts");
         return false;
       }
 

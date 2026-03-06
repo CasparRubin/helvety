@@ -1,9 +1,10 @@
 "use client";
 
+import { shouldForceHardLogout } from "@helvety/shared/auth-errors";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useEffect } from "react";
 
-import { forceHardLogout } from "./hard-logout";
+import { triggerHardLogoutOnce } from "./auth-navigation";
 
 /**
  * Invisible component that rechecks Supabase auth session state after
@@ -12,8 +13,8 @@ import { forceHardLogout } from "./hard-logout";
  * When a tab is suspended, JavaScript timers are paused, which means
  * Supabase's auto-refresh timer may not fire before the access token
  * expires. This component listens for visibility changes and performs
- * a session check; in required mode, any invalid session state triggers a
- * centralized hard logout.
+ * a session check; in required mode, terminal auth states trigger a
+ * deduplicated hard logout, while transient failures are tolerated first.
  */
 type SessionRecoveryMode = "optional" | "required";
 
@@ -26,26 +27,37 @@ interface SessionRecoveryProps {
 export function SessionRecovery({ mode = "required" }: SessionRecoveryProps) {
   useEffect(() => {
     const supabase = createBrowserClient();
-    let redirecting = false;
+    let transientFailureCount = 0;
+    let mounted = true;
 
     const canRedirect = mode === "required";
 
     const recoverSession = async () => {
-      if (redirecting) {
-        return;
-      }
-      if (!canRedirect) {
+      if (!mounted || !canRedirect) {
         return;
       }
 
       const { data, error } = await supabase.auth.getUser();
       if (data.user && !error) {
+        transientFailureCount = 0;
         return;
       }
 
-      if (!redirecting) {
-        redirecting = true;
-        await forceHardLogout(window.location.href);
+      const message = error?.message ?? null;
+      if (!message && !data.user) {
+        triggerHardLogoutOnce(window.location.href, "session-recovery");
+        return;
+      }
+
+      if (shouldForceHardLogout(message)) {
+        triggerHardLogoutOnce(window.location.href, "session-recovery");
+        return;
+      }
+
+      // Ignore the first transient auth check failure to avoid bounce-backs.
+      transientFailureCount += 1;
+      if (transientFailureCount < 2) {
+        return;
       }
     };
 
@@ -61,8 +73,10 @@ export function SessionRecovery({ mode = "required" }: SessionRecoveryProps) {
     void recoverSession();
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
+    return () => {
+      mounted = false;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   return null;

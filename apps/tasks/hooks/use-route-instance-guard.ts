@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 /**
  * Guards client-side navigation so stale async callbacks from a previous
@@ -9,13 +9,18 @@ import { useCallback, useEffect, useRef } from "react";
  */
 export function useRouteInstanceGuard() {
   const pathname = usePathname();
-  const originPathRef = useRef(pathname);
-  const currentPathRef = useRef(pathname);
+  const searchParams = useSearchParams();
+  const routeKey = useMemo(() => {
+    const query = searchParams.toString();
+    return query ? `${pathname}?${query}` : pathname;
+  }, [pathname, searchParams]);
+  const originPathRef = useRef(routeKey);
+  const currentPathRef = useRef(routeKey);
   const mountedRef = useRef(true);
 
   useEffect(() => {
-    currentPathRef.current = pathname;
-  }, [pathname]);
+    currentPathRef.current = routeKey;
+  }, [routeKey]);
 
   useEffect(() => {
     return () => {

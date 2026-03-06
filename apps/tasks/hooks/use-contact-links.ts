@@ -1,10 +1,9 @@
 "use client";
 
-import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { handleAuthErrorNavigation } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { forceHardLogout } from "@helvety/ui/hard-logout";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -45,13 +44,13 @@ interface UseContactLinksReturn {
   unlink: (linkId: string) => Promise<boolean>;
 }
 
-/** Force the centralized logout flow when auth/E2EE state is invalid. */
+/** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
 function triggerHardLogoutForError(rawError?: string | null): boolean {
-  if (!shouldForceHardLogoutFromActionError(rawError)) {
-    return false;
-  }
-  void forceHardLogout(window.location.href);
-  return true;
+  return handleAuthErrorNavigation(
+    rawError,
+    window.location.href,
+    "tasks-use-contact-links"
+  );
 }
 
 /**
@@ -70,9 +69,6 @@ export function useContactLinks(
   const [links, setLinks] = useState<EntityContactLinkRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Track whether we've already loaded contacts to avoid re-fetching on every link change
-  const contactsCacheRef = useRef<Contact[] | null>(null);
 
   /**
    * Fetch and decrypt all contacts + fetch entity links
@@ -121,7 +117,6 @@ export function useContactLinks(
         masterKey
       );
       setAllContacts(decrypted);
-      contactsCacheRef.current = decrypted;
       setLinks(linksResult.data);
     } catch (err) {
       const msg =
@@ -227,18 +222,25 @@ export function useContactLinks(
   }, [isUnlocked, masterKey, entityId, refresh]);
 
   // Derive linkedContacts by joining links with allContacts
-  const contactsById = new Map(allContacts.map((c) => [c.id, c]));
-  const linkedContacts: LinkedContact[] = links
-    .map((linkRow) => {
-      const contact = contactsById.get(linkRow.contact_id);
-      if (!contact) return null;
-      return {
-        ...contact,
-        link_id: linkRow.id,
-        linked_at: linkRow.created_at,
-      };
-    })
-    .filter((c): c is LinkedContact => c !== null);
+  const contactsById = useMemo(
+    () => new Map(allContacts.map((c) => [c.id, c])),
+    [allContacts]
+  );
+  const linkedContacts = useMemo<LinkedContact[]>(
+    () =>
+      links
+        .map((linkRow) => {
+          const contact = contactsById.get(linkRow.contact_id);
+          if (!contact) return null;
+          return {
+            ...contact,
+            link_id: linkRow.id,
+            linked_at: linkRow.created_at,
+          };
+        })
+        .filter((c): c is LinkedContact => c !== null),
+    [links, contactsById]
+  );
 
   return {
     allContacts,

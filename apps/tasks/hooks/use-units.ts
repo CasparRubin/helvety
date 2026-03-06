@@ -1,9 +1,11 @@
 "use client";
 
-import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import {
+  handleAuthErrorNavigation,
+  triggerHardLogoutOnce,
+} from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -51,13 +53,13 @@ interface UseUnitsReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
 }
 
-/** Force the centralized logout flow when auth/E2EE state is invalid. */
+/** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
 function triggerHardLogoutForError(rawError?: string | null): boolean {
-  if (!shouldForceHardLogoutFromActionError(rawError)) {
-    return false;
-  }
-  void forceHardLogout(window.location.href);
-  return true;
+  return handleAuthErrorNavigation(
+    rawError,
+    window.location.href,
+    "tasks-use-units"
+  );
 }
 
 /**
@@ -134,7 +136,7 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
   const create = useCallback(
     async (input: UnitInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "tasks-use-units");
         return null;
       }
 
@@ -193,7 +195,7 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
   const update = useCallback(
     async (id: string, input: Partial<UnitInput>): Promise<boolean> => {
       if (!masterKey) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "tasks-use-units");
         return false;
       }
 
@@ -474,7 +476,7 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
   const update = useCallback(
     async (input: Partial<UnitInput>): Promise<boolean> => {
       if (!masterKey || !id) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "tasks-use-units");
         return false;
       }
 

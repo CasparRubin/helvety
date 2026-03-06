@@ -150,7 +150,7 @@ export function SpacesDashboard({
   );
 
   const handleBack = useCallback(() => {
-    router.push("/");
+    router.replace("/");
   }, [router]);
 
   const handleEditUnitOpen = useCallback(() => {
@@ -187,7 +187,7 @@ export function SpacesDashboard({
       await removeUnit(unitId);
       setIsUnitDeleteOpen(false);
       if (canNavigate()) {
-        router.push("/");
+        router.replace("/");
       }
     });
   }, [removeUnit, unitId, router, startDeleteUnitTransition, canNavigate]);

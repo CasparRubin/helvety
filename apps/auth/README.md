@@ -195,11 +195,11 @@ Other Helvety apps redirect to helvety.com/auth for authentication:
 // In helvety.com/store or helvety.com/pdf
 // Apps use @helvety/shared/auth-redirect for helper functions
 
+import { redirectToLogin } from "@helvety/shared/auth-redirect";
+
 // Example redirect for unauthenticated users
-const currentUrl = window.location.href;
-const loginUrl = `https://helvety.com/auth/login?redirect_uri=${encodeURIComponent(currentUrl)}`;
-window.location.href = loginUrl;
-// → https://helvety.com/auth/login?redirect_uri=https://helvety.com/store/account
+redirectToLogin(window.location.href);
+// → https://helvety.com/auth/login?redirect_uri=<current-page-url>
 ```
 
 After authentication, users are redirected back to their original app with an active session (session sharing via the `COOKIE_DOMAIN` constant, `.helvety.com` in production).

@@ -234,7 +234,7 @@ export function ContactEditor({
 
   const doBack = useCallback(() => {
     if (canNavigate()) {
-      router.push("/");
+      router.replace("/");
     }
   }, [canNavigate, router]);
 
@@ -290,7 +290,7 @@ export function ContactEditor({
     try {
       const success = await remove();
       if (success && canNavigate()) {
-        router.push("/");
+        router.replace("/");
       }
     } finally {
       setIsDeletingContact(false);
@@ -334,7 +334,7 @@ export function ContactEditor({
           <Button variant="outline" size="sm" onClick={handleRefresh}>
             Retry
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => router.push("/")}>
+          <Button variant="ghost" size="sm" onClick={() => router.replace("/")}>
             Back to Contacts
           </Button>
         </div>

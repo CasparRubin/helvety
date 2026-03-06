@@ -1,9 +1,8 @@
 "use client";
 
-import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { handleAuthErrorNavigation } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -70,13 +69,13 @@ export interface UseTaskLinksReturn {
   unlink: (linkId: string) => Promise<boolean>;
 }
 
-/** Force the centralized logout flow when auth/E2EE state is invalid. */
+/** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
 function triggerHardLogoutForError(rawError?: string | null): boolean {
-  if (!shouldForceHardLogoutFromActionError(rawError)) {
-    return false;
-  }
-  void forceHardLogout(window.location.href);
-  return true;
+  return handleAuthErrorNavigation(
+    rawError,
+    window.location.href,
+    "contacts-use-task-links"
+  );
 }
 
 // =============================================================================

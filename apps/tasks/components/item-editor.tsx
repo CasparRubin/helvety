@@ -264,7 +264,7 @@ export function ItemEditor({
   // Actual back navigation (no confirmation)
   const doBack = useCallback(() => {
     if (canNavigate()) {
-      router.push(`/units/${unitId}/spaces/${spaceId}`);
+      router.replace(`/units/${unitId}/spaces/${spaceId}`);
     }
   }, [router, unitId, spaceId, canNavigate]);
 
@@ -318,7 +318,7 @@ export function ItemEditor({
     try {
       const success = await remove();
       if (success && canNavigate()) {
-        router.push(`/units/${unitId}/spaces/${spaceId}`);
+        router.replace(`/units/${unitId}/spaces/${spaceId}`);
       }
     } finally {
       setIsDeleting(false);
@@ -450,7 +450,7 @@ export function ItemEditor({
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href={`/units/${unitId}`} prefetch={false}>
+                  <Link href={`/units/${unitId}`}>
                     {isLoadingUnit ? "..." : (unit?.title ?? "Unknown")}
                   </Link>
                 </BreadcrumbLink>
@@ -458,10 +458,7 @@ export function ItemEditor({
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link
-                    href={`/units/${unitId}/spaces/${spaceId}`}
-                    prefetch={false}
-                  >
+                  <Link href={`/units/${unitId}/spaces/${spaceId}`}>
                     {isLoadingSpace ? "..." : (space?.title ?? "Unknown")}
                   </Link>
                 </BreadcrumbLink>

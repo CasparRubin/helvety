@@ -147,7 +147,7 @@ export function ItemsDashboard({
   }, [deleteState.id, remove]);
 
   const handleBack = useCallback(() => {
-    router.push(`/units/${unitId}`);
+    router.replace(`/units/${unitId}`);
   }, [router, unitId]);
 
   const getEntityHref = useCallback(
@@ -194,7 +194,7 @@ export function ItemsDashboard({
     try {
       await removeSpace(spaceId);
       if (canNavigate()) {
-        router.push(`/units/${unitId}`);
+        router.replace(`/units/${unitId}`);
       }
     } finally {
       setIsDeletingSpace(false);
@@ -239,7 +239,7 @@ export function ItemsDashboard({
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href={`/units/${unitId}`} prefetch={false}>
+                <Link href={`/units/${unitId}`}>
                   {isLoadingUnit ? "..." : (unit?.title ?? "Unknown")}
                 </Link>
               </BreadcrumbLink>

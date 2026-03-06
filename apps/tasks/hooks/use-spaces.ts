@@ -1,9 +1,11 @@
 "use client";
 
-import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import {
+  handleAuthErrorNavigation,
+  triggerHardLogoutOnce,
+} from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -54,13 +56,13 @@ interface UseSpacesReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
 }
 
-/** Force the centralized logout flow when auth/E2EE state is invalid. */
+/** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
 function triggerHardLogoutForError(rawError?: string | null): boolean {
-  if (!shouldForceHardLogoutFromActionError(rawError)) {
-    return false;
-  }
-  void forceHardLogout(window.location.href);
-  return true;
+  return handleAuthErrorNavigation(
+    rawError,
+    window.location.href,
+    "tasks-use-spaces"
+  );
 }
 
 /**
@@ -139,7 +141,7 @@ export function useSpaces(
   const create = useCallback(
     async (input: SpaceInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "tasks-use-spaces");
         return null;
       }
 
@@ -202,7 +204,7 @@ export function useSpaces(
       input: Partial<Omit<SpaceInput, "unit_id">>
     ): Promise<boolean> => {
       if (!masterKey) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "tasks-use-spaces");
         return false;
       }
 
@@ -484,7 +486,7 @@ export function useSpace(
   const update = useCallback(
     async (input: Partial<Omit<SpaceInput, "unit_id">>): Promise<boolean> => {
       if (!masterKey || !id) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "tasks-use-spaces");
         return false;
       }
 

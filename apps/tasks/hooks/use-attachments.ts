@@ -1,10 +1,12 @@
 "use client";
 
-import { shouldForceHardLogoutFromActionError } from "@helvety/shared/auth-errors";
 import { ENTITY_LIMITS, TOAST_DURATIONS } from "@helvety/shared/constants";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
+import {
+  handleAuthErrorNavigation,
+  triggerHardLogoutOnce,
+} from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { forceHardLogout } from "@helvety/ui/hard-logout";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -73,13 +75,13 @@ interface UseAttachmentsReturn {
   downloadFile: (attachment: Attachment) => Promise<void>;
 }
 
-/** Force the centralized logout flow when auth/E2EE state is invalid. */
+/** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
 function triggerHardLogoutForError(rawError?: string | null): boolean {
-  if (!shouldForceHardLogoutFromActionError(rawError)) {
-    return false;
-  }
-  void forceHardLogout(window.location.href);
-  return true;
+  return handleAuthErrorNavigation(
+    rawError,
+    window.location.href,
+    "tasks-use-attachments"
+  );
 }
 
 /**
@@ -158,7 +160,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
   const upload = useCallback(
     async (file: File): Promise<boolean> => {
       if (!masterKey) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "tasks-use-attachments");
         return false;
       }
 
@@ -356,7 +358,7 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
   const downloadUrl = useCallback(
     async (attachment: Attachment): Promise<string | null> => {
       if (!masterKey) {
-        void forceHardLogout(window.location.href);
+        triggerHardLogoutOnce(window.location.href, "tasks-use-attachments");
         return null;
       }
 
