@@ -46,7 +46,6 @@ import { ItemActionPanel } from "@/components/item-action-panel";
 import { ItemCommandBar } from "@/components/item-command-bar";
 import { useItem } from "@/hooks/use-items";
 import { useLabels } from "@/hooks/use-labels";
-import { useRouteInstanceGuard } from "@/hooks/use-route-instance-guard";
 import { useSpace } from "@/hooks/use-spaces";
 import { useStages } from "@/hooks/use-stages";
 import { useUnit } from "@/hooks/use-units";
@@ -105,7 +104,6 @@ export function ItemEditor({
   initialEncryptedItem?: ItemRow;
 }) {
   const router = useRouter();
-  const { canNavigate } = useRouteInstanceGuard();
   const { unit, isLoading: isLoadingUnit } = useUnit(unitId, {
     initialEncryptedData: initialEncryptedUnit,
   });
@@ -263,10 +261,8 @@ export function ItemEditor({
 
   // Actual back navigation (no confirmation)
   const doBack = useCallback(() => {
-    if (canNavigate()) {
-      router.replace(`/units/${unitId}/spaces/${spaceId}`);
-    }
-  }, [router, unitId, spaceId, canNavigate]);
+    router.replace(`/units/${unitId}/spaces/${spaceId}`);
+  }, [router, unitId, spaceId]);
 
   // Actual refresh (no confirmation)
   const doRefresh = useCallback(async () => {
@@ -317,14 +313,14 @@ export function ItemEditor({
     setIsDeleting(true);
     try {
       const success = await remove();
-      if (success && canNavigate()) {
+      if (success) {
         router.replace(`/units/${unitId}/spaces/${spaceId}`);
       }
     } finally {
       setIsDeleting(false);
       setIsDeleteOpen(false);
     }
-  }, [remove, router, unitId, spaceId, canNavigate]);
+  }, [remove, router, unitId, spaceId]);
 
   // Handle stage change - saves immediately, independent of title/description save flow
   const handleStageChange = useCallback(

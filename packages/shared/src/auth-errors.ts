@@ -4,14 +4,9 @@ const AUTH_REQUIRED_MESSAGE = "Not authenticated";
 const AUTH_HARD_LOGOUT_MESSAGE = "Authentication state is invalid";
 
 const HARD_LOGOUT_ERROR_TOKENS = [
-  "security validation failed",
-  "failed to check encryption",
-  "failed to get encryption",
-  "encryption not unlocked",
-  "failed to decrypt",
-  "invalid encryption key",
-  "invalid key",
-  "key check failed",
+  "auth_hard_logout",
+  "session is invalid",
+  "session has been revoked",
   "refresh token not found",
   "invalid refresh token",
   "refresh token is invalid",

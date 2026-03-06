@@ -9,6 +9,11 @@ import { forceHardLogout } from "./hard-logout";
 type NavigationType = "login" | "hard_logout";
 /** Call-site identifier used for redirect observability. */
 type NavigationSource = string;
+/** Optional route-freshness metadata for async redirect decisions. */
+interface AuthNavigationOptions {
+  expectedRoute?: string;
+  requestStartedAt?: number;
+}
 
 const NAVIGATION_COOLDOWN_MS = 1500;
 let hardLogoutInFlight = false;
@@ -39,33 +44,71 @@ function emitAuthNavigationEvent(
   type: NavigationType,
   source: NavigationSource,
   target: string,
-  deduped: boolean
+  deduped: boolean,
+  options?: AuthNavigationOptions
 ) {
   if (typeof window === "undefined") {
     return;
   }
+  const currentRoute = window.location.href;
+  const routeMatched =
+    options?.expectedRoute === undefined ||
+    options.expectedRoute === currentRoute;
+  const requestAgeMs =
+    options?.requestStartedAt === undefined
+      ? undefined
+      : Date.now() - options.requestStartedAt;
   window.dispatchEvent(
     new CustomEvent("helvety:auth-navigation", {
-      detail: { type, source, target, deduped, timestamp: Date.now() },
+      detail: {
+        type,
+        source,
+        target,
+        deduped,
+        routeMatched,
+        expectedRoute: options?.expectedRoute,
+        currentRoute,
+        requestAgeMs,
+        timestamp: Date.now(),
+      },
     })
   );
+}
+
+/** Ensures redirect execution still belongs to the originating route. */
+function isExpectedRouteStillActive(expectedRoute?: string): boolean {
+  if (typeof window === "undefined" || !expectedRoute) {
+    return true;
+  }
+  return window.location.href === expectedRoute;
 }
 
 /** Performs an idempotent login redirect for auth-required states. */
 export function redirectToLoginOnce(
   redirectUri?: string,
-  source: NavigationSource = "unknown"
+  source: NavigationSource = "unknown",
+  options?: AuthNavigationOptions
 ): boolean {
+  if (!isExpectedRouteStillActive(options?.expectedRoute)) {
+    emitAuthNavigationEvent(
+      "login",
+      source,
+      redirectUri ?? "current",
+      true,
+      options
+    );
+    return false;
+  }
   const target =
     redirectUri ??
     (typeof window !== "undefined" ? window.location.href : undefined);
   const loginUrl = getLoginUrl(target);
   const dedupeKey = buildNavigationKey("login", loginUrl);
   if (shouldDeduplicateNavigation(dedupeKey)) {
-    emitAuthNavigationEvent("login", source, loginUrl, true);
+    emitAuthNavigationEvent("login", source, loginUrl, true, options);
     return true;
   }
-  emitAuthNavigationEvent("login", source, loginUrl, false);
+  emitAuthNavigationEvent("login", source, loginUrl, false, options);
   window.location.replace(loginUrl);
   return true;
 }
@@ -73,18 +116,41 @@ export function redirectToLoginOnce(
 /** Performs an idempotent hard-logout redirect for terminal auth states. */
 export function triggerHardLogoutOnce(
   redirectUri?: string,
-  source: NavigationSource = "unknown"
+  source: NavigationSource = "unknown",
+  options?: AuthNavigationOptions
 ): boolean {
+  if (!isExpectedRouteStillActive(options?.expectedRoute)) {
+    emitAuthNavigationEvent(
+      "hard_logout",
+      source,
+      redirectUri ?? "current",
+      true,
+      options
+    );
+    return false;
+  }
   const target =
     redirectUri ??
     (typeof window !== "undefined" ? window.location.href : undefined);
   const dedupeKey = buildNavigationKey("hard_logout", target ?? "current");
   if (hardLogoutInFlight || shouldDeduplicateNavigation(dedupeKey)) {
-    emitAuthNavigationEvent("hard_logout", source, target ?? "current", true);
+    emitAuthNavigationEvent(
+      "hard_logout",
+      source,
+      target ?? "current",
+      true,
+      options
+    );
     return true;
   }
 
-  emitAuthNavigationEvent("hard_logout", source, target ?? "current", false);
+  emitAuthNavigationEvent(
+    "hard_logout",
+    source,
+    target ?? "current",
+    false,
+    options
+  );
   hardLogoutInFlight = true;
   void forceHardLogout(target).finally(() => {
     hardLogoutInFlight = false;
@@ -96,14 +162,15 @@ export function triggerHardLogoutOnce(
 export function handleAuthErrorNavigation(
   rawError?: string | null,
   redirectUri?: string,
-  source: NavigationSource = "unknown"
+  source: NavigationSource = "unknown",
+  options?: AuthNavigationOptions
 ): boolean {
   const intent = classifyActionAuthError(rawError);
   if (intent === "hard_logout") {
-    return triggerHardLogoutOnce(redirectUri, source);
+    return triggerHardLogoutOnce(redirectUri, source, options);
   }
   if (intent === "login") {
-    return redirectToLoginOnce(redirectUri, source);
+    return redirectToLoginOnce(redirectUri, source, options);
   }
   return false;
 }

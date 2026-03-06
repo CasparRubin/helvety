@@ -41,7 +41,6 @@ import { TaskLinksPanel } from "@/components/task-links-panel";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useCategories } from "@/hooks/use-categories";
 import { useContact } from "@/hooks/use-contacts";
-import { useRouteInstanceGuard } from "@/hooks/use-route-instance-guard";
 import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
 
 import type { ContactRow } from "@/lib/types";
@@ -70,7 +69,6 @@ export function ContactEditor({
   initialEncryptedContact,
 }: ContactEditorProps) {
   const router = useRouter();
-  const { canNavigate } = useRouteInstanceGuard();
   const { contact, isLoading, error, refresh, update, remove } = useContact(
     contactId,
     { initialEncryptedData: initialEncryptedContact }
@@ -233,10 +231,8 @@ export function ContactEditor({
   );
 
   const doBack = useCallback(() => {
-    if (canNavigate()) {
-      router.replace("/");
-    }
-  }, [canNavigate, router]);
+    router.replace("/");
+  }, [router]);
 
   const handleBack = useCallback(() => {
     if (hasUnsavedChanges) {
@@ -289,14 +285,14 @@ export function ContactEditor({
     setIsDeletingContact(true);
     try {
       const success = await remove();
-      if (success && canNavigate()) {
+      if (success) {
         router.replace("/");
       }
     } finally {
       setIsDeletingContact(false);
       setIsDeleteOpen(false);
     }
-  }, [remove, router, canNavigate]);
+  }, [remove, router]);
 
   // Handle notes change: capture editor baseline on first emission, then compare values
   const handleNotesChange = useCallback((content: JSONContent) => {

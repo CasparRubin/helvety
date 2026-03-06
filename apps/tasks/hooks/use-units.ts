@@ -54,11 +54,22 @@ interface UseUnitsReturn {
 }
 
 /** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
-function triggerHardLogoutForError(rawError?: string | null): boolean {
+function triggerHardLogoutForError(
+  rawError?: string | null,
+  options?: {
+    redirectUri?: string;
+    expectedRoute?: string;
+    requestStartedAt?: number;
+  }
+): boolean {
   return handleAuthErrorNavigation(
     rawError,
-    window.location.href,
-    "tasks-use-units"
+    options?.redirectUri ?? window.location.href,
+    "tasks-use-units",
+    {
+      expectedRoute: options?.expectedRoute,
+      requestStartedAt: options?.requestStartedAt,
+    }
   );
 }
 
@@ -87,13 +98,24 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
     }
 
     const refreshToken = ++latestRefreshTokenRef.current;
+    const routeAtStart = window.location.href;
+    const requestStartedAt = Date.now();
     setIsLoading(true);
     setError(null);
 
     try {
       const result = await getUnits();
       if (!result.success) {
-        if (triggerHardLogoutForError(result.error)) {
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
+        if (
+          triggerHardLogoutForError(result.error, {
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
+        ) {
           return;
         }
         const msg = result.error ?? "Failed to fetch units";
@@ -114,10 +136,16 @@ export function useUnits(options?: UseUnitsOptions): UseUnitsReturn {
       setUnits(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch units";
-      if (triggerHardLogoutForError(msg)) {
+      if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
-      if (refreshToken !== latestRefreshTokenRef.current) {
+      if (
+        triggerHardLogoutForError(msg, {
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        })
+      ) {
         return;
       }
       setError(msg);
@@ -427,13 +455,24 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
     }
 
     const refreshToken = ++latestRefreshTokenRef.current;
+    const routeAtStart = window.location.href;
+    const requestStartedAt = Date.now();
     setIsLoading(true);
     setError(null);
 
     try {
       const result = await getUnit(id);
       if (!result.success) {
-        if (triggerHardLogoutForError(result.error)) {
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
+        if (
+          triggerHardLogoutForError(result.error, {
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
+        ) {
           return;
         }
         const msg = result.error ?? "Failed to fetch unit";
@@ -454,10 +493,16 @@ export function useUnit(id: string, options?: UseUnitOptions): UseUnitReturn {
       setUnit(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch unit";
-      if (triggerHardLogoutForError(msg)) {
+      if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
-      if (refreshToken !== latestRefreshTokenRef.current) {
+      if (
+        triggerHardLogoutForError(msg, {
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        })
+      ) {
         return;
       }
       setError(msg);

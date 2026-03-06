@@ -76,11 +76,22 @@ interface UseAttachmentsReturn {
 }
 
 /** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
-function triggerHardLogoutForError(rawError?: string | null): boolean {
+function triggerHardLogoutForError(
+  rawError?: string | null,
+  options?: {
+    redirectUri?: string;
+    expectedRoute?: string;
+    requestStartedAt?: number;
+  }
+): boolean {
   return handleAuthErrorNavigation(
     rawError,
-    window.location.href,
-    "tasks-use-attachments"
+    options?.redirectUri ?? window.location.href,
+    "tasks-use-attachments",
+    {
+      expectedRoute: options?.expectedRoute,
+      requestStartedAt: options?.requestStartedAt,
+    }
   );
 }
 
@@ -122,13 +133,21 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
       return;
     }
 
+    const routeAtStart = window.location.href;
+    const requestStartedAt = Date.now();
     setIsLoading(true);
     setError(null);
 
     try {
       const result = await getAttachments(itemId);
       if (!result.success) {
-        if (triggerHardLogoutForError(result.error)) {
+        if (
+          triggerHardLogoutForError(result.error, {
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
+        ) {
           return;
         }
         const msg = result.error ?? "Failed to fetch attachments";
@@ -143,7 +162,13 @@ export function useAttachments(itemId: string): UseAttachmentsReturn {
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch attachments";
-      if (triggerHardLogoutForError(msg)) {
+      if (
+        triggerHardLogoutForError(msg, {
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        })
+      ) {
         return;
       }
       setError(msg);

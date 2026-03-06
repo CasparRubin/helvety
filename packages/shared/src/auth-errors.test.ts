@@ -37,22 +37,26 @@ describe("auth-errors", () => {
   });
 
   it("classifies only explicit terminal messages as hard logout", () => {
-    expect(classifyActionAuthError("Failed to check encryption status")).toBe(
-      "hard_logout"
-    );
-    expect(classifyActionAuthError("Security validation failed")).toBe(
-      "hard_logout"
-    );
     expect(classifyActionAuthError("Invalid refresh token")).toBe(
+      "hard_logout"
+    );
+    expect(classifyActionAuthError("Session has been revoked")).toBe(
+      "hard_logout"
+    );
+    expect(classifyActionAuthError("AUTH_HARD_LOGOUT:forced")).toBe(
       "hard_logout"
     );
   });
 
-  it("does not force hard logout for generic session/token wording", () => {
+  it("does not force hard logout for transient or local failures", () => {
     expect(classifyActionAuthError("Session temporarily unavailable")).toBe(
       "none"
     );
     expect(classifyActionAuthError("Token refresh in progress")).toBe("none");
+    expect(classifyActionAuthError("Failed to check encryption status")).toBe(
+      "none"
+    );
+    expect(classifyActionAuthError("Security validation failed")).toBe("none");
     expect(shouldForceHardLogout("Session temporarily unavailable")).toBe(
       false
     );

@@ -3,7 +3,7 @@
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { handleAuthErrorNavigation } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -45,11 +45,22 @@ interface UseContactLinksReturn {
 }
 
 /** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
-function triggerHardLogoutForError(rawError?: string | null): boolean {
+function triggerHardLogoutForError(
+  rawError?: string | null,
+  options?: {
+    redirectUri?: string;
+    expectedRoute?: string;
+    requestStartedAt?: number;
+  }
+): boolean {
   return handleAuthErrorNavigation(
     rawError,
-    window.location.href,
-    "tasks-use-contact-links"
+    options?.redirectUri ?? window.location.href,
+    "tasks-use-contact-links",
+    {
+      expectedRoute: options?.expectedRoute,
+      requestStartedAt: options?.requestStartedAt,
+    }
   );
 }
 
@@ -69,6 +80,14 @@ export function useContactLinks(
   const [links, setLinks] = useState<EntityContactLinkRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const mountedRef = useRef(true);
+  const latestRefreshRequestRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   /**
    * Fetch and decrypt all contacts + fetch entity links
@@ -83,6 +102,9 @@ export function useContactLinks(
 
     setIsLoading(true);
     setError(null);
+    const requestId = ++latestRefreshRequestRef.current;
+    const routeAtStart = window.location.href;
+    const requestStartedAt = Date.now();
 
     try {
       // Fetch contacts and links in parallel
@@ -92,7 +114,19 @@ export function useContactLinks(
       ]);
 
       if (!contactsResult.success) {
-        if (triggerHardLogoutForError(contactsResult.error)) {
+        if (
+          !mountedRef.current ||
+          requestId !== latestRefreshRequestRef.current
+        ) {
+          return;
+        }
+        if (
+          triggerHardLogoutForError(contactsResult.error, {
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
+        ) {
           return;
         }
         const msg = contactsResult.error ?? "Failed to fetch contacts";
@@ -102,7 +136,19 @@ export function useContactLinks(
       }
 
       if (!linksResult.success) {
-        if (triggerHardLogoutForError(linksResult.error)) {
+        if (
+          !mountedRef.current ||
+          requestId !== latestRefreshRequestRef.current
+        ) {
+          return;
+        }
+        if (
+          triggerHardLogoutForError(linksResult.error, {
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
+        ) {
           return;
         }
         const msg = linksResult.error ?? "Failed to fetch links";
@@ -116,12 +162,30 @@ export function useContactLinks(
         contactsResult.data,
         masterKey
       );
+      if (
+        !mountedRef.current ||
+        requestId !== latestRefreshRequestRef.current
+      ) {
+        return;
+      }
       setAllContacts(decrypted);
       setLinks(linksResult.data);
     } catch (err) {
+      if (
+        !mountedRef.current ||
+        requestId !== latestRefreshRequestRef.current
+      ) {
+        return;
+      }
       const msg =
         err instanceof Error ? err.message : "Failed to fetch contact data";
-      if (triggerHardLogoutForError(msg)) {
+      if (
+        triggerHardLogoutForError(msg, {
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        })
+      ) {
         return;
       }
       setError(msg);
@@ -129,7 +193,9 @@ export function useContactLinks(
       setAllContacts([]);
       setLinks([]);
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current && requestId === latestRefreshRequestRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [masterKey, isUnlocked, entityType, entityId]);
 

@@ -70,11 +70,22 @@ export interface UseTaskLinksReturn {
 }
 
 /** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
-function triggerHardLogoutForError(rawError?: string | null): boolean {
+function triggerHardLogoutForError(
+  rawError?: string | null,
+  options?: {
+    redirectUri?: string;
+    expectedRoute?: string;
+    requestStartedAt?: number;
+  }
+): boolean {
   return handleAuthErrorNavigation(
     rawError,
-    window.location.href,
-    "contacts-use-task-links"
+    options?.redirectUri ?? window.location.href,
+    "contacts-use-task-links",
+    {
+      expectedRoute: options?.expectedRoute,
+      requestStartedAt: options?.requestStartedAt,
+    }
   );
 }
 
@@ -205,6 +216,15 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
   const [allEntities, setAllEntities] = useState<AllEntities>(EMPTY_ENTITIES);
   const [isLoadingEntities, setIsLoadingEntities] = useState(false);
   const entitiesCacheRef = useRef<AllEntities | null>(null);
+  const mountedRef = useRef(true);
+  const latestRefreshRequestRef = useRef(0);
+  const latestEntitiesRequestRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   /**
    * Fetch and decrypt all linked entities for this contact
@@ -218,13 +238,28 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       return;
     }
 
+    const requestId = ++latestRefreshRequestRef.current;
+    const routeAtStart = window.location.href;
+    const requestStartedAt = Date.now();
     setIsLoading(true);
     setError(null);
 
     try {
       const result = await getContactTaskLinks(contactId);
+      if (
+        !mountedRef.current ||
+        requestId !== latestRefreshRequestRef.current
+      ) {
+        return;
+      }
       if (!result.success) {
-        if (triggerHardLogoutForError(result.error)) {
+        if (
+          triggerHardLogoutForError(result.error, {
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
+        ) {
           return;
         }
         const msg = result.error ?? "Failed to fetch task links";
@@ -237,13 +272,31 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       }
 
       const decrypted = await decryptTaskLinkData(result.data, masterKey);
+      if (
+        !mountedRef.current ||
+        requestId !== latestRefreshRequestRef.current
+      ) {
+        return;
+      }
       setUnits(decrypted.units);
       setSpaces(decrypted.spaces);
       setItems(decrypted.items);
     } catch (err) {
+      if (
+        !mountedRef.current ||
+        requestId !== latestRefreshRequestRef.current
+      ) {
+        return;
+      }
       const msg =
         err instanceof Error ? err.message : "Failed to fetch task links";
-      if (triggerHardLogoutForError(msg)) {
+      if (
+        triggerHardLogoutForError(msg, {
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        })
+      ) {
         return;
       }
       setError(msg);
@@ -252,7 +305,9 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       setSpaces([]);
       setItems([]);
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current && requestId === latestRefreshRequestRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [contactId, masterKey, isUnlocked]);
 
@@ -268,12 +323,27 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
 
     if (!masterKey || !isUnlocked) return;
 
+    const requestId = ++latestEntitiesRequestRef.current;
+    const routeAtStart = window.location.href;
+    const requestStartedAt = Date.now();
     setIsLoadingEntities(true);
 
     try {
       const result = await getTaskEntities();
+      if (
+        !mountedRef.current ||
+        requestId !== latestEntitiesRequestRef.current
+      ) {
+        return;
+      }
       if (!result.success) {
-        if (triggerHardLogoutForError(result.error)) {
+        if (
+          triggerHardLogoutForError(result.error, {
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
+        ) {
           return;
         }
         toast.error(result.error ?? "Failed to fetch entities", {
@@ -283,17 +353,40 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       }
 
       const decrypted = await decryptEntitiesData(result.data, masterKey);
+      if (
+        !mountedRef.current ||
+        requestId !== latestEntitiesRequestRef.current
+      ) {
+        return;
+      }
       entitiesCacheRef.current = decrypted;
       setAllEntities(decrypted);
     } catch (err) {
+      if (
+        !mountedRef.current ||
+        requestId !== latestEntitiesRequestRef.current
+      ) {
+        return;
+      }
       const message =
         err instanceof Error ? err.message : "Failed to fetch entities";
-      if (triggerHardLogoutForError(message)) {
+      if (
+        triggerHardLogoutForError(message, {
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        })
+      ) {
         return;
       }
       toast.error(message, { duration: TOAST_DURATIONS.ERROR });
     } finally {
-      setIsLoadingEntities(false);
+      if (
+        mountedRef.current &&
+        requestId === latestEntitiesRequestRef.current
+      ) {
+        setIsLoadingEntities(false);
+      }
     }
   }, [masterKey, isUnlocked]);
 

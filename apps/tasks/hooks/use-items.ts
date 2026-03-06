@@ -57,11 +57,22 @@ interface UseItemsReturn {
 }
 
 /** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
-function triggerHardLogoutForError(rawError?: string | null): boolean {
+function triggerHardLogoutForError(
+  rawError?: string | null,
+  options?: {
+    redirectUri?: string;
+    expectedRoute?: string;
+    requestStartedAt?: number;
+  }
+): boolean {
   return handleAuthErrorNavigation(
     rawError,
-    window.location.href,
-    "tasks-use-items"
+    options?.redirectUri ?? window.location.href,
+    "tasks-use-items",
+    {
+      expectedRoute: options?.expectedRoute,
+      requestStartedAt: options?.requestStartedAt,
+    }
   );
 }
 
@@ -89,13 +100,24 @@ export function useItems(
     }
 
     const refreshToken = ++latestRefreshTokenRef.current;
+    const routeAtStart = window.location.href;
+    const requestStartedAt = Date.now();
     setIsLoading(true);
     setError(null);
 
     try {
       const result = await getItems(spaceId);
       if (!result.success) {
-        if (triggerHardLogoutForError(result.error)) {
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
+        if (
+          triggerHardLogoutForError(result.error, {
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
+        ) {
           return;
         }
         const msg = result.error ?? "Failed to fetch items";
@@ -115,10 +137,16 @@ export function useItems(
       setItems(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch items";
-      if (triggerHardLogoutForError(msg)) {
+      if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
-      if (refreshToken !== latestRefreshTokenRef.current) {
+      if (
+        triggerHardLogoutForError(msg, {
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        })
+      ) {
         return;
       }
       setError(msg);
@@ -441,13 +469,24 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     }
 
     const refreshToken = ++latestRefreshTokenRef.current;
+    const routeAtStart = window.location.href;
+    const requestStartedAt = Date.now();
     setIsLoading(true);
     setError(null);
 
     try {
       const result = await getItem(id);
       if (!result.success) {
-        if (triggerHardLogoutForError(result.error)) {
+        if (refreshToken !== latestRefreshTokenRef.current) {
+          return;
+        }
+        if (
+          triggerHardLogoutForError(result.error, {
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
+        ) {
           return;
         }
         const msg = result.error ?? "Failed to fetch item";
@@ -467,10 +506,16 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       setItem(decrypted);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch item";
-      if (triggerHardLogoutForError(msg)) {
+      if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
-      if (refreshToken !== latestRefreshTokenRef.current) {
+      if (
+        triggerHardLogoutForError(msg, {
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        })
+      ) {
         return;
       }
       setError(msg);

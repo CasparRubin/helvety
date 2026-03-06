@@ -78,7 +78,10 @@ export function EncryptionGate({
 
     let cancelled = false;
 
-    /** Fetch encryption params and classify login vs hard-logout states. */
+    /**
+     * Fetch encryption params and classify explicit auth intent.
+     * Non-terminal/context failures fall back to login rather than hard logout.
+     */
     const runStateCheck = () => {
       void checkEncryptionState(userId)
         .then(() => {
@@ -131,7 +134,7 @@ export function EncryptionGate({
     const supabase = createBrowserClient();
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       const sessionUserId = session?.user?.id ?? null;
       if (
         unlockedForUserId &&
@@ -141,7 +144,7 @@ export function EncryptionGate({
         void lockEncryption(unlockedForUserId);
         setNeedsLogout(true);
       }
-      if (!session) {
+      if (!session && event === "SIGNED_OUT") {
         if (unlockedForUserId) void lockEncryption(unlockedForUserId);
         setNeedsLogin(true);
       }
@@ -165,10 +168,13 @@ export function EncryptionGate({
   }, [unlockedForUserId, lockEncryption]);
 
   const status: EncryptionStatus = useMemo(() => {
+    const contextIntent = classifyActionAuthError(contextError);
     if (alreadyUnlocked) return "unlocked";
     if (contextLoading || !hasCheckedParams) return "loading";
-    if (needsLogout || contextError) return "needs_logout";
-    if (needsLogin) return "needs_login";
+    if (needsLogout || contextIntent === "hard_logout") return "needs_logout";
+    if (needsLogin || contextIntent === "login" || Boolean(contextError)) {
+      return "needs_login";
+    }
     return "loading";
   }, [
     alreadyUnlocked,
