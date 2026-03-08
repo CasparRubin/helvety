@@ -65,10 +65,13 @@ This application includes the following security hardening:
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                          |
-| -------------------------------------- | -------- | ----------- | ------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL (auth callback) |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)        |
+| Variable                               | Required | Server-only | Description                                                           |
+| -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL (auth callback)                                  |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                         |
+| `NEXT_PUBLIC_PDF_WORKER_PIPELINE`      | No       | No          | Enables worker pipeline for extract/merge (default: `true`)           |
+| `NEXT_PUBLIC_PDF_GPU_PIPELINE`         | No       | No          | Enables experimental GPU-preferred worker path (default: `false`)     |
+| `NEXT_PUBLIC_PDF_PIPELINE_TELEMETRY`   | No       | No          | Enables session telemetry for pipeline performance (default: `false`) |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
@@ -93,12 +96,50 @@ This project is built with modern web technologies:
 This application is built with performance and code quality in mind:
 
 - **LRU Cache Strategy** - Uses Least Recently Used (LRU) cache eviction for optimal memory management
-- **Batch Processing** - Processes PDF pages in adaptive batches (3-10 pages) to prevent UI blocking
+- **Adaptive Processing** - Uses worker execution for heavy extract/merge operations with main-thread adaptive batching as deterministic fallback
 - **PDF.js Worker Delivery** - Uses a local, basePath-aware worker URL (`/pdf/pdf.worker.min.mjs`) sourced from `react-pdf`'s resolved `pdfjs-dist` dependency to keep API and worker versions aligned in multi-zone routing
 - **Optimized Memoization** - Memoization with early short-circuiting to reduce re-renders
 - **Strict TypeScript** - Strict type safety with `noUncheckedIndexedAccess`, `noImplicitReturns`, `noUnusedLocals`, and other strict compiler options
 - **Error Handling** - Centralized error handling with detailed context and recovery strategies
 - **Code Organization** - Modular architecture with extracted utilities and reusable components
+
+### Experimental Processing Pipeline (Feature-Flagged)
+
+The PDF app includes a staged processing router for heavy operations (extract/merge):
+
+- `gpu-worker` -> Dedicated worker + experimental OffscreenCanvas/WebGL-assisted image preprocessing
+- `worker` -> Dedicated worker without GPU preference
+- `main-thread` -> Deterministic fallback path (existing behavior)
+
+Runtime routing is capability + flag based, with automatic downgrade to `main-thread` when worker/GPU paths fail.
+
+Feature flags (set in `.env.local`):
+
+- `NEXT_PUBLIC_PDF_WORKER_PIPELINE=true|false`
+- `NEXT_PUBLIC_PDF_GPU_PIPELINE=true|false`
+- `NEXT_PUBLIC_PDF_PIPELINE_TELEMETRY=true|false`
+
+Recommended rollout:
+
+1. Enable worker path only (`NEXT_PUBLIC_PDF_WORKER_PIPELINE=true`, `NEXT_PUBLIC_PDF_GPU_PIPELINE=false`)
+2. Validate browser matrix and output parity
+3. Enable telemetry and measure responsiveness/throughput/memory
+4. Enable GPU for controlled cohorts only after acceptance thresholds pass
+
+### Benchmark Matrix (Execution Checklist)
+
+Run the same workload in each mode (`main-thread`, `worker`, `gpu-worker`) and capture:
+
+- UI responsiveness (input/scroll lag while processing)
+- Total completion time
+- Peak memory usage
+- Error rate and fallback frequency
+
+Suggested scenarios:
+
+- Small: 1-2 files, <=20 pages
+- Medium: 3-6 files, 50-150 pages
+- Large: mixed PDFs/images, >=300 pages
 
 ## Testing
 

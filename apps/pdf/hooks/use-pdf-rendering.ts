@@ -1,6 +1,6 @@
 /**
  * Custom hook for checking PDF worker rendering availability.
- * Determines if the browser supports OffscreenCanvas + ImageBitmap
+ * Determines if the browser supports the required rendering primitives
  * for optimized worker-based PDF rendering.
  */
 
@@ -12,7 +12,7 @@ import { getRenderingCapabilities } from "@/lib/feature-detection";
  * Return type for usePdfRendering hook.
  */
 interface UsePdfRenderingReturn {
-  /** Whether worker rendering is available (requires OffscreenCanvas + ImageBitmap) */
+  /** Whether worker rendering is available with required browser capabilities */
   isWorkerRenderingAvailable: boolean;
 }
 

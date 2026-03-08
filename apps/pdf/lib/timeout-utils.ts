@@ -63,3 +63,40 @@ export function withTimeout<T>(
     timeoutPromise,
   ]);
 }
+
+/**
+ * Wraps a promise with timeout and optional abort signal support.
+ */
+export function withTimeoutAndSignal<T>(
+  promiseFactory: () => Promise<T>,
+  timeoutMs: number,
+  signal: AbortSignal,
+  errorMessage: string = "Operation timed out"
+): Promise<T> {
+  if (signal.aborted) {
+    return Promise.reject(new Error("Operation cancelled"));
+  }
+
+  return withTimeout(
+    new Promise<T>((resolve, reject) => {
+      const onAbort = (): void => {
+        reject(new Error("Operation cancelled"));
+      };
+
+      signal.addEventListener("abort", onAbort, { once: true });
+
+      promiseFactory().then(
+        (result) => {
+          signal.removeEventListener("abort", onAbort);
+          resolve(result);
+        },
+        (error) => {
+          signal.removeEventListener("abort", onAbort);
+          reject(error);
+        }
+      );
+    }),
+    timeoutMs,
+    errorMessage
+  );
+}

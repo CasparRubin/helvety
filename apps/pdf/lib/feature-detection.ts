@@ -118,8 +118,14 @@ export interface RenderingCapabilities {
   readonly webgl2: boolean;
   /** Whether transferControlToOffscreen is supported */
   readonly transferControlToOffscreen: boolean;
-  /** Whether worker rendering can be used (requires OffscreenCanvas + ImageBitmap) */
+  /** Whether worker rendering can be used safely */
   readonly canUseWorkerRendering: boolean;
+  /** Whether dedicated workers are supported */
+  readonly worker: boolean;
+  /** Whether GPU in workers is likely available */
+  readonly canUseGpuWorkerPipeline: boolean;
+  /** Whether worker-only processing pipeline is available */
+  readonly canUseWorkerPipeline: boolean;
 }
 
 /**
@@ -128,15 +134,37 @@ export interface RenderingCapabilities {
  * @returns Object indicating which rendering strategies are available
  */
 export function getRenderingCapabilities(): RenderingCapabilities {
+  const offscreenCanvas = isOffscreenCanvasSupported();
+  const imageBitmap = isImageBitmapSupported();
+  const createImageBitmapSupported = isCreateImageBitmapSupported();
+  const webgl = isWebGLSupported();
+  const webgl2 = isWebGL2Supported();
+  const transferControlToOffscreen = isTransferControlToOffscreenSupported();
+  const worker = typeof Worker !== "undefined";
+
   return {
-    offscreenCanvas: isOffscreenCanvasSupported(),
-    imageBitmap: isImageBitmapSupported(),
-    createImageBitmap: isCreateImageBitmapSupported(),
-    webgl: isWebGLSupported(),
-    webgl2: isWebGL2Supported(),
-    transferControlToOffscreen: isTransferControlToOffscreenSupported(),
-    // Best strategy: OffscreenCanvas + ImageBitmap
+    offscreenCanvas,
+    imageBitmap,
+    createImageBitmap: createImageBitmapSupported,
+    webgl,
+    webgl2,
+    transferControlToOffscreen,
+    worker,
+    // Rendering path for thumbnail optimization
     canUseWorkerRendering:
-      isOffscreenCanvasSupported() && isImageBitmapSupported(),
+      worker &&
+      offscreenCanvas &&
+      imageBitmap &&
+      createImageBitmapSupported &&
+      transferControlToOffscreen,
+    // Processing path in dedicated worker (no GPU requirement)
+    canUseWorkerPipeline: worker,
+    // Experimental GPU path (WebGL + OffscreenCanvas + ImageBitmap in worker)
+    canUseGpuWorkerPipeline:
+      worker &&
+      offscreenCanvas &&
+      imageBitmap &&
+      createImageBitmapSupported &&
+      (webgl || webgl2),
   };
 }

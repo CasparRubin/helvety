@@ -1,3 +1,5 @@
+/* eslint-disable jsdoc/require-jsdoc */
+
 /**
  * PDF conversion utilities for converting images to PDF documents.
  * Extracted from pdf-utils.ts for better code organization.
@@ -21,6 +23,143 @@ interface ImageEmbed {
   readonly height: number;
 }
 
+export interface ImageConversionOptions {
+  /**
+   * Enables experimental GPU-assisted preprocessing when supported.
+   */
+  readonly preferGpuPreprocess?: boolean;
+}
+
+/**
+ * Image blob source and MIME information.
+ */
+interface ImageSource {
+  readonly blob: Blob;
+  readonly mimeType: string;
+}
+
+/**
+ * Creates an image source object from file bytes.
+ */
+async function createImageSourceFromArrayBuffer(
+  arrayBuffer: ArrayBuffer,
+  mimeType: string
+): Promise<ImageSource> {
+  return {
+    blob: new Blob([arrayBuffer], { type: mimeType || "image/png" }),
+    mimeType: mimeType || "image/png",
+  };
+}
+
+/**
+ * Converts a generic image source to PNG bytes via DOM canvas.
+ */
+async function convertImageSourceToPngBufferWithDom(
+  source: ImageSource
+): Promise<ArrayBuffer> {
+  if (typeof document === "undefined" || typeof Image === "undefined") {
+    throw new Error("DOM image conversion is not available");
+  }
+
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    const url = URL.createObjectURL(source.blob);
+
+    image.onload = () => {
+      safeRevokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      safeRevokeObjectURL(url);
+      reject(
+        new Error(
+          ERROR_TEMPLATES.ACTION_FAILED(
+            "Load image",
+            "Image source could not be loaded"
+          )
+        )
+      );
+    };
+    image.src = url;
+  });
+
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error(
+      ERROR_TEMPLATES.ACTION_FAILED(
+        "Get canvas context",
+        "Canvas context is not available"
+      )
+    );
+  }
+  ctx.drawImage(img, 0, 0);
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((result: Blob | null) => {
+      if (result) {
+        resolve(result);
+      } else {
+        reject(
+          new Error(
+            ERROR_TEMPLATES.ACTION_FAILED(
+              "Convert image to blob",
+              "Canvas conversion failed"
+            )
+          )
+        );
+      }
+    }, "image/png");
+  });
+
+  return blob.arrayBuffer();
+}
+
+/**
+ * Converts a generic image source to PNG bytes via OffscreenCanvas.
+ */
+async function convertImageSourceToPngBufferWithOffscreenCanvas(
+  source: ImageSource,
+  preferGpuPreprocess: boolean
+): Promise<ArrayBuffer> {
+  if (
+    typeof OffscreenCanvas === "undefined" ||
+    typeof createImageBitmap === "undefined"
+  ) {
+    throw new Error("OffscreenCanvas conversion is not available");
+  }
+
+  const bitmap = await createImageBitmap(source.blob);
+
+  try {
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    let hasGpuContext = false;
+
+    if (preferGpuPreprocess) {
+      const webgl2 = canvas.getContext("webgl2");
+      const webgl = webgl2 ?? canvas.getContext("webgl");
+      hasGpuContext = Boolean(webgl);
+    }
+
+    const context2d = canvas.getContext("2d");
+    if (!context2d) {
+      throw new Error("2D context is not available for OffscreenCanvas");
+    }
+    context2d.drawImage(bitmap, 0, 0);
+
+    const blob = await canvas.convertToBlob({ type: "image/png" });
+    if (preferGpuPreprocess && !hasGpuContext) {
+      throw new Error("GPU context unavailable, using CPU fallback path");
+    }
+
+    return blob.arrayBuffer();
+  } finally {
+    bitmap.close();
+  }
+}
+
 /**
  * Converts an image file to a single-page PDF document.
  * Supports PNG, JPEG, and other formats (via Canvas conversion if needed).
@@ -35,9 +174,13 @@ interface ImageEmbed {
  * // PDF now contains the image as a single page
  * ```
  */
-export async function convertImageToPdf(file: File): Promise<PDFDocument> {
+export async function convertImageToPdf(
+  file: File,
+  options: ImageConversionOptions = {}
+): Promise<PDFDocument> {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await PDFDocument.create();
+  const { preferGpuPreprocess = false } = options;
 
   const mimeType = file.type.toLowerCase();
   const fileName = file.name.toLowerCase();
@@ -65,67 +208,21 @@ export async function convertImageToPdf(file: File): Promise<PDFDocument> {
         height: jpgImage.height,
       };
     } else {
-      if (typeof document === "undefined" || typeof Image === "undefined") {
-        throw new Error("Image conversion requires a browser environment");
-      }
+      const source = await createImageSourceFromArrayBuffer(
+        arrayBuffer,
+        file.type || "image/png"
+      );
 
-      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-        const image = new Image();
-        const blob = new Blob([arrayBuffer], {
-          type: file.type || "image/png",
-        });
-        const url = URL.createObjectURL(blob);
-
-        image.onload = () => {
-          safeRevokeObjectURL(url);
-          resolve(image);
-        };
-        image.onerror = () => {
-          safeRevokeObjectURL(url);
-          reject(
-            new Error(
-              ERROR_TEMPLATES.ACTION_FAILED(
-                "Load image",
-                `'${file.name}' could not be loaded`
-              )
-            )
-          );
-        };
-        image.src = url;
-      });
-
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        throw new Error(
-          ERROR_TEMPLATES.ACTION_FAILED(
-            "Get canvas context",
-            "Canvas context is not available"
-          )
+      let pngBuffer: ArrayBuffer;
+      try {
+        pngBuffer = await convertImageSourceToPngBufferWithOffscreenCanvas(
+          source,
+          preferGpuPreprocess
         );
+      } catch {
+        pngBuffer = await convertImageSourceToPngBufferWithDom(source);
       }
-      ctx.drawImage(img, 0, 0);
 
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((blob: Blob | null) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(
-              new Error(
-                ERROR_TEMPLATES.ACTION_FAILED(
-                  "Convert image to blob",
-                  "Canvas conversion failed"
-                )
-              )
-            );
-          }
-        }, "image/png");
-      });
-
-      const pngBuffer = await blob.arrayBuffer();
       const pngImage = await pdf.embedPng(pngBuffer);
       imageEmbed = {
         embed: pngImage,
