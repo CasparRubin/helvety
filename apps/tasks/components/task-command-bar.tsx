@@ -2,7 +2,7 @@
 
 /**
  * Task command bar - sticky toolbar below navbar
- * Primary actions (always visible): back, create
+ * Primary actions: create (and optional back when enabled)
  * Secondary actions (desktop inline, mobile dropdown): refresh, settings, edit, delete
  */
 
@@ -58,8 +58,8 @@ interface TaskCommandBarProps {
 }
 
 /**
- * Renders the task command bar with primary actions always visible
- * and secondary actions collapsed into a dropdown on mobile.
+ * Renders the task command bar with a primary create action,
+ * optional back action, and secondary actions collapsed on mobile.
  */
 export function TaskCommandBar({
   onBack,

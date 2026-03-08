@@ -2,7 +2,7 @@
 
 /**
  * Contact editor command bar - sticky toolbar for the contact editor page
- * Primary actions (always visible): back, save
+ * Primary actions: save (and optional back when enabled)
  * Secondary actions (desktop inline, mobile dropdown): refresh, delete
  */
 
@@ -34,6 +34,8 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 interface ContactEditorCommandBarProps {
   /** Callback for back navigation */
   onBack: () => void;
+  /** Whether to show the back button */
+  showBack?: boolean;
   /** Callback to refresh the contact data */
   onRefresh: () => void;
   /** Whether a refresh operation is in progress */
@@ -55,6 +57,7 @@ interface ContactEditorCommandBarProps {
  */
 export function ContactEditorCommandBar({
   onBack,
+  showBack = true,
   onRefresh,
   isRefreshing,
   onSave,
@@ -107,15 +110,19 @@ export function ContactEditorCommandBar({
 
   return (
     <CommandBar>
-      {/* Left group: Back, Save (always visible) */}
-      <Button variant="ghost" size="sm" onClick={onBack}>
-        <ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />
-        <span>Back</span>
-      </Button>
-      <Separator
-        orientation="vertical"
-        className="mx-2 hidden self-stretch md:block"
-      />
+      {/* Left group: optional Back + Save */}
+      {showBack && (
+        <>
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />
+            <span>Back</span>
+          </Button>
+          <Separator
+            orientation="vertical"
+            className="mx-2 hidden self-stretch md:block"
+          />
+        </>
+      )}
       {onSave && (
         <Button
           variant={hasUnsavedChanges ? "default" : "outline"}

@@ -197,7 +197,7 @@ export function FlatTasksDashboard({
       >
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto sm:max-w-5xl"
+          className="w-full overflow-y-auto sm:max-w-[95vw] 2xl:max-w-[1800px]"
         >
           <SheetHeader>
             <SheetTitle>Item Details</SheetTitle>

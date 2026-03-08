@@ -4,7 +4,15 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatDateTime } from "@helvety/shared/dates";
 import { Button } from "@helvety/ui/button";
-import { GripVerticalIcon, TrashIcon, UserIcon } from "lucide-react";
+import {
+  BriefcaseIcon,
+  Building2Icon,
+  CircleIcon,
+  GripVerticalIcon,
+  TrashIcon,
+  UserIcon,
+  UsersIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { memo } from "react";
 
@@ -15,11 +23,32 @@ interface ContactRowProps {
   lastName: string;
   email: string | null;
   createdAt: string;
+  categoryColor?: string;
+  categoryIcon?: string;
   /** Navigation URL — when provided, renders Link for declarative nav to reduce stale imperative-push callbacks */
   href?: string;
   onClick?: () => void;
   onPrefetch?: () => void;
   onDelete?: () => void;
+}
+
+/** Renders a row icon from the configured category icon name. */
+function renderCategoryIcon(
+  categoryIcon?: string,
+  className = "size-4 shrink-0"
+) {
+  switch (categoryIcon) {
+    case "users":
+      return <UsersIcon className={className} />;
+    case "briefcase":
+      return <BriefcaseIcon className={className} />;
+    case "building-2":
+      return <Building2Icon className={className} />;
+    case "circle":
+      return <CircleIcon className={className} />;
+    default:
+      return <UserIcon className={className} />;
+  }
 }
 
 /**
@@ -35,6 +64,8 @@ export const ContactRow = memo(
     lastName,
     email,
     createdAt,
+    categoryColor,
+    categoryIcon,
     href,
     onClick,
     onPrefetch,
@@ -75,7 +106,7 @@ export const ContactRow = memo(
         </button>
 
         {/* Icon */}
-        <UserIcon className="size-4 shrink-0" />
+        {renderCategoryIcon(categoryIcon, "size-4 shrink-0")}
 
         {/* Name + Email */}
         <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -115,6 +146,7 @@ export const ContactRow = memo(
       ref: setNodeRef,
       style,
       className: rowClassName,
+      ...(categoryColor ? { borderLeft: `2px solid ${categoryColor}` } : {}),
       onMouseEnter: () => onPrefetch?.(),
       onFocus: () => onPrefetch?.(),
     };

@@ -16,13 +16,36 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Button } from "@helvety/ui/button";
-import { Loader2Icon } from "lucide-react";
+import {
+  BriefcaseIcon,
+  Building2Icon,
+  CircleIcon,
+  Loader2Icon,
+  UserIcon,
+  UsersIcon,
+} from "lucide-react";
 import { useCallback } from "react";
 
 import { ContactRow } from "@/components/contact-row";
 
 import type { DefaultCategory } from "@/lib/config/default-categories";
 import type { Contact, ReorderUpdate } from "@/lib/types";
+
+/** Renders a category icon from the configured category icon name. */
+function renderCategoryIcon(icon: string, className = "size-4 shrink-0") {
+  switch (icon) {
+    case "users":
+      return <UsersIcon className={className} />;
+    case "briefcase":
+      return <BriefcaseIcon className={className} />;
+    case "building-2":
+      return <Building2Icon className={className} />;
+    case "circle":
+      return <CircleIcon className={className} />;
+    default:
+      return <UserIcon className={className} />;
+  }
+}
 
 /** Props for the contact list. */
 interface ContactListProps {
@@ -218,9 +241,13 @@ export function ContactList({
               const categoryContacts = groupedContacts.get(category.id) ?? [];
               return (
                 <section key={category.id} className="space-y-2">
-                  <div className="flex items-center gap-2 px-1">
+                  <div
+                    className="hover:bg-muted/40 flex items-center gap-2 rounded-md px-3 py-2 transition-colors"
+                    style={{ backgroundColor: `${category.color}14` }}
+                  >
+                    {renderCategoryIcon(category.icon)}
                     <span
-                      className="size-2 rounded-full"
+                      className="size-2.5 rounded-full"
                       style={{ backgroundColor: category.color }}
                     />
                     <h2 className="text-sm font-medium">{category.name}</h2>
@@ -228,7 +255,10 @@ export function ContactList({
                       ({categoryContacts.length})
                     </span>
                   </div>
-                  <div className="border-border divide-border overflow-hidden rounded-lg border">
+                  <div
+                    className="border-border divide-border ml-2 overflow-hidden rounded-lg border border-l-2"
+                    style={{ borderLeftColor: category.color }}
+                  >
                     <SortableContext
                       items={categoryContacts.map((c) => c.id)}
                       strategy={verticalListSortingStrategy}
@@ -241,6 +271,8 @@ export function ContactList({
                           lastName={contact.last_name}
                           email={contact.email}
                           createdAt={contact.created_at}
+                          categoryColor={category.color}
+                          categoryIcon={category.icon}
                           href={contactHref?.(contact)}
                           onClick={() => onContactClick?.(contact)}
                           onPrefetch={() => onContactPrefetch?.(contact)}

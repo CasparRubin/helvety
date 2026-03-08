@@ -64,6 +64,8 @@ interface ItemActionPanelProps {
   onEndDateChange: (date: string | null) => void;
   /** Whether a date change is currently being saved */
   isSavingDates?: boolean;
+  /** Force stacked layout styling (used by sheet-embedded editor). */
+  stacked?: boolean;
 }
 
 /**
@@ -87,6 +89,7 @@ export function ItemActionPanel({
   onStartDateChange,
   onEndDateChange,
   isSavingDates,
+  stacked = false,
 }: ItemActionPanelProps) {
   const isMobile = useIsMobile();
 
@@ -133,7 +136,11 @@ export function ItemActionPanel({
   );
 
   return (
-    <aside className="w-full md:sticky md:top-20 md:w-80 md:shrink-0">
+    <aside
+      className={
+        stacked ? "w-full" : "w-full md:sticky md:top-20 md:w-80 md:shrink-0"
+      }
+    >
       <Card size="sm" className="bg-surface-panel">
         <CardContent>
           {/* Dates section */}

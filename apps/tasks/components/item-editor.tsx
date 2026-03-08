@@ -64,7 +64,7 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 /**
  * Item Editor - Full page editor for item title, description, start/end dates, and properties.
- * Uses a two-column responsive layout: content (left/bottom) and action panel (right/top).
+ * Uses two-column responsive layout for full-page mode and a stacked layout for sheet mode.
  */
 export function ItemEditor({
   itemId,
@@ -78,7 +78,6 @@ export function ItemEditor({
   onClose?: () => void;
 }) {
   const router = useRouter();
-  void embedded;
   const {
     item,
     isLoading: isLoadingItem,
@@ -380,6 +379,7 @@ export function ItemEditor({
       <>
         <ItemCommandBar
           onBack={handleBack}
+          showBack={!embedded}
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing}
         />
@@ -401,6 +401,7 @@ export function ItemEditor({
     <>
       <ItemCommandBar
         onBack={handleBack}
+        showBack={!embedded}
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
         onSave={handleManualSave}
@@ -413,8 +414,14 @@ export function ItemEditor({
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb removed in flat list-first navigation */}
 
-        {/* Two-column layout: content left, action panel right (reversed on mobile so panel is on top) */}
-        <div className="flex flex-col-reverse gap-6 md:flex-row md:gap-8">
+        {/* Full-page mode: two-column layout. Sheet-embedded mode: always stacked. */}
+        <div
+          className={
+            embedded
+              ? "flex flex-col gap-6"
+              : "flex flex-col-reverse gap-6 md:flex-row md:gap-8"
+          }
+        >
           {/* Left column - main content */}
           <div className="min-w-0 flex-1">
             {/* Title input */}
@@ -460,6 +467,7 @@ export function ItemEditor({
             onStartDateChange={handleStartDateChange}
             onEndDateChange={handleEndDateChange}
             isSavingDates={isSavingDates}
+            stacked={embedded}
           />
         </div>
       </div>

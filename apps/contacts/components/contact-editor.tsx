@@ -60,10 +60,7 @@ interface ContactEditorProps {
 
 /**
  * ContactEditor - Full editor for a single contact.
- * Two-column layout: left = name fields, description, email, phone, birthday,
- * TipTap notes editor, linked task items; right = action panel (dates metadata).
- * On mobile the action panel is displayed above the form fields (via flex-col-reverse)
- * for consistency with the Tasks app.
+ * Uses two-column responsive layout for full-page mode and a stacked layout for sheet mode.
  */
 export function ContactEditor({
   contactId,
@@ -329,63 +326,49 @@ export function ContactEditor({
   // Error state - friendly UI with retry (toast already shown by hooks)
   if (error || !contact) {
     return (
-      <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-24">
-        <p className="text-muted-foreground text-sm">
-          {error ? "Something went wrong" : "Contact not found"}
-        </p>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh}>
-            Retry
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => router.replace("/")}>
-            Back to Contacts
-          </Button>
+      <>
+        <ContactEditorCommandBar
+          onBack={handleBack}
+          showBack={!embedded}
+          onRefresh={handleRefresh}
+          isRefreshing={isRefreshing}
+        />
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
+            <p className="text-muted-foreground text-sm">
+              {error ? "Something went wrong" : "Contact not found"}
+            </p>
+            <Button variant="outline" size="sm" onClick={handleRefresh}>
+              Retry
+            </Button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
     <>
-      {!embedded && (
-        <ContactEditorCommandBar
-          onBack={handleBack}
-          onRefresh={handleRefresh}
-          isRefreshing={isRefreshing}
-          onSave={handleSave}
-          isSaving={isSaving}
-          hasUnsavedChanges={hasUnsavedChanges}
-          saveStatus={saveStatus}
-          onDelete={handleDelete}
-        />
-      )}
-
-      {embedded && (
-        <div className="mb-4 flex items-center justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh}>
-            {isRefreshing ? (
-              <Loader2Icon className="mr-1.5 size-4 animate-spin" />
-            ) : null}
-            Refresh
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => void handleSave()}
-            disabled={isSaving || !hasUnsavedChanges}
-          >
-            {isSaving ? (
-              <Loader2Icon className="mr-1.5 size-4 animate-spin" />
-            ) : null}
-            Save
-          </Button>
-          <Button variant="destructive" size="sm" onClick={handleDelete}>
-            Delete
-          </Button>
-        </div>
-      )}
+      <ContactEditorCommandBar
+        onBack={handleBack}
+        showBack={!embedded}
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
+        onSave={handleSave}
+        isSaving={isSaving}
+        hasUnsavedChanges={hasUnsavedChanges}
+        saveStatus={saveStatus}
+        onDelete={handleDelete}
+      />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col-reverse gap-6 md:flex-row md:gap-8">
+        <div
+          className={
+            embedded
+              ? "flex flex-col gap-6"
+              : "flex flex-col-reverse gap-6 md:flex-row md:gap-8"
+          }
+        >
           {/* Left column: Form fields + Notes editor */}
           <div className="min-w-0 flex-1 space-y-6">
             {/* Name fields */}
@@ -482,6 +465,7 @@ export function ContactEditor({
               void handleCategoryChange(categoryId);
             }}
             isSavingCategory={isSavingCategory}
+            stacked={embedded}
           />
         </div>
       </div>
