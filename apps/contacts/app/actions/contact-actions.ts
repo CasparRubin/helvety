@@ -10,7 +10,7 @@ import { after } from "next/server";
 import { z } from "zod";
 
 import {
-  DEFAULT_CATEGORY_CONFIG,
+  ALLOWED_CATEGORY_IDS,
   DEFAULT_CONTACT_CATEGORY_ID,
 } from "@/lib/config/default-categories";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
@@ -20,23 +20,16 @@ import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
 /** Revalidate list/detail routes impacted by contact mutations. */
 function revalidateContactRoutes(contactId?: string): void {
   revalidatePath("/contacts");
-  if (contactId) {
-    revalidatePath(`/contacts/contacts/${contactId}`);
-  }
+  void contactId;
 }
 
 const MAX_REORDER_ITEMS = ENTITY_LIMITS.MAX_CONTACTS_PER_USER;
 const REORDER_CHUNK_SIZE = 50;
+const CategoryIdSchema = z.enum(ALLOWED_CATEGORY_IDS);
 
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
-
-/** Schema for category_id - accepts only built-in default category IDs */
-const ALLOWED_CATEGORY_IDS = DEFAULT_CATEGORY_CONFIG.categories.map(
-  (category) => category.id
-) as [string, ...string[]];
-const CategoryIdSchema = z.enum(ALLOWED_CATEGORY_IDS).optional();
 
 /** Schema for creating a Contact */
 const CreateContactSchema = z.object({
@@ -48,7 +41,7 @@ const CreateContactSchema = z.object({
   encrypted_phone: EncryptedDataSchema.nullable(),
   encrypted_birthday: EncryptedDataSchema.nullable(),
   encrypted_notes: EncryptedDataSchema.nullable(),
-  category_id: CategoryIdSchema,
+  category_id: CategoryIdSchema.optional(),
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -62,7 +55,7 @@ const UpdateContactSchema = z.object({
   encrypted_phone: EncryptedDataSchema.nullable().optional(),
   encrypted_birthday: EncryptedDataSchema.nullable().optional(),
   encrypted_notes: EncryptedDataSchema.nullable().optional(),
-  category_id: CategoryIdSchema,
+  category_id: CategoryIdSchema.optional(),
   sort_order: z.number().int().min(0).optional(),
 });
 
@@ -72,7 +65,7 @@ const ReorderSchema = z
     z.object({
       id: z.string().uuid(),
       sort_order: z.number().int().min(0),
-      category_id: CategoryIdSchema,
+      category_id: CategoryIdSchema.optional(),
     })
   )
   .max(
@@ -98,16 +91,11 @@ export async function createContact(
     encrypted_phone: string | null;
     encrypted_birthday: string | null;
     encrypted_notes: string | null;
-    category_id?: string | null;
+    category_id?: string;
   },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    if (!DEFAULT_CONTACT_CATEGORY_ID) {
-      logger.error("Missing default contact category configuration");
-      return { success: false, error: "Failed to create contact" };
-    }
-
     const auth = await authenticateAndRateLimit({
       csrfToken,
       rateLimitPrefix: "contacts",
@@ -116,10 +104,7 @@ export async function createContact(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = CreateContactSchema.safeParse({
-      ...data,
-      category_id: data.category_id ?? undefined,
-    });
+    const validationResult = CreateContactSchema.safeParse(data);
     if (!validationResult.success) {
       logger.warn("Invalid contact data", {
         fields: validationResult.error.issues.map((issue) =>
@@ -195,6 +180,7 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
       .from("contacts")
       .select("*")
       .eq("user_id", user.id)
+      .order("category_id", { ascending: true })
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
       .returns<ContactRow[]>();
@@ -265,7 +251,7 @@ export async function updateContact(
     encrypted_phone?: string | null;
     encrypted_birthday?: string | null;
     encrypted_notes?: string | null;
-    category_id?: string | null;
+    category_id?: string;
     sort_order?: number;
   },
   csrfToken: string
@@ -279,10 +265,7 @@ export async function updateContact(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = UpdateContactSchema.safeParse({
-      ...data,
-      category_id: data.category_id ?? undefined,
-    });
+    const validationResult = UpdateContactSchema.safeParse(data);
     if (!validationResult.success) {
       logger.warn("Invalid contact update data", {
         fields: validationResult.error.issues.map((issue) =>
@@ -386,7 +369,7 @@ export async function deleteContact(
 }
 
 /**
- * Batch update sort_order (and optionally category_id) for multiple contacts
+ * Batch update sort_order for multiple contacts
  * Used during drag-and-drop reordering
  */
 export async function reorderContacts(
@@ -431,7 +414,6 @@ export async function reorderContacts(
           if (update.category_id !== undefined) {
             updateObj.category_id = update.category_id;
           }
-
           return supabase
             .from("contacts")
             .update(updateObj)

@@ -77,16 +77,6 @@ export type {
 
 // Task-specific Encryption (Tasks app only)
 export {
-  // Unit encryption
-  encryptUnitInput,
-  encryptUnitUpdate,
-  decryptUnitRow,
-  decryptUnitRows,
-  // Space encryption
-  encryptSpaceInput,
-  encryptSpaceUpdate,
-  decryptSpaceRow,
-  decryptSpaceRows,
   // Item encryption
   encryptItemInput,
   encryptItemUpdate,

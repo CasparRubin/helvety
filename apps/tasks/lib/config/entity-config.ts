@@ -21,25 +21,13 @@ export type EntityConfig = EntityDeleteConfig;
  * Entity type identifiers
  * Extend this union type when adding new entity types
  */
-export type EntityTypeId = "unit" | "space" | "item" | "stage" | "label";
+export type EntityTypeId = "item" | "stage" | "label";
 
 /**
  * Centralized entity configuration registry
  * Used by DeleteConfirmationDialog and other dynamic UI components
  */
 export const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
-  unit: {
-    name: "unit",
-    plural: "units",
-    childExamples: ["spaces", "items"],
-    hasChildren: true,
-  },
-  space: {
-    name: "space",
-    plural: "spaces",
-    childExamples: ["items"],
-    hasChildren: true,
-  },
   item: {
     name: "item",
     plural: "items",

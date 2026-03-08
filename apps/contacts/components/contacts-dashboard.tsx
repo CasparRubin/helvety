@@ -13,16 +13,25 @@ import {
 } from "@helvety/ui/dialog";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@helvety/ui/sheet";
 import { Loader2Icon } from "lucide-react";
 import { useState, useCallback, useTransition } from "react";
 import { toast } from "sonner";
 
 import { ContactCommandBar } from "@/components/contact-command-bar";
+import { ContactEditor } from "@/components/contact-editor";
 import { ContactList } from "@/components/contact-list";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
-import { useCategories } from "@/hooks/use-categories";
 import { useContacts } from "@/hooks/use-contacts";
-import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
+import {
+  DEFAULT_CATEGORIES,
+  DEFAULT_CONTACT_CATEGORY_ID,
+} from "@/lib/config/default-categories";
 import { useEncryptionContext } from "@/lib/crypto";
 import { downloadContactDataExport } from "@/lib/data-export";
 
@@ -43,13 +52,15 @@ export function ContactsDashboard({
   const { isUnlocked, masterKey } = useEncryptionContext();
   const { contacts, isLoading, error, refresh, create, remove, reorder } =
     useContacts({ initialEncryptedData: initialEncryptedContacts });
-  const { categories } = useCategories(DEFAULT_CATEGORY_CONFIG.id);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, startCreateTransition] = useTransition();
   const [newFirstName, setNewFirstName] = useState("");
   const [newLastName, setNewLastName] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [newCategoryId, setNewCategoryId] = useState(
+    DEFAULT_CONTACT_CATEGORY_ID
+  );
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     id: string | null;
@@ -58,15 +69,9 @@ export function ContactsDashboard({
   const [isDeleting, startDeleteTransition] = useTransition();
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isExporting, startExportTransition] = useTransition();
-
-  // Get the first category as default for new contacts
-  const defaultCategoryId =
-    categories.length > 0
-      ? categories.reduce(
-          (min, c) => (c.sort_order < min.sort_order ? c : min),
-          categories[0]!
-        ).id
-      : null;
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(
+    null
+  );
 
   const handleCreate = useCallback(
     (e: React.FormEvent) => {
@@ -82,13 +87,14 @@ export function ContactsDashboard({
           phone: null,
           birthday: null,
           notes: null,
-          category_id: defaultCategoryId,
+          category_id: newCategoryId,
         });
 
         if (result) {
           setNewFirstName("");
           setNewLastName("");
           setNewEmail("");
+          setNewCategoryId(DEFAULT_CONTACT_CATEGORY_ID);
           setIsCreateOpen(false);
         }
       });
@@ -97,8 +103,8 @@ export function ContactsDashboard({
       newFirstName,
       newLastName,
       newEmail,
+      newCategoryId,
       create,
-      defaultCategoryId,
       startCreateTransition,
     ]
   );
@@ -114,10 +120,6 @@ export function ContactsDashboard({
       setDeleteState({ open: false, id: null, name: null });
     });
   }, [deleteState.id, remove, startDeleteTransition]);
-
-  const getContactHref = useCallback((contact: { id: string }) => {
-    return `/contacts/${contact.id}`;
-  }, []);
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
@@ -158,12 +160,35 @@ export function ContactsDashboard({
           isLoading={isLoading}
           error={error}
           onRetry={refresh}
-          categories={categories}
-          contactHref={getContactHref}
+          onContactClick={(contact) => setSelectedContactId(contact.id)}
           onContactDelete={handleDeleteClick}
           onReorder={reorder}
+          categories={DEFAULT_CATEGORIES}
         />
       </div>
+
+      <Sheet
+        open={selectedContactId !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedContactId(null);
+        }}
+      >
+        <SheetContent
+          side="right"
+          className="w-full overflow-y-auto sm:max-w-5xl"
+        >
+          <SheetHeader>
+            <SheetTitle>Contact Details</SheetTitle>
+          </SheetHeader>
+          {selectedContactId ? (
+            <ContactEditor
+              contactId={selectedContactId}
+              embedded
+              onClose={() => setSelectedContactId(null)}
+            />
+          ) : null}
+        </SheetContent>
+      </Sheet>
 
       {/* Create Contact Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -208,6 +233,21 @@ export function ContactsDashboard({
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="contact-category">Category</Label>
+                <select
+                  id="contact-category"
+                  value={newCategoryId}
+                  onChange={(e) => setNewCategoryId(e.target.value)}
+                  className="border-input bg-background h-10 rounded-md border px-3 text-sm"
+                >
+                  {DEFAULT_CATEGORIES.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

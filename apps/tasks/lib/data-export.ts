@@ -12,39 +12,27 @@
  */
 
 import { getAllTaskDataForExport } from "@/app/actions/task-actions";
-import {
-  decryptUnitRows,
-  decryptSpaceRows,
-  decryptItemRows,
-} from "@/lib/crypto";
+import { decryptItemRows } from "@/lib/crypto";
 
-import type { Unit, Space, Item } from "@/lib/types";
+import type { Item } from "@/lib/types";
 
 /** Structure of the exported (decrypted) task data */
 export interface DecryptedTaskExport {
   exportedAt: string;
   service: "Helvety Tasks";
   note: "This export was decrypted client-side using your passkey. Plaintext task content is not sent to Helvety servers.";
-  units: Array<{
+  items: Array<{
     id: string;
     title: string;
     description: string | null;
+    stageId: string | null;
+    labelId: string | null;
+    sortOrder: number;
     createdAt: string;
-    spaces: Array<{
-      id: string;
-      title: string;
-      description: string | null;
-      createdAt: string;
-      items: Array<{
-        id: string;
-        title: string;
-        description: string | null;
-        startDate: string | null;
-        endDate: string | null;
-        priority: number;
-        createdAt: string;
-      }>;
-    }>;
+    updatedAt: string;
+    startDate: string | null;
+    endDate: string | null;
+    priority: number;
   }>;
 }
 
@@ -63,56 +51,27 @@ export async function exportDecryptedTaskData(
     throw new Error(result.error);
   }
 
-  const {
-    units: encryptedUnits,
-    spaces: encryptedSpaces,
-    items: encryptedItems,
-  } = result.data;
+  const { items: encryptedItems } = result.data;
 
   // 2. Decrypt all data client-side
-  const units: Unit[] = await decryptUnitRows(encryptedUnits, masterKey);
-  const spaces: Space[] = await decryptSpaceRows(encryptedSpaces, masterKey);
   const items: Item[] = await decryptItemRows(encryptedItems, masterKey);
-
-  // 3. Build hierarchical structure (units → spaces → items)
-  const spacesByUnit = new Map<string, Space[]>();
-  for (const space of spaces) {
-    const existing = spacesByUnit.get(space.unit_id) ?? [];
-    existing.push(space);
-    spacesByUnit.set(space.unit_id, existing);
-  }
-
-  const itemsBySpace = new Map<string, Item[]>();
-  for (const item of items) {
-    const existing = itemsBySpace.get(item.space_id) ?? [];
-    existing.push(item);
-    itemsBySpace.set(item.space_id, existing);
-  }
 
   return {
     exportedAt: new Date().toISOString(),
     service: "Helvety Tasks",
     note: "This export was decrypted client-side using your passkey. Plaintext task content is not sent to Helvety servers.",
-    units: units.map((unit) => ({
-      id: unit.id,
-      title: unit.title,
-      description: unit.description,
-      createdAt: unit.created_at,
-      spaces: (spacesByUnit.get(unit.id) ?? []).map((space) => ({
-        id: space.id,
-        title: space.title,
-        description: space.description,
-        createdAt: space.created_at,
-        items: (itemsBySpace.get(space.id) ?? []).map((item) => ({
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          startDate: item.start_date,
-          endDate: item.end_date,
-          priority: item.priority,
-          createdAt: item.created_at,
-        })),
-      })),
+    items: items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      stageId: item.stage_id,
+      labelId: item.label_id,
+      sortOrder: item.sort_order,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+      startDate: item.start_date,
+      endDate: item.end_date,
+      priority: item.priority,
     })),
   };
 }

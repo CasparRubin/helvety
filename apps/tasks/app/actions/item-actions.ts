@@ -20,19 +20,9 @@ import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ItemRow } from "@/lib/types";
 
-/** Revalidate item list routes impacted by structural item mutations. */
-function revalidateItemListRoutes(unitId: string, spaceId: string): void {
-  revalidatePath(`/tasks/units/${unitId}`);
-  revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}`);
-}
-
-/** Revalidate item detail route impacted by item mutations. */
-function revalidateItemDetailRoute(
-  unitId: string,
-  spaceId: string,
-  itemId: string
-): void {
-  revalidatePath(`/tasks/units/${unitId}/spaces/${spaceId}/items/${itemId}`);
+/** Revalidate item routes impacted by structural item mutations. */
+function revalidateItemRoutes(): void {
+  revalidatePath("/tasks");
 }
 
 // =============================================================================
@@ -57,7 +47,6 @@ const PrioritySchema = z.number().int().min(0).max(3).optional();
 /** Schema for creating an Item */
 const CreateItemSchema = z.object({
   id: z.string().uuid(),
-  space_id: z.string().uuid(),
   encrypted_title: EncryptedDataSchema,
   encrypted_description: EncryptedDataSchema.nullable(),
   encrypted_start_date: EncryptedDataSchema.nullable(),
@@ -91,7 +80,6 @@ const UpdateItemSchema = z.object({
 export async function createItem(
   data: {
     id: string;
-    space_id: string;
     encrypted_title: string;
     encrypted_description: string | null;
     encrypted_start_date: string | null;
@@ -127,40 +115,25 @@ export async function createItem(
       return { success: false, error: "Invalid item data" };
     }
     const validatedData = validationResult.data;
-
-    // Verify user owns the space
-    const { data: space, error: spaceError } = await supabase
-      .from("spaces")
-      .select("id,unit_id")
-      .eq("id", validatedData.space_id)
-      .eq("user_id", user.id)
-      .single();
-
-    if (spaceError || !space) {
-      return { success: false, error: "Space not found" };
-    }
-
-    // Enforce per-space Item limit before insert.
+    // Enforce per-user Item limit before insert.
     const { count: itemCount, error: countError } = await supabase
       .from("items")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("space_id", validatedData.space_id);
+      .eq("user_id", user.id);
     if (countError) {
-      logger.error("Error counting items for space:", countError);
+      logger.error("Error counting items for user:", countError);
       return { success: false, error: "Failed to create item" };
     }
     if ((itemCount ?? 0) >= ENTITY_LIMITS.MAX_ITEMS_PER_SPACE) {
       return {
         success: false,
-        error: `Item limit reached (max ${ENTITY_LIMITS.MAX_ITEMS_PER_SPACE} per space)`,
+        error: `Item limit reached (max ${ENTITY_LIMITS.MAX_ITEMS_PER_SPACE} per account)`,
       };
     }
 
     // Insert item (stage_id and label_id are NOT NULL in DB; use defaults when omitted)
     const insertObj: Record<string, unknown> = {
       id: validatedData.id,
-      space_id: validatedData.space_id,
       user_id: user.id,
       encrypted_title: validatedData.encrypted_title,
       encrypted_description: validatedData.encrypted_description,
@@ -188,8 +161,7 @@ export async function createItem(
       return { success: false, error: "Failed to create item" };
     }
 
-    revalidateItemListRoutes(space.unit_id, validatedData.space_id);
-    revalidateItemDetailRoute(space.unit_id, validatedData.space_id, item.id);
+    revalidateItemRoutes();
     return { success: true, data: { id: item.id } };
   } catch (error) {
     logger.error("Unexpected error in createItem:", error);
@@ -198,38 +170,30 @@ export async function createItem(
 }
 
 /**
- * Get all Items for a Space
+ * Get all Items for the current user (flat list).
  */
-export async function getItems(
-  spaceId: string
-): Promise<ActionResponse<ItemRow[]>> {
+export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
   try {
-    if (!z.string().uuid().safeParse(spaceId).success) {
-      return { success: false, error: "Invalid space ID" };
-    }
-
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    // Get items (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: items, error } = await supabase
       .from("items")
       .select("*")
-      .eq("space_id", spaceId)
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
       .returns<ItemRow[]>();
 
     if (error) {
-      logger.error("Error getting items:", error);
+      logger.error("Error getting all items:", error);
       return { success: false, error: "Failed to get items" };
     }
 
     return { success: true, data: items ?? [] };
   } catch (error) {
-    logger.error("Unexpected error in getItems:", error);
+    logger.error("Unexpected error in getAllItems:", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -308,38 +272,6 @@ export async function updateItem(
       return { success: false, error: "Invalid item data" };
     }
     const validatedData = validationResult.data;
-    const { data: itemScope, error: itemScopeError } = await supabase
-      .from("items")
-      .select("space_id")
-      .eq("id", validatedData.id)
-      .eq("user_id", user.id)
-      .maybeSingle<{ space_id: string }>();
-    if (itemScopeError) {
-      logger.error(
-        "Error reading item scope for revalidation:",
-        itemScopeError
-      );
-      return { success: false, error: "Failed to update item" };
-    }
-    if (!itemScope?.space_id) {
-      return { success: false, error: "Item not found" };
-    }
-    const { data: spaceScope, error: spaceScopeError } = await supabase
-      .from("spaces")
-      .select("unit_id")
-      .eq("id", itemScope.space_id)
-      .eq("user_id", user.id)
-      .maybeSingle<{ unit_id: string }>();
-    if (spaceScopeError) {
-      logger.error("Error reading item parent scope for revalidation:", {
-        itemId: validatedData.id,
-        error: spaceScopeError,
-      });
-      return { success: false, error: "Failed to update item" };
-    }
-    if (!spaceScope?.unit_id) {
-      return { success: false, error: "Space not found" };
-    }
 
     // Build update object
     const updateObj: Record<string, unknown> = {
@@ -385,11 +317,7 @@ export async function updateItem(
       };
     }
 
-    revalidateItemDetailRoute(
-      spaceScope.unit_id,
-      itemScope.space_id,
-      validatedData.id
-    );
+    revalidateItemRoutes();
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in updateItem:", error);
@@ -414,39 +342,6 @@ export async function deleteItem(
       return { success: false, error: "Invalid item ID" };
     }
 
-    const { data: itemScope, error: itemScopeError } = await supabase
-      .from("items")
-      .select("space_id")
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .maybeSingle<{ space_id: string }>();
-    if (itemScopeError) {
-      logger.error("Error reading item scope for delete revalidation:", {
-        id,
-        error: itemScopeError,
-      });
-      return { success: false, error: "Failed to delete item" };
-    }
-    if (!itemScope?.space_id) {
-      return { success: false, error: "Item not found" };
-    }
-    const { data: spaceScope, error: spaceScopeError } = await supabase
-      .from("spaces")
-      .select("unit_id")
-      .eq("id", itemScope.space_id)
-      .eq("user_id", user.id)
-      .maybeSingle<{ unit_id: string }>();
-    if (spaceScopeError) {
-      logger.error("Error reading item parent scope for delete revalidation:", {
-        id,
-        error: spaceScopeError,
-      });
-      return { success: false, error: "Failed to delete item" };
-    }
-    if (!spaceScope?.unit_id) {
-      return { success: false, error: "Space not found" };
-    }
-
     // Delete item (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
       .from("items")
@@ -459,8 +354,7 @@ export async function deleteItem(
       return { success: false, error: "Failed to delete item" };
     }
 
-    revalidateItemListRoutes(spaceScope.unit_id, itemScope.space_id);
-    revalidateItemDetailRoute(spaceScope.unit_id, itemScope.space_id, id);
+    revalidateItemRoutes();
     return { success: true };
   } catch (error) {
     logger.error("Unexpected error in deleteItem:", error);

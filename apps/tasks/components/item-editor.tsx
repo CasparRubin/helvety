@@ -10,14 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@helvety/ui/breadcrumb";
 import { Button } from "@helvety/ui/button";
 import {
   parseRichTextContent,
@@ -25,9 +17,21 @@ import {
 } from "@helvety/ui/tiptap-utils";
 import { Loader2Icon } from "lucide-react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
+
+import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
+import { ItemActionPanel } from "@/components/item-action-panel";
+import { ItemCommandBar } from "@/components/item-command-bar";
+import { useItem } from "@/hooks/use-items";
+import { useLabels } from "@/hooks/use-labels";
+import { useStages } from "@/hooks/use-stages";
+import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
+import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
+
+import type { ItemRow } from "@/lib/types";
+import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
+import type { JSONContent } from "@tiptap/react";
 
 const TiptapEditor = dynamic(
   () => import("@helvety/ui/tiptap-editor").then((m) => m.TiptapEditor),
@@ -40,21 +44,6 @@ const TiptapEditor = dynamic(
     ),
   }
 );
-
-import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
-import { ItemActionPanel } from "@/components/item-action-panel";
-import { ItemCommandBar } from "@/components/item-command-bar";
-import { useItem } from "@/hooks/use-items";
-import { useLabels } from "@/hooks/use-labels";
-import { useSpace } from "@/hooks/use-spaces";
-import { useStages } from "@/hooks/use-stages";
-import { useUnit } from "@/hooks/use-units";
-import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
-import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
-
-import type { ItemRow, SpaceRow, UnitRow } from "@/lib/types";
-import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
-import type { JSONContent } from "@tiptap/react";
 
 const ContactLinksPanel = dynamic(
   () =>
@@ -78,27 +67,18 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
  * Uses a two-column responsive layout: content (left/bottom) and action panel (right/top).
  */
 export function ItemEditor({
-  unitId,
-  spaceId,
   itemId,
-  initialEncryptedUnit,
-  initialEncryptedSpace,
   initialEncryptedItem,
+  embedded = false,
+  onClose,
 }: {
-  unitId: string;
-  spaceId: string;
   itemId: string;
-  initialEncryptedUnit?: UnitRow;
-  initialEncryptedSpace?: SpaceRow;
   initialEncryptedItem?: ItemRow;
+  embedded?: boolean;
+  onClose?: () => void;
 }) {
   const router = useRouter();
-  const { unit, isLoading: isLoadingUnit } = useUnit(unitId, {
-    initialEncryptedData: initialEncryptedUnit,
-  });
-  const { space, isLoading: isLoadingSpace } = useSpace(spaceId, {
-    initialEncryptedData: initialEncryptedSpace,
-  });
+  void embedded;
   const {
     item,
     isLoading: isLoadingItem,
@@ -250,8 +230,12 @@ export function ItemEditor({
 
   // Actual back navigation (no confirmation)
   const doBack = useCallback(() => {
-    router.replace(`/units/${unitId}/spaces/${spaceId}`);
-  }, [router, unitId, spaceId]);
+    if (onClose) {
+      onClose();
+      return;
+    }
+    router.replace("/");
+  }, [onClose, router]);
 
   // Actual refresh (no confirmation)
   const doRefresh = useCallback(async () => {
@@ -303,13 +287,17 @@ export function ItemEditor({
     try {
       const success = await remove();
       if (success) {
-        router.replace(`/units/${unitId}/spaces/${spaceId}`);
+        if (onClose) {
+          onClose();
+        } else {
+          router.replace("/");
+        }
       }
     } finally {
       setIsDeleting(false);
       setIsDeleteOpen(false);
     }
-  }, [remove, router, unitId, spaceId]);
+  }, [onClose, remove, router]);
 
   // Handle stage change - saves immediately, independent of title/description save flow
   const handleStageChange = useCallback(
@@ -423,38 +411,7 @@ export function ItemEditor({
         deleteLabel="Delete Item"
       />
       <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb navigation */}
-        <div className="mb-6">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/">Units</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href={`/units/${unitId}`}>
-                    {isLoadingUnit ? "..." : (unit?.title ?? "Unknown")}
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href={`/units/${unitId}/spaces/${spaceId}`}>
-                    {isLoadingSpace ? "..." : (space?.title ?? "Unknown")}
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{title || "Untitled"}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
+        {/* Breadcrumb removed in flat list-first navigation */}
 
         {/* Two-column layout: content left, action panel right (reversed on mobile so panel is on top) */}
         <div className="flex flex-col-reverse gap-6 md:flex-row md:gap-8">
@@ -483,7 +440,7 @@ export function ItemEditor({
 
             {/* Linked Contacts */}
             <div className="mb-6">
-              <ContactLinksPanel entityType="item" entityId={itemId} />
+              <ContactLinksPanel itemId={itemId} />
             </div>
           </div>
 

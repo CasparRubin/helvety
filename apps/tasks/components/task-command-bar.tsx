@@ -35,7 +35,7 @@ interface TaskCommandBarProps {
   onBack?: () => void;
   /** Callback to open the create dialog */
   onCreateClick: () => void;
-  /** Label for the create button - "New Unit", "New Space", "New Item" */
+  /** Label for the create button - e.g. "New Item" */
   createLabel: string;
   /** Callback to refresh the data (if provided, shows refresh button) */
   onRefresh?: () => void;
@@ -45,11 +45,11 @@ interface TaskCommandBarProps {
   onSettings?: () => void;
   /** Callback to open the edit dialog (if provided, shows edit button) */
   onEdit?: () => void;
-  /** Label for the edit button - "Edit Unit", "Edit Space" */
+  /** Label for the edit button - e.g. "Edit Item" */
   editLabel?: string;
   /** Callback to delete the current entity (if provided, shows delete button) */
   onDelete?: () => void;
-  /** Label for the delete button - "Delete Unit", "Delete Space" */
+  /** Label for the delete button - e.g. "Delete Item" */
   deleteLabel?: string;
   /** Callback to export task data (if provided, shows export button) */
   onExport?: () => void;

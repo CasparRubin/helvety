@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
-  getItems,
+  getAllItems,
   getItem,
   createItem,
   updateItem,
@@ -46,10 +46,7 @@ interface UseItemsReturn {
   /** Create a new item */
   create: (input: ItemInput) => Promise<{ id: string } | null>;
   /** Update an item */
-  update: (
-    id: string,
-    input: Partial<Omit<ItemInput, "space_id">>
-  ) => Promise<boolean>;
+  update: (id: string, input: Partial<ItemInput>) => Promise<boolean>;
   /** Delete an item */
   remove: (id: string) => Promise<boolean>;
   /** Batch reorder items (for drag-and-drop) */
@@ -77,12 +74,9 @@ function triggerHardLogoutForError(
 }
 
 /**
- * Hook to manage Items for a specific Space with automatic encryption/decryption
+ * Hook to manage items with automatic encryption/decryption.
  */
-export function useItems(
-  spaceId: string,
-  options?: UseItemsOptions
-): UseItemsReturn {
+export function useItems(options?: UseItemsOptions): UseItemsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
@@ -93,7 +87,7 @@ export function useItems(
   const latestRefreshTokenRef = useRef(0);
 
   const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !spaceId) {
+    if (!masterKey || !isUnlocked) {
       setItems([]);
       setIsLoading(false);
       return;
@@ -106,7 +100,7 @@ export function useItems(
     setError(null);
 
     try {
-      const result = await getItems(spaceId);
+      const result = await getAllItems();
       if (!result.success) {
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
@@ -157,7 +151,7 @@ export function useItems(
         setIsLoading(false);
       }
     }
-  }, [spaceId, masterKey, isUnlocked]);
+  }, [masterKey, isUnlocked]);
 
   const create = useCallback(
     async (input: ItemInput): Promise<{ id: string } | null> => {
@@ -185,7 +179,6 @@ export function useItems(
             prev.length > 0 ? Math.max(...prev.map((i) => i.sort_order)) : -1;
           const newItem: Item = {
             id: result.data.id,
-            space_id: input.space_id,
             user_id: prev[0]?.user_id ?? "",
             title: input.title,
             description: input.description,
@@ -218,10 +211,7 @@ export function useItems(
   );
 
   const update = useCallback(
-    async (
-      id: string,
-      input: Partial<Omit<ItemInput, "space_id">>
-    ): Promise<boolean> => {
+    async (id: string, input: Partial<ItemInput>): Promise<boolean> => {
       if (!masterKey) {
         triggerHardLogoutOnce(window.location.href, "tasks-use-items");
         return false;
@@ -350,12 +340,7 @@ export function useItems(
       });
 
       try {
-        const result = await reorderEntities(
-          "item",
-          updates,
-          csrfToken,
-          spaceId
-        );
+        const result = await reorderEntities("item", updates, csrfToken);
         if (!result.success) {
           if (triggerHardLogoutForError(result.error)) {
             return false;
@@ -379,11 +364,11 @@ export function useItems(
         return false;
       }
     },
-    [csrfToken, refresh, spaceId]
+    [csrfToken, refresh]
   );
 
   useEffect(() => {
-    if (!isUnlocked || !masterKey || !spaceId) return;
+    if (!isUnlocked || !masterKey) return;
 
     if (options?.initialEncryptedData && !initialDataConsumed) {
       setInitialDataConsumed(true);
@@ -408,7 +393,6 @@ export function useItems(
   }, [
     isUnlocked,
     masterKey,
-    spaceId,
     refresh,
     options?.initialEncryptedData,
     initialDataConsumed,
@@ -437,7 +421,7 @@ interface UseItemReturn {
   /** Refresh the item from server */
   refresh: () => Promise<void>;
   /** Update the item */
-  update: (input: Partial<Omit<ItemInput, "space_id">>) => Promise<boolean>;
+  update: (input: Partial<ItemInput>) => Promise<boolean>;
   /** Delete the item */
   remove: () => Promise<boolean>;
 }
@@ -529,7 +513,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
   }, [id, masterKey, isUnlocked]);
 
   const update = useCallback(
-    async (input: Partial<Omit<ItemInput, "space_id">>): Promise<boolean> => {
+    async (input: Partial<ItemInput>): Promise<boolean> => {
       if (!masterKey || !id) {
         triggerHardLogoutOnce(window.location.href, "tasks-use-items");
         return false;

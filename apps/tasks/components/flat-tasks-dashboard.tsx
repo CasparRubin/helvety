@@ -11,59 +11,58 @@ import {
 } from "@helvety/ui/dialog";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@helvety/ui/sheet";
 import { Loader2Icon } from "lucide-react";
-import { useState, useCallback, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
+import { ItemEditor } from "@/components/item-editor";
 import { TaskCommandBar } from "@/components/task-command-bar";
-import { useChildCounts } from "@/hooks/use-child-counts";
 import { useDataExport } from "@/hooks/use-data-export";
+import { useItems } from "@/hooks/use-items";
+import { useLabels } from "@/hooks/use-labels";
 import { useStages } from "@/hooks/use-stages";
-import { useUnits } from "@/hooks/use-units";
+import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";
 
-import type { UnitRow } from "@/lib/types";
+import type { ItemRow } from "@/lib/types";
 
-/** Props for the main task dashboard component. */
-interface TaskDashboardProps {
-  /** Server-prefetched encrypted units */
-  initialEncryptedUnits?: UnitRow[];
-  /** Server-prefetched space counts per unit */
-  initialSpaceCounts?: Record<string, number>;
+/** Props for the flat tasks dashboard. */
+interface FlatTasksDashboardProps {
+  initialEncryptedItems?: ItemRow[];
 }
 
-/**
- * Task Dashboard - Main view for Units list
- * Uses EntityList for list/table display with stage support and DnD
- */
-export function TaskDashboard({
-  initialEncryptedUnits,
-  initialSpaceCounts,
-}: TaskDashboardProps = {}) {
+/** Flat `/tasks` dashboard with item list and sheet detail editor. */
+export function FlatTasksDashboard({
+  initialEncryptedItems,
+}: FlatTasksDashboardProps): React.JSX.Element {
   const { isUnlocked, masterKey } = useEncryptionContext();
-  const { units, isLoading, error, refresh, create, remove, reorder } =
-    useUnits({ initialEncryptedData: initialEncryptedUnits });
-  const { counts: childCounts } = useChildCounts("unit", undefined, {
-    initialData: initialSpaceCounts,
-  });
-  const { stages } = useStages(DEFAULT_STAGE_CONFIGS.unit.id);
+  const { items, isLoading, error, refresh, create, remove, reorder } =
+    useItems({ initialEncryptedData: initialEncryptedItems });
+  const { stages } = useStages(DEFAULT_STAGE_CONFIGS.item.id);
+  const { labels } = useLabels(DEFAULT_LABEL_CONFIG.id);
+  const { isExporting, handleExportData } = useDataExport(masterKey);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isCreating, startCreateTransition] = useTransition();
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
+  const [isRefreshing, startRefreshTransition] = useTransition();
+  const [isCreating, startCreateTransition] = useTransition();
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     id: string | null;
     name: string | null;
   }>({ open: false, id: null, name: null });
   const [isDeleting, startDeleteTransition] = useTransition();
-  const [isRefreshing, startRefreshTransition] = useTransition();
-  const { isExporting, handleExportData } = useDataExport(masterKey);
 
-  // Get the first stage (lowest sort_order) as the default for new entities
   const defaultStageId =
     stages.length > 0
       ? stages.reduce(
@@ -71,6 +70,11 @@ export function TaskDashboard({
           stages[0]!
         ).id
       : null;
+
+  const selectedItem = useMemo(
+    () => items.find((item) => item.id === selectedItemId) ?? null,
+    [items, selectedItemId]
+  );
 
   const handleCreate = useCallback(
     (e: React.FormEvent) => {
@@ -91,36 +95,20 @@ export function TaskDashboard({
         }
       });
     },
-    [newTitle, newDescription, create, defaultStageId, startCreateTransition]
+    [newTitle, newDescription, create, defaultStageId]
   );
-
-  const handleDeleteClick = useCallback((id: string, name: string) => {
-    setDeleteState({ open: true, id, name });
-  }, []);
-
-  const handleDeleteConfirm = useCallback(() => {
-    if (!deleteState.id) return;
-    startDeleteTransition(async () => {
-      await remove(deleteState.id!);
-      setDeleteState({ open: false, id: null, name: null });
-    });
-  }, [deleteState.id, remove, startDeleteTransition]);
-
-  const getEntityHref = useCallback((entity: { id: string }) => {
-    return `/units/${entity.id}`;
-  }, []);
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
       await refresh();
     });
-  }, [refresh, startRefreshTransition]);
+  }, [refresh]);
 
   return (
     <>
       <TaskCommandBar
         onCreateClick={() => setIsCreateOpen(true)}
-        createLabel="New Unit"
+        createLabel="New Item"
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
         onExport={isUnlocked && masterKey ? handleExportData : undefined}
@@ -128,57 +116,55 @@ export function TaskDashboard({
       />
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-2xl font-semibold">Units</h1>
+        <h1 className="mb-6 text-2xl font-semibold">Items</h1>
 
         <EntityList
-          entityType="unit"
-          entities={units}
+          entities={items}
           isLoading={isLoading}
           error={error}
           onRetry={refresh}
           stages={stages}
-          childCounts={childCounts}
-          entityHref={getEntityHref}
-          onEntityDelete={handleDeleteClick}
+          labels={labels}
+          onEntityClick={(entity) => setSelectedItemId(entity.id)}
+          onEntityDelete={(id, title) =>
+            setDeleteState({ open: true, id, name: title })
+          }
           onReorder={reorder}
         />
       </div>
 
-      {/* Create Unit Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent>
           <form onSubmit={handleCreate}>
             <DialogHeader>
-              <DialogTitle>Create Unit</DialogTitle>
+              <DialogTitle>Create Item</DialogTitle>
               <DialogDescription>
-                Create a new unit to organize your spaces and tasks. Sensitive
-                content fields are end-to-end encrypted; some structural
-                metadata remains unencrypted for app functionality.
+                Create a new item. Sensitive content fields are end-to-end
+                encrypted; some structural metadata remains unencrypted for app
+                functionality.
               </DialogDescription>
             </DialogHeader>
-
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="item-title">Title</Label>
                 <Input
-                  id="title"
-                  placeholder="e.g., My Organization"
+                  id="item-title"
+                  placeholder="e.g., Implement authentication"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   required
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="description">Description (optional)</Label>
+                <Label htmlFor="item-description">Description (optional)</Label>
                 <Input
-                  id="description"
-                  placeholder="e.g., Main workspace for my company"
+                  id="item-description"
+                  placeholder="e.g., Add OAuth2 login flow"
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                 />
               </div>
             </div>
-
             <DialogFooter>
               <Button
                 type="button"
@@ -195,7 +181,7 @@ export function TaskDashboard({
                     Creating...
                   </>
                 ) : (
-                  "Create Unit"
+                  "Create Item"
                 )}
               </Button>
             </DialogFooter>
@@ -203,7 +189,29 @@ export function TaskDashboard({
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      <Sheet
+        open={selectedItemId !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedItemId(null);
+        }}
+      >
+        <SheetContent
+          side="right"
+          className="w-full overflow-y-auto sm:max-w-5xl"
+        >
+          <SheetHeader>
+            <SheetTitle>Item Details</SheetTitle>
+          </SheetHeader>
+          {selectedItemId && selectedItem ? (
+            <ItemEditor
+              itemId={selectedItemId}
+              embedded
+              onClose={() => setSelectedItemId(null)}
+            />
+          ) : null}
+        </SheetContent>
+      </Sheet>
+
       <DeleteConfirmationDialog
         open={deleteState.open}
         onOpenChange={(open) => {
@@ -211,9 +219,15 @@ export function TaskDashboard({
             setDeleteState({ open: false, id: null, name: null });
           }
         }}
-        entityType="unit"
+        entityType="item"
         entityName={deleteState.name ?? undefined}
-        onConfirm={handleDeleteConfirm}
+        onConfirm={() => {
+          if (!deleteState.id) return;
+          startDeleteTransition(async () => {
+            await remove(deleteState.id!);
+            setDeleteState({ open: false, id: null, name: null });
+          });
+        }}
         isDeleting={isDeleting}
       />
     </>

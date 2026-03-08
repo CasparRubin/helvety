@@ -38,7 +38,7 @@ import type { Item, Stage, Label } from "@/lib/types";
 interface ItemActionPanelProps {
   /** The current item being edited */
   item: Item;
-  /** Available stages for this item's space */
+  /** Available stages for this item */
   stages: Stage[];
   /** Whether stages are still loading */
   isLoadingStages: boolean;
@@ -46,7 +46,7 @@ interface ItemActionPanelProps {
   onStageChange: (stageId: string) => void;
   /** Whether a stage change is currently being saved */
   isSavingStage?: boolean;
-  /** Available labels for this item's space */
+  /** Available labels for this item */
   labels: Label[];
   /** Whether labels are still loading */
   isLoadingLabels: boolean;

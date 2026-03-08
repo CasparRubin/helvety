@@ -22,22 +22,13 @@ import { useCallback, useMemo, useState } from "react";
 
 import { EntityRow } from "@/components/entity-row";
 import { StageGroup } from "@/components/stage-group";
-import { isItem } from "@/lib/types";
 
-import type {
-  Unit,
-  Space,
-  Item,
-  Stage,
-  Label,
-  EntityType,
-  ReorderUpdate,
-} from "@/lib/types";
+import type { Item, Stage, Label, ReorderUpdate } from "@/lib/types";
 
 /**
- * Unified entity type for the list - can be Unit, Space, or Item
+ * Unified entity type for the list.
  */
-type AnyEntity = (Unit | Space | Item) & {
+type AnyEntity = Item & {
   title: string;
   description: string | null;
   stage_id: string | null;
@@ -49,8 +40,6 @@ type AnyEntity = (Unit | Space | Item) & {
 
 /** Props for the stage-grouped entity list. */
 interface EntityListProps {
-  /** The type of entity being displayed */
-  entityType: EntityType;
   /** The entities to display */
   entities: AnyEntity[];
   /** Whether entities are currently loading */
@@ -61,7 +50,7 @@ interface EntityListProps {
   onRetry?: () => void;
   /** Available stages for the current view */
   stages: Stage[];
-  /** Map of entity id -> child count (spaces for units, items for spaces) */
+  /** Optional legacy map of entity id -> child count */
   childCounts?: Record<string, number>;
   /** Available labels for the current view (items only) */
   labels?: Label[];
@@ -82,7 +71,7 @@ interface EntityListProps {
 }
 
 /**
- * EntityList - Generic list/table component for Units, Spaces, or Items.
+ * EntityList - Generic stage-aware list/table component.
  *
  * Features:
  * - Always shows stage groups when stages are available (even with no entities)
@@ -92,7 +81,6 @@ interface EntityListProps {
  * - Consistent row layout across all entity types
  */
 export function EntityList({
-  entityType,
   entities,
   isLoading,
   error,
@@ -276,7 +264,7 @@ export function EntityList({
         updates.push(update);
       }
 
-      // Handle category-only moves where index did not change.
+      // Handle stage-only moves where index did not change.
       if (
         updates.length === 0 &&
         typeof targetStageId === "string" &&
@@ -416,11 +404,10 @@ export function EntityList({
                       title={entity.title}
                       description={entity.description}
                       createdAt={entity.created_at}
-                      entityType={entityType}
                       stage={stageMap.get(entity.stage_id ?? "")}
-                      priority={isItem(entity) ? entity.priority : null}
+                      priority={entity.priority}
                       label={
-                        isItem(entity) && entity.label_id
+                        entity.label_id
                           ? (labelMap?.get(entity.label_id) ?? null)
                           : null
                       }
@@ -479,10 +466,9 @@ export function EntityList({
                   title={entity.title}
                   description={entity.description}
                   createdAt={entity.created_at}
-                  entityType={entityType}
-                  priority={isItem(entity) ? entity.priority : null}
+                  priority={entity.priority}
                   label={
-                    isItem(entity) && entity.label_id
+                    entity.label_id
                       ? (labelMap?.get(entity.label_id) ?? null)
                       : null
                   }

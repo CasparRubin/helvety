@@ -11,8 +11,6 @@ import {
   ChevronUpIcon,
   ChevronDownIcon,
   TrashIcon,
-  VectorSquareIcon,
-  BoxesIcon,
   BoxIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -21,13 +19,7 @@ import { memo } from "react";
 import { renderStageIcon } from "@/lib/icons";
 import { getPriorityConfig } from "@/lib/priorities";
 
-import type { Stage, Label, EntityType } from "@/lib/types";
-
-const ENTITY_ICONS: Record<EntityType, typeof VectorSquareIcon> = {
-  unit: VectorSquareIcon,
-  space: BoxesIcon,
-  item: BoxIcon,
-};
+import type { Stage, Label } from "@/lib/types";
 
 /** Props for a single entity row in the list view. */
 interface EntityRowProps {
@@ -35,13 +27,12 @@ interface EntityRowProps {
   title: string;
   description: string | null;
   createdAt: string;
-  entityType: EntityType;
   stage?: Stage | null;
   /** Priority level (items only, 0-3). Shown as a badge on hover. */
   priority?: number | null;
   /** Resolved label (items only). Shown as a badge on hover. */
   label?: Label | null;
-  /** Number of child entities (spaces for units, items for spaces) */
+  /** Legacy child-count indicator (not used in current item-first flow) */
   childCount?: number;
   isFirst?: boolean;
   isLast?: boolean;
@@ -66,7 +57,6 @@ export const EntityRow = memo(
     title,
     description,
     createdAt,
-    entityType,
     stage,
     priority,
     label,
@@ -94,8 +84,6 @@ export const EntityRow = memo(
       transition,
     };
 
-    const Icon = ENTITY_ICONS[entityType] ?? VectorSquareIcon;
-
     const rowClassName = `group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
       isDragging
         ? "bg-muted/80 z-50 rounded-md shadow-lg"
@@ -115,7 +103,7 @@ export const EntityRow = memo(
         </button>
 
         {/* Icon */}
-        <Icon
+        <BoxIcon
           className="size-4 shrink-0"
           style={stage?.color ? { color: stage.color } : undefined}
         />
@@ -128,7 +116,7 @@ export const EntityRow = memo(
               ({childCount})
             </span>
           )}
-          {entityType !== "item" && description && (
+          {description && (
             <span className="text-muted-foreground hidden truncate text-sm md:inline">
               {getRichTextPlainText(description)}
             </span>

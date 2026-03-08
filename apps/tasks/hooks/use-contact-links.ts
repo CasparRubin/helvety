@@ -8,29 +8,38 @@ import { toast } from "sonner";
 
 import {
   getContacts,
-  getEntityContactLinks,
+  getItemContactLinks,
   linkContact,
   unlinkContact,
 } from "@/app/actions/contact-link-actions";
 import { useEncryptionContext, decryptContactRows } from "@/lib/crypto";
 
-import type { Contact, EntityContactLinkRow, EntityType } from "@/lib/types";
+import type { Contact } from "@/lib/types";
 
 /**
  * A linked contact with its link metadata (link ID for unlinking).
  */
 export interface LinkedContact extends Contact {
-  /** The entity_contact_links row ID (used for unlinking) */
+  /** The `item_contact_links` row ID (used for unlinking) */
   link_id: string;
   /** When the link was created */
   linked_at: string;
+}
+
+/** Raw link row from `item_contact_links`. */
+interface ItemContactLinkRow {
+  id: string;
+  item_id: string;
+  contact_id: string;
+  user_id: string;
+  created_at: string;
 }
 
 /** Return type of the useContactLinks hook. */
 interface UseContactLinksReturn {
   /** All user contacts (decrypted), for the picker */
   allContacts: Contact[];
-  /** Contacts linked to this entity (decrypted, with link metadata) */
+  /** Contacts linked to this item (decrypted, with link metadata) */
   linkedContacts: LinkedContact[];
   /** Whether data is being loaded */
   isLoading: boolean;
@@ -38,9 +47,9 @@ interface UseContactLinksReturn {
   error: string | null;
   /** Refresh all data from server */
   refresh: () => Promise<void>;
-  /** Link a contact to this entity */
+  /** Link a contact to this item */
   link: (contactId: string) => Promise<boolean>;
-  /** Unlink a contact from this entity */
+  /** Unlink a contact from this item */
   unlink: (linkId: string) => Promise<boolean>;
 }
 
@@ -65,19 +74,16 @@ function triggerHardLogoutForError(
 }
 
 /**
- * Hook to manage contact links for a specific entity (unit, space, or item).
- * Fetches all user contacts and the entity's links, decrypts client-side,
+ * Hook to manage contact links for a specific item.
+ * Fetches all user contacts and the item's links, decrypts client-side,
  * and provides link/unlink operations.
  */
-export function useContactLinks(
-  entityType: EntityType,
-  entityId: string
-): UseContactLinksReturn {
+export function useContactLinks(itemId: string): UseContactLinksReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
   const [allContacts, setAllContacts] = useState<Contact[]>([]);
-  const [links, setLinks] = useState<EntityContactLinkRow[]>([]);
+  const [links, setLinks] = useState<ItemContactLinkRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(true);
@@ -90,10 +96,10 @@ export function useContactLinks(
   }, []);
 
   /**
-   * Fetch and decrypt all contacts + fetch entity links
+   * Fetch and decrypt all contacts + fetch item links
    */
   const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !entityId) {
+    if (!masterKey || !isUnlocked || !itemId) {
       setAllContacts([]);
       setLinks([]);
       setIsLoading(false);
@@ -110,7 +116,7 @@ export function useContactLinks(
       // Fetch contacts and links in parallel
       const [contactsResult, linksResult] = await Promise.all([
         getContacts(),
-        getEntityContactLinks(entityType, entityId),
+        getItemContactLinks(itemId),
       ]);
 
       if (!contactsResult.success) {
@@ -197,20 +203,15 @@ export function useContactLinks(
         setIsLoading(false);
       }
     }
-  }, [masterKey, isUnlocked, entityType, entityId]);
+  }, [masterKey, isUnlocked, itemId]);
 
   /**
-   * Link a contact to this entity
+   * Link a contact to this item
    */
   const link = useCallback(
     async (contactId: string): Promise<boolean> => {
       try {
-        const result = await linkContact(
-          entityType,
-          entityId,
-          contactId,
-          csrfToken
-        );
+        const result = await linkContact(itemId, contactId, csrfToken);
         if (!result.success) {
           if (triggerHardLogoutForError(result.error)) {
             return false;
@@ -222,10 +223,9 @@ export function useContactLinks(
         }
 
         // Optimistically add the link to local state
-        const newLink: EntityContactLinkRow = {
+        const newLink: ItemContactLinkRow = {
           id: result.data.id,
-          entity_type: entityType,
-          entity_id: entityId,
+          item_id: itemId,
           contact_id: contactId,
           user_id: "", // Not needed for display
           created_at: new Date().toISOString(),
@@ -243,11 +243,11 @@ export function useContactLinks(
         return false;
       }
     },
-    [entityType, entityId, csrfToken]
+    [itemId, csrfToken]
   );
 
   /**
-   * Unlink a contact from this entity
+   * Unlink a contact from this item
    */
   const unlink = useCallback(
     async (linkId: string): Promise<boolean> => {
@@ -282,10 +282,10 @@ export function useContactLinks(
 
   // Fetch data when encryption is unlocked
   useEffect(() => {
-    if (isUnlocked && masterKey && entityId) {
+    if (isUnlocked && masterKey && itemId) {
       void refresh();
     }
-  }, [isUnlocked, masterKey, entityId, refresh]);
+  }, [isUnlocked, masterKey, itemId, refresh]);
 
   // Derive linkedContacts by joining links with allContacts
   const contactsById = useMemo(

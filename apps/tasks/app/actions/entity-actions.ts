@@ -13,10 +13,7 @@ import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type {
   ActionResponse,
-  UnitRow,
-  SpaceRow,
   ItemRow,
-  EntityType,
   ReorderUpdate,
   EncryptedTaskExport,
 } from "@/lib/types";
@@ -50,7 +47,7 @@ const ReorderSchema = z
     `Too many items to reorder (max ${MAX_REORDER_ITEMS})`
   );
 
-const EntityTypeSchema = z.enum(["unit", "space", "item"]);
+const EntityTypeSchema = z.literal("item");
 
 // =============================================================================
 // BATCH REORDER ACTION (for drag-and-drop)
@@ -61,7 +58,7 @@ const EntityTypeSchema = z.enum(["unit", "space", "item"]);
  * Used during drag-and-drop reordering
  */
 export async function reorderEntities(
-  entityType: EntityType,
+  entityType: "item",
   updates: ReorderUpdate[],
   csrfToken: string,
   parentId?: string
@@ -95,51 +92,22 @@ export async function reorderEntities(
       return { success: true };
     }
 
-    if (entityType !== "unit") {
-      if (!z.string().uuid().safeParse(parentId).success) {
-        return { success: false, error: "Invalid parent ID" };
-      }
-    }
+    void parentId;
 
-    // Ensure all entities being reordered belong to the expected parent scope
-    // (unit for spaces, space for items). This prevents cross-parent reorders.
+    // Ensure all entities being reordered belong to the current user.
     const updateIds = validatedUpdates.map((update) => update.id);
-    if (entityType === "space") {
-      const { data: allowedRows, error: allowedRowsError } = await supabase
-        .from("spaces")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("unit_id", parentId!)
-        .in("id", updateIds);
-      if (allowedRowsError) {
-        logger.error("Error validating space reorder scope:", allowedRowsError);
-        return { success: false, error: "Failed to reorder spaces" };
-      }
-      if ((allowedRows ?? []).length !== updateIds.length) {
-        return { success: false, error: "Invalid space reorder scope" };
-      }
-    } else if (entityType === "item") {
-      const { data: allowedRows, error: allowedRowsError } = await supabase
-        .from("items")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("space_id", parentId!)
-        .in("id", updateIds);
-      if (allowedRowsError) {
-        logger.error("Error validating item reorder scope:", allowedRowsError);
-        return { success: false, error: "Failed to reorder items" };
-      }
-      if ((allowedRows ?? []).length !== updateIds.length) {
-        return { success: false, error: "Invalid item reorder scope" };
-      }
+    const { data: allowedRows, error: allowedRowsError } = await supabase
+      .from("items")
+      .select("id")
+      .eq("user_id", user.id)
+      .in("id", updateIds);
+    if (allowedRowsError) {
+      logger.error("Error validating item reorder scope:", allowedRowsError);
+      return { success: false, error: "Failed to reorder items" };
     }
-
-    const tableName =
-      entityType === "unit"
-        ? "units"
-        : entityType === "space"
-          ? "spaces"
-          : "items";
+    if ((allowedRows ?? []).length !== updateIds.length) {
+      return { success: false, error: "Invalid item reorder scope" };
+    }
     // Batch updates in chunks to avoid saturating DB connections.
     const now = new Date().toISOString();
     const results = [];
@@ -156,7 +124,7 @@ export async function reorderEntities(
           }
 
           return supabase
-            .from(tableName)
+            .from("items")
             .update(updateObj)
             .eq("id", update.id)
             .eq("user_id", user.id);
@@ -179,104 +147,6 @@ export async function reorderEntities(
 }
 
 // =============================================================================
-// CHILD COUNT ACTIONS (for displaying counts in entity lists)
-// =============================================================================
-
-/**
- * Get the number of spaces per unit for the current user.
- * Returns a map of unit_id -> space count.
- */
-export async function getSpaceCounts(): Promise<
-  ActionResponse<Record<string, number>>
-> {
-  try {
-    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
-    if (!auth.ok) return auth.response;
-    const { user, supabase } = auth.ctx;
-
-    // Get all spaces for this user, selecting only the unit_id
-    const { data: spaces, error } = await supabase
-      .from("spaces")
-      .select("unit_id")
-      .eq("user_id", user.id);
-
-    if (error) {
-      logger.error("Error getting space counts:", error);
-      return { success: false, error: "Failed to get space counts" };
-    }
-
-    // Aggregate counts by unit_id
-    const counts: Record<string, number> = {};
-    for (const space of spaces ?? []) {
-      counts[space.unit_id] = (counts[space.unit_id] ?? 0) + 1;
-    }
-
-    return { success: true, data: counts };
-  } catch (error) {
-    after(() => logger.error("Unexpected error in getSpaceCounts:", error));
-    return { success: false, error: "An unexpected error occurred" };
-  }
-}
-
-/**
- * Get the number of items per space for a given unit.
- * Returns a map of space_id -> item count.
- */
-export async function getItemCounts(
-  unitId: string
-): Promise<ActionResponse<Record<string, number>>> {
-  try {
-    if (!z.string().uuid().safeParse(unitId).success) {
-      return { success: false, error: "Invalid unit ID" };
-    }
-
-    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
-    if (!auth.ok) return auth.response;
-    const { user, supabase } = auth.ctx;
-
-    // First get the space IDs for this unit
-    const { data: spaces, error: spacesError } = await supabase
-      .from("spaces")
-      .select("id")
-      .eq("unit_id", unitId)
-      .eq("user_id", user.id);
-
-    if (spacesError) {
-      logger.error("Error getting spaces for item counts:", spacesError);
-      return { success: false, error: "Failed to get item counts" };
-    }
-
-    const spaceIds = (spaces ?? []).map((s) => s.id);
-    if (spaceIds.length === 0) {
-      return { success: true, data: {} };
-    }
-
-    // Get all items for these spaces, selecting only the space_id
-    const { data: items, error: itemsError } = await supabase
-      .from("items")
-      .select("space_id")
-      .in("space_id", spaceIds)
-      .eq("user_id", user.id);
-
-    if (itemsError) {
-      logger.error("Error getting item counts:", itemsError);
-      return { success: false, error: "Failed to get item counts" };
-    }
-
-    // Aggregate counts by space_id
-    const counts: Record<string, number> = {};
-    for (const item of items ?? []) {
-      counts[item.space_id] = (counts[item.space_id] ?? 0) + 1;
-    }
-
-    return { success: true, data: counts };
-  } catch (error) {
-    after(() => logger.error("Unexpected error in getItemCounts:", error));
-    return { success: false, error: "An unexpected error occurred" };
-  }
-}
-
-// =============================================================================
 // DATA EXPORT (nDSG Art. 28, Right to Data Portability)
 // =============================================================================
 
@@ -284,7 +154,7 @@ export type { EncryptedTaskExport } from "@/lib/types";
 
 /**
  * Fetch all encrypted task data for export.
- * Returns all units, spaces, and items as encrypted rows.
+ * Returns all items as encrypted rows.
  * The client is responsible for decrypting the data using the user's
  * encryption key before presenting or saving the export.
  *
@@ -302,52 +172,25 @@ export async function getAllTaskDataForExport(): Promise<
     const { user, supabase } = auth.ctx;
 
     // Fetch bounded data to prevent oversized in-memory exports.
-    const [unitsResult, spacesResult, itemsResult] = await Promise.all([
-      supabase
-        .from("units")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("sort_order")
-        .limit(MAX_EXPORT_ROWS_PER_TABLE + 1)
-        .returns<UnitRow[]>(),
-      supabase
-        .from("spaces")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("sort_order")
-        .limit(MAX_EXPORT_ROWS_PER_TABLE + 1)
-        .returns<SpaceRow[]>(),
-      supabase
-        .from("items")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("sort_order")
-        .limit(MAX_EXPORT_ROWS_PER_TABLE + 1)
-        .returns<ItemRow[]>(),
-    ]);
+    const { data: items, error: itemsError } = await supabase
+      .from("items")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("sort_order")
+      .limit(MAX_EXPORT_ROWS_PER_TABLE + 1)
+      .returns<ItemRow[]>();
 
-    if (unitsResult.error || spacesResult.error || itemsResult.error) {
+    if (itemsError) {
       logger.error("Error fetching task data for export:", {
-        units: unitsResult.error,
-        spaces: spacesResult.error,
-        items: itemsResult.error,
+        items: itemsError,
       });
       return { success: false, error: "Failed to fetch task data" };
     }
 
-    const units = unitsResult.data ?? [];
-    const spaces = spacesResult.data ?? [];
-    const items = itemsResult.data ?? [];
-    if (
-      units.length > MAX_EXPORT_ROWS_PER_TABLE ||
-      spaces.length > MAX_EXPORT_ROWS_PER_TABLE ||
-      items.length > MAX_EXPORT_ROWS_PER_TABLE
-    ) {
+    if ((items?.length ?? 0) > MAX_EXPORT_ROWS_PER_TABLE) {
       logger.warn("Export exceeds maximum row cap", {
         userId: user.id,
-        units: units.length,
-        spaces: spaces.length,
-        items: items.length,
+        items: items?.length ?? 0,
         cap: MAX_EXPORT_ROWS_PER_TABLE,
       });
       return {
@@ -362,9 +205,7 @@ export async function getAllTaskDataForExport(): Promise<
     return {
       success: true,
       data: {
-        units,
-        spaces,
-        items,
+        items: items ?? [],
       },
     };
   } catch (error) {

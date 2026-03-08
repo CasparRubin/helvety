@@ -90,7 +90,7 @@ const ITEM_DEFAULT: DefaultLabelConfig = {
 export const DEFAULT_ITEM_LABEL_ID = "default-item-label";
 
 /**
- * The default label config (applied to every space)
+ * The default label config used for task items.
  */
 export const DEFAULT_LABEL_CONFIG: DefaultLabelConfig = ITEM_DEFAULT;
 

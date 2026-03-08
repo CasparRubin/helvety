@@ -3,13 +3,15 @@
  */
 
 // =============================================================================
-// ENTITY TYPES (shared pattern for Units, Spaces, Items)
+// ENTITY TYPES
 // =============================================================================
 
-/** Entity type discriminator */
-export type EntityType = "unit" | "space" | "item";
+/**
+ * Entity type discriminator.
+ */
+export type EntityType = "item";
 
-/** Type guard to narrow a union entity (Unit | Space | Item) to Item */
+/** Type guard to narrow a mixed legacy entity union to Item. */
 export function isItem(entity: { id: string }): entity is Item {
   return "priority" in entity && "label_id" in entity;
 }
@@ -22,97 +24,15 @@ export interface ReorderUpdate {
 }
 
 // =============================================================================
-// UNIT TYPES
-// =============================================================================
-
-/**
- * Unit row as stored in the database (encrypted fields)
- * Units are the top-level organizational containers (e.g., organizations)
- */
-export interface UnitRow {
-  id: string;
-  user_id: string;
-  encrypted_title: string;
-  encrypted_description: string | null;
-  stage_id: string | null;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
-/** Decrypted Unit (client-side only) */
-export interface Unit {
-  id: string;
-  user_id: string;
-  title: string;
-  description: string | null;
-  stage_id: string | null;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
-/** Input for creating a Unit (plaintext, encrypted before sending) */
-export interface UnitInput {
-  title: string;
-  description: string | null;
-  /** Optional stage ID - must be one of the built-in immutable unit stage IDs. */
-  stage_id?: string | null;
-}
-
-// =============================================================================
-// SPACE TYPES
-// =============================================================================
-
-/**
- * Space row as stored in the database (encrypted fields)
- * Spaces belong to a Unit (e.g., teams within an organization)
- */
-export interface SpaceRow {
-  id: string;
-  unit_id: string;
-  user_id: string;
-  encrypted_title: string;
-  encrypted_description: string | null;
-  stage_id: string | null;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
-/** Decrypted Space (client-side only) */
-export interface Space {
-  id: string;
-  unit_id: string;
-  user_id: string;
-  title: string;
-  description: string | null;
-  stage_id: string | null;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
-/** Input for creating a Space (plaintext, encrypted before sending) */
-export interface SpaceInput {
-  unit_id: string;
-  title: string;
-  description: string | null;
-  /** Optional stage ID - must be one of the built-in immutable space stage IDs. */
-  stage_id?: string | null;
-}
-
-// =============================================================================
 // ITEM TYPES
 // =============================================================================
 
 /**
  * Item row as stored in the database (encrypted fields)
- * Items belong to a Space (e.g., tasks, issues, bugs)
+ * Flat item rows (e.g., tasks, issues, bugs)
  */
 export interface ItemRow {
   id: string;
-  space_id: string;
   user_id: string;
   encrypted_title: string;
   encrypted_description: string | null;
@@ -130,7 +50,6 @@ export interface ItemRow {
 /** Decrypted Item (client-side only) */
 export interface Item {
   id: string;
-  space_id: string;
   user_id: string;
   title: string;
   description: string | null;
@@ -149,7 +68,6 @@ export interface Item {
 
 /** Input for creating an Item (plaintext, encrypted before sending) */
 export interface ItemInput {
-  space_id: string;
   title: string;
   description: string | null;
   /** Optional ISO datetime string for the start date/time */
@@ -344,7 +262,7 @@ export interface LabelAssignment {
   id: string;
   config_id: string;
   user_id: string;
-  /** The space ID this label config is assigned to */
+  /** Legacy parent entity ID this label config was assigned to */
   parent_id: string | null;
   created_at: string;
 }
@@ -368,7 +286,6 @@ export interface ContactRow {
   encrypted_phone: string | null;
   encrypted_birthday: string | null;
   encrypted_notes: string | null;
-  category_id: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -390,26 +307,9 @@ export interface Contact {
   birthday: string | null;
   /** Whether the contact has notes content (flag only, content not decrypted) */
   has_notes: boolean;
-  category_id: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
-}
-
-// =============================================================================
-// ENTITY CONTACT LINK TYPES
-// =============================================================================
-
-/**
- * Junction table row linking a contact to a task entity (unit, space, or item).
- */
-export interface EntityContactLinkRow {
-  id: string;
-  entity_type: EntityType;
-  entity_id: string;
-  contact_id: string;
-  user_id: string;
-  created_at: string;
 }
 
 // =============================================================================
@@ -418,7 +318,5 @@ export interface EntityContactLinkRow {
 
 /** All encrypted task data for export (decrypted client-side) */
 export interface EncryptedTaskExport {
-  units: UnitRow[];
-  spaces: SpaceRow[];
   items: ItemRow[];
 }

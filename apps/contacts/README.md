@@ -20,6 +20,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 ## Features
 
 - **End-to-end encryption** - Sensitive contact content fields are encrypted client-side using your passkey (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
+- **Category-grouped contacts** - `/contacts` opens directly into your contact list grouped by fixed categories; contact details open in a large sheet
 - **Contact fields** - Each contact stores First Name(s), Last Name(s), Description, Email, Phone, Birthday, and Notes
 - **Rich text notes** - Rich text editor for contact notes with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
@@ -28,17 +29,15 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Link support
   - Unsaved changes detection with confirmation dialog
   - Manual note editing with unsaved-changes detection
-  - **Action panel** - View dates and the immutable built-in contact categories directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
-- **Fixed categories** - An immutable built-in category set is enforced for all contacts (Work, Family, Friends). New contacts are assigned the first category (Work) when none is specified.
-- **Drag & drop reordering** - Rearrange contacts on desktop; mobile uses up/down arrows for ordering controls
+  - **Action panel** - View contact metadata dates and set category directly from the editor
+- **Drag & drop reordering** - Rearrange contacts within a category on desktop
 - **Controlled row-link prefetching** - Dense contact lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
-- **Route-instance navigation guards** - Async/deferred client navigations are gated so callbacks from prior route instances are ignored after you move to a newer route
-- **Consistency safeguards for category moves** - UI keeps optimistic interactions fast while ignoring stale in-flight refresh responses; server mutations also trigger targeted route revalidation so prefetched pages stay aligned
-- **Task linking** - Link, unlink, and view task entities from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
-  - **Bidirectional** - Link and unlink task entities from either the Contacts app or the Tasks app for consistent cross-app UX
-  - **Searchable picker** - Search your task entities by title and link them with one click
-  - **Deep links** - Click any task row to open the linked Unit, Space, or Item in the Tasks app (opens in a new tab)
-  - **Privacy** - Task entity titles are decrypted client-side; plaintext should not be intentionally sent to the server
+- **Consistency safeguards for list updates** - UI keeps optimistic interactions fast while ignoring stale in-flight refresh responses; server mutations also trigger route revalidation so prefetched pages stay aligned
+- **Task linking** - Link, unlink, and view task items from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
+  - **Bidirectional** - Link and unlink task items from either the Contacts app or the Tasks app for consistent cross-app UX
+  - **Searchable picker** - Search your task items by title and link them with one click
+  - **Deep links** - Click any task row to open the Tasks app (opens in a new tab)
+  - **Privacy** - Task item titles are decrypted client-side; plaintext should not be intentionally sent to the server
 - **Self-Service Data Export** - Export all your contact data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
 - **Dark & Light mode** - Switch between dark and light themes
@@ -95,7 +94,7 @@ Helvety Contacts uses end-to-end encryption (E2EE), as does Helvety Tasks. In su
 | `user_id`                  | Row Level Security (RLS)                           |
 | `created_at`, `updated_at` | Timestamps                                         |
 | `sort_order`               | Display ordering                                   |
-| `category_id` (Contact)    | Immutable built-in category reference              |
+| `category_id`              | Fixed category grouping                            |
 
 Browser compatibility for end-to-end encryption depends on WebAuthn PRF support and can evolve over time:
 

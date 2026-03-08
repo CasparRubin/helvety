@@ -4,17 +4,9 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatDateTime } from "@helvety/shared/dates";
 import { Button } from "@helvety/ui/button";
-import {
-  GripVerticalIcon,
-  ChevronUpIcon,
-  ChevronDownIcon,
-  TrashIcon,
-  UserIcon,
-} from "lucide-react";
+import { GripVerticalIcon, TrashIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { memo } from "react";
-
-import type { Category } from "@/lib/types";
 
 /** Props for a single contact row in the list view. */
 interface ContactRowProps {
@@ -23,23 +15,18 @@ interface ContactRowProps {
   lastName: string;
   email: string | null;
   createdAt: string;
-  category?: Category | null;
-  isFirst?: boolean;
-  isLast?: boolean;
   /** Navigation URL — when provided, renders Link for declarative nav to reduce stale imperative-push callbacks */
   href?: string;
   onClick?: () => void;
   onPrefetch?: () => void;
   onDelete?: () => void;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
 }
 
 /**
  * ContactRow - A single row in the contacts list.
  *
- * Shows drag handle, icon (category-colored), full name, email (subtle), date, and actions.
- * Group move arrows and delete actions are available across screen sizes.
+ * Shows drag handle, icon, full name, email (subtle), date, and actions.
+ * Drag handle is desktop-only; delete action is available across screen sizes.
  */
 export const ContactRow = memo(
   ({
@@ -48,15 +35,10 @@ export const ContactRow = memo(
     lastName,
     email,
     createdAt,
-    category,
-    isFirst = false,
-    isLast = false,
     href,
     onClick,
     onPrefetch,
     onDelete,
-    onMoveUp,
-    onMoveDown,
   }: ContactRowProps) => {
     const {
       attributes,
@@ -93,10 +75,7 @@ export const ContactRow = memo(
         </button>
 
         {/* Icon */}
-        <UserIcon
-          className="size-4 shrink-0"
-          style={category?.color ? { color: category.color } : undefined}
-        />
+        <UserIcon className="size-4 shrink-0" />
 
         {/* Name + Email */}
         <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -113,40 +92,8 @@ export const ContactRow = memo(
           {formatDateTime(createdAt)}
         </span>
 
-        {/* Actions: Group arrows + Delete */}
+        {/* Actions: Delete */}
         <div className="flex shrink-0 items-center gap-0.5">
-          {(onMoveUp ?? onMoveDown) && (
-            <div className="flex items-center gap-0.5">
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="text-muted-foreground size-7"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onMoveUp?.();
-                }}
-                disabled={isFirst}
-                aria-label="Move to previous group"
-              >
-                <ChevronUpIcon className="size-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="text-muted-foreground size-7"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onMoveDown?.();
-                }}
-                disabled={isLast}
-                aria-label="Move to next group"
-              >
-                <ChevronDownIcon className="size-4" />
-              </Button>
-            </div>
-          )}
           {onDelete && (
             <Button
               variant="ghost"

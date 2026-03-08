@@ -11,7 +11,7 @@ import { downloadTaskDataExport } from "@/lib/data-export";
  * Hook for exporting decrypted task data as JSON (supports nDSG Art. 28 data portability).
  *
  * Encapsulates the export flow: loading state, error handling, and toast
- * notifications. Used by all three dashboard components (units, spaces, items).
+ * notifications. Used by the flat item dashboard.
  *
  * @param masterKey - The user's decryption key from EncryptionContext
  */

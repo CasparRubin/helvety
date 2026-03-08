@@ -10,7 +10,7 @@
 export interface ReorderUpdate {
   id: string;
   sort_order: number;
-  category_id?: string | null;
+  category_id?: string;
 }
 
 /**
@@ -26,7 +26,7 @@ export interface ContactRow {
   encrypted_phone: string | null;
   encrypted_birthday: string | null;
   encrypted_notes: string | null;
-  category_id: string | null;
+  category_id: string;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -44,7 +44,7 @@ export interface Contact {
   /** ISO date string, e.g. "2000-01-15" */
   birthday: string | null;
   notes: string | null;
-  category_id: string | null;
+  category_id: string;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -60,8 +60,7 @@ export interface ContactInput {
   /** ISO date string, e.g. "2000-01-15" */
   birthday: string | null;
   notes: string | null;
-  /** Optional category ID - must be one of the built-in immutable category IDs. */
-  category_id?: string | null;
+  category_id?: string;
 }
 
 // =============================================================================

@@ -3,8 +3,6 @@
  * Stages are immutable and defined in code.
  */
 
-import type { EntityType } from "@/lib/types";
-
 /** Fixed default stage shape. */
 export interface DefaultStage {
   id: string;
@@ -22,70 +20,6 @@ export interface DefaultStageConfig {
   isDefault: true;
   stages: DefaultStage[];
 }
-
-const UNIT_DEFAULT: DefaultStageConfig = {
-  id: "default-unit",
-  name: "Units Default",
-  isDefault: true,
-  stages: [
-    {
-      id: "default-unit-work",
-      name: "Work",
-      color: "#0ea5e9",
-      icon: "briefcase",
-      sort_order: 0,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-unit-home",
-      name: "Home",
-      color: "#84cc16",
-      icon: "home",
-      sort_order: 1,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-unit-hobbies",
-      name: "Hobbies",
-      color: "#a855f7",
-      icon: "sparkles",
-      sort_order: 2,
-      default_rows_shown: 20,
-    },
-  ],
-};
-
-const SPACE_DEFAULT: DefaultStageConfig = {
-  id: "default-space",
-  name: "Spaces Default",
-  isDefault: true,
-  stages: [
-    {
-      id: "default-space-upcoming",
-      name: "Upcoming",
-      color: "#6366f1",
-      icon: "calendar",
-      sort_order: 0,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-space-progress",
-      name: "In Progress",
-      color: "#f97316",
-      icon: "loader",
-      sort_order: 1,
-      default_rows_shown: 20,
-    },
-    {
-      id: "default-space-completed",
-      name: "Completed",
-      color: "#22c55e",
-      icon: "check-circle",
-      sort_order: 2,
-      default_rows_shown: 5,
-    },
-  ],
-};
 
 const ITEM_DEFAULT: DefaultStageConfig = {
   id: "default-item",
@@ -159,15 +93,11 @@ const ITEM_DEFAULT: DefaultStageConfig = {
   ],
 };
 
-export const DEFAULT_STAGE_CONFIGS: Record<EntityType, DefaultStageConfig> = {
-  unit: UNIT_DEFAULT,
-  space: SPACE_DEFAULT,
+export const DEFAULT_STAGE_CONFIGS = {
   item: ITEM_DEFAULT,
 };
 
 /** First stage ID per entity — use when stage_id is required and omitted. */
-export const DEFAULT_UNIT_STAGE_ID = DEFAULT_STAGE_CONFIGS.unit.stages[0]?.id;
-export const DEFAULT_SPACE_STAGE_ID = DEFAULT_STAGE_CONFIGS.space.stages[0]?.id;
 export const DEFAULT_ITEM_STAGE_ID = DEFAULT_STAGE_CONFIGS.item.stages[0]?.id;
 
 /** Returns true when a config ID is a built-in default ID. */
@@ -176,10 +106,8 @@ export function isDefaultConfigId(configId: string): boolean {
 }
 
 /** Returns the immutable default config for an entity type. */
-export function getDefaultConfigForEntityType(
-  entityType: EntityType
-): DefaultStageConfig {
-  return DEFAULT_STAGE_CONFIGS[entityType];
+export function getDefaultConfigForEntityType(): DefaultStageConfig {
+  return DEFAULT_STAGE_CONFIGS.item;
 }
 
 /** Returns default stages for a specific built-in config ID. */

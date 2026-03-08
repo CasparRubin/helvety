@@ -24,12 +24,8 @@ describe("isValidRedirectUri", () => {
     expect(isValidRedirectUri("https://helvety.com/auth")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/store/products")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/pdf")).toBe(true);
-    expect(isValidRedirectUri("https://helvety.com/tasks/units/123")).toBe(
-      true
-    );
-    expect(
-      isValidRedirectUri("https://helvety.com/contacts/contacts/456")
-    ).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/tasks")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/contacts")).toBe(true);
   });
 
   it("rejects old subdomain URLs (no longer allowed)", () => {

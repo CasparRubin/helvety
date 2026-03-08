@@ -1,32 +1,14 @@
 /**
  * Barrel re-export for task actions.
  *
- * Individual actions are now split by entity for maintainability:
- * - unit-actions.ts   – Unit CRUD
- * - space-actions.ts  – Space CRUD
+ * Individual actions are split by concern:
  * - item-actions.ts   – Item CRUD
- * - entity-actions.ts – Cross-entity operations (reorder, counts, export)
+ * - entity-actions.ts – Cross-entity operations (reorder, export)
  */
 
 export {
-  createUnit,
-  getUnits,
-  getUnit,
-  updateUnit,
-  deleteUnit,
-} from "@/app/actions/unit-actions";
-
-export {
-  createSpace,
-  getSpaces,
-  getSpace,
-  updateSpace,
-  deleteSpace,
-} from "@/app/actions/space-actions";
-
-export {
   createItem,
-  getItems,
+  getAllItems,
   getItem,
   updateItem,
   deleteItem,
@@ -34,8 +16,6 @@ export {
 
 export {
   reorderEntities,
-  getSpaceCounts,
-  getItemCounts,
   getAllTaskDataForExport,
 } from "@/app/actions/entity-actions";
 

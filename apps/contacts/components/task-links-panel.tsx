@@ -1,14 +1,5 @@
 "use client";
 
-/**
- * TaskLinksPanel - Displays and manages task entities (Units, Spaces, Items)
- * linked to a contact.
- *
- * Supports bidirectional linking: users can link new entities via a searchable
- * picker and unlink existing ones with confirmation. Mirrors the visual style
- * of ContactLinksPanel in the Tasks app for consistent cross-app UI/UX.
- */
-
 import { urls } from "@helvety/shared/config";
 import {
   AlertDialog,
@@ -24,7 +15,6 @@ import { Button } from "@helvety/ui/button";
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
@@ -37,82 +27,35 @@ import {
   TooltipTrigger,
 } from "@helvety/ui/tooltip";
 import {
-  BoxesIcon,
   BoxIcon,
   ExternalLinkIcon,
-  Loader2Icon,
   ListChecksIcon,
+  Loader2Icon,
   PlusIcon,
   UnlinkIcon,
-  VectorSquareIcon,
 } from "lucide-react";
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { useTaskLinks } from "@/hooks/use-task-links";
 
-import type {
-  LinkedUnit,
-  LinkedSpace,
-  LinkedItem,
-  TaskEntityType,
-  PickerUnit,
-  PickerSpace,
-  PickerItem,
-} from "@/lib/types";
-
-// =============================================================================
-// Helpers
-// =============================================================================
+import type { LinkedItem, PickerItem } from "@/lib/types";
 
 const TASKS_APP_URL = urls.tasks;
 
-/** Build a deep link URL to a unit in the Tasks app */
-function getUnitDeepLink(unitId: string): string {
-  return `${TASKS_APP_URL}/units/${unitId}`;
+/** Build a deep link URL to the Tasks app. */
+function getItemDeepLink(itemId: string): string {
+  void itemId;
+  return TASKS_APP_URL;
 }
 
-/** Build a deep link URL to a space in the Tasks app */
-function getSpaceDeepLink(unitId: string, spaceId: string): string {
-  return `${TASKS_APP_URL}/units/${unitId}/spaces/${spaceId}`;
-}
-
-/** Build a deep link URL to an item in the Tasks app */
-function getItemDeepLink(
-  unitId: string,
-  spaceId: string,
-  itemId: string
-): string {
-  return `${TASKS_APP_URL}/units/${unitId}/spaces/${spaceId}/items/${itemId}`;
-}
-
-/** Human-readable label for an entity type */
-function getEntityLabel(entityType: TaskEntityType): string {
-  switch (entityType) {
-    case "unit":
-      return "unit";
-    case "space":
-      return "space";
-    case "item":
-      return "item";
-  }
-}
-
-// =============================================================================
-// Sub-components
-// =============================================================================
-
-/**
- * A single linked entity row with deep link and unlink button.
- */
-function EntityRow({
+/** Render one linked task item row with unlink action. */
+function ItemRow({
   title,
   href,
-  icon: Icon,
   onUnlink,
 }: {
   title: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
   onUnlink: () => void;
 }): React.JSX.Element {
   return (
@@ -122,13 +65,10 @@ function EntityRow({
       rel="noopener noreferrer"
       className="group hover:bg-muted/40 flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors"
     >
-      {/* Entity icon + title */}
-      <Icon className="text-muted-foreground size-4 shrink-0" />
+      <BoxIcon className="text-muted-foreground size-4 shrink-0" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{title}</p>
       </div>
-
-      {/* Actions */}
       <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
         <TooltipProvider delayDuration={300}>
           <Tooltip>
@@ -147,66 +87,23 @@ function EntityRow({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">
-              <p>Unlink</p>
+              <p>Unlink item</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-
         <ExternalLinkIcon className="text-muted-foreground size-3.5 shrink-0" />
       </div>
     </a>
   );
 }
 
-/**
- * Section for a single entity type (units, spaces, or items).
- */
-function EntitySection({
-  icon: Icon,
-  label,
-  count,
-  children,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  count: number;
-  children: React.ReactNode;
-}): React.JSX.Element {
-  return (
-    <div className="space-y-2">
-      {/* Section header */}
-      <div className="flex items-center gap-2">
-        <Icon className="text-muted-foreground size-4" />
-        <h3 className="text-muted-foreground text-sm font-medium">{label}</h3>
-        {count > 0 && (
-          <span className="text-muted-foreground text-xs">({count})</span>
-        )}
-      </div>
-
-      {/* Entity rows */}
-      <div className="space-y-1.5">{children}</div>
-    </div>
-  );
-}
-
-// =============================================================================
-// Main Component
-// =============================================================================
-
-/**
- * Panel for linking/unlinking task entities to a contact.
- * Displays linked entities with deep links to the Tasks app and a
- * searchable picker to add new links. Mirrors ContactLinksPanel in
- * the Tasks app for consistent bidirectional UX.
- */
+/** Panel for linking/unlinking task items to a contact. */
 export function TaskLinksPanel({
   contactId,
 }: {
   contactId: string;
 }): React.JSX.Element {
   const {
-    units,
-    spaces,
     items,
     totalCount,
     allEntities,
@@ -219,64 +116,30 @@ export function TaskLinksPanel({
     unlink,
   } = useTaskLinks(contactId);
 
-  // Picker state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLinking, setIsLinking] = useState(false);
-
-  // Unlink confirmation state
   const [unlinkTarget, setUnlinkTarget] = useState<{
     linkId: string;
     title: string;
-    entityType: string;
   } | null>(null);
   const [isUnlinking, setIsUnlinking] = useState(false);
 
-  // Build sets of already-linked entity IDs for each type
-  const linkedUnitIds = useMemo(() => new Set(units.map((u) => u.id)), [units]);
-  const linkedSpaceIds = useMemo(
-    () => new Set(spaces.map((s) => s.id)),
-    [spaces]
-  );
   const linkedItemIds = useMemo(() => new Set(items.map((i) => i.id)), [items]);
 
-  // Filter picker entities: exclude already-linked and apply search
-  const filteredEntities = useMemo(() => {
+  const filteredItems = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
+    return allEntities.items
+      .filter((item) => !linkedItemIds.has(item.id))
+      .filter((item) => !query || item.title.toLowerCase().includes(query));
+  }, [allEntities.items, linkedItemIds, searchQuery]);
 
-    const filterByQuery = <T extends { title: string }>(list: T[]): T[] => {
-      if (!query) return list;
-      return list.filter((e) => e.title.toLowerCase().includes(query));
-    };
+  const allAvailableTotal = useMemo(
+    () =>
+      allEntities.items.filter((item) => !linkedItemIds.has(item.id)).length,
+    [allEntities.items, linkedItemIds]
+  );
 
-    const availableUnits = allEntities.units.filter(
-      (u) => !linkedUnitIds.has(u.id)
-    );
-    const availableSpaces = allEntities.spaces.filter(
-      (s) => !linkedSpaceIds.has(s.id)
-    );
-    const availableItems = allEntities.items.filter(
-      (i) => !linkedItemIds.has(i.id)
-    );
-
-    return {
-      units: filterByQuery(availableUnits),
-      spaces: filterByQuery(availableSpaces),
-      items: filterByQuery(availableItems),
-    };
-  }, [allEntities, linkedUnitIds, linkedSpaceIds, linkedItemIds, searchQuery]);
-
-  const filteredTotal =
-    filteredEntities.units.length +
-    filteredEntities.spaces.length +
-    filteredEntities.items.length;
-
-  const allAvailableTotal =
-    allEntities.units.filter((u) => !linkedUnitIds.has(u.id)).length +
-    allEntities.spaces.filter((s) => !linkedSpaceIds.has(s.id)).length +
-    allEntities.items.filter((i) => !linkedItemIds.has(i.id)).length;
-
-  // Handle picker open: load entities lazily
   const handlePickerOpenChange = useCallback(
     (open: boolean) => {
       setIsPickerOpen(open);
@@ -288,16 +151,12 @@ export function TaskLinksPanel({
     [loadEntities]
   );
 
-  // Handle linking an entity
   const handleLink = useCallback(
-    async (entityType: TaskEntityType, entityId: string) => {
+    async (itemId: string) => {
       setIsLinking(true);
       try {
-        const success = await link(entityType, entityId);
-        if (success) {
-          setSearchQuery("");
-          // Keep picker open so user can link more
-        }
+        const success = await link(itemId);
+        if (success) setSearchQuery("");
       } finally {
         setIsLinking(false);
       }
@@ -305,15 +164,6 @@ export function TaskLinksPanel({
     [link]
   );
 
-  // Handle unlink click
-  const handleUnlinkClick = useCallback(
-    (linkId: string, title: string, entityType: string) => {
-      setUnlinkTarget({ linkId, title, entityType });
-    },
-    []
-  );
-
-  // Handle unlink confirmation
   const handleUnlinkConfirm = useCallback(async () => {
     if (!unlinkTarget) return;
     setIsUnlinking(true);
@@ -328,7 +178,6 @@ export function TaskLinksPanel({
   return (
     <>
       <div className="space-y-3">
-        {/* Section header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ListChecksIcon className="text-muted-foreground size-4" />
@@ -342,7 +191,6 @@ export function TaskLinksPanel({
             )}
           </div>
 
-          {/* Add entity button / picker */}
           <Popover open={isPickerOpen} onOpenChange={handlePickerOpenChange}>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
@@ -357,7 +205,7 @@ export function TaskLinksPanel({
             >
               <Command shouldFilter={false}>
                 <CommandInput
-                  placeholder="Search entities..."
+                  placeholder="Search items..."
                   value={searchQuery}
                   onValueChange={setSearchQuery}
                 />
@@ -366,77 +214,30 @@ export function TaskLinksPanel({
                     <div className="flex items-center justify-center py-4">
                       <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
                     </div>
-                  ) : filteredTotal === 0 ? (
+                  ) : filteredItems.length === 0 ? (
                     <CommandEmpty>
-                      {allEntities.units.length === 0 &&
-                      allEntities.spaces.length === 0 &&
-                      allEntities.items.length === 0
-                        ? "No entities found"
+                      {allEntities.items.length === 0
+                        ? "No items found"
                         : searchQuery
-                          ? "No matching entities"
+                          ? "No matching items"
                           : allAvailableTotal === 0
-                            ? "All entities are already linked"
-                            : "No entities available"}
+                            ? "All items are already linked"
+                            : "No items available"}
                     </CommandEmpty>
                   ) : (
-                    <>
-                      {/* Units section */}
-                      {filteredEntities.units.length > 0 && (
-                        <CommandGroup heading="Units">
-                          {filteredEntities.units.map((unit: PickerUnit) => (
-                            <CommandItem
-                              key={unit.id}
-                              value={unit.id}
-                              onSelect={() => handleLink("unit", unit.id)}
-                              disabled={isLinking}
-                            >
-                              <VectorSquareIcon className="text-muted-foreground size-4 shrink-0" />
-                              <span className="min-w-0 flex-1 truncate font-medium">
-                                {unit.title}
-                              </span>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
-
-                      {/* Spaces section */}
-                      {filteredEntities.spaces.length > 0 && (
-                        <CommandGroup heading="Spaces">
-                          {filteredEntities.spaces.map((space: PickerSpace) => (
-                            <CommandItem
-                              key={space.id}
-                              value={space.id}
-                              onSelect={() => handleLink("space", space.id)}
-                              disabled={isLinking}
-                            >
-                              <BoxesIcon className="text-muted-foreground size-4 shrink-0" />
-                              <span className="min-w-0 flex-1 truncate font-medium">
-                                {space.title}
-                              </span>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
-
-                      {/* Items section */}
-                      {filteredEntities.items.length > 0 && (
-                        <CommandGroup heading="Items">
-                          {filteredEntities.items.map((item: PickerItem) => (
-                            <CommandItem
-                              key={item.id}
-                              value={item.id}
-                              onSelect={() => handleLink("item", item.id)}
-                              disabled={isLinking}
-                            >
-                              <BoxIcon className="text-muted-foreground size-4 shrink-0" />
-                              <span className="min-w-0 flex-1 truncate font-medium">
-                                {item.title}
-                              </span>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
-                    </>
+                    filteredItems.map((item: PickerItem) => (
+                      <CommandItem
+                        key={item.id}
+                        value={item.id}
+                        onSelect={() => handleLink(item.id)}
+                        disabled={isLinking}
+                      >
+                        <BoxIcon className="text-muted-foreground size-4 shrink-0" />
+                        <span className="min-w-0 flex-1 truncate font-medium">
+                          {item.title}
+                        </span>
+                      </CommandItem>
+                    ))
                   )}
                 </CommandList>
               </Command>
@@ -444,14 +245,12 @@ export function TaskLinksPanel({
           </Popover>
         </div>
 
-        {/* Loading state */}
         {isLoading && totalCount === 0 && (
           <div className="flex items-center justify-center py-4">
             <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
           </div>
         )}
 
-        {/* Error state - friendly UI with retry (toast already shown by hook) */}
         {error && (
           <div className="flex flex-col items-center gap-2 py-2">
             <p role="alert" className="text-muted-foreground text-xs">
@@ -463,70 +262,28 @@ export function TaskLinksPanel({
           </div>
         )}
 
-        {/* Units section */}
-        {units.length > 0 && (
-          <EntitySection
-            icon={VectorSquareIcon}
-            label="Units"
-            count={units.length}
-          >
-            {units.map((unit: LinkedUnit) => (
-              <EntityRow
-                key={unit.link_id}
-                title={unit.title}
-                href={getUnitDeepLink(unit.id)}
-                icon={VectorSquareIcon}
-                onUnlink={() =>
-                  handleUnlinkClick(unit.link_id, unit.title, "unit")
-                }
-              />
-            ))}
-          </EntitySection>
-        )}
-
-        {/* Spaces section */}
-        {spaces.length > 0 && (
-          <EntitySection icon={BoxesIcon} label="Spaces" count={spaces.length}>
-            {spaces.map((space: LinkedSpace) => (
-              <EntityRow
-                key={space.link_id}
-                title={space.title}
-                href={getSpaceDeepLink(space.unit_id, space.id)}
-                icon={BoxesIcon}
-                onUnlink={() =>
-                  handleUnlinkClick(space.link_id, space.title, "space")
-                }
-              />
-            ))}
-          </EntitySection>
-        )}
-
-        {/* Items section */}
         {items.length > 0 && (
-          <EntitySection icon={BoxIcon} label="Items" count={items.length}>
+          <div className="space-y-1.5">
             {items.map((item: LinkedItem) => (
-              <EntityRow
+              <ItemRow
                 key={item.link_id}
                 title={item.title}
-                href={getItemDeepLink(item.unit_id, item.space_id, item.id)}
-                icon={BoxIcon}
+                href={getItemDeepLink(item.id)}
                 onUnlink={() =>
-                  handleUnlinkClick(item.link_id, item.title, "item")
+                  setUnlinkTarget({ linkId: item.link_id, title: item.title })
                 }
               />
             ))}
-          </EntitySection>
+          </div>
         )}
 
-        {/* Empty state */}
         {!isLoading && totalCount === 0 && (
           <p className="text-muted-foreground py-2 text-center text-xs">
-            No task entities linked yet
+            No task items linked yet
           </p>
         )}
       </div>
 
-      {/* Unlink confirmation dialog */}
       <AlertDialog
         open={unlinkTarget !== null}
         onOpenChange={(open) => {
@@ -535,14 +292,10 @@ export function TaskLinksPanel({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unlink Entity</AlertDialogTitle>
+            <AlertDialogTitle>Unlink Item</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to unlink &ldquo;{unlinkTarget?.title}
-              &rdquo; from this contact? The{" "}
-              {unlinkTarget
-                ? getEntityLabel(unlinkTarget.entityType as TaskEntityType)
-                : "entity"}{" "}
-              itself will not be deleted.
+              &rdquo; from this contact? The item itself will not be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -6,26 +6,20 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
 import { z } from "zod";
 
-import type {
-  ActionResponse,
-  ContactRow,
-  EntityContactLinkRow,
-} from "@/lib/types";
+import type { ActionResponse, ContactRow } from "@/lib/types";
 
-// =============================================================================
-// Input Validation Schemas
-// =============================================================================
-
-const EntityTypeSchema = z.enum(["unit", "space", "item"]);
-
-// =============================================================================
-// CONTACT ACTIONS (read-only, contacts are managed in the Contacts app)
-// =============================================================================
+/** Raw link row from `item_contact_links`. */
+interface ItemContactLinkRow {
+  id: string;
+  item_id: string;
+  contact_id: string;
+  user_id: string;
+  created_at: string;
+}
 
 /**
  * Get all Contacts for the current user.
  * Returns encrypted data that must be decrypted client-side.
- * The Tasks app only reads contacts and does not create or edit them.
  */
 export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
   try {
@@ -55,24 +49,15 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
   }
 }
 
-// =============================================================================
-// ENTITY CONTACT LINK ACTIONS
-// =============================================================================
-
 /**
- * Get all contact links for a specific entity (unit, space, or item).
- * Returns link rows that reference contact IDs.
+ * Get all contact links for a specific item.
  */
-export async function getEntityContactLinks(
-  entityType: string,
-  entityId: string
-): Promise<ActionResponse<EntityContactLinkRow[]>> {
+export async function getItemContactLinks(
+  itemId: string
+): Promise<ActionResponse<ItemContactLinkRow[]>> {
   try {
-    if (!EntityTypeSchema.safeParse(entityType).success) {
-      return { success: false, error: "Invalid entity type" };
-    }
-    if (!z.string().uuid().safeParse(entityId).success) {
-      return { success: false, error: "Invalid entity ID" };
+    if (!z.string().uuid().safeParse(itemId).success) {
+      return { success: false, error: "Invalid item ID" };
     }
 
     const auth = await authenticateAndRateLimit({
@@ -82,13 +67,12 @@ export async function getEntityContactLinks(
     const { user, supabase } = auth.ctx;
 
     const { data: links, error } = await supabase
-      .from("entity_contact_links")
+      .from("item_contact_links")
       .select("*")
       .eq("user_id", user.id)
-      .eq("entity_type", entityType)
-      .eq("entity_id", entityId)
+      .eq("item_id", itemId)
       .order("created_at", { ascending: true })
-      .returns<EntityContactLinkRow[]>();
+      .returns<ItemContactLinkRow[]>();
 
     if (error) {
       logger.error("Error getting contact links:", error);
@@ -97,26 +81,22 @@ export async function getEntityContactLinks(
 
     return { success: true, data: links ?? [] };
   } catch (error) {
-    logger.error("Unexpected error in getEntityContactLinks:", error);
+    logger.error("Unexpected error in getItemContactLinks:", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
 
 /**
- * Link a contact to an entity (unit, space, or item).
+ * Link a contact to an item.
  */
 export async function linkContact(
-  entityType: string,
-  entityId: string,
+  itemId: string,
   contactId: string,
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    if (!EntityTypeSchema.safeParse(entityType).success) {
-      return { success: false, error: "Invalid entity type" };
-    }
-    if (!z.string().uuid().safeParse(entityId).success) {
-      return { success: false, error: "Invalid entity ID" };
+    if (!z.string().uuid().safeParse(itemId).success) {
+      return { success: false, error: "Invalid item ID" };
     }
     if (!z.string().uuid().safeParse(contactId).success) {
       return { success: false, error: "Invalid contact ID" };
@@ -129,15 +109,7 @@ export async function linkContact(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const entityTable =
-      entityType === "unit"
-        ? "units"
-        : entityType === "space"
-          ? "spaces"
-          : "items";
-
-    // Verify ownership of both contact and entity in parallel (defense-in-depth)
-    const [contactResult, entityResult] = await Promise.all([
+    const [contactResult, itemResult] = await Promise.all([
       supabase
         .from("contacts")
         .select("id")
@@ -145,9 +117,9 @@ export async function linkContact(
         .eq("user_id", user.id)
         .single(),
       supabase
-        .from(entityTable)
+        .from("items")
         .select("id")
-        .eq("id", entityId)
+        .eq("id", itemId)
         .eq("user_id", user.id)
         .single(),
     ]);
@@ -155,16 +127,14 @@ export async function linkContact(
     if (contactResult.error || !contactResult.data) {
       return { success: false, error: "Contact not found" };
     }
-
-    if (entityResult.error || !entityResult.data) {
-      return { success: false, error: "Entity not found" };
+    if (itemResult.error || !itemResult.data) {
+      return { success: false, error: "Item not found" };
     }
 
     const { data: link, error } = await supabase
-      .from("entity_contact_links")
+      .from("item_contact_links")
       .insert({
-        entity_type: entityType,
-        entity_id: entityId,
+        item_id: itemId,
         contact_id: contactId,
         user_id: user.id,
       })
@@ -172,7 +142,6 @@ export async function linkContact(
       .single();
 
     if (error || !link) {
-      // Handle unique constraint violation (contact already linked)
       if (error?.code === "23505") {
         return { success: false, error: "Contact is already linked" };
       }
@@ -188,7 +157,7 @@ export async function linkContact(
 }
 
 /**
- * Unlink a contact from an entity by deleting the link row.
+ * Unlink a contact from an item by deleting the link row.
  */
 export async function unlinkContact(
   linkId: string,
@@ -206,9 +175,8 @@ export async function unlinkContact(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    // Delete link (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
-      .from("entity_contact_links")
+      .from("item_contact_links")
       .delete()
       .eq("id", linkId)
       .eq("user_id", user.id);

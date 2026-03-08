@@ -17,6 +17,7 @@ import {
   deleteContact,
   reorderContacts,
 } from "@/app/actions/contact-actions";
+import { DEFAULT_CONTACT_CATEGORY_ID } from "@/lib/config/default-categories";
 import {
   useEncryptionContext,
   encryptContactInput,
@@ -198,7 +199,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
             phone: input.phone,
             birthday: input.birthday,
             notes: input.notes,
-            category_id: input.category_id ?? null,
+            category_id: input.category_id ?? DEFAULT_CONTACT_CATEGORY_ID,
             sort_order: maxSortOrder + 1,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -271,7 +272,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
               ...(input.birthday !== undefined && { birthday: input.birthday }),
               ...(input.notes !== undefined && { notes: input.notes }),
               ...(input.category_id !== undefined && {
-                category_id: input.category_id ?? null,
+                category_id: input.category_id,
               }),
               updated_at: new Date().toISOString(),
             };
@@ -343,10 +344,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
           return {
             ...contact,
             sort_order: match.sort_order,
-            category_id:
-              match.category_id !== undefined
-                ? match.category_id
-                : contact.category_id,
+            ...(match.category_id !== undefined && {
+              category_id: match.category_id,
+            }),
           };
         });
         return updated.toSorted((a, b) => a.sort_order - b.sort_order);
@@ -577,7 +577,7 @@ export function useContact(
             ...(input.birthday !== undefined && { birthday: input.birthday }),
             ...(input.notes !== undefined && { notes: input.notes }),
             ...(input.category_id !== undefined && {
-              category_id: input.category_id ?? null,
+              category_id: input.category_id,
             }),
             updated_at: new Date().toISOString(),
           };

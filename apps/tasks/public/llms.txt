@@ -1,10 +1,10 @@
 # Helvety Tasks
 
-> Task management with client-side encryption for sensitive fields in current supported flows. Organize tasks across spaces with immutable built-in stage and label sets plus drag-and-drop ordering. Engineered and designed in Switzerland.
+> Task management with client-side encryption for sensitive fields in current supported flows. Uses a flat, item-first workflow with immutable built-in stage and label sets plus drag-and-drop ordering. Engineered and designed in Switzerland.
 
 ## Core Pages
 - [Home](https://helvety.com/tasks): Task management app with client-side encryption for sensitive fields
-- Current usage limits: up to 10 Units, 15 Spaces per Unit, and 250 Items per Space
+- Current usage limits: up to 250 items per user
 
 ## Helvety Ecosystem
 - [Helvety](https://helvety.com): Main Helvety website with company information and legal pages

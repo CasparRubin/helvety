@@ -1,7 +1,7 @@
 /**
  * Task Encryption Helpers
- * Convenience functions for encrypting/decrypting Units, Spaces, Items,
- * and Contacts client-side.
+ * Convenience functions for encrypting/decrypting task and contact data
+ * client-side.
  *
  * This module ensures the server receives encrypted payloads for
  * protected fields; validate API and logging paths to keep this invariant.
@@ -23,12 +23,6 @@ import {
 } from "./encryption";
 
 import type {
-  Unit,
-  UnitRow,
-  UnitInput,
-  Space,
-  SpaceRow,
-  SpaceInput,
   Item,
   ItemRow,
   ItemInput,
@@ -49,170 +43,6 @@ import type {
 } from "@/lib/types";
 
 // =============================================================================
-// UNIT ENCRYPTION
-// =============================================================================
-
-/**
- * Encrypt a Unit for database storage
- * Takes plaintext input and returns encrypted fields ready for the server.
- * Generates a client-side UUID and binds all ciphertext to it via AAD.
- */
-export async function encryptUnitInput(
-  input: UnitInput,
-  key: CryptoKey
-): Promise<{
-  id: string;
-  encrypted_title: string;
-  encrypted_description: string | null;
-  stage_id?: string | null;
-}> {
-  const id = crypto.randomUUID();
-  const aad = buildAAD("units", id);
-  const encryptedTitle = await encrypt(input.title, key, aad);
-
-  let encryptedDescription: string | null = null;
-  if (input.description) {
-    const encrypted = await encrypt(input.description, key, aad);
-    encryptedDescription = serializeEncryptedData(encrypted);
-  }
-
-  return {
-    id,
-    encrypted_title: serializeEncryptedData(encryptedTitle),
-    encrypted_description: encryptedDescription,
-    stage_id: input.stage_id,
-  };
-}
-
-/**
- * Decrypt a Unit row from the database
- * Takes encrypted database row and returns plaintext Unit
- */
-export async function decryptUnitRow(
-  row: UnitRow,
-  key: CryptoKey
-): Promise<Unit> {
-  const aad = buildAAD("units", row.id);
-  const title = await decrypt(
-    parseEncryptedData(row.encrypted_title),
-    key,
-    aad
-  );
-
-  let description: string | null = null;
-  if (row.encrypted_description) {
-    description = await decrypt(
-      parseEncryptedData(row.encrypted_description),
-      key,
-      aad
-    );
-  }
-
-  return {
-    id: row.id,
-    user_id: row.user_id,
-    title,
-    description,
-    stage_id: row.stage_id,
-    sort_order: row.sort_order,
-    created_at: row.created_at,
-    updated_at: row.updated_at,
-  };
-}
-
-/**
- * Decrypt multiple Unit rows
- */
-export async function decryptUnitRows(
-  rows: UnitRow[],
-  key: CryptoKey
-): Promise<Unit[]> {
-  return Promise.all(rows.map((row) => decryptUnitRow(row, key)));
-}
-
-// =============================================================================
-// SPACE ENCRYPTION
-// =============================================================================
-
-/**
- * Encrypt a Space for database storage
- */
-export async function encryptSpaceInput(
-  input: SpaceInput,
-  key: CryptoKey
-): Promise<{
-  id: string;
-  unit_id: string;
-  encrypted_title: string;
-  encrypted_description: string | null;
-  stage_id?: string | null;
-}> {
-  const id = crypto.randomUUID();
-  const aad = buildAAD("spaces", id);
-  const encryptedTitle = await encrypt(input.title, key, aad);
-
-  let encryptedDescription: string | null = null;
-  if (input.description) {
-    const encrypted = await encrypt(input.description, key, aad);
-    encryptedDescription = serializeEncryptedData(encrypted);
-  }
-
-  return {
-    id,
-    unit_id: input.unit_id,
-    encrypted_title: serializeEncryptedData(encryptedTitle),
-    encrypted_description: encryptedDescription,
-    stage_id: input.stage_id,
-  };
-}
-
-/**
- * Decrypt a Space row from the database
- */
-export async function decryptSpaceRow(
-  row: SpaceRow,
-  key: CryptoKey
-): Promise<Space> {
-  const aad = buildAAD("spaces", row.id);
-  const title = await decrypt(
-    parseEncryptedData(row.encrypted_title),
-    key,
-    aad
-  );
-
-  let description: string | null = null;
-  if (row.encrypted_description) {
-    description = await decrypt(
-      parseEncryptedData(row.encrypted_description),
-      key,
-      aad
-    );
-  }
-
-  return {
-    id: row.id,
-    unit_id: row.unit_id,
-    user_id: row.user_id,
-    title,
-    description,
-    stage_id: row.stage_id,
-    sort_order: row.sort_order,
-    created_at: row.created_at,
-    updated_at: row.updated_at,
-  };
-}
-
-/**
- * Decrypt multiple Space rows
- */
-export async function decryptSpaceRows(
-  rows: SpaceRow[],
-  key: CryptoKey
-): Promise<Space[]> {
-  return Promise.all(rows.map((row) => decryptSpaceRow(row, key)));
-}
-
-// =============================================================================
 // ITEM ENCRYPTION
 // =============================================================================
 
@@ -224,7 +54,6 @@ export async function encryptItemInput(
   key: CryptoKey
 ): Promise<{
   id: string;
-  space_id: string;
   encrypted_title: string;
   encrypted_description: string | null;
   encrypted_start_date: string | null;
@@ -256,7 +85,6 @@ export async function encryptItemInput(
 
   return {
     id,
-    space_id: input.space_id,
     encrypted_title: serializeEncryptedData(encryptedTitle),
     encrypted_description: encryptedDescription,
     encrypted_start_date: encryptedStartDate,
@@ -309,7 +137,6 @@ export async function decryptItemRow(
 
   return {
     id: row.id,
-    space_id: row.space_id,
     user_id: row.user_id,
     title,
     description,
@@ -710,80 +537,11 @@ export async function encryptLabelUpdate(
 // =============================================================================
 
 /**
- * Encrypt fields for updating a Unit
- * Only encrypts provided fields (for partial updates)
- */
-export async function encryptUnitUpdate(
-  id: string,
-  update: Partial<UnitInput>,
-  key: CryptoKey
-): Promise<{
-  encrypted_title?: string;
-  encrypted_description?: string | null;
-}> {
-  const aad = buildAAD("units", id);
-  const result: {
-    encrypted_title?: string;
-    encrypted_description?: string | null;
-  } = {};
-
-  if (update.title !== undefined) {
-    const encrypted = await encrypt(update.title, key, aad);
-    result.encrypted_title = serializeEncryptedData(encrypted);
-  }
-
-  if (update.description !== undefined) {
-    if (update.description === null) {
-      result.encrypted_description = null;
-    } else {
-      const encrypted = await encrypt(update.description, key, aad);
-      result.encrypted_description = serializeEncryptedData(encrypted);
-    }
-  }
-
-  return result;
-}
-
-/**
- * Encrypt fields for updating a Space
- */
-export async function encryptSpaceUpdate(
-  id: string,
-  update: Partial<Omit<SpaceInput, "unit_id">>,
-  key: CryptoKey
-): Promise<{
-  encrypted_title?: string;
-  encrypted_description?: string | null;
-}> {
-  const aad = buildAAD("spaces", id);
-  const result: {
-    encrypted_title?: string;
-    encrypted_description?: string | null;
-  } = {};
-
-  if (update.title !== undefined) {
-    const encrypted = await encrypt(update.title, key, aad);
-    result.encrypted_title = serializeEncryptedData(encrypted);
-  }
-
-  if (update.description !== undefined) {
-    if (update.description === null) {
-      result.encrypted_description = null;
-    } else {
-      const encrypted = await encrypt(update.description, key, aad);
-      result.encrypted_description = serializeEncryptedData(encrypted);
-    }
-  }
-
-  return result;
-}
-
-/**
  * Encrypt fields for updating an Item
  */
 export async function encryptItemUpdate(
   id: string,
-  update: Partial<Omit<ItemInput, "space_id">>,
+  update: Partial<ItemInput>,
   key: CryptoKey
 ): Promise<{
   encrypted_title?: string;
@@ -898,7 +656,6 @@ export async function decryptContactRow(
     phone,
     birthday,
     has_notes: row.encrypted_notes !== null,
-    category_id: row.category_id,
     sort_order: row.sort_order,
     created_at: row.created_at,
     updated_at: row.updated_at,

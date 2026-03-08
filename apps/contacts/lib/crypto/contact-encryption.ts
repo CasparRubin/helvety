@@ -16,6 +16,8 @@ import {
   buildAAD,
 } from "@helvety/shared/crypto/encryption";
 
+import { DEFAULT_CONTACT_CATEGORY_ID } from "@/lib/config/default-categories";
+
 import type {
   Contact,
   ContactRow,
@@ -49,7 +51,7 @@ export async function encryptContactInput(
   encrypted_phone: string | null;
   encrypted_birthday: string | null;
   encrypted_notes: string | null;
-  category_id?: string | null;
+  category_id: string;
 }> {
   const id = crypto.randomUUID();
   const aad = buildAAD("contacts", id);
@@ -95,7 +97,7 @@ export async function encryptContactInput(
     encrypted_phone: encryptedPhone,
     encrypted_birthday: encryptedBirthday,
     encrypted_notes: encryptedNotes,
-    category_id: input.category_id,
+    category_id: input.category_id ?? DEFAULT_CONTACT_CATEGORY_ID,
   };
 }
 
@@ -162,7 +164,7 @@ export async function decryptContactRow(
     phone,
     birthday,
     notes,
-    category_id: row.category_id,
+    category_id: row.category_id ?? DEFAULT_CONTACT_CATEGORY_ID,
     sort_order: row.sort_order,
     created_at: row.created_at,
     updated_at: row.updated_at,

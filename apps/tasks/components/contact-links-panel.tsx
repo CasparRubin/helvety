@@ -38,7 +38,7 @@ import { useState, useCallback, useMemo } from "react";
 import { useContactLinks } from "@/hooks/use-contact-links";
 
 import type { LinkedContact } from "@/hooks/use-contact-links";
-import type { EntityType, Contact } from "@/lib/types";
+import type { Contact } from "@/lib/types";
 
 // =============================================================================
 // Helpers
@@ -48,7 +48,8 @@ const CONTACTS_APP_URL = urls.contacts;
 
 /** Build a deep link URL to view/edit a contact in the Contacts app */
 function getContactDeepLink(contactId: string): string {
-  return `${CONTACTS_APP_URL}/contacts/${contactId}`;
+  void contactId;
+  return CONTACTS_APP_URL;
 }
 
 /** Format a contact's full name */
@@ -136,19 +137,17 @@ function LinkedContactRow({
 // =============================================================================
 
 /**
- * Panel for linking/unlinking contacts to a task entity (unit, space, or item).
+ * Panel for linking/unlinking contacts to an item.
  * Displays linked contacts with deep links to the Contacts app and a
  * searchable picker to add new contacts.
  */
 export function ContactLinksPanel({
-  entityType,
-  entityId,
+  itemId,
 }: {
-  entityType: EntityType;
-  entityId: string;
+  itemId: string;
 }): React.JSX.Element {
   const { allContacts, linkedContacts, isLoading, link, unlink } =
-    useContactLinks(entityType, entityId);
+    useContactLinks(itemId);
 
   // Picker state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -332,8 +331,7 @@ export function ContactLinksPanel({
             <AlertDialogTitle>Unlink Contact</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to unlink &ldquo;{unlinkTarget?.name}
-              &rdquo; from this {entityType}? The contact itself will not be
-              deleted.
+              &rdquo; from this item? The contact itself will not be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

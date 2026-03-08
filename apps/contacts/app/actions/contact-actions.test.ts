@@ -49,7 +49,6 @@ function getCreatePayload(
   overrides?: Partial<Parameters<typeof createContact>[0]>
 ) {
   return {
-    category_id: "default-contact-work",
     encrypted_birthday: null,
     encrypted_description: null,
     encrypted_email: null,
@@ -89,9 +88,13 @@ function createSupabaseForCreateContact(options?: {
   const insertSelect = vi.fn(() => ({
     single: insertSingle,
   }));
-  const insert = vi.fn(() => ({
-    select: insertSelect,
-  }));
+  let insertedPayload: Record<string, unknown> | null = null;
+  const insert = vi.fn((payload: Record<string, unknown>) => {
+    insertedPayload = payload;
+    return {
+      select: insertSelect,
+    };
+  });
 
   return {
     countEq,
@@ -105,6 +108,7 @@ function createSupabaseForCreateContact(options?: {
       };
     }),
     insert,
+    getInsertedPayload: () => insertedPayload,
   };
 }
 
@@ -180,6 +184,49 @@ describe("contact-actions", () => {
     });
   });
 
+  it("defaults category_id to personal when omitted on create", async () => {
+    const supabase = createSupabaseForCreateContact({
+      insertedId: "new-contact-id",
+    });
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await createContact(getCreatePayload(), "csrf-token");
+
+    expect(result).toEqual({
+      data: { id: "new-contact-id" },
+      success: true,
+    });
+    expect(supabase.getInsertedPayload()).toMatchObject({
+      category_id: "personal",
+    });
+  });
+
+  it("accepts explicit category_id on create", async () => {
+    const supabase = createSupabaseForCreateContact({
+      insertedId: "new-contact-id",
+    });
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await createContact(
+      getCreatePayload({ category_id: "work" }),
+      "csrf-token"
+    );
+
+    expect(result).toEqual({
+      data: { id: "new-contact-id" },
+      success: true,
+    });
+    expect(supabase.getInsertedPayload()).toMatchObject({
+      category_id: "work",
+    });
+  });
+
   it("revalidates contact routes after successful create and update", async () => {
     const supabase = createSupabaseForCreateContact({
       insertedId: "new-contact-id",
@@ -218,9 +265,6 @@ describe("contact-actions", () => {
     });
     expect(updated).toEqual({ success: true });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/contacts");
-    expect(mocks.revalidatePath).toHaveBeenCalledWith(
-      "/contacts/contacts/550e8400-e29b-41d4-a716-446655440000"
-    );
   });
 
   it("validates contact IDs before DB reads", async () => {
@@ -249,5 +293,42 @@ describe("contact-actions", () => {
       error: "Invalid reorder data",
       success: false,
     });
+  });
+
+  it("includes category_id in reorder updates when provided", async () => {
+    const updateEqUser = vi.fn().mockResolvedValue({ error: null });
+    const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
+    const update = vi.fn(() => ({ eq: updateEqId }));
+    const supabase = {
+      from: vi.fn((table: string) => {
+        if (table !== "contacts") {
+          throw new Error(`Unexpected table ${table}`);
+        }
+        return { update };
+      }),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await reorderContacts(
+      [
+        {
+          category_id: "business",
+          id: "550e8400-e29b-41d4-a716-446655440001",
+          sort_order: 0,
+        },
+      ],
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category_id: "business",
+        sort_order: 0,
+      })
+    );
   });
 });

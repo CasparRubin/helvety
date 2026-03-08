@@ -30,7 +30,6 @@ export interface DecryptedContactExport {
     phone: string | null;
     birthday: string | null;
     notes: string | null;
-    categoryId: string | null;
     createdAt: string;
     updatedAt: string;
   }>;
@@ -68,7 +67,6 @@ export async function exportDecryptedContactData(
       phone: contact.phone,
       birthday: contact.birthday,
       notes: contact.notes,
-      categoryId: contact.category_id,
       createdAt: contact.created_at,
       updatedAt: contact.updated_at,
     })),

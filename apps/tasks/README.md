@@ -20,7 +20,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 ## Features
 
 - **End-to-end encryption** - Sensitive task content fields are encrypted client-side using your passkey (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
-- **Units, Spaces, and Items** - Hierarchical organization: Units (top-level containers) → Spaces (teams/projects) → Items (tasks)
+- **Flat item-first workflow** - `/tasks` opens directly into your item list; item details open in a large sheet instead of nested unit/space routes
 - **Rich text descriptions** - Rich text editor for item descriptions with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
   - Headings (H1, H2, H3)
@@ -30,16 +30,15 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Action panel** - View created/modified dates, set start and end date/time, view immutable built-in item stages/labels, and set priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators. Default is Normal when not specified.
 - **Fixed labels** - An immutable built-in item label set is enforced across the app. New items use a default label when none is specified.
-- **Fixed stages** - Immutable built-in stage sets are enforced for Units, Spaces, and Items. New entities are assigned the first stage when none is specified (Units: Work, Home, Hobbies; Spaces: Upcoming; Items: Backlog).
-- **Contact linking** - Link contacts from [Helvety Contacts](https://helvety.com/contacts) to any Unit, Space, or Item
+- **Fixed stages** - Immutable built-in stage sets are enforced for task items. New items are assigned the first stage when none is specified (Backlog).
+- **Contact linking** - Link contacts from [Helvety Contacts](https://helvety.com/contacts) to task items
   - **Bidirectional** - Link and unlink from either the Tasks app or the Contacts app for consistent cross-app UX
   - **Searchable picker** - Search your contacts by name or email and link them with one click
   - **Contact display** - Shows name and email; description, phone, and birthday are decrypted but not displayed in the compact link view. A flag indicates whether the contact has notes
   - **Deep links** - Click any contact row to view or edit the full contact details in the Contacts app (opens in a new tab)
   - **Privacy** - Contact notes content is not decrypted in the Tasks app by design; only a has-notes indicator is shown
 - **Drag & drop reordering** - Rearrange entries on desktop; mobile uses up/down arrows for ordering controls
-- **Controlled row-link prefetching** - Dense unit/space/item lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
-- **Route-instance navigation guards** - Async/deferred client navigations are gated so callbacks from prior route instances are ignored after you move to a newer route
+- **Controlled row-link prefetching** - Dense item lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
 - **Consistency safeguards for stage/status moves** - UI keeps optimistic interactions snappy while discarding stale in-flight refresh responses; server mutations also trigger targeted route revalidation so prefetched pages stay aligned
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
@@ -47,9 +46,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 ## Current Usage Limits
 
-- Max **10 Units** per user
-- Max **15 Spaces** per Unit
-- Max **250 Items** per Space
+- Max **250 items** per user
 
 ## Environment Variables
 
@@ -89,8 +86,6 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. In su
 
 | Entity | Encrypted Fields                                 |
 | ------ | ------------------------------------------------ |
-| Unit   | `title`, `description`                           |
-| Space  | `title`, `description`                           |
 | Item   | `title`, `description`, `start_date`, `end_date` |
 
 **Non-encrypted structural metadata** (stored in plaintext to enable application functionality):
@@ -102,7 +97,7 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. In su
 | `created_at`, `updated_at`                    | Timestamps                                         |
 | `sort_order`                                  | Display ordering                                   |
 | `priority` (Item)                             | Priority level (0-3 numeric)                       |
-| `stage_id`, `label_id`, `space_id`, `unit_id` | Entity relationships                               |
+| `stage_id`, `label_id`, internal relation IDs | App relationships and grouping                     |
 
 Browser compatibility for end-to-end encryption depends on WebAuthn PRF support and can evolve over time:
 

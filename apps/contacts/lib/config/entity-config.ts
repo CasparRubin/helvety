@@ -16,7 +16,7 @@ export type EntityConfig = EntityDeleteConfig;
 /**
  * Entity type identifiers
  */
-export type EntityTypeId = "contact" | "category";
+export type EntityTypeId = "contact";
 
 /**
  * Centralized entity configuration registry
@@ -25,11 +25,6 @@ export const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
   contact: {
     name: "contact",
     plural: "contacts",
-    hasChildren: false,
-  },
-  category: {
-    name: "category",
-    plural: "categories",
     hasChildren: false,
   },
 };

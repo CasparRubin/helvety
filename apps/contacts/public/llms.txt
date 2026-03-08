@@ -1,6 +1,6 @@
 # Helvety Contacts
 
-> Contact management with client-side encryption for sensitive fields in current supported flows and an immutable built-in contact category set (Work, Family, Friends). Engineered and designed in Switzerland.
+> Contact management with client-side encryption for sensitive fields in current supported flows, with list-first UI grouped by fixed categories. Engineered and designed in Switzerland.
 
 ## Core Pages
 - [Home](https://helvety.com/contacts): Contact management app with client-side encryption for sensitive fields

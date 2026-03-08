@@ -39,9 +39,8 @@ import { ContactEditorCommandBar } from "@/components/contact-editor-command-bar
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { TaskLinksPanel } from "@/components/task-links-panel";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useCategories } from "@/hooks/use-categories";
 import { useContact } from "@/hooks/use-contacts";
-import { DEFAULT_CATEGORY_CONFIG } from "@/lib/config/default-categories";
+import { DEFAULT_CATEGORIES } from "@/lib/config/default-categories";
 
 import type { ContactRow } from "@/lib/types";
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
@@ -55,27 +54,27 @@ interface ContactEditorProps {
   contactId: string;
   /** Server-prefetched encrypted contact to skip initial round-trip */
   initialEncryptedContact?: ContactRow;
+  embedded?: boolean;
+  onClose?: () => void;
 }
 
 /**
  * ContactEditor - Full editor for a single contact.
  * Two-column layout: left = name fields, description, email, phone, birthday,
- * TipTap notes editor, linked task entities; right = action panel (dates, category).
+ * TipTap notes editor, linked task items; right = action panel (dates metadata).
  * On mobile the action panel is displayed above the form fields (via flex-col-reverse)
  * for consistency with the Tasks app.
  */
 export function ContactEditor({
   contactId,
   initialEncryptedContact,
+  embedded = false,
+  onClose,
 }: ContactEditorProps) {
   const router = useRouter();
   const { contact, isLoading, error, refresh, update, remove } = useContact(
     contactId,
     { initialEncryptedData: initialEncryptedContact }
-  );
-
-  const { categories, isLoading: isLoadingCategories } = useCategories(
-    DEFAULT_CATEGORY_CONFIG.id
   );
 
   // Form state
@@ -91,7 +90,6 @@ export function ContactEditor({
   // Save tracking
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [isSaving, setIsSaving] = useState(false);
-  const [isSavingCategory, setIsSavingCategory] = useState(false);
   const savedFirstNameRef = useRef("");
   const savedLastNameRef = useRef("");
   const savedDescriptionRef = useRef("");
@@ -108,6 +106,7 @@ export function ContactEditor({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeletingContact, setIsDeletingContact] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSavingCategory, setIsSavingCategory] = useState(false);
 
   // Unsaved changes confirmation state
   const [pendingAction, setPendingAction] = useState<"back" | "refresh" | null>(
@@ -217,22 +216,13 @@ export function ContactEditor({
     isSaving,
   ]);
 
-  const handleCategoryChange = useCallback(
-    async (categoryId: string) => {
-      if (!contact) return;
-      setIsSavingCategory(true);
-      try {
-        await update({ category_id: categoryId });
-      } finally {
-        setIsSavingCategory(false);
-      }
-    },
-    [contact, update]
-  );
-
   const doBack = useCallback(() => {
+    if (onClose) {
+      onClose();
+      return;
+    }
     router.replace("/");
-  }, [router]);
+  }, [onClose, router]);
 
   const handleBack = useCallback(() => {
     if (hasUnsavedChanges) {
@@ -281,18 +271,35 @@ export function ContactEditor({
     setIsDeleteOpen(true);
   }, []);
 
+  const handleCategoryChange = useCallback(
+    async (categoryId: string) => {
+      if (!contact || categoryId === contact.category_id) return;
+      setIsSavingCategory(true);
+      try {
+        await update({ category_id: categoryId });
+      } finally {
+        setIsSavingCategory(false);
+      }
+    },
+    [contact, update]
+  );
+
   const handleDeleteConfirm = useCallback(async () => {
     setIsDeletingContact(true);
     try {
       const success = await remove();
       if (success) {
-        router.replace("/");
+        if (onClose) {
+          onClose();
+        } else {
+          router.replace("/");
+        }
       }
     } finally {
       setIsDeletingContact(false);
       setIsDeleteOpen(false);
     }
-  }, [remove, router]);
+  }, [onClose, remove, router]);
 
   // Handle notes change: capture editor baseline on first emission, then compare values
   const handleNotesChange = useCallback((content: JSONContent) => {
@@ -340,16 +347,42 @@ export function ContactEditor({
 
   return (
     <>
-      <ContactEditorCommandBar
-        onBack={handleBack}
-        onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
-        onSave={handleSave}
-        isSaving={isSaving}
-        hasUnsavedChanges={hasUnsavedChanges}
-        saveStatus={saveStatus}
-        onDelete={handleDelete}
-      />
+      {!embedded && (
+        <ContactEditorCommandBar
+          onBack={handleBack}
+          onRefresh={handleRefresh}
+          isRefreshing={isRefreshing}
+          onSave={handleSave}
+          isSaving={isSaving}
+          hasUnsavedChanges={hasUnsavedChanges}
+          saveStatus={saveStatus}
+          onDelete={handleDelete}
+        />
+      )}
+
+      {embedded && (
+        <div className="mb-4 flex items-center justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={handleRefresh}>
+            {isRefreshing ? (
+              <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+            ) : null}
+            Refresh
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => void handleSave()}
+            disabled={isSaving || !hasUnsavedChanges}
+          >
+            {isSaving ? (
+              <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+            ) : null}
+            Save
+          </Button>
+          <Button variant="destructive" size="sm" onClick={handleDelete}>
+            Delete
+          </Button>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col-reverse gap-6 md:flex-row md:gap-8">
@@ -437,16 +470,17 @@ export function ContactEditor({
               )}
             </div>
 
-            {/* Linked task entities (bidirectional link/unlink) */}
+            {/* Linked task items (bidirectional link/unlink) */}
             <TaskLinksPanel contactId={contactId} />
           </div>
 
           {/* Right column: Action panel */}
           <ContactActionPanel
             contact={contact}
-            categories={categories}
-            isLoadingCategories={isLoadingCategories}
-            onCategoryChange={handleCategoryChange}
+            categories={DEFAULT_CATEGORIES}
+            onCategoryChange={(categoryId) => {
+              void handleCategoryChange(categoryId);
+            }}
             isSavingCategory={isSavingCategory}
           />
         </div>
