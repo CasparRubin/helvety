@@ -39,11 +39,9 @@ const ACCOUNT_DELETION_VERIFICATION_CHECKS = [
   { table: "user_passkey_params", column: "user_id" },
   { table: "subscriptions", column: "user_id" },
   { table: "licensed_tenants", column: "user_id" },
-  { table: "units", column: "user_id" },
-  { table: "spaces", column: "user_id" },
   { table: "items", column: "user_id" },
   { table: "contacts", column: "user_id" },
-  { table: "entity_contact_links", column: "user_id" },
+  { table: "item_contact_links", column: "user_id" },
   { table: "user_profiles", column: "id" },
   // Legal-evidence tables keep rows but user reference must be detached (NULL).
   { table: "consent_events", column: "user_id" },
@@ -70,7 +68,7 @@ async function verifyDeletionResidualCounts(
   const checks = ACCOUNT_DELETION_VERIFICATION_CHECKS.map(async (check) => {
     try {
       const baseQuery = scopedAdmin.client
-        .from(check.table)
+        .from(check.table as never)
         .select("id", { count: "exact", head: true });
       const { count, error } = await baseQuery.eq(check.column, userId);
       return {
@@ -194,9 +192,8 @@ export async function updateUserEmail(
  * This action:
  * 1. Cancels all active Stripe subscriptions immediately
  * 2. Deletes the user via Supabase Admin API (cascade deletes handle
- *    user_auth_credentials, user_passkey_params, subscriptions,
- *    licensed_tenants, units, spaces, items,
- *    label_configs, stage_configs, user_profiles)
+ *    all user-owned rows in current product tables; post-delete
+ *    verification below enforces cleanup expectations)
  *
  * Legal basis: nDSG Art. 32(2) (right to request deletion) + Art. 6(4)
  * (purpose limitation). Transaction records are retained in anonymized form
@@ -265,10 +262,8 @@ export async function requestAccountDeletion(
       }
     }
 
-    // 2. Delete the user via Supabase Admin API
-    // CASCADE deletes handle: user_auth_credentials, user_passkey_params,
-    // subscriptions, licensed_tenants, units, spaces, items,
-    // label_configs, stage_configs, user_profiles
+    // 2. Delete the user via Supabase Admin API.
+    // Post-delete verification provides the source of truth for table-level cleanup.
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(
       user.id
     );

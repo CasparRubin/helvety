@@ -11,7 +11,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 type ScopedTable =
   | "consent_events"
   | "contacts"
-  | "entity_contact_links"
+  | "item_contact_links"
   | "items"
   | "licensed_tenants"
   | "purchases"
@@ -25,7 +25,7 @@ type ScopedTable =
 const USER_SCOPE_COLUMNS: Record<ScopedTable, "user_id" | "id"> = {
   consent_events: "user_id",
   contacts: "user_id",
-  entity_contact_links: "user_id",
+  item_contact_links: "user_id",
   items: "user_id",
   licensed_tenants: "user_id",
   purchases: "user_id",

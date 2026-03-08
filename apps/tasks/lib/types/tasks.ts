@@ -11,7 +11,7 @@
  */
 export type EntityType = "item";
 
-/** Type guard to narrow a mixed legacy entity union to Item. */
+/** Type guard to narrow an unknown entity shape to Item. */
 export function isItem(entity: { id: string }): entity is Item {
   return "priority" in entity && "label_id" in entity;
 }
@@ -83,57 +83,8 @@ export interface ItemInput {
 }
 
 // =============================================================================
-// LEGACY STAGE CONFIGURATION TYPES
-// =============================================================================
-
-/**
- * Stage configuration row as stored in the database (encrypted fields)
- * A named set of stages that can be applied to entities
- */
-export interface StageConfigRow {
-  id: string;
-  user_id: string;
-  encrypted_name: string;
-  created_at: string;
-  updated_at: string;
-}
-
-/** @deprecated Legacy type kept for compatibility with historical data contracts. */
-export interface StageConfig {
-  id: string;
-  user_id: string;
-  name: string;
-  created_at: string;
-  updated_at: string;
-  /** True for hardcoded default configs (not stored in DB) */
-  isDefault?: boolean;
-}
-
-/** @deprecated Legacy type kept for compatibility with historical data contracts. */
-export interface StageConfigInput {
-  name: string;
-}
-
-// =============================================================================
 // STAGE TYPES
 // =============================================================================
-
-/**
- * @deprecated Legacy database shape for configurable stages.
- */
-export interface StageRow {
-  id: string;
-  config_id: string;
-  user_id: string;
-  encrypted_name: string;
-  color: string | null;
-  /** Lucide icon name (e.g., "circle", "check-circle") */
-  icon: string;
-  sort_order: number;
-  /** Number of rows to show by default (0 = collapsed) */
-  default_rows_shown: number;
-  created_at: string;
-}
 
 /** Decrypted Stage (client-side only) */
 export interface Stage {
@@ -150,83 +101,9 @@ export interface Stage {
   created_at: string;
 }
 
-/** @deprecated Legacy type kept for compatibility with historical data contracts. */
-export interface StageInput {
-  config_id: string;
-  name: string;
-  color?: string | null;
-  /** Lucide icon name (defaults to "circle" if not provided) */
-  icon?: string;
-  sort_order?: number;
-  /** Number of rows to show by default (0 = collapsed, defaults to 20) */
-  default_rows_shown?: number;
-}
-
-// =============================================================================
-// LEGACY STAGE ASSIGNMENT TYPES
-// =============================================================================
-
-/**
- * @deprecated Legacy type kept for compatibility with historical data contracts.
- */
-export interface StageAssignment {
-  id: string;
-  config_id: string;
-  user_id: string;
-  entity_type: EntityType;
-  parent_id: string | null;
-  created_at: string;
-}
-
-// =============================================================================
-// LEGACY LABEL CONFIGURATION TYPES
-// =============================================================================
-
-/**
- * @deprecated Legacy database shape for configurable labels.
- */
-export interface LabelConfigRow {
-  id: string;
-  user_id: string;
-  encrypted_name: string;
-  created_at: string;
-  updated_at: string;
-}
-
-/** @deprecated Legacy type kept for compatibility with historical data contracts. */
-export interface LabelConfig {
-  id: string;
-  user_id: string;
-  name: string;
-  created_at: string;
-  updated_at: string;
-  /** True for hardcoded default configs (not stored in DB) */
-  isDefault?: boolean;
-}
-
-/** @deprecated Legacy type kept for compatibility with historical data contracts. */
-export interface LabelConfigInput {
-  name: string;
-}
-
 // =============================================================================
 // LABEL TYPES
 // =============================================================================
-
-/**
- * Label row shape used by fixed in-code labels.
- */
-export interface LabelRow {
-  id: string;
-  config_id: string;
-  user_id: string;
-  encrypted_name: string;
-  color: string | null;
-  /** Lucide icon name (e.g., "circle", "bug") */
-  icon: string;
-  sort_order: number;
-  created_at: string;
-}
 
 /** Decrypted Label (client-side only) */
 export interface Label {
@@ -238,32 +115,6 @@ export interface Label {
   /** Lucide icon name (e.g., "circle", "bug") */
   icon: string;
   sort_order: number;
-  created_at: string;
-}
-
-/** @deprecated Legacy type kept for compatibility with historical data contracts. */
-export interface LabelInput {
-  config_id: string;
-  name: string;
-  color?: string | null;
-  /** Lucide icon name (defaults to "circle" if not provided) */
-  icon?: string;
-  sort_order?: number;
-}
-
-// =============================================================================
-// LEGACY LABEL ASSIGNMENT TYPES
-// =============================================================================
-
-/**
- * @deprecated Legacy type kept for compatibility with historical data contracts.
- */
-export interface LabelAssignment {
-  id: string;
-  config_id: string;
-  user_id: string;
-  /** Legacy parent entity ID this label config was assigned to */
-  parent_id: string | null;
   created_at: string;
 }
 
