@@ -16,6 +16,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
 
 import { Navbar } from "@/components/navbar";
+import { PDF_APP_DESCRIPTION_COPY } from "@/lib/product-copy";
 
 import type { Metadata } from "next";
 
@@ -43,8 +44,7 @@ export const metadata: Metadata = {
     default: "Helvety PDF | PDF Tool",
     template: "%s | Helvety PDF",
   },
-  description:
-    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Currently available at no cost, with file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
+  description: PDF_APP_DESCRIPTION_COPY,
   keywords: [
     "Helvety PDF",
     "PDF merge",
@@ -74,8 +74,7 @@ export const metadata: Metadata = {
     url: urls.pdf,
     siteName: "Helvety PDF",
     title: "Helvety PDF | PDF Tool",
-    description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Currently available at no cost, with file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
+    description: PDF_APP_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -88,8 +87,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Helvety PDF | PDF Tool",
-    description:
-      "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages - all in one place. Processing is performed locally in your browser for supported operations. Currently available at no cost, with file-size limits (up to 100MB per file). Engineered & Designed in Switzerland.",
+    description: PDF_APP_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,

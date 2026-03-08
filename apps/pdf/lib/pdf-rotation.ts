@@ -120,7 +120,7 @@ export async function createRotatedImagePage(
  * PDF viewers how to display the content. This works correctly for PDF pages
  * but NOT for images (use createRotatedImagePage for images with 90/270 rotation).
  *
- * @param sourcePage - The original PDF page (not used, kept for API compatibility)
+ * @param sourcePage - The original PDF page (unused by this implementation)
  * @param targetPage - The target PDF page to apply rotation to
  * @param userRotation - The absolute total rotation in degrees (0, 90, 180, or 270) from state
  * @param isImage - Whether this page is from an image (only affects 180° rotation handling)

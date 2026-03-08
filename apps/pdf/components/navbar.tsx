@@ -53,6 +53,7 @@ import { useTheme } from "next-themes";
 import { useState } from "react";
 
 import { VERSION } from "@/lib/config/version";
+import { PDF_FILE_SIZE_LIMIT_COPY } from "@/lib/product-copy";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -65,7 +66,7 @@ import type { User } from "@supabase/supabase-js";
  * - Desktop (sm+): auth entry, About dialog, GitHub link, theme switcher
  * - Burger menu (below sm): auth entry, About, GitHub, theme toggle
  *
- * Helvety PDF is currently available at no cost (up to 100MB per file).
+ * Helvety PDF is available at no cost with file-size limits.
  * Login is optional for cross-app session sharing.
  */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
@@ -231,9 +232,9 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                     Privacy-focused, client-side PDF toolkit for merging,
                     reordering, deleting, rotating, and extracting pages.
                     Processing is performed locally in your browser for
-                    supported operations. Available at no cost as of February
-                    28, 2026, with current limits (up to 100MB per file).
-                    Engineered & Designed in Switzerland.
+                    supported operations. Available at no cost, with file-size
+                    limits ({PDF_FILE_SIZE_LIMIT_COPY}). Engineered & Designed
+                    in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

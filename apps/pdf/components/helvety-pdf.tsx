@@ -23,7 +23,7 @@ import { usePdfProcessing } from "@/hooks/use-pdf-processing";
  * - Merge all pages into a single PDF
  *
  * For supported PDF/image operations, file content processing happens client-side.
- * Currently available at no cost (up to 100MB per file) and no login required.
+ * Available at no cost (up to 100MB per file) and no login required.
  *
  * @returns The main PDF toolkit interface
  */
@@ -32,7 +32,7 @@ export function HelvetyPdf(): React.JSX.Element {
   const [columns, handleColumnsChange] = useColumns();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  // PDF files management (up to 100MB per file)
+  // PDF files management
   const {
     pdfFiles,
     unifiedPages,
@@ -44,9 +44,9 @@ export function HelvetyPdf(): React.JSX.Element {
     getCachedPdf,
   } = usePdfFiles();
 
-  // Error handling - initialize first, will be updated when processing starts
+  // Error handling
   const [isProcessing, setIsProcessing] = React.useState(false);
-  const errorHandler = useErrorHandler(isProcessing);
+  const errorHandler = useErrorHandler();
 
   // Page state management (deletions, rotations, statistics)
   const pageState = usePdfPageState(pageOrder);

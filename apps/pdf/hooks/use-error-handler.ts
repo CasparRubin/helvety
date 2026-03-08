@@ -15,10 +15,9 @@ interface UseErrorHandlerReturn {
  * Non-critical errors are automatically dismissed after a delay.
  * Critical errors persist until manually dismissed.
  *
- * @param _isProcessing - Whether a processing operation is in progress (kept for API compatibility)
  * @returns Object containing setError and dismissError functions
  */
-export function useErrorHandler(_isProcessing: boolean): UseErrorHandlerReturn {
+export function useErrorHandler(): UseErrorHandlerReturn {
   const toastIdRef = React.useRef<string | number | null>(null);
 
   const setError = React.useCallback((error: string | null): void => {

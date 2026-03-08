@@ -1,6 +1,5 @@
 /**
  * PDF utility functions - main entry point for PDF operations.
- * Re-exports functions from specialized modules for backward compatibility.
  */
 
 import { convertImageToPdf } from "./pdf-conversion";
@@ -48,8 +47,3 @@ export async function loadFileWithPreview(
 
   return { pdf, url, fileType, inherentRotations };
 }
-
-// Re-export functions from specialized modules for backward compatibility
-export { loadPdfFromFile, getPageRotations } from "./pdf-loading";
-export { convertImageToPdf } from "./pdf-conversion";
-export { extractPageFromPdf } from "./pdf-extraction";

@@ -13,9 +13,6 @@ import {
 // Types
 import type { PdfFile, FileValidationResult } from "./types";
 
-// Re-export for backward compatibility
-export type { FileValidationResult };
-
 /**
  * Validates that a value is a non-negative integer.
  * Throws an error if validation fails.
@@ -31,28 +28,6 @@ export function validateNonNegativeInteger(
   if (!Number.isInteger(value) || (value as number) < 0) {
     throw new Error(
       `Invalid ${paramName}: ${value}. Must be a non-negative integer.`
-    );
-  }
-}
-
-/**
- * Validates that a value is an instance of a specific class.
- * Throws an error if validation fails.
- *
- * @param value - The value to validate
- * @param constructor - The constructor/class to check against
- * @param paramName - Name of the parameter for error messages
- * @throws {Error} If value is not an instance of the specified class
- */
-export function validateInstance<T>(
-  value: unknown,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor: new (...args: any[]) => T,
-  paramName: string
-): asserts value is T {
-  if (!(value instanceof constructor)) {
-    throw new Error(
-      `Invalid ${paramName} provided. Expected a ${constructor.name} instance.`
     );
   }
 }
@@ -97,12 +72,10 @@ export function validateFiniteNumber(
  * Duplicate files are allowed and renamed in the upload handler (use-pdf-files.ts).
  *
  * @param files - Array of files to validate
- * @param _existingFiles - Array of already uploaded files (unused; kept for API compatibility)
  * @returns Validation result with errors array
  */
 export function validateFiles(
-  files: ReadonlyArray<File>,
-  _existingFiles: ReadonlyArray<PdfFile>
+  files: ReadonlyArray<File>
 ): FileValidationResult {
   const errors: string[] = [];
 
@@ -128,23 +101,6 @@ export function validateFiles(
     valid: errors.length === 0,
     errors,
   };
-}
-
-/**
- * Checks if a file is a duplicate of an existing file.
- * Compares both filename and file size to detect duplicates.
- *
- * @param file - The file to check for duplicates
- * @param existingFiles - Array of existing files to check against
- * @returns True if the file is a duplicate (same name and size), false otherwise
- */
-export function isDuplicateFile(
-  file: File,
-  existingFiles: ReadonlyArray<PdfFile>
-): boolean {
-  return existingFiles.some(
-    (pf) => pf.file.name === file.name && pf.file.size === file.size
-  );
 }
 
 /**

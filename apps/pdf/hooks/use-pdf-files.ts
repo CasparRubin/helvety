@@ -183,7 +183,7 @@ function createUnifiedPages(files: ReadonlyArray<PdfFile>): UnifiedPage[] {
 /**
  * Custom hook for managing PDF files and their associated state.
  * Handles file validation, caching, and unified page management.
- * No app-enforced file-count or page-count cap in the current version;
+ * No app-enforced file-count or page-count cap;
  * a 100MB per-file limit applies.
  *
  * @returns Object containing file state, handlers, and utilities
@@ -313,7 +313,7 @@ export function usePdfFiles(): UsePdfFilesReturn {
       await enforceRateLimiting(lastUploadTimeRef);
 
       // Validate files before processing
-      const validationResult = validateFiles(fileArray, currentPdfFiles);
+      const validationResult = validateFiles(fileArray);
       if (!validationResult.valid) {
         onError(formatValidationErrors(validationResult.errors));
         return;

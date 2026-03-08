@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-A privacy-focused, browser-based PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. In the current architecture, file contents are processed in your browser for supported operations and are not intended to be uploaded to Helvety servers for file conversion. Engineered & Designed in Switzerland.
+A privacy-focused, browser-based PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. In this architecture, file contents are processed in your browser for supported operations and are not intended to be uploaded to Helvety servers for file conversion. Engineered & Designed in Switzerland.
 
 **App:** [helvety.com/pdf](https://helvety.com/pdf)
 
@@ -13,7 +13,7 @@ A privacy-focused, browser-based PDF toolkit. Merge, reorder, rotate, and extrac
 
 **Privacy Approach** - File contents are processed in your browser and are not intended to be uploaded to Helvety servers for file conversion. We use Vercel Analytics and Speed Insights for usage/performance metrics (see [Privacy Policy](https://helvety.com/privacy)).
 
-Helvety PDF does not require login and is currently offered at no cost. The app does not enforce a page-count cap, but practical limits depend on browser/device resources, and it enforces a 100MB per-file cap.
+Helvety PDF does not require login and is offered at no cost. The app does not enforce a page-count cap, but practical limits depend on browser/device resources, and it enforces a 100MB per-file cap.
 
 ## Service Availability
 
@@ -35,7 +35,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Customizable grid layout** - Adjust pages per row to accommodate different page sizes
 - **Dark & Light mode support** - Switch between dark and light themes
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
-- **Current limits** - Up to 100MB per file; no app-enforced page-count cap. Practical throughput depends on browser/device memory and performance
+- **Limits** - Up to 100MB per file; no app-enforced page-count cap. Practical throughput depends on browser/device memory and performance
 - **No login required** - Use the tool without an account
 
 ## How It Works
