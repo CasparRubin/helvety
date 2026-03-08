@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
+import { Input } from "@helvety/ui/input";
 import {
   parseRichTextContent,
   serializeRichTextContent,
@@ -426,13 +427,22 @@ export function ItemEditor({
           <div className="min-w-0 flex-1">
             {/* Title input */}
             <div className="mb-6">
-              <input
-                id="item-title"
-                value={title}
-                onChange={handleTitleChange}
-                placeholder="Item title..."
-                className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-2xl leading-tight font-bold outline-none md:text-4xl"
-              />
+              {embedded ? (
+                <Input
+                  id="item-title"
+                  value={title}
+                  onChange={handleTitleChange}
+                  placeholder="Item title..."
+                />
+              ) : (
+                <input
+                  id="item-title"
+                  value={title}
+                  onChange={handleTitleChange}
+                  placeholder="Item title..."
+                  className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-2xl leading-tight font-bold outline-none md:text-4xl"
+                />
+              )}
             </div>
 
             {/* Description editor */}
