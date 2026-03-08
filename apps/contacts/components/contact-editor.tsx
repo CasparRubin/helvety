@@ -453,8 +453,7 @@ export function ContactEditor({
               )}
             </div>
 
-            {/* Linked task items (bidirectional link/unlink) */}
-            <TaskLinksPanel contactId={contactId} />
+            {!embedded && <TaskLinksPanel contactId={contactId} />}
           </div>
 
           {/* Right column: Action panel */}
@@ -467,6 +466,8 @@ export function ContactEditor({
             isSavingCategory={isSavingCategory}
             stacked={embedded}
           />
+
+          {embedded && <TaskLinksPanel contactId={contactId} />}
         </div>
       </div>
 

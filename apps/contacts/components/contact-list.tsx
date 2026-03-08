@@ -9,43 +9,18 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragOverEvent,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { Button } from "@helvety/ui/button";
-import {
-  BriefcaseIcon,
-  Building2Icon,
-  CircleIcon,
-  Loader2Icon,
-  UserIcon,
-  UsersIcon,
-} from "lucide-react";
-import { useCallback } from "react";
+import { Loader2Icon } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 
+import { CategoryGroup } from "@/components/category-group";
 import { ContactRow } from "@/components/contact-row";
 
 import type { DefaultCategory } from "@/lib/config/default-categories";
 import type { Contact, ReorderUpdate } from "@/lib/types";
-
-/** Renders a category icon from the configured category icon name. */
-function renderCategoryIcon(icon: string, className = "size-4 shrink-0") {
-  switch (icon) {
-    case "users":
-      return <UsersIcon className={className} />;
-    case "briefcase":
-      return <BriefcaseIcon className={className} />;
-    case "building-2":
-      return <Building2Icon className={className} />;
-    case "circle":
-      return <CircleIcon className={className} />;
-    default:
-      return <UserIcon className={className} />;
-  }
-}
 
 /** Props for the contact list. */
 interface ContactListProps {
@@ -105,9 +80,35 @@ export function ContactList({
     })
   );
 
+  const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(
+    null
+  );
+
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { over } = event;
+      if (!over) {
+        setHoveredCategoryId(null);
+        return;
+      }
+
+      if (over.data?.current?.type === "category") {
+        setHoveredCategoryId(over.data.current.categoryId ?? null);
+        return;
+      }
+
+      const overContact = contacts.find((contact) => contact.id === over.id);
+      if (overContact) {
+        setHoveredCategoryId(overContact.category_id);
+      }
+    },
+    [contacts]
+  );
+
   // Handle drag end
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
+      setHoveredCategoryId(null);
       const { active, over } = event;
       if (!over || !onReorder) return;
       if (active.id === over.id) return;
@@ -118,17 +119,28 @@ export function ContactList({
       const activeContact = contacts.find((c) => c.id === activeId);
       const overContact = contacts.find((c) => c.id === overId);
 
-      if (!activeContact || !overContact) return;
-      if (activeContact.category_id !== overContact.category_id) {
-        return;
+      if (!activeContact) return;
+
+      let targetCategoryId: string | undefined;
+      if (
+        over.data?.current?.type === "category" &&
+        over.data.current.categoryId !== undefined
+      ) {
+        targetCategoryId = over.data.current.categoryId;
+      }
+      if (overContact?.category_id && targetCategoryId === undefined) {
+        targetCategoryId = overContact.category_id;
       }
 
-      const sortedContacts = contacts
-        .filter((c) => c.category_id === activeContact.category_id)
-        .sort((a, b) => a.sort_order - b.sort_order);
+      const sortedContacts = [...contacts].sort(
+        (a, b) => a.sort_order - b.sort_order
+      );
 
       const oldIndex = sortedContacts.findIndex((c) => c.id === activeId);
-      const newIndex = sortedContacts.findIndex((c) => c.id === overId);
+      const newIndex =
+        overContact || over.data?.current?.type !== "category"
+          ? sortedContacts.findIndex((c) => c.id === overId)
+          : -1;
 
       if (oldIndex === -1) return;
 
@@ -149,15 +161,32 @@ export function ContactList({
 
         const hasSortOrderChange = originalContact.sort_order !== index;
         const isActiveContact = contactAtIndex.id === activeId;
-        if (!hasSortOrderChange) continue;
+        const hasCategoryChange =
+          isActiveContact &&
+          typeof targetCategoryId === "string" &&
+          originalContact.category_id !== targetCategoryId;
+        if (!hasSortOrderChange && !hasCategoryChange) continue;
 
         const update: ReorderUpdate = {
           id: contactAtIndex.id,
           sort_order: index,
-          category_id: activeContact.category_id,
         };
-        void isActiveContact;
+        if (hasCategoryChange) {
+          update.category_id = targetCategoryId;
+        }
         updates.push(update);
+      }
+
+      if (
+        updates.length === 0 &&
+        typeof targetCategoryId === "string" &&
+        activeContact.category_id !== targetCategoryId
+      ) {
+        updates.push({
+          id: activeContact.id,
+          sort_order: activeContact.sort_order,
+          category_id: targetCategoryId,
+        });
       }
 
       if (updates.length === 0) return;
@@ -166,6 +195,75 @@ export function ContactList({
     },
     [contacts, onReorder]
   );
+
+  const handleMoveUp = useCallback(
+    (contactId: string) => {
+      if (!onReorder || categories.length === 0) return;
+      const contact = contacts.find((entity) => entity.id === contactId);
+      if (!contact) return;
+
+      const currentCategoryIdx = categories.findIndex(
+        (category) => category.id === contact.category_id
+      );
+      if (currentCategoryIdx <= 0) return;
+      const previousCategory = categories[currentCategoryIdx - 1];
+      if (!previousCategory) return;
+
+      void onReorder([
+        {
+          id: contact.id,
+          sort_order: contact.sort_order,
+          category_id: previousCategory.id,
+        },
+      ]);
+    },
+    [categories, contacts, onReorder]
+  );
+
+  const handleMoveDown = useCallback(
+    (contactId: string) => {
+      if (!onReorder || categories.length === 0) return;
+      const contact = contacts.find((entity) => entity.id === contactId);
+      if (!contact) return;
+
+      const currentCategoryIdx = categories.findIndex(
+        (category) => category.id === contact.category_id
+      );
+      if (
+        currentCategoryIdx < 0 ||
+        currentCategoryIdx >= categories.length - 1
+      ) {
+        return;
+      }
+      const nextCategory = categories[currentCategoryIdx + 1];
+      if (!nextCategory) return;
+
+      void onReorder([
+        {
+          id: contact.id,
+          sort_order: contact.sort_order,
+          category_id: nextCategory.id,
+        },
+      ]);
+    },
+    [categories, contacts, onReorder]
+  );
+
+  const groupedContacts = useMemo(() => {
+    const sortedContacts = [...contacts].sort(
+      (a, b) => a.sort_order - b.sort_order
+    );
+    const groups = new Map<string, Contact[]>();
+    for (const category of categories) {
+      groups.set(category.id, []);
+    }
+    for (const contact of sortedContacts) {
+      const bucket =
+        groups.get(contact.category_id) ?? groups.get(categories[0]?.id ?? "");
+      bucket?.push(contact);
+    }
+    return groups;
+  }, [categories, contacts]);
 
   // Loading state
   if (isLoading) {
@@ -191,22 +289,6 @@ export function ContactList({
       </div>
     );
   }
-
-  const sortedContacts = [...contacts].sort(
-    (a, b) => a.sort_order - b.sort_order
-  );
-  const groupedContacts = (() => {
-    const groups = new Map<string, Contact[]>();
-    for (const category of categories) {
-      groups.set(category.id, []);
-    }
-    for (const contact of sortedContacts) {
-      const bucket =
-        groups.get(contact.category_id) ?? groups.get(categories[0]?.id ?? "");
-      bucket?.push(contact);
-    }
-    return groups;
-  })();
 
   return (
     <div className="space-y-4">
@@ -234,62 +316,58 @@ export function ContactList({
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="space-y-4">
-            {categories.map((category) => {
+          <div>
+            {categories.map((category, categoryIndex) => {
               const categoryContacts = groupedContacts.get(category.id) ?? [];
+              const isFirstCategory = categoryIndex === 0;
+              const isLastCategory = categoryIndex === categories.length - 1;
               return (
-                <section key={category.id} className="space-y-2">
-                  <div
-                    className="hover:bg-muted/40 flex items-center gap-2 rounded-md px-3 py-2 transition-colors"
-                    style={{ backgroundColor: `${category.color}14` }}
-                  >
-                    {renderCategoryIcon(category.icon)}
-                    <span
-                      className="size-2.5 rounded-full"
-                      style={{ backgroundColor: category.color }}
+                <CategoryGroup
+                  key={category.id}
+                  category={category}
+                  contactIds={categoryContacts.map((contact) => contact.id)}
+                  count={categoryContacts.length}
+                  isHighlighted={hoveredCategoryId === category.id}
+                >
+                  {categoryContacts.map((contact) => (
+                    <ContactRow
+                      key={contact.id}
+                      id={contact.id}
+                      firstName={contact.first_name}
+                      lastName={contact.last_name}
+                      email={contact.email}
+                      createdAt={contact.created_at}
+                      categoryColor={category.color}
+                      isFirst={isFirstCategory}
+                      isLast={isLastCategory}
+                      href={contactHref?.(contact)}
+                      onClick={() => onContactClick?.(contact)}
+                      onPrefetch={() => onContactPrefetch?.(contact)}
+                      onDelete={
+                        onContactDelete
+                          ? () =>
+                              onContactDelete(
+                                contact.id,
+                                `${contact.first_name} ${contact.last_name}`
+                              )
+                          : undefined
+                      }
+                      onMoveUp={
+                        categories.length > 1
+                          ? () => handleMoveUp(contact.id)
+                          : undefined
+                      }
+                      onMoveDown={
+                        categories.length > 1
+                          ? () => handleMoveDown(contact.id)
+                          : undefined
+                      }
                     />
-                    <h2 className="text-sm font-medium">{category.name}</h2>
-                    <span className="text-muted-foreground text-xs">
-                      ({categoryContacts.length})
-                    </span>
-                  </div>
-                  <div
-                    className="border-border divide-border ml-2 overflow-hidden rounded-lg border border-l-2"
-                    style={{ borderLeftColor: category.color }}
-                  >
-                    <SortableContext
-                      items={categoryContacts.map((c) => c.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {categoryContacts.map((contact) => (
-                        <ContactRow
-                          key={contact.id}
-                          id={contact.id}
-                          firstName={contact.first_name}
-                          lastName={contact.last_name}
-                          email={contact.email}
-                          createdAt={contact.created_at}
-                          categoryColor={category.color}
-                          categoryIcon={category.icon}
-                          href={contactHref?.(contact)}
-                          onClick={() => onContactClick?.(contact)}
-                          onPrefetch={() => onContactPrefetch?.(contact)}
-                          onDelete={
-                            onContactDelete
-                              ? () =>
-                                  onContactDelete(
-                                    contact.id,
-                                    `${contact.first_name} ${contact.last_name}`
-                                  )
-                              : undefined
-                          }
-                        />
-                      ))}
-                    </SortableContext>
-                  </div>
-                </section>
+                  ))}
+                </CategoryGroup>
               );
             })}
           </div>

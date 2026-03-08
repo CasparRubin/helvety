@@ -14,6 +14,7 @@ import {
 } from "@/app/actions/task-link-actions";
 import {
   useEncryptionContext,
+  buildAAD,
   decrypt,
   parseEncryptedData,
 } from "@/lib/crypto";
@@ -65,13 +66,14 @@ function triggerHardLogoutForError(
 }
 
 /** Decrypt a single encrypted item title. */
-async function decryptTitle(
+export async function decryptItemTitle(
   encryptedTitle: string,
+  itemId: string,
   key: CryptoKey
 ): Promise<string> {
   try {
     const parsed = parseEncryptedData(encryptedTitle);
-    return await decrypt(parsed, key);
+    return await decrypt(parsed, key, buildAAD("items", itemId));
   } catch {
     return "(encrypted)";
   }
@@ -85,7 +87,7 @@ async function decryptTaskLinkData(
   return Promise.all(
     data.items.map(async (item) => ({
       id: item.id,
-      title: await decryptTitle(item.encrypted_title, key),
+      title: await decryptItemTitle(item.encrypted_title, item.id, key),
       link_id: item.link_id,
       linked_at: item.linked_at,
     }))
@@ -101,7 +103,7 @@ async function decryptEntitiesData(
     items: await Promise.all(
       data.items.map(async (item) => ({
         id: item.id,
-        title: await decryptTitle(item.encrypted_title, key),
+        title: await decryptItemTitle(item.encrypted_title, item.id, key),
       }))
     ),
   };

@@ -30,7 +30,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Unsaved changes detection with confirmation dialog
   - Manual note editing with unsaved-changes detection
   - **Action panel** - View contact metadata dates and set category directly from the editor
-- **Drag & drop reordering** - Rearrange contacts within a category on desktop
+- **Category movement controls** - Move contacts between categories via drag/drop and row-level up/down arrows
 - **Controlled row-link prefetching** - Dense contact lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
 - **Consistency safeguards for list updates** - UI keeps optimistic interactions fast while ignoring stale in-flight refresh responses; server mutations also trigger route revalidation so prefetched pages stay aligned
 - **Task linking** - Link, unlink, and view task items from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page

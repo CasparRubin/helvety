@@ -17,4 +17,19 @@ describe("DEFAULT_CATEGORIES", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(new Set(sortOrders).size).toBe(sortOrders.length);
   });
+
+  it("defines valid default_rows_shown for each category", () => {
+    for (const category of DEFAULT_CATEGORIES) {
+      expect(Number.isInteger(category.default_rows_shown)).toBe(true);
+      expect(category.default_rows_shown).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("uses expected icons for personal and family categories", () => {
+    const personal = DEFAULT_CATEGORIES.find((c) => c.id === "personal");
+    const family = DEFAULT_CATEGORIES.find((c) => c.id === "family");
+
+    expect(personal?.icon).toBe("heart");
+    expect(family?.icon).toBe("home");
+  });
 });

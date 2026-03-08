@@ -445,10 +445,11 @@ export function ItemEditor({
               />
             </div>
 
-            {/* Linked Contacts */}
-            <div className="mb-6">
-              <ContactLinksPanel itemId={itemId} />
-            </div>
+            {!embedded && (
+              <div className="mb-6">
+                <ContactLinksPanel itemId={itemId} />
+              </div>
+            )}
           </div>
 
           {/* Right column - action panel */}
@@ -469,6 +470,12 @@ export function ItemEditor({
             isSavingDates={isSavingDates}
             stacked={embedded}
           />
+
+          {embedded && (
+            <div className="w-full">
+              <ContactLinksPanel itemId={itemId} />
+            </div>
+          )}
         </div>
       </div>
 

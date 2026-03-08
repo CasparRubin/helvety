@@ -267,14 +267,6 @@ export function ItemActionPanel({
                         {renderStageIcon(stage.icon, "size-4 shrink-0", {
                           color: stage.color ?? "var(--muted-foreground)",
                         })}
-                        {/* Color dot */}
-                        <span
-                          className="size-2 shrink-0 rounded-full"
-                          style={{
-                            backgroundColor:
-                              stage.color ?? "var(--muted-foreground)",
-                          }}
-                        />
                         {/* Stage name */}
                         <span
                           className={cn(

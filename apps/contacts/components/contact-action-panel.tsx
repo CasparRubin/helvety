@@ -6,12 +6,15 @@
  */
 
 import { formatDateTime } from "@helvety/shared/dates";
+import { cn } from "@helvety/shared/utils";
+import { Button } from "@helvety/ui/button";
 import { Card, CardContent } from "@helvety/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@helvety/ui/collapsible";
+import { renderIcon } from "@helvety/ui/icon-renderer";
 import { Separator } from "@helvety/ui/separator";
 import { useIsMobile } from "@helvety/ui/use-is-mobile";
 import {
@@ -75,31 +78,47 @@ export function ContactActionPanel({
               <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div className="mt-2 grid gap-2">
-                <label
-                  htmlFor="contact-category"
-                  className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase"
-                >
-                  Select
-                </label>
-                <div className="relative">
-                  <select
-                    id="contact-category"
-                    value={contact.category_id}
-                    onChange={(e) => onCategoryChange(e.target.value)}
-                    disabled={isSavingCategory}
-                    className="border-input bg-background h-10 w-full rounded-md border px-3 pr-9 text-sm"
-                  >
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
+              <div className="mt-2 flex flex-col gap-1">
+                {categories.map((category) => {
+                  const isActive = contact.category_id === category.id;
+                  return (
+                    <Button
+                      key={category.id}
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={isSavingCategory}
+                      className={cn(
+                        "h-auto justify-start gap-2 px-2.5 py-1.5",
+                        isActive && "ring-ring/30 bg-muted ring-1"
+                      )}
+                      style={
+                        isActive
+                          ? { backgroundColor: `${category.color}18` }
+                          : undefined
+                      }
+                      onClick={() => onCategoryChange(category.id)}
+                    >
+                      {renderIcon(category.icon, "size-4 shrink-0", {
+                        color: category.color ?? "var(--muted-foreground)",
+                      })}
+                      <span
+                        className={cn(
+                          "truncate text-sm",
+                          isActive ? "font-medium" : "font-normal"
+                        )}
+                      >
                         {category.name}
-                      </option>
-                    ))}
-                  </select>
-                  {isSavingCategory ? (
-                    <Loader2Icon className="text-muted-foreground absolute top-1/2 right-2 size-4 -translate-y-1/2 animate-spin" />
-                  ) : null}
-                </div>
+                      </span>
+                    </Button>
+                  );
+                })}
+                {isSavingCategory ? (
+                  <div className="text-muted-foreground flex items-center gap-2 py-1 text-xs">
+                    <Loader2Icon className="size-3 animate-spin" />
+                    Saving category...
+                  </div>
+                ) : null}
               </div>
             </CollapsibleContent>
           </Collapsible>
