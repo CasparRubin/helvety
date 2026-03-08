@@ -56,17 +56,6 @@ import type { ItemRow, SpaceRow, UnitRow } from "@/lib/types";
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
 
-const AttachmentPanel = dynamic(
-  () => import("@/components/attachment-panel").then((m) => m.AttachmentPanel),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center py-4">
-        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-      </div>
-    ),
-  }
-);
-
 const ContactLinksPanel = dynamic(
   () =>
     import("@/components/contact-links-panel").then((m) => m.ContactLinksPanel),
@@ -490,11 +479,6 @@ export function ItemEditor({
                 onChange={handleDescriptionChange}
                 placeholder="Add a description... Use the toolbar above for formatting."
               />
-            </div>
-
-            {/* Attachments */}
-            <div className="mb-6">
-              <AttachmentPanel itemId={itemId} />
             </div>
 
             {/* Linked Contacts */}

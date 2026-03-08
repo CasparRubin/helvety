@@ -14,7 +14,6 @@ function buildReport(
     authStillExists: false,
     residualRows: [],
     residualErrors: [],
-    residualStoragePathCount: 0,
     ...overrides,
   };
 }
@@ -38,14 +37,6 @@ describe("account deletion verification", () => {
         buildReport({
           residualRows: [{ table: "items", column: "user_id", count: 1 }],
         })
-      )
-    ).toBe(true);
-  });
-
-  it("fails when storage residuals remain", () => {
-    expect(
-      hasAccountDeletionVerificationFailures(
-        buildReport({ residualStoragePathCount: 2 })
       )
     ).toBe(true);
   });

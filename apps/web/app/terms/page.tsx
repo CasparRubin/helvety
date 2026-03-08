@@ -667,20 +667,20 @@ export default function TermsPage() {
 
         <h3 className="mb-3 text-lg font-medium">7.1 Your Content</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Certain features of the Services may allow you to upload, submit,
-          store, send, or receive content, including but not limited to text,
-          files, images, and other materials (&quot;User Content&quot;). You
+          Certain features of the Services may allow you to submit, store, send,
+          or receive content (&quot;User Content&quot;). User Content can
+          include text and other account-related data used by the Services. You
           retain ownership of any intellectual property rights that you hold in
           your User Content.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">7.2 License to Us</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          By uploading or submitting User Content to the Services, you grant us
-          a worldwide, non-exclusive, royalty-free license to use, reproduce,
-          and display your User Content solely for the technical purpose of
-          operating, hosting, and providing the Services (such as storage,
-          backup, and content delivery).
+          By submitting User Content to the Services, you grant us a worldwide,
+          non-exclusive, royalty-free license to use, reproduce, and display
+          your User Content solely for the technical purpose of operating,
+          hosting, and providing the Services (such as storage, backup, and
+          content delivery).
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           For end-to-end encrypted content in Helvety Tasks and Helvety
@@ -692,7 +692,7 @@ export default function TermsPage() {
         <h3 className="mb-3 text-lg font-medium">7.3 Your Responsibilities</h3>
         <p className="text-muted-foreground mb-4 text-sm">
           You are solely responsible for your User Content and the consequences
-          of uploading or publishing it. You represent and warrant that:
+          of submitting or publishing it. You represent and warrant that:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -728,9 +728,9 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           We may immediately suspend or terminate accounts and delete all
-          associated data (including encrypted files) upon receipt of a valid
-          Swiss court order or if we reasonably believe an account is being used
-          for illegal activity. In such cases:
+          associated account data upon receipt of a valid Swiss court order or
+          if we reasonably believe an account is being used for illegal
+          activity. In such cases:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -738,14 +738,14 @@ export default function TermsPage() {
             law or where notice would compromise an investigation
           </li>
           <li>
-            Suspended accounts will have all stored data frozen (encrypted files
-            remain on our infrastructure but become inaccessible)
+            Suspended accounts will have stored account data frozen where
+            legally and operationally required
           </li>
           <li>
-            Upon account termination, all associated encrypted files and core
-            account database records are scheduled for permanent deletion,
-            subject to technical processing time and legally required retention
-            (target completion within 30 days)
+            Upon account termination, core account database records are
+            scheduled for permanent deletion, subject to technical processing
+            time and legally required retention (target completion within 30
+            days)
           </li>
           <li>
             You will not be entitled to any refund of fees already paid in the
@@ -759,7 +759,7 @@ export default function TermsPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           We do not endorse, support, represent, or guarantee the completeness,
           truthfulness, accuracy, or reliability of any User Content. We shall
-          have no liability for any User Content uploaded or posted by users.
+          have no liability for any User Content submitted or posted by users.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">7.6 Encrypted User Content</h3>
@@ -818,8 +818,8 @@ export default function TermsPage() {
           </li>
           <li>IP addresses and timestamps associated with account activity</li>
           <li>
-            Storage usage information (file sizes, upload/download/deletion
-            timestamps, randomized storage paths)
+            Technical account activity metadata retained for security and abuse
+            prevention
           </li>
           <li>Subscription and billing metadata</li>
           <li>
@@ -830,16 +830,13 @@ export default function TermsPage() {
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
           Upon receipt of a valid Swiss court order, we may immediately suspend
-          or terminate the account in question. Suspension includes freezing all
-          stored data (encrypted files remain on our infrastructure but become
-          inaccessible to the user). All associated encrypted files are
-          scheduled for permanent deletion upon account termination, subject to
-          technical processing time and legally required retention. Limited
-          non-content security/compliance metadata may be retained for defined
-          periods (including a target window up to 6 months for attachment
-          operation metadata under current operational policy, and up to 10
-          years for contract/accounting evidence where legally required) as
-          described in the Privacy Policy.
+          or terminate the account in question. Suspension can include freezing
+          stored account data where legally and operationally required. Account
+          data is scheduled for permanent deletion upon account termination,
+          subject to technical processing time and legally required retention.
+          Limited non-content security/compliance metadata may be retained for
+          defined periods (including up to 10 years for contract/accounting
+          evidence where legally required) as described in the Privacy Policy.
         </p>
         <p className="text-muted-foreground text-sm">
           We are under no obligation to provide advance notice to users when

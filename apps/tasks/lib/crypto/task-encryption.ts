@@ -1,7 +1,7 @@
 /**
  * Task Encryption Helpers
  * Convenience functions for encrypting/decrypting Units, Spaces, Items,
- * Attachments, and Contacts client-side.
+ * and Contacts client-side.
  *
  * This module ensures the server receives encrypted payloads for
  * protected fields; validate API and logging paths to keep this invariant.
@@ -44,9 +44,6 @@ import type {
   Label,
   LabelRow,
   LabelInput,
-  Attachment,
-  AttachmentRow,
-  AttachmentMetadata,
   Contact,
   ContactRow,
 } from "@/lib/types";
@@ -835,64 +832,6 @@ export async function encryptItemUpdate(
   }
 
   return result;
-}
-
-// =============================================================================
-// ATTACHMENT ENCRYPTION
-// =============================================================================
-
-/**
- * Encrypt attachment metadata for database storage.
- * The metadata (filename, MIME type, size) is encrypted as a JSON string
- * using the same pattern as other encrypted fields.
- * Generates a client-side UUID and returns it alongside the encrypted metadata.
- */
-export async function encryptAttachmentMetadata(
-  metadata: AttachmentMetadata,
-  key: CryptoKey
-): Promise<{ id: string; encrypted_metadata: string }> {
-  const id = crypto.randomUUID();
-  const aad = buildAAD("item_attachments", id);
-  const json = JSON.stringify(metadata);
-  const encrypted = await encrypt(json, key, aad);
-  return { id, encrypted_metadata: serializeEncryptedData(encrypted) };
-}
-
-/**
- * Decrypt an Attachment row from the database.
- * Decrypts the encrypted_metadata field and returns a client-side Attachment.
- */
-export async function decryptAttachmentRow(
-  row: AttachmentRow,
-  key: CryptoKey
-): Promise<Attachment> {
-  const aad = buildAAD("item_attachments", row.id);
-  const metadataJson = await decrypt(
-    parseEncryptedData(row.encrypted_metadata),
-    key,
-    aad
-  );
-  const metadata: AttachmentMetadata = JSON.parse(metadataJson);
-
-  return {
-    id: row.id,
-    item_id: row.item_id,
-    user_id: row.user_id,
-    storage_path: row.storage_path,
-    metadata,
-    sort_order: row.sort_order,
-    created_at: row.created_at,
-  };
-}
-
-/**
- * Decrypt multiple Attachment rows
- */
-export async function decryptAttachmentRows(
-  rows: AttachmentRow[],
-  key: CryptoKey
-): Promise<Attachment[]> {
-  return Promise.all(rows.map((row) => decryptAttachmentRow(row, key)));
 }
 
 // =============================================================================

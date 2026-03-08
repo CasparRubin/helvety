@@ -14,48 +14,6 @@ export type Database = {
   };
   public: {
     Tables: {
-      attachment_audit_logs: {
-        Row: {
-          attachment_id: string | null;
-          created_at: string;
-          event: string;
-          file_size_bytes: number | null;
-          id: string;
-          ip_address: string | null;
-          item_id: string | null;
-          metadata: Json | null;
-          storage_path: string | null;
-          user_agent: string | null;
-          user_id: string | null;
-        };
-        Insert: {
-          attachment_id?: string | null;
-          created_at?: string;
-          event: string;
-          file_size_bytes?: number | null;
-          id?: string;
-          ip_address?: string | null;
-          item_id?: string | null;
-          metadata?: Json | null;
-          storage_path?: string | null;
-          user_agent?: string | null;
-          user_id?: string | null;
-        };
-        Update: {
-          attachment_id?: string | null;
-          created_at?: string;
-          event?: string;
-          file_size_bytes?: number | null;
-          id?: string;
-          ip_address?: string | null;
-          item_id?: string | null;
-          metadata?: Json | null;
-          storage_path?: string | null;
-          user_agent?: string | null;
-          user_id?: string | null;
-        };
-        Relationships: [];
-      };
       consent_events: {
         Row: {
           created_at: string;
@@ -168,44 +126,6 @@ export type Database = {
             columns: ["contact_id"];
             isOneToOne: false;
             referencedRelation: "contacts";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      item_attachments: {
-        Row: {
-          created_at: string;
-          encrypted_metadata: string;
-          id: string;
-          item_id: string;
-          sort_order: number;
-          storage_path: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          encrypted_metadata: string;
-          id?: string;
-          item_id: string;
-          sort_order?: number;
-          storage_path: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          encrypted_metadata?: string;
-          id?: string;
-          item_id?: string;
-          sort_order?: number;
-          storage_path?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "item_attachments_item_id_fkey";
-            columns: ["item_id"];
-            isOneToOne: false;
-            referencedRelation: "items";
             referencedColumns: ["id"];
           },
         ];

@@ -280,7 +280,6 @@ Key Features:
 • Rich Text Descriptions - Full formatting toolbar with headings, lists, and links
 • Stage Management - Immutable built-in workflow stages with consistent colors and icons (e.g., To Do, In Progress, Done)
 • Label & Priority System - Categorize and prioritize items with color-coded indicators
-• Encrypted File Attachments - Upload files that are compressed and encrypted before storage
 • Contact Linking - Link contacts from Helvety Contacts to any Unit, Space, or Item
 • Drag & Drop - Reorder items within and between stages
 
@@ -296,7 +295,6 @@ Your data is protected under applicable Swiss data protection law (including nDS
     "Rich text editor with formatting",
     "Immutable built-in stages with consistent colors and icons",
     "Labels and priority levels",
-    "Encrypted file attachments",
     "Contact linking with Helvety Contacts",
     "Drag & drop reordering",
     "Dark & light mode support",
@@ -316,7 +314,6 @@ Your data is protected under applicable Swiss data protection law (including nDS
           "All features included",
           "End-to-end encryption",
           "Up to 10 Units, 15 Spaces per Unit, and 250 Items per Space",
-          "File attachments (max 2 per Item)",
           "Currently available at no cost for early adopters",
         ],
       },

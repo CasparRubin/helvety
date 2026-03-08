@@ -18,7 +18,6 @@ export interface AccountDeletionVerificationReport {
   authStillExists: boolean;
   residualRows: ResidualRowSummary[];
   residualErrors: ResidualErrorSummary[];
-  residualStoragePathCount: number;
 }
 
 /** Returns true when any post-deletion residual artifact is detected. */
@@ -28,7 +27,6 @@ export function hasAccountDeletionVerificationFailures(
   return (
     report.authStillExists ||
     report.residualRows.length > 0 ||
-    report.residualErrors.length > 0 ||
-    report.residualStoragePathCount > 0
+    report.residualErrors.length > 0
   );
 }

@@ -31,7 +31,6 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators. Default is Normal when not specified.
 - **Fixed labels** - An immutable built-in item label set is enforced across the app. New items use a default label when none is specified.
 - **Fixed stages** - Immutable built-in stage sets are enforced for Units, Spaces, and Items. New entities are assigned the first stage when none is specified (Units: Work, Home, Hobbies; Spaces: Upcoming; Items: Backlog).
-- **Encrypted file attachments** - Upload, download, and manage file attachments on items (images, documents, etc.) with drag-and-drop support; files are losslessly compressed (when beneficial) then encrypted client-side before upload
 - **Contact linking** - Link contacts from [Helvety Contacts](https://helvety.com/contacts) to any Unit, Space, or Item
   - **Bidirectional** - Link and unlink from either the Tasks app or the Contacts app for consistent cross-app UX
   - **Searchable picker** - Search your contacts by name or email and link them with one click
@@ -51,19 +50,18 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - Max **10 Units** per user
 - Max **15 Spaces** per Unit
 - Max **250 Items** per Space
-- Max **2 attachments** per Item
 
 ## Environment Variables
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                                                                          |
-| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                                 |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                        |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for server-side admin operations (including attachment storage); bypasses RLS. Must not be exposed. |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.                                     |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.                                   |
+| Variable                               | Required | Server-only | Description                                                                            |
+| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                   |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                          |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Must not be exposed. |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.       |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.     |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
@@ -89,25 +87,22 @@ Helvety Tasks uses end-to-end encryption (E2EE), as does Helvety Contacts. In su
 
 **Encrypted fields** (AES-256-GCM, client-side before storage):
 
-| Entity     | Encrypted Fields                                                                |
-| ---------- | ------------------------------------------------------------------------------- |
-| Unit       | `title`, `description`                                                          |
-| Space      | `title`, `description`                                                          |
-| Item       | `title`, `description`, `start_date`, `end_date`                                |
-| Attachment | file content (binary), metadata (`filename`, `mime_type`, `size`, `compressed`) |
+| Entity | Encrypted Fields                                 |
+| ------ | ------------------------------------------------ |
+| Unit   | `title`, `description`                           |
+| Space  | `title`, `description`                           |
+| Item   | `title`, `description`, `start_date`, `end_date` |
 
 **Non-encrypted structural metadata** (stored in plaintext to enable application functionality):
 
-| Field                                         | Purpose                                                         |
-| --------------------------------------------- | --------------------------------------------------------------- |
-| Record identifiers (`id`)                     | Generated client-side; bound to ciphertext via AAD              |
-| `user_id`                                     | Row Level Security (RLS)                                        |
-| `created_at`, `updated_at`                    | Timestamps                                                      |
-| `sort_order`                                  | Display ordering                                                |
-| `priority` (Item)                             | Priority level (0-3 numeric)                                    |
-| `stage_id`, `label_id`, `space_id`, `unit_id` | Entity relationships                                            |
-| `storage_path` (Attachment)                   | Storage location (`{random_prefix}/{user_id}/{attachment_id}`)  |
-| Audit logs                                    | Timestamps, IPs, file sizes, user IDs, randomized storage paths |
+| Field                                         | Purpose                                            |
+| --------------------------------------------- | -------------------------------------------------- |
+| Record identifiers (`id`)                     | Generated client-side; bound to ciphertext via AAD |
+| `user_id`                                     | Row Level Security (RLS)                           |
+| `created_at`, `updated_at`                    | Timestamps                                         |
+| `sort_order`                                  | Display ordering                                   |
+| `priority` (Item)                             | Priority level (0-3 numeric)                       |
+| `stage_id`, `label_id`, `space_id`, `unit_id` | Entity relationships                               |
 
 Browser compatibility for end-to-end encryption depends on WebAuthn PRF support and can evolve over time:
 
@@ -154,14 +149,11 @@ This application includes the following security hardening:
 - **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated via `@helvety/shared/redirect-validation` to reduce open-redirect risk
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Rate Limiting** - Protection against brute force attacks
-- **Attachment Audit Logging** - Structured logging for file attachment upload, download, and deletion events (persisted to `attachment_audit_logs` table; target retention up to 6 months / 183 days under current operational policy, subject to legal hold/dispute requirements)
 - **Security Headers** - CSP, HSTS, and other security headers
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics and Speed Insights).
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
-
-**Attachment Audit Logging:** File attachment uploads, downloads, and deletions are logged with non-encrypted metadata (timestamps, file sizes, IP addresses, user IDs, randomized storage paths, and user agent) to the `attachment_audit_logs` database table. This audit trail has a target retention window up to 6 months (183 days) under current operational policy, subject to legal hold, incident handling, and platform constraints. It supports law enforcement cooperation under valid Swiss court orders. After account deletion, direct user references are removed or de-identified where applicable. Encrypted file content and encrypted metadata are not logged.
 
 ## Tech Stack
 

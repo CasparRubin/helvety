@@ -31,8 +31,6 @@ export const ENTITY_LIMITS = {
   MAX_SPACES_PER_UNIT: 15,
   /** Maximum Items allowed per Space */
   MAX_ITEMS_PER_SPACE: 250,
-  /** Maximum file attachments allowed per Item */
-  MAX_ATTACHMENTS_PER_ITEM: 2,
   /** Maximum Contacts a single user can create */
   MAX_CONTACTS_PER_USER: 250,
 } as const;

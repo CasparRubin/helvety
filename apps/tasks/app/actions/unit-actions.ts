@@ -5,7 +5,6 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -13,7 +12,6 @@ import {
   DEFAULT_STAGE_CONFIGS,
   DEFAULT_UNIT_STAGE_ID,
 } from "@/lib/config/default-stages";
-import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, UnitRow } from "@/lib/types";
@@ -286,11 +284,7 @@ export async function updateUnit(
   }
 }
 
-/**
- * Delete a Unit (cascades to all Spaces, Items, and Attachments).
- * Cascading deletes remove related rows in Postgres.
- * Storage cleanup for cascaded attachment files is handled separately.
- */
+/** Delete a Unit. */
 export async function deleteUnit(
   id: string,
   csrfToken: string
@@ -307,55 +301,8 @@ export async function deleteUnit(
       return { success: false, error: "Invalid unit ID" };
     }
 
-    // Collect attachment paths under the whole unit hierarchy before delete.
-    const { data: spaces, error: spacesError } = await supabase
-      .from("spaces")
-      .select("id")
-      .eq("unit_id", id)
-      .eq("user_id", user.id);
-    if (spacesError) {
-      logger.error("Error fetching unit spaces for cleanup:", spacesError);
-      return { success: false, error: "Failed to delete unit" };
-    }
-
-    const spaceIds = (spaces ?? []).map((space) => space.id);
-    let attachmentPaths: string[] = [];
-    if (spaceIds.length > 0) {
-      const { data: items, error: itemsError } = await supabase
-        .from("items")
-        .select("id")
-        .in("space_id", spaceIds)
-        .eq("user_id", user.id);
-      if (itemsError) {
-        logger.error("Error fetching unit items for cleanup:", itemsError);
-        return { success: false, error: "Failed to delete unit" };
-      }
-
-      const itemIds = (items ?? []).map((item) => item.id);
-      if (itemIds.length > 0) {
-        const { data: attachments, error: attachmentsError } = await supabase
-          .from("item_attachments")
-          .select("storage_path")
-          .in("item_id", itemIds)
-          .eq("user_id", user.id);
-        if (attachmentsError) {
-          logger.error(
-            "Error fetching unit attachment paths for cleanup:",
-            attachmentsError
-          );
-          return { success: false, error: "Failed to delete unit" };
-        }
-        attachmentPaths = (attachments ?? [])
-          .map((row) => row.storage_path)
-          .filter(
-            (path): path is string =>
-              typeof path === "string" && path.length > 0
-          );
-      }
-    }
-
     // Delete unit (RLS + explicit user_id check for defense-in-depth)
-    // CASCADE will delete all associated Spaces, Items, and Attachment rows.
+    // CASCADE will delete all associated Spaces and Items rows.
     const { error } = await supabase
       .from("units")
       .delete()
@@ -365,19 +312,6 @@ export async function deleteUnit(
     if (error) {
       logger.error("Error deleting unit:", error);
       return { success: false, error: "Failed to delete unit" };
-    }
-
-    if (attachmentPaths.length > 0) {
-      const adminClient = createAdminClient();
-      const { error: storageError } = await adminClient.storage
-        .from(ATTACHMENT_BUCKET)
-        .remove(attachmentPaths);
-      if (storageError) {
-        logger.error(
-          "Error deleting cascaded unit attachment files:",
-          storageError
-        );
-      }
     }
 
     revalidateUnitListRoute();

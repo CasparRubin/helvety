@@ -355,10 +355,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
           <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
             <li>Request cancellation of active subscriptions</li>
             <li>Delete your profile, credentials, and passkeys</li>
-            <li>
-              Delete task data and remove encrypted file attachments (Helvety
-              Tasks)
-            </li>
+            <li>Delete task data (Helvety Tasks)</li>
             <li>Delete contact data and notes (Helvety Contacts)</li>
             <li>Remove all tenant registrations</li>
           </ul>
@@ -367,9 +364,8 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
             flow. Payment processors and other parties may retain transaction
             records where required for legal, tax, fraud-prevention, or dispute
             obligations under applicable law. Certain non-content
-            security/compliance records (for example, file operation metadata)
-            may be retained for a limited period as described in our Privacy
-            Policy.
+            security/compliance records may be retained for a limited period as
+            described in our Privacy Policy.
           </p>
 
           <AlertDialog>

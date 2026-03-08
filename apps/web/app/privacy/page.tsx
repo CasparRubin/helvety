@@ -420,22 +420,19 @@ export default function PrivacyPage() {
               Helvety Tasks (helvety.com/tasks):
             </strong>{" "}
             Task content is end-to-end encrypted client-side before storage.
-            Encrypted fields include: titles, descriptions, start/end dates, and
-            file attachments (both file content and file metadata such as
-            filename, type, and size). These fields are designed to be stored as
-            encrypted ciphertext at rest on our servers. Encryption keys are
-            derived from your passkey on your device and are not transmitted to
-            Helvety servers. Record identifiers for encrypted data are generated
-            on your device and bound to the ciphertext via Additional
-            Authenticated Data (AAD). Our architecture is designed so that we
-            are generally unable to access your task content in plaintext during
-            normal operation. Non-encrypted structural metadata is stored in
-            plaintext to enable application functionality: record identifiers,
-            timestamps, priority levels, display preferences (sort orders),
-            entity relationships (e.g., stage, label, space), and file operation
-            audit logs (IP addresses, file sizes, randomized storage paths).
-            Service-level usage limits may apply and are listed on the product
-            pages.
+            Encrypted fields include: titles, descriptions, and start/end dates.
+            These fields are designed to be stored as encrypted ciphertext at
+            rest on our servers. Encryption keys are derived from your passkey
+            on your device and are not transmitted to Helvety servers. Record
+            identifiers for encrypted data are generated on your device and
+            bound to the ciphertext via Additional Authenticated Data (AAD). Our
+            architecture is designed so that we are generally unable to access
+            your task content in plaintext during normal operation.
+            Non-encrypted structural metadata is stored in plaintext to enable
+            application functionality: record identifiers, timestamps, priority
+            levels, display preferences (sort orders), and entity relationships
+            (e.g., stage, label, space). Service-level usage limits may apply
+            and are listed on the product pages.
           </li>
           <li>
             <strong className="text-foreground">
@@ -574,14 +571,7 @@ export default function PrivacyPage() {
             Account information (email address, account creation date, internal
             identifiers)
           </li>
-          <li>
-            IP addresses and timestamps associated with account activity,
-            including file uploads and downloads
-          </li>
-          <li>
-            File operation metadata (upload timestamps, encrypted file sizes,
-            randomized storage paths)
-          </li>
+          <li>IP addresses and timestamps associated with account activity</li>
           <li>Subscription and billing metadata</li>
           <li>
             Non-encrypted structural metadata from Helvety Tasks and Helvety
@@ -807,21 +797,6 @@ export default function PrivacyPage() {
             for account security.
           </li>
           <li>
-            <strong className="text-foreground">
-              File operation metadata (Helvety Tasks):
-            </strong>{" "}
-            Non-encrypted metadata associated with file uploads, downloads, and
-            deletions -- including timestamps, file sizes (of encrypted blobs),
-            randomized storage paths, IP addresses, and user identifiers -- has
-            a target retention window of up to 6 months (183 days) under current
-            operational policy, subject to legal hold, incident handling, and
-            technical constraints. After account deletion, direct user
-            references are removed or de-identified where applicable. This
-            metadata does not include the content of your files, which is
-            end-to-end encrypted and generally not accessible to us in plaintext
-            during normal operation.
-          </li>
-          <li>
             <strong className="text-foreground">Subscription data:</strong>{" "}
             Retained for the duration of your subscription and for any legally
             required period thereafter. Subscription history (plan changes,
@@ -895,14 +870,12 @@ export default function PrivacyPage() {
           . Upon confirmation, your account and personal data are scheduled for
           deletion across Helvety services without undue delay (target: within
           30 days), including authentication credentials, subscription records,
-          task data, contact data, and file attachments, subject to technical
-          processing time and legally required retention. Depending on system
-          architecture and legal obligations, some records may be deleted,
-          de-identified, or retained in restricted form for compliance,
-          fraud-prevention, dispute handling, or security purposes (for example,
-          limited-period non-content audit/security metadata such as file
-          operation logs). This action is intended to be permanent and may not
-          be reversible. We recommend exporting your data before proceeding.
+          task data, and contact data, subject to technical processing time and
+          legally required retention. Depending on system architecture and legal
+          obligations, some records may be deleted, de-identified, or retained
+          in restricted form for compliance, fraud-prevention, dispute handling,
+          or security purposes. This action is intended to be permanent and may
+          not be reversible. We recommend exporting your data before proceeding.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Self-Service Data Export:</strong>{" "}
@@ -1231,15 +1204,13 @@ export default function PrivacyPage() {
           <strong className="text-foreground">
             Helvety Tasks encrypted fields:
           </strong>{" "}
-          titles, descriptions, start/end dates, and file attachments (both file
-          content and file metadata such as filename, type, and size).{" "}
+          titles, descriptions, and start/end dates.{" "}
           <strong className="text-foreground">
             Non-encrypted structural metadata:
           </strong>{" "}
           record identifiers, timestamps, priority levels, display preferences
           (sort orders), entity relationships (e.g., stage, label, or space
-          references), and file operation audit logs (IP addresses, file sizes,
-          randomized storage paths).
+          references).
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">

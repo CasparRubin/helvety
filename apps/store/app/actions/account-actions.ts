@@ -9,7 +9,6 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { CONTACT_EMAIL } from "@helvety/shared/config";
-import { DATA_RETENTION } from "@helvety/shared/data-retention";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
@@ -43,7 +42,6 @@ const ACCOUNT_DELETION_VERIFICATION_CHECKS = [
   { table: "units", column: "user_id" },
   { table: "spaces", column: "user_id" },
   { table: "items", column: "user_id" },
-  { table: "item_attachments", column: "user_id" },
   { table: "contacts", column: "user_id" },
   { table: "entity_contact_links", column: "user_id" },
   { table: "user_profiles", column: "id" },
@@ -51,80 +49,11 @@ const ACCOUNT_DELETION_VERIFICATION_CHECKS = [
   { table: "consent_events", column: "user_id" },
   { table: "purchases", column: "user_id" },
   { table: "subscription_events", column: "user_id" },
-  { table: "attachment_audit_logs", column: "user_id" },
 ] as const;
 
 /** Verification check tuple describing which table/column must be fully detached. */
 type AccountDeletionVerificationCheck =
   (typeof ACCOUNT_DELETION_VERIFICATION_CHECKS)[number];
-
-/** Lists objects in a storage path with pagination. */
-async function listStorageEntries(
-  bucketApi: {
-    list: (
-      path: string,
-      options: { limit: number; offset: number }
-    ) => Promise<{
-      data: Array<{
-        name: string;
-        id?: string | null;
-      }> | null;
-      error: { message: string } | null;
-    }>;
-  },
-  path: string
-): Promise<Array<{ name: string; id?: string | null }>> {
-  const LIMIT = 1000;
-  const entries: Array<{ name: string; id?: string | null }> = [];
-  let offset = 0;
-
-  for (;;) {
-    const { data, error } = await bucketApi.list(path, {
-      limit: LIMIT,
-      offset,
-    });
-    if (error) throw error;
-    const page = (data ?? []).map((entry) => ({
-      name: entry.name,
-      id: entry.id ?? null,
-    }));
-    entries.push(...page);
-    if (page.length < LIMIT) break;
-    offset += LIMIT;
-  }
-
-  return entries;
-}
-
-/** Collects attachment storage object paths under all known user prefixes. */
-async function collectStoragePathsByUserPrefix(
-  scopedAdmin: ReturnType<typeof createScopedAdminQuery>,
-  userId: string
-): Promise<string[]> {
-  const bucketApi = scopedAdmin.client.storage.from("encrypted-attachments");
-  const topLevelEntries = await listStorageEntries(bucketApi, "");
-  const prefixes = topLevelEntries
-    .filter(
-      (entry) =>
-        typeof entry.name === "string" && entry.name.length > 0 && !entry.id // folders have null id in storage.list()
-    )
-    .map((entry) => entry.name);
-
-  const collected: string[] = [];
-  for (const prefix of prefixes) {
-    const userPath = `${prefix}/${userId}`;
-    const userEntries = await listStorageEntries(bucketApi, userPath).catch(
-      () => []
-    );
-    for (const entry of userEntries) {
-      if (entry.id && typeof entry.name === "string" && entry.name.length > 0) {
-        collected.push(`${userPath}/${entry.name}`);
-      }
-    }
-  }
-
-  return collected;
-}
 
 /** Counts any residual rows still linked to the deleted user id. */
 async function verifyDeletionResidualCounts(
@@ -264,10 +193,9 @@ export async function updateUserEmail(
  *
  * This action:
  * 1. Cancels all active Stripe subscriptions immediately
- * 2. Attempts to remove encrypted file attachments from storage
- * 3. Deletes the user via Supabase Admin API (cascade deletes handle
+ * 2. Deletes the user via Supabase Admin API (cascade deletes handle
  *    user_auth_credentials, user_passkey_params, subscriptions,
- *    licensed_tenants, units, spaces, items, item_attachments,
+ *    licensed_tenants, units, spaces, items,
  *    label_configs, stage_configs, user_profiles)
  *
  * Legal basis: nDSG Art. 32(2) (right to request deletion) + Art. 6(4)
@@ -337,77 +265,9 @@ export async function requestAccountDeletion(
       }
     }
 
-    // 2. Delete user files from Supabase Storage (encrypted attachments)
-    try {
-      // Attachment objects are stored as `prefix/userId/attachmentId`.
-      // We remove both canonical DB paths and any orphaned files under user prefixes.
-      const { data: attachmentRows, error: attachmentsError } =
-        await scopedAdmin.from("item_attachments").select("storage_path");
-
-      if (attachmentsError) {
-        logger.warn(
-          `Could not list attachment storage paths for user ${user.id}:`,
-          attachmentsError
-        );
-      } else {
-        const typedAttachmentRows = (attachmentRows ?? []) as Array<{
-          storage_path: string | null;
-        }>;
-        const dbStoragePaths: string[] = [
-          ...new Set(
-            typedAttachmentRows
-              .map((row) => row.storage_path)
-              .filter(
-                (path: string | null): path is string =>
-                  typeof path === "string" && path.length > 0
-              )
-          ),
-        ];
-        const prefixStoragePaths: string[] =
-          await collectStoragePathsByUserPrefix(scopedAdmin, user.id).catch(
-            (error) => {
-              logger.warn(
-                `Could not enumerate storage prefixes for user ${user.id}:`,
-                error
-              );
-              return [] as string[];
-            }
-          );
-
-        const storagePaths: string[] = [
-          ...new Set([...dbStoragePaths, ...prefixStoragePaths]),
-        ];
-
-        const CHUNK_SIZE = 100;
-        let removeFailures = 0;
-
-        for (let i = 0; i < storagePaths.length; i += CHUNK_SIZE) {
-          const chunk: string[] = storagePaths.slice(i, i + CHUNK_SIZE);
-          const { error: removeError } = await adminClient.storage
-            .from("encrypted-attachments")
-            .remove(chunk);
-
-          if (removeError) {
-            removeFailures++;
-            logger.warn(
-              `Could not remove attachment storage chunk for user ${user.id} (chunk ${Math.floor(i / CHUNK_SIZE) + 1}):`,
-              removeError
-            );
-          }
-        }
-
-        logger.info(
-          `Attachment storage cleanup attempted for user ${user.id}: ${storagePaths.length} path(s), ${removeFailures} failed chunk(s), retention_target_days=${DATA_RETENTION.ACCOUNT_DELETION_TARGET_DAYS}`
-        );
-      }
-    } catch (storageError) {
-      logger.warn("Could not clean up storage files:", storageError);
-      // Continue with deletion; storage cleanup failure is not critical
-    }
-
-    // 3. Delete the user via Supabase Admin API
+    // 2. Delete the user via Supabase Admin API
     // CASCADE deletes handle: user_auth_credentials, user_passkey_params,
-    // subscriptions, licensed_tenants, units, spaces, items, item_attachments,
+    // subscriptions, licensed_tenants, units, spaces, items,
     // label_configs, stage_configs, user_profiles
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(
       user.id
@@ -421,19 +281,11 @@ export async function requestAccountDeletion(
       };
     }
 
-    // 4. Post-delete verification to prove data cleanup completeness.
-    const [residualCounts, residualStoragePaths, authLookup] =
-      await Promise.all([
-        verifyDeletionResidualCounts(scopedAdmin, user.id),
-        collectStoragePathsByUserPrefix(scopedAdmin, user.id).catch((error) => {
-          logger.error(
-            `Could not verify storage cleanup for deleted user ${user.id}:`,
-            error
-          );
-          return [] as string[];
-        }),
-        adminClient.auth.admin.getUserById(user.id),
-      ]);
+    // 3. Post-delete verification to prove data cleanup completeness.
+    const [residualCounts, authLookup] = await Promise.all([
+      verifyDeletionResidualCounts(scopedAdmin, user.id),
+      adminClient.auth.admin.getUserById(user.id),
+    ]);
 
     const residualRows = residualCounts.filter((row) => row.count > 0);
     const residualErrors = residualCounts.filter((row) => row.error !== null);
@@ -452,7 +304,6 @@ export async function requestAccountDeletion(
         column: row.column,
         error: row.error ?? "unknown_error",
       })),
-      residualStoragePathCount: residualStoragePaths.length,
     };
 
     if (hasAccountDeletionVerificationFailures(verificationReport)) {

@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { DATA_RETENTION } from "./data-retention";
 
 describe("data retention policy defaults", () => {
-  it("pins attachment audit metadata to six months", () => {
-    expect(DATA_RETENTION.ATTACHMENT_AUDIT_LOG_RETENTION_DAYS).toBe(183);
+  it("pins technical security logs to six months", () => {
+    expect(DATA_RETENTION.TECHNICAL_LOG_RETENTION_DAYS).toBe(183);
   });
 
   it("uses ten-year windows for legal evidence records", () => {

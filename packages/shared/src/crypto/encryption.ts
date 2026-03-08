@@ -22,7 +22,6 @@ const ALLOWED_AAD_TABLES = new Set([
   "stage_configs",
   "labels",
   "label_configs",
-  "item_attachments",
   "contacts",
   "categories",
   "category_configs",

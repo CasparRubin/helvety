@@ -31,8 +31,6 @@ export {
   isEncryptedData,
   encryptFields,
   decryptFields,
-  encryptBinary,
-  decryptBinary,
   buildAAD,
 } from "./encryption";
 
@@ -94,10 +92,6 @@ export {
   encryptItemUpdate,
   decryptItemRow,
   decryptItemRows,
-  // Attachment encryption
-  encryptAttachmentMetadata,
-  decryptAttachmentRow,
-  decryptAttachmentRows,
   // Contact decryption (read-only)
   decryptContactRow,
   decryptContactRows,

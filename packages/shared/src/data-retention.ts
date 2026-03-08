@@ -10,9 +10,6 @@ export const DATA_RETENTION = {
   /** Account deletion requests should complete without undue delay (target: <=30 days). */
   ACCOUNT_DELETION_TARGET_DAYS: 30,
 
-  /** Security/abuse metadata for encrypted attachments (upload/download/delete). */
-  ATTACHMENT_AUDIT_LOG_RETENTION_DAYS: 183, // ~6 months
-
   /** General technical security logs retention target. */
   TECHNICAL_LOG_RETENTION_DAYS: 183, // ~6 months
 

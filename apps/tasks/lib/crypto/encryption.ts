@@ -26,7 +26,6 @@ const ALLOWED_AAD_TABLES = new Set([
   "stage_configs",
   "labels",
   "label_configs",
-  "item_attachments",
   "contacts",
   "categories",
   "category_configs",
@@ -281,87 +280,4 @@ export async function decryptFields<T extends Record<string, unknown>>(
   );
 
   return result as T;
-}
-
-// =============================================================================
-// BINARY ENCRYPTION (for files/attachments)
-// =============================================================================
-
-/**
- * Encrypt binary data (ArrayBuffer) using AES-256-GCM.
- * Returns a single ArrayBuffer with the IV prepended: [IV (12 bytes)][Ciphertext+AuthTag]
- *
- * This is used for encrypting file attachments where the data is binary
- * rather than a UTF-8 string.
- *
- * @param data - The binary data to encrypt
- * @param key - The CryptoKey to use for encryption
- * @param aad - Optional Additional Authenticated Data to bind ciphertext to its context.
- * @returns A single ArrayBuffer containing IV + ciphertext
- */
-export async function encryptBinary(
-  data: ArrayBuffer,
-  key: CryptoKey,
-  aad?: string
-): Promise<ArrayBuffer> {
-  try {
-    const iv = generateIV();
-
-    const algorithm: AesGcmParams = { name: "AES-GCM", iv, tagLength: 128 };
-    if (aad) {
-      algorithm.additionalData = new TextEncoder().encode(aad);
-    }
-
-    const ciphertext = await crypto.subtle.encrypt(algorithm, key, data);
-
-    // Prepend IV to ciphertext for self-contained encrypted blob
-    const result = new Uint8Array(iv.byteLength + ciphertext.byteLength);
-    result.set(iv, 0);
-    result.set(new Uint8Array(ciphertext), iv.byteLength);
-    return result.buffer;
-  } catch (error) {
-    throw new CryptoError(
-      CryptoErrorType.ENCRYPTION_FAILED,
-      "Failed to encrypt binary data",
-      error instanceof Error ? error : undefined
-    );
-  }
-}
-
-/**
- * Decrypt binary data that was encrypted with encryptBinary().
- * Expects format: [IV (12 bytes)][Ciphertext+AuthTag]
- *
- * @param encrypted - The encrypted binary data (IV + ciphertext)
- * @param key - The CryptoKey to use for decryption
- * @param aad - Optional Additional Authenticated Data. Must match the AAD used during encryption.
- * @returns The decrypted binary data
- */
-export async function decryptBinary(
-  encrypted: ArrayBuffer,
-  key: CryptoKey,
-  aad?: string
-): Promise<ArrayBuffer> {
-  try {
-    const IV_LENGTH = 12;
-    if (encrypted.byteLength <= IV_LENGTH) {
-      throw new Error("Encrypted data too short to contain IV and ciphertext");
-    }
-
-    const iv = encrypted.slice(0, IV_LENGTH);
-    const ciphertext = encrypted.slice(IV_LENGTH);
-
-    const algorithm: AesGcmParams = { name: "AES-GCM", iv, tagLength: 128 };
-    if (aad) {
-      algorithm.additionalData = new TextEncoder().encode(aad);
-    }
-
-    return await crypto.subtle.decrypt(algorithm, key, ciphertext);
-  } catch (error) {
-    throw new CryptoError(
-      CryptoErrorType.DECRYPTION_FAILED,
-      "Failed to decrypt binary data. The decryption key does not match this data, or the data is corrupted.",
-      error instanceof Error ? error : undefined
-    );
-  }
 }

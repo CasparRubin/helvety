@@ -5,7 +5,6 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -17,7 +16,6 @@ import {
   DEFAULT_ITEM_STAGE_ID,
   DEFAULT_STAGE_CONFIGS,
 } from "@/lib/config/default-stages";
-import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ItemRow } from "@/lib/types";
@@ -399,11 +397,7 @@ export async function updateItem(
   }
 }
 
-/**
- * Delete an Item (cascades to all Attachments).
- * Cascading deletes remove attachment rows in Postgres.
- * Storage cleanup for cascaded attachment files is handled separately.
- */
+/** Delete an Item. */
 export async function deleteItem(
   id: string,
   csrfToken: string
@@ -453,20 +447,6 @@ export async function deleteItem(
       return { success: false, error: "Space not found" };
     }
 
-    // Read storage paths before deleting row so we can clean up blobs.
-    const { data: attachments, error: attachmentsError } = await supabase
-      .from("item_attachments")
-      .select("storage_path")
-      .eq("item_id", id)
-      .eq("user_id", user.id);
-    if (attachmentsError) {
-      logger.error(
-        "Error fetching item attachments for cleanup:",
-        attachmentsError
-      );
-      return { success: false, error: "Failed to delete item" };
-    }
-
     // Delete item (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
       .from("items")
@@ -477,24 +457,6 @@ export async function deleteItem(
     if (error) {
       logger.error("Error deleting item:", error);
       return { success: false, error: "Failed to delete item" };
-    }
-
-    const pathsToDelete = (attachments ?? [])
-      .map((row) => row.storage_path)
-      .filter(
-        (path): path is string => typeof path === "string" && path.length > 0
-      );
-    if (pathsToDelete.length > 0) {
-      const adminClient = createAdminClient();
-      const { error: storageError } = await adminClient.storage
-        .from(ATTACHMENT_BUCKET)
-        .remove(pathsToDelete);
-      if (storageError) {
-        logger.error(
-          "Error deleting cascaded item attachment files:",
-          storageError
-        );
-      }
     }
 
     revalidateItemListRoutes(spaceScope.unit_id, itemScope.space_id);

@@ -5,7 +5,6 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -13,7 +12,6 @@ import {
   DEFAULT_SPACE_STAGE_ID,
   DEFAULT_STAGE_CONFIGS,
 } from "@/lib/config/default-stages";
-import { ATTACHMENT_BUCKET } from "@/lib/constants";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, SpaceRow } from "@/lib/types";
@@ -318,11 +316,7 @@ export async function updateSpace(
   }
 }
 
-/**
- * Delete a Space (cascades to all Items and their Attachments).
- * Cascading deletes remove related item and attachment rows in Postgres.
- * Storage cleanup for cascaded attachment files is handled separately.
- */
+/** Delete a Space. */
 export async function deleteSpace(
   id: string,
   csrfToken: string
@@ -356,39 +350,6 @@ export async function deleteSpace(
       return { success: false, error: "Space not found" };
     }
 
-    // Collect storage paths for attachments under this space before delete.
-    const { data: items, error: itemsError } = await supabase
-      .from("items")
-      .select("id")
-      .eq("space_id", id)
-      .eq("user_id", user.id);
-    if (itemsError) {
-      logger.error("Error fetching space items for cleanup:", itemsError);
-      return { success: false, error: "Failed to delete space" };
-    }
-
-    const itemIds = (items ?? []).map((item) => item.id);
-    let attachmentPaths: string[] = [];
-    if (itemIds.length > 0) {
-      const { data: attachments, error: attachmentsError } = await supabase
-        .from("item_attachments")
-        .select("storage_path")
-        .in("item_id", itemIds)
-        .eq("user_id", user.id);
-      if (attachmentsError) {
-        logger.error(
-          "Error fetching space attachment paths for cleanup:",
-          attachmentsError
-        );
-        return { success: false, error: "Failed to delete space" };
-      }
-      attachmentPaths = (attachments ?? [])
-        .map((row) => row.storage_path)
-        .filter(
-          (path): path is string => typeof path === "string" && path.length > 0
-        );
-    }
-
     // Delete space (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
       .from("spaces")
@@ -399,19 +360,6 @@ export async function deleteSpace(
     if (error) {
       logger.error("Error deleting space:", error);
       return { success: false, error: "Failed to delete space" };
-    }
-
-    if (attachmentPaths.length > 0) {
-      const adminClient = createAdminClient();
-      const { error: storageError } = await adminClient.storage
-        .from(ATTACHMENT_BUCKET)
-        .remove(attachmentPaths);
-      if (storageError) {
-        logger.error(
-          "Error deleting cascaded space attachment files:",
-          storageError
-        );
-      }
     }
 
     revalidateSpaceListRoute(spaceScope.unit_id);
