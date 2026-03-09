@@ -387,7 +387,7 @@ export function ItemEditor({
         <div className="container mx-auto px-4 py-8">
           <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
             <p className="text-muted-foreground text-sm">
-              {error ? "Something went wrong" : "Item not found"}
+              {error ? "Something went wrong" : "Task not found"}
             </p>
             <Button variant="outline" size="sm" onClick={handleRefresh}>
               Retry
@@ -410,7 +410,7 @@ export function ItemEditor({
         hasUnsavedChanges={hasUnsavedChanges}
         saveStatus={saveStatus}
         onDelete={() => setIsDeleteOpen(true)}
-        deleteLabel="Delete Item"
+        deleteLabel="Delete Task"
       />
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb removed in flat list-first navigation */}
@@ -432,14 +432,14 @@ export function ItemEditor({
                   id="item-title"
                   value={title}
                   onChange={handleTitleChange}
-                  placeholder="Item title..."
+                  placeholder="Task title..."
                 />
               ) : (
                 <input
                   id="item-title"
                   value={title}
                   onChange={handleTitleChange}
-                  placeholder="Item title..."
+                  placeholder="Task title..."
                   className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-2xl leading-tight font-bold outline-none md:text-4xl"
                 />
               )}
@@ -489,7 +489,7 @@ export function ItemEditor({
         </div>
       </div>
 
-      {/* Delete Item Confirmation Dialog */}
+      {/* Delete Task Confirmation Dialog */}
       <DeleteConfirmationDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}

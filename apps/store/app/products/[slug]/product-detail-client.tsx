@@ -276,7 +276,7 @@ export function ProductDetailClient({
               <h2 className="text-xl font-semibold">Pricing</h2>
               <p className="text-muted-foreground mt-1 text-sm">
                 {isEntirelyFree
-                  ? "This product is currently available at no cost"
+                  ? "This product is currently free"
                   : "Choose the plan that works best for you"}
               </p>
             </div>

@@ -112,7 +112,7 @@ export function FlatTasksDashboard({
     <>
       <TaskCommandBar
         onCreateClick={() => setIsCreateOpen(true)}
-        createLabel="New Item"
+        createLabel="New Task"
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
         onExport={isUnlocked && masterKey ? handleExportData : undefined}
@@ -120,7 +120,7 @@ export function FlatTasksDashboard({
       />
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-2xl font-semibold">Items</h1>
+        <h1 className="mb-6 text-2xl font-semibold">Tasks</h1>
 
         <EntityList
           entities={items}
@@ -141,9 +141,9 @@ export function FlatTasksDashboard({
         <DialogContent>
           <form onSubmit={handleCreate}>
             <DialogHeader>
-              <DialogTitle>Create Item</DialogTitle>
+              <DialogTitle>Create Task</DialogTitle>
               <DialogDescription>
-                Create a new item. Sensitive content fields are end-to-end
+                Create a new task. Sensitive content fields are end-to-end
                 encrypted; some structural metadata remains unencrypted for app
                 functionality.
               </DialogDescription>
@@ -185,7 +185,7 @@ export function FlatTasksDashboard({
                     Creating...
                   </>
                 ) : (
-                  "Create Item"
+                  "Create Task"
                 )}
               </Button>
             </DialogFooter>
@@ -204,7 +204,7 @@ export function FlatTasksDashboard({
           className="w-full overflow-y-auto sm:max-w-[95vw] 2xl:max-w-[1800px]"
         >
           <SheetHeader>
-            <SheetTitle>Item Details</SheetTitle>
+            <SheetTitle>Task Details</SheetTitle>
           </SheetHeader>
           {selectedItemId && selectedItem ? (
             <ItemEditor

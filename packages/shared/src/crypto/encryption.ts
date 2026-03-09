@@ -15,16 +15,10 @@ const ENCRYPTION_VERSION = 1;
 const CURRENT_KEY_VERSION = 1;
 
 const ALLOWED_AAD_TABLES = new Set([
-  "units",
-  "spaces",
   "items",
-  "stages",
-  "stage_configs",
-  "labels",
-  "label_configs",
   "contacts",
-  "categories",
-  "category_configs",
+  "item_contact_links",
+  "user_passkey_params",
 ]);
 
 const UUID_REGEX =
@@ -35,7 +29,7 @@ const UUID_REGEX =
  * AAD binds ciphertext to its database record, preventing encrypted data from being moved
  * between records or tables.
  *
- * @param table - The database table name (e.g. "units", "items", "contacts")
+ * @param table - The database table name (e.g. "items", "contacts")
  * @param recordId - The UUID of the record
  * @returns AAD string in the format "table:recordId"
  */

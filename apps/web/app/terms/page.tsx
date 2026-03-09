@@ -378,11 +378,11 @@ export default function TermsPage() {
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
           Physical products (such as apparel) are not currently offered through
-          the Services but may be offered in the future. The following terms
-          will apply if and when physical products become available. Physical
-          Products will be sold subject to availability. Product descriptions
-          and images will be provided for informational purposes. Title and risk
-          of loss will pass to you upon delivery to the carrier.
+          the Services. If physical products are introduced, this section
+          governs those offerings. Physical Products will be sold subject to
+          availability. Product descriptions and images will be provided for
+          informational purposes. Title and risk of loss will pass to you upon
+          delivery to the carrier.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Sizing:</strong> All sizing
@@ -1074,14 +1074,14 @@ export default function TermsPage() {
           11.3 Physical Products (If and When Offered)
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Physical products are not currently offered. The following return
-          policy will apply if and when physical products become available.
+          Physical products are not currently offered. If physical products are
+          introduced, this section will govern the return policy.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           While Swiss law does not provide a statutory withdrawal right for
-          online purchases, if physical products are offered, we currently
-          intend to provide a 14-day voluntary return policy, subject to the
-          policy published at launch.
+          online purchases, if physical products are introduced, we intend to
+          provide a 14-day voluntary return policy, subject to the policy
+          published at launch.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           To exercise this right, you would inform us of your decision to return

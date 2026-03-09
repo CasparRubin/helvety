@@ -95,37 +95,41 @@ export type Database = {
         };
         Relationships: [];
       };
-      entity_contact_links: {
+      item_contact_links: {
         Row: {
           contact_id: string;
           created_at: string;
-          entity_id: string;
-          entity_type: string;
           id: string;
+          item_id: string;
           user_id: string;
         };
         Insert: {
           contact_id: string;
           created_at?: string;
-          entity_id: string;
-          entity_type: string;
           id?: string;
+          item_id: string;
           user_id: string;
         };
         Update: {
           contact_id?: string;
           created_at?: string;
-          entity_id?: string;
-          entity_type?: string;
           id?: string;
+          item_id?: string;
           user_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "entity_contact_links_contact_id_fkey";
+            foreignKeyName: "item_contact_links_contact_id_fkey";
             columns: ["contact_id"];
             isOneToOne: false;
             referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "item_contact_links_item_id_fkey";
+            columns: ["item_id"];
+            isOneToOne: false;
+            referencedRelation: "items";
             referencedColumns: ["id"];
           },
         ];
@@ -141,7 +145,6 @@ export type Database = {
           label_id: string;
           priority: number;
           sort_order: number;
-          space_id: string;
           stage_id: string;
           updated_at: string;
           user_id: string;
@@ -156,7 +159,6 @@ export type Database = {
           label_id: string;
           priority?: number;
           sort_order?: number;
-          space_id: string;
           stage_id: string;
           updated_at?: string;
           user_id: string;
@@ -171,20 +173,11 @@ export type Database = {
           label_id?: string;
           priority?: number;
           sort_order?: number;
-          space_id?: string;
           stage_id?: string;
           updated_at?: string;
           user_id?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: "items_space_id_fkey";
-            columns: ["space_id"];
-            isOneToOne: false;
-            referencedRelation: "spaces";
-            referencedColumns: ["id"];
-          },
-        ];
+        Relationships: [];
       };
       licensed_tenants: {
         Row: {
@@ -262,50 +255,6 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [];
-      };
-      spaces: {
-        Row: {
-          created_at: string;
-          encrypted_description: string | null;
-          encrypted_title: string;
-          id: string;
-          sort_order: number;
-          stage_id: string;
-          unit_id: string;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          encrypted_description?: string | null;
-          encrypted_title: string;
-          id?: string;
-          sort_order?: number;
-          stage_id: string;
-          unit_id: string;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          encrypted_description?: string | null;
-          encrypted_title?: string;
-          id?: string;
-          sort_order?: number;
-          stage_id?: string;
-          unit_id?: string;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "spaces_unit_id_fkey";
-            columns: ["unit_id"];
-            isOneToOne: false;
-            referencedRelation: "units";
-            referencedColumns: ["id"];
-          },
-        ];
       };
       subscription_events: {
         Row: {
@@ -398,39 +347,6 @@ export type Database = {
           stripe_price_id?: string;
           stripe_subscription_id?: string | null;
           tier_id?: string;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      units: {
-        Row: {
-          created_at: string;
-          encrypted_description: string | null;
-          encrypted_title: string;
-          id: string;
-          sort_order: number;
-          stage_id: string;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          encrypted_description?: string | null;
-          encrypted_title: string;
-          id?: string;
-          sort_order?: number;
-          stage_id: string;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          encrypted_description?: string | null;
-          encrypted_title?: string;
-          id?: string;
-          sort_order?: number;
-          stage_id?: string;
           updated_at?: string;
           user_id?: string;
         };

@@ -128,7 +128,7 @@ export async function createContact(
     if ((contactCount ?? 0) >= ENTITY_LIMITS.MAX_CONTACTS_PER_USER) {
       return {
         success: false,
-        error: `Contact limit reached (max ${ENTITY_LIMITS.MAX_CONTACTS_PER_USER} per user)`,
+        error: `Contact limit reached (max ${ENTITY_LIMITS.MAX_CONTACTS_PER_USER} per account)`,
       };
     }
 

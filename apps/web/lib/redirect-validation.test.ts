@@ -34,7 +34,7 @@ describe("isValidRedirectUri", () => {
       false
     );
     expect(isValidRedirectUri("https://pdf.helvety.com")).toBe(false);
-    expect(isValidRedirectUri("https://tasks.helvety.com/units/123")).toBe(
+    expect(isValidRedirectUri("https://tasks.helvety.com/tasks?item=123")).toBe(
       false
     );
     expect(

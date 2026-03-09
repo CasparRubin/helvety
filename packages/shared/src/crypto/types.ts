@@ -54,7 +54,7 @@ export interface StoredPasskey {
 
 /**
  * Wrapped key stored in the database
- * Unit keys are wrapped (encrypted) with the user's master key
+ * Content keys are wrapped (encrypted) with the user's master key
  */
 export interface WrappedKey {
   /** Base64-encoded wrapped key */
@@ -69,7 +69,7 @@ export interface WrappedKey {
  * Stored key entry in IndexedDB
  */
 export interface StoredKeyEntry {
-  /** Unit ID this key belongs to */
+  /** Entity ID this key belongs to */
   unitId: number;
   /** The CryptoKey object (non-extractable) */
   key: CryptoKey;

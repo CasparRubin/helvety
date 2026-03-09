@@ -87,7 +87,7 @@ function ItemRow({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">
-              <p>Unlink item</p>
+              <p>Unlink task</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -205,7 +205,7 @@ export function TaskLinksPanel({
             >
               <Command shouldFilter={false}>
                 <CommandInput
-                  placeholder="Search items..."
+                  placeholder="Search tasks..."
                   value={searchQuery}
                   onValueChange={setSearchQuery}
                 />
@@ -217,12 +217,12 @@ export function TaskLinksPanel({
                   ) : filteredItems.length === 0 ? (
                     <CommandEmpty>
                       {allEntities.items.length === 0
-                        ? "No items found"
+                        ? "No tasks found"
                         : searchQuery
-                          ? "No matching items"
+                          ? "No matching tasks"
                           : allAvailableTotal === 0
-                            ? "All items are already linked"
-                            : "No items available"}
+                            ? "All tasks are already linked"
+                            : "No tasks available"}
                     </CommandEmpty>
                   ) : (
                     filteredItems.map((item: PickerItem) => (
@@ -279,7 +279,7 @@ export function TaskLinksPanel({
 
         {!isLoading && totalCount === 0 && (
           <p className="text-muted-foreground py-2 text-center text-xs">
-            No task items linked yet
+            No tasks linked yet
           </p>
         )}
       </div>
@@ -292,10 +292,10 @@ export function TaskLinksPanel({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unlink Item</AlertDialogTitle>
+            <AlertDialogTitle>Unlink Task</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to unlink &ldquo;{unlinkTarget?.title}
-              &rdquo; from this contact? The item itself will not be deleted.
+              &rdquo; from this contact? The task itself will not be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

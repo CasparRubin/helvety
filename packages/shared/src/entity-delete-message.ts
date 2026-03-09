@@ -20,7 +20,7 @@ export function buildEntityDeleteMessage<EntityTypeId extends string>(
 
   if (!config) {
     return {
-      title: entityName ? `Delete "${entityName}"?` : "Delete this item?",
+      title: entityName ? `Delete "${entityName}"?` : "Delete this entry?",
       description: "This action is permanent and cannot be undone.",
     };
   }

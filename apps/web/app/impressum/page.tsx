@@ -117,8 +117,7 @@ export default function ImpressumPage() {
           and software-as-a-service (SaaS) products. Current products include
           Helvety SPO Explorer (paid SharePoint extension), Helvety PDF
           (currently available at no cost), Helvety Tasks (encrypted task
-          management), and Helvety Contacts (encrypted contact management).
-          Physical products (such as apparel) may be offered in the future. Our
+          management), and Helvety Contacts (encrypted contact management). Our
           products are primarily designed and developed in Switzerland.
         </p>
       </LegalSection>

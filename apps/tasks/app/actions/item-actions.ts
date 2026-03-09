@@ -124,10 +124,10 @@ export async function createItem(
       logger.error("Error counting items for user:", countError);
       return { success: false, error: "Failed to create item" };
     }
-    if ((itemCount ?? 0) >= ENTITY_LIMITS.MAX_ITEMS_PER_SPACE) {
+    if ((itemCount ?? 0) >= ENTITY_LIMITS.MAX_TASKS_PER_USER) {
       return {
         success: false,
-        error: `Item limit reached (max ${ENTITY_LIMITS.MAX_ITEMS_PER_SPACE} per account)`,
+        error: `Task limit reached (max ${ENTITY_LIMITS.MAX_TASKS_PER_USER} per account)`,
       };
     }
 

@@ -25,11 +25,13 @@ export const ERROR_MESSAGES = {
  * Keep these values in sync with database-enforced limits and app-side checks.
  */
 export const ENTITY_LIMITS = {
-  /** Maximum Units a single user can create */
+  /** Deprecated legacy quota (units model, no longer active) */
   MAX_UNITS_PER_USER: 10,
-  /** Maximum Spaces allowed per Unit */
+  /** Deprecated legacy quota (spaces model, no longer active) */
   MAX_SPACES_PER_UNIT: 15,
-  /** Maximum Items allowed per Space */
+  /** Maximum tasks allowed per account */
+  MAX_TASKS_PER_USER: 250,
+  /** Deprecated alias kept for backward compatibility */
   MAX_ITEMS_PER_SPACE: 250,
   /** Maximum Contacts a single user can create */
   MAX_CONTACTS_PER_USER: 250,

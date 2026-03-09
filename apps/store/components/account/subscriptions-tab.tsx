@@ -360,9 +360,8 @@ export function SubscriptionsTab({
                 No active subscriptions
               </h3>
               <p className="text-muted-foreground max-w-[300px] text-sm">
-                You have no paid subscriptions. Some products are currently
-                available at no cost - browse the store to see what&apos;s
-                available.
+                You have no active paid subscriptions. Browse the store to view
+                current free and paid offerings.
               </p>
               <Button variant="outline" className="mt-4" asChild>
                 <Link href="/products">Browse Products</Link>

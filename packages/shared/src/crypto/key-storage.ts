@@ -148,7 +148,7 @@ function openDatabaseOnce(): Promise<IDBDatabase> {
         db.createObjectStore(MASTER_KEY_STORE, { keyPath: "userId" });
       }
 
-      // Store for unit keys (keyed by unitId)
+      // Store for cached content keys (keyed by unitId for legacy compatibility)
       if (!db.objectStoreNames.contains(UNIT_KEY_STORE)) {
         db.createObjectStore(UNIT_KEY_STORE, { keyPath: "unitId" });
       }
@@ -333,7 +333,7 @@ export async function deleteMasterKey(userId: string): Promise<void> {
 }
 
 /**
- * Store a unit key in IndexedDB
+ * Store a content key in IndexedDB
  */
 export async function storeUnitKey(
   unitId: number,
@@ -358,7 +358,7 @@ export async function storeUnitKey(
         reject(
           new CryptoError(
             CryptoErrorType.STORAGE_ERROR,
-            "Failed to store unit key"
+            "Failed to store content key"
           )
         );
       };
@@ -375,14 +375,14 @@ export async function storeUnitKey(
     if (error instanceof CryptoError) throw error;
     throw new CryptoError(
       CryptoErrorType.STORAGE_ERROR,
-      "Failed to store unit key",
+      "Failed to store content key",
       error instanceof Error ? error : undefined
     );
   }
 }
 
 /**
- * Retrieve a unit key from IndexedDB
+ * Retrieve a content key from IndexedDB
  */
 export async function getUnitKey(unitId: number): Promise<CryptoKey | null> {
   try {
@@ -398,7 +398,7 @@ export async function getUnitKey(unitId: number): Promise<CryptoKey | null> {
         reject(
           new CryptoError(
             CryptoErrorType.STORAGE_ERROR,
-            "Failed to retrieve unit key"
+            "Failed to retrieve content key"
           )
         );
       };
@@ -413,7 +413,7 @@ export async function getUnitKey(unitId: number): Promise<CryptoKey | null> {
         // Check if key has expired
         if (Date.now() - result.cachedAt > KEY_CACHE_DURATION) {
           void deleteUnitKey(unitId).catch((err) =>
-            logger.error("Failed to delete expired unit key:", err)
+            logger.error("Failed to delete expired content key:", err)
           );
           resolve(null);
           return;
@@ -427,13 +427,13 @@ export async function getUnitKey(unitId: number): Promise<CryptoKey | null> {
       };
     });
   } catch (error) {
-    logger.error("Failed to retrieve unit key:", error);
+    logger.error("Failed to retrieve content key:", error);
     return null;
   }
 }
 
 /**
- * Delete a unit key from IndexedDB
+ * Delete a content key from IndexedDB
  */
 export async function deleteUnitKey(unitId: number): Promise<void> {
   try {
@@ -449,7 +449,7 @@ export async function deleteUnitKey(unitId: number): Promise<void> {
         reject(
           new CryptoError(
             CryptoErrorType.STORAGE_ERROR,
-            "Failed to delete unit key"
+            "Failed to delete content key"
           )
         );
       };
@@ -463,7 +463,7 @@ export async function deleteUnitKey(unitId: number): Promise<void> {
       };
     });
   } catch (error) {
-    logger.error("Failed to delete unit key:", error);
+    logger.error("Failed to delete content key:", error);
   }
 }
 

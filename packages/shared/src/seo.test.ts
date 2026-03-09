@@ -38,7 +38,7 @@ describe("seo helpers", () => {
       },
       {
         appPath: "/tasks",
-        disallowedPaths: ["/units", "/api", "/auth"],
+        disallowedPaths: ["/api", "/auth"],
         sitemapPath: "/tasks/sitemap.xml",
       },
       {

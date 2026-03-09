@@ -14,7 +14,7 @@ function getTasksRoot(request: NextRequest): URL {
 const LEGACY_TASKS_PATH_REGEX =
   /^\/(?:tasks\/)?(?:units|spaces|items)(?:\/.*)?$/;
 
-/** Redirect legacy hierarchy paths, then apply shared security proxy. */
+/** Redirect deprecated legacy task paths, then apply shared security proxy. */
 export async function proxy(request: NextRequest) {
   if (LEGACY_TASKS_PATH_REGEX.test(request.nextUrl.pathname)) {
     return NextResponse.redirect(getTasksRoot(request));

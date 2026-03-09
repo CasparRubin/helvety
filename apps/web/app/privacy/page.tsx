@@ -246,7 +246,10 @@ export default function PrivacyPage() {
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>Purchase history and order details</li>
-          <li>Shipping address (if and when physical products are offered)</li>
+          <li>
+            Billing and invoicing address details (as provided in Stripe
+            Checkout)
+          </li>
           <li>
             Billing information (processed by Stripe; we do not store complete
             payment card details)
@@ -403,8 +406,7 @@ export default function PrivacyPage() {
             The service still uses minimal server-side endpoints for platform
             and security functions (for example auth callback handling, CSP
             reporting, and session/security proxy logic). Helvety PDF is
-            currently available at no cost with a maximum file size of 100MB per
-            file.
+            currently free with a maximum file size of 100MB per file.
           </li>
           <li>
             <strong className="text-foreground">
@@ -432,8 +434,8 @@ export default function PrivacyPage() {
             Non-encrypted structural metadata is stored in plaintext to enable
             application functionality: record identifiers, timestamps, priority
             levels, display preferences (sort orders), and entity relationships
-            (e.g., stage, label, space). Service-level usage limits may apply
-            and are listed on the product pages.
+            (e.g., stage and label references). Service-level usage limits may
+            apply and are listed on the product pages.
           </li>
           <li>
             <strong className="text-foreground">
@@ -1210,7 +1212,7 @@ export default function PrivacyPage() {
             Non-encrypted structural metadata:
           </strong>{" "}
           record identifiers, timestamps, priority levels, display preferences
-          (sort orders), entity relationships (e.g., stage, label, or space
+          (sort orders), and entity relationships (e.g., stage and label
           references).
         </p>
         <p className="text-muted-foreground mb-4 text-sm">

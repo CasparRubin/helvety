@@ -15,9 +15,7 @@ type ScopedTable =
   | "items"
   | "licensed_tenants"
   | "purchases"
-  | "spaces"
   | "subscriptions"
-  | "units"
   | "user_auth_credentials"
   | "user_passkey_params"
   | "user_profiles";
@@ -29,9 +27,7 @@ const USER_SCOPE_COLUMNS: Record<ScopedTable, "user_id" | "id"> = {
   items: "user_id",
   licensed_tenants: "user_id",
   purchases: "user_id",
-  spaces: "user_id",
   subscriptions: "user_id",
-  units: "user_id",
   user_auth_credentials: "user_id",
   user_passkey_params: "user_id",
   user_profiles: "id",

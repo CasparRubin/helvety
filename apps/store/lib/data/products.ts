@@ -182,7 +182,7 @@ export const helvetyPdf: SaaSProduct = {
     "A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. Browser-based processing for supported operations.",
   description: `Helvety PDF is a privacy-focused PDF toolkit that runs in your browser for supported operations. File content is processed client-side and is not uploaded to Helvety servers for processing.
 
-Pricing and Limits - Helvety PDF is currently available at no cost with no account required. Pricing and limits are subject to change.
+Pricing and Limits - Helvety PDF is currently available at no cost with no account required. Limits and pricing may change over time.
 
 Key Features:
 • Multi-file Merging - Combine multiple PDF files and images into a single document
@@ -269,19 +269,19 @@ export const helvetyTasks: SaaSProduct = {
   slug: "helvety-tasks",
   name: "Helvety Tasks",
   shortDescription:
-    "A privacy-focused task management app with client-side encryption for sensitive fields. Organize work with Units, Spaces, and Items.",
+    "A privacy-focused task management app with client-side encryption for sensitive fields. Organize tasks in a flat workflow with built-in stages and labels.",
   description: `Helvety Tasks is an end-to-end encrypted task management app where sensitive content is encrypted client-side before storage.
 
-Early Access Pricing - Helvety Tasks is currently available at no cost for early adopters. Pricing may change.
+Pricing and Limits - Helvety Tasks is currently available at no cost. Limits and pricing may change over time.
 
 Key Features:
 • End-to-End Encryption - Sensitive task content is encrypted using your passkey
-• Hierarchical Organization - Units (top-level containers) → Spaces (projects) → Items (tasks)
+• Flat Task Workflow - Manage tasks in one list with immutable built-in stages and labels
 • Rich Text Descriptions - Full formatting toolbar with headings, lists, and links
-• Stage Management - Immutable built-in workflow stages with consistent colors and icons (e.g., To Do, In Progress, Done)
-• Label & Priority System - Categorize and prioritize items with color-coded indicators
-• Contact Linking - Link contacts from Helvety Contacts to any Unit, Space, or Item
-• Drag & Drop - Reorder items within and between stages
+• Stage Management - Immutable built-in workflow stages with consistent colors and icons (Backlog, Discovery, Ready, In Progress, Testing, Acceptance, Completed, The Void)
+• Label & Priority System - Categorize and prioritize tasks with color-coded indicators
+• Contact Linking - Link contacts from Helvety Contacts directly to tasks
+• Drag & Drop - Reorder tasks within and between stages
 
 Your data is protected under applicable Swiss data protection law (including nDSG where applicable). Helvety does not have decryption keys and cannot read encrypted task content in plaintext.`,
   type: "saas",
@@ -291,7 +291,7 @@ Your data is protected under applicable Swiss data protection law (including nDS
   artist: "Rudolf Koller",
   features: [
     "End-to-end encryption for sensitive task content fields",
-    "Units, Spaces, and Items hierarchy",
+    "Flat task workflow with stages and labels",
     "Rich text editor with formatting",
     "Immutable built-in stages with consistent colors and icons",
     "Labels and priority levels",
@@ -313,8 +313,8 @@ Your data is protected under applicable Swiss data protection law (including nDS
         features: [
           "All features included",
           "End-to-end encryption",
-          "Up to 10 Units, 15 Spaces per Unit, and 250 Items per Space",
-          "Currently available at no cost for early adopters",
+          "Up to 250 tasks per account",
+          "Currently available at no cost",
         ],
       },
     ],
@@ -362,14 +362,14 @@ export const helvetyContacts: SaaSProduct = {
     "A privacy-focused contact management app with client-side encryption for sensitive fields. Store names, emails, phone numbers, birthdays, and notes.",
   description: `Helvety Contacts is an end-to-end encrypted contact management app. Sensitive contact data is encrypted client-side before storage.
 
-Early Access Pricing - Helvety Contacts is currently available at no cost for early adopters. Pricing may change.
+Pricing and Limits - Helvety Contacts is currently available at no cost. Limits and pricing may change over time.
 
 Key Features:
 • End-to-End Encryption - Sensitive contact content is encrypted using your passkey
 • Rich Contact Fields - Store first name(s), last name(s), description, email, phone, birthday, and notes
 • Rich Text Notes - Full formatting toolbar for structured note editing
-• Category Management - Organize contacts with immutable built-in categories (Work, Family, Friends)
-• Task Linking - Link task entities from Helvety Tasks directly on contacts
+• Category Management - Organize contacts with immutable built-in categories (Personal, Family, Work, Business, Other)
+• Task Linking - Link tasks from Helvety Tasks directly on contacts
 • Drag & Drop - Rearrange contacts within and between categories
 • Data Export - Export all your contacts as a decrypted JSON file (supports nDSG Art. 28 data portability requests)
 
@@ -383,7 +383,7 @@ Your contacts are protected under applicable Swiss data protection law (includin
     "End-to-end encryption for sensitive contact fields",
     "Rich contact fields (name, email, phone, birthday)",
     "Rich text notes with formatting",
-    "Immutable built-in categories (Work, Family, Friends)",
+    "Immutable built-in categories (Personal, Family, Work, Business, Other)",
     "Task linking with Helvety Tasks",
     "Drag & drop reordering",
     "Self-service encrypted data export",
@@ -405,7 +405,7 @@ Your contacts are protected under applicable Swiss data protection law (includin
           "End-to-end encryption",
           "Up to 250 contacts per user",
           "Rich text notes",
-          "Currently available at no cost for early adopters",
+          "Currently available at no cost",
         ],
       },
     ],

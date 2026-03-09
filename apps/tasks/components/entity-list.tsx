@@ -50,7 +50,7 @@ interface EntityListProps {
   onRetry?: () => void;
   /** Available stages for the current view */
   stages: Stage[];
-  /** Optional legacy map of entity id -> child count */
+  /** Optional precomputed map of entity id -> child count (unused in flat task flow) */
   childCounts?: Record<string, number>;
   /** Available labels for the current view (items only) */
   labels?: Label[];

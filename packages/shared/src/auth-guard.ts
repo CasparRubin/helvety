@@ -30,7 +30,7 @@ import type { User } from "@supabase/supabase-js";
  * should not be treated as an authoritative access control boundary.
  *
  * @param currentPath - The public-facing path of the current page (e.g. "/tasks"
- *   or "/tasks/units/123"). Used to build the redirect-back URL so the user
+ *   or "/tasks?item=<id>"). Used to build the redirect-back URL so the user
  *   returns here after authenticating. In Next.js 16, proxy-provided request
  *   headers may not be available in Server Components in all environments, so
  *   this parameter is the canonical redirect source.
