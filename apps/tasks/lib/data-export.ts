@@ -11,7 +11,7 @@
  * Plaintext task data is not sent to the server.
  */
 
-import { getAllTaskDataForExport } from "@/app/actions/task-actions";
+import { getAllTaskDataForExport } from "@/app/actions/entity-actions";
 import { decryptItemRows } from "@/lib/crypto";
 
 import type { Item } from "@/lib/types";

@@ -20,7 +20,8 @@ import {
   SheetTitle,
 } from "@helvety/ui/sheet";
 import { Loader2Icon } from "lucide-react";
-import { useState, useCallback, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { ContactCommandBar } from "@/components/contact-command-bar";
@@ -49,6 +50,7 @@ interface ContactsDashboardProps {
 export function ContactsDashboard({
   initialEncryptedContacts,
 }: ContactsDashboardProps = {}) {
+  const searchParams = useSearchParams();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const { contacts, isLoading, error, refresh, create, remove, reorder } =
     useContacts({ initialEncryptedData: initialEncryptedContacts });
@@ -70,7 +72,7 @@ export function ContactsDashboard({
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isExporting, startExportTransition] = useTransition();
   const [selectedContactId, setSelectedContactId] = useState<string | null>(
-    null
+    () => searchParams.get("contact")
   );
 
   const handleCreate = useCallback(

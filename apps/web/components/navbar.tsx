@@ -1,6 +1,5 @@
 "use client";
 
-import { HelvetyIdentifier, HelvetyLogo } from "@helvety/brand";
 import {
   redirectToLogin,
   redirectToLogout,
@@ -18,7 +17,6 @@ import {
   Sun,
   User as UserIcon,
 } from "@helvety/ui/animated-icons";
-import { AppSwitcher } from "@helvety/ui/app-switcher";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -28,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@helvety/ui/dialog";
+import { NavbarBrand } from "@helvety/ui/navbar-brand";
 import {
   Popover,
   PopoverContent,
@@ -48,7 +47,6 @@ import {
 import { ThemeSwitcher } from "@helvety/ui/theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
-import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
@@ -96,26 +94,12 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
     <nav className="bg-surface-chrome/80 supports-[backdrop-filter]:bg-surface-chrome/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         {/* App Switcher + Logo */}
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <AppSwitcher currentApp="Home" />
-          <Link
-            href="/"
-            className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
-            aria-label="Go to home"
-          >
-            <HelvetyLogo
-              aria-label="Helvety"
-              className="hidden h-8 w-auto sm:block"
-            />
-            <HelvetyIdentifier
-              aria-label="Helvety"
-              className="h-8 w-auto sm:hidden"
-            />
-          </Link>
-          <span className="shrink-0 text-xl font-black tracking-tight transition-opacity hover:opacity-80">
-            by Rubin
-          </span>
-        </div>
+        <NavbarBrand
+          currentApp="Home"
+          homeHref="/"
+          homeAriaLabel="Go to home"
+          titleText="by Rubin"
+        />
 
         <div className="flex shrink-0 items-center gap-2">
           {/* Desktop: sign in/profile, About, GitHub, theme — hidden below sm */}

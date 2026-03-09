@@ -46,10 +46,10 @@ import type { Contact } from "@/lib/types";
 
 const CONTACTS_APP_URL = urls.contacts;
 
-/** Build a deep link URL to view/edit a contact in the Contacts app */
-function getContactDeepLink(contactId: string): string {
-  void contactId;
-  return CONTACTS_APP_URL;
+/** Build a deep link URL to view/edit a contact in the Contacts app. */
+export function getContactDeepLink(contactId: string): string {
+  const params = new URLSearchParams({ contact: contactId });
+  return `${CONTACTS_APP_URL}?${params.toString()}`;
 }
 
 /** Format a contact's full name */

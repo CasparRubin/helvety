@@ -20,6 +20,108 @@ const ALLOWED_OTP_TYPES = new Set<string>([
   "email_change",
 ]);
 
+/** Login step values used by the callback redirect workflow. */
+type AuthStep = "encryption-setup" | "passkey-signin";
+
+/** Minimal readiness state used to select next auth login step. */
+interface PasskeyReadiness {
+  hasPasskey: boolean;
+  hasEncryption: boolean;
+}
+
+/** Builds a login redirect URL with optional error and original redirect target. */
+function buildErrorRedirect(
+  authBase: string,
+  error?: string,
+  redirectUri?: string | null
+): string {
+  const loginUrl = new URL(`${authBase}/login`);
+  if (error) {
+    loginUrl.searchParams.set("error", error);
+  }
+  if (redirectUri) {
+    loginUrl.searchParams.set("redirect_uri", redirectUri);
+  }
+  return loginUrl.toString();
+}
+
+/** Computes the next login step from passkey + encryption readiness. */
+export function resolveAuthStep({
+  hasPasskey,
+  hasEncryption,
+}: PasskeyReadiness): AuthStep {
+  if (!hasPasskey || !hasEncryption) {
+    return "encryption-setup";
+  }
+  return "passkey-signin";
+}
+
+/** Returns true when OTP type is accepted by this callback route. */
+function isAllowedOtpType(type: string | null): type is EmailOtpType {
+  return typeof type === "string" && ALLOWED_OTP_TYPES.has(type);
+}
+
+/** Resolves the post-session redirect URL after callback auth succeeds. */
+async function buildPostAuthRedirect(
+  authBase: string,
+  safeRedirectUri: string | null,
+  supabase: Awaited<ReturnType<typeof createServerClient>>
+): Promise<string> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return buildErrorRedirect(authBase, "auth_failed", safeRedirectUri);
+  }
+
+  const [passkeyResult, encryptionResult] = await Promise.all([
+    checkUserPasskeyStatus(user.id),
+    hasEncryptionSetup(),
+  ]);
+  const hasPasskey = passkeyResult.success && passkeyResult.data?.hasPasskey;
+  const hasEncryption = encryptionResult.success && encryptionResult.data;
+  const step = resolveAuthStep({
+    hasPasskey: Boolean(hasPasskey),
+    hasEncryption: Boolean(hasEncryption),
+  });
+
+  const loginUrl = new URL(`${authBase}/login`);
+  loginUrl.searchParams.set("step", step);
+  loginUrl.searchParams.set("is_new_user", hasPasskey ? "false" : "true");
+  if (safeRedirectUri) {
+    loginUrl.searchParams.set("redirect_uri", safeRedirectUri);
+  }
+  return loginUrl.toString();
+}
+
+/** Enforces callback IP rate-limit and returns early redirect when blocked. */
+async function enforceCallbackRateLimit(
+  request: Request,
+  authBase: string,
+  safeRedirectUri: string | null
+): Promise<NextResponse | null> {
+  const clientIP = getTrustedClientIp(request.headers, {
+    requireTrustedProxyInProduction: true,
+  });
+  if (!clientIP) {
+    return NextResponse.redirect(
+      buildErrorRedirect(authBase, "missing_client_ip", safeRedirectUri)
+    );
+  }
+
+  const rateLimit = await checkRateLimit(
+    `auth_callback:ip:${clientIP}`,
+    RATE_LIMITS.AUTH_CALLBACK.maxRequests,
+    RATE_LIMITS.AUTH_CALLBACK.windowMs
+  );
+  if (!rateLimit.allowed) {
+    return NextResponse.redirect(`${authBase}/login?error=rate_limited`);
+  }
+
+  return null;
+}
+
 /**
  * Auth callback route for handling Supabase email verification and OAuth
  *
@@ -45,17 +147,6 @@ const ALLOWED_OTP_TYPES = new Set<string>([
 export async function GET(request: Request) {
   const authBase = urls.auth;
 
-  const buildErrorRedirect = (error?: string, redirectUri?: string | null) => {
-    const loginUrl = new URL(`${authBase}/login`);
-    if (error) {
-      loginUrl.searchParams.set("error", error);
-    }
-    if (redirectUri) {
-      loginUrl.searchParams.set("redirect_uri", redirectUri);
-    }
-    return loginUrl.toString();
-  };
-
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
@@ -68,66 +159,20 @@ export async function GET(request: Request) {
 
     // Validate OTP type early to avoid consuming callback rate-limit budget
     // with malformed requests.
-    if (token_hash && type && !ALLOWED_OTP_TYPES.has(type)) {
+    if (token_hash && type && !isAllowedOtpType(type)) {
       return NextResponse.redirect(
-        buildErrorRedirect("invalid_type", safeRedirectUri)
+        buildErrorRedirect(authBase, "invalid_type", safeRedirectUri)
       );
     }
 
-    // Rate limit auth callbacks by IP to prevent abuse.
-    const clientIP = getTrustedClientIp(request.headers, {
-      requireTrustedProxyInProduction: true,
-    });
-    if (!clientIP) {
-      return NextResponse.redirect(
-        buildErrorRedirect("missing_client_ip", safeRedirectUri)
-      );
-    }
-    const rateLimit = await checkRateLimit(
-      `auth_callback:ip:${clientIP}`,
-      RATE_LIMITS.AUTH_CALLBACK.maxRequests,
-      RATE_LIMITS.AUTH_CALLBACK.windowMs
+    const rateLimitRedirect = await enforceCallbackRateLimit(
+      request,
+      authBase,
+      safeRedirectUri
     );
-    if (!rateLimit.allowed) {
-      return NextResponse.redirect(`${authBase}/login?error=rate_limited`);
+    if (rateLimitRedirect) {
+      return rateLimitRedirect;
     }
-
-    const buildPasskeyRedirect = async (
-      supabase: Awaited<ReturnType<typeof createServerClient>>
-    ) => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        return `${authBase}/login?error=auth_failed`;
-      }
-
-      const [passkeyResult, encryptionResult] = await Promise.all([
-        checkUserPasskeyStatus(user.id),
-        hasEncryptionSetup(),
-      ]);
-      const hasPasskey =
-        passkeyResult.success && passkeyResult.data?.hasPasskey;
-      const hasEncryption = encryptionResult.success && encryptionResult.data;
-
-      let step: string;
-      if (!hasPasskey) {
-        step = "encryption-setup";
-      } else if (!hasEncryption) {
-        step = "encryption-setup";
-      } else {
-        step = "passkey-signin";
-      }
-
-      const loginUrl = new URL(`${authBase}/login`);
-      loginUrl.searchParams.set("step", step);
-      loginUrl.searchParams.set("is_new_user", hasPasskey ? "false" : "true");
-      if (safeRedirectUri) {
-        loginUrl.searchParams.set("redirect_uri", safeRedirectUri);
-      }
-      return loginUrl.toString();
-    };
 
     // Handle PKCE flow (code exchange)
     if (code) {
@@ -136,13 +181,17 @@ export async function GET(request: Request) {
 
       if (!error) {
         await generateCSRFToken();
-        const redirectUrl = await buildPasskeyRedirect(supabase);
+        const redirectUrl = await buildPostAuthRedirect(
+          authBase,
+          safeRedirectUri,
+          supabase
+        );
         return NextResponse.redirect(redirectUrl);
       }
 
       logger.error("Auth callback error (code exchange):", error);
       return NextResponse.redirect(
-        buildErrorRedirect("auth_failed", safeRedirectUri)
+        buildErrorRedirect(authBase, "auth_failed", safeRedirectUri)
       );
     }
 
@@ -156,22 +205,26 @@ export async function GET(request: Request) {
 
       if (!error) {
         await generateCSRFToken();
-        const redirectUrl = await buildPasskeyRedirect(supabase);
+        const redirectUrl = await buildPostAuthRedirect(
+          authBase,
+          safeRedirectUri,
+          supabase
+        );
         return NextResponse.redirect(redirectUrl);
       }
 
       logger.error("Auth callback error (token hash):", error);
       return NextResponse.redirect(
-        buildErrorRedirect("auth_failed", safeRedirectUri)
+        buildErrorRedirect(authBase, "auth_failed", safeRedirectUri)
       );
     }
 
     // No valid auth params (code or token_hash) for callback-based auth flow.
     return NextResponse.redirect(
-      buildErrorRedirect(undefined, safeRedirectUri)
+      buildErrorRedirect(authBase, undefined, safeRedirectUri)
     );
   } catch (error) {
     logger.error("Auth callback unexpected error:", error);
-    return NextResponse.redirect(buildErrorRedirect("server_error"));
+    return NextResponse.redirect(buildErrorRedirect(authBase, "server_error"));
   }
 }

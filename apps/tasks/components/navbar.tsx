@@ -1,6 +1,5 @@
 "use client";
 
-import { HelvetyIdentifier, HelvetyLogo } from "@helvety/brand";
 import {
   redirectToLogin,
   redirectToLogout,
@@ -18,7 +17,6 @@ import {
   Sun,
   User as UserIcon,
 } from "@helvety/ui/animated-icons";
-import { AppSwitcher } from "@helvety/ui/app-switcher";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -28,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@helvety/ui/dialog";
+import { NavbarBrand } from "@helvety/ui/navbar-brand";
 import {
   Popover,
   PopoverContent,
@@ -49,7 +48,6 @@ import { ThemeSwitcher } from "@helvety/ui/theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
 import { ShieldCheck } from "lucide-react";
-import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
@@ -104,31 +102,14 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   return (
     <nav className="bg-surface-chrome/80 supports-[backdrop-filter]:bg-surface-chrome/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <AppSwitcher currentApp="Tasks" />
-          <a
-            href={urls.home}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
-            aria-label="Visit Helvety.com"
-          >
-            <HelvetyLogo
-              aria-label="Helvety"
-              className="hidden h-8 w-auto sm:block"
-            />
-            <HelvetyIdentifier
-              aria-label="Helvety"
-              className="h-8 w-auto sm:hidden"
-            />
-          </a>
-          <Link
-            href="/"
-            className="text-xl font-black tracking-tight transition-opacity hover:opacity-80"
-          >
-            Tasks
-          </Link>
-        </div>
+        <NavbarBrand
+          currentApp="Tasks"
+          homeHref={urls.home}
+          homeAriaLabel="Visit Helvety.com"
+          openHomeInNewTab
+          titleText="Tasks"
+          titleHref="/"
+        />
         <div className="flex shrink-0 items-center gap-2">
           {/* Desktop: E2EE, sign in/profile, About, GitHub, theme — hidden below sm */}
           <div className="hidden items-center gap-2 sm:flex">

@@ -124,7 +124,7 @@ export function createAdminClient(): SupabaseClient<DatabaseSchema> {
  * Returns a scoped admin query helper that applies user ownership filters.
  *
  * SECURITY NOTES:
- * - This is defense-in-depth around the service-role client.
+ * - This is defense-in-depth around the Supabase admin client (SUPABASE_SECRET_KEY; legacy service_role).
  * - SELECT/UPDATE/DELETE/UPSERT paths automatically apply the owner predicate.
  * - INSERT/UPSERT force owner fields on payloads to reduce ownership mismatch risk.
  * - Keep raw createAdminClient() for system flows without a user context (webhooks, public APIs, etc.).

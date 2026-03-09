@@ -18,6 +18,7 @@ import {
   SheetTitle,
 } from "@helvety/ui/sheet";
 import { Loader2Icon } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState, useTransition } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
@@ -43,6 +44,7 @@ interface FlatTasksDashboardProps {
 export function FlatTasksDashboard({
   initialEncryptedItems,
 }: FlatTasksDashboardProps): React.JSX.Element {
+  const searchParams = useSearchParams();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const { items, isLoading, error, refresh, create, remove, reorder } =
     useItems({ initialEncryptedData: initialEncryptedItems });
@@ -55,7 +57,9 @@ export function FlatTasksDashboard({
   const [newDescription, setNewDescription] = useState("");
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isCreating, startCreateTransition] = useTransition();
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(() =>
+    searchParams.get("item")
+  );
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     id: string | null;

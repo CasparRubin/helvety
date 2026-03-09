@@ -103,7 +103,7 @@ export async function generatePasskeyRegistrationOptions(
     const scopedAdmin = createScopedAdminQuery(user.id);
     const rpId = getRpId(origin);
 
-    // Use scoped admin query (service-role client under the hood) because
+    // Use scoped admin query (Supabase admin client using SUPABASE_SECRET_KEY; legacy service_role) because
     // user_auth_credentials has deny-all RLS for client roles.
     const { data: existingCredentials } = await scopedAdmin
       .from("user_auth_credentials")
@@ -278,7 +278,7 @@ export async function verifyPasskeyRegistration(
       "base64url"
     );
 
-    // Use scoped admin query (service-role client under the hood) because
+    // Use scoped admin query (Supabase admin client using SUPABASE_SECRET_KEY; legacy service_role) because
     // user_auth_credentials has deny-all RLS for client roles.
     const { error: insertError } = await scopedAdmin
       .from("user_auth_credentials")

@@ -33,9 +33,7 @@ const apps = [
   { name: "Contacts", href: urls.contacts, icon: Users },
 ];
 
-/**
- *
- */
+/** Props for the AppSwitcher component. */
 interface AppSwitcherProps {
   currentApp?: string;
 }

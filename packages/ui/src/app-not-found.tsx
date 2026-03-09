@@ -2,17 +2,13 @@ import { FileQuestion, ArrowLeft } from "lucide-react";
 
 import { Button } from "./button";
 
-/**
- *
- */
+/** Props for the shared app-level not-found state. */
 interface AppNotFoundProps {
   homeHref: string;
   label?: string;
 }
 
-/**
- *
- */
+/** Shared 404 screen with a single action back to app home. */
 export function AppNotFound({ homeHref, label = "Go home" }: AppNotFoundProps) {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center px-4">

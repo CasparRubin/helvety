@@ -64,7 +64,7 @@ const GRACE_PERIOD_STATUSES: SubscriptionStatus[] = ["past_due", "canceled"];
  * Validates a tenant's license status for a specific product
  * This is called from the public API endpoint (no auth required)
  *
- * Uses createAdminClient() which bypasses RLS (service role). RLS on
+ * Uses createAdminClient() which bypasses RLS (Supabase secret key; legacy service_role). RLS on
  * licensed_tenants and subscriptions only allows user_id = auth.uid(); the
  * license API has no authenticated user, so it must use the admin client.
  *

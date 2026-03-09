@@ -10,11 +10,7 @@ const rawAdminAllowedPaths = new Set([
   "apps/store/app/api/webhooks/stripe/route.ts",
   "apps/store/lib/license/validation.ts",
   "apps/store/lib/packages/resolve-version.ts",
-  "apps/tasks/app/actions/attachment-actions.ts",
   "apps/tasks/app/actions/item-actions.ts",
-  "apps/tasks/app/actions/space-actions.ts",
-  "apps/tasks/app/actions/unit-actions.ts",
-  "apps/tasks/lib/attachment-logger.ts",
   "packages/shared/src/supabase/admin.ts",
 ]);
 const scopedRequiredPaths = new Set([

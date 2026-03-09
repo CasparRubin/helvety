@@ -36,13 +36,13 @@ Helvety Auth (`helvety.com/auth`) handles all authentication for Helvety applica
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                                            |
-| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                   |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                          |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Must not be exposed. |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.       |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.     |
+| Variable                               | Required | Server-only | Description                                                                                                       |
+| -------------------------------------- | -------- | ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                              |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                     |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Supabase secret key (legacy `service_role`) for server-side admin operations (bypasses RLS). Must not be exposed. |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.                                  |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.                                |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 >
@@ -153,7 +153,7 @@ Handles authentication callbacks from email verification (backwards-compatible f
   - New users or missing encryption: `/login?step=encryption-setup`
   - Returning users after email verification: `/login?step=passkey-signin`
 - If no `redirect_uri` is provided, it falls back to the default home URL from `@helvety/shared/config` (development: `http://localhost:3001`, production: `https://helvety.com`)
-- **Designed to preserve `redirect_uri`** through the auth flow, including hash-fragment authentication handling (where tokens arrive as `#access_token=...` instead of query params)
+- **Designed to preserve `redirect_uri`** through query-based callback auth (`code` / `token_hash`). Legacy hash-fragment tokens are intentionally rejected and routed to `/auth/login?error=callback_required` for safety.
 
 ### `/logout` (Client-Side Page)
 

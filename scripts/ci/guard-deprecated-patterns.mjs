@@ -4,7 +4,7 @@
  * See docs/deprecation-audit-report.md for the full audit and rationale.
  *
  * Checks:
- * - No middleware.ts (Next.js 16: use proxy.ts)
+ * - No root-level middleware.ts in known app/root locations (Next.js 16: use proxy.ts)
  * - No createSessionRefreshProxy (removed alias; use createSecurityProxy)
  * - No @supabase/auth-helpers-* (deprecated; use @supabase/ssr)
  * - No React 19 removed APIs (findDOMNode, ReactDOM.render, etc.)

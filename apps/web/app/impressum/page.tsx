@@ -2,6 +2,7 @@ import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
+import "@/app/legal.css";
 import {
   LegalCard,
   LegalFooterNote,

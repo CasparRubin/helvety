@@ -2,9 +2,9 @@
 
 /**
  * Item Action Panel - sidebar panel for item properties.
- * Displays date metadata, fixed stage/label metadata, and priority controls
+ * Displays date metadata plus editable stage, label, and priority controls
  * in collapsible sections. On desktop, all sections are open by default. On
- * mobile/stacked layouts, all sections start collapsed except Dates.
+ * mobile, stage/priority/label start collapsed while Dates stays open.
  */
 
 import { formatDateTime } from "@helvety/shared/dates";
@@ -71,8 +71,8 @@ interface ItemActionPanelProps {
 /**
  * Renders the action panel for an item editor.
  * Each section (dates, stage, priority, label) is wrapped in a collapsible;
- * stage, priority, and label are open by default on desktop and collapsed by
- * default on mobile; dates remain open.
+ * stage, priority, and label are open by default on desktop and collapsed on
+ * mobile; dates remain open.
  */
 export function ItemActionPanel({
   item,
@@ -94,7 +94,7 @@ export function ItemActionPanel({
   const isMobile = useIsMobile();
 
   // User-initiated overrides for collapse state. When null, derive from screen size.
-  // Sections open by default on desktop, collapsed on mobile/stacked layouts.
+  // Sections open by default on desktop and collapse on mobile.
   // Dates always stays open via defaultOpen (uncontrolled).
   const [stageOverride, setStageOverride] = useState<boolean | null>(null);
   const [priorityOverride, setPriorityOverride] = useState<boolean | null>(

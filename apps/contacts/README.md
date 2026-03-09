@@ -36,7 +36,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Task linking** - Link, unlink, and view task items from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
   - **Bidirectional** - Link and unlink task items from either the Contacts app or the Tasks app for consistent cross-app UX
   - **Searchable picker** - Search your task items by title and link them with one click
-  - **Deep links** - Click any task row to open the Tasks app (opens in a new tab)
+  - **Deep links** - Click any task row to open the linked item detail view in the Tasks app (opens in a new tab)
   - **Privacy** - Task item titles are decrypted client-side; plaintext should not be intentionally sent to the server
 - **Self-Service Data Export** - Export all your contact data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
@@ -50,13 +50,13 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                                            |
-| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                   |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                          |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Service role key for server-side admin operations (bypasses RLS). Must not be exposed. |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.       |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.     |
+| Variable                               | Required | Server-only | Description                                                                                                       |
+| -------------------------------------- | -------- | ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                              |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                     |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Supabase secret key (legacy `service_role`) for server-side admin operations (bypasses RLS). Must not be exposed. |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.                                  |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.                                |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 

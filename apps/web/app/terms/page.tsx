@@ -1,5 +1,6 @@
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 
+import "@/app/legal.css";
 import {
   LegalCard,
   LegalFooterNote,

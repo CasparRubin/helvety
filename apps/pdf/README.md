@@ -53,9 +53,9 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 This application includes the following security hardening:
 
 - **Security Headers** - CSP, HSTS, and other security headers
-- **Rate Limiting** - Auth callback rate limited by IP to prevent abuse
+- **Rate Limiting** - Request-level protections are applied by shared platform controls where relevant
 - **File Size Validation** - Maximum 100MB per file enforced client-side
-- **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated
+- **Auth Redirect Safety** - Redirect URI allowlist validation is enforced by centralized auth flows in `apps/auth`
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics and Speed Insights).
 
@@ -67,7 +67,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 | Variable                               | Required | Server-only | Description                                                           |
 | -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL (auth callback)                                  |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL for client auth/session integrations             |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                         |
 | `NEXT_PUBLIC_PDF_WORKER_PIPELINE`      | No       | No          | Enables worker pipeline for extract/merge (default: `true`)           |
 | `NEXT_PUBLIC_PDF_GPU_PIPELINE`         | No       | No          | Enables experimental GPU-preferred worker path (default: `false`)     |

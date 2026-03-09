@@ -42,10 +42,10 @@ import type { LinkedItem, PickerItem } from "@/lib/types";
 
 const TASKS_APP_URL = urls.tasks;
 
-/** Build a deep link URL to the Tasks app. */
-function getItemDeepLink(itemId: string): string {
-  void itemId;
-  return TASKS_APP_URL;
+/** Build a deep link URL to the Tasks app item detail. */
+export function getItemDeepLink(itemId: string): string {
+  const params = new URLSearchParams({ item: itemId });
+  return `${TASKS_APP_URL}?${params.toString()}`;
 }
 
 /** Render one linked task item row with unlink action. */

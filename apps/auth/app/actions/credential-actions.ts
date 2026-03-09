@@ -105,7 +105,7 @@ export async function getUserCredentials(): Promise<
     }
 
     const scopedAdmin = createScopedAdminQuery(user.id);
-    // Use scoped admin query (service-role client under the hood) because
+    // Use scoped admin query (Supabase admin client using SUPABASE_SECRET_KEY; legacy service_role) because
     // user_auth_credentials has deny-all RLS for client roles.
     const { data, error } = await scopedAdmin
       .from("user_auth_credentials")
@@ -171,7 +171,7 @@ export async function deleteCredential(
     }
 
     const scopedAdmin = createScopedAdminQuery(user.id);
-    // Use scoped admin query (service-role client under the hood) because
+    // Use scoped admin query (Supabase admin client using SUPABASE_SECRET_KEY; legacy service_role) because
     // user_auth_credentials has deny-all RLS for client roles.
     const { error } = await scopedAdmin
       .from("user_auth_credentials")

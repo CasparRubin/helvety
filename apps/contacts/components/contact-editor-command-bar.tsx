@@ -1,31 +1,7 @@
 "use client";
 
-/**
- * Contact editor command bar - sticky toolbar for the contact editor page
- * Primary actions: save (and optional back when enabled)
- * Secondary actions (desktop inline, mobile dropdown): refresh, delete
- */
-
-import { cn } from "@helvety/shared/utils";
-import { Button } from "@helvety/ui/button";
-import { CommandBar, CommandBarSpacer } from "@helvety/ui/command-bar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@helvety/ui/dropdown-menu";
-import { Separator } from "@helvety/ui/separator";
-import {
-  ArrowLeftIcon,
-  EllipsisVerticalIcon,
-  RefreshCwIcon,
-  SaveIcon,
-  Trash2Icon,
-  Loader2Icon,
-  CheckIcon,
-} from "lucide-react";
+import { EditorCommandBar } from "@helvety/ui/editor-command-bar";
+import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
 
 /** Save status type */
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -66,142 +42,30 @@ export function ContactEditorCommandBar({
   saveStatus = "idle",
   onDelete,
 }: ContactEditorCommandBarProps) {
-  const getSaveButtonContent = () => {
-    if (isSaving) {
-      return (
-        <>
-          <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
-          <span>Saving...</span>
-        </>
-      );
-    }
-    if (saveStatus === "saved") {
-      return (
-        <>
-          <CheckIcon className="mr-1.5 size-4 shrink-0" />
-          <span>Saved</span>
-        </>
-      );
-    }
-    if (saveStatus === "error") {
-      return (
-        <>
-          <SaveIcon className="mr-1.5 size-4 shrink-0" />
-          <span>Retry Save</span>
-        </>
-      );
-    }
-    if (hasUnsavedChanges) {
-      return (
-        <>
-          <span className="size-1.5 animate-pulse rounded-full bg-white" />
-          <SaveIcon className="mr-1.5 size-4 shrink-0" />
-          <span>Save Changes</span>
-        </>
-      );
-    }
-    return (
-      <>
-        <SaveIcon className="mr-1.5 size-4 shrink-0" />
-        <span>Save</span>
-      </>
-    );
-  };
-
   return (
-    <CommandBar>
-      {/* Left group: optional Back + Save */}
-      {showBack && (
-        <>
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />
-            <span>Back</span>
-          </Button>
-          <Separator
-            orientation="vertical"
-            className="mx-2 hidden self-stretch md:block"
-          />
-        </>
-      )}
-      {onSave && (
-        <Button
-          variant={hasUnsavedChanges ? "default" : "outline"}
-          size="sm"
-          onClick={onSave}
-          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- boolean OR is intentional
-          disabled={isSaving || !hasUnsavedChanges}
-          className={cn(
-            saveStatus === "error" &&
-              "border-destructive text-destructive hover:bg-destructive/10",
-            hasUnsavedChanges &&
-              saveStatus === "idle" &&
-              !isSaving &&
-              "bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
-          )}
-        >
-          {getSaveButtonContent()}
-        </Button>
-      )}
-
-      {/* Desktop only: Refresh */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onRefresh}
-        disabled={isRefreshing}
-        className="hidden md:inline-flex"
-      >
-        <RefreshCwIcon
-          className={cn(
-            "mr-1.5 size-4 shrink-0",
-            isRefreshing && "animate-spin"
-          )}
-        />
-        <span>Refresh</span>
-      </Button>
-
-      <CommandBarSpacer />
-
-      {/* Desktop only: Delete */}
-      {onDelete && (
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={onDelete}
-          className="hidden md:inline-flex"
-        >
-          <Trash2Icon className="mr-1.5 size-4 shrink-0" />
-          <span>Delete Contact</span>
-        </Button>
-      )}
-
-      {/* Mobile only: overflow dropdown */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="md:hidden">
-            <EllipsisVerticalIcon className="size-4" />
-            <span className="sr-only">More actions</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onRefresh} disabled={isRefreshing}>
-            <RefreshCwIcon className="mr-2 size-4" />
-            <span>Refresh</span>
-          </DropdownMenuItem>
-          {onDelete && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={onDelete}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2Icon className="mr-2 size-4" />
-                <span>Delete Contact</span>
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </CommandBar>
+    <EditorCommandBar
+      backIcon={<ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />}
+      onBack={onBack}
+      showBack={showBack}
+      onRefresh={onRefresh}
+      isRefreshing={isRefreshing}
+      onSave={onSave}
+      isSaving={isSaving}
+      hasUnsavedChanges={hasUnsavedChanges}
+      saveStatus={saveStatus}
+      desktopActions={
+        onDelete
+          ? [
+              {
+                id: "delete",
+                label: "Delete Contact",
+                icon: <Trash2Icon className="mr-1.5 size-4 shrink-0" />,
+                onClick: onDelete,
+                variant: "destructive" as const,
+              },
+            ]
+          : []
+      }
+    />
   );
 }
