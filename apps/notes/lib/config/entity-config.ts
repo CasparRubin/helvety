@@ -29,8 +29,8 @@ export type EntityTypeId = "item" | "stage" | "label";
  */
 export const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
   item: {
-    name: "item",
-    plural: "items",
+    name: "note",
+    plural: "notes",
     hasChildren: false, // Currently leaf node - update when sub-items are added
   },
   stage: {

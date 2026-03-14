@@ -4,7 +4,7 @@
   "private": true,
   "description": "Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, types, utilities",
   "author": "Helvety by Rubin",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "homepage": "https://helvety.com",
   "repository": {
     "type": "git",

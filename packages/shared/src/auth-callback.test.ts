@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getTrustedClientIp: vi.fn(),
   checkRateLimit: vi.fn(),
+  isValidRelativePath: vi.fn(),
+  getSafeRelativePath: vi.fn(),
   exchangeCodeForSession: vi.fn(),
   verifyOtp: vi.fn(),
   generateCSRFToken: vi.fn(),
@@ -25,7 +27,8 @@ vi.mock("./rate-limit", () => ({
 }));
 
 vi.mock("./redirect-validation", () => ({
-  getSafeRelativePath: () => "/",
+  isValidRelativePath: mocks.isValidRelativePath,
+  getSafeRelativePath: mocks.getSafeRelativePath,
 }));
 
 vi.mock("./supabase/server", () => ({
@@ -55,6 +58,8 @@ describe("createAuthCallbackHandler", () => {
     vi.clearAllMocks();
     mocks.getTrustedClientIp.mockReturnValue("203.0.113.10");
     mocks.checkRateLimit.mockResolvedValue({ allowed: true, remaining: 19 });
+    mocks.isValidRelativePath.mockReturnValue(true);
+    mocks.getSafeRelativePath.mockReturnValue("/");
     mocks.exchangeCodeForSession.mockResolvedValue({ error: null });
     mocks.verifyOtp.mockResolvedValue({ error: null });
     mocks.generateCSRFToken.mockResolvedValue(undefined);
@@ -74,5 +79,61 @@ describe("createAuthCallbackHandler", () => {
       "auth",
       "strict"
     );
+  });
+
+  it("rejects invalid next path before auth exchange", async () => {
+    mocks.isValidRelativePath.mockReturnValue(false);
+    const handler = createAuthCallbackHandler();
+
+    const response = await handler(
+      new Request(
+        "https://helvety.com/auth/callback?code=abc123&next=https://evil.com"
+      ) as never
+    );
+
+    expect(response.headers.get("location")).toContain("error=invalid_next");
+    expect(mocks.exchangeCodeForSession).not.toHaveBeenCalled();
+    expect(mocks.verifyOtp).not.toHaveBeenCalled();
+  });
+
+  it("returns missing_client_ip when trusted client IP is unavailable", async () => {
+    mocks.getTrustedClientIp.mockReturnValue(null);
+    const handler = createAuthCallbackHandler();
+
+    const response = await handler(
+      new Request("https://helvety.com/auth/callback?code=abc123") as never
+    );
+
+    expect(response.headers.get("location")).toContain(
+      "error=missing_client_ip"
+    );
+  });
+
+  it("returns rate_limited when callback rate limit denies request", async () => {
+    mocks.checkRateLimit.mockResolvedValue({
+      allowed: false,
+      remaining: 0,
+      retryAfter: 60,
+    });
+    const handler = createAuthCallbackHandler();
+
+    const response = await handler(
+      new Request("https://helvety.com/auth/callback?code=abc123") as never
+    );
+
+    expect(response.headers.get("location")).toContain("error=rate_limited");
+  });
+
+  it("rejects unsupported otp type", async () => {
+    const handler = createAuthCallbackHandler();
+
+    const response = await handler(
+      new Request(
+        "https://helvety.com/auth/callback?token_hash=abc123&type=phone_change"
+      ) as never
+    );
+
+    expect(response.headers.get("location")).toContain("invalid_otp_type");
+    expect(mocks.verifyOtp).not.toHaveBeenCalled();
   });
 });

@@ -3,7 +3,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
-![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 A privacy-focused contact management app with client-side encryption for sensitive fields. Required structural metadata remains plaintext for app functionality. Engineered & Designed in Switzerland.
 
@@ -51,13 +51,13 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                                                                                                                              |
-| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                                                                                     |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                                                                            |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Supabase secret key (legacy `service_role`) for trusted server-side admin operations. It can bypass RLS where object privileges allow; must never be exposed to clients. |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.                                                                                         |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.                                                                                       |
+| Variable                               | Required | Server-only | Description                                                                                                                                                                                                                                        |
+| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                                                                                                                                                               |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                                                                                                                                                      |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Supabase secret key (recommended format: `sb_secret_...`; legacy `service_role` keys may still exist in older setups) for trusted server-side admin operations. It can bypass RLS where object privileges allow; must never be exposed to clients. |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.                                                                                                                                                                   |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.                                                                                                                                                                 |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
@@ -189,22 +189,13 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-> **This is NOT open source software.**
+This app is open source under the [MIT License](./LICENSE).
 
-This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
+You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of this software, provided the copyright and permission notice are
+included in substantial portions of the software.
 
-**All Rights Reserved.** No license is granted for any use of this code. You may:
-
-- View and inspect the code
-
-You may NOT:
-
-- Copy, use, or reuse the code in any form
-- Redistribute, publish, or share the code
-- Modify, adapt, or create derivative works
-- Sell, sublicense, or commercially exploit the code
-- Reverse engineer or decompile the code
+The software is provided "as is", without warranty of any kind. See
+[LICENSE](./LICENSE) for full legal terms.
 
 **Helvety Contacts availability and pricing can change over time.** See [helvety.com/contacts](https://helvety.com/contacts) and related store pages for current terms.
-
-See [LICENSE](./LICENSE) for full legal terms.

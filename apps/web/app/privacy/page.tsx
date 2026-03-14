@@ -391,8 +391,8 @@ export default function PrivacyPage() {
             our servers for file conversion. No login or account is required.
             The service still uses minimal server-side endpoints for platform
             and security functions (for example CSP reporting and
-            session/security proxy logic). Helvety PDF is currently free with a
-            maximum file size of 100MB per file.
+            session/security proxy logic). Availability, pricing, and limits are
+            published on the relevant product page.
           </li>
           <li>
             <strong className="text-foreground">

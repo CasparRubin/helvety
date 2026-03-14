@@ -50,14 +50,14 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
 }
 
 /**
- * Get all contact links for a specific item.
+ * Get all contact links for a specific note.
  */
 export async function getItemContactLinks(
   itemId: string
 ): Promise<ActionResponse<ItemContactLinkRow[]>> {
   try {
     if (!z.string().uuid().safeParse(itemId).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid note ID" };
     }
 
     const auth = await authenticateAndRateLimit({
@@ -87,7 +87,7 @@ export async function getItemContactLinks(
 }
 
 /**
- * Link a contact to an item.
+ * Link a contact to a note.
  */
 export async function linkContact(
   itemId: string,
@@ -96,7 +96,7 @@ export async function linkContact(
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     if (!z.string().uuid().safeParse(itemId).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid note ID" };
     }
     if (!z.string().uuid().safeParse(contactId).success) {
       return { success: false, error: "Invalid contact ID" };
@@ -128,7 +128,7 @@ export async function linkContact(
       return { success: false, error: "Contact not found" };
     }
     if (itemResult.error || !itemResult.data) {
-      return { success: false, error: "Item not found" };
+      return { success: false, error: "Note not found" };
     }
 
     const { data: link, error } = await supabase
@@ -157,7 +157,7 @@ export async function linkContact(
 }
 
 /**
- * Unlink a contact from an item by deleting the link row.
+ * Unlink a contact from a note by deleting the link row.
  */
 export async function unlinkContact(
   linkId: string,

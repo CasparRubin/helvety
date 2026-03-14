@@ -33,8 +33,8 @@ export type CreateSecurityProxyOptions = {
  * Supabase's default SSR guide recommends proxy-based token refresh; we instead
  * rely on Server Actions and Route Handlers to refresh sessions. Session refresh
  * requires cookie writes, which Server Components cannot do; our createServerClient
- * handles refresh in action/route context. CI guard-proxy-policy enforces this
- * separation.
+ * handles refresh in action/route context. Repository test/policy checks
+ * enforce this separation.
  *
  * Config must be exported separately in each app (Next.js requires static config).
  *

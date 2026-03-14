@@ -137,7 +137,7 @@ function LinkedContactRow({
 // =============================================================================
 
 /**
- * Panel for linking/unlinking contacts to an item.
+ * Panel for linking/unlinking contacts to a note.
  * Displays linked contacts with deep links to the Contacts app and a
  * searchable picker to add new contacts.
  */
@@ -331,7 +331,7 @@ export function ContactLinksPanel({
             <AlertDialogTitle>Unlink Contact</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to unlink &ldquo;{unlinkTarget?.name}
-              &rdquo; from this item? The contact itself will not be deleted.
+              &rdquo; from this note? The contact itself will not be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

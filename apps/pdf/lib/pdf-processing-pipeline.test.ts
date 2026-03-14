@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import * as featureDetection from "./feature-detection";
-import * as flags from "./pdf-processing-flags";
 import { selectPdfProcessingPipeline } from "./pdf-processing-pipeline";
 
 const DEFAULT_CAPABILITIES: featureDetection.RenderingCapabilities = {
@@ -22,50 +21,35 @@ afterEach(() => {
 });
 
 describe("selectPdfProcessingPipeline", () => {
-  it("chooses gpu-worker when enabled and supported", () => {
+  it("chooses gpu-worker when supported", () => {
     vi.spyOn(featureDetection, "getRenderingCapabilities").mockReturnValue(
       DEFAULT_CAPABILITIES
     );
-    vi.spyOn(flags, "getPdfProcessingFlags").mockReturnValue({
-      gpuPipelineEnabled: true,
-      workerPipelineEnabled: true,
-      telemetryEnabled: false,
-    });
 
     expect(selectPdfProcessingPipeline()).toEqual({
       pipeline: "gpu-worker",
-      reason: "gpu-worker supported and enabled",
+      reason: "gpu-worker supported by browser capabilities",
     });
   });
 
-  it("chooses worker when gpu is disabled but worker is enabled", () => {
+  it("chooses worker when gpu-worker is unavailable but worker is supported", () => {
     vi.spyOn(featureDetection, "getRenderingCapabilities").mockReturnValue({
       ...DEFAULT_CAPABILITIES,
       canUseGpuWorkerPipeline: false,
       canUseWorkerPipeline: true,
     });
-    vi.spyOn(flags, "getPdfProcessingFlags").mockReturnValue({
-      gpuPipelineEnabled: false,
-      workerPipelineEnabled: true,
-      telemetryEnabled: false,
-    });
 
     expect(selectPdfProcessingPipeline()).toEqual({
       pipeline: "worker",
-      reason: "worker supported and enabled",
+      reason: "worker supported by browser capabilities",
     });
   });
 
-  it("falls back to main-thread when worker is unavailable or disabled", () => {
+  it("falls back to main-thread when worker is unavailable", () => {
     vi.spyOn(featureDetection, "getRenderingCapabilities").mockReturnValue({
       ...DEFAULT_CAPABILITIES,
       canUseGpuWorkerPipeline: false,
       canUseWorkerPipeline: false,
-    });
-    vi.spyOn(flags, "getPdfProcessingFlags").mockReturnValue({
-      gpuPipelineEnabled: true,
-      workerPipelineEnabled: false,
-      telemetryEnabled: false,
     });
 
     expect(selectPdfProcessingPipeline()).toEqual({

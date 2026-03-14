@@ -28,7 +28,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="March 3, 2026"
+        lastReviewed="March 14, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -114,12 +114,12 @@ export default function ImpressumPage() {
       <LegalSection title="Business Activity">
         <p className="text-muted-foreground text-sm">
           Helvety by Rubin develops and offers software, including free tools
-          and software-as-a-service (SaaS) products. Current products include
-          Helvety SPO Explorer (SharePoint extension), Helvety PDF (currently
-          available at no cost), Helvety Tasks (encrypted task management),
-          Helvety Contacts (encrypted contact management), and Helvety Notes
-          (encrypted notes management). Our products are primarily designed and
-          developed in Switzerland.
+          and software-as-a-service (SaaS) products. Products include Helvety
+          SPO Explorer (SharePoint extension), Helvety PDF, Helvety Tasks
+          (encrypted task management), Helvety Contacts (encrypted contact
+          management), and Helvety Notes (encrypted notes management).
+          Availability and pricing are published on the relevant product pages.
+          Our products are primarily designed and developed in Switzerland.
         </p>
       </LegalSection>
 
@@ -272,10 +272,8 @@ export default function ImpressumPage() {
             are subject to Swiss copyright law. Reproduction, editing,
             distribution, and any kind of use outside the limits of copyright
             law require the written consent of the respective author or creator.
-            Downloads and copies of this site are permitted only for personal
-            viewing. This does not grant any rights to source code or software;
-            source code usage is governed exclusively by the repository LICENSE
-            (all rights reserved).
+            Source code published in Helvety public repositories is licensed
+            under the MIT License in the corresponding repository.
           </p>
         </LegalSubsection>
       </LegalSection>

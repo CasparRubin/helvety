@@ -39,7 +39,7 @@ interface ItemContactLinkRow {
 interface UseContactLinksReturn {
   /** All user contacts (decrypted), for the picker */
   allContacts: Contact[];
-  /** Contacts linked to this item (decrypted, with link metadata) */
+  /** Contacts linked to this note (decrypted, with link metadata) */
   linkedContacts: LinkedContact[];
   /** Whether data is being loaded */
   isLoading: boolean;
@@ -47,9 +47,9 @@ interface UseContactLinksReturn {
   error: string | null;
   /** Refresh all data from server */
   refresh: () => Promise<void>;
-  /** Link a contact to this item */
+  /** Link a contact to this note */
   link: (contactId: string) => Promise<boolean>;
-  /** Unlink a contact from this item */
+  /** Unlink a contact from this note */
   unlink: (linkId: string) => Promise<boolean>;
 }
 
@@ -74,8 +74,8 @@ function triggerHardLogoutForError(
 }
 
 /**
- * Hook to manage contact links for a specific item.
- * Fetches all user contacts and the item's links, decrypts client-side,
+ * Hook to manage contact links for a specific note.
+ * Fetches all user contacts and the note's links, decrypts client-side,
  * and provides link/unlink operations.
  */
 export function useContactLinks(itemId: string): UseContactLinksReturn {
@@ -96,7 +96,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
   }, []);
 
   /**
-   * Fetch and decrypt all contacts + fetch item links
+   * Fetch and decrypt all contacts + fetch note links
    */
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked || !itemId) {
@@ -206,7 +206,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
   }, [masterKey, isUnlocked, itemId]);
 
   /**
-   * Link a contact to this item
+   * Link a contact to this note
    */
   const link = useCallback(
     async (contactId: string): Promise<boolean> => {
@@ -247,7 +247,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
   );
 
   /**
-   * Unlink a contact from this item
+   * Unlink a contact from this note
    */
   const unlink = useCallback(
     async (linkId: string): Promise<boolean> => {

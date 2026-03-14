@@ -17,6 +17,7 @@ import type {
   EncryptedNoteExport,
 } from "@/lib/types";
 
+const NOTES_ITEMS_TABLE = "notes" as const;
 const MAX_REORDER_ITEMS = ENTITY_LIMITS.MAX_NOTES_PER_USER;
 const REORDER_CHUNK_SIZE = 50;
 const MAX_EXPORT_ROWS_PER_TABLE = 5000;
@@ -88,7 +89,7 @@ export async function reorderEntities(
     // Ensure all entities being reordered belong to the current user.
     const updateIds = validatedUpdates.map((update) => update.id);
     const { data: allowedRows, error: allowedRowsError } = await supabase
-      .from("notes")
+      .from(NOTES_ITEMS_TABLE)
       .select("id")
       .eq("user_id", user.id)
       .in("id", updateIds);
@@ -112,7 +113,7 @@ export async function reorderEntities(
           };
 
           return supabase
-            .from("notes")
+            .from(NOTES_ITEMS_TABLE)
             .update(updateObj)
             .eq("id", update.id)
             .eq("user_id", user.id);
@@ -161,7 +162,7 @@ export async function getAllNoteDataForExport(): Promise<
 
     // Fetch bounded data to prevent oversized in-memory exports.
     const { data: items, error: itemsError } = await supabase
-      .from("notes")
+      .from(NOTES_ITEMS_TABLE)
       .select("*")
       .eq("user_id", user.id)
       .order("sort_order")

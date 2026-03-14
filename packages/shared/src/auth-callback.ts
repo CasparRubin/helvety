@@ -15,7 +15,10 @@ import { getTrustedClientIp } from "./client-ip";
 import { generateCSRFToken } from "./csrf";
 import { logger } from "./logger";
 import { checkRateLimit, RATE_LIMITS } from "./rate-limit";
-import { getSafeRelativePath } from "./redirect-validation";
+import {
+  getSafeRelativePath,
+  isValidRelativePath,
+} from "./redirect-validation";
 import { createServerClient } from "./supabase/server";
 
 import type { EmailOtpType } from "@supabase/supabase-js";
@@ -55,7 +58,11 @@ export function createAuthCallbackHandler() {
       const code = searchParams.get("code");
       const token_hash = searchParams.get("token_hash");
       const type = searchParams.get("type");
-      const next = getSafeRelativePath(searchParams.get("next"), "/");
+      const rawNext = searchParams.get("next");
+      if (rawNext && !isValidRelativePath(rawNext)) {
+        return NextResponse.redirect(`${authErrorUrl}&error=invalid_next`);
+      }
+      const next = getSafeRelativePath(rawNext, "/");
 
       if (code) {
         const supabase = await createServerClient();

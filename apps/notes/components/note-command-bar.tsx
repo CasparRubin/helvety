@@ -35,7 +35,7 @@ interface NoteCommandBarProps {
   onBack?: () => void;
   /** Callback to open the create dialog */
   onCreateClick: () => void;
-  /** Label for the create button - e.g. "New Item" */
+  /** Label for the create button - e.g. "New Note" */
   createLabel: string;
   /** Callback to refresh the data (if provided, shows refresh button) */
   onRefresh?: () => void;
@@ -45,11 +45,11 @@ interface NoteCommandBarProps {
   onSettings?: () => void;
   /** Callback to open the edit dialog (if provided, shows edit button) */
   onEdit?: () => void;
-  /** Label for the edit button - e.g. "Edit Item" */
+  /** Label for the edit button - e.g. "Edit Note" */
   editLabel?: string;
   /** Callback to delete the current entity (if provided, shows delete button) */
   onDelete?: () => void;
-  /** Label for the delete button - e.g. "Delete Item" */
+  /** Label for the delete button - e.g. "Delete Note" */
   deleteLabel?: string;
   /** Callback to export note data (if provided, shows export button) */
   onExport?: () => void;

@@ -39,4 +39,11 @@ Copy `env.template` to `.env.local` and fill values:
 
 ## License & usage
 
-This repository is source-visible but not open source. See `apps/store/LICENSE`.
+This app is open source under the [MIT License](./LICENSE).
+
+You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of this software, provided the copyright and permission notice are
+included in substantial portions of the software.
+
+The software is provided "as is", without warranty of any kind. See
+[LICENSE](./LICENSE) for full legal terms.

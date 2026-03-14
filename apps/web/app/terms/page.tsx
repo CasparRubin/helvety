@@ -349,18 +349,26 @@ export default function TermsPage() {
           these Terms.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          Upon access to Digital Products, you are granted a limited,
-          non-exclusive, non-transferable, revocable license to use the software
-          for personal or internal business purposes only. You may not:
+          Source code published in our official public repositories is licensed
+          under the MIT License. Your rights to use, copy, modify, distribute,
+          sublicense, and sell that source code are governed by the applicable
+          repository LICENSE file.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          These Terms govern the use of our hosted services, websites, account
+          features, and product delivery flows. They do not reduce or override
+          rights granted to source code under the MIT License.
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
+          <li>Use software and services only for lawful purposes.</li>
           <li>
-            Redistribute, sublicense, sell, or transfer the software to any
-            third party.
+            Keep copyright and license notices intact where required by the
+            applicable open-source license.
           </li>
-          <li>Reverse engineer, decompile, or disassemble the software.</li>
-          <li>Remove or alter any proprietary notices or labels.</li>
-          <li>Use the software for any unlawful purpose.</li>
+          <li>
+            Respect Helvety trademarks, logos, and brand assets as described in
+            these Terms.
+          </li>
         </ul>
 
         <h3 className="mb-3 text-lg font-medium">
@@ -378,12 +386,11 @@ export default function TermsPage() {
           4.3 Apparel and Physical Products
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Physical products (such as apparel) are not currently offered through
-          the Services. If physical products are introduced, this section
-          governs those offerings. Physical Products will be sold subject to
-          availability. Product descriptions and images will be provided for
-          informational purposes. Title and risk of loss will pass to you upon
-          delivery to the carrier.
+          If physical products (such as apparel) are offered through the
+          Services, this section governs those offerings. Physical Products are
+          sold subject to availability. Product descriptions and images are
+          provided for informational purposes. Title and risk of loss pass to
+          you upon delivery to the carrier.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Sizing:</strong> All sizing
@@ -932,10 +939,9 @@ export default function TermsPage() {
       <section id="pricing" className="legal-section">
         <h2 className="mb-4 text-xl font-semibold">9. Pricing and Payment</h2>
         <p className="text-muted-foreground mb-4 text-sm">
-          Products are currently offered at no cost under the present offering.
-          Availability and commercial terms may change in the future. If paid
-          offerings are introduced, pricing and tax treatment will be shown on
-          the relevant product pages.
+          Product availability, pricing, and commercial terms are published on
+          the relevant product pages. If paid offerings are introduced or
+          changed, pricing and tax treatment will be shown there.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Where payment processing is introduced in future, payment terms and
@@ -948,21 +954,20 @@ export default function TermsPage() {
         </p>
         <h3 className="mb-3 text-lg font-medium">9.1 Free Products</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Certain Helvety products are offered free of charge. No purchase is
-          required to use these products:
+          Certain Helvety products may be offered free of charge. Free or paid
+          status is indicated on the relevant product pages:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
-            <strong className="text-foreground">Helvety PDF</strong> is
-            available at no cost under the current offering. No account or login
-            is required.
+            <strong className="text-foreground">Helvety PDF</strong> can be used
+            without account login when offered in a no-account flow.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Tasks, Helvety Contacts, and Helvety Notes
             </strong>{" "}
-            are currently available at no cost. Account login is required and
-            usage limits may apply as described on product pages.
+            require account login, and usage limits may apply as described on
+            product pages.
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">
@@ -980,9 +985,9 @@ export default function TermsPage() {
           10. Product Access and Availability
         </h2>
         <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Current Offering:</strong> At the
-          time of this publication, Helvety products listed in the store are
-          available at no cost, subject to technical and usage limits.
+          <strong className="text-foreground">Current Offering:</strong>{" "}
+          Availability, pricing, and usage limits for Helvety products are
+          listed on the store product pages.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Account Controls:</strong> You can
@@ -1031,17 +1036,17 @@ export default function TermsPage() {
           11.2 Account-Based Services
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          For account-based services currently offered at no cost, no monetary
-          refund applies. If paid tiers are introduced in the future, refund
-          rules for those tiers will be documented in updated terms.
+          For account-based services provided without charge, no monetary refund
+          applies. If paid tiers are introduced, refund rules for those tiers
+          will be documented in updated terms.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
           11.3 Physical Products (If and When Offered)
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Physical products are not currently offered. If physical products are
-          introduced, this section will govern the return policy.
+          If physical products are introduced, this section governs the return
+          policy.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           While Swiss law does not provide a statutory withdrawal right for
@@ -1068,11 +1073,12 @@ export default function TermsPage() {
           12. Intellectual Property
         </h2>
         <p className="text-muted-foreground mb-4 text-sm">
-          All Content on the Services, including but not limited to software,
-          text, graphics, logos, images, audio, video, and the compilation
-          thereof, is the exclusive property of Helvety by Rubin or its
-          licensors and is protected by Swiss and international copyright,
-          trademark, and other intellectual property laws.
+          Except where explicitly licensed otherwise, content on the Services
+          (including text, graphics, logos, images, audio, video, and related
+          compilations) is owned by Helvety by Rubin or its licensors and is
+          protected by Swiss and international copyright, trademark, and other
+          intellectual property laws. Source code published in our official
+          public repositories is licensed under the MIT License.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           The Helvety name, logo, and all related names, logos, product and
@@ -1081,9 +1087,10 @@ export default function TermsPage() {
           permission.
         </p>
         <p className="text-muted-foreground text-sm">
-          Nothing in these Terms grants you any right, title, or interest in any
-          intellectual property owned by us, except for the limited license
-          rights expressly granted herein.
+          Nothing in these Terms limits rights expressly granted by applicable
+          open-source licenses (including MIT) for repository source code.
+          Trademark and brand usage rights remain separate and are not granted
+          unless expressly stated.
         </p>
       </section>
 

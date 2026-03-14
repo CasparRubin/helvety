@@ -3,7 +3,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
-![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 A privacy-focused, browser-based PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. In this architecture, file contents are processed in your browser for supported operations and are not intended to be uploaded to Helvety servers for file conversion. Engineered & Designed in Switzerland.
 
@@ -65,13 +65,10 @@ This application includes the following security hardening:
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                           |
-| -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL for client auth/session integrations             |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                         |
-| `NEXT_PUBLIC_PDF_WORKER_PIPELINE`      | No       | No          | Enables worker pipeline for extract/merge (default: `true`)           |
-| `NEXT_PUBLIC_PDF_GPU_PIPELINE`         | No       | No          | Enables experimental GPU-preferred worker path (default: `false`)     |
-| `NEXT_PUBLIC_PDF_PIPELINE_TELEMETRY`   | No       | No          | Enables session telemetry for pipeline performance (default: `false`) |
+| Variable                               | Required | Server-only | Description                                               |
+| -------------------------------------- | -------- | ----------- | --------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL for client auth/session integrations |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                             |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 
@@ -103,28 +100,15 @@ This application is built with performance and code quality in mind:
 - **Error Handling** - Centralized error handling with detailed context and recovery strategies
 - **Code Organization** - Modular architecture with extracted utilities and reusable components
 
-### Experimental Processing Pipeline (Feature-Flagged)
+### Processing Pipeline (Capability-Driven)
 
-The PDF app includes a staged processing router for heavy operations (extract/merge):
+The PDF app uses a capability-driven router for heavy operations (extract/merge):
 
-- `gpu-worker` -> Dedicated worker + experimental OffscreenCanvas/WebGL-assisted image preprocessing
+- `gpu-worker` -> Dedicated worker + OffscreenCanvas/WebGL-assisted image preprocessing (preferred default when supported)
 - `worker` -> Dedicated worker without GPU preference
 - `main-thread` -> Deterministic fallback path (existing behavior)
 
-Runtime routing is capability + flag based, with automatic downgrade to `main-thread` when worker/GPU paths fail.
-
-Feature flags (set in `.env.local`):
-
-- `NEXT_PUBLIC_PDF_WORKER_PIPELINE=true|false`
-- `NEXT_PUBLIC_PDF_GPU_PIPELINE=true|false`
-- `NEXT_PUBLIC_PDF_PIPELINE_TELEMETRY=true|false`
-
-Recommended rollout:
-
-1. Enable worker path only (`NEXT_PUBLIC_PDF_WORKER_PIPELINE=true`, `NEXT_PUBLIC_PDF_GPU_PIPELINE=false`)
-2. Validate browser matrix and output parity
-3. Enable telemetry and measure responsiveness/throughput/memory
-4. Enable GPU for controlled cohorts only after acceptance thresholds pass
+Runtime routing is capability-based, with automatic downgrade to `main-thread` when worker/GPU paths fail.
 
 ### Benchmark Matrix (Execution Checklist)
 
@@ -165,20 +149,11 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-> **This is NOT open source software.**
+This app is open source under the [MIT License](./LICENSE).
 
-This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
+You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of this software, provided the copyright and permission notice are
+included in substantial portions of the software.
 
-**All Rights Reserved.** No license is granted for any use of this code. You may:
-
-- View and inspect the code
-
-You may NOT:
-
-- Copy, use, or reuse the code in any form
-- Redistribute, publish, or share the code
-- Modify, adapt, or create derivative works
-- Sell, sublicense, or commercially exploit the code
-- Reverse engineer or decompile the code
-
-See [LICENSE](./LICENSE) for full legal terms.
+The software is provided "as is", without warranty of any kind. See
+[LICENSE](./LICENSE) for full legal terms.

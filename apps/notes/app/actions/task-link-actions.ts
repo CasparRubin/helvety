@@ -66,7 +66,7 @@ export async function getNoteTaskLinks(
 
     if (itemsError) {
       logger.error("Error fetching linked items:", itemsError);
-      return { success: false, error: "Failed to fetch linked items" };
+      return { success: false, error: "Failed to fetch linked tasks" };
     }
 
     const linkMap = new Map(
@@ -118,7 +118,7 @@ export async function getTaskEntities(): Promise<
 
     if (error) {
       logger.error("Error fetching items:", error);
-      return { success: false, error: "Failed to fetch items" };
+      return { success: false, error: "Failed to fetch tasks" };
     }
 
     return { success: true, data: { items: items ?? [] } };
@@ -135,7 +135,7 @@ export async function linkTaskEntity(
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     if (!z.string().uuid().safeParse(itemId).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid task ID" };
     }
     if (!z.string().uuid().safeParse(noteId).success) {
       return { success: false, error: "Invalid note ID" };
@@ -167,7 +167,7 @@ export async function linkTaskEntity(
       return { success: false, error: "Note not found" };
     }
     if (item.error || !item.data) {
-      return { success: false, error: "Item not found" };
+      return { success: false, error: "Task not found" };
     }
 
     const { data: link, error } = await supabase
@@ -182,10 +182,13 @@ export async function linkTaskEntity(
 
     if (error || !link) {
       if (error?.code === "23505") {
-        return { success: false, error: "Item is already linked" };
+        return {
+          success: false,
+          error: "Task is already linked to this note",
+        };
       }
       logger.error("Error linking task item:", error);
-      return { success: false, error: "Failed to link item" };
+      return { success: false, error: "Failed to link task" };
     }
 
     return { success: true, data: { id: link.id } };
@@ -219,7 +222,7 @@ export async function unlinkTaskEntity(
 
     if (error) {
       logger.error("Error unlinking task item:", error);
-      return { success: false, error: "Failed to unlink item" };
+      return { success: false, error: "Failed to unlink task" };
     }
 
     return { success: true };

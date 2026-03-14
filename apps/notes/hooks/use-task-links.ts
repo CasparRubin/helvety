@@ -230,7 +230,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         ) {
           return;
         }
-        toast.error(result.error ?? "Failed to fetch items", {
+        toast.error(result.error ?? "Failed to fetch tasks", {
           duration: TOAST_DURATIONS.ERROR,
         });
         return;
@@ -253,7 +253,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         return;
       }
       const message =
-        err instanceof Error ? err.message : "Failed to fetch items";
+        err instanceof Error ? err.message : "Failed to fetch tasks";
       if (
         triggerHardLogoutForError(message, {
           redirectUri: routeAtStart,
@@ -280,7 +280,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         const result = await linkTaskEntity(itemId, noteId, csrfToken);
         if (!result.success) {
           if (triggerHardLogoutForError(result.error)) return false;
-          toast.error(result.error ?? "Failed to link item", {
+          toast.error(result.error ?? "Failed to link task", {
             duration: TOAST_DURATIONS.ERROR,
           });
           return false;
@@ -289,7 +289,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         return true;
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Failed to link item";
+          err instanceof Error ? err.message : "Failed to link task";
         if (triggerHardLogoutForError(message)) return false;
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
@@ -304,7 +304,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         const result = await unlinkTaskEntity(linkId, csrfToken);
         if (!result.success) {
           if (triggerHardLogoutForError(result.error)) return false;
-          toast.error(result.error ?? "Failed to unlink item", {
+          toast.error(result.error ?? "Failed to unlink task", {
             duration: TOAST_DURATIONS.ERROR,
           });
           return false;
@@ -313,7 +313,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         return true;
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Failed to unlink item";
+          err instanceof Error ? err.message : "Failed to unlink task";
         if (triggerHardLogoutForError(message)) return false;
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;

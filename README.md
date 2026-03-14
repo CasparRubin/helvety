@@ -4,7 +4,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![Turborepo](https://img.shields.io/badge/Turborepo-2-blue?style=flat-square)
 ![Bun](https://img.shields.io/badge/Bun-1.3.x-f9f1e1?style=flat-square&logo=bun)
-![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 
@@ -93,7 +93,8 @@ bun run format
 ### Automation
 
 - GitHub Actions workflows are intentionally not configured in this repository.
-- Quality checks (`lint`, `type-check`, `test`, `format:check`, and `ci:*` scripts) are run manually/local as needed.
+- Quality checks (`lint`, `type-check`, `test`, and `format:check`) are run manually/local as needed.
+- Dependency and security checks (`deps:audit`, `deps:check`) are also run manually/local as needed.
 - Deployments are handled by Vercel via Git integration.
 
 ### Supabase Workflow (Remote-First)
@@ -155,20 +156,11 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-> **This is NOT open source software.**
+This monorepo is open source under the [MIT License](./LICENSE).
 
-This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
+You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of this software, provided the copyright and permission notice are
+included in substantial portions of the software.
 
-**All Rights Reserved.** No license is granted for any use of this code. You may:
-
-- View and inspect the code
-
-You may NOT:
-
-- Copy, use, or reuse the code in any form
-- Redistribute, publish, or share the code
-- Modify, adapt, or create derivative works
-- Sell, sublicense, or commercially exploit the code
-- Reverse engineer or decompile the code
-
-See [LICENSE](./LICENSE) for full legal terms.
+The software is provided "as is", without warranty of any kind. See
+[LICENSE](./LICENSE) for full legal terms.

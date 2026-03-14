@@ -110,15 +110,13 @@ async function checkEmailInner(
   }
 
   try {
-    const adminClient = createAdminClient();
-
     // Validate email format
     if (!z.string().email().safeParse(normalizedEmail).success) {
       return { success: false, error: "Please enter a valid email address" };
     }
 
     // Check if user exists (read-only, direct O(1) lookup via RPC)
-    const existingUser = await findUserByEmail(normalizedEmail, adminClient);
+    const existingUser = await findUserByEmail(normalizedEmail);
 
     if (!existingUser) {
       return {
@@ -235,12 +233,12 @@ export async function sendVerificationCode(
   });
 
   try {
-    const adminClient = createAdminClient();
-
     // Validate email format
     if (!z.string().email().safeParse(normalizedEmail).success) {
       return { success: false, error: "Please enter a valid email address" };
     }
+
+    const adminClient = createAdminClient();
 
     // Check if user exists (direct O(1) lookup via RPC)
     const existingUser = await findUserByEmail(normalizedEmail, adminClient);

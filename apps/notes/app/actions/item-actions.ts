@@ -17,6 +17,10 @@ function revalidateItemRoutes(): void {
   revalidatePath("/notes");
 }
 
+/** Canonical backing table for Notes app items. */
+const NOTES_ITEMS_TABLE = "notes" as const;
+const MAX_ITEMS_PER_USER = ENTITY_LIMITS.MAX_NOTES_PER_USER;
+
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
@@ -69,26 +73,26 @@ export async function createItem(
         ),
         issueCount: validationResult.error.issues.length,
       });
-      return { success: false, error: "Invalid item data" };
+      return { success: false, error: "Invalid note data" };
     }
     const validatedData = validationResult.data;
     // Enforce per-user Item limit before insert.
     const { count: itemCount, error: countError } = await supabase
-      .from("notes")
+      .from(NOTES_ITEMS_TABLE)
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id);
     if (countError) {
       logger.error("Error counting items for user:", countError);
-      return { success: false, error: "Failed to create item" };
+      return { success: false, error: "Failed to create note" };
     }
-    if ((itemCount ?? 0) >= ENTITY_LIMITS.MAX_NOTES_PER_USER) {
+    if ((itemCount ?? 0) >= MAX_ITEMS_PER_USER) {
       return {
         success: false,
-        error: `Note limit reached (max ${ENTITY_LIMITS.MAX_NOTES_PER_USER} per account)`,
+        error: `Note limit reached (max ${MAX_ITEMS_PER_USER} per account)`,
       };
     }
 
-    // Insert note
+    // Insert item row into notes table (Notes app canonical store).
     const insertObj: Record<string, unknown> = {
       id: validatedData.id,
       user_id: user.id,
@@ -97,7 +101,7 @@ export async function createItem(
     };
 
     const { data: item, error } = await supabase
-      .from("notes")
+      .from(NOTES_ITEMS_TABLE)
       .insert(insertObj)
       .select("id")
       .single();
@@ -108,7 +112,7 @@ export async function createItem(
         message: error?.message,
         details: error?.details,
       });
-      return { success: false, error: "Failed to create item" };
+      return { success: false, error: "Failed to create note" };
     }
 
     revalidateItemRoutes();
@@ -129,7 +133,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
     const { user, supabase } = auth.ctx;
 
     const { data: items, error } = await supabase
-      .from("notes")
+      .from(NOTES_ITEMS_TABLE)
       .select("*")
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
@@ -138,7 +142,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
 
     if (error) {
       logger.error("Error getting all items:", error);
-      return { success: false, error: "Failed to get items" };
+      return { success: false, error: "Failed to get notes" };
     }
 
     return { success: true, data: items ?? [] };
@@ -154,7 +158,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
 export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
   try {
     if (!z.string().uuid().safeParse(id).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid note ID" };
     }
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "notes" });
@@ -163,7 +167,7 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
 
     // Get item (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: item, error } = await supabase
-      .from("notes")
+      .from(NOTES_ITEMS_TABLE)
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
@@ -172,10 +176,10 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
 
     if (error || !item) {
       if (error?.code === "PGRST116" || !item) {
-        return { success: false, error: "Item not found" };
+        return { success: false, error: "Note not found" };
       }
       logger.error("Error getting item:", error);
-      return { success: false, error: "Failed to get item" };
+      return { success: false, error: "Failed to get note" };
     }
 
     return { success: true, data: item };
@@ -214,7 +218,7 @@ export async function updateItem(
         ),
         issueCount: validationResult.error.issues.length,
       });
-      return { success: false, error: "Invalid item data" };
+      return { success: false, error: "Invalid note data" };
     }
     const validatedData = validationResult.data;
 
@@ -234,7 +238,7 @@ export async function updateItem(
 
     // Update item (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
-      .from("notes")
+      .from(NOTES_ITEMS_TABLE)
       .update(updateObj)
       .eq("id", validatedData.id)
       .eq("user_id", user.id);
@@ -243,7 +247,7 @@ export async function updateItem(
       logger.error("Error updating item:", error);
       return {
         success: false,
-        error: "Failed to update item",
+        error: "Failed to update note",
       };
     }
 
@@ -269,19 +273,19 @@ export async function deleteItem(
     const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid note ID" };
     }
 
     // Delete item (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
-      .from("notes")
+      .from(NOTES_ITEMS_TABLE)
       .delete()
       .eq("id", id)
       .eq("user_id", user.id);
 
     if (error) {
       logger.error("Error deleting item:", error);
-      return { success: false, error: "Failed to delete item" };
+      return { success: false, error: "Failed to delete note" };
     }
 
     revalidateItemRoutes();

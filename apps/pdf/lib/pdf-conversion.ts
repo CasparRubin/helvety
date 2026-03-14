@@ -25,7 +25,7 @@ interface ImageEmbed {
 
 export interface ImageConversionOptions {
   /**
-   * Enables experimental GPU-assisted preprocessing when supported.
+   * Enables GPU-assisted preprocessing when supported.
    */
   readonly preferGpuPreprocess?: boolean;
 }

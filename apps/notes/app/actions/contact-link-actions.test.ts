@@ -79,7 +79,7 @@ describe("notes contact-link-actions", () => {
 
   it("validates item id before auth for getItemContactLinks", async () => {
     const result = await getItemContactLinks("invalid-id");
-    expect(result).toEqual({ success: false, error: "Invalid item ID" });
+    expect(result).toEqual({ success: false, error: "Invalid note ID" });
     expect(mocks.authenticateAndRateLimit).not.toHaveBeenCalled();
   });
 

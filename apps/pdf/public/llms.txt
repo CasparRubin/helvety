@@ -1,6 +1,6 @@
 # Helvety PDF
 
-> PDF toolkit available at no cost. Merge, reorder, delete, rotate, and extract PDF pages in the browser. In this architecture, file contents are processed locally for supported operations and are not intended to be uploaded to Helvety servers for file conversion. Engineered and designed in Switzerland.
+> PDF toolkit for merging, reordering, deleting, rotating, and extracting PDF pages in the browser. In this architecture, file contents are processed locally for supported operations and are not intended to be uploaded to Helvety servers for file conversion. Engineered and designed in Switzerland.
 
 ## Core Pages
 - [Home](https://helvety.com/pdf): PDF toolkit with merge, reorder, rotate, delete, and extract features
@@ -14,6 +14,6 @@
 - [Helvety Tasks](https://helvety.com/tasks): Task management with client-side encryption for sensitive fields
 
 ## Optional
-- [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (source-visible, not open source)
+- [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (open source under MIT)
 
 

@@ -3,7 +3,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
-![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 A privacy-focused notes app with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.
 
@@ -67,6 +67,11 @@ Run from `apps/notes`:
 
 ## License & Usage
 
-> **This is NOT open source software.**
+This app is open source under the [MIT License](./LICENSE).
 
-All Rights Reserved. See [LICENSE](./LICENSE).
+You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of this software, provided the copyright and permission notice are
+included in substantial portions of the software.
+
+The software is provided "as is", without warranty of any kind. See
+[LICENSE](./LICENSE) for full legal terms.

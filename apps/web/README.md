@@ -3,7 +3,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
-![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 The main Helvety website. Engineered & Designed in Switzerland.
 
@@ -103,20 +103,11 @@ For questions or inquiries, please contact us at [contact@helvety.com](mailto:co
 
 ## License & Usage
 
-> **This is NOT open source software.**
+This app is open source under the [MIT License](./LICENSE).
 
-This monorepo is public so users can inspect the code and independently assess application behavior and security posture.
+You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of this software, provided the copyright and permission notice are
+included in substantial portions of the software.
 
-**All Rights Reserved.** No license is granted for any use of this code. You may:
-
-- View and inspect the code
-
-You may NOT:
-
-- Copy, use, or reuse the code in any form
-- Redistribute, publish, or share the code
-- Modify, adapt, or create derivative works
-- Sell, sublicense, or commercially exploit the code
-- Reverse engineer or decompile the code
-
-See [LICENSE](./LICENSE) for full legal terms.
+The software is provided "as is", without warranty of any kind. See
+[LICENSE](./LICENSE) for full legal terms.

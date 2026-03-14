@@ -70,7 +70,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
           "Favorites and quick access",
           "Settings customization",
           "No account required for download",
-          "Currently available at no cost",
+          "Available at no cost under the current offering",
         ],
       },
     ],
@@ -161,7 +161,7 @@ export const helvetyPdf: SaaSProduct = {
     "A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. Browser-based processing for supported operations.",
   description: `Helvety PDF is a privacy-focused PDF toolkit that runs in your browser for supported operations. File content is processed client-side and is not uploaded to Helvety servers for processing.
 
-Pricing and Limits - Helvety PDF is currently available at no cost with no account required. Limits and pricing may change over time.
+Pricing and Limits - Helvety PDF is available at no cost with no account required under the current offering. Limits and pricing may change over time.
 
 Key Features:
 • Multi-file Merging - Combine multiple PDF files and images into a single document
@@ -204,7 +204,7 @@ No login or account is required. Files are limited to 100MB each, and practical 
           "No app-enforced page-count cap",
           "Up to 100MB per file",
           "No account required",
-          "Currently available at no cost",
+          "Available at no cost under the current offering",
         ],
       },
     ],
@@ -251,7 +251,7 @@ export const helvetyTasks: SaaSProduct = {
     "A privacy-focused task management app with client-side encryption for sensitive fields. Organize tasks in a flat workflow with built-in stages and labels.",
   description: `Helvety Tasks is an end-to-end encrypted task management app where sensitive content is encrypted client-side before storage.
 
-Pricing and Limits - Helvety Tasks is currently available at no cost. Limits and pricing may change over time.
+Pricing and Limits - Helvety Tasks is available at no cost under the current offering. Limits and pricing may change over time.
 
 Key Features:
 • End-to-End Encryption - Sensitive task content is encrypted using your passkey
@@ -293,7 +293,7 @@ Your data is protected under applicable Swiss data protection law (including nDS
           "All features included",
           "End-to-end encryption",
           "Up to 250 tasks per account",
-          "Currently available at no cost",
+          "Available at no cost under the current offering",
         ],
       },
     ],
@@ -341,7 +341,7 @@ export const helvetyContacts: SaaSProduct = {
     "A privacy-focused contact management app with client-side encryption for sensitive fields. Store names, emails, phone numbers, birthdays, and notes.",
   description: `Helvety Contacts is an end-to-end encrypted contact management app. Sensitive contact data is encrypted client-side before storage.
 
-Pricing and Limits - Helvety Contacts is currently available at no cost. Limits and pricing may change over time.
+Pricing and Limits - Helvety Contacts is available at no cost under the current offering. Limits and pricing may change over time.
 
 Key Features:
 • End-to-End Encryption - Sensitive contact content is encrypted using your passkey
@@ -384,7 +384,7 @@ Your contacts are protected under applicable Swiss data protection law (includin
           "End-to-end encryption",
           "Up to 250 contacts per user",
           "Rich text notes",
-          "Currently available at no cost",
+          "Available at no cost under the current offering",
         ],
       },
     ],
@@ -432,7 +432,7 @@ export const helvetyNotes: SaaSProduct = {
     "A privacy-focused notes app with client-side encryption for sensitive fields. Keep title and description notes in one clean list.",
   description: `Helvety Notes is an end-to-end encrypted notes app where sensitive note content is encrypted client-side before storage.
 
-Pricing and Limits - Helvety Notes is currently available at no cost. Limits and pricing may change over time.
+Pricing and Limits - Helvety Notes is available at no cost under the current offering. Limits and pricing may change over time.
 
 Key Features:
 • End-to-End Encryption - Sensitive note content is encrypted using your passkey
@@ -470,7 +470,7 @@ Your data is protected under applicable Swiss data protection law (including nDS
           "All features included",
           "End-to-end encryption",
           "Up to 250 notes per user",
-          "Currently available at no cost",
+          "Available at no cost under the current offering",
         ],
       },
     ],

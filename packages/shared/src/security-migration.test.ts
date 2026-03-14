@@ -1,16 +1,43 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const migrationPath = resolve(
-  process.cwd(),
-  "../../supabase/migrations/20260314_security_hardening_privileges.sql"
-);
+const migrationsDir = resolve(process.cwd(), "../../supabase/migrations");
+
+/**
+ * Returns the latest security hardening migration file path if it exists.
+ */
+function resolveSecurityHardeningMigrationPath(): string | null {
+  if (!existsSync(migrationsDir)) {
+    return null;
+  }
+
+  const migrationFiles = readdirSync(migrationsDir)
+    .filter((file) => /^\d+_security_hardening_privileges\.sql$/.test(file))
+    .sort();
+
+  const latestMigration = migrationFiles.at(-1);
+
+  if (!latestMigration) {
+    return null;
+  }
+
+  return resolve(migrationsDir, latestMigration);
+}
+
+const securityMigrationPath = resolveSecurityHardeningMigrationPath();
 
 describe("security hardening migration", () => {
+  it("fails closed when the security hardening migration is missing", () => {
+    expect(
+      securityMigrationPath,
+      "Expected at least one *_security_hardening_privileges.sql migration in supabase/migrations"
+    ).toBeTruthy();
+  });
+
   it("includes revoke/definer hardening statements for high-risk DB paths", () => {
-    const sql = readFileSync(migrationPath, "utf8");
+    const sql = readFileSync(securityMigrationPath!, "utf8");
 
     expect(sql).toContain(
       "REVOKE EXECUTE ON FUNCTION storage.delete_leaf_prefixes(text[], text[]) FROM PUBLIC;"

@@ -1,6 +1,6 @@
 {
   "name": "@helvety/store",
-  "version": "2.16.0",
+  "version": "3.0.0",
   "description": "Official Helvety Store. Products and apps engineered and designed in Switzerland.",
   "author": "Helvety by Rubin",
   "homepage": "https://helvety.com/store",
@@ -10,7 +10,7 @@
     "directory": "apps/store"
   },
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": "22.x"
   },

@@ -145,7 +145,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
               <h2 className="text-xl font-semibold">Pricing</h2>
               <p className="text-muted-foreground mt-1 text-sm">
                 {isEntirelyFree
-                  ? "This product is currently available at no cost"
+                  ? "This product is available at no cost"
                   : "View current availability and access details"}
               </p>
             </div>

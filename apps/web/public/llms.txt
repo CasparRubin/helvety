@@ -9,14 +9,14 @@
 - [Impressum](https://helvety.com/impressum): Legal information and company details
 
 ## Helvety Ecosystem
-- [Helvety Store](https://helvety.com/store): Official catalog for Helvety products and package downloads (currently available at no cost; see store for current terms)
-- [Helvety PDF](https://helvety.com/pdf): PDF toolkit that currently processes files locally in the browser for supported operations
+- [Helvety Store](https://helvety.com/store): Official catalog for Helvety products and package downloads (see store for current availability and pricing)
+- [Helvety PDF](https://helvety.com/pdf): PDF toolkit that processes files locally in the browser for supported operations
 - [Helvety Auth](https://helvety.com/auth): Centralized authentication service for all Helvety apps
 - [Helvety Contacts](https://helvety.com/contacts): Contact management with client-side encryption for sensitive fields
 - [Helvety Notes](https://helvety.com/notes): Notes management with client-side encryption for sensitive fields
 - [Helvety Tasks](https://helvety.com/tasks): Task management with client-side encryption for sensitive fields
 
 ## Optional
-- [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (source-visible, not open source)
+- [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (open source under MIT)
 
 
