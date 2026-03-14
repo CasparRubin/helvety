@@ -19,9 +19,9 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 ## Features
 
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes)
 - **Sign in** - Sign in when not authenticated (centralized auth)
-- **Profile menu** - When signed in: user email, links to Store (Account, Subscriptions), Sign out
+- **Profile menu** - When signed in: user email, links to Store Account, Sign out
 - **Dark & Light mode** - Switch between dark and light themes
 - **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations.
 - **Abuse reporting** - The Impressum includes an abuse reporting section ([helvety.com/impressum#abuse](https://helvety.com/impressum#abuse)) with guidance for users and law enforcement. Abuse contact: [contact@helvety.com](mailto:contact@helvety.com).
@@ -33,13 +33,13 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 - Sub-apps are forwarded by gateway rewrites in `apps/web/next.config.ts`.
 - Use wildcard segment patterns (prefer `:path*`) for zone forwarding rules so App Router Flight/RSC prefetch requests (`?_rsc=...`) and trailing-slash variants are forwarded consistently.
-- Keep wildcard usage consistent across zones (`auth`, `tasks`, `contacts`, `store`, `pdf`) to avoid edge-case misses and preserve smooth prefetch behavior.
+- Keep wildcard usage consistent across zones (`auth`, `tasks`, `contacts`, `notes`, `store`, `pdf`) to avoid edge-case misses and preserve smooth prefetch behavior.
 
 ## Security Features
 
 This application includes the following security hardening:
 
-- **Session Management** - `proxy.ts` performs lightweight request setup for headers/CSP in the web gateway. The web app itself is primarily public-facing; strict auth enforcement for protected data/actions is handled in the app-specific zones (`/auth`, `/store`, `/tasks`, `/contacts`).
+- **Session Management** - `proxy.ts` performs lightweight request setup for headers/CSP in the web gateway. The web app itself is primarily public-facing; strict auth enforcement for protected data/actions is handled in the app-specific zones (`/auth`, `/store`, `/tasks`, `/contacts`, `/notes`).
 - **Redirect URI Validation** - Redirect URIs are allowlist-validated in core auth flows via `@helvety/shared/redirect-validation` to reduce open-redirect risk
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Security Headers** - CSP, HSTS, and other security headers
@@ -61,6 +61,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 | `PDF_URL`                              | Prod     | **Yes**     | Internal Vercel URL for PDF app (gateway rewrite target)      |
 | `TASKS_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Tasks app (gateway rewrite target)    |
 | `CONTACTS_URL`                         | Prod     | **Yes**     | Internal Vercel URL for Contacts app (gateway rewrite target) |
+| `NOTES_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Notes app (gateway rewrite target)    |
 
 > **Note:** Public app URL/cookie domain are derived from `NODE_ENV` in `packages/shared/src/config.ts`. Separately, the gateway rewrite URLs (`AUTH_URL`, `STORE_URL`, etc.) are only needed on Vercel production — they point to each sub-app's internal Vercel deployment URL (not `helvety.com`). In development, they fall back to localhost ports. Production rewrite hosts must use the built-in trusted host policy (`*.vercel.app`, `*.helvety.com`, and `helvety.com`). Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 

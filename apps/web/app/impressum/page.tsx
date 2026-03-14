@@ -16,7 +16,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Impressum | Helvety",
-  description: "Impressum for Helvety - Products and Services",
+  description: "Impressum for Helvety products and apps",
   alternates: {
     canonical: `${urls.home}/impressum`,
   },
@@ -115,10 +115,11 @@ export default function ImpressumPage() {
         <p className="text-muted-foreground text-sm">
           Helvety by Rubin develops and offers software, including free tools
           and software-as-a-service (SaaS) products. Current products include
-          Helvety SPO Explorer (paid SharePoint extension), Helvety PDF
-          (currently available at no cost), Helvety Tasks (encrypted task
-          management), and Helvety Contacts (encrypted contact management). Our
-          products are primarily designed and developed in Switzerland.
+          Helvety SPO Explorer (SharePoint extension), Helvety PDF (currently
+          available at no cost), Helvety Tasks (encrypted task management),
+          Helvety Contacts (encrypted contact management), and Helvety Notes
+          (encrypted notes management). Our products are primarily designed and
+          developed in Switzerland.
         </p>
       </LegalSection>
 

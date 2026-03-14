@@ -31,6 +31,7 @@ export const urls = {
   pdf: isDev ? `${DEV_GATEWAY}/pdf` : `https://${DOMAIN}/pdf`,
   tasks: isDev ? `${DEV_GATEWAY}/tasks` : `https://${DOMAIN}/tasks`,
   contacts: isDev ? `${DEV_GATEWAY}/contacts` : `https://${DOMAIN}/contacts`,
+  notes: isDev ? `${DEV_GATEWAY}/notes` : `https://${DOMAIN}/notes`,
 } as const;
 
 /**
@@ -54,6 +55,7 @@ export const DEV_PORTS = {
   pdf: 3004,
   tasks: 3005,
   contacts: 3006,
+  notes: 3007,
 } as const;
 
 /** Shared viewport config reused by every app layout */

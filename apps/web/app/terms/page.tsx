@@ -13,7 +13,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Helvety",
-  description: "Terms of Service for Helvety - Products and Services",
+  description: "Terms of Service for Helvety products and apps",
   alternates: {
     canonical: `${urls.home}/terms`,
   },
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="March 3, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="March 14, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -66,7 +66,7 @@ export default function TermsPage() {
                   href="#software-saas-no-warranties"
                   className="hover:text-foreground transition-colors"
                 >
-                  4.4 Software, Digital Products and SaaS - No Warranties and No
+                  4.4 Software and Digital Products - No Warranties and No
                   Guarantees
                 </a>
               </li>
@@ -109,7 +109,7 @@ export default function TermsPage() {
               href="#ordering"
               className="hover:text-foreground transition-colors"
             >
-              Online Ordering Process
+              Access and Download Process
             </a>
           </li>
           <li>
@@ -122,10 +122,10 @@ export default function TermsPage() {
           </li>
           <li>
             <a
-              href="#subscriptions"
+              href="#product-access"
               className="hover:text-foreground transition-colors"
             >
-              Subscription Terms
+              Product Access and Availability
             </a>
           </li>
           <li>
@@ -247,10 +247,9 @@ export default function TermsPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              &quot;SaaS Products&quot;
+              &quot;Account-Based Products&quot;
             </strong>{" "}
-            refers to software-as-a-service subscriptions providing ongoing
-            access to software.
+            refers to Helvety applications that require an account for access.
           </li>
           <li>
             <strong className="text-foreground">
@@ -309,19 +308,19 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Encryption Setup:</strong> Helvety
-          Tasks and Helvety Contacts use end-to-end encryption to protect your
-          content. When using these services, you will be required to set up an
-          encryption passkey after authentication. This uses the WebAuthn PRF
-          (Pseudo-Random Function) extension to derive encryption keys on your
-          device. The encryption keys are not transmitted to or stored on our
-          servers. If you lose access to your encryption passkey, encrypted
-          content will become permanently inaccessible. Certain non-encrypted
-          structural metadata (such as record identifiers, timestamps, priority
-          levels, display preferences (e.g., sort orders), and entity
-          relationships is stored in plaintext to enable application
-          functionality; see our Privacy Policy for field-level details. Other
-          Helvety services (helvety.com, Helvety Auth, Helvety PDF, Helvety
-          Store) do not use end-to-end encryption.
+          Tasks, Helvety Contacts, and Helvety Notes use end-to-end encryption
+          to protect your content. When using these services, you will be
+          required to set up an encryption passkey after authentication. This
+          uses the WebAuthn PRF (Pseudo-Random Function) extension to derive
+          encryption keys on your device. The encryption keys are not
+          transmitted to or stored on our servers. If you lose access to your
+          encryption passkey, encrypted content will become permanently
+          inaccessible. Certain non-encrypted structural metadata (such as
+          record identifiers, timestamps, priority levels, display preferences
+          (e.g., sort orders), and entity relationships is stored in plaintext
+          to enable application functionality; see our Privacy Policy for
+          field-level details. Other Helvety services (helvety.com, Helvety
+          Auth, Helvety PDF, Helvety Store) do not use end-to-end encryption.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Age Requirement:</strong> You must
@@ -344,13 +343,13 @@ export default function TermsPage() {
 
         <h3 className="mb-3 text-lg font-medium">4.1 Software Licenses</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Before completing a purchase of Digital Products, you must confirm
-          that you have read and understood these Terms, our Privacy Policy, and
-          (where applicable) the digital content consent presented at checkout.
-          This confirmation is required on every purchase.
+          Before using or downloading Digital Products, you must confirm that
+          you have read and understood these Terms and our Privacy Policy.
+          Access to product downloads and account-based apps is governed by
+          these Terms.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          Upon purchase of Digital Products, you are granted a limited,
+          Upon access to Digital Products, you are granted a limited,
           non-exclusive, non-transferable, revocable license to use the software
           for personal or internal business purposes only. You may not:
         </p>
@@ -364,13 +363,15 @@ export default function TermsPage() {
           <li>Use the software for any unlawful purpose.</li>
         </ul>
 
-        <h3 className="mb-3 text-lg font-medium">4.2 SaaS Subscriptions</h3>
+        <h3 className="mb-3 text-lg font-medium">
+          4.2 Account-Based Product Access
+        </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          SaaS Products provide access to software functionality on a
-          subscription basis. You do not acquire ownership of the software; you
-          are granted access rights only for the duration of your active
-          subscription. Access may be revoked upon subscription termination or
-          non-payment.
+          Account-Based Products provide access to software functionality
+          through your Helvety account. You do not acquire ownership of the
+          software; you receive limited access rights subject to these Terms.
+          Access may be restricted or revoked for violations of these Terms,
+          abuse, or security reasons.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
@@ -427,21 +428,20 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground text-sm">
           <strong className="text-foreground">Delivery:</strong> Delivery times
-          will vary and will be estimated at checkout. Shipping will be to
-          Switzerland only. Shipping costs will be calculated at checkout based
-          on destination and order weight. Risk of loss will pass to you upon
-          delivery to the carrier.
+          will vary and will be estimated during ordering. Shipping will be to
+          Switzerland only. Shipping costs will be calculated during ordering
+          based on destination and order weight. Risk of loss will pass to you
+          upon delivery to the carrier.
         </p>
 
         <h3
           id="software-saas-no-warranties"
           className="mt-8 mb-3 text-lg font-medium"
         >
-          4.4 Software, Digital Products and SaaS - No Warranties and No
-          Guarantees
+          4.4 Software and Digital Products - No Warranties and No Guarantees
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Digital Products and SaaS are provided &quot;as is&quot; and &quot;as
+          Digital Products are provided &quot;as is&quot; and &quot;as
           available&quot;. They may contain defects, errors, bugs, or may not
           operate as intended. We do not guarantee uninterrupted or error-free
           access, any particular uptime, or continuous availability. Services
@@ -455,9 +455,9 @@ export default function TermsPage() {
           systems, browsers, or third-party products or services.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          You use our software and SaaS at your own risk. For important data,
-          you are responsible for keeping backups; we are not liable for loss of
-          data arising from use of our software or services.
+          You use our software at your own risk. For important data, you are
+          responsible for keeping backups; we are not liable for loss of data
+          arising from use of our software or services.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Where applicable Swiss law grants you mandatory rights (e.g.
@@ -476,37 +476,19 @@ export default function TermsPage() {
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
-            <strong className="text-foreground">License Scope:</strong> Licenses
-            are granted on a per-tenant, per-subscription basis. You must
-            register your organization&apos;s tenant identifier (e.g.,
-            &quot;contoso&quot; from contoso.sharepoint.com) in your account at
-            helvety.com/store to activate the license for your tenant.
+            <strong className="text-foreground">Availability:</strong>{" "}
+            Distribution method, eligibility criteria, and support scope are
+            described on the relevant product page.
           </li>
           <li>
-            <strong className="text-foreground">License Validation:</strong> The
-            extension periodically contacts
-            helvety.com/store/api/license/validate to verify your subscription
-            status. Only your organization&apos;s tenant identifier and product
-            identifier are part of the business payload used for validation.
-            Depending on configuration, additional technical security metadata
-            (for example request signatures/timestamps and network metadata such
-            as IP addresses used for abuse prevention) may also be processed.
-            Results are cached locally to minimize API calls and improve
-            reliability.
+            <strong className="text-foreground">Deployment Context:</strong> You
+            remain responsible for configuring your SharePoint environment
+            according to Microsoft guidance and your internal governance rules.
           </li>
           <li>
-            <strong className="text-foreground">Tenant Registration:</strong>{" "}
-            You are responsible for registering valid tenant identifiers linked
-            to your subscription. Incorrectly registered tenant identifiers may
-            result in license validation failures.
-          </li>
-          <li>
-            <strong className="text-foreground">Support Tiers:</strong>{" "}
-            Enterprise products may be offered in multiple tiers (e.g.,
-            &quot;Solo&quot; and &quot;Supported&quot;). The Solo tier provides
-            self-service access without dedicated support. The Supported tier
-            includes direct technical support via email. Tier-specific features
-            and limits are described on the product page.
+            <strong className="text-foreground">Support:</strong> Support
+            channels and response expectations are described on the relevant
+            product page.
           </li>
         </ul>
       </section>
@@ -526,11 +508,12 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           We reserve the right to modify, suspend, or discontinue any Free
-          Services at any time. Where reasonably practicable, we provide prior
-          notice; immediate changes may occur for security, legal, or
-          abuse-prevention reasons. To the extent permitted by applicable law,
-          we shall have no liability to you or any third party for modification,
-          suspension, or discontinuation of Free Services.
+          Services at any time. Where reasonably practicable, we provide at
+          least 30 days&apos; prior notice; immediate changes may occur for
+          security, legal, or abuse-prevention reasons. To the extent permitted
+          by applicable law, we shall have no liability to you or any third
+          party for modification, suspension, or discontinuation of Free
+          Services.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
@@ -684,10 +667,10 @@ export default function TermsPage() {
           content delivery).
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          For end-to-end encrypted content in Helvety Tasks and Helvety
-          Contacts, our systems are designed to prevent routine access to
-          plaintext content. This license applies to encrypted data as stored on
-          our infrastructure.
+          For end-to-end encrypted content in Helvety Tasks, Helvety Contacts,
+          and Helvety Notes, our systems are designed to prevent routine access
+          to plaintext content. This license applies to encrypted data as stored
+          on our infrastructure.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">7.3 Your Responsibilities</h3>
@@ -722,10 +705,10 @@ export default function TermsPage() {
           law.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          For end-to-end encrypted content in Helvety Tasks and Helvety
-          Contacts, we generally cannot review plaintext content. In those
-          cases, enforcement may rely on metadata, user reports, and valid legal
-          orders.
+          For end-to-end encrypted content in Helvety Tasks, Helvety Contacts,
+          and Helvety Notes, we generally cannot review plaintext content. In
+          those cases, enforcement may rely on metadata, user reports, and valid
+          legal orders.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           We may immediately suspend or terminate accounts and delete all
@@ -765,8 +748,8 @@ export default function TermsPage() {
 
         <h3 className="mb-3 text-lg font-medium">7.6 Encrypted User Content</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Helvety Tasks and Helvety Contacts implement end-to-end encryption.
-          For these services:
+          Helvety Tasks, Helvety Contacts, and Helvety Notes implement
+          end-to-end encryption. For these services:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -822,11 +805,12 @@ export default function TermsPage() {
             Technical account activity metadata retained for security and abuse
             prevention
           </li>
-          <li>Subscription and billing metadata</li>
+          <li>Product access and download audit metadata</li>
           <li>
-            Non-encrypted structural metadata from Helvety Tasks and Helvety
-            Contacts (priority levels, display preferences such as sort orders,
-            entity relationships, and immutable built-in taxonomy references)
+            Non-encrypted structural metadata from Helvety Tasks, Helvety
+            Contacts, and Helvety Notes (priority levels, display preferences
+            such as sort orders, entity relationships, and immutable built-in
+            taxonomy references)
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -848,10 +832,10 @@ export default function TermsPage() {
         </p>
       </section>
 
-      {/* Section 8 - Online Ordering */}
+      {/* Section 8 - Access and Downloads */}
       <section id="ordering" className="legal-section">
         <h2 className="mb-4 text-xl font-semibold">
-          8. Online Ordering Process
+          8. Access and Download Process
         </h2>
         <p className="text-muted-foreground mb-4 text-sm">
           In accordance with Swiss law (UWG/LCD), we provide the following
@@ -863,86 +847,83 @@ export default function TermsPage() {
           8.1 Contract Formation Steps
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          The ordering process consists of the following steps:
+          The access flow consists of the following steps:
         </p>
         <ol className="text-muted-foreground mb-4 list-inside list-decimal space-y-2 text-sm">
           <li>
-            Browse our product catalog and select the product or subscription
-            tier you wish to purchase.
+            Browse our product catalog and select the product you want to access
+            or download.
           </li>
           <li>
-            Click the purchase button (e.g., &quot;Subscribe Now&quot; or
-            &quot;Get Started&quot;) on the product detail page.
+            Start access from the product page (for example by opening an app or
+            requesting a package download).
           </li>
           <li>
-            A consent dialog appears requiring you to read and accept the Terms
-            of Service and Privacy Policy before proceeding. This consent is
-            required for each purchase.
+            Where a flow presents explicit legal acceptance, confirm the Terms
+            of Service and Privacy Policy before continuing.
           </li>
           <li>
-            You are redirected to a secure Stripe Checkout page where you enter
-            your billing information and select your payment method.
+            For downloadable packages, a secure, short-lived download URL is
+            generated.
           </li>
           <li>
-            Review your order summary on the Stripe Checkout page, including the
-            product, price, and billing details.
+            Download the package and deploy or use it according to the product
+            documentation.
           </li>
-          <li>Complete the payment to submit your order.</li>
+          <li>
+            For account-based apps, sign in with your passkey to access data.
+          </li>
         </ol>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Contract Formation:</strong> Your
-          order constitutes an offer to purchase. A binding contract is formed
-          when your order is accepted and payment processing succeeds. You will
-          typically receive a confirmation from Stripe and/or us at the email
-          address provided during checkout. We reserve the right to reject or
-          cancel orders before provisioning (e.g., due to pricing errors,
-          compliance checks, or suspected fraud).
+          request to access a product constitutes an offer to use the service
+          under these Terms. Access is granted when provisioning or download URL
+          generation succeeds. We reserve the right to reject or cancel access
+          requests before provisioning (for example due to compliance checks or
+          suspected abuse).
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
           8.2 Error Detection and Correction
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Before completing your purchase, you have the opportunity to detect
-          and correct input errors:
+          Before finalizing access, you have the opportunity to detect and
+          correct input errors:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
-            You can cancel the consent dialog and return to the product page at
-            any time before proceeding to Stripe Checkout.
+            You can cancel the access flow and return to the product page at any
+            time before completion.
           </li>
           <li>
-            On the Stripe Checkout page, you can review and edit your billing
-            information and payment method before completing the payment.
+            You can review product details and account context before
+            continuing.
           </li>
           <li>
-            You can use your browser&apos;s back button or close the Stripe
-            Checkout page to cancel the purchase before payment.
+            You can use your browser&apos;s back button or close the flow to
+            cancel before completion.
           </li>
           <li>
-            If you notice an error after completing your purchase, contact us
-            immediately at {CONTACT_EMAIL}.
+            If you notice an error after completion, contact us immediately at{" "}
+            {CONTACT_EMAIL}.
           </li>
         </ul>
 
-        <h3 className="mb-3 text-lg font-medium">8.3 Order Confirmation</h3>
+        <h3 className="mb-3 text-lg font-medium">8.3 Access Confirmation</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Upon successful completion of your purchase, you should receive:
+          Upon successful completion of access, you should receive:
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
-            A confirmation email from Stripe to the email address used during
-            checkout.
+            For account-based actions, confirmation via in-app state and/or
+            service notifications.
           </li>
+          <li>For downloads, a valid generated URL and package metadata.</li>
           <li>
-            The confirmation includes: product details, price, and applicable
-            taxes.
-          </li>
-          <li>
-            For digital products and SaaS subscriptions, access is linked to the
-            relevant customer/account context. Where an active Helvety account
-            is required for use, you access purchased features by signing in
-            with your passkey.
+            For digital products, access is linked to the relevant
+            customer/account context. Where an active Helvety account is
+            required for use, you access features by signing in with your
+            passkey.
           </li>
         </ul>
       </section>
@@ -951,40 +932,37 @@ export default function TermsPage() {
       <section id="pricing" className="legal-section">
         <h2 className="mb-4 text-xl font-semibold">9. Pricing and Payment</h2>
         <p className="text-muted-foreground mb-4 text-sm">
-          All prices are displayed in Swiss Francs (CHF). Prices are subject to
-          change without notice. Helvety by Rubin is not registered for Swiss
-          VAT (MWST) under the current setup. Should this change, applicable
-          taxes will be calculated and displayed at checkout.
+          Products are currently offered at no cost under the present offering.
+          Availability and commercial terms may change in the future. If paid
+          offerings are introduced, pricing and tax treatment will be shown on
+          the relevant product pages.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          Payment processing is handled by Stripe, Inc. By making a purchase,
-          you agree to Stripe&apos;s terms of service. We do not store your
-          complete payment card information on our servers.
+          Where payment processing is introduced in future, payment terms and
+          provider details will be disclosed before activation and reflected in
+          an updated version of these Terms.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          You agree to pay all charges incurred by you or any users of your
-          account at the prices in effect when such charges are incurred. You
-          are responsible for any taxes applicable to your purchases.
+          You remain responsible for lawful use of the Services and for
+          compliance with any obligations applicable in your jurisdiction.
         </p>
         <h3 className="mb-3 text-lg font-medium">9.1 Free Products</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Certain Helvety products are offered free of charge. No purchase or
-          subscription is required to use these products:
+          Certain Helvety products are offered free of charge. No purchase is
+          required to use these products:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
             <strong className="text-foreground">Helvety PDF</strong> is
             available at no cost under the current offering. No account or login
-            is required. See the relevant product page for current pricing and
-            availability.
+            is required.
           </li>
           <li>
             <strong className="text-foreground">
-              Helvety Tasks and Helvety Contacts
+              Helvety Tasks, Helvety Contacts, and Helvety Notes
             </strong>{" "}
-            may have introductory or early-access pricing phases. See the
-            relevant product pages for current terms, pricing details, and
-            current usage limits.
+            are currently available at no cost. Account login is required and
+            usage limits may apply as described on product pages.
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">
@@ -997,48 +975,36 @@ export default function TermsPage() {
       </section>
 
       {/* Section 10 */}
-      <section id="subscriptions" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">10. Subscription Terms</h2>
+      <section id="product-access" className="legal-section">
+        <h2 className="mb-4 text-xl font-semibold">
+          10. Product Access and Availability
+        </h2>
         <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Billing Cycles:</strong>{" "}
-          Subscriptions are billed in advance on a recurring basis (monthly or
-          annually, as selected). Your subscription will automatically renew at
-          the end of each billing period unless cancelled.
+          <strong className="text-foreground">Current Offering:</strong> At the
+          time of this publication, Helvety products listed in the store are
+          available at no cost, subject to technical and usage limits.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Auto-Renewal:</strong> By
-          subscribing, you authorize us to charge your payment method
-          automatically at the start of each billing period. Before each
-          renewal, Stripe will charge your payment method. Stripe may send
-          receipts according to your Stripe billing and email settings. You can
-          view your subscription status and manage cancellation in the
-          subscriptions area at{" "}
-          <a
-            href={`${urls.store}/subscriptions`}
-            className="hover:text-foreground underline transition-colors"
-          >
-            helvety.com/store/subscriptions
-          </a>{" "}
-          (or, where available, from account settings at{" "}
+          <strong className="text-foreground">Account Controls:</strong> You can
+          manage account-level controls at{" "}
           <a
             href={`${urls.store}/account`}
             className="hover:text-foreground underline transition-colors"
           >
             helvety.com/store/account
           </a>
-          ). You may cancel auto-renewal at any time.
+          .
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Cancellation:</strong> You may
-          cancel your subscription at any time. Cancellation takes effect at the
-          end of the current billing period. You will retain access until the
-          end of your paid period.
+          <strong className="text-foreground">Future Changes:</strong> We may
+          introduce paid offerings in the future. Any such change will be
+          published with updated pricing pages and revised legal terms before it
+          takes effect.
         </p>
         <p className="text-muted-foreground text-sm">
-          <strong className="text-foreground">Price Changes:</strong> We may
-          modify subscription prices. Where applicable, we provide prior notice
-          before changes take effect. Continued use after a change takes effect
-          is treated as acceptance of the updated price.
+          <strong className="text-foreground">Availability:</strong> We may
+          modify, suspend, or discontinue product availability for security,
+          legal, operational, or abuse-prevention reasons.
         </p>
       </section>
 
@@ -1048,12 +1014,11 @@ export default function TermsPage() {
 
         <h3 className="mb-3 text-lg font-medium">11.1 Digital Products</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Before completing a purchase of Digital Products or SaaS
-          subscriptions, you expressly consent to immediate access to the
-          digital content or service. Where applicable law permits, this may
-          reduce or exclude withdrawal/cancellation rights once access is
-          granted. This acknowledgement is recorded as part of the pre-checkout
-          confirmation (see Section 4.1).
+          By requesting immediate access to digital products (including package
+          downloads and account-based services), you acknowledge that access can
+          begin immediately after confirmation. Where applicable law permits,
+          this may reduce or exclude withdrawal/cancellation rights once access
+          is granted.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Due to the nature of digital goods, sales of Digital Products are
@@ -1062,12 +1027,13 @@ export default function TermsPage() {
           law and may also be granted at our discretion.
         </p>
 
-        <h3 className="mb-3 text-lg font-medium">11.2 SaaS Subscriptions</h3>
+        <h3 className="mb-3 text-lg font-medium">
+          11.2 Account-Based Services
+        </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          For subscription cancellations, you will not receive a refund for the
-          current billing period but will retain access until its end. In
-          exceptional circumstances, we may offer pro-rata refunds at our sole
-          discretion.
+          For account-based services currently offered at no cost, no monetary
+          refund applies. If paid tiers are introduced in the future, refund
+          rules for those tiers will be documented in updated terms.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
@@ -1151,9 +1117,9 @@ export default function TermsPage() {
           <li>UNINTERRUPTED OR ERROR-FREE OPERATION</li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
-          In particular, we do not warrant that our software, digital products,
-          or SaaS will be free of errors, bugs, or interruptions, or that we
-          will provide any updates or new versions.
+          In particular, we do not warrant that our software or digital products
+          will be free of errors, bugs, or interruptions, or that we will
+          provide any updates or new versions.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">13.2 Limitation of Damages</h3>
@@ -1190,8 +1156,8 @@ export default function TermsPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           You expressly acknowledge and agree that your use of the Services is
           at your sole risk. You assume full responsibility for all risks
-          associated with your use of any products purchased through the
-          Services.
+          associated with your use of the Services and any products accessed
+          through them.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Nothing in these Terms excludes or limits our liability for death or
@@ -1243,9 +1209,9 @@ export default function TermsPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           We may terminate or suspend your account and access to the Services
           for cause, including but not limited to: breach of these Terms,
-          fraudulent activity, non-payment, illegal use, or prolonged
-          inactivity. We will provide reasonable notice (minimum 30 days) except
-          in cases of serious breach requiring immediate action.
+          fraudulent activity, illegal use, or prolonged inactivity. We will
+          provide reasonable notice (minimum 30 days) except in cases of serious
+          breach requiring immediate action.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Upon termination, your right to use the Services will immediately
@@ -1265,8 +1231,7 @@ export default function TermsPage() {
           </a>{" "}
           or by contacting us at {CONTACT_EMAIL}. Account deletion is intended
           to be permanent and may not be reversible. We recommend exporting your
-          data before proceeding. Account termination does not entitle you to
-          any refund of fees already paid.
+          data before proceeding.
         </p>
       </section>
 
@@ -1381,8 +1346,8 @@ export default function TermsPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           If you do not agree to the revised Terms, you may terminate your
           account and stop using the Services. We will not retroactively apply
-          material changes to purchases or subscriptions made before the changes
-          took effect.
+          material changes to previously granted access rights where prohibited
+          by applicable law.
         </p>
       </section>
 

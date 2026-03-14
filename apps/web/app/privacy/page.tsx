@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="March 3, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="March 14, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -222,8 +222,8 @@ export default function PrivacyPage() {
           </li>
           <li>
             Encryption passkey parameters (PRF salt values for deriving
-            encryption keys, for Helvety Tasks and Helvety Contacts which use
-            end-to-end encryption)
+            encryption keys, for Helvety Tasks, Helvety Contacts, and Helvety
+            Notes which use end-to-end encryption)
           </li>
           <li>
             Geo-confirmation metadata (confirmation that you are located in
@@ -239,20 +239,18 @@ export default function PrivacyPage() {
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
-          2.2 Order and Transaction Data
+          2.2 Product Access and Download Data
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          When you make a purchase, we collect:
+          When you access products or request package downloads, we collect:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
-          <li>Purchase history and order details</li>
           <li>
-            Billing and invoicing address details (as provided in Stripe
-            Checkout)
+            Operational records related to product access and download requests
           </li>
+          <li>Product and package identifiers</li>
           <li>
-            Billing information (processed by Stripe; we do not store complete
-            payment card details)
+            Security and abuse-prevention metadata (for example IP address)
           </li>
         </ul>
 
@@ -267,7 +265,7 @@ export default function PrivacyPage() {
           <li>IP address</li>
           <li>Browser type and version</li>
           <li>Device information</li>
-          <li>Pages visited and features used</li>
+          <li>Pages visited and high-level interaction events</li>
           <li>Date and time of access</li>
           <li>Referring website</li>
         </ul>
@@ -278,22 +276,14 @@ export default function PrivacyPage() {
           communication, including your email address and message content.
         </p>
 
-        <h3 className="mb-3 text-lg font-medium">
-          2.5 License Validation Data
-        </h3>
+        <h3 className="mb-3 text-lg font-medium">2.5 Extension Usage Data</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          For enterprise products (such as SharePoint extensions), our software
-          may validate licenses by sending your organization&apos;s tenant
-          identifier (e.g., &quot;contoso&quot; from contoso.sharepoint.com) to
-          our servers at helvety.com/store. This data:
+          For SharePoint extensions, limited technical data may be processed to
+          provide extension functionality and reliability. This data:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
-          <li>
-            Typically includes your organization&apos;s tenant identifier and is
-            generally treated as business-identifying data, though it may
-            qualify as personal data depending on context
-          </li>
-          <li>Is used to verify your subscription status</li>
+          <li>Is primarily technical context needed for extension operation</li>
+          <li>Supports extension functionality and reliability</li>
           <li>Is processed in accordance with this Privacy Policy</li>
           <li>
             Is cached locally to minimize API calls and ensure offline
@@ -318,18 +308,14 @@ export default function PrivacyPage() {
             identifier is generated automatically.
           </li>
           <li>
-            <strong className="text-foreground">Purchases:</strong> When you
-            make a purchase, payment and billing information (including email,
-            name, and address) is collected directly by our payment processor,
-            Stripe. This information is required to process your order and is
-            subject to Stripe&apos;s privacy policy. Helvety does not collect or
-            store this information directly.
+            <strong className="text-foreground">Product Access:</strong> When
+            you request product access or package downloads, we process the
+            minimum technical metadata required for provisioning, delivery, and
+            abuse prevention.
           </li>
           <li>
-            <strong className="text-foreground">License Validation:</strong> For
-            enterprise products, sending your organization&apos;s tenant
-            identifier is necessary for license validation. Without this, the
-            software cannot verify your subscription status.
+            <strong className="text-foreground">Extension Use:</strong> Certain
+            technical context may be needed for enterprise extension operation.
           </li>
           <li>
             <strong className="text-foreground">Communication:</strong>{" "}
@@ -340,8 +326,8 @@ export default function PrivacyPage() {
 
         <h3 className="mb-3 text-lg font-medium">2.7 Encryption Data</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Helvety Tasks and Helvety Contacts use end-to-end encryption to
-          protect your data. For these services, we store:
+          Helvety Tasks, Helvety Contacts, and Helvety Notes use end-to-end
+          encryption to protect your data. For these services, we store:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -404,19 +390,16 @@ export default function PrivacyPage() {
             are processed in your browser and are not intended to be uploaded to
             our servers for file conversion. No login or account is required.
             The service still uses minimal server-side endpoints for platform
-            and security functions (for example auth callback handling, CSP
-            reporting, and session/security proxy logic). Helvety PDF is
-            currently free with a maximum file size of 100MB per file.
+            and security functions (for example CSP reporting and
+            session/security proxy logic). Helvety PDF is currently free with a
+            maximum file size of 100MB per file.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Store (helvety.com/store):
             </strong>{" "}
-            User profile (email), Stripe customer ID, subscription and purchase
-            history, licensed tenant IDs (for enterprise products), and IP
-            address (for checkout consent audit trail and rate limiting).
-            Payment data (card details, billing address) is handled exclusively
-            by Stripe.
+            User profile (email), product/access records, and IP address (for
+            security and rate limiting).
           </li>
           <li>
             <strong className="text-foreground">
@@ -460,6 +443,27 @@ export default function PrivacyPage() {
             Service-level usage limits may apply and are listed on the product
             pages.
           </li>
+          <li>
+            <strong className="text-foreground">
+              Helvety Notes (helvety.com/notes):
+            </strong>{" "}
+            Note content is end-to-end encrypted client-side before storage.
+            Encrypted fields include: title and description. These fields are
+            designed to be stored as encrypted ciphertext at rest on our
+            servers. Encryption keys are derived from your passkey on your
+            device and are not transmitted to Helvety servers. Record
+            identifiers for encrypted data are generated on your device and
+            bound to the ciphertext via Additional Authenticated Data (AAD). Our
+            architecture is designed so that we are generally unable to access
+            your note content in plaintext during normal operation.
+            Non-encrypted structural metadata is stored in plaintext to enable
+            application functionality: record identifiers, timestamps, and
+            display preferences (sort order). When linking notes with tasks and
+            contacts, additional non-encrypted relationship metadata (link
+            identifiers, linked entity identifiers/types, and timestamps) is
+            stored to enable cross-app linking. Service-level usage limits may
+            apply and are listed on the product pages.
+          </li>
         </ul>
       </section>
 
@@ -478,8 +482,8 @@ export default function PrivacyPage() {
           <li>
             <strong className="text-foreground">Contract performance:</strong>{" "}
             Processing necessary to fulfill our contractual obligations to you,
-            including processing orders, managing subscriptions, and providing
-            the Services.
+            including account provisioning, package download delivery, and
+            providing the Services.
           </li>
           <li>
             <strong className="text-foreground">Legal obligations:</strong>{" "}
@@ -509,10 +513,9 @@ export default function PrivacyPage() {
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>To create and manage your account</li>
-          <li>To process and fulfill your orders</li>
-          <li>To manage subscriptions and billing</li>
+          <li>To process and fulfill product access and package downloads</li>
           <li>
-            To send transactional emails (order confirmations, receipts, etc.)
+            To send transactional emails (auth, security, and service notices)
           </li>
           <li>To provide customer support</li>
           <li>To detect and prevent fraud and security incidents</li>
@@ -541,16 +544,17 @@ export default function PrivacyPage() {
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
-            Clicking the &quot;unsubscribe&quot; link at the bottom of any
-            marketing email
+            Using the unsubscribe mechanism included in marketing communications
+            where technically applicable
           </li>
           <li>Contacting us at {CONTACT_EMAIL}</li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
           Please note that even if you opt out of marketing communications, we
           may still send you transactional or service-related communications
-          (such as order confirmations, account notifications, or important
-          service updates) as necessary to provide the Services.
+          (such as account security notifications, authentication messages,
+          access confirmations, or important service updates) as necessary to
+          provide the Services.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
@@ -575,11 +579,12 @@ export default function PrivacyPage() {
             identifiers)
           </li>
           <li>IP addresses and timestamps associated with account activity</li>
-          <li>Subscription and billing metadata</li>
+          <li>Product access and download metadata</li>
           <li>
-            Non-encrypted structural metadata from Helvety Tasks and Helvety
-            Contacts (priority levels, display preferences such as colors and
-            icons, sort orders, entity relationships, and category assignments)
+            Non-encrypted structural metadata from Helvety Tasks, Helvety
+            Contacts, and Helvety Notes (priority levels, display preferences
+            such as colors and icons, sort orders, entity relationships, and
+            category assignments)
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -643,13 +648,6 @@ export default function PrivacyPage() {
                 <td className="border-border border-b p-3">USA</td>
               </tr>
               <tr>
-                <td className="border-border border-b p-3">Stripe Inc.</td>
-                <td className="border-border border-b p-3">
-                  Payment processing
-                </td>
-                <td className="border-border border-b p-3">USA</td>
-              </tr>
-              <tr>
                 <td className="border-border border-b p-3">Resend Inc.</td>
                 <td className="border-border border-b p-3">
                   Transactional email delivery (SMTP relay via Supabase)
@@ -667,22 +665,6 @@ export default function PrivacyPage() {
           </table>
         </div>
 
-        <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Stripe:</strong> Stripe, which
-          maintains PCI DSS Level 1 certification, handles all payment card
-          information. We do not have access to or store your complete card
-          details. Stripe may perform automated fraud analysis on payment data
-          as part of its processing services; for details, see{" "}
-          <a
-            href="https://stripe.com/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground underline transition-colors"
-          >
-            Stripe&apos;s Privacy Policy
-          </a>
-          .
-        </p>
         <p className="text-muted-foreground text-sm">
           <strong className="text-foreground">Resend:</strong> Resend operates
           as a sub-processor of Supabase for email delivery. Email addresses and
@@ -723,8 +705,8 @@ export default function PrivacyPage() {
           <li>
             <strong className="text-foreground">Contract necessity:</strong>{" "}
             Certain transfers are necessary for the performance of a contract
-            with you (e.g., payment processing via Stripe to fulfill a purchase)
-            in accordance with nDSG Art. 17(1)(b).
+            with you (for example authentication, service hosting, and package
+            download delivery) in accordance with nDSG Art. 17(1)(b).
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">
@@ -760,24 +742,22 @@ export default function PrivacyPage() {
             abuse-prevention, or dispute purposes.
           </li>
           <li>
-            <strong className="text-foreground">Transaction data:</strong>{" "}
-            Purchase and subscription transaction evidence may be retained for
-            up to 10 years where required by Swiss accounting and commercial law
-            (including Art. 958f Swiss Code of Obligations). Where possible,
-            direct account linkage is removed or minimized after account
-            deletion. Payment card details are handled by Stripe, not stored in
-            full by Helvety.
+            <strong className="text-foreground">
+              Product access/download data:
+            </strong>{" "}
+            Product/package request logs and associated security records may be
+            retained where required by legal, security, abuse-prevention, and
+            compliance obligations. Where possible, direct account linkage is
+            removed or minimized after account deletion.
           </li>
           <li>
             <strong className="text-foreground">Consent audit records:</strong>{" "}
-            When you accept the Terms of Service and Privacy Policy during
-            checkout, we record a consent event including your IP address,
-            timestamp, and the legal version identifier in effect for that
-            checkout flow. Under the current implementation, this is captured as
-            a shared consent version value used for both Terms and Privacy
-            acceptance records. This evidence may be retained for up to 10 years
-            for contract and consent proof. After account deletion, direct user
-            linkage may be removed where legally and operationally appropriate.
+            Where a product flow requires explicit legal acceptance, we may
+            record acceptance metadata (for example timestamp, technical request
+            metadata, and legal version identifier). This evidence may be
+            retained for contract and consent proof. After account deletion,
+            direct user linkage may be removed where legally and operationally
+            appropriate.
           </li>
           <li>
             <strong className="text-foreground">Communication records:</strong>{" "}
@@ -800,11 +780,10 @@ export default function PrivacyPage() {
             for account security.
           </li>
           <li>
-            <strong className="text-foreground">Subscription data:</strong>{" "}
-            Retained for the duration of your subscription and for any legally
-            required period thereafter. Subscription history (plan changes,
-            upgrades, downgrades, cancellations) may be retained as part of
-            transaction and service records.
+            <strong className="text-foreground">Access history data:</strong>{" "}
+            Retained only where generated and as necessary for service
+            operations, security, abuse prevention, and any legally required
+            period thereafter.
           </li>
         </ul>
       </section>
@@ -872,9 +851,9 @@ export default function PrivacyPage() {
           </a>
           . Upon confirmation, your account and personal data are scheduled for
           deletion across Helvety services without undue delay (target: within
-          30 days), including authentication credentials, subscription records,
-          task data, and contact data, subject to technical processing time and
-          legally required retention. Depending on system architecture and legal
+          30 days), including authentication credentials, task data, contact
+          data, and note data, subject to technical processing time and legally
+          required retention. Depending on system architecture and legal
           obligations, some records may be deleted, de-identified, or retained
           in restricted form for compliance, fraud-prevention, dispute handling,
           or security purposes. This action is intended to be permanent and may
@@ -883,13 +862,12 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Self-Service Data Export:</strong>{" "}
           You can export your personal data from your account settings. The
-          export includes your profile information, subscription history,
-          purchase history, and tenant registrations in JSON format. For Helvety
-          Tasks and Helvety Contacts (end-to-end encrypted data), you can
-          initiate an export from within the app while authenticated with your
-          passkey; the data is decrypted client-side and exported locally.
-          Server-side exports of encrypted data are available only in encrypted
-          form.
+          export includes your profile information in JSON format. For Helvety
+          Tasks, Helvety Contacts, and Helvety Notes (end-to-end encrypted
+          data), you can initiate an export from within the app while
+          authenticated with your passkey; the data is decrypted client-side and
+          exported locally. Server-side exports of encrypted data are available
+          only in encrypted form.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           To exercise any of these rights, you may also contact us at{" "}
@@ -1064,30 +1042,19 @@ export default function PrivacyPage() {
           9.2 Automated Decision-Making
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          We do not use automated decision-making processes, including
-          profiling, that produce legal effects concerning you or similarly
-          significantly affect you. While we may use automated tools for fraud
-          detection, spam filtering, or service optimization, these processes do
-          not result in decisions that have legal or similarly significant
-          effects on individuals. If this changes in the future, we will update
-          this policy and, where required, provide you with notice and an
+          We use automated security controls (for example, fraud detection, spam
+          filtering, rate-limiting, and temporary lockouts) to protect accounts
+          and services. These controls may temporarily restrict access where
+          abuse patterns are detected. We do not use automated profiling for
+          advertising or automated decisions that produce legal effects beyond
+          security/access protection. If this changes in the future, we will
+          update this policy and, where required, provide notice and an
           opportunity to object.
         </p>
         <p className="text-muted-foreground text-sm">
-          <strong className="text-foreground">Note:</strong> Our payment
-          processor, Stripe, may perform automated fraud analysis on payment
-          transactions as part of its processing services. Such analysis is
-          conducted by Stripe as an independent controller and is subject to
-          nDSG principles and{" "}
-          <a
-            href="https://stripe.com/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground underline transition-colors"
-          >
-            Stripe&apos;s Privacy Policy
-          </a>
-          .
+          <strong className="text-foreground">Note:</strong> We may use
+          automated anti-abuse and security tooling (for example rate-limiting
+          and anomaly detection) to protect the Services.
         </p>
       </section>
 
@@ -1165,10 +1132,11 @@ export default function PrivacyPage() {
 
         <h3 className="mb-3 text-lg font-medium">10.2 End-to-End Encryption</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Helvety Tasks and Helvety Contacts implement end-to-end encryption to
-          protect your content. Other Helvety services (helvety.com, Helvety
-          Auth, Helvety PDF, Helvety Store) do not use end-to-end encryption.
-          For Helvety Tasks and Helvety Contacts:
+          Helvety Tasks, Helvety Contacts, and Helvety Notes implement
+          end-to-end encryption to protect your content. Other Helvety services
+          (helvety.com, Helvety Auth, Helvety PDF, Helvety Store) do not use
+          end-to-end encryption. For Helvety Tasks, Helvety Contacts, and
+          Helvety Notes:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>

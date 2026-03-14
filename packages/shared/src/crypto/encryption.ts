@@ -17,6 +17,7 @@ const CURRENT_KEY_VERSION = 1;
 const ALLOWED_AAD_TABLES = new Set([
   "items",
   "contacts",
+  "notes",
   "item_contact_links",
   "user_passkey_params",
 ]);

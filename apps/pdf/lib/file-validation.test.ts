@@ -171,8 +171,8 @@ describe("validateFileType", () => {
     const result = validateFileType(
       createMockFile("test.pdf", "application/pdf")
     );
-    expect(result.valid).toBe(true);
-    expect(result.error).toBeUndefined();
+    expect(result).toEqual(expect.objectContaining({ valid: true }));
+    expect(result).not.toHaveProperty("error");
   });
 
   it("validates image files as valid", () => {

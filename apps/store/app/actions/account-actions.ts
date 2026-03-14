@@ -15,8 +15,6 @@ import { z } from "zod";
 
 import { hasAccountDeletionVerificationFailures } from "@/lib/account-deletion-compliance";
 import { RATE_LIMITS } from "@/lib/rate-limit";
-import { stripe } from "@/lib/stripe";
-import { createStripeIdempotencyKey } from "@/lib/stripe/idempotency";
 
 import type { ActionResponse } from "@/lib/types";
 import type { UserDataExport } from "@/lib/types/store";
@@ -37,16 +35,13 @@ const EmailSchema = z
 const ACCOUNT_DELETION_VERIFICATION_CHECKS = [
   { table: "user_auth_credentials", column: "user_id" },
   { table: "user_passkey_params", column: "user_id" },
-  { table: "subscriptions", column: "user_id" },
-  { table: "licensed_tenants", column: "user_id" },
   { table: "items", column: "user_id" },
   { table: "contacts", column: "user_id" },
   { table: "item_contact_links", column: "user_id" },
+  { table: "notes", column: "user_id" },
+  { table: "note_item_links", column: "user_id" },
+  { table: "note_contact_links", column: "user_id" },
   { table: "user_profiles", column: "id" },
-  // Legal-evidence tables keep rows but user reference must be detached (NULL).
-  { table: "consent_events", column: "user_id" },
-  { table: "purchases", column: "user_id" },
-  { table: "subscription_events", column: "user_id" },
 ] as const;
 
 /** Verification check tuple describing which table/column must be fully detached. */
@@ -190,14 +185,13 @@ export async function updateUserEmail(
  * Permanently delete the user's account.
  *
  * This action:
- * 1. Cancels all active Stripe subscriptions immediately
- * 2. Deletes the user via Supabase Admin API (cascade deletes handle
+ * 1. Deletes the user via Supabase Admin API (cascade deletes handle
  *    all user-owned rows in current product tables; post-delete
  *    verification below enforces cleanup expectations)
  *
  * Legal basis: nDSG Art. 32(2) (right to request deletion) + Art. 6(4)
- * (purpose limitation). Transaction records are retained in anonymized form
- * for 10 years per Art. 958f Swiss Code of Obligations.
+ * (purpose limitation). Certain security/compliance records may be retained
+ * where required by applicable legal obligations and documented policy.
  *
  * @param csrfToken - CSRF token for security validation
  */
@@ -216,53 +210,7 @@ export async function requestAccountDeletion(
     const scopedAdmin = createScopedAdminQuery(user.id);
     const adminClient = scopedAdmin.client;
 
-    // 1. Cancel all active Stripe subscriptions
-    const { data: subscriptions } = await scopedAdmin
-      .from("subscriptions")
-      .select("stripe_subscription_id, status")
-      .in("status", ["active", "trialing", "past_due"]);
-
-    if (subscriptions && subscriptions.length > 0) {
-      const cancellableSubscriptions = subscriptions.filter(
-        (sub: {
-          stripe_subscription_id: string | null;
-        }): sub is { stripe_subscription_id: string } =>
-          typeof sub.stripe_subscription_id === "string" &&
-          sub.stripe_subscription_id.length > 0
-      );
-
-      if (cancellableSubscriptions.length > 0) {
-        const idempotencyWindow = Math.floor(Date.now() / (10 * 60 * 1000));
-        const results = await Promise.allSettled(
-          cancellableSubscriptions.map(
-            (sub: { stripe_subscription_id: string }) =>
-              stripe.subscriptions.cancel(
-                sub.stripe_subscription_id,
-                undefined,
-                {
-                  idempotencyKey: createStripeIdempotencyKey(
-                    "account_delete_subscription_cancel",
-                    [user.id, sub.stripe_subscription_id, idempotencyWindow]
-                  ),
-                }
-              )
-          )
-        );
-
-        // Log any failures (individual failures don't block the overall deletion)
-        for (let i = 0; i < results.length; i++) {
-          const result = results[i];
-          if (result?.status === "rejected") {
-            logger.warn(
-              `Could not cancel Stripe subscription ${cancellableSubscriptions[i]?.stripe_subscription_id}:`,
-              result.reason
-            );
-          }
-        }
-      }
-    }
-
-    // 2. Delete the user via Supabase Admin API.
+    // 1. Delete the user via Supabase Admin API.
     // Post-delete verification provides the source of truth for table-level cleanup.
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(
       user.id
@@ -327,10 +275,10 @@ export type { UserDataExport } from "@/lib/types/store";
 /**
  * Export all user data in a structured JSON format.
  *
- * Returns profile info, subscription history, purchase history, and tenant
- * registrations. Encrypted task data (Helvety Tasks) is NOT included; that data
- * must be exported client-side from within Helvety Tasks while the user is
- * authenticated with their passkey.
+ * Returns profile info only. Legacy billing/tenant datasets were removed from
+ * the export shape. Encrypted app data (Tasks, Contacts, Notes) is NOT
+ * included; that content must be exported client-side from within those apps
+ * while the user is authenticated with their passkey.
  *
  * Legal basis: nDSG Art. 28 (right to data portability; data should be
  * provided in a structured, commonly used format).
@@ -348,33 +296,10 @@ export async function exportUserData(): Promise<
 
     const scopedAdmin = createScopedAdminQuery(user.id);
 
-    // Fetch all user data in parallel (independent queries)
-    const [profileResult, subscriptionsResult, purchasesResult, tenantsResult] =
-      await Promise.all([
-        scopedAdmin
-          .from("user_profiles")
-          .select("email, display_name, created_at")
-          .single(),
-        scopedAdmin
-          .from("subscriptions")
-          .select(
-            "product_id, tier_id, status, created_at, current_period_end, cancel_at_period_end"
-          )
-          .order("created_at", { ascending: false }),
-        scopedAdmin
-          .from("purchases")
-          .select("product_id, tier_id, amount_paid, currency, created_at")
-          .order("created_at", { ascending: false }),
-        scopedAdmin
-          .from("licensed_tenants")
-          .select("tenant_id, tenant_domain, display_name, created_at")
-          .order("created_at", { ascending: false }),
-      ]);
-
-    const { data: profile } = profileResult;
-    const { data: subscriptions } = subscriptionsResult;
-    const { data: purchases } = purchasesResult;
-    const { data: tenants } = tenantsResult;
+    const { data: profile } = await scopedAdmin
+      .from("user_profiles")
+      .select("email, display_name, created_at")
+      .single();
 
     const exportData: UserDataExport = {
       exportedAt: new Date().toISOString(),
@@ -383,51 +308,6 @@ export async function exportUserData(): Promise<
         displayName: profile?.display_name ?? null,
         createdAt: profile?.created_at ?? user.created_at,
       },
-      subscriptions: (subscriptions ?? []).map(
-        (s: {
-          product_id: string;
-          tier_id: string;
-          status: string;
-          created_at: string;
-          current_period_end: string | null;
-          cancel_at_period_end: boolean | null;
-        }) => ({
-          productId: s.product_id,
-          tierId: s.tier_id,
-          status: s.status,
-          createdAt: s.created_at,
-          currentPeriodEnd: s.current_period_end,
-          cancelAtPeriodEnd: s.cancel_at_period_end,
-        })
-      ),
-      purchases: (purchases ?? []).map(
-        (p: {
-          product_id: string;
-          tier_id: string;
-          amount_paid: number | null;
-          currency: string | null;
-          created_at: string;
-        }) => ({
-          productId: p.product_id,
-          tierId: p.tier_id,
-          amountPaid: p.amount_paid,
-          currency: p.currency,
-          createdAt: p.created_at,
-        })
-      ),
-      tenants: (tenants ?? []).map(
-        (t: {
-          tenant_id: string;
-          tenant_domain: string | null;
-          display_name: string | null;
-          created_at: string;
-        }) => ({
-          tenantId: t.tenant_id,
-          tenantDomain: t.tenant_domain,
-          displayName: t.display_name,
-          createdAt: t.created_at,
-        })
-      ),
     };
 
     logger.info(`Data export requested for user ${user.id}`);

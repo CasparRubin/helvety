@@ -228,12 +228,8 @@ export function useLoginFlow(): LoginFlowState {
 
         if (result.data?.hasPasskey) {
           // User with passkey - go directly to passkey sign-in.
-          // If the server returned PRF params, cache them so the passkey
-          // ceremony includes the PRF extension for single-touch encryption
-          // unlock -- even on a new device with empty localStorage.
-          if (result.data.prfSalt && result.data.prfVersion != null) {
-            cachePRFSalt(result.data.prfSalt, result.data.prfVersion);
-          }
+          // Pre-auth checks intentionally do not return PRF bootstrap metadata.
+          // PRF bootstrap in this flow is resolved from local cache only.
           setSkippedToPasskey(true);
           setIsNewUser(false);
           setStep("passkey-signin");
@@ -411,27 +407,11 @@ export function useLoginFlow(): LoginFlowState {
           return;
         }
 
-        // Resolve PRF bootstrap from local cache first, then server-provided
-        // fallback from passkey options. This keeps first-login-on-device
-        // flows single-touch even when local storage is initially empty.
+        // Resolve PRF bootstrap from local cache only.
+        // We intentionally avoid returning PRF bootstrap metadata pre-auth.
         const authOptionsResult = optionsResult.data;
-        const fallbackSalt =
-          authOptionsResult.prfSalt && authOptionsResult.prfVersion != null
-            ? {
-                prfSalt: authOptionsResult.prfSalt,
-                version: authOptionsResult.prfVersion,
-              }
-            : null;
-        const bootstrapSalt = getCachedPRFSalt() ?? fallbackSalt;
-        const {
-          prfSalt: _prfSalt,
-          prfVersion: _prfVersion,
-          ...authOptions
-        } = authOptionsResult;
-
-        if (bootstrapSalt && !getCachedPRFSalt()) {
-          cachePRFSalt(bootstrapSalt.prfSalt, bootstrapSalt.version);
-        }
+        const bootstrapSalt = getCachedPRFSalt();
+        const authOptions = authOptionsResult;
 
         if (bootstrapSalt) {
           // Add PRF extension to the authentication options
@@ -471,10 +451,17 @@ export function useLoginFlow(): LoginFlowState {
           return;
         }
 
-        // Verify authentication server-side
+        // Verify authentication server-side. Forward only required WebAuthn
+        // fields to avoid sending client extension results (PRF output, etc.).
+        const authResponseForServer = {
+          id: authResponse.id,
+          rawId: authResponse.rawId,
+          type: authResponse.type,
+          response: authResponse.response,
+        };
         const verifyResult = await verifyPasskeyAuthentication(
           csrfToken,
-          authResponse,
+          authResponseForServer,
           origin
         );
         if (!verifyResult.success) {
@@ -509,7 +496,8 @@ export function useLoginFlow(): LoginFlowState {
         hasAutoRetriedMismatch.current = false;
 
         // If PRF output was received, derive and cache the master encryption key.
-        // This enables instant encryption unlock in E2EE apps (tasks, contacts)
+        // This enables instant encryption unlock in E2EE apps
+        // (tasks, contacts, notes)
         // without requiring a separate passkey touch.
         //
         // Security: The cached PRF salt may belong to a different user than the

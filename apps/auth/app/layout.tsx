@@ -111,7 +111,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 /**
- * Root layout: fixed header (Navbar), ScrollArea main, fixed footer (contact + legal links).
+ * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer (contact + legal links).
  */
 export default async function RootLayout({
   children,
@@ -157,7 +157,7 @@ export default async function RootLayout({
                     <Navbar initialUser={initialUser} />
                   </header>
                   <ScrollArea className="min-h-0 flex-1">
-                    <div className="mx-auto w-full max-w-[2000px]">
+                    <div className="container mx-auto w-full px-4">
                       <main id="main-content">{children}</main>
                     </div>
                   </ScrollArea>

@@ -1,3 +1,5 @@
+import { urls } from "@helvety/shared/config";
+
 import { getAllProducts } from "@/lib/data/products";
 
 import type { MetadataRoute } from "next";
@@ -5,7 +7,7 @@ import type { MetadataRoute } from "next";
 /**
  * Sitemap for public pages
  * Dynamically generates entries for all products
- * Note: /account, /subscriptions, /tenants require auth and are excluded
+ * Note: /account requires auth and is excluded
  */
 
 /** Static build-time date for consistent sitemap caching */
@@ -16,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const products = getAllProducts();
 
   const productEntries: MetadataRoute.Sitemap = products.map((product) => ({
-    url: `https://helvety.com/store/products/${product.slug}`,
+    url: `${urls.store}/products/${product.slug}`,
     lastModified,
     changeFrequency: "weekly",
     priority: 0.8,
@@ -24,16 +26,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: "https://helvety.com/store",
+      url: urls.store,
       lastModified,
       changeFrequency: "monthly",
       priority: 1,
     },
     {
-      url: "https://helvety.com/store/products",
+      url: `${urls.store}/products`,
       lastModified,
       changeFrequency: "weekly",
       priority: 0.9,
+    },
+    {
+      url: `${urls.store}/llms.txt`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.4,
     },
     ...productEntries,
   ];

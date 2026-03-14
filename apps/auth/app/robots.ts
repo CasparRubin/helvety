@@ -1,3 +1,3 @@
-import { createAppRobots } from "@helvety/shared/seo";
+import { createPrivateAppRobots } from "@helvety/shared/seo";
 
-export default createAppRobots(["/api", "/auth/callback"], "/auth/sitemap.xml");
+export default createPrivateAppRobots("/auth/sitemap.xml");

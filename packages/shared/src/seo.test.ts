@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { createAppRobots, createAppSitemap } from "./seo";
+import {
+  createAppRobots,
+  createAppSitemap,
+  createPrivateAppRobots,
+} from "./seo";
 
 /** Minimal robots rule shape used by helper assertions. */
 type RobotsRule = {
@@ -13,38 +17,17 @@ function getDisallowedPaths(rules: RobotsRule[]): string[] {
 }
 
 describe("seo helpers", () => {
-  it("keeps sitemap canonical URLs crawlable for all app configs", () => {
+  it("keeps sitemap canonical URLs crawlable for public app configs", () => {
     const appConfigs = [
       {
-        appPath: "/auth",
-        disallowedPaths: ["/api", "/auth/callback"],
-        sitemapPath: "/auth/sitemap.xml",
-      },
-      {
         appPath: "/store",
-        disallowedPaths: [
-          "/account",
-          "/subscriptions",
-          "/tenants",
-          "/api",
-          "/auth",
-        ],
+        disallowedPaths: ["/account", "/api", "/auth"],
         sitemapPath: "/store/sitemap.xml",
       },
       {
         appPath: "/pdf",
         disallowedPaths: ["/api", "/auth"],
         sitemapPath: "/pdf/sitemap.xml",
-      },
-      {
-        appPath: "/tasks",
-        disallowedPaths: ["/api", "/auth"],
-        sitemapPath: "/tasks/sitemap.xml",
-      },
-      {
-        appPath: "/contacts",
-        disallowedPaths: ["/api", "/auth"],
-        sitemapPath: "/contacts/sitemap.xml",
       },
     ] as const;
 
@@ -71,5 +54,30 @@ describe("seo helpers", () => {
 
     const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule[]);
     expect(disallowedPaths).toEqual(["/api"]);
+  });
+
+  it("includes app llms.txt in generated app sitemaps by default", () => {
+    const sitemapEntries = createAppSitemap("/pdf")();
+    const urls = sitemapEntries.map((entry) => entry.url);
+
+    expect(urls).toContain("https://helvety.com/pdf");
+    expect(urls).toContain("https://helvety.com/pdf/llms.txt");
+  });
+
+  it("allows disabling llms.txt sitemap entries when needed", () => {
+    const sitemapEntries = createAppSitemap("/auth", { includeLlms: false })();
+    const urls = sitemapEntries.map((entry) => entry.url);
+
+    expect(urls).toContain("https://helvety.com/auth");
+    expect(urls).not.toContain("https://helvety.com/auth/llms.txt");
+  });
+
+  it("disallows all crawling for private app robots configs", () => {
+    const robots = createPrivateAppRobots("/tasks/sitemap.xml")();
+    const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule[]);
+
+    expect(disallowedPaths).toEqual(["/"]);
+    expect(robots.host).toBe("https://helvety.com");
+    expect(robots.sitemap).toBe("https://helvety.com/tasks/sitemap.xml");
   });
 });

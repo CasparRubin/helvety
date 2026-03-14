@@ -4,17 +4,15 @@ import "server-only";
 
 /**
  * Server actions for package downloads
- * Validates subscription status and generates signed download URLs
+ * Generates signed download URLs for public packages
  */
 
-import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
-import { getPackageInfo, isTierAllowedForPackage } from "@/lib/packages/config";
+import { getPackageInfo, isPublicPackage } from "@/lib/packages/config";
 import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
-import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { ActionResponse } from "@/lib/types";
 import type { PackageDownloadInfo } from "@/lib/types/store";
@@ -44,7 +42,7 @@ export type { PackageDownloadInfo } from "@/lib/types/store";
 
 /**
  * Get a signed download URL for a package
- * Validates that the user has an active subscription for the product
+ * Public packages can be downloaded without login or purchase checks.
  *
  * @param packageId - The package identifier (e.g., 'spo-explorer')
  * @returns Signed download URL with metadata
@@ -64,39 +62,8 @@ export async function getPackageDownloadUrl(
       return { success: false, error: "Package not found" };
     }
 
-    const auth = await authenticateAndRateLimit({
-      rateLimitPrefix: "download",
-      readRateLimitConfig: RATE_LIMITS.DOWNLOAD_URL,
-    });
-    if (!auth.ok) return auth.response;
-    const { user, supabase } = auth.ctx;
-
-    // Check for active subscription with allowed tier
-    const { data: subscriptions, error: subError } = await supabase
-      .from("subscriptions")
-      .select("id, tier_id, status, current_period_end")
-      .eq("user_id", user.id)
-      .eq("product_id", packageInfo.productId)
-      .in("status", ["active", "trialing"]);
-
-    if (subError) {
-      logger.error("Error fetching subscriptions for download:", subError);
-      return { success: false, error: "Failed to verify subscription" };
-    }
-
-    // Check if any subscription has an allowed tier
-    const validSubscription = subscriptions?.find(
-      (sub) =>
-        isTierAllowedForPackage(packageId, sub.tier_id) &&
-        (!sub.current_period_end ||
-          new Date(sub.current_period_end) > new Date())
-    );
-
-    if (!validSubscription) {
-      return {
-        success: false,
-        error: "Active subscription required to download this package",
-      };
+    if (!isPublicPackage(packageId)) {
+      return { success: false, error: "Package is not publicly available" };
     }
 
     // Resolve path and version (for versioned packages, from storage; else from config)
@@ -120,9 +87,7 @@ export async function getPackageDownloadUrl(
       return { success: false, error: "Failed to generate download link" };
     }
 
-    logger.info(
-      `Download URL generated for user ${user.id}, package ${packageId}`
-    );
+    logger.info(`Public download URL generated for package ${packageId}`);
 
     return {
       success: true,
@@ -134,84 +99,6 @@ export async function getPackageDownloadUrl(
     };
   } catch (error) {
     logger.error("Error in getPackageDownloadUrl:", error);
-    return { success: false, error: "An unexpected error occurred" };
-  }
-}
-
-/**
- * Get package info without generating a download URL
- * Useful for displaying version info without triggering a download
- *
- * @param packageId - The package identifier
- * @returns Package metadata if user has access
- */
-export async function getPackageMetadata(
-  packageId: string
-): Promise<
-  ActionResponse<{ version: string; filename: string; productName: string }>
-> {
-  try {
-    // Validate input
-    const parseResult = PackageIdSchema.safeParse(packageId);
-    if (!parseResult.success) {
-      return { success: false, error: "Invalid package ID" };
-    }
-
-    const packageInfo = getPackageInfo(packageId);
-    if (!packageInfo) {
-      return { success: false, error: "Package not found" };
-    }
-
-    const auth = await authenticateAndRateLimit({
-      rateLimitPrefix: "pkg-meta",
-      readRateLimitConfig: RATE_LIMITS.PACKAGE_META,
-    });
-    if (!auth.ok) return auth.response;
-    const { user, supabase } = auth.ctx;
-
-    // Check for active subscription
-    const { data: subscriptions, error: subError } = await supabase
-      .from("subscriptions")
-      .select("tier_id, status, current_period_end")
-      .eq("user_id", user.id)
-      .eq("product_id", packageInfo.productId)
-      .in("status", ["active", "trialing"]);
-
-    if (subError) {
-      logger.error("Error fetching subscriptions for metadata:", subError);
-      return { success: false, error: "Failed to verify subscription" };
-    }
-
-    const hasAccess = subscriptions?.some(
-      (sub) =>
-        isTierAllowedForPackage(packageId, sub.tier_id) &&
-        (!sub.current_period_end ||
-          new Date(sub.current_period_end) > new Date())
-    );
-
-    if (!hasAccess) {
-      return {
-        success: false,
-        error: "Active subscription required",
-      };
-    }
-
-    // Resolve version from storage for versioned packages
-    const resolved = packageInfo.storagePathPrefix
-      ? await resolveLatestPackageVersion(packageId)
-      : null;
-    const version = resolved?.version ?? packageInfo.version;
-
-    return {
-      success: true,
-      data: {
-        version,
-        filename: packageInfo.filename,
-        productName: packageInfo.productName,
-      },
-    };
-  } catch (error) {
-    logger.error("Error in getPackageMetadata:", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

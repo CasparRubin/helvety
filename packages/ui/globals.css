@@ -115,4 +115,9 @@
   .container {
     max-width: 2000px;
   }
+
+  /* Reserve symmetric inline space when vertical scrollbars appear. */
+  .scroll-gutter-stable {
+    scrollbar-gutter: stable both-edges;
+  }
 }

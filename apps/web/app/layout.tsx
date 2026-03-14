@@ -43,8 +43,7 @@ export const viewport = sharedViewport;
 export const metadata: Metadata = {
   metadataBase: new URL(urls.home),
   title: {
-    default:
-      "Helvety | Products & Services | Engineered & Designed in Switzerland",
+    default: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
     template: "%s | Helvety",
   },
   description:
@@ -72,8 +71,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: urls.home,
     siteName: "Helvety",
-    title:
-      "Helvety | Products & Services | Engineered & Designed in Switzerland",
+    title: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
     description:
       "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
     images: [
@@ -87,8 +85,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title:
-      "Helvety | Products & Services | Engineered & Designed in Switzerland",
+    title: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
     description:
       "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
     images: [
@@ -115,7 +112,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout: fixed header (Navbar), ScrollArea main, fixed footer (contact + legal links).
+ * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer (contact + legal links).
  *
  * The web app serves only public pages (home, privacy, terms, impressum).
  * No explicit force-dynamic export. This layout reads request headers for CSP
@@ -135,6 +132,7 @@ export default async function RootLayout({
         <SkipToContent />
         <script
           type="application/ld+json"
+          suppressHydrationWarning
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([
@@ -159,7 +157,7 @@ export default async function RootLayout({
                 <Navbar />
               </header>
               <ScrollArea className="min-h-0 flex-1">
-                <div className="mx-auto w-full max-w-[2000px]">
+                <div className="container mx-auto w-full px-4">
                   <main id="main-content">{children}</main>
                 </div>
               </ScrollArea>

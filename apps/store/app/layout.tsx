@@ -49,17 +49,16 @@ export const viewport = sharedViewport;
 export const metadata: Metadata = {
   metadataBase: new URL(urls.store),
   title: {
-    default: "Helvety Store | Products & Services",
+    default: "Helvety Store | Products & Apps",
     template: "%s | Helvety Store",
   },
   description:
-    "Official Helvety Store. Products and services engineered & designed in Switzerland.",
+    "Official Helvety Store. Products and apps engineered and designed in Switzerland.",
   keywords: [
     "Helvety Store",
     "software",
     "saas",
-    "subscriptions",
-    "no-cost tools",
+    "free tools",
     "pdf",
     "tasks",
     "contacts",
@@ -80,9 +79,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: urls.store,
     siteName: "Helvety Store",
-    title: "Helvety Store | Products & Services",
+    title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store. Products and services engineered & designed in Switzerland.",
+      "Official Helvety Store. Products and apps engineered and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -94,9 +93,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Helvety Store | Products & Services",
+    title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store. Products and services engineered & designed in Switzerland.",
+      "Official Helvety Store. Products and apps engineered and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -125,7 +124,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 /**
- * Root layout: NavbarWrapper provides fixed header, ScrollArea main, fixed footer.
+ * Root layout: NavbarWrapper provides fixed header, ScrollArea main with shared container gutters, fixed footer.
  */
 export default async function RootLayout({
   children,
@@ -154,7 +153,7 @@ export default async function RootLayout({
                 name: "Helvety Store",
                 url: urls.store,
                 description:
-                  "Official Helvety Store. Products and services engineered & designed in Switzerland.",
+                  "Official Helvety Store. Products and apps engineered and designed in Switzerland.",
                 applicationCategory: "ShoppingApplication",
                 operatingSystem: "Any",
               },
@@ -180,7 +179,7 @@ export default async function RootLayout({
 }
 
 /**
- * Wraps content with fixed header (Navbar + StoreNav), ScrollArea main, fixed footer.
+ * Wraps content with fixed header (Navbar + StoreNav), ScrollArea main with shared container gutters, fixed footer.
  */
 async function NavbarWrapper({
   children,
@@ -195,7 +194,7 @@ async function NavbarWrapper({
         <Navbar initialUser={initialUser} />
       </header>
       <ScrollArea className="min-h-0 flex-1">
-        <div className="mx-auto w-full max-w-[2000px]">
+        <div className="container mx-auto w-full px-4">
           <StoreNav />
           <main id="main-content" className="min-w-0">
             {children}

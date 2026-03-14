@@ -35,4 +35,6 @@ export const ENTITY_LIMITS = {
   MAX_ITEMS_PER_SPACE: 250,
   /** Maximum Contacts a single user can create */
   MAX_CONTACTS_PER_USER: 250,
+  /** Maximum Notes a single user can create */
+  MAX_NOTES_PER_USER: 250,
 } as const;

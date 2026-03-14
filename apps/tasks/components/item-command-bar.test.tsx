@@ -1,13 +1,9 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { ItemCommandBar } from "./item-command-bar";
 
 describe("ItemCommandBar", () => {
-  afterEach(() => {
-    cleanup();
-  });
-
   it("shows the back button by default", () => {
     render(
       <ItemCommandBar

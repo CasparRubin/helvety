@@ -1,3 +1,3 @@
 import { createAppSitemap } from "@helvety/shared/seo";
 
-export default createAppSitemap("/auth");
+export default createAppSitemap("/auth", { includeLlms: false });

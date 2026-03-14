@@ -4,7 +4,7 @@ import { cn } from "@helvety/shared/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import * as React from "react";
 
-/** Scrollable area with custom scrollbar styling. */
+/** Scrollable area with custom scrollbar styling and stable gutter reservation. */
 function ScrollArea({
   className,
   children,
@@ -18,7 +18,7 @@ function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
+        className="scroll-gutter-stable focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>

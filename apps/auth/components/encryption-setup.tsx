@@ -69,7 +69,8 @@ type SetupStep = "initial" | "registering" | "complete";
  * After passkey registration, the credential and PRF params are stored server-side.
  * The PRF salt is also cached in localStorage so that subsequent logins include
  * the PRF extension for single-touch encryption unlock (no separate passkey
- * prompt in E2EE apps like helvety.com/tasks or helvety.com/contacts).
+ * prompt in E2EE apps like helvety.com/tasks, helvety.com/contacts, or
+ * helvety.com/notes).
  *
  * In many modern browser flows, PRF output is returned during registration.
  * When available, the master encryption key is derived and stored in
@@ -208,10 +209,27 @@ export function EncryptionSetup({
         return;
       }
 
-      // Verify and store credential + PRF params on the server
+      // Verify and store credential + PRF params on the server.
+      // Forward only required WebAuthn registration fields to avoid sending
+      // client extension outputs (including PRF output) to the server.
+      const registrationResponseForServer = {
+        id: regResult.response.id,
+        rawId: regResult.response.rawId,
+        type: regResult.response.type,
+        response: {
+          clientDataJSON: regResult.response.response.clientDataJSON,
+          attestationObject: regResult.response.response.attestationObject,
+          transports: regResult.response.response.transports,
+          publicKeyAlgorithm: regResult.response.response.publicKeyAlgorithm,
+          publicKey: regResult.response.response.publicKey,
+          authenticatorData: regResult.response.response.authenticatorData,
+        },
+        authenticatorAttachment: regResult.response.authenticatorAttachment,
+      };
+
       const verifyResult = await verifyPasskeyRegistration(
         csrfToken,
-        regResult.response,
+        registrationResponseForServer,
         origin,
         true // PRF was enabled
       );

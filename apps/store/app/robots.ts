@@ -1,6 +1,6 @@
 import { createAppRobots } from "@helvety/shared/seo";
 
 export default createAppRobots(
-  ["/account", "/subscriptions", "/tenants", "/api", "/auth"],
+  ["/account", "/api", "/auth"],
   "/store/sitemap.xml"
 );

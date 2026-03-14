@@ -1,6 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { withTimeout, withTimeoutAndSignal } from "./timeout-utils";
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe("withTimeout", () => {
   it("resolves when promise finishes in time", async () => {
@@ -8,13 +12,15 @@ describe("withTimeout", () => {
   });
 
   it("rejects on timeout", async () => {
+    vi.useFakeTimers();
     const never = new Promise<string>(() => {
       // intentionally unresolved
     });
 
-    await expect(withTimeout(never, 5, "Timed out")).rejects.toThrow(
-      "Timed out"
-    );
+    const timeoutPromise = withTimeout(never, 5, "Timed out");
+    const assertion = expect(timeoutPromise).rejects.toThrow("Timed out");
+    await vi.advanceTimersByTimeAsync(5);
+    await assertion;
   });
 });
 
@@ -34,6 +40,7 @@ describe("withTimeoutAndSignal", () => {
   });
 
   it("rejects when aborted during execution", async () => {
+    vi.useFakeTimers();
     const controller = new AbortController();
     const slow = new Promise<string>((resolve) => {
       setTimeout(() => resolve("late"), 50);
@@ -41,9 +48,15 @@ describe("withTimeoutAndSignal", () => {
 
     setTimeout(() => controller.abort(), 5);
 
-    await expect(
-      withTimeoutAndSignal(() => slow, 100, controller.signal, "Timed out")
-    ).rejects.toThrow("Operation cancelled");
+    const operation = withTimeoutAndSignal(
+      () => slow,
+      100,
+      controller.signal,
+      "Timed out"
+    );
+    const assertion = expect(operation).rejects.toThrow("Operation cancelled");
+    await vi.advanceTimersByTimeAsync(5);
+    await assertion;
   });
 
   it("resolves when not aborted and within timeout", async () => {

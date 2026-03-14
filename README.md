@@ -14,10 +14,11 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 | ------------------------------ | ---------------------------------------------------- | ----------------------------------------------------------------- |
 | **[Web](apps/web/)**           | [helvety.com](https://helvety.com)                   | Gateway app (multi-zone rewrites), main website, legal pages      |
 | **[Auth](apps/auth/)**         | [helvety.com/auth](https://helvety.com/auth)         | Centralized passwordless authentication (email + passkey SSO)     |
-| **[Store](apps/store/)**       | [helvety.com/store](https://helvety.com/store)       | Product catalog (free & paid), subscriptions, Stripe payments     |
+| **[Store](apps/store/)**       | [helvety.com/store](https://helvety.com/store)       | Product catalog with app listings and public package downloads    |
 | **[PDF](apps/pdf/)**           | [helvety.com/pdf](https://helvety.com/pdf)           | Client-side PDF toolkit (merge, reorder, rotate, extract)         |
 | **[Tasks](apps/tasks/)**       | [helvety.com/tasks](https://helvety.com/tasks)       | Task management with client-side encryption for sensitive data    |
 | **[Contacts](apps/contacts/)** | [helvety.com/contacts](https://helvety.com/contacts) | Contact management with client-side encryption for sensitive data |
+| **[Notes](apps/notes/)**       | [helvety.com/notes](https://helvety.com/notes)       | Notes management with client-side encryption for sensitive data   |
 
 ## Shared Packages
 
@@ -52,6 +53,7 @@ cp apps/store/env.template apps/store/.env.local
 cp apps/pdf/env.template apps/pdf/.env.local
 cp apps/tasks/env.template apps/tasks/.env.local
 cp apps/contacts/env.template apps/contacts/.env.local
+cp apps/notes/env.template apps/notes/.env.local
 ```
 
 ```powershell
@@ -62,6 +64,7 @@ Copy-Item "apps/store/env.template" "apps/store/.env.local"
 Copy-Item "apps/pdf/env.template" "apps/pdf/.env.local"
 Copy-Item "apps/tasks/env.template" "apps/tasks/.env.local"
 Copy-Item "apps/contacts/env.template" "apps/contacts/.env.local"
+Copy-Item "apps/notes/env.template" "apps/notes/.env.local"
 ```
 
 ### Development
@@ -98,7 +101,7 @@ bun run format
 - We do not run a local Supabase stack in this repo.
 - Database changes are applied directly in the hosted Supabase project (SQL Editor / SQL migrations).
 - Keep `supabase/getSupabase.sql` for full-schema export/audit queries.
-- Keep `supabase/supabase.json` local-only (gitignored) because it may contain sensitive metadata.
+- Keep `supabase/supabase.json` local-only (gitignored). It contains sensitive schema/ACL/function metadata and must be regenerated after live hardening changes before using it for security conclusions.
 - Regenerate shared DB types only when needed:
 
 ```bash
@@ -115,7 +118,8 @@ helvety/
 │   ├── store/        # helvety.com/store
 │   ├── pdf/          # helvety.com/pdf
 │   ├── tasks/        # helvety.com/tasks
-│   └── contacts/     # helvety.com/contacts
+│   ├── contacts/     # helvety.com/contacts
+│   └── notes/        # helvety.com/notes
 ├── packages/
 │   ├── brand/        # Shared brand assets (SVG components, asset URLs)
 │   ├── config/       # Shared tooling configs

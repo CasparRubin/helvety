@@ -13,11 +13,8 @@ describe("GET /sitemap-index.xml", () => {
 
     const expectedSitemaps = [
       "/sitemap.xml",
-      "/auth/sitemap.xml",
       "/store/sitemap.xml",
       "/pdf/sitemap.xml",
-      "/tasks/sitemap.xml",
-      "/contacts/sitemap.xml",
     ];
 
     for (const path of expectedSitemaps) {

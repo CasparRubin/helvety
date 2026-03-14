@@ -114,7 +114,7 @@ export function formatPriceWithInterval(
 // =============================================================================
 
 /**
- * Calculate monthly equivalent price for yearly subscriptions
+ * Calculate monthly equivalent price for yearly plans
  * @param yearlyPriceInCents
  */
 export function getMonthlyEquivalent(yearlyPriceInCents: number): number {

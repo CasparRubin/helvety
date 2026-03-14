@@ -3,11 +3,8 @@ import { NextResponse } from "next/server";
 
 const SITEMAP_PATHS = [
   "/sitemap.xml",
-  "/auth/sitemap.xml",
   "/store/sitemap.xml",
   "/pdf/sitemap.xml",
-  "/tasks/sitemap.xml",
-  "/contacts/sitemap.xml",
 ] as const;
 
 /** Static build-time date for consistent sitemap-index caching. */

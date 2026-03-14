@@ -1,8 +1,11 @@
+"use client";
+
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
 const LEGAL_BASE = urls.home;
+const DAY_IN_MS = 86_400_000;
 
 const linkClass = "hover:text-muted-foreground transition-colors";
 
@@ -39,6 +42,22 @@ export function Footer({
     rel?: string;
   }) => React.ReactNode;
 }) {
+  const [currentYear, setCurrentYear] = React.useState(() =>
+    new Date().getFullYear()
+  );
+
+  React.useEffect(() => {
+    const syncCurrentYear = () => {
+      setCurrentYear(new Date().getFullYear());
+    };
+
+    const intervalId = window.setInterval(syncCurrentYear, DAY_IN_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
   const link = (href: string, label: string) => {
     const fullHref = external ? `${LEGAL_BASE}${href}` : href;
     const extraProps = external
@@ -71,9 +90,9 @@ export function Footer({
       <div className="mx-auto w-full max-w-[2000px] px-4 py-5">
         <div className="text-muted-foreground flex flex-col items-center gap-1 text-center text-xs">
           <p>
-            &copy; {new Date().getFullYear()} Helvety &middot; This site uses
-            essential cookies and similar storage technologies for security and
-            core functionality; account-based services also use authentication
+            &copy; {currentYear} Helvety &middot; This site uses essential
+            cookies and similar storage technologies for security and core
+            functionality; account-based services also use authentication
             cookies.
           </p>
           <nav className="text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px]">

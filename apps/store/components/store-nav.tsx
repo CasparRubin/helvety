@@ -2,7 +2,7 @@
 
 /**
  * Store section navigation
- * Renders four links (Products, Account, Subscriptions, Tenants) below the navbar.
+ * Renders core links (Products, Account) below the navbar.
  * Desktop: horizontal flex row of link-buttons
  * Mobile: dropdown showing the active link as trigger
  */
@@ -17,9 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@helvety/ui/dropdown-menu";
 import {
-  Building2Icon as Building2,
   ChevronDownIcon,
-  CreditCardIcon as CreditCard,
   PackageIcon as Package,
   UserIcon as User,
 } from "lucide-react";
@@ -29,12 +27,10 @@ import { usePathname } from "next/navigation";
 const links = [
   { href: "/products", label: "Products", icon: Package },
   { href: "/account", label: "Account", icon: User },
-  { href: "/subscriptions", label: "Subscriptions", icon: CreditCard },
-  { href: "/tenants", label: "Tenants", icon: Building2 },
 ];
 
 /**
- * Renders the store section nav (Products, Account, Subscriptions, Tenants).
+ * Renders the store section nav (Products, Account).
  */
 export function StoreNav() {
   const pathname = usePathname();

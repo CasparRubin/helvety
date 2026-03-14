@@ -2,8 +2,6 @@
  * Static product data for the Store app (@helvety/store)
  */
 
-import { getStripePriceId } from "@/lib/stripe/config";
-
 import type {
   Product,
   SaaSProduct,
@@ -56,42 +54,23 @@ Install it once in your SharePoint App Catalog and give all users instant access
     "Easy SharePoint App Catalog installation",
   ],
   pricing: {
-    hasFreeTier: false,
+    hasFreeTier: true,
     hasYearlyPricing: false,
     tiers: [
       {
-        id: "helvety-spo-explorer-solo-monthly",
-        name: "Solo",
-        price: 45000,
+        id: "helvety-spo-explorer-free",
+        name: "Free",
+        price: 0,
         currency: "CHF",
-        interval: "monthly",
-        stripePriceId: getStripePriceId("helvety-spo-explorer-solo-monthly"),
+        interval: "one-time",
+        isFree: true,
         features: [
           "Full extension features",
           "All sites navigation",
           "Favorites and quick access",
           "Settings customization",
-          "Updates included with subscription",
-        ],
-      },
-      {
-        id: "helvety-spo-explorer-supported-monthly",
-        name: "Supported",
-        price: 65000,
-        currency: "CHF",
-        interval: "monthly",
-        highlighted: true,
-        stripePriceId: getStripePriceId(
-          "helvety-spo-explorer-supported-monthly"
-        ),
-        features: [
-          "Full extension features",
-          "All sites navigation",
-          "Favorites and quick access",
-          "Settings customization",
-          "Updates included with subscription",
-          "Priority support",
-          "Dedicated setup assistance",
+          "No account required for download",
+          "Currently available at no cost",
         ],
       },
     ],
@@ -106,7 +85,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
       "Microsoft 365 subscription",
       "SharePoint Administrator role (for installation)",
     ],
-    licenseType: "subscription",
+    licenseType: "free",
   },
   media: {
     screenshots: [
@@ -439,6 +418,92 @@ Your contacts are protected under applicable Swiss data protection law (includin
 };
 
 // =============================================================================
+// HELVETY NOTES
+// =============================================================================
+
+/**
+ * Helvety Notes - E2E Encrypted Notes
+ */
+export const helvetyNotes: SaaSProduct = {
+  id: "helvety-notes",
+  slug: "helvety-notes",
+  name: "Helvety Notes",
+  shortDescription:
+    "A privacy-focused notes app with client-side encryption for sensitive fields. Keep title and description notes in one clean list.",
+  description: `Helvety Notes is an end-to-end encrypted notes app where sensitive note content is encrypted client-side before storage.
+
+Pricing and Limits - Helvety Notes is currently available at no cost. Limits and pricing may change over time.
+
+Key Features:
+• End-to-End Encryption - Sensitive note content is encrypted using your passkey
+• Simple Notes Model - Every note has a title and description in one flat list
+• Rich Text Descriptions - Full formatting toolbar with headings, lists, and links
+• Cross-Linking - Link notes with Helvety Tasks and Helvety Contacts
+• Drag & Drop - Reorder notes quickly
+
+Your data is protected under applicable Swiss data protection law (including nDSG where applicable). Helvety does not have decryption keys and cannot read encrypted note content in plaintext.`,
+  type: "saas",
+  category: "productivity",
+  status: "available",
+  image: "/store/artwork_4.jpg",
+  artist: "Alexandre Calame",
+  features: [
+    "End-to-end encryption for sensitive note content",
+    "Simple note model (title + description)",
+    "Rich text editor with formatting",
+    "Link notes with tasks and contacts",
+    "Drag & drop reordering",
+    "Dark & light mode support",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    hasYearlyPricing: false,
+    tiers: [
+      {
+        id: "helvety-notes-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "All features included",
+          "End-to-end encryption",
+          "Up to 250 notes per user",
+          "Currently available at no cost",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.com/notes",
+  },
+  saas: {
+    appUrl: "https://helvety.com/notes",
+    trialDays: 0,
+    trialRequiresCard: false,
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: [
+      "Privacy-conscious professionals",
+      "Individuals taking secure notes",
+    ],
+    platforms: ["Web"],
+    keywords: [
+      "notes",
+      "encrypted",
+      "e2e",
+      "privacy",
+      "knowledge",
+      "productivity",
+    ],
+    featured: true,
+    sortOrder: 6,
+  },
+};
+
+// =============================================================================
 // ALL PRODUCTS
 // =============================================================================
 
@@ -450,6 +515,7 @@ export const products: Product[] = [
   helvetyPdf,
   helvetyTasks,
   helvetyContacts,
+  helvetyNotes,
 ];
 
 // =============================================================================

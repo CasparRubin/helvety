@@ -13,10 +13,14 @@ import type { MetadataRoute } from "next";
 const ALLOWED_USER_AGENTS = [
   "*",
   "GPTBot",
+  "OAI-SearchBot",
+  "ChatGPT-User",
   "ClaudeBot",
+  "anthropic-ai",
   "Google-Extended",
   "PerplexityBot",
   "Applebot-Extended",
+  "Bytespider",
   "CCBot",
   "FacebookBot",
 ] as const;
@@ -62,12 +66,16 @@ function sanitizeDisallowedPaths(
  * @param basePath - The app's base path (e.g. "/auth", "/pdf")
  */
 export function createAppSitemap(
-  basePath: string
+  basePath: string,
+  options?: {
+    includeLlms?: boolean;
+  }
 ): () => MetadataRoute.Sitemap {
   const lastModified = new Date();
+  const includeLlms = options?.includeLlms ?? true;
 
   return function sitemap(): MetadataRoute.Sitemap {
-    return [
+    const entries: MetadataRoute.Sitemap = [
       {
         url: `${DOMAIN}${basePath}`,
         lastModified,
@@ -75,6 +83,17 @@ export function createAppSitemap(
         priority: 1,
       },
     ];
+
+    if (includeLlms) {
+      entries.push({
+        url: `${DOMAIN}${basePath}/llms.txt`,
+        lastModified,
+        changeFrequency: "weekly",
+        priority: 0.4,
+      });
+    }
+
+    return entries;
   };
 }
 
@@ -101,6 +120,7 @@ export function createAppRobots(
         disallow: sanitizedDisallowedPaths,
       })),
       sitemap: `${DOMAIN}${sitemapPath}`,
+      host: DOMAIN,
     };
   };
 }
@@ -121,6 +141,28 @@ export function createOpenRobots(
         allow: "/",
       })),
       sitemap: `${DOMAIN}${sitemapPath}`,
+      host: DOMAIN,
+    };
+  };
+}
+
+/**
+ * Creates a robots.txt configuration for private/auth-required apps.
+ * The app remains accessible to authenticated users, but is excluded from crawling.
+ *
+ * @param sitemapPath - Path to the sitemap (e.g. "/tasks/sitemap.xml")
+ */
+export function createPrivateAppRobots(
+  sitemapPath: string
+): () => MetadataRoute.Robots {
+  return function robots(): MetadataRoute.Robots {
+    return {
+      rules: ALLOWED_USER_AGENTS.map((userAgent) => ({
+        userAgent,
+        disallow: "/",
+      })),
+      sitemap: `${DOMAIN}${sitemapPath}`,
+      host: DOMAIN,
     };
   };
 }

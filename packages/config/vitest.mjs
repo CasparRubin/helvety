@@ -32,7 +32,13 @@ export function createVitestConfig(rootDir) {
       },
       coverage: {
         provider: "v8",
-        include: ["lib/**/*.ts", "lib/**/*.tsx"],
+        include: [
+          "app/**/*.{ts,tsx}",
+          "components/**/*.{ts,tsx}",
+          "hooks/**/*.{ts,tsx}",
+          "lib/**/*.{ts,tsx}",
+          "src/**/*.{ts,tsx}",
+        ],
         exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*.d.ts"],
         reporter: ["text"],
       },

@@ -172,8 +172,7 @@ export function HelvetyPdf(): React.JSX.Element {
         className={cn(
           "min-h-0 flex-1 overflow-hidden",
           "flex flex-col gap-4 lg:flex-row",
-          "container mx-auto",
-          "p-4"
+          "py-4"
         )}
         onDragEnter={dragDrop.handleDragEnter}
         onDragOver={dragDrop.handleDragOver}

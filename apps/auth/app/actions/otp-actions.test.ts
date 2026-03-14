@@ -85,7 +85,11 @@ vi.mock("./user-lookup", () => ({
   findUserByEmail: mocks.findUserByEmail,
 }));
 
-import { sendVerificationCode, verifyEmailCode } from "./otp-actions";
+import {
+  checkEmail,
+  sendVerificationCode,
+  verifyEmailCode,
+} from "./otp-actions";
 
 describe("otp-actions", () => {
   beforeEach(() => {
@@ -197,6 +201,28 @@ describe("otp-actions", () => {
       success: true,
     });
     expect(mocks.generateCSRFToken).toHaveBeenCalledOnce();
-    expect(mocks.resetEscalatingLockout).toHaveBeenCalledWith("user@ex.com");
+    expect(mocks.resetEscalatingLockout).toHaveBeenCalledWith(
+      "user@ex.com:203.0.113.15"
+    );
+  });
+
+  it("checkEmail returns only passkey presence metadata", async () => {
+    mocks.findUserByEmail.mockResolvedValue({ id: "existing-user" });
+    mocks.checkUserPasskeyStatus.mockResolvedValue({
+      data: { hasPasskey: true },
+      success: true,
+    });
+
+    const result = await checkEmail("existing@user.com");
+
+    expect(result).toEqual({
+      success: true,
+      data: { hasPasskey: true },
+    });
+    if (!result.success) {
+      throw new Error("Expected successful checkEmail response");
+    }
+    expect("prfSalt" in result.data).toBe(false);
+    expect("prfVersion" in result.data).toBe(false);
   });
 });

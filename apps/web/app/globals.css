@@ -8,10 +8,10 @@
 /* Subtle animated glowing red border around logo */
 .logo-glow-wrapper {
   position: relative;
-  display: inline-block;
+  display: block;
 }
 
-.logo-glow-wrapper img {
+.logo-glow-wrapper svg {
   position: relative;
   z-index: 1;
   border-radius: 4px;

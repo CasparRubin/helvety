@@ -9,8 +9,8 @@
 
 /**
  * Type of product being sold
- * - saas: Subscription-based software as a service
- * - software: One-time purchase downloadable software
+ * - saas: Web-delivered application (free or paid, depending on current offering)
+ * - software: Downloadable software package (public or access-controlled)
  * - physical: Physical goods that require shipping
  */
 export type ProductType = "saas" | "software" | "physical";
@@ -61,7 +61,7 @@ export interface PricingTier {
   features: string[];
   /** Whether this tier should be visually highlighted as recommended */
   highlighted?: boolean;
-  /** Stripe Price ID for checkout (populated when Stripe is integrated) */
+  /** Optional external price reference for paid tiers */
   stripePriceId?: string;
   /** Maximum usage limits if applicable */
   limits?: Record<string, number | string>;
@@ -235,7 +235,7 @@ export interface PhysicalProduct extends Product {
  * Additional fields for downloadable software
  */
 export interface SoftwareProductDetails {
-  /** Download URL (populated after purchase) */
+  /** Download URL (resolved when download is available for this product) */
   downloadUrl?: string;
   /** File size in bytes */
   fileSize?: number;

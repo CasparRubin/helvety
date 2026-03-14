@@ -10,7 +10,7 @@ const actions = {
   getEncryptionParams,
 };
 
-/** App-level EncryptionGate using shared encryption actions (tasks, contacts). */
+/** App-level EncryptionGate using shared encryption actions (tasks, contacts, notes). */
 export function EncryptionGateApp({
   userId,
   children,

@@ -7,6 +7,7 @@ import {
   FileText,
   Home,
   KeyRound,
+  NotebookPen,
   ShoppingBag,
   Users,
 } from "lucide-react";
@@ -31,6 +32,7 @@ const apps = [
   { name: "PDF", href: urls.pdf, icon: FileText },
   { name: "Tasks", href: urls.tasks, icon: CheckSquare },
   { name: "Contacts", href: urls.contacts, icon: Users },
+  { name: "Notes", href: urls.notes, icon: NotebookPen },
 ];
 
 /** Props for the AppSwitcher component. */

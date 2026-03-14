@@ -27,6 +27,7 @@ export const HELVETY_SAME_AS_URLS = [
   urls.home,
   urls.auth,
   urls.contacts,
+  urls.notes,
   urls.pdf,
   urls.store,
   urls.tasks,
@@ -41,8 +42,7 @@ export function createHelvetyOrganizationSchema(logoUrl: string) {
     name: "Helvety",
     url: urls.home,
     logo: logoUrl,
-    description:
-      "Products and services engineered and designed in Switzerland.",
+    description: "Products and apps engineered and designed in Switzerland.",
     sameAs: HELVETY_SAME_AS_URLS,
   };
 }

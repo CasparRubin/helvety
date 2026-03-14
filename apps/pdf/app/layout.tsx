@@ -113,7 +113,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout: fixed header (Navbar), overflow-hidden main (PDF toolkit manages its own scroll), fixed footer.
+ * Root layout: fixed header (Navbar), overflow-hidden main with shared container gutters (PDF toolkit manages its own scroll), fixed footer.
  */
 export default async function RootLayout({
   children,
@@ -160,7 +160,7 @@ export default async function RootLayout({
               </header>
               <main
                 id="main-content"
-                className="min-h-0 flex-1 overflow-hidden"
+                className="container mx-auto min-h-0 flex-1 overflow-hidden px-4"
               >
                 {children}
               </main>

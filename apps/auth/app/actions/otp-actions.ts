@@ -5,10 +5,7 @@ import "server-only";
 import { logAuthEvent } from "@helvety/shared/auth-logger";
 import { generateCSRFToken, requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
-import {
-  createAdminClient,
-  createScopedAdminQuery,
-} from "@helvety/shared/supabase/admin";
+import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
@@ -43,11 +40,8 @@ import type { ActionResponse } from "@helvety/shared/types/entities";
  * users BEFORE creating account records (critical for the geo-restriction
  * flow and reducing pre-confirmation persistence risk).
  *
- * When the user has a passkey, also returns their PRF salt and version so the
- * client can cache them before the passkey ceremony. This enables single-touch
- * login + encryption unlock even on new devices where localStorage is empty.
- * The PRF salt is NOT sensitive -- it's a public parameter stored in the
- * database; security comes from the passkey's private key, not the salt.
+ * This action intentionally does not return PRF bootstrap metadata pre-auth.
+ * PRF parameters are fetched later in the authenticated passkey flow.
  *
  * Security:
  * - Rate limited to prevent enumeration attacks
@@ -56,15 +50,13 @@ import type { ActionResponse } from "@helvety/shared/types/entities";
  * - Returns generic responses on errors to prevent enumeration
  *
  * @param email - The user's email address
- * @returns Whether this identity can use direct passkey sign-in, plus PRF params if available
+ * @returns Whether this identity can use direct passkey sign-in
  */
 export async function checkEmail(
   email: string
-): Promise<
-  ActionResponse<{ hasPasskey: boolean; prfSalt?: string; prfVersion?: number }>
-> {
+): Promise<ActionResponse<{ hasPasskey: boolean }>> {
   // Constant-time floor: prevent user-existence timing side-channel.
-  // Existing users trigger passkey + PRF lookups which take longer than
+  // Existing users trigger passkey checks which take longer than
   // non-existent users. By enforcing a minimum response time we ensure
   // both paths return in a similar window.
   const MINIMUM_RESPONSE_MS = 250;
@@ -82,9 +74,7 @@ export async function checkEmail(
 /** Inner implementation of checkEmail, called within the constant-time wrapper. */
 async function checkEmailInner(
   email: string
-): Promise<
-  ActionResponse<{ hasPasskey: boolean; prfSalt?: string; prfVersion?: number }>
-> {
+): Promise<ActionResponse<{ hasPasskey: boolean }>> {
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
 
@@ -149,34 +139,6 @@ async function checkEmailInner(
       };
     }
 
-    // Fetch PRF params so the client can include PRF in the passkey ceremony.
-    // This enables single-touch login + encryption unlock on any device.
-    try {
-      const scopedAdmin = createScopedAdminQuery(existingUser.id);
-      const { data: prfData, error: prfError } = await scopedAdmin
-        .from("user_passkey_params")
-        .select("prf_salt, version")
-        .single();
-
-      if (!prfError && prfData) {
-        return {
-          success: true,
-          data: {
-            hasPasskey: true,
-            prfSalt: prfData.prf_salt,
-            prfVersion: prfData.version,
-          },
-        };
-      }
-    } catch (prfFetchError) {
-      // Non-fatal: PRF params fetch failed, but passkey sign-in still works.
-      // The user will just need a separate encryption unlock step.
-      logger.warn(
-        "Failed to fetch PRF params during checkEmail:",
-        prfFetchError
-      );
-    }
-
     return {
       success: true,
       data: { hasPasskey: true },
@@ -188,6 +150,14 @@ async function checkEmailInner(
       data: { hasPasskey: false },
     };
   }
+}
+
+/**
+ * Build a lockout key scoped to email + IP.
+ * This reduces targeted account lockout abuse from unrelated client IPs.
+ */
+function getOtpLockoutKey(email: string, clientIP: string): string {
+  return `${email.toLowerCase().trim()}:${clientIP}`;
 }
 
 /**
@@ -406,9 +376,10 @@ export async function verifyEmailCode(
 
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
+  const otpLockoutKey = getOtpLockoutKey(normalizedEmail, clientIP);
 
   // Check escalating lockout first (long-term cumulative failure counter)
-  const lockout = await checkEscalatingLockout(normalizedEmail);
+  const lockout = await checkEscalatingLockout(otpLockoutKey);
   if (!lockout.allowed) {
     const retryMinutes = Math.ceil((lockout.retryAfter ?? 300) / 60);
     logAuthEvent("rate_limit_exceeded", {
@@ -483,7 +454,7 @@ export async function verifyEmailCode(
 
       // Record failure for escalating lockout (cumulative counter)
       const lockoutResult =
-        await recordOtpFailureAndCheckLockout(normalizedEmail);
+        await recordOtpFailureAndCheckLockout(otpLockoutKey);
       if (!lockoutResult.allowed) {
         const retryMinutes = Math.ceil((lockoutResult.retryAfter ?? 300) / 60);
         return {
@@ -507,7 +478,7 @@ export async function verifyEmailCode(
     await Promise.all([
       resetRateLimit(`otp_verify:email:${normalizedEmail}`),
       resetRateLimit(`otp_verify:ip:${clientIP}`),
-      resetEscalatingLockout(normalizedEmail),
+      resetEscalatingLockout(otpLockoutKey),
     ]);
 
     logAuthEvent("login_success", {

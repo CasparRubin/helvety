@@ -52,7 +52,7 @@ function ProductGridEmpty() {
       </div>
       <h3 className="mt-4 text-lg font-medium">No products found</h3>
       <p className="text-muted-foreground mt-1 text-sm">
-        Try adjusting your filters or check back later for new products.
+        Try adjusting your filters to see available products.
       </p>
     </div>
   );

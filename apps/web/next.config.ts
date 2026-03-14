@@ -76,6 +76,7 @@ const nextConfig: NextConfig = {
     const authUrl = getAppUrl("AUTH_URL", DEV_PORTS.auth);
     const tasksUrl = getAppUrl("TASKS_URL", DEV_PORTS.tasks);
     const contactsUrl = getAppUrl("CONTACTS_URL", DEV_PORTS.contacts);
+    const notesUrl = getAppUrl("NOTES_URL", DEV_PORTS.notes);
     const storeUrl = getAppUrl("STORE_URL", DEV_PORTS.store);
     const pdfUrl = getAppUrl("PDF_URL", DEV_PORTS.pdf);
 
@@ -116,6 +117,18 @@ const nextConfig: NextConfig = {
         {
           source: "/contacts-static/:path*",
           destination: `${contactsUrl}/contacts-static/:path*`,
+        },
+        {
+          source: "/notes",
+          destination: `${notesUrl}/notes`,
+        },
+        {
+          source: "/notes/:path*",
+          destination: `${notesUrl}/notes/:path*`,
+        },
+        {
+          source: "/notes-static/:path*",
+          destination: `${notesUrl}/notes-static/:path*`,
         },
         {
           source: "/store",

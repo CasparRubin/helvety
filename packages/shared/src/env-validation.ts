@@ -3,15 +3,12 @@ import { z } from "zod";
 import { logger } from "./logger";
 
 /**
- * Validates that a Supabase key appears to be an anon/publishable key (not Supabase secret key / legacy service_role key)
- * Security: Prevents accidentally using secret keys in client-side code
+ * Validates that a key is safe for NEXT_PUBLIC usage.
+ * Accepts:
+ * - Modern publishable keys: sb_publishable_*
+ * - Legacy anon JWTs whose payload role is anon/authenticated
  *
- * Note: This is a best-effort check. Supabase supports multiple key formats:
- * - Legacy JWT format (starts with "eyJ")
- * - New format (starts with "sb_" or similar)
- *
- * This validation is intentionally lenient to avoid breaking valid setups while
- * still catching obvious mistakes (like empty keys or obviously wrong values).
+ * Rejects known secret/service key patterns.
  */
 function validateAnonKey(key: string): boolean {
   if (!key || typeof key !== "string") {
@@ -25,45 +22,49 @@ function validateAnonKey(key: string): boolean {
     return false;
   }
 
-  // Check minimum reasonable length
-  // Supabase keys are typically 20+ characters (new format) or 100+ (JWT format)
-  if (trimmedKey.length < 10) {
-    return false; // Too short to be a valid Supabase key
+  if (trimmedKey.length < 20) {
+    return false;
   }
 
-  // Check for known Supabase key formats
-  const isNewFormat =
-    trimmedKey.startsWith("sb_") || trimmedKey.startsWith("eyJ");
-  const isJWTFormat =
-    trimmedKey.includes(".") && trimmedKey.split(".").length >= 2;
+  const lowerKey = trimmedKey.toLowerCase();
+  const hasSecretPattern =
+    lowerKey.startsWith("sb_secret_") ||
+    lowerKey.startsWith("sb_service_role_") ||
+    lowerKey.includes("service_role");
+  if (hasSecretPattern) {
+    return false;
+  }
 
-  // Accept if it's either:
-  // 1. New Supabase format (sb_*)
-  // 2. JWT format (has dots and at least 2 parts)
-  // 3. Or just long enough to be reasonable (lenient fallback)
-  if (isNewFormat || isJWTFormat || trimmedKey.length >= 20) {
-    // If it's JWT format, validate structure
-    if (isJWTFormat) {
-      const parts = trimmedKey.split(".");
-      // Each part should be non-empty
-      if (parts.some((part) => part.length === 0)) {
-        return false;
-      }
-
-      // If it's JWT but doesn't start with "eyJ", warn (might be valid but unusual)
-      if (!trimmedKey.startsWith("eyJ")) {
-        logger.warn(
-          "WARNING: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY appears to be JWT format but doesn't start with 'eyJ'. " +
-            "Ensure this is the anon/public key, not the Supabase secret key (legacy service_role)."
-        );
-      }
-    }
-
+  // Modern publishable key format
+  if (trimmedKey.startsWith("sb_publishable_")) {
     return true;
   }
 
-  // If it doesn't match any known format and is short, reject it
-  return false;
+  // Legacy JWT anon key format
+  const jwtParts = trimmedKey.split(".");
+  if (jwtParts.length !== 3) {
+    return false;
+  }
+  if (!trimmedKey.startsWith("eyJ")) {
+    return false;
+  }
+
+  try {
+    const payloadPart = jwtParts[1] ?? "";
+    const base64Payload = payloadPart
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+      .padEnd(Math.ceil(payloadPart.length / 4) * 4, "=");
+    if (typeof atob !== "function") {
+      return false;
+    }
+    const payloadJson = atob(base64Payload);
+    const payload = JSON.parse(payloadJson) as { role?: unknown };
+    const role = payload.role;
+    return role === "anon" || role === "authenticated";
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -228,11 +229,15 @@ export function getSupabaseKey(): string {
 
   // Development warning for common mistakes
   if (process.env.NODE_ENV === "development") {
-    // Check for obvious secret-key patterns (legacy service_role naming may appear)
-    if (key.length > 200 && key.includes("service_role")) {
+    const lowerKey = key.toLowerCase();
+    if (
+      lowerKey.startsWith("sb_secret_") ||
+      lowerKey.startsWith("sb_service_role_") ||
+      lowerKey.includes("service_role")
+    ) {
       logger.warn(
-        "⚠️  WARNING: Your NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY appears to contain 'service_role'. " +
-          "This is likely a Supabase secret key, which must not be exposed to the client. " +
+        "⚠️  WARNING: Your NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY appears to be a secret/service key. " +
+          "This key must not be exposed to the client. " +
           "Please use the anon/publishable key instead."
       );
     }

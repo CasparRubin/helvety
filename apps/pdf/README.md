@@ -34,7 +34,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Drag & drop upload** - Simple file upload interface
 - **Customizable grid layout** - Adjust pages per row to accommodate different page sizes
 - **Dark & Light mode support** - Switch between dark and light themes
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts)
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes)
 - **Limits** - Up to 100MB per file; no app-enforced page-count cap. Practical throughput depends on browser/device memory and performance
 - **No login required** - Use the tool without an account
 
@@ -46,7 +46,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 ## Security
 
-**Note:** End-to-end encryption is not used in this app. E2EE is used by [Helvety Tasks](https://helvety.com/tasks) and [Helvety Contacts](https://helvety.com/contacts).
+**Note:** End-to-end encryption is not used in this app. E2EE is used by [Helvety Tasks](https://helvety.com/tasks), [Helvety Contacts](https://helvety.com/contacts), and [Helvety Notes](https://helvety.com/notes).
 
 ### Security Hardening
 

@@ -7,8 +7,6 @@ const rawAdminAllowedPaths = new Set([
   "apps/auth/app/actions/passkey-auth-actions.ts",
   "apps/auth/app/actions/user-lookup.ts",
   "apps/store/app/actions/download-actions.ts",
-  "apps/store/app/api/webhooks/stripe/route.ts",
-  "apps/store/lib/license/validation.ts",
   "apps/store/lib/packages/resolve-version.ts",
   "apps/tasks/app/actions/item-actions.ts",
   "packages/shared/src/supabase/admin.ts",
@@ -18,8 +16,6 @@ const scopedRequiredPaths = new Set([
   "apps/auth/app/actions/credential-actions.ts",
   "apps/auth/app/actions/passkey-registration-actions.ts",
   "apps/store/app/actions/account-actions.ts",
-  "apps/store/app/actions/subscription-actions.ts",
-  "apps/store/app/api/checkout/route.ts",
 ]);
 
 const root = resolve(process.cwd());

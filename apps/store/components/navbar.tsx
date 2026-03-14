@@ -6,7 +6,6 @@ import {
 } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import {
-  CreditCard,
   Github,
   Info,
   LogIn,
@@ -148,19 +147,6 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                         Account
                       </Link>
                     </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      asChild
-                    >
-                      <Link
-                        href="/subscriptions"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        <CreditCard className="h-4 w-4" />
-                        Subscriptions
-                      </Link>
-                    </Button>
                   </div>
                   <Separator />
                   <div className="flex flex-col gap-2">
@@ -200,8 +186,8 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    Official Helvety Store. Products and services engineered &
-                    designed in Switzerland.
+                    Official Helvety Store. Discover Helvety apps and downloads,
+                    engineered and designed in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
@@ -285,19 +271,6 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       >
                         <Settings className="h-4 w-4" />
                         Account
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start"
-                      asChild
-                    >
-                      <Link
-                        href="/subscriptions"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <CreditCard className="h-4 w-4" />
-                        Subscriptions
                       </Link>
                     </Button>
                     <Separator />

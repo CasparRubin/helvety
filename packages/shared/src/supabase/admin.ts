@@ -9,25 +9,23 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 /** Public tables that are user-owned and intended for user-ID scoping. */
 type ScopedTable =
-  | "consent_events"
   | "contacts"
   | "item_contact_links"
   | "items"
-  | "licensed_tenants"
-  | "purchases"
-  | "subscriptions"
+  | "note_contact_links"
+  | "note_item_links"
+  | "notes"
   | "user_auth_credentials"
   | "user_passkey_params"
   | "user_profiles";
 
 const USER_SCOPE_COLUMNS: Record<ScopedTable, "user_id" | "id"> = {
-  consent_events: "user_id",
   contacts: "user_id",
   item_contact_links: "user_id",
   items: "user_id",
-  licensed_tenants: "user_id",
-  purchases: "user_id",
-  subscriptions: "user_id",
+  note_contact_links: "user_id",
+  note_item_links: "user_id",
+  notes: "user_id",
   user_auth_credentials: "user_id",
   user_passkey_params: "user_id",
   user_profiles: "id",
@@ -54,7 +52,7 @@ function withScopeValue<T>(
 
 /**
  * Get the Supabase secret key from environment (legacy name: service_role key).
- * This key has full access to the database and bypasses RLS.
+ * This key is privileged and can bypass RLS where object privileges allow.
  */
 function getServiceRoleKey(): string {
   const key = process.env.SUPABASE_SECRET_KEY;
@@ -89,7 +87,8 @@ let adminClient: SupabaseClient<DatabaseSchema> | null = null;
  * Uses a singleton pattern for efficiency.
  *
  * SECURITY NOTES:
- * - This client uses the Supabase secret key (legacy service_role), which bypasses RLS
+ * - This client uses the Supabase secret key (legacy service_role); treat as highly privileged
+ * - It can bypass RLS where object-level privileges allow
  * - ONLY use this for admin operations that require elevated privileges
  * - This client and its operations must not be exposed to the client
  * - Common use cases: creating sessions, looking up credentials by ID

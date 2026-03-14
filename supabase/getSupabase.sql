@@ -1,9 +1,9 @@
 -- Comprehensive Supabase Database Export
 -- Returns EVERYTHING about the database in a single JSON object
--- Perfect for documentation, version control, AI coding agents, and security audits
+-- Useful for local documentation, AI coding agents, and security audits
 --
 -- Usage: Run this in Supabase SQL Editor and copy the JSON output.
--- Save the output to supabase/supabase.json for local reference only (gitignored).
+-- Save the output to supabase/supabase.json for local reference only (gitignored; do not commit exports).
 --
 -- REQUIRED EXTENSIONS (pre-installed on Supabase):
 --   pg_net, vault (supabase_vault), pgsodium

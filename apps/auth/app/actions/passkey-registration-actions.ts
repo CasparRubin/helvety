@@ -11,6 +11,7 @@ import {
   generateRegistrationOptions as generateRegOptions,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
+import { z } from "zod";
 
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -33,6 +34,27 @@ import type {
   PublicKeyCredentialCreationOptionsJSON,
   AuthenticatorTransportFuture,
 } from "@simplewebauthn/server";
+
+const PasskeyRegistrationResponseSchema = z.object({
+  id: z.string().min(1),
+  rawId: z.string().min(1),
+  type: z.literal("public-key"),
+  response: z.object({
+    clientDataJSON: z.string().min(1),
+    attestationObject: z.string().min(1),
+    transports: z.array(z.string()).optional(),
+    publicKeyAlgorithm: z.number().int().optional(),
+    publicKey: z.string().optional(),
+    authenticatorData: z.string().optional(),
+  }),
+  authenticatorAttachment: z.string().optional(),
+  clientExtensionResults: z.record(z.string(), z.unknown()).optional(),
+});
+
+/** Narrow server-validated registration payload type. */
+type PasskeyRegistrationResponse = z.infer<
+  typeof PasskeyRegistrationResponseSchema
+>;
 
 // =============================================================================
 // PASSKEY REGISTRATION (for authenticated users)
@@ -194,7 +216,7 @@ export async function generatePasskeyRegistrationOptions(
  */
 export async function verifyPasskeyRegistration(
   csrfToken: string,
-  response: RegistrationResponseJSON,
+  response: PasskeyRegistrationResponse,
   origin: string,
   prfEnabled: boolean = false
 ): Promise<ActionResponse<{ credentialId: string; prfSalt?: string }>> {
@@ -208,6 +230,15 @@ export async function verifyPasskeyRegistration(
   }
 
   try {
+    const parsedResponse =
+      PasskeyRegistrationResponseSchema.safeParse(response);
+    if (!parsedResponse.success) {
+      return { success: false, error: "Invalid passkey registration payload" };
+    }
+
+    const verifiedResponse =
+      parsedResponse.data as unknown as RegistrationResponseJSON;
+
     const supabase = await createServerClient();
 
     // Get current user
@@ -250,7 +281,7 @@ export async function verifyPasskeyRegistration(
     const expectedOrigins = getExpectedOrigins(rpId);
 
     const opts: VerifyRegistrationResponseOpts = {
-      response,
+      response: verifiedResponse,
       expectedChallenge: storedData.challenge,
       expectedOrigin: expectedOrigins,
       expectedRPID: rpId,
@@ -320,9 +351,6 @@ export async function verifyPasskeyRegistration(
       }
     }
 
-    // Clear the challenge
-    await clearChallenge();
-
     return {
       success: true,
       data: { credentialId: credential.id, prfSalt: savedPrfSalt },
@@ -330,5 +358,14 @@ export async function verifyPasskeyRegistration(
   } catch (error) {
     logger.error("Error verifying registration:", error);
     return { success: false, error: "Failed to verify registration" };
+  } finally {
+    try {
+      await clearChallenge();
+    } catch (clearError) {
+      logger.warn(
+        "Failed to clear passkey registration challenge:",
+        clearError
+      );
+    }
   }
 }

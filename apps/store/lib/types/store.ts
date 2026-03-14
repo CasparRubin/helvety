@@ -41,25 +41,4 @@ export interface UserDataExport {
     displayName: string | null;
     createdAt: string;
   };
-  subscriptions: Array<{
-    productId: string;
-    tierId: string;
-    status: string;
-    createdAt: string;
-    currentPeriodEnd: string | null;
-    cancelAtPeriodEnd: boolean;
-  }>;
-  purchases: Array<{
-    productId: string;
-    tierId: string;
-    amountPaid: number;
-    currency: string;
-    createdAt: string;
-  }>;
-  tenants: Array<{
-    tenantId: string;
-    tenantDomain: string;
-    displayName: string | null;
-    createdAt: string;
-  }>;
 }

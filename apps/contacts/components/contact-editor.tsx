@@ -37,6 +37,7 @@ const TiptapEditor = dynamic(
 import { ContactActionPanel } from "@/components/contact-action-panel";
 import { ContactEditorCommandBar } from "@/components/contact-editor-command-bar";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
+import { NoteLinksPanel } from "@/components/note-links-panel";
 import { TaskLinksPanel } from "@/components/task-links-panel";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useContact } from "@/hooks/use-contacts";
@@ -453,7 +454,12 @@ export function ContactEditor({
               )}
             </div>
 
-            {!embedded && <TaskLinksPanel contactId={contactId} />}
+            {!embedded && (
+              <div className="space-y-6">
+                <TaskLinksPanel contactId={contactId} />
+                <NoteLinksPanel contactId={contactId} />
+              </div>
+            )}
           </div>
 
           {/* Right column: Action panel */}
@@ -467,7 +473,12 @@ export function ContactEditor({
             stacked={embedded}
           />
 
-          {embedded && <TaskLinksPanel contactId={contactId} />}
+          {embedded && (
+            <div className="space-y-6">
+              <TaskLinksPanel contactId={contactId} />
+              <NoteLinksPanel contactId={contactId} />
+            </div>
+          )}
         </div>
       </div>
 

@@ -85,7 +85,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
     const result = await updateUserEmail(newEmail.trim(), csrfToken).catch(
       (error: unknown) => {
         logger.error("Error changing email:", error);
-        const msg = "An unexpected error occurred";
+        const msg = "Couldn't update your email. Please try again.";
         setEmailError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setIsChangingEmail(false);
@@ -130,7 +130,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
     setIsExporting(true);
     const result = await exportUserData().catch((error: unknown) => {
       logger.error("Error exporting data:", error);
-      toast.error("An unexpected error occurred", {
+      toast.error("Couldn't prepare your data export. Please try again.", {
         duration: TOAST_DURATIONS.ERROR,
       });
       setIsExporting(false);
@@ -172,9 +172,12 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
     const result = await requestAccountDeletion(csrfToken).catch(
       (error: unknown) => {
         logger.error("Error deleting account:", error);
-        toast.error("An unexpected error occurred", {
-          duration: TOAST_DURATIONS.ERROR,
-        });
+        toast.error(
+          "Couldn't process account deletion. Please try again or contact support.",
+          {
+            duration: TOAST_DURATIONS.ERROR,
+          }
+        );
         setIsDeleting(false);
         setDeleteConfirmText("");
         return null;
@@ -310,10 +313,9 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground text-sm">
-            This export includes your profile information, subscription history,
-            purchase history, and tenant registrations. For Helvety Tasks and
-            Helvety Contacts (end-to-end encrypted data), please use the export
-            feature within each app while signed in.
+            This export includes your profile information. For Helvety Tasks and
+            Helvety Contacts and Helvety Notes (end-to-end encrypted data),
+            please use each app&apos;s export feature while signed in.
           </p>
           <Button
             variant="outline"
@@ -353,19 +355,15 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
             will initiate the following:
           </p>
           <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-            <li>Request cancellation of active subscriptions</li>
             <li>Delete your profile, credentials, and passkeys</li>
             <li>Delete task data (Helvety Tasks)</li>
-            <li>Delete contact data and notes (Helvety Contacts)</li>
-            <li>Remove all tenant registrations</li>
+            <li>Delete contact data (Helvety Contacts)</li>
+            <li>Delete note data (Helvety Notes)</li>
           </ul>
           <p className="text-muted-foreground text-sm">
             Your Helvety account data is deleted through the account deletion
-            flow. Payment processors and other parties may retain transaction
-            records where required for legal, tax, fraud-prevention, or dispute
-            obligations under applicable law. Certain non-content
-            security/compliance records may be retained for a limited period as
-            described in our Privacy Policy.
+            flow. Certain non-content security/compliance records may be
+            retained for a limited period as described in our Privacy Policy.
           </p>
 
           <AlertDialog>

@@ -117,6 +117,7 @@ const appDirs = [
   "apps/pdf",
   "apps/tasks",
   "apps/contacts",
+  "apps/notes",
 ];
 for (const dir of [...appDirs, "src", "."]) {
   const filePath =

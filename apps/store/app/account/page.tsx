@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Account",
-  description: "Manage your profile and account settings",
+  description: "Manage your profile, data export, and account deletion",
   robots: {
     index: false,
     follow: false,

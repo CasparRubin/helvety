@@ -1,5 +1,6 @@
 /**
- * Shared auth callback handler factory for sub-apps (store, pdf, tasks, contacts).
+ * Shared auth callback handler factory for sub-apps
+ * (store, pdf, tasks, contacts, notes).
  *
  * Encapsulates the standard Supabase code-exchange / OTP-verification flow
  * with IP-based rate limiting, safe redirect validation, and error handling.
@@ -35,7 +36,7 @@ export function createAuthCallbackHandler() {
         requireTrustedProxyInProduction: true,
       });
       if (!clientIP) {
-        return NextResponse.redirect(`${origin}/?error=missing_client_ip`);
+        return NextResponse.redirect(`${authErrorUrl}&error=missing_client_ip`);
       }
 
       const rateLimit = await checkRateLimit(
@@ -43,11 +44,11 @@ export function createAuthCallbackHandler() {
         RATE_LIMITS.AUTH_CALLBACK.maxRequests,
         RATE_LIMITS.AUTH_CALLBACK.windowMs,
         "auth",
-        "soft"
+        "strict"
       );
 
       if (!rateLimit.allowed) {
-        return NextResponse.redirect(`${origin}/?error=rate_limited`);
+        return NextResponse.redirect(`${authErrorUrl}&error=rate_limited`);
       }
 
       const { searchParams } = new URL(request.url);

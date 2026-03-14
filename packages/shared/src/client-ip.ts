@@ -28,23 +28,29 @@ export function getTrustedClientIp(
   const requireTrustedProxyInProduction =
     options?.requireTrustedProxyInProduction ?? false;
   const fallback = options?.fallback ?? null;
+  const isProduction = process.env.NODE_ENV === "production";
 
   const trustedIp = headers.get("x-real-ip")?.trim();
+  const forwarded = headers.get("x-forwarded-for");
+  const forwardedIp = forwarded?.split(",")[0]?.trim();
+  if (requireTrustedProxyInProduction && isProduction) {
+    if (forwardedIp) {
+      return forwardedIp;
+    }
+
+    if (trustedIp) {
+      return trustedIp;
+    }
+
+    return null;
+  }
+
   if (trustedIp) {
     return trustedIp;
   }
 
-  const forwarded = headers.get("x-forwarded-for");
-  const forwardedIp = forwarded?.split(",")[0]?.trim();
-  if (forwardedIp && process.env.NODE_ENV !== "production") {
+  if (forwardedIp) {
     return forwardedIp;
-  }
-
-  if (
-    requireTrustedProxyInProduction &&
-    process.env.NODE_ENV === "production"
-  ) {
-    return null;
   }
 
   return fallback;

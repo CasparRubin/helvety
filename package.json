@@ -33,6 +33,7 @@
     "ci:check": "bun run ci:guard:supabase-types && bun run ci:guard:admin-client && bun run ci:guard:proxy-policy && bun run ci:guard:deprecated && bun run format:check && bun run lint && bun run type-check && bun run test",
     "deps:audit": "bun audit",
     "deps:outdated": "bun outdated",
+    "deps:docs-matrix": "node scripts/audit/generate-dependency-docs-matrix.mjs --transitive --concurrency=16",
     "deps:check": "knip --no-progress --include files,dependencies",
     "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"
   },
@@ -46,9 +47,9 @@
     "hono": "4.11.10"
   },
   "devDependencies": {
-    "knip": "^5.85.0",
+    "knip": "^5.86.0",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "turbo": "^2.8.12"
+    "turbo": "^2.8.17"
   }
 }

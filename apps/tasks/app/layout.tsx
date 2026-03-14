@@ -104,11 +104,11 @@ export const metadata: Metadata = {
     ],
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
     googleBot: {
-      index: true,
-      follow: true,
+      index: false,
+      follow: false,
       "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -124,7 +124,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 /**
- * Root layout: fixed header (Navbar), ScrollArea main, fixed footer.
+ * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer.
  */
 export default async function RootLayout({
   children,
@@ -184,7 +184,7 @@ export default async function RootLayout({
                     <Navbar initialUser={initialUser} />
                   </header>
                   <ScrollArea className="min-h-0 flex-1">
-                    <div className="mx-auto w-full max-w-[2000px]">
+                    <div className="container mx-auto w-full px-4">
                       <main id="main-content">
                         {initialUser ? (
                           <EncryptionGateApp userId={initialUser.id}>

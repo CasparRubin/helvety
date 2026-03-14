@@ -62,7 +62,7 @@ export async function getClientIP(): Promise<string> {
   const headersList = await headers();
   return (
     getTrustedClientIp(headersList, {
-      requireTrustedProxyInProduction: false,
+      requireTrustedProxyInProduction: true,
       fallback: "unknown",
     }) ?? "unknown"
   );

@@ -28,7 +28,8 @@ describe("logger", () => {
     const parsed = JSON.parse(output);
     expect(parsed.level).toBe("error");
     expect(parsed.message).toBe("Something failed");
-    expect(parsed.timestamp).toBeDefined();
+    expect(parsed.timestamp).toEqual(expect.any(String));
+    expect(Number.isNaN(Date.parse(parsed.timestamp))).toBe(false);
     expect(parsed.metadata).toEqual({ userId: "abc" });
   });
 

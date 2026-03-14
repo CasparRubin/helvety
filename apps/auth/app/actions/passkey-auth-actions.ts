@@ -16,6 +16,7 @@ import {
   generateAuthenticationOptions as generateAuthOptions,
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
+import { z } from "zod";
 
 import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 
@@ -43,11 +44,27 @@ import type {
 } from "@simplewebauthn/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
-/** Passkey auth options payload with optional PRF bootstrap metadata. */
-type PasskeyAuthOptionsResponse = PublicKeyCredentialRequestOptionsJSON & {
-  prfSalt?: string;
-  prfVersion?: number;
-};
+/** Passkey auth options payload returned to the client. */
+type PasskeyAuthOptionsResponse = PublicKeyCredentialRequestOptionsJSON;
+
+const PasskeyAuthResponseSchema = z.object({
+  id: z.string().min(1),
+  rawId: z.string().min(1),
+  type: z.literal("public-key"),
+  response: z.object({
+    clientDataJSON: z.string().min(1),
+    authenticatorData: z.string().min(1),
+    signature: z.string().min(1),
+    userHandle: z.string().nullable().optional(),
+  }),
+});
+
+/** Narrow server-validated authentication payload type. */
+type PasskeyAuthResponse = z.infer<typeof PasskeyAuthResponseSchema>;
+
+const PasskeyCredentialIdSchema = z.object({
+  id: z.string().min(1),
+});
 
 // =============================================================================
 // AUTHENTICATION (returning users)
@@ -68,7 +85,7 @@ type PasskeyAuthOptionsResponse = PublicKeyCredentialRequestOptionsJSON & {
  * @param origin - The origin URL
  * @param redirectUri - Optional redirect URI to preserve through auth flow
  * @param options - Optional { isMobile, expectedEmail } to choose platform/hybrid and bind passkey to account
- * @returns Authentication options for WebAuthn plus optional PRF bootstrap metadata
+ * @returns Authentication options for WebAuthn
  */
 export async function generatePasskeyAuthOptions(
   csrfToken: string,
@@ -119,13 +136,6 @@ export async function generatePasskeyAuthOptions(
     let expectedUserId: string | undefined;
     let allowCredentials: GenerateAuthenticationOptionsOpts["allowCredentials"] =
       [];
-    let prfBootstrap:
-      | {
-          prfSalt: string;
-          prfVersion: number;
-        }
-      | undefined;
-
     if (normalizedExpectedEmail) {
       const user = await findUserByEmail(normalizedExpectedEmail);
       if (!user) {
@@ -164,28 +174,6 @@ export async function generatePasskeyAuthOptions(
           transports: (item.transports ?? []) as AuthenticatorTransportFuture[],
         })
       );
-
-      // Fetch PRF bootstrap params so passkey sign-in can request PRF output
-      // even when local cache is empty (e.g. first login on a new device).
-      try {
-        const { data: prfData, error: prfError } = await scopedAdmin
-          .from("user_passkey_params")
-          .select("prf_salt, version")
-          .single();
-
-        if (!prfError && prfData) {
-          prfBootstrap = {
-            prfSalt: prfData.prf_salt,
-            prfVersion: prfData.version,
-          };
-        }
-      } catch (prfBootstrapError) {
-        // Non-fatal: authentication can still proceed without PRF bootstrap.
-        logger.warn(
-          "Failed to fetch PRF bootstrap during passkey auth options generation:",
-          prfBootstrapError
-        );
-      }
     }
 
     const opts: GenerateAuthenticationOptionsOpts = {
@@ -207,7 +195,6 @@ export async function generatePasskeyAuthOptions(
         | "security-key"
         | "client-device"
       )[],
-      ...(prfBootstrap ?? {}),
     };
 
     // Validate redirectUri against allowlist before storing (prevent open redirect)
@@ -252,7 +239,7 @@ export async function generatePasskeyAuthOptions(
  */
 export async function verifyPasskeyAuthentication(
   csrfToken: string,
-  response: AuthenticationResponseJSON,
+  response: PasskeyAuthResponse,
   origin: string
 ): Promise<
   ActionResponse<{
@@ -293,6 +280,15 @@ export async function verifyPasskeyAuthentication(
   }
 
   try {
+    const idParseResult = PasskeyCredentialIdSchema.safeParse(response);
+    if (!idParseResult.success) {
+      return {
+        success: false,
+        error: "Invalid passkey authentication payload",
+      };
+    }
+    const credentialId = idParseResult.data.id;
+
     // Retrieve stored challenge
     const storedData = await getStoredChallenge();
     if (!storedData) {
@@ -316,7 +312,7 @@ export async function verifyPasskeyAuthentication(
       const { data: credentialData, error: credError } = await adminClient
         .from("user_auth_credentials")
         .select("*")
-        .eq("credential_id", response.id)
+        .eq("credential_id", credentialId)
         .single();
 
       if (credError || !credentialData) {
@@ -351,7 +347,13 @@ export async function verifyPasskeyAuthentication(
       );
 
       const opts: VerifyAuthenticationResponseOpts = {
-        response,
+        response: (() => {
+          const parseResult = PasskeyAuthResponseSchema.safeParse(response);
+          if (!parseResult.success) {
+            throw new Error("INVALID_AUTH_PAYLOAD");
+          }
+          return parseResult.data as AuthenticationResponseJSON;
+        })(),
         expectedChallenge: storedData.challenge,
         expectedOrigin: expectedOrigins,
         expectedRPID: rpId,
@@ -369,6 +371,15 @@ export async function verifyPasskeyAuthentication(
       try {
         verification = await verifyAuthenticationResponse(opts);
       } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message === "INVALID_AUTH_PAYLOAD"
+        ) {
+          return {
+            success: false,
+            error: "Invalid passkey authentication payload",
+          };
+        }
         logger.error("Authentication verification failed:", error);
         logAuthEvent("passkey_auth_failed", {
           userId: credential.user_id,
@@ -398,7 +409,7 @@ export async function verifyPasskeyAuthentication(
           counter: verification.authenticationInfo.newCounter,
           last_used_at: new Date().toISOString(),
         })
-        .eq("credential_id", response.id)
+        .eq("credential_id", credentialId)
         .eq("counter", credential.counter)
         .select("credential_id")
         .maybeSingle();

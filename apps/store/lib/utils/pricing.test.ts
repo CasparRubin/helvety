@@ -244,10 +244,18 @@ describe("getTiersByInterval", () => {
   it("filters paid tiers by interval", () => {
     const monthly = getTiersByInterval(mockPricing, "monthly");
     const yearly = getTiersByInterval(mockPricing, "yearly");
-    expect(monthly.find((t) => t.id === "pro-monthly")).toBeDefined();
-    expect(monthly.find((t) => t.id === "pro-yearly")).toBeUndefined();
-    expect(yearly.find((t) => t.id === "pro-yearly")).toBeDefined();
-    expect(yearly.find((t) => t.id === "pro-monthly")).toBeUndefined();
+    expect(monthly).toContainEqual(
+      expect.objectContaining({ id: "pro-monthly" })
+    );
+    expect(monthly).not.toContainEqual(
+      expect.objectContaining({ id: "pro-yearly" })
+    );
+    expect(yearly).toContainEqual(
+      expect.objectContaining({ id: "pro-yearly" })
+    );
+    expect(yearly).not.toContainEqual(
+      expect.objectContaining({ id: "pro-monthly" })
+    );
   });
 });
 

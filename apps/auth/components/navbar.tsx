@@ -4,7 +4,6 @@ import { redirectToLogout } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import {
-  CreditCard,
   Github,
   Info,
   LogIn,
@@ -113,10 +112,11 @@ export function Navbar({
                   <p className="font-semibold">Client-Side Encryption</p>
                   <p>
                     Sensitive content is encrypted on your device before it
-                    leaves your browser. Helvety does not have your decryption
-                    keys and cannot access encrypted content in plaintext. Some
-                    structural metadata (such as timestamps and display
-                    preferences) is stored unencrypted to enable app
+                    leaves your browser. Helvety does not store your decryption
+                    keys. In our current architecture, encrypted content is
+                    designed to remain unreadable to Helvety during normal
+                    operation. Some structural metadata (such as timestamps and
+                    display preferences) is stored unencrypted to enable app
                     functionality.
                   </p>
                   <p>
@@ -172,20 +172,6 @@ export function Navbar({
                       >
                         <Settings className="h-4 w-4" />
                         Account
-                      </a>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      asChild
-                    >
-                      <a
-                        href={`${urls.store}/subscriptions`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <CreditCard className="h-4 w-4" />
-                        Subscriptions
                       </a>
                     </Button>
                   </div>
@@ -322,21 +308,6 @@ export function Navbar({
                       >
                         <Settings className="h-4 w-4" />
                         Account
-                      </a>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start"
-                      asChild
-                    >
-                      <a
-                        href={`${urls.store}/subscriptions`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <CreditCard className="h-4 w-4" />
-                        Subscriptions
                       </a>
                     </Button>
                     <Separator />

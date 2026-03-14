@@ -196,8 +196,8 @@ export function generateRegistrationOptions(
       { alg: -257, type: "public-key" }, // RS256
     ],
     authenticatorSelection: {
-      // Force cross-platform authenticators only (phones via QR code)
-      // This excludes Windows Hello, Touch ID, and other platform authenticators
+      // Default to cross-platform authenticators for this helper.
+      // App-level auth flows may override this with device-aware behavior.
       authenticatorAttachment: "cross-platform",
       userVerification: "required",
       residentKey: "required",

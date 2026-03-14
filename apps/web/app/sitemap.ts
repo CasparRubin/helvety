@@ -36,5 +36,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.5,
     },
+    {
+      url: `${urls.home}/llms.txt`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.4,
+    },
   ];
 }

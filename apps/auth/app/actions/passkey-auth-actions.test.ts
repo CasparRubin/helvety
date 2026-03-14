@@ -186,6 +186,11 @@ describe("passkey-auth-actions", () => {
         expectedUserId: "user-1",
       })
     );
+    expect(result.success).toBe(true);
+    if (result.success && result.data) {
+      expect("prfSalt" in result.data).toBe(false);
+      expect("prfVersion" in result.data).toBe(false);
+    }
   });
 
   it("returns mismatch when credential owner differs from expected user", async () => {

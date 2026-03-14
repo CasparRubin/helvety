@@ -1,12 +1,7 @@
-import { getOptionalUser } from "@helvety/shared/auth-guard";
 import { urls } from "@helvety/shared/config";
-import { LoadingSpinner } from "@helvety/ui/loading-spinner";
 import { headers } from "next/headers";
-import { Suspense } from "react";
 
-import { getUserSubscriptions } from "@/app/actions/subscription-actions";
 import { getProductBySlug } from "@/lib/data/products";
-import { CHECKOUT_ENABLED_TIERS } from "@/lib/stripe/config";
 
 import { ProductDetailClient } from "./product-detail-client";
 
@@ -63,21 +58,12 @@ export async function generateMetadata({
 /**
  * Product detail page for viewing a specific product.
  * No auth required - users can browse products without logging in.
- * Login is required only for purchasing.
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  // Start all independent promises in parallel to avoid sequential waterfalls.
-  // getUserSubscriptions() is a no-op (returns empty via rate-limit rejection)
-  // when not authenticated, so it's safe to start eagerly.
-  const [nonce, { slug }, user, subscriptionsResult] = await Promise.all([
+  const [nonce, { slug }] = await Promise.all([
     headers().then((h) => h.get("x-nonce") ?? ""),
     params,
-    getOptionalUser(),
-    getUserSubscriptions().then((r) => (r.success && r.data ? r.data : [])),
   ]);
-
-  // Only pass subscriptions when user is authenticated
-  const initialSubscriptions = user ? subscriptionsResult : [];
 
   const product = getProductBySlug(slug);
 
@@ -108,13 +94,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
       )}
-      <Suspense fallback={<LoadingSpinner />}>
-        <ProductDetailClient
-          slug={slug}
-          checkoutEnabledTiers={CHECKOUT_ENABLED_TIERS}
-          initialSubscriptions={initialSubscriptions}
-        />
-      </Suspense>
+      <ProductDetailClient slug={slug} />
     </>
   );
 }

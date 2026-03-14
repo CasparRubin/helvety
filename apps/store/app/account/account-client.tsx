@@ -11,7 +11,6 @@ interface UserData {
 
 /**
  * Account page client: profile only.
- * Subscriptions and Tenants are separate routes (/subscriptions, /tenants).
  */
 export function AccountClient({ initialUser }: { initialUser: UserData }) {
   return (
@@ -20,7 +19,7 @@ export function AccountClient({ initialUser }: { initialUser: UserData }) {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Account</h1>
           <p className="text-muted-foreground">
-            Manage your profile and account settings
+            Manage your profile, data export, and account deletion
           </p>
         </div>
         <ProfileTab initialUser={initialUser} />

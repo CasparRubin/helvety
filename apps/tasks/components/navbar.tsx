@@ -6,7 +6,6 @@ import {
 } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import {
-  CreditCard,
   Github,
   Info,
   LogIn,
@@ -188,20 +187,6 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                         Account
                       </a>
                     </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      asChild
-                    >
-                      <a
-                        href={`${urls.store}/subscriptions`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <CreditCard className="h-4 w-4" />
-                        Subscriptions
-                      </a>
-                    </Button>
                   </div>
                   <Separator />
                   <div className="flex flex-col gap-2">
@@ -336,21 +321,6 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                       >
                         <Settings className="h-4 w-4" />
                         Account
-                      </a>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start"
-                      asChild
-                    >
-                      <a
-                        href={`${urls.store}/subscriptions`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <CreditCard className="h-4 w-4" />
-                        Subscriptions
                       </a>
                     </Button>
                     <Separator />

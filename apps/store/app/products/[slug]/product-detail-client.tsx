@@ -2,167 +2,36 @@
 
 /**
  * Product detail client component
- * Displays full product information with pricing tiers
- * Integrates with Stripe Checkout for subscription purchases
+ * Displays full product information with free download/app actions
  */
 
-import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { Button } from "@helvety/ui/button";
 import { Separator } from "@helvety/ui/separator";
-import { ArrowLeft, Check, ExternalLink, Github, Globe } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Download,
+  ExternalLink,
+  Github,
+  Globe,
+} from "lucide-react";
 import Link from "next/link";
-import { notFound, useSearchParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { notFound } from "next/navigation";
 
 import { FeatureList } from "@/components/products/feature-list";
-import { PricingCard } from "@/components/products/pricing-card";
 import { ProductBadge, StatusBadge } from "@/components/products/product-badge";
 import { getProductBySlug } from "@/lib/data/products";
 import { isSaaSProduct, isSoftwareProduct } from "@/lib/types/products";
-
-import type { Subscription } from "@/lib/types";
-import type { PricingTier } from "@/lib/types/products";
-
-const EMPTY_SUBSCRIPTIONS: Subscription[] = [];
+import { formatPriceWithInterval } from "@/lib/utils/pricing";
 
 /** Props for the product detail page client component. */
 interface ProductDetailClientProps {
   slug: string;
-  /** Tier IDs with Stripe checkout enabled (resolved server-side from env vars). */
-  checkoutEnabledTiers: string[];
-  /** Server-prefetched subscriptions (empty array for unauthenticated users). */
-  initialSubscriptions?: Subscription[];
-}
-
-/** Server-verified checkout status response. */
-interface VerifyCheckoutResponse {
-  status: "complete" | "open";
-  productId: string | null;
-  tierId: string | null;
 }
 
 /** Renders the full product detail page with pricing and features. */
-export function ProductDetailClient({
-  slug,
-  checkoutEnabledTiers,
-  initialSubscriptions = EMPTY_SUBSCRIPTIONS,
-}: ProductDetailClientProps) {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
+export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const product = getProductBySlug(slug);
-
-  const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
-  const userSubscriptions = initialSubscriptions;
-
-  const cleanCheckoutParamsFromUrl = useCallback(() => {
-    const nextParams = new URLSearchParams(searchParams.toString());
-    nextParams.delete("checkout");
-    nextParams.delete("session_id");
-    const query = nextParams.toString();
-    const nextPath = query ? `/products/${slug}?${query}` : `/products/${slug}`;
-    window.history.replaceState({}, "", nextPath);
-  }, [searchParams, slug]);
-
-  // Handle checkout success/canceled state from URL params
-  useEffect(() => {
-    const checkoutStatus = searchParams.get("checkout");
-    const sessionId = searchParams.get("session_id");
-
-    if (checkoutStatus === "success") {
-      if (!sessionId) {
-        toast.error("Checkout could not be verified", {
-          description:
-            "Missing checkout session reference. Please refresh and check your account status.",
-          duration: TOAST_DURATIONS.ERROR,
-        });
-        cleanCheckoutParamsFromUrl();
-        return undefined;
-      }
-
-      let cancelled = false;
-
-      const verifyCheckout = async () => {
-        const response = await fetch(
-          `/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`,
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Checkout verification failed");
-        }
-
-        const verification = (await response.json()) as VerifyCheckoutResponse;
-        const isValidSuccess =
-          verification.status === "complete" && verification.productId === slug;
-
-        if (cancelled) {
-          return;
-        }
-
-        if (!isValidSuccess) {
-          toast.error("Payment verification incomplete", {
-            description:
-              "We could not confirm payment for this product yet. Please refresh in a moment.",
-            duration: TOAST_DURATIONS.ERROR,
-          });
-          cleanCheckoutParamsFromUrl();
-          return;
-        }
-
-        // Show product-specific success message after server verification.
-        if (product?.id === "helvety-spo-explorer") {
-          toast.success("Welcome to SPO Explorer!", {
-            description: "Register your SharePoint tenant to get started.",
-            action: {
-              label: "Register Tenant",
-              onClick: () => router.push("/tenants"),
-            },
-            duration: TOAST_DURATIONS.SUCCESS * 2,
-          });
-        } else {
-          toast.success("Checkout completed", {
-            description:
-              "Payment was verified and your access is being activated. If you do not see it shortly, refresh the page.",
-            duration: TOAST_DURATIONS.SUCCESS,
-          });
-        }
-
-        router.refresh();
-        cleanCheckoutParamsFromUrl();
-      };
-
-      void verifyCheckout().catch(() => {
-        if (cancelled) {
-          return;
-        }
-        toast.error("Checkout verification failed", {
-          description:
-            "We could not verify your payment right now. Please refresh and try again.",
-          duration: TOAST_DURATIONS.ERROR,
-        });
-        cleanCheckoutParamsFromUrl();
-      });
-
-      return () => {
-        cancelled = true;
-      };
-    } else if (checkoutStatus === "canceled") {
-      toast.info("Checkout canceled", {
-        description: "No payment was made. You can try again anytime.",
-        duration: TOAST_DURATIONS.INFO,
-      });
-      cleanCheckoutParamsFromUrl();
-    }
-    return undefined;
-  }, [searchParams, slug, product?.id, router, cleanCheckoutParamsFromUrl]);
-  const refreshSubscriptions = () => {
-    router.refresh();
-  };
 
   if (!product) {
     notFound();
@@ -180,6 +49,10 @@ export function ProductDetailClient({
   const appUrl = isSaaSProduct(product)
     ? product.saas?.appUrl
     : product.links?.website;
+  const packageDownloadUrl =
+    product.id === "helvety-spo-explorer"
+      ? "/api/packages/spo-explorer/download"
+      : null;
 
   const freeFeatureLines =
     product.pricing.tiers[0]?.features.filter((f) =>
@@ -188,11 +61,7 @@ export function ProductDetailClient({
   const freeTagline =
     freeFeatureLines.length > 0
       ? freeFeatureLines.join(" · ")
-      : "No purchase necessary";
-
-  const handleTierSelect = (tier: PricingTier) => {
-    setSelectedTier(tier);
-  };
+      : "Available at no cost";
 
   const hasLinks =
     Boolean(product.links?.website) || Boolean(product.links?.github);
@@ -276,8 +145,8 @@ export function ProductDetailClient({
               <h2 className="text-xl font-semibold">Pricing</h2>
               <p className="text-muted-foreground mt-1 text-sm">
                 {isEntirelyFree
-                  ? "This product is currently free"
-                  : "Choose the plan that works best for you"}
+                  ? "This product is currently available at no cost"
+                  : "View current availability and access details"}
               </p>
             </div>
             {isEntirelyFree ? (
@@ -288,8 +157,16 @@ export function ProductDetailClient({
                 <p className="text-muted-foreground mt-2 text-sm">
                   {freeTagline}
                 </p>
-                {appUrl && (
+                {packageDownloadUrl && (
                   <Button className="mt-6" asChild>
+                    <a href={packageDownloadUrl}>
+                      Download `.sppkg`
+                      <Download className="ml-1.5 size-4" />
+                    </a>
+                  </Button>
+                )}
+                {appUrl && (
+                  <Button className="mt-3" asChild>
                     <a href={appUrl} target="_blank" rel="noopener noreferrer">
                       Go to App
                       <ExternalLink className="ml-1.5 size-4" />
@@ -299,27 +176,26 @@ export function ProductDetailClient({
               </div>
             ) : (
               <div className="flex flex-wrap justify-center gap-6">
-                {monthlyTiers.map((tier) => {
-                  const tierSubscription =
-                    userSubscriptions.find(
-                      (sub) =>
-                        sub.tier_id === tier.id &&
-                        (sub.status === "active" || sub.status === "trialing")
-                    ) ?? null;
-
-                  return (
-                    <PricingCard
-                      key={tier.id}
-                      tier={tier}
-                      selected={selectedTier?.id === tier.id}
-                      onSelect={handleTierSelect}
-                      productSlug={slug}
-                      userSubscription={tierSubscription}
-                      onReactivate={refreshSubscriptions}
-                      checkoutEnabledTiers={checkoutEnabledTiers}
-                    />
-                  );
-                })}
+                {monthlyTiers.map((tier) => (
+                  <div
+                    key={tier.id}
+                    className="bg-card w-full max-w-sm rounded-xl border p-6 text-center"
+                  >
+                    <h3 className="text-lg font-semibold">{tier.name}</h3>
+                    <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">
+                      {formatPriceWithInterval(
+                        tier.price,
+                        tier.currency,
+                        tier.interval
+                      )}
+                    </p>
+                    <p className="text-muted-foreground mt-2 text-sm">
+                      {tier.isFree || tier.price === 0
+                        ? "No payment required"
+                        : "See plan details"}
+                    </p>
+                  </div>
+                ))}
               </div>
             )}
           </section>

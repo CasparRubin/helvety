@@ -9,6 +9,7 @@ describe("tasks crypto buildAAD", () => {
   it("accepts active table names", () => {
     expect(buildAAD("items", VALID_UUID)).toBe(`items:${VALID_UUID}`);
     expect(buildAAD("contacts", VALID_UUID)).toBe(`contacts:${VALID_UUID}`);
+    expect(buildAAD("notes", VALID_UUID)).toBe(`notes:${VALID_UUID}`);
   });
 
   it("rejects removed legacy table names", () => {

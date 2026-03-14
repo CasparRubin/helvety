@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Products",
-  description: "Browse products and services from Helvety",
+  description: "Browse Helvety products and apps",
   alternates: {
     canonical: `${urls.store}/products`,
   },
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 /**
  * Products catalog page.
  * No auth required - users can browse products without logging in.
- * Login is required only for purchasing.
+ * Some product actions (for example account pages) still require authentication.
  */
 export default function ProductsPage() {
   return (

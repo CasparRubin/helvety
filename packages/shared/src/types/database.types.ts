@@ -14,39 +14,6 @@ export type Database = {
   };
   public: {
     Tables: {
-      consent_events: {
-        Row: {
-          created_at: string;
-          event_type: string;
-          id: string;
-          ip_address: string | null;
-          metadata: Json | null;
-          privacy_version: string;
-          terms_version: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          event_type: string;
-          id?: string;
-          ip_address?: string | null;
-          metadata?: Json | null;
-          privacy_version: string;
-          terms_version: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          event_type?: string;
-          id?: string;
-          ip_address?: string | null;
-          metadata?: Json | null;
-          privacy_version?: string;
-          terms_version?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
       contacts: {
         Row: {
           category_id: string;
@@ -64,7 +31,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
-          category_id: string;
+          category_id?: string;
           created_at?: string;
           encrypted_birthday?: string | null;
           encrypted_description?: string | null;
@@ -179,174 +146,109 @@ export type Database = {
         };
         Relationships: [];
       };
-      licensed_tenants: {
+      note_contact_links: {
+        Row: {
+          contact_id: string;
+          created_at: string;
+          id: string;
+          note_id: string;
+          user_id: string;
+        };
+        Insert: {
+          contact_id: string;
+          created_at?: string;
+          id?: string;
+          note_id: string;
+          user_id: string;
+        };
+        Update: {
+          contact_id?: string;
+          created_at?: string;
+          id?: string;
+          note_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "note_contact_links_contact_id_fkey";
+            columns: ["contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "note_contact_links_note_id_fkey";
+            columns: ["note_id"];
+            isOneToOne: false;
+            referencedRelation: "notes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      note_item_links: {
         Row: {
           created_at: string;
-          display_name: string | null;
           id: string;
-          subscription_id: string;
-          tenant_domain: string;
-          tenant_id: string;
+          item_id: string;
+          note_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          item_id: string;
+          note_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          item_id?: string;
+          note_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "note_item_links_item_id_fkey";
+            columns: ["item_id"];
+            isOneToOne: false;
+            referencedRelation: "items";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "note_item_links_note_id_fkey";
+            columns: ["note_id"];
+            isOneToOne: false;
+            referencedRelation: "notes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notes: {
+        Row: {
+          created_at: string;
+          encrypted_description: string | null;
+          encrypted_title: string;
+          id: string;
+          sort_order: number;
           updated_at: string;
           user_id: string;
         };
         Insert: {
           created_at?: string;
-          display_name?: string | null;
+          encrypted_description?: string | null;
+          encrypted_title: string;
           id?: string;
-          subscription_id: string;
-          tenant_domain: string;
-          tenant_id: string;
+          sort_order?: number;
           updated_at?: string;
           user_id: string;
         };
         Update: {
           created_at?: string;
-          display_name?: string | null;
+          encrypted_description?: string | null;
+          encrypted_title?: string;
           id?: string;
-          subscription_id?: string;
-          tenant_domain?: string;
-          tenant_id?: string;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "licensed_tenants_subscription_id_fkey";
-            columns: ["subscription_id"];
-            isOneToOne: false;
-            referencedRelation: "subscriptions";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      purchases: {
-        Row: {
-          amount_paid: number;
-          created_at: string;
-          currency: string;
-          id: string;
-          product_id: string;
-          stripe_payment_intent_id: string | null;
-          stripe_price_id: string;
-          tier_id: string;
-          user_id: string;
-        };
-        Insert: {
-          amount_paid: number;
-          created_at?: string;
-          currency?: string;
-          id?: string;
-          product_id: string;
-          stripe_payment_intent_id?: string | null;
-          stripe_price_id: string;
-          tier_id: string;
-          user_id: string;
-        };
-        Update: {
-          amount_paid?: number;
-          created_at?: string;
-          currency?: string;
-          id?: string;
-          product_id?: string;
-          stripe_payment_intent_id?: string | null;
-          stripe_price_id?: string;
-          tier_id?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      subscription_events: {
-        Row: {
-          created_at: string;
-          event_type: string;
-          id: string;
-          metadata: Json | null;
-          purchase_id: string | null;
-          stripe_event_id: string | null;
-          subscription_id: string | null;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          event_type: string;
-          id?: string;
-          metadata?: Json | null;
-          purchase_id?: string | null;
-          stripe_event_id?: string | null;
-          subscription_id?: string | null;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          event_type?: string;
-          id?: string;
-          metadata?: Json | null;
-          purchase_id?: string | null;
-          stripe_event_id?: string | null;
-          subscription_id?: string | null;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "subscription_events_purchase_id_fkey";
-            columns: ["purchase_id"];
-            isOneToOne: false;
-            referencedRelation: "purchases";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "subscription_events_subscription_id_fkey";
-            columns: ["subscription_id"];
-            isOneToOne: false;
-            referencedRelation: "subscriptions";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      subscriptions: {
-        Row: {
-          cancel_at_period_end: boolean | null;
-          canceled_at: string | null;
-          created_at: string;
-          current_period_end: string | null;
-          current_period_start: string | null;
-          id: string;
-          product_id: string;
-          status: Database["public"]["Enums"]["subscription_status"];
-          stripe_price_id: string;
-          stripe_subscription_id: string | null;
-          tier_id: string;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          cancel_at_period_end?: boolean | null;
-          canceled_at?: string | null;
-          created_at?: string;
-          current_period_end?: string | null;
-          current_period_start?: string | null;
-          id?: string;
-          product_id: string;
-          status?: Database["public"]["Enums"]["subscription_status"];
-          stripe_price_id: string;
-          stripe_subscription_id?: string | null;
-          tier_id: string;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          cancel_at_period_end?: boolean | null;
-          canceled_at?: string | null;
-          created_at?: string;
-          current_period_end?: string | null;
-          current_period_start?: string | null;
-          id?: string;
-          product_id?: string;
-          status?: Database["public"]["Enums"]["subscription_status"];
-          stripe_price_id?: string;
-          stripe_subscription_id?: string | null;
-          tier_id?: string;
+          sort_order?: number;
           updated_at?: string;
           user_id?: string;
         };
@@ -451,6 +353,10 @@ export type Database = {
           id: string;
         }[];
       };
+      purge_auth_user_owned_data: {
+        Args: { p_user_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       subscription_status:
@@ -470,3 +376,140 @@ export type Database = {
 };
 
 export type DatabaseSchema = Database;
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<
+  keyof Database,
+  "public"
+>];
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R;
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I;
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U;
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never;
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never;
+
+export const Constants = {
+  public: {
+    Enums: {
+      subscription_status: [
+        "incomplete",
+        "incomplete_expired",
+        "trialing",
+        "active",
+        "past_due",
+        "canceled",
+        "unpaid",
+        "paused",
+      ],
+    },
+  },
+} as const;

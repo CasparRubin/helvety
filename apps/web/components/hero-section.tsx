@@ -2,8 +2,8 @@
 
 import { HelvetyLogo } from "@helvety/brand/logo";
 import { urls } from "@helvety/shared/config";
-import { Button } from "@helvety/ui/button";
 import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
+import { ChevronRight, PackageOpen } from "lucide-react";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -59,11 +59,11 @@ export function HeroSection() {
                   ? { duration: 0.6, ease: "easeOut" }
                   : { duration: 0.8, ease: "easeOut" }
             }
-            className="logo-glow-wrapper flex justify-center"
+            className="logo-glow-wrapper mx-auto flex w-full max-w-[1400px] justify-center"
           >
             <HelvetyLogo
               aria-label="Helvety logo"
-              className="mx-auto h-auto w-[min(92vw,1400px)] max-w-[1400px]"
+              className="h-auto w-full max-w-[1400px]"
             />
           </m.div>
 
@@ -79,12 +79,30 @@ export function HeroSection() {
                 <span className="font-medium text-[#FF0000]">Switzerland</span>
               </p>
             </m.div>
-            <m.div variants={prefersReducedMotion ? noMotion : fadeInUp}>
-              <Button asChild size="lg">
-                <a className="inline-flex items-center" href={urls.store}>
-                  <span>Products</span>
-                </a>
-              </Button>
+            <m.div
+              variants={prefersReducedMotion ? noMotion : fadeInUp}
+              className="mt-8 flex w-full justify-center lg:mt-16"
+            >
+              <a
+                className="group ring-foreground/10 bg-card/80 text-card-foreground hover:bg-card focus-visible:ring-ring focus-visible:ring-offset-background inline-flex w-full max-w-xl items-center gap-4 rounded-xl px-4 py-3 text-left shadow-xs ring-1 backdrop-blur-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                href={urls.store}
+              >
+                <span className="bg-primary/10 text-primary inline-flex size-9 shrink-0 items-center justify-center rounded-full">
+                  <PackageOpen className="size-4" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-medium md:text-base">
+                    Browse Helvety products
+                  </span>
+                  <span className="text-muted-foreground block text-xs md:text-sm">
+                    Privacy-focused tools and apps.
+                  </span>
+                </span>
+                <ChevronRight
+                  className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </a>
             </m.div>
           </m.div>
         </div>

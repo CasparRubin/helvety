@@ -58,6 +58,17 @@ const ContactLinksPanel = dynamic(
   }
 );
 
+const NoteLinksPanel = dynamic(
+  () => import("@/components/note-links-panel").then((m) => m.NoteLinksPanel),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
 /**
  * Save status for the editor
  */
@@ -456,7 +467,8 @@ export function ItemEditor({
             </div>
 
             {!embedded && (
-              <div className="mb-6">
+              <div className="mb-6 space-y-6">
+                <NoteLinksPanel itemId={itemId} />
                 <ContactLinksPanel itemId={itemId} />
               </div>
             )}
@@ -482,7 +494,8 @@ export function ItemEditor({
           />
 
           {embedded && (
-            <div className="w-full">
+            <div className="w-full space-y-6">
+              <NoteLinksPanel itemId={itemId} />
               <ContactLinksPanel itemId={itemId} />
             </div>
           )}

@@ -24,8 +24,8 @@ export interface PackageInfo {
   productId: string;
   /** Human-readable product name */
   productName: string;
-  /** Minimum required tier IDs that can download this package */
-  allowedTiers: string[];
+  /** Whether package can be downloaded without purchase checks */
+  isPublic: boolean;
 }
 
 /**
@@ -40,10 +40,7 @@ export const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     storagePathPrefix: "spfx/helvety-spo-explorer",
     productId: "helvety-spo-explorer",
     productName: "Helvety SPO Explorer",
-    allowedTiers: [
-      "helvety-spo-explorer-solo-monthly",
-      "helvety-spo-explorer-supported-monthly",
-    ],
+    isPublic: true,
   },
 } as const;
 
@@ -56,12 +53,7 @@ export function getPackageInfo(packageId: string): PackageInfo | undefined {
   return PACKAGE_CONFIG[packageId];
 }
 
-/** Checks if a subscription tier is allowed to download a specific package */
-export function isTierAllowedForPackage(
-  packageId: string,
-  tierId: string
-): boolean {
-  const packageInfo = PACKAGE_CONFIG[packageId];
-  if (!packageInfo) return false;
-  return packageInfo.allowedTiers.includes(tierId);
+/** Returns true when package is publicly downloadable. */
+export function isPublicPackage(packageId: string): boolean {
+  return PACKAGE_CONFIG[packageId]?.isPublic === true;
 }

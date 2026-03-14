@@ -24,6 +24,7 @@ Helvety Auth (`helvety.com/auth`) handles all authentication for Helvety applica
 - **helvety.com/pdf** - PDF application
 - **helvety.com/tasks** - Tasks application
 - **helvety.com/contacts** - Contacts application
+- **helvety.com/notes** - Notes application
 
 ## Features
 
@@ -36,13 +37,13 @@ Helvety Auth (`helvety.com/auth`) handles all authentication for Helvety applica
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                                                                       |
-| -------------------------------------- | -------- | ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                              |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                     |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Supabase secret key (legacy `service_role`) for server-side admin operations (bypasses RLS). Must not be exposed. |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.                                  |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.                                |
+| Variable                               | Required | Server-only | Description                                                                                                                                                              |
+| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                                                                                     |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                                                                            |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Supabase secret key (legacy `service_role`) for trusted server-side admin operations. It can bypass RLS where object privileges allow; must never be exposed to clients. |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting. Required by startup validation in all environments.                                                                                         |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.                                                                                       |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 >
@@ -114,14 +115,14 @@ sequenceDiagram
       U->>P: Use this device
     end
     P->>U: Verify biometrics
-    P->>A: Passkey response (+ PRF output when available)
+    P->>A: Passkey response (required WebAuthn fields only)
     A->>S: Verify account-bound passkey + Create session
     S-->>A: Session created
     U->>U: Browser derives/stores encryption key from PRF
     A-->>U: Redirect to app (signed in; encryption usually unlocked)
 ```
 
-Note: Passkey authentication creates the session directly server-side (via `verifyOtp`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs. During returning-user login, auth options include PRF bootstrap parameters when available so first-login-on-device can still request PRF in the same passkey ceremony.
+Note: Passkey authentication creates the session directly server-side (via `verifyOtp`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs. During returning-user login, pre-auth auth options do not include PRF bootstrap metadata; PRF bootstrap in this flow is resolved from local cache only.
 
 ### Key Points
 
@@ -279,10 +280,11 @@ The auth service validates all `redirect_uri` parameters to prevent open redirec
 
 - `https://helvety.com` and any path
 - `https://helvety.com/auth` - Authentication service
-- `https://helvety.com/store` - Store / subscription management
+- `https://helvety.com/store` - Store / product catalog and package downloads
 - `https://helvety.com/pdf` - PDF tools
 - `https://helvety.com/tasks` - Task management
 - `https://helvety.com/contacts` - Contact management
+- `https://helvety.com/notes` - Notes management
 - `http://localhost:*` - Any port (development only, gated behind `NODE_ENV`)
 - `http://127.0.0.1:*` - Any port (development only, gated behind `NODE_ENV`)
 
@@ -290,9 +292,9 @@ All apps share the same hostname (`helvety.com`) with path-based routing, so red
 
 Invalid redirect URIs are rejected, and the user is redirected to `helvety.com` by default.
 
-### End-to-End Encryption Setup (for Helvety Tasks and Helvety Contacts)
+### End-to-End Encryption Setup (for Helvety Tasks, Contacts, and Notes)
 
-Helvety Auth handles the encryption setup flow for **Helvety Tasks** and **Helvety Contacts**, the Helvety apps that use end-to-end encryption (E2EE). Auth itself does not encrypt any of its own data.
+Helvety Auth handles the encryption setup flow for **Helvety Tasks**, **Helvety Contacts**, and **Helvety Notes**, the Helvety apps that use end-to-end encryption (E2EE). Auth itself does not encrypt any of its own data.
 
 After email verification, new users are guided through passkey creation. The flow is **device-aware**:
 
@@ -309,8 +311,8 @@ After email verification, new users are guided through passkey creation. The flo
 
 - **Encryption Passkey** - A passkey created using the WebAuthn PRF (Pseudo-Random Function) extension
 - **Key Derivation** - Encryption keys are derived client-side from the PRF output using HKDF
-- **Zero-Knowledge-Oriented Design** - The server stores only PRF parameters (salt values); encryption keys remain client-side and are not stored by Helvety
-- **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all Helvety apps; however, E2EE is only active in Helvety Tasks and Helvety Contacts
+- **Zero-Knowledge-Oriented Design** - For encryption material, the server stores PRF parameters (salt values) while encryption keys remain client-side and are not stored by Helvety. Standard auth/account metadata (for example user records and passkey public credentials) is still stored server-side.
+- **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all Helvety apps; however, E2EE is only active in Helvety Tasks, Helvety Contacts, and Helvety Notes
 - **Cloud Sync Recommendation** - During passkey creation, the UI recommends saving the passkey to the device's built-in password app (Passwords on iPhone or Google Password Manager on Android) with cloud sync enabled. If all synced passkeys are lost, encrypted content cannot be recovered by Helvety.
 
 Browser compatibility for encryption depends on WebAuthn PRF support and can evolve over time:
