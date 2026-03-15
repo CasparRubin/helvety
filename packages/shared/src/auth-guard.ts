@@ -65,8 +65,9 @@ export async function requireAuth(currentPath?: string): Promise<User> {
   const headersList = await headers();
   const headerUrl = headersList.get("x-helvety-url") ?? undefined;
   const requestOrigin = resolveRequestOrigin(headersList);
-  const relativeDestination =
-    currentPath?.startsWith("/") ? currentPath : undefined;
+  const relativeDestination = currentPath?.startsWith("/")
+    ? currentPath
+    : undefined;
   const fallbackUrl =
     requestOrigin && relativeDestination
       ? `${requestOrigin}${relativeDestination}`

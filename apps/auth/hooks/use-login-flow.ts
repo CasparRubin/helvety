@@ -57,9 +57,8 @@ const TERMINAL_AUTH_ERROR_TOKENS = [
   "invalid refresh token",
   "refresh token is invalid",
   "session is invalid",
-  "too many requests",
-  "429",
 ] as const;
+const RATE_LIMIT_AUTH_ERROR_TOKENS = ["too many requests", "429"] as const;
 
 /** Required length of the one-time password code. */
 export const OTP_CODE_LENGTH = 6;
@@ -107,6 +106,17 @@ export function shouldResetLoginAuthSession(message: string | null): boolean {
   }
   const normalized = message.toLowerCase();
   return TERMINAL_AUTH_ERROR_TOKENS.some((token) => normalized.includes(token));
+}
+
+/** Returns true when auth failures indicate temporary rate-limiting. */
+export function isRateLimitedLoginAuthSession(message: string | null): boolean {
+  if (!message) {
+    return false;
+  }
+  const normalized = message.toLowerCase();
+  return RATE_LIMIT_AUTH_ERROR_TOKENS.some((token) =>
+    normalized.includes(token)
+  );
 }
 
 /** Wraps auth probe calls so login can recover from indefinite hangs. */
@@ -215,9 +225,20 @@ export function useLoginFlow(): LoginFlowState {
         } = await withLoginAuthProbeTimeout(
           getUserSingleflight(supabase, {
             cooldownMs: 1_500,
-            bypassCooldown: true,
           })
         );
+
+        if (
+          userError?.message &&
+          isRateLimitedLoginAuthSession(userError.message)
+        ) {
+          if (!cancelled) {
+            setError(
+              "Authentication is temporarily rate-limited. Please wait a few seconds and try again."
+            );
+          }
+          return;
+        }
 
         if (
           userError?.message &&
@@ -311,7 +332,9 @@ export function useLoginFlow(): LoginFlowState {
           const friendlyError =
             message === "AUTH_PROBE_TIMEOUT"
               ? "We could not restore your session in time. Please sign in."
-              : "We could not restore your session. Please sign in.";
+              : isRateLimitedLoginAuthSession(message)
+                ? "Authentication is temporarily rate-limited. Please wait a few seconds and try again."
+                : "We could not restore your session. Please sign in.";
           setError(friendlyError);
         }
       } finally {

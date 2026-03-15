@@ -5,7 +5,10 @@ import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useEffect } from "react";
 
 import { redirectToLoginOnce, triggerHardLogoutOnce } from "./auth-navigation";
-import { getUserSingleflight } from "./auth-session-singleflight";
+import {
+  getAuthProbeBlockRemainingMs,
+  getUserSingleflight,
+} from "./auth-session-singleflight";
 
 /**
  * Invisible component that rechecks Supabase auth session state after
@@ -19,6 +22,7 @@ import { getUserSingleflight } from "./auth-session-singleflight";
  * transient failures are tolerated first.
  */
 type SessionRecoveryMode = "optional" | "required";
+const MIN_VISIBILITY_RECHECK_INTERVAL_MS = 5_000;
 
 /** Props for SessionRecovery component. */
 interface SessionRecoveryProps {
@@ -32,6 +36,7 @@ export function SessionRecovery({ mode = "required" }: SessionRecoveryProps) {
     let transientFailureCount = 0;
     let ambiguousFailureCount = 0;
     let mounted = true;
+    let lastVisibilityProbeAt = 0;
 
     const canRedirect = mode === "required";
 
@@ -90,6 +95,16 @@ export function SessionRecovery({ mode = "required" }: SessionRecoveryProps) {
       if (document.visibilityState !== "visible") {
         return;
       }
+
+      const now = Date.now();
+      if (
+        now - lastVisibilityProbeAt < MIN_VISIBILITY_RECHECK_INTERVAL_MS ||
+        getAuthProbeBlockRemainingMs() > 0
+      ) {
+        return;
+      }
+
+      lastVisibilityProbeAt = now;
       void recoverSession("visibility");
     }
 

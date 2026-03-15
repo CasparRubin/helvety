@@ -222,8 +222,9 @@ export default function PrivacyPage() {
           </li>
           <li>
             Encryption passkey parameters (PRF salt values for deriving
-            encryption keys, for Helvety Tasks, Helvety Contacts, and Helvety
-            Notes which use end-to-end encryption)
+            encryption keys, plus key-check values used to verify derived-key
+            correctness, for Helvety Tasks, Helvety Contacts, and Helvety Notes
+            which use end-to-end encryption)
           </li>
           <li>
             Geo-confirmation metadata (confirmation that you are located in
@@ -331,8 +332,9 @@ export default function PrivacyPage() {
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
-            PRF parameters (Pseudo-Random Function extension data) used to
-            derive encryption keys from your passkey
+            PRF parameters (Pseudo-Random Function extension data), including
+            PRF salt and key-check values, used to derive and verify encryption
+            keys from your passkey
           </li>
           <li>Encrypted data fields (where applicable)</li>
         </ul>
@@ -1157,8 +1159,9 @@ export default function PrivacyPage() {
             in your browser
           </li>
           <li>
-            We store only PRF parameters (salt values) that allow your device to
-            re-derive the same key
+            We store non-secret PRF metadata (including salt and key-check
+            values) that allows your device to re-derive and validate the same
+            key
           </li>
           <li>
             Our architecture is designed so that we are generally unable to

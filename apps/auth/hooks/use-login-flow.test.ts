@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  isRateLimitedLoginAuthSession,
   shouldResetLoginAuthSession,
   withLoginAuthProbeTimeout,
 } from "./use-login-flow";
@@ -10,12 +11,23 @@ describe("use-login-flow auth bootstrap guards", () => {
     expect(shouldResetLoginAuthSession("Invalid refresh token")).toBe(true);
     expect(
       shouldResetLoginAuthSession("POST /auth/v1/token returned 429")
-    ).toBe(true);
+    ).toBe(false);
     expect(
       shouldResetLoginAuthSession("Auth API error: too many requests")
-    ).toBe(true);
+    ).toBe(false);
     expect(shouldResetLoginAuthSession("network timeout")).toBe(false);
     expect(shouldResetLoginAuthSession(null)).toBe(false);
+  });
+
+  it("detects auth probe rate-limit errors separately", () => {
+    expect(
+      isRateLimitedLoginAuthSession("POST /auth/v1/token returned 429")
+    ).toBe(true);
+    expect(
+      isRateLimitedLoginAuthSession("Auth API error: too many requests")
+    ).toBe(true);
+    expect(isRateLimitedLoginAuthSession("Invalid refresh token")).toBe(false);
+    expect(isRateLimitedLoginAuthSession(null)).toBe(false);
   });
 
   it("times out slow auth probes", async () => {
