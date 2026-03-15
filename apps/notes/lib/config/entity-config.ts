@@ -1,10 +1,6 @@
 /**
- * Entity configuration registry for the Notes app (@helvety/notes)
- * Centralizes entity metadata for dynamic UI components (e.g., delete confirmations)
- *
- * When adding new entities:
- * 1. Add an entry here with name, plural, childExamples (if any), and hasChildren
- * 2. Update parent entity's childExamples if the new entity is a child
+ * Entity configuration registry for the Notes app (@helvety/notes).
+ * Notes currently exposes delete messaging for note items only.
  */
 
 import {
@@ -18,10 +14,9 @@ import {
 export type EntityConfig = EntityDeleteConfig;
 
 /**
- * Entity type identifiers
- * Extend this union type when adding new entity types
+ * Entity type identifiers used by Notes delete messaging.
  */
-export type EntityTypeId = "item" | "stage" | "label";
+export type EntityTypeId = "item";
 
 /**
  * Centralized entity configuration registry
@@ -32,16 +27,6 @@ export const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
     name: "note",
     plural: "notes",
     hasChildren: false, // Currently leaf node - update when sub-items are added
-  },
-  stage: {
-    name: "stage",
-    plural: "stages",
-    hasChildren: false,
-  },
-  label: {
-    name: "label",
-    plural: "labels",
-    hasChildren: false,
   },
 };
 

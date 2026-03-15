@@ -16,8 +16,7 @@ import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 
@@ -53,18 +52,20 @@ export const metadata: Metadata = {
     template: "%s | Helvety Store",
   },
   description:
-    "Official Helvety Store. Products and apps engineered and designed in Switzerland.",
+    "Official Helvety Store for free and open-source Helvety apps. MIT licensed software engineered and designed in Switzerland.",
   keywords: [
     "Helvety Store",
     "software",
-    "saas",
+    "web apps",
     "free tools",
     "pdf",
     "tasks",
     "contacts",
     "privacy",
+    "open source",
+    "MIT",
     "Swiss",
-    "shop",
+    "catalog",
   ],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -81,7 +82,7 @@ export const metadata: Metadata = {
     siteName: "Helvety Store",
     title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store. Products and apps engineered and designed in Switzerland.",
+      "Official Helvety Store for free and open-source Helvety apps. MIT licensed software engineered and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -95,7 +96,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store. Products and apps engineered and designed in Switzerland.",
+      "Official Helvety Store for free and open-source Helvety apps. MIT licensed software engineered and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -117,7 +118,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: urls.store,
   },
-  category: "shopping",
+  category: "software",
 };
 
 /**
@@ -149,7 +150,7 @@ export default async function RootLayout({
                 name: "Helvety Store",
                 url: urls.store,
                 description:
-                  "Official Helvety Store. Products and apps engineered and designed in Switzerland.",
+                  "Official Helvety Store for free and open-source Helvety apps. MIT licensed software engineered and designed in Switzerland.",
                 applicationCategory: "ShoppingApplication",
                 operatingSystem: "Any",
               },
@@ -167,8 +168,7 @@ export default async function RootLayout({
             <Toaster />
           </TooltipProvider>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        <VercelAnalytics />
       </body>
     </html>
   );

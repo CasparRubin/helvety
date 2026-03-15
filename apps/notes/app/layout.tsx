@@ -20,8 +20,7 @@ import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 
@@ -55,7 +54,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety Notes",
   },
   description:
-    "Manage your notes with ease. Privacy-focused note management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
+    "Free and open-source note management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
   keywords: [
     "Helvety Notes",
     "note management",
@@ -80,7 +79,7 @@ export const metadata: Metadata = {
     siteName: "Helvety Notes",
     title: "Helvety Notes | Note Management",
     description:
-      "Manage your notes with ease. Privacy-focused note management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
+      "Free and open-source note management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -94,7 +93,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety Notes | Note Management",
     description:
-      "Manage your notes with ease. Privacy-focused note management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
+      "Free and open-source note management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -157,14 +156,10 @@ export default async function RootLayout({
                 name: "Helvety Notes",
                 url: urls.notes,
                 description:
-                  "Privacy-focused note management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
+                  "Free and open-source note management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
                 applicationCategory: "BusinessApplication",
                 operatingSystem: "Any",
-                offers: {
-                  "@type": "Offer",
-                  price: "0",
-                  priceCurrency: "CHF",
-                },
+                isAccessibleForFree: true,
               },
             ]),
           }}
@@ -199,8 +194,7 @@ export default async function RootLayout({
             </CSRFProvider>
           </TooltipProvider>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        <VercelAnalytics />
       </body>
     </html>
   );

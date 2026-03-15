@@ -36,7 +36,7 @@ const filterOptions: {
   icon: typeof LayoutGrid;
 }[] = [
   { value: "all", label: "All Products", icon: LayoutGrid },
-  { value: "saas", label: "SaaS", icon: Cloud },
+  { value: "saas", label: "Web Apps", icon: Cloud },
   { value: "software", label: "Software", icon: MonitorCloud },
 ];
 

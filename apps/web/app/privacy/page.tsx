@@ -391,8 +391,9 @@ export default function PrivacyPage() {
             our servers for file conversion. No login or account is required.
             The service still uses minimal server-side endpoints for platform
             and security functions (for example CSP reporting and
-            session/security proxy logic). Availability, pricing, and limits are
-            published on the relevant product page.
+            session/security proxy logic). The service is provided free of
+            charge; technical safeguards may still apply for security and
+            operational stability.
           </li>
           <li>
             <strong className="text-foreground">
@@ -417,8 +418,8 @@ export default function PrivacyPage() {
             Non-encrypted structural metadata is stored in plaintext to enable
             application functionality: record identifiers, timestamps, priority
             levels, display preferences (sort orders), and entity relationships
-            (e.g., stage and label references). Service-level usage limits may
-            apply and are listed on the product pages.
+            (e.g., stage and label references). Business/account quotas are not
+            applied.
           </li>
           <li>
             <strong className="text-foreground">
@@ -440,8 +441,7 @@ export default function PrivacyPage() {
             contacts with task entities, additional non-encrypted relationship
             metadata (link identifiers, linked entity identifiers/types, and
             timestamps) is stored to enable the cross-app linking feature.
-            Service-level usage limits may apply and are listed on the product
-            pages.
+            Business/account quotas are not applied.
           </li>
           <li>
             <strong className="text-foreground">
@@ -461,8 +461,8 @@ export default function PrivacyPage() {
             display preferences (sort order). When linking notes with tasks and
             contacts, additional non-encrypted relationship metadata (link
             identifiers, linked entity identifiers/types, and timestamps) is
-            stored to enable cross-app linking. Service-level usage limits may
-            apply and are listed on the product pages.
+            stored to enable cross-app linking. Business/account quotas are not
+            applied.
           </li>
         </ul>
       </section>

@@ -83,7 +83,7 @@ export function formatPrice(
 }
 
 /**
- * Format price with interval (e.g., "4.95 CHF/month")
+ * Format price with interval metadata for display.
  * @param priceInCents
  * @param currency
  * @param interval
@@ -93,20 +93,11 @@ export function formatPriceWithInterval(
   currency: string,
   interval: BillingInterval
 ): string {
-  const price = formatPrice(priceInCents, currency);
-
   if (priceInCents === 0) {
     return "Free";
   }
-
-  const intervalLabels: Record<BillingInterval, string> = {
-    monthly: "/month",
-    yearly: "/year",
-    lifetime: " one-time",
-    "one-time": " one-time",
-  };
-
-  return `${price}${intervalLabels[interval]}`;
+  void interval;
+  return formatPrice(priceInCents, currency);
 }
 
 // =============================================================================
@@ -118,7 +109,8 @@ export function formatPriceWithInterval(
  * @param yearlyPriceInCents
  */
 export function getMonthlyEquivalent(yearlyPriceInCents: number): number {
-  return Math.round(yearlyPriceInCents / 12);
+  // Free-only model: monthly normalization is not used.
+  return yearlyPriceInCents;
 }
 
 /**
@@ -130,9 +122,9 @@ export function calculateYearlySavings(
   monthlyPriceInCents: number,
   yearlyPriceInCents: number
 ): number {
-  const monthlyTotal = monthlyPriceInCents * 12;
-  const savings = ((monthlyTotal - yearlyPriceInCents) / monthlyTotal) * 100;
-  return Math.round(savings);
+  void monthlyPriceInCents;
+  void yearlyPriceInCents;
+  return 0;
 }
 
 /**
@@ -165,18 +157,8 @@ function normalizeToMonthly(
   priceInCents: number,
   interval: BillingInterval
 ): number {
-  switch (interval) {
-    case "monthly":
-      return priceInCents;
-    case "yearly":
-      return Math.round(priceInCents / 12);
-    case "lifetime":
-    case "one-time":
-      // For one-time, assume 24 month value for comparison
-      return Math.round(priceInCents / 24);
-    default:
-      return priceInCents;
-  }
+  void interval;
+  return priceInCents;
 }
 
 // =============================================================================
@@ -192,12 +174,8 @@ export function getTiersByInterval(
   pricing: ProductPricing,
   interval: "monthly" | "yearly"
 ): PricingTier[] {
-  return pricing.tiers.filter((tier) => {
-    // Always include free tiers
-    if (tier.isFree) return true;
-    // Filter by interval
-    return tier.interval === interval;
-  });
+  void interval;
+  return pricing.tiers;
 }
 
 /**
@@ -227,13 +205,8 @@ export function getHighlightedTier(
  * @param interval
  */
 export function getIntervalLabel(interval: BillingInterval): string {
-  const labels: Record<BillingInterval, string> = {
-    monthly: "Monthly",
-    yearly: "Yearly",
-    lifetime: "Lifetime",
-    "one-time": "One-time",
-  };
-  return labels[interval];
+  void interval;
+  return "One-time";
 }
 
 /**
@@ -241,13 +214,8 @@ export function getIntervalLabel(interval: BillingInterval): string {
  * @param interval
  */
 export function getIntervalShortLabel(interval: BillingInterval): string {
-  const labels: Record<BillingInterval, string> = {
-    monthly: "mo",
-    yearly: "yr",
-    lifetime: "",
-    "one-time": "",
-  };
-  return labels[interval];
+  void interval;
+  return "";
 }
 
 /**
@@ -259,13 +227,13 @@ export function formatStartingFrom(
   pricing: ProductPricing,
   currency: string = "CHF"
 ): string {
-  if (pricing.hasFreeTier) {
+  if (pricing.hasFreeTier || pricing.tiers.every((tier) => tier.price === 0)) {
     return "Free";
   }
 
   const startingTier = getStartingPrice(pricing);
   if (!startingTier) {
-    return "Contact us";
+    return "Free";
   }
 
   return `From ${formatPrice(startingTier.price, currency)}`;

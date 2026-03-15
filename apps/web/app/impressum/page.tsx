@@ -113,12 +113,12 @@ export default function ImpressumPage() {
       {/* Business Activity */}
       <LegalSection title="Business Activity">
         <p className="text-muted-foreground text-sm">
-          Helvety by Rubin develops and offers software, including free tools
-          and software-as-a-service (SaaS) products. Products include Helvety
-          SPO Explorer (SharePoint extension), Helvety PDF, Helvety Tasks
-          (encrypted task management), Helvety Contacts (encrypted contact
-          management), and Helvety Notes (encrypted notes management).
-          Availability and pricing are published on the relevant product pages.
+          Helvety by Rubin develops and offers software products and web
+          applications, including Helvety SPO Explorer (SharePoint extension),
+          Helvety PDF, Helvety Tasks (encrypted task management), Helvety
+          Contacts (encrypted contact management), and Helvety Notes (encrypted
+          notes management). Helvety apps are offered free of charge and are
+          open source under the MIT License in the corresponding repositories.
           Our products are primarily designed and developed in Switzerland.
         </p>
       </LegalSection>

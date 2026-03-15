@@ -9,7 +9,7 @@
 
 /**
  * Type of product being sold
- * - saas: Web-delivered application (free or paid, depending on current offering)
+ * - saas: Web-delivered application
  * - software: Downloadable software package (public or access-controlled)
  * - physical: Physical goods that require shipping
  */
@@ -17,12 +17,9 @@ export type ProductType = "saas" | "software" | "physical";
 
 /**
  * Billing interval for pricing
- * - monthly: Recurring monthly charge
- * - yearly: Recurring yearly charge (often discounted)
- * - lifetime: One-time purchase with perpetual access
- * - one-time: Single purchase (for software/physical)
+ * - one-time: Single free-access descriptor for current model
  */
-export type BillingInterval = "monthly" | "yearly" | "lifetime" | "one-time";
+export type BillingInterval = "one-time";
 
 /**
  * Product category for filtering and organization
@@ -61,8 +58,6 @@ export interface PricingTier {
   features: string[];
   /** Whether this tier should be visually highlighted as recommended */
   highlighted?: boolean;
-  /** Optional external price reference for paid tiers */
-  stripePriceId?: string;
   /** Maximum usage limits if applicable */
   limits?: Record<string, number | string>;
   /** Whether this is a free tier */
@@ -77,10 +72,8 @@ export interface ProductPricing {
   tiers: PricingTier[];
   /** Whether the product has a free tier */
   hasFreeTier: boolean;
-  /** Whether yearly pricing is available (typically with discount) */
+  /** Reserved for compatibility with previous pricing model */
   hasYearlyPricing: boolean;
-  /** Discount percentage for yearly vs monthly (e.g., 20 for 20% off) */
-  yearlyDiscountPercent?: number;
 }
 
 // =============================================================================
@@ -244,7 +237,7 @@ export interface SoftwareProductDetails {
   /** System requirements */
   requirements?: string[];
   /** License type */
-  licenseType?: "free" | "perpetual" | "subscription" | "per-seat";
+  licenseType?: "free" | "perpetual";
 }
 
 /**
@@ -265,10 +258,6 @@ export interface SoftwareProduct extends Product {
 export interface SaaSProductDetails {
   /** URL to access the application */
   appUrl?: string;
-  /** Trial period in days (0 = no trial) */
-  trialDays?: number;
-  /** Whether credit card is required for trial */
-  trialRequiresCard?: boolean;
   /** API access included */
   hasApiAccess?: boolean;
 }

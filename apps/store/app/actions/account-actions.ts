@@ -273,7 +273,7 @@ export type { UserDataExport } from "@/lib/types/store";
 /**
  * Export account profile data in a structured JSON format.
  *
- * Returns profile info only. Legacy billing/tenant datasets were removed from
+ * Returns profile info only. Legacy tenant-specific datasets were removed from
  * the export shape. Encrypted app data (Tasks, Contacts, Notes) is NOT
  * included; that content must be exported client-side from within those apps
  * while the user is authenticated with their passkey.

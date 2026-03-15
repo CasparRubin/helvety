@@ -13,8 +13,7 @@ import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 
@@ -47,13 +46,15 @@ export const metadata: Metadata = {
     template: "%s | Helvety",
   },
   description:
-    "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
+    "Swiss-engineered free and open-source apps for encrypted task management, contact management, PDF tools, and SharePoint extensions. MIT licensed and designed in Switzerland.",
   keywords: [
     "Helvety",
     "Swiss software",
     "encrypted tasks",
     "encrypted contacts",
     "PDF tools",
+    "open source",
+    "MIT",
     "end-to-end encryption",
     "privacy",
     "Switzerland",
@@ -73,7 +74,7 @@ export const metadata: Metadata = {
     siteName: "Helvety",
     title: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
     description:
-      "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
+      "Swiss-engineered free and open-source apps for encrypted task management, contact management, PDF tools, and SharePoint extensions. MIT licensed and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -87,7 +88,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
     description:
-      "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
+      "Swiss-engineered free and open-source apps for encrypted task management, contact management, PDF tools, and SharePoint extensions. MIT licensed and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -150,7 +151,7 @@ export default async function RootLayout({
                 name: "Helvety",
                 url: urls.home,
                 description:
-                  "Swiss-engineered products for encrypted task management, contact management, PDF tools, and SharePoint extensions. Privacy-focused and designed in Switzerland.",
+                  "Swiss-engineered free and open-source apps for encrypted task management, contact management, PDF tools, and SharePoint extensions. MIT licensed and designed in Switzerland.",
               },
             ]),
           }}
@@ -173,8 +174,7 @@ export default async function RootLayout({
             <Toaster />
           </TooltipProvider>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        <VercelAnalytics />
       </body>
     </html>
   );

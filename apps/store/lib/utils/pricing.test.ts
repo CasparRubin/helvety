@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  calculateYearlySavings,
   formatPrice,
   formatPriceWithInterval,
   formatStartingFrom,
@@ -9,12 +8,10 @@ import {
   getHighlightedTier,
   getIntervalLabel,
   getIntervalShortLabel,
-  getMonthlyEquivalent,
   getStartingPrice,
-  getTiersByInterval,
 } from "./pricing";
 
-import type { BillingInterval, ProductPricing } from "@/lib/types/products";
+import type { ProductPricing } from "@/lib/types/products";
 
 // =============================================================================
 // formatPrice
@@ -66,76 +63,16 @@ describe("formatPrice", () => {
   });
 });
 
-// =============================================================================
-// formatPriceWithInterval
-// =============================================================================
-
 describe("formatPriceWithInterval", () => {
   it("returns 'Free' for zero price", () => {
-    expect(formatPriceWithInterval(0, "CHF", "monthly")).toBe("Free");
+    expect(formatPriceWithInterval(0, "CHF", "one-time")).toBe("Free");
   });
 
-  it("appends /month for monthly interval", () => {
-    const result = formatPriceWithInterval(495, "CHF", "monthly");
-    expect(result).toContain("/month");
-  });
-
-  it("appends /year for yearly interval", () => {
-    const result = formatPriceWithInterval(4950, "CHF", "yearly");
-    expect(result).toContain("/year");
-  });
-
-  it("appends one-time for lifetime interval", () => {
-    const result = formatPriceWithInterval(9900, "CHF", "lifetime");
-    expect(result).toContain("one-time");
-  });
-
-  it("appends one-time for one-time interval", () => {
+  it("formats non-zero as currency-only display", () => {
     const result = formatPriceWithInterval(9900, "CHF", "one-time");
-    expect(result).toContain("one-time");
+    expect(result).toContain("CHF");
   });
 });
-
-// =============================================================================
-// getMonthlyEquivalent
-// =============================================================================
-
-describe("getMonthlyEquivalent", () => {
-  it("divides yearly price by 12 and rounds", () => {
-    expect(getMonthlyEquivalent(12000)).toBe(1000);
-    expect(getMonthlyEquivalent(5940)).toBe(495);
-  });
-
-  it("rounds to nearest integer", () => {
-    expect(getMonthlyEquivalent(1000)).toBe(83); // 1000/12 = 83.33...
-  });
-});
-
-// =============================================================================
-// calculateYearlySavings
-// =============================================================================
-
-describe("calculateYearlySavings", () => {
-  it("calculates correct savings percentage", () => {
-    // Monthly: 10 CHF * 12 = 120 CHF/year
-    // Yearly: 96 CHF/year
-    // Savings: (120 - 96) / 120 = 20%
-    expect(calculateYearlySavings(1000, 9600)).toBe(20);
-  });
-
-  it("returns 0 when no savings", () => {
-    expect(calculateYearlySavings(1000, 12000)).toBe(0);
-  });
-
-  it("rounds to nearest integer", () => {
-    // Monthly: 5 * 12 = 60, Yearly: 50, Savings: 10/60 = 16.67% -> 17%
-    expect(calculateYearlySavings(500, 5000)).toBe(17);
-  });
-});
-
-// =============================================================================
-// getStartingPrice
-// =============================================================================
 
 describe("getStartingPrice", () => {
   const mockPricing: ProductPricing = {
@@ -145,36 +82,27 @@ describe("getStartingPrice", () => {
         name: "Free",
         price: 0,
         currency: "CHF",
-        interval: "monthly" as BillingInterval,
+        interval: "one-time",
         features: [],
         isFree: true,
       },
       {
-        id: "pro-monthly",
+        id: "one-time-access",
         name: "Pro",
         price: 990,
         currency: "CHF",
-        interval: "monthly" as BillingInterval,
-        features: [],
-      },
-      {
-        id: "pro-yearly",
-        name: "Pro",
-        price: 9900,
-        currency: "CHF",
-        interval: "yearly" as BillingInterval,
+        interval: "one-time",
         features: [],
       },
     ],
     hasFreeTier: true,
-    hasYearlyPricing: true,
+    hasYearlyPricing: false,
   };
 
-  it("returns the lowest non-free tier (normalized to monthly)", () => {
+  it("returns the lowest non-free tier", () => {
     const result = getStartingPrice(mockPricing);
     expect(result).not.toBeNull();
-    // yearly: 9900/12 = 825, monthly: 990 -> yearly is cheaper
-    expect(result!.id).toBe("pro-yearly");
+    expect(result!.id).toBe("one-time-access");
   });
 
   it("returns null when all tiers are free", () => {
@@ -185,7 +113,7 @@ describe("getStartingPrice", () => {
           name: "Free",
           price: 0,
           currency: "CHF",
-          interval: "monthly",
+          interval: "one-time",
           features: [],
           isFree: true,
         },
@@ -197,72 +125,6 @@ describe("getStartingPrice", () => {
   });
 });
 
-// =============================================================================
-// getTiersByInterval
-// =============================================================================
-
-describe("getTiersByInterval", () => {
-  const mockPricing: ProductPricing = {
-    tiers: [
-      {
-        id: "free",
-        name: "Free",
-        price: 0,
-        currency: "CHF",
-        interval: "monthly",
-        features: [],
-        isFree: true,
-      },
-      {
-        id: "pro-monthly",
-        name: "Pro",
-        price: 990,
-        currency: "CHF",
-        interval: "monthly",
-        features: [],
-      },
-      {
-        id: "pro-yearly",
-        name: "Pro",
-        price: 9900,
-        currency: "CHF",
-        interval: "yearly",
-        features: [],
-      },
-    ],
-    hasFreeTier: true,
-    hasYearlyPricing: true,
-  };
-
-  it("includes free tier in both intervals", () => {
-    const monthly = getTiersByInterval(mockPricing, "monthly");
-    const yearly = getTiersByInterval(mockPricing, "yearly");
-    expect(monthly.some((t) => t.isFree)).toBe(true);
-    expect(yearly.some((t) => t.isFree)).toBe(true);
-  });
-
-  it("filters paid tiers by interval", () => {
-    const monthly = getTiersByInterval(mockPricing, "monthly");
-    const yearly = getTiersByInterval(mockPricing, "yearly");
-    expect(monthly).toContainEqual(
-      expect.objectContaining({ id: "pro-monthly" })
-    );
-    expect(monthly).not.toContainEqual(
-      expect.objectContaining({ id: "pro-yearly" })
-    );
-    expect(yearly).toContainEqual(
-      expect.objectContaining({ id: "pro-yearly" })
-    );
-    expect(yearly).not.toContainEqual(
-      expect.objectContaining({ id: "pro-monthly" })
-    );
-  });
-});
-
-// =============================================================================
-// getFreeTier / getHighlightedTier
-// =============================================================================
-
 describe("getFreeTier", () => {
   it("finds tier with isFree flag", () => {
     const pricing: ProductPricing = {
@@ -272,7 +134,7 @@ describe("getFreeTier", () => {
           name: "Free",
           price: 0,
           currency: "CHF",
-          interval: "monthly",
+          interval: "one-time",
           features: [],
           isFree: true,
         },
@@ -291,7 +153,7 @@ describe("getFreeTier", () => {
           name: "Basic",
           price: 0,
           currency: "CHF",
-          interval: "monthly",
+          interval: "one-time",
           features: [],
         },
       ],
@@ -309,7 +171,7 @@ describe("getFreeTier", () => {
           name: "Pro",
           price: 990,
           currency: "CHF",
-          interval: "monthly",
+          interval: "one-time",
           features: [],
         },
       ],
@@ -322,13 +184,13 @@ describe("getFreeTier", () => {
 
 describe("getHighlightedTier", () => {
   it("returns highlighted tier", () => {
-    const tiers = [
+    const tiers: ProductPricing["tiers"] = [
       {
         id: "basic",
         name: "Basic",
         price: 0,
         currency: "CHF",
-        interval: "monthly" as BillingInterval,
+        interval: "one-time",
         features: [],
       },
       {
@@ -336,7 +198,7 @@ describe("getHighlightedTier", () => {
         name: "Pro",
         price: 990,
         currency: "CHF",
-        interval: "monthly" as BillingInterval,
+        interval: "one-time",
         features: [],
         highlighted: true,
       },
@@ -345,24 +207,14 @@ describe("getHighlightedTier", () => {
   });
 });
 
-// =============================================================================
-// getIntervalLabel / getIntervalShortLabel
-// =============================================================================
-
 describe("getIntervalLabel", () => {
-  it("returns human-readable labels", () => {
-    expect(getIntervalLabel("monthly")).toBe("Monthly");
-    expect(getIntervalLabel("yearly")).toBe("Yearly");
-    expect(getIntervalLabel("lifetime")).toBe("Lifetime");
+  it("returns one-time label", () => {
     expect(getIntervalLabel("one-time")).toBe("One-time");
   });
 });
 
 describe("getIntervalShortLabel", () => {
-  it("returns short labels", () => {
-    expect(getIntervalShortLabel("monthly")).toBe("mo");
-    expect(getIntervalShortLabel("yearly")).toBe("yr");
-    expect(getIntervalShortLabel("lifetime")).toBe("");
+  it("returns empty short label for one-time", () => {
     expect(getIntervalShortLabel("one-time")).toBe("");
   });
 });
@@ -381,13 +233,13 @@ describe("formatStartingFrom", () => {
     expect(formatStartingFrom(pricing)).toBe("Free");
   });
 
-  it("returns 'Contact us' when no tiers available", () => {
+  it("returns 'Free' when no tiers available", () => {
     const pricing: ProductPricing = {
       tiers: [],
       hasFreeTier: false,
       hasYearlyPricing: false,
     };
-    expect(formatStartingFrom(pricing)).toBe("Contact us");
+    expect(formatStartingFrom(pricing)).toBe("Free");
   });
 
   it("returns formatted starting price", () => {
@@ -398,7 +250,7 @@ describe("formatStartingFrom", () => {
           name: "Pro",
           price: 990,
           currency: "CHF",
-          interval: "monthly",
+          interval: "one-time",
           features: [],
         },
       ],

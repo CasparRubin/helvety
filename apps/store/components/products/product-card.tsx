@@ -3,8 +3,6 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { formatStartingFrom } from "@/lib/utils/pricing";
-
 import { ArtistBadge, ProductBadge, StatusBadge } from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
@@ -22,10 +20,6 @@ export function ProductCard({
   className,
   prioritizeImage = false,
 }: ProductCardProps) {
-  const priceDisplay = formatStartingFrom(
-    product.pricing,
-    product.pricing.tiers[0]?.currency
-  );
   const productHref = `/products/${product.slug}`;
 
   return (
@@ -81,18 +75,12 @@ export function ProductCard({
             </div>
           </div>
 
-          {/* Footer: pricing + CTA */}
+          {/* Footer: access model + CTA */}
           <div className="flex items-center justify-between gap-4 px-5 pt-4 pb-5">
             <div className="text-sm font-medium">
-              {product.pricing.hasFreeTier ? (
-                <span className="text-green-600 dark:text-green-400">
-                  Free & open source
-                </span>
-              ) : (
-                <span className="text-blue-600 dark:text-blue-400">
-                  {priceDisplay}
-                </span>
-              )}
+              <span className="text-green-600 dark:text-green-400">
+                Free & open source
+              </span>
             </div>
             <span
               className={cn(

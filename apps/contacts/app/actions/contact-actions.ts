@@ -3,7 +3,6 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
@@ -23,7 +22,7 @@ function revalidateContactRoutes(contactId?: string): void {
   void contactId;
 }
 
-const MAX_REORDER_ITEMS = ENTITY_LIMITS.MAX_CONTACTS_PER_USER;
+const MAX_REORDER_ITEMS = 2000;
 const REORDER_CHUNK_SIZE = 50;
 const CategoryIdSchema = z.enum(ALLOWED_CATEGORY_IDS);
 
@@ -115,22 +114,6 @@ export async function createContact(
       return { success: false, error: "Invalid contact data" };
     }
     const validatedData = validationResult.data;
-
-    // Enforce per-user Contact limit before insert.
-    const { count: contactCount, error: countError } = await supabase
-      .from("contacts")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id);
-    if (countError) {
-      logger.error("Error counting contacts:", countError);
-      return { success: false, error: "Failed to create contact" };
-    }
-    if ((contactCount ?? 0) >= ENTITY_LIMITS.MAX_CONTACTS_PER_USER) {
-      return {
-        success: false,
-        error: `Contact limit reached (max ${ENTITY_LIMITS.MAX_CONTACTS_PER_USER} per account)`,
-      };
-    }
 
     // Insert contact
     const { data: contact, error } = await supabase

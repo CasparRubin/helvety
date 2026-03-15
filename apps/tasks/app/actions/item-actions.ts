@@ -3,7 +3,6 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -115,22 +114,6 @@ export async function createItem(
       return { success: false, error: "Invalid task data" };
     }
     const validatedData = validationResult.data;
-    // Enforce per-user Item limit before insert.
-    const { count: itemCount, error: countError } = await supabase
-      .from("items")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id);
-    if (countError) {
-      logger.error("Error counting items for user:", countError);
-      return { success: false, error: "Failed to create task" };
-    }
-    if ((itemCount ?? 0) >= ENTITY_LIMITS.MAX_TASKS_PER_USER) {
-      return {
-        success: false,
-        error: `Task limit reached (max ${ENTITY_LIMITS.MAX_TASKS_PER_USER} per account)`,
-      };
-    }
-
     // Insert item (stage_id and label_id are NOT NULL in DB; use defaults when omitted)
     const insertObj: Record<string, unknown> = {
       id: validatedData.id,

@@ -37,9 +37,11 @@ Structural metadata remains plaintext for app functionality:
 
 - `id`, `user_id`, `sort_order`, `created_at`, `updated_at`
 
-## Current Usage Limits
+## Access Model
 
-- Max **250 notes** per user
+- 100% free to use
+- No business/account quotas
+- Technical and security safeguards may still apply for abuse prevention and platform reliability
 
 ## Environment Variables
 

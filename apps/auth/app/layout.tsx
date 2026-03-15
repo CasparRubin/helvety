@@ -18,8 +18,7 @@ import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 
@@ -52,7 +51,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety",
   },
   description:
-    "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
+    "Sign in to your Helvety account across free and open-source Helvety apps. Engineered & Designed in Switzerland.",
   keywords: ["Helvety", "sign in", "login", "authentication"],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -69,7 +68,7 @@ export const metadata: Metadata = {
     siteName: "Helvety Auth",
     title: "Sign In | Helvety",
     description:
-      "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
+      "Sign in to your Helvety account across free and open-source Helvety apps. Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -83,7 +82,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Sign In | Helvety",
     description:
-      "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
+      "Sign in to your Helvety account across free and open-source Helvety apps. Engineered & Designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -136,7 +135,7 @@ export default async function RootLayout({
                 name: "Helvety Auth",
                 url: urls.auth,
                 description:
-                  "Sign in to your Helvety account. Engineered & Designed in Switzerland.",
+                  "Sign in to your Helvety account across free and open-source Helvety apps. Engineered & Designed in Switzerland.",
                 applicationCategory: "SecurityApplication",
                 operatingSystem: "Any",
               },
@@ -164,8 +163,7 @@ export default async function RootLayout({
             </CSRFProvider>
           </TooltipProvider>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        <VercelAnalytics />
       </body>
     </html>
   );

@@ -43,9 +43,11 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes)
 - **Dark & Light mode** - Switch between dark and light themes
 
-## Current Usage Limits
+## Access Model
 
-- Max **250 contacts** per user
+- 100% free to use
+- No business/account quotas
+- Technical and security safeguards may still apply for abuse prevention and platform reliability
 
 ## Environment Variables
 
@@ -198,4 +200,4 @@ included in substantial portions of the software.
 The software is provided "as is", without warranty of any kind. See
 [LICENSE](./LICENSE) for full legal terms.
 
-**Helvety Contacts availability and pricing can change over time.** See [helvety.com/contacts](https://helvety.com/contacts) and related store pages for current terms.
+**Helvety Contacts is free to use with no paid tiers or subscriptions.** Source code is available under the MIT License, and the software is provided "as is" without warranty.

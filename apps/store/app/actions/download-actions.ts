@@ -42,7 +42,7 @@ export type { PackageDownloadInfo } from "@/lib/types/store";
 
 /**
  * Get a signed download URL for a package
- * Public packages can be downloaded without login or purchase checks.
+ * Public packages can be downloaded without login.
  *
  * @param packageId - The package identifier (e.g., 'spo-explorer')
  * @returns Signed download URL with metadata
@@ -66,11 +66,11 @@ export async function getPackageDownloadUrl(
       return { success: false, error: "Package is not publicly available" };
     }
 
-    // Resolve path and version (for versioned packages, from storage; else from config)
-    const resolved = packageInfo.storagePathPrefix
-      ? await resolveLatestPackageVersion(packageId)
-      : null;
-    const storagePath = resolved?.storagePath ?? packageInfo.storagePath;
+    // Resolve the latest package file from storage; fallback to configured filename path.
+    const resolved = await resolveLatestPackageVersion(packageId);
+    const storagePath =
+      resolved?.storagePath ??
+      `${packageInfo.storageFolderPath}/${packageInfo.filename}`;
     const version = resolved?.version ?? packageInfo.version;
 
     // Generate signed URL using admin client (has storage access)

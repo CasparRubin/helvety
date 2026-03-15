@@ -1,7 +1,7 @@
 {
   "name": "Helvety Contacts",
   "short_name": "Helvety Contacts",
-  "description": "Privacy-focused contact management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
+  "description": "Free and open-source contact management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
   "start_url": "/contacts",
   "display": "standalone",
   "background_color": "#faf8f7",

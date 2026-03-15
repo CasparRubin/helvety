@@ -179,7 +179,7 @@ Signs out the user with strict local cleanup and centralized re-auth entry. This
 
 ## Session Management (proxy.ts)
 
-The proxy (`proxy.ts`, via `@helvety/shared/proxy`) handles lightweight request setup and same-origin cookie management:
+The proxy (`proxy.ts`, via `@helvety/shared/proxy`) handles lightweight request setup (CSP headers and CSRF cookie bootstrap):
 
 - **Proxy Scope** - Sets lightweight request headers/CSP and CSRF cookie bootstrap. Authentication and authorization checks are enforced in pages, Server Actions, and Route Handlers.
 - **Session Sharing** - Sets cookies using the `COOKIE_DOMAIN` constant from `@helvety/shared/config` (`.helvety.com` in production) for session sharing
@@ -376,4 +376,4 @@ included in substantial portions of the software.
 The software is provided "as is", without warranty of any kind. See
 [LICENSE](./LICENSE) for full legal terms.
 
-**This is a centralized authentication service accessible at [helvety.com/auth](https://helvety.com/auth).** Access to this service may change over time as product terms evolve.
+**This is a centralized authentication service accessible at [helvety.com/auth](https://helvety.com/auth).** Helvety apps are free to use with no paid tiers or subscriptions.

@@ -3,7 +3,6 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -19,7 +18,6 @@ function revalidateItemRoutes(): void {
 
 /** Canonical backing table for Notes app items. */
 const NOTES_ITEMS_TABLE = "notes" as const;
-const MAX_ITEMS_PER_USER = ENTITY_LIMITS.MAX_NOTES_PER_USER;
 
 // =============================================================================
 // Input Validation Schemas
@@ -76,22 +74,6 @@ export async function createItem(
       return { success: false, error: "Invalid note data" };
     }
     const validatedData = validationResult.data;
-    // Enforce per-user Item limit before insert.
-    const { count: itemCount, error: countError } = await supabase
-      .from(NOTES_ITEMS_TABLE)
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id);
-    if (countError) {
-      logger.error("Error counting items for user:", countError);
-      return { success: false, error: "Failed to create note" };
-    }
-    if ((itemCount ?? 0) >= MAX_ITEMS_PER_USER) {
-      return {
-        success: false,
-        error: `Note limit reached (max ${MAX_ITEMS_PER_USER} per account)`,
-      };
-    }
-
     // Insert item row into notes table (Notes app canonical store).
     const insertObj: Record<string, unknown> = {
       id: validatedData.id,

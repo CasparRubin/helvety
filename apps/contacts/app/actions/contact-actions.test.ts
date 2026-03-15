@@ -150,7 +150,7 @@ describe("contact-actions", () => {
     expect(supabase.from).not.toHaveBeenCalled();
   });
 
-  it("blocks creation when per-user contact limit is reached", async () => {
+  it("does not enforce a per-user contact quota during creation", async () => {
     const supabase = createSupabaseForCreateContact({ count: 500 });
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ctx: { supabase, user: { id: "user-1" } },
@@ -159,11 +159,11 @@ describe("contact-actions", () => {
 
     const result = await createContact(getCreatePayload(), "csrf-token");
 
-    expect(result).toMatchObject({
-      error: expect.stringContaining("Contact limit reached"),
-      success: false,
+    expect(result).toEqual({
+      data: { id: "new-contact-id" },
+      success: true,
     });
-    expect(supabase.insert).not.toHaveBeenCalled();
+    expect(supabase.insert).toHaveBeenCalled();
   });
 
   it("returns failure when insert fails", async () => {

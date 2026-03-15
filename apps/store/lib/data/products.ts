@@ -38,7 +38,7 @@ Key Features:
 • Quick Access Menu - Dropdown menu from the navbar button showing your favorite sites
 • Settings Panel - Customize display preferences including URL display, descriptions, and tab behavior
 
-The extension adapts to SharePoint's light and dark themes, with full keyboard navigation and accessibility support. Performance is optimized with 5-minute caching and efficient React rendering.
+The extension adapts to SharePoint's light and dark themes, with full keyboard navigation and accessibility support. Performance is optimized with caching and efficient React rendering; exact cache behavior depends on the current SPO Explorer release.
 
 Install it once in your SharePoint App Catalog and give all users instant access to a clean, modern navigation experience.`,
   type: "software",
@@ -72,7 +72,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
           "Favorites and quick access",
           "Settings customization",
           "No account required for download",
-          "Available at no cost under the current offering",
+          "Free to use",
         ],
       },
     ],
@@ -84,7 +84,7 @@ Install it once in your SharePoint App Catalog and give all users instant access
     fileFormat: "sppkg",
     requirements: [
       "SharePoint Online",
-      "Microsoft 365 subscription",
+      "Microsoft 365 environment",
       "SharePoint Administrator role (for installation)",
     ],
     licenseType: "free",
@@ -163,7 +163,7 @@ export const helvetyPdf: SaaSProduct = {
     "A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. Browser-based processing for supported operations.",
   description: `Helvety PDF is a privacy-focused PDF toolkit that runs in your browser for supported operations. File content is processed client-side and is not uploaded to Helvety servers for processing.
 
-Pricing and Limits - Helvety PDF is available at no cost with no account required under the current offering. Limits and pricing may change over time.
+Access Model - Helvety PDF is free to use with no account required. Technical safeguards may still apply for browser stability and abuse prevention.
 
 Key Features:
 • Multi-file Merging - Combine multiple PDF files and images into a single document
@@ -206,7 +206,7 @@ No login or account is required. Files are limited to 100MB each, and practical 
           "No app-enforced page-count cap",
           "Up to 100MB per file",
           "No account required",
-          "Available at no cost under the current offering",
+          "Free to use",
         ],
       },
     ],
@@ -216,8 +216,6 @@ No login or account is required. Files are limited to 100MB each, and practical 
   },
   saas: {
     appUrl: "https://helvety.com/pdf",
-    trialDays: 0,
-    trialRequiresCard: false,
     hasApiAccess: false,
   },
   metadata: {
@@ -253,7 +251,7 @@ export const helvetyTasks: SaaSProduct = {
     "A privacy-focused task management app with client-side encryption for sensitive fields. Organize tasks in a flat workflow with built-in stages and labels.",
   description: `Helvety Tasks is an end-to-end encrypted task management app where sensitive content is encrypted client-side before storage.
 
-Pricing and Limits - Helvety Tasks is available at no cost under the current offering. Limits and pricing may change over time.
+Access Model - Helvety Tasks is free to use with no business/account quotas.
 
 Key Features:
 • End-to-End Encryption - Sensitive task content is encrypted using your passkey
@@ -294,8 +292,8 @@ Your data is protected under applicable Swiss data protection law (including nDS
         features: [
           "All features included",
           "End-to-end encryption",
-          "Up to 250 tasks per account",
-          "Available at no cost under the current offering",
+          "No business/account quotas",
+          "Free to use",
         ],
       },
     ],
@@ -305,8 +303,6 @@ Your data is protected under applicable Swiss data protection law (including nDS
   },
   saas: {
     appUrl: "https://helvety.com/tasks",
-    trialDays: 0,
-    trialRequiresCard: false,
     hasApiAccess: false,
   },
   metadata: {
@@ -343,7 +339,7 @@ export const helvetyContacts: SaaSProduct = {
     "A privacy-focused contact management app with client-side encryption for sensitive fields. Store names, emails, phone numbers, birthdays, and notes.",
   description: `Helvety Contacts is an end-to-end encrypted contact management app. Sensitive contact data is encrypted client-side before storage.
 
-Pricing and Limits - Helvety Contacts is available at no cost under the current offering. Limits and pricing may change over time.
+Access Model - Helvety Contacts is free to use with no business/account quotas.
 
 Key Features:
 • End-to-End Encryption - Sensitive contact content is encrypted using your passkey
@@ -384,9 +380,9 @@ Your contacts are protected under applicable Swiss data protection law (includin
         features: [
           "All features included",
           "End-to-end encryption",
-          "Up to 250 contacts per user",
+          "No business/account quotas",
           "Rich text notes",
-          "Available at no cost under the current offering",
+          "Free to use",
         ],
       },
     ],
@@ -396,8 +392,6 @@ Your contacts are protected under applicable Swiss data protection law (includin
   },
   saas: {
     appUrl: "https://helvety.com/contacts",
-    trialDays: 0,
-    trialRequiresCard: false,
     hasApiAccess: false,
   },
   metadata: {
@@ -434,7 +428,7 @@ export const helvetyNotes: SaaSProduct = {
     "A privacy-focused notes app with client-side encryption for sensitive fields. Keep title and description notes in one clean list.",
   description: `Helvety Notes is an end-to-end encrypted notes app where sensitive note content is encrypted client-side before storage.
 
-Pricing and Limits - Helvety Notes is available at no cost under the current offering. Limits and pricing may change over time.
+Access Model - Helvety Notes is free to use with no business/account quotas.
 
 Key Features:
 • End-to-End Encryption - Sensitive note content is encrypted using your passkey
@@ -471,8 +465,8 @@ Your data is protected under applicable Swiss data protection law (including nDS
         features: [
           "All features included",
           "End-to-end encryption",
-          "Up to 250 notes per user",
-          "Available at no cost under the current offering",
+          "No business/account quotas",
+          "Free to use",
         ],
       },
     ],
@@ -482,8 +476,6 @@ Your data is protected under applicable Swiss data protection law (including nDS
   },
   saas: {
     appUrl: "https://helvety.com/notes",
-    trialDays: 0,
-    trialRequiresCard: false,
     hasApiAccess: false,
   },
   metadata: {

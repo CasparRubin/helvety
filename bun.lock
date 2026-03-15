@@ -13,7 +13,7 @@
     },
     "apps/auth": {
       "name": "@helvety/auth",
-      "version": "2.16.0",
+      "version": "3.0.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",
@@ -51,7 +51,7 @@
     },
     "apps/contacts": {
       "name": "@helvety/contacts",
-      "version": "2.16.0",
+      "version": "3.0.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -95,7 +95,7 @@
     },
     "apps/notes": {
       "name": "@helvety/notes",
-      "version": "2.16.0",
+      "version": "3.0.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -136,7 +136,7 @@
     },
     "apps/pdf": {
       "name": "@helvety/pdf",
-      "version": "2.16.0",
+      "version": "3.0.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",
@@ -174,7 +174,7 @@
     },
     "apps/store": {
       "name": "@helvety/store",
-      "version": "2.16.0",
+      "version": "3.0.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",
@@ -210,7 +210,7 @@
     },
     "apps/tasks": {
       "name": "@helvety/tasks",
-      "version": "2.16.0",
+      "version": "3.0.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -253,7 +253,7 @@
     },
     "apps/web": {
       "name": "@helvety/web",
-      "version": "2.16.0",
+      "version": "3.0.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",
@@ -357,6 +357,8 @@
         "@tiptap/pm": "^3.20.0",
         "@tiptap/react": "^3.20.0",
         "@tiptap/starter-kit": "^3.20.0",
+        "@vercel/analytics": "^1.6.1",
+        "@vercel/speed-insights": "^1.3.1",
         "class-variance-authority": "^0.7.1",
         "cmdk": "^1.1.1",
         "lucide-animated": "^1.0.0",

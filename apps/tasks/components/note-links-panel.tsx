@@ -259,7 +259,7 @@ export function NoteLinksPanel({
             <AlertDialogTitle>Unlink Note</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to unlink &ldquo;{unlinkTarget?.name}&rdquo;
-              from this item? The note itself will not be deleted.
+              from this task? The note itself will not be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

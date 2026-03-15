@@ -3,7 +3,6 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { ENTITY_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { after } from "next/server";
 import { z } from "zod";
@@ -18,7 +17,7 @@ import type {
 } from "@/lib/types";
 
 const NOTES_ITEMS_TABLE = "notes" as const;
-const MAX_REORDER_ITEMS = ENTITY_LIMITS.MAX_NOTES_PER_USER;
+const MAX_REORDER_ITEMS = 2000;
 const REORDER_CHUNK_SIZE = 50;
 const MAX_EXPORT_ROWS_PER_TABLE = 5000;
 

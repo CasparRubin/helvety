@@ -117,7 +117,7 @@ export default function TermsPage() {
               href="#pricing"
               className="hover:text-foreground transition-colors"
             >
-              Pricing and Payment
+              Free Access Model
             </a>
           </li>
           <li>
@@ -133,7 +133,7 @@ export default function TermsPage() {
               href="#refunds"
               className="hover:text-foreground transition-colors"
             >
-              Refund Policy
+              Charges and Refunds
             </a>
           </li>
           <li>
@@ -250,12 +250,6 @@ export default function TermsPage() {
               &quot;Account-Based Products&quot;
             </strong>{" "}
             refers to Helvety applications that require an account for access.
-          </li>
-          <li>
-            <strong className="text-foreground">
-              &quot;Physical Products&quot;
-            </strong>{" "}
-            refers to apparel and other tangible goods.
           </li>
           <li>
             <strong className="text-foreground">&quot;Content&quot;</strong>{" "}
@@ -386,61 +380,9 @@ export default function TermsPage() {
           4.3 Apparel and Physical Products (If and When Offered)
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          If and when physical products (such as apparel) are offered through
-          the Services, this section will govern those offerings. Until launch,
-          product availability and commercial terms are published on the
-          relevant product pages. Physical Products are sold subject to
-          availability. Product descriptions and images are provided for
-          informational purposes. Title and risk of loss pass to you upon
-          delivery to the carrier.
-        </p>
-        <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Sizing:</strong> All sizing
-          information will be approximate and provided as a general guide only.
-          We recommend consulting size guides before ordering. Sizing may vary
-          between different product lines and manufacturers. We will not be
-          responsible for items that do not fit as expected if the sizing guide
-          was not followed.
-        </p>
-        <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Colors and Images:</strong> We
-          will make every effort to display accurate colors of products.
-          However, actual product colors may vary from images shown due to
-          differences in monitor settings, screen resolutions, photography
-          lighting, and manufacturing variations. Minor color variations are not
-          considered defects.
-        </p>
-        <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Care Instructions:</strong> All
-          apparel products will come with care instructions. You will be
-          responsible for following these instructions. Damage resulting from
-          improper care, washing, or handling will not be covered under return
-          or warranty policies.
-        </p>
-        <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">
-            Custom and Personalized Items:
-          </strong>{" "}
-          Custom or personalized products are made specifically for you and may
-          not be returned or exchanged unless they are defective or we made an
-          error in production. Please review all customization details carefully
-          before placing your order.
-        </p>
-        <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Warranty:</strong> Physical
-          products are covered by the statutory warranty provisions under
-          applicable Swiss law. In Switzerland, the warranty period is 2 years
-          from delivery (Art. 210 Swiss Code of Obligations). Defects that
-          appear within 6 months of delivery are presumed to have existed at the
-          time of delivery (burden of proof reversal). This does not limit any
-          other rights you may have under applicable consumer protection laws.
-        </p>
-        <p className="text-muted-foreground text-sm">
-          <strong className="text-foreground">Delivery:</strong> Delivery times
-          will vary and will be estimated during ordering. Shipping will be to
-          Switzerland only. Shipping costs will be calculated during ordering
-          based on destination and order weight. Risk of loss will pass to you
-          upon delivery to the carrier.
+          Helvety currently does not offer physical products through its apps.
+          If this changes in the future, applicable legal terms will be
+          published before such offerings become available.
         </p>
 
         <h3
@@ -741,8 +683,8 @@ export default function TermsPage() {
             retention windows
           </li>
           <li>
-            You will not be entitled to any refund of fees already paid in the
-            event of suspension or termination for cause
+            No monetary compensation applies in the event of suspension or
+            termination for cause, except where mandatory law requires otherwise
           </li>
         </ul>
 
@@ -939,45 +881,43 @@ export default function TermsPage() {
 
       {/* Section 9 */}
       <section id="pricing" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">9. Pricing and Payment</h2>
+        <h2 className="mb-4 text-xl font-semibold">9. Free Access Model</h2>
         <p className="text-muted-foreground mb-4 text-sm">
-          Product availability, pricing, and commercial terms are published on
-          the relevant product pages. If paid offerings are introduced or
-          changed, pricing and tax treatment will be shown there.
+          Helvety services are provided at no monetary cost. We do not operate
+          paid tiers, subscriptions, checkout flows, or recurring billing for
+          Helvety apps.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          Where payment processing is introduced in future, payment terms and
-          provider details will be disclosed before activation and reflected in
-          an updated version of these Terms.
+          No business/account quotas are applied to Tasks, Contacts, and Notes.
+          Technical and security safeguards may still apply to protect platform
+          reliability, availability, and abuse prevention.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           You remain responsible for lawful use of the Services and for
           compliance with any obligations applicable in your jurisdiction.
         </p>
-        <h3 className="mb-3 text-lg font-medium">9.1 Free Products</h3>
+        <h3 className="mb-3 text-lg font-medium">
+          9.1 Product Access Characteristics
+        </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Certain Helvety products may be offered free of charge. Free or paid
-          status is indicated on the relevant product pages:
+          Product pages describe technical access requirements and product
+          behavior:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
             <strong className="text-foreground">Helvety PDF</strong> can be used
-            without account login when offered in a no-account flow.
+            without account login in its standard no-account flow.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Tasks, Helvety Contacts, and Helvety Notes
             </strong>{" "}
-            require account login, and usage limits may apply as described on
-            product pages.
+            require account login and passkey-based security controls.
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">
-          Free products are provided &quot;as is&quot; under the same terms as
-          paid products (see Section 4.4). Helvety reserves the right to modify,
-          suspend, or discontinue free product offerings at any time with at
-          least 30 days notice, except where immediate changes are required for
-          security, legal, or abuse-prevention reasons.
+          All services remain subject to the warranty and liability disclaimers
+          in these Terms (see Section 4.4 and Section 13).
         </p>
       </section>
 
@@ -987,9 +927,9 @@ export default function TermsPage() {
           10. Product Access and Availability
         </h2>
         <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Current Offering:</strong>{" "}
-          Availability, pricing, and usage limits for Helvety products are
-          listed on the store product pages.
+          <strong className="text-foreground">Availability:</strong> Helvety
+          products are generally available free of charge, subject to technical
+          operation and security safeguards.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Account Controls:</strong> You can
@@ -1003,10 +943,8 @@ export default function TermsPage() {
           .
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Future Changes:</strong> We may
-          introduce paid offerings in the future. Any such change will be
-          published with updated pricing pages and revised legal terms before it
-          takes effect.
+          <strong className="text-foreground">No Billing Model:</strong> Helvety
+          apps do not use paid plans, subscriptions, or payment processing.
         </p>
         <p className="text-muted-foreground text-sm">
           <strong className="text-foreground">Availability:</strong> We may
@@ -1017,55 +955,25 @@ export default function TermsPage() {
 
       {/* Section 11 */}
       <section id="refunds" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">11. Refund Policy</h2>
+        <h2 className="mb-4 text-xl font-semibold">11. Charges and Refunds</h2>
 
         <h3 className="mb-3 text-lg font-medium">11.1 Digital Products</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          By requesting immediate access to digital products (including package
-          downloads and account-based services), you acknowledge that access can
-          begin immediately after confirmation. Where applicable law permits,
-          this may reduce or exclude withdrawal/cancellation rights once access
-          is granted.
+          Helvety apps and digital services are provided free of charge. No
+          purchase transaction is required to access supported features.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          Due to the nature of digital goods, sales of Digital Products are
-          generally final once the product has been delivered or download access
-          has been provided. Refunds are available where required by applicable
-          law and may also be granted at our discretion.
+          Because no monetary charge applies, refund processing does not apply
+          to normal app usage.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
           11.2 Account-Based Services
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          For account-based services provided without charge, no monetary refund
-          applies. If paid tiers are introduced, refund rules for those tiers
-          will be documented in updated terms.
-        </p>
-
-        <h3 className="mb-3 text-lg font-medium">
-          11.3 Physical Products (If and When Offered)
-        </h3>
-        <p className="text-muted-foreground mb-4 text-sm">
-          If physical products are introduced, this section governs the return
-          policy.
-        </p>
-        <p className="text-muted-foreground mb-4 text-sm">
-          While Swiss law does not provide a statutory withdrawal right for
-          online purchases, if physical products are introduced, we intend to
-          provide a 14-day voluntary return policy, subject to the policy
-          published at launch.
-        </p>
-        <p className="text-muted-foreground mb-4 text-sm">
-          To exercise this right, you would inform us of your decision to return
-          the goods by a clear statement (e.g., email to
-          {CONTACT_EMAIL}). Products must be returned in their original
-          condition, unworn and with all tags attached. You will bear the cost
-          of returning the goods.
-        </p>
-        <p className="text-muted-foreground text-sm">
-          Refunds will be processed within 14 days of receiving the returned
-          items using the same payment method used for the original purchase.
+          Where account-based services are used, they remain free and subject to
+          these Terms, including service suspension/termination rights for
+          security, legal, and abuse-prevention reasons.
         </p>
       </section>
 
@@ -1154,11 +1062,11 @@ export default function TermsPage() {
 
         <h3 className="mb-3 text-lg font-medium">13.3 Maximum Liability</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          OUR TOTAL CUMULATIVE LIABILITY TO YOU FOR ANY AND ALL CLAIMS ARISING
-          FROM OR RELATED TO THESE TERMS OR THE SERVICES SHALL NOT EXCEED THE
-          GREATER OF: (A) THE TOTAL AMOUNT YOU HAVE PAID TO US IN THE TWELVE
-          (12) MONTHS IMMEDIATELY PRECEDING THE EVENT GIVING RISE TO THE CLAIM,
-          OR (B) ONE HUNDRED SWISS FRANCS (CHF 100).
+          TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, OUR TOTAL
+          CUMULATIVE LIABILITY FOR CLAIMS ARISING FROM OR RELATED TO THESE TERMS
+          OR THE SERVICES IS EXCLUDED. WHERE LIABILITY CANNOT BE FULLY EXCLUDED
+          UNDER MANDATORY LAW, IT IS LIMITED TO THE MINIMUM EXTENT PERMITTED BY
+          SUCH LAW.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">13.4 Assumption of Risk</h3>

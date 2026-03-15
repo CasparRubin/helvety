@@ -25,7 +25,7 @@ const typeConfig: Record<
   }
 > = {
   saas: {
-    label: "SaaS",
+    label: "Web App",
     icon: Cloud,
     className:
       "bg-blue-600/90 text-white border-blue-500/40 dark:bg-blue-500/90",
@@ -44,7 +44,7 @@ const typeConfig: Record<
   },
 };
 
-/** Renders a product type badge (SaaS, software, or physical). */
+/** Renders a product type badge (web app, software, or physical). */
 export function ProductBadge({
   type,
   className,

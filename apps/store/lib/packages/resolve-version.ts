@@ -4,48 +4,21 @@ import { createAdminClient } from "@helvety/shared/supabase/admin";
 
 import { getPackageInfo } from "@/lib/packages/config";
 
-// =============================================================================
-// VERSION PARSING
-// =============================================================================
-
-/** Match optional leading "v" and then digits/dots (e.g. v1.0.1.1 or 1.0.0.4) */
-const VERSION_FOLDER_REGEX = /^v?(\d+(?:\.\d+)*)$/;
-
-/**
- * Parse a version folder name into numeric segments for comparison.
- * @param name - Folder name (e.g. "v1.0.1.1" or "1.0.0.4")
- * @returns Array of numbers, or null if not a valid version string
- */
-function parseVersionSegments(name: string): number[] | null {
-  const match = name.trim().match(VERSION_FOLDER_REGEX);
-  const versionPart = match?.[1];
-  if (!versionPart) return null;
-  const segments = versionPart.split(".").map((s) => {
-    const n = parseInt(s, 10);
-    return Number.isNaN(n) ? 0 : n;
-  });
-  return segments;
+/** Minimal shape used from Supabase list responses for sorting. */
+interface StorageListItem {
+  name?: string;
+  id?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
-/**
- * Compare two version segment arrays (a - b). Returns negative if a < b, 0 if equal, positive if a > b.
- */
-function compareVersionSegments(a: number[], b: number[]): number {
-  const len = Math.max(a.length, b.length);
-  for (let i = 0; i < len; i++) {
-    const va = a[i] ?? 0;
-    const vb = b[i] ?? 0;
-    if (va !== vb) return va - vb;
-  }
-  return 0;
-}
-
-/**
- * Normalize version string for display (strip leading "v").
- */
-function normalizeVersionDisplay(folderName: string): string {
-  const trimmed = folderName.trim();
-  return trimmed.startsWith("v") ? trimmed.slice(1) : trimmed;
+/** Returns epoch ms for available timestamps, or 0 when missing/invalid. */
+function getNewestTimestamp(item: StorageListItem): number {
+  const createdAtMs = item.created_at ? Date.parse(item.created_at) : NaN;
+  const updatedAtMs = item.updated_at ? Date.parse(item.updated_at) : NaN;
+  const created = Number.isNaN(createdAtMs) ? 0 : createdAtMs;
+  const updated = Number.isNaN(updatedAtMs) ? 0 : updatedAtMs;
+  return Math.max(created, updated);
 }
 
 // =============================================================================
@@ -53,35 +26,34 @@ function normalizeVersionDisplay(folderName: string): string {
 // =============================================================================
 
 /**
- * Result of resolving the latest version of a versioned package from storage.
+ * Result of resolving the latest `.sppkg` file from storage.
  */
 export interface ResolvedPackageVersion {
-  /** Version string for display (e.g. "1.0.1.1") */
+  /** Version string for display (currently from package config). */
   version: string;
-  /** Full storage path for the file (e.g. "spfx/helvety-spo-explorer/v1.0.1.1/helvety-spo-explorer.sppkg") */
+  /** Full storage path for the selected file (e.g. "spfx/helvety-spo-explorer/helvety-spo-explorer.sppkg"). */
   storagePath: string;
 }
 
 /**
- * Resolve the latest package version from Supabase Storage for versioned packages.
- * Lists the package's storagePathPrefix folder, parses version-like subfolder names,
- * and returns the latest version and full storage path.
+ * Resolve the latest `.sppkg` file from Supabase Storage for a package.
+ * Lists the package folder and picks the newest file by timestamp.
  *
  * @param packageId - Package identifier (e.g. "spo-explorer")
- * @returns Resolved version and path, or null if package is not versioned, list fails, or no versions found
+ * @returns Resolved version/path or null when package/listing/file lookup fails
  */
 export async function resolveLatestPackageVersion(
   packageId: string
 ): Promise<ResolvedPackageVersion | null> {
   const packageInfo = getPackageInfo(packageId);
-  if (!packageInfo?.storagePathPrefix) {
+  if (!packageInfo) {
     return null;
   }
 
   const adminClient = createAdminClient();
   const { data: items, error } = await adminClient.storage
     .from("packages")
-    .list(packageInfo.storagePathPrefix, {
+    .list(packageInfo.storageFolderPath, {
       limit: 500,
       sortBy: { column: "name", order: "asc" },
     });
@@ -90,28 +62,32 @@ export async function resolveLatestPackageVersion(
     return null;
   }
 
-  const versionCandidates: { folderName: string; segments: number[] }[] = [];
+  const packageCandidates: StorageListItem[] = [];
   for (const item of items) {
     const name = item.name;
     if (!name || typeof name !== "string") continue;
-    const segments = parseVersionSegments(name);
-    if (segments) {
-      versionCandidates.push({ folderName: name, segments });
-    }
+    // Exclude folders and keep only package files in this directory level.
+    if (!item.id) continue;
+    if (!name.toLowerCase().endsWith(".sppkg")) continue;
+    packageCandidates.push(item);
   }
 
-  if (versionCandidates.length === 0) {
+  if (packageCandidates.length === 0) {
     return null;
   }
 
-  versionCandidates.sort(
-    (a, b) => -compareVersionSegments(a.segments, b.segments)
-  );
-  const latest = versionCandidates[0];
-  if (!latest) return null;
+  packageCandidates.sort((a, b) => {
+    const timestampDiff = getNewestTimestamp(b) - getNewestTimestamp(a);
+    if (timestampDiff !== 0) return timestampDiff;
+    return (b.name ?? "").localeCompare(a.name ?? "");
+  });
 
-  const storagePath = `${packageInfo.storagePathPrefix}/${latest.folderName}/${packageInfo.filename}`;
-  const version = normalizeVersionDisplay(latest.folderName);
+  const latest = packageCandidates[0];
+  if (!latest) return null;
+  if (!latest.name) return null;
+
+  const storagePath = `${packageInfo.storageFolderPath}/${latest.name}`;
+  const version = packageInfo.version;
 
   return { version, storagePath };
 }

@@ -40,8 +40,7 @@ describe("store download-actions", () => {
     vi.clearAllMocks();
     mocks.resolveLatestPackageVersion.mockResolvedValue({
       version: "1.0.2.0",
-      storagePath:
-        "spfx/helvety-spo-explorer/v1.0.2.0/helvety-spo-explorer.sppkg",
+      storagePath: "spfx/helvety-spo-explorer/helvety-spo-explorer.sppkg",
     });
     mocks.createSignedUrl.mockResolvedValue({
       data: { signedUrl: "https://download.example/signed" },
@@ -75,7 +74,20 @@ describe("store download-actions", () => {
     });
     expect(mocks.from).toHaveBeenCalledWith("packages");
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
-      "spfx/helvety-spo-explorer/v1.0.2.0/helvety-spo-explorer.sppkg",
+      "spfx/helvety-spo-explorer/helvety-spo-explorer.sppkg",
+      60,
+      { download: "helvety-spo-explorer.sppkg" }
+    );
+  });
+
+  it("falls back to configured filename path when resolver returns null", async () => {
+    mocks.resolveLatestPackageVersion.mockResolvedValue(null);
+
+    const result = await getPackageDownloadUrl("spo-explorer");
+
+    expect(result.success).toBe(true);
+    expect(mocks.createSignedUrl).toHaveBeenCalledWith(
+      "spfx/helvety-spo-explorer/helvety-spo-explorer.sppkg",
       60,
       { download: "helvety-spo-explorer.sppkg" }
     );

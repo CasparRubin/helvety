@@ -22,14 +22,13 @@ import { FeatureList } from "@/components/products/feature-list";
 import { ProductBadge, StatusBadge } from "@/components/products/product-badge";
 import { getProductBySlug } from "@/lib/data/products";
 import { isSaaSProduct, isSoftwareProduct } from "@/lib/types/products";
-import { formatPriceWithInterval } from "@/lib/utils/pricing";
 
 /** Props for the product detail page client component. */
 interface ProductDetailClientProps {
   slug: string;
 }
 
-/** Renders the full product detail page with pricing and features. */
+/** Renders the full product detail page with access details and features. */
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const product = getProductBySlug(slug);
 
@@ -37,21 +36,12 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     notFound();
   }
 
-  // Exclude yearly tiers from the pricing cards.
-  const monthlyTiers = product.pricing.tiers.filter(
-    (tier) => tier.interval !== "yearly"
-  );
-
-  const isEntirelyFree = product.pricing.tiers.every(
-    (tier) => tier.isFree === true || tier.price === 0
-  );
-
   const appUrl = isSaaSProduct(product)
     ? product.saas?.appUrl
     : product.links?.website;
   const packageDownloadUrl =
     product.id === "helvety-spo-explorer"
-      ? "/api/packages/spo-explorer/download"
+      ? "/store/api/packages/spo-explorer/download"
       : null;
 
   const freeFeatureLines =
@@ -142,62 +132,36 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           <Separator />
           <section>
             <div className="mb-6">
-              <h2 className="text-xl font-semibold">Pricing</h2>
+              <h2 className="text-xl font-semibold">Access</h2>
               <p className="text-muted-foreground mt-1 text-sm">
-                {isEntirelyFree
-                  ? "This product is available at no cost"
-                  : "View current availability and access details"}
+                All Helvety products are free to use with no paid tiers or
+                subscriptions.
               </p>
             </div>
-            {isEntirelyFree ? (
-              <div className="bg-card flex flex-col items-center rounded-2xl border px-6 py-8 text-center">
-                <span className="text-4xl font-bold tracking-tight text-green-600 dark:text-green-400">
-                  Free & open source
-                </span>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  {freeTagline}
-                </p>
-                {packageDownloadUrl && (
-                  <Button className="mt-6" asChild>
-                    <a href={packageDownloadUrl}>
-                      Download `.sppkg`
-                      <Download className="ml-1.5 size-4" />
-                    </a>
-                  </Button>
-                )}
-                {appUrl && (
-                  <Button className="mt-3" asChild>
-                    <a href={appUrl} target="_blank" rel="noopener noreferrer">
-                      Go to App
-                      <ExternalLink className="ml-1.5 size-4" />
-                    </a>
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-wrap justify-center gap-6">
-                {monthlyTiers.map((tier) => (
-                  <div
-                    key={tier.id}
-                    className="bg-card w-full max-w-sm rounded-xl border p-6 text-center"
-                  >
-                    <h3 className="text-lg font-semibold">{tier.name}</h3>
-                    <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">
-                      {formatPriceWithInterval(
-                        tier.price,
-                        tier.currency,
-                        tier.interval
-                      )}
-                    </p>
-                    <p className="text-muted-foreground mt-2 text-sm">
-                      {tier.isFree || tier.price === 0
-                        ? "No payment required"
-                        : "See plan details"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="bg-card flex flex-col items-center rounded-2xl border px-6 py-8 text-center">
+              <span className="text-4xl font-bold tracking-tight text-green-600 dark:text-green-400">
+                Free & open source
+              </span>
+              <p className="text-muted-foreground mt-2 text-sm">
+                {freeTagline}
+              </p>
+              {packageDownloadUrl && (
+                <Button className="mt-6" asChild>
+                  <a href={packageDownloadUrl}>
+                    Download `.sppkg`
+                    <Download className="ml-1.5 size-4" />
+                  </a>
+                </Button>
+              )}
+              {appUrl && (
+                <Button className="mt-3" asChild>
+                  <a href={appUrl} target="_blank" rel="noopener noreferrer">
+                    Go to App
+                    <ExternalLink className="ml-1.5 size-4" />
+                  </a>
+                </Button>
+              )}
+            </div>
           </section>
         </div>
 

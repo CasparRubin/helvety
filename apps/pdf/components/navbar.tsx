@@ -63,7 +63,7 @@ import type { User } from "@supabase/supabase-js";
  * - Desktop (sm+): auth entry, About dialog, GitHub link, theme switcher
  * - Burger menu (below sm): auth entry, About, GitHub, theme toggle
  *
- * Helvety PDF is available at no cost with file-size limits.
+ * Helvety PDF is free to use with operational file-size safeguards.
  * Login is optional for cross-app session sharing.
  */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
@@ -198,9 +198,9 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                     Privacy-focused, client-side PDF toolkit for merging,
                     reordering, deleting, rotating, and extracting pages.
                     Processing is performed locally in your browser for
-                    supported operations. Available at no cost, with file-size
-                    limits ({PDF_FILE_SIZE_LIMIT_COPY}). Engineered & Designed
-                    in Switzerland.
+                    supported operations. Free to use with technical safeguards
+                    ({PDF_FILE_SIZE_LIMIT_COPY}). Engineered & Designed in
+                    Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

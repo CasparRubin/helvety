@@ -27,9 +27,16 @@ is created.
 
 - `/store/products` - Browse all Helvety products
 - `/store/products/helvety-spo-explorer` - SPO Explorer page with direct package download
+- `/store/api/packages/spo-explorer/download` - Public download endpoint for SPO Explorer
 - `/store/account` - Optional signed-in account management
 
 The store root path (`/store`) redirects to `/store/products`. Browsing and SPO Explorer download do not require login.
+
+## SPO Explorer download behavior
+
+- Package files are read from Supabase Storage bucket `packages` under `spfx/helvety-spo-explorer`.
+- The resolver selects the newest `.sppkg` using the latest of `created_at` and `updated_at`, then applies deterministic descending filename tie-break ordering.
+- If only one file exists (recommended: `helvety-spo-explorer.sppkg`), that file is returned directly.
 
 ## Artwork assets
 

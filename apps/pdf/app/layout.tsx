@@ -11,8 +11,7 @@ import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
 import localFont from "next/font/local";
 
 import { Navbar } from "@/components/navbar";
@@ -141,11 +140,7 @@ export default async function RootLayout({
                   "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages in one place. For supported operations, file content processing happens locally in your browser.",
                 applicationCategory: "UtilitiesApplication",
                 operatingSystem: "Any",
-                offers: {
-                  "@type": "Offer",
-                  price: "0",
-                  priceCurrency: "CHF",
-                },
+                isAccessibleForFree: true,
                 browserRequirements: "Requires a modern web browser",
               },
             ]),
@@ -169,8 +164,7 @@ export default async function RootLayout({
             <Toaster />
           </TooltipProvider>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        <VercelAnalytics />
       </body>
     </html>
   );

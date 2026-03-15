@@ -163,7 +163,7 @@ export function FlatTasksDashboard({
                 <Label htmlFor="item-description">Description (optional)</Label>
                 <Input
                   id="item-description"
-                  placeholder="e.g., Check DNS, billing, and SSL renewal"
+                  placeholder="e.g., Check DNS configuration and SSL renewal"
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                 />
