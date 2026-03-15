@@ -193,7 +193,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
       return;
     }
 
-    toast.success("Account deletion completed", {
+    toast.success("Account deletion initiated", {
       description:
         "Your account deletion request has been processed. You should be redirected shortly. Deletion may take some time to complete across all systems.",
       duration: TOAST_DURATIONS.SUCCESS,

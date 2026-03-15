@@ -40,7 +40,7 @@ Key Features:
 
 The extension adapts to SharePoint's light and dark themes, with full keyboard navigation and accessibility support. Performance is optimized with caching and efficient React rendering; exact cache behavior depends on the current SPO Explorer release.
 
-Install it once in your SharePoint App Catalog and give all users instant access to a clean, modern navigation experience.`,
+Install it in your SharePoint App Catalog to give users access to a clean, modern navigation experience once deployment and permissions are in place.`,
   type: "software",
   category: "integrations",
   status: "available",

@@ -11,9 +11,24 @@ type RobotsRule = {
   disallow?: string | string[];
 };
 
+function toRuleList(
+  rules: RobotsRule | RobotsRule[] | undefined
+): RobotsRule[] {
+  if (!rules) return [];
+  return Array.isArray(rules) ? rules : [rules];
+}
+
 /** Flattens and deduplicates disallow entries from robots rules. */
-function getDisallowedPaths(rules: RobotsRule[]): string[] {
-  return [...new Set(rules.flatMap((rule) => rule.disallow ?? []))];
+function getDisallowedPaths(rules: RobotsRule | RobotsRule[]): string[] {
+  const ruleList = toRuleList(rules);
+  return [
+    ...new Set(
+      ruleList.flatMap((rule) => {
+        if (!rule.disallow) return [];
+        return Array.isArray(rule.disallow) ? rule.disallow : [rule.disallow];
+      })
+    ),
+  ];
 }
 
 describe("seo helpers", () => {
@@ -40,7 +55,7 @@ describe("seo helpers", () => {
         [...config.disallowedPaths],
         config.sitemapPath
       )();
-      const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule[]);
+      const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule);
 
       expect(disallowedPaths).not.toContain(canonicalPath);
     }
@@ -52,7 +67,7 @@ describe("seo helpers", () => {
       "/contacts/sitemap.xml"
     )();
 
-    const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule[]);
+    const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule);
     expect(disallowedPaths).toEqual(["/api"]);
   });
 
@@ -73,11 +88,19 @@ describe("seo helpers", () => {
   });
 
   it("disallows all crawling for private app robots configs", () => {
-    const robots = createPrivateAppRobots("/tasks/sitemap.xml")();
-    const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule[]);
+    const robots = createPrivateAppRobots()();
+    const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule);
 
     expect(disallowedPaths).toEqual(["/"]);
     expect(robots.host).toBe("https://helvety.com");
+    expect(robots.sitemap).toBeUndefined();
+  });
+
+  it("can include sitemap output for private robots when explicitly enabled", () => {
+    const robots = createPrivateAppRobots("/tasks/sitemap.xml", {
+      includeSitemap: true,
+    })();
+
     expect(robots.sitemap).toBe("https://helvety.com/tasks/sitemap.xml");
   });
 });

@@ -23,7 +23,7 @@ ${sitemapEntries}
 </sitemapindex>`;
 }
 
-/** Returns the sitemap index listing all app-level sitemaps. */
+/** Returns the sitemap index listing public app sitemaps. */
 export function GET(): NextResponse {
   return new NextResponse(buildSitemapIndexXml(), {
     headers: {

@@ -125,6 +125,7 @@ export default async function RootLayout({
         <SkipToContent />
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([
               createHelvetyOrganizationSchema(brandAssets.identifierPng),

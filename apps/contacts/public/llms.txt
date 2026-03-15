@@ -1,20 +1,21 @@
 # Helvety Contacts
 
-> Contact management with client-side encryption for sensitive fields in current supported flows, with list-first UI grouped by fixed categories. Engineered and designed in Switzerland.
+> Contact management application with client-side encryption for sensitive fields. Engineered and designed in Switzerland.
 
-## Core Pages
-- [Home](https://helvety.com/contacts): Contact management app with client-side encryption for sensitive fields
-- Access model: free to use with no business/account quotas
+## Canonical URL
+- [Contacts App](https://helvety.com/contacts): Auth-required contacts route
 
-## Helvety Ecosystem
-- [Helvety](https://helvety.com): Main Helvety website with company information and legal pages
-- [Helvety Store](https://helvety.com/store): Official catalog for Helvety products and package downloads (all Helvety apps are free to use)
-- [Helvety PDF](https://helvety.com/pdf): Free PDF toolkit with browser-based processing for supported operations
-- [Helvety Auth](https://helvety.com/auth): Centralized authentication for all Helvety apps
-- [Helvety Tasks](https://helvety.com/tasks): Task management with client-side encryption for sensitive fields
-- [Helvety Notes](https://helvety.com/notes): Notes management with client-side encryption for sensitive fields
+## Crawling And Indexing
+- Contacts routes are intended not to be indexed.
+- These routes are not intended as crawl targets and are protected by noindex metadata and authentication controls.
 
-## Optional
-- [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (open source under MIT)
+## Related Helvety Apps
+- [Helvety](https://helvety.com)
+- [Helvety Store](https://helvety.com/store)
+- [Helvety PDF](https://helvety.com/pdf)
+- [Helvety Auth](https://helvety.com/auth)
+- [Helvety Tasks](https://helvety.com/tasks)
+- [Helvety Notes](https://helvety.com/notes)
 
-
+## Source
+- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo (MIT)

@@ -1,29 +1,13 @@
 /**
  * Shared SEO helpers for sitemap and robots.txt generation.
  *
- * Centralizes the bot allowlist and provides factories for the common
- * single-entry sitemap and standard robots patterns used by sub-apps.
+ * Centralizes shared sitemap/robots factories and path sanitization
+ * utilities used by sub-apps.
  */
 
 import { urls } from "./config";
 
 import type { MetadataRoute } from "next";
-
-/** User agents explicitly allowed in robots.txt across all Helvety apps. */
-const ALLOWED_USER_AGENTS = [
-  "*",
-  "GPTBot",
-  "OAI-SearchBot",
-  "ChatGPT-User",
-  "ClaudeBot",
-  "anthropic-ai",
-  "Google-Extended",
-  "PerplexityBot",
-  "Applebot-Extended",
-  "Bytespider",
-  "CCBot",
-  "FacebookBot",
-] as const;
 
 const DOMAIN = urls.home;
 
@@ -61,7 +45,9 @@ function sanitizeDisallowedPaths(
 }
 
 /**
- * Creates a single-entry sitemap for a sub-app.
+ * Creates a sitemap for a sub-app, including:
+ * - the app root URL
+ * - optionally, the app's llms.txt URL
  *
  * @param basePath - The app's base path (e.g. "/auth", "/pdf")
  */
@@ -114,11 +100,11 @@ export function createAppRobots(
 
   return function robots(): MetadataRoute.Robots {
     return {
-      rules: ALLOWED_USER_AGENTS.map((userAgent) => ({
-        userAgent,
+      rules: {
+        userAgent: "*",
         allow: "/",
         disallow: sanitizedDisallowedPaths,
-      })),
+      },
       sitemap: `${DOMAIN}${sitemapPath}`,
       host: DOMAIN,
     };
@@ -136,10 +122,10 @@ export function createOpenRobots(
 ): () => MetadataRoute.Robots {
   return function robots(): MetadataRoute.Robots {
     return {
-      rules: ALLOWED_USER_AGENTS.map((userAgent) => ({
-        userAgent,
+      rules: {
+        userAgent: "*",
         allow: "/",
-      })),
+      },
       sitemap: `${DOMAIN}${sitemapPath}`,
       host: DOMAIN,
     };
@@ -153,16 +139,33 @@ export function createOpenRobots(
  * @param sitemapPath - Path to the sitemap (e.g. "/tasks/sitemap.xml")
  */
 export function createPrivateAppRobots(
-  sitemapPath: string
+  sitemapPath?: string,
+  options?: {
+    includeSitemap?: boolean;
+  }
 ): () => MetadataRoute.Robots {
+  const includeSitemap = options?.includeSitemap ?? false;
+
   return function robots(): MetadataRoute.Robots {
     return {
-      rules: ALLOWED_USER_AGENTS.map((userAgent) => ({
-        userAgent,
+      rules: {
+        userAgent: "*",
         disallow: "/",
-      })),
-      sitemap: `${DOMAIN}${sitemapPath}`,
+      },
+      ...(includeSitemap && sitemapPath
+        ? { sitemap: `${DOMAIN}${sitemapPath}` }
+        : {}),
       host: DOMAIN,
     };
+  };
+}
+
+/**
+ * Creates an intentionally empty sitemap for private/auth-required apps.
+ * This avoids advertising non-indexable URLs to crawlers.
+ */
+export function createPrivateAppSitemap(): () => MetadataRoute.Sitemap {
+  return function sitemap(): MetadataRoute.Sitemap {
+    return [];
   };
 }

@@ -1,3 +1,3 @@
 import { createPrivateAppRobots } from "@helvety/shared/seo";
 
-export default createPrivateAppRobots("/contacts/sitemap.xml");
+export default createPrivateAppRobots();

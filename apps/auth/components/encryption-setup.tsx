@@ -496,7 +496,10 @@ export function EncryptionSetup({
               ) : (
                 <>
                   <li>• Scan QR code with your phone</li>
-                  <li>• Verify with Face ID or fingerprint</li>
+                  <li>
+                    • Verify with your phone&apos;s passkey method (Face ID,
+                    fingerprint, or device PIN)
+                  </li>
                   <li>• Your data stays encrypted</li>
                 </>
               )}

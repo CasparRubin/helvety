@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety",
   },
   description:
-    "Swiss-engineered free and open-source apps for encrypted task management, contact management, PDF tools, and SharePoint extensions. MIT licensed and designed in Switzerland.",
+    "Swiss-engineered free and open-source apps for task and contact management with client-side encryption for sensitive fields, plus PDF tools and SharePoint extensions. MIT licensed and designed in Switzerland.",
   keywords: [
     "Helvety",
     "Swiss software",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     siteName: "Helvety",
     title: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
     description:
-      "Swiss-engineered free and open-source apps for encrypted task management, contact management, PDF tools, and SharePoint extensions. MIT licensed and designed in Switzerland.",
+      "Swiss-engineered free and open-source apps for task and contact management with client-side encryption for sensitive fields, plus PDF tools and SharePoint extensions. MIT licensed and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
     description:
-      "Swiss-engineered free and open-source apps for encrypted task management, contact management, PDF tools, and SharePoint extensions. MIT licensed and designed in Switzerland.",
+      "Swiss-engineered free and open-source apps for task and contact management with client-side encryption for sensitive fields, plus PDF tools and SharePoint extensions. MIT licensed and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -135,7 +135,7 @@ export default async function RootLayout({
                 name: "Helvety",
                 url: urls.home,
                 description:
-                  "Swiss-engineered free and open-source apps for encrypted task management, contact management, PDF tools, and SharePoint extensions. MIT licensed and designed in Switzerland.",
+                  "Swiss-engineered free and open-source apps for task and contact management with client-side encryption for sensitive fields, plus PDF tools and SharePoint extensions. MIT licensed and designed in Switzerland.",
               },
             ]),
           }}

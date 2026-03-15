@@ -1,22 +1,24 @@
 # Helvety
 
-> The main Helvety website. Products and apps engineered and designed in Switzerland.
+> Main Helvety website for products, legal information, and links to all Helvety apps. Engineered and designed in Switzerland.
 
-## Core Pages
-- [Home](https://helvety.com): Main landing page for Helvety
-- [Privacy Policy](https://helvety.com/privacy): How Helvety handles user data under the current published policy
-- [Terms of Service](https://helvety.com/terms): Terms governing use of Helvety services
-- [Impressum](https://helvety.com/impressum): Legal information and company details
+## Canonical URLs
+- [Home](https://helvety.com): Main landing page
+- [Privacy Policy](https://helvety.com/privacy): Current privacy policy
+- [Terms of Service](https://helvety.com/terms): Terms governing service use
+- [Impressum](https://helvety.com/impressum): Legal company information
+
+## Crawling And Indexing
+- Public pages are intended to be indexable by search and AI crawlers.
+- Private app routes are not intended as search index targets and use noindex and auth-gated controls.
 
 ## Helvety Ecosystem
-- [Helvety Store](https://helvety.com/store): Official catalog for Helvety products and package downloads (all Helvety apps are free to use)
-- [Helvety PDF](https://helvety.com/pdf): PDF toolkit that processes files locally in the browser for supported operations
-- [Helvety Auth](https://helvety.com/auth): Centralized authentication service for all Helvety apps
-- [Helvety Contacts](https://helvety.com/contacts): Contact management with client-side encryption for sensitive fields
-- [Helvety Notes](https://helvety.com/notes): Notes management with client-side encryption for sensitive fields
-- [Helvety Tasks](https://helvety.com/tasks): Task management with client-side encryption for sensitive fields
+- [Helvety Store](https://helvety.com/store): Product catalog and app details
+- [Helvety PDF](https://helvety.com/pdf): Browser-based PDF toolkit for supported operations
+- [Helvety Auth](https://helvety.com/auth): Authentication service
+- [Helvety Contacts](https://helvety.com/contacts): Contact management app
+- [Helvety Notes](https://helvety.com/notes): Notes management app
+- [Helvety Tasks](https://helvety.com/tasks): Task management app
 
-## Optional
-- [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (open source under MIT)
-
-
+## Source
+- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo (MIT)

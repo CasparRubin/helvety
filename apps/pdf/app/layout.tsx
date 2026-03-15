@@ -13,6 +13,7 @@ import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
 import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
+import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
 import { PDF_APP_DESCRIPTION_COPY } from "@/lib/product-copy";
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
     "PDF extract",
     "client-side PDF",
     "privacy PDF tool",
-    "secure PDF",
+    "privacy-focused PDF",
     "browser PDF",
     "PDF editor",
     "free PDF tool",
@@ -103,7 +104,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = "";
+  const nonce = (await headers()).get("x-nonce") ?? "";
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>

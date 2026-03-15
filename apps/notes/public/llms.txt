@@ -1,20 +1,21 @@
 # Helvety Notes
 
-> Notes management with client-side encryption for sensitive fields in current supported flows. Uses a simple notes list with title + description and linking to Tasks and Contacts. Engineered and designed in Switzerland.
+> Notes management application with client-side encryption for sensitive fields. Engineered and designed in Switzerland.
 
-## Core Pages
-- [Home](https://helvety.com/notes): Notes app with client-side encryption for sensitive fields
-- Access model: free to use with no business/account quotas
+## Canonical URL
+- [Notes App](https://helvety.com/notes): Auth-required notes route
 
-## Helvety Ecosystem
-- [Helvety](https://helvety.com): Main Helvety website with company information and legal pages
-- [Helvety Store](https://helvety.com/store): Official catalog for Helvety products and package downloads (all Helvety apps are free to use)
-- [Helvety PDF](https://helvety.com/pdf): Free PDF toolkit with browser-based processing for supported operations
-- [Helvety Auth](https://helvety.com/auth): Centralized authentication for all Helvety apps
-- [Helvety Contacts](https://helvety.com/contacts): Contact management with client-side encryption for sensitive fields
-- [Helvety Tasks](https://helvety.com/tasks): Task management with client-side encryption for sensitive fields
+## Crawling And Indexing
+- Notes routes are intended not to be indexed.
+- These routes are not intended as crawl targets and are protected by noindex metadata and authentication controls.
 
-## Optional
-- [GitHub](https://github.com/CasparRubin/helvety): Public monorepo for all Helvety applications (open source under MIT)
+## Related Helvety Apps
+- [Helvety](https://helvety.com)
+- [Helvety Store](https://helvety.com/store)
+- [Helvety PDF](https://helvety.com/pdf)
+- [Helvety Auth](https://helvety.com/auth)
+- [Helvety Contacts](https://helvety.com/contacts)
+- [Helvety Tasks](https://helvety.com/tasks)
 
-
+## Source
+- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo (MIT)

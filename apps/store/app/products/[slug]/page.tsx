@@ -1,4 +1,5 @@
 import { urls } from "@helvety/shared/config";
+import { headers } from "next/headers";
 
 import { getProductBySlug } from "@/lib/data/products";
 
@@ -60,6 +61,7 @@ export async function generateMetadata({
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params;
+  const nonce = (await headers()).get("x-nonce") ?? "";
 
   const product = getProductBySlug(slug);
 
@@ -86,6 +88,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       {productJsonLd && (
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
       )}

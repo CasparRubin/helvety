@@ -1,3 +1,3 @@
-import { createAppSitemap } from "@helvety/shared/seo";
+import { createPrivateAppSitemap } from "@helvety/shared/seo";
 
-export default createAppSitemap("/tasks", { includeLlms: false });
+export default createPrivateAppSitemap();
