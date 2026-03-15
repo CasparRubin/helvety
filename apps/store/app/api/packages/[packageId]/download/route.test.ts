@@ -17,7 +17,7 @@ vi.mock("@helvety/shared/client-ip", () => ({
 
 vi.mock("@/lib/rate-limit", () => ({
   RATE_LIMITS: {
-    DOWNLOADS: { maxRequests: 30, windowMs: 60_000 },
+    DOWNLOADS: { maxRequests: 2, windowMs: 60_000 },
   },
   checkRateLimit: mocks.checkRateLimit,
 }));
@@ -34,7 +34,7 @@ describe("GET /api/packages/[packageId]/download", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getTrustedClientIp.mockReturnValue("203.0.113.10");
-    mocks.checkRateLimit.mockResolvedValue({ allowed: true, remaining: 29 });
+    mocks.checkRateLimit.mockResolvedValue({ allowed: true, remaining: 1 });
   });
 
   it("returns 400 when client IP is missing", async () => {

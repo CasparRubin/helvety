@@ -15,8 +15,8 @@
       "purpose": "any maskable"
     },
     {
-      "src": "https://helvety.com/helvety_identifier.png",
-      "type": "image/png",
+      "src": "https://helvety.com/helvety_identifier.svg",
+      "type": "image/svg+xml",
       "purpose": "any"
     }
   ],

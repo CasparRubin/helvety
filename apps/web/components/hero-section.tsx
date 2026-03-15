@@ -95,7 +95,7 @@ export function HeroSection() {
                     Browse Helvety products
                   </span>
                   <span className="text-muted-foreground block text-xs md:text-sm">
-                    Privacy-focused tools and apps.
+                    Privacy-focused tools and apps. 100% free and open source.
                   </span>
                 </span>
                 <ChevronRight

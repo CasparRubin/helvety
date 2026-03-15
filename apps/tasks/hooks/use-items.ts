@@ -114,7 +114,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to fetch items";
+        const msg = result.error ?? "Failed to fetch tasks";
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
         }
@@ -130,7 +130,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       }
       setItems(decrypted);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to fetch items";
+      const msg = err instanceof Error ? err.message : "Failed to fetch tasks";
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
@@ -167,7 +167,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
           if (triggerHardLogoutForError(result.error)) {
             return null;
           }
-          toast.error(result.error ?? "Failed to create item", {
+          toast.error(result.error ?? "Failed to create task", {
             duration: TOAST_DURATIONS.ERROR,
           });
           return null;
@@ -199,7 +199,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         return result.data;
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Failed to create item";
+          err instanceof Error ? err.message : "Failed to create task";
         if (triggerHardLogoutForError(message)) {
           return null;
         }
@@ -233,7 +233,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
           if (triggerHardLogoutForError(result.error)) {
             return false;
           }
-          toast.error(result.error ?? "Failed to update item", {
+          toast.error(result.error ?? "Failed to update task", {
             duration: TOAST_DURATIONS.ERROR,
           });
           return false;
@@ -270,7 +270,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         return true;
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Failed to update item";
+          err instanceof Error ? err.message : "Failed to update task";
         if (triggerHardLogoutForError(message)) {
           return false;
         }
@@ -297,7 +297,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
             return false;
           }
           setItems(prevItems);
-          toast.error(result.error ?? "Failed to delete item", {
+          toast.error(result.error ?? "Failed to delete task", {
             duration: TOAST_DURATIONS.ERROR,
           });
           return false;
@@ -306,7 +306,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         return true;
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Failed to delete item";
+          err instanceof Error ? err.message : "Failed to delete task";
         if (triggerHardLogoutForError(message)) {
           return false;
         }
@@ -345,7 +345,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
           if (triggerHardLogoutForError(result.error)) {
             return false;
           }
-          toast.error(result.error ?? "Failed to reorder items", {
+          toast.error(result.error ?? "Failed to reorder tasks", {
             duration: TOAST_DURATIONS.ERROR,
           });
           await refresh();
@@ -355,7 +355,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         return true;
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Failed to reorder items";
+          err instanceof Error ? err.message : "Failed to reorder tasks";
         if (triggerHardLogoutForError(message)) {
           return false;
         }
@@ -473,7 +473,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to fetch item";
+        const msg = result.error ?? "Failed to fetch task";
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
         }
@@ -489,7 +489,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       }
       setItem(decrypted);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to fetch item";
+      const msg = err instanceof Error ? err.message : "Failed to fetch task";
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
@@ -535,7 +535,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
           if (triggerHardLogoutForError(result.error)) {
             return false;
           }
-          toast.error(result.error ?? "Failed to update item", {
+          toast.error(result.error ?? "Failed to update task", {
             duration: TOAST_DURATIONS.ERROR,
           });
           return false;
@@ -570,7 +570,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
         return true;
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Failed to update item";
+          err instanceof Error ? err.message : "Failed to update task";
         if (triggerHardLogoutForError(message)) {
           return false;
         }
@@ -583,7 +583,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
 
   const remove = useCallback(async (): Promise<boolean> => {
     if (!id) {
-      toast.error("Invalid or missing ID", {
+      toast.error("Task ID is missing", {
         duration: TOAST_DURATIONS.ERROR,
       });
       return false;
@@ -595,7 +595,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
         if (triggerHardLogoutForError(result.error)) {
           return false;
         }
-        toast.error(result.error ?? "Failed to delete item", {
+        toast.error(result.error ?? "Failed to delete task", {
           duration: TOAST_DURATIONS.ERROR,
         });
         return false;
@@ -605,7 +605,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       return true;
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to delete item";
+        err instanceof Error ? err.message : "Failed to delete task";
       if (triggerHardLogoutForError(message)) {
         return false;
       }

@@ -9,9 +9,7 @@ interface UserData {
   createdAt: string;
 }
 
-/**
- * Account page client: profile only.
- */
+/** Account page client shell for profile, data export, and account deletion. */
 export function AccountClient({ initialUser }: { initialUser: UserData }) {
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">

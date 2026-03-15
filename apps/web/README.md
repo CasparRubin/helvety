@@ -25,7 +25,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Dark & Light mode** - Switch between dark and light themes
 - **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations.
 - **Abuse reporting** - The Impressum includes an abuse reporting section ([helvety.com/impressum#abuse](https://helvety.com/impressum#abuse)) with guidance for users and law enforcement. Abuse contact: [contact@helvety.com](mailto:contact@helvety.com).
-- **Cookie notice** - Informational notice in the footer about essential cookies under the current published policy (Swiss nDSG / FMG positioning); analytics usage is documented separately in the Privacy Policy
+- **Cookie notice** - Informational notice in the footer about essential cookies; analytics and performance telemetry usage is documented in the Privacy Policy
 - **SEO optimized** - Sitemap and robots.txt for search engine visibility
 - **Animated logo** - Subtle glow effect on the main logo
 
@@ -95,7 +95,7 @@ Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source t
 
 ## Developer
 
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
+This application is developed and maintained by [Helvety](https://helvety.com), a Swiss sole proprietorship (Einzelfirma) focused on security and user privacy.
 
 Vercel Analytics and Vercel Speed Insights are used across Helvety apps for privacy-oriented, aggregated/pseudonymized page-view and performance metrics. See our [Privacy Policy](https://helvety.com/privacy) for details.
 

@@ -22,7 +22,7 @@ function isTransientAuthError(error: AuthError | null): boolean {
   }
 
   if (typeof error.status === "number") {
-    if (error.status === 408 || error.status === 425 || error.status === 429) {
+    if (error.status === 408 || error.status === 425) {
       return true;
     }
 

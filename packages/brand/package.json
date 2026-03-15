@@ -14,7 +14,9 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
-    "test": "echo \"No tests in @helvety/brand\""
+    "test": "echo \"No tests in @helvety/brand\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "exports": {
     ".": "./src/index.ts",

@@ -37,7 +37,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     notFound();
   }
 
-  // Get monthly tiers only (filter out yearly tiers)
+  // Exclude yearly tiers from the pricing cards.
   const monthlyTiers = product.pricing.tiers.filter(
     (tier) => tier.interval !== "yearly"
   );
@@ -61,7 +61,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const freeTagline =
     freeFeatureLines.length > 0
       ? freeFeatureLines.join(" · ")
-      : "Available at no cost";
+      : "Free & open source";
 
   const hasLinks =
     Boolean(product.links?.website) || Boolean(product.links?.github);
@@ -152,7 +152,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             {isEntirelyFree ? (
               <div className="bg-card flex flex-col items-center rounded-2xl border px-6 py-8 text-center">
                 <span className="text-4xl font-bold tracking-tight text-green-600 dark:text-green-400">
-                  Free
+                  Free & open source
                 </span>
                 <p className="text-muted-foreground mt-2 text-sm">
                   {freeTagline}

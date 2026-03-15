@@ -4,6 +4,13 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import {
+  createEntityLink,
+  deleteEntityLink,
+  ensureOwnedEntityExists,
+  getEntityLinksForEndpoint,
+  toLinkedEntityReferences,
+} from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
 import { z } from "zod";
 
@@ -28,29 +35,40 @@ export async function getNoteTaskLinks(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const { data: note, error: noteError } = await supabase
-      .from("notes")
-      .select("id")
-      .eq("id", noteId)
-      .eq("user_id", user.id)
-      .single();
-
-    if (noteError || !note) {
+    const noteExists = await ensureOwnedEntityExists(
+      supabase,
+      user.id,
+      "notes",
+      noteId
+    );
+    if (!noteExists) {
       return { success: false, error: "Note not found" };
     }
 
-    const { data: links, error: linksError } = await supabase
-      .from("note_item_links")
-      .select("*")
-      .eq("note_id", noteId)
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true })
-      .returns<ItemContactLinkRow[]>();
+    const linksResult = await getEntityLinksForEndpoint({
+      supabase,
+      userId: user.id,
+      entityType: "notes",
+      entityId: noteId,
+    });
 
-    if (linksError) {
-      logger.error("Error getting task links:", linksError);
+    if (linksResult.error) {
+      logger.error("Error getting task links:", linksResult.error);
       return { success: false, error: "Failed to get task links" };
     }
+
+    const links = toLinkedEntityReferences(
+      linksResult.data ?? [],
+      "notes",
+      noteId,
+      "items"
+    ).map<ItemContactLinkRow>((reference) => ({
+      id: reference.link_id,
+      note_id: noteId,
+      item_id: reference.entity_id,
+      user_id: user.id,
+      created_at: reference.linked_at,
+    }));
 
     if (!links || links.length === 0) {
       return { success: true, data: { items: [] } };
@@ -148,50 +166,39 @@ export async function linkTaskEntity(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [note, item] = await Promise.all([
-      supabase
-        .from("notes")
-        .select("id")
-        .eq("id", noteId)
-        .eq("user_id", user.id)
-        .single(),
-      supabase
-        .from("items")
-        .select("id")
-        .eq("id", itemId)
-        .eq("user_id", user.id)
-        .single(),
+    const [noteExists, itemExists] = await Promise.all([
+      ensureOwnedEntityExists(supabase, user.id, "notes", noteId),
+      ensureOwnedEntityExists(supabase, user.id, "items", itemId),
     ]);
 
-    if (note.error || !note.data) {
+    if (!noteExists) {
       return { success: false, error: "Note not found" };
     }
-    if (item.error || !item.data) {
+    if (!itemExists) {
       return { success: false, error: "Task not found" };
     }
 
-    const { data: link, error } = await supabase
-      .from("note_item_links")
-      .insert({
-        note_id: noteId,
-        item_id: itemId,
-        user_id: user.id,
-      })
-      .select("id")
-      .single();
+    const linkResult = await createEntityLink({
+      supabase,
+      userId: user.id,
+      sourceEntityType: "notes",
+      sourceEntityId: noteId,
+      targetEntityType: "items",
+      targetEntityId: itemId,
+    });
 
-    if (error || !link) {
-      if (error?.code === "23505") {
+    if (linkResult.error || !linkResult.data) {
+      if (linkResult.error?.code === "23505") {
         return {
           success: false,
           error: "Task is already linked to this note",
         };
       }
-      logger.error("Error linking task item:", error);
+      logger.error("Error linking task item:", linkResult.error);
       return { success: false, error: "Failed to link task" };
     }
 
-    return { success: true, data: { id: link.id } };
+    return { success: true, data: { id: linkResult.data.id } };
   } catch (error) {
     logger.error("Unexpected error in linkTaskEntity:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -214,14 +221,10 @@ export async function unlinkTaskEntity(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const { error } = await supabase
-      .from("note_item_links")
-      .delete()
-      .eq("id", linkId)
-      .eq("user_id", user.id);
+    const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
 
-    if (error) {
-      logger.error("Error unlinking task item:", error);
+    if (deleteResult.error) {
+      logger.error("Error unlinking task item:", deleteResult.error);
       return { success: false, error: "Failed to unlink task" };
     }
 

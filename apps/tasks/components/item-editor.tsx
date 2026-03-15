@@ -398,7 +398,9 @@ export function ItemEditor({
         <div className="container mx-auto px-4 py-8">
           <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
             <p className="text-muted-foreground text-sm">
-              {error ? "Something went wrong" : "Task not found"}
+              {error
+                ? "Couldn't load this task. Please retry."
+                : "Task not found"}
             </p>
             <Button variant="outline" size="sm" onClick={handleRefresh}>
               Retry

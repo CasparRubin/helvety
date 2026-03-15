@@ -26,7 +26,10 @@
     "test": "turbo run test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "ci:check": "bun run format:check && bun run lint && bun run type-check && bun run test",
     "deps:audit": "bun audit",
+    "deps:security:floors": "node scripts/check-security-dependency-floors.mjs",
+    "deps:security": "bun run deps:security:floors && bun run deps:audit",
     "deps:outdated": "bun outdated",
     "deps:check": "knip --no-progress --include files,dependencies",
     "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"

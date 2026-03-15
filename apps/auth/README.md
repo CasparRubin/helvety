@@ -274,6 +274,15 @@ The auth service includes the following security hardening:
 - **Standardized Errors** - Consistent error codes and user-friendly messages that don't leak implementation details
 - **Security Headers** - Content Security Policy, HSTS, X-Frame-Options, and other security headers
 
+### Supabase Provider Posture Verification
+
+Before release (and at least monthly), verify provider posture in Supabase:
+
+1. Open Supabase Dashboard -> Authentication -> Providers and ensure only intentionally used providers are enabled.
+2. If Apple or Azure is enabled, verify current Supabase Auth advisories and confirm issuer/domain settings are restricted to expected values.
+3. Confirm redirect allowlists still match current trusted app URLs only.
+4. After any auth hardening change, refresh `supabase/supabase.json` locally before drawing security conclusions from exports.
+
 ### Redirect URI Validation
 
 The auth service validates all `redirect_uri` parameters to prevent open redirect vulnerabilities. Allowed destinations (explicit allowlist — no wildcards):
@@ -350,7 +359,7 @@ Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source t
 
 ## Developer
 
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
+This application is developed and maintained by [Helvety](https://helvety.com), a Swiss sole proprietorship (Einzelfirma) focused on security and user privacy.
 
 Vercel Analytics and Vercel Speed Insights are used across Helvety apps for privacy-oriented, aggregated/pseudonymized page-view and performance metrics. See our [Privacy Policy](https://helvety.com/privacy) for details.
 

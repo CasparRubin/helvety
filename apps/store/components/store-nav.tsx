@@ -2,7 +2,7 @@
 
 /**
  * Store section navigation
- * Renders core links (Products, Account) below the navbar.
+ * Renders section links below the navbar.
  * Desktop: horizontal flex row of link-buttons
  * Mobile: dropdown showing the active link as trigger
  */
@@ -16,24 +16,40 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@helvety/ui/dropdown-menu";
+import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
 import {
   ChevronDownIcon,
   PackageIcon as Package,
-  UserIcon as User,
+  UserIcon as UserGlyph,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const links = [
-  { href: "/products", label: "Products", icon: Package },
-  { href: "/account", label: "Account", icon: User },
-];
+import type { User } from "@supabase/supabase-js";
+
+const PRODUCT_LINKS = [{ href: "/products", label: "Products", icon: Package }];
+
+const ACCOUNT_LINK = {
+  href: "/account",
+  label: "Account",
+  icon: UserGlyph,
+};
 
 /**
- * Renders the store section nav (Products, Account).
+ * Renders the store section nav.
+ * Account is only visible for authenticated users.
  */
-export function StoreNav() {
+export function StoreNav({
+  initialUser = null,
+}: {
+  initialUser?: User | null;
+}) {
   const pathname = usePathname();
+  const { user } = useNavbarAuthState(initialUser);
+  const isAuthenticated = Boolean(user);
+  const links = isAuthenticated
+    ? [...PRODUCT_LINKS, ACCOUNT_LINK]
+    : PRODUCT_LINKS;
 
   const getIsActive = (href: string) => {
     const isProducts = href === "/products";

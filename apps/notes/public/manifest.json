@@ -1,7 +1,7 @@
 {
   "name": "Helvety Notes",
   "short_name": "Helvety Notes",
-  "description": "Privacy-focused notes management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
+  "description": "Privacy-focused note management with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.",
   "start_url": "/notes",
   "display": "standalone",
   "background_color": "#faf8f7",
@@ -15,8 +15,8 @@
       "purpose": "any maskable"
     },
     {
-      "src": "https://helvety.com/helvety_identifier.png",
-      "type": "image/png",
+      "src": "https://helvety.com/helvety_identifier.svg",
+      "type": "image/svg+xml",
       "purpose": "any"
     }
   ],

@@ -93,7 +93,7 @@ export async function createItem(
   try {
     if (!DEFAULT_ITEM_STAGE_ID) {
       logger.error("Missing default item stage configuration");
-      return { success: false, error: "Failed to create item" };
+      return { success: false, error: "Failed to create task" };
     }
 
     const auth = await authenticateAndRateLimit({
@@ -112,7 +112,7 @@ export async function createItem(
         ),
         issueCount: validationResult.error.issues.length,
       });
-      return { success: false, error: "Invalid item data" };
+      return { success: false, error: "Invalid task data" };
     }
     const validatedData = validationResult.data;
     // Enforce per-user Item limit before insert.
@@ -122,7 +122,7 @@ export async function createItem(
       .eq("user_id", user.id);
     if (countError) {
       logger.error("Error counting items for user:", countError);
-      return { success: false, error: "Failed to create item" };
+      return { success: false, error: "Failed to create task" };
     }
     if ((itemCount ?? 0) >= ENTITY_LIMITS.MAX_TASKS_PER_USER) {
       return {
@@ -158,7 +158,7 @@ export async function createItem(
         message: error?.message,
         details: error?.details,
       });
-      return { success: false, error: "Failed to create item" };
+      return { success: false, error: "Failed to create task" };
     }
 
     revalidateItemRoutes();
@@ -188,7 +188,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
 
     if (error) {
       logger.error("Error getting all items:", error);
-      return { success: false, error: "Failed to get items" };
+      return { success: false, error: "Failed to get tasks" };
     }
 
     return { success: true, data: items ?? [] };
@@ -204,7 +204,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
 export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
   try {
     if (!z.string().uuid().safeParse(id).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid task ID" };
     }
 
     const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
@@ -222,10 +222,10 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
 
     if (error || !item) {
       if (error?.code === "PGRST116" || !item) {
-        return { success: false, error: "Item not found" };
+        return { success: false, error: "Task not found" };
       }
       logger.error("Error getting item:", error);
-      return { success: false, error: "Failed to get item" };
+      return { success: false, error: "Failed to get task" };
     }
 
     return { success: true, data: item };
@@ -269,7 +269,7 @@ export async function updateItem(
         ),
         issueCount: validationResult.error.issues.length,
       });
-      return { success: false, error: "Invalid item data" };
+      return { success: false, error: "Invalid task data" };
     }
     const validatedData = validationResult.data;
 
@@ -313,7 +313,7 @@ export async function updateItem(
       logger.error("Error updating item:", error);
       return {
         success: false,
-        error: "Failed to update item",
+        error: "Failed to update task",
       };
     }
 
@@ -339,7 +339,7 @@ export async function deleteItem(
     const { user, supabase } = auth.ctx;
 
     if (!z.string().uuid().safeParse(id).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid task ID" };
     }
 
     // Delete item (RLS + explicit user_id check for defense-in-depth)
@@ -351,7 +351,7 @@ export async function deleteItem(
 
     if (error) {
       logger.error("Error deleting item:", error);
-      return { success: false, error: "Failed to delete item" };
+      return { success: false, error: "Failed to delete task" };
     }
 
     revalidateItemRoutes();

@@ -37,10 +37,8 @@ const ACCOUNT_DELETION_VERIFICATION_CHECKS = [
   { table: "user_passkey_params", column: "user_id" },
   { table: "items", column: "user_id" },
   { table: "contacts", column: "user_id" },
-  { table: "item_contact_links", column: "user_id" },
+  { table: "entity_links", column: "user_id" },
   { table: "notes", column: "user_id" },
-  { table: "note_item_links", column: "user_id" },
-  { table: "note_contact_links", column: "user_id" },
   { table: "user_profiles", column: "id" },
 ] as const;
 
@@ -273,7 +271,7 @@ export async function requestAccountDeletion(
 export type { UserDataExport } from "@/lib/types/store";
 
 /**
- * Export all user data in a structured JSON format.
+ * Export account profile data in a structured JSON format.
  *
  * Returns profile info only. Legacy billing/tenant datasets were removed from
  * the export shape. Encrypted app data (Tasks, Contacts, Notes) is NOT

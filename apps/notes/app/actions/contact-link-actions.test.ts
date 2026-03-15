@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   authenticateAndRateLimit: vi.fn(),
+  createEntityLink: vi.fn(),
+  deleteEntityLink: vi.fn(),
+  ensureOwnedEntityExists: vi.fn(),
+  getEntityLinksForEndpoint: vi.fn(),
+  toLinkedEntityReferences: vi.fn(),
   loggerError: vi.fn(),
 }));
 
@@ -15,56 +20,40 @@ vi.mock("@helvety/shared/logger", () => ({
   },
 }));
 
+vi.mock("@helvety/shared/entity-links", () => ({
+  createEntityLink: mocks.createEntityLink,
+  deleteEntityLink: mocks.deleteEntityLink,
+  ensureOwnedEntityExists: mocks.ensureOwnedEntityExists,
+  getEntityLinksForEndpoint: mocks.getEntityLinksForEndpoint,
+  toLinkedEntityReferences: mocks.toLinkedEntityReferences,
+}));
+
 import {
   getItemContactLinks,
   linkContact,
   unlinkContact,
 } from "./contact-link-actions";
 
-/** Builds a minimal Supabase mock for item-contact link actions. */
+/** Builds a minimal Supabase mock for notes/contact link actions. */
 function createSupabaseMock() {
-  const linkSelectReturns = vi.fn().mockResolvedValue({
-    data: [{ id: "link-1", note_id: "note-1", contact_id: "contact-1" }],
+  const contactListReturns = vi.fn().mockResolvedValue({
+    data: [
+      {
+        id: "contact-1",
+        encrypted_first_name: "enc",
+        encrypted_last_name: "enc",
+      },
+    ],
     error: null,
   });
-  const linkOrder = vi.fn(() => ({ returns: linkSelectReturns }));
-  const linkEqItem = vi.fn(() => ({ order: linkOrder }));
-  const linkEqUser = vi.fn(() => ({ eq: linkEqItem }));
-  const linkSelect = vi.fn(() => ({ eq: linkEqUser }));
-
-  const contactSingle = vi
-    .fn()
-    .mockResolvedValue({ data: { id: "contact-1" }, error: null });
-  const contactEqUser = vi.fn(() => ({ single: contactSingle }));
-  const contactEqId = vi.fn(() => ({ eq: contactEqUser }));
-  const contactSelect = vi.fn(() => ({ eq: contactEqId }));
-
-  const itemSingle = vi
-    .fn()
-    .mockResolvedValue({ data: { id: "note-1" }, error: null });
-  const itemEqUser = vi.fn(() => ({ single: itemSingle }));
-  const itemEqId = vi.fn(() => ({ eq: itemEqUser }));
-  const itemSelect = vi.fn(() => ({ eq: itemEqId }));
-
-  const insertSingle = vi
-    .fn()
-    .mockResolvedValue({ data: { id: "new-link" }, error: null });
-  const insertSelect = vi.fn(() => ({ single: insertSingle }));
-  const insert = vi.fn(() => ({ select: insertSelect }));
-
-  const deleteEqUser = vi.fn().mockResolvedValue({ error: null });
-  const deleteEqId = vi.fn(() => ({ eq: deleteEqUser }));
-  const deleteFn = vi.fn(() => ({ eq: deleteEqId }));
+  const contactOrderCreated = vi.fn(() => ({ returns: contactListReturns }));
+  const contactOrderSort = vi.fn(() => ({ order: contactOrderCreated }));
+  const contactEqUser = vi.fn(() => ({ order: contactOrderSort }));
+  const contactSelect = vi.fn(() => ({ eq: contactEqUser }));
 
   const from = vi.fn((table: string) => {
-    if (table === "note_contact_links") {
-      return { select: linkSelect, insert, delete: deleteFn };
-    }
     if (table === "contacts") {
       return { select: contactSelect };
-    }
-    if (table === "notes") {
-      return { select: itemSelect };
     }
     throw new Error(`Unexpected table ${table}`);
   });
@@ -83,12 +72,29 @@ describe("notes contact-link-actions", () => {
     expect(mocks.authenticateAndRateLimit).not.toHaveBeenCalled();
   });
 
-  it("uses note_contact_links for get/link/unlink flow", async () => {
+  it("uses entity link helpers for get/link/unlink flow", async () => {
     const supabase = createSupabaseMock();
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ok: true,
       ctx: { user: { id: "user-1" }, supabase },
     });
+    mocks.getEntityLinksForEndpoint.mockResolvedValue({
+      data: [{ id: "link-1" }],
+      error: null,
+    });
+    mocks.toLinkedEntityReferences.mockReturnValue([
+      {
+        entity_id: "550e8400-e29b-41d4-a716-446655440001",
+        link_id: "link-1",
+        linked_at: "2026-01-01T00:00:00Z",
+      },
+    ]);
+    mocks.ensureOwnedEntityExists.mockResolvedValue(true);
+    mocks.createEntityLink.mockResolvedValue({
+      data: { id: "new-link", created_at: "2026-01-01T00:00:00Z" },
+      error: null,
+    });
+    mocks.deleteEntityLink.mockResolvedValue({ error: null });
 
     const links = await getItemContactLinks(
       "550e8400-e29b-41d4-a716-446655440000"
@@ -106,6 +112,8 @@ describe("notes contact-link-actions", () => {
     expect(links.success).toBe(true);
     expect(linked).toEqual({ success: true, data: { id: "new-link" } });
     expect(unlinked).toEqual({ success: true });
-    expect(supabase.from).toHaveBeenCalledWith("note_contact_links");
+    expect(mocks.getEntityLinksForEndpoint).toHaveBeenCalled();
+    expect(mocks.createEntityLink).toHaveBeenCalled();
+    expect(mocks.deleteEntityLink).toHaveBeenCalled();
   });
 });

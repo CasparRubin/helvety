@@ -52,16 +52,16 @@ function fetchWithTimeout(
  * when tabs are suspended/resumed, causing the Supabase auth client to
  * hang on initialization and token refresh.
  *
- * This wrapper aborts lock acquisition after LOCK_TIMEOUT_MS and falls
- * back to running the callback without a lock. The trade-off (potential
- * duplicate refresh requests across tabs) is vastly preferable to a
- * complete auth deadlock.
+ * This wrapper uses bounded, non-blocking lock retries. It never executes
+ * the callback without a lock because unlocked refresh paths can trigger
+ * refresh-token storms across tabs and apps.
  *
  * @see https://github.com/supabase/supabase-js/issues/1594
  */
 const LOCK_TIMEOUT_MS = 5_000;
+const LOCK_RETRY_INTERVAL_MS = 150;
 
-/** Acquire a Web Lock with a timeout, falling back to no lock on timeout. */
+/** Acquire a Web Lock with bounded retries; never run unlocked. */
 async function lockWithTimeout<R>(
   name: string,
   acquireTimeout: number,
@@ -71,29 +71,32 @@ async function lockWithTimeout<R>(
     return await fn();
   }
 
-  const abort = new AbortController();
-  const timer = setTimeout(
-    () => abort.abort(),
+  const timeoutMs =
     acquireTimeout > 0
       ? Math.min(acquireTimeout, LOCK_TIMEOUT_MS)
-      : LOCK_TIMEOUT_MS
-  );
+      : LOCK_TIMEOUT_MS;
+  const deadline = Date.now() + timeoutMs;
 
-  try {
-    return await navigator.locks.request(
-      name,
-      { signal: abort.signal },
-      async () => fn()
-    );
-  } catch (err) {
-    if (err instanceof DOMException && err.name === "AbortError") {
-      // Lock acquisition timed out - run without lock
-      return await fn();
+  while (Date.now() < deadline) {
+    let acquired = false;
+    let value: R | undefined;
+
+    await navigator.locks.request(name, { ifAvailable: true }, async (lock) => {
+      if (!lock) {
+        return;
+      }
+      acquired = true;
+      value = await fn();
+    });
+
+    if (acquired) {
+      return value as R;
     }
-    throw err;
-  } finally {
-    clearTimeout(timer);
+
+    await new Promise((resolve) => setTimeout(resolve, LOCK_RETRY_INTERVAL_MS));
   }
+
+  throw new DOMException("Timed out waiting for auth lock", "AbortError");
 }
 
 /**

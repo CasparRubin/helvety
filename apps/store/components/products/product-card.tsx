@@ -1,12 +1,3 @@
-/**
- * Product card component
- * Displays a product in the catalog grid. The entire card is a single link to the
- * product detail page (/products/[slug]); no overlay or nested links.
- *
- * Uses a two-layer design: an outer artwork background frame with an inner
- * solid-color content panel for readability.
- */
-
 import { cn } from "@helvety/shared/utils";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -18,17 +9,19 @@ import { ArtistBadge, ProductBadge, StatusBadge } from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
 
-/** Props for the product card */
+/** Props for rendering a single catalog product card. */
 interface ProductCardProps {
   product: Product;
   className?: string;
+  prioritizeImage?: boolean;
 }
 
-/**
- * Renders a product card that links to the product detail page.
- * Card and "View Details" share one link; clicking anywhere navigates to /products/[slug].
- */
-export function ProductCard({ product, className }: ProductCardProps) {
+/** Renders a single-link product card used in the catalog grid. */
+export function ProductCard({
+  product,
+  className,
+  prioritizeImage = false,
+}: ProductCardProps) {
   const priceDisplay = formatStartingFrom(
     product.pricing,
     product.pricing.tiers[0]?.currency
@@ -50,12 +43,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
       >
         {/* Background artwork — desaturated at rest, full color on hover */}
         <Image
-          src={product.image ?? "/store/artwork_1.jpg"}
+          src={product.image ?? "/store/artwork_1.png"}
           alt=""
           fill
+          loading={prioritizeImage ? "eager" : "lazy"}
+          fetchPriority={prioritizeImage ? "high" : "auto"}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
-          priority
         />
 
         {/* Badges: positioned over the image */}
@@ -91,7 +85,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <div className="flex items-center justify-between gap-4 px-5 pt-4 pb-5">
             <div className="text-sm font-medium">
               {product.pricing.hasFreeTier ? (
-                <span className="text-green-600 dark:text-green-400">Free</span>
+                <span className="text-green-600 dark:text-green-400">
+                  Free & open source
+                </span>
               ) : (
                 <span className="text-blue-600 dark:text-blue-400">
                   {priceDisplay}

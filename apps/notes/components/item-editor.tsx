@@ -312,7 +312,9 @@ export function ItemEditor({
         <div className="container mx-auto px-4 py-8">
           <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
             <p className="text-muted-foreground text-sm">
-              {error ? "Something went wrong" : "Note not found"}
+              {error
+                ? "Couldn't load this note. Please retry."
+                : "Note not found"}
             </p>
             <Button variant="outline" size="sm" onClick={handleRefresh}>
               Retry

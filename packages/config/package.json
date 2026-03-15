@@ -14,7 +14,9 @@
   "scripts": {
     "type-check": "echo \"No TypeScript sources in @helvety/config\"",
     "lint": "eslint --config eslint.mjs . --max-warnings 0",
-    "test": "echo \"No tests in @helvety/config\""
+    "test": "echo \"No tests in @helvety/config\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "exports": {
     "./tsconfig.base.json": "./tsconfig.base.json",

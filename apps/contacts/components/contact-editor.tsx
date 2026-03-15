@@ -337,7 +337,9 @@ export function ContactEditor({
         <div className="container mx-auto px-4 py-8">
           <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
             <p className="text-muted-foreground text-sm">
-              {error ? "Something went wrong" : "Contact not found"}
+              {error
+                ? "Couldn't load this contact. Please retry."
+                : "Contact not found"}
             </p>
             <Button variant="outline" size="sm" onClick={handleRefresh}>
               Retry
@@ -401,7 +403,7 @@ export function ContactEditor({
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g., Cousin, Project Manager at Acme"
+                placeholder="e.g., Cousin, Product Manager"
               />
             </div>
 

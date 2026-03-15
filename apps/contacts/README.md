@@ -181,7 +181,7 @@ Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source t
 
 ## Developer
 
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
+This application is developed and maintained by [Helvety](https://helvety.com), a Swiss sole proprietorship (Einzelfirma) focused on security and user privacy.
 
 Vercel Analytics and Vercel Speed Insights are used across Helvety apps for privacy-oriented, aggregated/pseudonymized page-view and performance metrics. See our [Privacy Policy](https://helvety.com/privacy) for details.
 

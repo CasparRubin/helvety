@@ -60,6 +60,7 @@ export function PdfCommandBar({
   isProcessing,
 }: PdfCommandBarProps): React.JSX.Element {
   const hasFiles = fileCount > 0;
+  const addButtonLabel = hasFiles ? "Add More" : "Add Files";
 
   // State for mobile clear-all confirmation (opened from dropdown)
   const [showClearDialog, setShowClearDialog] = React.useState(false);
@@ -70,7 +71,8 @@ export function PdfCommandBar({
         {/* Add Files button - always visible */}
         <Button size="sm" onClick={onAddFiles} disabled={isProcessing}>
           <UploadIcon className="mr-1.5 size-4 shrink-0" />
-          <span>{hasFiles ? "Add More" : "Add Files"}</span>
+          <span className="min-[400px]:hidden">Add</span>
+          <span className="hidden min-[400px]:inline">{addButtonLabel}</span>
         </Button>
 
         {/* Desktop only: Clear All with confirmation */}
@@ -115,7 +117,14 @@ export function PdfCommandBar({
             ) : (
               <DownloadIcon className="mr-1.5 size-4 shrink-0" />
             )}
-            <span>{isProcessing ? "Processing..." : "Download PDF"}</span>
+            {isProcessing ? (
+              <span>Processing...</span>
+            ) : (
+              <>
+                <span className="min-[400px]:hidden">Download</span>
+                <span className="hidden min-[400px]:inline">Download PDF</span>
+              </>
+            )}
           </Button>
         )}
 

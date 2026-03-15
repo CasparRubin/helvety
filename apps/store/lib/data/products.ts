@@ -13,6 +13,8 @@ import type {
 // =============================================================================
 // PRODUCT DATA
 // =============================================================================
+// Store artwork is served from apps/store/public and referenced with the
+// store basePath (e.g. "/store/artwork_1.png").
 
 /**
  * Helvety SPO Explorer - SharePoint Online Extension
@@ -23,7 +25,7 @@ export const helvetyExplorer: SoftwareProduct = {
   name: "Helvety SPO Explorer",
   shortDescription:
     "A privacy-focused SharePoint site navigator. Browse, search, and favorite accessible sites with a lightning-fast interface. Preferences are stored locally in the current design.",
-  image: "/store/artwork_1.jpg",
+  image: "/store/artwork_1.png",
   artist: "Alexandre Calame",
   description: `Helvety SPO Explorer is a privacy-focused SharePoint Framework (SPFx) application customizer that gives you a fast way to navigate your Microsoft 365 environment.
 
@@ -175,8 +177,8 @@ No login or account is required. Files are limited to 100MB each, and practical 
   type: "saas",
   category: "utilities",
   status: "available",
-  image: "/store/artwork_2.jpg",
-  artist: "Rudolf Koller",
+  image: "/store/artwork_2.png",
+  artist: "Alexandre Calame",
   features: [
     "Client-side processing for supported operations",
     "Merge multiple PDFs and images into one document",
@@ -266,8 +268,8 @@ Your data is protected under applicable Swiss data protection law (including nDS
   type: "saas",
   category: "productivity",
   status: "available",
-  image: "/store/artwork_3.jpg",
-  artist: "Rudolf Koller",
+  image: "/store/artwork_3.png",
+  artist: "Alexandre Calame",
   features: [
     "End-to-end encryption for sensitive task content fields",
     "Flat task workflow with stages and labels",
@@ -356,8 +358,8 @@ Your contacts are protected under applicable Swiss data protection law (includin
   type: "saas",
   category: "productivity",
   status: "available",
-  image: "/store/artwork_4.jpg",
-  artist: "Alexandre Calame",
+  image: "/store/artwork_4.png",
+  artist: "Ferdinand Hodler",
   features: [
     "End-to-end encryption for sensitive contact fields",
     "Rich contact fields (name, email, phone, birthday)",
@@ -445,8 +447,8 @@ Your data is protected under applicable Swiss data protection law (including nDS
   type: "saas",
   category: "productivity",
   status: "available",
-  image: "/store/artwork_4.jpg",
-  artist: "Alexandre Calame",
+  image: "/store/artwork_5.png",
+  artist: "Rudolf Koller",
   features: [
     "End-to-end encryption for sensitive note content",
     "Simple note model (title + description)",

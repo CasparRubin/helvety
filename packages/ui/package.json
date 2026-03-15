@@ -14,7 +14,9 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
-    "test": "echo \"No tests in @helvety/ui\""
+    "test": "echo \"No tests in @helvety/ui\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "exports": {
     "./globals.css": "./globals.css",
@@ -25,7 +27,6 @@
     "./button": "./src/button.tsx",
     "./calendar": "./src/calendar.tsx",
     "./card": "./src/card.tsx",
-    "./checkbox": "./src/checkbox.tsx",
     "./collapsible": "./src/collapsible.tsx",
     "./command": "./src/command.tsx",
     "./command-bar": "./src/command-bar.tsx",

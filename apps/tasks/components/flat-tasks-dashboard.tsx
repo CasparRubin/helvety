@@ -153,7 +153,7 @@ export function FlatTasksDashboard({
                 <Label htmlFor="item-title">Title</Label>
                 <Input
                   id="item-title"
-                  placeholder="e.g., Implement authentication"
+                  placeholder="e.g., Renew domain before Friday"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   required
@@ -163,7 +163,7 @@ export function FlatTasksDashboard({
                 <Label htmlFor="item-description">Description (optional)</Label>
                 <Input
                   id="item-description"
-                  placeholder="e.g., Add OAuth2 login flow"
+                  placeholder="e.g., Check DNS, billing, and SSL renewal"
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                 />

@@ -10,10 +10,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 /** Public tables that are user-owned and intended for user-ID scoping. */
 type ScopedTable =
   | "contacts"
-  | "item_contact_links"
+  | "entity_links"
   | "items"
-  | "note_contact_links"
-  | "note_item_links"
   | "notes"
   | "user_auth_credentials"
   | "user_passkey_params"
@@ -21,10 +19,8 @@ type ScopedTable =
 
 const USER_SCOPE_COLUMNS: Record<ScopedTable, "user_id" | "id"> = {
   contacts: "user_id",
-  item_contact_links: "user_id",
+  entity_links: "user_id",
   items: "user_id",
-  note_contact_links: "user_id",
-  note_item_links: "user_id",
   notes: "user_id",
   user_auth_credentials: "user_id",
   user_passkey_params: "user_id",

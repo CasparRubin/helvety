@@ -5,6 +5,7 @@ import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useEffect } from "react";
 
 import { redirectToLoginOnce, triggerHardLogoutOnce } from "./auth-navigation";
+import { getUserSingleflight } from "./auth-session-singleflight";
 
 /**
  * Invisible component that rechecks Supabase auth session state after
@@ -34,15 +35,26 @@ export function SessionRecovery({ mode = "required" }: SessionRecoveryProps) {
 
     const canRedirect = mode === "required";
 
-    const recoverSession = async () => {
-      if (!mounted || !canRedirect) {
+    const recoverSession = async (source: "mount" | "visibility") => {
+      if (!mounted) {
         return;
       }
 
-      const { data, error } = await supabase.auth.getUser();
+      // Keep optional mode non-invasive on initial page load.
+      if (mode === "optional" && source === "mount") {
+        return;
+      }
+
+      const { data, error } = await getUserSingleflight(supabase, {
+        cooldownMs: 1_500,
+      });
       if (data.user && !error) {
         transientFailureCount = 0;
         ambiguousFailureCount = 0;
+        return;
+      }
+
+      if (!canRedirect) {
         return;
       }
 
@@ -78,11 +90,11 @@ export function SessionRecovery({ mode = "required" }: SessionRecoveryProps) {
       if (document.visibilityState !== "visible") {
         return;
       }
-      void recoverSession();
+      void recoverSession("visibility");
     }
 
     // First-visit recovery: refresh auth state on mount as well.
-    void recoverSession();
+    void recoverSession("mount");
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {

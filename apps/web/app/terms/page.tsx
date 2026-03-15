@@ -343,10 +343,10 @@ export default function TermsPage() {
 
         <h3 className="mb-3 text-lg font-medium">4.1 Software Licenses</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Before using or downloading Digital Products, you must confirm that
-          you have read and understood these Terms and our Privacy Policy.
-          Access to product downloads and account-based apps is governed by
-          these Terms.
+          Where a product or access flow presents an explicit legal acceptance
+          step, you must confirm that you have read and understood these Terms
+          and our Privacy Policy before continuing. Access to product downloads
+          and account-based apps is governed by these Terms.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Source code published in our official public repositories is licensed
@@ -383,14 +383,16 @@ export default function TermsPage() {
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
-          4.3 Apparel and Physical Products
+          4.3 Apparel and Physical Products (If and When Offered)
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          If physical products (such as apparel) are offered through the
-          Services, this section governs those offerings. Physical Products are
-          sold subject to availability. Product descriptions and images are
-          provided for informational purposes. Title and risk of loss pass to
-          you upon delivery to the carrier.
+          If and when physical products (such as apparel) are offered through
+          the Services, this section will govern those offerings. Until launch,
+          product availability and commercial terms are published on the
+          relevant product pages. Physical Products are sold subject to
+          availability. Product descriptions and images are provided for
+          informational purposes. Title and risk of loss pass to you upon
+          delivery to the carrier.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Sizing:</strong> All sizing
@@ -734,9 +736,9 @@ export default function TermsPage() {
           </li>
           <li>
             Upon account termination, core account database records are
-            scheduled for permanent deletion, subject to technical processing
-            time and legally required retention (target completion within 30
-            days)
+            processed for permanent deletion immediately; full propagation may
+            still require technical processing time and legally required
+            retention windows
           </li>
           <li>
             You will not be entitled to any refund of fees already paid in the
@@ -824,7 +826,7 @@ export default function TermsPage() {
           Upon receipt of a valid Swiss court order, we may immediately suspend
           or terminate the account in question. Suspension can include freezing
           stored account data where legally and operationally required. Account
-          data is scheduled for permanent deletion upon account termination,
+          data is processed for permanent deletion upon account termination,
           subject to technical processing time and legally required retention.
           Limited non-content security/compliance metadata may be retained for
           defined periods (including up to 10 years for contract/accounting

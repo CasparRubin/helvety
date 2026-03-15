@@ -3,6 +3,13 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import {
+  createEntityLink,
+  deleteEntityLink,
+  ensureOwnedEntityExists,
+  getEntityLinksForEndpoint,
+  toLinkedEntityReferences,
+} from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
 import { z } from "zod";
 
@@ -50,14 +57,14 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
 }
 
 /**
- * Get all contact links for a specific item.
+ * Get all contact links for a specific task.
  */
 export async function getItemContactLinks(
   itemId: string
 ): Promise<ActionResponse<ItemContactLinkRow[]>> {
   try {
     if (!z.string().uuid().safeParse(itemId).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid task ID" };
     }
 
     const auth = await authenticateAndRateLimit({
@@ -66,20 +73,34 @@ export async function getItemContactLinks(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const { data: links, error } = await supabase
-      .from("item_contact_links")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("item_id", itemId)
-      .order("created_at", { ascending: true })
-      .returns<ItemContactLinkRow[]>();
+    const linksResult = await getEntityLinksForEndpoint({
+      supabase,
+      userId: user.id,
+      entityType: "items",
+      entityId: itemId,
+    });
 
-    if (error) {
-      logger.error("Error getting contact links:", error);
+    if (linksResult.error) {
+      logger.error("Error getting contact links:", linksResult.error);
       return { success: false, error: "Failed to get contact links" };
     }
 
-    return { success: true, data: links ?? [] };
+    const references = toLinkedEntityReferences(
+      linksResult.data ?? [],
+      "items",
+      itemId,
+      "contacts"
+    );
+
+    const rows: ItemContactLinkRow[] = references.map((reference) => ({
+      id: reference.link_id,
+      item_id: itemId,
+      contact_id: reference.entity_id,
+      user_id: user.id,
+      created_at: reference.linked_at,
+    }));
+
+    return { success: true, data: rows };
   } catch (error) {
     logger.error("Unexpected error in getItemContactLinks:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -87,7 +108,7 @@ export async function getItemContactLinks(
 }
 
 /**
- * Link a contact to an item.
+ * Link a contact to a task.
  */
 export async function linkContact(
   itemId: string,
@@ -96,7 +117,7 @@ export async function linkContact(
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     if (!z.string().uuid().safeParse(itemId).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid task ID" };
     }
     if (!z.string().uuid().safeParse(contactId).success) {
       return { success: false, error: "Invalid contact ID" };
@@ -109,47 +130,36 @@ export async function linkContact(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [contactResult, itemResult] = await Promise.all([
-      supabase
-        .from("contacts")
-        .select("id")
-        .eq("id", contactId)
-        .eq("user_id", user.id)
-        .single(),
-      supabase
-        .from("items")
-        .select("id")
-        .eq("id", itemId)
-        .eq("user_id", user.id)
-        .single(),
+    const [contactExists, itemExists] = await Promise.all([
+      ensureOwnedEntityExists(supabase, user.id, "contacts", contactId),
+      ensureOwnedEntityExists(supabase, user.id, "items", itemId),
     ]);
 
-    if (contactResult.error || !contactResult.data) {
+    if (!contactExists) {
       return { success: false, error: "Contact not found" };
     }
-    if (itemResult.error || !itemResult.data) {
-      return { success: false, error: "Item not found" };
+    if (!itemExists) {
+      return { success: false, error: "Task not found" };
     }
 
-    const { data: link, error } = await supabase
-      .from("item_contact_links")
-      .insert({
-        item_id: itemId,
-        contact_id: contactId,
-        user_id: user.id,
-      })
-      .select("id")
-      .single();
+    const linkResult = await createEntityLink({
+      supabase,
+      userId: user.id,
+      sourceEntityType: "items",
+      sourceEntityId: itemId,
+      targetEntityType: "contacts",
+      targetEntityId: contactId,
+    });
 
-    if (error || !link) {
-      if (error?.code === "23505") {
+    if (linkResult.error || !linkResult.data) {
+      if (linkResult.error?.code === "23505") {
         return { success: false, error: "Contact is already linked" };
       }
-      logger.error("Error linking contact:", error);
+      logger.error("Error linking contact:", linkResult.error);
       return { success: false, error: "Failed to link contact" };
     }
 
-    return { success: true, data: { id: link.id } };
+    return { success: true, data: { id: linkResult.data.id } };
   } catch (error) {
     logger.error("Unexpected error in linkContact:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -157,7 +167,7 @@ export async function linkContact(
 }
 
 /**
- * Unlink a contact from an item by deleting the link row.
+ * Unlink a contact from a task by deleting the link row.
  */
 export async function unlinkContact(
   linkId: string,
@@ -175,14 +185,10 @@ export async function unlinkContact(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const { error } = await supabase
-      .from("item_contact_links")
-      .delete()
-      .eq("id", linkId)
-      .eq("user_id", user.id);
+    const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
 
-    if (error) {
-      logger.error("Error unlinking contact:", error);
+    if (deleteResult.error) {
+      logger.error("Error unlinking contact:", deleteResult.error);
       return { success: false, error: "Failed to unlink contact" };
     }
 

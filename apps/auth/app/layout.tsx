@@ -107,9 +107,6 @@ export const metadata: Metadata = {
   },
 };
 
-// Prevent Next.js from caching user-specific data (supabase.auth.getUser) across sessions
-export const dynamic = "force-dynamic";
-
 /**
  * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer (contact + legal links).
  */
@@ -130,7 +127,6 @@ export default async function RootLayout({
         <SkipToContent />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([
               createHelvetyOrganizationSchema(brandAssets.identifierPng),

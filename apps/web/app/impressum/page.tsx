@@ -127,7 +127,9 @@ export default function ImpressumPage() {
       <LegalSection title="Trademark">
         <p className="text-muted-foreground text-sm">
           The Helvety name is used as a trademark by Helvety by Rubin. All
-          rights reserved to the extent permitted by law.
+          rights reserved for trademarks and brand assets to the extent
+          permitted by law. This does not limit source-code rights granted in
+          official public repositories under the applicable MIT license.
         </p>
       </LegalSection>
 

@@ -120,9 +120,6 @@ export const metadata: Metadata = {
   category: "shopping",
 };
 
-// Prevent Next.js from caching user-specific data (supabase.auth.getUser) across sessions
-export const dynamic = "force-dynamic";
-
 /**
  * Root layout: NavbarWrapper provides fixed header, ScrollArea main with shared container gutters, fixed footer.
  */
@@ -143,7 +140,6 @@ export default async function RootLayout({
         <SkipToContent />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([
               createHelvetyOrganizationSchema(brandAssets.identifierPng),
@@ -195,7 +191,7 @@ async function NavbarWrapper({
       </header>
       <ScrollArea className="min-h-0 flex-1">
         <div className="container mx-auto w-full px-4">
-          <StoreNav />
+          <StoreNav initialUser={initialUser} />
           <main id="main-content" className="min-w-0">
             {children}
           </main>

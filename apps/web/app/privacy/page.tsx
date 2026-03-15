@@ -772,6 +772,14 @@ export default function PrivacyPage() {
             period is required for a specific incident, dispute, or legal hold).
           </li>
           <li>
+            <strong className="text-foreground">
+              Contract/accounting evidence:
+            </strong>{" "}
+            Certain non-content records required for legal, tax, accounting, or
+            contractual proof obligations may be retained for longer periods
+            where required by Swiss law (for example, up to 10 years).
+          </li>
+          <li>
             <strong className="text-foreground">Rate limiting data:</strong>{" "}
             IP-based identifiers used for rate limiting are stored in Redis
             (Upstash). Standard rate-limit windows are short-lived (typically 1
@@ -849,15 +857,16 @@ export default function PrivacyPage() {
           >
             helvety.com/store/account
           </a>
-          . Upon confirmation, your account and personal data are scheduled for
-          deletion across Helvety services without undue delay (target: within
-          30 days), including authentication credentials, task data, contact
-          data, and note data, subject to technical processing time and legally
-          required retention. Depending on system architecture and legal
-          obligations, some records may be deleted, de-identified, or retained
-          in restricted form for compliance, fraud-prevention, dispute handling,
-          or security purposes. This action is intended to be permanent and may
-          not be reversible. We recommend exporting your data before proceeding.
+          . Upon confirmation, the deletion request is processed immediately and
+          account-linked data is removed across Helvety services without undue
+          delay, including authentication credentials, task data, contact data,
+          and note data. Full propagation across dependent systems may still
+          require technical processing time. Depending on system architecture
+          and legal obligations, some records may be deleted, de-identified, or
+          retained in restricted form for compliance, fraud-prevention, dispute
+          handling, or security purposes. This action is intended to be
+          permanent and may not be reversible. We recommend exporting your data
+          before proceeding.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Self-Service Data Export:</strong>{" "}
@@ -1193,6 +1202,17 @@ export default function PrivacyPage() {
           </strong>{" "}
           record identifiers, timestamps, display preferences (sort orders), and
           immutable built-in taxonomy references (category IDs).
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          <strong className="text-foreground">
+            Helvety Notes encrypted fields:
+          </strong>{" "}
+          title and description.{" "}
+          <strong className="text-foreground">
+            Non-encrypted structural metadata:
+          </strong>{" "}
+          record identifiers, timestamps, display preferences (sort order), and
+          relationship metadata used for cross-app linking.
         </p>
         <p className="text-muted-foreground text-sm">
           This approach is designed to help protect your encrypted content in

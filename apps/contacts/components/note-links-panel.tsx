@@ -237,7 +237,7 @@ export function NoteLinksPanel({
         {error && (
           <div className="flex flex-col items-center gap-2 py-2">
             <p role="alert" className="text-muted-foreground text-xs">
-              Something went wrong
+              Could not load linked notes. Please retry.
             </p>
             <Button variant="outline" size="sm" onClick={() => refresh()}>
               Retry

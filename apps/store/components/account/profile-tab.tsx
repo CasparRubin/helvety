@@ -125,7 +125,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
 
-  /** Exports all user data as a JSON download (supports nDSG Art. 28 data portability). */
+  /** Exports account profile data as JSON (nDSG Art. 28 portability). */
   async function handleDataExport() {
     setIsExporting(true);
     const result = await exportUserData().catch((error: unknown) => {
@@ -193,7 +193,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
       return;
     }
 
-    toast.success("Account deletion initiated", {
+    toast.success("Account deletion completed", {
       description:
         "Your account deletion request has been processed. You should be redirected shortly. Deletion may take some time to complete across all systems.",
       duration: TOAST_DURATIONS.SUCCESS,
@@ -375,7 +375,9 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogTitle>
+                  Delete your account permanently?
+                </AlertDialogTitle>
                 <AlertDialogDescription className="space-y-3">
                   <span className="block">
                     This action is permanent and cannot be undone. We initiate

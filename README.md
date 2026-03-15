@@ -18,7 +18,7 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 | **[PDF](apps/pdf/)**           | [helvety.com/pdf](https://helvety.com/pdf)           | Client-side PDF toolkit (merge, reorder, rotate, extract)         |
 | **[Tasks](apps/tasks/)**       | [helvety.com/tasks](https://helvety.com/tasks)       | Task management with client-side encryption for sensitive data    |
 | **[Contacts](apps/contacts/)** | [helvety.com/contacts](https://helvety.com/contacts) | Contact management with client-side encryption for sensitive data |
-| **[Notes](apps/notes/)**       | [helvety.com/notes](https://helvety.com/notes)       | Notes management with client-side encryption for sensitive data   |
+| **[Notes](apps/notes/)**       | [helvety.com/notes](https://helvety.com/notes)       | Note management with client-side encryption for sensitive data    |
 
 ## Shared Packages
 
@@ -93,8 +93,8 @@ bun run format
 ### Automation
 
 - GitHub Actions workflows are intentionally not configured in this repository.
-- Quality checks (`lint`, `type-check`, `test`, and `format:check`) are run manually/local as needed.
-- Dependency and security checks (`deps:audit`, `deps:check`) are also run manually/local as needed.
+- Quality checks (`lint`, `type-check`, `test`, and `format:check`) are run locally as needed.
+- Dependency and security checks (`deps:audit`, `deps:check`, `deps:outdated`) are run locally as needed.
 - Deployments are handled by Vercel via Git integration.
 
 ### Supabase Workflow (Remote-First)
@@ -103,6 +103,11 @@ bun run format
 - Database changes are applied directly in the hosted Supabase project (SQL Editor / SQL migrations).
 - Keep `supabase/getSupabase.sql` for full-schema export/audit queries.
 - Keep `supabase/supabase.json` local-only (gitignored). It contains sensitive schema/ACL/function metadata and must be regenerated after live hardening changes before using it for security conclusions.
+- Run a monthly Supabase auth-provider posture check:
+  1. Review enabled providers in Supabase Dashboard -> Authentication -> Providers and disable any provider not intentionally used.
+  2. If Apple or Azure providers are enabled, verify current Supabase Auth advisories before release and confirm expected issuer/domain configuration.
+  3. Re-run project security/performance advisors after auth configuration changes.
+  4. Regenerate `supabase/supabase.json` after hardening updates so local security reviews use current ACL/policy metadata.
 - Regenerate shared DB types only when needed:
 
 ```bash
@@ -150,7 +155,7 @@ Helvety services are primarily intended for customers in Switzerland. New accoun
 
 ## Developer
 
-This project is developed and maintained by [Helvety](https://helvety.com), a Swiss company focused on security and user privacy.
+This project is developed and maintained by [Helvety](https://helvety.com), a Swiss sole proprietorship (Einzelfirma) focused on security and user privacy.
 
 For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com).
 

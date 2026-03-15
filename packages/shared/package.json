@@ -15,7 +15,9 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "exports": {
     "./action-helpers": "./src/action-helpers.ts",
@@ -36,6 +38,7 @@
     "./rate-limit": "./src/rate-limit.ts",
     "./env-validation": "./src/env-validation.ts",
     "./entity-delete-message": "./src/entity-delete-message.ts",
+    "./entity-links": "./src/entity-links.ts",
     "./layout-primitives": "./src/layout-primitives.ts",
     "./redirect-validation": "./src/redirect-validation.ts",
     "./seo": "./src/seo.ts",

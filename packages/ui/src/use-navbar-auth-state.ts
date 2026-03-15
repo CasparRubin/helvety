@@ -3,6 +3,8 @@
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { useEffect, useMemo, useState } from "react";
 
+import { getUserSingleflight } from "./auth-session-singleflight";
+
 /**
  * Shared auth-session state for app navbars.
  * Uses server-provided initial user when available, then subscribes to updates.
@@ -38,7 +40,7 @@ export function useNavbarAuthState<UserType extends NavbarUser>(
     const getUser = async () => {
       const {
         data: { user: fetchedUser },
-      } = await supabase.auth.getUser();
+      } = await getUserSingleflight(supabase, { cooldownMs: 1_500 });
       setUser((fetchedUser ?? null) as UserType | null);
       setIsLoading(false);
     };

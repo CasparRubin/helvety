@@ -114,10 +114,12 @@ export const metadata: Metadata = {
 /**
  * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer (contact + legal links).
  *
- * The web app serves only public pages (home, privacy, terms, impressum).
+ * The web app is primarily public-facing (marketing/legal pages) and also
+ * exposes public metadata/API endpoints such as robots, sitemap, and CSP
+ * reporting routes.
  * No explicit force-dynamic export. This layout reads request headers for CSP
- * nonce propagation, while auth state in Navbar is resolved client-side via
- * onAuthStateChange.
+ * nonce propagation; navbar auth state is resolved client-side via an initial
+ * Supabase user probe plus onAuthStateChange updates.
  */
 export default async function RootLayout({
   children,
@@ -127,7 +129,12 @@ export default async function RootLayout({
   const nonce = (await headers()).get("x-nonce") ?? "";
 
   return (
-    <html lang="en" className={publicSans.variable} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={publicSans.variable}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body className="antialiased">
         <SkipToContent />
         <script

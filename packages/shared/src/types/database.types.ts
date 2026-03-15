@@ -62,44 +62,41 @@ export type Database = {
         };
         Relationships: [];
       };
-      item_contact_links: {
+      entity_links: {
         Row: {
-          contact_id: string;
           created_at: string;
           id: string;
-          item_id: string;
+          metadata: Json;
+          relation_type: string;
+          source_entity_id: string;
+          source_entity_type: string;
+          target_entity_id: string;
+          target_entity_type: string;
           user_id: string;
         };
         Insert: {
-          contact_id: string;
           created_at?: string;
           id?: string;
-          item_id: string;
+          metadata?: Json;
+          relation_type?: string;
+          source_entity_id: string;
+          source_entity_type: string;
+          target_entity_id: string;
+          target_entity_type: string;
           user_id: string;
         };
         Update: {
-          contact_id?: string;
           created_at?: string;
           id?: string;
-          item_id?: string;
+          metadata?: Json;
+          relation_type?: string;
+          source_entity_id?: string;
+          source_entity_type?: string;
+          target_entity_id?: string;
+          target_entity_type?: string;
           user_id?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: "item_contact_links_contact_id_fkey";
-            columns: ["contact_id"];
-            isOneToOne: false;
-            referencedRelation: "contacts";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "item_contact_links_item_id_fkey";
-            columns: ["item_id"];
-            isOneToOne: false;
-            referencedRelation: "items";
-            referencedColumns: ["id"];
-          },
-        ];
+        Relationships: [];
       };
       items: {
         Row: {
@@ -145,84 +142,6 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [];
-      };
-      note_contact_links: {
-        Row: {
-          contact_id: string;
-          created_at: string;
-          id: string;
-          note_id: string;
-          user_id: string;
-        };
-        Insert: {
-          contact_id: string;
-          created_at?: string;
-          id?: string;
-          note_id: string;
-          user_id: string;
-        };
-        Update: {
-          contact_id?: string;
-          created_at?: string;
-          id?: string;
-          note_id?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "note_contact_links_contact_id_fkey";
-            columns: ["contact_id"];
-            isOneToOne: false;
-            referencedRelation: "contacts";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "note_contact_links_note_id_fkey";
-            columns: ["note_id"];
-            isOneToOne: false;
-            referencedRelation: "notes";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      note_item_links: {
-        Row: {
-          created_at: string;
-          id: string;
-          item_id: string;
-          note_id: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          item_id: string;
-          note_id: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          item_id?: string;
-          note_id?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "note_item_links_item_id_fkey";
-            columns: ["item_id"];
-            isOneToOne: false;
-            referencedRelation: "items";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "note_item_links_note_id_fkey";
-            columns: ["note_id"];
-            isOneToOne: false;
-            referencedRelation: "notes";
-            referencedColumns: ["id"];
-          },
-        ];
       };
       notes: {
         Row: {
@@ -355,6 +274,10 @@ export type Database = {
       };
       purge_auth_user_owned_data: {
         Args: { p_user_id: string };
+        Returns: undefined;
+      };
+      validate_entity_link_endpoint: {
+        Args: { p_entity_id: string; p_entity_type: string; p_user_id: string };
         Returns: undefined;
       };
     };

@@ -4,6 +4,13 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import {
+  createEntityLink,
+  deleteEntityLink,
+  ensureOwnedEntityExists,
+  getEntityLinksForEndpoint,
+  toLinkedEntityReferences,
+} from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
 import { z } from "zod";
 
@@ -59,14 +66,14 @@ export async function getNotes(): Promise<ActionResponse<NoteRow[]>> {
 }
 
 /**
- * Get all note links for a specific item.
+ * Get all note links for a specific task.
  */
 export async function getItemNoteLinks(
   itemId: string
 ): Promise<ActionResponse<NoteItemLinkRow[]>> {
   try {
     if (!z.string().uuid().safeParse(itemId).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid task ID" };
     }
 
     const auth = await authenticateAndRateLimit({
@@ -75,20 +82,34 @@ export async function getItemNoteLinks(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const { data: links, error } = await supabase
-      .from("note_item_links")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("item_id", itemId)
-      .order("created_at", { ascending: true })
-      .returns<NoteItemLinkRow[]>();
+    const linksResult = await getEntityLinksForEndpoint({
+      supabase,
+      userId: user.id,
+      entityType: "items",
+      entityId: itemId,
+    });
 
-    if (error) {
-      logger.error("Error getting note links:", error);
+    if (linksResult.error) {
+      logger.error("Error getting note links:", linksResult.error);
       return { success: false, error: "Failed to get note links" };
     }
 
-    return { success: true, data: links ?? [] };
+    const references = toLinkedEntityReferences(
+      linksResult.data ?? [],
+      "items",
+      itemId,
+      "notes"
+    );
+
+    const rows: NoteItemLinkRow[] = references.map((reference) => ({
+      id: reference.link_id,
+      item_id: itemId,
+      note_id: reference.entity_id,
+      user_id: user.id,
+      created_at: reference.linked_at,
+    }));
+
+    return { success: true, data: rows };
   } catch (error) {
     logger.error("Unexpected error in getItemNoteLinks:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -96,7 +117,7 @@ export async function getItemNoteLinks(
 }
 
 /**
- * Link a note to an item.
+ * Link a note to a task.
  */
 export async function linkNote(
   itemId: string,
@@ -105,7 +126,7 @@ export async function linkNote(
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     if (!z.string().uuid().safeParse(itemId).success) {
-      return { success: false, error: "Invalid item ID" };
+      return { success: false, error: "Invalid task ID" };
     }
     if (!z.string().uuid().safeParse(noteId).success) {
       return { success: false, error: "Invalid note ID" };
@@ -118,47 +139,36 @@ export async function linkNote(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [noteResult, itemResult] = await Promise.all([
-      supabase
-        .from("notes")
-        .select("id")
-        .eq("id", noteId)
-        .eq("user_id", user.id)
-        .single(),
-      supabase
-        .from("items")
-        .select("id")
-        .eq("id", itemId)
-        .eq("user_id", user.id)
-        .single(),
+    const [noteExists, itemExists] = await Promise.all([
+      ensureOwnedEntityExists(supabase, user.id, "notes", noteId),
+      ensureOwnedEntityExists(supabase, user.id, "items", itemId),
     ]);
 
-    if (noteResult.error || !noteResult.data) {
+    if (!noteExists) {
       return { success: false, error: "Note not found" };
     }
-    if (itemResult.error || !itemResult.data) {
-      return { success: false, error: "Item not found" };
+    if (!itemExists) {
+      return { success: false, error: "Task not found" };
     }
 
-    const { data: link, error } = await supabase
-      .from("note_item_links")
-      .insert({
-        item_id: itemId,
-        note_id: noteId,
-        user_id: user.id,
-      })
-      .select("id")
-      .single();
+    const linkResult = await createEntityLink({
+      supabase,
+      userId: user.id,
+      sourceEntityType: "items",
+      sourceEntityId: itemId,
+      targetEntityType: "notes",
+      targetEntityId: noteId,
+    });
 
-    if (error || !link) {
-      if (error?.code === "23505") {
+    if (linkResult.error || !linkResult.data) {
+      if (linkResult.error?.code === "23505") {
         return { success: false, error: "Note is already linked" };
       }
-      logger.error("Error linking note:", error);
+      logger.error("Error linking note:", linkResult.error);
       return { success: false, error: "Failed to link note" };
     }
 
-    return { success: true, data: { id: link.id } };
+    return { success: true, data: { id: linkResult.data.id } };
   } catch (error) {
     logger.error("Unexpected error in linkNote:", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -166,7 +176,7 @@ export async function linkNote(
 }
 
 /**
- * Unlink a note from an item by deleting the link row.
+ * Unlink a note from a task by deleting the link row.
  */
 export async function unlinkNote(
   linkId: string,
@@ -184,14 +194,10 @@ export async function unlinkNote(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const { error } = await supabase
-      .from("note_item_links")
-      .delete()
-      .eq("id", linkId)
-      .eq("user_id", user.id);
+    const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
 
-    if (error) {
-      logger.error("Error unlinking note:", error);
+    if (deleteResult.error) {
+      logger.error("Error unlinking note:", deleteResult.error);
       return { success: false, error: "Failed to unlink note" };
     }
 
