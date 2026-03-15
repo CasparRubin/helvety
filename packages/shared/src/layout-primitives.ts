@@ -5,17 +5,6 @@
 
 import { urls } from "./config";
 
-export const PUBLIC_SANS_LOCAL_FONT_SRC = [
-  {
-    path: "../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2",
-    style: "normal" as const,
-  },
-  {
-    path: "../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-italic.woff2",
-    style: "italic" as const,
-  },
-];
-
 export const DEFAULT_THEME_PROVIDER_PROPS = {
   attribute: "class" as const,
   defaultTheme: "system" as const,

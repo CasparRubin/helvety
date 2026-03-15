@@ -26,7 +26,7 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                                                                                                                                                               |
 | **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, PostCSS, and Next.js security-header configurations                                                                                                                                          |
-| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, types, utilities                                                                                                           |
+| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, shared font definitions, types, utilities                                                                                  |
 | **[@helvety/ui](packages/ui/)**         | Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, navbar-scoped animated Lucide icon aliases, AuthTokenHandler, SessionRecovery, SkipToContent |
 
 ## Getting Started
@@ -148,6 +148,11 @@ helvety/
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS
 - **[shadcn/ui](https://ui.shadcn.com/)** - Component library
 - **[Vercel](https://vercel.com/)** - Deployment platform
+
+## UI/UX Consistency Notes
+
+- Typography is centralized through `@helvety/shared/fonts` (`next/font/google` with shared `Public Sans` variable setup).
+- App layouts should import shared font definitions instead of referencing local font files from `node_modules`.
 
 ## Service Availability
 

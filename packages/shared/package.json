@@ -40,6 +40,7 @@
     "./entity-delete-message": "./src/entity-delete-message.ts",
     "./entity-links": "./src/entity-links.ts",
     "./layout-primitives": "./src/layout-primitives.ts",
+    "./fonts": "./src/fonts.ts",
     "./redirect-validation": "./src/redirect-validation.ts",
     "./seo": "./src/seo.ts",
     "./supabase/client": "./src/supabase/client.ts",

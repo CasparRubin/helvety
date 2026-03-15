@@ -5,6 +5,7 @@ import {
   getCachedUser,
 } from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
+import { publicSans } from "@helvety/shared/fonts";
 import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
@@ -21,29 +22,12 @@ import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
 import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
-import localFont from "next/font/local";
 import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
 
 import type { Metadata } from "next";
-
-// Local Public Sans variable font - no network fetch during build
-const publicSans = localFont({
-  src: [
-    {
-      path: "../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2",
-      style: "normal",
-    },
-    {
-      path: "../node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-italic.woff2",
-      style: "italic",
-    },
-  ],
-  variable: "--font-sans",
-  display: "swap",
-});
 
 export const viewport = sharedViewport;
 
