@@ -7,6 +7,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Multi-zone: serve this app under helvety.com/auth
   basePath: "/auth",
+  // Multi-zone: isolate this zone's Next.js assets when proxied via web gateway.
+  assetPrefix: "/auth-static",
 
   compress: true,
 

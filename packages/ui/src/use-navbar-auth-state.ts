@@ -18,21 +18,27 @@ type NavbarUser = {
  * Returns navbar auth user/loading state with live Supabase session updates.
  */
 export function useNavbarAuthState<UserType extends NavbarUser>(
-  initialUser: UserType | null = null
+  initialUser: UserType | null = null,
+  options?: { skipInitialProbe?: boolean }
 ): {
   user: UserType | null;
   isLoading: boolean;
 } {
+  const skipInitialProbe = options?.skipInitialProbe === true;
   const [user, setUser] = useState<UserType | null>(initialUser);
-  const [isLoading, setIsLoading] = useState(!initialUser);
+  const [isLoading, setIsLoading] = useState(!initialUser && !skipInitialProbe);
   const supabase = useMemo(() => createBrowserClient(), []);
 
   useEffect(() => {
-    if (initialUser) {
+    if (initialUser || skipInitialProbe) {
+      if (skipInitialProbe) {
+        setIsLoading(false);
+      }
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
         setUser((session?.user ?? null) as UserType | null);
+        setIsLoading(false);
       });
       return () => subscription.unsubscribe();
     }
@@ -53,7 +59,7 @@ export function useNavbarAuthState<UserType extends NavbarUser>(
       setIsLoading(false);
     });
     return () => subscription.unsubscribe();
-  }, [initialUser, supabase]);
+  }, [initialUser, skipInitialProbe, supabase]);
 
   return { user, isLoading };
 }

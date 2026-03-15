@@ -26,6 +26,9 @@ describe("use-login-flow auth bootstrap guards", () => {
     expect(
       isRateLimitedLoginAuthSession("Auth API error: too many requests")
     ).toBe(true);
+    expect(
+      isRateLimitedLoginAuthSession("AuthApiError: Request rate limit reached")
+    ).toBe(true);
     expect(isRateLimitedLoginAuthSession("Invalid refresh token")).toBe(false);
     expect(isRateLimitedLoginAuthSession(null)).toBe(false);
   });

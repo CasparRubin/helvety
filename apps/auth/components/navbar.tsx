@@ -1,6 +1,9 @@
 "use client";
 
-import { redirectToLogout } from "@helvety/shared/auth-redirect";
+import {
+  redirectToLogin,
+  redirectToLogout,
+} from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import {
@@ -45,7 +48,6 @@ import { ThemeSwitcher } from "@helvety/ui/theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
 import { ShieldCheck } from "lucide-react";
-import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
@@ -68,7 +70,9 @@ export function Navbar({
   initialUser?: SupabaseUser | null;
 }) {
   const { isUnlocked, isLoading: encryptionLoading } = useEncryptionContext();
-  const { user, isLoading } = useNavbarAuthState(initialUser);
+  const { user, isLoading } = useNavbarAuthState(initialUser, {
+    skipInitialProbe: true,
+  });
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -86,6 +90,10 @@ export function Navbar({
   const handleLogout = () => {
     // Redirect to centralized auth service for logout
     redirectToLogout(window.location.href);
+  };
+
+  const handleLogin = () => {
+    redirectToLogin(window.location.href);
   };
 
   return (
@@ -129,11 +137,9 @@ export function Navbar({
             )}
 
             {!user && !isLoading && (
-              <Button variant="default" size="sm" asChild>
-                <Link href="/login">
-                  <LogIn className="h-4 w-4" />
-                  Sign in
-                </Link>
+              <Button variant="default" size="sm" onClick={handleLogin}>
+                <LogIn className="h-4 w-4" />
+                Sign in
               </Button>
             )}
 
@@ -276,15 +282,13 @@ export function Navbar({
                   <Button
                     variant="default"
                     className="w-full justify-start"
-                    asChild
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLogin();
+                    }}
                   >
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <LogIn className="h-4 w-4" />
-                      Sign in
-                    </Link>
+                    <LogIn className="h-4 w-4" />
+                    Sign in
                   </Button>
                 )}
                 {user && !isLoading && (

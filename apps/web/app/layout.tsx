@@ -14,7 +14,7 @@ import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
-import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
+import { VercelAnalyticsWithSpeedInsights } from "@helvety/ui/vercel-analytics";
 import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
@@ -158,7 +158,7 @@ export default async function RootLayout({
             <Toaster />
           </TooltipProvider>
         </ThemeProvider>
-        <VercelAnalytics />
+        <VercelAnalyticsWithSpeedInsights />
       </body>
     </html>
   );

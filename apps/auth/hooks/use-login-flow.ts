@@ -35,7 +35,6 @@ import {
   saveKeyCheckValue,
 } from "@/app/actions/encryption-actions";
 import {
-  checkEmail,
   sendVerificationCode,
   verifyEmailCode,
 } from "@/app/actions/otp-actions";
@@ -51,14 +50,18 @@ import type { AuthStep, AuthFlowType } from "@/components/encryption-stepper";
 
 /** Duration (in seconds) before the user can resend an OTP code. */
 const RESEND_COOLDOWN_SECONDS = 120;
-const LOGIN_AUTH_PROBE_TIMEOUT_MS = 8_000;
+const LOGIN_AUTH_PROBE_TIMEOUT_MS = 1_200;
 const TERMINAL_AUTH_ERROR_TOKENS = [
   "refresh token not found",
   "invalid refresh token",
   "refresh token is invalid",
   "session is invalid",
 ] as const;
-const RATE_LIMIT_AUTH_ERROR_TOKENS = ["too many requests", "429"] as const;
+const RATE_LIMIT_AUTH_ERROR_TOKENS = [
+  "too many requests",
+  "request rate limit reached",
+  "429",
+] as const;
 
 /** Required length of the one-time password code. */
 export const OTP_CODE_LENGTH = 6;
@@ -66,7 +69,6 @@ export const OTP_CODE_LENGTH = 6;
 /** Steps in the login flow, rendered sequentially. */
 export type LoginStep =
   | "email" // Enter email
-  | "geo-confirmation" // Non-EU confirmation (new users only)
   | "verify-code" // Enter OTP code from email
   | "passkey-signin" // Sign in with existing passkey
   | "encryption-setup"; // Set up encryption with passkey
@@ -76,6 +78,8 @@ export interface LoginFlowState {
   step: LoginStep;
   email: string;
   setEmail: (email: string) => void;
+  nonEUEEAConfirmed: boolean;
+  setNonEUEEAConfirmed: (checked: boolean) => void;
   error: string;
   isLoading: boolean;
   checkingAuth: boolean;
@@ -85,14 +89,11 @@ export interface LoginFlowState {
   otpCode: string;
   setOtpCode: (code: string) => void;
   resendCooldown: number;
-  skippedToPasskey: boolean;
   isNewUser: boolean;
   redirectUri: string | null;
-  isNewUserParam: string | null;
   currentAuthStep: AuthStep;
   flowType: AuthFlowType;
   handleEmailSubmit: (e: React.FormEvent) => Promise<void>;
-  handleGeoConfirm: () => Promise<void>;
   handleCodeVerify: (e: React.FormEvent) => Promise<void>;
   handleResendCode: () => Promise<void>;
   handlePasskeySignIn: () => Promise<void>;
@@ -147,6 +148,7 @@ export function useLoginFlow(): LoginFlowState {
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const [nonEUEEAConfirmed, setNonEUEEAConfirmed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [passkeySupported, setPasskeySupported] = useState(false);
 
@@ -158,7 +160,6 @@ export function useLoginFlow(): LoginFlowState {
   const forceLogin = searchParams.get("force_login") === "1";
   const stepParam = searchParams.get("step") as LoginStep | null;
   const authError = searchParams.get("error");
-  const isNewUserParam = searchParams.get("is_new_user");
 
   // Compute initial step from URL or default to email
   const initialStep: LoginStep =
@@ -178,9 +179,7 @@ export function useLoginFlow(): LoginFlowState {
   const [error, setError] = useState(initialError);
   const [userId, setUserId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [skippedToPasskey, setSkippedToPasskey] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
-  const hasAutoTriggered = useRef(false);
   const hasAutoRetriedMismatch = useRef(false);
   const hasInitializedAuth = useRef(false);
   const hasRecoveredTerminalAuth = useRef(false);
@@ -350,7 +349,7 @@ export function useLoginFlow(): LoginFlowState {
     };
   }, [supabase, step, redirectUri, forceLogin]);
 
-  // Handle email submission and branch by passkey availability.
+  // Handle email submission and always continue with OTP.
   const handleEmailSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -358,46 +357,20 @@ export function useLoginFlow(): LoginFlowState {
       setIsLoading(true);
 
       try {
-        // Read-only check, no user record is created here
-        const result = await checkEmail(email);
-
+        const result = await sendVerificationCode(csrfToken, email, {
+          nonEUEEAConfirmed,
+        });
         if (!result.success) {
-          const msg = result.error ?? "Failed to check email";
+          const msg = result.error ?? "Failed to send verification email";
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
           setIsLoading(false);
           return;
         }
 
-        if (result.data?.hasPasskey) {
-          // User with passkey - go directly to passkey sign-in.
-          // Pre-auth checks intentionally do not return PRF bootstrap metadata.
-          // PRF bootstrap in this flow is resolved from local cache only.
-          setSkippedToPasskey(true);
-          setIsNewUser(false);
-          setStep("passkey-signin");
-        } else {
-          // No passkey path: attempt OTP directly. New users will be challenged
-          // for geo confirmation by sendVerificationCode.
-          setIsNewUser(false);
-          const otpResult = await sendVerificationCode(csrfToken, email);
-          if (!otpResult.success) {
-            if (otpResult.error === "GEO_CONFIRMATION_REQUIRED") {
-              setIsNewUser(true);
-              setStep("geo-confirmation");
-              setIsLoading(false);
-              return;
-            }
-            const msg = otpResult.error ?? "Failed to send verification email";
-            setError(msg);
-            toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-            setIsLoading(false);
-            return;
-          }
-          setOtpCode("");
-          setResendCooldown(RESEND_COOLDOWN_SECONDS);
-          setStep("verify-code");
-        }
+        setOtpCode("");
+        setResendCooldown(RESEND_COOLDOWN_SECONDS);
+        setStep("verify-code");
         setIsLoading(false);
       } catch (err) {
         logger.error("Email submission error:", err);
@@ -407,40 +380,8 @@ export function useLoginFlow(): LoginFlowState {
         setIsLoading(false);
       }
     },
-    [email, csrfToken]
+    [email, csrfToken, nonEUEEAConfirmed]
   );
-
-  // Handle geo confirmation for new users; creates user + sends OTP only after confirmation
-  const handleGeoConfirm = useCallback(async () => {
-    setError("");
-    setIsLoading(true);
-
-    try {
-      // Now safe to create the user since they confirmed they are in Switzerland
-      const result = await sendVerificationCode(csrfToken, email, {
-        geoConfirmed: true,
-      });
-
-      if (!result.success) {
-        const msg = result.error ?? "Failed to send verification email";
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-        setIsLoading(false);
-        return;
-      }
-
-      setOtpCode("");
-      setResendCooldown(RESEND_COOLDOWN_SECONDS);
-      setStep("verify-code");
-      setIsLoading(false);
-    } catch (err) {
-      logger.error("Geo confirmation error:", err);
-      const msg = "An unexpected error occurred";
-      setError(msg);
-      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-      setIsLoading(false);
-    }
-  }, [email, csrfToken]);
 
   // Handle OTP code verification
   const handleCodeVerify = useCallback(
@@ -462,6 +403,7 @@ export function useLoginFlow(): LoginFlowState {
 
         if (result.data) {
           setUserId(result.data.userId);
+          setIsNewUser(result.data.isNewUser);
           setStep(result.data.nextStep);
         }
         setIsLoading(false);
@@ -484,12 +426,9 @@ export function useLoginFlow(): LoginFlowState {
     setIsLoading(true);
 
     try {
-      // Pass geoConfirmed for new users (they already confirmed in the previous step)
-      const result = await sendVerificationCode(
-        csrfToken,
-        email,
-        isNewUser ? { geoConfirmed: true } : undefined
-      );
+      const result = await sendVerificationCode(csrfToken, email, {
+        nonEUEEAConfirmed,
+      });
 
       if (!result.success) {
         const msg = result.error ?? "Failed to resend code";
@@ -507,7 +446,7 @@ export function useLoginFlow(): LoginFlowState {
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setIsLoading(false);
     }
-  }, [email, resendCooldown, isNewUser, csrfToken]);
+  }, [email, resendCooldown, nonEUEEAConfirmed, csrfToken]);
 
   const clearStalePasskeyBootstrapState = useCallback(async () => {
     clearCachedPRFSalt();
@@ -747,39 +686,13 @@ export function useLoginFlow(): LoginFlowState {
     redirectUri,
   ]);
 
-  // Auto-trigger passkey authentication for existing users who skipped email verification
-  useEffect(() => {
-    if (
-      step === "passkey-signin" &&
-      skippedToPasskey &&
-      passkeySupported &&
-      !isLoading &&
-      !hasAutoTriggered.current
-    ) {
-      hasAutoTriggered.current = true;
-      // Small delay to allow UI to render first
-      const timer = setTimeout(() => {
-        void handlePasskeySignIn();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-    return undefined;
-  }, [
-    step,
-    skippedToPasskey,
-    passkeySupported,
-    isLoading,
-    handlePasskeySignIn,
-  ]);
-
   // Go back to email step
   const handleBack = () => {
     setStep("email");
     setError("");
     setIsLoading(false);
-    setSkippedToPasskey(false);
     setIsNewUser(false);
-    hasAutoTriggered.current = false;
+    setNonEUEEAConfirmed(false);
     setOtpCode("");
     setResendCooldown(0);
     hasAutoRetriedMismatch.current = false;
@@ -787,23 +700,21 @@ export function useLoginFlow(): LoginFlowState {
 
   // Determine current stepper step
   const currentAuthStep: AuthStep = (() => {
-    if (step === "geo-confirmation") return "geo_confirmation";
-    if (step === "email" || step === "verify-code") return "email";
+    if (step === "email") return "email";
+    if (step === "verify-code") return "verify_code";
     if (step === "passkey-signin") return "sign_in";
     return "create_passkey";
   })();
 
-  // Determine flow type for stepper display
-  // From URL param (callback) or from having skipped to passkey after email submit
-  const flowType: AuthFlowType =
-    isNewUserParam === "false" || skippedToPasskey
-      ? "returning_user"
-      : "new_user";
+  // Determine flow type for stepper display.
+  const flowType: AuthFlowType = isNewUser ? "new_user" : "returning_user";
 
   return {
     step,
     email,
     setEmail,
+    nonEUEEAConfirmed,
+    setNonEUEEAConfirmed,
     error,
     isLoading,
     checkingAuth,
@@ -813,14 +724,11 @@ export function useLoginFlow(): LoginFlowState {
     otpCode,
     setOtpCode,
     resendCooldown,
-    skippedToPasskey,
     isNewUser,
     redirectUri,
-    isNewUserParam,
     currentAuthStep,
     flowType,
     handleEmailSubmit,
-    handleGeoConfirm,
     handleCodeVerify,
     handleResendCode,
     handlePasskeySignIn,

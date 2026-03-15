@@ -44,19 +44,15 @@ const nextConfig: NextConfig = {
     const isDev = process.env.NODE_ENV === "development";
     const devUrl = (port: number) => `http://localhost:${port}`;
 
-    /** Resolves the internal Vercel URL for a sub-app, falling back to localhost in dev. */
+    /** Resolves sub-app origin: localhost in dev, internal Vercel URL in production. */
     function getAppUrl(envVar: string, devPort: number): string {
+      if (isDev) {
+        return devUrl(devPort);
+      }
+
       const value = process.env[envVar];
       if (value) {
         const parsed = normalizeUrl(value, envVar);
-        if (isDev) {
-          if (!["http:", "https:"].includes(parsed.protocol)) {
-            throw new Error(
-              `${envVar} must use http:// or https:// in development.`
-            );
-          }
-          return parsed.origin;
-        }
         if (parsed.protocol !== "https:") {
           throw new Error(`${envVar} must use https:// in production.`);
         }
@@ -67,7 +63,6 @@ const nextConfig: NextConfig = {
         }
         return parsed.origin;
       }
-      if (isDev) return devUrl(devPort);
       throw new Error(
         `${envVar} is required in production. Set it to the Vercel deployment URL for this app.`
       );
@@ -89,6 +84,11 @@ const nextConfig: NextConfig = {
         {
           source: "/auth/:path*",
           destination: `${authUrl}/auth/:path*`,
+        },
+        {
+          // Forward auth zone static assets (assetPrefix: /auth-static).
+          source: "/auth-static/:path*",
+          destination: `${authUrl}/auth-static/:path*`,
         },
         {
           source: "/tasks",

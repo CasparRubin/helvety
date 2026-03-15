@@ -18,6 +18,14 @@ describe("getLoginUrl", () => {
     });
     expect(url).toContain("redirect_uri=http%3A%2F%2Flocalhost%3A3007%2Fnotes");
   });
+
+  it("preserves query and hash from source URLs", () => {
+    const source = "https://helvety.com/tasks?filter=today#item-7";
+    const url = getLoginUrl(source);
+    expect(url).toContain(
+      "redirect_uri=https%3A%2F%2Fhelvety.com%2Ftasks%3Ffilter%3Dtoday%23item-7"
+    );
+  });
 });
 
 describe("getLogoutUrl", () => {

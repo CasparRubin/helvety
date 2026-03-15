@@ -25,130 +25,8 @@ import { findUserByEmail } from "./user-lookup";
 import type { ActionResponse } from "@helvety/shared/types/entities";
 
 // =============================================================================
-// HELPERS
-// =============================================================================
-
-// =============================================================================
 // EMAIL + OTP CODE AUTHENTICATION
 // =============================================================================
-
-/**
- * Check if an email address belongs to an existing user (read-only).
- *
- * This action performs NO writes. It only checks existence and passkey status.
- * Used as the first step of the auth flow so we can branch new vs returning
- * users BEFORE creating account records (critical for the geo-restriction
- * flow and reducing pre-confirmation persistence risk).
- *
- * This action intentionally does not return PRF bootstrap metadata pre-auth.
- * PRF parameters are fetched later in the authenticated passkey flow.
- *
- * Security:
- * - Rate limited to prevent enumeration attacks
- * - Email is normalized to prevent duplicates
- * - Does not expose direct user existence in the response
- * - Returns generic responses on errors to prevent enumeration
- *
- * @param email - The user's email address
- * @returns Whether this identity can use direct passkey sign-in
- */
-export async function checkEmail(
-  email: string
-): Promise<ActionResponse<{ hasPasskey: boolean }>> {
-  // Constant-time floor: prevent user-existence timing side-channel.
-  // Existing users trigger passkey checks which take longer than
-  // non-existent users. By enforcing a minimum response time we ensure
-  // both paths return in a similar window.
-  const MINIMUM_RESPONSE_MS = 250;
-  const start = Date.now();
-
-  const result = await checkEmailInner(email);
-
-  const elapsed = Date.now() - start;
-  if (elapsed < MINIMUM_RESPONSE_MS) {
-    await new Promise((r) => setTimeout(r, MINIMUM_RESPONSE_MS - elapsed));
-  }
-  return result;
-}
-
-/** Inner implementation of checkEmail, called within the constant-time wrapper. */
-async function checkEmailInner(
-  email: string
-): Promise<ActionResponse<{ hasPasskey: boolean }>> {
-  const normalizedEmail = email.toLowerCase().trim();
-  const clientIP = await getClientIP();
-
-  // Rate limit by email AND IP to prevent enumeration
-  const [emailRateLimit, ipRateLimit] = await Promise.all([
-    checkRateLimit(
-      `check:email:${normalizedEmail}`,
-      RATE_LIMITS.OTP.maxRequests,
-      RATE_LIMITS.OTP.windowMs
-    ),
-    checkRateLimit(
-      `check:ip:${clientIP}`,
-      RATE_LIMITS.OTP.maxRequests * 3,
-      RATE_LIMITS.OTP.windowMs
-    ),
-  ]);
-
-  if (!emailRateLimit.allowed || !ipRateLimit.allowed) {
-    const retryAfter =
-      emailRateLimit.retryAfter ?? ipRateLimit.retryAfter ?? 60;
-    logAuthEvent("rate_limit_exceeded", {
-      metadata: {
-        action: "checkEmail",
-        email: `${normalizedEmail.slice(0, 3)}***`,
-        retryAfter,
-      },
-      ip: clientIP,
-    });
-    return {
-      success: false,
-      error: `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
-    };
-  }
-
-  try {
-    // Validate email format
-    if (!z.string().email().safeParse(normalizedEmail).success) {
-      return { success: false, error: "Please enter a valid email address" };
-    }
-
-    // Check if user exists (read-only, direct O(1) lookup via RPC)
-    const existingUser = await findUserByEmail(normalizedEmail);
-
-    if (!existingUser) {
-      return {
-        success: true,
-        data: { hasPasskey: false },
-      };
-    }
-
-    // User exists, check passkey status
-    const passkeyStatus = await checkUserPasskeyStatus(existingUser.id);
-    const hasPasskey =
-      passkeyStatus.success && (passkeyStatus.data?.hasPasskey ?? false);
-
-    if (!hasPasskey) {
-      return {
-        success: true,
-        data: { hasPasskey: false },
-      };
-    }
-
-    return {
-      success: true,
-      data: { hasPasskey: true },
-    };
-  } catch (error) {
-    logger.error("Error in checkEmail:", error);
-    return {
-      success: true,
-      data: { hasPasskey: false },
-    };
-  }
-}
 
 /**
  * Build a lockout key scoped to email + IP.
@@ -160,30 +38,27 @@ function getOtpLockoutKey(email: string, clientIP: string): string {
 
 /**
  * Send a verification code (OTP) to the user's email for authentication.
- * Creates a new account if the user doesn't exist, but ONLY when
- * `options.geoConfirmed` is true (the user has confirmed they are located
- * in Switzerland and are not an EU/EEA resident).
- *
- * Skips sending email for existing users who already have passkeys registered
- * (they should use passkey sign-in directly instead).
+ * Creates a new account if the user doesn't exist and then sends OTP in the
+ * same request. Existing users follow the same OTP path to keep the flow
+ * consistent and avoid email enumeration signals.
  *
  * Security:
  * - CSRF token validation
  * - Rate limited to prevent email spam attacks
  * - Email is normalized to prevent duplicates
- * - New user creation gated behind geo confirmation (supports regional access controls)
+ * - New user creation happens only after location confirmation
  * - Logs all attempts for audit trail
  *
  * @param csrfToken - CSRF token for request validation
  * @param email - The user's email address
- * @param options - Optional flags; geoConfirmed must be true for new users
- * @returns Whether a code was sent or the user should use passkey sign-in
+ * @param options - Step-1 confirmation flags
+ * @returns Whether an OTP was queued/sent
  */
 export async function sendVerificationCode(
   csrfToken: string,
   email: string,
-  options?: { geoConfirmed?: boolean }
-): Promise<ActionResponse<{ codeSent: boolean; hasPasskey: boolean }>> {
+  options?: { nonEUEEAConfirmed?: boolean }
+): Promise<ActionResponse<{ codeSent: boolean }>> {
   try {
     await requireCSRFToken(csrfToken);
   } catch {
@@ -240,56 +115,42 @@ export async function sendVerificationCode(
 
     const adminClient = createAdminClient();
 
-    // Check if user exists (direct O(1) lookup via RPC)
-    const existingUser = await findUserByEmail(normalizedEmail, adminClient);
-
-    // If user exists, check if they have a passkey
-    if (existingUser) {
-      const passkeyStatus = await checkUserPasskeyStatus(existingUser.id);
-      if (passkeyStatus.success && passkeyStatus.data?.hasPasskey) {
-        // Existing user with passkey - skip email, direct to passkey sign-in
-        logAuthEvent("login_started", {
-          metadata: { method: "passkey_direct", hasPasskey: true },
-          ip: clientIP,
-        });
-        return {
-          success: true,
-          data: { codeSent: false, hasPasskey: true },
-        };
-      }
+    // Ensure step-1 location confirmation was completed in the same submit.
+    if (!options?.nonEUEEAConfirmed) {
+      return {
+        success: false,
+        error:
+          "Please confirm that you are not located in the EU/EEA to continue.",
+      };
     }
 
-    // New user or existing user without passkey - send OTP code
+    // New user or existing user - always continue with OTP code.
     let isNewUser = false;
+    const existingUser = await findUserByEmail(normalizedEmail, adminClient);
 
     if (!existingUser) {
-      // GUARD: Require geo confirmation before creating user records.
-      // This reduces pre-confirmation persistence and aligns with the current
-      // region-gating flow.
-      if (!options?.geoConfirmed) {
-        return {
-          success: false,
-          error: "GEO_CONFIRMATION_REQUIRED",
-        };
-      }
-
-      // Create new user (only after geo confirmation)
+      // Create user at OTP-send boundary for first-time sign-ins.
       const { error: createError } = await adminClient.auth.admin.createUser({
         email: normalizedEmail,
-        email_confirm: false, // Will be confirmed when they verify the OTP code
+        email_confirm: false, // Verified when they confirm OTP code
         app_metadata: {
-          geo_ch_confirmed: true,
-          geo_ch_confirmed_at: new Date().toISOString(),
+          non_eu_eea_confirmed: true,
+          non_eu_eea_confirmed_at: new Date().toISOString(),
         },
       });
 
       if (createError) {
-        logger.error("Error creating user:", createError);
-        // Return generic success to prevent enumeration
-        return {
-          success: true,
-          data: { codeSent: true, hasPasskey: false },
-        };
+        const message = createError.message.toLowerCase();
+        const alreadyExists =
+          message.includes("already") || message.includes("exists");
+        if (!alreadyExists) {
+          logger.error("Error creating user:", createError);
+          // Keep response generic to avoid account state disclosure.
+          return {
+            success: true,
+            data: { codeSent: true },
+          };
+        }
       }
 
       isNewUser = true;
@@ -309,7 +170,7 @@ export async function sendVerificationCode(
       // Return generic success to prevent enumeration
       return {
         success: true,
-        data: { codeSent: true, hasPasskey: false },
+        data: { codeSent: true },
       };
     }
 
@@ -321,7 +182,7 @@ export async function sendVerificationCode(
 
     return {
       success: true,
-      data: { codeSent: true, hasPasskey: false },
+      data: { codeSent: true },
     };
   } catch (error) {
     logger.error("Error in sendVerificationCode:", error);
@@ -332,7 +193,7 @@ export async function sendVerificationCode(
     // Return generic success to prevent enumeration
     return {
       success: true,
-      data: { codeSent: true, hasPasskey: false },
+      data: { codeSent: true },
     };
   }
 }

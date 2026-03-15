@@ -100,4 +100,16 @@ describe("auth-session-singleflight", () => {
     expect(secondRemaining).toBeGreaterThanOrEqual(9_900);
     expect(secondRemaining).toBeLessThanOrEqual(10_000);
   });
+
+  it("treats 'request rate limit reached' as rate limited", async () => {
+    const supabase = createSupabaseMock([
+      {
+        data: { user: null },
+        error: { message: "Request rate limit reached" },
+      },
+    ]);
+
+    await getUserSingleflight(supabase as never, { cooldownMs: 0 });
+    expect(getAuthProbeBlockRemainingMs()).toBeGreaterThan(0);
+  });
 });

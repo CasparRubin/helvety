@@ -37,7 +37,11 @@ function isRateLimitError(
   }
 
   const message = error.message.toLowerCase();
-  return message.includes("too many requests") || message.includes("429");
+  return (
+    message.includes("too many requests") ||
+    message.includes("request rate limit reached") ||
+    message.includes("429")
+  );
 }
 
 /** Remaining client backoff time for auth probes in milliseconds. */

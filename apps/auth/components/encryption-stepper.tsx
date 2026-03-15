@@ -7,11 +7,7 @@ import { Check } from "lucide-react";
 export type AuthFlowType = "new_user" | "returning_user";
 
 /** Steps in the authentication flow */
-export type AuthStep =
-  | "geo_confirmation"
-  | "email"
-  | "create_passkey"
-  | "sign_in";
+export type AuthStep = "email" | "verify_code" | "create_passkey" | "sign_in";
 
 /** Configuration for a single authentication step. */
 interface StepConfig {
@@ -22,12 +18,13 @@ interface StepConfig {
 /** Step configurations for each flow type */
 const FLOW_STEPS: Record<AuthFlowType, StepConfig[]> = {
   new_user: [
-    { id: "geo_confirmation", label: "Location Confirmation" },
-    { id: "email", label: "Email Verification" },
+    { id: "email", label: "Email" },
+    { id: "verify_code", label: "Verification Code" },
     { id: "create_passkey", label: "Passkey Setup" },
   ],
   returning_user: [
     { id: "email", label: "Email" },
+    { id: "verify_code", label: "Verification Code" },
     { id: "sign_in", label: "Passkey Sign In" },
   ],
 };

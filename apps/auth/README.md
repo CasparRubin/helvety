@@ -11,9 +11,9 @@ Centralized authentication service for the Helvety ecosystem, providing password
 
 ## Service Availability
 
-Helvety services are primarily intended for customers in Switzerland. New account creation includes a Switzerland location confirmation step for account-based services, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
+Helvety services are primarily intended for customers in Switzerland. During sign-in, users must confirm they are not located in the EU/EEA before the verification-code step continues. Technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
 
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services ask new users to confirm Switzerland-based usage during account creation on [helvety.com/auth](https://helvety.com/auth) before a new account is created.
+Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services on [helvety.com/auth](https://helvety.com/auth) collect this location-attestation signal as part of the authentication flow.
 
 ## Overview
 
@@ -28,7 +28,7 @@ Helvety Auth (`helvety.com/auth`) handles all authentication for Helvety applica
 
 ## Features
 
-- **Email + Passkey Authentication** - OTP verification codes for new users (and existing without passkey); existing users with a passkey go straight to passkey sign-in
+- **Email + Passkey Authentication** - All users complete email verification-code authentication first, then complete exactly one passkey step (setup for first-time users, sign-in for existing users)
 - **WebAuthn/FIDO2** - Device-aware passkey auth: on mobile, use this device (Face ID/fingerprint/PIN); on desktop, use phone via QR code + biometrics
 - **Session Sharing** - Single sign-on across all Helvety apps
 - **Redirect URI Support** - Cross-app authentication flows
@@ -59,9 +59,9 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ## Authentication Flows
 
-New users must first confirm they are located in Switzerland and acknowledge that service availability may be restricted for EU/EEA users, then receive a verification code by email to verify their address, then complete passkey setup. Existing users with a passkey skip the email and sign in with passkey directly.
+Users first enter email and confirm they are not located in the EU/EEA. The service then sends a verification code by email (creating the user at OTP-send time when needed). After OTP verification, users complete exactly one passkey step: first-time users complete setup; existing users complete passkey sign-in.
 
-### New User Flow
+### Unified Auth Flow
 
 **Device-aware:** On **mobile** (phone/tablet), the user creates and uses the passkey on the same device (Face ID, fingerprint, or device PIN). On **desktop**, they use their phone to scan a QR code and complete the passkey on the phone.
 
@@ -72,54 +72,22 @@ sequenceDiagram
     participant A as Auth Service
     participant S as Supabase
 
-    U->>A: Enter email address
-    A->>A: Check if new user (read-only, no DB write)
-    A->>U: Show location confirmation step
-    U->>A: Confirm Switzerland location
-    A->>S: Create user + Send OTP code
+    U->>A: Enter email + confirm non-EU/EEA
+    A->>S: Create user if missing + send OTP code
     S-->>U: Email with verification code
     U->>A: Enter verification code
     A->>S: Verify OTP code
-    S-->>A: Email verified
-    A->>U: Show passkey setup
-    alt Desktop
-      U->>P: Scan QR code with phone
-      P->>U: Verify biometrics on phone
-    else Mobile
-      U->>P: Use this device (Face ID / fingerprint / PIN)
+    S-->>A: Session created + next passkey step
+    alt First-time user
+      A->>U: Show passkey setup
+      P->>A: Passkey registration credential
+      A->>S: Store passkey + PRF params
+    else Existing user
+      A->>U: Show passkey sign-in
+      P->>A: Passkey auth credential
+      A->>S: Verify passkey + refresh session
     end
-    P->>A: Passkey credential
-    A->>S: Store passkey + PRF params
     A-->>U: Redirect to app
-```
-
-### Returning User Flow
-
-Existing users with a passkey do not receive an email. After entering their email, the passkey prompt appears automatically (no button click required). The passkey challenge is bound to that email's account so only passkeys registered to that account are accepted.
-
-Same device logic: **mobile** = sign in on this device; **desktop** = scan QR with phone and authenticate on phone.
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant P as Phone/Device
-    participant A as Auth Service
-    participant S as Supabase
-
-    U->>A: Enter email address
-    A->>A: Check user has passkey (no email sent)
-    A->>U: Show passkey sign-in
-    alt Desktop
-      U->>P: Scan QR code with phone
-    else Mobile
-      U->>P: Use this device
-    end
-    P->>U: Verify biometrics
-    P->>A: Passkey response (required WebAuthn fields only)
-    A->>S: Verify account-bound passkey + Create session
-    S-->>A: Session created
-    U->>U: Browser derives/stores encryption key from PRF
-    A-->>U: Redirect to app (signed in; encryption usually unlocked)
 ```
 
 Note: Passkey authentication creates the session directly server-side (via `verifyOtp`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs. During returning-user login, pre-auth auth options do not include PRF bootstrap metadata; PRF bootstrap in this flow is resolved from local cache only.
@@ -127,7 +95,7 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 ### Key Points
 
 - **Email required** - Users provide an email address for authentication and account recovery
-- **Verification code only for new users** - New users (and existing users without a passkey) receive an OTP code by email; existing users with a passkey sign in directly with passkey
+- **Verification code for all users** - Sign-in always continues through the OTP verification step before passkey
 - **Passkey security** - Biometric verification (Face ID, fingerprint, or PIN) via WebAuthn
 - **Account-bound sign-in** - Returning-user passkey authentication is bound to the entered email/account, preventing cross-account passkey mismatches on shared devices
 - **Resilient login bootstrap** - Initial auth restore on `/auth/login` uses timeout-bounded probing and safe fallback to manual sign-in to avoid infinite loading states when refresh tokens are expired/revoked or the Auth API is rate-limited
@@ -341,7 +309,7 @@ Browser compatibility for encryption depends on WebAuthn PRF support and can evo
 
 **Note:** Firefox on Android may not support the PRF extension in current tested flows.
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and new users confirm Switzerland-based usage during account creation (before a new account is created). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics and Speed Insights).
+**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and sign-in requires a non-EU/EEA confirmation signal before OTP delivery. The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics across Helvety apps and Vercel Speed Insights on helvety.com).
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
@@ -363,7 +331,7 @@ Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source t
 
 This application is developed and maintained by [Helvety](https://helvety.com), a Swiss sole proprietorship (Einzelfirma) focused on security and user privacy.
 
-Vercel Analytics and Vercel Speed Insights are used across Helvety apps for privacy-oriented, aggregated/pseudonymized page-view and performance metrics. See our [Privacy Policy](https://helvety.com/privacy) for details.
+Vercel Analytics is used across Helvety apps for privacy-oriented, aggregated/pseudonymized usage metrics. Vercel Speed Insights is currently enabled on [helvety.com](https://helvety.com) for performance telemetry. See our [Privacy Policy](https://helvety.com/privacy) for details.
 
 For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
 

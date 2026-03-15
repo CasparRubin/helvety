@@ -27,6 +27,7 @@
     "./button": "./src/button.tsx",
     "./calendar": "./src/calendar.tsx",
     "./card": "./src/card.tsx",
+    "./checkbox": "./src/checkbox.tsx",
     "./collapsible": "./src/collapsible.tsx",
     "./command": "./src/command.tsx",
     "./command-bar": "./src/command-bar.tsx",

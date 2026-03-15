@@ -12,7 +12,6 @@ import { Suspense } from "react";
 
 import { EncryptionSetup } from "@/components/encryption-setup";
 import { AuthStepper } from "@/components/encryption-stepper";
-import { GeoConfirmationStep } from "@/components/geo-confirmation-step";
 import {
   EmailStep,
   VerifyCodeStep,
@@ -23,7 +22,6 @@ import { useLoginFlow } from "@/hooks/use-login-flow";
 /** Card titles for each login step. */
 const STEP_TITLES: Record<string, string> = {
   email: "Welcome to Helvety",
-  "geo-confirmation": "Location Confirmation",
   "verify-code": "Check Your Email",
   "passkey-signin": "Sign in with passkey",
 };
@@ -31,9 +29,7 @@ const STEP_TITLES: Record<string, string> = {
 /** Card descriptions for each login step. */
 const STEP_DESCRIPTIONS: Record<string, string | ((email: string) => string)> =
   {
-    email: "Enter your email to sign in or create an account",
-    "geo-confirmation":
-      "Before we create your account, please confirm your location",
+    email: "Enter your email and confirm your location to continue",
     "verify-code": (email: string) =>
       `We sent a verification code to ${email}. Check your spam folder if you don\u2019t see it.`,
     "passkey-signin": "Use your passkey to sign in",
@@ -87,19 +83,12 @@ function LoginContent() {
               <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent>
-              {flow.step === "geo-confirmation" && (
-                <GeoConfirmationStep
-                  isLoading={flow.isLoading}
-                  error={flow.error}
-                  onConfirm={flow.handleGeoConfirm}
-                  onBack={flow.handleBack}
-                />
-              )}
-
               {flow.step === "email" && (
                 <EmailStep
                   email={flow.email}
                   onEmailChange={flow.setEmail}
+                  nonEUEEAConfirmed={flow.nonEUEEAConfirmed}
+                  onNonEUEEAConfirmedChange={flow.setNonEUEEAConfirmed}
                   onSubmit={flow.handleEmailSubmit}
                   isLoading={flow.isLoading}
                   error={flow.error}

@@ -37,12 +37,12 @@ export default function PrivacyPage() {
         </p>
         <p className="text-muted-foreground text-sm">
           Our services are primarily intended for customers located in
-          Switzerland. New account creation includes a Switzerland location
-          confirmation step, but access from outside Switzerland may still
-          occur. This Privacy Policy is primarily based on the Swiss Federal Act
-          on Data Protection (nDSG). Where mandatory law in another jurisdiction
-          applies in a specific case, we comply with applicable legal
-          obligations.
+          Switzerland. Sign-in includes a location attestation step where users
+          confirm they are not located in the EU/EEA before verification-code
+          delivery. Access from outside Switzerland may still occur. This
+          Privacy Policy is primarily based on the Swiss Federal Act on Data
+          Protection (nDSG). Where mandatory law in another jurisdiction applies
+          in a specific case, we comply with applicable legal obligations.
         </p>
       </section>
 
@@ -203,14 +203,13 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           When you create an account, we collect your email address for
           authentication purposes. We use a secure authentication process: new
-          users must first confirm that they are located in Switzerland and
-          acknowledge that service availability may be restricted for EU/EEA
-          users before a new account is created. Limited technical and security
-          data (for example, anti-abuse/rate-limit data) may be processed before
-          account creation. After this confirmation, new users (and existing
-          users without a passkey) receive a verification code by email, then
-          passkey setup or verification; existing users with a passkey sign in
-          directly with their passkey (biometrics via your device). We store:
+          users must first confirm that they are not located in the EU/EEA
+          before verification-code delivery. Limited technical and security data
+          (for example, anti-abuse/rate-limit data) may be processed before
+          account creation. After this confirmation, verification codes are sent
+          by email, and OTP verification is followed by one passkey step (setup
+          for first-time users or sign-in verification for existing users). We
+          store:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -227,16 +226,16 @@ export default function PrivacyPage() {
             which use end-to-end encryption)
           </li>
           <li>
-            Geo-confirmation metadata (confirmation that you are located in
-            Switzerland, and the timestamp of that confirmation)
+            Location-attestation metadata (confirmation that you are not located
+            in the EU/EEA, and the timestamp of that confirmation)
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
           Your email address is used primarily for authentication (verification
-          codes for new users, passkey for returning users), account recovery,
-          and important account notifications. We do not share your email with
-          third parties for marketing purposes, except where required by law or
-          described in this Privacy Policy.
+          codes and passkey-bound sign-in), account recovery, and important
+          account notifications. We do not share your email with third parties
+          for marketing purposes, except where required by law or described in
+          this Privacy Policy.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
@@ -368,20 +367,21 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               helvety.com (Main Website):
             </strong>{" "}
-            Uses essential cookies and privacy-focused analytics/performance
-            telemetry (Vercel Analytics and Vercel Speed Insights). We do not
-            use advertising trackers or cross-site profiling.
+            Uses essential cookies and privacy-focused telemetry (Vercel
+            Analytics and Vercel Speed Insights). Speed Insights is currently
+            enabled on helvety.com. We do not use advertising trackers or
+            cross-site profiling.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Auth (helvety.com/auth):
             </strong>{" "}
             Email address, passkey credentials, PRF encryption parameters,
-            geo-confirmation status (confirmation that you are located in
-            Switzerland and the timestamp of that confirmation), IP address (for
-            rate limiting), and user agent (for device detection). This data is
-            primarily used for authentication and security, and may also be
-            processed where necessary for legal compliance, abuse prevention,
+            location-attestation status (confirmation that you are not located
+            in the EU/EEA and the timestamp of that confirmation), IP address
+            (for rate limiting), and user agent (for device detection). This
+            data is primarily used for authentication and security, and may also
+            be processed where necessary for legal compliance, abuse prevention,
             and service reliability.
           </li>
           <li>
@@ -638,7 +638,7 @@ export default function PrivacyPage() {
                 <td className="border-border border-b p-3">Vercel Inc.</td>
                 <td className="border-border border-b p-3">
                   Website hosting, delivery, privacy-focused analytics, and
-                  performance monitoring (Speed Insights across all apps)
+                  performance monitoring (Speed Insights on helvety.com)
                 </td>
                 <td className="border-border border-b p-3">USA</td>
               </tr>
@@ -1010,7 +1010,7 @@ export default function PrivacyPage() {
           <li>Browser and device type</li>
           <li>Country-level geographic location</li>
           <li>
-            Performance metrics (via Vercel Speed Insights across all apps)
+            Performance metrics (via Vercel Speed Insights on helvety.com)
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -1030,8 +1030,9 @@ export default function PrivacyPage() {
           .
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          We use Vercel Analytics/Speed Insights and do not intentionally
-          operate advertising trackers or cross-site profiling technologies.
+          We use Vercel Analytics across Helvety apps and Vercel Speed Insights
+          on helvety.com. We do not intentionally operate advertising trackers
+          or cross-site profiling technologies.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Essential cookies do not require consent under Swiss law as they are

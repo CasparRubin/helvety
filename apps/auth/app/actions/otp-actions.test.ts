@@ -85,11 +85,7 @@ vi.mock("./user-lookup", () => ({
   findUserByEmail: mocks.findUserByEmail,
 }));
 
-import {
-  checkEmail,
-  sendVerificationCode,
-  verifyEmailCode,
-} from "./otp-actions";
+import { sendVerificationCode, verifyEmailCode } from "./otp-actions";
 
 describe("otp-actions", () => {
   beforeEach(() => {
@@ -121,35 +117,48 @@ describe("otp-actions", () => {
     mocks.hasEncryptionSetup.mockResolvedValue({ data: true, success: true });
   });
 
-  it("requires geo confirmation before creating a new user", async () => {
+  it("requires non-EU/EEA confirmation before OTP send", async () => {
     const result = await sendVerificationCode("csrf-token", "new@user.com");
 
     expect(result).toEqual({
-      error: "GEO_CONFIRMATION_REQUIRED",
+      error:
+        "Please confirm that you are not located in the EU/EEA to continue.",
       success: false,
     });
     expect(mocks.adminCreateUser).not.toHaveBeenCalled();
     expect(mocks.adminSignInWithOtp).not.toHaveBeenCalled();
   });
 
-  it("skips OTP delivery for existing users with passkeys", async () => {
-    mocks.findUserByEmail.mockResolvedValue({ id: "existing-user" });
-    mocks.checkUserPasskeyStatus.mockResolvedValue({
-      data: { hasPasskey: true },
+  it("creates missing user and sends OTP when confirmation is provided", async () => {
+    mocks.findUserByEmail.mockResolvedValue(null);
+
+    const result = await sendVerificationCode("csrf-token", "new@user.com", {
+      nonEUEEAConfirmed: true,
+    });
+
+    expect(result).toEqual({
+      data: { codeSent: true },
       success: true,
     });
+    expect(mocks.adminCreateUser).toHaveBeenCalledOnce();
+    expect(mocks.adminSignInWithOtp).toHaveBeenCalledOnce();
+  });
+
+  it("sends OTP for existing users as well", async () => {
+    mocks.findUserByEmail.mockResolvedValue({ id: "existing-user" });
 
     const result = await sendVerificationCode(
       "csrf-token",
       "existing@user.com",
-      { geoConfirmed: true }
+      { nonEUEEAConfirmed: true }
     );
 
     expect(result).toEqual({
-      data: { codeSent: false, hasPasskey: true },
+      data: { codeSent: true },
       success: true,
     });
-    expect(mocks.adminSignInWithOtp).not.toHaveBeenCalled();
+    expect(mocks.adminCreateUser).not.toHaveBeenCalled();
+    expect(mocks.adminSignInWithOtp).toHaveBeenCalledOnce();
   });
 
   it("enforces escalating lockout before OTP verification", async () => {
@@ -204,25 +213,5 @@ describe("otp-actions", () => {
     expect(mocks.resetEscalatingLockout).toHaveBeenCalledWith(
       "user@ex.com:203.0.113.15"
     );
-  });
-
-  it("checkEmail returns only passkey presence metadata", async () => {
-    mocks.findUserByEmail.mockResolvedValue({ id: "existing-user" });
-    mocks.checkUserPasskeyStatus.mockResolvedValue({
-      data: { hasPasskey: true },
-      success: true,
-    });
-
-    const result = await checkEmail("existing@user.com");
-
-    expect(result).toEqual({
-      success: true,
-      data: { hasPasskey: true },
-    });
-    if (!result.success) {
-      throw new Error("Expected successful checkEmail response");
-    }
-    expect("prfSalt" in result.data).toBe(false);
-    expect("prfVersion" in result.data).toBe(false);
   });
 });

@@ -1,3 +1,4 @@
+import { urls } from "@helvety/shared/config";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
 import { redirect } from "next/navigation";
 
@@ -21,9 +22,8 @@ export default async function Home({
   const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
 
   // Build login URL with redirect_uri if valid
-  const loginUrl = safeRedirectUri
-    ? `/login?redirect_uri=${encodeURIComponent(safeRedirectUri)}`
-    : "/login";
+  const redirectTarget = safeRedirectUri ?? urls.home;
+  const loginUrl = `/login?redirect_uri=${encodeURIComponent(redirectTarget)}`;
 
   // Redirect to login page - it handles all auth logic
   redirect(loginUrl);

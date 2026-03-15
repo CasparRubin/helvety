@@ -290,10 +290,11 @@ export default function ImpressumPage() {
         </p>
         <p className="text-muted-foreground text-sm">
           Our services are primarily intended for customers in Switzerland. New
-          account creation includes a Switzerland location confirmation step,
-          but technical access from outside Switzerland may still occur. Where
-          mandatory law in another jurisdiction applies in a specific case,
-          those mandatory provisions remain unaffected.
+          sign-in requires a confirmation that the user is not located in the
+          EU/EEA before verification-code delivery, but technical access from
+          outside Switzerland may still occur. Where mandatory law in another
+          jurisdiction applies in a specific case, those mandatory provisions
+          remain unaffected.
         </p>
       </LegalSection>
 
