@@ -13,7 +13,10 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("./auth-redirect", () => ({
-  getLoginUrl: () => "https://helvety.com/login",
+  getLoginUrl: (redirectUri?: string) =>
+    `https://helvety.com/login?redirect_uri=${encodeURIComponent(
+      redirectUri ?? "https://helvety.com"
+    )}`,
 }));
 
 vi.mock("./client-ip", () => ({
@@ -151,7 +154,23 @@ describe("createAuthCallbackHandler", () => {
     );
 
     expect(response.headers.get("location")).toBe(
-      "http://localhost:3007/notes"
+      "https://helvety.com/login?redirect_uri=http%3A%2F%2Flocalhost%3A3007%2Fnotes"
+    );
+  });
+
+  it("redirects token-hash callbacks through login with redirect_uri", async () => {
+    mocks.getSafeRedirectUri.mockReturnValue("https://helvety.com/tasks");
+    const handler = createAuthCallbackHandler();
+
+    const response = await handler(
+      new Request(
+        "https://helvety.com/auth/callback?token_hash=abc123&type=signup&redirect_uri=https://helvety.com/tasks"
+      ) as never
+    );
+
+    expect(mocks.verifyOtp).toHaveBeenCalledOnce();
+    expect(response.headers.get("location")).toBe(
+      "https://helvety.com/login?redirect_uri=https%3A%2F%2Fhelvety.com%2Ftasks"
     );
   });
 });

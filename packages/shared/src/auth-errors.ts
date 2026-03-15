@@ -64,13 +64,6 @@ export function buildAuthRequiredError(
   return `${AUTH_REQUIRED_CODE}:${message}`;
 }
 
-/** Builds a machine-readable hard-logout error string for action responses. */
-export function buildAuthHardLogoutError(
-  message = AUTH_HARD_LOGOUT_MESSAGE
-): string {
-  return `${AUTH_HARD_LOGOUT_CODE}:${message}`;
-}
-
 /** Checks whether an action error represents an auth-required condition. */
 export function isAuthRequiredError(error?: string | null): boolean {
   const parsed = parseActionError(error);
@@ -105,7 +98,7 @@ export function normalizeActionError(error?: string | null): string | null {
 }
 
 /** Navigation intent used by client redirect orchestration. */
-export type AuthNavigationIntent = "none" | "login" | "hard_logout";
+type AuthNavigationIntent = "none" | "login" | "hard_logout";
 
 /** Classifies auth-related action errors into navigation intent. */
 export function classifyActionAuthError(
@@ -139,14 +132,4 @@ export function classifyActionAuthError(
 /** True when an error should force a full hard logout and fresh auth flow. */
 export function shouldForceHardLogout(error?: string | null): boolean {
   return classifyActionAuthError(error) === "hard_logout";
-}
-
-/**
- * True when a raw action error should force a hard logout.
- * Normalizes machine-readable action prefixes before token matching.
- */
-export function shouldForceHardLogoutFromActionError(
-  rawError?: string | null
-): boolean {
-  return classifyActionAuthError(rawError) === "hard_logout";
 }

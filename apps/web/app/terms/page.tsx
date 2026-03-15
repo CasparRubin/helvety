@@ -266,12 +266,11 @@ export default function TermsPage() {
           To access certain features of the Services, you must create an
           account. Account creation requires your email address and passkey
           setup. During registration, new users must first confirm that they are
-          located in Switzerland and acknowledge that service availability may
-          be restricted for EU/EEA users; this confirmation is required before a
-          new account is created. After confirmation, new users receive a
-          verification code via email to verify their identity; existing users
-          with a passkey sign in directly with their passkey. You then
-          authenticate using your device&apos;s biometrics (Face ID,
+          not located in the EU/EEA; this confirmation is required before a new
+          account is created. After confirmation, all users complete email
+          verification-code authentication. Existing users then continue with
+          passkey sign-in, while first-time users complete passkey setup. You
+          then authenticate using your device&apos;s biometrics (Face ID,
           fingerprint, or PIN) to set up or use your passkey.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">

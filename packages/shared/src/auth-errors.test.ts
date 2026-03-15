@@ -1,13 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  buildAuthHardLogoutError,
   buildAuthRequiredError,
   classifyActionAuthError,
   isAuthRequiredError,
   normalizeActionError,
   shouldForceHardLogout,
-  shouldForceHardLogoutFromActionError,
 } from "./auth-errors";
 
 describe("auth-errors", () => {
@@ -18,16 +16,14 @@ describe("auth-errors", () => {
     expect(isAuthRequiredError(error)).toBe(true);
     expect(normalizeActionError(error)).toBe("Session missing");
     expect(classifyActionAuthError(error)).toBe("login");
-    expect(shouldForceHardLogoutFromActionError(error)).toBe(false);
   });
 
-  it("builds and classifies AUTH_HARD_LOGOUT errors", () => {
-    const error = buildAuthHardLogoutError("Encryption state invalid");
+  it("classifies AUTH_HARD_LOGOUT errors", () => {
+    const error = "AUTH_HARD_LOGOUT:Encryption state invalid";
 
     expect(error).toBe("AUTH_HARD_LOGOUT:Encryption state invalid");
     expect(normalizeActionError(error)).toBe("Encryption state invalid");
     expect(classifyActionAuthError(error)).toBe("hard_logout");
-    expect(shouldForceHardLogoutFromActionError(error)).toBe(true);
   });
 
   it("classifies plain auth-required messages as login intent", () => {

@@ -12,6 +12,9 @@
 import { urls } from "./config";
 import { isValidRedirectUri } from "./redirect-validation";
 
+const AUTH_LOGIN_PATH = `${new URL(urls.auth).pathname.replace(/\/$/, "")}/login`;
+const MAX_REDIRECT_UNWRAP_DEPTH = 3;
+
 /** Returns true when the input is a safe absolute-relative path. */
 function isRelativePath(value: string): boolean {
   return value.startsWith("/") && !value.startsWith("//");
@@ -26,24 +29,77 @@ function toAbsoluteUrl(value: string, origin: string): string | null {
   }
 }
 
+/** Returns true when the provided URL points to the auth login route. */
+function isAuthLoginUrl(url: URL): boolean {
+  return url.pathname.replace(/\/$/, "") === AUTH_LOGIN_PATH;
+}
+
+/** Best-effort parse of a URL using runtime/browser origin when needed. */
+function parseWithBestEffortOrigin(
+  value: string,
+  runtimeOrigin?: string
+): URL | null {
+  try {
+    if (runtimeOrigin) {
+      return new URL(value, runtimeOrigin);
+    }
+    if (typeof window !== "undefined") {
+      return new URL(value, window.location.origin);
+    }
+    return new URL(value);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Unwraps redirect_uri when callers accidentally pass an auth login URL.
+ * Prevents recursive /auth/login?redirect_uri=/auth/login?... loops.
+ */
+function unwrapAuthLoginRedirect(
+  input: string | undefined,
+  runtimeOrigin?: string
+): string | undefined {
+  if (!input) {
+    return input;
+  }
+
+  let candidate = input;
+  for (let depth = 0; depth < MAX_REDIRECT_UNWRAP_DEPTH; depth += 1) {
+    const parsed = parseWithBestEffortOrigin(candidate, runtimeOrigin);
+    if (!parsed || !isAuthLoginUrl(parsed)) {
+      return candidate;
+    }
+    const next = parsed.searchParams.get("redirect_uri");
+    if (!next) {
+      return undefined;
+    }
+    candidate = next;
+  }
+
+  return candidate;
+}
+
 /** Resolves a validated redirect target for auth login/logout flows. */
 function resolveRedirectUri(
   input: string | undefined,
   runtimeOrigin?: string
 ): string {
-  if (input && isValidRedirectUri(input)) {
-    return input;
+  const normalizedInput = unwrapAuthLoginRedirect(input, runtimeOrigin);
+
+  if (normalizedInput && isValidRedirectUri(normalizedInput)) {
+    return normalizedInput;
   }
 
-  if (input && isRelativePath(input)) {
+  if (normalizedInput && isRelativePath(normalizedInput)) {
     if (runtimeOrigin) {
-      const absolute = toAbsoluteUrl(input, runtimeOrigin);
+      const absolute = toAbsoluteUrl(normalizedInput, runtimeOrigin);
       if (absolute && isValidRedirectUri(absolute)) {
         return absolute;
       }
     }
     if (typeof window !== "undefined") {
-      const absolute = toAbsoluteUrl(input, window.location.origin);
+      const absolute = toAbsoluteUrl(normalizedInput, window.location.origin);
       if (absolute && isValidRedirectUri(absolute)) {
         return absolute;
       }

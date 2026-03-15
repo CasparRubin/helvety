@@ -1,7 +1,6 @@
 "use client";
 
 import { classifyActionAuthError } from "@helvety/shared/auth-errors";
-import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { onKeyEvent } from "@helvety/shared/crypto/key-storage";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
@@ -36,13 +35,6 @@ export interface EncryptionGateProps {
 
 /** Encryption gate status states */
 type EncryptionStatus = "loading" | "needs_login" | "needs_logout" | "unlocked";
-
-/** Build the auth URL for a normal login flow (with redirect back). */
-function getAuthLoginUrl(): string {
-  return getLoginUrl(
-    typeof window !== "undefined" ? window.location.href : undefined
-  );
-}
 
 /**
  * Gate component that requires encryption setup/unlock in this UI flow before
@@ -187,16 +179,20 @@ export function EncryptionGate({
 
   useEffect(() => {
     if (redirectingRef.current) return;
+    // Pass the current app URL as intent; auth-navigation builds /auth/login.
+    // Avoid passing a prebuilt auth URL here to prevent nested redirect_uri loops.
+    const destination =
+      typeof window !== "undefined" ? window.location.href : undefined;
 
     if (status === "needs_logout") {
       redirectingRef.current = true;
-      triggerHardLogoutOnce(getAuthLoginUrl(), "encryption-gate");
+      triggerHardLogoutOnce(destination, "encryption-gate");
       return;
     }
 
     if (status === "needs_login") {
       redirectingRef.current = true;
-      redirectToLoginOnce(getAuthLoginUrl(), "encryption-gate");
+      redirectToLoginOnce(destination, "encryption-gate");
     }
   }, [status]);
 

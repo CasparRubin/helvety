@@ -331,15 +331,15 @@ export function EncryptionSetup({
               <CardTitle>Browser Not Supported</CardTitle>
             </div>
             <CardDescription>
-              Your browser doesn&apos;t support passkey encryption with your
-              phone.
+              Your browser or device doesn&apos;t support passkey-based
+              encryption in this flow.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3">
               <p className="text-sm text-amber-500">
                 {prfSupportInfo?.reason ??
-                  "Phone passkey encryption is not supported"}
+                  "Passkey-based encryption is not supported on this browser or device"}
               </p>
             </div>
             <div className="text-muted-foreground text-sm">
@@ -482,7 +482,7 @@ export function EncryptionSetup({
                   {isMobile ? "Passkey on this device" : "Phone Passkey"}
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  Secured with Face ID or fingerprint
+                  Secured with Face ID, fingerprint, or device PIN
                 </p>
               </div>
             </div>

@@ -8,7 +8,7 @@ import { createAdminClient } from "@helvety/shared/supabase/admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /** Minimal user payload returned from the indexed email lookup RPC. */
-export type EmailLookupUser = {
+type EmailLookupUser = {
   id: string;
   email: string;
 };

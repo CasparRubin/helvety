@@ -214,4 +214,44 @@ describe("otp-actions", () => {
       "user@ex.com:203.0.113.15"
     );
   });
+
+  it("returns encryption-setup next step for first-time users", async () => {
+    mocks.findUserByEmail.mockResolvedValue(null);
+    mocks.checkUserPasskeyStatus.mockResolvedValue({
+      data: { hasPasskey: false },
+      success: true,
+    });
+    mocks.hasEncryptionSetup.mockResolvedValue({ data: false, success: true });
+
+    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+
+    expect(result).toEqual({
+      data: {
+        isNewUser: true,
+        nextStep: "encryption-setup",
+        userId: "user-123",
+      },
+      success: true,
+    });
+  });
+
+  it("returns encryption-setup when passkey exists but encryption is missing", async () => {
+    mocks.findUserByEmail.mockResolvedValue({ id: "existing-user" });
+    mocks.checkUserPasskeyStatus.mockResolvedValue({
+      data: { hasPasskey: true },
+      success: true,
+    });
+    mocks.hasEncryptionSetup.mockResolvedValue({ data: false, success: true });
+
+    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+
+    expect(result).toEqual({
+      data: {
+        isNewUser: false,
+        nextStep: "encryption-setup",
+        userId: "user-123",
+      },
+      success: true,
+    });
+  });
 });

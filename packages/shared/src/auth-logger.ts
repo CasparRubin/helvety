@@ -13,7 +13,7 @@ import { logger } from "./logger";
 /**
  * Authentication event types
  */
-export type AuthEvent =
+type AuthEvent =
   | "login_started"
   | "login_success"
   | "login_failed"
@@ -35,7 +35,7 @@ export type AuthEvent =
 /**
  * Log severity levels
  */
-export type LogLevel = "info" | "warn" | "error";
+type LogLevel = "info" | "warn" | "error";
 
 /**
  * Map events to their default severity levels

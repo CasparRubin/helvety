@@ -453,9 +453,11 @@ export async function verifyPasskeyAuthentication(
         };
       }
 
-      // Generate an auth token for the user and verify it server-side immediately
-      // This creates the session directly without requiring client navigation to Supabase
-      // which would lose the session tokens in hash fragments during server redirect
+      // Generate a one-time auth token and verify it server-side immediately.
+      // Supabase exposes this via the "magiclink" link primitive, but users are
+      // never redirected through a magic-link flow in the primary /auth UX.
+      // This keeps the current three-step login flow while creating the session
+      // directly in the same request path.
       const { data: linkData, error: linkError } =
         await adminClient.auth.admin.generateLink({
           type: "magiclink",

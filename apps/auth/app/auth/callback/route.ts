@@ -88,7 +88,6 @@ async function buildPostAuthRedirect(
 
   const loginUrl = new URL(`${authBase}/login`);
   loginUrl.searchParams.set("step", step);
-  loginUrl.searchParams.set("is_new_user", hasPasskey ? "false" : "true");
   if (safeRedirectUri) {
     loginUrl.searchParams.set("redirect_uri", safeRedirectUri);
   }
@@ -125,9 +124,9 @@ async function enforceCallbackRateLimit(
 /**
  * Auth callback route for handling Supabase email verification and OAuth
  *
- * This route serves as a backwards-compatible fallback for email verification
- * flows. The primary sign-in flow now uses OTP codes (verification codes typed by
- * the user) instead of clickable links, but this route is kept for:
+ * This route is a compatibility path for non-primary email/OAuth callbacks.
+ * The primary sign-in flow uses typed OTP codes followed by passkey setup/sign-in,
+ * but this route is kept for:
  * - Account recovery, invite, and email change confirmation links
  * - OAuth flows
  *
@@ -161,7 +160,7 @@ export async function GET(request: Request) {
     // with malformed requests.
     if (token_hash && type && !isAllowedOtpType(type)) {
       return NextResponse.redirect(
-        buildErrorRedirect(authBase, "invalid_type", safeRedirectUri)
+        buildErrorRedirect(authBase, "invalid_otp_type", safeRedirectUri)
       );
     }
 

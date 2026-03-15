@@ -62,6 +62,19 @@ const RATE_LIMIT_AUTH_ERROR_TOKENS = [
   "request rate limit reached",
   "429",
 ] as const;
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  auth_failed: "Authentication failed. Please try again.",
+  missing_params: "Invalid authentication link.",
+  logout_failed: "We couldn't complete sign-out. Please sign in and try again.",
+  rate_limited:
+    "Too many sign-in attempts. Please wait a moment and try again.",
+  missing_client_ip: "We couldn't verify your connection. Please try again.",
+  server_error: "Authentication is temporarily unavailable. Please try again.",
+  invalid_type:
+    "This sign-in link is invalid or no longer supported. Request a new verification code.",
+  invalid_otp_type:
+    "This sign-in link is invalid or no longer supported. Request a new verification code.",
+};
 
 /** Required length of the one-time password code. */
 export const OTP_CODE_LENGTH = 6;
@@ -168,12 +181,7 @@ export function useLoginFlow(): LoginFlowState {
       : "email";
 
   // Compute initial error from URL
-  const initialError =
-    authError === "auth_failed"
-      ? "Authentication failed. Please try again."
-      : authError === "missing_params"
-        ? "Invalid authentication link."
-        : "";
+  const initialError = authError ? (AUTH_ERROR_MESSAGES[authError] ?? "") : "";
 
   const [step, setStep] = useState<LoginStep>(initialStep);
   const [error, setError] = useState(initialError);
@@ -249,6 +257,18 @@ export function useLoginFlow(): LoginFlowState {
           }
           if (!cancelled) {
             setError("Your session expired. Please sign in again.");
+          }
+          return;
+        }
+
+        // Step-specific URLs are only valid with an authenticated session.
+        // If the session is missing, restart the canonical three-step flow.
+        if (
+          !user &&
+          (step === "passkey-signin" || step === "encryption-setup")
+        ) {
+          if (!cancelled) {
+            setStep("email");
           }
           return;
         }

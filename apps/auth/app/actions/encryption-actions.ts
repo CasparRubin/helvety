@@ -13,8 +13,6 @@ import type {
   UserPasskeyParams,
 } from "@helvety/shared/types/entities";
 
-export type { UserPasskeyParams } from "@helvety/shared/types/entities";
-
 // =============================================================================
 // ENCRYPTION (PRF PARAMS)
 // =============================================================================

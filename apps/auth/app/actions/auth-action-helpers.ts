@@ -14,7 +14,7 @@ import type { ActionResponse } from "@helvety/shared/types/entities";
 // =============================================================================
 
 /** Challenge data stored in cookie for WebAuthn ceremony verification */
-export type StoredChallenge = {
+type StoredChallenge = {
   challenge: string;
   userId?: string; // For authenticated user flows
   expectedUserId?: string; // For strict account-bound passkey sign-in flows
@@ -29,9 +29,9 @@ export type StoredChallenge = {
 // =============================================================================
 
 export const RP_NAME = "Helvety";
-export const CHALLENGE_COOKIE_NAME = "webauthn_challenge";
-export const CHALLENGE_EXPIRY_MS = 3 * 60 * 1000; // 3 minutes
-export const PRF_SALT_LENGTH = 32; // PRF salt length in bytes
+const CHALLENGE_COOKIE_NAME = "webauthn_challenge";
+const CHALLENGE_EXPIRY_MS = 3 * 60 * 1000; // 3 minutes
+const PRF_SALT_LENGTH = 32; // PRF salt length in bytes
 
 const StoredChallengeSchema = z.object({
   challenge: z.string().min(1),

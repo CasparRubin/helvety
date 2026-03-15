@@ -26,6 +26,38 @@ describe("getLoginUrl", () => {
       "redirect_uri=https%3A%2F%2Fhelvety.com%2Ftasks%3Ffilter%3Dtoday%23item-7"
     );
   });
+
+  it("unwraps existing auth login URLs instead of nesting redirect_uri", () => {
+    const source =
+      "https://helvety.com/auth/login?redirect_uri=https%3A%2F%2Fhelvety.com%2Fnotes";
+    const url = getLoginUrl(source);
+
+    expect(url).toContain("redirect_uri=https%3A%2F%2Fhelvety.com%2Fnotes");
+    expect(url).not.toContain(
+      "redirect_uri=https%3A%2F%2Fhelvety.com%2Fauth%2Flogin"
+    );
+  });
+
+  it("falls back safely when auth login redirect_uri is invalid", () => {
+    const source =
+      "https://helvety.com/auth/login?redirect_uri=https%3A%2F%2Fevil.example";
+    const url = getLoginUrl(source);
+    const parsed = new URL(url);
+    const redirectUri = parsed.searchParams.get("redirect_uri");
+
+    expect(redirectUri).toBeTruthy();
+    expect(redirectUri).not.toContain("/auth/login");
+    expect(url).not.toContain("evil.example");
+  });
+
+  it("preserves force_login while unwrapping auth login URLs", () => {
+    const source =
+      "https://helvety.com/auth/login?redirect_uri=https%3A%2F%2Fhelvety.com%2Fnotes";
+    const url = getLoginUrl(source, { forceLogin: true });
+
+    expect(url).toContain("redirect_uri=https%3A%2F%2Fhelvety.com%2Fnotes");
+    expect(url).toContain("force_login=1");
+  });
 });
 
 describe("getLogoutUrl", () => {

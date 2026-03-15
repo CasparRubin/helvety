@@ -77,7 +77,9 @@ export function createAuthCallbackHandler() {
 
         if (!error) {
           await generateCSRFToken();
-          return NextResponse.redirect(successDestination);
+          return NextResponse.redirect(
+            getLoginUrl(successDestination.toString())
+          );
         }
 
         logger.error("Auth callback error (code exchange):", error);
@@ -107,7 +109,9 @@ export function createAuthCallbackHandler() {
 
         if (!error) {
           await generateCSRFToken();
-          return NextResponse.redirect(successDestination);
+          return NextResponse.redirect(
+            getLoginUrl(successDestination.toString())
+          );
         }
 
         logger.error("Auth callback error (token hash):", error);

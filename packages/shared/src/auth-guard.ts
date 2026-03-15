@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { shouldForceHardLogout } from "./auth-errors";
 import { getLoginUrl, getLogoutUrl } from "./auth-redirect";
 import { getUserWithRetry } from "./auth-retry";
-import { getCachedAuthLookup, getCachedUser } from "./cached-server";
+import { getCachedAuthLookup } from "./cached-server";
 import { urls } from "./config";
 import { resolveRequestOrigin } from "./request-origin";
 import { createServerClient } from "./supabase/server";
@@ -83,34 +83,4 @@ export async function requireAuth(currentPath?: string): Promise<User> {
   }
 
   redirect(getLoginUrl(destination));
-}
-
-/**
- * Get the current user without requiring authentication.
- *
- * Use this when you want to check if a user is logged in
- * but don't want to redirect if they're not.
- *
- * Uses getCachedUser() internally so it shares the same per-request
- * cached result with requireAuth() and layout getCachedUser() calls.
- *
- * @example
- * // In a page that shows different content for logged in users
- * const user = await getOptionalUser();
- * if (user) {
- *   // Show personalized content
- * }
- */
-export async function getOptionalUser(): Promise<User | null> {
-  return getCachedUser();
-}
-
-/**
- * Check if the current request is authenticated.
- *
- * Use this for conditional logic without getting the full user object.
- */
-export async function isAuthenticated(): Promise<boolean> {
-  const user = await getOptionalUser();
-  return user !== null;
 }

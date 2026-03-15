@@ -90,7 +90,7 @@ sequenceDiagram
     A-->>U: Redirect to app
 ```
 
-Note: Passkey authentication creates the session directly server-side (via `verifyOtp`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs. During returning-user login, pre-auth auth options do not include PRF bootstrap metadata; PRF bootstrap in this flow is resolved from local cache only.
+Note: Passkey authentication creates the session directly server-side (via `verifyPasskeyAuthentication`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs. During returning-user login, pre-auth auth options do not include PRF bootstrap metadata; PRF bootstrap in this flow is resolved from local cache only.
 
 ### Key Points
 
@@ -104,7 +104,7 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 
 ### GET `/auth/callback`
 
-Handles authentication callbacks from email verification (backwards-compatible fallback) and OAuth flows. The primary sign-in flow now uses OTP codes typed by the user, but this route is kept for in-flight links, account recovery, invite, and email change flows. After successful verification, redirects to the login page with the appropriate passkey step.
+Handles authentication callbacks for compatibility and OAuth flows. The primary sign-in flow is always: email + non-EU/EEA confirmation, typed OTP code, then exactly one passkey step (setup for first-time users, passkey sign-in for returning users). This callback route remains for in-flight links, account recovery, invite, and email change flows. After successful verification, it redirects to login with the required passkey step.
 
 **Note:** This route is NOT used for passkey sign-in. Passkey authentication creates the session directly server-side and redirects the user to their destination without going through this callback.
 
