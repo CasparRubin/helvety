@@ -12,6 +12,52 @@
 import { urls } from "./config";
 import { isValidRedirectUri } from "./redirect-validation";
 
+/** Returns true when the input is a safe absolute-relative path. */
+function isRelativePath(value: string): boolean {
+  return value.startsWith("/") && !value.startsWith("//");
+}
+
+/** Converts a path/URL into an absolute URL using the provided origin. */
+function toAbsoluteUrl(value: string, origin: string): string | null {
+  try {
+    return new URL(value, origin).toString();
+  } catch {
+    return null;
+  }
+}
+
+/** Resolves a validated redirect target for auth login/logout flows. */
+function resolveRedirectUri(
+  input: string | undefined,
+  runtimeOrigin?: string
+): string {
+  if (input && isValidRedirectUri(input)) {
+    return input;
+  }
+
+  if (input && isRelativePath(input)) {
+    if (runtimeOrigin) {
+      const absolute = toAbsoluteUrl(input, runtimeOrigin);
+      if (absolute && isValidRedirectUri(absolute)) {
+        return absolute;
+      }
+    }
+    if (typeof window !== "undefined") {
+      const absolute = toAbsoluteUrl(input, window.location.origin);
+      if (absolute && isValidRedirectUri(absolute)) {
+        return absolute;
+      }
+    }
+  }
+
+  if (typeof window !== "undefined") {
+    const windowUrl = window.location.href;
+    return isValidRedirectUri(windowUrl) ? windowUrl : urls.home;
+  }
+
+  return urls.home;
+}
+
 /**
  * Get the login URL for redirecting to the auth service.
  * Includes the current URL as redirect_uri parameter for post-login return.
@@ -22,22 +68,9 @@ import { isValidRedirectUri } from "./redirect-validation";
  */
 export function getLoginUrl(
   currentUrl?: string,
-  options?: { forceLogin?: boolean }
+  options?: { forceLogin?: boolean; currentOrigin?: string }
 ): string {
-  // Determine the redirect URI with validation
-  let redirectUri: string;
-
-  if (currentUrl && isValidRedirectUri(currentUrl)) {
-    // Use provided URL if it passes validation
-    redirectUri = currentUrl;
-  } else if (typeof window !== "undefined") {
-    // Client-side: use current location, then enforce allowlist validation.
-    const windowUrl = window.location.href;
-    redirectUri = isValidRedirectUri(windowUrl) ? windowUrl : urls.home;
-  } else {
-    // Server-side: use home URL
-    redirectUri = urls.home;
-  }
+  const redirectUri = resolveRedirectUri(currentUrl, options?.currentOrigin);
 
   const params = new URLSearchParams({
     redirect_uri: redirectUri,
@@ -60,11 +93,9 @@ export function getLoginUrl(
  */
 export function getLogoutUrl(
   redirectUri?: string,
-  options?: { global?: boolean }
+  options?: { global?: boolean; currentOrigin?: string }
 ): string {
-  // Validate the provided URI; fall back to default if invalid
-  const redirect =
-    redirectUri && isValidRedirectUri(redirectUri) ? redirectUri : urls.home;
+  const redirect = resolveRedirectUri(redirectUri, options?.currentOrigin);
   const scopeParam = options?.global ? "&scope=global" : "";
 
   return `${urls.auth}/logout?redirect_uri=${encodeURIComponent(redirect)}${scopeParam}`;

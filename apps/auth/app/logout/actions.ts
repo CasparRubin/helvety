@@ -18,13 +18,13 @@ import { createServerClient } from "@helvety/shared/supabase/server";
 export async function signOutAction(
   csrfToken?: string,
   global = false
-): Promise<void> {
+): Promise<{ success: boolean; error?: string }> {
   try {
     // Enforce CSRF on logout to avoid cross-site forced sign-outs.
     const valid = await validateCSRFToken(csrfToken);
     if (!valid) {
       logger.warn("Logout blocked due to missing/invalid CSRF token");
-      return;
+      return { success: false, error: "invalid_csrf" };
     }
 
     const supabase = await createServerClient();
@@ -36,9 +36,11 @@ export async function signOutAction(
         message: error.message,
         status: error.status,
       });
-      return;
+      return { success: false, error: "signout_failed" };
     }
+    return { success: true };
   } catch (error) {
     logger.error("Logout error:", error);
+    return { success: false, error: "unexpected_error" };
   }
 }

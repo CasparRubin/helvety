@@ -5,7 +5,6 @@ import "server-only";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createServerClient } from "@helvety/shared/supabase/server";
-import { z } from "zod";
 
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -15,30 +14,6 @@ import type {
 } from "@helvety/shared/types/entities";
 
 export type { UserPasskeyParams } from "@helvety/shared/types/entities";
-
-// =============================================================================
-// INPUT VALIDATION SCHEMAS
-// =============================================================================
-
-/**
- * Strict validation for passkey PRF parameters.
- * Prevents oversized, malformed, or injection-prone values from reaching the DB.
- */
-const SavePasskeyParamsSchema = z.object({
-  /** Base64-encoded PRF salt (32 bytes = 44 base64 chars with padding) */
-  prf_salt: z
-    .string()
-    .min(1, "PRF salt is required")
-    .max(100, "PRF salt too long")
-    .regex(/^[A-Za-z0-9+/]+=*$/, "PRF salt must be valid base64"),
-  /** Base64url-encoded credential ID from WebAuthn */
-  credential_id: z
-    .string()
-    .min(1, "Credential ID is required")
-    .max(512, "Credential ID too long"),
-  /** PRF key derivation version number */
-  version: z.number().int().min(1).max(10),
-});
 
 // =============================================================================
 // ENCRYPTION (PRF PARAMS)
@@ -121,93 +96,6 @@ export async function getPasskeyParams(): Promise<
 }
 
 /**
- * Save user's passkey encryption params (PRF salt and credential ID)
- * Used during encryption setup flow
- *
- * Security:
- * - CSRF token validation
- * - Requires authenticated user
- *
- * @param csrfToken - CSRF token for request validation
- * @param params - The passkey parameters object
- * @param params.prf_salt - Base64-encoded PRF salt for HKDF
- * @param params.credential_id - Base64url-encoded credential ID
- * @param params.version - PRF version number
- */
-export async function savePasskeyParams(
-  csrfToken: string,
-  params: {
-    prf_salt: string;
-    credential_id: string;
-    version: number;
-  }
-): Promise<ActionResponse> {
-  try {
-    await requireCSRFToken(csrfToken);
-  } catch {
-    return {
-      success: false,
-      error: "Security validation failed. Please sign in again.",
-    };
-  }
-
-  try {
-    // Validate input format before any DB access
-    const parseResult = SavePasskeyParamsSchema.safeParse(params);
-    if (!parseResult.success) {
-      const errorMessage =
-        parseResult.error.issues[0]?.message ?? "Invalid parameters";
-      logger.warn("Invalid passkey params:", parseResult.error);
-      return { success: false, error: errorMessage };
-    }
-    const validatedParams = parseResult.data;
-
-    const supabase = await createServerClient();
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    const rl = await checkRateLimit(
-      `encryption:user:${user.id}`,
-      RATE_LIMITS.ENCRYPTION.maxRequests,
-      RATE_LIMITS.ENCRYPTION.windowMs,
-      "encryption"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
-      };
-    }
-
-    const { error } = await supabase.from("user_passkey_params").upsert(
-      {
-        user_id: user.id,
-        prf_salt: validatedParams.prf_salt,
-        credential_id: validatedParams.credential_id,
-        version: validatedParams.version,
-      },
-      { onConflict: "user_id" }
-    );
-
-    if (error) {
-      logger.error("Error saving PRF params:", error);
-      return { success: false, error: "Failed to save encryption settings" };
-    }
-
-    return { success: true };
-  } catch (error) {
-    logger.error("Error in savePasskeyParams:", error);
-    return { success: false, error: "Failed to save encryption settings" };
-  }
-}
-
-/**
  * Save a key check value (KCV) for the authenticated user's passkey params.
  *
  * Generated client-side after deriving the master key. Allows future unlock
@@ -260,8 +148,7 @@ export async function saveKeyCheckValue(
 
     const { error } = await supabase
       .from("user_passkey_params")
-      // `key_check_value` exists in newer schema versions but may lag in generated types.
-      .update({ key_check_value: keyCheckValue } as never)
+      .update({ key_check_value: keyCheckValue })
       .eq("user_id", user.id);
 
     if (error) {

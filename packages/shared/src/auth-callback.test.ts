@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getTrustedClientIp: vi.fn(),
   checkRateLimit: vi.fn(),
+  getSafeRedirectUri: vi.fn(),
   isValidRelativePath: vi.fn(),
   getSafeRelativePath: vi.fn(),
   exchangeCodeForSession: vi.fn(),
@@ -27,6 +28,7 @@ vi.mock("./rate-limit", () => ({
 }));
 
 vi.mock("./redirect-validation", () => ({
+  getSafeRedirectUri: mocks.getSafeRedirectUri,
   isValidRelativePath: mocks.isValidRelativePath,
   getSafeRelativePath: mocks.getSafeRelativePath,
 }));
@@ -58,6 +60,7 @@ describe("createAuthCallbackHandler", () => {
     vi.clearAllMocks();
     mocks.getTrustedClientIp.mockReturnValue("203.0.113.10");
     mocks.checkRateLimit.mockResolvedValue({ allowed: true, remaining: 19 });
+    mocks.getSafeRedirectUri.mockReturnValue(null);
     mocks.isValidRelativePath.mockReturnValue(true);
     mocks.getSafeRelativePath.mockReturnValue("/");
     mocks.exchangeCodeForSession.mockResolvedValue({ error: null });
@@ -135,5 +138,20 @@ describe("createAuthCallbackHandler", () => {
 
     expect(response.headers.get("location")).toContain("invalid_otp_type");
     expect(mocks.verifyOtp).not.toHaveBeenCalled();
+  });
+
+  it("redirects to validated redirect_uri after successful exchange", async () => {
+    mocks.getSafeRedirectUri.mockReturnValue("http://localhost:3007/notes");
+    const handler = createAuthCallbackHandler();
+
+    const response = await handler(
+      new Request(
+        "https://helvety.com/auth/callback?code=abc123&redirect_uri=http://localhost:3007/notes"
+      ) as never
+    );
+
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3007/notes"
+    );
   });
 });

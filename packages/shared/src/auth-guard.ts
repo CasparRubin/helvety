@@ -8,6 +8,7 @@ import { getLoginUrl, getLogoutUrl } from "./auth-redirect";
 import { getUserWithRetry } from "./auth-retry";
 import { getCachedAuthLookup, getCachedUser } from "./cached-server";
 import { urls } from "./config";
+import { resolveRequestOrigin } from "./request-origin";
 import { createServerClient } from "./supabase/server";
 
 import type { User } from "@supabase/supabase-js";
@@ -62,10 +63,15 @@ export async function requireAuth(currentPath?: string): Promise<User> {
   }
 
   const headersList = await headers();
-  // Best-effort fallback from proxy/header context when present.
   const headerUrl = headersList.get("x-helvety-url") ?? undefined;
-  const fallbackUrl = currentPath ? `${urls.home}${currentPath}` : undefined;
-  const destination = headerUrl ?? fallbackUrl;
+  const requestOrigin = resolveRequestOrigin(headersList);
+  const relativeDestination =
+    currentPath?.startsWith("/") ? currentPath : undefined;
+  const fallbackUrl =
+    requestOrigin && relativeDestination
+      ? `${requestOrigin}${relativeDestination}`
+      : currentPath;
+  const destination = fallbackUrl ?? headerUrl ?? urls.home;
 
   if (shouldForceHardLogout(authErrorMessage)) {
     redirect(

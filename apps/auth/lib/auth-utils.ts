@@ -1,8 +1,8 @@
 /**
  * Client-side auth utilities for determining the required authentication step
  *
- * These utilities help both AuthTokenHandler and the login page determine
- * what step the user needs to complete (passkey setup or sign-in).
+ * These utilities help the login flow determine what step the user needs
+ * to complete (passkey setup or sign-in).
  */
 
 import { getOwnPasskeyStatus } from "@/app/actions/credential-actions";
@@ -21,7 +21,6 @@ export interface AuthStepResult {
 /**
  * Determines the required authentication step for a user
  *
- * @param userId - The user's ID
  * @returns The required step and current status
  *
  * Logic:
@@ -32,9 +31,7 @@ export interface AuthStepResult {
  * Note: After passkey auth completes, the session is created directly server-side
  * in verifyPasskeyAuthentication() and the user is redirected to their destination.
  */
-export async function getRequiredAuthStep(
-  _userId: string
-): Promise<AuthStepResult> {
+export async function getRequiredAuthStep(): Promise<AuthStepResult> {
   // Check if the authenticated user has a passkey registered
   const passkeyResult = await getOwnPasskeyStatus();
   const hasPasskey = passkeyResult.success && passkeyResult.data?.hasPasskey;

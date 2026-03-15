@@ -103,9 +103,11 @@ export function getRpId(origin: string): string {
  */
 export function getExpectedOrigins(rpId: string): string[] {
   if (rpId === "localhost") {
-    // All local development ports for Helvety apps (3001–3006)
+    // All local development ports for Helvety apps.
+    // Support both localhost and 127.0.0.1 because developers often mix both.
     return [
       ...Object.values(DEV_PORTS).map((port) => `http://localhost:${port}`),
+      ...Object.values(DEV_PORTS).map((port) => `http://127.0.0.1:${port}`),
     ];
   }
   // All apps served under helvety.com via path-based routing (multi-zone)

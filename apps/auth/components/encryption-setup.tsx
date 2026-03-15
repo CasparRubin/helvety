@@ -2,6 +2,7 @@
 
 import { urls } from "@helvety/shared/config";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { base64Decode } from "@helvety/shared/crypto/encoding";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { generateKeyCheckValue } from "@helvety/shared/crypto/key-check";
 import { storeMasterKey } from "@helvety/shared/crypto/key-storage";
@@ -177,7 +178,7 @@ export function EncryptionSetup({
       }
       mergedExtensions.prf = {
         eval: {
-          first: new Uint8Array(Buffer.from(prfSalt, "base64")),
+          first: base64Decode(prfSalt),
         },
       };
       optionsWithPRF.extensions = mergedExtensions;
@@ -246,9 +247,9 @@ export function EncryptionSetup({
       // Cache the PRF salt so future logins can include PRF for single-touch unlock
       cachePRFSalt(prfSalt, PRF_VERSION);
 
-      // On Chrome 132+ (released January 2025), PRF output is returned during registration.
-      // If available, derive and store the master key now so the user doesn't
-      // need a separate passkey touch when EncryptionGate loads in E2EE apps.
+      // In some modern browser/authenticator flows, PRF output is returned
+      // during registration. If available, derive and store the master key now
+      // so the user doesn't need a separate passkey touch when EncryptionGate loads.
       if (regResult.prfOutput && userId) {
         try {
           const prfParams = { prfSalt, version: PRF_VERSION };

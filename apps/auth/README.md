@@ -130,6 +130,7 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 - **Verification code only for new users** - New users (and existing users without a passkey) receive an OTP code by email; existing users with a passkey sign in directly with passkey
 - **Passkey security** - Biometric verification (Face ID, fingerprint, or PIN) via WebAuthn
 - **Account-bound sign-in** - Returning-user passkey authentication is bound to the entered email/account, preventing cross-account passkey mismatches on shared devices
+- **Resilient login bootstrap** - Initial auth restore on `/auth/login` uses timeout-bounded probing and safe fallback to manual sign-in to avoid infinite loading states when refresh tokens are expired/revoked or the Auth API is rate-limited
 
 ## API Routes
 
@@ -153,8 +154,8 @@ Handles authentication callbacks from email verification (backwards-compatible f
 - Redirects based on user status:
   - New users or missing encryption: `/login?step=encryption-setup`
   - Returning users after email verification: `/login?step=passkey-signin`
-- If no `redirect_uri` is provided, it falls back to the default home URL from `@helvety/shared/config` (development: `http://localhost:3001`, production: `https://helvety.com`)
-- **Designed to preserve `redirect_uri`** through query-based callback auth (`code` / `token_hash`). Legacy hash-fragment tokens are intentionally rejected and routed to `/auth/login?error=callback_required` for safety.
+- If `redirect_uri` is missing or invalid, callback continues through `/auth/login`; after auth steps complete, login flow falls back to the default home URL from `@helvety/shared/config` (development: `http://localhost:3001`, production: `https://helvety.com`)
+- **Designed to preserve `redirect_uri`** through query-based callback auth (`code` / `token_hash`). Legacy hash-fragment tokens are rejected by the client-side `AuthTokenHandler` and routed to `/auth/login?error=callback_required` for safety.
 
 ### `/logout` (Client-Side Page)
 
@@ -182,7 +183,7 @@ Signs out the user with strict local cleanup and centralized re-auth entry. This
 The proxy (`proxy.ts`, via `@helvety/shared/proxy`) handles lightweight request setup (CSP headers and CSRF cookie bootstrap):
 
 - **Proxy Scope** - Sets lightweight request headers/CSP and CSRF cookie bootstrap. Authentication and authorization checks are enforced in pages, Server Actions, and Route Handlers.
-- **Session Sharing** - Sets cookies using the `COOKIE_DOMAIN` constant from `@helvety/shared/config` (`.helvety.com` in production) for session sharing
+- **Session Sharing** - Cookie domain sharing via `COOKIE_DOMAIN` (`.helvety.com` in production) is applied when cookies are written: CSRF in `proxy.ts`, auth session cookies in Supabase cookie adapters
 - **CSRF Token Generation** - Generates a CSRF token cookie on each request if not already present. The token is read by the layout and passed to client components via `CSRFProvider`. Server Actions validate the token using timing-safe comparison.
 - **Server Component Support** - Helps keep server components aligned with current session state
 
@@ -237,12 +238,13 @@ CREATE TABLE user_passkey_params (
   user_id UUID NOT NULL PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   credential_id TEXT NOT NULL,
   prf_salt TEXT NOT NULL,
+  key_check_value TEXT NULL,
   version INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
 
-**Note:** Each user has at most one passkey params row (keyed by `user_id`). The row can be deleted when the user removes their last passkey (via the `user_passkey_params` DELETE policy). The `prf_salt` is used during PRF evaluation to derive the encryption key. The actual encryption key is intended to remain client-side and is derived during passkey authentication.
+**Note:** Each user has at most one passkey params row (keyed by `user_id`). The row can be deleted when the user removes their last passkey (via the `user_passkey_params` DELETE policy). `prf_salt` is used during PRF evaluation to derive the encryption key, and `key_check_value` validates derived-key correctness across unlocks. The actual encryption key remains client-side and is derived during passkey authentication.
 
 ## Security Considerations
 
@@ -311,7 +313,7 @@ After email verification, new users are guided through passkey creation. The flo
 
 - **On mobile (phone/tablet):** User creates a passkey on this device using Face ID, fingerprint, or device PIN.
 - **On desktop:** User scans a QR code with their phone and creates the passkey on the phone (Face ID or fingerprint).
-- The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential and PRF salt parameters.
+- The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential plus non-secret key-derivation metadata (PRF salt and key-check value).
 - In many modern browser flows, PRF output is returned during registration. When available, the encryption key is derived and stored in IndexedDB immediately, so users can arrive at E2EE apps with encryption already unlocked.
 - In browser flows where PRF output is not returned during registration, users must complete one additional passkey interaction in `/auth` before returning to E2EE apps.
 - User is redirected to their destination app with an active session (created during OTP verification).
@@ -320,7 +322,7 @@ After email verification, new users are guided through passkey creation. The flo
 
 - **Encryption Passkey** - A passkey created using the WebAuthn PRF (Pseudo-Random Function) extension
 - **Key Derivation** - Encryption keys are derived client-side from the PRF output using HKDF
-- **Zero-Knowledge-Oriented Design** - For encryption material, the server stores PRF parameters (salt values) while encryption keys remain client-side and are not stored by Helvety. Standard auth/account metadata (for example user records and passkey public credentials) is still stored server-side.
+- **Zero-Knowledge-Oriented Design** - For encryption material, the server stores non-secret key-derivation metadata (for example PRF salt and key-check value), while encryption keys remain client-side and are not stored by Helvety. Standard auth/account metadata (for example user records and passkey public credentials) is still stored server-side.
 - **Cross-App Passkeys** - Passkeys are registered to the `helvety.com` RP ID and work for authentication across all Helvety apps; however, E2EE is only active in Helvety Tasks, Helvety Contacts, and Helvety Notes
 - **Cloud Sync Recommendation** - During passkey creation, the UI recommends saving the passkey to the device's built-in password app (Passwords on iPhone or Google Password Manager on Android) with cloud sync enabled. If all synced passkeys are lost, encrypted content cannot be recovered by Helvety.
 

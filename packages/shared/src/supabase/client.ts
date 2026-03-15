@@ -46,29 +46,76 @@ function fetchWithTimeout(
 }
 
 /**
- * Lock wrapper with timeout to prevent navigator.locks deadlocks.
+ * Auth lock wrapper with timeout and fallback queue.
  *
  * Safari iOS and some Android browsers can hold Web Locks indefinitely
  * when tabs are suspended/resumed, causing the Supabase auth client to
  * hang on initialization and token refresh.
  *
- * This wrapper uses bounded, non-blocking lock retries. It never executes
- * the callback without a lock because unlocked refresh paths can trigger
- * refresh-token storms across tabs and apps.
+ * Primary path uses navigator.locks with bounded retries. When Web Locks
+ * are unavailable, we fall back to an in-memory FIFO queue in this tab,
+ * still enforcing a timeout. We never execute callback paths unlocked.
  *
  * @see https://github.com/supabase/supabase-js/issues/1594
  */
 const LOCK_TIMEOUT_MS = 5_000;
 const LOCK_RETRY_INTERVAL_MS = 150;
+let fallbackLockChain: Promise<void> = Promise.resolve();
 
-/** Acquire a Web Lock with bounded retries; never run unlocked. */
+/** Awaits a promise with timeout, throwing AbortError on deadline. */
+async function awaitWithTimeout(
+  promise: Promise<void>,
+  timeoutMs: number
+): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new DOMException("Timed out waiting for auth lock", "AbortError"));
+    }, timeoutMs);
+  });
+
+  try {
+    await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
+}
+
+/** Acquire an auth lock (Web Lock or in-memory fallback). */
 async function lockWithTimeout<R>(
   name: string,
   acquireTimeout: number,
   fn: () => Promise<R>
 ): Promise<R> {
   if (typeof navigator === "undefined" || !navigator.locks) {
-    return await fn();
+    const timeoutMs =
+      acquireTimeout > 0
+        ? Math.min(acquireTimeout, LOCK_TIMEOUT_MS)
+        : LOCK_TIMEOUT_MS;
+
+    let releaseCurrentLock = () => {};
+    const currentLock = new Promise<void>((resolve) => {
+      releaseCurrentLock = () => resolve();
+    });
+
+    const previousLock = fallbackLockChain;
+    fallbackLockChain = previousLock.finally(() => currentLock);
+
+    try {
+      await awaitWithTimeout(previousLock, timeoutMs);
+    } catch (error) {
+      // Remove our queued slot so later callers can continue.
+      releaseCurrentLock();
+      throw error;
+    }
+
+    try {
+      return await fn();
+    } finally {
+      releaseCurrentLock();
+    }
   }
 
   const timeoutMs =

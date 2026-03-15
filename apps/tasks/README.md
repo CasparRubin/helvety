@@ -72,7 +72,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ### End-to-End Encryption
 
-Helvety Tasks uses end-to-end encryption (E2EE), as do Helvety Contacts and Helvety Notes. In supported browser flows, task content fields are encrypted and decrypted in your browser using a key derived from your passkey. The server stores encrypted ciphertext plus PRF salt parameters, and does not receive your raw encryption key.
+Helvety Tasks uses end-to-end encryption (E2EE), as do Helvety Contacts and Helvety Notes. In supported browser flows, task content fields are encrypted and decrypted in your browser using a key derived from your passkey. The server stores encrypted ciphertext plus non-secret key-derivation metadata (for example PRF salt and key-check value), and does not receive your raw encryption key.
 
 **How it works:**
 
@@ -82,7 +82,7 @@ Helvety Tasks uses end-to-end encryption (E2EE), as do Helvety Contacts and Helv
 4. In supported flows, encryption and decryption of protected task content happens locally in your browser
 5. Additional Authenticated Data (AAD) binds each ciphertext to its specific record, preventing encrypted data from being moved or replayed in a different context
 6. Record identifiers for encrypted data are generated on your device, not by the server
-7. For encrypted content fields, the server stores encrypted ciphertext and PRF salt values; required structural metadata is stored separately in plaintext for app functionality
+7. For encrypted content fields, the server stores encrypted ciphertext and key-derivation metadata (for example PRF salt and key-check value); required structural metadata is stored separately in plaintext for app functionality
 
 **Important:** Your passkey controls decryption access to encrypted content. If you lose access to all passkeys for your account, encrypted content cannot be recovered by Helvety. To reduce this risk, save passkeys in your platform's built-in password app with cloud sync enabled.
 

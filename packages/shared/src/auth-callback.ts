@@ -17,6 +17,7 @@ import { logger } from "./logger";
 import { checkRateLimit, RATE_LIMITS } from "./rate-limit";
 import {
   getSafeRelativePath,
+  getSafeRedirectUri,
   isValidRelativePath,
 } from "./redirect-validation";
 import { createServerClient } from "./supabase/server";
@@ -32,7 +33,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 export function createAuthCallbackHandler() {
   return async function GET(request: Request) {
     const { origin } = new URL(request.url);
-    const authErrorUrl = getLoginUrl(origin);
+    let authErrorUrl = getLoginUrl(origin);
 
     try {
       const clientIP = getTrustedClientIp(request.headers, {
@@ -58,11 +59,17 @@ export function createAuthCallbackHandler() {
       const code = searchParams.get("code");
       const token_hash = searchParams.get("token_hash");
       const type = searchParams.get("type");
+      const rawRedirectUri = searchParams.get("redirect_uri");
       const rawNext = searchParams.get("next");
+      const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
+      authErrorUrl = getLoginUrl(safeRedirectUri ?? origin);
       if (rawNext && !isValidRelativePath(rawNext)) {
         return NextResponse.redirect(`${authErrorUrl}&error=invalid_next`);
       }
       const next = getSafeRelativePath(rawNext, "/");
+      const successDestination = safeRedirectUri
+        ? new URL(safeRedirectUri)
+        : new URL(next, origin);
 
       if (code) {
         const supabase = await createServerClient();
@@ -70,7 +77,7 @@ export function createAuthCallbackHandler() {
 
         if (!error) {
           await generateCSRFToken();
-          return NextResponse.redirect(new URL(next, origin));
+          return NextResponse.redirect(successDestination);
         }
 
         logger.error("Auth callback error (code exchange):", error);
@@ -100,7 +107,7 @@ export function createAuthCallbackHandler() {
 
         if (!error) {
           await generateCSRFToken();
-          return NextResponse.redirect(new URL(next, origin));
+          return NextResponse.redirect(successDestination);
         }
 
         logger.error("Auth callback error (token hash):", error);

@@ -3,7 +3,7 @@ import { randomBytes } from "crypto";
 import { buildCsp } from "@helvety/config/next-headers";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { COOKIE_DOMAIN, urls } from "./config";
+import { COOKIE_DOMAIN } from "./config";
 
 const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
@@ -64,7 +64,7 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
     request.headers.set("Content-Security-Policy", csp);
 
     if (includeHelvetyUrl) {
-      const publicUrl = `${urls.home}${request.nextUrl.basePath}${request.nextUrl.pathname}${request.nextUrl.search}`;
+      const publicUrl = `${request.nextUrl.origin}${request.nextUrl.basePath}${request.nextUrl.pathname}${request.nextUrl.search}`;
       request.headers.set("x-helvety-url", publicUrl);
     }
 

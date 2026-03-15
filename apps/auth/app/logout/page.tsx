@@ -68,9 +68,14 @@ function LogoutHandler() {
           ? rawRedirectUri
           : defaultRedirect;
       const loginUrl = getLoginUrl(redirectTarget, { forceLogin: true });
-
-      await signOutAction(csrfToken ?? undefined, globalLogout);
-      window.location.href = loginUrl;
+      const signOutResult = await signOutAction(
+        csrfToken ?? undefined,
+        globalLogout
+      );
+      const destination = signOutResult.success
+        ? loginUrl
+        : `${loginUrl}&error=logout_failed`;
+      window.location.href = destination;
     }
 
     void performLogout();

@@ -1,6 +1,6 @@
 /**
  * Key Storage Module
- * Manages encryption keys in IndexedDB for session persistence
+ * Manages temporary master-key caching in IndexedDB (TTL-based, cross-tab aware)
  *
  * Resilience: All IndexedDB operations include retry logic and timeouts to
  * handle Safari-specific quirks (background tab eviction, iOS suspend/resume,
@@ -11,12 +11,9 @@ import { logger } from "../logger";
 
 import { CryptoError, CryptoErrorType } from "./types";
 
-import type { StoredKeyEntry } from "./types";
-
 const DB_NAME = "helvety-crypto";
 const DB_VERSION = 1;
 const MASTER_KEY_STORE = "master-keys";
-const UNIT_KEY_STORE = "unit-keys";
 
 /** Cache duration for keys (24 hours) */
 const KEY_CACHE_DURATION = 24 * 60 * 60 * 1000;
@@ -146,11 +143,6 @@ function openDatabaseOnce(): Promise<IDBDatabase> {
       // Store for the master key (keyed by user ID)
       if (!db.objectStoreNames.contains(MASTER_KEY_STORE)) {
         db.createObjectStore(MASTER_KEY_STORE, { keyPath: "userId" });
-      }
-
-      // Store for cached content keys (keyed by unitId for legacy compatibility)
-      if (!db.objectStoreNames.contains(UNIT_KEY_STORE)) {
-        db.createObjectStore(UNIT_KEY_STORE, { keyPath: "unitId" });
       }
     };
   });
@@ -333,162 +325,18 @@ export async function deleteMasterKey(userId: string): Promise<void> {
 }
 
 /**
- * Store a content key in IndexedDB
- */
-export async function storeUnitKey(
-  unitId: number,
-  key: CryptoKey
-): Promise<void> {
-  try {
-    const db = await openDatabase();
-
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(UNIT_KEY_STORE, "readwrite");
-      const store = transaction.objectStore(UNIT_KEY_STORE);
-
-      const entry: StoredKeyEntry = {
-        unitId,
-        key,
-        cachedAt: Date.now(),
-      };
-
-      const request = store.put(entry);
-
-      request.onerror = () => {
-        reject(
-          new CryptoError(
-            CryptoErrorType.STORAGE_ERROR,
-            "Failed to store content key"
-          )
-        );
-      };
-
-      request.onsuccess = () => {
-        resolve();
-      };
-
-      transaction.oncomplete = () => {
-        db.close();
-      };
-    });
-  } catch (error) {
-    if (error instanceof CryptoError) throw error;
-    throw new CryptoError(
-      CryptoErrorType.STORAGE_ERROR,
-      "Failed to store content key",
-      error instanceof Error ? error : undefined
-    );
-  }
-}
-
-/**
- * Retrieve a content key from IndexedDB
- */
-export async function getUnitKey(unitId: number): Promise<CryptoKey | null> {
-  try {
-    const db = await openDatabase();
-
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(UNIT_KEY_STORE, "readonly");
-      const store = transaction.objectStore(UNIT_KEY_STORE);
-
-      const request = store.get(unitId);
-
-      request.onerror = () => {
-        reject(
-          new CryptoError(
-            CryptoErrorType.STORAGE_ERROR,
-            "Failed to retrieve content key"
-          )
-        );
-      };
-
-      request.onsuccess = () => {
-        const result = request.result as StoredKeyEntry | undefined;
-        if (!result) {
-          resolve(null);
-          return;
-        }
-
-        // Check if key has expired
-        if (Date.now() - result.cachedAt > KEY_CACHE_DURATION) {
-          void deleteUnitKey(unitId).catch((err) =>
-            logger.error("Failed to delete expired content key:", err)
-          );
-          resolve(null);
-          return;
-        }
-
-        resolve(result.key);
-      };
-
-      transaction.oncomplete = () => {
-        db.close();
-      };
-    });
-  } catch (error) {
-    logger.error("Failed to retrieve content key:", error);
-    return null;
-  }
-}
-
-/**
- * Delete a content key from IndexedDB
- */
-export async function deleteUnitKey(unitId: number): Promise<void> {
-  try {
-    const db = await openDatabase();
-
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(UNIT_KEY_STORE, "readwrite");
-      const store = transaction.objectStore(UNIT_KEY_STORE);
-
-      const request = store.delete(unitId);
-
-      request.onerror = () => {
-        reject(
-          new CryptoError(
-            CryptoErrorType.STORAGE_ERROR,
-            "Failed to delete content key"
-          )
-        );
-      };
-
-      request.onsuccess = () => {
-        resolve();
-      };
-
-      transaction.oncomplete = () => {
-        db.close();
-      };
-    });
-  } catch (error) {
-    logger.error("Failed to delete content key:", error);
-  }
-}
-
-/**
  * Clear all stored keys
  * Call this on logout to ensure keys are removed
  */
 export async function clearAllKeys(): Promise<void> {
   try {
     const db = await openDatabase();
-
-    await Promise.all([
-      new Promise<void>((resolve, reject) => {
-        const transaction = db.transaction(MASTER_KEY_STORE, "readwrite");
-        const request = transaction.objectStore(MASTER_KEY_STORE).clear();
-        request.onerror = () => reject();
-        request.onsuccess = () => resolve();
-      }),
-      new Promise<void>((resolve, reject) => {
-        const transaction = db.transaction(UNIT_KEY_STORE, "readwrite");
-        const request = transaction.objectStore(UNIT_KEY_STORE).clear();
-        request.onerror = () => reject();
-        request.onsuccess = () => resolve();
-      }),
-    ]);
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(MASTER_KEY_STORE, "readwrite");
+      const request = transaction.objectStore(MASTER_KEY_STORE).clear();
+      request.onerror = () => reject();
+      request.onsuccess = () => resolve();
+    });
 
     db.close();
     broadcastKeyEvent({ type: "keys-cleared" });

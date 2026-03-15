@@ -8,7 +8,8 @@
  *
  * The KCV is an AES-GCM encryption of a known constant with the master key.
  * On unlock, the KCV is decrypted and the plaintext is compared to the
- * expected constant. A mismatch means the wrong key was derived.
+ * expected constant. A verification failure indicates either a wrong derived
+ * key or invalid/corrupted KCV data.
  */
 
 import { constantTimeEqual } from "./encoding";
@@ -50,7 +51,7 @@ export async function generateKeyCheckValue(
 
 /**
  * Verify a derived master key against a stored key check value.
- * Returns true if the key is correct, false if it's wrong.
+ * Returns true on successful verification; false if verification fails.
  */
 export async function verifyKeyCheckValue(
   masterKey: CryptoKey,
@@ -71,7 +72,7 @@ export async function verifyKeyCheckValue(
     const actual = new Uint8Array(decrypted);
     return constantTimeEqual(actual, expected);
   } catch {
-    // Decryption failure (wrong key produces authentication tag mismatch)
+    // Covers malformed KCV payloads and decryption/auth-tag failures.
     return false;
   }
 }

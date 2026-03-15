@@ -57,6 +57,7 @@
     "./use-navbar-auth-state": "./src/use-navbar-auth-state.ts",
     "./animated-icons": "./src/animated-icons.ts",
     "./auth-navigation": "./src/auth-navigation.ts",
+    "./auth-session-singleflight": "./src/auth-session-singleflight.ts",
     "./session-recovery": "./src/session-recovery.tsx",
     "./auth-token-handler": "./src/auth-token-handler.tsx",
     "./skip-to-content": "./src/skip-to-content.tsx",

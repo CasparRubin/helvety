@@ -42,6 +42,7 @@
     "./layout-primitives": "./src/layout-primitives.ts",
     "./fonts": "./src/fonts.ts",
     "./redirect-validation": "./src/redirect-validation.ts",
+    "./request-origin": "./src/request-origin.ts",
     "./seo": "./src/seo.ts",
     "./supabase/client": "./src/supabase/client.ts",
     "./supabase/server": "./src/supabase/server.ts",

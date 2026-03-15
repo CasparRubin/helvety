@@ -15,7 +15,6 @@ export type {
   PRFKeyParams,
   StoredPasskey,
   WrappedKey,
-  StoredKeyEntry,
 } from "@helvety/shared/crypto/types";
 
 export { CryptoError, CryptoErrorType } from "@helvety/shared/crypto/types";
@@ -39,9 +38,6 @@ export {
   storeMasterKey,
   getMasterKey,
   deleteMasterKey,
-  storeUnitKey,
-  getUnitKey,
-  deleteUnitKey,
   clearAllKeys,
   isStorageAvailable,
   onKeyEvent,

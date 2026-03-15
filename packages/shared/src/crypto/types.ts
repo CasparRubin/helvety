@@ -66,18 +66,6 @@ export interface WrappedKey {
 }
 
 /**
- * Stored key entry in IndexedDB
- */
-export interface StoredKeyEntry {
-  /** Entity ID this key belongs to */
-  unitId: number;
-  /** The CryptoKey object (non-extractable) */
-  key: CryptoKey;
-  /** When this key was cached */
-  cachedAt: number;
-}
-
-/**
  * Error types for crypto operations
  */
 export enum CryptoErrorType {

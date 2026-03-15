@@ -17,7 +17,6 @@ export type {
   PRFKeyParams,
   StoredPasskey,
   WrappedKey,
-  StoredKeyEntry,
 } from "./types";
 
 export { CryptoError, CryptoErrorType } from "./types";
@@ -40,9 +39,6 @@ export {
   storeMasterKey,
   getMasterKey,
   deleteMasterKey,
-  storeUnitKey,
-  getUnitKey,
-  deleteUnitKey,
   clearAllKeys,
   isStorageAvailable,
   onKeyEvent,
@@ -83,7 +79,7 @@ export {
   clearCachedPRFSalt,
 } from "./prf-salt-cache";
 
-// Passkey Operations (Authentication only - setup is in helvety.com/auth)
+// Passkey capability helpers (setup/auth flows live in apps/auth)
 export {
   isPasskeySupported,
   isPRFSupported as isPasskeyPRFSupported,

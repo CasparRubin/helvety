@@ -3,6 +3,10 @@
 import { urls } from "@helvety/shared/config";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import {
+  generateKeyCheckValue,
+  verifyKeyCheckValue,
+} from "@helvety/shared/crypto/key-check";
+import {
   clearAllKeys,
   storeMasterKey,
 } from "@helvety/shared/crypto/key-storage";
@@ -19,13 +23,17 @@ import {
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
+import { getUserSingleflight } from "@helvety/ui/auth-session-singleflight";
 import { useCSRF } from "@helvety/ui/csrf-provider";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { getPasskeyParams } from "@/app/actions/encryption-actions";
+import {
+  getPasskeyParams,
+  saveKeyCheckValue,
+} from "@/app/actions/encryption-actions";
 import {
   checkEmail,
   sendVerificationCode,
@@ -43,6 +51,15 @@ import type { AuthStep, AuthFlowType } from "@/components/encryption-stepper";
 
 /** Duration (in seconds) before the user can resend an OTP code. */
 const RESEND_COOLDOWN_SECONDS = 120;
+const LOGIN_AUTH_PROBE_TIMEOUT_MS = 8_000;
+const TERMINAL_AUTH_ERROR_TOKENS = [
+  "refresh token not found",
+  "invalid refresh token",
+  "refresh token is invalid",
+  "session is invalid",
+  "too many requests",
+  "429",
+] as const;
 
 /** Required length of the one-time password code. */
 export const OTP_CODE_LENGTH = 6;
@@ -81,6 +98,35 @@ export interface LoginFlowState {
   handleResendCode: () => Promise<void>;
   handlePasskeySignIn: () => Promise<void>;
   handleBack: () => void;
+}
+
+/** Returns true when auth failure likely needs a local session reset. */
+export function shouldResetLoginAuthSession(message: string | null): boolean {
+  if (!message) {
+    return false;
+  }
+  const normalized = message.toLowerCase();
+  return TERMINAL_AUTH_ERROR_TOKENS.some((token) => normalized.includes(token));
+}
+
+/** Wraps auth probe calls so login can recover from indefinite hangs. */
+export async function withLoginAuthProbeTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs = LOGIN_AUTH_PROBE_TIMEOUT_MS
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error("AUTH_PROBE_TIMEOUT"));
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
 }
 
 /** Hook encapsulating the entire login flow state and handlers. */
@@ -126,6 +172,8 @@ export function useLoginFlow(): LoginFlowState {
   const [isNewUser, setIsNewUser] = useState(false);
   const hasAutoTriggered = useRef(false);
   const hasAutoRetriedMismatch = useRef(false);
+  const hasInitializedAuth = useRef(false);
+  const hasRecoveredTerminalAuth = useRef(false);
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
 
@@ -146,65 +194,137 @@ export function useLoginFlow(): LoginFlowState {
 
   // Initialize: check passkey support and existing session
   useEffect(() => {
+    if (hasInitializedAuth.current) {
+      return;
+    }
+    hasInitializedAuth.current = true;
+    let cancelled = false;
+
     const init = async () => {
-      // Check WebAuthn support
-      const supported = isPasskeySupported();
-      setPasskeySupported(supported);
-
-      // Get current user if any
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      // If user is authenticated and we're on passkey or encryption step, stay on that step
-      if (user && (step === "passkey-signin" || step === "encryption-setup")) {
-        setEmail(user.email ?? "");
-        setUserId(user.id);
-        setCheckingAuth(false);
-        return;
-      }
-
-      // If user is authenticated but on email step, check what they need to complete
-      if (user && step === "email") {
-        setEmail(user.email ?? "");
-        setUserId(user.id);
-
-        // Check passkey/encryption status to determine next step
-        const { step: requiredStep } = await getRequiredAuthStep(user.id);
-        const justCompletedSignup = consumeSignupPasskeyCompleted();
-
-        // After signup passkey setup, skip one immediate passkey-signin bounce.
-        // If unlock/auth is still required, downstream app guards will redirect
-        // back to /auth and the normal passkey step will run.
-        if (requiredStep === "passkey-signin" && justCompletedSignup) {
-          window.location.href = redirectUri ?? urls.home;
-          return;
+      try {
+        // Check WebAuthn support
+        const supported = isPasskeySupported();
+        if (!cancelled) {
+          setPasskeySupported(supported);
         }
+
+        // Get current user if any
+        const {
+          data: { user },
+          error: userError,
+        } = await withLoginAuthProbeTimeout(
+          getUserSingleflight(supabase, {
+            cooldownMs: 1_500,
+            bypassCooldown: true,
+          })
+        );
 
         if (
-          requiredStep === "encryption-setup" ||
-          requiredStep === "passkey-signin"
+          userError?.message &&
+          shouldResetLoginAuthSession(userError.message)
         ) {
-          // User needs to complete passkey flow - show appropriate step
-          setStep(requiredStep);
+          if (!hasRecoveredTerminalAuth.current) {
+            hasRecoveredTerminalAuth.current = true;
+            await supabase.auth.signOut({ scope: "local" });
+          }
+          if (!cancelled) {
+            setError("Your session expired. Please sign in again.");
+          }
+          return;
+        }
+
+        // If user is authenticated and we're on passkey or encryption step, stay on that step
+        if (
+          user &&
+          (step === "passkey-signin" || step === "encryption-setup")
+        ) {
+          if (!cancelled) {
+            setEmail(user.email ?? "");
+            setUserId(user.id);
+          }
+          return;
+        }
+
+        // If user is authenticated but on email step, check what they need to complete
+        if (user && step === "email") {
+          if (!cancelled) {
+            setEmail(user.email ?? "");
+            setUserId(user.id);
+          }
+
+          // Check passkey/encryption status to determine next step
+          const { step: requiredStep } = await getRequiredAuthStep();
+          const justCompletedSignup = consumeSignupPasskeyCompleted();
+
+          // After signup passkey setup, skip one immediate passkey-signin bounce.
+          // If unlock/auth is still required, downstream app guards will redirect
+          // back to /auth and the normal passkey step will run.
+          if (requiredStep === "passkey-signin" && justCompletedSignup) {
+            window.location.href = redirectUri ?? urls.home;
+            return;
+          }
+
+          if (
+            requiredStep === "encryption-setup" ||
+            requiredStep === "passkey-signin"
+          ) {
+            // User needs to complete passkey flow - show appropriate step
+            if (!cancelled) {
+              setStep(requiredStep);
+            }
+            return;
+          }
+
+          // Any non-step state returns to the canonical destination unless
+          // force-login was requested (e.g., after a failed logout hop).
+          if (!forceLogin) {
+            window.location.href = redirectUri ?? urls.home;
+            return;
+          }
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.warn(
+          "Login auth bootstrap failed; falling back to manual sign-in.",
+          {
+            message,
+          }
+        );
+
+        if (shouldResetLoginAuthSession(message)) {
+          if (!hasRecoveredTerminalAuth.current) {
+            hasRecoveredTerminalAuth.current = true;
+            try {
+              await supabase.auth.signOut({ scope: "local" });
+            } catch (signOutError) {
+              logger.warn("Local auth sign-out during login recovery failed.", {
+                message:
+                  signOutError instanceof Error
+                    ? signOutError.message
+                    : String(signOutError),
+              });
+            }
+          }
+        }
+
+        if (!cancelled) {
+          const friendlyError =
+            message === "AUTH_PROBE_TIMEOUT"
+              ? "We could not restore your session in time. Please sign in."
+              : "We could not restore your session. Please sign in.";
+          setError(friendlyError);
+        }
+      } finally {
+        if (!cancelled) {
           setCheckingAuth(false);
-          return;
         }
-
-        // Any non-step state returns to the canonical destination unless
-        // force-login was requested (e.g., after a failed logout hop).
-        if (!forceLogin) {
-          window.location.href = redirectUri ?? urls.home;
-          return;
-        }
-
-        setCheckingAuth(false);
-        return;
       }
-
-      setCheckingAuth(false);
     };
     void init();
+
+    return () => {
+      cancelled = true;
+    };
   }, [supabase, step, redirectUri, forceLogin]);
 
   // Handle email submission and branch by passkey availability.
@@ -525,6 +645,40 @@ export function useLoginFlow(): LoginFlowState {
                   version: bootstrapSalt.version,
                 };
                 const masterKey = await deriveKeyFromPRF(prfOutput, prfParams);
+
+                const keyCheckValue = paramsResult.success
+                  ? paramsResult.data?.key_check_value
+                  : null;
+                if (keyCheckValue) {
+                  const isValidKey = await verifyKeyCheckValue(
+                    masterKey,
+                    keyCheckValue
+                  );
+                  if (!isValidKey) {
+                    await clearStalePasskeyBootstrapState();
+                    setError(
+                      "This passkey does not match your encryption key. Please use the passkey for this account."
+                    );
+                    toast.error(
+                      "Passkey mismatch detected. Please try the correct passkey.",
+                      { duration: TOAST_DURATIONS.ERROR }
+                    );
+                    setIsLoading(false);
+                    return;
+                  }
+                } else {
+                  try {
+                    const newKeyCheckValue =
+                      await generateKeyCheckValue(masterKey);
+                    await saveKeyCheckValue(csrfToken, newKeyCheckValue);
+                  } catch (kcvError) {
+                    logger.warn(
+                      "Unable to save key check value during login bootstrap:",
+                      kcvError
+                    );
+                  }
+                }
+
                 await storeMasterKey(verifyResult.data.userId, masterKey);
 
                 cachePRFSalt(bootstrapSalt.prfSalt, bootstrapSalt.version);
