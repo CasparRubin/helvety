@@ -7,7 +7,6 @@ import type {
   SaaSProduct,
   SoftwareProduct,
   ProductFilters,
-  ProductType,
 } from "@/lib/types/products";
 
 // =============================================================================
@@ -532,14 +531,6 @@ export function getProductBySlug(slug: string): Product | undefined {
 }
 
 /**
- * Get a product by its ID
- * @param id
- */
-export function getProductById(id: string): Product | undefined {
-  return products.find((product) => product.id === id);
-}
-
-/**
  * Get products filtered by criteria
  * @param filters
  */
@@ -617,19 +608,4 @@ export function getFilteredProducts(filters: ProductFilters): Product[] {
   }
 
   return filtered;
-}
-
-/**
- * Get all unique product types
- */
-export function getProductTypes(): ProductType[] {
-  const types = new Set(products.map((product) => product.type));
-  return Array.from(types);
-}
-
-/**
- * Get featured products
- */
-export function getFeaturedProducts(): Product[] {
-  return products.filter((product) => product.metadata?.featured === true);
 }

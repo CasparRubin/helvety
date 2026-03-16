@@ -80,8 +80,4 @@ export {
 } from "./prf-salt-cache";
 
 // Passkey capability helpers (setup/auth flows live in apps/auth)
-export {
-  isPasskeySupported,
-  isPRFSupported as isPasskeyPRFSupported,
-  getPRFSupportInfo as getPasskeyPRFSupportInfo,
-} from "./passkey";
+export { isPasskeySupported } from "./passkey";

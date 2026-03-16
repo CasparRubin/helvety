@@ -142,7 +142,6 @@ export function EntityList({
     return map;
   }, [stages]);
 
-  // Build a label map for quick lookup
   // Group entities by stage
   const groupedEntities = useMemo(() => {
     if (!hasStages) return null;

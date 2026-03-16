@@ -12,13 +12,10 @@ import {
 /** Numeric priority values stored in the database (smallint 0-3) */
 export type Priority = 0 | 1 | 2 | 3;
 
-export const PRIORITY_LOW: Priority = 0;
-export const PRIORITY_NORMAL: Priority = 1;
-export const PRIORITY_HIGH: Priority = 2;
-export const PRIORITY_URGENT: Priority = 3;
-
-/** Default priority for new items and fallback for null/undefined */
-export const DEFAULT_PRIORITY: Priority = PRIORITY_NORMAL;
+const PRIORITY_LOW: Priority = 0;
+const PRIORITY_NORMAL: Priority = 1;
+const PRIORITY_HIGH: Priority = 2;
+const PRIORITY_URGENT: Priority = 3;
 
 // =============================================================================
 // Priority Configuration

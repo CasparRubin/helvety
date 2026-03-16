@@ -77,13 +77,13 @@ bun run dev
 bun run dev --filter=@helvety/web
 bun run dev --filter=@helvety/store
 
-# Type-check all apps
+# Type-check all workspaces (apps + packages)
 bun run type-check
 
-# Lint all apps
+# Lint all workspaces (apps + packages)
 bun run lint
 
-# Run all tests
+# Run tests across all workspaces (apps + packages)
 bun run test
 
 # Format all files

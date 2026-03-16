@@ -83,7 +83,8 @@ export function formatPrice(
 }
 
 /**
- * Format price with interval metadata for display.
+ * Format a base price string for display.
+ * Note: interval is currently ignored and no interval suffix is appended.
  * @param priceInCents
  * @param currency
  * @param interval
@@ -103,29 +104,6 @@ export function formatPriceWithInterval(
 // =============================================================================
 // PRICING CALCULATIONS
 // =============================================================================
-
-/**
- * Calculate monthly equivalent price for yearly plans
- * @param yearlyPriceInCents
- */
-export function getMonthlyEquivalent(yearlyPriceInCents: number): number {
-  // Free-only model: monthly normalization is not used.
-  return yearlyPriceInCents;
-}
-
-/**
- * Calculate savings percentage between monthly and yearly
- * @param monthlyPriceInCents
- * @param yearlyPriceInCents
- */
-export function calculateYearlySavings(
-  monthlyPriceInCents: number,
-  yearlyPriceInCents: number
-): number {
-  void monthlyPriceInCents;
-  void yearlyPriceInCents;
-  return 0;
-}
 
 /**
  * Get the starting price for a product (lowest non-free tier)
@@ -166,7 +144,8 @@ function normalizeToMonthly(
 // =============================================================================
 
 /**
- * Get tiers filtered by billing interval
+ * Return all tiers for the product.
+ * Note: interval filtering is not currently applied in this implementation.
  * @param pricing
  * @param interval
  */
@@ -201,7 +180,8 @@ export function getHighlightedTier(
 // =============================================================================
 
 /**
- * Get human-readable interval label
+ * Return the current default interval label ("One-time").
+ * Note: interval-specific labels are not currently implemented.
  * @param interval
  */
 export function getIntervalLabel(interval: BillingInterval): string {
@@ -210,7 +190,8 @@ export function getIntervalLabel(interval: BillingInterval): string {
 }
 
 /**
- * Get billing interval short label
+ * Return the current default short interval label (empty string).
+ * Note: interval-specific short labels are not currently implemented.
  * @param interval
  */
 export function getIntervalShortLabel(interval: BillingInterval): string {

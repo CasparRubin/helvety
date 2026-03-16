@@ -202,6 +202,8 @@ function checkInMemoryRateLimit(
  * @param windowMs - Time window in milliseconds (default: 60 seconds)
  * @param prefix - Redis key prefix for the limiter (default: "api"). Different
  *   prefixes create separate Upstash Ratelimit instances and Redis key namespaces.
+ * @param policy - Failure policy in production: "strict" fails closed when Redis
+ *   is unavailable; "soft" allows requests during Redis outages.
  * @returns Rate limit result with allowed status and remaining requests
  */
 export async function checkRateLimit(

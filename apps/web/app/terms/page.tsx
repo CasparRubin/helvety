@@ -206,12 +206,13 @@ export default function TermsPage() {
           The Services are primarily intended for customers located in
           Switzerland. Service availability may be restricted for users in
           certain regions, including the European Union (EU) and European
-          Economic Area (EEA). New account creation includes a Switzerland
-          location confirmation step, but this is not equivalent to strict
-          geoblocking. Access from outside Switzerland may still occur; in such
-          cases, you remain responsible for compliance with applicable local
-          law, and mandatory consumer/data-protection rules in your jurisdiction
-          may still apply.
+          Economic Area (EEA). Sign-in for account-based services includes a
+          location attestation step (confirmation that the user is not located
+          in the EU/EEA) before verification-code delivery, but this is not
+          equivalent to strict geoblocking. Access from outside Switzerland may
+          still occur; in such cases, you remain responsible for compliance with
+          applicable local law, and mandatory consumer/data-protection rules in
+          your jurisdiction may still apply.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           These Terms constitute a legally binding agreement between you and

@@ -84,7 +84,7 @@ const PasskeyCredentialIdSchema = z.object({
  * @param csrfToken - CSRF token for request validation
  * @param origin - The origin URL
  * @param redirectUri - Optional redirect URI to preserve through auth flow
- * @param options - Optional { isMobile, expectedEmail } to choose platform/hybrid and bind passkey to account
+ * @param authOptions - Optional { isMobile, expectedEmail } to choose platform/hybrid and bind passkey to account
  * @returns Authentication options for WebAuthn
  */
 export async function generatePasskeyAuthOptions(

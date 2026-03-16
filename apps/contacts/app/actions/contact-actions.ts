@@ -16,7 +16,7 @@ import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
 
-/** Revalidate list/detail routes impacted by contact mutations. */
+/** Revalidate the contacts list route after contact mutations. */
 function revalidateContactRoutes(contactId?: string): void {
   revalidatePath("/contacts");
   void contactId;

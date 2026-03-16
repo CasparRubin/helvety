@@ -6,16 +6,6 @@
 // ENTITY TYPES
 // =============================================================================
 
-/**
- * Entity type discriminator.
- */
-export type EntityType = "item";
-
-/** Type guard to narrow an unknown entity shape to Item. */
-export function isItem(entity: { id: string }): entity is Item {
-  return "title" in entity;
-}
-
 /** Batch reorder update for drag-and-drop */
 export interface ReorderUpdate {
   id: string;

@@ -6,7 +6,7 @@ Store URL: [https://helvety.com/store](https://helvety.com/store)
 
 ## Current scope
 
-- Product catalog with detail pages under `/products`
+- Product catalog with detail pages under `/store/products`
 - Public SPO Explorer package download (`.sppkg`) without account login
 - Account page (`/account`) for profile management and data rights tooling
 - Shared legal pages hosted on `helvety.com` (Privacy, Terms, Impressum)

@@ -289,12 +289,13 @@ export default function ImpressumPage() {
           provides otherwise.
         </p>
         <p className="text-muted-foreground text-sm">
-          Our services are primarily intended for customers in Switzerland. New
-          sign-in requires a confirmation that the user is not located in the
-          EU/EEA before verification-code delivery, but technical access from
-          outside Switzerland may still occur. Where mandatory law in another
-          jurisdiction applies in a specific case, those mandatory provisions
-          remain unaffected.
+          Our services are primarily intended for customers in Switzerland.
+          Sign-in for account-based services requires a confirmation that the
+          user is not located in the EU/EEA before verification-code delivery,
+          but this attestation is not strict geoblocking and technical access
+          from outside Switzerland may still occur. Where mandatory law in
+          another jurisdiction applies in a specific case, those mandatory
+          provisions remain unaffected.
         </p>
       </LegalSection>
 
