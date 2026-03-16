@@ -327,8 +327,28 @@ export async function verifyPasskeyRegistration(
       return { success: false, error: "Failed to store credential" };
     }
 
-    // If PRF was enabled, store PRF params for encryption
+    // If PRF was enabled, store PRF params for encryption.
+    // Auth setup is only complete when both credential and encryption params
+    // are persisted. Roll back the credential on encryption persistence failure.
     let savedPrfSalt: string | undefined;
+    if (prfEnabled && !storedData.prfSalt) {
+      logger.error("Missing PRF salt for passkey registration challenge.");
+      const { error: rollbackError } = await scopedAdmin
+        .from("user_auth_credentials")
+        .delete()
+        .eq("credential_id", credential.id);
+      if (rollbackError) {
+        logger.warn(
+          "Failed to roll back credential after missing PRF salt:",
+          rollbackError
+        );
+      }
+      return {
+        success: false,
+        error: "Failed to complete encryption setup. Please try again.",
+      };
+    }
+
     if (prfEnabled && storedData.prfSalt) {
       const { error: prfError } = await supabase
         .from("user_passkey_params")
@@ -344,8 +364,20 @@ export async function verifyPasskeyRegistration(
 
       if (prfError) {
         logger.error("Error storing PRF params:", prfError);
-        // Don't fail the entire registration, just log the error
-        // The user can still use the passkey for auth
+        const { error: rollbackError } = await scopedAdmin
+          .from("user_auth_credentials")
+          .delete()
+          .eq("credential_id", credential.id);
+        if (rollbackError) {
+          logger.warn(
+            "Failed to roll back credential after PRF persistence error:",
+            rollbackError
+          );
+        }
+        return {
+          success: false,
+          error: "Failed to complete encryption setup. Please try again.",
+        };
       } else {
         savedPrfSalt = storedData.prfSalt;
       }

@@ -59,7 +59,9 @@ export function AuthStepper({
   className,
 }: AuthStepperProps) {
   const steps = FLOW_STEPS[flowType];
-  const currentIndex = steps.findIndex((s) => s.id === currentStep);
+  const rawCurrentIndex = steps.findIndex((s) => s.id === currentStep);
+  const currentIndex =
+    rawCurrentIndex === -1 ? steps.length - 1 : rawCurrentIndex;
 
   return (
     <div className={cn("mx-auto mb-6 w-full max-w-md", className)}>

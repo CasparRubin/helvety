@@ -9,6 +9,7 @@ import { NextResponse } from "next/server";
 
 import { checkUserPasskeyStatus } from "@/app/actions/auth-action-helpers";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
+import { resolveAuthStep } from "@/lib/auth-step";
 
 import type { EmailOtpType } from "@supabase/supabase-js";
 
@@ -19,15 +20,6 @@ const ALLOWED_OTP_TYPES = new Set<string>([
   "invite",
   "email_change",
 ]);
-
-/** Login step values used by the callback redirect workflow. */
-type AuthStep = "encryption-setup" | "passkey-signin";
-
-/** Minimal readiness state used to select next auth login step. */
-interface PasskeyReadiness {
-  hasPasskey: boolean;
-  hasEncryption: boolean;
-}
 
 /** Builds a login redirect URL with optional error and original redirect target. */
 function buildErrorRedirect(
@@ -43,17 +35,6 @@ function buildErrorRedirect(
     loginUrl.searchParams.set("redirect_uri", redirectUri);
   }
   return loginUrl.toString();
-}
-
-/** Computes the next login step from passkey + encryption readiness. */
-export function resolveAuthStep({
-  hasPasskey,
-  hasEncryption,
-}: PasskeyReadiness): AuthStep {
-  if (!hasPasskey || !hasEncryption) {
-    return "encryption-setup";
-  }
-  return "passkey-signin";
 }
 
 /** Returns true when OTP type is accepted by this callback route. */

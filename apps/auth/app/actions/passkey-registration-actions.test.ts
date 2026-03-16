@@ -140,4 +140,130 @@ describe("passkey-registration-actions", () => {
     });
     expect(mocks.clearChallenge).toHaveBeenCalledOnce();
   });
+
+  it("fails registration when encryption params persistence fails", async () => {
+    const insert = vi.fn().mockResolvedValue({ error: null });
+    const remove = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn((table: string) => {
+      if (table === "user_auth_credentials") {
+        return {
+          insert,
+          delete: vi.fn(() => ({
+            eq: remove,
+          })),
+        };
+      }
+      throw new Error(`Unexpected table ${table}`);
+    });
+
+    mocks.createScopedAdminQuery.mockReturnValue({ from });
+    mocks.verifyRegistrationResponse.mockResolvedValue({
+      verified: true,
+      registrationInfo: {
+        credential: {
+          id: "cred-1",
+          publicKey: new Uint8Array([1, 2, 3]),
+          counter: 0,
+          transports: [],
+        },
+        credentialDeviceType: "singleDevice",
+        credentialBackedUp: false,
+      },
+    });
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "user-1" } },
+          error: null,
+        }),
+      },
+      from: vi.fn(() => ({
+        upsert: vi.fn().mockResolvedValue({
+          error: { message: "write failed" },
+        }),
+      })),
+    });
+
+    const result = await verifyPasskeyRegistration(
+      "csrf-token",
+      {
+        id: "cred-1",
+        rawId: "raw-1",
+        type: "public-key",
+        response: {
+          clientDataJSON: "client-data",
+          attestationObject: "attestation",
+        },
+      },
+      "https://helvety.com",
+      true
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Failed to complete encryption setup. Please try again.",
+    });
+    expect(insert).toHaveBeenCalledOnce();
+    expect(remove).toHaveBeenCalledWith("credential_id", "cred-1");
+    expect(mocks.clearChallenge).toHaveBeenCalledOnce();
+  });
+
+  it("fails registration when PRF is enabled but challenge salt is missing", async () => {
+    const insert = vi.fn().mockResolvedValue({ error: null });
+    const remove = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn((table: string) => {
+      if (table === "user_auth_credentials") {
+        return {
+          insert,
+          delete: vi.fn(() => ({
+            eq: remove,
+          })),
+        };
+      }
+      throw new Error(`Unexpected table ${table}`);
+    });
+
+    mocks.createScopedAdminQuery.mockReturnValue({ from });
+    mocks.verifyRegistrationResponse.mockResolvedValue({
+      verified: true,
+      registrationInfo: {
+        credential: {
+          id: "cred-2",
+          publicKey: new Uint8Array([7, 8, 9]),
+          counter: 1,
+          transports: [],
+        },
+        credentialDeviceType: "singleDevice",
+        credentialBackedUp: false,
+      },
+    });
+    mocks.getStoredChallenge.mockResolvedValue({
+      challenge: "challenge-123",
+      userId: "user-1",
+      timestamp: Date.now(),
+    });
+
+    const result = await verifyPasskeyRegistration(
+      "csrf-token",
+      {
+        id: "cred-2",
+        rawId: "raw-2",
+        type: "public-key",
+        response: {
+          clientDataJSON: "client-data",
+          attestationObject: "attestation",
+        },
+      },
+      "https://helvety.com",
+      true
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Failed to complete encryption setup. Please try again.",
+    });
+    expect(insert).toHaveBeenCalledOnce();
+    expect(remove).toHaveBeenCalledWith("credential_id", "cred-2");
+    expect(mocks.clearChallenge).toHaveBeenCalledOnce();
+  });
 });

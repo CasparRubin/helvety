@@ -11,6 +11,7 @@ type RobotsRule = {
   disallow?: string | string[];
 };
 
+/** Normalizes robots rules into an array for assertions. */
 function toRuleList(
   rules: RobotsRule | RobotsRule[] | undefined
 ): RobotsRule[] {

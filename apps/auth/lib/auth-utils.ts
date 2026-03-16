@@ -7,9 +7,12 @@
 
 import { getOwnPasskeyStatus } from "@/app/actions/credential-actions";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
+import { resolveAuthStep } from "@/lib/auth-step";
+
+import type { RequiredAuthStep } from "@/lib/auth-step";
 
 /** The authentication step the user needs to complete */
-export type AuthStep = "encryption-setup" | "passkey-signin";
+export type AuthStep = RequiredAuthStep;
 
 /** Result of checking the required auth step */
 export interface AuthStepResult {
@@ -40,18 +43,10 @@ export async function getRequiredAuthStep(): Promise<AuthStepResult> {
   const encryptionResult = await hasEncryptionSetup();
   const hasEncryption = encryptionResult.success && encryptionResult.data;
 
-  // Determine the appropriate step
-  let step: AuthStep;
-  if (!hasPasskey) {
-    // New user - needs full passkey + encryption setup
-    step = "encryption-setup";
-  } else if (!hasEncryption) {
-    // Has passkey but no encryption - needs encryption setup only
-    step = "encryption-setup";
-  } else {
-    // Has everything - needs to authenticate with passkey
-    step = "passkey-signin";
-  }
+  const step = resolveAuthStep({
+    hasPasskey: Boolean(hasPasskey),
+    hasEncryption: Boolean(hasEncryption),
+  });
 
   return {
     step,

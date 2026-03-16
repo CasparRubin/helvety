@@ -44,7 +44,6 @@ import {
 } from "@/app/actions/passkey-auth-actions";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isMobileDevice } from "@/lib/device-utils";
-import { consumeSignupPasskeyCompleted } from "@/lib/signup-completion";
 
 import type { AuthStep, AuthFlowType } from "@/components/encryption-stepper";
 
@@ -294,16 +293,6 @@ export function useLoginFlow(): LoginFlowState {
 
           // Check passkey/encryption status to determine next step
           const { step: requiredStep } = await getRequiredAuthStep();
-          const justCompletedSignup = consumeSignupPasskeyCompleted();
-
-          // After signup passkey setup, skip one immediate passkey-signin bounce.
-          // If unlock/auth is still required, downstream app guards will redirect
-          // back to /auth and the normal passkey step will run.
-          if (requiredStep === "passkey-signin" && justCompletedSignup) {
-            window.location.href = redirectUri ?? urls.home;
-            return;
-          }
-
           if (
             requiredStep === "encryption-setup" ||
             requiredStep === "passkey-signin"
@@ -727,7 +716,8 @@ export function useLoginFlow(): LoginFlowState {
   })();
 
   // Determine flow type for stepper display.
-  const flowType: AuthFlowType = isNewUser ? "new_user" : "returning_user";
+  const flowType: AuthFlowType =
+    step === "encryption-setup" || isNewUser ? "new_user" : "returning_user";
 
   return {
     step,

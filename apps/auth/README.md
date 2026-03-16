@@ -28,7 +28,7 @@ Helvety Auth (`helvety.com/auth`) handles all authentication for Helvety applica
 
 ## Features
 
-- **Email + Passkey Authentication** - All users complete email verification-code authentication first, then complete exactly one passkey step (setup for first-time users, sign-in for existing users)
+- **Email + Passkey Authentication** - All users complete email verification-code authentication first, then complete the primary passkey step (setup for first-time users, sign-in for existing users)
 - **WebAuthn/FIDO2** - Device-aware passkey auth: on mobile, use this device (Face ID/fingerprint/PIN); on desktop, use phone via QR code + biometrics
 - **Session Sharing** - Single sign-on across all Helvety apps
 - **Redirect URI Support** - Cross-app authentication flows
@@ -59,7 +59,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ## Authentication Flows
 
-Users first enter email and confirm they are not located in the EU/EEA. The service then sends a verification code by email (creating the user at OTP-send time when needed). After OTP verification, users complete exactly one passkey step: first-time users complete setup; existing users complete passkey sign-in.
+Users first enter email and confirm they are not located in the EU/EEA. The service then sends a verification code by email (creating the user at OTP-send time when needed). After OTP verification, users complete the primary passkey step: first-time users complete setup; existing users complete passkey sign-in.
 
 ### Unified Auth Flow
 
@@ -104,7 +104,7 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 
 ### GET `/auth/callback`
 
-Handles authentication callbacks for compatibility and OAuth flows. The primary sign-in flow is always: email + non-EU/EEA confirmation, typed OTP code, then exactly one passkey step (setup for first-time users, passkey sign-in for returning users). This callback route remains for in-flight links, account recovery, invite, and email change flows. After successful verification, it redirects to login with the required passkey step.
+Handles authentication callbacks for compatibility and OAuth flows. The primary sign-in flow is always: email + non-EU/EEA confirmation, typed OTP code, then the primary passkey step (setup for first-time users, passkey sign-in for returning users). This callback route remains for in-flight links, account recovery, invite, and email change flows. After successful verification, it redirects to login with the required passkey step.
 
 **Note:** This route is NOT used for passkey sign-in. Passkey authentication creates the session directly server-side and redirects the user to their destination without going through this callback.
 
@@ -283,7 +283,7 @@ After email verification, new users are guided through passkey creation. The flo
 - **On desktop:** User scans a QR code with their phone and creates the passkey on the phone (Face ID or fingerprint).
 - The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential plus non-secret key-derivation metadata (PRF salt and key-check value).
 - In many modern browser flows, PRF output is returned during registration. When available, the encryption key is derived and stored in IndexedDB immediately, so users can arrive at E2EE apps with encryption already unlocked.
-- In browser flows where PRF output is not returned during registration, users must complete one additional passkey interaction in `/auth` before returning to E2EE apps.
+- In browser flows where PRF output is not returned during registration, users may need one additional passkey interaction before encrypted data can be unlocked (via `/auth` recovery flow or app-level unlock flow, depending on context).
 - User is redirected to their destination app with an active session (created during OTP verification).
 
 **Key Features:**

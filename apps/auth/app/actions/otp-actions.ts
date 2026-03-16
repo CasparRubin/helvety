@@ -9,6 +9,7 @@ import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
+import { resolveAuthStep } from "@/lib/auth-step";
 import {
   checkRateLimit,
   RATE_LIMITS,
@@ -353,12 +354,10 @@ export async function verifyEmailCode(
     const encryptionResult = await hasEncryptionSetup();
     const hasEncryption = encryptionResult.success && encryptionResult.data;
 
-    let nextStep: "encryption-setup" | "passkey-signin";
-    if (!hasPasskey || !hasEncryption) {
-      nextStep = "encryption-setup";
-    } else {
-      nextStep = "passkey-signin";
-    }
+    const nextStep = resolveAuthStep({
+      hasPasskey: Boolean(hasPasskey),
+      hasEncryption: Boolean(hasEncryption),
+    });
 
     return {
       success: true,
