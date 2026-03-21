@@ -40,21 +40,21 @@ import {
   generatePasskeyRegistrationOptions,
   verifyPasskeyRegistration,
 } from "@/app/actions/passkey-registration-actions";
-import {
-  AuthStepper,
-  getSetupStep,
-  type AuthFlowType,
-} from "@/components/encryption-stepper";
 import { isMobileDevice } from "@/lib/device-utils";
 
 /**
  * Props for the EncryptionSetup component
  */
 interface EncryptionSetupProps {
-  flowType?: AuthFlowType;
   redirectUri?: string;
   /** Authenticated user's ID, used to store the master key in IndexedDB */
   userId?: string;
+  /**
+   * Called after passkey registration succeeds (after a short success state).
+   * Parent should advance to passkey sign-in (step 4). If omitted, redirects
+   * to `redirectUri` or home (legacy behavior).
+   */
+  onRegistrationComplete?: () => void;
 }
 
 /** Setup step for tracking progress through the flow */
@@ -65,7 +65,7 @@ type SetupStep = "initial" | "registering" | "complete";
  * Uses WebAuthn PRF extension to register a passkey that can derive encryption keys.
  * Also registers the passkey for authentication (passwordless login).
  *
- * Flow: initial → registering → complete (success UI + redirect)
+ * Flow: initial → registering → complete → parent advances to passkey sign-in (or redirect if no callback)
  *
  * After passkey registration, the credential and PRF params are stored server-side.
  * The PRF salt is also cached in localStorage so that subsequent logins include
@@ -84,9 +84,9 @@ type SetupStep = "initial" | "registering" | "complete";
  * On desktop, user scans QR code with phone and uses the phone for passkey.
  */
 export function EncryptionSetup({
-  flowType = "new_user",
   redirectUri,
   userId,
+  onRegistrationComplete,
 }: EncryptionSetupProps) {
   "use no memo";
 
@@ -100,9 +100,6 @@ export function EncryptionSetup({
   const [setupStep, setSetupStep] = useState<SetupStep>("initial");
   const [isMobile, setIsMobile] = useState(false);
   const setupInProgressRef = useRef(false);
-
-  // Get the current auth step for the stepper
-  const currentAuthStep = getSetupStep(setupStep);
 
   // Device detection for passkey flow (client-only, set on mount)
   useEffect(() => {
@@ -118,6 +115,22 @@ export function EncryptionSetup({
     };
     void checkSupport();
   }, [checkPRFSupport]);
+
+  useEffect(() => {
+    if (setupStep !== "complete") {
+      return undefined;
+    }
+    if (onRegistrationComplete) {
+      const id = window.setTimeout(() => {
+        onRegistrationComplete();
+      }, 600);
+      return () => window.clearTimeout(id);
+    }
+    const destination =
+      redirectUri && isValidRedirectUri(redirectUri) ? redirectUri : urls.home;
+    window.location.href = destination;
+    return undefined;
+  }, [setupStep, onRegistrationComplete, redirectUri]);
 
   // Reset to initial state (used when cancelling during registration)
   const resetSetup = () => {
@@ -286,13 +299,6 @@ export function EncryptionSetup({
       setupInProgressRef.current = false;
       setIsLoading(false);
       setSetupStep("complete");
-
-      // Validate redirect URI against allowlist to prevent open redirect attacks
-      const destination =
-        redirectUri && isValidRedirectUri(redirectUri)
-          ? redirectUri
-          : urls.home;
-      window.location.href = destination;
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "An unexpected error occurred";
@@ -306,7 +312,6 @@ export function EncryptionSetup({
   if (isCheckingSupport) {
     return (
       <div className="flex w-full max-w-md flex-col items-center">
-        <AuthStepper flowType={flowType} currentStep="create_passkey" />
         <Card className="w-full">
           <CardContent className="flex items-center justify-center py-12">
             <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
@@ -320,7 +325,6 @@ export function EncryptionSetup({
   if (prfSupported === false) {
     return (
       <div className="flex w-full max-w-md flex-col items-center">
-        <AuthStepper flowType={flowType} currentStep="create_passkey" />
         <Card className="w-full">
           <CardHeader className="space-y-1">
             <div className="flex items-center gap-2">
@@ -364,7 +368,6 @@ export function EncryptionSetup({
   if (setupStep === "registering") {
     return (
       <div className="flex w-full max-w-md flex-col items-center">
-        <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
         <Card className="w-full">
           <CardHeader className="space-y-1">
             <div className="flex items-center gap-2">
@@ -426,7 +429,6 @@ export function EncryptionSetup({
   if (setupStep === "complete") {
     return (
       <div className="flex w-full max-w-md flex-col items-center">
-        <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
         <Card className="w-full">
           <CardHeader className="space-y-1">
             <div className="flex items-center gap-2">
@@ -434,8 +436,9 @@ export function EncryptionSetup({
               <CardTitle>Passkey saved</CardTitle>
             </div>
             <CardDescription>
-              Your passkey and encryption setup are complete. Redirecting you
-              now…
+              {onRegistrationComplete
+                ? "Your passkey and encryption setup are complete. Continuing to sign-in…"
+                : "Your passkey and encryption setup are complete. Redirecting you now…"}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4 py-6">
@@ -449,7 +452,6 @@ export function EncryptionSetup({
   // Initial state - show setup introduction
   return (
     <div className="flex w-full max-w-md flex-col items-center">
-      <AuthStepper flowType={flowType} currentStep="create_passkey" />
       <Card className="w-full">
         <CardHeader className="space-y-1">
           <div className="flex items-center gap-2">

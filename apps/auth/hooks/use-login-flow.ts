@@ -42,10 +42,13 @@ import {
   generatePasskeyAuthOptions,
   verifyPasskeyAuthentication,
 } from "@/app/actions/passkey-auth-actions";
+import {
+  type AuthStep,
+  type AuthStepperMode,
+} from "@/components/encryption-stepper";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isMobileDevice } from "@/lib/device-utils";
-
-import type { AuthStep, AuthFlowType } from "@/components/encryption-stepper";
+import { resolveAuthenticatedEmailBootstrap } from "@/lib/login-email-bootstrap";
 
 /** Duration (in seconds) before the user can resend an OTP code. */
 const RESEND_COOLDOWN_SECONDS = 120;
@@ -75,9 +78,6 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
     "This sign-in link is invalid or no longer supported. Request a new verification code.",
 };
 
-/** Required length of the one-time password code. */
-export const OTP_CODE_LENGTH = 6;
-
 /** Steps in the login flow, rendered sequentially. */
 export type LoginStep =
   | "email" // Enter email
@@ -104,11 +104,14 @@ export interface LoginFlowState {
   isNewUser: boolean;
   redirectUri: string | null;
   currentAuthStep: AuthStep;
-  flowType: AuthFlowType;
+  /** Stepper layout: 4 steps before OTP; after OTP either 3 (skip setup) or 4 (full). */
+  stepperMode: AuthStepperMode;
   handleEmailSubmit: (e: React.FormEvent) => Promise<void>;
   handleCodeVerify: (e: React.FormEvent) => Promise<void>;
   handleResendCode: () => Promise<void>;
   handlePasskeySignIn: () => Promise<void>;
+  /** After passkey registration (step 3), continue to passkey sign-in (step 4). */
+  handlePasskeyRegistrationComplete: () => void;
   handleBack: () => void;
 }
 
@@ -192,6 +195,11 @@ export function useLoginFlow(): LoginFlowState {
   const hasRecoveredTerminalAuth = useRef(false);
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
+
+  /** After OTP: direct to sign-in vs setup then sign-in (drives 3- vs 4-step stepper). */
+  const [postOtpPasskeyPath, setPostOtpPasskeyPath] = useState<
+    "direct_signin" | "setup_then_signin" | null
+  >(null);
 
   // Device detection for passkey flow (client-only, set on mount)
   useEffect(() => {
@@ -291,25 +299,28 @@ export function useLoginFlow(): LoginFlowState {
             setUserId(user.id);
           }
 
-          // Check passkey/encryption status to determine next step
           const { step: requiredStep } = await getRequiredAuthStep();
-          if (
-            requiredStep === "encryption-setup" ||
-            requiredStep === "passkey-signin"
-          ) {
-            // User needs to complete passkey flow - show appropriate step
+          const action = resolveAuthenticatedEmailBootstrap({
+            requiredStep,
+            forceLogin,
+            redirectUri,
+            homeUrl: urls.home,
+          });
+          if (action.kind === "redirect") {
             if (!cancelled) {
-              setStep(requiredStep);
+              window.location.href = action.href;
             }
             return;
           }
-
-          // Any non-step state returns to the canonical destination unless
-          // force-login was requested (e.g., after a failed logout hop).
-          if (!forceLogin) {
-            window.location.href = redirectUri ?? urls.home;
-            return;
+          if (!cancelled) {
+            setPostOtpPasskeyPath(
+              action.step === "passkey-signin"
+                ? "direct_signin"
+                : "setup_then_signin"
+            );
+            setStep(action.step);
           }
+          return;
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -413,6 +424,11 @@ export function useLoginFlow(): LoginFlowState {
         if (result.data) {
           setUserId(result.data.userId);
           setIsNewUser(result.data.isNewUser);
+          setPostOtpPasskeyPath(
+            result.data.nextStep === "passkey-signin"
+              ? "direct_signin"
+              : "setup_then_signin"
+          );
           setStep(result.data.nextStep);
         }
         setIsLoading(false);
@@ -695,6 +711,12 @@ export function useLoginFlow(): LoginFlowState {
     redirectUri,
   ]);
 
+  const handlePasskeyRegistrationComplete = useCallback(() => {
+    setPostOtpPasskeyPath("setup_then_signin");
+    setStep("passkey-signin");
+    setError("");
+  }, []);
+
   // Go back to email step
   const handleBack = () => {
     setStep("email");
@@ -704,6 +726,7 @@ export function useLoginFlow(): LoginFlowState {
     setNonEUEEAConfirmed(false);
     setOtpCode("");
     setResendCooldown(0);
+    setPostOtpPasskeyPath(null);
     hasAutoRetriedMismatch.current = false;
   };
 
@@ -715,9 +738,20 @@ export function useLoginFlow(): LoginFlowState {
     return "create_passkey";
   })();
 
-  // Determine flow type for stepper display.
-  const flowType: AuthFlowType =
-    step === "encryption-setup" || isNewUser ? "new_user" : "returning_user";
+  const stepperMode: AuthStepperMode = (() => {
+    if (step === "email" || step === "verify-code") {
+      return "four_before_otp";
+    }
+    if (step === "encryption-setup") {
+      return "four_full";
+    }
+    if (step === "passkey-signin") {
+      return postOtpPasskeyPath === "setup_then_signin"
+        ? "four_full"
+        : "three_skip_setup";
+    }
+    return "four_before_otp";
+  })();
 
   return {
     step,
@@ -737,11 +771,12 @@ export function useLoginFlow(): LoginFlowState {
     isNewUser,
     redirectUri,
     currentAuthStep,
-    flowType,
+    stepperMode,
     handleEmailSubmit,
     handleCodeVerify,
     handleResendCode,
     handlePasskeySignIn,
+    handlePasskeyRegistrationComplete,
     handleBack,
   };
 }

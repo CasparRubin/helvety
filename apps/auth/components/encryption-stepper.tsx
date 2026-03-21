@@ -3,11 +3,17 @@
 import { cn } from "@helvety/shared/utils";
 import { Check } from "lucide-react";
 
-/** Type of authentication flow */
+/** Type of authentication flow (legacy; prefer `AuthStepperMode`). */
 export type AuthFlowType = "new_user" | "returning_user";
 
 /** Steps in the authentication flow */
 export type AuthStep = "email" | "verify_code" | "create_passkey" | "sign_in";
+
+/** Stepper layout: 4 steps for everyone before OTP; 4 after OTP when setup needed; 3 when setup is skipped. */
+export type AuthStepperMode =
+  | "four_before_otp"
+  | "four_full"
+  | "three_skip_setup";
 
 /** Configuration for a single authentication step. */
 interface StepConfig {
@@ -15,37 +21,40 @@ interface StepConfig {
   label: string;
 }
 
-/** Step configurations for each flow type */
-const FLOW_STEPS: Record<AuthFlowType, StepConfig[]> = {
-  new_user: [
+const STEPS_BY_MODE: Record<AuthStepperMode, StepConfig[]> = {
+  four_before_otp: [
     { id: "email", label: "Email" },
     { id: "verify_code", label: "Verification Code" },
     { id: "create_passkey", label: "Passkey Setup" },
+    { id: "sign_in", label: "Passkey Sign-in" },
   ],
-  returning_user: [
+  four_full: [
     { id: "email", label: "Email" },
     { id: "verify_code", label: "Verification Code" },
-    { id: "sign_in", label: "Passkey Sign In" },
+    { id: "create_passkey", label: "Passkey Setup" },
+    { id: "sign_in", label: "Passkey Sign-in" },
+  ],
+  three_skip_setup: [
+    { id: "email", label: "Email" },
+    { id: "verify_code", label: "Verification Code" },
+    { id: "sign_in", label: "Passkey Sign-in" },
   ],
 };
 
 /**
- * Get the auth step based on setup step (used by encryption-setup)
+ * Maps legacy flow types to the closest stepper mode (for backwards compatibility).
  */
-export function getSetupStep(
-  setupStep: "initial" | "registering" | "complete"
-): AuthStep {
-  switch (setupStep) {
-    case "initial":
-    case "registering":
-    case "complete":
-      return "create_passkey";
-  }
+export function authFlowTypeToStepperMode(
+  flowType: AuthFlowType
+): AuthStepperMode {
+  return flowType === "new_user" ? "four_full" : "three_skip_setup";
 }
 
 /** Props for the AuthStepper component. */
 interface AuthStepperProps {
-  flowType: AuthFlowType;
+  /** Current stepper layout (four steps before OTP, or 3/4 after OTP). */
+  mode: AuthStepperMode;
+  /** Current logical step. */
   currentStep: AuthStep;
   className?: string;
 }
@@ -54,11 +63,11 @@ interface AuthStepperProps {
  * Stepper component for the authentication flow.
  */
 export function AuthStepper({
-  flowType,
+  mode,
   currentStep,
   className,
 }: AuthStepperProps) {
-  const steps = FLOW_STEPS[flowType];
+  const steps = STEPS_BY_MODE[mode];
   const rawCurrentIndex = steps.findIndex((s) => s.id === currentStep);
   const currentIndex =
     rawCurrentIndex === -1 ? steps.length - 1 : rawCurrentIndex;
@@ -75,7 +84,10 @@ export function AuthStepper({
           const isLast = index === steps.length - 1;
 
           return (
-            <div key={step.id} className="flex flex-col items-center">
+            <div
+              key={`${mode}-${step.id}`}
+              className="flex flex-col items-center"
+            >
               {/* Step circle with connector line */}
               <div className="relative flex w-full items-center justify-center">
                 {/* Left connector - stops at circle edge */}

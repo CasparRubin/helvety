@@ -59,7 +59,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ## Authentication Flows
 
-Users first enter email and confirm they are not located in the EU/EEA. The service then sends a verification code by email (creating the user at OTP-send time when needed). After OTP verification, users complete the primary passkey step: first-time users complete setup; existing users complete passkey sign-in.
+Users first enter email and confirm they are not located in the EU/EEA. The service then sends a verification code by email (creating the user at OTP-send time when needed). The login UI uses a **four-step** stepper (Email → OTP → Passkey setup → Passkey sign-in) **before** OTP so the flow looks the same for unknown addresses. After OTP: users who already have a passkey **skip** setup and go straight to passkey **sign-in** (stepper shows three nodes: steps 1, 2, and 4). Users who need setup complete **registration** (step 3), then **authentication** (step 4) before redirect.
 
 ### Unified Auth Flow
 
@@ -78,13 +78,15 @@ sequenceDiagram
     U->>A: Enter verification code
     A->>S: Verify OTP code
     S-->>A: Session created + next passkey step
-    alt First-time user
-      A->>U: Show passkey setup
+    alt Needs setup (new or missing encryption)
+      A->>U: Show passkey setup (registration)
       P->>A: Passkey registration credential
       A->>S: Store passkey + PRF params
-      A->>U: Success + redirecting (then redirect to app)
-    else Existing user
-      A->>U: Show passkey sign-in
+      A->>U: Show passkey sign-in (authentication)
+      P->>A: Passkey auth credential
+      A->>S: Verify passkey + refresh session
+    else Existing user with passkey
+      A->>U: Show passkey sign-in only
       P->>A: Passkey auth credential
       A->>S: Verify passkey + refresh session
     end
@@ -100,7 +102,9 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 - **Passkey security** - Biometric verification (Face ID, fingerprint, or PIN) via WebAuthn
 - **Account-bound sign-in** - Returning-user passkey authentication is bound to the entered email/account, preventing cross-account passkey mismatches on shared devices
 - **Resilient login bootstrap** - Initial auth restore on `/auth/login` uses timeout-bounded probing and safe fallback to manual sign-in to avoid infinite loading states when refresh tokens are expired/revoked or the Auth API is rate-limited
-- **Passkey setup completion** - After successful registration, the encryption-setup UI shows a short “Passkey saved / redirecting” state before `window.location` navigates to the validated `redirect_uri` or home (avoids flashing the initial setup screen again)
+- **Passkey setup completion** - After successful registration, the encryption-setup UI shows a short “Passkey saved” state, then the flow continues to **passkey sign-in** (step 4); redirect happens after successful `verifyPasskeyAuthentication` (same as returning users)
+- **Verification code length** - OTP values are **6–8 digits** (Supabase configuration); the login field uses `otp-code` helpers for client/server alignment
+- **Session-aware `/login`** - If the user already has a valid Supabase session and both passkey and encryption metadata exist, opening `/login` on the default email step **redirects** to `redirect_uri` or home unless `force_login=1` (used after logout)
 
 ## API Routes
 

@@ -23,7 +23,7 @@ import { useLoginFlow } from "@/hooks/use-login-flow";
 const STEP_TITLES: Record<string, string> = {
   email: "Welcome to Helvety",
   "verify-code": "Check Your Email",
-  "passkey-signin": "Sign in with passkey",
+  "passkey-signin": "Confirm with your passkey",
 };
 
 /** Card descriptions for each login step. */
@@ -32,7 +32,8 @@ const STEP_DESCRIPTIONS: Record<string, string | ((email: string) => string)> =
     email: "Enter your email and confirm your location to continue",
     "verify-code": (email: string) =>
       `We sent a verification code to ${email}. Check your spam folder if you don\u2019t see it.`,
-    "passkey-signin": "Use your passkey to sign in",
+    "passkey-signin":
+      "Use your passkey to complete sign-in. This confirms the passkey you use for your account.",
   };
 
 /** Main login flow component handling email, OTP verification, and passkey steps. */
@@ -58,20 +59,17 @@ function LoginContent() {
   return (
     <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
       <div className="flex w-full max-w-md flex-col items-center space-y-6">
-        {/* Show stepper - hidden on initial email step (flow type unknown) and encryption-setup (has its own stepper) */}
-        {flow.step !== "email" && flow.step !== "encryption-setup" && (
-          <AuthStepper
-            flowType={flow.flowType}
-            currentStep={flow.currentAuthStep}
-          />
-        )}
+        <AuthStepper
+          mode={flow.stepperMode}
+          currentStep={flow.currentAuthStep}
+        />
 
         {/* Show encryption setup component for encryption-setup step */}
         {flow.step === "encryption-setup" && flow.userId && (
           <EncryptionSetup
-            flowType={flow.flowType}
             redirectUri={flow.redirectUri ?? undefined}
             userId={flow.userId}
+            onRegistrationComplete={flow.handlePasskeyRegistrationComplete}
           />
         )}
 
