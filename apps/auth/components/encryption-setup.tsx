@@ -24,11 +24,12 @@ import {
 } from "@helvety/ui/card";
 import { useCSRF } from "@helvety/ui/csrf-provider";
 import {
-  Fingerprint,
-  ShieldCheck,
   AlertTriangle,
+  CheckCircle2,
   CloudUpload,
+  Fingerprint,
   Loader2,
+  ShieldCheck,
   Smartphone,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -64,7 +65,7 @@ type SetupStep = "initial" | "registering" | "complete";
  * Uses WebAuthn PRF extension to register a passkey that can derive encryption keys.
  * Also registers the passkey for authentication (passwordless login).
  *
- * Flow: initial → registering → complete (redirect)
+ * Flow: initial → registering → complete (success UI + redirect)
  *
  * After passkey registration, the credential and PRF params are stored server-side.
  * The PRF salt is also cached in localStorage so that subsequent logins include
@@ -282,7 +283,8 @@ export function EncryptionSetup({
         }
       }
 
-      // Mark as complete and redirect
+      setupInProgressRef.current = false;
+      setIsLoading(false);
       setSetupStep("complete");
 
       // Validate redirect URI against allowlist to prevent open redirect attacks
@@ -415,6 +417,29 @@ export function EncryptionSetup({
                   : "Waiting for your phone..."}
               </p>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (setupStep === "complete") {
+    return (
+      <div className="flex w-full max-w-md flex-col items-center">
+        <AuthStepper flowType={flowType} currentStep={currentAuthStep} />
+        <Card className="w-full">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="text-primary h-5 w-5" />
+              <CardTitle>Passkey saved</CardTitle>
+            </div>
+            <CardDescription>
+              Your passkey and encryption setup are complete. Redirecting you
+              now…
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center gap-4 py-6">
+            <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
           </CardContent>
         </Card>
       </div>

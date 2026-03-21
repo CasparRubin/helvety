@@ -82,6 +82,7 @@ sequenceDiagram
       A->>U: Show passkey setup
       P->>A: Passkey registration credential
       A->>S: Store passkey + PRF params
+      A->>U: Success + redirecting (then redirect to app)
     else Existing user
       A->>U: Show passkey sign-in
       P->>A: Passkey auth credential
@@ -99,6 +100,7 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 - **Passkey security** - Biometric verification (Face ID, fingerprint, or PIN) via WebAuthn
 - **Account-bound sign-in** - Returning-user passkey authentication is bound to the entered email/account, preventing cross-account passkey mismatches on shared devices
 - **Resilient login bootstrap** - Initial auth restore on `/auth/login` uses timeout-bounded probing and safe fallback to manual sign-in to avoid infinite loading states when refresh tokens are expired/revoked or the Auth API is rate-limited
+- **Passkey setup completion** - After successful registration, the encryption-setup UI shows a short “Passkey saved / redirecting” state before `window.location` navigates to the validated `redirect_uri` or home (avoids flashing the initial setup screen again)
 
 ## API Routes
 
@@ -177,6 +179,8 @@ After authentication, users are redirected back to their original app with an ac
 ## Database Schema
 
 The service uses two tables for storing WebAuthn credentials and encryption parameters:
+
+**Reading `user_auth_credentials`:** Rows are inserted and updated via **scoped admin** queries (`createScopedAdminQuery` + `SUPABASE_SECRET_KEY`) because RLS blocks direct client access. The same pattern is used when **checking whether the current user already has a passkey** (`getOwnPasskeyStatus` in `app/actions/credential-actions.ts`), so login bootstrap matches OTP verification and `/auth/callback` (which use `checkUserPasskeyStatus`). Do not rely on the publishable Supabase client alone to `SELECT` this table for passkey presence.
 
 ### user_auth_credentials
 
@@ -281,7 +285,7 @@ After email verification, new users are guided through passkey creation. The flo
 
 - **On mobile (phone/tablet):** User creates a passkey on this device using Face ID, fingerprint, or device PIN.
 - **On desktop:** User scans a QR code with their phone and creates the passkey on the phone (Face ID or fingerprint).
-- The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential plus non-secret key-derivation metadata (PRF salt and key-check value).
+- The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential plus non-secret key-derivation metadata (PRF salt; key-check value may be saved after the client derives the master key).
 - In many modern browser flows, PRF output is returned during registration. When available, the encryption key is derived and stored in IndexedDB immediately, so users can arrive at E2EE apps with encryption already unlocked.
 - In browser flows where PRF output is not returned during registration, users may need one additional passkey interaction before encrypted data can be unlocked (via `/auth` recovery flow or app-level unlock flow, depending on context).
 - User is redirected to their destination app with an active session (created during OTP verification).
@@ -321,9 +325,11 @@ Run these commands from `apps/auth`:
 
 | Script                  | Description                       |
 | ----------------------- | --------------------------------- |
-| `bun run test`          | Run all tests once                |
+| `bun run test`          | Run all tests once (`vitest run`) |
 | `bun run test:watch`    | Run tests in watch mode           |
 | `bun run test:coverage` | Run tests with v8 coverage report |
+
+From the monorepo root, `bun run test` runs Turbo across workspaces; from `apps/auth` only, the same scripts invoke Vitest for this app.
 
 Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
 

@@ -11,6 +11,9 @@ export interface PasskeyReadiness {
  * Computes the canonical next auth step from passkey/encryption readiness.
  * This resolver is intentionally shared by OTP, callback, and bootstrap flows
  * to prevent divergent state transitions.
+ *
+ * `hasPasskey` / `hasEncryption` must come from server actions that use the same
+ * data sources (e.g. scoped admin for credentials, session-backed read for PRF params).
  */
 export function resolveAuthStep({
   hasPasskey,

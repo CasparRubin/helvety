@@ -1,8 +1,8 @@
 /**
- * Client-side auth utilities for determining the required authentication step
+ * Resolves which login step the user still needs (passkey setup vs passkey sign-in).
  *
- * These utilities help the login flow determine what step the user needs
- * to complete (passkey setup or sign-in).
+ * Implemented as async helpers that invoke server actions (`getOwnPasskeyStatus`,
+ * `hasEncryptionSetup`); safe to call from client code (e.g. `useLoginFlow`).
  */
 
 import { getOwnPasskeyStatus } from "@/app/actions/credential-actions";
