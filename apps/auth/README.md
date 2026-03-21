@@ -101,6 +101,9 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 - **Account-bound sign-in** - Returning-user passkey authentication is bound to the entered email/account, preventing cross-account passkey mismatches on shared devices
 - **Resilient login bootstrap** - Initial auth restore on `/auth/login` uses timeout-bounded probing and safe fallback to manual sign-in to avoid infinite loading states when refresh tokens are expired/revoked or the Auth API is rate-limited
 - **Passkey setup completion** - After successful registration, the encryption-setup UI shows a short “Passkey saved / redirecting” state before `window.location` navigates to the validated `redirect_uri` or home (avoids flashing the initial setup screen again)
+- **Verification code length** - OTP values are **6–8 digits** (Supabase configuration); the login field accepts up to eight digits and enables submit when the length is in range
+- **Session-aware `/login`** - If the user already has a valid Supabase session and both passkey and encryption metadata exist, opening `/login` on the default email step **redirects** to `redirect_uri` or home instead of forcing another passkey sign-in—unless `force_login=1` (used after logout). This avoids a redundant second WebAuthn (e.g. second desktop QR) when revisiting login right after setup. Passkey **registration** and **authentication** remain separate WebAuthn ceremonies; they cannot be merged into one browser API call
+- **Deep link `?step=passkey-signin`** - Opening `/login?step=passkey-signin` directly while already signed in may still show the passkey step (optional UX parity with the email-step redirect is a possible follow-up)
 
 ## API Routes
 

@@ -44,6 +44,7 @@ import {
 } from "@/app/actions/passkey-auth-actions";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isMobileDevice } from "@/lib/device-utils";
+import { resolveAuthenticatedEmailBootstrap } from "@/lib/login-email-bootstrap";
 
 import type { AuthStep, AuthFlowType } from "@/components/encryption-stepper";
 
@@ -74,9 +75,6 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   invalid_otp_type:
     "This sign-in link is invalid or no longer supported. Request a new verification code.",
 };
-
-/** Required length of the one-time password code. */
-export const OTP_CODE_LENGTH = 6;
 
 /** Steps in the login flow, rendered sequentially. */
 export type LoginStep =
@@ -293,23 +291,22 @@ export function useLoginFlow(): LoginFlowState {
 
           // Check passkey/encryption status to determine next step
           const { step: requiredStep } = await getRequiredAuthStep();
-          if (
-            requiredStep === "encryption-setup" ||
-            requiredStep === "passkey-signin"
-          ) {
-            // User needs to complete passkey flow - show appropriate step
+          const action = resolveAuthenticatedEmailBootstrap({
+            requiredStep,
+            forceLogin,
+            redirectUri,
+            homeUrl: urls.home,
+          });
+          if (action.kind === "redirect") {
             if (!cancelled) {
-              setStep(requiredStep);
+              window.location.href = action.href;
             }
             return;
           }
-
-          // Any non-step state returns to the canonical destination unless
-          // force-login was requested (e.g., after a failed logout hop).
-          if (!forceLogin) {
-            window.location.href = redirectUri ?? urls.home;
-            return;
+          if (!cancelled) {
+            setStep(action.step);
           }
+          return;
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);

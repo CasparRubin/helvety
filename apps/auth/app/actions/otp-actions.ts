@@ -10,6 +10,7 @@ import { createServerClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
 import { resolveAuthStep } from "@/lib/auth-step";
+import { OTP_CODE_REGEX } from "@/lib/otp-code";
 import {
   checkRateLimit,
   RATE_LIMITS,
@@ -290,7 +291,7 @@ export async function verifyEmailCode(
 
   try {
     // Validate code format (6-8 digits, depending on Supabase config)
-    if (!/^\d{6,8}$/.test(code)) {
+    if (!OTP_CODE_REGEX.test(code)) {
       return {
         success: false,
         error: "Please enter a valid verification code",

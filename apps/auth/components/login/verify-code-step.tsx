@@ -5,7 +5,7 @@ import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { ArrowLeft, Loader2, Mail } from "lucide-react";
 
-import { OTP_CODE_LENGTH } from "@/hooks/use-login-flow";
+import { isOtpCodeComplete, OTP_CODE_MAX_LENGTH } from "@/lib/otp-code";
 
 /** Props for the OTP verification step. */
 interface VerifyCodeStepProps {
@@ -47,8 +47,8 @@ export function VerifyCodeStep({
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
-          maxLength={8}
-          placeholder="000000"
+          maxLength={OTP_CODE_MAX_LENGTH}
+          placeholder={"0".repeat(OTP_CODE_MAX_LENGTH)}
           value={otpCode}
           onChange={(e) => {
             const value = e.target.value.replace(/\D/g, "");
@@ -63,7 +63,8 @@ export function VerifyCodeStep({
       </div>
 
       <p className="text-muted-foreground text-center text-sm">
-        Enter the code we sent to {email}. The code expires in 1 hour.
+        Enter the code we sent to {email} (6–8 digits). The code expires in 1
+        hour.
       </p>
 
       {error && (
@@ -74,7 +75,7 @@ export function VerifyCodeStep({
 
       <Button
         type="submit"
-        disabled={isLoading || otpCode.length < OTP_CODE_LENGTH}
+        disabled={isLoading || !isOtpCodeComplete(otpCode)}
         size="lg"
         className="w-full"
       >
