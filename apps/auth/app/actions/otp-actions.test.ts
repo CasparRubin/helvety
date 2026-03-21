@@ -191,56 +191,6 @@ describe("otp-actions", () => {
     expect(verifyOtp).not.toHaveBeenCalled();
   });
 
-  it("rejects OTP codes outside 6–8 digit length before Supabase", async () => {
-    const verifyOtp = vi.fn();
-    mocks.createServerClient.mockResolvedValue({
-      auth: { verifyOtp },
-    });
-
-    expect(await verifyEmailCode("csrf-token", "user@ex.com", "12345")).toEqual(
-      {
-        error: "Please enter a valid verification code",
-        success: false,
-      }
-    );
-    expect(
-      await verifyEmailCode("csrf-token", "user@ex.com", "123456789")
-    ).toEqual({
-      error: "Please enter a valid verification code",
-      success: false,
-    });
-    expect(verifyOtp).not.toHaveBeenCalled();
-  });
-
-  it("accepts 8-digit OTP and verifies with Supabase", async () => {
-    const verifyOtp = vi.fn().mockResolvedValue({
-      data: { user: { id: "user-123" } },
-      error: null,
-    });
-    mocks.createServerClient.mockResolvedValue({
-      auth: { verifyOtp },
-    });
-    mocks.findUserByEmail.mockResolvedValue({ id: "existing-user" });
-    mocks.checkUserPasskeyStatus.mockResolvedValue({
-      data: { hasPasskey: true },
-      success: true,
-    });
-    mocks.hasEncryptionSetup.mockResolvedValue({ data: true, success: true });
-
-    const result = await verifyEmailCode(
-      "csrf-token",
-      "user@ex.com",
-      "12345678"
-    );
-
-    expect(result.success).toBe(true);
-    expect(verifyOtp).toHaveBeenCalledWith({
-      email: "user@ex.com",
-      token: "12345678",
-      type: "email",
-    });
-  });
-
   it("returns passkey-signin next step after successful OTP for secured users", async () => {
     mocks.findUserByEmail.mockResolvedValue({ id: "existing-user" });
     mocks.checkUserPasskeyStatus.mockResolvedValue({

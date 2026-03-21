@@ -121,14 +121,14 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 **New Users:**
 
 1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
-2. Enter verification code from email (6–8 digits, per Supabase configuration) → Verify email ownership → Session established
+2. Enter verification code from email → Verify email ownership → Session established
 3. Create passkey with PRF extension → Encryption key derived automatically
 4. Redirected back to Contacts app → Data encrypted with your passkey
 
 **Returning Users:**
 
 1. Click "Sign in" → Redirected to helvety.com/auth → Enter email address
-2. Enter verification code from email (6–8 digits, per Supabase configuration) → Continue to passkey sign-in
+2. Enter verification code from email → Continue to passkey sign-in
 3. Redirected back to Contacts app → In many supported flows, encryption is already unlocked from the auth ceremony; depending on browser/session state, an additional auth-managed step may still be required
 
 Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
