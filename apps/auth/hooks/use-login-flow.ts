@@ -101,7 +101,6 @@ export interface LoginFlowState {
   otpCode: string;
   setOtpCode: (code: string) => void;
   resendCooldown: number;
-  isNewUser: boolean;
   redirectUri: string | null;
   currentAuthStep: AuthStep;
   /** Stepper layout: 4 steps before OTP; after OTP either 3 (skip setup) or 4 (full). */
@@ -189,7 +188,6 @@ export function useLoginFlow(): LoginFlowState {
   const [error, setError] = useState(initialError);
   const [userId, setUserId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [isNewUser, setIsNewUser] = useState(false);
   const hasAutoRetriedMismatch = useRef(false);
   const hasInitializedAuth = useRef(false);
   const hasRecoveredTerminalAuth = useRef(false);
@@ -269,7 +267,7 @@ export function useLoginFlow(): LoginFlowState {
         }
 
         // Step-specific URLs are only valid with an authenticated session.
-        // If the session is missing, restart the canonical three-step flow.
+        // If the session is missing, restart from email (full login flow).
         if (
           !user &&
           (step === "passkey-signin" || step === "encryption-setup")
@@ -423,7 +421,6 @@ export function useLoginFlow(): LoginFlowState {
 
         if (result.data) {
           setUserId(result.data.userId);
-          setIsNewUser(result.data.isNewUser);
           setPostOtpPasskeyPath(
             result.data.nextStep === "passkey-signin"
               ? "direct_signin"
@@ -722,7 +719,6 @@ export function useLoginFlow(): LoginFlowState {
     setStep("email");
     setError("");
     setIsLoading(false);
-    setIsNewUser(false);
     setNonEUEEAConfirmed(false);
     setOtpCode("");
     setResendCooldown(0);
@@ -768,7 +764,6 @@ export function useLoginFlow(): LoginFlowState {
     otpCode,
     setOtpCode,
     resendCooldown,
-    isNewUser,
     redirectUri,
     currentAuthStep,
     stepperMode,

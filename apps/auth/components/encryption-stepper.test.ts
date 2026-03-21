@@ -1,16 +1,18 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  authFlowTypeToStepperMode,
+  getAuthStepperStepCount,
   type AuthStepperMode,
 } from "./encryption-stepper";
 
 describe("encryption-stepper", () => {
-  it("authFlowTypeToStepperMode maps legacy flow types", () => {
-    expect(authFlowTypeToStepperMode("new_user")).toBe("four_full");
-    expect(authFlowTypeToStepperMode("returning_user")).toBe(
-      "three_skip_setup"
-    );
+  it("reports step counts per mode", () => {
+    const modes: AuthStepperMode[] = [
+      "four_before_otp",
+      "four_full",
+      "three_skip_setup",
+    ];
+    expect(modes.map((m) => getAuthStepperStepCount(m))).toEqual([4, 4, 3]);
   });
 
   it("defines three distinct stepper modes", () => {

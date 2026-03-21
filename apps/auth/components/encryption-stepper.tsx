@@ -3,9 +3,6 @@
 import { cn } from "@helvety/shared/utils";
 import { Check } from "lucide-react";
 
-/** Type of authentication flow (legacy; prefer `AuthStepperMode`). */
-export type AuthFlowType = "new_user" | "returning_user";
-
 /** Steps in the authentication flow */
 export type AuthStep = "email" | "verify_code" | "create_passkey" | "sign_in";
 
@@ -21,19 +18,17 @@ interface StepConfig {
   label: string;
 }
 
+/** Shared 4-step row (email → OTP → setup → sign-in). */
+const FOUR_STEP_CONFIG: StepConfig[] = [
+  { id: "email", label: "Email" },
+  { id: "verify_code", label: "Verification Code" },
+  { id: "create_passkey", label: "Passkey Setup" },
+  { id: "sign_in", label: "Passkey Sign-in" },
+];
+
 const STEPS_BY_MODE: Record<AuthStepperMode, StepConfig[]> = {
-  four_before_otp: [
-    { id: "email", label: "Email" },
-    { id: "verify_code", label: "Verification Code" },
-    { id: "create_passkey", label: "Passkey Setup" },
-    { id: "sign_in", label: "Passkey Sign-in" },
-  ],
-  four_full: [
-    { id: "email", label: "Email" },
-    { id: "verify_code", label: "Verification Code" },
-    { id: "create_passkey", label: "Passkey Setup" },
-    { id: "sign_in", label: "Passkey Sign-in" },
-  ],
+  four_before_otp: FOUR_STEP_CONFIG,
+  four_full: FOUR_STEP_CONFIG,
   three_skip_setup: [
     { id: "email", label: "Email" },
     { id: "verify_code", label: "Verification Code" },
@@ -41,13 +36,9 @@ const STEPS_BY_MODE: Record<AuthStepperMode, StepConfig[]> = {
   ],
 };
 
-/**
- * Maps legacy flow types to the closest stepper mode (for backwards compatibility).
- */
-export function authFlowTypeToStepperMode(
-  flowType: AuthFlowType
-): AuthStepperMode {
-  return flowType === "new_user" ? "four_full" : "three_skip_setup";
+/** Visible step count for a layout (useful for tests and diagnostics). */
+export function getAuthStepperStepCount(mode: AuthStepperMode): number {
+  return STEPS_BY_MODE[mode].length;
 }
 
 /** Props for the AuthStepper component. */
