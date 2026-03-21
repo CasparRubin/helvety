@@ -105,6 +105,7 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 - **Passkey setup completion** - After successful registration, the encryption-setup UI shows a short “Passkey saved” state, then the flow continues to **passkey sign-in** (step 4); redirect happens after successful `verifyPasskeyAuthentication` (same as returning users)
 - **Verification code length** - OTP values are **6–8 digits** (Supabase configuration); the login field uses `otp-code` helpers for client/server alignment
 - **Session-aware `/login`** - If the user already has a valid Supabase session and both passkey and encryption metadata exist, opening `/login` on the default email step **redirects** to `redirect_uri` or home unless `force_login=1` (used after logout)
+- **Stepper wiring (code)** - `LoginStep` → `AuthStep` / `AuthStepperMode` mapping lives in `lib/login-flow-stepper.ts` and is used by `useLoginFlow` (see `login-flow-stepper.test.ts`). Server-driven “next step after verify” for `/auth/callback` and similar uses `lib/auth-step.ts` (`resolveAuthStep`) from passkey/encryption readiness — keep these in sync when changing flows.
 
 ## API Routes
 
@@ -292,7 +293,7 @@ After email verification, new users are guided through passkey creation. The flo
 - The passkey is registered with the WebAuthn PRF extension enabled. Server stores the credential plus non-secret key-derivation metadata (PRF salt; key-check value may be saved after the client derives the master key).
 - In many modern browser flows, PRF output is returned during registration. When available, the encryption key is derived and stored in IndexedDB immediately, so users can arrive at E2EE apps with encryption already unlocked.
 - In browser flows where PRF output is not returned during registration, users may need one additional passkey interaction before encrypted data can be unlocked (via `/auth` recovery flow or app-level unlock flow, depending on context).
-- User is redirected to their destination app with an active session (created during OTP verification).
+- After passkey registration and passkey sign-in complete, the user is redirected to their destination app. The Supabase session is established at OTP verification; the final redirect follows successful passkey authentication (same pattern as returning users).
 
 **Key Features:**
 
@@ -335,7 +336,7 @@ Run these commands from `apps/auth`:
 
 From the monorepo root, `bun run test` runs Turbo across workspaces; from `apps/auth` only, the same scripts invoke Vitest for this app.
 
-Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
+Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test. Notable suites: `lib/login-flow-stepper.test.ts` (stepper mode mapping), `lib/auth-step.test.ts` (callback/OTP next-step resolution), `components/encryption-stepper.test.ts` (step counts per mode).
 
 ## Developer
 

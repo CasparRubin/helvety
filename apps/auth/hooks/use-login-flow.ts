@@ -42,13 +42,20 @@ import {
   generatePasskeyAuthOptions,
   verifyPasskeyAuthentication,
 } from "@/app/actions/passkey-auth-actions";
-import {
-  type AuthStep,
-  type AuthStepperMode,
-} from "@/components/encryption-stepper";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isMobileDevice } from "@/lib/device-utils";
 import { resolveAuthenticatedEmailBootstrap } from "@/lib/login-email-bootstrap";
+import {
+  type LoginStep,
+  type PostOtpPasskeyPath,
+  resolveLoginCurrentAuthStep,
+  resolveLoginStepperMode,
+} from "@/lib/login-flow-stepper";
+
+import type {
+  AuthStep,
+  AuthStepperMode,
+} from "@/components/encryption-stepper";
 
 /** Duration (in seconds) before the user can resend an OTP code. */
 const RESEND_COOLDOWN_SECONDS = 120;
@@ -78,12 +85,8 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
     "This sign-in link is invalid or no longer supported. Request a new verification code.",
 };
 
-/** Steps in the login flow, rendered sequentially. */
-export type LoginStep =
-  | "email" // Enter email
-  | "verify-code" // Enter OTP code from email
-  | "passkey-signin" // Sign in with existing passkey
-  | "encryption-setup"; // Set up encryption with passkey
+/** Re-export for consumers that only need the step union. */
+export type { LoginStep } from "@/lib/login-flow-stepper";
 
 /** Return type of the useLoginFlow hook */
 export interface LoginFlowState {
@@ -195,9 +198,8 @@ export function useLoginFlow(): LoginFlowState {
   const [resendCooldown, setResendCooldown] = useState(0);
 
   /** After OTP: direct to sign-in vs setup then sign-in (drives 3- vs 4-step stepper). */
-  const [postOtpPasskeyPath, setPostOtpPasskeyPath] = useState<
-    "direct_signin" | "setup_then_signin" | null
-  >(null);
+  const [postOtpPasskeyPath, setPostOtpPasskeyPath] =
+    useState<PostOtpPasskeyPath>(null);
 
   // Device detection for passkey flow (client-only, set on mount)
   useEffect(() => {
@@ -726,28 +728,11 @@ export function useLoginFlow(): LoginFlowState {
     hasAutoRetriedMismatch.current = false;
   };
 
-  // Determine current stepper step
-  const currentAuthStep: AuthStep = (() => {
-    if (step === "email") return "email";
-    if (step === "verify-code") return "verify_code";
-    if (step === "passkey-signin") return "sign_in";
-    return "create_passkey";
-  })();
-
-  const stepperMode: AuthStepperMode = (() => {
-    if (step === "email" || step === "verify-code") {
-      return "four_before_otp";
-    }
-    if (step === "encryption-setup") {
-      return "four_full";
-    }
-    if (step === "passkey-signin") {
-      return postOtpPasskeyPath === "setup_then_signin"
-        ? "four_full"
-        : "three_skip_setup";
-    }
-    return "four_before_otp";
-  })();
+  const currentAuthStep: AuthStep = resolveLoginCurrentAuthStep(step);
+  const stepperMode: AuthStepperMode = resolveLoginStepperMode(
+    step,
+    postOtpPasskeyPath
+  );
 
   return {
     step,

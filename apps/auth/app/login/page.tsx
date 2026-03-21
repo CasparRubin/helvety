@@ -36,7 +36,7 @@ const STEP_DESCRIPTIONS: Record<string, string | ((email: string) => string)> =
       "Use your passkey to complete sign-in. This confirms the passkey you use for your account.",
   };
 
-/** Main login flow component handling email, OTP verification, and passkey steps. */
+/** Main login page: email → OTP → passkey (with optional encryption setup between OTP and sign-in when required). */
 function LoginContent() {
   const flow = useLoginFlow();
 
