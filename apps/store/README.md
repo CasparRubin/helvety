@@ -4,6 +4,8 @@ Official Helvety Store for product discovery, app listings, and package download
 
 Store URL: [https://helvety.com/store](https://helvety.com/store)
 
+> **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/store/`. See the root README for monorepo setup instructions.
+
 ## Current scope
 
 - Product catalog with detail pages under `/store/products`
@@ -76,6 +78,18 @@ Abuse reports can be submitted to
 [contact@helvety.com](mailto:contact@helvety.com). The Impressum includes an
 abuse-reporting section at
 [helvety.com/impressum#abuse](https://helvety.com/impressum#abuse).
+
+## Testing
+
+Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment with type-checking enabled (shared config from `@helvety/config/vitest`). Run from `apps/store`:
+
+| Script                  | Description                       |
+| ----------------------- | --------------------------------- |
+| `bun run test`          | Run all tests once (`vitest run`) |
+| `bun run test:watch`    | Run tests in watch mode           |
+| `bun run test:coverage` | Run tests with v8 coverage report |
+
+From the monorepo root, `bun run test` runs Turbo across workspaces.
 
 ## License & usage
 

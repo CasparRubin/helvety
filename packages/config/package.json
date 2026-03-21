@@ -1,6 +1,6 @@
 {
   "name": "@helvety/config",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Shared TypeScript, ESLint, Vitest, PostCSS, and Next.js security-header configurations",
   "author": "Helvety by Rubin",
@@ -26,16 +26,16 @@
     "./next-headers": "./next-headers.mjs"
   },
   "peerDependencies": {
-    "eslint": "^9.39.3",
-    "vitest": "^4"
+    "eslint": "^9.39.4",
+    "vitest": "^4.1.0"
   },
   "dependencies": {
-    "eslint": "^9.39.3",
-    "eslint-config-next": "^16.1.6",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.1",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-import-x": "^4.16.1",
-    "eslint-plugin-jsdoc": "^62.7.1",
-    "typescript-eslint": "^8.56.1",
-    "@vitejs/plugin-react": "^5.1.4"
+    "eslint-plugin-import-x": "^4.16.2",
+    "eslint-plugin-jsdoc": "^62.8.0",
+    "typescript-eslint": "^8.57.1",
+    "@vitejs/plugin-react": "^5.2.0"
   }
 }

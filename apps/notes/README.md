@@ -9,7 +9,7 @@ A privacy-focused notes app with client-side encryption for sensitive fields. En
 
 **App:** [helvety.com/notes](https://helvety.com/notes)
 
-> **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/notes/`.
+> **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/notes/`. See the root README for monorepo setup instructions.
 
 ## Service Availability
 
@@ -20,7 +20,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 ## Features
 
 - End-to-end encryption for note `title` and `description`
-- Flat notes list with sheet editor UX
+- Flat notes list with sheet editor UX; editor toolbar uses icon buttons on desktop, with an orange **Save Changes** label when edits are pending
 - Notes link to tasks and contacts (and can be linked from those apps)
 - Drag and drop reorder
 - Client-side decrypted data export
@@ -69,13 +69,15 @@ Copy `env.template` to `.env.local` and fill in values.
 
 ## Testing
 
-Run from `apps/notes`:
+Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment with type-checking enabled (shared config from `@helvety/config/vitest`). Run from `apps/notes`:
 
-| Script                  | Description             |
-| ----------------------- | ----------------------- |
-| `bun run test`          | Run all tests once      |
-| `bun run test:watch`    | Run tests in watch mode |
-| `bun run test:coverage` | Run tests with coverage |
+| Script                  | Description                       |
+| ----------------------- | --------------------------------- |
+| `bun run test`          | Run all tests once (`vitest run`) |
+| `bun run test:watch`    | Run tests in watch mode           |
+| `bun run test:coverage` | Run tests with v8 coverage report |
+
+Test files follow the `**/*.test.{ts,tsx}` pattern. From the monorepo root, `bun run test` runs Turbo across workspaces.
 
 ## License & Usage
 

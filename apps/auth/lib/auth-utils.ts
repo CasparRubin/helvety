@@ -11,12 +11,9 @@ import { resolveAuthStep } from "@/lib/auth-step";
 
 import type { RequiredAuthStep } from "@/lib/auth-step";
 
-/** The authentication step the user needs to complete */
-export type AuthStep = RequiredAuthStep;
-
 /** Result of checking the required auth step */
 export interface AuthStepResult {
-  step: AuthStep;
+  step: RequiredAuthStep;
   hasPasskey: boolean;
   hasEncryption: boolean;
 }

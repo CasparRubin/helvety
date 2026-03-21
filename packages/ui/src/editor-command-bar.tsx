@@ -49,49 +49,60 @@ export interface EditorCommandBarProps {
   desktopActions?: EditorCommandBarAction[];
 }
 
-/** Returns contextual save button icon/text based on current save state. */
+/**
+ * Orange "Save Changes" CTA with visible label (only state that shows save text).
+ */
+function isSaveChangesLabelVisible(
+  isSaving: boolean | undefined,
+  hasUnsavedChanges: boolean | undefined,
+  saveStatus: SaveStatus
+): boolean {
+  return Boolean(hasUnsavedChanges && !isSaving && saveStatus === "idle");
+}
+
+/** Save button contents: icon-only + sr-only, except orange unsaved-changes state. */
 function getSaveButtonContent(
-  isSaving?: boolean,
-  hasUnsavedChanges?: boolean,
-  saveStatus: SaveStatus = "idle"
+  isSaving: boolean | undefined,
+  hasUnsavedChanges: boolean | undefined,
+  saveStatus: SaveStatus
 ): ReactNode {
+  if (isSaveChangesLabelVisible(isSaving, hasUnsavedChanges, saveStatus)) {
+    return (
+      <>
+        <span className="size-1.5 animate-pulse rounded-full bg-white" />
+        <SaveIcon className="size-4 shrink-0" />
+        <span>Save Changes</span>
+      </>
+    );
+  }
   if (isSaving) {
     return (
       <>
-        <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
-        <span>Saving...</span>
+        <Loader2Icon className="size-4 shrink-0 animate-spin" />
+        <span className="sr-only">Saving…</span>
       </>
     );
   }
   if (saveStatus === "saved") {
     return (
       <>
-        <CheckIcon className="mr-1.5 size-4 shrink-0" />
-        <span>Saved</span>
+        <CheckIcon className="size-4 shrink-0" />
+        <span className="sr-only">Saved</span>
       </>
     );
   }
   if (saveStatus === "error") {
     return (
       <>
-        <SaveIcon className="mr-1.5 size-4 shrink-0" />
-        <span>Retry Save</span>
-      </>
-    );
-  }
-  if (hasUnsavedChanges) {
-    return (
-      <>
-        <span className="size-1.5 animate-pulse rounded-full bg-white" />
-        <SaveIcon className="mr-1.5 size-4 shrink-0" />
-        <span>Save Changes</span>
+        <SaveIcon className="size-4 shrink-0" />
+        <span className="sr-only">Retry save</span>
       </>
     );
   }
   return (
     <>
-      <SaveIcon className="mr-1.5 size-4 shrink-0" />
-      <span>Save</span>
+      <SaveIcon className="size-4 shrink-0" />
+      <span className="sr-only">Save</span>
     </>
   );
 }
@@ -110,13 +121,24 @@ export function EditorCommandBar({
   saveStatus = "idle",
   desktopActions = [],
 }: EditorCommandBarProps): React.JSX.Element {
+  const showSaveChangesLabel = isSaveChangesLabelVisible(
+    isSaving,
+    hasUnsavedChanges,
+    saveStatus
+  );
+
   return (
     <CommandBar>
       {showBack && (
         <>
-          <Button variant="ghost" size="sm" onClick={onBack}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onBack}
+            className="shrink-0 gap-0"
+          >
             {backIcon}
-            <span>{backLabel}</span>
+            <span className="sr-only">{backLabel}</span>
           </Button>
           <Separator
             orientation="vertical"
@@ -127,7 +149,7 @@ export function EditorCommandBar({
       {onSave && (
         <Button
           variant={hasUnsavedChanges ? "default" : "outline"}
-          size="sm"
+          size={showSaveChangesLabel ? "sm" : "icon-sm"}
           onClick={onSave}
           // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- boolean OR is intentional
           disabled={isSaving || !hasUnsavedChanges}
@@ -137,7 +159,8 @@ export function EditorCommandBar({
             hasUnsavedChanges &&
               saveStatus === "idle" &&
               !isSaving &&
-              "bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
+              "bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700",
+            !showSaveChangesLabel && "gap-0"
           )}
         >
           {getSaveButtonContent(isSaving, hasUnsavedChanges, saveStatus)}
@@ -145,18 +168,15 @@ export function EditorCommandBar({
       )}
       <Button
         variant="outline"
-        size="sm"
+        size="icon-sm"
         onClick={onRefresh}
         disabled={isRefreshing}
-        className="hidden md:inline-flex"
+        className="hidden shrink-0 gap-0 md:inline-flex"
       >
         <RefreshCwIcon
-          className={cn(
-            "mr-1.5 size-4 shrink-0",
-            isRefreshing && "animate-spin"
-          )}
+          className={cn("size-4 shrink-0", isRefreshing && "animate-spin")}
         />
-        <span>Refresh</span>
+        <span className="sr-only">Refresh</span>
       </Button>
 
       <CommandBarSpacer />
@@ -165,12 +185,12 @@ export function EditorCommandBar({
         <Button
           key={action.id}
           variant={action.variant ?? "outline"}
-          size="sm"
+          size="icon-sm"
           onClick={action.onClick}
-          className="hidden md:inline-flex"
+          className="hidden shrink-0 gap-0 md:inline-flex"
         >
           {action.icon}
-          <span>{action.label}</span>
+          <span className="sr-only">{action.label}</span>
         </Button>
       ))}
 

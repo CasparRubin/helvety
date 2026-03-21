@@ -6,10 +6,12 @@ import {
   type LoginStep,
 } from "./login-flow-stepper";
 
+import type { AuthStep } from "@/components/encryption-stepper";
+
 describe("login-flow-stepper", () => {
   describe("resolveLoginCurrentAuthStep", () => {
     it("maps each login step to the auth stepper id", () => {
-      const cases: { step: LoginStep; auth: string }[] = [
+      const cases: { step: LoginStep; auth: AuthStep }[] = [
         { step: "email", auth: "email" },
         { step: "verify-code", auth: "verify_code" },
         { step: "passkey-signin", auth: "sign_in" },
@@ -22,9 +24,15 @@ describe("login-flow-stepper", () => {
   });
 
   describe("resolveLoginStepperMode", () => {
-    it("uses four_before_otp on email and verify-code", () => {
+    it("uses four_before_otp on email and verify-code (postOtpPasskeyPath unused before OTP)", () => {
       expect(resolveLoginStepperMode("email", null)).toBe("four_before_otp");
       expect(resolveLoginStepperMode("verify-code", null)).toBe(
+        "four_before_otp"
+      );
+      expect(resolveLoginStepperMode("email", "direct_signin")).toBe(
+        "four_before_otp"
+      );
+      expect(resolveLoginStepperMode("verify-code", "setup_then_signin")).toBe(
         "four_before_otp"
       );
     });

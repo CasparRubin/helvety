@@ -19,28 +19,30 @@ import {
 } from "@/components/login";
 import { useLoginFlow } from "@/hooks/use-login-flow";
 
-/** Card titles for each login step. */
-const STEP_TITLES: Record<string, string> = {
+import type { LoginStep } from "@/lib/login-flow-stepper";
+
+/** Card titles when the outer card is shown (not on encryption-setup). */
+const STEP_TITLES: Partial<Record<LoginStep, string>> = {
   email: "Welcome to Helvety",
   "verify-code": "Check Your Email",
   "passkey-signin": "Confirm with your passkey",
 };
 
-/** Card descriptions for each login step. */
-const STEP_DESCRIPTIONS: Record<string, string | ((email: string) => string)> =
-  {
-    email: "Enter your email and confirm your location to continue",
-    "verify-code": (email: string) =>
-      `We sent a verification code to ${email}. Check your spam folder if you don\u2019t see it.`,
-    "passkey-signin":
-      "Use your passkey to complete sign-in. This confirms the passkey you use for your account.",
-  };
+/** Card descriptions for the same steps as `STEP_TITLES`. */
+const STEP_DESCRIPTIONS: Partial<
+  Record<LoginStep, string | ((email: string) => string)>
+> = {
+  email: "Enter your email and confirm your location to continue",
+  "verify-code": (email: string) =>
+    `We sent a verification code to ${email}. Check your spam folder if you don\u2019t see it.`,
+  "passkey-signin":
+    "Use your passkey to complete sign-in. This confirms the passkey you use for your account.",
+};
 
 /** Main login page: email → OTP → passkey (with optional encryption setup between OTP and sign-in when required). */
 function LoginContent() {
   const flow = useLoginFlow();
 
-  // Show loading while checking auth
   if (flow.checkingAuth) {
     return (
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
@@ -64,7 +66,6 @@ function LoginContent() {
           currentStep={flow.currentAuthStep}
         />
 
-        {/* Show encryption setup component for encryption-setup step */}
         {flow.step === "encryption-setup" && flow.userId && (
           <EncryptionSetup
             redirectUri={flow.redirectUri ?? undefined}
@@ -73,7 +74,6 @@ function LoginContent() {
           />
         )}
 
-        {/* Show card for other steps */}
         {flow.step !== "encryption-setup" && (
           <Card className="w-full">
             <CardHeader>

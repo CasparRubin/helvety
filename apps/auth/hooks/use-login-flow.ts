@@ -46,8 +46,6 @@ import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isMobileDevice } from "@/lib/device-utils";
 import { resolveAuthenticatedEmailBootstrap } from "@/lib/login-email-bootstrap";
 import {
-  type LoginStep,
-  type PostOtpPasskeyPath,
   resolveLoginCurrentAuthStep,
   resolveLoginStepperMode,
 } from "@/lib/login-flow-stepper";
@@ -56,6 +54,7 @@ import type {
   AuthStep,
   AuthStepperMode,
 } from "@/components/encryption-stepper";
+import type { LoginStep, PostOtpPasskeyPath } from "@/lib/login-flow-stepper";
 
 /** Duration (in seconds) before the user can resend an OTP code. */
 const RESEND_COOLDOWN_SECONDS = 120;
@@ -84,9 +83,6 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   invalid_otp_type:
     "This sign-in link is invalid or no longer supported. Request a new verification code.",
 };
-
-/** Re-export for consumers that only need the step union. */
-export type { LoginStep } from "@/lib/login-flow-stepper";
 
 /** Return type of the useLoginFlow hook */
 export interface LoginFlowState {
@@ -716,7 +712,6 @@ export function useLoginFlow(): LoginFlowState {
     setError("");
   }, []);
 
-  // Go back to email step
   const handleBack = () => {
     setStep("email");
     setError("");

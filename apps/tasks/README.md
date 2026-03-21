@@ -26,7 +26,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Headings (H1, H2, H3)
   - Bullet and numbered lists
   - Link support
-  - Manual save with unsaved-changes feedback in the Save button
+  - Manual save from the editor toolbar (icon buttons on desktop); when there are unsaved changes the save control shows an orange **Save Changes** label
   - **Action panel** - View created/modified dates, set start and end date/time, view immutable built-in item stages/labels, and set priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
 - **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators. Default is Normal when not specified.
 - **Fixed labels** - An immutable built-in item label set is enforced across the app. New items use a default label when none is specified.

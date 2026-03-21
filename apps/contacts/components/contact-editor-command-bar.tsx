@@ -44,7 +44,7 @@ export function ContactEditorCommandBar({
 }: ContactEditorCommandBarProps) {
   return (
     <EditorCommandBar
-      backIcon={<ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />}
+      backIcon={<ArrowLeftIcon className="size-4 shrink-0" />}
       onBack={onBack}
       showBack={showBack}
       onRefresh={onRefresh}
@@ -59,7 +59,7 @@ export function ContactEditorCommandBar({
               {
                 id: "delete",
                 label: "Delete Contact",
-                icon: <Trash2Icon className="mr-1.5 size-4 shrink-0" />,
+                icon: <Trash2Icon className="size-4 shrink-0" />,
                 onClick: onDelete,
                 variant: "destructive" as const,
               },

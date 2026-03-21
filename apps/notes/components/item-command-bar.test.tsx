@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { ContactEditorCommandBar } from "./contact-editor-command-bar";
+import { ItemCommandBar } from "./item-command-bar";
 
-describe("ContactEditorCommandBar", () => {
+describe("ItemCommandBar", () => {
   it("shows the back button by default", () => {
     render(
-      <ContactEditorCommandBar
+      <ItemCommandBar
         onBack={vi.fn()}
         onRefresh={vi.fn()}
         onSave={vi.fn()}
@@ -19,7 +19,7 @@ describe("ContactEditorCommandBar", () => {
 
   it("hides the back button when showBack is false", () => {
     render(
-      <ContactEditorCommandBar
+      <ItemCommandBar
         onBack={vi.fn()}
         showBack={false}
         onRefresh={vi.fn()}
@@ -35,12 +35,13 @@ describe("ContactEditorCommandBar", () => {
 
   it("shows a visible Save Changes label when there are unsaved changes (idle)", () => {
     render(
-      <ContactEditorCommandBar
+      <ItemCommandBar
         onBack={vi.fn()}
         onRefresh={vi.fn()}
         onSave={vi.fn()}
         hasUnsavedChanges
         saveStatus="idle"
+        deleteLabel="Delete Note"
       />
     );
 
@@ -51,11 +52,13 @@ describe("ContactEditorCommandBar", () => {
 
   it("uses an accessible Save label without visible Save text when there are no changes", () => {
     render(
-      <ContactEditorCommandBar
+      <ItemCommandBar
         onBack={vi.fn()}
         onRefresh={vi.fn()}
         onSave={vi.fn()}
         hasUnsavedChanges={false}
+        deleteLabel="Delete Note"
+        onDelete={vi.fn()}
       />
     );
 
@@ -63,20 +66,21 @@ describe("ContactEditorCommandBar", () => {
     expect(screen.queryByText("Save Changes")).not.toBeInTheDocument();
   });
 
-  it("exposes Refresh and delete actions via accessible names on desktop actions", () => {
+  it("exposes Refresh and delete via accessible names", () => {
     render(
-      <ContactEditorCommandBar
+      <ItemCommandBar
         onBack={vi.fn()}
         onRefresh={vi.fn()}
         onSave={vi.fn()}
         hasUnsavedChanges={false}
         onDelete={vi.fn()}
+        deleteLabel="Delete Note"
       />
     );
 
     expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Delete Contact" })
+      screen.getByRole("button", { name: "Delete Note" })
     ).toBeInTheDocument();
   });
 });

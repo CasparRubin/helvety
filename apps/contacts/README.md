@@ -28,7 +28,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Bullet and numbered lists
   - Link support
   - Unsaved changes detection with confirmation dialog
-  - Manual note editing with unsaved-changes detection
+  - Manual note editing with unsaved-changes detection; editor toolbar uses icon buttons on desktop, with an orange **Save Changes** label when edits are pending
   - **Action panel** - View contact metadata dates and set category directly from the editor
 - **Category movement controls** - Move contacts between categories via drag/drop and row-level up/down arrows
 - **Controlled row-link prefetching** - Dense contact lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
