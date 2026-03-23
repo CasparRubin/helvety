@@ -21,6 +21,7 @@ describe("isValidRedirectUri", () => {
     expect(isValidRedirectUri("https://helvety.com")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/auth")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/store/products")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/notes")).toBe(true);
   });
 
   it("rejects http://helvety.com (non-HTTPS)", () => {

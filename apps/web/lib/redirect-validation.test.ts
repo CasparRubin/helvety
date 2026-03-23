@@ -26,6 +26,7 @@ describe("isValidRedirectUri", () => {
     expect(isValidRedirectUri("https://helvety.com/pdf")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/tasks")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/contacts")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/notes")).toBe(true);
   });
 
   it("rejects old subdomain URLs (no longer allowed)", () => {
@@ -40,6 +41,9 @@ describe("isValidRedirectUri", () => {
     expect(
       isValidRedirectUri("https://contacts.helvety.com/contacts/456")
     ).toBe(false);
+    expect(isValidRedirectUri("https://notes.helvety.com/notes/789")).toBe(
+      false
+    );
   });
 
   it("accepts localhost for development", () => {

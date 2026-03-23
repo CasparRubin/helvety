@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreDependencies": [
     "@tailwindcss/postcss",
     "prettier-plugin-tailwindcss",
@@ -9,6 +9,7 @@
   ],
   "ignore": [
     "apps/pdf/public/pdf.worker.min.mjs",
-    "packages/config/vitest.server-only-mock.ts"
+    "packages/config/vitest.server-only-mock.ts",
+    "scripts/list-parent-transcripts.mjs"
   ]
 }

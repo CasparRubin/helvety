@@ -83,6 +83,6 @@
     "@types/react": "^19",
     "eslint": "^9.39.4",
     "typescript": "^5",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.1"
   }
 }

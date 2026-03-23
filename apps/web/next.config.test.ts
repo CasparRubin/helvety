@@ -1,3 +1,4 @@
+import { DEV_PORTS } from "@helvety/shared/config";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import nextConfig from "./next.config";
@@ -33,6 +34,7 @@ describe("web gateway rewrites", () => {
   it("forwards auth routes and auth static assets to the auth zone", async () => {
     const rewritesResult = await nextConfig.rewrites?.();
     const beforeFiles = getBeforeFiles(rewritesResult);
+    const authOrigin = `http://localhost:${DEV_PORTS.auth}`;
 
     expect(beforeFiles).toBeDefined();
 
@@ -40,15 +42,15 @@ describe("web gateway rewrites", () => {
       expect.arrayContaining([
         {
           source: "/auth",
-          destination: "http://localhost:3002/auth",
+          destination: `${authOrigin}/auth`,
         },
         {
           source: "/auth/:path*",
-          destination: "http://localhost:3002/auth/:path*",
+          destination: `${authOrigin}/auth/:path*`,
         },
         {
           source: "/auth-static/:path*",
-          destination: "http://localhost:3002/auth-static/:path*",
+          destination: `${authOrigin}/auth-static/:path*`,
         },
       ])
     );
@@ -63,7 +65,24 @@ describe("web gateway rewrites", () => {
       expect.arrayContaining([
         {
           source: "/auth/:path*",
-          destination: "http://localhost:3002/auth/:path*",
+          destination: `http://localhost:${DEV_PORTS.auth}/auth/:path*`,
+        },
+      ])
+    );
+  });
+
+  it("forwards notes routes and notes static assets to the notes zone", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const notesOrigin = `http://localhost:${DEV_PORTS.notes}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        { source: "/notes", destination: `${notesOrigin}/notes` },
+        { source: "/notes/:path*", destination: `${notesOrigin}/notes/:path*` },
+        {
+          source: "/notes-static/:path*",
+          destination: `${notesOrigin}/notes-static/:path*`,
         },
       ])
     );

@@ -57,11 +57,11 @@ Copy `env.template` to `.env.local` and fill in values.
 
 ## Security
 
-- Proxy-based request hardening (`proxy.ts`)
-- Page-level auth guard (`requireAuth`)
-- CSRF protection for state-changing actions
-- RLS + explicit `user_id` filters in actions
-- Rate limiting on server actions
+- **Session / request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers and CSRF cookie bootstrap; it is not the primary auth boundary. Session and authorization checks run in pages, Server Actions, and route handlers.
+- **Page-level auth** - `requireAuth` from `@helvety/shared/auth-guard` on protected routes
+- **CSRF protection** - Token validation for state-changing actions
+- **Data access** - RLS plus explicit `user_id` filters in actions
+- **Rate limiting** - Applied to relevant server actions
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services collect a non-EU/EEA location-attestation signal during sign-in on [helvety.com/auth](https://helvety.com/auth). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations.
 
