@@ -21,7 +21,8 @@ interface CategoryGroupProps {
 }
 
 /**
- * CategoryGroup mirrors tasks StageGroup UX for contacts.
+ * CategoryGroup mirrors Tasks `StageGroup` UX: collapsible header, droppable zone,
+ * and row limits—category headers stay on screen even when the group has zero contacts.
  */
 export function CategoryGroup({
   category,

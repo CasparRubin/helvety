@@ -20,7 +20,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 ## Features
 
 - **End-to-end encryption** - Sensitive task content fields are encrypted client-side using your passkey (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
-- **Flat task-first workflow** - `/tasks` opens directly into your task list; task details open in a large sheet from the list
+- **Task-first workflow** - `/tasks` opens directly into your task list (items grouped by fixed stages on the main list); task details open in a large sheet from the list
 - **Rich text descriptions** - Rich text editor for item descriptions with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
   - Headings (H1, H2, H3)

@@ -20,7 +20,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 ## Features
 
 - **End-to-end encryption** - Sensitive contact content fields are encrypted client-side using your passkey (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
-- **Category-grouped contacts** - `/contacts` opens directly into your contact list grouped by fixed categories; contact details open in a large sheet
+- **Category-grouped contacts** - `/contacts` opens into your contact list grouped by fixed categories (category headers and drop targets stay visible even when you have no contacts, consistent with stage columns in Tasks); contact details open in a large sheet
 - **Contact fields** - Each contact stores First Name(s), Last Name(s), Description, Email, Phone, Birthday, and Notes
 - **Rich text notes** - Rich text editor for contact notes with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
@@ -179,7 +179,7 @@ Run these commands from `apps/contacts`:
 | `bun run test:watch`    | Run tests in watch mode           |
 | `bun run test:coverage` | Run tests with v8 coverage report |
 
-Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
+Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test. List behavior (`ContactList`) is covered for empty address books with fixed categories, the global empty state when no categories are configured, and the flat list fallback.
 
 ## Developer
 

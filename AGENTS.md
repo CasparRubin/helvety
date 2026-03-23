@@ -16,3 +16,4 @@
 - Passkey presence for login bootstrap must use the same trusted read path as OTP and callback flows (`user_auth_credentials` via scoped admin where RLS blocks ordinary client reads).
 - This monorepo uses Bun and Turbo for scripts; `apps/auth` unit tests cover stepper helpers, auth-step resolution, and related actions.
 - Vitest `test:coverage` scripts require `@vitest/coverage-v8` (declared in the root `package.json` devDependencies so it hoists to all workspaces).
+- Contacts main list (`ContactList`) shows all fixed category sections even when the address book is empty, matching Tasks list behavior for built-in stages (`EntityList`); Notes uses the same `EntityList` pattern but the dashboard passes no stages, so the notes list is flat unless that is wired later.

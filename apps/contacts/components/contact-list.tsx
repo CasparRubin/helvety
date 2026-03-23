@@ -11,7 +11,11 @@ import {
   type DragEndEvent,
   type DragOverEvent,
 } from "@dnd-kit/core";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Button } from "@helvety/ui/button";
 import { Loader2Icon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
@@ -44,14 +48,20 @@ interface ContactListProps {
   onReorder?: (updates: ReorderUpdate[]) => Promise<boolean>;
   /** Fixed categories used to group contacts in the list */
   categories: DefaultCategory[];
-  /** Empty state title */
+  /** Empty state title (shown when no categories and no contacts) */
   emptyTitle?: string;
-  /** Empty state description */
+  /** Empty state description (shown when no categories and no contacts) */
   emptyDescription?: string;
 }
 
 /**
  * ContactList - Category-grouped list component for contacts.
+ *
+ * Features:
+ * - Always shows category groups when categories are available (even with no contacts)
+ * - Flat list fallback when no categories are configured
+ * - Drag-and-drop reordering within and between categories (desktop)
+ * - Up/down arrows to move contacts between categories on all screen sizes
  */
 export function ContactList({
   contacts,
@@ -67,6 +77,8 @@ export function ContactList({
   emptyTitle = "No contacts yet",
   emptyDescription = "Create your first contact to get started.",
 }: ContactListProps) {
+  const hasCategories = categories.length > 0;
+
   // DnD sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -198,7 +210,7 @@ export function ContactList({
 
   const handleMoveUp = useCallback(
     (contactId: string) => {
-      if (!onReorder || categories.length === 0) return;
+      if (!onReorder || !hasCategories) return;
       const contact = contacts.find((entity) => entity.id === contactId);
       if (!contact) return;
 
@@ -217,12 +229,12 @@ export function ContactList({
         },
       ]);
     },
-    [categories, contacts, onReorder]
+    [categories, contacts, hasCategories, onReorder]
   );
 
   const handleMoveDown = useCallback(
     (contactId: string) => {
-      if (!onReorder || categories.length === 0) return;
+      if (!onReorder || !hasCategories) return;
       const contact = contacts.find((entity) => entity.id === contactId);
       if (!contact) return;
 
@@ -246,10 +258,13 @@ export function ContactList({
         },
       ]);
     },
-    [categories, contacts, onReorder]
+    [categories, contacts, hasCategories, onReorder]
   );
 
   const groupedContacts = useMemo(() => {
+    if (!hasCategories) {
+      return new Map<string, Contact[]>();
+    }
     const sortedContacts = [...contacts].sort(
       (a, b) => a.sort_order - b.sort_order
     );
@@ -263,7 +278,22 @@ export function ContactList({
       bucket?.push(contact);
     }
     return groups;
-  }, [categories, contacts]);
+  }, [categories, contacts, hasCategories]);
+
+  // Flat list branch only — skip sorting/id lists while the grouped view is active.
+  const sortedContactsFlat = useMemo(() => {
+    if (hasCategories) {
+      return [];
+    }
+    return [...contacts].sort((a, b) => a.sort_order - b.sort_order);
+  }, [contacts, hasCategories]);
+
+  const contactIds = useMemo(() => {
+    if (hasCategories) {
+      return [];
+    }
+    return contacts.map((c) => c.id);
+  }, [contacts, hasCategories]);
 
   // Loading state
   if (isLoading) {
@@ -303,16 +333,8 @@ export function ContactList({
         </div>
       )}
 
-      {contacts.length === 0 ? (
-        /* Empty state */
-        <div className="border-border flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <h3 className="mb-2 text-lg font-medium">{emptyTitle}</h3>
-          <p className="text-muted-foreground text-center text-sm">
-            {emptyDescription}
-          </p>
-        </div>
-      ) : (
-        /* Category-grouped list */
+      {hasCategories ? (
+        /* Category groups — always shown when categories exist (even with no contacts) */
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -370,6 +392,53 @@ export function ContactList({
                 </CategoryGroup>
               );
             })}
+          </div>
+        </DndContext>
+      ) : contacts.length === 0 ? (
+        /* Empty state — only when no categories and no contacts */
+        <div className="border-border flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
+          <h3 className="mb-2 text-lg font-medium">{emptyTitle}</h3>
+          <p className="text-muted-foreground text-center text-sm">
+            {emptyDescription}
+          </p>
+        </div>
+      ) : (
+        /* Flat list (no categories configured) */
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="border-border divide-border overflow-hidden rounded-lg border">
+            <SortableContext
+              items={contactIds}
+              strategy={verticalListSortingStrategy}
+            >
+              {sortedContactsFlat.map((contact, idx) => (
+                <ContactRow
+                  key={contact.id}
+                  id={contact.id}
+                  firstName={contact.first_name}
+                  lastName={contact.last_name}
+                  email={contact.email}
+                  createdAt={contact.created_at}
+                  isFirst={idx === 0}
+                  isLast={idx === sortedContactsFlat.length - 1}
+                  href={contactHref?.(contact)}
+                  onClick={() => onContactClick?.(contact)}
+                  onPrefetch={() => onContactPrefetch?.(contact)}
+                  onDelete={
+                    onContactDelete
+                      ? () =>
+                          onContactDelete(
+                            contact.id,
+                            `${contact.first_name} ${contact.last_name}`
+                          )
+                      : undefined
+                  }
+                />
+              ))}
+            </SortableContext>
           </div>
         </DndContext>
       )}
