@@ -27,6 +27,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "ci:check": "bun run format:check && bun run lint && bun run type-check && bun run test",
+    "ci:release": "bun run format:check && bun run lint && bun run type-check && bun run test && bun run build",
     "deps:audit": "bun audit",
     "deps:security:floors": "node scripts/check-security-dependency-floors.mjs",
     "deps:security": "bun run deps:security:floors && bun run deps:audit",
@@ -45,10 +46,10 @@
     "flatted": "3.4.2"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.1",
-    "knip": "^6.0.3",
+    "@vitest/coverage-v8": "^4.1.2",
+    "knip": "^6.1.0",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "turbo": "^2.8.20"
+    "turbo": "^2.8.21"
   }
 }

@@ -93,7 +93,7 @@ bun run format
 ### Automation
 
 - GitHub Actions workflows are intentionally not configured in this repository.
-- Quality checks (`lint`, `type-check`, `test`, and `format:check`) are run locally as needed.
+- Quality checks: `bun run ci:check` runs `format:check`, `lint`, `type-check`, and `test`. For a full pre-deploy pass including production build, run `bun run ci:release` (same as `ci:check` plus `build`).
 - Dependency hygiene (`deps:outdated`, `deps:check` with [Knip](https://knip.dev/) for unused files and dependencies) and security review (`deps:security` for version floors plus `deps:audit`) are run locally as needed.
 - Deployments are handled by Vercel via Git integration.
 

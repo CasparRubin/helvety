@@ -4,7 +4,7 @@
 
 - After substantive auth or flow changes, run a verification pass and remove stale or unused code before treating the work as done.
 - When login or security behavior changes, keep READMEs, code comments, and user-facing legal copy aligned with the implementation.
-- Run full pre-deploy checks (lint, format, type-check, test, build); root `ci:check` is format-check plus lint, type-check, and test only—add build explicitly when a release build is required.
+- Run full pre-deploy checks via root `ci:release` (format-check, lint, type-check, test, build). Use `ci:check` when a build is not needed (it omits `build`).
 - Prefer fixing consistency and correctness within the current architecture over large rewrites unless product requirements call for a different shape.
 - Do not add AI co-author or similar attribution trailers to git commits.
 

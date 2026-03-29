@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="March 14, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="March 29, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>

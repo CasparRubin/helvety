@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="March 14, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="March 29, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -206,9 +206,10 @@ export default function PrivacyPage() {
           users must first confirm that they are not located in the EU/EEA
           before verification-code delivery. Limited technical and security data
           (for example, anti-abuse/rate-limit data) may be processed before
-          account creation. After this confirmation, verification codes are sent
-          by email, and OTP verification is followed by one passkey step (setup
-          for first-time users or sign-in verification for existing users). We
+          account creation. After this confirmation, verification codes
+          (numeric, typically 6–8 digits per service configuration) are sent by
+          email, and OTP verification is followed by one passkey step (setup for
+          first-time users or sign-in verification for existing users). We
           store:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
