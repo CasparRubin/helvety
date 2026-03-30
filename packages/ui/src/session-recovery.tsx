@@ -70,6 +70,13 @@ export function SessionRecovery({ mode = "required" }: SessionRecoveryProps) {
       }
 
       if (intent === "login") {
+        // Avoid immediate redirect loops right after returning from auth.
+        // The server may already have a valid session, while the browser
+        // Supabase client can take a moment to stabilize before getUser().
+        // We only force a login redirect on visibility rechecks.
+        if (source === "mount") {
+          return;
+        }
         redirectToLoginOnce(window.location.href, "session-recovery");
         return;
       }
