@@ -93,7 +93,7 @@ sequenceDiagram
     A-->>U: Redirect to app
 ```
 
-Note: Passkey authentication creates the session directly server-side (via `verifyPasskeyAuthentication`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs. During returning-user login, pre-auth auth options do not include PRF bootstrap metadata; PRF bootstrap in this flow is resolved from local cache only.
+Note: Passkey authentication creates the session directly server-side (via `verifyPasskeyAuthentication`) without requiring the user to navigate through an additional callback URL. This is intended to improve session creation reliability across browsers, including cases where PKCE callback handling differs. During returning-user login, pre-auth auth options do not include PRF bootstrap metadata; PRF bootstrap is resolved primarily from server-side PRF params, with localStorage as a resilience fallback.
 
 ### Key Points
 

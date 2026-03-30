@@ -473,8 +473,9 @@ export function useLoginFlow(): LoginFlowState {
     await clearAllKeys();
   }, []);
 
-  // Handle passkey sign in (for existing users or verification after setup)
-  // Includes PRF extension for single-touch encryption unlock when PRF salt is cached
+  // Handle passkey sign-in (for existing users or verification after setup)
+  // Includes PRF extension to enable single-touch encryption unlock by deriving a master key
+  // when PRF output is available (server-provided PRF params preferred, local fallback).
   const handlePasskeySignIn = useCallback(async () => {
     if (!passkeySupported) {
       const msg = "Your browser does not support passkeys in this flow";
@@ -509,11 +510,24 @@ export function useLoginFlow(): LoginFlowState {
           return;
         }
 
-        // Resolve PRF bootstrap from local cache only.
-        // We intentionally avoid returning PRF bootstrap metadata pre-auth.
+        // Resolve PRF bootstrap params for the WebAuthn PRF extension.
+        // Prefer server-provided PRF params (authoritative, avoids stale local cache),
+        // but fall back to localStorage for resilience.
         const authOptionsResult = optionsResult.data;
-        const bootstrapSalt = getCachedPRFSalt();
         const authOptions = authOptionsResult;
+
+        let bootstrapSalt = getCachedPRFSalt();
+        let bootstrapSaltFromServer = false;
+
+        const passkeyParamsResult = await getPasskeyParams();
+        if (passkeyParamsResult.success && passkeyParamsResult.data?.prf_salt) {
+          bootstrapSalt = {
+            prfSalt: passkeyParamsResult.data.prf_salt,
+            version: passkeyParamsResult.data.version,
+            cachedAt: Date.now(),
+          };
+          bootstrapSaltFromServer = true;
+        }
 
         if (bootstrapSalt) {
           // Add PRF extension to the authentication options
@@ -621,7 +635,11 @@ export function useLoginFlow(): LoginFlowState {
                 ? paramsResult.data?.prf_salt
                 : null;
 
-              if (actualSalt && actualSalt === bootstrapSalt.prfSalt) {
+              const saltMatches = actualSalt
+                ? actualSalt === bootstrapSalt.prfSalt
+                : bootstrapSaltFromServer;
+
+              if (saltMatches) {
                 const prfParams: PRFKeyParams = {
                   prfSalt: bootstrapSalt.prfSalt,
                   version: bootstrapSalt.version,
@@ -669,12 +687,19 @@ export function useLoginFlow(): LoginFlowState {
                   "Encryption key derived and cached during login (single-touch unlock)"
                 );
               } else {
-                // Cached salt belongs to a different account - discard it.
-                // Keep /auth as the single place that resolves unlock/setup.
+                // If we couldn't verify the salt (actualSalt missing) we still avoid
+                // deriving from potentially stale local cache to prevent lockouts.
                 clearCachedPRFSalt();
-                logger.warn(
-                  "Cached PRF salt does not match authenticated user - skipping key derivation"
-                );
+
+                if (!actualSalt) {
+                  logger.warn(
+                    "PRF salt verification unavailable; discarding cached salt to avoid deriving with potentially stale data."
+                  );
+                } else {
+                  logger.warn(
+                    "Cached PRF salt does not match authenticated user - skipping key derivation"
+                  );
+                }
               }
             }
           } catch (prfError) {
