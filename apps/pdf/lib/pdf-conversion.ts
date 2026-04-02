@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 /**
  * PDF conversion utilities for converting images to PDF documents.
  * Extracted from pdf-utils.ts for better code organization.

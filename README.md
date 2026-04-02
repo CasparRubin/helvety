@@ -22,12 +22,12 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 
 ## Shared Packages
 
-| Package                                 | Description                                                                                                                                                                                                                     |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                                                                                                                                                               |
-| **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, PostCSS, and Next.js security-header configurations                                                                                                                                          |
-| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, shared font definitions, types, utilities                                                                                  |
-| **[@helvety/ui](packages/ui/)**         | Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, navbar-scoped animated Lucide icon aliases, AuthTokenHandler, SessionRecovery, SkipToContent |
+| Package                                 | Description                                                                                                                                                                                                                                                            |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **[@helvety/brand](packages/brand/)**   | Shared brand assets: SVG React components and asset URL constants                                                                                                                                                                                                      |
+| **[@helvety/config](packages/config/)** | Shared TypeScript, ESLint, Vitest, PostCSS, and Next.js security-header configurations                                                                                                                                                                                 |
+| **[@helvety/shared](packages/shared/)** | Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, **shared constants** (e.g. `ACTION_LIMITS` for reorder/export caps, toast durations), font definitions, types, utilities                                          |
+| **[@helvety/ui](packages/ui/)**         | Shared UI components: shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, navbar-scoped animated Lucide icon aliases, AuthTokenHandler, SessionRecovery, SkipToContent (Vitest tests for selected primitives) |
 
 ## Getting Started
 
@@ -94,7 +94,8 @@ bun run format
 
 - GitHub Actions workflows are intentionally not configured in this repository.
 - Quality checks: `bun run ci:check` runs `format:check`, `lint`, `type-check`, and `test`. For a full pre-deploy pass including production build, run `bun run ci:release` (same as `ci:check` plus `build`).
-- Dependency hygiene (`deps:outdated`, `deps:check` with [Knip](https://knip.dev/) for unused files and dependencies) and security review (`deps:security` for version floors plus `deps:audit`) are run locally as needed.
+- Dependency hygiene (`deps:outdated`, `deps:check` with [Knip](https://knip.dev/) for unused files and dependencies) and security review (`deps:security` for version floors plus `deps:audit`) are run locally as needed. This repo uses **Bun** (`bun audit`); there is no root `package-lock.json`, so `npm audit` is not the primary signal unless you generate an npm lockfile for comparison.
+- When `bun audit` reports vulnerable **transitive** packages, root `package.json` **`overrides`** may pin patched versions; re-run `bun install` and `ci:release` after changing overrides.
 - Deployments are handled by Vercel via Git integration.
 
 ### Supabase Workflow (Remote-First)
@@ -130,7 +131,7 @@ helvety/
 │   ├── brand/        # Shared brand assets (SVG components, asset URLs)
 │   ├── config/       # Shared tooling configs
 │   ├── shared/       # Shared libraries
-│   └── ui/           # Shared UI components (shadcn/ui, footer, theme provider, Tiptap editor, CSRF provider, EncryptionGate, AppSwitcher, ThemeSwitcher, navbar-scoped animated Lucide icon aliases, AuthTokenHandler, SessionRecovery, SkipToContent)
+│   └── ui/           # Shared UI components (same as table above); package includes Vitest tests for key pieces (e.g. button, tiptap-utils)
 ├── supabase/         # Remote-first Supabase SQL/export helpers (supabase.json is gitignored)
 ├── turbo.json        # Turborepo task configuration
 └── package.json      # Root workspace configuration

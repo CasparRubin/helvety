@@ -14,6 +14,7 @@ import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
 import { hasAccountDeletionVerificationFailures } from "@/lib/account-deletion-compliance";
+import { verifyDeletionResidualCounts } from "@/lib/account-deletion-verification";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { ActionResponse } from "@/lib/types";
@@ -31,55 +32,6 @@ const EmailSchema = z
   .min(1, "Email is required")
   .max(254, "Email too long")
   .email("Invalid email format");
-
-const ACCOUNT_DELETION_VERIFICATION_CHECKS = [
-  { table: "user_auth_credentials", column: "user_id" },
-  { table: "user_passkey_params", column: "user_id" },
-  { table: "items", column: "user_id" },
-  { table: "contacts", column: "user_id" },
-  { table: "entity_links", column: "user_id" },
-  { table: "notes", column: "user_id" },
-  { table: "user_profiles", column: "id" },
-] as const;
-
-/** Verification check tuple describing which table/column must be fully detached. */
-type AccountDeletionVerificationCheck =
-  (typeof ACCOUNT_DELETION_VERIFICATION_CHECKS)[number];
-
-/** Counts any residual rows still linked to the deleted user id. */
-async function verifyDeletionResidualCounts(
-  scopedAdmin: ReturnType<typeof createScopedAdminQuery>,
-  userId: string
-): Promise<
-  Array<
-    AccountDeletionVerificationCheck & {
-      count: number;
-      error: string | null;
-    }
-  >
-> {
-  const checks = ACCOUNT_DELETION_VERIFICATION_CHECKS.map(async (check) => {
-    try {
-      const baseQuery = scopedAdmin.client
-        .from(check.table as never)
-        .select("id", { count: "exact", head: true });
-      const { count, error } = await baseQuery.eq(check.column, userId);
-      return {
-        ...check,
-        count: count ?? 0,
-        error: error?.message ?? null,
-      };
-    } catch (error) {
-      return {
-        ...check,
-        count: -1,
-        error: error instanceof Error ? error.message : String(error),
-      };
-    }
-  });
-
-  return Promise.all(checks);
-}
 
 /**
  * Get current user profile information

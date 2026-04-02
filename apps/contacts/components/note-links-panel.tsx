@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable jsdoc/require-jsdoc */
 
 import { urls } from "@helvety/shared/config";
 import {

@@ -91,6 +91,8 @@ Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment with type-ch
 
 From the monorepo root, `bun run test` runs Turbo across workspaces.
 
+Post-delete **account verification** (residual row counts per table) is implemented in `lib/account-deletion-verification.ts` and covered by unit tests alongside existing store tests (downloads, pricing, compliance helpers).
+
 ## License & usage
 
 This app is open source under the [MIT License](./LICENSE).

@@ -1,3 +1,4 @@
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
@@ -293,6 +294,30 @@ describe("contact-actions", () => {
       error: "Invalid reorder data",
       success: false,
     });
+  });
+
+  it("rejects reorder payloads larger than ACTION_LIMITS.MAX_REORDER_ITEMS", async () => {
+    const supabase = createSupabaseForCreateContact();
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const oversized = Array.from(
+      { length: ACTION_LIMITS.MAX_REORDER_ITEMS + 1 },
+      () => ({
+        id: crypto.randomUUID(),
+        sort_order: 0,
+      })
+    );
+
+    const result = await reorderContacts(oversized, "csrf-token");
+
+    expect(result).toEqual({
+      error: "Invalid reorder data",
+      success: false,
+    });
+    expect(supabase.from).not.toHaveBeenCalled();
   });
 
   it("includes category_id in reorder updates when provided", async () => {

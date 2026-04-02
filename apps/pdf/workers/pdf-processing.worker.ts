@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 /// <reference lib="webworker" />
 
 import { PDFDocument } from "pdf-lib";

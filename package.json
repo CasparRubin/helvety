@@ -43,13 +43,17 @@
     "@hono/node-server": "1.19.10",
     "express-rate-limit": "8.2.2",
     "undici": "7.24.0",
-    "flatted": "3.4.2"
+    "flatted": "3.4.2",
+    "yaml": "2.8.3",
+    "brace-expansion": "5.0.5",
+    "path-to-regexp": "8.4.0",
+    "picomatch": "2.3.2"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.2",
-    "knip": "^6.1.0",
+    "knip": "^6.2.0",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "turbo": "^2.8.21"
+    "turbo": "^2.9.3"
   }
 }

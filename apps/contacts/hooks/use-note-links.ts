@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable jsdoc/require-jsdoc */
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { handleAuthErrorNavigation } from "@helvety/ui/auth-navigation";

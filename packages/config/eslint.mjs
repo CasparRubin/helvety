@@ -146,6 +146,27 @@ export function createEslintConfig(rootDir) {
         ...jsdocRules,
       },
     },
+    // Dense UI modules (link pickers) and PDF worker/pipeline files export many
+    // small functions without JSDoc; require-jsdoc would add noise. Keep the
+    // exception list in one place and add globs here instead of per-file disables.
+    {
+      files: [
+        "**/note-link-actions.ts",
+        "**/task-link-actions.ts",
+        "**/use-note-links.ts",
+        "**/use-task-links.ts",
+        "**/note-links-panel.tsx",
+        "**/task-links-panel.tsx",
+        "**/pdf-conversion.ts",
+        "**/pdf-processing-pipeline.ts",
+        "**/pdf-processing-telemetry.ts",
+        "**/pdf-processing-worker-types.ts",
+        "**/pdf-processing.worker.ts",
+      ],
+      rules: {
+        "jsdoc/require-jsdoc": "off",
+      },
+    },
     globalIgnores([
       ".next/**",
       "out/**",

@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 export interface WorkerSourceFile {
   readonly id: string;
   readonly name: string;

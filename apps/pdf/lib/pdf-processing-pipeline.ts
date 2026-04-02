@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 import { getRenderingCapabilities } from "@/lib/feature-detection";
 
 export type PdfProcessingPipeline = "gpu-worker" | "worker" | "main-thread";

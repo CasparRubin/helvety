@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { after } from "next/server";
 import { z } from "zod";
@@ -17,9 +18,6 @@ import type {
   EncryptedTaskExport,
 } from "@/lib/types";
 
-const MAX_REORDER_ITEMS = 2000;
-const REORDER_CHUNK_SIZE = 50;
-const MAX_EXPORT_ROWS_PER_TABLE = 5000;
 const ALLOWED_STAGE_IDS = Object.values(DEFAULT_STAGE_CONFIGS)
   .flatMap((config) => config.stages.map((stage) => stage.id))
   .filter((id, index, allIds) => allIds.indexOf(id) === index) as [
@@ -42,8 +40,8 @@ const ReorderSchema = z
     })
   )
   .max(
-    MAX_REORDER_ITEMS,
-    `Too many items to reorder (max ${MAX_REORDER_ITEMS})`
+    ACTION_LIMITS.MAX_REORDER_ITEMS,
+    `Too many items to reorder (max ${ACTION_LIMITS.MAX_REORDER_ITEMS})`
   );
 
 const EntityTypeSchema = z.literal("item");
@@ -110,8 +108,15 @@ export async function reorderEntities(
     // Batch updates in chunks to avoid saturating DB connections.
     const now = new Date().toISOString();
     const results = [];
-    for (let i = 0; i < validatedUpdates.length; i += REORDER_CHUNK_SIZE) {
-      const chunk = validatedUpdates.slice(i, i + REORDER_CHUNK_SIZE);
+    for (
+      let i = 0;
+      i < validatedUpdates.length;
+      i += ACTION_LIMITS.REORDER_CHUNK_SIZE
+    ) {
+      const chunk = validatedUpdates.slice(
+        i,
+        i + ACTION_LIMITS.REORDER_CHUNK_SIZE
+      );
       const chunkResults = await Promise.all(
         chunk.map((update) => {
           const updateObj: Record<string, unknown> = {
@@ -176,7 +181,7 @@ export async function getAllTaskDataForExport(): Promise<
       .select("*")
       .eq("user_id", user.id)
       .order("sort_order")
-      .limit(MAX_EXPORT_ROWS_PER_TABLE + 1)
+      .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)
       .returns<ItemRow[]>();
 
     if (itemsError) {
@@ -186,11 +191,11 @@ export async function getAllTaskDataForExport(): Promise<
       return { success: false, error: "Failed to fetch task data" };
     }
 
-    if ((items?.length ?? 0) > MAX_EXPORT_ROWS_PER_TABLE) {
+    if ((items?.length ?? 0) > ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE) {
       logger.warn("Export exceeds maximum row cap", {
         userId: user.id,
         items: items?.length ?? 0,
-        cap: MAX_EXPORT_ROWS_PER_TABLE,
+        cap: ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE,
       });
       return {
         success: false,

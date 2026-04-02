@@ -19,3 +19,13 @@ export const ERROR_MESSAGES = {
   /** Data export failure */
   EXPORT_FAILED: "Failed to export data. Please try again.",
 } as const;
+
+/**
+ * Shared caps for server actions: batch reorder, chunked updates, and export row bounds.
+ * Used by tasks, notes, and contacts so limits stay consistent.
+ */
+export const ACTION_LIMITS = {
+  MAX_REORDER_ITEMS: 2000,
+  REORDER_CHUNK_SIZE: 50,
+  MAX_EXPORT_ROWS_PER_TABLE: 5000,
+} as const;

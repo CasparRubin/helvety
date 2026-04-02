@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 import { logger } from "@helvety/shared/logger";
 
 import { getMemoryUsagePercent } from "@/lib/memory-utils";

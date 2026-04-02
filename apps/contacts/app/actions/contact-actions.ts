@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
@@ -22,8 +23,6 @@ function revalidateContactRoutes(contactId?: string): void {
   void contactId;
 }
 
-const MAX_REORDER_ITEMS = 2000;
-const REORDER_CHUNK_SIZE = 50;
 const CategoryIdSchema = z.enum(ALLOWED_CATEGORY_IDS);
 
 // =============================================================================
@@ -68,8 +67,8 @@ const ReorderSchema = z
     })
   )
   .max(
-    MAX_REORDER_ITEMS,
-    `Too many items to reorder (max ${MAX_REORDER_ITEMS})`
+    ACTION_LIMITS.MAX_REORDER_ITEMS,
+    `Too many items to reorder (max ${ACTION_LIMITS.MAX_REORDER_ITEMS})`
   );
 
 // =============================================================================
@@ -386,8 +385,15 @@ export async function reorderContacts(
     // Batch updates in chunks to avoid saturating DB connections.
     const now = new Date().toISOString();
     const results = [];
-    for (let i = 0; i < validatedUpdates.length; i += REORDER_CHUNK_SIZE) {
-      const chunk = validatedUpdates.slice(i, i + REORDER_CHUNK_SIZE);
+    for (
+      let i = 0;
+      i < validatedUpdates.length;
+      i += ACTION_LIMITS.REORDER_CHUNK_SIZE
+    ) {
+      const chunk = validatedUpdates.slice(
+        i,
+        i + ACTION_LIMITS.REORDER_CHUNK_SIZE
+      );
       const chunkResults = await Promise.all(
         chunk.map((update) => {
           const updateObj: Record<string, unknown> = {

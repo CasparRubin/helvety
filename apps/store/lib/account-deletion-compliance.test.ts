@@ -40,4 +40,20 @@ describe("account deletion verification", () => {
       )
     ).toBe(true);
   });
+
+  it("fails when any residual query errors are reported", () => {
+    expect(
+      hasAccountDeletionVerificationFailures(
+        buildReport({
+          residualErrors: [
+            {
+              column: "user_id",
+              error: "permission denied",
+              table: "notes",
+            },
+          ],
+        })
+      )
+    ).toBe(true);
+  });
 });

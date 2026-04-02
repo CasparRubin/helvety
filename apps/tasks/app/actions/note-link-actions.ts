@@ -1,5 +1,4 @@
 "use server";
-/* eslint-disable jsdoc/require-jsdoc */
 
 import "server-only";
 
