@@ -139,7 +139,7 @@ Sessions are shared across all Helvety apps via cookie-based SSO (all apps are s
 
 This application includes the following security hardening:
 
-- **Session Management** - `proxy.ts` performs lightweight request setup (CSP headers and CSRF bootstrap). Session/auth checks are enforced in page-level/server-side handlers.
+- **Session Management** - `proxy.ts` performs lightweight request setup (CSP, CSRF bootstrap, and Supabase session cookie refresh when auth cookies are present). Session/auth checks are enforced in page-level/server-side handlers.
 - **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` with retry logic for transient failures (aligned with current Next.js security guidance)
 - **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated via `@helvety/shared/redirect-validation` to reduce open-redirect risk
 - **CSRF Protection** - Token-based protection for state-changing operations

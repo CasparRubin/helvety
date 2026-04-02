@@ -17,7 +17,7 @@ export function handleSupabaseCookieWriteFailure({
 }: CookieWriteFailureInput): void {
   cookieWriteSkipCount += 1;
   const errorMessage =
-    "Supabase cookie write skipped in createServerComponentClient. Session refresh requires proxy/action context.";
+    "Supabase cookie write skipped in createServerComponentClient. Persisting refreshed tokens requires the shared proxy (or a Server Action / Route Handler), not RSC.";
   const metadata = {
     event: "supabase_cookie_write_skipped",
     skipCount: cookieWriteSkipCount,

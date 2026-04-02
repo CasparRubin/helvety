@@ -15,7 +15,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * Creates a Supabase server client with cookie handling for Server Components.
  * This is the standard way to create a client in Server Components, Server Actions, etc.
  *
- * Cookies are configured for session sharing in production.
+ * Cookies are configured for session sharing in production. Refreshed auth tokens are
+ * persisted by `createSecurityProxy` (or actions/routes), not RSC—`setAll` may no-op in layouts.
  *
  * @returns Promise that resolves to a Supabase client instance
  */

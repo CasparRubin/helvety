@@ -57,7 +57,7 @@ Copy `env.template` to `.env.local` and fill in values.
 
 ## Security
 
-- **Session / request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers and CSRF cookie bootstrap; it is not the primary auth boundary. Session and authorization checks run in pages, Server Actions, and route handlers.
+- **Session / request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present; it is not the primary auth boundary. Session and authorization checks run in pages, Server Actions, and route handlers.
 - **Page-level auth** - `requireAuth` from `@helvety/shared/auth-guard` on protected routes
 - **CSRF protection** - Token validation for state-changing actions
 - **Data access** - RLS plus explicit `user_id` filters in actions

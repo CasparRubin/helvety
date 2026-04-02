@@ -70,9 +70,7 @@ export function Navbar({
   initialUser?: SupabaseUser | null;
 }) {
   const { isUnlocked, isLoading: encryptionLoading } = useEncryptionContext();
-  const { user, isLoading } = useNavbarAuthState(initialUser, {
-    skipInitialProbe: true,
-  });
+  const { user, isLoading } = useNavbarAuthState(initialUser);
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);

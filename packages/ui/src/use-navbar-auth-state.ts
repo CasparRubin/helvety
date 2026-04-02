@@ -16,6 +16,10 @@ type NavbarUser = {
 
 /**
  * Returns navbar auth user/loading state with live Supabase session updates.
+ *
+ * @param options.skipInitialProbe - When true, skips the initial `getUser()` probe and
+ *   trusts `initialUser` until `onAuthStateChange` fires. Prefer the default (`false`)
+ *   when the navbar must match the browser session immediately (e.g. Helvety Auth).
  */
 export function useNavbarAuthState<UserType extends NavbarUser>(
   initialUser: UserType | null = null,

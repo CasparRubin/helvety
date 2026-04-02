@@ -4,6 +4,10 @@ import { buildCsp } from "@helvety/config/next-headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { COOKIE_DOMAIN } from "./config";
+import {
+  refreshSupabaseAuthSession,
+  requestMayHaveSupabaseAuthCookie,
+} from "./supabase/refresh-auth-session-in-proxy";
 
 const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
@@ -29,12 +33,11 @@ export type CreateSecurityProxyOptions = {
 /**
  * Creates a lightweight proxy function for Next.js proxy.ts.
  *
- * DESIGN: This proxy is intentionally optimistic-only (CSP, CSRF, headers).
- * Supabase's default SSR guide recommends proxy-based token refresh; we instead
- * rely on Server Actions and Route Handlers to refresh sessions. Session refresh
- * requires cookie writes, which Server Components cannot do; our createServerClient
- * handles refresh in action/route context. Repository test/policy checks
- * enforce this separation.
+ * DESIGN: CSP, CSRF, and headers, plus **Supabase auth cookie refresh** on the
+ * same response. Server Components cannot persist refreshed session cookies
+ * (`createServerComponentClient` swallows `setAll` in RSC); the proxy runs early
+ * enough to call `getUser()` and write `Set-Cookie` per @supabase/ssr guidance.
+ * Still no application DB or business logic in the proxy—only Supabase Auth HTTP.
  *
  * Config must be exported separately in each app (Next.js requires static config).
  *
@@ -68,11 +71,13 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
       request.headers.set("x-helvety-url", publicUrl);
     }
 
-    // Proxy remains intentionally lightweight and optimistic-only:
-    // no DB hits and no Supabase token refresh work.
-    const response = NextResponse.next({
+    let response = NextResponse.next({
       request: { headers: new Headers(request.headers) },
     });
+
+    if (requestMayHaveSupabaseAuthCookie(request)) {
+      response = await refreshSupabaseAuthSession(request, response);
+    }
 
     if (includeCsrf && !request.cookies.get(CSRF_COOKIE_NAME)?.value) {
       const token = randomBytes(CSRF_TOKEN_LENGTH).toString("hex");

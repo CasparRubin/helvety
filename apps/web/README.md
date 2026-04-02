@@ -39,7 +39,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 This application includes the following security hardening:
 
-- **Session Management** - `proxy.ts` performs lightweight request setup for headers/CSP in the web gateway. The web app itself is primarily public-facing; strict auth enforcement for protected data/actions is handled in the app-specific zones (`/auth`, `/store`, `/tasks`, `/contacts`, `/notes`).
+- **Session Management** - `proxy.ts` performs lightweight request setup (headers/CSP and, when Supabase session cookies are present on matched routes, cookie refresh). The web app is primarily public-facing; strict auth enforcement for protected data/actions is handled in the app-specific zones (`/auth`, `/store`, `/tasks`, `/contacts`, `/notes`).
 - **Redirect URI Validation** - Redirect URIs are allowlist-validated in core auth flows via `@helvety/shared/redirect-validation` to reduce open-redirect risk
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Security Headers** - CSP, HSTS, and other security headers

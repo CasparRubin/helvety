@@ -1,8 +1,8 @@
 /**
- * Resolves which login step the user still needs (passkey setup vs passkey sign-in).
+ * Resolves which login step the user still needs (passkey setup vs passkey sign-in),
+ * or reports `not_authenticated` / `unavailable` when server actions cannot determine readiness.
  *
- * Implemented as async helpers that invoke server actions (`getOwnPasskeyStatus`,
- * `hasEncryptionSetup`); safe to call from client code (e.g. `useLoginFlow`).
+ * Implemented via server actions (`getOwnPasskeyStatus`, `hasEncryptionSetup`); safe from client code (e.g. `useLoginFlow`).
  */
 
 import { getOwnPasskeyStatus } from "@/app/actions/credential-actions";
@@ -11,43 +11,67 @@ import { resolveAuthStep } from "@/lib/auth-step";
 
 import type { RequiredAuthStep } from "@/lib/auth-step";
 
-/** Result of checking the required auth step */
-export interface AuthStepResult {
-  step: RequiredAuthStep;
-  hasPasskey: boolean;
-  hasEncryption: boolean;
-}
+const NOT_AUTHENTICATED = "Not authenticated";
+
+/** Outcome of probing passkey + encryption readiness for the current session. */
+export type AuthStepProbeResult =
+  | {
+      status: "ok";
+      step: RequiredAuthStep;
+      hasPasskey: boolean;
+      hasEncryption: boolean;
+    }
+  | { status: "not_authenticated" }
+  | { status: "unavailable"; message?: string };
 
 /**
- * Determines the required authentication step for a user
+ * Determines the required authentication step for a user, or why the probe failed.
  *
- * @returns The required step and current status
- *
- * Logic:
+ * Logic when both actions succeed:
  * - No passkey: needs encryption-setup (which includes passkey creation)
  * - Has passkey but no encryption: needs encryption-setup
  * - Has both: needs passkey-signin (to authenticate with passkey)
  *
- * Note: After passkey auth completes, the session is created directly server-side
- * in verifyPasskeyAuthentication() and the user is redirected to their destination.
+ * Any `success: false` that is not a definitive unauthenticated session is
+ * **unavailable** (do not route to encryption-setup).
  */
-export async function getRequiredAuthStep(): Promise<AuthStepResult> {
-  // Check if the authenticated user has a passkey registered
+export async function getRequiredAuthStep(): Promise<AuthStepProbeResult> {
   const passkeyResult = await getOwnPasskeyStatus();
-  const hasPasskey = passkeyResult.success && passkeyResult.data?.hasPasskey;
 
-  // Check if user has encryption setup (PRF params)
+  if (!passkeyResult.success) {
+    if (passkeyResult.error === NOT_AUTHENTICATED) {
+      return { status: "not_authenticated" };
+    }
+    return {
+      status: "unavailable",
+      message: passkeyResult.error,
+    };
+  }
+
   const encryptionResult = await hasEncryptionSetup();
-  const hasEncryption = encryptionResult.success && encryptionResult.data;
+
+  if (!encryptionResult.success) {
+    if (encryptionResult.error === NOT_AUTHENTICATED) {
+      return { status: "not_authenticated" };
+    }
+    return {
+      status: "unavailable",
+      message: encryptionResult.error,
+    };
+  }
+
+  const hasPasskey = Boolean(passkeyResult.data?.hasPasskey);
+  const hasEncryption = Boolean(encryptionResult.data);
 
   const step = resolveAuthStep({
-    hasPasskey: Boolean(hasPasskey),
-    hasEncryption: Boolean(hasEncryption),
+    hasPasskey,
+    hasEncryption,
   });
 
   return {
+    status: "ok",
     step,
-    hasPasskey: !!hasPasskey,
-    hasEncryption: !!hasEncryption,
+    hasPasskey,
+    hasEncryption,
   };
 }

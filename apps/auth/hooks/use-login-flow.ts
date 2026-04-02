@@ -295,9 +295,40 @@ export function useLoginFlow(): LoginFlowState {
             setUserId(user.id);
           }
 
-          const { step: requiredStep } = await getRequiredAuthStep();
+          const probe = await getRequiredAuthStep();
+
+          if (probe.status === "not_authenticated") {
+            try {
+              await supabase.auth.signOut({ scope: "local" });
+            } catch (signOutError) {
+              logger.warn(
+                "Local auth sign-out after server reported no session.",
+                {
+                  message:
+                    signOutError instanceof Error
+                      ? signOutError.message
+                      : String(signOutError),
+                }
+              );
+            }
+            if (!cancelled) {
+              setUserId(null);
+              setError("Your session expired. Please sign in again.");
+            }
+            return;
+          }
+
+          if (probe.status === "unavailable") {
+            if (!cancelled) {
+              setError(
+                "We couldn't verify your sign-in status. Please try again in a moment."
+              );
+            }
+            return;
+          }
+
           const action = resolveAuthenticatedEmailBootstrap({
-            requiredStep,
+            requiredStep: probe.step,
             forceLogin,
             redirectUri,
             homeUrl: urls.home,

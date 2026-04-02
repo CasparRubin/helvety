@@ -155,12 +155,13 @@ Signs out the user with strict local cleanup and centralized re-auth entry. This
 
 ## Session Management (proxy.ts)
 
-The proxy (`proxy.ts`, via `@helvety/shared/proxy`) handles lightweight request setup (CSP headers and CSRF cookie bootstrap):
+The proxy (`proxy.ts`, via `@helvety/shared/proxy`) handles lightweight request setup (CSP headers, CSRF cookie bootstrap, and **Supabase session cookie refresh** when session cookies are present—per `@supabase/ssr` SSR guidance so Server Components receive up-to-date tokens).
 
-- **Proxy Scope** - Sets lightweight request headers/CSP and CSRF cookie bootstrap. Authentication and authorization checks are enforced in pages, Server Actions, and Route Handlers.
+- **Proxy Scope** - CSP/CSRF headers and cookies; early `getUser()` against Supabase Auth to refresh expired access tokens (no application DB in the proxy). Authentication and authorization checks are enforced in pages, Server Actions, and Route Handlers.
+- **JWT / refresh lifetime** - Tuned in the Supabase project dashboard (JWT expiry, refresh rotation), not duplicated in app code.
 - **Session Sharing** - Cookie domain sharing via `COOKIE_DOMAIN` (`.helvety.com` in production) is applied when cookies are written: CSRF in `proxy.ts`, auth session cookies in Supabase cookie adapters
 - **CSRF Token Generation** - Generates a CSRF token cookie on each request if not already present. The token is read by the layout and passed to client components via `CSRFProvider`. Server Actions validate the token using timing-safe comparison.
-- **Server Component Support** - Helps keep server components aligned with current session state
+- **Server Component Support** - The proxy runs before RSC; refreshed session cookies on the request match what `createServerClient` / `getCachedUser()` read in the same round trip.
 
 The proxy runs on all routes except static assets and is not the primary auth enforcement boundary.
 
@@ -244,7 +245,7 @@ The auth service includes the following security hardening:
   - Passkey authentication (generation and verification): 10 per minute per IP
   - Rate limits reset on successful authentication
 - **CSRF Protection** - Token-based protection with timing-safe comparison for all state-changing Server Actions
-- **Server-side Action/Handler Enforcement** - Authentication and security checks are enforced in Server Actions and route handlers (aligned with current Next.js security guidance; auth checks are not enforced in proxy)
+- **Server-side Action/Handler Enforcement** - Authentication and authorization checks are enforced in Server Actions and route handlers (aligned with current Next.js security guidance). The proxy refreshes Supabase session cookies only; it does not gate access to protected data.
 - **Audit Logging** - Structured logging for all authentication events:
   - Login attempts (success/failure)
   - Verification code sent/failed
