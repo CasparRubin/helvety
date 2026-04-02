@@ -377,7 +377,7 @@ export function usePdfProcessing({
               err,
               `Can't process page ${unifiedPageNum} from '${file.file.name}':`
             );
-            logger.error("Error processing page:", errorInfo);
+            logger.logUnexpectedError("Error processing page", errorInfo);
             logger.error("File details:", {
               id: file.id,
               name: file.file.name,
@@ -400,7 +400,7 @@ export function usePdfProcessing({
             new Error(`All pages in batch ${batchNumber} failed.`),
             `Batch ${batchNumber}/${totalBatches} processing failed:`
           );
-          logger.error("Batch processing error:", errorInfo);
+          logger.logUnexpectedError("Batch processing error", errorInfo);
           throw errorInfo;
         }
 

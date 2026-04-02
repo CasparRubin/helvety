@@ -4,6 +4,7 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
+import { isUuidString } from "@helvety/shared/uuid-string";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -147,7 +148,7 @@ export async function createItem(
     revalidateItemRoutes();
     return { success: true, data: { id: item.id } };
   } catch (error) {
-    logger.error("Unexpected error in createItem:", error);
+    logger.logUnexpectedError("Unexpected error in createItem", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -170,13 +171,13 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
       .returns<ItemRow[]>();
 
     if (error) {
-      logger.error("Error getting all items:", error);
+      logger.logUnexpectedError("Error getting all items", error);
       return { success: false, error: "Failed to get tasks" };
     }
 
     return { success: true, data: items ?? [] };
   } catch (error) {
-    logger.error("Unexpected error in getAllItems:", error);
+    logger.logUnexpectedError("Unexpected error in getAllItems", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -186,7 +187,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
  */
 export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
   try {
-    if (!z.string().uuid().safeParse(id).success) {
+    if (!isUuidString(id)) {
       return { success: false, error: "Invalid task ID" };
     }
 
@@ -207,13 +208,13 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
       if (error?.code === "PGRST116" || !item) {
         return { success: false, error: "Task not found" };
       }
-      logger.error("Error getting item:", error);
+      logger.logUnexpectedError("Error getting item", error);
       return { success: false, error: "Failed to get task" };
     }
 
     return { success: true, data: item };
   } catch (error) {
-    logger.error("Unexpected error in getItem:", error);
+    logger.logUnexpectedError("Unexpected error in getItem", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -293,7 +294,7 @@ export async function updateItem(
       .eq("user_id", user.id);
 
     if (error) {
-      logger.error("Error updating item:", error);
+      logger.logUnexpectedError("Error updating item", error);
       return {
         success: false,
         error: "Failed to update task",
@@ -303,7 +304,7 @@ export async function updateItem(
     revalidateItemRoutes();
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in updateItem:", error);
+    logger.logUnexpectedError("Unexpected error in updateItem", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -321,7 +322,7 @@ export async function deleteItem(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    if (!z.string().uuid().safeParse(id).success) {
+    if (!isUuidString(id)) {
       return { success: false, error: "Invalid task ID" };
     }
 
@@ -333,14 +334,14 @@ export async function deleteItem(
       .eq("user_id", user.id);
 
     if (error) {
-      logger.error("Error deleting item:", error);
+      logger.logUnexpectedError("Error deleting item", error);
       return { success: false, error: "Failed to delete task" };
     }
 
     revalidateItemRoutes();
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in deleteItem:", error);
+    logger.logUnexpectedError("Unexpected error in deleteItem", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

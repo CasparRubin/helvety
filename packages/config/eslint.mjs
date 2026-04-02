@@ -219,3 +219,6 @@ export function createPackageEslintConfig(rootDir) {
     eslintConfigPrettier,
   ]);
 }
+
+/** Self-lint for this package when running `eslint --config eslint.mjs .` */
+export default createPackageEslintConfig(import.meta.dirname);

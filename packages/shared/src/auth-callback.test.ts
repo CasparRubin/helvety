@@ -53,6 +53,7 @@ vi.mock("./csrf", () => ({
 vi.mock("./logger", () => ({
   logger: {
     error: mocks.loggerError,
+    logUnexpectedError: mocks.loggerError,
   },
 }));
 

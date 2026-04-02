@@ -198,7 +198,7 @@ export async function checkUserPasskeyStatus(
       .select("id", { count: "exact" });
 
     if (error) {
-      logger.error("Error checking passkey status:", error);
+      logger.logUnexpectedError("Error checking passkey status", error);
       return { success: false, error: "Failed to check passkey status" };
     }
 
@@ -212,7 +212,7 @@ export async function checkUserPasskeyStatus(
       },
     };
   } catch (error) {
-    logger.error("Error in checkUserPasskeyStatus:", error);
+    logger.logUnexpectedError("Error in checkUserPasskeyStatus", error);
     return { success: false, error: "Failed to check passkey status" };
   }
 }

@@ -48,6 +48,7 @@ vi.mock("@helvety/shared/logger", () => ({
   logger: {
     error: mocks.loggerError,
     warn: mocks.loggerWarn,
+    logUnexpectedError: mocks.loggerError,
   },
 }));
 

@@ -211,7 +211,7 @@ export async function generatePasskeyAuthOptions(
 
     return { success: true, data: optionsWithHints };
   } catch (error) {
-    logger.error("Error generating authentication options:", error);
+    logger.logUnexpectedError("Error generating authentication options", error);
     return {
       success: false,
       error: "Failed to generate authentication options",
@@ -316,7 +316,7 @@ export async function verifyPasskeyAuthentication(
         .single();
 
       if (credError || !credentialData) {
-        logger.error("Credential not found:", credError);
+        logger.logUnexpectedError("Credential not found", credError);
         logAuthEvent("passkey_auth_failed", {
           metadata: { reason: "credential_not_found" },
           ip: clientIP,
@@ -380,7 +380,7 @@ export async function verifyPasskeyAuthentication(
             error: "Invalid passkey authentication payload",
           };
         }
-        logger.error("Authentication verification failed:", error);
+        logger.logUnexpectedError("Authentication verification failed", error);
         logAuthEvent("passkey_auth_failed", {
           userId: credential.user_id,
           metadata: { reason: "verification_error" },
@@ -415,8 +415,8 @@ export async function verifyPasskeyAuthentication(
         .maybeSingle();
 
       if (updateError || !updatedCredential) {
-        logger.error(
-          "Error updating counter (or concurrent counter change) - failing auth for security:",
+        logger.logUnexpectedError(
+          "Error updating counter (or concurrent counter change) - failing auth for security",
           updateError
         );
         return {
@@ -430,7 +430,7 @@ export async function verifyPasskeyAuthentication(
         await adminClient.auth.admin.getUserById(credential.user_id);
 
       if (userError || !userData.user) {
-        logger.error("Error getting user:", userError);
+        logger.logUnexpectedError("Error getting user", userError);
         return { success: false, error: "User not found" };
       }
 
@@ -465,7 +465,7 @@ export async function verifyPasskeyAuthentication(
         });
 
       if (linkError || !linkData.properties?.hashed_token) {
-        logger.error("Error generating auth link:", linkError);
+        logger.logUnexpectedError("Error generating auth link", linkError);
         return { success: false, error: "Failed to create session" };
       }
 
@@ -478,7 +478,7 @@ export async function verifyPasskeyAuthentication(
       });
 
       if (verifyError) {
-        logger.error("Error verifying OTP:", verifyError);
+        logger.logUnexpectedError("Error verifying OTP", verifyError);
         return { success: false, error: "Failed to create session" };
       }
 
@@ -516,7 +516,7 @@ export async function verifyPasskeyAuthentication(
       }
     }
   } catch (error) {
-    logger.error("Error verifying authentication:", error);
+    logger.logUnexpectedError("Error verifying authentication", error);
     logAuthEvent("passkey_auth_failed", {
       metadata: { reason: "unexpected_error" },
       ip: clientIP,

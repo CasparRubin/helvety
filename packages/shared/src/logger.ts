@@ -17,6 +17,13 @@
  * - These identifiers are UUIDs/internal IDs, not personal data (no emails, names, etc.)
  * - Access to production logs should be restricted at the infrastructure level
  *   (e.g., Vercel logs, cloud provider logging services)
+ *
+ * CAUGHT ERRORS / ERROR TRACKING:
+ * Prefer `logger.logUnexpectedError(scope, error, context?)` over
+ * `logger.error("…", error)` when logging a failure from `catch` or an API error
+ * object. Passing a string first skips `captureException` in production; this
+ * helper normalizes `unknown` to an `Error` (with `cause` when needed) and
+ * passes metadata `{ scope, ...context }` for structured logs and trackers.
  */
 
 const isDevelopment = process.env.NODE_ENV === "development";
@@ -308,5 +315,27 @@ export const logger = {
       // eslint-disable-next-line no-console -- Intentional: logger utility for development debugging
       console.debug(...args);
     }
+  },
+
+  /**
+   * Logs an operational failure with an `Error` first so error tracking receives
+   * `captureException` in production.
+   *
+   * @param scope - Human-readable origin (e.g. server action name).
+   * @param error - Value from `catch` or an API error object.
+   * @param context - Optional extra metadata (subject to redaction).
+   */
+  logUnexpectedError(
+    scope: string,
+    error: unknown,
+    context?: Record<string, unknown>
+  ): void {
+    const err =
+      error instanceof Error ? error : new Error(scope, { cause: error });
+    const metadata: Record<string, unknown> = { scope };
+    if (context && Object.keys(context).length > 0) {
+      Object.assign(metadata, context);
+    }
+    logger.error(err, metadata);
   },
 };

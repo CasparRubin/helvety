@@ -136,7 +136,7 @@ export function ContactsDashboard({
       try {
         await downloadContactDataExport(masterKey);
       } catch (error) {
-        logger.error("Data export failed:", error);
+        logger.logUnexpectedError("Data export failed", error);
         toast.error(ERROR_MESSAGES.EXPORT_FAILED, {
           duration: TOAST_DURATIONS.ERROR,
         });

@@ -11,7 +11,7 @@ import {
   toLinkedEntityReferences,
 } from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
-import { z } from "zod";
+import { isUuidString } from "@helvety/shared/uuid-string";
 
 import type { ActionResponse } from "@/lib/types";
 
@@ -53,13 +53,13 @@ export async function getNotes(): Promise<ActionResponse<NoteRow[]>> {
       .returns<NoteRow[]>();
 
     if (error) {
-      logger.error("Error getting notes:", error);
+      logger.logUnexpectedError("Error getting notes", error);
       return { success: false, error: "Failed to get notes" };
     }
 
     return { success: true, data: notes ?? [] };
   } catch (error) {
-    logger.error("Unexpected error in getNotes:", error);
+    logger.logUnexpectedError("Unexpected error in getNotes", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -71,7 +71,7 @@ export async function getItemNoteLinks(
   itemId: string
 ): Promise<ActionResponse<NoteItemLinkRow[]>> {
   try {
-    if (!z.string().uuid().safeParse(itemId).success) {
+    if (!isUuidString(itemId)) {
       return { success: false, error: "Invalid task ID" };
     }
 
@@ -89,7 +89,7 @@ export async function getItemNoteLinks(
     });
 
     if (linksResult.error) {
-      logger.error("Error getting note links:", linksResult.error);
+      logger.logUnexpectedError("Error getting note links", linksResult.error);
       return { success: false, error: "Failed to get note links" };
     }
 
@@ -110,7 +110,7 @@ export async function getItemNoteLinks(
 
     return { success: true, data: rows };
   } catch (error) {
-    logger.error("Unexpected error in getItemNoteLinks:", error);
+    logger.logUnexpectedError("Unexpected error in getItemNoteLinks", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -124,10 +124,10 @@ export async function linkNote(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    if (!z.string().uuid().safeParse(itemId).success) {
+    if (!isUuidString(itemId)) {
       return { success: false, error: "Invalid task ID" };
     }
-    if (!z.string().uuid().safeParse(noteId).success) {
+    if (!isUuidString(noteId)) {
       return { success: false, error: "Invalid note ID" };
     }
 
@@ -163,13 +163,13 @@ export async function linkNote(
       if (linkResult.error?.code === "23505") {
         return { success: false, error: "Note is already linked" };
       }
-      logger.error("Error linking note:", linkResult.error);
+      logger.logUnexpectedError("Error linking note", linkResult.error);
       return { success: false, error: "Failed to link note" };
     }
 
     return { success: true, data: { id: linkResult.data.id } };
   } catch (error) {
-    logger.error("Unexpected error in linkNote:", error);
+    logger.logUnexpectedError("Unexpected error in linkNote", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -182,7 +182,7 @@ export async function unlinkNote(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    if (!z.string().uuid().safeParse(linkId).success) {
+    if (!isUuidString(linkId)) {
       return { success: false, error: "Invalid link ID" };
     }
 
@@ -196,13 +196,13 @@ export async function unlinkNote(
     const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
 
     if (deleteResult.error) {
-      logger.error("Error unlinking note:", deleteResult.error);
+      logger.logUnexpectedError("Error unlinking note", deleteResult.error);
       return { success: false, error: "Failed to unlink note" };
     }
 
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in unlinkNote:", error);
+    logger.logUnexpectedError("Unexpected error in unlinkNote", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

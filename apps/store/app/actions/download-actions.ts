@@ -83,7 +83,7 @@ export async function getPackageDownloadUrl(
         });
 
     if (storageError || !signedUrlData?.signedUrl) {
-      logger.error("Error generating signed URL:", storageError);
+      logger.logUnexpectedError("Error generating signed URL", storageError);
       return { success: false, error: "Failed to generate download link" };
     }
 
@@ -98,7 +98,7 @@ export async function getPackageDownloadUrl(
       },
     };
   } catch (error) {
-    logger.error("Error in getPackageDownloadUrl:", error);
+    logger.logUnexpectedError("Error in getPackageDownloadUrl", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

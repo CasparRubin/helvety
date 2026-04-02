@@ -43,13 +43,13 @@ export async function hasEncryptionSetup(): Promise<ActionResponse<boolean>> {
       if (error.code === "PGRST116") {
         return { success: true, data: false };
       }
-      logger.error("Error checking encryption setup:", error);
+      logger.logUnexpectedError("Error checking encryption setup", error);
       return { success: false, error: "Failed to check encryption status" };
     }
 
     return { success: true, data: !!data };
   } catch (error) {
-    logger.error("Error in hasEncryptionSetup:", error);
+    logger.logUnexpectedError("Error in hasEncryptionSetup", error);
     return { success: false, error: "Failed to check encryption status" };
   }
 }
@@ -82,13 +82,13 @@ export async function getPasskeyParams(): Promise<
       if (error.code === "PGRST116") {
         return { success: true, data: null };
       }
-      logger.error("Error getting PRF params:", error);
+      logger.logUnexpectedError("Error getting PRF params", error);
       return { success: false, error: "Failed to get encryption params" };
     }
 
     return { success: true, data: data as UserPasskeyParams };
   } catch (error) {
-    logger.error("Error in getPasskeyParams:", error);
+    logger.logUnexpectedError("Error in getPasskeyParams", error);
     return { success: false, error: "Failed to get encryption params" };
   }
 }
@@ -150,13 +150,13 @@ export async function saveKeyCheckValue(
       .eq("user_id", user.id);
 
     if (error) {
-      logger.error("Error saving key check value:", error);
+      logger.logUnexpectedError("Error saving key check value", error);
       return { success: false, error: "Failed to save key check value" };
     }
 
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in saveKeyCheckValue:", error);
+    logger.logUnexpectedError("Unexpected error in saveKeyCheckValue", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

@@ -85,4 +85,32 @@ describe("logger", () => {
     expect(parsed.metadata).not.toHaveProperty("password");
     expect(parsed.metadata.userId).toBe("user-1");
   });
+
+  it("logUnexpectedError emits Error message and scope in production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const { logger } = await import("./logger");
+
+    logger.logUnexpectedError("createItem", new Error("boom"));
+
+    expect(console.error).toHaveBeenCalledOnce();
+    const output = (console.error as ReturnType<typeof vi.fn>).mock
+      .calls[0]![0] as string;
+    const parsed = JSON.parse(output);
+    expect(parsed.level).toBe("error");
+    expect(parsed.message).toBe("boom");
+    expect(parsed.metadata?.scope).toBe("createItem");
+  });
+
+  it("logUnexpectedError wraps non-Error values with scope as message", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const { logger } = await import("./logger");
+
+    logger.logUnexpectedError("rpc", "failure");
+
+    const output = (console.error as ReturnType<typeof vi.fn>).mock
+      .calls[0]![0] as string;
+    const parsed = JSON.parse(output);
+    expect(parsed.message).toBe("rpc");
+    expect(parsed.metadata?.scope).toBe("rpc");
+  });
 });

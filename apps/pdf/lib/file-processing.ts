@@ -99,7 +99,7 @@ export function generateFileId(): string {
  * import { logger } from "@helvety/shared/logger"
  * const result = await processFile(file, 0, pdfCache, true)
  * if ('error' in result) {
- *   logger.error('Processing failed:', result.error)
+ *   logger.logUnexpectedError("Processing failed", result.error)
  * } else {
  *   logger.log('File processed:', result.pdfFile.id)
  * }
@@ -216,7 +216,7 @@ export async function processFile(
       errorInfo.type === PdfErrorType.CORRUPTED ||
       errorInfo.type === PdfErrorType.INVALID_FORMAT
     ) {
-      logger.error("File validation error:", errorInfo);
+      logger.logUnexpectedError("File validation error", errorInfo);
     }
 
     return { error: errorInfo.message };

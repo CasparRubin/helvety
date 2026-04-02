@@ -169,7 +169,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(redirectUrl);
       }
 
-      logger.error("Auth callback error (code exchange):", error);
+      logger.logUnexpectedError("Auth callback error (code exchange)", error);
       return NextResponse.redirect(
         buildErrorRedirect(authBase, "auth_failed", safeRedirectUri)
       );
@@ -193,7 +193,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(redirectUrl);
       }
 
-      logger.error("Auth callback error (token hash):", error);
+      logger.logUnexpectedError("Auth callback error (token hash)", error);
       return NextResponse.redirect(
         buildErrorRedirect(authBase, "auth_failed", safeRedirectUri)
       );
@@ -204,7 +204,7 @@ export async function GET(request: Request) {
       buildErrorRedirect(authBase, undefined, safeRedirectUri)
     );
   } catch (error) {
-    logger.error("Auth callback unexpected error:", error);
+    logger.logUnexpectedError("Auth callback unexpected error", error);
     return NextResponse.redirect(buildErrorRedirect(authBase, "server_error"));
   }
 }

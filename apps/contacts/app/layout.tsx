@@ -122,7 +122,7 @@ export default async function RootLayout({
       getCachedUser(),
     ]);
   } catch (error) {
-    logger.error("Layout initialization failed:", error);
+    logger.logUnexpectedError("Layout initialization failed", error);
   }
 
   return (

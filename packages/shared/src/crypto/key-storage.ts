@@ -49,7 +49,7 @@ function getKeyChannel(): BroadcastChannel | null {
         try {
           listener(event.data);
         } catch (err) {
-          logger.error("Error in key event listener:", err);
+          logger.logUnexpectedError("Error in key event listener", err);
         }
       }
     };
@@ -265,7 +265,10 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
         if (Date.now() - result.cachedAt > KEY_CACHE_DURATION) {
           // Key expired, clean it up
           void deleteMasterKey(userId).catch((err) =>
-            logger.error("Failed to delete expired master key:", err)
+            logger.logUnexpectedError(
+              "Failed to delete expired master key",
+              err
+            )
           );
           resolve(null);
           return;
@@ -281,7 +284,7 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
   } catch (error) {
     // Any IndexedDB failure (open timeout, storage pressure, etc.) - return
     // null so the caller falls back to passkey unlock instead of erroring out
-    logger.error("Failed to access key storage:", error);
+    logger.logUnexpectedError("Failed to access key storage", error);
     return null;
   }
 }
@@ -320,7 +323,7 @@ export async function deleteMasterKey(userId: string): Promise<void> {
     });
   } catch (error) {
     // Silently fail on delete errors
-    logger.error("Failed to delete master key:", error);
+    logger.logUnexpectedError("Failed to delete master key", error);
   }
 }
 
@@ -341,7 +344,7 @@ export async function clearAllKeys(): Promise<void> {
     db.close();
     broadcastKeyEvent({ type: "keys-cleared" });
   } catch (error) {
-    logger.error("Failed to clear all keys:", error);
+    logger.logUnexpectedError("Failed to clear all keys", error);
   }
 }
 

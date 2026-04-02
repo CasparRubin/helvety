@@ -59,7 +59,7 @@ export async function getCurrentUser(): Promise<
       },
     };
   } catch (error) {
-    logger.error("Error in getCurrentUser:", error);
+    logger.logUnexpectedError("Error in getCurrentUser", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -106,7 +106,7 @@ export async function updateUserEmail(
     });
 
     if (error) {
-      logger.error("Error updating email:", error);
+      logger.logUnexpectedError("Error updating email", error);
 
       // Handle common errors
       if (error.message.includes("already registered")) {
@@ -122,7 +122,7 @@ export async function updateUserEmail(
     logger.info(`Email change requested for user ${user.id}`);
     return { success: true };
   } catch (error) {
-    logger.error("Error in updateUserEmail:", error);
+    logger.logUnexpectedError("Error in updateUserEmail", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -167,7 +167,7 @@ export async function requestAccountDeletion(
     );
 
     if (deleteError) {
-      logger.error("Error deleting user:", deleteError);
+      logger.logUnexpectedError("Error deleting user", deleteError);
       return {
         success: false,
         error: "Failed to delete account. Please try again or contact support.",
@@ -200,7 +200,10 @@ export async function requestAccountDeletion(
     };
 
     if (hasAccountDeletionVerificationFailures(verificationReport)) {
-      logger.error("Account deletion verification failed:", verificationReport);
+      logger.logUnexpectedError(
+        "Account deletion verification failed",
+        verificationReport
+      );
       return {
         success: false,
         error:
@@ -211,7 +214,7 @@ export async function requestAccountDeletion(
     logger.info(`Account deleted for user ${user.id}`, verificationReport);
     return { success: true };
   } catch (error) {
-    logger.error("Error in requestAccountDeletion:", error);
+    logger.logUnexpectedError("Error in requestAccountDeletion", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -263,7 +266,7 @@ export async function exportUserData(): Promise<
     logger.info(`Data export requested for user ${user.id}`);
     return { success: true, data: exportData };
   } catch (error) {
-    logger.error("Error in exportUserData:", error);
+    logger.logUnexpectedError("Error in exportUserData", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

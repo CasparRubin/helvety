@@ -26,7 +26,7 @@ export async function findUserByEmail(
   });
 
   if (error || !data) {
-    logger.error("Error looking up user by email via RPC:", error);
+    logger.logUnexpectedError("Error looking up user by email via RPC", error);
     return null;
   }
 

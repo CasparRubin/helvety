@@ -46,7 +46,10 @@ export function AuthTokenHandler() {
         window.history.replaceState(null, "", currentUrl.toString());
         await forceHardLogout(`${urls.auth}/login?error=callback_required`);
       } catch (err) {
-        logger.error("Error handling legacy hash auth tokens:", err);
+        logger.logUnexpectedError(
+          "Error handling legacy hash auth tokens",
+          err
+        );
         processingRef.current = false;
       }
     })();

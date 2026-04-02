@@ -2,7 +2,7 @@
   "name": "@helvety/config",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared TypeScript, ESLint, Vitest, PostCSS, and Next.js security-header configurations",
+  "description": "Shared TypeScript, ESLint (createEslintConfig / createPackageEslintConfig + default export for package self-lint), Vitest, PostCSS, and Next.js security-header configurations",
   "author": "Helvety by Rubin",
   "license": "MIT",
   "homepage": "https://helvety.com",

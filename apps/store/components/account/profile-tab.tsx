@@ -84,7 +84,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
     setIsChangingEmail(true);
     const result = await updateUserEmail(newEmail.trim(), csrfToken).catch(
       (error: unknown) => {
-        logger.error("Error changing email:", error);
+        logger.logUnexpectedError("Error changing email", error);
         const msg = "Couldn't update your email. Please try again.";
         setEmailError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -129,7 +129,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
   async function handleDataExport() {
     setIsExporting(true);
     const result = await exportUserData().catch((error: unknown) => {
-      logger.error("Error exporting data:", error);
+      logger.logUnexpectedError("Error exporting data", error);
       toast.error("Couldn't prepare your data export. Please try again.", {
         duration: TOAST_DURATIONS.ERROR,
       });
@@ -171,7 +171,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
     setIsDeleting(true);
     const result = await requestAccountDeletion(csrfToken).catch(
       (error: unknown) => {
-        logger.error("Error deleting account:", error);
+        logger.logUnexpectedError("Error deleting account", error);
         toast.error(
           "Couldn't process account deletion. Please try again or contact support.",
           {

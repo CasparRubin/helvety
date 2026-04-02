@@ -2,7 +2,7 @@
   "name": "@helvety/shared",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, constants (ACTION_LIMITS, toasts, errors), types, utilities",
+  "description": "Shared libraries: Supabase clients, auth, CSRF, proxy, rate limiting, crypto, cached server helpers, structured logging (logger + logUnexpectedError), uuid-string ID validation, constants (ACTION_LIMITS, toasts, errors), types, utilities",
   "author": "Helvety by Rubin",
   "license": "MIT",
   "homepage": "https://helvety.com",
@@ -60,6 +60,7 @@
     "./crypto/key-check": "./src/crypto/key-check.ts",
     "./proxy": "./src/proxy.ts",
     "./validation/encrypted-data": "./src/validation/encrypted-data.ts",
+    "./uuid-string": "./src/uuid-string.ts",
     "./encryption-actions": "./src/encryption-actions.ts"
   },
   "dependencies": {

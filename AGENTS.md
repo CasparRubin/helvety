@@ -11,6 +11,10 @@
 ## Learned Workspace Facts
 
 - Next.js 16 apps here use `proxy.ts` (not `middleware.ts`) for lightweight request handling; treat authentication as defense-in-depth in server actions, route handlers, and pages.
+- For failures from `catch` or API error objects, prefer `logger.logUnexpectedError(scope, error, context?)` from `@helvety/shared/logger` over `logger.error("message", error)` so production error tracking uses `captureException` (string-first `logger.error` routes to `captureMessage`). Keep `logger.error(message, { ... })` when logging structured metadata without a primary `Error`.
+- Vitest mocks of `@helvety/shared/logger` must expose `logUnexpectedError` (and `warn` / `error` when the module under test calls them); assert `logUnexpectedError` with `toHaveBeenCalledWith(scope, …)` where logging is part of the contract. Route handlers that only use `logger.warn` do not need a `logUnexpectedError` stub.
+- Use `isUuidString` from `@helvety/shared/uuid-string` for fast ID parameter checks in server actions; keep Zod `.uuid()` on payloads where schemas already validate full objects. `entity-links` shares the same UUID rules via that helper.
+- `packages/config/eslint.mjs` exports `createEslintConfig` / `createPackageEslintConfig` for apps and packages, and a **default** flat config so `eslint --config eslint.mjs .` lints the config package itself (with `tsconfig.json` including `vitest.server-only-mock.ts`).
 - Auth login UI maps steps via `apps/auth/lib/login-flow-stepper.ts`; server-driven next-step after OTP and in callback flows uses `apps/auth/lib/auth-step.ts` (`resolveAuthStep`) from passkey and encryption readiness.
 - Login OTP length and validation are centralized in `apps/auth/lib/otp-code.ts` (6–8 digits) and kept aligned with `otp-actions`.
 - Passkey presence for login bootstrap must use the same trusted read path as OTP and callback flows (`user_auth_credentials` via scoped admin where RLS blocks ordinary client reads).

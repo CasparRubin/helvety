@@ -389,7 +389,7 @@ export function useLoginFlow(): LoginFlowState {
         setStep("verify-code");
         setIsLoading(false);
       } catch (err) {
-        logger.error("Email submission error:", err);
+        logger.logUnexpectedError("Email submission error", err);
         const msg = "An unexpected error occurred";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -428,7 +428,7 @@ export function useLoginFlow(): LoginFlowState {
         }
         setIsLoading(false);
       } catch (err) {
-        logger.error("Code verification error:", err);
+        logger.logUnexpectedError("Code verification error", err);
         const msg = "An unexpected error occurred";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -460,7 +460,7 @@ export function useLoginFlow(): LoginFlowState {
       }
       setIsLoading(false);
     } catch (err) {
-      logger.error("Resend code error:", err);
+      logger.logUnexpectedError("Resend code error", err);
       const msg = "An unexpected error occurred";
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
@@ -717,7 +717,7 @@ export function useLoginFlow(): LoginFlowState {
         return;
       }
     } catch (err) {
-      logger.error("Passkey auth error:", err);
+      logger.logUnexpectedError("Passkey auth error", err);
       const msg = "An unexpected error occurred";
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });

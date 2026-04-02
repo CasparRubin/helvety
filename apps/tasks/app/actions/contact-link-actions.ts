@@ -11,7 +11,7 @@ import {
   toLinkedEntityReferences,
 } from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
-import { z } from "zod";
+import { isUuidString } from "@helvety/shared/uuid-string";
 
 import type { ActionResponse, ContactRow } from "@/lib/types";
 
@@ -45,13 +45,13 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
       .returns<ContactRow[]>();
 
     if (error) {
-      logger.error("Error getting contacts:", error);
+      logger.logUnexpectedError("Error getting contacts", error);
       return { success: false, error: "Failed to get contacts" };
     }
 
     return { success: true, data: contacts ?? [] };
   } catch (error) {
-    logger.error("Unexpected error in getContacts:", error);
+    logger.logUnexpectedError("Unexpected error in getContacts", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -63,7 +63,7 @@ export async function getItemContactLinks(
   itemId: string
 ): Promise<ActionResponse<ItemContactLinkRow[]>> {
   try {
-    if (!z.string().uuid().safeParse(itemId).success) {
+    if (!isUuidString(itemId)) {
       return { success: false, error: "Invalid task ID" };
     }
 
@@ -81,7 +81,10 @@ export async function getItemContactLinks(
     });
 
     if (linksResult.error) {
-      logger.error("Error getting contact links:", linksResult.error);
+      logger.logUnexpectedError(
+        "Error getting contact links",
+        linksResult.error
+      );
       return { success: false, error: "Failed to get contact links" };
     }
 
@@ -102,7 +105,7 @@ export async function getItemContactLinks(
 
     return { success: true, data: rows };
   } catch (error) {
-    logger.error("Unexpected error in getItemContactLinks:", error);
+    logger.logUnexpectedError("Unexpected error in getItemContactLinks", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -116,10 +119,10 @@ export async function linkContact(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    if (!z.string().uuid().safeParse(itemId).success) {
+    if (!isUuidString(itemId)) {
       return { success: false, error: "Invalid task ID" };
     }
-    if (!z.string().uuid().safeParse(contactId).success) {
+    if (!isUuidString(contactId)) {
       return { success: false, error: "Invalid contact ID" };
     }
 
@@ -155,13 +158,13 @@ export async function linkContact(
       if (linkResult.error?.code === "23505") {
         return { success: false, error: "Contact is already linked" };
       }
-      logger.error("Error linking contact:", linkResult.error);
+      logger.logUnexpectedError("Error linking contact", linkResult.error);
       return { success: false, error: "Failed to link contact" };
     }
 
     return { success: true, data: { id: linkResult.data.id } };
   } catch (error) {
-    logger.error("Unexpected error in linkContact:", error);
+    logger.logUnexpectedError("Unexpected error in linkContact", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -174,7 +177,7 @@ export async function unlinkContact(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    if (!z.string().uuid().safeParse(linkId).success) {
+    if (!isUuidString(linkId)) {
       return { success: false, error: "Invalid link ID" };
     }
 
@@ -188,13 +191,13 @@ export async function unlinkContact(
     const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
 
     if (deleteResult.error) {
-      logger.error("Error unlinking contact:", deleteResult.error);
+      logger.logUnexpectedError("Error unlinking contact", deleteResult.error);
       return { success: false, error: "Failed to unlink contact" };
     }
 
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in unlinkContact:", error);
+    logger.logUnexpectedError("Unexpected error in unlinkContact", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

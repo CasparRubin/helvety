@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => {
   return {
     authenticateAndRateLimit: vi.fn(),
-    loggerError: vi.fn(),
+    logUnexpectedError: vi.fn(),
     loggerWarn: vi.fn(),
     revalidatePath: vi.fn(),
   };
@@ -16,8 +16,9 @@ vi.mock("@helvety/shared/action-helpers", () => ({
 
 vi.mock("@helvety/shared/logger", () => ({
   logger: {
-    error: mocks.loggerError,
+    error: vi.fn(),
     warn: mocks.loggerWarn,
+    logUnexpectedError: mocks.logUnexpectedError,
   },
 }));
 
@@ -276,9 +277,10 @@ describe("contact-actions", () => {
       success: false,
     });
     expect(mocks.authenticateAndRateLimit).not.toHaveBeenCalled();
+    expect(mocks.logUnexpectedError).not.toHaveBeenCalled();
   });
 
-  it("validates reorder payload size and rejects non-UUID rows", async () => {
+  it("validates reorder payload size and rejects invalid UUIDs (Zod reorder schema)", async () => {
     const supabase = createSupabaseForCreateContact();
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ctx: { supabase, user: { id: "user-1" } },

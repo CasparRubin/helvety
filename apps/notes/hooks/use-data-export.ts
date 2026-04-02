@@ -24,7 +24,7 @@ export function useDataExport(masterKey: CryptoKey | null) {
     try {
       await downloadNoteDataExport(masterKey);
     } catch (error) {
-      logger.error("Data export failed:", error);
+      logger.logUnexpectedError("Data export failed", error);
       toast.error(ERROR_MESSAGES.EXPORT_FAILED, {
         duration: TOAST_DURATIONS.ERROR,
       });

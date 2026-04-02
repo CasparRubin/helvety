@@ -139,8 +139,8 @@ async function processFileWithRetry(
   }
 
   if ("error" in result) {
-    logger.error(
-      `Failed to process file '${file.name}' after ${retryCount + 1} attempt(s):`,
+    logger.logUnexpectedError(
+      `Failed to process file '${file.name}' after ${retryCount + 1} attempt(s)`,
       result.error
     );
     return { error: enhanceErrorMessage(result.error) };

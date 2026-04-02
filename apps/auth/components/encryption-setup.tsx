@@ -248,7 +248,10 @@ export function EncryptionSetup({
         true // PRF was enabled
       );
       if (!verifyResult.success) {
-        logger.error("Failed to store auth credential:", verifyResult.error);
+        logger.logUnexpectedError(
+          "Failed to store auth credential",
+          verifyResult.error
+        );
         const msg =
           verifyResult.error ?? "Failed to complete passkey registration";
         setError(msg);

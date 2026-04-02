@@ -36,7 +36,7 @@ export async function getOwnPasskeyStatus(): Promise<
       .select("id", { count: "exact" });
 
     if (error) {
-      logger.error("Error checking own passkey status:", error);
+      logger.logUnexpectedError("Error checking own passkey status", error);
       return { success: false, error: "Failed to check passkey status" };
     }
 
@@ -46,7 +46,10 @@ export async function getOwnPasskeyStatus(): Promise<
       data: { hasPasskey: credentialCount > 0, count: credentialCount },
     };
   } catch (error) {
-    logger.error("Unexpected error checking own passkey status:", error);
+    logger.logUnexpectedError(
+      "Unexpected error checking own passkey status",
+      error
+    );
     return { success: false, error: "Failed to check passkey status" };
   }
 }

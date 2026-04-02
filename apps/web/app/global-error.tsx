@@ -18,7 +18,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    logger.error("Root layout error:", error);
+    logger.logUnexpectedError("Root layout error", error);
   }, [error]);
 
   return (

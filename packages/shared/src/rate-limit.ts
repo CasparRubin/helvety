@@ -235,8 +235,8 @@ export async function checkRateLimit(
       // In-memory fallback does not persist across serverless invocations,
       // making it ineffective for distributed rate limiting.
       if (process.env.NODE_ENV === "production" && policy === "strict") {
-        logger.error(
-          "Upstash rate limit failed in production — failing closed:",
+        logger.logUnexpectedError(
+          "Upstash rate limit failed in production — failing closed",
           error
         );
         return { allowed: false, remaining: 0, retryAfter: 30 };
@@ -372,7 +372,7 @@ export async function recordOtpFailureAndCheckLockout(
 
       return { allowed: true, remaining: 0 };
     } catch (error) {
-      logger.error("Failed to check escalating lockout:", error);
+      logger.logUnexpectedError("Failed to check escalating lockout", error);
       // Fail closed in production (OTP lockout is security-critical; no soft policy)
       if (process.env.NODE_ENV === "production") {
         return { allowed: false, remaining: 0, retryAfter: 300 };
@@ -442,7 +442,7 @@ export async function checkEscalatingLockout(
 
       return { allowed: true, remaining: 0 };
     } catch (error) {
-      logger.error("Failed to check escalating lockout:", error);
+      logger.logUnexpectedError("Failed to check escalating lockout", error);
       if (process.env.NODE_ENV === "production") {
         return { allowed: false, remaining: 0, retryAfter: 300 };
       }

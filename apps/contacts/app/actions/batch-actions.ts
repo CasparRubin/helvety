@@ -69,7 +69,10 @@ export async function getContactsDashboardData(): Promise<
       },
     };
   } catch (error) {
-    logger.error("Unexpected error in getContactsDashboardData:", error);
+    logger.logUnexpectedError(
+      "Unexpected error in getContactsDashboardData",
+      error
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }

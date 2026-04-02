@@ -86,7 +86,7 @@ export function useImageBitmapMemory(
           );
         }
       } catch (error) {
-        logger.error("Error checking ImageBitmap memory:", error);
+        logger.logUnexpectedError("Error checking ImageBitmap memory", error);
       }
     };
 

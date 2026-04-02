@@ -56,7 +56,10 @@ export async function getFlatItemsDashboardData(): Promise<
       },
     };
   } catch (error) {
-    logger.error("Unexpected error in getFlatItemsDashboardData:", error);
+    logger.logUnexpectedError(
+      "Unexpected error in getFlatItemsDashboardData",
+      error
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }

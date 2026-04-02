@@ -82,7 +82,7 @@ export function createAuthCallbackHandler() {
           );
         }
 
-        logger.error("Auth callback error (code exchange):", error);
+        logger.logUnexpectedError("Auth callback error (code exchange)", error);
         return NextResponse.redirect(`${authErrorUrl}&error=auth_failed`);
       }
 
@@ -114,13 +114,13 @@ export function createAuthCallbackHandler() {
           );
         }
 
-        logger.error("Auth callback error (token hash):", error);
+        logger.logUnexpectedError("Auth callback error (token hash)", error);
         return NextResponse.redirect(`${authErrorUrl}&error=auth_failed`);
       }
 
       return NextResponse.redirect(`${authErrorUrl}&error=missing_params`);
     } catch (error) {
-      logger.error("Auth callback unexpected error:", error);
+      logger.logUnexpectedError("Auth callback unexpected error", error);
       return NextResponse.redirect(`${authErrorUrl}&error=server_error`);
     }
   };

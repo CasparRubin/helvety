@@ -11,7 +11,7 @@ import {
   toLinkedEntityReferences,
 } from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
-import { z } from "zod";
+import { isUuidString } from "@helvety/shared/uuid-string";
 
 import type { ActionResponse } from "@/lib/types";
 
@@ -34,7 +34,7 @@ export async function getContactNoteLinks(
   contactId: string
 ): Promise<ActionResponse<NoteLinkData>> {
   try {
-    if (!z.string().uuid().safeParse(contactId).success) {
+    if (!isUuidString(contactId)) {
       return { success: false, error: "Invalid contact ID" };
     }
 
@@ -63,7 +63,7 @@ export async function getContactNoteLinks(
     });
 
     if (linksResult.error) {
-      logger.error("Error getting note links:", linksResult.error);
+      logger.logUnexpectedError("Error getting note links", linksResult.error);
       return { success: false, error: "Failed to get note links" };
     }
 
@@ -87,7 +87,7 @@ export async function getContactNoteLinks(
       .returns<{ id: string; encrypted_title: string }[]>();
 
     if (notesError) {
-      logger.error("Error fetching linked notes:", notesError);
+      logger.logUnexpectedError("Error fetching linked notes", notesError);
       return { success: false, error: "Failed to fetch linked notes" };
     }
 
@@ -116,7 +116,7 @@ export async function getContactNoteLinks(
       },
     };
   } catch (error) {
-    logger.error("Unexpected error in getContactNoteLinks:", error);
+    logger.logUnexpectedError("Unexpected error in getContactNoteLinks", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -139,13 +139,13 @@ export async function getNoteEntities(): Promise<
       .returns<{ id: string; encrypted_title: string }[]>();
 
     if (error) {
-      logger.error("Error fetching notes:", error);
+      logger.logUnexpectedError("Error fetching notes", error);
       return { success: false, error: "Failed to fetch notes" };
     }
 
     return { success: true, data: { notes: notes ?? [] } };
   } catch (error) {
-    logger.error("Unexpected error in getNoteEntities:", error);
+    logger.logUnexpectedError("Unexpected error in getNoteEntities", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -156,10 +156,10 @@ export async function linkNoteEntity(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    if (!z.string().uuid().safeParse(noteId).success) {
+    if (!isUuidString(noteId)) {
       return { success: false, error: "Invalid note ID" };
     }
-    if (!z.string().uuid().safeParse(contactId).success) {
+    if (!isUuidString(contactId)) {
       return { success: false, error: "Invalid contact ID" };
     }
 
@@ -195,13 +195,13 @@ export async function linkNoteEntity(
       if (linkResult.error?.code === "23505") {
         return { success: false, error: "Note is already linked" };
       }
-      logger.error("Error linking note:", linkResult.error);
+      logger.logUnexpectedError("Error linking note", linkResult.error);
       return { success: false, error: "Failed to link note" };
     }
 
     return { success: true, data: { id: linkResult.data.id } };
   } catch (error) {
-    logger.error("Unexpected error in linkNoteEntity:", error);
+    logger.logUnexpectedError("Unexpected error in linkNoteEntity", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -211,7 +211,7 @@ export async function unlinkNoteEntity(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    if (!z.string().uuid().safeParse(linkId).success) {
+    if (!isUuidString(linkId)) {
       return { success: false, error: "Invalid link ID" };
     }
 
@@ -225,13 +225,13 @@ export async function unlinkNoteEntity(
     const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
 
     if (deleteResult.error) {
-      logger.error("Error unlinking note:", deleteResult.error);
+      logger.logUnexpectedError("Error unlinking note", deleteResult.error);
       return { success: false, error: "Failed to unlink note" };
     }
 
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in unlinkNoteEntity:", error);
+    logger.logUnexpectedError("Unexpected error in unlinkNoteEntity", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

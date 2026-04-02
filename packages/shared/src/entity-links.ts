@@ -1,5 +1,7 @@
 import "server-only";
 
+import { isUuidString } from "./uuid-string";
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /** Entity types that can be linked through `entity_links`. */
@@ -57,14 +59,6 @@ const ENTITY_TABLE_BY_TYPE: Record<LinkEntityType, string> = {
   contacts: "contacts",
 };
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-7][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-/** Checks whether a value is a UUID accepted by the database schema. */
-function isUuid(value: string): boolean {
-  return UUID_REGEX.test(value);
-}
-
 /** Provides deterministic ordering for link endpoints. */
 function compareEndpoints(a: LinkEndpoint, b: LinkEndpoint): number {
   if (a.entityType === b.entityType) {
@@ -94,7 +88,7 @@ export async function ensureOwnedEntityExists(
   entityType: LinkEntityType,
   entityId: string
 ): Promise<boolean> {
-  if (!isUuid(entityId) || !isUuid(userId)) {
+  if (!isUuidString(entityId) || !isUuidString(userId)) {
     return false;
   }
   const tableName = ENTITY_TABLE_BY_TYPE[entityType];
@@ -122,9 +116,9 @@ export async function createEntityLink({
   error: { code?: string; message: string } | null;
 }> {
   if (
-    !isUuid(userId) ||
-    !isUuid(sourceEntityId) ||
-    !isUuid(targetEntityId) ||
+    !isUuidString(userId) ||
+    !isUuidString(sourceEntityId) ||
+    !isUuidString(targetEntityId) ||
     !relationType.trim()
   ) {
     return {
@@ -167,7 +161,7 @@ export async function deleteEntityLink(
   userId: string,
   linkId: string
 ): Promise<{ error: { code?: string; message: string } | null }> {
-  if (!isUuid(userId) || !isUuid(linkId)) {
+  if (!isUuidString(userId) || !isUuidString(linkId)) {
     return { error: { message: "Invalid link delete payload." } };
   }
 
@@ -195,7 +189,7 @@ export async function getEntityLinksForEndpoint({
   data: EntityLinkRow[] | null;
   error: { code?: string; message: string } | null;
 }> {
-  if (!isUuid(userId) || !isUuid(entityId)) {
+  if (!isUuidString(userId) || !isUuidString(entityId)) {
     return {
       data: null,
       error: { message: "Invalid link query payload." },

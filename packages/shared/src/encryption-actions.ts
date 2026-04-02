@@ -42,7 +42,7 @@ export async function getPasskeyParams(): Promise<
       if (error.code === "PGRST116") {
         return { success: true, data: null };
       }
-      logger.error("Error getting passkey params:", error);
+      logger.logUnexpectedError("Error getting passkey params", error);
       return {
         success: false,
         error: "Failed to get passkey encryption settings",
@@ -51,7 +51,7 @@ export async function getPasskeyParams(): Promise<
 
     return { success: true, data };
   } catch (error) {
-    logger.error("Unexpected error in getPasskeyParams:", error);
+    logger.logUnexpectedError("Unexpected error in getPasskeyParams", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -102,7 +102,7 @@ export async function getEncryptionParams(): Promise<
       data: { type: null },
     };
   } catch (error) {
-    logger.error("Unexpected error in getEncryptionParams:", error);
+    logger.logUnexpectedError("Unexpected error in getEncryptionParams", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

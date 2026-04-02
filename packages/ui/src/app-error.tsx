@@ -29,7 +29,7 @@ export function AppError({
   const router = useRouter();
 
   useEffect(() => {
-    logger.error("Application error:", error);
+    logger.logUnexpectedError("Application error", error);
   }, [error]);
 
   return (

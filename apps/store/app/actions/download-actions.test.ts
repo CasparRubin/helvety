@@ -13,8 +13,8 @@ const mocks = vi.hoisted(() => {
     from,
     adminClientFactory,
     resolveLatestPackageVersion,
-    loggerError: vi.fn(),
     loggerInfo: vi.fn(),
+    logUnexpectedError: vi.fn(),
   };
 });
 
@@ -24,8 +24,9 @@ vi.mock("@helvety/shared/supabase/admin", () => ({
 
 vi.mock("@helvety/shared/logger", () => ({
   logger: {
-    error: mocks.loggerError,
+    error: vi.fn(),
     info: mocks.loggerInfo,
+    logUnexpectedError: mocks.logUnexpectedError,
   },
 }));
 
@@ -105,5 +106,9 @@ describe("store download-actions", () => {
       success: false,
       error: "Failed to generate download link",
     });
+    expect(mocks.logUnexpectedError).toHaveBeenCalledWith(
+      "Error generating signed URL",
+      { message: "boom" }
+    );
   });
 });

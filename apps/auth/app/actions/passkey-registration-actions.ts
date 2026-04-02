@@ -193,7 +193,7 @@ export async function generatePasskeyRegistrationOptions(
       data: { ...optionsWithHints, prfSalt },
     };
   } catch (error) {
-    logger.error("Error generating registration options:", error);
+    logger.logUnexpectedError("Error generating registration options", error);
     return { success: false, error: "Failed to generate registration options" };
   }
 }
@@ -293,7 +293,7 @@ export async function verifyPasskeyRegistration(
     try {
       verification = await verifyRegistrationResponse(opts);
     } catch (error) {
-      logger.error("Registration verification failed:", error);
+      logger.logUnexpectedError("Registration verification failed", error);
       return { success: false, error: "Registration verification failed" };
     }
 
@@ -324,7 +324,7 @@ export async function verifyPasskeyRegistration(
       });
 
     if (insertError) {
-      logger.error("Error storing credential:", insertError);
+      logger.logUnexpectedError("Error storing credential", insertError);
       return { success: false, error: "Failed to store credential" };
     }
 
@@ -364,7 +364,7 @@ export async function verifyPasskeyRegistration(
         );
 
       if (prfError) {
-        logger.error("Error storing PRF params:", prfError);
+        logger.logUnexpectedError("Error storing PRF params", prfError);
         const { error: rollbackError } = await scopedAdmin
           .from("user_auth_credentials")
           .delete()
@@ -389,7 +389,7 @@ export async function verifyPasskeyRegistration(
       data: { credentialId: credential.id, prfSalt: savedPrfSalt },
     };
   } catch (error) {
-    logger.error("Error verifying registration:", error);
+    logger.logUnexpectedError("Error verifying registration", error);
     return { success: false, error: "Failed to verify registration" };
   } finally {
     try {

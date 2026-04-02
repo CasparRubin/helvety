@@ -99,7 +99,10 @@ export async function reorderEntities(
       .eq("user_id", user.id)
       .in("id", updateIds);
     if (allowedRowsError) {
-      logger.error("Error validating item reorder scope:", allowedRowsError);
+      logger.logUnexpectedError(
+        "Error validating item reorder scope",
+        allowedRowsError
+      );
       return { success: false, error: "Failed to reorder items" };
     }
     if ((allowedRows ?? []).length !== updateIds.length) {
@@ -139,13 +142,18 @@ export async function reorderEntities(
 
     const failedResult = results.find((r) => r.error);
     if (failedResult?.error) {
-      logger.error(`Error reordering ${entityType}:`, failedResult.error);
+      logger.logUnexpectedError(
+        `Error reordering ${entityType}`,
+        failedResult.error
+      );
       return { success: false, error: `Failed to reorder ${entityType}s` };
     }
 
     return { success: true };
   } catch (error) {
-    after(() => logger.error("Unexpected error in reorderEntities:", error));
+    after(() =>
+      logger.logUnexpectedError("Unexpected error in reorderEntities", error)
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -214,7 +222,10 @@ export async function getAllTaskDataForExport(): Promise<
     };
   } catch (error) {
     after(() =>
-      logger.error("Unexpected error in getAllTaskDataForExport:", error)
+      logger.logUnexpectedError(
+        "Unexpected error in getAllTaskDataForExport",
+        error
+      )
     );
     return { success: false, error: "An unexpected error occurred" };
   }

@@ -71,7 +71,7 @@ export function usePdfWorker(fileType: "pdf" | "image"): UsePdfWorkerReturn {
       .catch((err) => {
         // Reset promise on error so it can be retried
         workerInitPromise = null;
-        logger.error("Failed to initialize PDF worker:", err);
+        logger.logUnexpectedError("Failed to initialize PDF worker", err);
         throw err;
       });
 

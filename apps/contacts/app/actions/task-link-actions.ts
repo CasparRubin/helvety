@@ -11,7 +11,7 @@ import {
   toLinkedEntityReferences,
 } from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
-import { z } from "zod";
+import { isUuidString } from "@helvety/shared/uuid-string";
 
 import type {
   ActionResponse,
@@ -27,7 +27,7 @@ export async function getContactTaskLinks(
   contactId: string
 ): Promise<ActionResponse<TaskLinkData>> {
   try {
-    if (!z.string().uuid().safeParse(contactId).success) {
+    if (!isUuidString(contactId)) {
       return { success: false, error: "Invalid contact ID" };
     }
 
@@ -56,7 +56,7 @@ export async function getContactTaskLinks(
     });
 
     if (linksResult.error) {
-      logger.error("Error getting task links:", linksResult.error);
+      logger.logUnexpectedError("Error getting task links", linksResult.error);
       return { success: false, error: "Failed to get task links" };
     }
 
@@ -86,7 +86,7 @@ export async function getContactTaskLinks(
       .returns<{ id: string; encrypted_title: string }[]>();
 
     if (itemsError) {
-      logger.error("Error fetching linked items:", itemsError);
+      logger.logUnexpectedError("Error fetching linked items", itemsError);
       return { success: false, error: "Failed to fetch linked items" };
     }
 
@@ -115,7 +115,7 @@ export async function getContactTaskLinks(
       },
     };
   } catch (error) {
-    logger.error("Unexpected error in getContactTaskLinks:", error);
+    logger.logUnexpectedError("Unexpected error in getContactTaskLinks", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -141,13 +141,13 @@ export async function getTaskEntities(): Promise<
       .returns<{ id: string; encrypted_title: string }[]>();
 
     if (error) {
-      logger.error("Error fetching tasks:", error);
+      logger.logUnexpectedError("Error fetching tasks", error);
       return { success: false, error: "Failed to fetch tasks" };
     }
 
     return { success: true, data: { items: items ?? [] } };
   } catch (error) {
-    logger.error("Unexpected error in getTaskEntities:", error);
+    logger.logUnexpectedError("Unexpected error in getTaskEntities", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -161,10 +161,10 @@ export async function linkTaskEntity(
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    if (!z.string().uuid().safeParse(itemId).success) {
+    if (!isUuidString(itemId)) {
       return { success: false, error: "Invalid task ID" };
     }
-    if (!z.string().uuid().safeParse(contactId).success) {
+    if (!isUuidString(contactId)) {
       return { success: false, error: "Invalid contact ID" };
     }
 
@@ -200,13 +200,13 @@ export async function linkTaskEntity(
       if (linkResult.error?.code === "23505") {
         return { success: false, error: "Task is already linked" };
       }
-      logger.error("Error linking task item:", linkResult.error);
+      logger.logUnexpectedError("Error linking task item", linkResult.error);
       return { success: false, error: "Failed to link task" };
     }
 
     return { success: true, data: { id: linkResult.data.id } };
   } catch (error) {
-    logger.error("Unexpected error in linkTaskEntity:", error);
+    logger.logUnexpectedError("Unexpected error in linkTaskEntity", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -219,7 +219,7 @@ export async function unlinkTaskEntity(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    if (!z.string().uuid().safeParse(linkId).success) {
+    if (!isUuidString(linkId)) {
       return { success: false, error: "Invalid link ID" };
     }
 
@@ -233,13 +233,16 @@ export async function unlinkTaskEntity(
     const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
 
     if (deleteResult.error) {
-      logger.error("Error unlinking task item:", deleteResult.error);
+      logger.logUnexpectedError(
+        "Error unlinking task item",
+        deleteResult.error
+      );
       return { success: false, error: "Failed to unlink task" };
     }
 
     return { success: true };
   } catch (error) {
-    logger.error("Unexpected error in unlinkTaskEntity:", error);
+    logger.logUnexpectedError("Unexpected error in unlinkTaskEntity", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

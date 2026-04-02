@@ -301,7 +301,7 @@ function PdfPageThumbnailComponent({
    * @param error - The error that occurred during PDF loading
    */
   function onDocumentLoadError(error: Error): void {
-    logger.error("PDF load error:", error);
+    logger.logUnexpectedError("PDF load error", error);
     setLoading(false);
     setError(true);
     setDocumentReady(false);
@@ -478,7 +478,7 @@ function PdfPageThumbnailComponent({
                         }
                         renderMode="canvas"
                         onRenderError={(error) => {
-                          logger.error("Page render error:", error);
+                          logger.logUnexpectedError("Page render error", error);
                           // Retry on worker messageHandler race; worker may not be ready yet.
                           const errorMessage = error?.message || String(error);
                           if (

@@ -40,7 +40,7 @@ export async function signOutAction(
     }
     return { success: true };
   } catch (error) {
-    logger.error("Logout error:", error);
+    logger.logUnexpectedError("Logout error", error);
     return { success: false, error: "unexpected_error" };
   }
 }

@@ -46,7 +46,7 @@ export function handleError(
   const errorInfo = createPdfErrorInfo(error, context);
 
   if (logError) {
-    logger.error("Error handled:", errorInfo);
+    logger.logUnexpectedError("Error handled", errorInfo);
   }
 
   onError(errorInfo.message);

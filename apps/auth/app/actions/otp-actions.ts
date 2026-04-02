@@ -146,7 +146,7 @@ export async function sendVerificationCode(
         const alreadyExists =
           message.includes("already") || message.includes("exists");
         if (!alreadyExists) {
-          logger.error("Error creating user:", createError);
+          logger.logUnexpectedError("Error creating user", createError);
           // Keep response generic to avoid account state disclosure.
           return {
             success: true,
@@ -164,7 +164,7 @@ export async function sendVerificationCode(
     });
 
     if (signInError) {
-      logger.error("Error sending verification code:", signInError);
+      logger.logUnexpectedError("Error sending verification code", signInError);
       logAuthEvent("otp_failed", {
         metadata: { reason: signInError.message },
         ip: clientIP,
@@ -187,7 +187,7 @@ export async function sendVerificationCode(
       data: { codeSent: true },
     };
   } catch (error) {
-    logger.error("Error in sendVerificationCode:", error);
+    logger.logUnexpectedError("Error in sendVerificationCode", error);
     logAuthEvent("otp_failed", {
       metadata: { reason: "unexpected_error" },
       ip: clientIP,
@@ -369,7 +369,7 @@ export async function verifyEmailCode(
       },
     };
   } catch (error) {
-    logger.error("Error in verifyEmailCode:", error);
+    logger.logUnexpectedError("Error in verifyEmailCode", error);
     return {
       success: false,
       error: "Verification failed. Please try again.",

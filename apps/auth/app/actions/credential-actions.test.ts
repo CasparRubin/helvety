@@ -3,12 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   createScopedAdminQuery: vi.fn(),
   createServerClient: vi.fn(),
-  loggerError: vi.fn(),
+  logUnexpectedError: vi.fn(),
 }));
 
 vi.mock("@helvety/shared/logger", () => ({
   logger: {
-    error: mocks.loggerError,
+    error: vi.fn(),
+    logUnexpectedError: mocks.logUnexpectedError,
   },
 }));
 
@@ -106,6 +107,9 @@ describe("credential-actions", () => {
       success: false,
       error: "Failed to check passkey status",
     });
-    expect(mocks.loggerError).toHaveBeenCalled();
+    expect(mocks.logUnexpectedError).toHaveBeenCalledWith(
+      "Error checking own passkey status",
+      { message: "db error" }
+    );
   });
 });

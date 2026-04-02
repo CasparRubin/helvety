@@ -5,6 +5,7 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
+import { isUuidString } from "@helvety/shared/uuid-string";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
@@ -133,14 +134,16 @@ export async function createContact(
       .single();
 
     if (error || !contact) {
-      logger.error("Error creating contact:", error);
+      logger.logUnexpectedError("Error creating contact", error);
       return { success: false, error: "Failed to create contact" };
     }
 
     revalidateContactRoutes();
     return { success: true, data: { id: contact.id } };
   } catch (error) {
-    after(() => logger.error("Unexpected error in createContact:", error));
+    after(() =>
+      logger.logUnexpectedError("Unexpected error in createContact", error)
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -168,13 +171,15 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
       .returns<ContactRow[]>();
 
     if (error) {
-      logger.error("Error getting contacts:", error);
+      logger.logUnexpectedError("Error getting contacts", error);
       return { success: false, error: "Failed to get contacts" };
     }
 
     return { success: true, data: contacts ?? [] };
   } catch (error) {
-    after(() => logger.error("Unexpected error in getContacts:", error));
+    after(() =>
+      logger.logUnexpectedError("Unexpected error in getContacts", error)
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -186,7 +191,7 @@ export async function getContact(
   id: string
 ): Promise<ActionResponse<ContactRow>> {
   try {
-    if (!z.string().uuid().safeParse(id).success) {
+    if (!isUuidString(id)) {
       return { success: false, error: "Invalid contact ID" };
     }
 
@@ -209,13 +214,15 @@ export async function getContact(
       if (error?.code === "PGRST116" || !contact) {
         return { success: false, error: "Contact not found" };
       }
-      logger.error("Error getting contact:", error);
+      logger.logUnexpectedError("Error getting contact", error);
       return { success: false, error: "Failed to get contact" };
     }
 
     return { success: true, data: contact };
   } catch (error) {
-    after(() => logger.error("Unexpected error in getContact:", error));
+    after(() =>
+      logger.logUnexpectedError("Unexpected error in getContact", error)
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -299,14 +306,16 @@ export async function updateContact(
       .eq("user_id", user.id);
 
     if (error) {
-      logger.error("Error updating contact:", error);
+      logger.logUnexpectedError("Error updating contact", error);
       return { success: false, error: "Failed to update contact" };
     }
 
     revalidateContactRoutes(validatedData.id);
     return { success: true };
   } catch (error) {
-    after(() => logger.error("Unexpected error in updateContact:", error));
+    after(() =>
+      logger.logUnexpectedError("Unexpected error in updateContact", error)
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -326,7 +335,7 @@ export async function deleteContact(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    if (!z.string().uuid().safeParse(id).success) {
+    if (!isUuidString(id)) {
       return { success: false, error: "Invalid contact ID" };
     }
 
@@ -338,14 +347,16 @@ export async function deleteContact(
       .eq("user_id", user.id);
 
     if (error) {
-      logger.error("Error deleting contact:", error);
+      logger.logUnexpectedError("Error deleting contact", error);
       return { success: false, error: "Failed to delete contact" };
     }
 
     revalidateContactRoutes(id);
     return { success: true };
   } catch (error) {
-    after(() => logger.error("Unexpected error in deleteContact:", error));
+    after(() =>
+      logger.logUnexpectedError("Unexpected error in deleteContact", error)
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -415,14 +426,16 @@ export async function reorderContacts(
 
     const failedResult = results.find((r) => r.error);
     if (failedResult?.error) {
-      logger.error("Error reordering contact:", failedResult.error);
+      logger.logUnexpectedError("Error reordering contact", failedResult.error);
       return { success: false, error: "Failed to reorder contacts" };
     }
 
     revalidateContactRoutes();
     return { success: true };
   } catch (error) {
-    after(() => logger.error("Unexpected error in reorderContacts:", error));
+    after(() =>
+      logger.logUnexpectedError("Unexpected error in reorderContacts", error)
+    );
     return { success: false, error: "An unexpected error occurred" };
   }
 }

@@ -58,8 +58,8 @@ export class PdfProcessingWorkerClient {
     };
 
     worker.onerror = (event: ErrorEvent) => {
-      logger.error(
-        "PDF processing worker error:",
+      logger.logUnexpectedError(
+        "PDF processing worker error",
         event.error ?? event.message
       );
       this.rejectAll(new Error("PDF processing worker crashed"));
