@@ -104,7 +104,8 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 - **Resilient login bootstrap** - Initial auth restore on `/auth/login` uses timeout-bounded probing and safe fallback to manual sign-in to avoid infinite loading states when refresh tokens are expired/revoked or the Auth API is rate-limited
 - **Passkey setup completion** - After successful registration, the encryption-setup UI shows a short “Passkey saved” state, then the flow continues to **passkey sign-in** (step 4); redirect happens after successful `verifyPasskeyAuthentication` (same as returning users)
 - **Verification code length** - OTP values are **6–8 digits** (Supabase configuration); the login field uses `otp-code` helpers for client/server alignment
-- **Session-aware `/login`** - If the user already has a valid Supabase session and both passkey and encryption metadata exist, opening `/login` on the default email step **redirects** to `redirect_uri` or home unless `force_login=1` (used after logout)
+- **Session-aware `/login`** - With a valid Supabase session and both passkey and encryption configured, `/login` on the email step can **redirect** straight to `redirect_uri` or home so returning users avoid an extra passkey for **non-E2EE** apps (e.g. web home, store, PDF). Apps that use **EncryptionGate** (notes, tasks, contacts) **do not** get that shortcut: login bootstrap keeps the user on **passkey sign-in** until the browser unlocks local crypto (see `requiresE2eeBrowserUnlock` in `@helvety/shared/e2ee-app-paths`). Use `force_login=1` to always show passkey sign-in (e.g. after logout or when EncryptionGate sends users back to auth).
+
 - **Stepper wiring (code)** - `LoginStep` → `AuthStep` / `AuthStepperMode` mapping lives in `lib/login-flow-stepper.ts` and is used by `useLoginFlow` (see `login-flow-stepper.test.ts`). Server-driven “next step after verify” for `/auth/callback` and similar uses `lib/auth-step.ts` (`resolveAuthStep`) from passkey/encryption readiness — keep these in sync when changing flows.
 
 ## API Routes
@@ -180,7 +181,7 @@ redirectToLogin(window.location.href);
 // → https://helvety.com/auth/login?redirect_uri=<current-page-url>
 ```
 
-After authentication, users are redirected back to their original app with an active session (session sharing via the `COOKIE_DOMAIN` constant, `.helvety.com` in production).
+After authentication, users are redirected back to their original app with an active session (session sharing via the `COOKIE_DOMAIN` constant, `.helvety.com` in production). E2EE apps (notes, tasks, contacts) still require a **passkey touch** in the browser to unlock encryption before the app shell runs; `EncryptionGate` routes users back to `/auth/login` with `force_login=1` when the master key is not present locally.
 
 ## Database Schema
 

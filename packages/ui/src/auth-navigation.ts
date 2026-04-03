@@ -13,6 +13,8 @@ type NavigationSource = string;
 interface AuthNavigationOptions {
   expectedRoute?: string;
   requestStartedAt?: number;
+  /** When true, appends `force_login=1` so login does not auto-skip passkey. */
+  forceLogin?: boolean;
 }
 
 const NAVIGATION_COOLDOWN_MS = 1500;
@@ -102,7 +104,9 @@ export function redirectToLoginOnce(
   const target =
     redirectUri ??
     (typeof window !== "undefined" ? window.location.href : undefined);
-  const loginUrl = getLoginUrl(target);
+  const loginUrl = getLoginUrl(target, {
+    forceLogin: options?.forceLogin === true,
+  });
   const dedupeKey = buildNavigationKey("login", loginUrl);
   if (shouldDeduplicateNavigation(dedupeKey)) {
     emitAuthNavigationEvent("login", source, loginUrl, true, options);

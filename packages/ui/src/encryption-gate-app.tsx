@@ -10,7 +10,10 @@ const actions = {
   getEncryptionParams,
 };
 
-/** App-level EncryptionGate using shared encryption actions (tasks, contacts, notes). */
+/**
+ * App-level EncryptionGate for tasks, contacts, and notes (E2EE paths). Same
+ * behavior as `EncryptionGate`; unlock still happens in `/auth` when needed.
+ */
 export function EncryptionGateApp({
   userId,
   children,

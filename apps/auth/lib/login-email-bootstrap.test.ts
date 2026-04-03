@@ -25,7 +25,7 @@ describe("login-email-bootstrap", () => {
     ).toEqual({ kind: "set_step", step: "encryption-setup" });
   });
 
-  it("redirects when passkey sign-in would be next and force_login is off", () => {
+  it("redirects when passkey sign-in would be next and force_login is off for non-E2EE targets", () => {
     expect(
       resolveAuthenticatedEmailBootstrap({
         requiredStep: "passkey-signin",
@@ -39,10 +39,39 @@ describe("login-email-bootstrap", () => {
       resolveAuthenticatedEmailBootstrap({
         requiredStep: "passkey-signin",
         forceLogin: false,
+        redirectUri: "https://helvety.com/store",
+        homeUrl: home,
+      })
+    ).toEqual({ kind: "redirect", href: "https://helvety.com/store" });
+  });
+
+  it("requires passkey sign-in for E2EE app redirect URIs when force_login is off", () => {
+    expect(
+      resolveAuthenticatedEmailBootstrap({
+        requiredStep: "passkey-signin",
+        forceLogin: false,
         redirectUri: "https://helvety.com/tasks",
         homeUrl: home,
       })
-    ).toEqual({ kind: "redirect", href: "https://helvety.com/tasks" });
+    ).toEqual({ kind: "set_step", step: "passkey-signin" });
+
+    expect(
+      resolveAuthenticatedEmailBootstrap({
+        requiredStep: "passkey-signin",
+        forceLogin: false,
+        redirectUri: "https://helvety.com/notes",
+        homeUrl: home,
+      })
+    ).toEqual({ kind: "set_step", step: "passkey-signin" });
+
+    expect(
+      resolveAuthenticatedEmailBootstrap({
+        requiredStep: "passkey-signin",
+        forceLogin: false,
+        redirectUri: "https://helvety.com/contacts",
+        homeUrl: home,
+      })
+    ).toEqual({ kind: "set_step", step: "passkey-signin" });
   });
 
   it("shows passkey sign-in when force_login is set", () => {

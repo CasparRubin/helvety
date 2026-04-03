@@ -117,7 +117,9 @@ function resolveRedirectUri(
 /**
  * Get the login URL for redirecting to the auth service.
  * Includes the current URL as redirect_uri parameter for post-login return.
- * Optionally appends force_login=1 to suppress auto-return behavior.
+ * Optionally appends `force_login=1` so `/auth/login` does not auto-redirect
+ * away from passkey sign-in (e.g. after logout, or when EncryptionGate needs
+ * a fresh passkey unlock for E2EE apps).
  *
  * Security: The redirect URI is validated against an allowlist to prevent
  * open redirect attacks. Invalid URIs fall back to the default app URL.
@@ -160,8 +162,9 @@ export function getLogoutUrl(
 /**
  * Redirect to the login page.
  * Call this from client components when user needs to authenticate.
- * Set forceLogin=true when the login UI must be shown explicitly.
- * Uses window.location.href to navigate to the auth service.
+ * Set `forceLogin: true` when passkey sign-in must not be skipped (logout,
+ * EncryptionGate, or any case where `/auth/login` should not auto-redirect).
+ * Uses `window.location.href` to navigate to the auth service.
  */
 export function redirectToLogin(
   currentUrl?: string,

@@ -5,10 +5,10 @@ import { redirect } from "next/navigation";
 /**
  * Root page - redirects to login with any redirect_uri preserved
  *
- * The login page handles all authentication logic including:
+ * The login page handles authentication logic including:
  * - Checking if user is authenticated
  * - Checking passkey/encryption status
- * - Redirecting to appropriate step or final destination
+ * - Choosing passkey sign-in vs redirect (E2EE app destinations do not skip passkey)
  */
 export default async function Home({
   searchParams,

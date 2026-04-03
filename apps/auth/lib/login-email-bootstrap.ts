@@ -1,3 +1,5 @@
+import { requiresE2eeBrowserUnlock } from "@helvety/shared/e2ee-app-paths";
+
 import type { RequiredAuthStep } from "@/lib/auth-step";
 
 /** Result of deciding how to land an authenticated user on the default email step. */
@@ -9,9 +11,9 @@ type AuthenticatedEmailBootstrapAction =
  * When the user already has a Supabase session and opens `/login` on the email
  * step, choose either a passkey sub-step or an immediate redirect.
  *
- * Passkey sign-in is skipped (redirect to app) unless `force_login` is set, so
- * users who just completed passkey registration are not forced through a second
- * WebAuthn ceremony when revisiting login with an active session.
+ * Passkey sign-in is skipped (redirect to app) unless `force_login` is set or
+ * the destination is an E2EE app (notes/tasks/contacts), which need a browser
+ * passkey touch for local crypto unlock.
  */
 export function resolveAuthenticatedEmailBootstrap(options: {
   requiredStep: RequiredAuthStep;
@@ -27,7 +29,10 @@ export function resolveAuthenticatedEmailBootstrap(options: {
 
   if (requiredStep === "passkey-signin") {
     if (!forceLogin) {
-      return { kind: "redirect", href: redirectUri ?? homeUrl };
+      const target = redirectUri ?? homeUrl;
+      if (!requiresE2eeBrowserUnlock(target)) {
+        return { kind: "redirect", href: target };
+      }
     }
     return { kind: "set_step", step: "passkey-signin" };
   }
