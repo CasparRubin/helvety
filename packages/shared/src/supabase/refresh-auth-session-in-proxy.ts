@@ -22,8 +22,9 @@ export function requestMayHaveSupabaseAuthCookie(
 /**
  * Refreshes Supabase auth cookies on the outgoing response and syncs cookie
  * mutations onto `request` for downstream Server Components, per @supabase/ssr
- * middleware/proxy guidance (call `getUser()` early so refresh runs before the
- * response is finalized).
+ * guidance for early session refresh at the request edge. Helvety wires this
+ * through Next.js `proxy.ts` (not deprecated `middleware.ts`); call `getUser()`
+ * early so refresh runs before the response is finalized.
  *
  * @returns The response to return from the proxy (may be replaced when cookies are written).
  */

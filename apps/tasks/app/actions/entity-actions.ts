@@ -193,9 +193,10 @@ export async function getAllTaskDataForExport(): Promise<
       .returns<ItemRow[]>();
 
     if (itemsError) {
-      logger.error("Error fetching task data for export:", {
-        items: itemsError,
-      });
+      logger.logUnexpectedError(
+        "Error fetching task data for export",
+        itemsError
+      );
       return { success: false, error: "Failed to fetch task data" };
     }
 

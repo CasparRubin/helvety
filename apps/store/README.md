@@ -63,6 +63,10 @@ Copy `env.template` to `.env.local` and fill values:
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
 
+## Security & session setup
+
+- **Request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present. Session and authorization checks for account flows run in pages, Server Actions, and route handlers—not in the proxy alone.
+
 ## Tech stack
 
 - Next.js 16 (App Router)

@@ -136,12 +136,15 @@ export async function createItem(
       .select("id")
       .single();
 
-    if (error || !item) {
-      logger.error("Error creating item:", {
-        code: error?.code,
-        message: error?.message,
-        details: error?.details,
-      });
+    if (error) {
+      logger.logUnexpectedError("Error creating item", error);
+      return { success: false, error: "Failed to create task" };
+    }
+    if (!item) {
+      logger.logUnexpectedError(
+        "Error creating item",
+        new Error("Insert succeeded but no row returned")
+      );
       return { success: false, error: "Failed to create task" };
     }
 

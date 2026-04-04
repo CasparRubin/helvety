@@ -41,11 +41,9 @@ export class PageErrorBoundary extends React.Component<
 
   override componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     const errorMessage = error?.message || String(error);
-    logger.error("PageErrorBoundary caught an error:", {
-      error,
-      errorInfo,
-      errorMessage,
+    logger.logUnexpectedError("PageErrorBoundary caught render error", error, {
       componentStack: errorInfo.componentStack,
+      errorMessage,
     });
 
     // Trigger retry for PDF.js worker message handler errors

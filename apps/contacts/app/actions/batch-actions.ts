@@ -24,9 +24,7 @@ export interface ContactsDashboardData {
 
 /**
  * Batch fetch all data needed for the Contacts dashboard.
- * Performs a single auth + rate-limit check, then runs all DB queries in parallel.
- *
- * Replaces a single contacts list fetch with one auth/rate-limit check.
+ * Performs a single auth + rate-limit check, then loads the contacts list.
  */
 export async function getContactsDashboardData(): Promise<
   ActionResponse<ContactsDashboardData>
@@ -38,20 +36,19 @@ export async function getContactsDashboardData(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [contactsResult] = await Promise.all([
-      supabase
-        .from("contacts")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("sort_order", { ascending: true })
-        .limit(MAX_DASHBOARD_ROWS + 1)
-        .returns<ContactRow[]>(),
-    ]);
+    const contactsResult = await supabase
+      .from("contacts")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("sort_order", { ascending: true })
+      .limit(MAX_DASHBOARD_ROWS + 1)
+      .returns<ContactRow[]>();
 
     if (contactsResult.error) {
-      logger.error("Error in getContactsDashboardData:", {
-        contacts: contactsResult.error,
-      });
+      logger.logUnexpectedError(
+        "Error in getContactsDashboardData",
+        contactsResult.error
+      );
       return { success: false, error: "Failed to load dashboard data" };
     }
 

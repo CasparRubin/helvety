@@ -66,8 +66,8 @@ export async function generateMetadata({
  * No auth required - users can browse products without logging in.
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const { slug } = await params;
-  const nonce = (await headers()).get("x-nonce") ?? "";
+  const [{ slug }, headersList] = await Promise.all([params, headers()]);
+  const nonce = headersList.get("x-nonce") ?? "";
 
   const product = getProductBySlug(slug);
 

@@ -36,9 +36,10 @@ export async function getFlatItemsDashboardData(): Promise<
       .returns<ItemRow[]>();
 
     if (itemsResult.error) {
-      logger.error("Error in getFlatItemsDashboardData:", {
-        items: itemsResult.error,
-      });
+      logger.logUnexpectedError(
+        "Error in getFlatItemsDashboardData",
+        itemsResult.error
+      );
       return { success: false, error: "Failed to load dashboard data" };
     }
 

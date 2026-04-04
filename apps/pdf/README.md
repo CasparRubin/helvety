@@ -52,6 +52,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 This application includes the following security hardening:
 
+- **Session / request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers (including `worker-src`/`img-src` allowances needed for PDF.js), CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present. It is not the primary auth boundary for other apps; PDF itself stays usable without login.
 - **Security Headers** - CSP, HSTS, and other security headers
 - **Rate Limiting** - Request-level protections are applied by shared platform controls where relevant
 - **File Size Validation** - Maximum 100MB per file enforced client-side

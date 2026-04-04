@@ -182,9 +182,10 @@ export async function getAllNoteDataForExport(): Promise<
       .returns<ItemRow[]>();
 
     if (itemsError) {
-      logger.error("Error fetching note data for export:", {
-        items: itemsError,
-      });
+      logger.logUnexpectedError(
+        "Error fetching note data for export",
+        itemsError
+      );
       return { success: false, error: "Failed to fetch note data" };
     }
 
