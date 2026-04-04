@@ -51,7 +51,7 @@ The store root path (`/store`) redirects to `/store/products`. Browsing the cata
 - `artwork_3.png` - Alexandre Calame - in use
 - `artwork_4.png` - Ferdinand Hodler - in use
 - `artwork_5.png` - Rudolf Koller - in use
-- `artwork_6.png` - Helvety - in use (Power Automate extension product)
+- `artwork_6.png` - Rudolf Koller - in use (Power Automate extension product)
 
 ## Environment variables
 

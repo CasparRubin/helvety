@@ -234,7 +234,7 @@ const powerAutomateForceV3False: SoftwareProduct = {
   shortDescription:
     "A minimal Edge/Chrome extension that keeps Power Automate flow and run URLs on the classic editor by ensuring v3=false. Runs only on make.powerautomate.com.",
   image: "/store/artwork_6.png",
-  artist: "Helvety",
+  artist: "Rudolf Koller",
   description: `Power Automate Browser Extension is a small Manifest V3 extension for Microsoft Edge and Google Chrome. It only runs on https://make.powerautomate.com/ and adjusts URLs whose path contains /flows/ or /runs/ so they use v3=false, which keeps the classic Power Automate editor loading consistently.
 
 It adds v3=false when the parameter is missing and replaces v3=true when present. It relies on history.replaceState and History API hooks so behavior applies on first load, refresh, back/forward, and typical client-side navigation inside Power Automate.
