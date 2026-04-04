@@ -67,6 +67,23 @@ Copy `env.template` to `.env.local` and fill in values.
 
 **Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
 
+## Tech Stack
+
+This project is built with modern web technologies:
+
+- **[Next.js 16.x](https://nextjs.org/)** - React framework with App Router
+- **[React 19.x](https://react.dev/)** - UI library
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
+- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at helvety.com/auth)
+- **[Tiptap](https://tiptap.dev/)** - Headless WYSIWYG rich text editor
+- **[dnd kit](https://dndkit.com/)** - Drag and drop toolkit for React
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
+- **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
+- **[Lucide React](https://lucide.dev/)** - Icon library
+- **[Zod 4](https://zod.dev/)** - TypeScript-first schema validation
+- **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
+
 ## Testing
 
 Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment with type-checking enabled (shared config from `@helvety/config/vitest`). Run from `apps/notes`:

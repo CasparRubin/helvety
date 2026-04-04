@@ -117,4 +117,33 @@ describe("tasks batch-actions", () => {
     });
     expect(mocks.logUnexpectedError).not.toHaveBeenCalled();
   });
+
+  it("logs via logUnexpectedError when the query promise rejects", async () => {
+    const boom = new Error("network failure");
+    const returns = vi.fn().mockRejectedValue(boom);
+    const limit = vi.fn(() => ({ returns }));
+    const orderCreatedAt = vi.fn(() => ({ limit }));
+    const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
+    const eqUser = vi.fn(() => ({ order: orderSort }));
+    const select = vi.fn(() => ({ eq: eqUser }));
+    const from = vi.fn((table: string) => {
+      expect(table).toBe("items");
+      return { select };
+    });
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase: { from } },
+    });
+
+    const result = await getFlatItemsDashboardData();
+
+    expect(result).toEqual({
+      success: false,
+      error: "An unexpected error occurred",
+    });
+    expect(mocks.logUnexpectedError).toHaveBeenCalledWith(
+      "Unexpected error in getFlatItemsDashboardData",
+      boom
+    );
+  });
 });

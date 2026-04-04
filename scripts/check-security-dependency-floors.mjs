@@ -3,10 +3,10 @@ import path from "node:path";
 import process from "node:process";
 
 const SECURITY_FLOORS = {
-  next: "16.2.1",
+  next: "16.2.2",
   react: "19.2.4",
   "react-dom": "19.2.4",
-  "@supabase/supabase-js": "2.99.3",
+  "@supabase/supabase-js": "2.101.1",
   "@simplewebauthn/server": "13.3.0",
 };
 
