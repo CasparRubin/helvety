@@ -34,37 +34,6 @@ const EmailSchema = z
   .email("Invalid email format");
 
 /**
- * Get current user profile information
- */
-export async function getCurrentUser(): Promise<
-  ActionResponse<{
-    id: string;
-    email: string;
-    createdAt: string;
-  }>
-> {
-  try {
-    const auth = await authenticateAndRateLimit({
-      rateLimitPrefix: "acct",
-    });
-    if (!auth.ok) return auth.response;
-    const { user } = auth.ctx;
-
-    return {
-      success: true,
-      data: {
-        id: user.id,
-        email: user.email ?? "",
-        createdAt: user.created_at,
-      },
-    };
-  } catch (error) {
-    logger.logUnexpectedError("Error in getCurrentUser", error);
-    return { success: false, error: "An unexpected error occurred" };
-  }
-}
-
-/**
  * Update user email address
  * Supabase will send a confirmation email to the new address
  * The user must confirm both the old and new email addresses

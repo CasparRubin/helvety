@@ -26,7 +26,7 @@ function getNewestTimestamp(item: StorageListItem): number {
 // =============================================================================
 
 /**
- * Result of resolving the latest `.sppkg` file from storage.
+ * Result of resolving the latest package file from storage.
  */
 export interface ResolvedPackageVersion {
   /** Version string for display (currently from package config). */
@@ -36,8 +36,8 @@ export interface ResolvedPackageVersion {
 }
 
 /**
- * Resolve the latest `.sppkg` file from Supabase Storage for a package.
- * Lists the package folder and picks the newest file by timestamp.
+ * Resolve the latest package file from Supabase Storage for a package.
+ * Lists the package folder and picks the newest file matching `storageFileSuffix` by timestamp.
  *
  * @param packageId - Package identifier (e.g. "spo-explorer")
  * @returns Resolved version/path or null when package/listing/file lookup fails
@@ -49,6 +49,8 @@ export async function resolveLatestPackageVersion(
   if (!packageInfo) {
     return null;
   }
+
+  const suffixLower = packageInfo.storageFileSuffix.toLowerCase();
 
   const adminClient = createAdminClient();
   const { data: items, error } = await adminClient.storage
@@ -68,7 +70,7 @@ export async function resolveLatestPackageVersion(
     if (!name || typeof name !== "string") continue;
     // Exclude folders and keep only package files in this directory level.
     if (!item.id) continue;
-    if (!name.toLowerCase().endsWith(".sppkg")) continue;
+    if (!name.toLowerCase().endsWith(suffixLower)) continue;
     packageCandidates.push(item);
   }
 

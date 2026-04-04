@@ -1,16 +1,10 @@
 /**
- * Re-export shared crypto primitives to keep app crypto behavior consistent
- * across Tasks/Contacts/Notes and avoid drift.
+ * Re-export shared crypto primitives used by the Notes app.
  */
 export {
-  encrypt,
-  decrypt,
-  encryptObject,
-  decryptObject,
-  serializeEncryptedData,
-  parseEncryptedData,
-  isEncryptedData,
-  encryptFields,
-  decryptFields,
   buildAAD,
+  decrypt,
+  encrypt,
+  parseEncryptedData,
+  serializeEncryptedData,
 } from "@helvety/shared/crypto/encryption";

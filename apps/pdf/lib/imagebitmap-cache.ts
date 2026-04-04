@@ -223,24 +223,3 @@ export function getImageBitmapCache(
   cacheInstance ??= new ImageBitmapCache(maxSize, maxMemoryBytes);
   return cacheInstance;
 }
-
-/**
- * Generates a cache key for a PDF page render.
- *
- * @param fileUrl - PDF file URL
- * @param pageNumber - Page number
- * @param width - Render width
- * @param devicePixelRatio - Device pixel ratio
- * @param rotation - Rotation angle
- * @returns Cache key string
- */
-export function generateCacheKey(
-  fileUrl: string,
-  pageNumber: number,
-  width: number,
-  devicePixelRatio: number,
-  rotation: number
-): string {
-  // Create a stable key from render parameters
-  return `${fileUrl}:${pageNumber}:${width}:${devicePixelRatio}:${rotation}`;
-}

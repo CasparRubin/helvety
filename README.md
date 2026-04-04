@@ -10,15 +10,15 @@ Monorepo for all Helvety applications. Engineered & Designed in Switzerland.
 
 ## Apps
 
-| App                            | URL                                                  | Description                                                       |
-| ------------------------------ | ---------------------------------------------------- | ----------------------------------------------------------------- |
-| **[Web](apps/web/)**           | [helvety.com](https://helvety.com)                   | Gateway app (multi-zone rewrites), main website, legal pages      |
-| **[Auth](apps/auth/)**         | [helvety.com/auth](https://helvety.com/auth)         | Centralized passwordless authentication (email + passkey SSO)     |
-| **[Store](apps/store/)**       | [helvety.com/store](https://helvety.com/store)       | Product catalog with app listings and public package downloads    |
-| **[PDF](apps/pdf/)**           | [helvety.com/pdf](https://helvety.com/pdf)           | Client-side PDF toolkit (merge, reorder, rotate, extract)         |
-| **[Tasks](apps/tasks/)**       | [helvety.com/tasks](https://helvety.com/tasks)       | Task management with client-side encryption for sensitive data    |
-| **[Contacts](apps/contacts/)** | [helvety.com/contacts](https://helvety.com/contacts) | Contact management with client-side encryption for sensitive data |
-| **[Notes](apps/notes/)**       | [helvety.com/notes](https://helvety.com/notes)       | Note management with client-side encryption for sensitive data    |
+| App                            | URL                                                  | Description                                                                                  |
+| ------------------------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **[Web](apps/web/)**           | [helvety.com](https://helvety.com)                   | Gateway app (multi-zone rewrites), main website, legal pages                                 |
+| **[Auth](apps/auth/)**         | [helvety.com/auth](https://helvety.com/auth)         | Centralized passwordless authentication (email + passkey SSO)                                |
+| **[Store](apps/store/)**       | [helvety.com/store](https://helvety.com/store)       | Product catalog: web apps plus public downloads (e.g. SPFx packages, browser extension ZIPs) |
+| **[PDF](apps/pdf/)**           | [helvety.com/pdf](https://helvety.com/pdf)           | Client-side PDF toolkit (merge, reorder, rotate, extract)                                    |
+| **[Tasks](apps/tasks/)**       | [helvety.com/tasks](https://helvety.com/tasks)       | Task management with client-side encryption for sensitive data                               |
+| **[Contacts](apps/contacts/)** | [helvety.com/contacts](https://helvety.com/contacts) | Contact management with client-side encryption for sensitive data                            |
+| **[Notes](apps/notes/)**       | [helvety.com/notes](https://helvety.com/notes)       | Note management with client-side encryption for sensitive data                               |
 
 ## Shared Packages
 

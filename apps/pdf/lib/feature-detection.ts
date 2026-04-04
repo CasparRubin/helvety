@@ -8,7 +8,7 @@
  *
  * @returns True if OffscreenCanvas is supported, false otherwise
  */
-export function isOffscreenCanvasSupported(): boolean {
+function isOffscreenCanvasSupported(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
@@ -23,7 +23,7 @@ export function isOffscreenCanvasSupported(): boolean {
  *
  * @returns True if ImageBitmap is supported, false otherwise
  */
-export function isImageBitmapSupported(): boolean {
+function isImageBitmapSupported(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
@@ -36,7 +36,7 @@ export function isImageBitmapSupported(): boolean {
  *
  * @returns True if WebGL is supported, false otherwise
  */
-export function isWebGLSupported(): boolean {
+function isWebGLSupported(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
@@ -58,7 +58,7 @@ export function isWebGLSupported(): boolean {
  *
  * @returns True if WebGL2 is supported, false otherwise
  */
-export function isWebGL2Supported(): boolean {
+function isWebGL2Supported(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
@@ -76,7 +76,7 @@ export function isWebGL2Supported(): boolean {
  *
  * @returns True if transferControlToOffscreen is supported, false otherwise
  */
-export function isTransferControlToOffscreenSupported(): boolean {
+function isTransferControlToOffscreenSupported(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
@@ -94,7 +94,7 @@ export function isTransferControlToOffscreenSupported(): boolean {
  *
  * @returns True if createImageBitmap is supported, false otherwise
  */
-export function isCreateImageBitmapSupported(): boolean {
+function isCreateImageBitmapSupported(): boolean {
   if (typeof window === "undefined") {
     return false;
   }

@@ -8,8 +8,8 @@ Store URL: [https://helvety.com/store](https://helvety.com/store)
 
 ## Current scope
 
-- Product catalog with detail pages under `/store/products`
-- Public SPO Explorer package download (`.sppkg`) without account login
+- Product catalog (six listings: SaaS apps and downloadable packages) with detail pages under `/store/products`
+- Public package downloads (SPO Explorer `.sppkg`, Power Automate extension `.zip`) without account login
 - Account page (`/account`) for profile management and data rights tooling
 - Shared legal pages hosted on `helvety.com` (Privacy, Terms, Impressum)
 
@@ -29,16 +29,19 @@ services collect this non-EU/EEA location-attestation signal during sign-in on
 
 - `/store/products` - Browse all Helvety products
 - `/store/products/helvety-spo-explorer` - SPO Explorer page with direct package download
+- `/store/products/helvety-power-automate-force-v3-false` - Power Automate Browser Extension (ZIP) with install guide
 - `/store/api/packages/spo-explorer/download` - Public download endpoint for SPO Explorer
+- `/store/api/packages/power-automate-force-v3-false/download` - Public download endpoint for the Power Automate extension ZIP
 - `/store/account` - Optional signed-in account management
 
-The store root path (`/store`) redirects to `/store/products`. Browsing and SPO Explorer download do not require login.
+The store root path (`/store`) redirects to `/store/products`. Browsing the catalog and public package downloads (for example SPO Explorer `.sppkg` and the Power Automate extension `.zip`) do not require login.
 
-## SPO Explorer download behavior
+## Package download behavior
 
-- Package files are read from Supabase Storage bucket `packages` under `spfx/helvety-spo-explorer`.
-- The resolver selects the newest `.sppkg` using the latest of `created_at` and `updated_at`, then applies deterministic descending filename tie-break ordering.
-- If only one file exists (recommended: `helvety-spo-explorer.sppkg`), that file is returned directly.
+- Package files are read from Supabase Storage bucket `packages` (see `lib/packages/config.ts` for folder paths).
+- **SPO Explorer:** `spfx/helvety-spo-explorer` — the resolver selects the newest `.sppkg` by timestamp (then name).
+- **Power Automate extension:** `browserExtensions/power-automate-force-v3-false` — the resolver selects the newest `.zip` the same way.
+- If listing fails or is empty, the download action falls back to the configured `filename` under `storageFolderPath`.
 
 ## Artwork assets
 
@@ -48,6 +51,7 @@ The store root path (`/store`) redirects to `/store/products`. Browsing and SPO 
 - `artwork_3.png` - Alexandre Calame - in use
 - `artwork_4.png` - Ferdinand Hodler - in use
 - `artwork_5.png` - Rudolf Koller - in use
+- `artwork_6.png` - Helvety - in use (Power Automate extension product)
 
 ## Environment variables
 

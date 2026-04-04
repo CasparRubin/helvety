@@ -92,7 +92,7 @@ function detectErrorType(errorMessage: string): PdfErrorType {
  * @param context - Context string for the error (e.g., "Can't load 'filename.pdf':" or "Can't extract page:")
  * @returns A formatted and sanitized error message suitable for display to users
  */
-export function formatPdfError(error: unknown, context: string): string {
+function formatPdfError(error: unknown, context: string): string {
   const rawErrorMessage =
     error instanceof Error ? error.message : String(error);
   const sanitizedErrorMessage = sanitizeErrorMessage(rawErrorMessage);

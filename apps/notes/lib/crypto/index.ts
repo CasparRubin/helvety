@@ -1,84 +1,21 @@
 /**
- * E2EE Crypto Module - Public API
+ * E2EE Crypto Module - Public API for the Notes app.
  *
- * This module provides end-to-end encryption for user content.
- * Encryption/decryption is designed to happen client-side; plaintext should
- * not be intentionally sent to the server.
- *
- * Uses passkey-based (PRF) key derivation for secure, passwordless encryption.
- * Setup is handled by helvety.com/auth - this module only handles unlock and usage.
+ * End-to-end encryption runs client-side; plaintext is not intentionally sent
+ * to the server. Passkey (PRF) setup is handled by helvety.com/auth.
  */
 
-// Types
-export type {
-  EncryptedData,
-  PRFKeyParams,
-  StoredPasskey,
-  WrappedKey,
-} from "@helvety/shared/crypto/types";
-
-export { CryptoError, CryptoErrorType } from "@helvety/shared/crypto/types";
-
-// Encryption
-export {
-  encrypt,
-  decrypt,
-  encryptObject,
-  decryptObject,
-  serializeEncryptedData,
-  parseEncryptedData,
-  isEncryptedData,
-  encryptFields,
-  decryptFields,
-  buildAAD,
-} from "./encryption";
-
-// Key Storage
-export {
-  storeMasterKey,
-  getMasterKey,
-  deleteMasterKey,
-  clearAllKeys,
-  isStorageAvailable,
-  onKeyEvent,
-} from "@helvety/shared/crypto/key-storage";
-
-// Encoding Utilities
-export {
-  base64Encode,
-  base64Decode,
-  generateSalt,
-  generateIV,
-} from "@helvety/shared/crypto/encoding";
-
-// Context
 export {
   EncryptionProvider,
   useEncryptionContext,
 } from "@helvety/shared/crypto/encryption-context";
 
-// PRF Key Derivation (Passkey-based)
-export {
-  generatePRFParams,
-  getPRFSaltBytes,
-  deriveKeyFromPRF,
-  isPRFSupported,
-  getPRFSupportInfo,
-  PRF_VERSION,
-} from "@helvety/shared/crypto/prf-key-derivation";
-export type {
-  PRFKeyParams as PRFKeyParamsType,
-  PRFSupportInfo,
-} from "@helvety/shared/crypto/prf-key-derivation";
+export { buildAAD, decrypt, parseEncryptedData } from "./encryption";
 
-// Note-specific Encryption (Notes app only)
 export {
-  // Item encryption
-  encryptItemInput,
-  encryptItemUpdate,
+  decryptContactRows,
   decryptItemRow,
   decryptItemRows,
-  // Contact decryption (read-only)
-  decryptContactRow,
-  decryptContactRows,
+  encryptItemInput,
+  encryptItemUpdate,
 } from "./note-encryption";

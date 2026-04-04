@@ -27,7 +27,13 @@ export async function generateMetadata({
     return { title: "Product Not Found" };
   }
 
-  const ogImage = product.media?.screenshots?.[0];
+  const screenshot = product.media?.screenshots?.[0];
+  const ogImageUrl =
+    screenshot?.src ??
+    (product.image?.startsWith("/")
+      ? `${urls.home}${product.image}`
+      : undefined);
+  const ogImageAlt = screenshot?.alt ?? product.name;
 
   return {
     title: product.name,
@@ -40,16 +46,16 @@ export async function generateMetadata({
       title: `${product.name} | Helvety Store`,
       description: product.shortDescription,
       url: `${urls.store}/products/${product.slug}`,
-      ...(ogImage && {
-        images: [{ url: ogImage.src, alt: ogImage.alt }],
+      ...(ogImageUrl && {
+        images: [{ url: ogImageUrl, alt: ogImageAlt }],
       }),
     },
     twitter: {
       card: "summary_large_image",
       title: `${product.name} | Helvety Store`,
       description: product.shortDescription,
-      ...(ogImage && {
-        images: [{ url: ogImage.src, alt: ogImage.alt }],
+      ...(ogImageUrl && {
+        images: [{ url: ogImageUrl, alt: ogImageAlt }],
       }),
     },
   };
@@ -65,6 +71,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const product = getProductBySlug(slug);
 
+  const jsonLdImage =
+    product?.media?.screenshots?.[0]?.src ??
+    (product?.image?.startsWith("/")
+      ? `${urls.home}${product.image}`
+      : undefined);
+
   // Build Product JSON-LD structured data for search engines
   const productJsonLd = product
     ? {
@@ -77,9 +89,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           "@type": "Organization",
           name: "Helvety",
         },
-        ...(product.media?.screenshots?.[0] && {
-          image: product.media.screenshots[0].src,
-        }),
+        ...(jsonLdImage && { image: jsonLdImage }),
       }
     : null;
 
@@ -89,6 +99,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         <script
           type="application/ld+json"
           nonce={nonce}
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
       )}

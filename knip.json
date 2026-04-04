@@ -10,6 +10,16 @@
   "ignore": [
     "apps/pdf/public/pdf.worker.min.mjs",
     "packages/config/vitest.server-only-mock.ts",
-    "scripts/list-parent-transcripts.mjs"
-  ]
+    "scripts/list-parent-transcripts.mjs",
+    "apps/web/public/**/*.svg",
+    "**/vitest.setup.ts"
+  ],
+  "ignoreIssues": {
+    "packages/shared/src/types/database.types.ts": [
+      "exports",
+      "types",
+      "nsExports",
+      "nsTypes"
+    ]
+  }
 }

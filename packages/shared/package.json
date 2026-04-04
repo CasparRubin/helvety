@@ -81,6 +81,7 @@
     "react": "^19"
   },
   "devDependencies": {
+    "jsdom": "^29.0.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/react": "^19",
     "eslint": "^9.39.4",

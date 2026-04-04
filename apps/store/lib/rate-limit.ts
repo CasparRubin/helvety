@@ -9,9 +9,7 @@
  */
 
 // Re-export the shared rate-limit engine
-export { checkRateLimit, resetRateLimit } from "@helvety/shared/rate-limit";
-
-export type { RateLimitResult } from "@helvety/shared/rate-limit";
+export { checkRateLimit } from "@helvety/shared/rate-limit";
 
 /**
  * Store-specific rate limit configurations

@@ -24,7 +24,6 @@ import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { StoreNav } from "@/components/store-nav";
 
-import type { User } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 
 export const viewport = sharedViewport;
@@ -36,7 +35,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety Store",
   },
   description:
-    "Official Helvety Store for free and open-source Helvety apps. MIT licensed software engineered and designed in Switzerland.",
+    "Official Helvety Store for free and open-source Helvety apps and extensions. MIT licensed software engineered and designed in Switzerland.",
   keywords: [
     "Helvety Store",
     "software",
@@ -50,6 +49,9 @@ export const metadata: Metadata = {
     "MIT",
     "Swiss",
     "catalog",
+    "browser extension",
+    "SharePoint",
+    "power automate",
   ],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -66,7 +68,7 @@ export const metadata: Metadata = {
     siteName: "Helvety Store",
     title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store for free and open-source Helvety apps. MIT licensed software engineered and designed in Switzerland.",
+      "Official Helvety Store for free and open-source Helvety apps and extensions. MIT licensed software engineered and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -80,7 +82,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store for free and open-source Helvety apps. MIT licensed software engineered and designed in Switzerland.",
+      "Official Helvety Store for free and open-source Helvety apps and extensions. MIT licensed software engineered and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -106,7 +108,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout: NavbarWrapper provides fixed header, ScrollArea main with shared container gutters, fixed footer.
+ * Root layout: ThemeProvider wraps only the Navbar (next-themes injects a script; keep route content outside).
+ * ScrollArea main, StoreNav, and footer follow.
  */
 export default async function RootLayout({
   children,
@@ -126,6 +129,7 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           nonce={nonce}
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([
               createHelvetyOrganizationSchema(brandAssets.identifierPng),
@@ -135,54 +139,37 @@ export default async function RootLayout({
                 name: "Helvety Store",
                 url: urls.store,
                 description:
-                  "Official Helvety Store for free and open-source Helvety apps. MIT licensed software engineered and designed in Switzerland.",
+                  "Official Helvety Store for free and open-source Helvety apps and extensions. MIT licensed software engineered and designed in Switzerland.",
                 applicationCategory: "ShoppingApplication",
                 operatingSystem: "Any",
               },
             ]),
           }}
         />
-        <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
-          <AuthTokenHandler />
-          <TooltipProvider>
-            <Providers csrfToken={csrfToken}>
-              <NavbarWrapper initialUser={initialUser}>
-                {children}
-              </NavbarWrapper>
-            </Providers>
+        <TooltipProvider>
+          <Providers csrfToken={csrfToken}>
+            <AuthTokenHandler />
+            <div className="flex h-screen flex-col overflow-hidden">
+              <header className="shrink-0">
+                <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
+                  <Navbar initialUser={initialUser} />
+                </ThemeProvider>
+              </header>
+              <ScrollArea className="min-h-0 flex-1">
+                <div className="container mx-auto w-full px-4">
+                  <StoreNav initialUser={initialUser} />
+                  <main id="main-content" className="min-w-0">
+                    {children}
+                  </main>
+                </div>
+              </ScrollArea>
+              <Footer className="shrink-0" />
+            </div>
             <Toaster />
-          </TooltipProvider>
-        </ThemeProvider>
+          </Providers>
+        </TooltipProvider>
         <VercelAnalytics />
       </body>
     </html>
-  );
-}
-
-/**
- * Wraps content with fixed header (Navbar + StoreNav), ScrollArea main with shared container gutters, fixed footer.
- */
-async function NavbarWrapper({
-  children,
-  initialUser,
-}: {
-  children: React.ReactNode;
-  initialUser: User | null;
-}) {
-  return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      <header className="shrink-0">
-        <Navbar initialUser={initialUser} />
-      </header>
-      <ScrollArea className="min-h-0 flex-1">
-        <div className="container mx-auto w-full px-4">
-          <StoreNav initialUser={initialUser} />
-          <main id="main-content" className="min-w-0">
-            {children}
-          </main>
-        </div>
-      </ScrollArea>
-      <Footer className="shrink-0" />
-    </div>
   );
 }

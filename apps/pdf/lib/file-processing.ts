@@ -68,7 +68,7 @@ function evictLRUEntry(
  *
  * @returns A unique identifier string
  */
-export function generateFileId(): string {
+function generateFileId(): string {
   return crypto.randomUUID();
 }
 

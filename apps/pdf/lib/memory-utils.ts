@@ -36,7 +36,7 @@ function hasMemoryProperty(perf: Performance): perf is PerformanceWithMemory {
  *
  * @returns Memory information object or null if not available
  */
-export function getMemoryInfo(): MemoryInfo | null {
+function getMemoryInfo(): MemoryInfo | null {
   if (typeof window === "undefined" || !window.performance) {
     return null;
   }

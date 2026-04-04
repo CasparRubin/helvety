@@ -3,7 +3,12 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { ArtistBadge, ProductBadge, StatusBadge } from "./product-badge";
+import {
+  ArtistBadge,
+  ProductBadge,
+  ReleaseDateBadge,
+  StatusBadge,
+} from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
 
@@ -31,7 +36,7 @@ export function ProductCard({
       {/* Outer layer: artwork background frame */}
       <div
         className={cn(
-          "group ring-foreground/10 relative flex min-h-[420px] flex-col overflow-hidden rounded-xl shadow-xs ring-1 transition-shadow hover:shadow-lg",
+          "group ring-foreground/10 relative flex min-h-[400px] flex-col overflow-hidden rounded-xl shadow-xs ring-1 transition-shadow hover:shadow-lg",
           className
         )}
       >
@@ -52,6 +57,12 @@ export function ProductCard({
           {product.status !== "available" && (
             <StatusBadge status={product.status} />
           )}
+          {product.metadata?.releaseDate && (
+            <ReleaseDateBadge
+              isoDate={product.metadata.releaseDate}
+              showIcon={false}
+            />
+          )}
           {product.artist && (
             <ArtistBadge artist={product.artist} showIcon={false} />
           )}
@@ -59,32 +70,23 @@ export function ProductCard({
 
         {/* Inner layer: solid content panel */}
         <div className="bg-card/95 relative mx-3 mt-auto mb-3 flex flex-col rounded-lg shadow-sm backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-1">
-          {/* Header: name */}
-          <div className="px-5 pt-5">
-            <h3 className="text-card-foreground line-clamp-1 text-lg leading-tight font-semibold">
-              {product.name}
-            </h3>
-          </div>
-
           {/* Description: hidden at rest, revealed on hover */}
           <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-hover:grid-rows-[1fr]">
             <div className="overflow-hidden">
-              <p className="text-muted-foreground line-clamp-4 px-5 pt-3 text-sm leading-relaxed">
+              <p className="text-muted-foreground line-clamp-4 px-5 pt-4 text-sm leading-relaxed">
                 {product.shortDescription}
               </p>
             </div>
           </div>
 
-          {/* Footer: access model + CTA */}
-          <div className="flex items-center justify-between gap-4 px-5 pt-4 pb-5">
-            <div className="text-sm font-medium">
-              <span className="text-green-600 dark:text-green-400">
-                Free & open source
-              </span>
-            </div>
+          {/* Title and CTA on one row */}
+          <div className="flex items-center justify-between gap-3 px-5 py-4">
+            <h3 className="text-card-foreground min-w-0 flex-1 truncate text-lg leading-tight font-semibold">
+              {product.name}
+            </h3>
             <span
               className={cn(
-                "inline-flex h-8 items-center gap-1 rounded-md px-2.5 text-sm font-medium",
+                "inline-flex shrink-0 items-center gap-1 text-sm font-medium",
                 "text-card-foreground/80 transition-colors",
                 "group-hover:text-card-foreground"
               )}

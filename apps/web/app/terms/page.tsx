@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="March 29, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="April 4, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -75,7 +75,7 @@ export default function TermsPage() {
                   href="#enterprise-extensions"
                   className="hover:text-foreground transition-colors"
                 >
-                  4.5 Enterprise Software Extensions
+                  4.5 Software extensions and downloadable packages
                 </a>
               </li>
             </ul>
@@ -418,12 +418,13 @@ export default function TermsPage() {
         </p>
 
         <h3 id="enterprise-extensions" className="mb-3 text-lg font-medium">
-          4.5 Enterprise Software Extensions
+          4.5 Software extensions and downloadable packages
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Certain products (such as the Helvety SPO Explorer for SharePoint
-          Online) are software extensions designed for organizational use. The
-          following additional terms apply to these products:
+          Certain products are distributed as extensions or downloadable
+          packages (for example Helvety SPO Explorer for SharePoint Online, or
+          the Power Automate Browser Extension for supported Chromium-based
+          browsers). The following additional terms apply to these products:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -432,9 +433,11 @@ export default function TermsPage() {
             described on the relevant product page.
           </li>
           <li>
-            <strong className="text-foreground">Deployment Context:</strong> You
-            remain responsible for configuring your SharePoint environment
-            according to Microsoft guidance and your internal governance rules.
+            <strong className="text-foreground">Deployment context:</strong> You
+            remain responsible for deploying and configuring them in line with
+            Microsoft or browser-vendor guidance, your organization&apos;s
+            governance rules (where applicable), and the instructions on the
+            relevant product page.
           </li>
           <li>
             <strong className="text-foreground">Support:</strong> Support
@@ -907,6 +910,13 @@ export default function TermsPage() {
           <li>
             <strong className="text-foreground">Helvety PDF</strong> can be used
             without account login in its standard no-account flow.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety Store</strong> lists web
+            apps and downloadable packages. Public package downloads (for
+            example SharePoint .sppkg files and browser-extension ZIP archives)
+            are available without account login unless a specific flow
+            explicitly requires sign-in.
           </li>
           <li>
             <strong className="text-foreground">

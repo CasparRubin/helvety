@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="March 29, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="April 4, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -277,10 +277,17 @@ export default function PrivacyPage() {
           communication, including your email address and message content.
         </p>
 
-        <h3 className="mb-3 text-lg font-medium">2.5 Extension Usage Data</h3>
+        <h3 className="mb-3 text-lg font-medium">
+          2.5 Extension and packaged software usage
+        </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          For SharePoint extensions, limited technical data may be processed to
-          provide extension functionality and reliability. This data:
+          For Helvety extensions and other installable packages offered through
+          the Store (including SharePoint Framework solutions and browser
+          extensions), functionality runs in your SharePoint tenant or on your
+          device. Helvety may still process limited technical data to operate
+          the Store, deliver downloads, and maintain reliability. Microsoft 365,
+          Power Automate, or your browser vendor may process additional data
+          under their own terms. This data:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>Is primarily technical context needed for extension operation</li>
@@ -315,8 +322,9 @@ export default function PrivacyPage() {
             abuse prevention.
           </li>
           <li>
-            <strong className="text-foreground">Extension Use:</strong> Certain
-            technical context may be needed for enterprise extension operation.
+            <strong className="text-foreground">Extension use:</strong> Certain
+            technical context may be needed for SharePoint-hosted extensions,
+            browser extensions, or related packaged software.
           </li>
           <li>
             <strong className="text-foreground">Communication:</strong>{" "}
@@ -402,8 +410,11 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Helvety Store (helvety.com/store):
             </strong>{" "}
-            User profile (email), product/access records, and IP address (for
-            security and rate limiting).
+            You can browse the catalog and use public package downloads without
+            an account. We may still process IP address and related technical
+            metadata for security, rate limiting, and abuse prevention. When you
+            are signed in, we may also process user profile (email) and
+            product/access records.
           </li>
           <li>
             <strong className="text-foreground">

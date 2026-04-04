@@ -13,8 +13,10 @@ export interface PackageInfo {
   version: string;
   /** Original filename for the download */
   filename: string;
-  /** Folder in Supabase Storage bucket `packages` that contains `.sppkg` files. */
+  /** Folder in Supabase Storage bucket `packages` that contains package files. */
   storageFolderPath: string;
+  /** File extension to match in storage (e.g. ".sppkg", ".zip"), case-insensitive. */
+  storageFileSuffix: string;
   /** Product ID this package belongs to */
   productId: string;
   /** Human-readable product name */
@@ -25,15 +27,25 @@ export interface PackageInfo {
 
 /**
  * Package configuration for all downloadable products.
- * The download resolver picks the latest `.sppkg` from each package folder at runtime.
+ * The download resolver picks the newest matching file in each folder at runtime.
  */
-export const PACKAGE_CONFIG: Record<string, PackageInfo> = {
+const PACKAGE_CONFIG: Record<string, PackageInfo> = {
   "spo-explorer": {
     version: "1.0.0.4",
     filename: "helvety-spo-explorer.sppkg",
     storageFolderPath: "spfx/helvety-spo-explorer",
+    storageFileSuffix: ".sppkg",
     productId: "helvety-spo-explorer",
     productName: "Helvety SPO Explorer",
+    isPublic: true,
+  },
+  "power-automate-force-v3-false": {
+    version: "1.0.0",
+    filename: "power-automate-force-v3-false.zip",
+    storageFolderPath: "browserExtensions/power-automate-force-v3-false",
+    storageFileSuffix: ".zip",
+    productId: "helvety-power-automate-force-v3-false",
+    productName: "Power Automate Browser Extension",
     isPublic: true,
   },
 } as const;

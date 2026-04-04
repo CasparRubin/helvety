@@ -214,29 +214,3 @@ export const FILENAME_LIMITS = {
   /** Default filename when sanitization results in empty or invalid name */
   DEFAULT_NAME: "download",
 } as const;
-
-/**
- * ImageBitmap cache configuration
- */
-export const IMAGEBITMAP_CACHE = {
-  /** Maximum number of ImageBitmap entries to cache (desktop) */
-  MAX_CACHED_IMAGES: 50,
-  /** Maximum number of ImageBitmap entries to cache (mobile) */
-  MOBILE_MAX_CACHED_IMAGES: 20,
-  /** Maximum memory for ImageBitmap cache in bytes (200MB) */
-  MAX_MEMORY_BYTES: 200 * 1024 * 1024,
-  /** Maximum memory for ImageBitmap cache on mobile in bytes (100MB) */
-  MOBILE_MAX_MEMORY_BYTES: 100 * 1024 * 1024,
-} as const;
-
-/**
- * Rendering configuration
- */
-export const RENDERING = {
-  /** Timeout for worker rendering operations (ms) */
-  WORKER_RENDER_TIMEOUT: 30000,
-  /** Delay before retrying failed worker renders (ms) */
-  WORKER_RETRY_DELAY: 1000,
-  /** Maximum retry attempts for worker rendering */
-  MAX_WORKER_RETRIES: 3,
-} as const;

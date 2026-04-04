@@ -85,6 +85,25 @@ describe("GET /api/packages/[packageId]/download", () => {
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
   });
 
+  it("redirects for power-automate-force-v3-false package id", async () => {
+    mocks.getPackageDownloadUrl.mockResolvedValue({
+      success: true,
+      data: { downloadUrl: "https://download.example/extension.zip" },
+    });
+
+    const response = await GET(new Request("https://helvety.com") as never, {
+      params: Promise.resolve({ packageId: "power-automate-force-v3-false" }),
+    });
+
+    expect(response.status).toBe(307);
+    expect(mocks.getPackageDownloadUrl).toHaveBeenCalledWith(
+      "power-automate-force-v3-false"
+    );
+    expect(response.headers.get("location")).toBe(
+      "https://download.example/extension.zip"
+    );
+  });
+
   it("returns 404 json for action failures", async () => {
     mocks.getPackageDownloadUrl.mockResolvedValue({
       success: false,

@@ -5,7 +5,6 @@ import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
 const LEGAL_BASE = urls.home;
-const DAY_IN_MS = 86_400_000;
 
 const linkClass = "hover:text-muted-foreground transition-colors";
 
@@ -42,21 +41,7 @@ export function Footer({
     rel?: string;
   }) => React.ReactNode;
 }) {
-  const [currentYear, setCurrentYear] = React.useState(() =>
-    new Date().getFullYear()
-  );
-
-  React.useEffect(() => {
-    const syncCurrentYear = () => {
-      setCurrentYear(new Date().getFullYear());
-    };
-
-    const intervalId = window.setInterval(syncCurrentYear, DAY_IN_MS);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, []);
+  const currentYear = new Date().getFullYear();
 
   const link = (href: string, label: string) => {
     const fullHref = external ? `${LEGAL_BASE}${href}` : href;

@@ -71,7 +71,3 @@ export function recordPipelineMetric(
   writeStoredMetrics(next);
   logger.log("PDF pipeline metric:", fullMetric);
 }
-
-export function getPipelineMetricsSnapshot(): ReadonlyArray<PipelineMetric> {
-  return readStoredMetrics();
-}

@@ -1,61 +1,8 @@
 /**
  * File validation utilities for PDFs and images.
  * Provides consistent validation logic and error messages.
- * Uses magic number checks for additional security.
  * Enforces maximum file size (100MB).
  */
-
-/**
- * PDF magic number (file signature): %PDF
- */
-const PDF_MAGIC_NUMBER = new Uint8Array([0x25, 0x50, 0x44, 0x46]); // "%PDF"
-
-/**
- * PNG magic number: 89 50 4E 47 0D 0A 1A 0A
- */
-const PNG_MAGIC_NUMBER = new Uint8Array([
-  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
-]);
-
-/**
- * JPEG magic number: FF D8 FF
- */
-const JPEG_MAGIC_NUMBER = new Uint8Array([0xff, 0xd8, 0xff]);
-
-/**
- * GIF magic number: 47 49 46 38 (GIF8)
- */
-const GIF_MAGIC_NUMBER = new Uint8Array([0x47, 0x49, 0x46, 0x38]); // "GIF8"
-
-/**
- * WebP magic number: RIFF ... WEBP
- */
-const WEBP_MAGIC_NUMBER = new Uint8Array([0x52, 0x49, 0x46, 0x46]); // "RIFF"
-
-/**
- * Checks if the file's magic number matches the expected signature.
- *
- * @param file - The file to check
- * @param expectedMagicNumber - The expected magic number bytes
- * @returns Promise that resolves to true if magic number matches
- */
-async function verifyMagicNumber(
-  file: File,
-  expectedMagicNumber: Uint8Array
-): Promise<boolean> {
-  try {
-    const buffer = await file
-      .slice(0, expectedMagicNumber.length)
-      .arrayBuffer();
-    const bytes = new Uint8Array(buffer);
-    return (
-      bytes.length >= expectedMagicNumber.length &&
-      expectedMagicNumber.every((byte, index) => bytes[index] === byte)
-    );
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Type guard to check if a file is a PDF based on validation.
@@ -143,47 +90,7 @@ function getFileExtension(filename: string): string {
 }
 
 /**
- * Validates if a file type is a valid PDF.
- * Checks MIME type, extension, and optionally magic number.
- *
- * Security: Magic number validation is enabled by default to prevent MIME type spoofing.
- *
- * @param file - The file to validate
- * @param checkMagicNumber - Whether to verify the PDF magic number (default: true for security)
- * @returns Promise that resolves to true if the file is a valid PDF, false otherwise
- */
-export async function isValidPdfFile(
-  file: File,
-  checkMagicNumber: boolean = true
-): Promise<boolean> {
-  const mimeType = file.type.toLowerCase();
-  const extension = getFileExtension(file.name);
-
-  // Check MIME type
-  if (VALID_PDF_MIME_TYPES.has(mimeType)) {
-    // If magic number check is requested, verify file signature
-    if (checkMagicNumber) {
-      return await verifyMagicNumber(file, PDF_MAGIC_NUMBER);
-    }
-    return true;
-  }
-
-  // Fallback to extension check if MIME type is missing or generic
-  if (!mimeType || mimeType === "application/octet-stream") {
-    if (VALID_PDF_EXTENSIONS.has(extension)) {
-      // If magic number check is requested, verify file signature
-      if (checkMagicNumber) {
-        return await verifyMagicNumber(file, PDF_MAGIC_NUMBER);
-      }
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Synchronous version of isValidPdfFile that doesn't check magic numbers.
+ * Synchronous PDF check from MIME type and extension.
  * Use this when you need a quick check without async overhead.
  *
  * @param file - The file to validate
@@ -207,70 +114,7 @@ export function isValidPdfFileSync(file: File): boolean {
 }
 
 /**
- * Validates if a file type is a valid image.
- * Checks MIME type, extension, and optionally magic number.
- *
- * Security: Magic number validation is enabled by default to prevent MIME type spoofing.
- *
- * @param file - The file to validate
- * @param checkMagicNumber - Whether to verify the image magic number (default: true for security)
- * @returns Promise that resolves to true if the file is a valid image, false otherwise
- */
-export async function isValidImageFile(
-  file: File,
-  checkMagicNumber: boolean = true
-): Promise<boolean> {
-  const mimeType = file.type.toLowerCase();
-  const extension = getFileExtension(file.name);
-
-  // Check MIME type
-  if (mimeType && VALID_IMAGE_MIME_TYPES.has(mimeType)) {
-    // If magic number check is requested, verify file signature
-    if (checkMagicNumber) {
-      const magicNumbers = [
-        { type: "png", magic: PNG_MAGIC_NUMBER },
-        { type: "jpeg", magic: JPEG_MAGIC_NUMBER },
-        { type: "gif", magic: GIF_MAGIC_NUMBER },
-        { type: "webp", magic: WEBP_MAGIC_NUMBER },
-      ];
-
-      for (const { magic } of magicNumbers) {
-        if (await verifyMagicNumber(file, magic)) {
-          return true;
-        }
-      }
-      return false;
-    }
-    return true;
-  }
-
-  // Fallback to extension check if MIME type is missing or generic
-  if (!mimeType || mimeType === "application/octet-stream") {
-    if (VALID_IMAGE_EXTENSIONS.has(extension)) {
-      // If magic number check is requested, verify file signature
-      if (checkMagicNumber) {
-        const magicNumbers = [
-          { ext: ".png", magic: PNG_MAGIC_NUMBER },
-          { ext: ".jpg", magic: JPEG_MAGIC_NUMBER },
-          { ext: ".jpeg", magic: JPEG_MAGIC_NUMBER },
-          { ext: ".gif", magic: GIF_MAGIC_NUMBER },
-          { ext: ".webp", magic: WEBP_MAGIC_NUMBER },
-        ];
-
-        const matchingMagic = magicNumbers.find((m) => extension === m.ext);
-        if (matchingMagic) {
-          return await verifyMagicNumber(file, matchingMagic.magic);
-        }
-      }
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Synchronous version of isValidImageFile that doesn't check magic numbers.
+ * Synchronous image check from MIME type and extension.
  * Use this when you need a quick check without async overhead.
  *
  * @param file - The file to validate

@@ -144,20 +144,6 @@ function normalizeToMonthly(
 // =============================================================================
 
 /**
- * Return all tiers for the product.
- * Note: interval filtering is not currently applied in this implementation.
- * @param pricing
- * @param interval
- */
-export function getTiersByInterval(
-  pricing: ProductPricing,
-  interval: "monthly" | "yearly"
-): PricingTier[] {
-  void interval;
-  return pricing.tiers;
-}
-
-/**
  * Get the free tier if available
  * @param pricing
  */

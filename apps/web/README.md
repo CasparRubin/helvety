@@ -19,7 +19,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 ## Features
 
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes)
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes). Downloadable extensions (SharePoint packages, browser ZIPs) are listed on the Store.
 - **Sign in** - Sign in when not authenticated (centralized auth)
 - **Profile menu** - When signed in: user email, links to Store Account, Sign out
 - **Dark & Light mode** - Switch between dark and light themes

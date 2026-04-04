@@ -31,7 +31,8 @@ export function createHelvetyOrganizationSchema(logoUrl: string) {
     name: "Helvety",
     url: urls.home,
     logo: logoUrl,
-    description: "Products and apps engineered and designed in Switzerland.",
+    description:
+      "Products, apps, and extensions engineered and designed in Switzerland.",
     sameAs: HELVETY_SAME_AS_URLS,
   };
 }

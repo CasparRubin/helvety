@@ -1,5 +1,1 @@
-export {
-  getLucideIcon,
-  renderIcon as renderStageIcon,
-  type LucideIconComponent,
-} from "@helvety/ui/icon-renderer";
+export { renderIcon as renderStageIcon } from "@helvety/ui/icon-renderer";

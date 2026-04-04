@@ -151,7 +151,7 @@ export async function encryptItemUpdate(
  * Notes content is NOT decrypted; only a `has_notes` boolean flag is derived
  * from whether encrypted_notes is non-null.
  */
-export async function decryptContactRow(
+async function decryptContactRow(
   row: ContactRow,
   key: CryptoKey
 ): Promise<Contact> {

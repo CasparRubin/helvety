@@ -78,4 +78,46 @@ describe("resolveLatestPackageVersion", () => {
       storagePath: "spfx/helvety-spo-explorer/b.sppkg",
     });
   });
+
+  it("selects the newest .zip by timestamp for browser extension packages", async () => {
+    mocks.list.mockResolvedValue({
+      data: [
+        {
+          name: "readme.txt",
+          id: "x0",
+          created_at: "2026-04-01T10:00:00.000Z",
+        },
+        {
+          name: "power-automate-force-v3-false-old.zip",
+          id: "x1",
+          created_at: "2026-04-02T10:00:00.000Z",
+        },
+        {
+          name: "power-automate-force-v3-false.zip",
+          id: "x2",
+          created_at: "2026-04-04T10:00:00.000Z",
+          updated_at: "2026-04-04T10:00:00.000Z",
+        },
+        { name: "subfolder", id: null },
+      ],
+      error: null,
+    });
+
+    const result = await resolveLatestPackageVersion(
+      "power-automate-force-v3-false"
+    );
+
+    expect(mocks.list).toHaveBeenCalledWith(
+      "browserExtensions/power-automate-force-v3-false",
+      {
+        limit: 500,
+        sortBy: { column: "name", order: "asc" },
+      }
+    );
+    expect(result).toEqual({
+      version: "1.0.0",
+      storagePath:
+        "browserExtensions/power-automate-force-v3-false/power-automate-force-v3-false.zip",
+    });
+  });
 });

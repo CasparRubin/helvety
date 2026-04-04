@@ -81,6 +81,31 @@ describe("store download-actions", () => {
     );
   });
 
+  it("creates a signed URL for the Power Automate extension zip package", async () => {
+    mocks.resolveLatestPackageVersion.mockResolvedValue({
+      version: "1.0.0",
+      storagePath:
+        "browserExtensions/power-automate-force-v3-false/power-automate-force-v3-false.zip",
+    });
+
+    const result = await getPackageDownloadUrl("power-automate-force-v3-false");
+
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      throw new Error("Expected successful download URL response");
+    }
+    expect(result.data).toEqual({
+      downloadUrl: "https://download.example/signed",
+      filename: "power-automate-force-v3-false.zip",
+      version: "1.0.0",
+    });
+    expect(mocks.createSignedUrl).toHaveBeenCalledWith(
+      "browserExtensions/power-automate-force-v3-false/power-automate-force-v3-false.zip",
+      60,
+      { download: "power-automate-force-v3-false.zip" }
+    );
+  });
+
   it("falls back to configured filename path when resolver returns null", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue(null);
 

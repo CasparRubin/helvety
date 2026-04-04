@@ -28,7 +28,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="March 29, 2026"
+        lastReviewed="April 4, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -115,11 +115,12 @@ export default function ImpressumPage() {
         <p className="text-muted-foreground text-sm">
           Helvety by Rubin develops and offers software products and web
           applications, including Helvety SPO Explorer (SharePoint extension),
-          Helvety PDF, Helvety Tasks (encrypted task management), Helvety
-          Contacts (encrypted contact management), and Helvety Notes (encrypted
-          notes management). Helvety apps are offered free of charge and are
-          open source under the MIT License in the corresponding repositories.
-          Our products are primarily designed and developed in Switzerland.
+          the Power Automate Browser Extension (Edge and Chrome), Helvety PDF,
+          Helvety Tasks (encrypted task management), Helvety Contacts (encrypted
+          contact management), and Helvety Notes (encrypted notes management).
+          Helvety apps are offered free of charge and are open source under the
+          MIT License in the corresponding repositories. Our products are
+          primarily designed and developed in Switzerland.
         </p>
       </LegalSection>
 

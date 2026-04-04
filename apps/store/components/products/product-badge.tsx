@@ -5,7 +5,9 @@
 
 import { cn } from "@helvety/shared/utils";
 import { Badge } from "@helvety/ui/badge";
-import { Cloud, Download, Package, Palette } from "lucide-react";
+import { Calendar, Cloud, Download, Package, Palette } from "lucide-react";
+
+import { formatStoreReleaseDate } from "@/lib/utils/format-release-date";
 
 import type { ProductType, ProductStatus } from "@/lib/types/products";
 
@@ -107,6 +109,33 @@ interface ArtistBadgeProps {
   artist: string;
   className?: string;
   showIcon?: boolean;
+}
+
+/** Props for the release date badge (YYYY-MM-DD in product metadata). */
+interface ReleaseDateBadgeProps {
+  isoDate: string;
+  className?: string;
+  showIcon?: boolean;
+}
+
+/** Renders a catalog release date badge. */
+export function ReleaseDateBadge({
+  isoDate,
+  className,
+  showIcon = true,
+}: ReleaseDateBadgeProps) {
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        "border-sky-500/40 bg-sky-600/90 text-white dark:bg-sky-500/90",
+        className
+      )}
+    >
+      {showIcon && <Calendar className="size-3" />}
+      {formatStoreReleaseDate(isoDate)}
+    </Badge>
+  );
 }
 
 /** Renders a badge showing artwork credit as "Art by <name>". */

@@ -174,7 +174,10 @@ export interface ProductMetadata {
   platforms?: string[];
   /** Version number */
   version?: string;
-  /** Release date */
+  /**
+   * Release date for catalog sort (newest first). Use calendar ISO `YYYY-MM-DD`
+   * (UTC semantics when formatting for display).
+   */
   releaseDate?: string;
   /** SEO keywords */
   keywords?: string[];
@@ -224,6 +227,12 @@ export interface PhysicalProduct extends Product {
 // SOFTWARE PRODUCT EXTENSIONS
 // =============================================================================
 
+/** One step in the product installation guide (software products). */
+export interface SoftwareInstallationStep {
+  title: string;
+  description: string;
+}
+
 /**
  * Additional fields for downloadable software
  */
@@ -238,6 +247,13 @@ export interface SoftwareProductDetails {
   requirements?: string[];
   /** License type */
   licenseType?: "free" | "perpetual";
+  /**
+   * When set, the store serves downloads at
+   * `/store/api/packages/{publicPackageId}/download`.
+   */
+  publicPackageId?: string;
+  /** Step-by-step installation copy for the product detail page */
+  installationSteps?: SoftwareInstallationStep[];
 }
 
 /**
@@ -302,7 +318,7 @@ export interface ProductFilters {
   /** Only show featured products */
   featured?: boolean;
   /** Sort field */
-  sortBy?: "name" | "price" | "createdAt" | "sortOrder";
+  sortBy?: "name" | "price" | "createdAt" | "sortOrder" | "releaseDate";
   /** Sort direction */
   sortOrder?: "asc" | "desc";
 }

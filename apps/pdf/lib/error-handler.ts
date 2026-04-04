@@ -11,7 +11,7 @@ import { createPdfErrorInfo, type PdfErrorInfo } from "./pdf-errors";
 /**
  * Error handler callback type for setting errors in components.
  */
-export type ErrorSetter = (error: string | null) => void;
+type ErrorSetter = (error: string | null) => void;
 
 /**
  * Handles an error by creating structured error info and calling the error setter.
@@ -51,25 +51,4 @@ export function handleError(
 
   onError(errorInfo.message);
   return errorInfo;
-}
-
-/**
- * Type guard to check if an error is not null or undefined.
- * Provides a more specific type than the generic NonNullable check.
- *
- * @param error - The error to check (can be Error, string, or unknown)
- * @returns True if error is not null or undefined, narrowing the type to Error | string | object
- *
- * @example
- * ```typescript
- * if (isErrorDefined(error)) {
- *   // error is now typed as Error | string | object (not null/undefined)
- *   const message = error instanceof Error ? error.message : String(error)
- * }
- * ```
- */
-export function isErrorDefined(
-  error: unknown
-): error is Error | string | object {
-  return error !== null && error !== undefined;
 }
