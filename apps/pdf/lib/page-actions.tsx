@@ -32,7 +32,7 @@ import type { ReactNode } from "react";
  * @property className - Optional CSS class name
  * @property variant - Optional button variant style
  */
-export interface PageAction {
+interface PageAction {
   icon: ReactNode;
   onClick: () => void;
   ariaLabel: string;
@@ -47,7 +47,7 @@ export interface PageAction {
  * Parameters for creating page actions.
  * Contains all callbacks and state needed to generate action buttons.
  */
-export interface CreatePageActionsParams {
+interface CreatePageActionsParams {
   index: number;
   unifiedPageNumber: number;
   totalPages: number;

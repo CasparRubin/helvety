@@ -1,5 +1,5 @@
 /** Lower bound for email OTP length (matches Supabase / server validation). */
-export const OTP_CODE_MIN_LENGTH = 6;
+const OTP_CODE_MIN_LENGTH = 6;
 /** Upper bound for email OTP length. */
 export const OTP_CODE_MAX_LENGTH = 8;
 

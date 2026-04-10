@@ -34,6 +34,7 @@
     "deps:outdated": "bun outdated",
     "deps:check": "knip --no-progress --include files,dependencies",
     "knip:exports": "knip --no-progress --include exports,types",
+    "deps:unused": "bun run deps:check && bun run knip:exports",
     "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"
   },
   "overrides": {
@@ -51,10 +52,10 @@
     "picomatch": "2.3.2"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.2",
-    "knip": "^6.3.0",
-    "prettier": "^3.8.1",
+    "@vitest/coverage-v8": "^4.1.4",
+    "knip": "^6.3.1",
+    "prettier": "^3.8.2",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "turbo": "^2.9.3"
+    "turbo": "^2.9.5"
   }
 }

@@ -8,7 +8,7 @@
 // =============================================================================
 
 /** Configuration for a downloadable package product */
-export interface PackageInfo {
+interface PackageInfo {
   /** Display version fallback (resolver may return file-derived info). */
   version: string;
   /** Original filename for the download */

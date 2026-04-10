@@ -14,7 +14,7 @@ import type { RequiredAuthStep } from "@/lib/auth-step";
 const NOT_AUTHENTICATED = "Not authenticated";
 
 /** Outcome of probing passkey + encryption readiness for the current session. */
-export type AuthStepProbeResult =
+type AuthStepProbeResult =
   | {
       status: "ok";
       step: RequiredAuthStep;

@@ -79,13 +79,13 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   missing_client_ip: "We couldn't verify your connection. Please try again.",
   server_error: "Authentication is temporarily unavailable. Please try again.",
   invalid_type:
-    "This sign-in link is invalid or no longer supported. Request a new verification code.",
+    "This verification link is invalid or expired. Please start again from the app.",
   invalid_otp_type:
-    "This sign-in link is invalid or no longer supported. Request a new verification code.",
+    "This verification link is invalid or expired. Please start again from the app.",
 };
 
 /** Return type of the useLoginFlow hook */
-export interface LoginFlowState {
+interface LoginFlowState {
   step: LoginStep;
   email: string;
   setEmail: (email: string) => void;
@@ -396,7 +396,7 @@ export function useLoginFlow(): LoginFlowState {
     };
   }, [supabase, step, redirectUri, forceLogin]);
 
-  // Handle email submission and always continue with OTP.
+  // Handle email submission; on success continue to OTP verification.
   const handleEmailSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -408,7 +408,9 @@ export function useLoginFlow(): LoginFlowState {
           nonEUEEAConfirmed,
         });
         if (!result.success) {
-          const msg = result.error ?? "Failed to send verification email";
+          const msg =
+            result.error ??
+            "Failed to send verification code. Please try again.";
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
           setIsLoading(false);
@@ -421,7 +423,7 @@ export function useLoginFlow(): LoginFlowState {
         setIsLoading(false);
       } catch (err) {
         logger.logUnexpectedError("Email submission error", err);
-        const msg = "An unexpected error occurred";
+        const msg = "Couldn't send your verification code. Please try again.";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setIsLoading(false);
@@ -460,7 +462,7 @@ export function useLoginFlow(): LoginFlowState {
         setIsLoading(false);
       } catch (err) {
         logger.logUnexpectedError("Code verification error", err);
-        const msg = "An unexpected error occurred";
+        const msg = "Couldn't verify your code. Please try again.";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setIsLoading(false);
@@ -492,7 +494,7 @@ export function useLoginFlow(): LoginFlowState {
       setIsLoading(false);
     } catch (err) {
       logger.logUnexpectedError("Resend code error", err);
-      const msg = "An unexpected error occurred";
+      const msg = "Couldn't resend the code. Please try again.";
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setIsLoading(false);
@@ -749,7 +751,7 @@ export function useLoginFlow(): LoginFlowState {
       }
     } catch (err) {
       logger.logUnexpectedError("Passkey auth error", err);
-      const msg = "An unexpected error occurred";
+      const msg = "Passkey sign-in failed. Please try again.";
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
       setIsLoading(false);

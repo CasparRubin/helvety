@@ -192,8 +192,6 @@ export async function requestAccountDeletion(
 // DATA EXPORT (nDSG Art. 28, Right to Data Portability)
 // =============================================================================
 
-export type { UserDataExport } from "@/lib/types/store";
-
 /**
  * Export account profile data in a structured JSON format.
  *

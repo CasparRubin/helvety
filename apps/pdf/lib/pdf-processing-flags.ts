@@ -1,7 +1,7 @@
 /**
  * Default PDF processing behavior flags.
  */
-export interface PdfProcessingFlags {
+interface PdfProcessingFlags {
   readonly gpuPipelineEnabled: boolean;
   readonly workerPipelineEnabled: boolean;
   readonly telemetryEnabled: boolean;

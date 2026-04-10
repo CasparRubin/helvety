@@ -17,7 +17,7 @@ import { decryptItemRows } from "@/lib/crypto";
 import type { Item } from "@/lib/types";
 
 /** Structure of the exported (decrypted) task data */
-export interface DecryptedTaskExport {
+interface DecryptedTaskExport {
   exportedAt: string;
   service: "Helvety Tasks";
   note: "This export was decrypted client-side using your passkey. Plaintext task content is not sent to Helvety servers.";
@@ -42,7 +42,7 @@ export interface DecryptedTaskExport {
  * @param masterKey - The user's decryption key (from EncryptionContext)
  * @returns Structured, decrypted task data ready for download
  */
-export async function exportDecryptedTaskData(
+async function exportDecryptedTaskData(
   masterKey: CryptoKey
 ): Promise<DecryptedTaskExport> {
   // 1. Fetch all encrypted data from the server

@@ -6,7 +6,7 @@ import { clearCachedPRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 
 /**
  * Clears local encryption/session artifacts and redirects to centralized global
- * logout so users always re-enter through the single auth flow.
+ * logout so re-authentication returns through the shared auth flow.
  */
 export async function forceHardLogout(redirectUri?: string): Promise<void> {
   try {

@@ -17,7 +17,7 @@ import { decryptContactRows } from "@/lib/crypto";
 import type { Contact } from "@/lib/types";
 
 /** Structure of the exported (decrypted) contact data */
-export interface DecryptedContactExport {
+interface DecryptedContactExport {
   exportedAt: string;
   service: "Helvety Contacts";
   note: "This export was decrypted client-side using your passkey. Plaintext contact content is not sent to Helvety servers.";
@@ -41,7 +41,7 @@ export interface DecryptedContactExport {
  * @param masterKey - The user's decryption key (from EncryptionContext)
  * @returns Structured, decrypted contact data ready for download
  */
-export async function exportDecryptedContactData(
+async function exportDecryptedContactData(
   masterKey: CryptoKey
 ): Promise<DecryptedContactExport> {
   // 1. Fetch all encrypted data from the server

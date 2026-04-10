@@ -8,12 +8,12 @@ import { THUMBNAIL_QUALITY } from "./constants";
 /**
  * Screen size type for DPR calculation.
  */
-export type ScreenSize = "mobile" | "tablet" | "desktop";
+type ScreenSize = "mobile" | "tablet" | "desktop";
 
 /**
  * Parameters for calculating optimal DPR.
  */
-export interface CalculateDPRParams {
+interface CalculateDPRParams {
   /** Screen size category */
   readonly screenSize: ScreenSize;
   /** Container width in pixels */

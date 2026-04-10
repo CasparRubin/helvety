@@ -188,42 +188,6 @@ export interface ProductMetadata {
 }
 
 // =============================================================================
-// PHYSICAL PRODUCT EXTENSIONS
-// =============================================================================
-
-/**
- * Additional fields for physical products
- */
-export interface PhysicalProductDetails {
-  /** Weight in grams */
-  weight?: number;
-  /** Dimensions in cm */
-  dimensions?: {
-    length: number;
-    width: number;
-    height: number;
-  };
-  /** Available stock quantity */
-  stockQuantity?: number;
-  /** Whether product is in stock */
-  inStock: boolean;
-  /** Shipping information */
-  shipping?: {
-    freeShipping: boolean;
-    estimatedDays: number;
-    restrictions?: string[];
-  };
-}
-
-/**
- * Physical product type extending base product
- */
-export interface PhysicalProduct extends Product {
-  type: "physical";
-  physical: PhysicalProductDetails;
-}
-
-// =============================================================================
 // SOFTWARE PRODUCT EXTENSIONS
 // =============================================================================
 
@@ -285,19 +249,6 @@ export interface SaaSProduct extends Product {
   type: "saas";
   saas: SaaSProductDetails;
 }
-
-// =============================================================================
-// UNION TYPES
-// =============================================================================
-
-/**
- * Union type for all product variants
- */
-export type AnyProduct =
-  | Product
-  | PhysicalProduct
-  | SoftwareProduct
-  | SaaSProduct;
 
 // =============================================================================
 // FILTER & QUERY TYPES

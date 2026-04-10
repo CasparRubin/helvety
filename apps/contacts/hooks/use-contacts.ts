@@ -599,9 +599,12 @@ export function useContact(
 
   const remove = useCallback(async (): Promise<boolean> => {
     if (!id) {
-      toast.error("Contact ID not available", {
-        duration: TOAST_DURATIONS.ERROR,
-      });
+      toast.error(
+        "We couldn't identify this contact. Please refresh and try again.",
+        {
+          duration: TOAST_DURATIONS.ERROR,
+        }
+      );
       return false;
     }
 

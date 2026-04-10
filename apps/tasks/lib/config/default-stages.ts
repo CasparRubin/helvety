@@ -4,7 +4,7 @@
  */
 
 /** Fixed default stage shape. */
-export interface DefaultStage {
+interface DefaultStage {
   id: string;
   name: string;
   color: string;
@@ -14,7 +14,7 @@ export interface DefaultStage {
 }
 
 /** Fixed default stage config shape. */
-export interface DefaultStageConfig {
+interface DefaultStageConfig {
   id: string;
   name: string;
   isDefault: true;
@@ -103,11 +103,6 @@ export const DEFAULT_ITEM_STAGE_ID = DEFAULT_STAGE_CONFIGS.item.stages[0]?.id;
 /** Returns true when a config ID is a built-in default ID. */
 export function isDefaultConfigId(configId: string): boolean {
   return configId.startsWith("default-");
-}
-
-/** Returns the immutable default config for an entity type. */
-export function getDefaultConfigForEntityType(): DefaultStageConfig {
-  return DEFAULT_STAGE_CONFIGS.item;
 }
 
 /** Returns default stages for a specific built-in config ID. */

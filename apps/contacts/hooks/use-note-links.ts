@@ -48,7 +48,7 @@ interface AllEntities {
   notes: PickerNote[];
 }
 
-export interface UseNoteLinksReturn {
+interface UseNoteLinksReturn {
   notes: LinkedNote[];
   totalCount: number;
   allEntities: AllEntities;

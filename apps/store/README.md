@@ -10,7 +10,7 @@ Store URL: [https://helvety.com/store](https://helvety.com/store)
 
 - Product catalog (six listings: SaaS apps and downloadable packages) with detail pages under `/store/products`
 - Public package downloads (SPO Explorer `.sppkg`, Power Automate extension `.zip`) without account login
-- Account page (`/account`) for profile management and data rights tooling
+- Account page (`/store/account`) for profile management and data rights tooling
 - Shared legal pages hosted on `helvety.com` (Privacy, Terms, Impressum)
 
 ## Service Availability
@@ -34,7 +34,7 @@ services collect this non-EU/EEA location-attestation signal during sign-in on
 - `/store/api/packages/power-automate-force-v3-false/download` - Public download endpoint for the Power Automate extension ZIP
 - `/store/account` - Optional signed-in account management
 
-The store root path (`/store`) redirects to `/store/products`. Browsing the catalog and public package downloads (for example SPO Explorer `.sppkg` and the Power Automate extension `.zip`) do not require login.
+Public store root (`/store`) redirects to `/store/products` (implemented internally as `/products` with `basePath: "/store"`). Browsing the catalog and public package downloads (for example SPO Explorer `.sppkg` and the Power Automate extension `.zip`) do not require login.
 
 ## Package download behavior
 

@@ -1,10 +1,10 @@
 /**
  * Note Encryption Helpers
- * Convenience functions for encrypting/decrypting notes and contact-link data
+ * Convenience functions for encrypting/decrypting notes and related contact data
  * client-side.
  *
- * This module ensures the server receives encrypted payloads for
- * protected fields; validate API and logging paths to keep this invariant.
+ * This module is the primary client path for encrypting protected fields
+ * before requests are sent to the server.
  * Note: Contact decryption is read-only - contacts are created and edited
  * in the Contacts app. Name, description, email, phone, and birthday are
  * decrypted here; notes content is not decrypted, only a `has_notes` flag

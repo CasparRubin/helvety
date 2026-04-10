@@ -11,7 +11,7 @@ import {
 /**
  * Configuration for an entity type
  */
-export type EntityConfig = EntityDeleteConfig;
+type EntityConfig = EntityDeleteConfig;
 
 /**
  * Entity type identifiers
@@ -21,7 +21,7 @@ export type EntityTypeId = "contact";
 /**
  * Centralized entity configuration registry
  */
-export const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
+const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
   contact: {
     name: "contact",
     plural: "contacts",

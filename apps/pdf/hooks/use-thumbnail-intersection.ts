@@ -10,7 +10,7 @@ import { INTERSECTION_OBSERVER, PDF_RENDER } from "@/lib/constants";
 /**
  * Return type for useThumbnailIntersection hook.
  */
-export interface UseThumbnailIntersectionReturn {
+interface UseThumbnailIntersectionReturn {
   /** Whether thumbnail is visible in viewport */
   readonly isVisible: boolean;
   /** Whether thumbnail should be unmounted (far off-screen) */

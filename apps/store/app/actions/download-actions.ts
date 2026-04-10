@@ -34,8 +34,6 @@ const PackageIdSchema = z
     "Package ID must be lowercase alphanumeric with hyphens"
   );
 
-export type { PackageDownloadInfo } from "@/lib/types/store";
-
 // =============================================================================
 // DOWNLOAD ACTIONS
 // =============================================================================

@@ -37,45 +37,6 @@ export interface UnifiedPage {
 }
 
 /**
- * File type discriminator for PDF and image files.
- * Used throughout the application to determine how to process files.
- */
-export type FileType = "pdf" | "image";
-
-/**
- * Validation result for file type checking.
- *
- * @property valid - Whether the file type is valid and supported
- * @property error - Optional error message if validation failed
- */
-export interface FileTypeValidation {
-  readonly valid: boolean;
-  readonly error?: string;
-}
-
-/**
- * Validation result for file size checking.
- *
- * @property valid - Whether the file size is within acceptable limits
- * @property error - Optional error message if validation failed
- */
-export interface FileSizeValidation {
-  readonly valid: boolean;
-  readonly error?: string;
-}
-
-/**
- * Generic result type for operations that can succeed or fail.
- * Provides a consistent pattern for error handling across the codebase.
- *
- * @template T - The type of the success data
- * @template E - The type of the error (defaults to string)
- */
-export type Result<T, E = string> =
-  | { readonly success: true; readonly data: T }
-  | { readonly success: false; readonly error: E };
-
-/**
  * Result type for file processing operations.
  * Used by processFile and related functions.
  */

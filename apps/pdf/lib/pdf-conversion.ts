@@ -21,7 +21,7 @@ interface ImageEmbed {
   readonly height: number;
 }
 
-export interface ImageConversionOptions {
+interface ImageConversionOptions {
   /**
    * Enables GPU-assisted preprocessing when supported.
    */

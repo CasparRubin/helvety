@@ -10,7 +10,7 @@ import {
 // =============================================================================
 
 /** Numeric priority values stored in the database (smallint 0-3) */
-export type Priority = 0 | 1 | 2 | 3;
+type Priority = 0 | 1 | 2 | 3;
 
 const PRIORITY_LOW: Priority = 0;
 const PRIORITY_NORMAL: Priority = 1;
@@ -22,7 +22,7 @@ const PRIORITY_URGENT: Priority = 3;
 // =============================================================================
 
 /** Display configuration for a single priority level */
-export interface PriorityConfig {
+interface PriorityConfig {
   value: Priority;
   label: string;
   color: string;

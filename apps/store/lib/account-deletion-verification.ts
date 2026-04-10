@@ -12,7 +12,7 @@ export const ACCOUNT_DELETION_VERIFICATION_CHECKS = [
 ] as const;
 
 /** Verification check tuple describing which table/column must be fully detached. */
-export type AccountDeletionVerificationCheck =
+type AccountDeletionVerificationCheck =
   (typeof ACCOUNT_DELETION_VERIFICATION_CHECKS)[number];
 
 /** Scoped Supabase admin client used for head count queries. */

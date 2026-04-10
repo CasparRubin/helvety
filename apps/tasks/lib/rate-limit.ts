@@ -10,11 +10,6 @@
 
 import { RATE_LIMITS as SHARED_RATE_LIMITS } from "@helvety/shared/rate-limit";
 
-// Re-export the shared rate-limit engine
-export { checkRateLimit, resetRateLimit } from "@helvety/shared/rate-limit";
-
-export type { RateLimitResult } from "@helvety/shared/rate-limit";
-
 /**
  * Tasks-specific rate limit configurations
  */

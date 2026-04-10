@@ -26,11 +26,11 @@ import type {
   TaskEntitiesData,
 } from "@/lib/types";
 
-export interface AllEntities {
+interface AllEntities {
   items: PickerItem[];
 }
 
-export interface UseTaskLinksReturn {
+interface UseTaskLinksReturn {
   items: LinkedItem[];
   totalCount: number;
   allEntities: AllEntities;
@@ -62,7 +62,7 @@ function triggerHardLogoutForError(
   );
 }
 
-export async function decryptItemTitle(
+async function decryptItemTitle(
   encryptedTitle: string,
   itemId: string,
   key: CryptoKey

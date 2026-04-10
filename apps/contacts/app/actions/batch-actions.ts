@@ -14,7 +14,7 @@ const MAX_DASHBOARD_ROWS = 3000;
 // =============================================================================
 
 /** Data returned by the Contacts dashboard batch fetch */
-export interface ContactsDashboardData {
+interface ContactsDashboardData {
   contacts: ContactRow[];
 }
 

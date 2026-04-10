@@ -10,7 +10,7 @@ import type { ActionResponse, ItemRow } from "@/lib/types";
 const MAX_DASHBOARD_ROWS = 2000;
 
 /** Data returned by the flat Tasks dashboard batch fetch. */
-export interface FlatItemsDashboardData {
+interface FlatItemsDashboardData {
   items: ItemRow[];
 }
 

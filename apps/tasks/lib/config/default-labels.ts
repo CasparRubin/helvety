@@ -11,7 +11,7 @@
  * Represents a single label within a default label configuration.
  * These labels are read-only and cannot be modified by users.
  */
-export interface DefaultLabel {
+interface DefaultLabel {
   id: string;
   name: string;
   color: string;
@@ -23,7 +23,7 @@ export interface DefaultLabel {
  * Represents a default label configuration.
  * Default configs are hardcoded and cannot be edited by users.
  */
-export interface DefaultLabelConfig {
+interface DefaultLabelConfig {
   id: string;
   name: string;
   isDefault: true;
@@ -99,13 +99,6 @@ export const DEFAULT_LABEL_CONFIG: DefaultLabelConfig = ITEM_DEFAULT;
  */
 export function isDefaultLabelConfigId(configId: string): boolean {
   return configId.startsWith("default-");
-}
-
-/**
- * Get the default label config
- */
-export function getDefaultLabelConfig(): DefaultLabelConfig {
-  return DEFAULT_LABEL_CONFIG;
 }
 
 /**

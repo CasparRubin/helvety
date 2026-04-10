@@ -17,8 +17,6 @@ export {
   resetEscalatingLockout,
 } from "@helvety/shared/rate-limit";
 
-export type { RateLimitResult } from "@helvety/shared/rate-limit";
-
 /**
  * Auth-specific rate limit configurations
  */

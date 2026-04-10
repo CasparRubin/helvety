@@ -28,7 +28,7 @@ function getNewestTimestamp(item: StorageListItem): number {
 /**
  * Result of resolving the latest package file from storage.
  */
-export interface ResolvedPackageVersion {
+interface ResolvedPackageVersion {
   /** Version string for display (currently from package config). */
   version: string;
   /** Full storage path for the selected file (e.g. "spfx/helvety-spo-explorer/helvety-spo-explorer.sppkg"). */

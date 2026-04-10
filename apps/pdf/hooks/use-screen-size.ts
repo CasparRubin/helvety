@@ -5,7 +5,7 @@ import { SCREEN_BREAKPOINTS } from "@/lib/constants";
 /**
  * Screen size category
  */
-export type ScreenSize = "mobile" | "tablet" | "desktop";
+type ScreenSize = "mobile" | "tablet" | "desktop";
 
 /** Return type of useScreenSize: screenSize, width, and isMobile/isTablet/isDesktop. */
 interface UseScreenSizeReturn {

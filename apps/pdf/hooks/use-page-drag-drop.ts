@@ -8,7 +8,7 @@ import * as React from "react";
 /**
  * Return type for the usePageDragDrop hook.
  */
-export interface UsePageDragDropReturn {
+interface UsePageDragDropReturn {
   readonly draggedIndex: number | null;
   readonly dragOverIndex: number | null;
   readonly handleDragStart: (index: number) => void;
@@ -21,7 +21,7 @@ export interface UsePageDragDropReturn {
 /**
  * Parameters for the usePageDragDrop hook.
  */
-export interface UsePageDragDropParams {
+interface UsePageDragDropParams {
   readonly pageOrder: ReadonlyArray<number>;
   readonly onReorder: (newOrder: number[]) => void;
   readonly announcementId?: string;

@@ -193,9 +193,9 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
       return;
     }
 
-    toast.success("Account deletion initiated", {
+    toast.success("Account deleted", {
       description:
-        "Your account deletion request has been processed. You should be redirected shortly. Deletion may take some time to complete across all systems.",
+        "Your account was deleted successfully. Redirecting you now.",
       duration: TOAST_DURATIONS.SUCCESS,
     });
 

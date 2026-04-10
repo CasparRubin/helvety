@@ -2,7 +2,7 @@ import { getRenderingCapabilities } from "@/lib/feature-detection";
 
 export type PdfProcessingPipeline = "gpu-worker" | "worker" | "main-thread";
 
-export interface PdfProcessingPipelineSelection {
+interface PdfProcessingPipelineSelection {
   readonly pipeline: PdfProcessingPipeline;
   readonly reason: string;
 }

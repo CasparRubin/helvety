@@ -11,7 +11,7 @@ import {
 /**
  * Configuration for an entity type
  */
-export type EntityConfig = EntityDeleteConfig;
+type EntityConfig = EntityDeleteConfig;
 
 /**
  * Entity type identifiers used by Notes delete messaging.
@@ -22,7 +22,7 @@ export type EntityTypeId = "item";
  * Centralized entity configuration registry
  * Used by DeleteConfirmationDialog and other dynamic UI components
  */
-export const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
+const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
   item: {
     name: "note",
     plural: "notes",

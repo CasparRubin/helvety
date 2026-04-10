@@ -17,7 +17,7 @@ import type {
 /**
  * Server actions that EncryptionGate needs injected by the consuming app.
  */
-export interface EncryptionGateActions {
+interface EncryptionGateActions {
   getEncryptionParams: () => Promise<
     ActionResponse<{
       type: "passkey" | null;
@@ -27,7 +27,7 @@ export interface EncryptionGateActions {
 }
 
 /** Props for the shared EncryptionGate component */
-export interface EncryptionGateProps {
+interface EncryptionGateProps {
   userId: string;
   children: ReactNode;
   actions: EncryptionGateActions;

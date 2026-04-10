@@ -544,9 +544,12 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
 
   const remove = useCallback(async (): Promise<boolean> => {
     if (!id) {
-      toast.error("Invalid or missing ID", {
-        duration: TOAST_DURATIONS.ERROR,
-      });
+      toast.error(
+        "We couldn't identify this note. Please refresh and try again.",
+        {
+          duration: TOAST_DURATIONS.ERROR,
+        }
+      );
       return false;
     }
 

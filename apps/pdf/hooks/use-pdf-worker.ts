@@ -17,7 +17,7 @@ let workerInitPromise: Promise<void> | null = null;
 /**
  * Return type for usePdfWorker hook.
  */
-export interface UsePdfWorkerReturn {
+interface UsePdfWorkerReturn {
   /** Whether worker is ready */
   readonly workerReady: boolean;
   /** Error message if worker initialization failed */

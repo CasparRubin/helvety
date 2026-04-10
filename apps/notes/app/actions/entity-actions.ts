@@ -151,8 +151,6 @@ export async function reorderEntities(
 // DATA EXPORT (nDSG Art. 28, Right to Data Portability)
 // =============================================================================
 
-export type { EncryptedNoteExport } from "@/lib/types";
-
 /**
  * Fetch all encrypted note data for export.
  * Returns all items as encrypted rows.

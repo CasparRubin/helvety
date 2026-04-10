@@ -67,7 +67,7 @@ export interface ItemInput {
 // LEGACY UI SUPPORT TYPES
 // =============================================================================
 
-/** Decrypted Stage (legacy UI support). */
+/** Decrypted Stage used by stage-grouped Notes views. */
 export interface Stage {
   id: string;
   config_id: string;
@@ -77,18 +77,6 @@ export interface Stage {
   icon: string;
   sort_order: number;
   default_rows_shown: number;
-  created_at: string;
-}
-
-/** Decrypted Label (legacy UI support). */
-export interface Label {
-  id: string;
-  config_id: string;
-  user_id: string;
-  name: string;
-  color: string | null;
-  icon: string;
-  sort_order: number;
   created_at: string;
 }
 

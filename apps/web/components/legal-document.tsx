@@ -80,11 +80,6 @@ export function LegalToc({ children, className }: WithClassName) {
   return <nav className={cx("legal-toc", className)}>{children}</nav>;
 }
 
-/** Optional grouping helper inside table of contents. */
-export function LegalTocGroup({ children, className }: WithClassName) {
-  return <div className={cx("legal-toc-group", className)}>{children}</div>;
-}
-
 /** Major section block for numbered legal headings. */
 export function LegalSection({
   id,
@@ -115,29 +110,9 @@ export function LegalSubsection({
   );
 }
 
-/** Paragraph primitive for legal copy. */
-export function LegalParagraph({ children, className }: WithClassName) {
-  return <p className={cx("legal-p", className)}>{children}</p>;
-}
-
-/** Unordered list primitive for legal copy. */
-export function LegalList({ children, className }: WithClassName) {
-  return <ul className={cx("legal-list", className)}>{children}</ul>;
-}
-
-/** Ordered list primitive for legal copy. */
-export function LegalOrderedList({ children, className }: WithClassName) {
-  return <ol className={cx("legal-ordered-list", className)}>{children}</ol>;
-}
-
 /** Card container used for highlighted legal content blocks. */
 export function LegalCard({ children, className }: WithClassName) {
   return <div className={cx("legal-card", className)}>{children}</div>;
-}
-
-/** Wrapper for responsive legal tables on small screens. */
-export function LegalTableWrap({ children, className }: WithClassName) {
-  return <div className={cx("legal-table-wrap", className)}>{children}</div>;
 }
 
 /** Footer note container for final legal acknowledgements. */

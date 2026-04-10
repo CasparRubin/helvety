@@ -27,12 +27,12 @@ import type {
 } from "@/lib/types";
 
 /** All decrypted picker entities available for linking. */
-export interface AllEntities {
+interface AllEntities {
   items: PickerItem[];
 }
 
 /** Return shape for `useTaskLinks`. */
-export interface UseTaskLinksReturn {
+interface UseTaskLinksReturn {
   items: LinkedItem[];
   totalCount: number;
   allEntities: AllEntities;

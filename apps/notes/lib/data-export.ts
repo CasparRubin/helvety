@@ -17,7 +17,7 @@ import { decryptItemRows } from "@/lib/crypto";
 import type { Item } from "@/lib/types";
 
 /** Structure of the exported (decrypted) note data */
-export interface DecryptedNoteExport {
+interface DecryptedNoteExport {
   exportedAt: string;
   service: "Helvety Notes";
   note: "This export was decrypted client-side using your passkey. Plaintext note content is not sent to Helvety servers.";
@@ -37,7 +37,7 @@ export interface DecryptedNoteExport {
  * @param masterKey - The user's decryption key (from EncryptionContext)
  * @returns Structured, decrypted note data ready for download
  */
-export async function exportDecryptedNoteData(
+async function exportDecryptedNoteData(
   masterKey: CryptoKey
 ): Promise<DecryptedNoteExport> {
   // 1. Fetch all encrypted note data from the server
