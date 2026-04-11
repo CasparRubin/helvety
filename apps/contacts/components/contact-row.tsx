@@ -31,6 +31,8 @@ interface ContactRowProps {
   onDelete?: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  /** When true, row is not draggable (e.g. list filtered by client-side search). */
+  sortableDisabled?: boolean;
 }
 
 /**
@@ -55,6 +57,7 @@ export const ContactRow = memo(
     onDelete,
     onMoveUp,
     onMoveDown,
+    sortableDisabled = false,
   }: ContactRowProps) => {
     const {
       attributes,
@@ -63,7 +66,7 @@ export const ContactRow = memo(
       transform,
       transition,
       isDragging,
-    } = useSortable({ id });
+    } = useSortable({ id, disabled: sortableDisabled });
 
     const style = {
       transform: CSS.Transform.toString(transform),
@@ -81,14 +84,18 @@ export const ContactRow = memo(
     const rowContent = (
       <>
         {/* Desktop: Drag Handle */}
-        <button
-          type="button"
-          className="text-muted-foreground hover:text-foreground hidden shrink-0 cursor-grab touch-none focus-visible:outline-none md:flex"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVerticalIcon className="size-4" />
-        </button>
+        {sortableDisabled ? (
+          <span className="hidden w-4 shrink-0 md:block" aria-hidden />
+        ) : (
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground hidden shrink-0 cursor-grab touch-none focus-visible:outline-none md:flex"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVerticalIcon className="size-4" />
+          </button>
+        )}
 
         {/* Icon */}
         <UserIcon

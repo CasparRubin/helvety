@@ -1,5 +1,6 @@
 "use client";
 
+import { matchesClientSearch } from "@helvety/shared/client-search";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -11,12 +12,14 @@ import {
 } from "@helvety/ui/dialog";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
+import { ListSearchField } from "@helvety/ui/list-search-field";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@helvety/ui/sheet";
+import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
 import { Loader2Icon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState, useTransition } from "react";
@@ -27,9 +30,7 @@ import { ItemEditor } from "@/components/item-editor";
 import { TaskCommandBar } from "@/components/task-command-bar";
 import { useDataExport } from "@/hooks/use-data-export";
 import { useItems } from "@/hooks/use-items";
-import { useLabels } from "@/hooks/use-labels";
 import { useStages } from "@/hooks/use-stages";
-import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import { useEncryptionContext } from "@/lib/crypto";
 
@@ -49,7 +50,6 @@ export function FlatTasksDashboard({
   const { items, isLoading, error, refresh, create, remove, reorder } =
     useItems({ initialEncryptedData: initialEncryptedItems });
   const { stages } = useStages(DEFAULT_STAGE_CONFIGS.item.id);
-  const { labels } = useLabels(DEFAULT_LABEL_CONFIG.id);
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -66,6 +66,7 @@ export function FlatTasksDashboard({
     name: string | null;
   }>({ open: false, id: null, name: null });
   const [isDeleting, startDeleteTransition] = useTransition();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const defaultStageId =
     stages.length > 0
@@ -79,6 +80,22 @@ export function FlatTasksDashboard({
     () => items.find((item) => item.id === selectedItemId) ?? null,
     [items, selectedItemId]
   );
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return items;
+    return items.filter((item) =>
+      matchesClientSearch(
+        [item.title, getRichTextPlainText(item.description ?? "") ?? ""],
+        searchQuery
+      )
+    );
+  }, [items, searchQuery]);
+
+  const isSearchActive = searchQuery.trim() !== "";
+  const emptySearchMessage =
+    isSearchActive && items.length > 0 && filteredItems.length === 0
+      ? "No tasks match your search."
+      : undefined;
 
   const handleCreate = useCallback(
     (e: React.FormEvent) => {
@@ -120,20 +137,28 @@ export function FlatTasksDashboard({
       />
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-2xl font-semibold">Tasks</h1>
+        <h1 className="mb-4 text-2xl font-semibold">Tasks</h1>
+
+        <ListSearchField
+          className="mb-4"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search tasks…"
+          aria-label="Search tasks"
+        />
 
         <EntityList
-          entities={items}
+          entities={filteredItems}
           isLoading={isLoading}
           error={error}
           onRetry={refresh}
           stages={stages}
-          labels={labels}
           onEntityClick={(entity) => setSelectedItemId(entity.id)}
           onEntityDelete={(id, title) =>
             setDeleteState({ open: true, id, name: title })
           }
-          onReorder={reorder}
+          onReorder={isSearchActive ? undefined : reorder}
+          emptySearchMessage={emptySearchMessage}
         />
       </div>
 

@@ -20,82 +20,54 @@ import { Button } from "@helvety/ui/button";
 import { Loader2Icon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
+import { NoteCategoryGroup } from "@/components/category-group";
 import { EntityRow } from "@/components/entity-row";
-import { StageGroup } from "@/components/stage-group";
 
-import type { Item, ReorderUpdate, Stage } from "@/lib/types";
+import type { DefaultNoteCategory } from "@/lib/config/default-note-categories";
+import type { Item, ReorderUpdate } from "@/lib/types";
 
-/**
- * Unified entity type for the list.
- */
-type AnyEntity = Item & {
-  title: string;
-  description: string | null;
-  stage_id?: string | null;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-  id: string;
-};
+/** Decrypted note row as shown in the main list. */
+type AnyEntity = Item;
 
-/** Props for the stage-grouped entity list. */
+/** Props for the category-grouped notes entity list. */
 interface EntityListProps {
-  /** The entities to display */
   entities: AnyEntity[];
-  /** Whether entities are currently loading */
   isLoading: boolean;
-  /** Error message if any */
   error: string | null;
-  /** Callback to retry after error (e.g. refresh) */
   onRetry?: () => void;
-  /** Available stages for the current view */
-  stages: Stage[];
-  /** Optional precomputed map of entity id -> child count (unused in flat notes flow) */
-  childCounts?: Record<string, number>;
-  /** Callback when an entity row is clicked (fallback when entityHref not provided) */
+  categories: DefaultNoteCategory[];
   onEntityClick?: (entity: AnyEntity) => void;
-  /** URL for entity navigation — use Link instead of imperative router.push callbacks where possible */
   entityHref?: (entity: AnyEntity) => string;
-  /** Callback used to prefetch an entity route on hover/focus */
   onEntityPrefetch?: (entity: AnyEntity) => void;
-  /** Callback to delete an entity (receives id and title for confirmation dialog) */
   onEntityDelete?: (id: string, title: string) => void;
-  /** Callback for batch reorder (drag-and-drop) */
   onReorder?: (updates: ReorderUpdate[]) => Promise<boolean>;
-  /** Empty state title (shown when no stages and no entities) */
+  /** Shown when the list is empty because of an active client-side search. */
+  emptySearchMessage?: string;
   emptyTitle?: string;
-  /** Empty state description (shown when no stages and no entities) */
   emptyDescription?: string;
 }
 
 /**
- * EntityList - Generic stage-aware list/table component.
- *
- * Features:
- * - Always shows stage groups when stages are available (even with no entities)
- * - Flat list fallback (when no stages are available)
- * - Drag-and-drop reordering within and between stages (desktop)
- * - Up/down arrows to move entities between stages on all screen sizes
- * - Consistent row layout across all entity types
+ * Category-grouped list for notes (matches Contacts list UX).
  */
 export function EntityList({
   entities,
   isLoading,
   error,
   onRetry,
-  stages,
-  childCounts,
+  categories,
   onEntityClick,
   entityHref,
   onEntityPrefetch,
   onEntityDelete,
   onReorder,
+  emptySearchMessage,
   emptyTitle = "Nothing here yet",
   emptyDescription = "Create your first entry to get started.",
 }: EntityListProps) {
-  const hasStages = stages.length > 0;
+  const hasCategories = categories.length > 0;
+  const sortableDisabled = onReorder == null;
 
-  // DnD sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -108,75 +80,34 @@ export function EntityList({
     })
   );
 
-  // Track which stage is being hovered during drag
-  const [hoveredStageId, setHoveredStageId] = useState<string | null>(null);
+  const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(
+    null
+  );
 
-  // Handle drag over to track hovered stage
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
       const { over } = event;
       if (!over) {
-        setHoveredStageId(null);
+        setHoveredCategoryId(null);
         return;
       }
 
-      if (over.data?.current?.type === "stage") {
-        setHoveredStageId(over.data.current.stageId ?? null);
+      if (over.data?.current?.type === "category") {
+        setHoveredCategoryId(over.data.current.categoryId ?? null);
         return;
       }
 
       const overEntity = entities.find((e) => e.id === over.id);
       if (overEntity) {
-        setHoveredStageId(overEntity.stage_id ?? null);
+        setHoveredCategoryId(overEntity.category_id);
       }
     },
     [entities]
   );
 
-  // Build a stage map for quick lookup
-  const stageMap = useMemo(() => {
-    const map = new Map<string, Stage>();
-    for (const s of stages) {
-      map.set(s.id, s);
-    }
-    return map;
-  }, [stages]);
-
-  // Group entities by stage
-  const groupedEntities = useMemo(() => {
-    if (!hasStages) return null;
-
-    const groups = new Map<string, AnyEntity[]>();
-
-    // Initialize groups in stage order
-    for (const s of stages) {
-      groups.set(s.id, []);
-    }
-    for (const entity of entities) {
-      const key = entity.stage_id;
-      if (!key) continue;
-      const group = groups.get(key);
-      if (group) {
-        group.push(entity);
-      }
-    }
-
-    for (const group of groups.values()) {
-      group.sort((a, b) => a.sort_order - b.sort_order);
-    }
-
-    return groups;
-  }, [entities, stages, hasStages]);
-
-  // All entity IDs for SortableContext
-  const entityIds = useMemo(() => entities.map((e) => e.id), [entities]);
-
-  // Handle drag end
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
-      // Reset hovered stage when drag ends
-      setHoveredStageId(null);
-
+      setHoveredCategoryId(null);
       const { active, over } = event;
       if (!over || !onReorder) return;
       if (active.id === over.id) return;
@@ -184,45 +115,38 @@ export function EntityList({
       const activeId = active.id as string;
       const overId = over.id as string;
 
-      // Determine target stage
-      let targetStageId: string | undefined;
-
-      // Check if dropped on a stage group
-      if (
-        over.data?.current?.type === "stage" &&
-        over.data.current.stageId !== undefined
-      ) {
-        targetStageId = over.data.current.stageId;
-      }
-
-      // Find entities involved
       const activeEntity = entities.find((e) => e.id === activeId);
       const overEntity = entities.find((e) => e.id === overId);
 
       if (!activeEntity) return;
 
-      // If dropped over another entity, inherit that entity's stage
-      if (overEntity?.stage_id && targetStageId === undefined) {
-        targetStageId = overEntity.stage_id;
+      let targetCategoryId: string | undefined;
+      if (
+        over.data?.current?.type === "category" &&
+        over.data.current.categoryId !== undefined
+      ) {
+        targetCategoryId = over.data.current.categoryId;
+      }
+      if (overEntity?.category_id && targetCategoryId === undefined) {
+        targetCategoryId = overEntity.category_id;
       }
 
-      // Build reorder updates
-      // Calculate new sort_order based on position
       const sortedEntities = [...entities].sort(
         (a, b) => a.sort_order - b.sort_order
       );
 
       const oldIndex = sortedEntities.findIndex((e) => e.id === activeId);
-      const newIndex = sortedEntities.findIndex((e) => e.id === overId);
+      const newIndex =
+        overEntity || over.data?.current?.type !== "category"
+          ? sortedEntities.findIndex((e) => e.id === overId)
+          : -1;
 
       if (oldIndex === -1) return;
 
-      // Remove active entity and reinsert at new position
       sortedEntities.splice(oldIndex, 1);
       const insertAt = newIndex === -1 ? sortedEntities.length : newIndex;
       sortedEntities.splice(insertAt, 0, activeEntity);
 
-      // Generate only the minimal changed range to reduce rerender/load.
       const startIndex = Math.min(oldIndex, insertAt);
       const endIndex = Math.max(oldIndex, insertAt);
       const updates: ReorderUpdate[] = [];
@@ -234,33 +158,31 @@ export function EntityList({
 
         const hasSortOrderChange = originalEntity.sort_order !== index;
         const isActiveEntity = entityAtIndex.id === activeId;
-        const hasStageChange =
+        const hasCategoryChange =
           isActiveEntity &&
-          typeof targetStageId === "string" &&
-          originalEntity.stage_id !== targetStageId;
-
-        if (!hasSortOrderChange && !hasStageChange) continue;
+          typeof targetCategoryId === "string" &&
+          originalEntity.category_id !== targetCategoryId;
+        if (!hasSortOrderChange && !hasCategoryChange) continue;
 
         const update: ReorderUpdate = {
           id: entityAtIndex.id,
           sort_order: index,
         };
-        if (hasStageChange) {
-          update.stage_id = targetStageId;
+        if (hasCategoryChange) {
+          update.category_id = targetCategoryId;
         }
         updates.push(update);
       }
 
-      // Handle stage-only moves where index did not change.
       if (
         updates.length === 0 &&
-        typeof targetStageId === "string" &&
-        activeEntity.stage_id !== targetStageId
+        typeof targetCategoryId === "string" &&
+        activeEntity.category_id !== targetCategoryId
       ) {
         updates.push({
           id: activeEntity.id,
           sort_order: activeEntity.sort_order,
-          stage_id: targetStageId,
+          category_id: targetCategoryId,
         });
       }
 
@@ -271,57 +193,90 @@ export function EntityList({
     [entities, onReorder]
   );
 
-  // Move up/down handlers for mobile: move entity to previous/next stage
   const handleMoveUp = useCallback(
     (entityId: string) => {
-      if (!onReorder || stages.length === 0) return;
+      if (!onReorder || !hasCategories) return;
       const entity = entities.find((e) => e.id === entityId);
       if (!entity) return;
 
-      const currentStageIdx = stages.findIndex((s) => s.id === entity.stage_id);
+      const currentCategoryIdx = categories.findIndex(
+        (c) => c.id === entity.category_id
+      );
+      if (currentCategoryIdx <= 0) return;
+      const previousCategory = categories[currentCategoryIdx - 1];
+      if (!previousCategory) return;
 
-      let newStageId: string;
-      if (currentStageIdx <= 0) {
-        // Already in the first stage, cannot move up
-        return;
-      } else {
-        const prevStage = stages[currentStageIdx - 1];
-        if (!prevStage) return;
-        newStageId = prevStage.id;
-      }
-
-      const updates: ReorderUpdate[] = [
-        { id: entity.id, sort_order: entity.sort_order, stage_id: newStageId },
-      ];
-      void onReorder(updates);
+      void onReorder([
+        {
+          id: entity.id,
+          sort_order: entity.sort_order,
+          category_id: previousCategory.id,
+        },
+      ]);
     },
-    [entities, stages, onReorder]
+    [categories, entities, hasCategories, onReorder]
   );
 
   const handleMoveDown = useCallback(
     (entityId: string) => {
-      if (!onReorder || stages.length === 0) return;
+      if (!onReorder || !hasCategories) return;
       const entity = entities.find((e) => e.id === entityId);
       if (!entity) return;
 
-      const currentStageIdx = stages.findIndex((s) => s.id === entity.stage_id);
+      const currentCategoryIdx = categories.findIndex(
+        (c) => c.id === entity.category_id
+      );
+      if (
+        currentCategoryIdx < 0 ||
+        currentCategoryIdx >= categories.length - 1
+      ) {
+        return;
+      }
+      const nextCategory = categories[currentCategoryIdx + 1];
+      if (!nextCategory) return;
 
-      // Missing stage or already in the last stage → cannot move down
-      if (currentStageIdx < 0 || currentStageIdx >= stages.length - 1) return;
-
-      const nextStage = stages[currentStageIdx + 1];
-      if (!nextStage) return;
-      const newStageId = nextStage.id;
-
-      const updates: ReorderUpdate[] = [
-        { id: entity.id, sort_order: entity.sort_order, stage_id: newStageId },
-      ];
-      void onReorder(updates);
+      void onReorder([
+        {
+          id: entity.id,
+          sort_order: entity.sort_order,
+          category_id: nextCategory.id,
+        },
+      ]);
     },
-    [entities, stages, onReorder]
+    [categories, entities, hasCategories, onReorder]
   );
 
-  // Loading state
+  const groupedEntities = useMemo(() => {
+    if (!hasCategories) {
+      return new Map<string, AnyEntity[]>();
+    }
+    const sorted = [...entities].sort((a, b) => a.sort_order - b.sort_order);
+    const groups = new Map<string, AnyEntity[]>();
+    for (const c of categories) {
+      groups.set(c.id, []);
+    }
+    for (const entity of sorted) {
+      const bucket =
+        groups.get(entity.category_id) ?? groups.get(categories[0]?.id ?? "");
+      bucket?.push(entity);
+    }
+    return groups;
+  }, [categories, entities, hasCategories]);
+
+  const sortedEntitiesFlat = useMemo(() => {
+    if (hasCategories) {
+      return [];
+    }
+    return [...entities].sort((a, b) => a.sort_order - b.sort_order);
+  }, [entities, hasCategories]);
+
+  const entityIds = useMemo(() => {
+    if (hasCategories) {
+      return [];
+    }
+    return entities.map((e) => e.id);
+  }, [entities, hasCategories]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -330,7 +285,6 @@ export function EntityList({
     );
   }
 
-  // Error state - friendly UI with retry (toast already shown by hooks)
   if (error) {
     return (
       <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
@@ -346,25 +300,27 @@ export function EntityList({
     );
   }
 
-  const sortedEntities = [...entities].sort(
-    (a, b) => a.sort_order - b.sort_order
-  );
+  if (entities.length === 0 && emptySearchMessage) {
+    return (
+      <div className="text-muted-foreground flex justify-center py-12 text-center text-sm">
+        {emptySearchMessage}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      {/* Column headers (desktop only) */}
       {entities.length > 0 && (
         <div className="text-muted-foreground border-border hidden items-center gap-2 border-b px-3 pb-2 text-xs font-medium md:flex">
-          <span className="w-4 shrink-0" /> {/* drag handle space */}
-          <span className="w-4 shrink-0" /> {/* icon space */}
+          <span className="w-4 shrink-0" />
+          <span className="w-4 shrink-0" />
           <span className="flex-1">Title</span>
           <span className="w-24 shrink-0 text-right">Created</span>
-          <span className="w-8 shrink-0" /> {/* actions space */}
+          <span className="w-8 shrink-0" />
         </div>
       )}
 
-      {/* Stage groups - always shown when stages exist */}
-      {hasStages ? (
+      {hasCategories ? (
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -372,29 +328,28 @@ export function EntityList({
           onDragEnd={handleDragEnd}
         >
           <div>
-            {stages.map((stage, stageIndex) => {
-              const stageEntities = groupedEntities?.get(stage.id) ?? [];
-              const isFirstStage = stageIndex === 0;
-              const isLastStage = stageIndex === stages.length - 1;
+            {categories.map((category, categoryIndex) => {
+              const categoryEntities = groupedEntities.get(category.id) ?? [];
+              const isFirstCategory = categoryIndex === 0;
+              const isLastCategory = categoryIndex === categories.length - 1;
               return (
-                <StageGroup
-                  key={stage.id}
-                  stage={stage}
-                  entityIds={stageEntities.map((e) => e.id)}
-                  count={stageEntities.length}
-                  isHighlighted={hoveredStageId === stage.id}
+                <NoteCategoryGroup
+                  key={category.id}
+                  category={category}
+                  entityIds={categoryEntities.map((e) => e.id)}
+                  count={categoryEntities.length}
+                  isHighlighted={hoveredCategoryId === category.id}
                 >
-                  {stageEntities.map((entity) => (
+                  {categoryEntities.map((entity) => (
                     <EntityRow
                       key={entity.id}
                       id={entity.id}
                       title={entity.title}
                       description={entity.description}
                       createdAt={entity.created_at}
-                      stage={stageMap.get(entity.stage_id ?? "")}
-                      childCount={childCounts?.[entity.id]}
-                      isFirst={isFirstStage}
-                      isLast={isLastStage}
+                      categoryColor={category.color}
+                      isFirst={isFirstCategory}
+                      isLast={isLastCategory}
                       href={entityHref?.(entity)}
                       onClick={() => onEntityClick?.(entity)}
                       onPrefetch={() => onEntityPrefetch?.(entity)}
@@ -404,24 +359,24 @@ export function EntityList({
                           : undefined
                       }
                       onMoveUp={
-                        stages.length > 1
+                        categories.length > 1
                           ? () => handleMoveUp(entity.id)
                           : undefined
                       }
                       onMoveDown={
-                        stages.length > 1
+                        categories.length > 1
                           ? () => handleMoveDown(entity.id)
                           : undefined
                       }
+                      sortableDisabled={sortableDisabled}
                     />
                   ))}
-                </StageGroup>
+                </NoteCategoryGroup>
               );
             })}
           </div>
         </DndContext>
       ) : entities.length === 0 ? (
-        /* Empty state - only shown when no stages AND no entities */
         <div className="border-border flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
           <h3 className="mb-2 text-lg font-medium">{emptyTitle}</h3>
           <p className="text-muted-foreground text-center text-sm">
@@ -429,7 +384,6 @@ export function EntityList({
           </p>
         </div>
       ) : (
-        /* Flat list (no stages) */
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -440,16 +394,15 @@ export function EntityList({
               items={entityIds}
               strategy={verticalListSortingStrategy}
             >
-              {sortedEntities.map((entity, idx) => (
+              {sortedEntitiesFlat.map((entity, idx) => (
                 <EntityRow
                   key={entity.id}
                   id={entity.id}
                   title={entity.title}
                   description={entity.description}
                   createdAt={entity.created_at}
-                  childCount={childCounts?.[entity.id]}
                   isFirst={idx === 0}
-                  isLast={idx === sortedEntities.length - 1}
+                  isLast={idx === sortedEntitiesFlat.length - 1}
                   href={entityHref?.(entity)}
                   onClick={() => onEntityClick?.(entity)}
                   onPrefetch={() => onEntityPrefetch?.(entity)}
@@ -458,16 +411,7 @@ export function EntityList({
                       ? () => onEntityDelete(entity.id, entity.title)
                       : undefined
                   }
-                  onMoveUp={
-                    stages.length > 1
-                      ? () => handleMoveUp(entity.id)
-                      : undefined
-                  }
-                  onMoveDown={
-                    stages.length > 1
-                      ? () => handleMoveDown(entity.id)
-                      : undefined
-                  }
+                  sortableDisabled={sortableDisabled}
                 />
               ))}
             </SortableContext>

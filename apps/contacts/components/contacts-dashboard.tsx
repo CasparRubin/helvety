@@ -1,5 +1,6 @@
 "use client";
 
+import { matchesClientSearch } from "@helvety/shared/client-search";
 import { ERROR_MESSAGES, TOAST_DURATIONS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 import { Button } from "@helvety/ui/button";
@@ -13,6 +14,7 @@ import {
 } from "@helvety/ui/dialog";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
+import { ListSearchField } from "@helvety/ui/list-search-field";
 import {
   Sheet,
   SheetContent,
@@ -21,7 +23,7 @@ import {
 } from "@helvety/ui/sheet";
 import { Loader2Icon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { ContactCommandBar } from "@/components/contact-command-bar";
@@ -74,6 +76,29 @@ export function ContactsDashboard({
   const [selectedContactId, setSelectedContactId] = useState<string | null>(
     () => searchParams.get("contact")
   );
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredContacts = useMemo(() => {
+    if (!searchQuery.trim()) return contacts;
+    return contacts.filter((contact) =>
+      matchesClientSearch(
+        [
+          contact.first_name,
+          contact.last_name,
+          contact.email ?? "",
+          contact.description ?? "",
+          contact.notes ?? "",
+        ],
+        searchQuery
+      )
+    );
+  }, [contacts, searchQuery]);
+
+  const isSearchActive = searchQuery.trim() !== "";
+  const emptySearchMessage =
+    isSearchActive && contacts.length > 0 && filteredContacts.length === 0
+      ? "No contacts match your search."
+      : undefined;
 
   const handleCreate = useCallback(
     (e: React.FormEvent) => {
@@ -155,17 +180,26 @@ export function ContactsDashboard({
       />
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-2xl font-semibold">Contacts</h1>
+        <h1 className="mb-4 text-2xl font-semibold">Contacts</h1>
+
+        <ListSearchField
+          className="mb-4"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search contacts…"
+          aria-label="Search contacts"
+        />
 
         <ContactList
-          contacts={contacts}
+          contacts={filteredContacts}
           isLoading={isLoading}
           error={error}
           onRetry={refresh}
           onContactClick={(contact) => setSelectedContactId(contact.id)}
           onContactDelete={handleDeleteClick}
-          onReorder={reorder}
+          onReorder={isSearchActive ? undefined : reorder}
           categories={DEFAULT_CATEGORIES}
+          emptySearchMessage={emptySearchMessage}
         />
       </div>
 

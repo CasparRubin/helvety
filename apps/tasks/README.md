@@ -21,6 +21,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 - **End-to-end encryption** - Sensitive task content fields are encrypted client-side using your passkey (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
 - **Task-first workflow** - `/tasks` opens directly into your task list (items grouped by fixed stages on the main list); task details open in a large sheet from the list
+- **Main list search (client-side)** - After crypto unlock, filter tasks in the browser by **title** and **description** (description is matched as plain text derived from rich content). Search runs only on decrypted data in your browser; terms are **not** sent to the server or stored in the URL. Stages, labels, dates, and priority are **not** search fields. While the search field has text, **drag-and-drop reorder and stage up/down arrows are disabled** so sort order is not computed on a partial list
 - **Rich text descriptions** - Rich text editor for item descriptions with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
   - Headings (H1, H2, H3)
@@ -28,8 +29,8 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Link support
   - Manual save from the editor toolbar (icon buttons on desktop); when there are unsaved changes the save control shows an orange **Save Changes** label
   - **Action panel** - View created/modified dates, set start and end date/time, view immutable built-in item stages/labels, and set priority directly from the editor; sections are collapsible (all open by default on desktop; collapsed on mobile except Dates)
-- **Priority levels** - Assign priority to items (Low, Normal, High, Urgent) with color-coded indicators. Default is Normal when not specified.
-- **Fixed labels** - An immutable built-in item label set is enforced across the app. New items use a default label when none is specified.
+- **Priority levels** - Assign priority in the task detail sheet (Low, Normal, High, Urgent) with color-coded indicators in the editor; the main list shows title and description only. Default is Normal when not specified.
+- **Fixed labels** - An immutable built-in item label set is enforced across the app. Pick labels in task details; new items use a default label when none is specified.
 - **Fixed stages** - Immutable built-in stage sets are enforced for task items. New items are assigned the first stage when none is specified (Backlog).
 - **Contact linking** - Link contacts from [Helvety Contacts](https://helvety.com/contacts) to task items
   - **Bidirectional** - Link and unlink from either the Tasks app or the Contacts app for consistent cross-app UX
@@ -41,7 +42,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Searchable picker** - Search your notes by decrypted title and link with one click
   - **Deep links** - Click any linked note row to open the full note in the Notes app (opens in a new tab)
   - **Privacy** - Note titles are decrypted client-side for display in Tasks. Plaintext should not be intentionally sent to the server.
-- **Drag & drop reordering** - Rearrange entries on desktop; up/down arrows move items between stages
+- **Drag & drop reordering** - Rearrange entries on desktop when the main-list search field is empty; up/down arrows move items between stages in that case too
 - **Controlled row-link prefetching** - Dense item lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
 - **Consistency safeguards for stage/status moves** - UI keeps optimistic interactions snappy while discarding stale in-flight refresh responses; server mutations also trigger targeted route revalidation so prefetched pages stay aligned
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
@@ -185,7 +186,7 @@ Run these commands from `apps/tasks`:
 | `bun run test:watch`    | Run tests in watch mode           |
 | `bun run test:coverage` | Run tests with v8 coverage report |
 
-Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
+Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test. `EntityList` is covered for fixed stage shells when the list is empty, the global empty state when no stages are configured, the flat list fallback, the **client-side search no-match** message (`emptySearchMessage`), and the case where search hides stage shells.
 
 ## Developer
 

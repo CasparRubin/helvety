@@ -15,15 +15,14 @@ import {
 import Link from "next/link";
 import { memo } from "react";
 
-import type { Stage } from "@/lib/types";
-
 /** Props for a single entity row in the list view. */
 interface EntityRowProps {
   id: string;
   title: string;
   description: string | null;
   createdAt: string;
-  stage?: Stage | null;
+  /** Category accent for the row icon (grouped list). */
+  categoryColor?: string;
   /** Legacy child-count indicator (not used in current item-first flow) */
   childCount?: number;
   isFirst?: boolean;
@@ -35,13 +34,14 @@ interface EntityRowProps {
   onDelete?: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  /** When true, row is not draggable (e.g. list filtered by client-side search). */
+  sortableDisabled?: boolean;
 }
 
 /**
- * EntityRow - A single row in the entity list/table.
+ * EntityRow - A single row in the notes list.
  *
- * Shows drag handle, icon (stage-colored), title, description (subtle), date, and actions.
- * Stage move arrows and delete actions are available across screen sizes.
+ * Shows drag handle, icon, title, description (subtle), date, and actions.
  */
 export const EntityRow = memo(
   ({
@@ -49,7 +49,7 @@ export const EntityRow = memo(
     title,
     description,
     createdAt,
-    stage,
+    categoryColor,
     childCount,
     isFirst = false,
     isLast = false,
@@ -59,6 +59,7 @@ export const EntityRow = memo(
     onDelete,
     onMoveUp,
     onMoveDown,
+    sortableDisabled = false,
   }: EntityRowProps) => {
     const {
       attributes,
@@ -67,14 +68,14 @@ export const EntityRow = memo(
       transform,
       transition,
       isDragging,
-    } = useSortable({ id });
+    } = useSortable({ id, disabled: sortableDisabled });
 
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
     };
 
-    const rowClassName = `group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
+    const rowClassName = `group border-border flex min-w-0 w-full max-w-full cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
       isDragging
         ? "bg-muted/80 z-50 rounded-md shadow-lg"
         : "hover:bg-muted/40 [content-visibility:auto]"
@@ -82,23 +83,24 @@ export const EntityRow = memo(
 
     const rowContent = (
       <>
-        {/* Desktop: Drag Handle */}
-        <button
-          type="button"
-          className="text-muted-foreground hover:text-foreground hidden shrink-0 cursor-grab touch-none focus-visible:outline-none md:flex"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVerticalIcon className="size-4" />
-        </button>
+        {sortableDisabled ? (
+          <span className="hidden w-4 shrink-0 md:block" aria-hidden />
+        ) : (
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground hidden shrink-0 cursor-grab touch-none focus-visible:outline-none md:flex"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVerticalIcon className="size-4" />
+          </button>
+        )}
 
-        {/* Icon */}
         <BoxIcon
           className="size-4 shrink-0"
-          style={stage?.color ? { color: stage.color } : undefined}
+          style={categoryColor ? { color: categoryColor } : undefined}
         />
 
-        {/* Title + Description */}
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <span className="truncate font-medium">{title}</span>
           {childCount !== undefined && (
@@ -113,12 +115,10 @@ export const EntityRow = memo(
           )}
         </div>
 
-        {/* Date (desktop only) */}
         <span className="text-muted-foreground hidden shrink-0 text-xs md:inline">
           {formatDateTime(createdAt)}
         </span>
 
-        {/* Actions: Stage arrows + Delete */}
         <div className="flex shrink-0 items-center gap-0.5">
           {(onMoveUp ?? onMoveDown) && (
             <div className="flex items-center gap-0.5">
@@ -132,7 +132,7 @@ export const EntityRow = memo(
                   onMoveUp?.();
                 }}
                 disabled={isFirst}
-                aria-label="Move to previous stage"
+                aria-label="Move to previous category"
               >
                 <ChevronUpIcon className="size-4" />
               </Button>
@@ -146,7 +146,7 @@ export const EntityRow = memo(
                   onMoveDown?.();
                 }}
                 disabled={isLast}
-                aria-label="Move to next stage"
+                aria-label="Move to next category"
               >
                 <ChevronDownIcon className="size-4" />
               </Button>
@@ -181,7 +181,6 @@ export const EntityRow = memo(
       return (
         <Link
           href={href}
-          // Avoid noisy RSC prefetch 404s from stale/deleted dynamic IDs in dense lists.
           prefetch={false}
           {...sharedProps}
           onKeyDown={(e) => {

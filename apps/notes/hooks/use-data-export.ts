@@ -11,7 +11,7 @@ import { downloadNoteDataExport } from "@/lib/data-export";
  * Hook for exporting decrypted note data as JSON (supports nDSG Art. 28 data portability).
  *
  * Encapsulates the export flow: loading state, error handling, and toast
- * notifications. Used by the flat item dashboard.
+ * notifications. Used by the Notes dashboard.
  *
  * @param masterKey - The user's decryption key from EncryptionContext
  */

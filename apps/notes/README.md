@@ -20,9 +20,10 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 ## Features
 
 - End-to-end encryption for note `title` and `description`
-- Flat notes list with sheet editor UX; editor toolbar uses icon buttons on desktop, with an orange **Save Changes** label when edits are pending
+- Notes list grouped by category (Personal, Work, Other) with sheet editor UX; editor toolbar uses icon buttons on desktop, with an orange **Save Changes** label when edits are pending
+- **Main list search (client-side)** - After unlock, filter notes in the browser by **title** and **description** (plain text from rich content). Search is local only (not sent to the server; not in the URL). Category and dates are **not** search fields. While search has text, **drag-and-drop reorder and category up/down arrows are disabled**
 - Notes link to tasks and contacts (and can be linked from those apps)
-- Drag and drop reorder
+- Drag and drop reorder within and between categories when the main-list search field is empty
 - Client-side decrypted data export
 - Dark & Light mode
 
@@ -35,7 +36,7 @@ Each note has:
 
 Structural metadata remains plaintext for app functionality:
 
-- `id`, `user_id`, `sort_order`, `created_at`, `updated_at`
+- `id`, `user_id`, `category_id`, `sort_order`, `created_at`, `updated_at`
 
 ## Access Model
 
@@ -94,7 +95,7 @@ Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment with type-ch
 | `bun run test:watch`    | Run tests in watch mode           |
 | `bun run test:coverage` | Run tests with v8 coverage report |
 
-Test files follow the `**/*.test.{ts,tsx}` pattern. From the monorepo root, `bun run test` runs Turbo across workspaces.
+Test files follow the `**/*.test.{ts,tsx}` pattern. From the monorepo root, `bun run test` runs Turbo across workspaces. `EntityList` is covered for fixed category shells when the list is empty, the global empty state when no categories are configured, the flat list fallback, the **client-side search no-match** message (`emptySearchMessage`), and the case where search hides category shells.
 
 ## Developer
 

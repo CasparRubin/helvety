@@ -426,7 +426,7 @@ export function ItemEditor({
         deleteLabel="Delete Task"
       />
       <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb removed in flat list-first navigation */}
+        {/* Breadcrumb removed: list opens this sheet (no in-app hierarchy). */}
 
         {/* Full-page mode: two-column layout. Sheet-embedded mode: always stacked. */}
         <div

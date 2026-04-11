@@ -46,6 +46,8 @@ interface ContactListProps {
   onContactDelete?: (id: string, name: string) => void;
   /** Callback for batch reorder (drag-and-drop) */
   onReorder?: (updates: ReorderUpdate[]) => Promise<boolean>;
+  /** Shown when the list is empty because of an active client-side search. */
+  emptySearchMessage?: string;
   /** Fixed categories used to group contacts in the list */
   categories: DefaultCategory[];
   /** Empty state title (shown when no categories and no contacts) */
@@ -73,11 +75,13 @@ export function ContactList({
   onContactPrefetch,
   onContactDelete,
   onReorder,
+  emptySearchMessage,
   categories,
   emptyTitle = "No contacts yet",
   emptyDescription = "Create your first contact to get started.",
 }: ContactListProps) {
   const hasCategories = categories.length > 0;
+  const sortableDisabled = onReorder == null;
 
   // DnD sensors
   const sensors = useSensors(
@@ -320,6 +324,14 @@ export function ContactList({
     );
   }
 
+  if (contacts.length === 0 && emptySearchMessage) {
+    return (
+      <div className="text-muted-foreground flex justify-center py-12 text-center text-sm">
+        {emptySearchMessage}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Column headers (desktop only) */}
@@ -387,6 +399,7 @@ export function ContactList({
                           ? () => handleMoveDown(contact.id)
                           : undefined
                       }
+                      sortableDisabled={sortableDisabled}
                     />
                   ))}
                 </CategoryGroup>
@@ -436,6 +449,7 @@ export function ContactList({
                           )
                       : undefined
                   }
+                  sortableDisabled={sortableDisabled}
                 />
               ))}
             </SortableContext>

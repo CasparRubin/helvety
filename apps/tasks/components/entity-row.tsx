@@ -3,7 +3,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatDateTime } from "@helvety/shared/dates";
-import { Badge } from "@helvety/ui/badge";
 import { Button } from "@helvety/ui/button";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
 import {
@@ -16,10 +15,7 @@ import {
 import Link from "next/link";
 import { memo } from "react";
 
-import { renderStageIcon } from "@/lib/icons";
-import { getPriorityConfig } from "@/lib/priorities";
-
-import type { Stage, Label } from "@/lib/types";
+import type { Stage } from "@/lib/types";
 
 /** Props for a single entity row in the list view. */
 interface EntityRowProps {
@@ -28,10 +24,6 @@ interface EntityRowProps {
   description: string | null;
   createdAt: string;
   stage?: Stage | null;
-  /** Priority level (items only, 0-3). Shown as a badge on hover. */
-  priority?: number | null;
-  /** Resolved label (items only). Shown as a badge on hover. */
-  label?: Label | null;
   /** Legacy child-count indicator (not used in current item-first flow) */
   childCount?: number;
   isFirst?: boolean;
@@ -43,6 +35,8 @@ interface EntityRowProps {
   onDelete?: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  /** When true, row is not draggable (e.g. list filtered by client-side search). */
+  sortableDisabled?: boolean;
 }
 
 /**
@@ -58,8 +52,6 @@ export const EntityRow = memo(
     description,
     createdAt,
     stage,
-    priority,
-    label,
     childCount,
     isFirst = false,
     isLast = false,
@@ -69,6 +61,7 @@ export const EntityRow = memo(
     onDelete,
     onMoveUp,
     onMoveDown,
+    sortableDisabled = false,
   }: EntityRowProps) => {
     const {
       attributes,
@@ -77,14 +70,14 @@ export const EntityRow = memo(
       transform,
       transition,
       isDragging,
-    } = useSortable({ id });
+    } = useSortable({ id, disabled: sortableDisabled });
 
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
     };
 
-    const rowClassName = `group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
+    const rowClassName = `group border-border flex min-w-0 w-full max-w-full cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
       isDragging
         ? "bg-muted/80 z-50 rounded-md shadow-lg"
         : "hover:bg-muted/40 [content-visibility:auto]"
@@ -93,14 +86,18 @@ export const EntityRow = memo(
     const rowContent = (
       <>
         {/* Desktop: Drag Handle */}
-        <button
-          type="button"
-          className="text-muted-foreground hover:text-foreground hidden shrink-0 cursor-grab touch-none focus-visible:outline-none md:flex"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVerticalIcon className="size-4" />
-        </button>
+        {sortableDisabled ? (
+          <span className="hidden w-4 shrink-0 md:block" aria-hidden />
+        ) : (
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground hidden shrink-0 cursor-grab touch-none focus-visible:outline-none md:flex"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVerticalIcon className="size-4" />
+          </button>
+        )}
 
         {/* Icon */}
         <BoxIcon
@@ -121,42 +118,6 @@ export const EntityRow = memo(
               {getRichTextPlainText(description)}
             </span>
           )}
-
-          {/* Priority badge (items only, inline next to title) */}
-          {priority != null &&
-            (() => {
-              const prioConfig = getPriorityConfig(priority);
-              const PriorityIcon = prioConfig.icon;
-              return (
-                <Badge
-                  variant="outline"
-                  className="hidden shrink-0 opacity-0 transition-opacity group-hover:opacity-100 md:inline-flex"
-                  style={{
-                    borderColor: prioConfig.color,
-                    color: prioConfig.color,
-                  }}
-                >
-                  <PriorityIcon className="size-3" />
-                  {prioConfig.label}
-                </Badge>
-              );
-            })()}
-
-          {/* Label badge (items only, inline next to title) */}
-          {label != null &&
-            (() => {
-              const labelColor = label.color ?? "var(--muted-foreground)";
-              return (
-                <Badge
-                  variant="outline"
-                  className="hidden shrink-0 opacity-0 transition-opacity group-hover:opacity-100 md:inline-flex"
-                  style={{ borderColor: labelColor, color: labelColor }}
-                >
-                  {renderStageIcon(label.icon, "size-3")}
-                  {label.name}
-                </Badge>
-              );
-            })()}
         </div>
 
         {/* Date (desktop only) */}

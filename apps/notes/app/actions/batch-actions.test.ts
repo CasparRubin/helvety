@@ -17,6 +17,24 @@ vi.mock("@helvety/shared/logger", () => ({
 
 import { getFlatItemsDashboardData } from "./batch-actions";
 
+import type { ItemRow } from "@/lib/types";
+
+/** Minimal `notes` row matching current DB shape (including `category_id`). */
+function makeNoteRow(
+  overrides: Partial<ItemRow> & Pick<ItemRow, "id">
+): ItemRow {
+  return {
+    user_id: "user-1",
+    encrypted_title: "enc",
+    encrypted_description: null,
+    category_id: "personal",
+    sort_order: 0,
+    created_at: "2026-01-01T00:00:00.000Z",
+    updated_at: "2026-01-01T00:00:00.000Z",
+    ...overrides,
+  };
+}
+
 /** Supabase query builder ending in `.returns()` for notes dashboard rows. */
 function createNotesDashboardSupabaseMock(result: {
   data: unknown[] | null;
@@ -76,7 +94,7 @@ describe("notes batch-actions", () => {
   });
 
   it("returns success with items when query succeeds", async () => {
-    const rows = [{ id: "note-1", user_id: "user-1" }];
+    const rows = [makeNoteRow({ id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890" })];
     const supabase = createNotesDashboardSupabaseMock({
       data: rows,
       error: null,
@@ -96,10 +114,12 @@ describe("notes batch-actions", () => {
   });
 
   it("rejects when row count exceeds dashboard cap", async () => {
-    const rows = Array.from({ length: 2001 }, (_, i) => ({
-      id: `id-${i}`,
-      user_id: "user-1",
-    }));
+    const rows = Array.from({ length: 2001 }, (_, i) =>
+      makeNoteRow({
+        id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`,
+        sort_order: i,
+      })
+    );
     const supabase = createNotesDashboardSupabaseMock({
       data: rows,
       error: null,

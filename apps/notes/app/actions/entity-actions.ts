@@ -5,9 +5,11 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
+import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
 
+import { ALLOWED_NOTE_CATEGORY_IDS } from "@/lib/config/default-note-categories";
 import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type {
@@ -19,6 +21,8 @@ import type {
 
 const NOTES_ITEMS_TABLE = "notes" as const;
 
+const NoteCategoryIdSchema = z.enum(ALLOWED_NOTE_CATEGORY_IDS);
+
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
@@ -29,6 +33,7 @@ const ReorderSchema = z
     z.object({
       id: z.string().uuid(),
       sort_order: z.number().int().min(0),
+      category_id: NoteCategoryIdSchema.optional(),
     })
   )
   .max(
@@ -118,6 +123,9 @@ export async function reorderEntities(
             sort_order: update.sort_order,
             updated_at: now,
           };
+          if (update.category_id !== undefined) {
+            updateObj.category_id = update.category_id;
+          }
 
           return supabase
             .from(NOTES_ITEMS_TABLE)
@@ -138,6 +146,7 @@ export async function reorderEntities(
       return { success: false, error: `Failed to reorder ${entityType}s` };
     }
 
+    revalidatePath("/notes");
     return { success: true };
   } catch (error) {
     after(() =>

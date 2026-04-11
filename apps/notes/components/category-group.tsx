@@ -5,61 +5,45 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { renderIcon } from "@helvety/ui/icon-renderer";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import React, { useState } from "react";
 
-import { renderStageIcon } from "@/lib/icons";
+import type { DefaultNoteCategory } from "@/lib/config/default-note-categories";
 
-import type { Stage } from "@/lib/types";
-
-/**
- * Props for the StageGroup component
- */
-interface StageGroupProps {
-  stage: Stage;
-  /** IDs of entities in this stage (for SortableContext) */
+/** Props for the note category group container. */
+interface NoteCategoryGroupProps {
+  category: DefaultNoteCategory;
   entityIds: string[];
-  /** Count of entities */
   count: number;
   children: React.ReactNode;
-  /** Whether this stage is highlighted (e.g., during drag-over of child entities) */
   isHighlighted?: boolean;
 }
 
 /**
- * StageGroup - A collapsible group header for entities in a specific stage.
- * Acts as a droppable zone for DnD.
- *
- * Supports "rows shown by default" feature:
- * - If default_rows_shown === 0: starts collapsed
- * - If default_rows_shown > 0 && count > default_rows_shown: shows limited rows with "Show all" link
- * - If default_rows_shown > 0 && count <= default_rows_shown: shows all rows
+ * Collapsible category header + droppable zone for grouped notes (matches Contacts UX).
  */
-export function StageGroup({
-  stage,
+export function NoteCategoryGroup({
+  category,
   entityIds,
   count,
   children,
   isHighlighted = false,
-}: StageGroupProps) {
-  // Initialize collapsed state based on default_rows_shown (0 = collapsed by default)
+}: NoteCategoryGroupProps) {
   const [isCollapsed, setIsCollapsed] = useState(
-    stage.default_rows_shown === 0
+    category.default_rows_shown === 0
   );
-  // Track whether user has clicked "Show all"
   const [isShowingAll, setIsShowingAll] = useState(false);
 
   const { setNodeRef, isOver } = useDroppable({
-    id: `stage-${stage.id}`,
-    data: { type: "stage", stageId: stage.id },
+    id: `category-${category.id}`,
+    data: { type: "category", categoryId: category.id },
   });
 
-  // Combine both signals - either direct isOver OR highlighted from parent
   const showHighlight = isOver || isHighlighted;
 
-  // Determine how many rows to show and whether to show "Show all" link
   const childrenArray = React.Children.toArray(children);
-  const defaultRowsShown = stage.default_rows_shown;
+  const defaultRowsShown = category.default_rows_shown;
   const shouldLimitRows =
     defaultRowsShown > 0 && count > defaultRowsShown && !isShowingAll;
   const visibleChildren = shouldLimitRows
@@ -67,59 +51,43 @@ export function StageGroup({
     : childrenArray;
   const hiddenCount = shouldLimitRows ? count - defaultRowsShown : 0;
 
-  // IDs for visible entities only (for SortableContext)
   const visibleEntityIds = shouldLimitRows
     ? entityIds.slice(0, defaultRowsShown)
     : entityIds;
 
   return (
     <div className="mb-2">
-      {/* Stage Header */}
       <button
         type="button"
         className={`hover:bg-muted/40 flex w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${
           showHighlight ? "bg-primary/5 ring-primary/30 ring-2" : ""
         }`}
-        style={
-          stage.color
-            ? { backgroundColor: `${stage.color}14` } // 8% opacity
-            : undefined
-        }
+        style={{ backgroundColor: `${category.color}14` }}
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
-        {/* Collapse chevron */}
         {isCollapsed ? (
           <ChevronRightIcon className="text-muted-foreground size-4 shrink-0" />
         ) : (
           <ChevronDownIcon className="text-muted-foreground size-4 shrink-0" />
         )}
-
-        {/* Stage icon */}
-        {renderStageIcon(stage.icon, "size-4 shrink-0", {
-          color: stage.color ?? "var(--muted-foreground)",
+        {renderIcon(category.icon, "size-4 shrink-0", {
+          color: category.color ?? "var(--muted-foreground)",
         })}
-
-        {/* Stage name */}
         <span className="min-w-0 truncate text-sm font-medium">
-          {stage.name}
+          {category.name}
         </span>
-
-        {/* Count */}
         <span className="text-muted-foreground text-xs">({count})</span>
       </button>
 
-      {/* Entity rows */}
       {!isCollapsed && (
         <div
           ref={setNodeRef}
-          className={`border-border ml-2 border-l-2 transition-colors ${
+          className={`border-border ml-2 min-w-0 border-l-2 transition-colors ${
             showHighlight ? "border-primary/40" : ""
           }`}
-          style={
-            stage.color
-              ? { borderLeftColor: showHighlight ? undefined : stage.color }
-              : undefined
-          }
+          style={{
+            borderLeftColor: showHighlight ? undefined : category.color,
+          }}
         >
           <SortableContext
             items={visibleEntityIds}
@@ -127,8 +95,6 @@ export function StageGroup({
           >
             {visibleChildren}
           </SortableContext>
-
-          {/* Show all link */}
           {shouldLimitRows && (
             <button
               type="button"
@@ -138,8 +104,6 @@ export function StageGroup({
               Show all ({hiddenCount} more)
             </button>
           )}
-
-          {/* Show less link when expanded */}
           {isShowingAll && count > defaultRowsShown && defaultRowsShown > 0 && (
             <button
               type="button"

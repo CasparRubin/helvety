@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety Notes",
   },
   description:
-    "Free and open-source note management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+    "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
   keywords: [
     "Helvety Notes",
     "note management",
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     siteName: "Helvety Notes",
     title: "Helvety Notes | Note Management",
     description:
-      "Free and open-source note management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+      "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety Notes | Note Management",
     description:
-      "Free and open-source note management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+      "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -140,7 +140,7 @@ export default async function RootLayout({
                 name: "Helvety Notes",
                 url: urls.notes,
                 description:
-                  "Free and open-source note management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+                  "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
                 applicationCategory: "BusinessApplication",
                 operatingSystem: "Any",
                 isAccessibleForFree: true,

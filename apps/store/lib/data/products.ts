@@ -442,16 +442,16 @@ const helvetyTasks: SaaSProduct = {
   slug: "helvety-tasks",
   name: "Helvety Tasks",
   shortDescription:
-    "A privacy-focused task management app with client-side encryption for sensitive fields. Organize tasks in a flat workflow with built-in stages and labels.",
+    "A privacy-focused task management app with client-side encryption for sensitive fields. Task list grouped by built-in stages with labels and priority in task details.",
   description: `Helvety Tasks is a task app with end-to-end encryption: sensitive task fields are encrypted in your browser before they are stored.
 
 Access — Free to use. There are no paid tiers, subscriptions, or business usage caps.
 
 Key features:
 • Encryption — sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
-• Workflow — one list with fixed stages and labels (for example Backlog, Discovery, Ready, In Progress, Testing, Acceptance, Completed, The Void)
+• Workflow — main list grouped by fixed stages (for example Backlog, Discovery, Ready, In Progress, Testing, Acceptance, Completed, The Void); labels and priority are set in task details
 • Rich text — headings, lists, links, and formatting in descriptions
-• Labels and priority — color-coded indicators to organize work
+• Labels and priority — set in the task detail sheet; color-coded in the editor (main list shows title and description)
 • Helvety Contacts — link contacts to tasks where the apps support it
 • Reorder — drag and drop within and between stages
 
@@ -463,7 +463,7 @@ Data protection — Processing is subject to applicable Swiss data protection la
   artist: "Alexandre Calame",
   features: [
     "End-to-end encryption for sensitive task content fields",
-    "Flat task workflow with stages and labels",
+    "Task list grouped by fixed stages; labels and priority in details",
     "Rich text editor with formatting",
     "Immutable built-in stages with consistent colors and icons",
     "Labels and priority levels",
@@ -620,17 +620,17 @@ const helvetyNotes: SaaSProduct = {
   slug: "helvety-notes",
   name: "Helvety Notes",
   shortDescription:
-    "A privacy-focused notes app with client-side encryption for sensitive fields. Keep title and description notes in one clean list.",
+    "A privacy-focused notes app with client-side encryption for sensitive fields. Title and description notes grouped by Personal, Work, and Other.",
   description: `Helvety Notes is a notes app with end-to-end encryption: sensitive note fields are encrypted in your browser before they are stored.
 
 Access — Free to use. There are no paid tiers, subscriptions, or business usage caps.
 
 Key features:
 • Encryption — sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
-• Structure — each note has a title and description in one list
+• Structure — each note has a title and description; the list is grouped by category (Personal, Work, Other)
 • Rich text — headings, lists, links, and formatting in descriptions
 • Helvety Tasks and Contacts — cross-link where the apps support it
-• Reorder — drag and drop to change note order
+• Reorder — drag and drop within and between categories
 
 Data protection — Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
   type: "saas",
@@ -640,7 +640,7 @@ Data protection — Processing is subject to applicable Swiss data protection la
   artist: "Rudolf Koller",
   features: [
     "End-to-end encryption for sensitive note content",
-    "Simple note model (title + description)",
+    "Note model: encrypted title and description; fixed categories for grouping",
     "Rich text editor with formatting",
     "Link notes with tasks and contacts",
     "Drag & drop reordering",

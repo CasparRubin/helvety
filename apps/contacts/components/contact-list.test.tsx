@@ -75,6 +75,25 @@ describe("ContactList", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows emptySearchMessage instead of category shells when filtered list is empty", () => {
+    render(
+      <ContactList
+        contacts={[]}
+        isLoading={false}
+        error={null}
+        categories={DEFAULT_CATEGORIES}
+        emptySearchMessage="No contacts match your search."
+      />
+    );
+
+    expect(
+      screen.getByText("No contacts match your search.")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Personal\(0\)/ })
+    ).not.toBeInTheDocument();
+  });
+
   it("renders contacts in a flat list when no categories are configured", () => {
     const contacts = [
       baseContact({

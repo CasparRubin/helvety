@@ -34,4 +34,11 @@ describe("notes note-encryption module surface", () => {
     expect("encryptLabelInput" in noteEncryption).toBe(false);
     expect("decryptLabelRow" in noteEncryption).toBe(false);
   });
+
+  it("exposes item encrypt/decrypt entrypoints (title/description only; category stays plaintext)", () => {
+    expect(typeof noteEncryption.encryptItemInput).toBe("function");
+    expect(typeof noteEncryption.encryptItemUpdate).toBe("function");
+    expect(typeof noteEncryption.decryptItemRow).toBe("function");
+    expect(typeof noteEncryption.decryptItemRows).toBe("function");
+  });
 });

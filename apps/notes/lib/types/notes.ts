@@ -10,7 +10,7 @@
 export interface ReorderUpdate {
   id: string;
   sort_order: number;
-  stage_id?: string | null;
+  category_id?: string;
 }
 
 // =============================================================================
@@ -18,19 +18,15 @@ export interface ReorderUpdate {
 // =============================================================================
 
 /**
- * Item row as stored in the database (encrypted fields)
- * Flat item rows (for notes in this app)
+ * One note row as stored in the database (encrypted title/description; plaintext structural fields).
  */
 export interface ItemRow {
   id: string;
   user_id: string;
   encrypted_title: string;
   encrypted_description: string | null;
-  encrypted_start_date?: string | null;
-  encrypted_end_date?: string | null;
-  stage_id?: string | null;
-  label_id?: string | null;
-  priority?: number;
+  /** Plaintext grouping (not encrypted). */
+  category_id: string;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -42,11 +38,8 @@ export interface Item {
   user_id: string;
   title: string;
   description: string | null;
-  start_date?: string | null;
-  end_date?: string | null;
-  stage_id?: string | null;
-  label_id?: string | null;
-  priority?: number;
+  /** Plaintext grouping (not encrypted). */
+  category_id: string;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -56,28 +49,7 @@ export interface Item {
 export interface ItemInput {
   title: string;
   description: string | null;
-  start_date?: string | null;
-  end_date?: string | null;
-  stage_id?: string | null;
-  label_id?: string | null;
-  priority?: number;
-}
-
-// =============================================================================
-// LEGACY UI SUPPORT TYPES
-// =============================================================================
-
-/** Decrypted Stage used by stage-grouped Notes views. */
-export interface Stage {
-  id: string;
-  config_id: string;
-  user_id: string;
-  name: string;
-  color: string | null;
-  icon: string;
-  sort_order: number;
-  default_rows_shown: number;
-  created_at: string;
+  category_id?: string;
 }
 
 // =============================================================================

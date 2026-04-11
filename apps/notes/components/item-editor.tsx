@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@helvety/shared/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,12 +12,20 @@ import {
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
+import { Card, CardContent } from "@helvety/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@helvety/ui/collapsible";
+import { renderIcon } from "@helvety/ui/icon-renderer";
 import { Input } from "@helvety/ui/input";
 import {
   parseRichTextContent,
   serializeRichTextContent,
 } from "@helvety/ui/tiptap-utils";
-import { Loader2Icon } from "lucide-react";
+import { useIsMobile } from "@helvety/ui/use-is-mobile";
+import { ChevronRightIcon, Loader2Icon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -24,6 +33,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemCommandBar } from "@/components/item-command-bar";
 import { useItem } from "@/hooks/use-items";
+import { DEFAULT_NOTE_CATEGORIES } from "@/lib/config/default-note-categories";
 
 import type { ItemRow } from "@/lib/types";
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
@@ -108,6 +118,12 @@ export function ItemEditor({
   // Delete item state
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSavingCategory, setIsSavingCategory] = useState(false);
+  const isMobile = useIsMobile();
+  const [categoryOverride, setCategoryOverride] = useState<boolean | null>(
+    null
+  );
+  const categoryOpen = categoryOverride ?? !isMobile;
 
   // Unsaved changes confirmation state
   const [pendingAction, setPendingAction] = useState<"back" | "refresh" | null>(
@@ -271,6 +287,19 @@ export function ItemEditor({
     }
   }, [pendingAction, doBack, doRefresh]);
 
+  const handleCategoryChange = useCallback(
+    async (categoryId: string) => {
+      if (!item || categoryId === item.category_id) return;
+      setIsSavingCategory(true);
+      try {
+        await update({ category_id: categoryId });
+      } finally {
+        setIsSavingCategory(false);
+      }
+    },
+    [item, update]
+  );
+
   // Handle delete item
   const handleDeleteItem = useCallback(async () => {
     setIsDeleting(true);
@@ -340,7 +369,7 @@ export function ItemEditor({
         deleteLabel="Delete Note"
       />
       <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb removed in flat list-first navigation */}
+        {/* Breadcrumb removed: list opens this sheet (no in-app hierarchy). */}
 
         <div className="flex flex-col gap-6">
           <div className="min-w-0">
@@ -372,6 +401,68 @@ export function ItemEditor({
                 onChange={handleDescriptionChange}
                 placeholder="Add a description... Use the toolbar above for formatting."
               />
+            </div>
+
+            <div className="mb-6">
+              <Card size="sm" className="bg-surface-panel">
+                <CardContent>
+                  <Collapsible
+                    open={categoryOpen}
+                    onOpenChange={setCategoryOverride}
+                  >
+                    <CollapsibleTrigger className="group flex w-full items-center justify-between">
+                      <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+                        Category
+                        {isSavingCategory && (
+                          <Loader2Icon className="size-3 animate-spin" />
+                        )}
+                      </h3>
+                      <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="mt-2 flex flex-col gap-1">
+                        {DEFAULT_NOTE_CATEGORIES.map((category) => {
+                          const isActive = item.category_id === category.id;
+                          return (
+                            <Button
+                              key={category.id}
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              disabled={isSavingCategory}
+                              className={cn(
+                                "h-auto justify-start gap-2 px-2.5 py-1.5",
+                                isActive && "ring-ring/30 bg-muted ring-1"
+                              )}
+                              style={
+                                isActive
+                                  ? { backgroundColor: `${category.color}18` }
+                                  : undefined
+                              }
+                              onClick={() => {
+                                void handleCategoryChange(category.id);
+                              }}
+                            >
+                              {renderIcon(category.icon, "size-4 shrink-0", {
+                                color:
+                                  category.color ?? "var(--muted-foreground)",
+                              })}
+                              <span
+                                className={cn(
+                                  "truncate text-sm",
+                                  isActive ? "font-medium" : "font-normal"
+                                )}
+                              >
+                                {category.name}
+                              </span>
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </CardContent>
+              </Card>
             </div>
 
             {!embedded && (

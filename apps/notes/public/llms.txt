@@ -1,6 +1,6 @@
 # Helvety Notes
 
-> Notes management application with client-side encryption for sensitive fields. Engineered and designed in Switzerland.
+> Notes management with client-side encryption for title and description; the in-app list groups notes by fixed categories (Personal, Work, Other). The main list can be filtered in the browser after unlock by title and description (local-only search; not sent to servers). Engineered and designed in Switzerland.
 
 ## Canonical URL
 - [Notes App](https://helvety.com/notes): Auth-required notes route

@@ -112,7 +112,7 @@ export function StageGroup({
       {!isCollapsed && (
         <div
           ref={setNodeRef}
-          className={`border-border ml-2 border-l-2 transition-colors ${
+          className={`border-border ml-2 min-w-0 border-l-2 transition-colors ${
             showHighlight ? "border-primary/40" : ""
           }`}
           style={

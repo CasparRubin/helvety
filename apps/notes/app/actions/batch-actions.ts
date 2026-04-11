@@ -9,14 +9,14 @@ import type { ActionResponse, ItemRow } from "@/lib/types";
 
 const MAX_DASHBOARD_ROWS = 2000;
 
-/** Data returned by the flat Notes dashboard batch fetch. */
+/** Data returned by the Notes dashboard batch fetch. */
 interface FlatItemsDashboardData {
   items: ItemRow[];
 }
 
 /**
- * Batch fetch all data needed for the flat Notes dashboard.
- * Returns all items across the current user.
+ * Batch fetch all data needed for the main Notes dashboard.
+ * Returns all notes for the current user (ordered by `sort_order`, with plaintext `category_id`).
  */
 export async function getFlatItemsDashboardData(): Promise<
   ActionResponse<FlatItemsDashboardData>

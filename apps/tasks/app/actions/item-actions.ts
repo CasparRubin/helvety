@@ -157,7 +157,7 @@ export async function createItem(
 }
 
 /**
- * Get all Items for the current user (flat list).
+ * Get all tasks for the current user, ordered by `sort_order` (newest tie-break on `created_at`).
  */
 export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
   try {

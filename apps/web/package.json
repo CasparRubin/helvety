@@ -31,28 +31,28 @@
     "@helvety/brand": "workspace:*",
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
-    "@supabase/supabase-js": "^2.101.1",
+    "@supabase/supabase-js": "^2.103.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.577.0",
-    "next": "^16.2.2",
+    "next": "^16.2.3",
     "next-themes": "^0.4.6",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
     "@testing-library/jest-dom": "^6.9.1",
-    "@types/node": "^25.5.2",
+    "@types/node": "^25.6.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9.39.4",
-    "jsdom": "^29.0.1",
-    "prettier": "^3.8.1",
+    "jsdom": "^29.0.2",
+    "prettier": "^3.8.2",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "shadcn": "^3.8.5",
     "@tailwindcss/postcss": "^4.2.2",
     "tailwindcss": "^4.2.2",
     "typescript": "^5",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.4"
   }
 }

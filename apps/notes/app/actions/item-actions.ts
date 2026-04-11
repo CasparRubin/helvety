@@ -8,9 +8,12 @@ import { isUuidString } from "@helvety/shared/uuid-string";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { ALLOWED_NOTE_CATEGORY_IDS } from "@/lib/config/default-note-categories";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ItemRow } from "@/lib/types";
+
+const NoteCategoryIdSchema = z.enum(ALLOWED_NOTE_CATEGORY_IDS);
 
 /** Revalidate item routes impacted by structural item mutations. */
 function revalidateItemRoutes(): void {
@@ -25,20 +28,26 @@ const NOTES_ITEMS_TABLE = "notes" as const;
 // =============================================================================
 
 /** Schema for creating an Item */
-const CreateItemSchema = z.object({
-  id: z.string().uuid(),
-  encrypted_title: EncryptedDataSchema,
-  encrypted_description: EncryptedDataSchema.nullable(),
-  sort_order: z.number().int().min(0).optional(),
-});
+const CreateItemSchema = z
+  .object({
+    id: z.string().uuid(),
+    encrypted_title: EncryptedDataSchema,
+    encrypted_description: EncryptedDataSchema.nullable(),
+    sort_order: z.number().int().min(0).optional(),
+    category_id: NoteCategoryIdSchema.optional(),
+  })
+  .strict();
 
 /** Schema for updating an Item */
-const UpdateItemSchema = z.object({
-  id: z.string().uuid(),
-  encrypted_title: EncryptedDataSchema.optional(),
-  encrypted_description: EncryptedDataSchema.nullable().optional(),
-  sort_order: z.number().int().min(0).optional(),
-});
+const UpdateItemSchema = z
+  .object({
+    id: z.string().uuid(),
+    encrypted_title: EncryptedDataSchema.optional(),
+    encrypted_description: EncryptedDataSchema.nullable().optional(),
+    sort_order: z.number().int().min(0).optional(),
+    category_id: NoteCategoryIdSchema.optional(),
+  })
+  .strict();
 
 // =============================================================================
 // ITEM ACTIONS
@@ -52,6 +61,7 @@ export async function createItem(
     id: string;
     encrypted_title: string;
     encrypted_description: string | null;
+    category_id?: string;
   },
   csrfToken: string
 ): Promise<ActionResponse<{ id: string }>> {
@@ -82,6 +92,9 @@ export async function createItem(
       encrypted_title: validatedData.encrypted_title,
       encrypted_description: validatedData.encrypted_description,
     };
+    if (validatedData.category_id !== undefined) {
+      insertObj.category_id = validatedData.category_id;
+    }
 
     const { data: item, error } = await supabase
       .from(NOTES_ITEMS_TABLE)
@@ -110,7 +123,7 @@ export async function createItem(
 }
 
 /**
- * Get all Items for the current user (flat list).
+ * Get all notes for the current user, ordered by `sort_order` (newest tie-break on `created_at`).
  */
 export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
   try {
@@ -184,6 +197,7 @@ export async function updateItem(
     encrypted_title?: string;
     encrypted_description?: string | null;
     sort_order?: number;
+    category_id?: string;
   },
   csrfToken: string
 ): Promise<ActionResponse> {
@@ -220,6 +234,9 @@ export async function updateItem(
     }
     if (validatedData.sort_order !== undefined) {
       updateObj.sort_order = validatedData.sort_order;
+    }
+    if (validatedData.category_id !== undefined) {
+      updateObj.category_id = validatedData.category_id;
     }
 
     // Update item (RLS + explicit user_id check for defense-in-depth)

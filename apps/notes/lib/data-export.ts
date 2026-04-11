@@ -25,6 +25,7 @@ interface DecryptedNoteExport {
     id: string;
     title: string;
     description: string | null;
+    categoryId: string;
     sortOrder: number;
     createdAt: string;
     updatedAt: string;
@@ -59,6 +60,7 @@ async function exportDecryptedNoteData(
       id: item.id,
       title: item.title,
       description: item.description,
+      categoryId: item.category_id,
       sortOrder: item.sort_order,
       createdAt: item.created_at,
       updatedAt: item.updated_at,

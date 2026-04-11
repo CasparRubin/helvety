@@ -11,6 +11,8 @@
  * is derived.
  */
 
+import { DEFAULT_NOTE_CATEGORY_ID } from "@/lib/config/default-note-categories";
+
 import {
   encrypt,
   decrypt,
@@ -87,6 +89,7 @@ export async function decryptItemRow(
     user_id: row.user_id,
     title,
     description,
+    category_id: row.category_id ?? DEFAULT_NOTE_CATEGORY_ID,
     sort_order: row.sort_order,
     created_at: row.created_at,
     updated_at: row.updated_at,

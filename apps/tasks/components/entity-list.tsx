@@ -23,7 +23,7 @@ import { useCallback, useMemo, useState } from "react";
 import { EntityRow } from "@/components/entity-row";
 import { StageGroup } from "@/components/stage-group";
 
-import type { Item, Stage, Label, ReorderUpdate } from "@/lib/types";
+import type { Item, Stage, ReorderUpdate } from "@/lib/types";
 
 /**
  * Unified entity type for the list.
@@ -52,8 +52,6 @@ interface EntityListProps {
   stages: Stage[];
   /** Optional precomputed map of entity id -> child count (unused in flat task flow) */
   childCounts?: Record<string, number>;
-  /** Available labels for the current view (items only) */
-  labels?: Label[];
   /** Callback when an entity row is clicked (fallback when entityHref not provided) */
   onEntityClick?: (entity: AnyEntity) => void;
   /** URL for entity navigation — use Link instead of imperative router.push callbacks where possible */
@@ -64,6 +62,8 @@ interface EntityListProps {
   onEntityDelete?: (id: string, title: string) => void;
   /** Callback for batch reorder (drag-and-drop) */
   onReorder?: (updates: ReorderUpdate[]) => Promise<boolean>;
+  /** Shown when the list is empty because of an active client-side search (not the default empty state). */
+  emptySearchMessage?: string;
   /** Empty state title (shown when no stages and no entities) */
   emptyTitle?: string;
   /** Empty state description (shown when no stages and no entities) */
@@ -87,16 +87,17 @@ export function EntityList({
   onRetry,
   stages,
   childCounts,
-  labels,
   onEntityClick,
   entityHref,
   onEntityPrefetch,
   onEntityDelete,
   onReorder,
+  emptySearchMessage,
   emptyTitle = "Nothing here yet",
   emptyDescription = "Create your first entry to get started.",
 }: EntityListProps) {
   const hasStages = stages.length > 0;
+  const sortableDisabled = onReorder == null;
 
   // DnD sensors
   const sensors = useSensors(
@@ -144,16 +145,6 @@ export function EntityList({
     }
     return map;
   }, [stages]);
-
-  // Build a label map for quick lookup
-  const labelMap = useMemo(() => {
-    if (!labels || labels.length === 0) return null;
-    const map = new Map<string, Label>();
-    for (const l of labels) {
-      map.set(l.id, l);
-    }
-    return map;
-  }, [labels]);
 
   // Group entities by stage
   const groupedEntities = useMemo(() => {
@@ -359,6 +350,14 @@ export function EntityList({
     );
   }
 
+  if (entities.length === 0 && emptySearchMessage) {
+    return (
+      <div className="text-muted-foreground flex justify-center py-12 text-center text-sm">
+        {emptySearchMessage}
+      </div>
+    );
+  }
+
   const sortedEntities = [...entities].sort(
     (a, b) => a.sort_order - b.sort_order
   );
@@ -405,12 +404,6 @@ export function EntityList({
                       description={entity.description}
                       createdAt={entity.created_at}
                       stage={stageMap.get(entity.stage_id ?? "")}
-                      priority={entity.priority}
-                      label={
-                        entity.label_id
-                          ? (labelMap?.get(entity.label_id) ?? null)
-                          : null
-                      }
                       childCount={childCounts?.[entity.id]}
                       isFirst={isFirstStage}
                       isLast={isLastStage}
@@ -432,6 +425,7 @@ export function EntityList({
                           ? () => handleMoveDown(entity.id)
                           : undefined
                       }
+                      sortableDisabled={sortableDisabled}
                     />
                   ))}
                 </StageGroup>
@@ -466,12 +460,6 @@ export function EntityList({
                   title={entity.title}
                   description={entity.description}
                   createdAt={entity.created_at}
-                  priority={entity.priority}
-                  label={
-                    entity.label_id
-                      ? (labelMap?.get(entity.label_id) ?? null)
-                      : null
-                  }
                   childCount={childCounts?.[entity.id]}
                   isFirst={idx === 0}
                   isLast={idx === sortedEntities.length - 1}
@@ -493,6 +481,7 @@ export function EntityList({
                       ? () => handleMoveDown(entity.id)
                       : undefined
                   }
+                  sortableDisabled={sortableDisabled}
                 />
               ))}
             </SortableContext>

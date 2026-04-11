@@ -17,6 +17,7 @@ import {
   getItem,
   updateItem,
 } from "@/app/actions/item-actions";
+import { DEFAULT_NOTE_CATEGORY_ID } from "@/lib/config/default-note-categories";
 import {
   decryptItemRow,
   decryptItemRows,
@@ -162,7 +163,15 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
 
       try {
         const encrypted = await encryptItemInput(input, masterKey);
-        const result = await createItem(encrypted, csrfToken);
+        const result = await createItem(
+          {
+            ...encrypted,
+            ...(input.category_id !== undefined
+              ? { category_id: input.category_id }
+              : {}),
+          },
+          csrfToken
+        );
         if (!result.success) {
           if (triggerHardLogoutForError(result.error)) {
             return null;
@@ -182,6 +191,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
             user_id: prev[0]?.user_id ?? "",
             title: input.title,
             description: input.description,
+            category_id: input.category_id ?? DEFAULT_NOTE_CATEGORY_ID,
             sort_order: maxSortOrder + 1,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -218,6 +228,9 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
           {
             id,
             ...encrypted,
+            ...(input.category_id !== undefined
+              ? { category_id: input.category_id }
+              : {}),
           },
           csrfToken
         );
@@ -240,6 +253,9 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
               ...(input.title !== undefined && { title: input.title }),
               ...(input.description !== undefined && {
                 description: input.description,
+              }),
+              ...(input.category_id !== undefined && {
+                category_id: input.category_id,
               }),
               updated_at: new Date().toISOString(),
             };
@@ -311,6 +327,9 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
           return {
             ...item,
             sort_order: match.sort_order,
+            ...(match.category_id !== undefined && {
+              category_id: match.category_id,
+            }),
           };
         });
         return updated.toSorted((a, b) => a.sort_order - b.sort_order);
@@ -502,6 +521,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
           {
             id,
             ...encrypted,
+            ...(input.category_id !== undefined
+              ? { category_id: input.category_id }
+              : {}),
           },
           csrfToken
         );
@@ -523,6 +545,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
             ...(input.title !== undefined && { title: input.title }),
             ...(input.description !== undefined && {
               description: input.description,
+            }),
+            ...(input.category_id !== undefined && {
+              category_id: input.category_id,
             }),
             updated_at: new Date().toISOString(),
           };

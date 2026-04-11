@@ -1,5 +1,6 @@
 "use client";
 
+import { matchesClientSearch } from "@helvety/shared/client-search";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -11,12 +12,14 @@ import {
 } from "@helvety/ui/dialog";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
+import { ListSearchField } from "@helvety/ui/list-search-field";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@helvety/ui/sheet";
+import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
 import { Loader2Icon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState, useTransition } from "react";
@@ -27,16 +30,17 @@ import { ItemEditor } from "@/components/item-editor";
 import { NoteCommandBar } from "@/components/note-command-bar";
 import { useDataExport } from "@/hooks/use-data-export";
 import { useItems } from "@/hooks/use-items";
+import { DEFAULT_NOTE_CATEGORIES } from "@/lib/config/default-note-categories";
 import { useEncryptionContext } from "@/lib/crypto";
 
 import type { ItemRow } from "@/lib/types";
 
-/** Props for the flat notes dashboard. */
+/** Props for the main `/notes` dashboard (category-grouped list + sheet editor). */
 interface FlatNotesDashboardProps {
   initialEncryptedItems?: ItemRow[];
 }
 
-/** Flat `/notes` dashboard with item list and sheet detail editor. */
+/** `/notes` dashboard: notes grouped by fixed categories, sheet detail editor. */
 export function FlatNotesDashboard({
   initialEncryptedItems,
 }: FlatNotesDashboardProps): React.JSX.Element {
@@ -49,6 +53,9 @@ export function FlatNotesDashboard({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
+  const [newCategoryId, setNewCategoryId] = useState(
+    DEFAULT_NOTE_CATEGORIES[0]!.id
+  );
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isCreating, startCreateTransition] = useTransition();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(() => {
@@ -61,11 +68,28 @@ export function FlatNotesDashboard({
     name: string | null;
   }>({ open: false, id: null, name: null });
   const [isDeleting, startDeleteTransition] = useTransition();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const selectedItem = useMemo(
     () => items.find((item) => item.id === selectedItemId) ?? null,
     [items, selectedItemId]
   );
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return items;
+    return items.filter((item) =>
+      matchesClientSearch(
+        [item.title, getRichTextPlainText(item.description ?? "") ?? ""],
+        searchQuery
+      )
+    );
+  }, [items, searchQuery]);
+
+  const isSearchActive = searchQuery.trim() !== "";
+  const emptySearchMessage =
+    isSearchActive && items.length > 0 && filteredItems.length === 0
+      ? "No notes match your search."
+      : undefined;
 
   const handleCreate = useCallback(
     (e: React.FormEvent) => {
@@ -76,16 +100,18 @@ export function FlatNotesDashboard({
         const result = await create({
           title: newTitle.trim(),
           description: newDescription.trim() || null,
+          category_id: newCategoryId,
         });
 
         if (result) {
           setNewTitle("");
           setNewDescription("");
+          setNewCategoryId(DEFAULT_NOTE_CATEGORIES[0]!.id);
           setIsCreateOpen(false);
         }
       });
     },
-    [newTitle, newDescription, create]
+    [newTitle, newDescription, newCategoryId, create]
   );
 
   const handleRefresh = useCallback(() => {
@@ -106,19 +132,28 @@ export function FlatNotesDashboard({
       />
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-2xl font-semibold">Notes</h1>
+        <h1 className="mb-4 text-2xl font-semibold">Notes</h1>
+
+        <ListSearchField
+          className="mb-4"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search notes…"
+          aria-label="Search notes"
+        />
 
         <EntityList
-          entities={items}
+          entities={filteredItems}
           isLoading={isLoading}
           error={error}
           onRetry={refresh}
-          stages={[]}
+          categories={DEFAULT_NOTE_CATEGORIES}
           onEntityClick={(entity) => setSelectedItemId(entity.id)}
           onEntityDelete={(id, title) =>
             setDeleteState({ open: true, id, name: title })
           }
-          onReorder={reorder}
+          onReorder={isSearchActive ? undefined : reorder}
+          emptySearchMessage={emptySearchMessage}
         />
       </div>
 
@@ -128,9 +163,9 @@ export function FlatNotesDashboard({
             <DialogHeader>
               <DialogTitle>Create Note</DialogTitle>
               <DialogDescription>
-                Create a new note. Sensitive content fields are end-to-end
-                encrypted; some structural metadata remains unencrypted for app
-                functionality.
+                Create a new note. Title and description are end-to-end
+                encrypted. Category (Personal, Work, Other) and ordering stay
+                plaintext so the app can group and sort your list.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -152,6 +187,21 @@ export function FlatNotesDashboard({
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="note-category">Category</Label>
+                <select
+                  id="note-category"
+                  className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={newCategoryId}
+                  onChange={(e) => setNewCategoryId(e.target.value)}
+                >
+                  {DEFAULT_NOTE_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             <DialogFooter>

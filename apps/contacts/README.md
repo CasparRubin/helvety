@@ -21,6 +21,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 - **End-to-end encryption** - Sensitive contact content fields are encrypted client-side using your passkey (see [Encrypted vs. Non-Encrypted Fields](#encrypted-vs-non-encrypted-fields) below)
 - **Category-grouped contacts** - `/contacts` opens into your contact list grouped by fixed categories (category headers and drop targets stay visible even when you have no contacts, consistent with stage columns in Tasks); contact details open in a large sheet
+- **Main list search (client-side)** - After unlock, filter contacts in the browser by **name** (first + last), **email**, **description**, and **notes** (plain text). Phone, birthday, and category are **not** searched. Search is local only (not sent to the server; not in the URL). While the search field has text, **drag-and-drop reorder and category up/down arrows are disabled**
 - **Contact fields** - Each contact stores First Name(s), Last Name(s), Description, Email, Phone, Birthday, and Notes
 - **Rich text notes** - Rich text editor for contact notes with formatting toolbar
   - Text formatting (bold, italic, underline, strikethrough)
@@ -30,7 +31,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - Unsaved changes detection with confirmation dialog
   - Manual note editing with unsaved-changes detection; editor toolbar uses icon buttons on desktop, with an orange **Save Changes** label when edits are pending
   - **Action panel** - View contact metadata dates and set category directly from the editor
-- **Category movement controls** - Move contacts between categories via drag/drop and row-level up/down arrows
+- **Category movement controls** - Move contacts between categories via drag/drop and row-level up/down arrows when the main-list search field is empty
 - **Controlled row-link prefetching** - Dense contact lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
 - **Consistency safeguards for list updates** - UI keeps optimistic interactions fast while ignoring stale in-flight refresh responses; server mutations also trigger route revalidation so prefetched pages stay aligned
 - **Task linking** - Link, unlink, and view task items from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
@@ -179,7 +180,7 @@ Run these commands from `apps/contacts`:
 | `bun run test:watch`    | Run tests in watch mode           |
 | `bun run test:coverage` | Run tests with v8 coverage report |
 
-Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test. List behavior (`ContactList`) is covered for empty address books with fixed categories, the global empty state when no categories are configured, and the flat list fallback.
+Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test. List behavior (`ContactList`) is covered for empty address books with fixed categories, the global empty state when no categories are configured, the flat list fallback, and the **client-side search no-match** message (`emptySearchMessage`) instead of empty category shells.
 
 ## Developer
 

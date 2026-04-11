@@ -145,6 +145,7 @@ export type Database = {
       };
       notes: {
         Row: {
+          category_id: string;
           created_at: string;
           encrypted_description: string | null;
           encrypted_title: string;
@@ -154,6 +155,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          category_id?: string;
           created_at?: string;
           encrypted_description?: string | null;
           encrypted_title: string;
@@ -163,6 +165,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          category_id?: string;
           created_at?: string;
           encrypted_description?: string | null;
           encrypted_title?: string;
