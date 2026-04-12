@@ -50,8 +50,6 @@ interface EntityListProps {
   onRetry?: () => void;
   /** Available stages for the current view */
   stages: Stage[];
-  /** Optional precomputed map of entity id -> child count (unused in flat task flow) */
-  childCounts?: Record<string, number>;
   /** Callback when an entity row is clicked (fallback when entityHref not provided) */
   onEntityClick?: (entity: AnyEntity) => void;
   /** URL for entity navigation — use Link instead of imperative router.push callbacks where possible */
@@ -86,7 +84,6 @@ export function EntityList({
   error,
   onRetry,
   stages,
-  childCounts,
   onEntityClick,
   entityHref,
   onEntityPrefetch,
@@ -403,8 +400,9 @@ export function EntityList({
                       title={entity.title}
                       description={entity.description}
                       createdAt={entity.created_at}
-                      stage={stageMap.get(entity.stage_id ?? "")}
-                      childCount={childCounts?.[entity.id]}
+                      stageColor={
+                        stageMap.get(entity.stage_id ?? "")?.color ?? undefined
+                      }
                       isFirst={isFirstStage}
                       isLast={isLastStage}
                       href={entityHref?.(entity)}
@@ -460,7 +458,6 @@ export function EntityList({
                   title={entity.title}
                   description={entity.description}
                   createdAt={entity.created_at}
-                  childCount={childCounts?.[entity.id]}
                   isFirst={idx === 0}
                   isLast={idx === sortedEntities.length - 1}
                   href={entityHref?.(entity)}

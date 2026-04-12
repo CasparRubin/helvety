@@ -15,17 +15,14 @@ import {
 import Link from "next/link";
 import { memo } from "react";
 
-import type { Stage } from "@/lib/types";
-
 /** Props for a single entity row in the list view. */
 interface EntityRowProps {
   id: string;
   title: string;
   description: string | null;
   createdAt: string;
-  stage?: Stage | null;
-  /** Legacy child-count indicator (not used in current item-first flow) */
-  childCount?: number;
+  /** Stage accent for the row icon (grouped list). */
+  stageColor?: string;
   isFirst?: boolean;
   isLast?: boolean;
   /** Navigation URL — when provided, renders Link for declarative nav to reduce stale imperative-push callbacks */
@@ -40,10 +37,9 @@ interface EntityRowProps {
 }
 
 /**
- * EntityRow - A single row in the entity list/table.
+ * EntityRow - A single row in the tasks list.
  *
- * Shows drag handle, icon (stage-colored), title, description (subtle), date, and actions.
- * Stage move arrows and delete actions are available across screen sizes.
+ * Shows drag handle, icon, title, description (subtle), date, and actions.
  */
 export const EntityRow = memo(
   ({
@@ -51,8 +47,7 @@ export const EntityRow = memo(
     title,
     description,
     createdAt,
-    stage,
-    childCount,
+    stageColor,
     isFirst = false,
     isLast = false,
     href,
@@ -77,7 +72,7 @@ export const EntityRow = memo(
       transition,
     };
 
-    const rowClassName = `group border-border flex min-w-0 w-full max-w-full cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
+    const rowClassName = `group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
       isDragging
         ? "bg-muted/80 z-50 rounded-md shadow-lg"
         : "hover:bg-muted/40 [content-visibility:auto]"
@@ -99,20 +94,13 @@ export const EntityRow = memo(
           </button>
         )}
 
-        {/* Icon */}
         <BoxIcon
           className="size-4 shrink-0"
-          style={stage?.color ? { color: stage.color } : undefined}
+          style={stageColor ? { color: stageColor } : undefined}
         />
 
-        {/* Title + Description */}
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <span className="truncate font-medium">{title}</span>
-          {childCount !== undefined && (
-            <span className="text-muted-foreground shrink-0 text-xs">
-              ({childCount})
-            </span>
-          )}
           {description && (
             <span className="text-muted-foreground hidden truncate text-sm md:inline">
               {getRichTextPlainText(description)}

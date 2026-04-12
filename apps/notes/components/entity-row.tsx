@@ -23,8 +23,6 @@ interface EntityRowProps {
   createdAt: string;
   /** Category accent for the row icon (grouped list). */
   categoryColor?: string;
-  /** Legacy child-count indicator (not used in current item-first flow) */
-  childCount?: number;
   isFirst?: boolean;
   isLast?: boolean;
   /** Navigation URL — when provided, renders Link for declarative nav to reduce stale imperative-push callbacks */
@@ -50,7 +48,6 @@ export const EntityRow = memo(
     description,
     createdAt,
     categoryColor,
-    childCount,
     isFirst = false,
     isLast = false,
     href,
@@ -75,7 +72,7 @@ export const EntityRow = memo(
       transition,
     };
 
-    const rowClassName = `group border-border flex min-w-0 w-full max-w-full cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
+    const rowClassName = `group border-border flex cursor-pointer items-center gap-2 overflow-hidden border-b px-3 py-2.5 transition-colors [contain-intrinsic-size:auto_52px] last:border-b-0 ${
       isDragging
         ? "bg-muted/80 z-50 rounded-md shadow-lg"
         : "hover:bg-muted/40 [content-visibility:auto]"
@@ -103,11 +100,6 @@ export const EntityRow = memo(
 
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <span className="truncate font-medium">{title}</span>
-          {childCount !== undefined && (
-            <span className="text-muted-foreground shrink-0 text-xs">
-              ({childCount})
-            </span>
-          )}
           {description && (
             <span className="text-muted-foreground hidden truncate text-sm md:inline">
               {getRichTextPlainText(description)}
