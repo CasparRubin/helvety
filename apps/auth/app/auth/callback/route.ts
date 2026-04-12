@@ -96,7 +96,9 @@ async function enforceCallbackRateLimit(
     RATE_LIMITS.AUTH_CALLBACK.windowMs
   );
   if (!rateLimit.allowed) {
-    return NextResponse.redirect(`${authBase}/login?error=rate_limited`);
+    return NextResponse.redirect(
+      buildErrorRedirect(authBase, "rate_limited", safeRedirectUri)
+    );
   }
 
   return null;

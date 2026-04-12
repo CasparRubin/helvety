@@ -209,7 +209,7 @@ export async function getAllNoteDataForExport(): Promise<
       };
     }
 
-    logger.info(`Data export requested for user ${user.id}`);
+    logger.info("Data export requested", { source: "notes" });
 
     return {
       success: true,

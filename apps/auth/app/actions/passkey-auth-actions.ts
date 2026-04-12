@@ -66,6 +66,11 @@ const PasskeyCredentialIdSchema = z.object({
   id: z.string().min(1),
 });
 
+const PASSKEY_OPTIONS_GENERIC_ERROR =
+  "Unable to start passkey authentication. Please try signing in with email.";
+const PASSKEY_VERIFY_GENERIC_ERROR =
+  "Passkey authentication failed. Please try again.";
+
 // =============================================================================
 // AUTHENTICATION (returning users)
 // =============================================================================
@@ -107,6 +112,12 @@ export async function generatePasskeyAuthOptions(
     ?.toLowerCase()
     .trim();
   const clientIP = await getClientIP();
+  if (!clientIP) {
+    return {
+      success: false,
+      error: "Unable to process request. Please try again.",
+    };
+  }
 
   // Rate limit by IP
   const rateLimit = await checkRateLimit(
@@ -145,7 +156,7 @@ export async function generatePasskeyAuthOptions(
         });
         return {
           success: false,
-          error: "No passkey found for this account. Please sign in again.",
+          error: PASSKEY_OPTIONS_GENERIC_ERROR,
         };
       }
 
@@ -163,8 +174,7 @@ export async function generatePasskeyAuthOptions(
         });
         return {
           success: false,
-          error:
-            "No passkey is available for this account. Please sign in with email again.",
+          error: PASSKEY_OPTIONS_GENERIC_ERROR,
         };
       }
 
@@ -214,7 +224,7 @@ export async function generatePasskeyAuthOptions(
     logger.logUnexpectedError("Error generating authentication options", error);
     return {
       success: false,
-      error: "Failed to generate authentication options",
+      error: PASSKEY_OPTIONS_GENERIC_ERROR,
     };
   }
 }
@@ -257,6 +267,12 @@ export async function verifyPasskeyAuthentication(
   }
 
   const clientIP = await getClientIP();
+  if (!clientIP) {
+    return {
+      success: false,
+      error: "Unable to process request. Please try again.",
+    };
+  }
 
   // Rate limit by IP to prevent brute force verification attempts
   const rateLimit = await checkRateLimit(
@@ -296,7 +312,7 @@ export async function verifyPasskeyAuthentication(
         metadata: { reason: "challenge_expired" },
         ip: clientIP,
       });
-      return { success: false, error: "Challenge expired or not found" };
+      return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
     }
 
     // One challenge must be single-use: clear it after the first verification attempt
@@ -321,7 +337,7 @@ export async function verifyPasskeyAuthentication(
           metadata: { reason: "credential_not_found" },
           ip: clientIP,
         });
-        return { success: false, error: "Credential not found" };
+        return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
       }
 
       const credential = credentialData as UserAuthCredential;
@@ -386,7 +402,7 @@ export async function verifyPasskeyAuthentication(
           metadata: { reason: "verification_error" },
           ip: clientIP,
         });
-        return { success: false, error: "Authentication verification failed" };
+        return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
       }
 
       if (!verification.verified) {
@@ -395,7 +411,7 @@ export async function verifyPasskeyAuthentication(
           metadata: { reason: "verification_failed" },
           ip: clientIP,
         });
-        return { success: false, error: "Authentication verification failed" };
+        return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
       }
 
       // Update the counter to prevent replay attacks
@@ -421,7 +437,7 @@ export async function verifyPasskeyAuthentication(
         );
         return {
           success: false,
-          error: "Authentication failed - please try again",
+          error: PASSKEY_VERIFY_GENERIC_ERROR,
         };
       }
 
@@ -431,11 +447,11 @@ export async function verifyPasskeyAuthentication(
 
       if (userError || !userData.user) {
         logger.logUnexpectedError("Error getting user", userError);
-        return { success: false, error: "User not found" };
+        return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
       }
 
       if (!userData.user.email) {
-        return { success: false, error: "User has no email" };
+        return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
       }
 
       if (
@@ -466,7 +482,7 @@ export async function verifyPasskeyAuthentication(
 
       if (linkError || !linkData.properties?.hashed_token) {
         logger.logUnexpectedError("Error generating auth link", linkError);
-        return { success: false, error: "Failed to create session" };
+        return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
       }
 
       // Verify the auth token server-side to create the session immediately
@@ -479,7 +495,7 @@ export async function verifyPasskeyAuthentication(
 
       if (verifyError) {
         logger.logUnexpectedError("Error verifying OTP", verifyError);
-        return { success: false, error: "Failed to create session" };
+        return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
       }
 
       // Rotate CSRF token after authentication state change to prevent
@@ -521,6 +537,6 @@ export async function verifyPasskeyAuthentication(
       metadata: { reason: "unexpected_error" },
       ip: clientIP,
     });
-    return { success: false, error: "Failed to verify authentication" };
+    return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
   }
 }

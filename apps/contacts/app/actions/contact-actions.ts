@@ -5,6 +5,7 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
+import { RATE_LIMITS } from "@helvety/shared/rate-limit";
 import { isUuidString } from "@helvety/shared/uuid-string";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
@@ -393,6 +394,23 @@ export async function reorderContacts(
       return { success: true };
     }
 
+    const updateIds = validatedUpdates.map((update) => update.id);
+    const { data: ownedRows, error: ownedRowsError } = await supabase
+      .from("contacts")
+      .select("id")
+      .eq("user_id", user.id)
+      .in("id", updateIds);
+    if (ownedRowsError) {
+      logger.logUnexpectedError(
+        "Error validating contact reorder scope",
+        ownedRowsError
+      );
+      return { success: false, error: "Failed to reorder contacts" };
+    }
+    if ((ownedRows ?? []).length !== updateIds.length) {
+      return { success: false, error: "Invalid contact reorder scope" };
+    }
+
     // Batch updates in chunks to avoid saturating DB connections.
     const now = new Date().toISOString();
     const results = [];
@@ -435,6 +453,71 @@ export async function reorderContacts(
   } catch (error) {
     after(() =>
       logger.logUnexpectedError("Unexpected error in reorderContacts", error)
+    );
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// =============================================================================
+// DATA EXPORT (nDSG Art. 28, Right to Data Portability)
+// =============================================================================
+
+/**
+ * Fetch all encrypted contact data for export.
+ * Returns all contacts as encrypted rows.
+ * The client is responsible for decrypting the data using the user's
+ * encryption key before presenting or saving the export.
+ *
+ * Legal basis: nDSG Art. 28 (right to data portability)
+ */
+export async function getAllContactDataForExport(): Promise<
+  ActionResponse<ContactRow[]>
+> {
+  try {
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "export",
+      rateLimitConfig: { maxRequests: 5, windowMs: RATE_LIMITS.API.windowMs },
+    });
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
+
+    const { data: contacts, error } = await supabase
+      .from("contacts")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("sort_order", { ascending: true })
+      .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)
+      .returns<ContactRow[]>();
+
+    if (error) {
+      logger.logUnexpectedError(
+        "Error fetching contact data for export",
+        error
+      );
+      return { success: false, error: "Failed to fetch contact data" };
+    }
+
+    if ((contacts?.length ?? 0) > ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE) {
+      logger.warn("Export exceeds maximum row cap", {
+        items: contacts?.length ?? 0,
+        cap: ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE,
+      });
+      return {
+        success: false,
+        error:
+          "Export too large for a single request. Please reduce dataset size and retry.",
+      };
+    }
+
+    logger.info("Data export requested", { source: "contacts" });
+
+    return { success: true, data: contacts ?? [] };
+  } catch (error) {
+    after(() =>
+      logger.logUnexpectedError(
+        "Unexpected error in getAllContactDataForExport",
+        error
+      )
     );
     return { success: false, error: "An unexpected error occurred" };
   }

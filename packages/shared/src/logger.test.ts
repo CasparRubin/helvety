@@ -86,6 +86,26 @@ describe("logger", () => {
     expect(parsed.metadata.userId).toBe("user-1");
   });
 
+  it("redacts PII keys (email, phone, address) from structured output", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const { logger } = await import("./logger");
+
+    logger.error("User data leak attempt", {
+      email: "user@example.com",
+      phone: "+41791234567",
+      address: "Bahnhofstrasse 1",
+      action: "export",
+    });
+
+    const output = (console.error as ReturnType<typeof vi.fn>).mock
+      .calls[0]![0] as string;
+    const parsed = JSON.parse(output);
+    expect(parsed.metadata).not.toHaveProperty("email");
+    expect(parsed.metadata).not.toHaveProperty("phone");
+    expect(parsed.metadata).not.toHaveProperty("address");
+    expect(parsed.metadata.action).toBe("export");
+  });
+
   it("logUnexpectedError emits Error message and scope in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
     const { logger } = await import("./logger");

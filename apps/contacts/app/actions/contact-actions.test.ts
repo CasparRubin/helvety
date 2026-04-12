@@ -18,7 +18,14 @@ vi.mock("@helvety/shared/logger", () => ({
   logger: {
     error: vi.fn(),
     warn: mocks.loggerWarn,
+    info: vi.fn(),
     logUnexpectedError: mocks.logUnexpectedError,
+  },
+}));
+
+vi.mock("@helvety/shared/rate-limit", () => ({
+  RATE_LIMITS: {
+    API: { maxRequests: 100, windowMs: 60_000 },
   },
 }));
 
@@ -32,6 +39,7 @@ vi.mock("next/server", () => ({
 
 import {
   createContact,
+  getAllContactDataForExport,
   getContact,
   reorderContacts,
   updateContact,
@@ -326,10 +334,21 @@ describe("contact-actions", () => {
     const updateEqUser = vi.fn().mockResolvedValue({ error: null });
     const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
     const update = vi.fn(() => ({ eq: updateEqId }));
+    const inIds = vi.fn().mockResolvedValue({
+      data: [{ id: "550e8400-e29b-41d4-a716-446655440001" }],
+      error: null,
+    });
+    const selectEqUser = vi.fn(() => ({ in: inIds }));
+    const select = vi.fn(() => ({ eq: selectEqUser }));
+    let callCount = 0;
     const supabase = {
       from: vi.fn((table: string) => {
         if (table !== "contacts") {
           throw new Error(`Unexpected table ${table}`);
+        }
+        callCount++;
+        if (callCount === 1) {
+          return { select };
         }
         return { update };
       }),
@@ -357,5 +376,91 @@ describe("contact-actions", () => {
         sort_order: 0,
       })
     );
+  });
+
+  it("rejects reorder when ownership pre-check finds missing IDs", async () => {
+    const inIds = vi.fn().mockResolvedValue({
+      data: [],
+      error: null,
+    });
+    const selectEqUser = vi.fn(() => ({ in: inIds }));
+    const select = vi.fn(() => ({ eq: selectEqUser }));
+    const supabase = {
+      from: vi.fn(() => ({ select })),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await reorderContacts(
+      [
+        {
+          id: "550e8400-e29b-41d4-a716-446655440001",
+          sort_order: 0,
+        },
+      ],
+      "csrf-token"
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Invalid contact reorder scope",
+    });
+  });
+
+  it("returns export data with row cap enforcement", async () => {
+    const rows = [
+      { id: "c-1", user_id: "user-1", encrypted_first_name: "enc" },
+    ];
+    const returns = vi.fn().mockResolvedValue({ data: rows, error: null });
+    const limit = vi.fn(() => ({ returns }));
+    const order = vi.fn(() => ({ limit }));
+    const eq = vi.fn(() => ({ order }));
+    const select = vi.fn(() => ({ eq }));
+    const supabase = {
+      from: vi.fn(() => ({ select })),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await getAllContactDataForExport();
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toEqual(rows);
+    }
+  });
+
+  it("rejects export when row cap is exceeded", async () => {
+    const rows = Array.from(
+      { length: ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1 },
+      (_, i) => ({
+        id: `c-${i}`,
+        user_id: "user-1",
+      })
+    );
+    const returns = vi.fn().mockResolvedValue({ data: rows, error: null });
+    const limit = vi.fn(() => ({ returns }));
+    const order = vi.fn(() => ({ limit }));
+    const eq = vi.fn(() => ({ order }));
+    const select = vi.fn(() => ({ eq }));
+    const supabase = {
+      from: vi.fn(() => ({ select })),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await getAllContactDataForExport();
+
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Export too large for a single request. Please reduce dataset size and retry.",
+    });
   });
 });

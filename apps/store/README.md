@@ -66,6 +66,7 @@ Copy `env.template` to `.env.local` and fill values:
 ## Security & session setup
 
 - **Request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present. Session and authorization checks for account flows run in pages, Server Actions, and route handlers—not in the proxy alone.
+- **Download rate limiting** - Public package download URL generation is IP-rate-limited to prevent abuse. The action fails closed when the client IP cannot be resolved in production.
 
 ## Tech stack
 

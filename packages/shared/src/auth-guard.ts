@@ -8,6 +8,7 @@ import { getLoginUrl, getLogoutUrl } from "./auth-redirect";
 import { getUserWithRetry } from "./auth-retry";
 import { getCachedAuthLookup } from "./cached-server";
 import { urls } from "./config";
+import { isValidRelativePath } from "./redirect-validation";
 import { resolveRequestOrigin } from "./request-origin";
 import { createServerClient } from "./supabase/server";
 
@@ -65,7 +66,7 @@ export async function requireAuth(currentPath?: string): Promise<User> {
   const headersList = await headers();
   const headerUrl = headersList.get("x-helvety-url") ?? undefined;
   const requestOrigin = resolveRequestOrigin(headersList);
-  const relativeDestination = currentPath?.startsWith("/")
+  const relativeDestination = isValidRelativePath(currentPath)
     ? currentPath
     : undefined;
   const fallbackUrl =

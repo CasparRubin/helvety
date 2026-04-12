@@ -7,7 +7,7 @@ import { logger } from "@helvety/shared/logger";
 
 import type { ActionResponse, ContactRow } from "@/lib/types";
 
-const MAX_DASHBOARD_ROWS = 3000;
+const MAX_DASHBOARD_ROWS = 2000;
 
 // =============================================================================
 // Batch Response Types
@@ -41,6 +41,7 @@ export async function getContactsDashboardData(): Promise<
       .select("*")
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false })
       .limit(MAX_DASHBOARD_ROWS + 1)
       .returns<ContactRow[]>();
 

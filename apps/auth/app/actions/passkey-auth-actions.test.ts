@@ -151,6 +151,94 @@ describe("passkey-auth-actions", () => {
     });
   });
 
+  it("rejects generatePasskeyAuthOptions when client IP is unresolvable", async () => {
+    mocks.getClientIP.mockResolvedValue(null);
+
+    const result = await generatePasskeyAuthOptions(
+      "csrf-token",
+      "https://helvety.com"
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Unable to process request. Please try again.",
+    });
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+  });
+
+  it("rejects verifyPasskeyAuthentication when client IP is unresolvable", async () => {
+    mocks.getClientIP.mockResolvedValue(null);
+
+    const response = {
+      id: "cred-a",
+    } as unknown as Parameters<typeof verifyPasskeyAuthentication>[1];
+
+    const result = await verifyPasskeyAuthentication(
+      "csrf-token",
+      response,
+      "https://helvety.com"
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Unable to process request. Please try again.",
+    });
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+  });
+
+  it("returns generic error when expected user has no passkey credentials", async () => {
+    mocks.adminRpc.mockResolvedValue({
+      data: [{ id: "user-1", email: "user@example.com" }],
+      error: null,
+    });
+    mocks.credentialEq.mockResolvedValue({
+      data: [],
+      error: null,
+    });
+
+    const result = await generatePasskeyAuthOptions(
+      "csrf-token",
+      "https://helvety.com",
+      undefined,
+      { expectedEmail: "user@example.com" }
+    );
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toBe(
+        "Unable to start passkey authentication. Please try signing in with email."
+      );
+    }
+  });
+
+  it("returns generic error when credential is not found during verification", async () => {
+    mocks.getStoredChallenge.mockResolvedValue({
+      challenge: "challenge-123",
+      timestamp: Date.now(),
+    });
+    mocks.credentialSingle.mockResolvedValue({
+      data: null,
+      error: { code: "PGRST116", message: "not found" },
+    });
+
+    const response = {
+      id: "cred-nonexistent",
+    } as unknown as Parameters<typeof verifyPasskeyAuthentication>[1];
+
+    const result = await verifyPasskeyAuthentication(
+      "csrf-token",
+      response,
+      "https://helvety.com"
+    );
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toBe(
+        "Passkey authentication failed. Please try again."
+      );
+    }
+  });
+
   it("restricts auth options to expected account credentials", async () => {
     mocks.adminRpc.mockResolvedValue({
       data: [{ id: "user-1", email: "user@example.com" }],

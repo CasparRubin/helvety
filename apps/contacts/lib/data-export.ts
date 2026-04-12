@@ -11,7 +11,7 @@
  * Plaintext contact data is not sent to the server.
  */
 
-import { getContacts } from "@/app/actions/contact-actions";
+import { getAllContactDataForExport } from "@/app/actions/contact-actions";
 import { decryptContactRows } from "@/lib/crypto";
 
 import type { Contact } from "@/lib/types";
@@ -44,8 +44,8 @@ interface DecryptedContactExport {
 async function exportDecryptedContactData(
   masterKey: CryptoKey
 ): Promise<DecryptedContactExport> {
-  // 1. Fetch all encrypted data from the server
-  const result = await getContacts();
+  // 1. Fetch all encrypted data from the server (export-specific rate limit + row cap)
+  const result = await getAllContactDataForExport();
   if (!result.success) {
     throw new Error(result.error);
   }

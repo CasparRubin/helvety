@@ -211,7 +211,7 @@ export async function getAllTaskDataForExport(): Promise<
       };
     }
 
-    logger.info(`Data export requested for user ${user.id}`);
+    logger.info("Data export requested", { source: "tasks" });
 
     return {
       success: true,

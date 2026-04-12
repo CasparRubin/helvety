@@ -24,7 +24,8 @@ function createContactsDashboardSupabaseMock(result: {
 }) {
   const returns = vi.fn().mockResolvedValue(result);
   const limit = vi.fn(() => ({ returns }));
-  const orderSort = vi.fn(() => ({ limit }));
+  const orderCreatedAt = vi.fn(() => ({ limit }));
+  const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
   const eqUser = vi.fn(() => ({ order: orderSort }));
   const select = vi.fn(() => ({ eq: eqUser }));
   const from = vi.fn((table: string) => {
@@ -95,7 +96,7 @@ describe("contacts batch-actions", () => {
   });
 
   it("rejects when row count exceeds dashboard cap", async () => {
-    const rows = Array.from({ length: 3001 }, (_, i) => ({
+    const rows = Array.from({ length: 2001 }, (_, i) => ({
       id: `id-${i}`,
       user_id: "user-1",
     }));
@@ -121,7 +122,8 @@ describe("contacts batch-actions", () => {
     const boom = new Error("network failure");
     const returns = vi.fn().mockRejectedValue(boom);
     const limit = vi.fn(() => ({ returns }));
-    const orderSort = vi.fn(() => ({ limit }));
+    const orderCreatedAt = vi.fn(() => ({ limit }));
+    const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
     const eqUser = vi.fn(() => ({ order: orderSort }));
     const select = vi.fn(() => ({ eq: eqUser }));
     const from = vi.fn((table: string) => {

@@ -74,6 +74,9 @@ function sanitizeMetadata(
     "credential",
     "authorization",
     "cookie",
+    "email",
+    "phone",
+    "address",
   ];
 
   const sanitized: Record<string, unknown> = {};

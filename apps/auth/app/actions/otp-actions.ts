@@ -72,6 +72,12 @@ export async function sendVerificationCode(
 
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
+  if (!clientIP) {
+    return {
+      success: false,
+      error: "Unable to process request. Please try again.",
+    };
+  }
 
   // Rate limit by email AND IP to prevent abuse
   const [emailRateLimit, ipRateLimit] = await Promise.all([
@@ -237,6 +243,12 @@ export async function verifyEmailCode(
 
   const normalizedEmail = email.toLowerCase().trim();
   const clientIP = await getClientIP();
+  if (!clientIP) {
+    return {
+      success: false,
+      error: "Unable to process request. Please try again.",
+    };
+  }
   const otpLockoutKey = getOtpLockoutKey(normalizedEmail, clientIP);
 
   // Check escalating lockout first (long-term cumulative failure counter)

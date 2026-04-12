@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getTrustedClientIp } from "@helvety/shared/client-ip";
-import { DOMAIN, DEV_PORTS } from "@helvety/shared/config";
+import { COOKIE_DOMAIN, DOMAIN, DEV_PORTS } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { cookies, headers } from "next/headers";
@@ -56,16 +56,14 @@ export function generatePRFSalt(): string {
 // =============================================================================
 
 /**
- * Get client IP for rate limiting
+ * Get client IP for rate limiting.
+ * Returns null when IP cannot be resolved (callers must fail closed).
  */
-export async function getClientIP(): Promise<string> {
+export async function getClientIP(): Promise<string | null> {
   const headersList = await headers();
-  return (
-    getTrustedClientIp(headersList, {
-      requireTrustedProxyInProduction: true,
-      fallback: "unknown",
-    }) ?? "unknown"
-  );
+  return getTrustedClientIp(headersList, {
+    requireTrustedProxyInProduction: true,
+  });
 }
 
 // =============================================================================
@@ -130,12 +128,14 @@ export async function storeChallenge(
     timestamp: Date.now(),
   };
 
+  const isProduction = process.env.NODE_ENV === "production";
   cookieStore.set(CHALLENGE_COOKIE_NAME, JSON.stringify(challengeData), {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isProduction,
     sameSite: "strict",
     maxAge: CHALLENGE_EXPIRY_MS / 1000,
     path: "/",
+    ...(isProduction && COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
   });
 }
 

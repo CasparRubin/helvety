@@ -37,6 +37,7 @@ function isAllowedProductionHost(hostname: string): boolean {
 }
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   compress: true,
 
   // Multi-zone rewrites: proxy path-based URLs to each app's Vercel deployment.

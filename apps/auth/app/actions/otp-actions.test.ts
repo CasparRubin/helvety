@@ -118,6 +118,32 @@ describe("otp-actions", () => {
     mocks.hasEncryptionSetup.mockResolvedValue({ data: true, success: true });
   });
 
+  it("rejects sendVerificationCode when client IP is unresolvable", async () => {
+    mocks.getClientIP.mockResolvedValue(null);
+
+    const result = await sendVerificationCode("csrf-token", "new@user.com", {
+      nonEUEEAConfirmed: true,
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Unable to process request. Please try again.",
+    });
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+  });
+
+  it("rejects verifyEmailCode when client IP is unresolvable", async () => {
+    mocks.getClientIP.mockResolvedValue(null);
+
+    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+
+    expect(result).toEqual({
+      success: false,
+      error: "Unable to process request. Please try again.",
+    });
+    expect(mocks.checkEscalatingLockout).not.toHaveBeenCalled();
+  });
+
   it("requires non-EU/EEA confirmation before OTP send", async () => {
     const result = await sendVerificationCode("csrf-token", "new@user.com");
 

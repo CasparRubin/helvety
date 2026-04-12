@@ -53,6 +53,7 @@ function getStoreImageRemotePattern(): {
 }
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   // Multi-zone: serve this app under helvety.com/store
   basePath: "/store",
 

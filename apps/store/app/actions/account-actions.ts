@@ -230,7 +230,7 @@ export async function exportUserData(): Promise<
       },
     };
 
-    logger.info(`Data export requested for user ${user.id}`);
+    logger.info("Data export requested", { source: "store" });
     return { success: true, data: exportData };
   } catch (error) {
     logger.logUnexpectedError("Error in exportUserData", error);

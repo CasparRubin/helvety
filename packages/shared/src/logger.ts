@@ -12,9 +12,10 @@
  * This makes them filterable in Vercel Logs, Datadog, Loki, etc.
  *
  * SECURITY NOTES (for auditors):
- * - Sensitive keys (passwords, tokens, secrets) are automatically redacted from logged objects
- * - String messages may contain identifiers (user IDs, entity IDs) for debugging
- * - These identifiers are UUIDs/internal IDs, not personal data (no emails, names, etc.)
+ * - Sensitive keys (passwords, tokens, secrets, PII like email/phone/address) are
+ *   automatically redacted from logged metadata objects
+ * - String messages may contain identifiers (user IDs, entity IDs) for debugging;
+ *   prefer structured metadata over template-literal embedding for new call sites
  * - Access to production logs should be restricted at the infrastructure level
  *   (e.g., Vercel logs, cloud provider logging services)
  *
@@ -131,6 +132,9 @@ const SENSITIVE_KEYS = new Set([
   "private",
   "csrf",
   "nonce",
+  "email",
+  "phone",
+  "address",
 ]);
 
 /**

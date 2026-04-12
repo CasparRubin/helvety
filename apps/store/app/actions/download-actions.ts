@@ -7,12 +7,15 @@ import "server-only";
  * Generates signed download URLs for public packages
  */
 
+import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { headers } from "next/headers";
 import { z } from "zod";
 
 import { getPackageInfo, isPublicPackage } from "@/lib/packages/config";
 import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { ActionResponse } from "@/lib/types";
 import type { PackageDownloadInfo } from "@/lib/types/store";
@@ -64,6 +67,24 @@ export async function getPackageDownloadUrl(
       return { success: false, error: "Package is not publicly available" };
     }
 
+    const clientIp = getTrustedClientIp(await headers(), {
+      requireTrustedProxyInProduction: true,
+    });
+    if (!clientIp) {
+      return { success: false, error: "Unable to process request" };
+    }
+    const rateLimit = await checkRateLimit(
+      `download_url:ip:${clientIp}`,
+      RATE_LIMITS.DOWNLOAD_URL.maxRequests,
+      RATE_LIMITS.DOWNLOAD_URL.windowMs
+    );
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+      };
+    }
+
     // Resolve the latest package file from storage; fallback to configured filename path.
     const resolved = await resolveLatestPackageVersion(packageId);
     const storagePath =
@@ -85,7 +106,7 @@ export async function getPackageDownloadUrl(
       return { success: false, error: "Failed to generate download link" };
     }
 
-    logger.info(`Public download URL generated for package ${packageId}`);
+    logger.info("Public download URL generated", { packageId });
 
     return {
       success: true,

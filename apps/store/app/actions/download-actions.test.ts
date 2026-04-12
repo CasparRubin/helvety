@@ -15,6 +15,8 @@ const mocks = vi.hoisted(() => {
     resolveLatestPackageVersion,
     loggerInfo: vi.fn(),
     logUnexpectedError: vi.fn(),
+    getTrustedClientIp: vi.fn(() => "203.0.113.1"),
+    checkRateLimit: vi.fn(() => ({ allowed: true })),
   };
 });
 
@@ -27,6 +29,21 @@ vi.mock("@helvety/shared/logger", () => ({
     error: vi.fn(),
     info: mocks.loggerInfo,
     logUnexpectedError: mocks.logUnexpectedError,
+  },
+}));
+
+vi.mock("@helvety/shared/client-ip", () => ({
+  getTrustedClientIp: mocks.getTrustedClientIp,
+}));
+
+vi.mock("next/headers", () => ({
+  headers: vi.fn(() => new Headers()),
+}));
+
+vi.mock("@/lib/rate-limit", () => ({
+  checkRateLimit: mocks.checkRateLimit,
+  RATE_LIMITS: {
+    DOWNLOAD_URL: { maxRequests: 10, windowMs: 60_000 },
   },
 }));
 
@@ -117,6 +134,34 @@ describe("store download-actions", () => {
       60,
       { download: "helvety-spo-explorer.sppkg" }
     );
+  });
+
+  it("rejects when client IP is unresolvable", async () => {
+    mocks.getTrustedClientIp.mockReturnValueOnce(null as unknown as string);
+
+    const result = await getPackageDownloadUrl("spo-explorer");
+
+    expect(result).toEqual({
+      success: false,
+      error: "Unable to process request",
+    });
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+    expect(mocks.adminClientFactory).not.toHaveBeenCalled();
+  });
+
+  it("rejects when rate limit is exceeded", async () => {
+    mocks.checkRateLimit.mockReturnValueOnce({
+      allowed: false,
+      retryAfter: 42,
+    } as unknown as { allowed: boolean });
+
+    const result = await getPackageDownloadUrl("spo-explorer");
+
+    expect(result).toEqual({
+      success: false,
+      error: "Too many requests. Please wait 42 seconds.",
+    });
+    expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
 
   it("handles storage signing failures safely", async () => {
