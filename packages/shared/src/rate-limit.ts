@@ -329,7 +329,8 @@ const FAILURE_COUNTER_TTL_SECONDS = 24 * 60 * 60;
  * Call this on OTP verification failure (not on success). On success, call
  * `resetEscalatingLockout` to clear the counter.
  *
- * In development without Redis, falls back to in-memory tracking (single-server).
+ * In production without Redis, fails closed (rejects the request). In
+ * development without Redis, falls back to in-memory tracking (single-server).
  *
  * @param email - Normalized email address
  * @returns Whether the email is locked out and for how long
@@ -380,6 +381,10 @@ export async function recordOtpFailureAndCheckLockout(
     }
   }
 
+  if (process.env.NODE_ENV === "production") {
+    return { allowed: false, remaining: 0, retryAfter: 300 };
+  }
+
   // Development fallback: in-memory tracking
   const now = Date.now();
   const memFailureKey = `lockout:failures:${normalizedEmail}`;
@@ -417,6 +422,9 @@ export async function recordOtpFailureAndCheckLockout(
  * Check if an email is currently under escalating lockout without incrementing.
  * Use this before processing to reject early.
  *
+ * In production without Redis, fails closed (rejects the request). In
+ * development without Redis, falls back to in-memory tracking (single-server).
+ *
  * @param email - Normalized email address
  * @returns Whether the email is locked out
  */
@@ -447,6 +455,10 @@ export async function checkEscalatingLockout(
         return { allowed: false, remaining: 0, retryAfter: 300 };
       }
     }
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    return { allowed: false, remaining: 0, retryAfter: 300 };
   }
 
   // Development fallback

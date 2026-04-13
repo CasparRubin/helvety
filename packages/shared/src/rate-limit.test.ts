@@ -32,6 +32,23 @@ describe("checkRateLimit policy behavior", () => {
     expect(result.allowed).toBe(true);
   });
 
+  it("fails closed in production when Redis is not configured for OTP lockout", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+
+    const { recordOtpFailureAndCheckLockout, checkEscalatingLockout } =
+      await import("./rate-limit");
+
+    const record = await recordOtpFailureAndCheckLockout("user@example.com");
+    expect(record.allowed).toBe(false);
+    expect(record.retryAfter).toBeGreaterThan(0);
+
+    const check = await checkEscalatingLockout("user@example.com");
+    expect(check.allowed).toBe(false);
+    expect(check.retryAfter).toBeGreaterThan(0);
+  });
+
   it("locks out after escalating OTP threshold and resets on success", async () => {
     vi.stubEnv("NODE_ENV", "development");
     delete process.env.UPSTASH_REDIS_REST_URL;

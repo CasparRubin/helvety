@@ -1,5 +1,3 @@
-"use server";
-
 import "server-only";
 
 import { logger } from "@helvety/shared/logger";

@@ -196,6 +196,13 @@ export async function getEntityLinksForEndpoint({
     };
   }
 
+  if (!(entityType in ENTITY_TABLE_BY_TYPE)) {
+    return {
+      data: null,
+      error: { message: "Invalid entity type for link query." },
+    };
+  }
+
   let query = supabase
     .from("entity_links")
     .select("*")
