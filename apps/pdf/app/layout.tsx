@@ -8,6 +8,7 @@ import {
 } from "@helvety/shared/layout-primitives";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
+import { SessionRecovery } from "@helvety/ui/session-recovery";
 import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
@@ -133,6 +134,7 @@ export default async function RootLayout({
         />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
           <AuthTokenHandler />
+          <SessionRecovery mode="optional" />
           <TooltipProvider>
             <div className="flex h-screen flex-col overflow-hidden">
               <header className="shrink-0">

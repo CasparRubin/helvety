@@ -66,7 +66,7 @@ export function EncryptionGate({
   const redirectingRef = useRef(false);
 
   useEffect(() => {
-    if (alreadyUnlocked) {
+    if (alreadyUnlocked || redirectingRef.current) {
       return;
     }
 
@@ -77,6 +77,7 @@ export function EncryptionGate({
      * Non-terminal/context failures fall back to login rather than hard logout.
      */
     const runStateCheck = () => {
+      if (redirectingRef.current) return;
       void checkEncryptionState(userId)
         .then(() => {
           if (cancelled) return null;
@@ -129,6 +130,7 @@ export function EncryptionGate({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      if (redirectingRef.current) return;
       const sessionUserId = session?.user?.id ?? null;
       if (
         unlockedForUserId &&
@@ -169,7 +171,7 @@ export function EncryptionGate({
     if (needsLogin || contextIntent === "login" || Boolean(contextError)) {
       return "needs_login";
     }
-    return "loading";
+    return "needs_login";
   }, [
     alreadyUnlocked,
     contextError,
@@ -194,8 +196,11 @@ export function EncryptionGate({
 
     if (status === "needs_login") {
       redirectingRef.current = true;
-      redirectToLoginOnce(destination, "encryption-gate", {
-        forceLogin: true,
+      const supabase = createBrowserClient();
+      void supabase.auth.signOut({ scope: "local" }).finally(() => {
+        redirectToLoginOnce(destination, "encryption-gate", {
+          forceLogin: true,
+        });
       });
     }
   }, [status]);

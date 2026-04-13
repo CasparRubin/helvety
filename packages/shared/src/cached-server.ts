@@ -3,7 +3,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-import { getUserWithRetry } from "./auth-retry";
+import { getAuthUser } from "./auth-retry";
 import { createServerClient } from "./supabase/server";
 
 import type { AuthError, User } from "@supabase/supabase-js";
@@ -11,15 +11,16 @@ import type { AuthError, User } from "@supabase/supabase-js";
 const CSRF_COOKIE_NAME = "csrf_token";
 
 /**
- * Per-request cached auth lookup result with retry for transient failures.
+ * Per-request cached auth lookup (single getUser call, no retries).
+ *
  * Keeps the last auth error so guards can distinguish:
  * - clean unauthenticated state (user: null, error: null)
- * - transient auth lookup failure (user: null, error: AuthError)
+ * - auth lookup failure (user: null, error: AuthError)
  */
 export const getCachedAuthLookup = cache(
   async (): Promise<{ user: User | null; error: AuthError | null }> => {
     const supabase = await createServerClient();
-    return getUserWithRetry(supabase);
+    return getAuthUser(supabase);
   }
 );
 

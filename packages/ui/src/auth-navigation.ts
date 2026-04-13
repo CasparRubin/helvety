@@ -18,9 +18,18 @@ interface AuthNavigationOptions {
 }
 
 const NAVIGATION_COOLDOWN_MS = 1500;
+let globalRedirectActive = false;
 let hardLogoutInFlight = false;
 let lastNavigationKey = "";
 let lastNavigationAt = 0;
+
+/** Test-only: reset the global redirect lock between test runs. */
+export function resetGlobalRedirectLockForTests(): void {
+  globalRedirectActive = false;
+  hardLogoutInFlight = false;
+  lastNavigationKey = "";
+  lastNavigationAt = 0;
+}
 
 /** Returns true when a redirect should be deduplicated. */
 function shouldDeduplicateNavigation(key: string): boolean {
@@ -91,6 +100,16 @@ export function redirectToLoginOnce(
   source: NavigationSource = "unknown",
   options?: AuthNavigationOptions
 ): boolean {
+  if (globalRedirectActive) {
+    emitAuthNavigationEvent(
+      "login",
+      source,
+      redirectUri ?? "current",
+      true,
+      options
+    );
+    return true;
+  }
   if (!isExpectedRouteStillActive(options?.expectedRoute)) {
     emitAuthNavigationEvent(
       "login",
@@ -113,6 +132,7 @@ export function redirectToLoginOnce(
     return true;
   }
   emitAuthNavigationEvent("login", source, loginUrl, false, options);
+  globalRedirectActive = true;
   window.location.replace(loginUrl);
   return true;
 }
@@ -123,6 +143,16 @@ export function triggerHardLogoutOnce(
   source: NavigationSource = "unknown",
   options?: AuthNavigationOptions
 ): boolean {
+  if (globalRedirectActive) {
+    emitAuthNavigationEvent(
+      "hard_logout",
+      source,
+      redirectUri ?? "current",
+      true,
+      options
+    );
+    return true;
+  }
   if (!isExpectedRouteStillActive(options?.expectedRoute)) {
     emitAuthNavigationEvent(
       "hard_logout",
@@ -155,6 +185,7 @@ export function triggerHardLogoutOnce(
     false,
     options
   );
+  globalRedirectActive = true;
   hardLogoutInFlight = true;
   void forceHardLogout(target).finally(() => {
     hardLogoutInFlight = false;

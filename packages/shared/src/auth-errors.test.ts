@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildAuthHardLogoutError,
   buildAuthRequiredError,
   classifyActionAuthError,
   isAuthRequiredError,
@@ -24,6 +25,23 @@ describe("auth-errors", () => {
     expect(error).toBe("AUTH_HARD_LOGOUT:Encryption state invalid");
     expect(normalizeActionError(error)).toBe("Encryption state invalid");
     expect(classifyActionAuthError(error)).toBe("hard_logout");
+  });
+
+  it("builds and round-trips AUTH_HARD_LOGOUT errors", () => {
+    const error = buildAuthHardLogoutError("refresh token not found");
+
+    expect(error).toBe("AUTH_HARD_LOGOUT:refresh token not found");
+    expect(classifyActionAuthError(error)).toBe("hard_logout");
+    expect(shouldForceHardLogout(error)).toBe(true);
+    expect(normalizeActionError(error)).toBe("refresh token not found");
+  });
+
+  it("builds AUTH_HARD_LOGOUT with default message", () => {
+    const error = buildAuthHardLogoutError();
+
+    expect(error).toBe("AUTH_HARD_LOGOUT:Authentication state is invalid");
+    expect(classifyActionAuthError(error)).toBe("hard_logout");
+    expect(shouldForceHardLogout(error)).toBe(true);
   });
 
   it("classifies plain auth-required messages as login intent", () => {

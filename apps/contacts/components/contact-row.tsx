@@ -105,7 +105,7 @@ export const ContactRow = memo(
 
         {/* Name + Email */}
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <span className="truncate font-medium">{fullName}</span>
+          <span className="min-w-0 truncate font-medium">{fullName}</span>
           {email && (
             <span className="text-muted-foreground hidden truncate text-sm md:inline">
               {email}

@@ -1,7 +1,11 @@
 import "server-only";
 
-import { buildAuthRequiredError } from "./auth-errors";
-import { getUserWithRetry } from "./auth-retry";
+import {
+  buildAuthHardLogoutError,
+  buildAuthRequiredError,
+  shouldForceHardLogout,
+} from "./auth-errors";
+import { getAuthUser } from "./auth-retry";
 import { requireCSRFToken } from "./csrf";
 import { checkRateLimit, RATE_LIMITS } from "./rate-limit";
 import { createServerClient } from "./supabase/server";
@@ -95,14 +99,20 @@ export async function authenticateAndRateLimit(
     }
   }
 
-  // 2. Authentication (with retry for transient network failures)
+  // 2. Authentication (single check, fail-closed)
   const supabase = await createServerClient();
-  const { user, error: userError } = await getUserWithRetry(supabase);
+  const { user, error: userError } = await getAuthUser(supabase);
 
   if (userError || !user) {
+    const errorMessage = userError?.message;
     return {
       ok: false,
-      response: { success: false, error: buildAuthRequiredError() },
+      response: {
+        success: false,
+        error: shouldForceHardLogout(errorMessage)
+          ? buildAuthHardLogoutError(errorMessage)
+          : buildAuthRequiredError(errorMessage ?? undefined),
+      },
     };
   }
 

@@ -5,12 +5,10 @@ import { redirect } from "next/navigation";
 
 import { shouldForceHardLogout } from "./auth-errors";
 import { getLoginUrl, getLogoutUrl } from "./auth-redirect";
-import { getUserWithRetry } from "./auth-retry";
 import { getCachedAuthLookup } from "./cached-server";
 import { urls } from "./config";
 import { isValidRelativePath } from "./redirect-validation";
 import { resolveRequestOrigin } from "./request-origin";
-import { createServerClient } from "./supabase/server";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -22,10 +20,8 @@ import type { User } from "@supabase/supabase-js";
  * - clean logged-out state -> auth login
  * - invalid/broken auth state -> global logout, then auth login
  *
- * Internally uses a cached auth lookup (React.cache + transient retry) so that
- * when a layout already fetched user state for UI purposes, requireAuth()
- * usually reuses that result. On transient auth errors, requireAuth() performs
- * one uncached confirmation check before redirecting.
+ * Fail-closed: one cached getUser() call (shared with the layout).
+ * No user = redirect. No retries, no second chances.
  *
  * IMPORTANT: Authentication checks should be done in Server Components (pages)
  * or Route Handlers, NOT in proxy.ts. Proxy is an optimistic routing layer and
@@ -51,17 +47,7 @@ export async function requireAuth(currentPath?: string): Promise<User> {
     return user;
   }
 
-  // If the cached attempt failed due to a transient auth/network error,
-  // confirm once more without relying on the cached value before redirecting.
-  let authErrorMessage = error?.message ?? null;
-  if (error) {
-    const supabase = await createServerClient();
-    const recovery = await getUserWithRetry(supabase);
-    if (recovery.user) {
-      return recovery.user;
-    }
-    authErrorMessage = recovery.error?.message ?? authErrorMessage;
-  }
+  const authErrorMessage = error?.message ?? null;
 
   const headersList = await headers();
   const headerUrl = headersList.get("x-helvety-url") ?? undefined;

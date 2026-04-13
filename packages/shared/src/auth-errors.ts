@@ -64,6 +64,13 @@ export function buildAuthRequiredError(
   return `${AUTH_REQUIRED_CODE}:${message}`;
 }
 
+/** Builds a machine-readable hard-logout error string for action responses. */
+export function buildAuthHardLogoutError(
+  message = AUTH_HARD_LOGOUT_MESSAGE
+): string {
+  return `${AUTH_HARD_LOGOUT_CODE}:${message}`;
+}
+
 /** Checks whether an action error represents an auth-required condition. */
 export function isAuthRequiredError(error?: string | null): boolean {
   const parsed = parseActionError(error);

@@ -99,7 +99,7 @@ export const EntityRow = memo(
         />
 
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <span className="truncate font-medium">{title}</span>
+          <span className="min-w-0 truncate font-medium">{title}</span>
           {description && (
             <span className="text-muted-foreground hidden truncate text-sm md:inline">
               {getRichTextPlainText(description)}
