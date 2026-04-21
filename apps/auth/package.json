@@ -2,7 +2,7 @@
   "name": "@helvety/auth",
   "version": "3.1.0",
   "description": "Centralized authentication service for the Helvety ecosystem. Engineered, Designed & Made in Switzerland.",
-  "author": "Helvety by Rubin",
+  "author": "Helvety",
   "homepage": "https://helvety.com/auth",
   "repository": {
     "type": "git",

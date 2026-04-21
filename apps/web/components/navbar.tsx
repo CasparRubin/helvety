@@ -96,7 +96,6 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
           currentApp="Home"
           homeHref="/"
           homeAriaLabel="Go to home"
-          titleText="by Rubin"
         />
 
         <div className="flex shrink-0 items-center gap-2">
