@@ -229,10 +229,8 @@ export function usePdfProcessing({
 
         if (totalRotation !== 0) {
           const newPage = newPdf.getPage(0);
-          const originalPage = pdf.getPage(pageIndex);
           await withTimeoutAndSignal(
-            () =>
-              applyPageRotation(originalPage, newPage, totalRotation, isImage),
+            () => applyPageRotation(newPage, totalRotation, isImage),
             TIMEOUTS.OPERATION_TIMEOUT,
             signal,
             "Applying rotation timed out. Please try again."
@@ -357,15 +355,8 @@ export function usePdfProcessing({
 
               if (totalRotation !== 0) {
                 const newPage = mergedPdf.getPage(mergedPdf.getPageCount() - 1);
-                const originalPage = pdf.getPage(pageIndex);
                 await withTimeoutAndSignal(
-                  () =>
-                    applyPageRotation(
-                      originalPage,
-                      newPage,
-                      totalRotation,
-                      isImage
-                    ),
+                  () => applyPageRotation(newPage, totalRotation, isImage),
                   TIMEOUTS.OPERATION_TIMEOUT,
                   signal,
                   `Applying rotation to page ${unifiedPageNum} timed out after ${TIMEOUTS.OPERATION_TIMEOUT}ms.`

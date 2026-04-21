@@ -13,18 +13,18 @@ import type { Label } from "@/lib/types";
  * Return type for useLabels hook
  */
 interface UseLabelsReturn {
-  /** List of decrypted labels */
+  /** List of default labels mapped to Label records */
   labels: Label[];
-  /** Whether labels are being loaded */
+  /** Always false for default in-memory config */
   isLoading: boolean;
-  /** Error message if something went wrong */
+  /** Always null for default in-memory config */
   error: string | null;
   /** Whether this is a default (read-only) config */
   isDefaultConfig: boolean;
 }
 
 /**
- * Convert default labels to Label format with placeholder user fields
+ * Convert default labels to Label records with placeholder user fields
  */
 function convertDefaultLabelsToLabels(
   configId: string,

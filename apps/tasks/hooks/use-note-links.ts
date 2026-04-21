@@ -181,7 +181,7 @@ export function useNoteLinks(itemId: string): UseNoteLinksReturn {
         ) {
           return;
         }
-        const msg = linksResult.error ?? "Failed to fetch links";
+        const msg = linksResult.error ?? "Failed to fetch linked notes";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;

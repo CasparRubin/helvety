@@ -12,12 +12,8 @@ import {
   linkTaskEntity,
   unlinkTaskEntity,
 } from "@/app/actions/task-link-actions";
-import {
-  useEncryptionContext,
-  buildAAD,
-  decrypt,
-  parseEncryptedData,
-} from "@/lib/crypto";
+import { useEncryptionContext } from "@/lib/crypto";
+import { decryptItemTitle } from "@/lib/decrypt-item-title";
 
 import type {
   LinkedItem,
@@ -63,20 +59,6 @@ function triggerHardLogoutForError(
       requestStartedAt: options?.requestStartedAt,
     }
   );
-}
-
-/** Decrypt a single encrypted item title. */
-export async function decryptItemTitle(
-  encryptedTitle: string,
-  itemId: string,
-  key: CryptoKey
-): Promise<string> {
-  try {
-    const parsed = parseEncryptedData(encryptedTitle);
-    return await decrypt(parsed, key, buildAAD("items", itemId));
-  } catch {
-    return "(encrypted)";
-  }
 }
 
 /** Decrypt linked task-item data for UI usage. */

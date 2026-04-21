@@ -1,6 +1,6 @@
 # Helvety
 
-> Main Helvety website for products, legal information, and links to all Helvety apps. Engineered, Designed & Made in Switzerland. Software & Apparel. Private, simple, clean.
+> Main Helvety website for products, legal information, and links to all Helvety apps. Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.
 
 ## Canonical URLs
 - [Home](https://helvety.com): Main landing page

@@ -9,8 +9,7 @@
   ],
   "ignore": [
     "apps/pdf/public/pdf.worker.min.mjs",
-    "packages/config/vitest.server-only-mock.ts",
-    "scripts/list-parent-transcripts.mjs"
+    "packages/config/vitest.server-only-mock.ts"
   ],
   "ignoreIssues": {
     "apps/contacts/hooks/use-task-links.ts": ["exports"],

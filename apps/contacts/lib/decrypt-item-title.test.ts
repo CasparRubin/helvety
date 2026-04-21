@@ -16,7 +16,7 @@ vi.mock("@/lib/crypto", async () => {
   };
 });
 
-import { decryptItemTitle } from "./use-task-links";
+import { decryptItemTitle } from "./decrypt-item-title";
 
 describe("decryptItemTitle", () => {
   it("decrypts with item AAD", async () => {

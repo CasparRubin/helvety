@@ -124,7 +124,7 @@ function formatPdfError(error: unknown, context: string): string {
       break;
     default:
       userMessage +=
-        " an error occurred. Please ensure the file is valid and not corrupted or password-protected, then try again.";
+        " an unexpected error occurred while processing this file. Please try again.";
   }
 
   return userMessage;

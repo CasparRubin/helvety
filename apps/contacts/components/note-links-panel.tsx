@@ -236,10 +236,10 @@ export function NoteLinksPanel({
         {error && (
           <div className="flex flex-col items-center gap-2 py-2">
             <p role="alert" className="text-muted-foreground text-xs">
-              Could not load linked notes. Please retry.
+              Could not load linked notes. Please try again.
             </p>
             <Button variant="outline" size="sm" onClick={() => refresh()}>
-              Retry
+              Try again
             </Button>
           </div>
         )}

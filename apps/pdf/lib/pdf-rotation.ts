@@ -82,7 +82,7 @@ export async function createRotatedImagePage(
   let y: number;
 
   switch (normalizedRotation) {
-    case ROTATION_ANGLES.QUARTER: // 90° clockwise
+    case ROTATION_ANGLES.QUARTER: // 90° rotation
       // After 90° CCW rotation in PDF terms, content needs to be positioned at (height, 0)
       x = height;
       y = 0;
@@ -92,7 +92,7 @@ export async function createRotatedImagePage(
       x = width;
       y = height;
       break;
-    case ROTATION_ANGLES.THREE_QUARTER: // 270° clockwise (90° CCW)
+    case ROTATION_ANGLES.THREE_QUARTER: // 270° rotation
       // After 270° CCW rotation in PDF terms, content needs to be positioned at (0, width)
       x = 0;
       y = width;
@@ -120,13 +120,11 @@ export async function createRotatedImagePage(
  * PDF viewers how to display the content. This works correctly for PDF pages
  * but NOT for images (use createRotatedImagePage for images with 90/270 rotation).
  *
- * @param sourcePage - The original PDF page (unused by this implementation)
  * @param targetPage - The target PDF page to apply rotation to
  * @param userRotation - The absolute total rotation in degrees (0, 90, 180, or 270) from state
  * @param isImage - Whether this page is from an image (only affects 180° rotation handling)
  */
 export async function applyPageRotation(
-  _sourcePage: PDFPage,
   targetPage: PDFPage,
   userRotation: number,
   isImage: boolean = false

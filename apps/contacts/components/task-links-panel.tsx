@@ -254,10 +254,10 @@ export function TaskLinksPanel({
         {error && (
           <div className="flex flex-col items-center gap-2 py-2">
             <p role="alert" className="text-muted-foreground text-xs">
-              Could not load linked tasks. Please retry.
+              Could not load linked tasks. Please try again.
             </p>
             <Button variant="outline" size="sm" onClick={() => refresh()}>
-              Retry
+              Try again
             </Button>
           </div>
         )}

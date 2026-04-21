@@ -157,7 +157,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
         ) {
           return;
         }
-        const msg = linksResult.error ?? "Failed to fetch links";
+        const msg = linksResult.error ?? "Failed to fetch linked contacts";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;

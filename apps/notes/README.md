@@ -48,13 +48,13 @@ Structural metadata remains plaintext for app functionality:
 
 Copy `env.template` to `.env.local` and fill in values.
 
-| Variable                               | Required | Server-only | Description                                    |
-| -------------------------------------- | -------- | ----------- | ---------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                           |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                  |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Supabase secret key for server-side operations |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting                    |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting                  |
+| Variable                               | Required | Server-only | Description                                                                                                                                                                                                                                        |
+| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                                                                                                                                                               |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                                                                                                                                                      |
+| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Supabase secret key (recommended format: `sb_secret_...`; legacy `service_role` keys may still exist in older setups) for trusted server-side admin operations. It can bypass RLS where object privileges allow; must never be exposed to clients. |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting                                                                                                                                                                                                                        |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting                                                                                                                                                                                                                      |
 
 ## Security
 

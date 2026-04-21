@@ -109,7 +109,6 @@ async function extractPage(
     if (request.payload.userRotation !== 0) {
       const targetPage = mergedPdf.getPage(0);
       await applyPageRotation(
-        sourcePage,
         targetPage,
         request.payload.userRotation,
         request.payload.sourceFile.type === "image"
@@ -208,7 +207,6 @@ async function mergePages(
           if (totalRotation !== 0) {
             const targetPage = mergedPdf.getPage(mergedPdf.getPageCount() - 1);
             await applyPageRotation(
-              sourcePage,
               targetPage,
               totalRotation,
               sourceFile.type === "image"

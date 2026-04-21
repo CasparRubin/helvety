@@ -27,11 +27,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(urls.home),
   title: {
     default:
-      "Helvety | Software & Apparel | Engineered, Designed & Made in Switzerland",
+      "Helvety | Software Products | Engineered, Designed & Made in Switzerland",
     template: "%s | Helvety",
   },
   description:
-    "Engineered, Designed & Made in Switzerland. Software & Apparel. Private, simple, clean.",
+    "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
   keywords: [
     "Helvety",
     "Swiss software",
@@ -58,9 +58,9 @@ export const metadata: Metadata = {
     url: urls.home,
     siteName: "Helvety",
     title:
-      "Helvety | Software & Apparel | Engineered, Designed & Made in Switzerland",
+      "Helvety | Software Products | Engineered, Designed & Made in Switzerland",
     description:
-      "Engineered, Designed & Made in Switzerland. Software & Apparel. Private, simple, clean.",
+      "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -73,9 +73,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title:
-      "Helvety | Software & Apparel | Engineered, Designed & Made in Switzerland",
+      "Helvety | Software Products | Engineered, Designed & Made in Switzerland",
     description:
-      "Engineered, Designed & Made in Switzerland. Software & Apparel. Private, simple, clean.",
+      "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -138,7 +138,7 @@ export default async function RootLayout({
                 name: "Helvety",
                 url: urls.home,
                 description:
-                  "Engineered, Designed & Made in Switzerland. Software & Apparel. Private, simple, clean.",
+                  "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
               },
             ]),
           }}

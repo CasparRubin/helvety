@@ -13,18 +13,18 @@ import type { Stage } from "@/lib/types";
  * Return type for useStages hook
  */
 interface UseStagesReturn {
-  /** List of decrypted stages */
+  /** List of default stages mapped to Stage records */
   stages: Stage[];
-  /** Whether stages are being loaded */
+  /** Always false for default in-memory config */
   isLoading: boolean;
-  /** Error message if something went wrong */
+  /** Always null for default in-memory config */
   error: string | null;
   /** Whether this is a default (read-only) config */
   isDefaultConfig: boolean;
 }
 
 /**
- * Convert default stages to Stage format with placeholder user fields
+ * Convert default stages to Stage records with placeholder user fields
  */
 function convertDefaultStagesToStages(
   configId: string,

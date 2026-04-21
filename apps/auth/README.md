@@ -266,7 +266,7 @@ Before release (and at least monthly), verify provider posture in Supabase:
 
 ### Redirect URI Validation
 
-The auth service validates all `redirect_uri` parameters to prevent open redirect vulnerabilities. Allowed destinations (explicit allowlist — no wildcards):
+The auth service validates all `redirect_uri` parameters to prevent open redirect vulnerabilities. Allowed destinations are validated by host/protocol allowlist:
 
 - `https://helvety.com` and any path
 - `https://helvety.com/auth` - Authentication service

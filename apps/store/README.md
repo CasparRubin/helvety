@@ -8,7 +8,7 @@ Store URL: [https://helvety.com/store](https://helvety.com/store)
 
 ## Current scope
 
-- Product catalog (six listings: SaaS apps and downloadable packages) with detail pages under `/store/products`
+- Product catalog (SaaS apps and downloadable packages) with detail pages under `/store/products`
 - Public package downloads (SPO Explorer `.sppkg`, Power Automate extension `.zip`) without account login
 - Account page (`/store/account`) for profile management and data rights tooling
 - Shared legal pages hosted on `helvety.com` (Privacy, Terms, Impressum)
@@ -62,6 +62,8 @@ Copy `env.template` to `.env.local` and fill values:
 - `SUPABASE_SECRET_KEY`
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
+
+`SUPABASE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN` are server-side values. Keep them only in server environments and never expose them to client bundles.
 
 ## Security & session setup
 

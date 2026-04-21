@@ -234,7 +234,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 </DialogHeader>
                 <div className="border-t" />
                 <p className="text-muted-foreground text-xs">
-                  {VERSION || "Development build"}
+                  {VERSION ?? "Development build"}
                 </p>
                 <DialogClose asChild>
                   <Button variant="outline" className="w-full">
