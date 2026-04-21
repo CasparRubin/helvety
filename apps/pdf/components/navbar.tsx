@@ -199,7 +199,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                     reordering, deleting, rotating, and extracting pages.
                     Processing is performed locally in your browser for
                     supported operations. Free to use with technical safeguards
-                    ({PDF_FILE_SIZE_LIMIT_COPY}). Engineered & Designed in
+                    ({PDF_FILE_SIZE_LIMIT_COPY}). Engineered, Designed & Made in
                     Switzerland.
                   </DialogDescription>
                 </DialogHeader>

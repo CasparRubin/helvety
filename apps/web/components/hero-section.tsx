@@ -73,10 +73,19 @@ export function HeroSection() {
             animate="animate"
             className="flex w-full flex-col items-center gap-8"
           >
-            <m.div variants={prefersReducedMotion ? noMotion : fadeInUp}>
+            <m.div
+              variants={prefersReducedMotion ? noMotion : fadeInUp}
+              className="space-y-1"
+            >
               <p className="text-muted-foreground text-sm md:text-base">
-                Engineered & Designed in{" "}
+                Engineered, Designed & Made in{" "}
                 <span className="font-medium text-[#FF0000]">Switzerland</span>
+              </p>
+              <p className="text-muted-foreground text-sm md:text-base">
+                Software & Apparel
+              </p>
+              <p className="text-muted-foreground text-sm md:text-base">
+                private, simple, clean
               </p>
             </m.div>
             <m.div

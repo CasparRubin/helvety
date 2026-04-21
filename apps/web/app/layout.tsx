@@ -26,11 +26,12 @@ export const viewport = sharedViewport;
 export const metadata: Metadata = {
   metadataBase: new URL(urls.home),
   title: {
-    default: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
+    default:
+      "Helvety | Software & Apparel | Engineered, Designed & Made in Switzerland",
     template: "%s | Helvety",
   },
   description:
-    "Swiss-engineered free and open-source apps for task and contact management with client-side encryption for sensitive fields, plus PDF tools, SharePoint extensions, and browser extensions. MIT licensed and designed in Switzerland.",
+    "Engineered, Designed & Made in Switzerland. Software & Apparel. Private, simple, clean.",
   keywords: [
     "Helvety",
     "Swiss software",
@@ -56,9 +57,10 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: urls.home,
     siteName: "Helvety",
-    title: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
+    title:
+      "Helvety | Software & Apparel | Engineered, Designed & Made in Switzerland",
     description:
-      "Swiss-engineered free and open-source apps for task and contact management with client-side encryption for sensitive fields, plus PDF tools, SharePoint extensions, and browser extensions. MIT licensed and designed in Switzerland.",
+      "Engineered, Designed & Made in Switzerland. Software & Apparel. Private, simple, clean.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -70,9 +72,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Helvety | Products & Apps | Engineered & Designed in Switzerland",
+    title:
+      "Helvety | Software & Apparel | Engineered, Designed & Made in Switzerland",
     description:
-      "Swiss-engineered free and open-source apps for task and contact management with client-side encryption for sensitive fields, plus PDF tools, SharePoint extensions, and browser extensions. MIT licensed and designed in Switzerland.",
+      "Engineered, Designed & Made in Switzerland. Software & Apparel. Private, simple, clean.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -135,7 +138,7 @@ export default async function RootLayout({
                 name: "Helvety",
                 url: urls.home,
                 description:
-                  "Swiss-engineered free and open-source apps for task and contact management with client-side encryption for sensitive fields, plus PDF tools, SharePoint extensions, and browser extensions. MIT licensed and designed in Switzerland.",
+                  "Engineered, Designed & Made in Switzerland. Software & Apparel. Private, simple, clean.",
               },
             ]),
           }}

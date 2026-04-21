@@ -187,7 +187,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
                     Official Helvety Store. Discover Helvety apps and downloads,
-                    engineered and designed in Switzerland.
+                    engineered, designed, and made in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

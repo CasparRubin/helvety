@@ -1,6 +1,6 @@
 # Helvety Auth
 
-> Centralized authentication service used by the Helvety ecosystem. Engineered and designed in Switzerland.
+> Centralized authentication service used by the Helvety ecosystem. Engineered, Designed & Made in Switzerland.
 
 ## Canonical URL
 - [Sign In](https://helvety.com/auth/login): Primary sign-in page

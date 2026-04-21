@@ -218,7 +218,7 @@ export function Navbar({
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
                     Centralized authentication service for the Helvety
-                    ecosystem. Engineered & Designed in Switzerland.
+                    ecosystem. Engineered, Designed & Made in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

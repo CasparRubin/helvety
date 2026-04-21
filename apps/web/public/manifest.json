@@ -1,7 +1,7 @@
 {
   "name": "Helvety",
   "short_name": "Helvety",
-  "description": "The main Helvety website for free and open-source apps and extensions. Engineered & Designed in Switzerland.",
+  "description": "The main Helvety website for software and apparel. Engineered, Designed & Made in Switzerland. Private, simple, clean.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf8f7",

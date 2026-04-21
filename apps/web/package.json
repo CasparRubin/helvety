@@ -1,7 +1,7 @@
 {
   "name": "@helvety/web",
   "version": "3.1.0",
-  "description": "Gateway application that routes to all Helvety sub-apps. Engineered & Designed in Switzerland.",
+  "description": "Gateway application that routes to all Helvety sub-apps. Engineered, Designed & Made in Switzerland.",
   "author": "Helvety by Rubin",
   "homepage": "https://helvety.com",
   "repository": {
@@ -47,7 +47,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9.39.4",
     "jsdom": "^29.0.2",
-    "prettier": "^3.8.2",
+    "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "shadcn": "^3.8.5",
     "@tailwindcss/postcss": "^4.2.2",

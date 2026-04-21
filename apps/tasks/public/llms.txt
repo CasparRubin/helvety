@@ -1,6 +1,6 @@
 # Helvety Tasks
 
-> Task management application with client-side encryption for sensitive fields. The main task list can be filtered in the browser after unlock by title and description (local-only search; not sent to servers). Engineered and designed in Switzerland.
+> Task management application with client-side encryption for sensitive fields. The main task list can be filtered in the browser after unlock by title and description (local-only search; not sent to servers). Engineered, Designed & Made in Switzerland.
 
 ## Canonical URL
 - [Tasks App](https://helvety.com/tasks): Auth-required task management route

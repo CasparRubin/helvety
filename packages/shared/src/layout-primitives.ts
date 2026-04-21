@@ -32,7 +32,7 @@ export function createHelvetyOrganizationSchema(logoUrl: string) {
     url: urls.home,
     logo: logoUrl,
     description:
-      "Products, apps, and extensions engineered and designed in Switzerland.",
+      "Products, apps, and extensions engineered, designed, and made in Switzerland.",
     sameAs: HELVETY_SAME_AS_URLS,
   };
 }

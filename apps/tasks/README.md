@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-A privacy-focused task management app with client-side encryption for sensitive fields. Required structural metadata remains plaintext for app functionality. Engineered & Designed in Switzerland.
+A privacy-focused task management app with client-side encryption for sensitive fields. Required structural metadata remains plaintext for app functionality. Engineered, Designed & Made in Switzerland.
 
 **App:** [helvety.com/tasks](https://helvety.com/tasks)
 

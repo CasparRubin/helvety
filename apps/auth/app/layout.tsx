@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety",
   },
   description:
-    "Sign in to your Helvety account across free and open-source Helvety apps. Engineered & Designed in Switzerland.",
+    "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
   keywords: ["Helvety", "sign in", "login", "authentication"],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     siteName: "Helvety Auth",
     title: "Sign In | Helvety",
     description:
-      "Sign in to your Helvety account across free and open-source Helvety apps. Engineered & Designed in Switzerland.",
+      "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Sign In | Helvety",
     description:
-      "Sign in to your Helvety account across free and open-source Helvety apps. Engineered & Designed in Switzerland.",
+      "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -120,7 +120,7 @@ export default async function RootLayout({
                 name: "Helvety Auth",
                 url: urls.auth,
                 description:
-                  "Sign in to your Helvety account across free and open-source Helvety apps. Engineered & Designed in Switzerland.",
+                  "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
                 applicationCategory: "SecurityApplication",
                 operatingSystem: "Any",
               },

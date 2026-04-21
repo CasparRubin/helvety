@@ -1,6 +1,6 @@
 # Helvety Store
 
-> Official Helvety Store for product discovery, app details, and package download links. Engineered and designed in Switzerland.
+> Official Helvety Store for product discovery, app details, and package download links. Engineered, Designed & Made in Switzerland.
 
 ## Canonical URLs
 - [Store Home](https://helvety.com/store): Main store entry

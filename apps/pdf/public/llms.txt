@@ -1,6 +1,6 @@
 # Helvety PDF
 
-> Browser-based PDF toolkit for merge, reorder, delete, rotate, and extract operations. For supported features, file contents are processed locally in the browser. Engineered and designed in Switzerland.
+> Browser-based PDF toolkit for merge, reorder, delete, rotate, and extract operations. For supported features, file contents are processed locally in the browser. Engineered, Designed & Made in Switzerland.
 
 ## Canonical URL
 - [Helvety PDF](https://helvety.com/pdf): Main PDF application route

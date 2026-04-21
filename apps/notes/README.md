@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-A privacy-focused notes app with client-side encryption for sensitive fields. Engineered & Designed in Switzerland.
+A privacy-focused notes app with client-side encryption for sensitive fields. Engineered, Designed & Made in Switzerland.
 
 **App:** [helvety.com/notes](https://helvety.com/notes)
 

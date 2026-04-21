@@ -228,8 +228,8 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
                     Privacy-focused contact management with client-side
-                    encryption for sensitive content fields. Engineered &
-                    Designed in Switzerland.
+                    encryption for sensitive content fields. Engineered,
+                    Designed & Made in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

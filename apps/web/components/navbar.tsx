@@ -190,7 +190,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    The main Helvety website. Engineered & Designed in
+                    The main Helvety website. Engineered, Designed & Made in
                     Switzerland.
                   </DialogDescription>
                 </DialogHeader>
