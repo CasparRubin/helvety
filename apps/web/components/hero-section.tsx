@@ -35,7 +35,7 @@ export function HeroSection() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <section className="relative flex flex-col items-center px-6 pt-24 md:pt-40 lg:pt-48">
+      <section className="relative flex flex-col items-center px-6 pt-24 pb-[100px] md:pt-40 lg:pt-48">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-10 text-center">
           <m.div
             initial={
