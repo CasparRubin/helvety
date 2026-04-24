@@ -517,6 +517,11 @@ export const RATE_LIMITS = {
   AUTH_CALLBACK: { maxRequests: 20, windowMs: 60 * 1000 },
   /** Read-only actions: 300 per minute per user (prevents scraping/enumeration) */
   READ: { maxRequests: 300, windowMs: 60 * 1000 },
+  /**
+   * Encrypted bulk export (data portability). Use with `readRateLimitConfig` in
+   * `authenticateAndRateLimit` — export actions are read-only (no CSRF token).
+   */
+  EXPORT: { maxRequests: 5, windowMs: 60 * 1000 },
   /** Encryption unlock attempts: 5 per minute per user */
   ENCRYPTION_UNLOCK: { maxRequests: 5, windowMs: 60 * 1000 },
 } as const;

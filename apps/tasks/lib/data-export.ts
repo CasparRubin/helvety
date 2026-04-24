@@ -45,7 +45,7 @@ interface DecryptedTaskExport {
 async function exportDecryptedTaskData(
   masterKey: CryptoKey
 ): Promise<DecryptedTaskExport> {
-  // 1. Fetch all encrypted data from the server
+  // 1. Fetch all encrypted data from the server (export-specific rate limit + row cap)
   const result = await getAllTaskDataForExport();
   if (!result.success) {
     throw new Error(result.error);

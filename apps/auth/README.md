@@ -48,6 +48,8 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 >
 > **Auth stack note:** Helvety Auth uses Supabase Auth + passkeys (WebAuthn), not NextAuth/Auth.js. `NEXTAUTH_SECRET`/`AUTH_SECRET` are not used.
+>
+> **Monorepo CI (`ci:release`):** From the repository root, `bun run ci:release` sets `SKIP_ENV_VALIDATION=1` for the production `build` step so Next.js can compile without a complete local `.env`. `@helvety/shared/env-validation` uses schema-valid placeholders only for missing values and still validates credentials that are present; production Vercel builds set `VERCEL=1` so placeholder mode is off. See the repository root **README** (Automation).
 
 ## Tech Stack
 
@@ -244,8 +246,10 @@ The auth service includes the following security hardening:
   - Verification code requests: 3 per 5 minutes per email, 9 per 5 minutes per IP
   - OTP verification attempts: 5 per 5 minutes per email, 15 per 5 minutes per IP
   - Passkey authentication (generation and verification): 10 per minute per IP
-  - Rate limits reset on successful authentication
-- **CSRF Protection** - Token-based protection with timing-safe comparison for all state-changing Server Actions
+  - Encryption metadata reads (`hasEncryptionSetup`, `getPasskeyParams`): 30 per minute per signed-in user (`CREDENTIAL_READ`; no CSRF, same read-action model as E2EE list fetches)
+  - Saving the encryption key-check value (`saveKeyCheckValue`): 5 per minute per user (`ENCRYPTION`), with CSRF
+  - Rate limits reset on successful authentication (e.g. passkey flows)
+- **CSRF Protection** - Token-based protection with timing-safe comparison for **state-changing** Server Actions (authenticated read-only actions omit CSRF and rely on session plus framework request checks, consistent with E2EE apps)
 - **Server-side Action/Handler Enforcement** - Authentication and authorization checks are enforced in Server Actions and route handlers (aligned with current Next.js security guidance). The proxy refreshes Supabase session cookies only; it does not gate access to protected data.
 - **Audit Logging** - Structured logging for all authentication events:
   - Login attempts (success/failure)

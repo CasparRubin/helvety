@@ -64,6 +64,8 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 | `NOTES_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Notes app (gateway rewrite target)    |
 
 > **Note:** Public app URL/cookie domain are derived from `NODE_ENV` in `packages/shared/src/config.ts`. Separately, the gateway rewrite URLs (`AUTH_URL`, `STORE_URL`, etc.) are only needed on Vercel production — they point to each sub-app's internal Vercel deployment URL (not `helvety.com`). In development, they fall back to localhost ports. Production rewrite hosts must use the built-in trusted host policy (`*.vercel.app`, `*.helvety.com`, and `helvety.com`). Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+>
+> **Monorepo CI (`ci:release`):** From the repository root, `bun run ci:release` sets `SKIP_ENV_VALIDATION=1` for the production `build` step so Next.js can compile without a complete local `.env`. `@helvety/shared/env-validation` uses schema-valid placeholders only for missing values and still validates credentials that are present; production Vercel builds set `VERCEL=1` so placeholder mode is off. See the repository root **README** (Automation).
 
 ## Tech Stack
 

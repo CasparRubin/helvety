@@ -2,6 +2,8 @@
 
 import "server-only";
 
+import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { isAuthRequiredError } from "@helvety/shared/auth-errors";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createServerClient } from "@helvety/shared/supabase/server";
@@ -16,21 +18,37 @@ import type {
 // =============================================================================
 // ENCRYPTION (PRF PARAMS)
 // =============================================================================
+//
+// Read helpers (`hasEncryptionSetup`, `getPasskeyParams`) use
+// `authenticateAndRateLimit` with `readRateLimitConfig: CREDENTIAL_READ` (no
+// CSRF). Mutations (`saveKeyCheckValue`) keep CSRF plus `ENCRYPTION` limits.
+
+/** Maps shared action auth errors to legacy strings expected by `auth-utils`. */
+function mapEncryptionReadAuthError(error: string): string {
+  if (isAuthRequiredError(error)) {
+    return "Not authenticated";
+  }
+  return error;
+}
 
 /**
- * Check if user has encryption (PRF params) set up
+ * Check if user has encryption (PRF params) set up.
+ *
+ * Rate-limited as an authenticated read (`CREDENTIAL_READ`); not CSRF-protected.
  */
 export async function hasEncryptionSetup(): Promise<ActionResponse<boolean>> {
   try {
-    const supabase = await createServerClient();
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "auth-encryption",
+      readRateLimitConfig: RATE_LIMITS.CREDENTIAL_READ,
+    });
+    if (!auth.ok) {
+      return {
+        success: false,
+        error: mapEncryptionReadAuthError(auth.response.error),
+      };
     }
+    const { user, supabase } = auth.ctx;
 
     const { data, error } = await supabase
       .from("user_passkey_params")
@@ -55,21 +73,25 @@ export async function hasEncryptionSetup(): Promise<ActionResponse<boolean>> {
 }
 
 /**
- * Get user's PRF params for encryption
+ * Get user's PRF params for encryption.
+ *
+ * Rate-limited as an authenticated read (`CREDENTIAL_READ`); not CSRF-protected.
  */
 export async function getPasskeyParams(): Promise<
   ActionResponse<UserPasskeyParams | null>
 > {
   try {
-    const supabase = await createServerClient();
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
+    const auth = await authenticateAndRateLimit({
+      rateLimitPrefix: "auth-encryption",
+      readRateLimitConfig: RATE_LIMITS.CREDENTIAL_READ,
+    });
+    if (!auth.ok) {
+      return {
+        success: false,
+        error: mapEncryptionReadAuthError(auth.response.error),
+      };
     }
+    const { user, supabase } = auth.ctx;
 
     const { data, error } = await supabase
       .from("user_passkey_params")

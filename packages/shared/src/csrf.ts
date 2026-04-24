@@ -19,6 +19,10 @@ import { COOKIE_DOMAIN } from "./config";
  *    CSRFProvider for client components.
  * 3. Server Actions validate the token with validateCSRFToken() /
  *    requireCSRFToken().
+ *
+ * Read-only server actions that do not call `requireCSRFToken` still require an
+ * authenticated session and should use `authenticateAndRateLimit` read-style
+ * limits (see AGENTS.md and `@helvety/shared/action-helpers`).
  */
 
 const CSRF_COOKIE_NAME = "csrf_token";

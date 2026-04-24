@@ -80,3 +80,14 @@ describe("checkRateLimit policy behavior", () => {
     expect(afterReset.allowed).toBe(true);
   });
 });
+
+describe("RATE_LIMITS.EXPORT", () => {
+  it("matches the E2EE bulk-export read limit contract", async () => {
+    const { RATE_LIMITS } = await import("./rate-limit");
+
+    expect(RATE_LIMITS.EXPORT).toEqual({
+      maxRequests: 5,
+      windowMs: 60_000,
+    });
+  });
+});

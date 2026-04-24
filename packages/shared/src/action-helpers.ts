@@ -62,7 +62,13 @@ interface AuthGuardOptions {
  * call, eliminating the ~15 lines of boilerplate that was repeated in every
  * server action.
  *
- * @example
+ * **CSRF:** When `csrfToken` is passed, it is validated and the mutation rate
+ * bucket applies (`rateLimitConfig`, default `RATE_LIMITS.API`). When
+ * `csrfToken` is omitted (read-only actions), CSRF is skipped; the read bucket
+ * applies (`readRateLimitConfig`, default `RATE_LIMITS.READ`). Encrypted bulk
+ * export actions should pass `readRateLimitConfig: RATE_LIMITS.EXPORT`.
+ *
+ * @example Mutation (CSRF + per-user API limits)
  * ```ts
  * export async function createItem(data, csrfToken) {
  *   try {
@@ -72,6 +78,14 @@ interface AuthGuardOptions {
  *     // ... business logic ...
  *   } catch (error) { ... }
  * }
+ * ```
+ *
+ * @example Read-only (session + read limits; no CSRF)
+ * ```ts
+ * const auth = await authenticateAndRateLimit({
+ *   rateLimitPrefix: "export",
+ *   readRateLimitConfig: RATE_LIMITS.EXPORT,
+ * });
  * ```
  */
 export async function authenticateAndRateLimit(

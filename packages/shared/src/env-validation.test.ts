@@ -78,6 +78,22 @@ describe("env-validation", () => {
     expect(getSupabaseKey()).toMatch(/^sb_publishable_ci_build/);
   });
 
+  it("validates real NEXT_PUBLIC_* when SKIP_ENV_VALIDATION=1 off Vercel if both are set", async () => {
+    vi.stubEnv("SKIP_ENV_VALIDATION", "1");
+    vi.stubEnv("VERCEL", "");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv(
+      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+      "sb_publishable_realkey123"
+    );
+
+    const { getSupabaseKey, getSupabaseUrl } = await import("./env-validation");
+
+    expect(getSupabaseUrl()).toBe("https://example.supabase.co");
+    expect(getSupabaseKey()).toBe("sb_publishable_realkey123");
+  });
+
   it("exposes merged server+Upstash placeholder for app env modules", async () => {
     const { getCiPlaceholderServerUpstashEnv } =
       await import("./env-validation");

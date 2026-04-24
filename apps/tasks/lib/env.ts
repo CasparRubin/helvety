@@ -2,7 +2,9 @@ import "server-only";
 
 import {
   getCiPlaceholderServerUpstashEnv,
+  hasRealServerUpstashEnv,
   isCiBuildPlaceholderEnvEnabled,
+  readServerUpstashEnvFromProcess,
   serverEnvSchema,
   upstashEnvSchema,
 } from "@helvety/shared/env-validation";
@@ -14,23 +16,21 @@ const tasksEnvSchema = serverEnvSchema.merge(upstashEnvSchema);
 let validated: z.infer<typeof tasksEnvSchema> | null = null;
 
 /**
- * Validates all tasks-specific env vars on first call, then caches the result.
- * Throws with a descriptive message on missing or malformed values.
+ * Validates server-only Supabase + Upstash env on first call, then caches.
+ *
+ * With `SKIP_ENV_VALIDATION=1` off Vercel: uses CI placeholders only when any
+ * of the three values are missing; otherwise validates `process.env` with Zod.
+ * See repository root `README.md` → Automation (`ci:release`).
  */
 export function getValidatedTasksEnv(): z.infer<typeof tasksEnvSchema> {
   if (validated) return validated;
 
-  if (isCiBuildPlaceholderEnvEnabled()) {
+  if (isCiBuildPlaceholderEnvEnabled() && !hasRealServerUpstashEnv()) {
     validated = getCiPlaceholderServerUpstashEnv();
     return validated;
   }
 
-  const raw = {
-    SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY?.trim() ?? "",
-    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL?.trim() ?? "",
-    UPSTASH_REDIS_REST_TOKEN:
-      process.env.UPSTASH_REDIS_REST_TOKEN?.trim() ?? "",
-  };
+  const raw = readServerUpstashEnvFromProcess();
 
   const result = tasksEnvSchema.safeParse(raw);
 

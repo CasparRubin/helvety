@@ -12,6 +12,8 @@ vi.mock("@helvety/shared/action-helpers", () => ({
 vi.mock("@helvety/shared/logger", () => ({
   logger: {
     logUnexpectedError: mocks.logUnexpectedError,
+    warn: vi.fn(),
+    info: vi.fn(),
   },
 }));
 
@@ -19,7 +21,11 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-import { reorderEntities } from "./entity-actions";
+vi.mock("next/server", () => ({
+  after: (callback: () => void) => callback(),
+}));
+
+import { getAllNoteDataForExport, reorderEntities } from "./entity-actions";
 
 const NOTE_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
 
@@ -73,5 +79,21 @@ describe("notes entity-actions reorderEntities", () => {
       sort_order: 0,
       category_id: "work",
     });
+  });
+
+  it("uses EXPORT readRateLimitConfig for getAllNoteDataForExport", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: false,
+      response: { success: false, error: "rate limited" },
+    });
+
+    await getAllNoteDataForExport();
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rateLimitPrefix: "export",
+        readRateLimitConfig: { maxRequests: 5, windowMs: 60_000 },
+      })
+    );
   });
 });

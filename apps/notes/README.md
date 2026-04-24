@@ -24,7 +24,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Main list search (client-side)** - After unlock, filter notes in the browser by **title** and **description** (plain text from rich content). Search is local only (not sent to the server; not in the URL). Category and dates are **not** search fields. While search has text, **drag-and-drop reorder and category up/down arrows are disabled**
 - Notes link to tasks and contacts (and can be linked from those apps)
 - Drag and drop reorder within and between categories when the main-list search field is empty
-- Client-side decrypted data export
+- Client-side decrypted data export (encrypted bulk fetch from the server is per-account rate limited)
 - Dark & Light mode
 
 ## Notes Model
@@ -56,13 +56,15 @@ Copy `env.template` to `.env.local` and fill in values.
 | `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting                                                                                                                                                                                                                        |
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting                                                                                                                                                                                                                      |
 
+> **Monorepo CI (`ci:release`):** From the repository root, `bun run ci:release` sets `SKIP_ENV_VALIDATION=1` for the production `build` step so Next.js can compile without a complete local `.env`. `@helvety/shared/env-validation` uses schema-valid placeholders only for missing values and still validates credentials that are present; production Vercel builds set `VERCEL=1` so placeholder mode is off. See the repository root **README** (Automation).
+
 ## Security
 
 - **Session / request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present; it is not the primary auth boundary. Session and authorization checks run in pages, Server Actions, and route handlers.
-- **Page-level auth** - `requireAuth` from `@helvety/shared/auth-guard` on protected routes
-- **CSRF protection** - Token validation for state-changing actions
+- **Page-level auth** - Protected routes await `requireE2eeAppPageAuth("/notes")` from `@helvety/shared/e2ee-page-auth` (wraps `requireAuth` from `@helvety/shared/auth-guard`)
+- **CSRF protection** - Token validation for **state-changing** server actions (session-authenticated reads omit CSRF and use read-style rate limits in `authenticateAndRateLimit`)
 - **Data access** - RLS plus explicit `user_id` filters in actions
-- **Rate limiting** - Applied to relevant server actions
+- **Rate limiting** - Applied to server actions, including a tighter preset for encrypted **bulk export** (`RATE_LIMITS.EXPORT` via `readRateLimitConfig`)
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services collect a non-EU/EEA location-attestation signal during sign-in on [helvety.com/auth](https://helvety.com/auth). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics across Helvety apps and Vercel Speed Insights on helvety.com).
 

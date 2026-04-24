@@ -26,6 +26,7 @@ vi.mock("@helvety/shared/logger", () => ({
 vi.mock("@helvety/shared/rate-limit", () => ({
   RATE_LIMITS: {
     API: { maxRequests: 100, windowMs: 60_000 },
+    EXPORT: { maxRequests: 5, windowMs: 60_000 },
   },
 }));
 
@@ -407,6 +408,22 @@ describe("contact-actions", () => {
       success: false,
       error: "Invalid contact reorder scope",
     });
+  });
+
+  it("uses EXPORT readRateLimitConfig for getAllContactDataForExport", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: false,
+      response: { success: false, error: "rate limited" },
+    });
+
+    await getAllContactDataForExport();
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rateLimitPrefix: "export",
+        readRateLimitConfig: { maxRequests: 5, windowMs: 60_000 },
+      })
+    );
   });
 
   it("returns export data with row cap enforcement", async () => {

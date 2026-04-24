@@ -41,7 +41,7 @@ interface DecryptedNoteExport {
 async function exportDecryptedNoteData(
   masterKey: CryptoKey
 ): Promise<DecryptedNoteExport> {
-  // 1. Fetch all encrypted note data from the server
+  // 1. Fetch all encrypted note data from the server (export-specific rate limit + row cap)
   const result = await getAllNoteDataForExport();
   if (!result.success) {
     throw new Error(result.error);

@@ -128,11 +128,44 @@ export const serverUpstashMergedSchema =
 
 /**
  * When `SKIP_ENV_VALIDATION=1` and not on Vercel (`VERCEL=1`), apps may use
- * schema-valid placeholder values so `next build` can run without real secrets
- * (e.g. local `ci:release:stub`). Never enable on Vercel production.
+ * schema-valid placeholder values for **missing** `NEXT_PUBLIC_*` vars so
+ * `next build` can run without real secrets (e.g. root `ci:release`). If both
+ * public vars are already set, they are validated normally so local builds
+ * still exercise real keys. Server + Upstash placeholders are gated in each
+ * app `lib/env.ts` via {@link hasRealServerUpstashEnv}. Never rely on
+ * placeholders when `VERCEL=1`.
  */
 export function isCiBuildPlaceholderEnvEnabled(): boolean {
   return process.env.SKIP_ENV_VALIDATION === "1" && process.env.VERCEL !== "1";
+}
+
+/** Raw server + Upstash triple read from `process.env` (trimmed, may be empty). */
+export function readServerUpstashEnvFromProcess(): {
+  SUPABASE_SECRET_KEY: string;
+  UPSTASH_REDIS_REST_URL: string;
+  UPSTASH_REDIS_REST_TOKEN: string;
+} {
+  return {
+    SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY?.trim() ?? "",
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL?.trim() ?? "",
+    UPSTASH_REDIS_REST_TOKEN:
+      process.env.UPSTASH_REDIS_REST_TOKEN?.trim() ?? "",
+  };
+}
+
+/**
+ * True when server-only Supabase secret and Upstash credentials are all set.
+ * Used with {@link isCiBuildPlaceholderEnvEnabled} in each app `lib/env.ts` so
+ * local `ci:release` can use {@link getCiPlaceholderServerUpstashEnv} for
+ * missing secrets while still validating real `.env` when the triple is present.
+ */
+export function hasRealServerUpstashEnv(): boolean {
+  const r = readServerUpstashEnvFromProcess();
+  return Boolean(
+    r.SUPABASE_SECRET_KEY &&
+    r.UPSTASH_REDIS_REST_URL &&
+    r.UPSTASH_REDIS_REST_TOKEN
+  );
 }
 
 const CI_PLACEHOLDER_PUBLIC = {
@@ -174,6 +207,16 @@ type Env = z.infer<typeof envSchema>;
 
 let validatedEnv: Env | null = null;
 
+/** Formats Zod env schema failures for thrown Error messages. */
+function formatEnvParseError(error: z.ZodError): string {
+  return error.issues
+    .map((err) => {
+      const path = err.path.join(".");
+      return `  - ${path}: ${err.message}`;
+    })
+    .join("\n");
+}
+
 /**
  * Validates and returns environment variables
  * Throws an error if validation fails
@@ -186,23 +229,30 @@ function getValidatedEnv(): Env {
     return validatedEnv;
   }
 
-  if (isCiBuildPlaceholderEnvEnabled()) {
-    const parsed = envSchema.safeParse(CI_PLACEHOLDER_PUBLIC);
-    if (!parsed.success) {
-      throw new Error(
-        `Internal error: CI placeholder public env failed schema: ${parsed.error.message}`
-      );
-    }
-    validatedEnv = parsed.data;
-    return validatedEnv;
-  }
-
   const rawEnv = {
     NEXT_PUBLIC_SUPABASE_URL:
       process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "",
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ?? "",
   };
+
+  if (isCiBuildPlaceholderEnvEnabled()) {
+    const hasPublicSupabase =
+      Boolean(rawEnv.NEXT_PUBLIC_SUPABASE_URL) &&
+      Boolean(rawEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+
+    if (!hasPublicSupabase) {
+      const parsed = envSchema.safeParse(CI_PLACEHOLDER_PUBLIC);
+      if (!parsed.success) {
+        throw new Error(
+          `Internal error: CI placeholder public env failed schema: ${parsed.error.message}`
+        );
+      }
+      validatedEnv = parsed.data;
+      return validatedEnv;
+    }
+    // Real NEXT_PUBLIC_* present: validate them (do not override with placeholders).
+  }
 
   // Development: Check if variables are missing before validation
   if (process.env.NODE_ENV === "development") {
@@ -223,12 +273,7 @@ function getValidatedEnv(): Env {
   const result = envSchema.safeParse(rawEnv);
 
   if (!result.success) {
-    const errors = result.error.issues
-      .map((err) => {
-        const path = err.path.join(".");
-        return `  - ${path}: ${err.message}`;
-      })
-      .join("\n");
+    const errors = formatEnvParseError(result.error);
 
     const errorMessage =
       `Invalid environment variables:\n${errors}\n\n` +

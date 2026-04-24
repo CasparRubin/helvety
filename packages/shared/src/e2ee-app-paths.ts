@@ -3,6 +3,8 @@
  * unlock (master key) before the UI can load — not just a Supabase session.
  *
  * Keep in sync with apps using `EncryptionGateApp` (notes, tasks, contacts).
+ * Server pages for those apps should call `requireE2eeAppPageAuth` from
+ * `@helvety/shared/e2ee-page-auth` so new routes keep an explicit `requireAuth`.
  */
 
 const E2EE_PATH_PREFIXES = ["/notes", "/tasks", "/contacts"] as const;

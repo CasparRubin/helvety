@@ -166,6 +166,9 @@ export async function reorderEntities(
  * The client is responsible for decrypting the data using the user's
  * encryption key before presenting or saving the export.
  *
+ * Security: read-only server action (no CSRF token); requires a session and uses
+ * `readRateLimitConfig: RATE_LIMITS.EXPORT` for per-user throttling.
+ *
  * Legal basis: nDSG Art. 28 (right to data portability)
  */
 export async function getAllNoteDataForExport(): Promise<
@@ -174,7 +177,7 @@ export async function getAllNoteDataForExport(): Promise<
   try {
     const auth = await authenticateAndRateLimit({
       rateLimitPrefix: "export",
-      rateLimitConfig: { maxRequests: 5, windowMs: RATE_LIMITS.API.windowMs },
+      readRateLimitConfig: RATE_LIMITS.EXPORT,
     });
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;

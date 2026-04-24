@@ -40,7 +40,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Searchable picker** - Search your notes by decrypted title and link them with one click
   - **Deep links** - Click any linked note row to open the note detail view in the Notes app (opens in a new tab)
   - **Privacy** - Note titles are decrypted client-side for display in Contacts. Plaintext should not be intentionally sent to the server.
-- **Self-Service Data Export** - Export all your contact data as a decrypted JSON file from the command bar; data is fetched encrypted from the server and decrypted client-side using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
+- **Self-Service Data Export** - Export all your contact data as a decrypted JSON file from the command bar; data is fetched **encrypted** from the server (per-account export rate limits apply) and decrypted **client-side** using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes)
 - **Dark & Light mode** - Switch between dark and light themes
 
@@ -63,6 +63,8 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting. Required by startup validation in all environments.                                                                                                                                                                 |
 
 > **Note:** App URLs are derived from `NODE_ENV` in `packages/shared/src/config.ts` — no URL env vars needed. Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
+>
+> **Monorepo CI (`ci:release`):** From the repository root, `bun run ci:release` sets `SKIP_ENV_VALIDATION=1` for the production `build` step so Next.js can compile without a complete local `.env`. `@helvety/shared/env-validation` uses schema-valid placeholders only for missing values and still validates credentials that are present; production Vercel builds set `VERCEL=1` so placeholder mode is off. See the repository root **README** (Automation).
 
 ## Security & Authentication
 
@@ -141,10 +143,10 @@ Sessions are shared across Helvety apps on `helvety.com` via path-based routing 
 This application includes the following security hardening:
 
 - **Session Management** - `proxy.ts` performs lightweight request setup (CSP, CSRF bootstrap, and Supabase session cookie refresh when auth cookies are present). Session/auth checks are enforced in page-level/server-side handlers.
-- **Server-side Page Guards** - Authentication checks in page-level Server Components via `@helvety/shared/auth-guard` (fail-closed: single auth check, no user = redirect)
+- **Server-side page guards** - Protected routes await `requireE2eeAppPageAuth("/contacts")` from `@helvety/shared/e2ee-page-auth` (wraps `requireAuth` from `@helvety/shared/auth-guard`: fail-closed redirect when there is no session)
 - **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated via `@helvety/shared/redirect-validation` to reduce open-redirect risk
-- **CSRF Protection** - Token-based protection for state-changing operations
-- **Rate Limiting** - Protection against brute force attacks
+- **CSRF protection** - Token validation for **state-changing** server actions (reads omit CSRF; they still require a session and use read-style rate limits—see `authenticateAndRateLimit` in `@helvety/shared/action-helpers`)
+- **Rate limiting** - Mutations, reads, and encrypted **bulk export** are rate-limited (export uses the tighter `RATE_LIMITS.EXPORT` preset in shared rate limits)
 - **Security Headers** - CSP, HSTS, and other security headers
 
 **Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services collect a non-EU/EEA location-attestation signal during sign-in on [helvety.com/auth](https://helvety.com/auth). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics across Helvety apps and Vercel Speed Insights on helvety.com).

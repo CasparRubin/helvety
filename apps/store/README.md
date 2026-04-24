@@ -65,6 +65,8 @@ Copy `env.template` to `.env.local` and fill values:
 
 `SUPABASE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN` are server-side values. Keep them only in server environments and never expose them to client bundles.
 
+> **Monorepo CI (`ci:release`):** From the repository root, `bun run ci:release` sets `SKIP_ENV_VALIDATION=1` for the production `build` step so Next.js can compile without a complete local `.env`. `@helvety/shared/env-validation` uses schema-valid placeholders only for missing values and still validates credentials that are present; production Vercel builds set `VERCEL=1` so placeholder mode is off. See the repository root **README** (Automation).
+
 ## Security & session setup
 
 - **Request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present. Session and authorization checks for account flows run in pages, Server Actions, and route handlers—not in the proxy alone.

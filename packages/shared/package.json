@@ -43,6 +43,7 @@
     "./layout-primitives": "./src/layout-primitives.ts",
     "./fonts": "./src/fonts.ts",
     "./e2ee-app-paths": "./src/e2ee-app-paths.ts",
+    "./e2ee-page-auth": "./src/e2ee-page-auth.ts",
     "./redirect-validation": "./src/redirect-validation.ts",
     "./request-origin": "./src/request-origin.ts",
     "./seo": "./src/seo.ts",
