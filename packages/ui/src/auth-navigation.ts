@@ -209,3 +209,26 @@ export function handleAuthErrorNavigation(
   }
   return false;
 }
+
+/**
+ * Client hooks (E2EE lists, entity links) use the same redirect defaults as
+ * `handleAuthErrorNavigation` with a stable `source` for telemetry.
+ */
+export function triggerE2eeHookAuthErrorNavigation(
+  source: NavigationSource,
+  rawError?: string | null,
+  options?: AuthNavigationOptions & {
+    redirectUri?: string;
+  }
+): boolean {
+  return handleAuthErrorNavigation(
+    rawError,
+    options?.redirectUri ??
+      (typeof window !== "undefined" ? window.location.href : ""),
+    source,
+    {
+      expectedRoute: options?.expectedRoute,
+      requestStartedAt: options?.requestStartedAt,
+    }
+  );
+}

@@ -3,20 +3,15 @@
 import {
   DndContext,
   closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
   type DragEndEvent,
   type DragOverEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Button } from "@helvety/ui/button";
+import { useE2eeEntityListDndSensors } from "@helvety/ui/use-e2ee-entity-list-dnd-sensors";
 import { Loader2Icon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -68,17 +63,7 @@ export function EntityList({
   const hasCategories = categories.length > 0;
   const sortableDisabled = onReorder == null;
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 5 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const sensors = useE2eeEntityListDndSensors();
 
   const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(
     null

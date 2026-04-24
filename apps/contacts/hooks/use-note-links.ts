@@ -1,7 +1,7 @@
 "use client";
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
-import { handleAuthErrorNavigation } from "@helvety/ui/auth-navigation";
+import { triggerE2eeHookAuthErrorNavigation } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -59,25 +59,6 @@ interface UseNoteLinksReturn {
   loadEntities: () => Promise<void>;
   link: (noteId: string) => Promise<boolean>;
   unlink: (linkId: string) => Promise<boolean>;
-}
-
-function triggerHardLogoutForError(
-  rawError?: string | null,
-  options?: {
-    redirectUri?: string;
-    expectedRoute?: string;
-    requestStartedAt?: number;
-  }
-): boolean {
-  return handleAuthErrorNavigation(
-    rawError,
-    options?.redirectUri ?? window.location.href,
-    "contacts-use-note-links",
-    {
-      expectedRoute: options?.expectedRoute,
-      requestStartedAt: options?.requestStartedAt,
-    }
-  );
 }
 
 async function decryptNoteTitle(
@@ -166,11 +147,15 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       }
       if (!result.success) {
         if (
-          triggerHardLogoutForError(result.error, {
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
+          triggerE2eeHookAuthErrorNavigation(
+            "contacts-use-note-links",
+            result.error,
+            {
+              redirectUri: routeAtStart,
+              expectedRoute: routeAtStart,
+              requestStartedAt,
+            }
+          )
         ) {
           return;
         }
@@ -199,7 +184,7 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch note links";
       if (
-        triggerHardLogoutForError(msg, {
+        triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", msg, {
           redirectUri: routeAtStart,
           expectedRoute: routeAtStart,
           requestStartedAt,
@@ -239,11 +224,15 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       }
       if (!result.success) {
         if (
-          triggerHardLogoutForError(result.error, {
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
+          triggerE2eeHookAuthErrorNavigation(
+            "contacts-use-note-links",
+            result.error,
+            {
+              redirectUri: routeAtStart,
+              expectedRoute: routeAtStart,
+              requestStartedAt,
+            }
+          )
         ) {
           return;
         }
@@ -272,7 +261,7 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       const message =
         err instanceof Error ? err.message : "Failed to fetch notes";
       if (
-        triggerHardLogoutForError(message, {
+        triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", message, {
           redirectUri: routeAtStart,
           expectedRoute: routeAtStart,
           requestStartedAt,
@@ -296,7 +285,13 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       try {
         const result = await linkNoteEntity(noteId, contactId, csrfToken);
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) return false;
+          if (
+            triggerE2eeHookAuthErrorNavigation(
+              "contacts-use-note-links",
+              result.error
+            )
+          )
+            return false;
           toast.error(result.error ?? "Failed to link note", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -307,7 +302,10 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to link note";
-        if (triggerHardLogoutForError(message)) return false;
+        if (
+          triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", message)
+        )
+          return false;
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
@@ -320,7 +318,13 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       try {
         const result = await unlinkNoteEntity(linkId, csrfToken);
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) return false;
+          if (
+            triggerE2eeHookAuthErrorNavigation(
+              "contacts-use-note-links",
+              result.error
+            )
+          )
+            return false;
           toast.error(result.error ?? "Failed to unlink note", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -331,7 +335,10 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to unlink note";
-        if (triggerHardLogoutForError(message)) return false;
+        if (
+          triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", message)
+        )
+          return false;
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }

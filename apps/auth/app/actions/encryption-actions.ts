@@ -7,6 +7,7 @@ import { isAuthRequiredError } from "@helvety/shared/auth-errors";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createServerClient } from "@helvety/shared/supabase/server";
+import { fetchUserPasskeyParamsForUser } from "@helvety/shared/user-passkey-params-db";
 
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -50,22 +51,16 @@ export async function hasEncryptionSetup(): Promise<ActionResponse<boolean>> {
     }
     const { user, supabase } = auth.ctx;
 
-    const { data, error } = await supabase
-      .from("user_passkey_params")
-      .select("user_id")
-      .eq("user_id", user.id)
-      .single();
-
-    if (error) {
-      // PGRST116 = no rows found (user hasn't set up encryption)
-      if (error.code === "PGRST116") {
-        return { success: true, data: false };
-      }
-      logger.logUnexpectedError("Error checking encryption setup", error);
+    const row = await fetchUserPasskeyParamsForUser(
+      supabase,
+      user.id,
+      "Error checking encryption setup"
+    );
+    if (!row.ok) {
       return { success: false, error: "Failed to check encryption status" };
     }
 
-    return { success: true, data: !!data };
+    return { success: true, data: row.params !== null };
   } catch (error) {
     logger.logUnexpectedError("Error in hasEncryptionSetup", error);
     return { success: false, error: "Failed to check encryption status" };
@@ -93,22 +88,16 @@ export async function getPasskeyParams(): Promise<
     }
     const { user, supabase } = auth.ctx;
 
-    const { data, error } = await supabase
-      .from("user_passkey_params")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-
-    if (error) {
-      // PGRST116 = no rows found
-      if (error.code === "PGRST116") {
-        return { success: true, data: null };
-      }
-      logger.logUnexpectedError("Error getting PRF params", error);
+    const row = await fetchUserPasskeyParamsForUser(
+      supabase,
+      user.id,
+      "Error getting PRF params"
+    );
+    if (!row.ok) {
       return { success: false, error: "Failed to get encryption params" };
     }
 
-    return { success: true, data };
+    return { success: true, data: row.params };
   } catch (error) {
     logger.logUnexpectedError("Error in getPasskeyParams", error);
     return { success: false, error: "Failed to get encryption params" };

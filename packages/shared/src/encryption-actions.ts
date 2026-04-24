@@ -10,6 +10,8 @@ import {
 } from "@helvety/shared/auth-errors";
 import { logger } from "@helvety/shared/logger";
 
+import { fetchUserPasskeyParamsForUser } from "./user-passkey-params-db";
+
 import type {
   ActionResponse,
   UserPasskeyParams,
@@ -29,26 +31,19 @@ export async function getPasskeyParams(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    // Get passkey params
-    const { data, error } = await supabase
-      .from("user_passkey_params")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-
-    if (error) {
-      // PGRST116 = no rows found (user hasn't set up passkey encryption)
-      if (error.code === "PGRST116") {
-        return { success: true, data: null };
-      }
-      logger.logUnexpectedError("Error getting passkey params", error);
+    const row = await fetchUserPasskeyParamsForUser(
+      supabase,
+      user.id,
+      "Error getting passkey params"
+    );
+    if (!row.ok) {
       return {
         success: false,
         error: "Failed to get passkey encryption settings",
       };
     }
 
-    return { success: true, data };
+    return { success: true, data: row.params };
   } catch (error) {
     logger.logUnexpectedError("Unexpected error in getPasskeyParams", error);
     return { success: false, error: "An unexpected error occurred" };

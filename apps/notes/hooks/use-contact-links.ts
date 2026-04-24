@@ -1,7 +1,7 @@
 "use client";
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
-import { handleAuthErrorNavigation } from "@helvety/ui/auth-navigation";
+import { triggerE2eeHookAuthErrorNavigation } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -51,26 +51,6 @@ interface UseContactLinksReturn {
   link: (contactId: string) => Promise<boolean>;
   /** Unlink a contact from this note */
   unlink: (linkId: string) => Promise<boolean>;
-}
-
-/** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
-function triggerHardLogoutForError(
-  rawError?: string | null,
-  options?: {
-    redirectUri?: string;
-    expectedRoute?: string;
-    requestStartedAt?: number;
-  }
-): boolean {
-  return handleAuthErrorNavigation(
-    rawError,
-    options?.redirectUri ?? window.location.href,
-    "notes-use-contact-links",
-    {
-      expectedRoute: options?.expectedRoute,
-      requestStartedAt: options?.requestStartedAt,
-    }
-  );
 }
 
 /**
@@ -127,11 +107,15 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
           return;
         }
         if (
-          triggerHardLogoutForError(contactsResult.error, {
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
+          triggerE2eeHookAuthErrorNavigation(
+            "notes-use-contact-links",
+            contactsResult.error,
+            {
+              redirectUri: routeAtStart,
+              expectedRoute: routeAtStart,
+              requestStartedAt,
+            }
+          )
         ) {
           return;
         }
@@ -149,11 +133,15 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
           return;
         }
         if (
-          triggerHardLogoutForError(linksResult.error, {
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
+          triggerE2eeHookAuthErrorNavigation(
+            "notes-use-contact-links",
+            linksResult.error,
+            {
+              redirectUri: routeAtStart,
+              expectedRoute: routeAtStart,
+              requestStartedAt,
+            }
+          )
         ) {
           return;
         }
@@ -186,7 +174,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch contact data";
       if (
-        triggerHardLogoutForError(msg, {
+        triggerE2eeHookAuthErrorNavigation("notes-use-contact-links", msg, {
           redirectUri: routeAtStart,
           expectedRoute: routeAtStart,
           requestStartedAt,
@@ -213,7 +201,12 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
       try {
         const result = await linkContact(itemId, contactId, csrfToken);
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) {
+          if (
+            triggerE2eeHookAuthErrorNavigation(
+              "notes-use-contact-links",
+              result.error
+            )
+          ) {
             return false;
           }
           toast.error(result.error ?? "Failed to link contact", {
@@ -236,7 +229,9 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to link contact";
-        if (triggerHardLogoutForError(message)) {
+        if (
+          triggerE2eeHookAuthErrorNavigation("notes-use-contact-links", message)
+        ) {
           return false;
         }
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
@@ -254,7 +249,12 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
       try {
         const result = await unlinkContact(linkId, csrfToken);
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) {
+          if (
+            triggerE2eeHookAuthErrorNavigation(
+              "notes-use-contact-links",
+              result.error
+            )
+          ) {
             return false;
           }
           toast.error(result.error ?? "Failed to unlink contact", {
@@ -270,7 +270,9 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to unlink contact";
-        if (triggerHardLogoutForError(message)) {
+        if (
+          triggerE2eeHookAuthErrorNavigation("notes-use-contact-links", message)
+        ) {
           return false;
         }
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });

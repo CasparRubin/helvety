@@ -11,10 +11,12 @@ import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
 } from "@helvety/shared/layout-primitives";
+import { logger } from "@helvety/shared/logger";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
+import { SessionRecovery } from "@helvety/ui/session-recovery";
 import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
@@ -98,11 +100,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const [nonce, csrfToken, initialUser] = await Promise.all([
-    headers().then((h) => h.get("x-nonce") ?? ""),
-    getCachedCSRFToken().then((t) => t ?? ""),
-    getCachedUser(),
-  ]);
+  let nonce = "";
+  let csrfToken = "";
+  let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
+
+  try {
+    [nonce, csrfToken, initialUser] = await Promise.all([
+      headers().then((h) => h.get("x-nonce") ?? ""),
+      getCachedCSRFToken().then((t) => t ?? ""),
+      getCachedUser(),
+    ]);
+  } catch (error) {
+    logger.logUnexpectedError("Layout initialization failed", error);
+  }
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
@@ -129,6 +139,8 @@ export default async function RootLayout({
         />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
           <AuthTokenHandler />
+          {/* Optional: login flows may be unauthenticated without implying a broken session */}
+          <SessionRecovery mode="optional" />
           <TooltipProvider>
             <CSRFProvider csrfToken={csrfToken}>
               <EncryptionProvider>

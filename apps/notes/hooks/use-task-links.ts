@@ -1,7 +1,7 @@
 "use client";
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
-import { handleAuthErrorNavigation } from "@helvety/ui/auth-navigation";
+import { triggerE2eeHookAuthErrorNavigation } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -41,25 +41,6 @@ interface UseTaskLinksReturn {
   loadEntities: () => Promise<void>;
   link: (itemId: string) => Promise<boolean>;
   unlink: (linkId: string) => Promise<boolean>;
-}
-
-function triggerHardLogoutForError(
-  rawError?: string | null,
-  options?: {
-    redirectUri?: string;
-    expectedRoute?: string;
-    requestStartedAt?: number;
-  }
-): boolean {
-  return handleAuthErrorNavigation(
-    rawError,
-    options?.redirectUri ?? window.location.href,
-    "notes-use-task-links",
-    {
-      expectedRoute: options?.expectedRoute,
-      requestStartedAt: options?.requestStartedAt,
-    }
-  );
 }
 
 async function decryptItemTitle(
@@ -148,11 +129,15 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
       }
       if (!result.success) {
         if (
-          triggerHardLogoutForError(result.error, {
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
+          triggerE2eeHookAuthErrorNavigation(
+            "notes-use-task-links",
+            result.error,
+            {
+              redirectUri: routeAtStart,
+              expectedRoute: routeAtStart,
+              requestStartedAt,
+            }
+          )
         ) {
           return;
         }
@@ -181,7 +166,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch task links";
       if (
-        triggerHardLogoutForError(msg, {
+        triggerE2eeHookAuthErrorNavigation("notes-use-task-links", msg, {
           redirectUri: routeAtStart,
           expectedRoute: routeAtStart,
           requestStartedAt,
@@ -221,11 +206,15 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
       }
       if (!result.success) {
         if (
-          triggerHardLogoutForError(result.error, {
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
+          triggerE2eeHookAuthErrorNavigation(
+            "notes-use-task-links",
+            result.error,
+            {
+              redirectUri: routeAtStart,
+              expectedRoute: routeAtStart,
+              requestStartedAt,
+            }
+          )
         ) {
           return;
         }
@@ -254,7 +243,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
       const message =
         err instanceof Error ? err.message : "Failed to fetch tasks";
       if (
-        triggerHardLogoutForError(message, {
+        triggerE2eeHookAuthErrorNavigation("notes-use-task-links", message, {
           redirectUri: routeAtStart,
           expectedRoute: routeAtStart,
           requestStartedAt,
@@ -278,7 +267,13 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
       try {
         const result = await linkTaskEntity(itemId, noteId, csrfToken);
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) return false;
+          if (
+            triggerE2eeHookAuthErrorNavigation(
+              "notes-use-task-links",
+              result.error
+            )
+          )
+            return false;
           toast.error(result.error ?? "Failed to link task", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -289,7 +284,8 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to link task";
-        if (triggerHardLogoutForError(message)) return false;
+        if (triggerE2eeHookAuthErrorNavigation("notes-use-task-links", message))
+          return false;
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
@@ -302,7 +298,13 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
       try {
         const result = await unlinkTaskEntity(linkId, csrfToken);
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) return false;
+          if (
+            triggerE2eeHookAuthErrorNavigation(
+              "notes-use-task-links",
+              result.error
+            )
+          )
+            return false;
           toast.error(result.error ?? "Failed to unlink task", {
             duration: TOAST_DURATIONS.ERROR,
           });
@@ -313,7 +315,8 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to unlink task";
-        if (triggerHardLogoutForError(message)) return false;
+        if (triggerE2eeHookAuthErrorNavigation("notes-use-task-links", message))
+          return false;
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }

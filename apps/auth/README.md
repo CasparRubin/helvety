@@ -258,6 +258,7 @@ The auth service includes the following security hardening:
   - Rate limit exceeded events
 - **Standardized Errors** - Consistent error codes and user-friendly messages that don't leak implementation details
 - **Security Headers** - Content Security Policy, HSTS, X-Frame-Options, and other security headers
+- **Session recovery (client)** - The root layout includes `SessionRecovery` with `mode="optional"` alongside `AuthTokenHandler`, complementing `proxy.ts` cookie refresh so long-lived login flows can surface session edge cases without treating unauthenticated steps as hard failures.
 
 ### Supabase Provider Posture Verification
 

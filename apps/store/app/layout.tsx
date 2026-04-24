@@ -10,6 +10,7 @@ import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
 } from "@helvety/shared/layout-primitives";
+import { logger } from "@helvety/shared/logger";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
 import { ScrollArea } from "@helvety/ui/scroll-area";
@@ -111,17 +112,26 @@ export const metadata: Metadata = {
 /**
  * Root layout: ThemeProvider wraps only the Navbar (next-themes injects a script; keep route content outside).
  * ScrollArea main, StoreNav, and footer follow.
+ * Navbar-only ThemeProvider is intentional to avoid theme flash on catalog pages.
  */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const [nonce, csrfToken, initialUser] = await Promise.all([
-    headers().then((h) => h.get("x-nonce") ?? ""),
-    getCachedCSRFToken().then((t) => t ?? ""),
-    getCachedUser(),
-  ]);
+  let nonce = "";
+  let csrfToken = "";
+  let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
+
+  try {
+    [nonce, csrfToken, initialUser] = await Promise.all([
+      headers().then((h) => h.get("x-nonce") ?? ""),
+      getCachedCSRFToken().then((t) => t ?? ""),
+      getCachedUser(),
+    ]);
+  } catch (error) {
+    logger.logUnexpectedError("Layout initialization failed", error);
+  }
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>

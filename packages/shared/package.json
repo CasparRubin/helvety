@@ -64,7 +64,8 @@
     "./proxy": "./src/proxy.ts",
     "./validation/encrypted-data": "./src/validation/encrypted-data.ts",
     "./uuid-string": "./src/uuid-string.ts",
-    "./encryption-actions": "./src/encryption-actions.ts"
+    "./encryption-actions": "./src/encryption-actions.ts",
+    "./user-passkey-params-db": "./src/user-passkey-params-db.ts"
   },
   "dependencies": {
     "@helvety/config": "workspace:*",

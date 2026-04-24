@@ -144,6 +144,7 @@ This application includes the following security hardening:
 
 - **Session Management** - `proxy.ts` performs lightweight request setup (CSP, CSRF bootstrap, and Supabase session cookie refresh when auth cookies are present). Session/auth checks are enforced in page-level/server-side handlers.
 - **Server-side page guards** - Protected routes await `requireE2eeAppPageAuth("/contacts")` from `@helvety/shared/e2ee-page-auth` (wraps `requireAuth` from `@helvety/shared/auth-guard`: fail-closed redirect when there is no session)
+- **Shared E2EE app shell** - Contacts, Notes, and Tasks reuse `@helvety/ui` `E2eeAppRootLayout` and `E2eeAppNavbar` so session recovery, CSRF, encryption gate wiring, JSON-LD, and top navigation stay aligned across the three apps. Root layout errors use `@helvety/ui` `RootGlobalError`.
 - **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated via `@helvety/shared/redirect-validation` to reduce open-redirect risk
 - **CSRF protection** - Token validation for **state-changing** server actions (reads omit CSRF; they still require a session and use read-style rate limits—see `authenticateAndRateLimit` in `@helvety/shared/action-helpers`)
 - **Rate limiting** - Mutations, reads, and encrypted **bulk export** are rate-limited (export uses the tighter `RATE_LIMITS.EXPORT` preset in shared rate limits)

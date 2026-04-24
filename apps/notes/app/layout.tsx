@@ -1,28 +1,7 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import {
-  getCachedCSRFToken,
-  getCachedUser,
-} from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { publicSans } from "@helvety/shared/fonts";
-import {
-  createHelvetyOrganizationSchema,
-  DEFAULT_THEME_PROVIDER_PROPS,
-} from "@helvety/shared/layout-primitives";
-import { logger } from "@helvety/shared/logger";
-import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
-import { CSRFProvider } from "@helvety/ui/csrf-provider";
-import { EncryptionGateApp } from "@helvety/ui/encryption-gate-app";
-import { Footer } from "@helvety/ui/footer";
-import { ScrollArea } from "@helvety/ui/scroll-area";
-import { SessionRecovery } from "@helvety/ui/session-recovery";
-import { SkipToContent } from "@helvety/ui/skip-to-content";
-import { Toaster } from "@helvety/ui/sonner";
-import { ThemeProvider } from "@helvety/ui/theme-provider";
-import { TooltipProvider } from "@helvety/ui/tooltip";
-import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
-import { headers } from "next/headers";
+import { E2eeAppRootLayout } from "@helvety/ui/e2ee-app-root-layout";
 
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
@@ -105,81 +84,25 @@ export const metadata: Metadata = {
 /**
  * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer.
  */
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>): Promise<React.JSX.Element> {
-  let nonce = "";
-  let csrfToken = "";
-  let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
-
-  try {
-    [nonce, csrfToken, initialUser] = await Promise.all([
-      headers().then((h) => h.get("x-nonce") ?? ""),
-      getCachedCSRFToken().then((t) => t ?? ""),
-      getCachedUser(),
-    ]);
-  } catch (error) {
-    logger.logUnexpectedError("Layout initialization failed", error);
-  }
-
+}>) {
   return (
-    <html lang="en" className={publicSans.variable} suppressHydrationWarning>
-      <body className="antialiased">
-        <SkipToContent />
-        <script
-          type="application/ld+json"
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
-              createHelvetyOrganizationSchema(brandAssets.identifierPng),
-              {
-                "@context": "https://schema.org",
-                "@type": "SoftwareApplication",
-                name: "Helvety Notes",
-                url: urls.notes,
-                description:
-                  "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
-                applicationCategory: "BusinessApplication",
-                operatingSystem: "Any",
-                isAccessibleForFree: true,
-              },
-            ]),
-          }}
-        />
-        <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
-          <AuthTokenHandler />
-          <SessionRecovery />
-          <TooltipProvider>
-            <CSRFProvider csrfToken={csrfToken}>
-              <EncryptionProvider>
-                <div className="flex h-screen flex-col overflow-hidden">
-                  <header className="shrink-0">
-                    <Navbar initialUser={initialUser} />
-                  </header>
-                  <ScrollArea className="min-h-0 flex-1">
-                    <div className="container mx-auto w-full px-4">
-                      <main id="main-content">
-                        {initialUser ? (
-                          <EncryptionGateApp userId={initialUser.id}>
-                            {children}
-                          </EncryptionGateApp>
-                        ) : (
-                          children
-                        )}
-                      </main>
-                    </div>
-                  </ScrollArea>
-                  <Footer className="shrink-0" />
-                </div>
-                <Toaster />
-              </EncryptionProvider>
-            </CSRFProvider>
-          </TooltipProvider>
-        </ThemeProvider>
-        <VercelAnalytics />
-      </body>
-    </html>
+    <E2eeAppRootLayout
+      organizationLogoUrl={brandAssets.identifierPng}
+      softwareApplication={{
+        name: "Helvety Notes",
+        url: urls.notes,
+        description:
+          "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
+        applicationCategory: "BusinessApplication",
+      }}
+      EncryptionProvider={EncryptionProvider}
+      renderNavbar={(initialUser) => <Navbar initialUser={initialUser} />}
+    >
+      {children}
+    </E2eeAppRootLayout>
   );
 }

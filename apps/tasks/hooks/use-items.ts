@@ -2,7 +2,7 @@
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import {
-  handleAuthErrorNavigation,
+  triggerE2eeHookAuthErrorNavigation,
   triggerHardLogoutOnce,
 } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
@@ -53,26 +53,6 @@ interface UseItemsReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
 }
 
-/** Routes auth/E2EE failures to login or hard-logout via shared navigation. */
-function triggerHardLogoutForError(
-  rawError?: string | null,
-  options?: {
-    redirectUri?: string;
-    expectedRoute?: string;
-    requestStartedAt?: number;
-  }
-): boolean {
-  return handleAuthErrorNavigation(
-    rawError,
-    options?.redirectUri ?? window.location.href,
-    "tasks-use-items",
-    {
-      expectedRoute: options?.expectedRoute,
-      requestStartedAt: options?.requestStartedAt,
-    }
-  );
-}
-
 /**
  * Hook to manage items with automatic encryption/decryption.
  */
@@ -106,7 +86,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
           return;
         }
         if (
-          triggerHardLogoutForError(result.error, {
+          triggerE2eeHookAuthErrorNavigation("tasks-use-items", result.error, {
             redirectUri: routeAtStart,
             expectedRoute: routeAtStart,
             requestStartedAt,
@@ -135,7 +115,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         return;
       }
       if (
-        triggerHardLogoutForError(msg, {
+        triggerE2eeHookAuthErrorNavigation("tasks-use-items", msg, {
           redirectUri: routeAtStart,
           expectedRoute: routeAtStart,
           requestStartedAt,
@@ -164,7 +144,9 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         const encrypted = await encryptItemInput(input, masterKey);
         const result = await createItem(encrypted, csrfToken);
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) {
+          if (
+            triggerE2eeHookAuthErrorNavigation("tasks-use-items", result.error)
+          ) {
             return null;
           }
           toast.error(result.error ?? "Failed to create task", {
@@ -200,7 +182,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to create task";
-        if (triggerHardLogoutForError(message)) {
+        if (triggerE2eeHookAuthErrorNavigation("tasks-use-items", message)) {
           return null;
         }
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
@@ -230,7 +212,9 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
           csrfToken
         );
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) {
+          if (
+            triggerE2eeHookAuthErrorNavigation("tasks-use-items", result.error)
+          ) {
             return false;
           }
           toast.error(result.error ?? "Failed to update task", {
@@ -271,7 +255,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to update task";
-        if (triggerHardLogoutForError(message)) {
+        if (triggerE2eeHookAuthErrorNavigation("tasks-use-items", message)) {
           return false;
         }
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
@@ -293,7 +277,9 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       try {
         const result = await deleteItem(id, csrfToken);
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) {
+          if (
+            triggerE2eeHookAuthErrorNavigation("tasks-use-items", result.error)
+          ) {
             return false;
           }
           setItems(prevItems);
@@ -307,7 +293,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to delete task";
-        if (triggerHardLogoutForError(message)) {
+        if (triggerE2eeHookAuthErrorNavigation("tasks-use-items", message)) {
           return false;
         }
         setItems(prevItems);
@@ -342,7 +328,9 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       try {
         const result = await reorderEntities("item", updates, csrfToken);
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) {
+          if (
+            triggerE2eeHookAuthErrorNavigation("tasks-use-items", result.error)
+          ) {
             return false;
           }
           toast.error(result.error ?? "Failed to reorder tasks", {
@@ -356,7 +344,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to reorder tasks";
-        if (triggerHardLogoutForError(message)) {
+        if (triggerE2eeHookAuthErrorNavigation("tasks-use-items", message)) {
           return false;
         }
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
@@ -379,7 +367,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt items";
-          if (triggerHardLogoutForError(msg)) {
+          if (triggerE2eeHookAuthErrorNavigation("tasks-use-items", msg)) {
             return;
           }
           setError(msg);
@@ -465,7 +453,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
           return;
         }
         if (
-          triggerHardLogoutForError(result.error, {
+          triggerE2eeHookAuthErrorNavigation("tasks-use-items", result.error, {
             redirectUri: routeAtStart,
             expectedRoute: routeAtStart,
             requestStartedAt,
@@ -494,7 +482,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
         return;
       }
       if (
-        triggerHardLogoutForError(msg, {
+        triggerE2eeHookAuthErrorNavigation("tasks-use-items", msg, {
           redirectUri: routeAtStart,
           expectedRoute: routeAtStart,
           requestStartedAt,
@@ -532,7 +520,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
           csrfToken
         );
         if (!result.success) {
-          if (triggerHardLogoutForError(result.error)) {
+          if (
+            triggerE2eeHookAuthErrorNavigation("tasks-use-items", result.error)
+          ) {
             return false;
           }
           toast.error(result.error ?? "Failed to update task", {
@@ -571,7 +561,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to update task";
-        if (triggerHardLogoutForError(message)) {
+        if (triggerE2eeHookAuthErrorNavigation("tasks-use-items", message)) {
           return false;
         }
         toast.error(message, { duration: TOAST_DURATIONS.ERROR });
@@ -592,7 +582,9 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     try {
       const result = await deleteItem(id, csrfToken);
       if (!result.success) {
-        if (triggerHardLogoutForError(result.error)) {
+        if (
+          triggerE2eeHookAuthErrorNavigation("tasks-use-items", result.error)
+        ) {
           return false;
         }
         toast.error(result.error ?? "Failed to delete task", {
@@ -606,7 +598,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to delete task";
-      if (triggerHardLogoutForError(message)) {
+      if (triggerE2eeHookAuthErrorNavigation("tasks-use-items", message)) {
         return false;
       }
       toast.error(message, { duration: TOAST_DURATIONS.ERROR });
@@ -626,7 +618,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
         .catch((err) => {
           const msg =
             err instanceof Error ? err.message : "Failed to decrypt item";
-          if (triggerHardLogoutForError(msg)) {
+          if (triggerE2eeHookAuthErrorNavigation("tasks-use-items", msg)) {
             return;
           }
           setError(msg);
