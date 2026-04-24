@@ -56,7 +56,7 @@ describe("seo helpers", () => {
         [...config.disallowedPaths],
         config.sitemapPath
       )();
-      const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule);
+      const disallowedPaths = getDisallowedPaths(robots.rules);
 
       expect(disallowedPaths).not.toContain(canonicalPath);
     }
@@ -68,7 +68,7 @@ describe("seo helpers", () => {
       "/contacts/sitemap.xml"
     )();
 
-    const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule);
+    const disallowedPaths = getDisallowedPaths(robots.rules);
     expect(disallowedPaths).toEqual(["/api"]);
   });
 
@@ -90,7 +90,7 @@ describe("seo helpers", () => {
 
   it("disallows all crawling for private app robots configs", () => {
     const robots = createPrivateAppRobots()();
-    const disallowedPaths = getDisallowedPaths(robots.rules as RobotsRule);
+    const disallowedPaths = getDisallowedPaths(robots.rules);
 
     expect(disallowedPaths).toEqual(["/"]);
     expect(robots.host).toBe("https://helvety.com");

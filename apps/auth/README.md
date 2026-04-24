@@ -326,7 +326,7 @@ Browser compatibility for encryption depends on WebAuthn PRF support and can evo
 
 ## Testing
 
-Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom environment with type-checking enabled.
+Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom environment via the shared config from `@helvety/config/vitest`. TypeScript is checked with `bun run type-check`, not inside Vitest.
 
 Run these commands from `apps/auth`:
 

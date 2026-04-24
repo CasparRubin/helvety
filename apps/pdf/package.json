@@ -32,9 +32,9 @@
     "@helvety/brand": "workspace:*",
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
-    "@supabase/supabase-js": "^2.103.0",
+    "@supabase/supabase-js": "^2.104.1",
     "lucide-react": "^0.577.0",
-    "next": "^16.2.3",
+    "next": "^16.2.4",
     "next-themes": "^0.4.6",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.6.205",
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
-    "@tailwindcss/postcss": "^4.2.2",
+    "@tailwindcss/postcss": "^4.2.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/node": "^25.6.0",
     "@types/react": "^19",
@@ -56,9 +56,9 @@
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "shadcn": "^3.8.5",
-    "tailwindcss": "^4.2.2",
+    "tailwindcss": "^4.2.4",
     "typescript": "^5",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.5"
   },
   "overrides": {
     "pdfjs-dist": "^5.6.205",

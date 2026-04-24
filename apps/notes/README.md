@@ -87,7 +87,7 @@ This project is built with modern web technologies:
 
 ## Testing
 
-Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment with type-checking enabled (shared config from `@helvety/config/vitest`). Run from `apps/notes`:
+Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment via `@helvety/config/vitest`; TypeScript is checked with `bun run type-check`, not inside Vitest. Run from `apps/notes`:
 
 | Script                  | Description                       |
 | ----------------------- | --------------------------------- |

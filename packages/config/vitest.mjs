@@ -9,6 +9,9 @@ const configDir = path.dirname(fileURLToPath(import.meta.url));
 /**
  * Creates the shared Helvety Vitest configuration.
  *
+ * Vitest’s built-in `test.typecheck` stays disabled here; TypeScript is validated
+ * by `turbo run type-check` (`tsc --noEmit`) instead.
+ *
  * @param {string} rootDir - The root directory of the app (e.g. `import.meta.dirname` in ESM or `__dirname` in CJS).
  * @returns {import("vitest/config").UserConfig} The Vitest config.
  */

@@ -75,9 +75,7 @@ describe("createAuthCallbackHandler", () => {
   it("uses strict policy for callback rate limiting", async () => {
     const handler = createAuthCallbackHandler();
 
-    await handler(
-      new Request("https://helvety.com/auth/callback?code=abc123") as never
-    );
+    await handler(new Request("https://helvety.com/auth/callback?code=abc123"));
 
     expect(mocks.checkRateLimit).toHaveBeenCalledWith(
       "auth_callback:ip:203.0.113.10",
@@ -95,7 +93,7 @@ describe("createAuthCallbackHandler", () => {
     const response = await handler(
       new Request(
         "https://helvety.com/auth/callback?code=abc123&next=https://evil.com"
-      ) as never
+      )
     );
 
     expect(response.headers.get("location")).toContain("error=invalid_next");
@@ -108,7 +106,7 @@ describe("createAuthCallbackHandler", () => {
     const handler = createAuthCallbackHandler();
 
     const response = await handler(
-      new Request("https://helvety.com/auth/callback?code=abc123") as never
+      new Request("https://helvety.com/auth/callback?code=abc123")
     );
 
     expect(response.headers.get("location")).toContain(
@@ -125,7 +123,7 @@ describe("createAuthCallbackHandler", () => {
     const handler = createAuthCallbackHandler();
 
     const response = await handler(
-      new Request("https://helvety.com/auth/callback?code=abc123") as never
+      new Request("https://helvety.com/auth/callback?code=abc123")
     );
 
     expect(response.headers.get("location")).toContain("error=rate_limited");
@@ -137,7 +135,7 @@ describe("createAuthCallbackHandler", () => {
     const response = await handler(
       new Request(
         "https://helvety.com/auth/callback?token_hash=abc123&type=phone_change"
-      ) as never
+      )
     );
 
     expect(response.headers.get("location")).toContain("invalid_otp_type");
@@ -151,7 +149,7 @@ describe("createAuthCallbackHandler", () => {
     const response = await handler(
       new Request(
         "https://helvety.com/auth/callback?code=abc123&redirect_uri=http://localhost:3007/notes"
-      ) as never
+      )
     );
 
     expect(response.headers.get("location")).toBe(
@@ -166,7 +164,7 @@ describe("createAuthCallbackHandler", () => {
     const response = await handler(
       new Request(
         "https://helvety.com/auth/callback?token_hash=abc123&type=signup&redirect_uri=https://helvety.com/tasks"
-      ) as never
+      )
     );
 
     expect(mocks.verifyOtp).toHaveBeenCalledOnce();

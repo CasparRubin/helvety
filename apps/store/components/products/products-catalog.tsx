@@ -36,10 +36,7 @@ export function ProductsCatalog() {
       else if (p.type === "physical") physical++;
       else if (p.type === "saas") saas++;
     }
-    return { all: allProducts.length, software, physical, saas } as Record<
-      FilterType,
-      number
-    >;
+    return { all: allProducts.length, software, physical, saas };
   }, [allProducts]);
 
   // Filter products based on selected filter

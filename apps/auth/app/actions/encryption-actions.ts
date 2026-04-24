@@ -86,7 +86,7 @@ export async function getPasskeyParams(): Promise<
       return { success: false, error: "Failed to get encryption params" };
     }
 
-    return { success: true, data: data as UserPasskeyParams };
+    return { success: true, data };
   } catch (error) {
     logger.logUnexpectedError("Error in getPasskeyParams", error);
     return { success: false, error: "Failed to get encryption params" };

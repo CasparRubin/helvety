@@ -178,7 +178,7 @@ export const EntityRow = memo(
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
-              (e.currentTarget as HTMLAnchorElement).click();
+              e.currentTarget.click();
             }
           }}
         >

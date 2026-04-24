@@ -92,7 +92,7 @@ abuse-reporting section at
 
 ## Testing
 
-Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment with type-checking enabled (shared config from `@helvety/config/vitest`). Run from `apps/store`:
+Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment via `@helvety/config/vitest`; TypeScript is checked with `bun run type-check`, not inside Vitest. Run from `apps/store`:
 
 | Script                  | Description                       |
 | ----------------------- | --------------------------------- |

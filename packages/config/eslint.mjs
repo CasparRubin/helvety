@@ -136,6 +136,11 @@ export function createEslintConfig(rootDir) {
         },
       },
       rules: {
+        // eslint-plugin-react-hooks 7.x (via eslint-config-next) flags patterns that
+        // are still valid pre–React Compiler (e.g. baseline refs in derived memos).
+        // Revisit when migrating those call sites.
+        "react-hooks/set-state-in-effect": "off",
+        "react-hooks/refs": "off",
         "react-hooks/exhaustive-deps": "warn",
         "react/no-unescaped-entities": "error",
         "react/jsx-key": "error",

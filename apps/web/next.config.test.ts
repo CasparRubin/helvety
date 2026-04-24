@@ -19,7 +19,7 @@ function getBeforeFiles(
     return undefined;
   }
 
-  return rewritesResult.beforeFiles as RewriteRule[] | undefined;
+  return rewritesResult.beforeFiles;
 }
 
 describe("web gateway rewrites", () => {

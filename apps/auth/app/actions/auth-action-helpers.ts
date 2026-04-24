@@ -163,7 +163,7 @@ export async function getStoredChallenge(): Promise<StoredChallenge | null> {
       return null;
     }
 
-    return data as StoredChallenge;
+    return data;
   } catch {
     return null;
   }
