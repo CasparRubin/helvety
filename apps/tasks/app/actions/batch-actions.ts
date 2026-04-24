@@ -33,7 +33,7 @@ export async function getFlatItemsDashboardData(): Promise<
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
       .limit(MAX_DASHBOARD_ROWS + 1)
-      .returns<ItemRow[]>();
+      .overrideTypes<ItemRow[], { merge: false }>();
 
     if (itemsResult.error) {
       logger.logUnexpectedError(

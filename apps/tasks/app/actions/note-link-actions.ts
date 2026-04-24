@@ -50,7 +50,7 @@ export async function getNotes(): Promise<ActionResponse<NoteRow[]>> {
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
-      .returns<NoteRow[]>();
+      .overrideTypes<NoteRow[], { merge: false }>();
 
     if (error) {
       logger.logUnexpectedError("Error getting notes", error);

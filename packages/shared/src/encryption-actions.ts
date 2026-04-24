@@ -34,7 +34,6 @@ export async function getPasskeyParams(): Promise<
       .from("user_passkey_params")
       .select("*")
       .eq("user_id", user.id)
-      .returns<UserPasskeyParams[]>()
       .single();
 
     if (error) {

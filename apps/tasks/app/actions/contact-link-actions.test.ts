@@ -47,7 +47,9 @@ function createSupabaseMock() {
     ],
     error: null,
   });
-  const contactOrderCreated = vi.fn(() => ({ returns: contactListReturns }));
+  const contactOrderCreated = vi.fn(() => ({
+    overrideTypes: contactListReturns,
+  }));
   const contactOrderSort = vi.fn(() => ({ order: contactOrderCreated }));
   const contactEqUser = vi.fn(() => ({ order: contactOrderSort }));
   const contactSelect = vi.fn(() => ({ eq: contactEqUser }));

@@ -169,7 +169,7 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
       .order("category_id", { ascending: true })
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
-      .returns<ContactRow[]>();
+      .overrideTypes<ContactRow[], { merge: false }>();
 
     if (error) {
       logger.logUnexpectedError("Error getting contacts", error);
@@ -208,7 +208,6 @@ export async function getContact(
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
-      .returns<ContactRow[]>()
       .single();
 
     if (error || !contact) {
@@ -490,7 +489,7 @@ export async function getAllContactDataForExport(): Promise<
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)
-      .returns<ContactRow[]>();
+      .overrideTypes<ContactRow[], { merge: false }>();
 
     if (error) {
       logger.logUnexpectedError(

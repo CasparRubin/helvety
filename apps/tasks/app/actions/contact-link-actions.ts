@@ -42,7 +42,7 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
-      .returns<ContactRow[]>();
+      .overrideTypes<ContactRow[], { merge: false }>();
 
     if (error) {
       logger.logUnexpectedError("Error getting contacts", error);

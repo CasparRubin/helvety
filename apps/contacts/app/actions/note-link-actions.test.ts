@@ -49,10 +49,10 @@ function createSupabaseMock() {
     data: [{ id: "note-1", encrypted_title: "enc-title" }],
     error: null,
   });
-  const notesOrder = vi.fn(() => ({ returns: notesReturns }));
+  const notesOrder = vi.fn(() => ({ overrideTypes: notesReturns }));
   const notesEqUser = vi.fn(() => ({
     order: notesOrder,
-    returns: notesReturns,
+    overrideTypes: notesReturns,
   }));
   const notesIn = vi.fn(() => ({ eq: notesEqUser }));
   const notesSelect = vi.fn(() => ({

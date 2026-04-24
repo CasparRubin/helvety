@@ -42,6 +42,7 @@ import {
   createContact,
   getAllContactDataForExport,
   getContact,
+  getContacts,
   reorderContacts,
   updateContact,
 } from "./contact-actions";
@@ -289,6 +290,82 @@ describe("contact-actions", () => {
     expect(mocks.logUnexpectedError).not.toHaveBeenCalled();
   });
 
+  it("loads contacts via select/eq/order chain ending in overrideTypes", async () => {
+    const rows = [
+      {
+        id: "550e8400-e29b-41d4-a716-446655440001",
+        user_id: "user-1",
+        encrypted_first_name: "enc",
+        encrypted_last_name: "enc",
+        encrypted_description: null,
+        encrypted_email: null,
+        encrypted_phone: null,
+        encrypted_birthday: null,
+        encrypted_notes: null,
+        category_id: "personal",
+        sort_order: 0,
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+      },
+    ];
+    const overrideTypes = vi
+      .fn()
+      .mockResolvedValue({ data: rows, error: null });
+    const orderCreatedAt = vi.fn(() => ({ overrideTypes }));
+    const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
+    const orderCategory = vi.fn(() => ({ order: orderSort }));
+    const eqUser = vi.fn(() => ({ order: orderCategory }));
+    const select = vi.fn(() => ({ eq: eqUser }));
+    const supabase = {
+      from: vi.fn(() => ({ select })),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await getContacts();
+
+    expect(result).toEqual({ success: true, data: rows });
+    expect(overrideTypes).toHaveBeenCalled();
+    expect(mocks.logUnexpectedError).not.toHaveBeenCalled();
+  });
+
+  it("loads a single contact via select/eq/eq/single (no overrideTypes)", async () => {
+    const row = {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      user_id: "user-1",
+      encrypted_first_name: "enc",
+      encrypted_last_name: "enc",
+      encrypted_description: null,
+      encrypted_email: null,
+      encrypted_phone: null,
+      encrypted_birthday: null,
+      encrypted_notes: null,
+      category_id: "personal",
+      sort_order: 0,
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:00:00.000Z",
+    };
+    const single = vi.fn().mockResolvedValue({ data: row, error: null });
+    const eqUser = vi.fn(() => ({ single }));
+    const eqId = vi.fn(() => ({ eq: eqUser }));
+    const select = vi.fn(() => ({ eq: eqId }));
+    const supabase = {
+      from: vi.fn(() => ({ select })),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await getContact("550e8400-e29b-41d4-a716-446655440000");
+
+    expect(result).toEqual({ success: true, data: row });
+    expect(single).toHaveBeenCalled();
+    expect(mocks.logUnexpectedError).not.toHaveBeenCalled();
+  });
+
   it("validates reorder payload size and rejects invalid UUIDs (Zod reorder schema)", async () => {
     const supabase = createSupabaseForCreateContact();
     mocks.authenticateAndRateLimit.mockResolvedValue({
@@ -430,8 +507,10 @@ describe("contact-actions", () => {
     const rows = [
       { id: "c-1", user_id: "user-1", encrypted_first_name: "enc" },
     ];
-    const returns = vi.fn().mockResolvedValue({ data: rows, error: null });
-    const limit = vi.fn(() => ({ returns }));
+    const overrideTypes = vi
+      .fn()
+      .mockResolvedValue({ data: rows, error: null });
+    const limit = vi.fn(() => ({ overrideTypes }));
     const order = vi.fn(() => ({ limit }));
     const eq = vi.fn(() => ({ order }));
     const select = vi.fn(() => ({ eq }));
@@ -449,6 +528,7 @@ describe("contact-actions", () => {
     if (result.success) {
       expect(result.data).toEqual(rows);
     }
+    expect(overrideTypes).toHaveBeenCalled();
   });
 
   it("rejects export when row cap is exceeded", async () => {
@@ -459,8 +539,10 @@ describe("contact-actions", () => {
         user_id: "user-1",
       })
     );
-    const returns = vi.fn().mockResolvedValue({ data: rows, error: null });
-    const limit = vi.fn(() => ({ returns }));
+    const overrideTypes = vi
+      .fn()
+      .mockResolvedValue({ data: rows, error: null });
+    const limit = vi.fn(() => ({ overrideTypes }));
     const order = vi.fn(() => ({ limit }));
     const eq = vi.fn(() => ({ order }));
     const select = vi.fn(() => ({ eq }));

@@ -41,7 +41,9 @@ function createSupabaseMock() {
     data: [{ id: "item-1", encrypted_title: "enc-title" }],
     error: null,
   });
-  const itemEqUserForList = vi.fn(() => ({ returns: itemListReturns }));
+  const itemEqUserForList = vi.fn(() => ({
+    overrideTypes: itemListReturns,
+  }));
   const itemIn = vi.fn(() => ({ eq: itemEqUserForList }));
   const itemSingle = vi
     .fn()

@@ -191,7 +191,7 @@ export async function getAllTaskDataForExport(): Promise<
       .eq("user_id", user.id)
       .order("sort_order")
       .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)
-      .returns<ItemRow[]>();
+      .overrideTypes<ItemRow[], { merge: false }>();
 
     if (itemsError) {
       logger.logUnexpectedError(

@@ -79,7 +79,10 @@ export async function getNoteTaskLinks(
       .select("id, encrypted_title")
       .in("id", itemIds)
       .eq("user_id", user.id)
-      .returns<{ id: string; encrypted_title: string }[]>();
+      .overrideTypes<
+        { id: string; encrypted_title: string }[],
+        { merge: false }
+      >();
 
     if (itemsError) {
       logger.logUnexpectedError("Error fetching linked items", itemsError);
@@ -131,7 +134,10 @@ export async function getTaskEntities(): Promise<
       .select("id, encrypted_title")
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
-      .returns<{ id: string; encrypted_title: string }[]>();
+      .overrideTypes<
+        { id: string; encrypted_title: string }[],
+        { merge: false }
+      >();
 
     if (error) {
       logger.logUnexpectedError("Error fetching items", error);

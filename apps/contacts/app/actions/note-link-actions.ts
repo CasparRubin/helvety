@@ -84,7 +84,10 @@ export async function getContactNoteLinks(
       .select("id, encrypted_title")
       .in("id", noteIds)
       .eq("user_id", user.id)
-      .returns<{ id: string; encrypted_title: string }[]>();
+      .overrideTypes<
+        { id: string; encrypted_title: string }[],
+        { merge: false }
+      >();
 
     if (notesError) {
       logger.logUnexpectedError("Error fetching linked notes", notesError);
@@ -136,7 +139,10 @@ export async function getNoteEntities(): Promise<
       .select("id, encrypted_title")
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
-      .returns<{ id: string; encrypted_title: string }[]>();
+      .overrideTypes<
+        { id: string; encrypted_title: string }[],
+        { merge: false }
+      >();
 
     if (error) {
       logger.logUnexpectedError("Error fetching notes", error);

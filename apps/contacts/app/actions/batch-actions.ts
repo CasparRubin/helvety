@@ -43,7 +43,7 @@ export async function getContactsDashboardData(): Promise<
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
       .limit(MAX_DASHBOARD_ROWS + 1)
-      .returns<ContactRow[]>();
+      .overrideTypes<ContactRow[], { merge: false }>();
 
     if (contactsResult.error) {
       logger.logUnexpectedError(

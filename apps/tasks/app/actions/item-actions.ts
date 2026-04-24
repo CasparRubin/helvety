@@ -171,7 +171,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
-      .returns<ItemRow[]>();
+      .overrideTypes<ItemRow[], { merge: false }>();
 
     if (error) {
       logger.logUnexpectedError("Error getting all items", error);
@@ -204,7 +204,6 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
-      .returns<ItemRow[]>()
       .single();
 
     if (error || !item) {

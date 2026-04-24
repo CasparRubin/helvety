@@ -35,13 +35,13 @@ function makeNoteRow(
   };
 }
 
-/** Supabase query builder ending in `.returns()` for notes dashboard rows. */
+/** Supabase query builder ending in `.overrideTypes()` for notes dashboard rows. */
 function createNotesDashboardSupabaseMock(result: {
   data: unknown[] | null;
   error: { message: string; code?: string } | null;
 }) {
-  const returns = vi.fn().mockResolvedValue(result);
-  const limit = vi.fn(() => ({ returns }));
+  const overrideTypes = vi.fn().mockResolvedValue(result);
+  const limit = vi.fn(() => ({ overrideTypes }));
   const orderCreatedAt = vi.fn(() => ({ limit }));
   const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
   const eqUser = vi.fn(() => ({ order: orderSort }));
@@ -140,8 +140,8 @@ describe("notes batch-actions", () => {
 
   it("logs via logUnexpectedError when the query promise rejects", async () => {
     const boom = new Error("network failure");
-    const returns = vi.fn().mockRejectedValue(boom);
-    const limit = vi.fn(() => ({ returns }));
+    const overrideTypes = vi.fn().mockRejectedValue(boom);
+    const limit = vi.fn(() => ({ overrideTypes }));
     const orderCreatedAt = vi.fn(() => ({ limit }));
     const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
     const eqUser = vi.fn(() => ({ order: orderSort }));

@@ -216,7 +216,10 @@ export async function getEntityLinksForEndpoint({
     query = query.eq("relation_type", relationType);
   }
 
-  const { data, error } = await query.returns<EntityLinkRow[]>();
+  const { data, error } = await query.overrideTypes<
+    EntityLinkRow[],
+    { merge: false }
+  >();
 
   if (error) {
     return {
