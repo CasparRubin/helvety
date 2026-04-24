@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="April 4, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="April 24, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -311,7 +311,7 @@ export default function TermsPage() {
           encryption passkey, encrypted content will become permanently
           inaccessible. Certain non-encrypted structural metadata (such as
           record identifiers, timestamps, priority levels, display preferences
-          (e.g., sort orders), and entity relationships is stored in plaintext
+          (e.g., sort orders), and entity relationships) is stored in plaintext
           to enable application functionality; see our Privacy Policy for
           field-level details. Other Helvety services (helvety.com, Helvety
           Auth, Helvety PDF, Helvety Store) do not use end-to-end encryption.

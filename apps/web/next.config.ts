@@ -45,7 +45,12 @@ const nextConfig: NextConfig = {
     const isDev = process.env.NODE_ENV === "development";
     const devUrl = (port: number) => `http://localhost:${port}`;
 
-    /** Resolves sub-app origin: localhost in dev, internal Vercel URL in production. */
+    /**
+     * Resolves sub-app origin: localhost in dev; in production build, internal
+     * Vercel URL from env when set. When unset outside Vercel (e.g. local
+     * `ci:release` / `next build`), falls back to localhost so the gateway
+     * config still loads; Vercel sets VERCEL=1 and must supply these vars.
+     */
     function getAppUrl(envVar: string, devPort: number): string {
       if (isDev) {
         return devUrl(devPort);
@@ -64,9 +69,12 @@ const nextConfig: NextConfig = {
         }
         return parsed.origin;
       }
-      throw new Error(
-        `${envVar} is required in production. Set it to the Vercel deployment URL for this app.`
-      );
+      if (process.env.VERCEL === "1") {
+        throw new Error(
+          `${envVar} is required on Vercel in production. Set it to the deployment URL for this app.`
+        );
+      }
+      return devUrl(devPort);
     }
 
     const authUrl = getAppUrl("AUTH_URL", DEV_PORTS.auth);

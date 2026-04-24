@@ -13,7 +13,7 @@
 - Private app routes are not intended as search index targets and use noindex and auth-gated controls.
 
 ## Helvety Ecosystem
-- [Helvety Store](https://helvety.com/store): Product catalog and app details
+- [Helvety Store](https://helvety.com/store): Product catalog, app details, and installable packages (for example SharePoint SPFx and browser extensions)
 - [Helvety PDF](https://helvety.com/pdf): Browser-based PDF toolkit for supported operations
 - [Helvety Auth](https://helvety.com/auth): Authentication service
 - [Helvety Contacts](https://helvety.com/contacts): Contact management app

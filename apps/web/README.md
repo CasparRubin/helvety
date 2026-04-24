@@ -44,9 +44,9 @@ This application includes the following security hardening:
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Security Headers** - CSP, HSTS, and other security headers
 
-### Session Sharing (SSO)
+### Session sharing (helvety.com paths)
 
-Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing). Authentication is handled centrally by [helvety.com/auth](https://helvety.com/auth).
+A single Helvety session cookie applies across apps because they are served under `helvety.com` via path-based routing. Authentication is handled centrally by [helvety.com/auth](https://helvety.com/auth) (not enterprise IdP SAML/OIDC SSO).
 
 ## Environment Variables
 

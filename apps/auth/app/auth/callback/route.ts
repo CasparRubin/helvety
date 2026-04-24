@@ -122,7 +122,7 @@ async function enforceCallbackRateLimit(
  * - If has passkey but no encryption: redirects to login with step=encryption-setup
  * - If has passkey and encryption: redirects to passkey-signin step
  *
- * Supports redirect_uri query param for cross-app SSO flows.
+ * Supports redirect_uri query param for returning users to the originating app after sign-in.
  * Redirect URIs are validated against an allowlist to prevent open redirects.
  * Rate limited by IP to prevent auth callback abuse.
  */

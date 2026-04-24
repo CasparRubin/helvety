@@ -132,7 +132,7 @@ Authentication is handled by the centralized Helvety Auth service (`helvety.com/
 2. Enter verification code from email → Continue to passkey sign-in
 3. Redirected back to Contacts app → In many supported flows, encryption is already unlocked from the auth ceremony; depending on browser/session state, an additional auth-managed step may still be required
 
-Sessions are shared across all Helvety apps via cookie-based SSO (all apps are served under `helvety.com` via path-based routing).
+Sessions are shared across Helvety apps on `helvety.com` via path-based routing and the same session cookie (central sign-in at helvety.com/auth).
 
 **Privacy Note:** Your email address is used primarily for authentication (verification codes and passkey-bound sign-in), account recovery, and essential service communications. We do not share your email with third parties for marketing purposes.
 

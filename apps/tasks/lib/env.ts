@@ -1,6 +1,8 @@
 import "server-only";
 
 import {
+  getCiPlaceholderServerUpstashEnv,
+  isCiBuildPlaceholderEnvEnabled,
   serverEnvSchema,
   upstashEnvSchema,
 } from "@helvety/shared/env-validation";
@@ -17,6 +19,11 @@ let validated: z.infer<typeof tasksEnvSchema> | null = null;
  */
 export function getValidatedTasksEnv(): z.infer<typeof tasksEnvSchema> {
   if (validated) return validated;
+
+  if (isCiBuildPlaceholderEnvEnabled()) {
+    validated = getCiPlaceholderServerUpstashEnv();
+    return validated;
+  }
 
   const raw = {
     SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY?.trim() ?? "",

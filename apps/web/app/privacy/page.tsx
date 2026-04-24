@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="April 4, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="April 24, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -283,11 +283,12 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           For Helvety extensions and other installable packages offered through
           the Store (including SharePoint Framework solutions and browser
-          extensions), functionality runs in your SharePoint tenant or on your
-          device. Helvety may still process limited technical data to operate
-          the Store, deliver downloads, and maintain reliability. Microsoft 365,
-          Power Automate, or your browser vendor may process additional data
-          under their own terms. This data:
+          extensions), functionality runs on your device and, for SharePoint
+          Framework solutions, in your Microsoft 365 tenant context. Helvety may
+          still process limited technical data to operate the Store, deliver
+          downloads, and maintain reliability. Microsoft 365, Power Automate, or
+          your browser vendor may process additional data under their own terms.
+          This data:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>Is primarily technical context needed for extension operation</li>

@@ -27,8 +27,10 @@ export function createVitestConfig(rootDir) {
       include: ["**/*.test.{ts,tsx}"],
       exclude: ["node_modules", ".next"],
       passWithNoTests: true,
+      // TypeScript is checked by `turbo run type-check` (tsc --noEmit); Vitest's
+      // built-in typecheck duplicates work and adds noisy experimental logs.
       typecheck: {
-        enabled: true,
+        enabled: false,
       },
       coverage: {
         provider: "v8",

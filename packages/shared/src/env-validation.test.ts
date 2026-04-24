@@ -66,4 +66,25 @@ describe("env-validation", () => {
       );
     }
   });
+
+  it("uses schema-valid public placeholders when SKIP_ENV_VALIDATION=1 off Vercel", async () => {
+    vi.stubEnv("SKIP_ENV_VALIDATION", "1");
+    vi.stubEnv("VERCEL", "");
+    vi.stubEnv("NODE_ENV", "production");
+
+    const { getSupabaseKey, getSupabaseUrl } = await import("./env-validation");
+
+    expect(getSupabaseUrl()).toBe("https://ci-build-placeholder.supabase.co");
+    expect(getSupabaseKey()).toMatch(/^sb_publishable_ci_build/);
+  });
+
+  it("exposes merged server+Upstash placeholder for app env modules", async () => {
+    const { getCiPlaceholderServerUpstashEnv } =
+      await import("./env-validation");
+
+    const env = getCiPlaceholderServerUpstashEnv();
+    expect(env.SUPABASE_SECRET_KEY.length).toBeGreaterThanOrEqual(40);
+    expect(env.UPSTASH_REDIS_REST_URL).toMatch(/^https:\/\//);
+    expect(env.UPSTASH_REDIS_REST_TOKEN.length).toBeGreaterThan(0);
+  });
 });

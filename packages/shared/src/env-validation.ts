@@ -122,6 +122,53 @@ export const upstashEnvSchema = z.object({
     .min(1, "UPSTASH_REDIS_REST_TOKEN is required"),
 });
 
+/** Merged schema for server-only + Upstash (used by app `lib/env` modules). */
+export const serverUpstashMergedSchema =
+  serverEnvSchema.merge(upstashEnvSchema);
+
+/**
+ * When `SKIP_ENV_VALIDATION=1` and not on Vercel (`VERCEL=1`), apps may use
+ * schema-valid placeholder values so `next build` can run without real secrets
+ * (e.g. local `ci:release:stub`). Never enable on Vercel production.
+ */
+export function isCiBuildPlaceholderEnvEnabled(): boolean {
+  return process.env.SKIP_ENV_VALIDATION === "1" && process.env.VERCEL !== "1";
+}
+
+const CI_PLACEHOLDER_PUBLIC = {
+  NEXT_PUBLIC_SUPABASE_URL: "https://ci-build-placeholder.supabase.co",
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
+    "sb_publishable_ci_build_placeholder_only_not_for_any_real_environment",
+} as const;
+
+let cachedCiPlaceholderServerUpstash: z.infer<
+  typeof serverUpstashMergedSchema
+> | null = null;
+
+/** Placeholder server + Upstash env for local build smoke tests only. */
+export function getCiPlaceholderServerUpstashEnv(): z.infer<
+  typeof serverUpstashMergedSchema
+> {
+  if (cachedCiPlaceholderServerUpstash) {
+    return cachedCiPlaceholderServerUpstash;
+  }
+  const raw = {
+    SUPABASE_SECRET_KEY:
+      "ci_build_placeholder_supabase_secret_not_for_production_use_!!",
+    UPSTASH_REDIS_REST_URL: "https://ci-build-placeholder.upstash.io",
+    UPSTASH_REDIS_REST_TOKEN:
+      "ci_build_placeholder_upstash_token_not_for_production_use_",
+  };
+  const result = serverUpstashMergedSchema.safeParse(raw);
+  if (!result.success) {
+    throw new Error(
+      `Internal error: CI placeholder server/upstash env: ${result.error.message}`
+    );
+  }
+  cachedCiPlaceholderServerUpstash = result.data;
+  return cachedCiPlaceholderServerUpstash;
+}
+
 /** Validated environment variable types */
 type Env = z.infer<typeof envSchema>;
 
@@ -136,6 +183,17 @@ let validatedEnv: Env | null = null;
  */
 function getValidatedEnv(): Env {
   if (validatedEnv) {
+    return validatedEnv;
+  }
+
+  if (isCiBuildPlaceholderEnvEnabled()) {
+    const parsed = envSchema.safeParse(CI_PLACEHOLDER_PUBLIC);
+    if (!parsed.success) {
+      throw new Error(
+        `Internal error: CI placeholder public env failed schema: ${parsed.error.message}`
+      );
+    }
+    validatedEnv = parsed.data;
     return validatedEnv;
   }
 

@@ -87,4 +87,38 @@ describe("web gateway rewrites", () => {
       ])
     );
   });
+
+  it("uses localhost rewrite targets in production when gateway env vars are unset and not on Vercel", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL", "");
+    vi.stubEnv("AUTH_URL", "");
+    vi.stubEnv("TASKS_URL", "");
+    vi.stubEnv("CONTACTS_URL", "");
+    vi.stubEnv("NOTES_URL", "");
+    vi.stubEnv("STORE_URL", "");
+    vi.stubEnv("PDF_URL", "");
+
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const authOrigin = `http://localhost:${DEV_PORTS.auth}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        {
+          source: "/auth/:path*",
+          destination: `${authOrigin}/auth/:path*`,
+        },
+      ])
+    );
+  });
+
+  it("requires gateway env vars on Vercel production when unset", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("AUTH_URL", "");
+
+    await expect(nextConfig.rewrites?.()).rejects.toThrow(
+      "AUTH_URL is required on Vercel in production."
+    );
+  });
 });

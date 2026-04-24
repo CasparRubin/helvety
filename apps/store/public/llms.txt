@@ -6,12 +6,14 @@
 - [Store Home](https://helvety.com/store): Main store entry
 - [Products](https://helvety.com/store/products): Product listing
 
-## Featured Product Pages
-- [SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer)
+## Product pages
+The authoritative catalog is [Products](https://helvety.com/store/products); individual pages include:
+- [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer)
 - [Helvety PDF](https://helvety.com/store/products/helvety-pdf)
 - [Helvety Tasks](https://helvety.com/store/products/helvety-tasks)
 - [Helvety Contacts](https://helvety.com/store/products/helvety-contacts)
 - [Helvety Notes](https://helvety.com/store/products/helvety-notes)
+- [Power Automate Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false)
 
 ## Crawling And Indexing
 - Public catalog and product pages are intended to be crawlable and indexable.

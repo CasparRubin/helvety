@@ -6,16 +6,24 @@ import type { NextConfig } from "next";
 
 const ALLOWED_IMAGE_PROTOCOLS = new Set(["http:", "https:"]);
 
-/** Build a strict remote image pattern from NEXT_PUBLIC_SUPABASE_URL. */
-function getStoreImageRemotePattern(): {
+/**
+ * Builds strict Next image remotePatterns from NEXT_PUBLIC_SUPABASE_URL.
+ * Returns an empty list when the URL is unset so local `next build` / monorepo
+ * `ci:release` can run without `.env`; Vercel builds set VERCEL=1 and must
+ * provide the variable so misconfiguration fails fast.
+ */
+function getStoreImageRemotePatterns(): Array<{
   protocol: "http" | "https";
   hostname: string;
-} {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+}> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   if (!supabaseUrl) {
-    throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL is required to configure Next image remotePatterns for Store."
-    );
+    if (process.env.VERCEL === "1") {
+      throw new Error(
+        "NEXT_PUBLIC_SUPABASE_URL is required on Vercel to configure Next image remotePatterns for Store."
+      );
+    }
+    return [];
   }
 
   let parsedUrl: URL;
@@ -46,10 +54,12 @@ function getStoreImageRemotePattern(): {
     );
   }
 
-  return {
-    protocol: parsedUrl.protocol === "https:" ? "https" : "http",
-    hostname: parsedUrl.hostname,
-  };
+  return [
+    {
+      protocol: parsedUrl.protocol === "https:" ? "https" : "http",
+      hostname: parsedUrl.hostname,
+    },
+  ];
 }
 
 const nextConfig: NextConfig = {
@@ -68,7 +78,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75],
-    remotePatterns: [getStoreImageRemotePattern()],
+    remotePatterns: getStoreImageRemotePatterns(),
   },
 
   reactCompiler: true,
