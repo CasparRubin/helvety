@@ -253,7 +253,6 @@ export async function updateItem(
       };
     }
 
-    revalidateItemRoutes();
     return { success: true };
   } catch (error) {
     logger.logUnexpectedError("Unexpected error in updateItem", error);

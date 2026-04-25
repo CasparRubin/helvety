@@ -17,10 +17,6 @@ vi.mock("@helvety/shared/logger", () => ({
   },
 }));
 
-vi.mock("next/cache", () => ({
-  revalidatePath: vi.fn(),
-}));
-
 vi.mock("next/server", () => ({
   after: (callback: () => void) => callback(),
 }));

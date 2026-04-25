@@ -44,7 +44,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Privacy** - Note titles are decrypted client-side for display in Tasks. Plaintext should not be intentionally sent to the server.
 - **Drag & drop reordering** - Rearrange entries on desktop when the main-list search field is empty; up/down arrows move items between stages in that case too
 - **Controlled row-link prefetching** - Dense item lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
-- **Consistency safeguards for stage/status moves** - UI keeps optimistic interactions snappy while discarding stale in-flight refresh responses; server mutations also trigger targeted route revalidation so prefetched pages stay aligned
+- **Consistency safeguards for stage/status moves** - UI keeps optimistic interactions snappy while discarding stale in-flight refresh responses; stage changes patch local list state immediately, and route revalidation is reserved for structural mutations (create/delete) to keep prefetched pages aligned
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched **encrypted** from the server (per-account export rate limits apply) and decrypted **client-side** using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes)
 - **Dark & Light mode** - Switch between dark and light themes

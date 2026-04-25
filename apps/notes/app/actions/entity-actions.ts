@@ -5,7 +5,6 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
-import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
 
@@ -146,7 +145,6 @@ export async function reorderEntities(
       return { success: false, error: `Failed to reorder ${entityType}s` };
     }
 
-    revalidatePath("/notes");
     return { success: true };
   } catch (error) {
     after(() =>

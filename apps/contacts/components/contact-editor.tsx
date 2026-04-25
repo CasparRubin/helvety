@@ -57,6 +57,7 @@ interface ContactEditorProps {
   initialEncryptedContact?: ContactRow;
   embedded?: boolean;
   onClose?: () => void;
+  onLocalPatch?: (id: string, input: { category_id?: string }) => void;
 }
 
 /**
@@ -68,6 +69,7 @@ export function ContactEditor({
   initialEncryptedContact,
   embedded = false,
   onClose,
+  onLocalPatch,
 }: ContactEditorProps) {
   const router = useRouter();
   const { contact, isLoading, error, refresh, update, remove } = useContact(
@@ -272,14 +274,19 @@ export function ContactEditor({
   const handleCategoryChange = useCallback(
     async (categoryId: string) => {
       if (!contact || categoryId === contact.category_id) return;
+      const previousCategoryId = contact.category_id;
+      onLocalPatch?.(contact.id, { category_id: categoryId });
       setIsSavingCategory(true);
       try {
-        await update({ category_id: categoryId });
+        const success = await update({ category_id: categoryId });
+        if (!success) {
+          onLocalPatch?.(contact.id, { category_id: previousCategoryId });
+        }
       } finally {
         setIsSavingCategory(false);
       }
     },
-    [contact, update]
+    [contact, onLocalPatch, update]
   );
 
   const handleDeleteConfirm = useCallback(async () => {

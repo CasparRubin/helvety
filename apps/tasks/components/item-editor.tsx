@@ -83,11 +83,13 @@ export function ItemEditor({
   initialEncryptedItem,
   embedded = false,
   onClose,
+  onLocalPatch,
 }: {
   itemId: string;
   initialEncryptedItem?: ItemRow;
   embedded?: boolean;
   onClose?: () => void;
+  onLocalPatch?: (id: string, input: { stage_id?: string | null }) => void;
 }) {
   const router = useRouter();
   const {
@@ -313,14 +315,21 @@ export function ItemEditor({
   // Handle stage change - saves immediately, independent of title/description save flow
   const handleStageChange = useCallback(
     async (stageId: string) => {
+      if (!item) return;
+      if (item.stage_id === stageId) return;
+      const previousStageId = item.stage_id;
+      onLocalPatch?.(item.id, { stage_id: stageId });
       setIsSavingStage(true);
       try {
-        await update({ stage_id: stageId });
+        const success = await update({ stage_id: stageId });
+        if (!success) {
+          onLocalPatch?.(item.id, { stage_id: previousStageId });
+        }
       } finally {
         setIsSavingStage(false);
       }
     },
-    [update]
+    [item, onLocalPatch, update]
   );
 
   // Handle label change - saves immediately, independent of title/description save flow

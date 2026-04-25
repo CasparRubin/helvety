@@ -54,8 +54,16 @@ export function ContactsDashboard({
 }: ContactsDashboardProps = {}) {
   const searchParams = useSearchParams();
   const { isUnlocked, masterKey } = useEncryptionContext();
-  const { contacts, isLoading, error, refresh, create, remove, reorder } =
-    useContacts({ initialEncryptedData: initialEncryptedContacts });
+  const {
+    contacts,
+    isLoading,
+    error,
+    refresh,
+    create,
+    remove,
+    reorder,
+    patchLocal,
+  } = useContacts({ initialEncryptedData: initialEncryptedContacts });
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, startCreateTransition] = useTransition();
@@ -221,6 +229,7 @@ export function ContactsDashboard({
               contactId={selectedContactId}
               embedded
               onClose={() => setSelectedContactId(null)}
+              onLocalPatch={(id, input) => patchLocal(id, input)}
             />
           ) : null}
         </SheetContent>

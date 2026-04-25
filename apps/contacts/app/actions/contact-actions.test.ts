@@ -239,22 +239,9 @@ describe("contact-actions", () => {
     });
   });
 
-  it("revalidates contact routes after successful create and update", async () => {
+  it("revalidates contact routes after successful create", async () => {
     const supabase = createSupabaseForCreateContact({
       insertedId: "new-contact-id",
-    });
-    const updateEqUser = vi.fn().mockResolvedValue({ error: null });
-    const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
-    const update = vi.fn(() => ({ eq: updateEqId }));
-    supabase.from.mockImplementation((table: string) => {
-      if (table !== "contacts") {
-        throw new Error(`Unexpected table ${table}`);
-      }
-      return {
-        insert: supabase.insert,
-        select: vi.fn(() => ({ eq: supabase.countEq })),
-        update,
-      };
     });
 
     mocks.authenticateAndRateLimit.mockResolvedValue({
@@ -263,7 +250,27 @@ describe("contact-actions", () => {
     });
 
     const created = await createContact(getCreatePayload(), "csrf-token");
-    const updated = await updateContact(
+
+    expect(created).toEqual({
+      data: { id: "new-contact-id" },
+      success: true,
+    });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/contacts");
+  });
+
+  it("does not revalidate routes after successful update", async () => {
+    const updateEqUser = vi.fn().mockResolvedValue({ error: null });
+    const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
+    const update = vi.fn(() => ({ eq: updateEqId }));
+    const supabase = {
+      from: vi.fn(() => ({ update })),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await updateContact(
       {
         encrypted_first_name: getEncryptedValue(),
         id: "550e8400-e29b-41d4-a716-446655440000",
@@ -271,12 +278,8 @@ describe("contact-actions", () => {
       "csrf-token"
     );
 
-    expect(created).toEqual({
-      data: { id: "new-contact-id" },
-      success: true,
-    });
-    expect(updated).toEqual({ success: true });
-    expect(mocks.revalidatePath).toHaveBeenCalledWith("/contacts");
+    expect(result).toEqual({ success: true });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
   it("validates contact IDs before DB reads", async () => {

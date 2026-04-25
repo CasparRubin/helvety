@@ -87,11 +87,13 @@ export function ItemEditor({
   initialEncryptedItem,
   embedded = false,
   onClose,
+  onLocalPatch,
 }: {
   itemId: string;
   initialEncryptedItem?: ItemRow;
   embedded?: boolean;
   onClose?: () => void;
+  onLocalPatch?: (id: string, input: { category_id?: string }) => void;
 }) {
   const router = useRouter();
   const {
@@ -290,14 +292,19 @@ export function ItemEditor({
   const handleCategoryChange = useCallback(
     async (categoryId: string) => {
       if (!item || categoryId === item.category_id) return;
+      const previousCategoryId = item.category_id;
+      onLocalPatch?.(item.id, { category_id: categoryId });
       setIsSavingCategory(true);
       try {
-        await update({ category_id: categoryId });
+        const success = await update({ category_id: categoryId });
+        if (!success) {
+          onLocalPatch?.(item.id, { category_id: previousCategoryId });
+        }
       } finally {
         setIsSavingCategory(false);
       }
     },
-    [item, update]
+    [item, onLocalPatch, update]
   );
 
   // Handle delete item

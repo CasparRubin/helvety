@@ -19,7 +19,7 @@ import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
 
-/** Revalidate the contacts list route after contact mutations. */
+/** Revalidate the contacts list route after structural contact mutations. */
 function revalidateContactRoutes(contactId?: string): void {
   revalidatePath("/contacts");
   void contactId;
@@ -310,7 +310,6 @@ export async function updateContact(
       return { success: false, error: "Failed to update contact" };
     }
 
-    revalidateContactRoutes(validatedData.id);
     return { success: true };
   } catch (error) {
     after(() =>
@@ -447,7 +446,6 @@ export async function reorderContacts(
       return { success: false, error: "Failed to reorder contacts" };
     }
 
-    revalidateContactRoutes();
     return { success: true };
   } catch (error) {
     after(() =>

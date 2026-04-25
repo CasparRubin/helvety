@@ -46,8 +46,16 @@ export function FlatNotesDashboard({
 }: FlatNotesDashboardProps): React.JSX.Element {
   const searchParams = useSearchParams();
   const { isUnlocked, masterKey } = useEncryptionContext();
-  const { items, isLoading, error, refresh, create, remove, reorder } =
-    useItems({ initialEncryptedData: initialEncryptedItems });
+  const {
+    items,
+    isLoading,
+    error,
+    refresh,
+    create,
+    remove,
+    reorder,
+    patchLocal,
+  } = useItems({ initialEncryptedData: initialEncryptedItems });
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -246,6 +254,7 @@ export function FlatNotesDashboard({
               itemId={selectedItemId}
               embedded
               onClose={() => setSelectedItemId(null)}
+              onLocalPatch={(id, input) => patchLocal(id, input)}
             />
           ) : null}
         </SheetContent>

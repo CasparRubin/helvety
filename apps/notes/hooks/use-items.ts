@@ -2,6 +2,10 @@
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import {
+  patchEntityInList,
+  patchSingleEntity,
+} from "@helvety/shared/optimistic-entity";
+import {
   triggerE2eeHookAuthErrorNavigation,
   triggerHardLogoutOnce,
 } from "@helvety/ui/auth-navigation";
@@ -52,6 +56,8 @@ interface UseItemsReturn {
   remove: (id: string) => Promise<boolean>;
   /** Batch reorder items (for drag-and-drop) */
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
+  /** Apply a local optimistic patch without a server request */
+  patchLocal: (id: string, input: Partial<ItemInput>) => void;
 }
 
 /**
@@ -229,22 +235,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         }
 
         // Optimistic update: merge changes into local state
-        setItems((prev) =>
-          prev.map((item) => {
-            if (item.id !== id) return item;
-            return {
-              ...item,
-              ...(input.title !== undefined && { title: input.title }),
-              ...(input.description !== undefined && {
-                description: input.description,
-              }),
-              ...(input.category_id !== undefined && {
-                category_id: input.category_id,
-              }),
-              updated_at: new Date().toISOString(),
-            };
-          })
-        );
+        setItems((prev) => patchEntityInList(prev, id, input));
 
         return true;
       } catch (err) {
@@ -298,6 +289,10 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
     },
     [csrfToken]
   );
+
+  const patchLocal = useCallback((id: string, input: Partial<ItemInput>) => {
+    setItems((prev) => patchEntityInList(prev, id, input));
+  }, []);
 
   /**
    * Batch reorder items (for drag-and-drop)
@@ -391,6 +386,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
     update,
     remove,
     reorder,
+    patchLocal,
   };
 }
 
@@ -528,20 +524,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
         }
 
         // Optimistic update: merge changes into local state
-        setItem((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            ...(input.title !== undefined && { title: input.title }),
-            ...(input.description !== undefined && {
-              description: input.description,
-            }),
-            ...(input.category_id !== undefined && {
-              category_id: input.category_id,
-            }),
-            updated_at: new Date().toISOString(),
-          };
-        });
+        setItem((prev) => patchSingleEntity(prev, input));
 
         return true;
       } catch (err) {

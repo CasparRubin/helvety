@@ -47,8 +47,16 @@ export function FlatTasksDashboard({
 }: FlatTasksDashboardProps): React.JSX.Element {
   const searchParams = useSearchParams();
   const { isUnlocked, masterKey } = useEncryptionContext();
-  const { items, isLoading, error, refresh, create, remove, reorder } =
-    useItems({ initialEncryptedData: initialEncryptedItems });
+  const {
+    items,
+    isLoading,
+    error,
+    refresh,
+    create,
+    remove,
+    reorder,
+    patchLocal,
+  } = useItems({ initialEncryptedData: initialEncryptedItems });
   const { stages } = useStages(DEFAULT_STAGE_CONFIGS.item.id);
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
@@ -236,6 +244,7 @@ export function FlatTasksDashboard({
               itemId={selectedItemId}
               embedded
               onClose={() => setSelectedItemId(null)}
+              onLocalPatch={(id, input) => patchLocal(id, input)}
             />
           ) : null}
         </SheetContent>

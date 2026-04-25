@@ -2,6 +2,10 @@
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import {
+  patchEntityInList,
+  patchSingleEntity,
+} from "@helvety/shared/optimistic-entity";
+import {
   triggerE2eeHookAuthErrorNavigation,
   triggerHardLogoutOnce,
 } from "@helvety/ui/auth-navigation";
@@ -57,6 +61,8 @@ interface UseContactsReturn {
   remove: (id: string) => Promise<boolean>;
   /** Batch reorder contacts (for drag-and-drop) */
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
+  /** Apply a local optimistic patch without a server request */
+  patchLocal: (id: string, input: Partial<ContactInput>) => void;
 }
 
 /**
@@ -249,31 +255,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         }
 
         // Optimistic update: merge changes into local state
-        setContacts((prev) =>
-          prev.map((contact) => {
-            if (contact.id !== id) return contact;
-            return {
-              ...contact,
-              ...(input.first_name !== undefined && {
-                first_name: input.first_name,
-              }),
-              ...(input.last_name !== undefined && {
-                last_name: input.last_name,
-              }),
-              ...(input.description !== undefined && {
-                description: input.description,
-              }),
-              ...(input.email !== undefined && { email: input.email }),
-              ...(input.phone !== undefined && { phone: input.phone }),
-              ...(input.birthday !== undefined && { birthday: input.birthday }),
-              ...(input.notes !== undefined && { notes: input.notes }),
-              ...(input.category_id !== undefined && {
-                category_id: input.category_id,
-              }),
-              updated_at: new Date().toISOString(),
-            };
-          })
-        );
+        setContacts((prev) => patchEntityInList(prev, id, input));
 
         return true;
       } catch (err) {
@@ -334,6 +316,10 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     },
     [csrfToken]
   );
+
+  const patchLocal = useCallback((id: string, input: Partial<ContactInput>) => {
+    setContacts((prev) => patchEntityInList(prev, id, input));
+  }, []);
 
   /**
    * Batch reorder contacts (for drag-and-drop)
@@ -435,6 +421,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     update,
     remove,
     reorder,
+    patchLocal,
   };
 }
 
@@ -582,29 +569,7 @@ export function useContact(
         }
 
         // Optimistic update: merge changes into local state
-        setContact((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            ...(input.first_name !== undefined && {
-              first_name: input.first_name,
-            }),
-            ...(input.last_name !== undefined && {
-              last_name: input.last_name,
-            }),
-            ...(input.description !== undefined && {
-              description: input.description,
-            }),
-            ...(input.email !== undefined && { email: input.email }),
-            ...(input.phone !== undefined && { phone: input.phone }),
-            ...(input.birthday !== undefined && { birthday: input.birthday }),
-            ...(input.notes !== undefined && { notes: input.notes }),
-            ...(input.category_id !== undefined && {
-              category_id: input.category_id,
-            }),
-            updated_at: new Date().toISOString(),
-          };
-        });
+        setContact((prev) => patchSingleEntity(prev, input));
 
         return true;
       } catch (err) {

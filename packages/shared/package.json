@@ -40,6 +40,7 @@
     "./env-validation": "./src/env-validation.ts",
     "./entity-delete-message": "./src/entity-delete-message.ts",
     "./entity-links": "./src/entity-links.ts",
+    "./optimistic-entity": "./src/optimistic-entity.ts",
     "./layout-primitives": "./src/layout-primitives.ts",
     "./fonts": "./src/fonts.ts",
     "./e2ee-app-paths": "./src/e2ee-app-paths.ts",

@@ -33,7 +33,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Action panel** - View contact metadata dates and set category directly from the editor
 - **Category movement controls** - Move contacts between categories via drag/drop and row-level up/down arrows when the main-list search field is empty
 - **Controlled row-link prefetching** - Dense contact lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
-- **Consistency safeguards for list updates** - UI keeps optimistic interactions fast while ignoring stale in-flight refresh responses; server mutations also trigger route revalidation so prefetched pages stay aligned
+- **Consistency safeguards for list updates** - UI keeps optimistic interactions fast while ignoring stale in-flight refresh responses; category moves patch local list state immediately, and route revalidation is reserved for structural mutations (create/delete) to keep prefetched pages aligned
 - **Task linking** - Link, unlink, and view task items from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
 - **Note linking** - Link, unlink, and view notes from [Helvety Notes](https://helvety.com/notes) directly on the contact editor page
   - **Bidirectional** - Link and unlink notes from either the Contacts app or the Notes app for consistent cross-app UX
