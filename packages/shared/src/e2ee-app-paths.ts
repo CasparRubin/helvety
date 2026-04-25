@@ -10,8 +10,8 @@
 const E2EE_PATH_PREFIXES = ["/notes", "/tasks", "/contacts"] as const;
 
 /**
- * Returns true when `uri` points at an E2EE app route where login must not
- * auto-skip the passkey step (local crypto unlock).
+ * Returns true when `uri` points at an E2EE app route where browser unlock
+ * (master-key availability) is required after authentication.
  */
 export function requiresE2eeBrowserUnlock(uri: string): boolean {
   try {

@@ -40,7 +40,7 @@ type EncryptionStatus = "loading" | "needs_login" | "needs_logout" | "unlocked";
  * Gate component that requires encryption setup/unlock in this UI flow before
  * rendering children. Unlock/setup is completed in `/auth`; when the user must
  * return to auth, navigation uses `redirectToLoginOnce` with `force_login` so
- * login does not auto-skip passkey for E2EE apps.
+ * E2EE flows perform an explicit re-auth cycle before unlock.
  */
 export function EncryptionGate({
   userId,

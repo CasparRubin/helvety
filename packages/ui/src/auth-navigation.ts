@@ -13,7 +13,7 @@ type NavigationSource = string;
 interface AuthNavigationOptions {
   expectedRoute?: string;
   requestStartedAt?: number;
-  /** When true, appends `force_login=1` so login does not auto-skip passkey. */
+  /** When true, appends `force_login=1` to enforce an explicit re-auth cycle. */
   forceLogin?: boolean;
 }
 

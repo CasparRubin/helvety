@@ -1,6 +1,5 @@
 "use client";
 
-import { urls } from "@helvety/shared/config";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import {
   generateKeyCheckValue,
@@ -329,16 +328,7 @@ export function useLoginFlow(): LoginFlowState {
 
           const action = resolveAuthenticatedEmailBootstrap({
             requiredStep: probe.step,
-            forceLogin,
-            redirectUri,
-            homeUrl: urls.home,
           });
-          if (action.kind === "redirect") {
-            if (!cancelled) {
-              window.location.href = action.href;
-            }
-            return;
-          }
           if (!cancelled) {
             setPostOtpPasskeyPath(
               action.step === "passkey-signin"
