@@ -24,7 +24,7 @@ export type BillingInterval = "one-time";
 /**
  * Product category for filtering and organization
  */
-export type ProductCategory =
+type ProductCategory =
   | "productivity"
   | "developer-tools"
   | "utilities"
@@ -83,7 +83,7 @@ export interface ProductPricing {
 /**
  * A single media item (image, gif, or video)
  */
-export interface MediaItem {
+interface MediaItem {
   /** URL to the media file */
   src: string;
   /** Alt text for accessibility */
@@ -95,7 +95,7 @@ export interface MediaItem {
 /**
  * Product media configuration
  */
-export interface ProductMedia {
+interface ProductMedia {
   /** Screenshot images */
   screenshots?: MediaItem[];
   /** Screen recordings (GIFs or videos) */
@@ -151,7 +151,7 @@ export interface Product {
 /**
  * External links for a product
  */
-export interface ProductLinks {
+interface ProductLinks {
   /** Link to product website/landing page */
   website?: string;
   /** Link to documentation */
@@ -167,7 +167,7 @@ export interface ProductLinks {
 /**
  * Additional product metadata
  */
-export interface ProductMetadata {
+interface ProductMetadata {
   /** Target audience/use case */
   targetAudience?: string[];
   /** Supported platforms */
@@ -192,7 +192,7 @@ export interface ProductMetadata {
 // =============================================================================
 
 /** One step in the product installation guide (software products). */
-export interface SoftwareInstallationStep {
+interface SoftwareInstallationStep {
   title: string;
   description: string;
 }
@@ -200,7 +200,7 @@ export interface SoftwareInstallationStep {
 /**
  * Additional fields for downloadable software
  */
-export interface SoftwareProductDetails {
+interface SoftwareProductDetails {
   /** Download URL (resolved when download is available for this product) */
   downloadUrl?: string;
   /** File size in bytes */
@@ -235,7 +235,7 @@ export interface SoftwareProduct extends Product {
 /**
  * Additional fields for SaaS products
  */
-export interface SaaSProductDetails {
+interface SaaSProductDetails {
   /** URL to access the application */
   appUrl?: string;
   /** API access included */

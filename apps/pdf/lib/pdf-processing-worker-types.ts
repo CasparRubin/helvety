@@ -13,21 +13,21 @@ export interface WorkerUnifiedPage {
   readonly originalPageNumber: number;
 }
 
-export interface ExtractPageRequestPayload {
+interface ExtractPageRequestPayload {
   readonly sourceFile: WorkerSourceFile;
   readonly originalPageNumber: number;
   readonly unifiedPageNumber: number;
   readonly userRotation: number;
 }
 
-export interface MergeRequestPayload {
+interface MergeRequestPayload {
   readonly files: ReadonlyArray<WorkerSourceFile>;
   readonly pages: ReadonlyArray<WorkerUnifiedPage>;
   readonly activePageOrder: ReadonlyArray<number>;
   readonly pageRotations: Readonly<Record<number, number>>;
 }
 
-export interface WorkerProcessingOptions {
+interface WorkerProcessingOptions {
   readonly useGpuPreprocess: boolean;
   readonly useWorkerPipeline: boolean;
 }

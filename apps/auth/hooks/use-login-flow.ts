@@ -78,9 +78,9 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   missing_client_ip: "We couldn't verify your connection. Please try again.",
   server_error: "Authentication is temporarily unavailable. Please try again.",
   invalid_type:
-    "This verification link is invalid or expired. Please start again from the app.",
+    "This verification link is invalid or expired. Please request a new sign-in code and try again.",
   invalid_otp_type:
-    "This verification link is invalid or expired. Please start again from the app.",
+    "This verification link is invalid or expired. Please request a new sign-in code and try again.",
 };
 
 /** Return type of the useLoginFlow hook */

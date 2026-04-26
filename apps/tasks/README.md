@@ -175,7 +175,7 @@ This project is built with modern web technologies:
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
 - **[Lucide React](https://lucide.dev/)** - Icon library
 - **[Zod 4](https://zod.dev/)** - TypeScript-first schema validation
-- **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
+- **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support (via shared `@helvety/ui` theme provider)
 
 ## Testing
 

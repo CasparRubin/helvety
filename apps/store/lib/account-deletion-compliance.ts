@@ -1,12 +1,12 @@
 /** Residual row count summary for a specific table/column check. */
-export interface ResidualRowSummary {
+interface ResidualRowSummary {
   table: string;
   column: string;
   count: number;
 }
 
 /** Query error summary for a table/column residual check. */
-export interface ResidualErrorSummary {
+interface ResidualErrorSummary {
   table: string;
   column: string;
   error: string;

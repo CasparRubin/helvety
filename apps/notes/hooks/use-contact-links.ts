@@ -20,13 +20,13 @@ import type { Contact } from "@/lib/types";
  * A linked contact with its link metadata (link ID for unlinking).
  */
 export interface LinkedContact extends Contact {
-  /** The `note_contact_links` row ID (used for unlinking) */
+  /** The `entity_links` row ID (used for unlinking) */
   link_id: string;
   /** When the link was created */
   linked_at: string;
 }
 
-/** Raw link row from `note_contact_links`. */
+/** Raw note-contact link row derived from `entity_links`. */
 interface ItemContactLinkRow {
   id: string;
   note_id: string;

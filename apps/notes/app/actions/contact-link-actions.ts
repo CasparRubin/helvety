@@ -15,7 +15,7 @@ import { isUuidString } from "@helvety/shared/uuid-string";
 
 import type { ActionResponse, ContactRow } from "@/lib/types";
 
-/** Raw link row from `note_contact_links`. */
+/** Raw note-contact link row derived from `entity_links`. */
 interface ItemContactLinkRow {
   id: string;
   note_id: string;

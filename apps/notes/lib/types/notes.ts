@@ -120,7 +120,7 @@ export interface ItemContactLinkRow {
 }
 
 /** Linked task row (encrypted title from the `items` table). */
-export interface LinkedItemRow {
+interface LinkedItemRow {
   id: string;
   encrypted_title: string;
   link_id: string;
@@ -141,7 +141,7 @@ export interface LinkedItem {
 }
 
 /** Encrypted task row for picker. */
-export interface PickerItemRow {
+interface PickerItemRow {
   id: string;
   encrypted_title: string;
 }

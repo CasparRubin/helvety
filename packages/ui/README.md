@@ -4,7 +4,7 @@ Shared React components and small utilities used across Helvety Next.js apps (sh
 
 ## E2EE and app shell exports
 
-These are consumed mainly by **Contacts**, **Notes**, and **Tasks** (and thin re-exports in each app where needed):
+These are consumed mainly by **Contacts**, **Notes**, and **Tasks**:
 
 - `@helvety/ui/e2ee-app-root-layout` — `E2eeAppRootLayout` (nonce/CSRF/user bootstrap, providers, `EncryptionGateApp`)
 - `@helvety/ui/e2ee-app-navbar` — `E2eeAppNavbar` + `E2eeAppNavbarLabels` (parameterized copy; uses `@helvety/shared/crypto/encryption-context`)
