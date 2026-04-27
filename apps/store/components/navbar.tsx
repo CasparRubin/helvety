@@ -102,7 +102,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
           titleHref="/"
         />
         <div className="flex shrink-0 items-center gap-2">
-          {/* Desktop: sign in/profile, About, GitHub, theme — hidden below sm */}
+          {/* Desktop: sign in/profile, About, GitHub, theme - hidden below sm */}
           <div className="hidden items-center gap-2 sm:flex">
             {!isAuthenticated && !isLoading && (
               <Button variant="default" size="sm" onClick={handleLogin}>
@@ -186,8 +186,8 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    Official Helvety Store. Discover Helvety apps and downloads,
-                    engineered, designed, and made in Switzerland.
+                    Official Helvety Store for apps and downloads. Built and
+                    designed in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
@@ -223,7 +223,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
             <ThemeSwitcher />
           </div>
 
-          {/* Burger menu — only below sm */}
+          {/* Burger menu - only below sm */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild className="inline-flex sm:hidden">
               <Button variant="ghost" size="icon">

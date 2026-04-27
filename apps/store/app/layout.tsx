@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety Store",
   },
   description:
-    "Official Helvety Store for free and open-source Helvety apps and extensions. MIT licensed software engineered, designed, and made in Switzerland.",
+    "Official Helvety Store for free and open source apps and downloads. MIT-licensed software built and designed in Switzerland.",
   keywords: [
     "Helvety Store",
     "software",
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     siteName: "Helvety Store",
     title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store for free and open-source Helvety apps and extensions. MIT licensed software engineered, designed, and made in Switzerland.",
+      "Official Helvety Store for free and open source apps and downloads. MIT-licensed software built and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store for free and open-source Helvety apps and extensions. MIT licensed software engineered, designed, and made in Switzerland.",
+      "Official Helvety Store for free and open source apps and downloads. MIT-licensed software built and designed in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -150,7 +150,7 @@ export default async function RootLayout({
                 name: "Helvety Store",
                 url: urls.store,
                 description:
-                  "Official Helvety Store for free and open-source Helvety apps and extensions. MIT licensed software engineered, designed, and made in Switzerland.",
+                  "Official Helvety Store for free and open source apps and downloads. MIT-licensed software built and designed in Switzerland.",
                 applicationCategory: "ShoppingApplication",
                 operatingSystem: "Any",
               },

@@ -67,16 +67,16 @@ const helvetyExplorer: SoftwareProduct = {
   artist: "Alexandre Calame",
   description: `Helvety SPO Explorer is a SharePoint Framework (SPFx) application customizer that adds fast site navigation inside Microsoft 365. For the flows it supports, work runs in the browser; favorites and settings stay on the device (for example in localStorage).
 
-Access — The solution is free to use and open source. IT deploys it from the tenant App Catalog; users need appropriate Microsoft 365 permissions to see their sites. No separate Helvety account is required.
+Access: The solution is free to use and open source. IT deploys it from the tenant App Catalog. Users need appropriate Microsoft 365 permissions to see their sites. No separate Helvety account is required.
 
 Key features:
-• Site discovery — list SharePoint sites you can access
-• Search — filter by title, description, and URL with highlighted matches
-• Favorites and quick access — pin sites and open them from the header control
-• Settings — adjust URL display, descriptions, tab behavior, and related options
-• SharePoint themes — follows light and dark modes where the host page supports them
-• Accessibility — keyboard navigation and layouts aimed at common SharePoint pages
-• Performance — caching and efficient UI rendering (details depend on the build you run)
+• Site discovery: list SharePoint sites you can access
+• Search: filter by title, description, and URL with highlighted matches
+• Favorites and quick access: pin sites and open them from the header control
+• Settings: adjust URL display, descriptions, tab behavior, and related options
+• SharePoint themes: follows light and dark modes where the host page supports them
+• Accessibility: keyboard navigation and layouts aimed at common SharePoint pages
+• Performance: caching and efficient UI rendering (details depend on the build you run)
 
 The control appears on supported modern pages that use the standard shell; it does not show on every SharePoint surface. See the GitHub README for page coverage, deployment steps, and update notes.`,
   type: "software",
@@ -136,7 +136,7 @@ The control appears on supported modern pages that use the standard shell; it do
       {
         title: "Open your tenant App Catalog",
         description:
-          "Sign in as a SharePoint Administrator and go to your organization’s tenant App Catalog—the central catalog for the whole Microsoft 365 tenant, not a site collection–only catalog. If you do not have one yet, create it from the SharePoint admin center (Apps → App catalog) per Microsoft guidance.",
+          "Sign in as a SharePoint Administrator and go to your organization's tenant App Catalog, the central catalog for the whole Microsoft 365 tenant, not a site collection-only catalog. If you do not have one yet, create it from the SharePoint admin center (Apps -> App catalog) per Microsoft guidance.",
       },
       {
         title: "Upload the .sppkg",
@@ -146,7 +146,7 @@ The control appears on supported modern pages that use the standard shell; it do
       {
         title: "Enable for all sites (recommended)",
         description:
-          "When you enable the app, select the option to enable it and add it to all sites (tenant-wide). That registers the application customizer so users do not need a per-site “Add an app” install. Updates: when deploying a newer version, you can leave “add to all sites” unchecked to avoid duplicate Tenant Wide Extensions entries—the existing registration keeps using the updated package.",
+          'When you enable the app, select the option to enable it and add it to all sites (tenant-wide). That registers the application customizer so users do not need a per-site "Add an app" install. Updates: when deploying a newer version, you can leave "add to all sites" unchecked to avoid duplicate Tenant Wide Extensions entries. The existing registration keeps using the updated package.',
       },
       {
         title: "Allow time to propagate",
@@ -161,7 +161,7 @@ The control appears on supported modern pages that use the standard shell; it do
       {
         title: "Use the extension",
         description:
-          "On a modern SharePoint site page that uses the standard shell and Top placeholder (for example a communication or team site home page), look for the “Sites you have access to” control in the top area. It does not appear on classic pages, on every list or library view, or on some specialized modern pages—see the project README on GitHub for details.",
+          'On a modern SharePoint site page that uses the standard shell and Top placeholder (for example a communication or team site home page), look for the "Sites you have access to" control in the top area. It does not appear on classic pages, on every list or library view, or on some specialized modern pages. See the project README on GitHub for details.',
       },
     ],
   },
@@ -225,7 +225,7 @@ The control appears on supported modern pages that use the standard shell; it do
 };
 
 /**
- * Power Automate browser extension — forces v3=false for classic Power Automate editor URLs
+ * Power Automate browser extension - forces v3=false for classic Power Automate editor URLs
  */
 const powerAutomateForceV3False: SoftwareProduct = {
   id: "helvety-power-automate-force-v3-false",
@@ -239,13 +239,13 @@ const powerAutomateForceV3False: SoftwareProduct = {
 
 It adds v3=false when the parameter is missing and replaces v3=true when present. It relies on history.replaceState and History API hooks so behavior applies on first load, refresh, back/forward, and typical client-side navigation inside Power Automate.
 
-Access — Free and open source. No Helvety account is needed. Download the packaged ZIP from this Store page and install it with your browser’s developer mode; source and issues live on GitHub.
+Access: Free and open source. No Helvety account is needed. Download the packaged ZIP from this Store page and install it with your browser's developer mode. Source and issues are on GitHub.
 
 Key features:
-• Scoped host — only make.powerautomate.com
-• URL rules — targets /flows/ and /runs/ paths
-• SPA-friendly — not limited to full page loads
-• Manifest V3 — current Edge and Chrome extension model
+• Scoped host: only make.powerautomate.com
+• URL rules: targets /flows/ and /runs/ paths
+• SPA-friendly: not limited to full page loads
+• Manifest V3: current Edge and Chrome extension model
 
 Microsoft may change Power Automate URLs or the editor over time; confirm behavior against the build you install and the vendor’s current documentation.`,
   type: "software",
@@ -299,7 +299,7 @@ Microsoft may change Power Automate URLs or the editor over time; confirm behavi
       {
         title: "Extract the archive",
         description:
-          "Unzip the file into a folder you can keep permanently (for example under Documents). Chromium requires a real folder on disk—you cannot point “Load unpacked” at the ZIP file itself.",
+          'Unzip the file into a folder you can keep permanently (for example under Documents). Chromium requires a real folder on disk. You cannot point "Load unpacked" at the ZIP file itself.',
       },
       {
         title: "Open the extensions page (Edge)",
@@ -314,7 +314,7 @@ Microsoft may change Power Automate URLs or the editor over time; confirm behavi
       {
         title: "Load the extension",
         description:
-          "Click Load unpacked and select the extracted folder—the one that contains manifest.json (not a parent directory).",
+          "Click Load unpacked and select the extracted folder, the one that contains manifest.json (not a parent directory).",
       },
       {
         title: "Verify in Power Automate",
@@ -357,14 +357,14 @@ const helvetyPdf: SaaSProduct = {
     "A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. Browser-based processing for supported operations.",
   description: `Helvety PDF is a browser-based PDF toolkit. For the operations it supports, files are handled in your browser and are not uploaded to Helvety for processing.
 
-Access — Free to use with no account. Ordinary technical limits may still apply to keep the app reliable (for example per-file size caps or rate safeguards).
+Access: Free to use with no account. Ordinary technical limits may still apply to keep the app reliable (for example per-file size caps or rate safeguards).
 
 Key features:
-• Merge — combine multiple PDFs and images into one document
-• Reorder — drag-and-drop thumbnails to change page order
-• Rotate — turn pages in 90° steps
-• Extract and delete — pull out single pages or remove them from a document
-• Images — PNG, JPEG, WebP, and GIF alongside PDFs
+• Merge: combine multiple PDFs and images into one document
+• Reorder: drag-and-drop thumbnails to change page order
+• Rotate: turn pages in 90° steps
+• Extract and delete: pull out single pages or remove them from a document
+• Images: PNG, JPEG, WebP, and GIF alongside PDFs
 
 Each file can be up to 100 MB. How large or complex a job your device can finish depends on your browser and hardware.`,
   type: "saas",
@@ -445,17 +445,17 @@ const helvetyTasks: SaaSProduct = {
     "A privacy-focused task management app with client-side encryption for sensitive fields. Task list grouped by built-in stages with labels and priority in task details.",
   description: `Helvety Tasks is a task app with end-to-end encryption: sensitive task fields are encrypted in your browser before they are stored.
 
-Access — Free to use. There are no paid tiers, subscriptions, or business usage caps.
+Access: Free to use. There are no paid tiers, subscriptions, or business usage caps.
 
 Key features:
-• Encryption — sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
-• Workflow — main list grouped by fixed stages (for example Backlog, Discovery, Ready, In Progress, Testing, Acceptance, Completed, The Void); labels and priority are set in task details
-• Rich text — headings, lists, links, and formatting in descriptions
-• Labels and priority — set in the task detail sheet; color-coded in the editor (main list shows title and description)
-• Helvety Contacts — link contacts to tasks where the apps support it
-• Reorder — drag and drop within and between stages
+• Encryption: sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
+• Workflow: main list grouped by fixed stages (for example Backlog, Discovery, Ready, In Progress, Testing, Acceptance, Completed, The Void); labels and priority are set in task details
+• Rich text: headings, lists, links, and formatting in descriptions
+• Labels and priority: set in the task detail sheet; color-coded in the editor (main list shows title and description)
+• Helvety Contacts: link contacts to tasks where the apps support it
+• Reorder: drag and drop within and between stages
 
-Data protection — Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
+Data protection: Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
   type: "saas",
   category: "productivity",
   status: "available",
@@ -533,18 +533,18 @@ const helvetyContacts: SaaSProduct = {
     "A privacy-focused contact management app with client-side encryption for sensitive fields. Store names, emails, phone numbers, birthdays, and notes.",
   description: `Helvety Contacts is a contact manager with end-to-end encryption: sensitive contact fields are encrypted in your browser before they are stored.
 
-Access — Free to use. There are no paid tiers, subscriptions, or business usage caps.
+Access: Free to use. There are no paid tiers, subscriptions, or business usage caps.
 
 Key features:
-• Encryption — sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
-• Fields — names, description, email, phone, birthday, and notes
-• Rich text — formatted notes with headings, lists, and links
-• Categories — fixed set: Personal, Family, Work, Business, Other
-• Helvety Tasks — link tasks to contacts where the apps support it
-• Reorder — drag and drop within and between categories
-• Export — self-service export for backup and portability; the in-app flow shows the current format and steps
+• Encryption: sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
+• Fields: names, description, email, phone, birthday, and notes
+• Rich text: formatted notes with headings, lists, and links
+• Categories: fixed set of Personal, Family, Work, Business, and Other
+• Helvety Tasks: link tasks to contacts where the apps support it
+• Reorder: drag and drop within and between categories
+• Export: self-service export for backup and portability; the in-app flow shows the current format and steps
 
-Data protection — Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
+Data protection: Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
   type: "saas",
   category: "productivity",
   status: "available",
@@ -623,16 +623,16 @@ const helvetyNotes: SaaSProduct = {
     "A privacy-focused notes app with client-side encryption for sensitive fields. Title and description notes grouped by Personal, Work, and Other.",
   description: `Helvety Notes is a notes app with end-to-end encryption: sensitive note fields are encrypted in your browser before they are stored.
 
-Access — Free to use. There are no paid tiers, subscriptions, or business usage caps.
+Access: Free to use. There are no paid tiers, subscriptions, or business usage caps.
 
 Key features:
-• Encryption — sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
-• Structure — each note has a title and description; the list is grouped by category (Personal, Work, Other)
-• Rich text — headings, lists, links, and formatting in descriptions
-• Helvety Tasks and Contacts — cross-link where the apps support it
-• Reorder — drag and drop within and between categories
+• Encryption: sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
+• Structure: each note has a title and description; the list is grouped by category (Personal, Work, Other)
+• Rich text: headings, lists, links, and formatting in descriptions
+• Helvety Tasks and Contacts: cross-link where the apps support it
+• Reorder: drag and drop within and between categories
 
-Data protection — Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
+Data protection: Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
   type: "saas",
   category: "productivity",
   status: "available",

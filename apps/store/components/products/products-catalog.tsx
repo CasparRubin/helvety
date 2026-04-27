@@ -52,8 +52,8 @@ export function ProductsCatalog() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Products</h1>
         <p className="text-muted-foreground mt-1 max-w-2xl text-pretty">
-          Browse Helvety products and apps. Each one is free to use, with no
-          paid tiers or subscriptions, and is open source.
+          Browse Helvety products and apps. Every product is free to use and
+          open source, with no paid tiers or subscriptions.
         </p>
       </div>
       <section className="mb-6">

@@ -1,6 +1,6 @@
 # Helvety Store
 
-> Official Helvety Store for product discovery, app details, and package download links. Engineered, Designed & Made in Switzerland.
+> Official Helvety Store for product discovery, app details, and package downloads. Built and designed in Switzerland.
 
 ## Canonical URLs
 - [Store Home](https://helvety.com/store): Main store entry
@@ -15,7 +15,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - [Helvety Notes](https://helvety.com/store/products/helvety-notes)
 - [Power Automate Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false)
 
-## Crawling And Indexing
+## Crawling and Indexing
 - Public catalog and product pages are intended to be crawlable and indexable.
 - Account routes are intended not to be indexed and are protected by authentication and noindex metadata.
 

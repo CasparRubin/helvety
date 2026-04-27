@@ -134,7 +134,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                       rel="noopener noreferrer"
                     >
                       <Github className="size-4 shrink-0" />
-                      View sourcecode on GitHub
+                      View source code on GitHub
                     </a>
                   </Button>
                 )}

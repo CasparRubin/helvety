@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-The main Helvety website. Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.
+The main Helvety website. Built and designed in Switzerland. Software products. Private, simple, clean.
 
 **Website:** [helvety.com](https://helvety.com)
 

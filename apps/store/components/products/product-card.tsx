@@ -40,7 +40,7 @@ export function ProductCard({
           className
         )}
       >
-        {/* Background artwork — desaturated at rest, full color on hover */}
+        {/* Background artwork - desaturated at rest, full color on hover */}
         <Image
           src={product.image ?? "/store/artwork_1.png"}
           alt=""

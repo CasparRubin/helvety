@@ -39,8 +39,8 @@ Public store root (`/store`) redirects to `/store/products` (implemented interna
 ## Package download behavior
 
 - Package files are read from Supabase Storage bucket `packages` (see `lib/packages/config.ts` for folder paths).
-- **SPO Explorer:** `spfx/helvety-spo-explorer` — the resolver selects the newest `.sppkg` by timestamp (then name).
-- **Power Automate extension:** `browserExtensions/power-automate-force-v3-false` — the resolver selects the newest `.zip` the same way.
+- **SPO Explorer:** `spfx/helvety-spo-explorer` - the resolver selects the newest `.sppkg` by timestamp (then name).
+- **Power Automate extension:** `browserExtensions/power-automate-force-v3-false` - the resolver selects the newest `.zip` the same way.
 - If listing fails or is empty, the download action falls back to the configured `filename` under `storageFolderPath`.
 
 ## Artwork assets
@@ -69,7 +69,7 @@ Copy `env.template` to `.env.local` and fill values:
 
 ## Security & session setup
 
-- **Request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present. Session and authorization checks for account flows run in pages, Server Actions, and route handlers—not in the proxy alone.
+- **Request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present. Session and authorization checks for account flows run in pages, Server Actions, and route handlers, not in the proxy alone.
 - **Download rate limiting** - Public package download URL generation is IP-rate-limited to prevent abuse. The action fails closed when the client IP cannot be resolved in production.
 
 ## Tech stack

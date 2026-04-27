@@ -17,7 +17,7 @@ import type { Product } from "@/lib/types/products";
 
 const HERO_IMAGE_FALLBACK = "/store/artwork_1.png";
 
-/** Hero region for a product detail page — image fills the frame; copy sits in the bottom third. */
+/** Hero region for a product detail page - image fills the frame; copy sits in the bottom third. */
 export function ProductDetailHero({ product }: { product: Product }) {
   const src = product.image ?? HERO_IMAGE_FALLBACK;
 

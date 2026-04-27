@@ -6,7 +6,7 @@
 ![Bun](https://img.shields.io/badge/Bun-1.3.x-f9f1e1?style=flat-square&logo=bun)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-Monorepo for all Helvety applications. Engineered, Designed & Made in Switzerland.
+Monorepo for all Helvety applications. Built and designed in Switzerland.
 
 ## Apps
 
