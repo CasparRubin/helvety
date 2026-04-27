@@ -6,17 +6,6 @@ import {
 } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
-import {
-  Github,
-  Info,
-  LogIn,
-  LogOut,
-  Menu,
-  Moon,
-  Settings,
-  Sun,
-  User,
-} from "@helvety/ui/animated-icons";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -47,7 +36,18 @@ import {
 import { ThemeSwitcher } from "@helvety/ui/theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
-import { ShieldCheck } from "lucide-react";
+import {
+  CircleUser as User,
+  Github,
+  Info,
+  LogIn,
+  LogOut,
+  Menu,
+  Moon,
+  Settings,
+  ShieldCheck,
+  Sun,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 

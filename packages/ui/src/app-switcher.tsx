@@ -5,6 +5,7 @@ import { cn } from "@helvety/shared/utils";
 import {
   CheckSquare,
   FileText,
+  Grip,
   Home,
   KeyRound,
   NotebookPen,
@@ -13,7 +14,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { Grip } from "@helvety/ui/animated-icons";
 import { Button } from "@helvety/ui/button";
 import {
   Sheet,

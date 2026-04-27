@@ -6,11 +6,8 @@ import {
 } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
-import { ShieldCheck } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useState } from "react";
-
 import {
+  CircleUser as UserIcon,
   Github,
   Info,
   LogIn,
@@ -18,9 +15,12 @@ import {
   Menu,
   Moon,
   Settings,
+  ShieldCheck,
   Sun,
-  User as UserIcon,
-} from "./animated-icons";
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import { useState } from "react";
+
 import { Button } from "./button";
 import {
   Dialog,

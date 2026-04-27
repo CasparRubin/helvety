@@ -5,17 +5,6 @@ import {
   redirectToLogout,
 } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
-import {
-  Github,
-  Info,
-  LogIn,
-  LogOut,
-  Menu,
-  Moon,
-  Settings,
-  Sun,
-  User as UserIcon,
-} from "@helvety/ui/animated-icons";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -45,6 +34,17 @@ import {
 import { ThemeSwitcher } from "@helvety/ui/theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
 import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
+import {
+  CircleUser as UserIcon,
+  Github,
+  Info,
+  LogIn,
+  LogOut,
+  Menu,
+  Moon,
+  Settings,
+  Sun,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
