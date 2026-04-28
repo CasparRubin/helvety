@@ -105,7 +105,7 @@ Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment via `@helvet
 | `bun run test:watch`    | Run tests in watch mode           |
 | `bun run test:coverage` | Run tests with v8 coverage report |
 
-Test files follow the `**/*.test.{ts,tsx}` pattern. From the monorepo root, `bun run test` runs Turbo across workspaces. `EntityList` is covered for fixed category shells when the list is empty, the global empty state when no categories are configured, the flat list fallback, the **client-side search no-match** message (`emptySearchMessage`), and the case where search hides category shells.
+Test files follow the `**/*.test.{ts,tsx}` pattern. From the monorepo root, `bun run test` runs Turbo across workspaces. `EntityList` is covered for fixed category shells when the list is empty, the global empty state when no categories are configured, the flat list fallback, the **client-side search no-match** message (`emptySearchMessage`), the case where search hides category shells, and the non-blocking refresh indicator while rows remain visible.
 
 ## Developer
 

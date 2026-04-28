@@ -13,6 +13,11 @@ import {
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@helvety/ui/collapsible";
+import {
   Command,
   CommandEmpty,
   CommandInput,
@@ -92,8 +97,11 @@ export function NoteLinksPanel({
 }: {
   itemId: string;
 }): React.JSX.Element {
-  const { allNotes, linkedNotes, isLoading, link, unlink } =
-    useNoteLinks(itemId);
+  const [isOpen, setIsOpen] = useState(false);
+  const { allNotes, linkedNotes, isLoading, link, unlink } = useNoteLinks(
+    itemId,
+    { enabled: isOpen }
+  );
 
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -154,97 +162,103 @@ export function NoteLinksPanel({
   return (
     <>
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <NotebookPenIcon className="text-muted-foreground size-4" />
-            <h3 className="text-muted-foreground text-sm font-medium">
-              Linked Notes
-            </h3>
-            {linkedNotes.length > 0 && (
-              <span className="text-muted-foreground text-xs">
-                ({linkedNotes.length})
-              </span>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <div className="flex items-center justify-between">
+            <CollapsibleTrigger asChild>
+              <button className="flex items-center gap-2 text-left">
+                <NotebookPenIcon className="text-muted-foreground size-4" />
+                <h3 className="text-muted-foreground text-sm font-medium">
+                  Linked Notes
+                </h3>
+                {linkedNotes.length > 0 && (
+                  <span className="text-muted-foreground text-xs">
+                    ({linkedNotes.length})
+                  </span>
+                )}
+              </button>
+            </CollapsibleTrigger>
+
+            <Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+                  <PlusIcon className="size-3.5" />
+                  Add
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="w-72 p-0"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+              >
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder="Search notes..."
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
+                  />
+                  <CommandList>
+                    {isLoading ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
+                      </div>
+                    ) : filteredNotes.length === 0 ? (
+                      <CommandEmpty>
+                        {allNotes.length === 0
+                          ? "No notes found"
+                          : searchQuery
+                            ? "No matching notes"
+                            : "All notes are already linked"}
+                      </CommandEmpty>
+                    ) : (
+                      filteredNotes.map((note) => {
+                        const name = formatNoteName(note);
+                        return (
+                          <CommandItem
+                            key={note.id}
+                            value={note.id}
+                            onSelect={() => handleLink(note.id)}
+                            disabled={isLinking}
+                          >
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-medium">{name}</p>
+                            </div>
+                            <FileTextIcon className="size-3.5 shrink-0 text-amber-500" />
+                          </CommandItem>
+                        );
+                      })
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <CollapsibleContent className="space-y-3">
+            {isLoading && linkedNotes.length === 0 && (
+              <div className="flex items-center justify-center py-4">
+                <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+              </div>
             )}
-          </div>
 
-          <Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
-                <PlusIcon className="size-3.5" />
-                Add
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-72 p-0"
-              onOpenAutoFocus={(e) => e.preventDefault()}
-            >
-              <Command shouldFilter={false}>
-                <CommandInput
-                  placeholder="Search notes..."
-                  value={searchQuery}
-                  onValueChange={setSearchQuery}
-                />
-                <CommandList>
-                  {isLoading ? (
-                    <div className="flex items-center justify-center py-4">
-                      <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
-                    </div>
-                  ) : filteredNotes.length === 0 ? (
-                    <CommandEmpty>
-                      {allNotes.length === 0
-                        ? "No notes found"
-                        : searchQuery
-                          ? "No matching notes"
-                          : "All notes are already linked"}
-                    </CommandEmpty>
-                  ) : (
-                    filteredNotes.map((note) => {
-                      const name = formatNoteName(note);
-                      return (
-                        <CommandItem
-                          key={note.id}
-                          value={note.id}
-                          onSelect={() => handleLink(note.id)}
-                          disabled={isLinking}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium">{name}</p>
-                          </div>
-                          <FileTextIcon className="size-3.5 shrink-0 text-amber-500" />
-                        </CommandItem>
-                      );
-                    })
-                  )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
+            {linkedNotes.length > 0 && (
+              <div className="space-y-1.5">
+                {linkedNotes.map((note) => (
+                  <LinkedNoteRow
+                    key={note.link_id}
+                    note={note}
+                    onUnlink={handleUnlinkClick}
+                  />
+                ))}
+              </div>
+            )}
 
-        {isLoading && linkedNotes.length === 0 && (
-          <div className="flex items-center justify-center py-4">
-            <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-          </div>
-        )}
-
-        {linkedNotes.length > 0 && (
-          <div className="space-y-1.5">
-            {linkedNotes.map((note) => (
-              <LinkedNoteRow
-                key={note.link_id}
-                note={note}
-                onUnlink={handleUnlinkClick}
-              />
-            ))}
-          </div>
-        )}
-
-        {!isLoading && linkedNotes.length === 0 && (
-          <p className="text-muted-foreground py-2 text-center text-xs">
-            No notes linked yet
-          </p>
-        )}
+            {!isLoading && linkedNotes.length === 0 && (
+              <p className="text-muted-foreground py-2 text-center text-xs">
+                No notes linked yet
+              </p>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
       </div>
 
       <AlertDialog

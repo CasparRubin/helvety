@@ -45,6 +45,21 @@ const baseTask = (overrides: Partial<Item>): Item => ({
 });
 
 describe("EntityList", () => {
+  it("shows a non-blocking refresh indicator while rows remain visible", () => {
+    render(
+      <EntityList
+        entities={[baseTask({ id: "visible" })]}
+        isLoading={false}
+        isRefreshing
+        error={null}
+        stages={testStages()}
+      />
+    );
+
+    expect(screen.getByText("Refreshing...")).toBeInTheDocument();
+    expect(screen.getByText("Ship feature")).toBeInTheDocument();
+  });
+
   it("shows stage section headers with zero counts when there are no tasks", () => {
     render(
       <EntityList

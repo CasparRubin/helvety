@@ -13,6 +13,11 @@ import {
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@helvety/ui/collapsible";
+import {
   Command,
   CommandEmpty,
   CommandInput,
@@ -26,13 +31,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@helvety/ui/tooltip";
-import {
-  Loader2Icon,
-  NotepadTextIcon,
-  PlusIcon,
-  UnlinkIcon,
-  UsersIcon,
-} from "lucide-react";
+import { Loader2Icon, PlusIcon, UnlinkIcon, UsersIcon } from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 
 import { useContactLinks } from "@/hooks/use-contact-links";
@@ -84,18 +83,6 @@ function LinkedContactRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <p className="truncate text-sm font-medium">{name}</p>
-          {contact.has_notes && (
-            <TooltipProvider delayDuration={300}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <NotepadTextIcon className="size-3.5 shrink-0 text-amber-500" />
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p>Has notes</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
         </div>
         {contact.email && (
           <p className="text-muted-foreground truncate text-xs">
@@ -146,8 +133,9 @@ export function ContactLinksPanel({
 }: {
   itemId: string;
 }): React.JSX.Element {
+  const [isOpen, setIsOpen] = useState(false);
   const { allContacts, linkedContacts, isLoading, link, unlink } =
-    useContactLinks(itemId);
+    useContactLinks(itemId, { enabled: isOpen });
 
   // Picker state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -214,109 +202,111 @@ export function ContactLinksPanel({
   return (
     <>
       <div className="space-y-3">
-        {/* Section header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <UsersIcon className="text-muted-foreground size-4" />
-            <h3 className="text-muted-foreground text-sm font-medium">
-              Contacts
-            </h3>
-            {linkedContacts.length > 0 && (
-              <span className="text-muted-foreground text-xs">
-                ({linkedContacts.length})
-              </span>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <div className="flex items-center justify-between">
+            <CollapsibleTrigger asChild>
+              <button className="flex items-center gap-2 text-left">
+                <UsersIcon className="text-muted-foreground size-4" />
+                <h3 className="text-muted-foreground text-sm font-medium">
+                  Contacts
+                </h3>
+                {linkedContacts.length > 0 && (
+                  <span className="text-muted-foreground text-xs">
+                    ({linkedContacts.length})
+                  </span>
+                )}
+              </button>
+            </CollapsibleTrigger>
+
+            {/* Add contact button / picker */}
+            <Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+                  <PlusIcon className="size-3.5" />
+                  Add
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="w-72 p-0"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+              >
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder="Search contacts..."
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
+                  />
+                  <CommandList>
+                    {isLoading ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
+                      </div>
+                    ) : filteredContacts.length === 0 ? (
+                      <CommandEmpty>
+                        {allContacts.length === 0
+                          ? "No contacts found"
+                          : searchQuery
+                            ? "No matching contacts"
+                            : "All contacts are already linked"}
+                      </CommandEmpty>
+                    ) : (
+                      filteredContacts.map((contact) => {
+                        const name = formatContactName(contact);
+                        return (
+                          <CommandItem
+                            key={contact.id}
+                            value={contact.id}
+                            onSelect={() => handleLink(contact.id)}
+                            disabled={isLinking}
+                          >
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-medium">{name}</p>
+                              {contact.email && (
+                                <p className="text-muted-foreground truncate text-xs">
+                                  {contact.email}
+                                </p>
+                              )}
+                            </div>
+                          </CommandItem>
+                        );
+                      })
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <CollapsibleContent className="space-y-3">
+            {/* Loading state */}
+            {isLoading && linkedContacts.length === 0 && (
+              <div className="flex items-center justify-center py-4">
+                <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+              </div>
             )}
-          </div>
 
-          {/* Add contact button / picker */}
-          <Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
-                <PlusIcon className="size-3.5" />
-                Add
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-72 p-0"
-              onOpenAutoFocus={(e) => e.preventDefault()}
-            >
-              <Command shouldFilter={false}>
-                <CommandInput
-                  placeholder="Search contacts..."
-                  value={searchQuery}
-                  onValueChange={setSearchQuery}
-                />
-                <CommandList>
-                  {isLoading ? (
-                    <div className="flex items-center justify-center py-4">
-                      <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
-                    </div>
-                  ) : filteredContacts.length === 0 ? (
-                    <CommandEmpty>
-                      {allContacts.length === 0
-                        ? "No contacts found"
-                        : searchQuery
-                          ? "No matching contacts"
-                          : "All contacts are already linked"}
-                    </CommandEmpty>
-                  ) : (
-                    filteredContacts.map((contact) => {
-                      const name = formatContactName(contact);
-                      return (
-                        <CommandItem
-                          key={contact.id}
-                          value={contact.id}
-                          onSelect={() => handleLink(contact.id)}
-                          disabled={isLinking}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium">{name}</p>
-                            {contact.email && (
-                              <p className="text-muted-foreground truncate text-xs">
-                                {contact.email}
-                              </p>
-                            )}
-                          </div>
-                          {contact.has_notes && (
-                            <NotepadTextIcon className="size-3.5 shrink-0 text-amber-500" />
-                          )}
-                        </CommandItem>
-                      );
-                    })
-                  )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
+            {/* Linked contacts list */}
+            {linkedContacts.length > 0 && (
+              <div className="space-y-1.5">
+                {linkedContacts.map((contact) => (
+                  <LinkedContactRow
+                    key={contact.link_id}
+                    contact={contact}
+                    onUnlink={handleUnlinkClick}
+                  />
+                ))}
+              </div>
+            )}
 
-        {/* Loading state */}
-        {isLoading && linkedContacts.length === 0 && (
-          <div className="flex items-center justify-center py-4">
-            <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-          </div>
-        )}
-
-        {/* Linked contacts list */}
-        {linkedContacts.length > 0 && (
-          <div className="space-y-1.5">
-            {linkedContacts.map((contact) => (
-              <LinkedContactRow
-                key={contact.link_id}
-                contact={contact}
-                onUnlink={handleUnlinkClick}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Empty state */}
-        {!isLoading && linkedContacts.length === 0 && (
-          <p className="text-muted-foreground py-2 text-center text-xs">
-            No contacts linked yet
-          </p>
-        )}
+            {/* Empty state */}
+            {!isLoading && linkedContacts.length === 0 && (
+              <p className="text-muted-foreground py-2 text-center text-xs">
+                No contacts linked yet
+              </p>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
       </div>
 
       {/* Unlink confirmation dialog */}

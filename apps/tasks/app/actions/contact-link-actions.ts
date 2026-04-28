@@ -13,7 +13,19 @@ import {
 import { logger } from "@helvety/shared/logger";
 import { isUuidString } from "@helvety/shared/uuid-string";
 
-import type { ActionResponse, ContactRow } from "@/lib/types";
+import type { ActionResponse } from "@/lib/types";
+
+/** Lightweight encrypted contact row used for task link pickers. */
+interface ContactPickerRow {
+  id: string;
+  user_id: string;
+  encrypted_first_name: string;
+  encrypted_last_name: string;
+  encrypted_email: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
 
 /** Raw link row from `item_contact_links`. */
 interface ItemContactLinkRow {
@@ -28,7 +40,9 @@ interface ItemContactLinkRow {
  * Get all Contacts for the current user.
  * Returns encrypted data that must be decrypted client-side.
  */
-export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
+export async function getContacts(): Promise<
+  ActionResponse<ContactPickerRow[]>
+> {
   try {
     const auth = await authenticateAndRateLimit({
       rateLimitPrefix: "contact-links",
@@ -38,11 +52,13 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
 
     const { data: contacts, error } = await supabase
       .from("contacts")
-      .select("*")
+      .select(
+        "id,user_id,encrypted_first_name,encrypted_last_name,encrypted_email,sort_order,created_at,updated_at"
+      )
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
-      .overrideTypes<ContactRow[], { merge: false }>();
+      .overrideTypes<ContactPickerRow[], { merge: false }>();
 
     if (error) {
       logger.logUnexpectedError("Error getting contacts", error);

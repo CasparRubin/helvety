@@ -57,6 +57,7 @@ export function ContactsDashboard({
   const {
     contacts,
     isLoading,
+    isRefreshing,
     error,
     refresh,
     create,
@@ -79,7 +80,7 @@ export function ContactsDashboard({
     name: string | null;
   }>({ open: false, id: null, name: null });
   const [isDeleting, startDeleteTransition] = useTransition();
-  const [isRefreshing, startRefreshTransition] = useTransition();
+  const [isRefreshPending, startRefreshTransition] = useTransition();
   const [isExporting, startExportTransition] = useTransition();
   const [selectedContactId, setSelectedContactId] = useState<string | null>(
     () => searchParams.get("contact")
@@ -103,6 +104,10 @@ export function ContactsDashboard({
   }, [contacts, searchQuery]);
 
   const isSearchActive = searchQuery.trim() !== "";
+  const selectedContact = useMemo(
+    () => contacts.find((contact) => contact.id === selectedContactId) ?? null,
+    [contacts, selectedContactId]
+  );
   const emptySearchMessage =
     isSearchActive && contacts.length > 0 && filteredContacts.length === 0
       ? "No contacts match your search."
@@ -182,7 +187,7 @@ export function ContactsDashboard({
       <ContactCommandBar
         onCreateClick={() => setIsCreateOpen(true)}
         onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
+        isRefreshing={isRefreshing || isRefreshPending}
         onExport={isUnlocked && masterKey ? handleExportData : undefined}
         isExporting={isExporting}
       />
@@ -201,6 +206,7 @@ export function ContactsDashboard({
         <ContactList
           contacts={filteredContacts}
           isLoading={isLoading}
+          isRefreshing={isRefreshing}
           error={error}
           onRetry={refresh}
           onContactClick={(contact) => setSelectedContactId(contact.id)}
@@ -227,6 +233,7 @@ export function ContactsDashboard({
           {selectedContactId ? (
             <ContactEditor
               contactId={selectedContactId}
+              initialContact={selectedContact ?? undefined}
               embedded
               onClose={() => setSelectedContactId(null)}
               onLocalPatch={(id, input) => patchLocal(id, input)}

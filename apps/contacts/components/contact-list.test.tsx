@@ -25,6 +25,21 @@ const baseContact = (overrides: Partial<Contact>): Contact => ({
 });
 
 describe("ContactList", () => {
+  it("shows a non-blocking refresh indicator while rows remain visible", () => {
+    render(
+      <ContactList
+        contacts={[baseContact({ id: "visible" })]}
+        isLoading={false}
+        isRefreshing
+        error={null}
+        categories={DEFAULT_CATEGORIES}
+      />
+    );
+
+    expect(screen.getByText("Refreshing...")).toBeInTheDocument();
+    expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
+  });
+
   it("shows category section headers with zero counts when there are no contacts", () => {
     render(
       <ContactList

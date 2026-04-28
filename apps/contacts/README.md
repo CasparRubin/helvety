@@ -190,7 +190,7 @@ Run these commands from `apps/contacts`:
 | `bun run test:watch`    | Run tests in watch mode           |
 | `bun run test:coverage` | Run tests with v8 coverage report |
 
-Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test. List behavior (`ContactList`) is covered for empty address books with fixed categories, the global empty state when no categories are configured, the flat list fallback, and the **client-side search no-match** message (`emptySearchMessage`) instead of empty category shells.
+Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test. List behavior (`ContactList`) is covered for empty address books with fixed categories, the global empty state when no categories are configured, the flat list fallback, the **client-side search no-match** message (`emptySearchMessage`) instead of empty category shells, and the non-blocking refresh indicator while rows remain visible.
 
 ## Developer
 

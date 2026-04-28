@@ -49,6 +49,7 @@ export function FlatNotesDashboard({
   const {
     items,
     isLoading,
+    isRefreshing,
     error,
     refresh,
     create,
@@ -64,7 +65,7 @@ export function FlatNotesDashboard({
   const [newCategoryId, setNewCategoryId] = useState(
     DEFAULT_NOTE_CATEGORIES[0]!.id
   );
-  const [isRefreshing, startRefreshTransition] = useTransition();
+  const [isRefreshPending, startRefreshTransition] = useTransition();
   const [isCreating, startCreateTransition] = useTransition();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(() => {
     // Prefer the canonical `note` query param used by cross-app deep links.
@@ -83,15 +84,23 @@ export function FlatNotesDashboard({
     [items, selectedItemId]
   );
 
+  const searchableContentById = useMemo(() => {
+    const index = new Map<string, string>();
+    for (const item of items) {
+      index.set(item.id, getRichTextPlainText(item.description ?? "") ?? "");
+    }
+    return index;
+  }, [items]);
+
   const filteredItems = useMemo(() => {
     if (!searchQuery.trim()) return items;
     return items.filter((item) =>
       matchesClientSearch(
-        [item.title, getRichTextPlainText(item.description ?? "") ?? ""],
+        [item.title, searchableContentById.get(item.id) ?? ""],
         searchQuery
       )
     );
-  }, [items, searchQuery]);
+  }, [items, searchableContentById, searchQuery]);
 
   const isSearchActive = searchQuery.trim() !== "";
   const emptySearchMessage =
@@ -134,7 +143,7 @@ export function FlatNotesDashboard({
         onCreateClick={() => setIsCreateOpen(true)}
         createLabel="New Note"
         onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
+        isRefreshing={isRefreshing || isRefreshPending}
         onExport={isUnlocked && masterKey ? handleExportData : undefined}
         isExporting={isExporting}
       />
@@ -153,6 +162,7 @@ export function FlatNotesDashboard({
         <EntityList
           entities={filteredItems}
           isLoading={isLoading}
+          isRefreshing={isRefreshing}
           error={error}
           onRetry={refresh}
           categories={DEFAULT_NOTE_CATEGORIES}
@@ -252,6 +262,7 @@ export function FlatNotesDashboard({
           {selectedItemId && selectedItem ? (
             <ItemEditor
               itemId={selectedItemId}
+              initialItem={selectedItem}
               embedded
               onClose={() => setSelectedItemId(null)}
               onLocalPatch={(id, input) => patchLocal(id, input)}

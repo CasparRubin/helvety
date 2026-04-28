@@ -12,7 +12,12 @@ import {
   linkContact,
   unlinkContact,
 } from "@/app/actions/contact-link-actions";
-import { useEncryptionContext, decryptContactRows } from "@/lib/crypto";
+import {
+  useEncryptionContext,
+  buildAAD,
+  decrypt,
+  parseEncryptedData,
+} from "@/lib/crypto";
 
 import type { Contact } from "@/lib/types";
 
@@ -24,6 +29,60 @@ export interface LinkedContact extends Contact {
   link_id: string;
   /** When the link was created */
   linked_at: string;
+}
+
+/** Lightweight encrypted contact payload for task link pickers. */
+interface ContactPickerRow {
+  id: string;
+  user_id: string;
+  encrypted_first_name: string;
+  encrypted_last_name: string;
+  encrypted_email: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Decrypt only the contact fields required by task link UI. */
+async function decryptContactPickerRows(
+  rows: ContactPickerRow[],
+  key: CryptoKey
+): Promise<Contact[]> {
+  return Promise.all(
+    rows.map(async (row) => {
+      const aad = buildAAD("contacts", row.id);
+      const firstName = await decrypt(
+        parseEncryptedData(row.encrypted_first_name),
+        key,
+        aad
+      );
+      const lastName = await decrypt(
+        parseEncryptedData(row.encrypted_last_name),
+        key,
+        aad
+      );
+      const email = row.encrypted_email
+        ? await decrypt(parseEncryptedData(row.encrypted_email), key, aad)
+        : null;
+
+      return {
+        id: row.id,
+        user_id: row.user_id,
+        first_name: firstName,
+        last_name: lastName,
+        // Lightweight picker payload intentionally omits these encrypted columns.
+        description: null,
+        email,
+        phone: null,
+        birthday: null,
+        // The compact task link UI no longer renders the notes indicator.
+        has_notes: false,
+        sort_order: row.sort_order,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+      };
+    })
+  );
 }
 
 /** Raw link row from `item_contact_links`. */
@@ -58,7 +117,10 @@ interface UseContactLinksReturn {
  * Fetches all user contacts and the item's links, decrypts client-side,
  * and provides link/unlink operations.
  */
-export function useContactLinks(itemId: string): UseContactLinksReturn {
+export function useContactLinks(
+  itemId: string,
+  options?: { enabled?: boolean }
+): UseContactLinksReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
@@ -78,8 +140,10 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
   /**
    * Fetch and decrypt all contacts + fetch item links
    */
+  const enabled = options?.enabled ?? true;
+
   const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !itemId) {
+    if (!enabled || !masterKey || !isUnlocked || !itemId) {
       setAllContacts([]);
       setLinks([]);
       setIsLoading(false);
@@ -152,7 +216,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
       }
 
       // Decrypt contacts client-side
-      const decrypted = await decryptContactRows(
+      const decrypted = await decryptContactPickerRows(
         contactsResult.data,
         masterKey
       );
@@ -191,7 +255,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
         setIsLoading(false);
       }
     }
-  }, [masterKey, isUnlocked, itemId]);
+  }, [enabled, masterKey, isUnlocked, itemId]);
 
   /**
    * Link a contact to this item
@@ -284,10 +348,10 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
 
   // Fetch data when encryption is unlocked
   useEffect(() => {
-    if (isUnlocked && masterKey && itemId) {
+    if (enabled && isUnlocked && masterKey && itemId) {
       void refresh();
     }
-  }, [isUnlocked, masterKey, itemId, refresh]);
+  }, [enabled, isUnlocked, masterKey, itemId, refresh]);
 
   // Derive linkedContacts by joining links with allContacts
   const contactsById = useMemo(

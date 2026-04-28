@@ -31,6 +31,7 @@ function revalidateItemRoutes(): void {
 
 /** Canonical backing table for Tasks app items. */
 const TASKS_ITEMS_TABLE = "items" as const;
+const MAX_ALL_ITEMS_ROWS = 2000;
 
 // =============================================================================
 // Input Validation Schemas
@@ -180,11 +181,18 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
+      .limit(MAX_ALL_ITEMS_ROWS + 1)
       .overrideTypes<ItemRow[], { merge: false }>();
 
     if (error) {
       logger.logUnexpectedError("Error getting all items", error);
       return { success: false, error: "Failed to get tasks" };
+    }
+    if ((items?.length ?? 0) > MAX_ALL_ITEMS_ROWS) {
+      return {
+        success: false,
+        error: "Too many tasks to load in one request",
+      };
     }
 
     return { success: true, data: items ?? [] };

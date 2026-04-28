@@ -28,6 +28,7 @@ type AnyEntity = Item;
 interface EntityListProps {
   entities: AnyEntity[];
   isLoading: boolean;
+  isRefreshing?: boolean;
   error: string | null;
   onRetry?: () => void;
   categories: DefaultNoteCategory[];
@@ -48,6 +49,7 @@ interface EntityListProps {
 export function EntityList({
   entities,
   isLoading,
+  isRefreshing = false,
   error,
   onRetry,
   categories,
@@ -99,9 +101,12 @@ export function EntityList({
 
       const activeId = active.id as string;
       const overId = over.id as string;
+      const entitiesById = new Map(
+        entities.map((entity) => [entity.id, entity])
+      );
 
-      const activeEntity = entities.find((e) => e.id === activeId);
-      const overEntity = entities.find((e) => e.id === overId);
+      const activeEntity = entitiesById.get(activeId);
+      const overEntity = entitiesById.get(overId);
 
       if (!activeEntity) return;
 
@@ -138,7 +143,7 @@ export function EntityList({
       for (let index = startIndex; index <= endIndex; index++) {
         const entityAtIndex = sortedEntities[index];
         if (!entityAtIndex) continue;
-        const originalEntity = entities.find((e) => e.id === entityAtIndex.id);
+        const originalEntity = entitiesById.get(entityAtIndex.id);
         if (!originalEntity) continue;
 
         const hasSortOrderChange = originalEntity.sort_order !== index;
@@ -295,6 +300,12 @@ export function EntityList({
 
   return (
     <div className="space-y-4">
+      {isRefreshing && (
+        <div className="text-muted-foreground flex items-center justify-end gap-2 text-xs">
+          <Loader2Icon className="size-3 animate-spin" />
+          <span>Refreshing...</span>
+        </div>
+      )}
       {entities.length > 0 && (
         <div className="text-muted-foreground border-border hidden items-center gap-2 border-b px-3 pb-2 text-xs font-medium md:flex">
           <span className="w-4 shrink-0" />

@@ -266,7 +266,7 @@ export default function PrivacyPage() {
           <li>IP address</li>
           <li>Browser type and version</li>
           <li>Device information</li>
-          <li>Pages visited and high-level interaction events</li>
+          <li>Pages visited and navigation patterns</li>
           <li>Date and time of access</li>
           <li>Referring website</li>
         </ul>
@@ -295,8 +295,8 @@ export default function PrivacyPage() {
           <li>Supports extension functionality and reliability</li>
           <li>Is processed in accordance with this Privacy Policy</li>
           <li>
-            Is cached locally to minimize API calls and ensure offline
-            reliability
+            May use local storage or caching depending on the specific product
+            implementation
           </li>
         </ul>
 

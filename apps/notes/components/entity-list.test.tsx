@@ -20,6 +20,21 @@ const baseNote = (overrides: Partial<Item>): Item => ({
 });
 
 describe("EntityList", () => {
+  it("shows a non-blocking refresh indicator while rows remain visible", () => {
+    render(
+      <EntityList
+        entities={[baseNote({ id: "visible" })]}
+        isLoading={false}
+        isRefreshing
+        error={null}
+        categories={DEFAULT_NOTE_CATEGORIES}
+      />
+    );
+
+    expect(screen.getByText("Refreshing...")).toBeInTheDocument();
+    expect(screen.getByText("Meeting notes")).toBeInTheDocument();
+  });
+
   it("shows category section headers with zero counts when there are no notes", () => {
     render(
       <EntityList

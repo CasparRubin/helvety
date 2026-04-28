@@ -30,7 +30,7 @@ import { useStages } from "@/hooks/use-stages";
 import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 
-import type { ItemRow } from "@/lib/types";
+import type { Item, ItemRow } from "@/lib/types";
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
 
@@ -80,12 +80,14 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
  */
 export function ItemEditor({
   itemId,
+  initialItem,
   initialEncryptedItem,
   embedded = false,
   onClose,
   onLocalPatch,
 }: {
   itemId: string;
+  initialItem?: Item;
   initialEncryptedItem?: ItemRow;
   embedded?: boolean;
   onClose?: () => void;
@@ -100,6 +102,7 @@ export function ItemEditor({
     refresh,
     remove,
   } = useItem(itemId, {
+    initialData: initialItem,
     initialEncryptedData: initialEncryptedItem,
   });
 

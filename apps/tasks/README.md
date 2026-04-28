@@ -35,7 +35,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Contact linking** - Link contacts from [Helvety Contacts](https://helvety.com/contacts) to task items
   - **Bidirectional** - Link and unlink from either the Tasks app or the Contacts app for consistent cross-app UX
   - **Searchable picker** - Search your contacts by name or email and link them with one click
-  - **Contact display** - Shows name and email; description, phone, and birthday are decrypted but not displayed in the compact link view. A flag indicates whether the contact has notes
+  - **Contact display** - Shows name and email in the compact link view; the full contact profile remains available via deep link in the Contacts app
   - **Deep links** - Click any contact row to view or edit the full contact details in the Contacts app (opens in a new tab)
 - **Note linking** - Link notes from [Helvety Notes](https://helvety.com/notes) to task items
   - **Bidirectional** - Link and unlink from either the Tasks app or the Notes app
@@ -196,7 +196,7 @@ Run these commands from `apps/tasks`:
 | `bun run test:watch`    | Run tests in watch mode           |
 | `bun run test:coverage` | Run tests with v8 coverage report |
 
-Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test. `EntityList` is covered for fixed stage shells when the list is empty, the global empty state when no stages are configured, the flat list fallback, the **client-side search no-match** message (`emptySearchMessage`), and the case where search hides stage shells.
+Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test. `EntityList` is covered for fixed stage shells when the list is empty, the global empty state when no stages are configured, the flat list fallback, the **client-side search no-match** message (`emptySearchMessage`), the case where search hides stage shells, and the non-blocking refresh indicator while rows remain visible.
 
 ## Developer
 

@@ -82,7 +82,10 @@ async function decryptNoteTitle(
  * Fetches all user notes and the item's links, decrypts client-side,
  * and provides link/unlink operations.
  */
-export function useNoteLinks(itemId: string): UseNoteLinksReturn {
+export function useNoteLinks(
+  itemId: string,
+  options?: { enabled?: boolean }
+): UseNoteLinksReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
   const csrfToken = useCSRFToken();
 
@@ -102,8 +105,10 @@ export function useNoteLinks(itemId: string): UseNoteLinksReturn {
   /**
    * Fetch and decrypt all notes + fetch item links
    */
+  const enabled = options?.enabled ?? true;
+
   const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !itemId) {
+    if (!enabled || !masterKey || !isUnlocked || !itemId) {
       setAllNotes([]);
       setLinks([]);
       setIsLoading(false);
@@ -217,7 +222,7 @@ export function useNoteLinks(itemId: string): UseNoteLinksReturn {
         setIsLoading(false);
       }
     }
-  }, [masterKey, isUnlocked, itemId]);
+  }, [enabled, masterKey, isUnlocked, itemId]);
 
   /**
    * Link a note to this item
@@ -310,10 +315,10 @@ export function useNoteLinks(itemId: string): UseNoteLinksReturn {
 
   // Fetch data when encryption is unlocked
   useEffect(() => {
-    if (isUnlocked && masterKey && itemId) {
+    if (enabled && isUnlocked && masterKey && itemId) {
       void refresh();
     }
-  }, [isUnlocked, masterKey, itemId, refresh]);
+  }, [enabled, isUnlocked, masterKey, itemId, refresh]);
 
   // Derive linkedNotes by joining links with allNotes
   const notesById = useMemo(

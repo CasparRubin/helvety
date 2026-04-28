@@ -43,6 +43,8 @@ interface UseItemsReturn {
   items: Item[];
   /** Whether items are being loaded */
   isLoading: boolean;
+  /** Whether items are currently being refreshed with stale data still visible */
+  isRefreshing: boolean;
   /** Error message if something went wrong */
   error: string | null;
   /** Refresh items from server */
@@ -68,6 +70,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
 
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
   const latestRefreshTokenRef = useRef(0);
@@ -76,13 +79,21 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
     if (!masterKey || !isUnlocked) {
       setItems([]);
       setIsLoading(false);
+      setIsRefreshing(false);
       return;
     }
 
     const refreshToken = ++latestRefreshTokenRef.current;
+    const perfLabel = `tasks:list-refresh:${refreshToken}`;
     const routeAtStart = window.location.href;
     const requestStartedAt = Date.now();
-    setIsLoading(true);
+    performance.mark(`${perfLabel}:start`);
+    const hasExistingItems = items.length > 0;
+    if (hasExistingItems) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
@@ -106,7 +117,9 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-        setItems([]);
+        if (!hasExistingItems) {
+          setItems([]);
+        }
         return;
       }
 
@@ -115,6 +128,12 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         return;
       }
       setItems(decrypted);
+      performance.mark(`${perfLabel}:end`);
+      performance.measure(
+        "tasks:list-refresh-duration",
+        `${perfLabel}:start`,
+        `${perfLabel}:end`
+      );
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to fetch tasks";
       if (refreshToken !== latestRefreshTokenRef.current) {
@@ -131,13 +150,18 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-      setItems([]);
+      if (!hasExistingItems) {
+        setItems([]);
+      }
     } finally {
+      performance.clearMarks(`${perfLabel}:start`);
+      performance.clearMarks(`${perfLabel}:end`);
       if (refreshToken === latestRefreshTokenRef.current) {
         setIsLoading(false);
+        setIsRefreshing(false);
       }
     }
-  }, [masterKey, isUnlocked]);
+  }, [items.length, masterKey, isUnlocked]);
 
   const create = useCallback(
     async (input: ItemInput): Promise<{ id: string } | null> => {
@@ -374,6 +398,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
   return {
     items,
     isLoading,
+    isRefreshing,
     error,
     refresh,
     create,
@@ -404,6 +429,8 @@ interface UseItemReturn {
 interface UseItemOptions {
   /** Server-prefetched encrypted row. Skips the initial fetch when provided. */
   initialEncryptedData?: ItemRow;
+  /** Already decrypted row. Skips fetch/decrypt when provided. */
+  initialData?: Item;
 }
 
 /**
@@ -572,6 +599,15 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
   useEffect(() => {
     if (!isUnlocked || !masterKey || !id) return;
 
+    if (options?.initialData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      setItem(options.initialData);
+      setIsLoading(false);
+      return;
+    }
+
     if (options?.initialEncryptedData && !initialDataConsumed) {
       setInitialDataConsumed(true);
       setIsLoading(true);
@@ -597,6 +633,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     masterKey,
     id,
     refresh,
+    options?.initialData,
     options?.initialEncryptedData,
     initialDataConsumed,
   ]);

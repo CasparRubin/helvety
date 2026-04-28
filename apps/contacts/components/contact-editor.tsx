@@ -43,7 +43,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { useContact } from "@/hooks/use-contacts";
 import { DEFAULT_CATEGORIES } from "@/lib/config/default-categories";
 
-import type { ContactRow } from "@/lib/types";
+import type { Contact, ContactRow } from "@/lib/types";
 import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
 
@@ -53,6 +53,8 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 /** Props for ContactEditor */
 interface ContactEditorProps {
   contactId: string;
+  /** Already decrypted contact to skip initial fetch/decrypt */
+  initialContact?: Contact;
   /** Server-prefetched encrypted contact to skip initial round-trip */
   initialEncryptedContact?: ContactRow;
   embedded?: boolean;
@@ -66,6 +68,7 @@ interface ContactEditorProps {
  */
 export function ContactEditor({
   contactId,
+  initialContact,
   initialEncryptedContact,
   embedded = false,
   onClose,
@@ -74,7 +77,10 @@ export function ContactEditor({
   const router = useRouter();
   const { contact, isLoading, error, refresh, update, remove } = useContact(
     contactId,
-    { initialEncryptedData: initialEncryptedContact }
+    {
+      initialData: initialContact,
+      initialEncryptedData: initialEncryptedContact,
+    }
   );
 
   // Form state

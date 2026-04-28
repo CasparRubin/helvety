@@ -49,6 +49,8 @@ interface UseContactsReturn {
   contacts: Contact[];
   /** Whether contacts are being loaded */
   isLoading: boolean;
+  /** Whether contacts are currently being refreshed with stale data still visible */
+  isRefreshing: boolean;
   /** Error message if something went wrong */
   error: string | null;
   /** Refresh contacts from server */
@@ -79,6 +81,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialDataConsumed, setInitialDataConsumed] = useState(false);
   const latestRefreshTokenRef = useRef(0);
@@ -87,13 +90,21 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     if (!masterKey || !isUnlocked) {
       setContacts([]);
       setIsLoading(false);
+      setIsRefreshing(false);
       return;
     }
 
     const refreshToken = ++latestRefreshTokenRef.current;
+    const perfLabel = `contacts:list-refresh:${refreshToken}`;
     const routeAtStart = window.location.href;
     const requestStartedAt = Date.now();
-    setIsLoading(true);
+    performance.mark(`${perfLabel}:start`);
+    const hasExistingContacts = contacts.length > 0;
+    if (hasExistingContacts) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
@@ -121,7 +132,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         }
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-        setContacts([]);
+        if (!hasExistingContacts) {
+          setContacts([]);
+        }
         return;
       }
 
@@ -130,6 +143,12 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         return;
       }
       setContacts(decrypted);
+      performance.mark(`${perfLabel}:end`);
+      performance.measure(
+        "contacts:list-refresh-duration",
+        `${perfLabel}:start`,
+        `${perfLabel}:end`
+      );
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Failed to fetch contacts";
@@ -147,13 +166,18 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       }
       setError(msg);
       toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-      setContacts([]);
+      if (!hasExistingContacts) {
+        setContacts([]);
+      }
     } finally {
+      performance.clearMarks(`${perfLabel}:start`);
+      performance.clearMarks(`${perfLabel}:end`);
       if (refreshToken === latestRefreshTokenRef.current) {
         setIsLoading(false);
+        setIsRefreshing(false);
       }
     }
-  }, [masterKey, isUnlocked]);
+  }, [contacts.length, masterKey, isUnlocked]);
 
   const create = useCallback(
     async (input: ContactInput): Promise<{ id: string } | null> => {
@@ -415,6 +439,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   return {
     contacts,
     isLoading,
+    isRefreshing,
     error,
     refresh,
     create,
@@ -429,6 +454,8 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 interface UseContactOptions {
   /** Server-prefetched encrypted row. Skips the initial fetch when provided. */
   initialEncryptedData?: ContactRow;
+  /** Already decrypted row. Skips fetch/decrypt when provided. */
+  initialData?: Contact;
 }
 
 /** Return type of the useContact hook for a single contact. */
@@ -633,6 +660,15 @@ export function useContact(
   useEffect(() => {
     if (!isUnlocked || !masterKey || !id) return;
 
+    if (options?.initialData && !initialDataConsumed) {
+      setInitialDataConsumed(true);
+      setIsLoading(true);
+      setError(null);
+      setContact(options.initialData);
+      setIsLoading(false);
+      return;
+    }
+
     if (options?.initialEncryptedData && !initialDataConsumed) {
       setInitialDataConsumed(true);
       setIsLoading(true);
@@ -660,6 +696,7 @@ export function useContact(
     masterKey,
     id,
     refresh,
+    options?.initialData,
     options?.initialEncryptedData,
     initialDataConsumed,
   ]);

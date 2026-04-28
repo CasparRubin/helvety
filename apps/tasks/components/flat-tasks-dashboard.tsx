@@ -50,6 +50,7 @@ export function FlatTasksDashboard({
   const {
     items,
     isLoading,
+    isRefreshing,
     error,
     refresh,
     create,
@@ -63,7 +64,7 @@ export function FlatTasksDashboard({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [isRefreshing, startRefreshTransition] = useTransition();
+  const [isRefreshPending, startRefreshTransition] = useTransition();
   const [isCreating, startCreateTransition] = useTransition();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(() =>
     searchParams.get("item")
@@ -139,7 +140,7 @@ export function FlatTasksDashboard({
         onCreateClick={() => setIsCreateOpen(true)}
         createLabel="New Task"
         onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
+        isRefreshing={isRefreshing || isRefreshPending}
         onExport={isUnlocked && masterKey ? handleExportData : undefined}
         isExporting={isExporting}
       />
@@ -158,6 +159,7 @@ export function FlatTasksDashboard({
         <EntityList
           entities={filteredItems}
           isLoading={isLoading}
+          isRefreshing={isRefreshing}
           error={error}
           onRetry={refresh}
           stages={stages}
@@ -242,6 +244,7 @@ export function FlatTasksDashboard({
           {selectedItemId && selectedItem ? (
             <ItemEditor
               itemId={selectedItemId}
+              initialItem={selectedItem}
               embedded
               onClose={() => setSelectedItemId(null)}
               onLocalPatch={(id, input) => patchLocal(id, input)}
