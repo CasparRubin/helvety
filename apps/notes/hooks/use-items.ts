@@ -32,6 +32,64 @@ import type {
   ReorderUpdate,
 } from "@/lib/types";
 
+const NOTES_BASE_PATH = "/notes";
+
+/** Builds a notes API route using the app base path. */
+export function getNotesApiPath(path: string): string {
+  return `${NOTES_BASE_PATH}${path}`;
+}
+
+/** Checks whether an unknown payload matches ActionResponse shape. */
+function isActionResponse<T>(value: unknown): value is ActionResponse<T> {
+  if (typeof value !== "object" || value === null || !("success" in value)) {
+    return false;
+  }
+
+  const success = Reflect.get(value, "success");
+  return typeof success === "boolean";
+}
+
+/** Extracts an ActionResponse-style error string when present. */
+function getActionError(value: unknown): string | null {
+  if (typeof value !== "object" || value === null || !("error" in value)) {
+    return null;
+  }
+
+  const error = Reflect.get(value, "error");
+  return typeof error === "string" && error.length > 0 ? error : null;
+}
+
+/** Parses route handler responses into an ActionResponse payload. */
+async function parseActionResponse<T>(
+  response: Response,
+  fallbackError: string
+): Promise<ActionResponse<T>> {
+  const raw = await response.text();
+  let parsed: unknown = null;
+
+  if (raw.length > 0) {
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      parsed = null;
+    }
+  }
+
+  if (response.ok) {
+    if (isActionResponse<T>(parsed)) {
+      return parsed;
+    }
+
+    return { success: false, error: fallbackError };
+  }
+
+  const parsedError = getActionError(parsed);
+  return {
+    success: false,
+    error: parsedError ?? `${fallbackError} (status ${response.status})`,
+  };
+}
+
 /** Options for useItems hook */
 interface UseItemsOptions {
   /** Server-prefetched encrypted rows. Skips the initial fetch when provided. */
@@ -64,20 +122,20 @@ interface UseItemsReturn {
 
 /** Fetches encrypted note rows via GET route handler. */
 async function fetchItems(): Promise<ActionResponse<ItemRow[]>> {
-  const response = await fetch("/api/items", {
+  const response = await fetch(getNotesApiPath("/api/items"), {
     method: "GET",
     cache: "no-store",
   });
-  return (await response.json()) as ActionResponse<ItemRow[]>;
+  return parseActionResponse<ItemRow[]>(response, "Failed to fetch notes");
 }
 
 /** Fetches a single encrypted note row via GET route handler. */
 async function fetchItemById(id: string): Promise<ActionResponse<ItemRow>> {
-  const response = await fetch(`/api/items/${id}`, {
+  const response = await fetch(getNotesApiPath(`/api/items/${id}`), {
     method: "GET",
     cache: "no-store",
   });
-  return (await response.json()) as ActionResponse<ItemRow>;
+  return parseActionResponse<ItemRow>(response, "Failed to fetch note");
 }
 
 /**

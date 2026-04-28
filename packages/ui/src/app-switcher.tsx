@@ -1,6 +1,6 @@
 "use client";
 
-import { getLocalAppHref, urls } from "@helvety/shared/config";
+import { urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
 import {
   CheckSquare,
@@ -80,7 +80,7 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
               return (
                 <Link
                   key={app.name}
-                  href={getLocalAppHref(app.href)}
+                  href={app.href}
                   className={cn(
                     "flex flex-col items-center gap-2 rounded-lg p-3 text-center transition-colors",
                     isCurrent

@@ -1,3 +1,4 @@
+import { urls } from "@helvety/shared/config";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -22,7 +23,7 @@ vi.mock("next/link", () => ({
 }));
 
 describe("AppSwitcher", () => {
-  it("renders path-based hrefs for ecosystem links", () => {
+  it("renders absolute ecosystem URLs to avoid basePath nesting", () => {
     render(
       <TooltipProvider>
         <AppSwitcher currentApp="Home" />
@@ -33,15 +34,15 @@ describe("AppSwitcher", () => {
 
     expect(screen.getByRole("link", { name: "Store" })).toHaveAttribute(
       "href",
-      "/store"
+      urls.store
     );
     expect(screen.getByRole("link", { name: "Tasks" })).toHaveAttribute(
       "href",
-      "/tasks"
+      urls.tasks
     );
     expect(screen.getByRole("link", { name: "Contacts" })).toHaveAttribute(
       "href",
-      "/contacts"
+      urls.contacts
     );
   });
 });

@@ -37,9 +37,11 @@ export const urls = {
 /**
  * Convert an app URL to a Next.js-friendly local href when possible.
  *
- * Returns a path-based href (`/store`, `/tasks`, etc.) for absolute URLs so
- * Next `Link` can use client transitions and prefetch. Falls back to the
- * original value if parsing fails.
+ * Returns a path-based href (`/store`, `/tasks`, etc.) for absolute Helvety
+ * URLs when local-path navigation is desired. Prefer absolute `urls.*` values
+ * for cross-app app-switcher links in basePath-mounted zones to avoid nested
+ * paths (e.g. `/tasks/contacts`). Falls back to the original value if parsing
+ * fails.
  */
 export function getLocalAppHref(url: string): string {
   if (url.startsWith("/")) {
