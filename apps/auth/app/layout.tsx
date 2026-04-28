@@ -122,19 +122,21 @@ export default async function RootLayout({
           type="application/ld+json"
           nonce={nonce}
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
-              createHelvetyOrganizationSchema(brandAssets.identifierPng),
-              {
-                "@context": "https://schema.org",
-                "@type": "WebApplication",
-                name: "Helvety Auth",
-                url: urls.auth,
-                description:
-                  "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
-                applicationCategory: "SecurityApplication",
-                operatingSystem: "Any",
-              },
-            ]),
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                createHelvetyOrganizationSchema(brandAssets.identifierPng),
+                {
+                  "@type": "WebApplication",
+                  name: "Helvety Auth",
+                  url: urls.auth,
+                  description:
+                    "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
+                  applicationCategory: "SecurityApplication",
+                  operatingSystem: "Any",
+                },
+              ],
+            }),
           }}
         />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>

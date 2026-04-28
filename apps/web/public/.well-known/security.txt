@@ -2,4 +2,4 @@ Contact: mailto:contact@helvety.com
 Canonical: https://helvety.com/.well-known/security.txt
 Policy: https://helvety.com/impressum#abuse
 Preferred-Languages: en, de
-Expires: 2027-02-28T00:00:00.000Z
+Expires: 2028-04-28T00:00:00.000Z

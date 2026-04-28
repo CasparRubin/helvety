@@ -116,12 +116,12 @@ export default function ImpressumPage() {
           Helvety by Rubin develops and offers software products and web
           applications, including Helvety SPO Explorer (SharePoint extension),
           the Power Automate Browser Extension (Edge and Chrome), Helvety PDF,
-          Helvety Image Upscaler, Helvety Tasks (encrypted task management),
-          Helvety Contacts (encrypted contact management), and Helvety Notes
-          (encrypted notes management). Helvety apps are offered free of charge
-          and are open source under the MIT License in the corresponding
-          repositories. Our products are primarily designed and developed in
-          Switzerland.
+          Helvety ScreenTools (Windows desktop app), Helvety Image Upscaler,
+          Helvety Tasks (encrypted task management), Helvety Contacts (encrypted
+          contact management), and Helvety Notes (encrypted notes management).
+          Helvety apps are offered free of charge and are open source under the
+          MIT License in the corresponding repositories. Our products are
+          primarily designed and developed in Switzerland.
         </p>
       </LegalSection>
 
@@ -188,6 +188,12 @@ export default function ImpressumPage() {
               handling, and technical constraints), while legally required
               contract/accounting evidence may be retained longer (for example
               up to 10 years where required by Swiss law).
+            </p>
+            <p className="text-muted-foreground mt-2">
+              For local-device software (for example Helvety ScreenTools), we
+              generally cannot provide local screenshot or annotation content
+              unless that content was separately provided to us by the user (for
+              example via support communication).
             </p>
           </div>
           <div>

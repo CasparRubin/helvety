@@ -50,9 +50,10 @@ describe("requireAuth", () => {
 
   it("redirects to login when no user and no error", async () => {
     mockGetCachedAuthLookup.mockResolvedValue({ user: null, error: null });
+    const authPromise = requireAuth("/tasks");
 
-    await expect(requireAuth("/tasks")).rejects.toBeInstanceOf(MockRedirect);
-    await expect(requireAuth("/tasks")).rejects.toMatchObject({
+    await expect(authPromise).rejects.toBeInstanceOf(MockRedirect);
+    await expect(authPromise).rejects.toMatchObject({
       url: expect.stringContaining("/auth/login"),
     });
   });
@@ -64,12 +65,13 @@ describe("requireAuth", () => {
         message: "refresh token not found",
       } as unknown as AuthError,
     });
+    const authPromise = requireAuth("/tasks");
 
-    await expect(requireAuth("/tasks")).rejects.toBeInstanceOf(MockRedirect);
-    await expect(requireAuth("/tasks")).rejects.toMatchObject({
+    await expect(authPromise).rejects.toBeInstanceOf(MockRedirect);
+    await expect(authPromise).rejects.toMatchObject({
       url: expect.stringContaining("/auth/logout"),
     });
-    await expect(requireAuth("/tasks")).rejects.toMatchObject({
+    await expect(authPromise).rejects.toMatchObject({
       url: expect.stringContaining("scope=global"),
     });
   });

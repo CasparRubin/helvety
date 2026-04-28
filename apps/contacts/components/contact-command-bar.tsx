@@ -54,9 +54,9 @@ export function ContactCommandBar({
   return (
     <CommandBar>
       {/* Create button */}
-      <Button size="sm" onClick={onCreateClick}>
-        <PlusIcon className="mr-1.5 size-4 shrink-0" />
-        <span>New Contact</span>
+      <Button size="sm" onClick={onCreateClick} aria-label="New Contact">
+        <PlusIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+        <span className="sr-only min-[400px]:not-sr-only">New Contact</span>
       </Button>
 
       {/* Desktop only: Refresh */}

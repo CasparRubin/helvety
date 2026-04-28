@@ -1,33 +1,46 @@
 # @helvety/ui
 
-Shared React components and small utilities used across Helvety Next.js apps (shadcn/Radix, Tiptap, theme, auth helpers, etc.).
+Shared React UI components and app-shell primitives for Helvety apps.
 
-## E2EE and app shell exports
+## Scope
 
-These are consumed mainly by **Contacts**, **Notes**, and **Tasks**:
+This package provides:
 
-- `@helvety/ui/e2ee-app-root-layout` — `E2eeAppRootLayout` (nonce/CSRF/user bootstrap, providers, `EncryptionGateApp`)
-- `@helvety/ui/e2ee-app-navbar` — `E2eeAppNavbar` + `E2eeAppNavbarLabels` (parameterized copy; uses `@helvety/shared/crypto/encryption-context`)
-- `@helvety/ui/root-global-error` — `RootGlobalError` for `app/global-error.tsx` in all zones
-- `@helvety/ui/use-e2ee-entity-list-dnd-sensors` — shared @dnd-kit sensor setup for main lists
+- Shared design-system and utility components
+- Theme and layout helpers
+- E2EE app-shell primitives
+- Cross-app navigation primitives
 
-## Tests
+## Key Exports
 
-The package uses [Vitest](https://vitest.dev/) with the shared config from `@helvety/config/vitest` (jsdom, `server-only` mock, Testing Library).
+Commonly used in `tasks`, `contacts`, and `notes`:
+
+- `@helvety/ui/e2ee-app-root-layout` -> `E2eeAppRootLayout`
+- `@helvety/ui/e2ee-app-navbar` -> `E2eeAppNavbar`, `E2eeAppNavbarLabels`
+- `@helvety/ui/root-global-error` -> `RootGlobalError`
+- `@helvety/ui/use-e2ee-entity-list-dnd-sensors` -> shared dnd sensor setup
+
+Also includes reusable UI building blocks used across zones (for example command bars, search fields, app switcher, and selected editor helpers).
+
+## Testing
+
+Run from repo root:
 
 ```bash
-# From repo root
 bun run test --filter=@helvety/ui
+```
 
-# From this package
+Run from `packages/ui`:
+
+```bash
 bun run test
 bun run test:watch
 bun run test:coverage
 ```
 
-Current coverage includes stable primitives and selected navigation surfaces (e.g. `Button`, `ListSearchField`, `tiptap-utils`, `AppSwitcher`). Add tests when touching complex interactive components.
+Coverage focuses on stable primitives and key shared UX surfaces.
 
 ## Related
 
-- Root [README](../../README.md) for monorepo setup
-- [AGENTS.md](../../AGENTS.md) for workspace conventions
+- Root monorepo docs: [`README.md`](../../README.md)
+- Shared backend package: [`packages/shared/README.md`](../shared/README.md)

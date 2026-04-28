@@ -4,10 +4,11 @@ import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
-import { Download, Loader2, Upload, WandSparkles, X } from "lucide-react";
+import { Download, Upload, X } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
+import { ImageUpscalerCommandBar } from "@/components/image-upscaler-command-bar";
 import { useDragDrop } from "@/hooks/use-drag-drop";
 import {
   calculateTargetSize,
@@ -86,9 +87,12 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
 
   const runUpscale = React.useCallback(async (): Promise<void> => {
     if (items.length === 0) return;
-    const target = Number.parseInt(targetInput, 10);
-    if (sizeMode === "target" && (!Number.isFinite(target) || target <= 0)) {
-      toast.error("Target width/height must be a positive number.");
+    const target = Number(targetInput);
+    if (
+      sizeMode === "target" &&
+      (!Number.isInteger(target) || !Number.isFinite(target) || target <= 0)
+    ) {
+      toast.error("Target value must be a positive whole number.");
       return;
     }
 
@@ -109,7 +113,17 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
         },
       });
       setRuntime(result.runtime);
-      toast.success("Upscaling completed.");
+      if (result.failedCount === 0) {
+        toast.success(
+          `Upscaling complete (${result.completedCount}/${result.totalCount} images).`
+        );
+      } else if (result.completedCount === 0) {
+        toast.error(`Upscaling failed for all ${result.totalCount} images.`);
+      } else {
+        toast.warning(
+          `Upscaling finished with errors (${result.completedCount} succeeded, ${result.failedCount} failed).`
+        );
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to upscale."
@@ -135,48 +149,28 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
     });
   }, [downloadItem, items]);
 
+  const hasOutput = items.some((item) => item.outputUrl);
+
   return (
     <div className="flex h-full flex-col">
-      <div className="border-border/60 bg-muted/20 sticky top-16 z-10 border-b px-3 py-3 md:px-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isProcessing}
-          >
-            <Upload className="h-4 w-4" />
-            Add images
-          </Button>
-          <Button
-            onClick={() => void runUpscale()}
-            disabled={isProcessing || items.length === 0}
-          >
-            {isProcessing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <WandSparkles className="h-4 w-4" />
-            )}
-            Upscale
-          </Button>
-          <Button
-            variant="outline"
-            onClick={downloadAll}
-            disabled={!items.some((item) => item.outputUrl)}
-          >
-            <Download className="h-4 w-4" />
-            Download all
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={clearAll}
-            disabled={isProcessing || items.length === 0}
-          >
-            Clear
-          </Button>
-          <div className="text-muted-foreground ml-auto text-xs">
-            {runtime ? `Runtime: ${runtime}` : "Runtime: pending"}
-          </div>
-        </div>
-      </div>
+      <ImageUpscalerCommandBar
+        hasItems={items.length > 0}
+        hasOutput={hasOutput}
+        isProcessing={isProcessing}
+        runtime={runtime}
+        sizeMode={sizeMode}
+        scale={scale}
+        targetMode={targetMode}
+        targetInput={targetInput}
+        onAddImages={() => fileInputRef.current?.click()}
+        onUpscale={() => void runUpscale()}
+        onDownloadAll={downloadAll}
+        onClearAll={clearAll}
+        onSizeModeChange={setSizeMode}
+        onScaleChange={setScale}
+        onTargetModeChange={setTargetMode}
+        onTargetInputChange={setTargetInput}
+      />
 
       <div
         className={cn(
@@ -236,7 +230,8 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                         Drag and drop images here
                       </p>
                       <p className="text-muted-foreground mt-1 text-xs">
-                        Processed locally. No upload, no account.
+                        Processed locally in your browser. No server upload. No
+                        account.
                       </p>
                     </div>
                     <p className="text-muted-foreground text-xs">

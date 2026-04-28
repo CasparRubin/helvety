@@ -1,129 +1,70 @@
-# Helvety.com
+# Helvety Web
 
-![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+Gateway app for `helvety.com` and public legal/SEO surfaces.
 
-The main Helvety website. Built and designed in Switzerland. Software products. Private, simple, clean.
+**App URL:** <https://helvety.com>  
+**Monorepo path:** `apps/web`
 
-**Website:** [helvety.com](https://helvety.com)
+## Key Features
 
-> **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/web/`. See the root README for monorepo setup instructions.
+- Multi-zone gateway rewrites for `/auth`, `/store`, `/pdf`, `/image-upscaler`, `/tasks`, `/contacts`, `/notes`
+- Shared ecosystem navigation (grouped app/tool switcher and auth-aware menu)
+- Public legal pages, cookie notice, and abuse-reporting entry points
+- Canonical metadata and sitemap/robots endpoints for indexable content
 
-## Service Availability
+## Routing and SEO
 
-Helvety services are primarily intended for customers in Switzerland. Sign-in for account-based services includes a confirmation that the user is not located in the EU/EEA before verification-code delivery, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
-
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services collect this non-EU/EEA location-attestation signal during sign-in on [helvety.com/auth](https://helvety.com/auth).
-
-## Features
-
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Image Upscaler, Tasks, Contacts, Notes). Downloadable extensions (SharePoint packages, browser ZIPs) are listed on the Store.
-- **Sign in** - Sign in when not authenticated (centralized auth)
-- **Profile menu** - When signed in: user email, links to Store Account, Sign out
-- **Dark & Light mode** - Switch between dark and light themes
-- **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services collect a non-EU/EEA location-attestation signal during sign-in on [helvety.com/auth](https://helvety.com/auth). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations.
-- **Abuse reporting** - The Impressum includes an abuse reporting section ([helvety.com/impressum#abuse](https://helvety.com/impressum#abuse)) with guidance for users and law enforcement. Abuse contact: [contact@helvety.com](mailto:contact@helvety.com).
-- **Cookie notice** - Informational notice in the footer about essential cookies; analytics and performance telemetry usage is documented in the Privacy Policy
-- **SEO optimized** - Public robots/sitemap endpoints plus canonical metadata for indexable pages
-- **Animated logo** - Subtle glow effect on the main logo
-
-## Multi-Zone Routing Notes
-
-- Sub-apps are forwarded by gateway rewrites in `apps/web/next.config.ts`.
-- BasePath apps also handle direct-domain entry (`https://helvety-*.vercel.app/`) by redirecting `/` to their mounted base path (`/auth`, `/store`, `/pdf`, `/image-upscaler`, `/tasks`, `/contacts`, `/notes`), so both gateway and direct-host URLs behave consistently.
-- Shared same-tab ecosystem navigation (hero CTA + app switcher) uses `next/link` with path-based hrefs (`/store`, `/tasks`, etc.) so Next App Router prefetch/client transitions can be used across zones. Absolute app URLs are normalized through `getLocalAppHref` in `packages/shared/src/config.ts`.
-- Use wildcard segment patterns (prefer `:path*`) for zone forwarding rules so App Router Flight/RSC prefetch requests (`?_rsc=...`) and trailing-slash variants are forwarded consistently.
-- Keep wildcard usage consistent across zones (`auth`, `tasks`, `contacts`, `notes`, `store`, `pdf`, `image-upscaler`) and include static asset prefix routes for zones that define them (`/auth-static`, `/tasks-static`, `/contacts-static`, `/notes-static`) to avoid stale bundles or edge-case misses.
-- New-tab account links intentionally remain regular anchors (`target="_blank"`) and do not use in-tab client transitions.
-
-## Crawl & Indexing Policy
-
+- Sub-app forwarding is defined in `next.config.ts`.
+- Direct-domain sub-app roots are expected to redirect to their base path.
 - `apps/web` is indexable and serves:
-  - `/robots.txt` with an allow-all policy and a sitemap index reference.
-  - `/sitemap.xml` for web-owned public pages.
-- `/sitemap-index.xml` for the monorepo's public app sitemap files (`/sitemap.xml`, `/store/sitemap.xml`, `/pdf/sitemap.xml`, `/image-upscaler/sitemap.xml`).
-- Canonical metadata is set in `app/layout.tsx`; legal pages keep dedicated metadata exports.
-- Implementation aligns with Next.js App Router metadata file conventions and Google Search Central guidance for robots/sitemaps.
+  - `/robots.txt`
+  - `/sitemap.xml` (web-owned pages)
+  - `/sitemap-index.xml` (cross-app public sitemap index)
 
-## Security Features
+## Security Model
 
-This application includes the following security hardening:
-
-- **Session Management** - `proxy.ts` performs lightweight request setup (headers/CSP and, when Supabase session cookies are present on matched routes, cookie refresh). The web app is primarily public-facing; strict auth enforcement for protected data/actions is handled in the app-specific zones (`/auth`, `/store`, `/tasks`, `/contacts`, `/notes`).
-- **Redirect URI Validation** - Redirect URIs are allowlist-validated in core auth flows via `@helvety/shared/redirect-validation` to reduce open-redirect risk
-- **Canonical Auth Return Targets** - Trusted direct app-domain redirect targets are canonicalized to `https://helvety.com/...` before auth handoff/completion to keep post-auth navigation consistent and avoid broad host allowlists
-- **CSRF Protection** - Token-based protection for state-changing operations
-- **Security Headers** - CSP, HSTS, and other security headers
-
-### Session sharing (helvety.com paths)
-
-A single Helvety session cookie applies across apps because they are served under `helvety.com` via path-based routing. Authentication is handled centrally by [helvety.com/auth](https://helvety.com/auth) (not enterprise IdP SAML/OIDC SSO).
+- `proxy.ts` handles lightweight request setup (CSP/CSRF bootstrap and Supabase cookie refresh), not full auth enforcement.
+- Redirect targets are validated by shared auth redirect-validation utilities.
+- Sensitive auth/data enforcement remains in app-specific zones (`auth`, `store`, `tasks`, `contacts`, `notes`).
 
 ## Environment Variables
 
-Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
+Copy `env.template` to `.env.local`.
 
-| Variable                               | Required | Server-only | Description                                                         |
-| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                       |
-| `AUTH_URL`                             | Prod     | **Yes**     | Internal Vercel URL for Auth app (gateway rewrite target)           |
-| `STORE_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Store app (gateway rewrite target)          |
-| `PDF_URL`                              | Prod     | **Yes**     | Internal Vercel URL for PDF app (gateway rewrite target)            |
-| `IMAGE_UPSCALER_URL`                   | Prod     | **Yes**     | Internal Vercel URL for Image Upscaler app (gateway rewrite target) |
-| `TASKS_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Tasks app (gateway rewrite target)          |
-| `CONTACTS_URL`                         | Prod     | **Yes**     | Internal Vercel URL for Contacts app (gateway rewrite target)       |
-| `NOTES_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Notes app (gateway rewrite target)          |
+| Variable                               | Required   | Server-only | Description                                     |
+| -------------------------------------- | ---------- | ----------- | ----------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes        | No          | Supabase project URL                            |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes        | No          | Supabase publishable key                        |
+| `AUTH_URL`                             | Production | Yes         | Internal Vercel URL for auth zone rewrites      |
+| `STORE_URL`                            | Production | Yes         | Internal Vercel URL for store zone rewrites     |
+| `PDF_URL`                              | Production | Yes         | Internal Vercel URL for PDF zone rewrites       |
+| `IMAGE_UPSCALER_URL`                   | Production | Yes         | Internal Vercel URL for image-upscaler rewrites |
+| `TASKS_URL`                            | Production | Yes         | Internal Vercel URL for tasks zone rewrites     |
+| `CONTACTS_URL`                         | Production | Yes         | Internal Vercel URL for contacts zone rewrites  |
+| `NOTES_URL`                            | Production | Yes         | Internal Vercel URL for notes zone rewrites     |
 
-> **Note:** Public app URL/cookie domain are derived from `NODE_ENV` in `packages/shared/src/config.ts`. Separately, the gateway rewrite URLs (`AUTH_URL`, `STORE_URL`, etc.) are only needed on Vercel production — they point to each sub-app's internal Vercel deployment URL (not `helvety.com`). In development, they fall back to localhost ports. Production rewrite hosts must use the built-in trusted host policy (`*.vercel.app`, `*.helvety.com`, and `helvety.com`). Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
->
-> **Monorepo CI (`ci:release`):** From the repository root, `bun run ci:release` sets `SKIP_ENV_VALIDATION=1` for the production `build` step so Next.js can compile without a complete local `.env`. `@helvety/shared/env-validation` uses schema-valid placeholders only for missing values and still validates credentials that are present; production Vercel builds set `VERCEL=1` so placeholder mode is off. See the repository root **README** (Automation).
+Local development falls back to localhost targets; production uses trusted internal hosts.
 
-## Tech Stack
+## Development and Testing
 
-This project is built with modern web technologies:
+Run from `apps/web`:
 
-- **[Next.js 16.x](https://nextjs.org/)** - React framework with App Router
-- **[React 19.x](https://react.dev/)** - UI library
-- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
-- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
-- **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
-- **[Lucide React](https://lucide.dev/)** - Icon library
-- **[Framer Motion](https://www.framer.com/motion/)** - Animation library
-- **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support
+```bash
+bun run dev
+bun run test
+bun run test:watch
+bun run test:coverage
+```
 
-## Testing
+For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 
-Unit tests are written with [Vitest](https://vitest.dev/) and run in a jsdom environment via the shared config from `@helvety/config/vitest`. TypeScript is checked with `bun run type-check`, not inside Vitest.
+## Legal and Support
 
-Run these commands from `apps/web`:
+- Privacy: <https://helvety.com/privacy>
+- Terms: <https://helvety.com/terms>
+- Impressum and abuse reporting: <https://helvety.com/impressum#abuse>
+- Contact: <mailto:contact@helvety.com>
 
-| Script                  | Description                       |
-| ----------------------- | --------------------------------- |
-| `bun run test`          | Run all tests once                |
-| `bun run test:watch`    | Run tests in watch mode           |
-| `bun run test:coverage` | Run tests with v8 coverage report |
+## License
 
-Test files follow the `**/*.test.{ts,tsx}` pattern and live next to the source they test.
-
-## Developer
-
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss sole proprietorship (Einzelfirma) focused on security and user privacy.
-
-Vercel Analytics is used across Helvety apps for privacy-oriented, aggregated/pseudonymized usage metrics. Vercel Speed Insights is currently enabled on [helvety.com](https://helvety.com) for performance telemetry. See our [Privacy Policy](https://helvety.com/privacy) for details.
-
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com). To report abuse, contact [contact@helvety.com](mailto:contact@helvety.com).
-
-## License & Usage
-
-This app is open source under the [MIT License](./LICENSE).
-
-You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of this software, provided the copyright and permission notice are
-included in substantial portions of the software.
-
-The software is provided "as is", without warranty of any kind. See
-[LICENSE](./LICENSE) for full legal terms.
+Licensed under the [MIT License](./LICENSE).

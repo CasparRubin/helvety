@@ -131,17 +131,19 @@ export default async function RootLayout({
           suppressHydrationWarning
           nonce={nonce}
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
-              createHelvetyOrganizationSchema(brandAssets.identifierPng),
-              {
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                name: "Helvety",
-                url: urls.home,
-                description:
-                  "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
-              },
-            ]),
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                createHelvetyOrganizationSchema(brandAssets.identifierPng),
+                {
+                  "@type": "WebSite",
+                  name: "Helvety",
+                  url: urls.home,
+                  description:
+                    "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
+                },
+              ],
+            }),
           }}
         />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>

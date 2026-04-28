@@ -283,22 +283,46 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           For Helvety extensions and other installable packages offered through
           the Store (including SharePoint Framework solutions and browser
-          extensions), functionality runs on your device and, for SharePoint
-          Framework solutions, in your Microsoft 365 tenant context. Helvety may
-          still process limited technical data to operate the Store, deliver
-          downloads, and maintain reliability. Microsoft 365, Power Automate, or
-          your browser vendor may process additional data under their own terms.
-          This data:
+          extensions), functionality primarily runs on your device and, for
+          SharePoint Framework solutions, in your Microsoft 365 tenant context.
+          Helvety may still process limited technical data to operate the Store,
+          deliver downloads, and maintain reliability. Microsoft 365, Power
+          Automate, Windows, and your browser vendor may process additional data
+          under their own terms. Product-specific examples include:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
-          <li>Is primarily technical context needed for extension operation</li>
-          <li>Supports extension functionality and reliability</li>
-          <li>Is processed in accordance with this Privacy Policy</li>
           <li>
-            May use local storage or caching depending on the specific product
-            implementation
+            Processing in this category is primarily technical context needed
+            for extension or package operation
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety SPO Explorer:</strong>{" "}
+            SharePoint site discovery in your tenant context, plus local browser
+            storage for favorites and settings
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Power Automate Browser Extension:
+            </strong>{" "}
+            URL normalization on supported Power Automate hosts for selected
+            editor routes (flows/runs), with optional local extension state
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Helvety-hosted support scope:
+            </strong>{" "}
+            technical metadata required for package delivery, download
+            reliability, and abuse prevention
           </li>
         </ul>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Helvety ScreenTools (Windows desktop app) is distributed outside this
+          monorepo and primarily processes screenshot and annotation content on
+          your local device. ScreenTools may use local folders, local settings,
+          and clipboard integrations depending on your chosen actions. Helvety
+          does not operate a server-side screenshot conversion pipeline for
+          ScreenTools in normal operation.
+        </p>
 
         <h3 className="mb-3 text-lg font-medium">
           2.6 Data Provision Requirements
@@ -399,25 +423,24 @@ export default function PrivacyPage() {
               Helvety PDF (helvety.com/pdf):
             </strong>{" "}
             For supported operations in the current architecture, file contents
-            are processed in your browser and are not intended to be uploaded to
-            our servers for file conversion. No login or account is required.
-            The service still uses minimal server-side endpoints for platform
-            and security functions (for example CSP reporting and
-            session/security proxy logic). The service is provided free of
-            charge; technical safeguards may still apply for security and
-            operational stability.
+            are processed in your browser and are not uploaded to our servers
+            for file conversion. No login or account is required. The service
+            still uses minimal server-side endpoints for platform and security
+            functions (for example CSP reporting and session/security proxy
+            logic). The service is provided free of charge; technical safeguards
+            may still apply for security and operational stability.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Image Upscaler (helvety.com/image-upscaler):
             </strong>{" "}
             For supported operations in the current architecture, image files
-            are processed in your browser and are not intended to be uploaded to
-            our servers for upscaling. No login or account is required. The
-            service still uses minimal server-side endpoints for platform and
-            security functions (for example CSP reporting and session/security
-            proxy logic). The service is provided free of charge; technical
-            safeguards may still apply for security and operational stability.
+            are processed in your browser and are not uploaded to our servers
+            for upscaling. No login or account is required. The service still
+            uses minimal server-side endpoints for platform and security
+            functions (for example CSP reporting and session/security proxy
+            logic). The service is provided free of charge; technical safeguards
+            may still apply for security and operational stability.
           </li>
           <li>
             <strong className="text-foreground">
@@ -428,6 +451,16 @@ export default function PrivacyPage() {
             metadata for security, rate limiting, and abuse prevention. When you
             are signed in, we may also process user profile (email) and
             product/access records.
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Helvety ScreenTools (Windows desktop app):
+            </strong>{" "}
+            For supported operations, screenshots and annotations are processed
+            on your Windows device. Local files, clipboard interactions, and app
+            settings are handled on-device. Helvety may still process limited
+            distribution/support metadata in third-party channels (for example
+            release and download context).
           </li>
           <li>
             <strong className="text-foreground">

@@ -7,6 +7,38 @@ import { TooltipProvider } from "./tooltip";
 
 import type { ReactNode } from "react";
 
+const sectionHeadings = [
+  "Core Apps",
+  "Encryption Apps",
+  "File Tools",
+  "Browser Extensions",
+  "SharePoint Apps",
+  "Desktop Apps",
+] as const;
+
+const expectedLinks = [
+  { name: "Home", href: urls.home },
+  { name: "Auth", href: urls.auth },
+  { name: "Store", href: urls.store },
+  { name: "Tasks", href: urls.tasks },
+  { name: "Contacts", href: urls.contacts },
+  { name: "Notes", href: urls.notes },
+  { name: "PDF", href: urls.pdf },
+  { name: "Image Upscaler", href: urls.imageUpscaler },
+  {
+    name: "Power Automate Browser Extension",
+    href: `${urls.store}/products/helvety-power-automate-force-v3-false`,
+  },
+  {
+    name: "Helvety SPO Explorer",
+    href: `${urls.store}/products/helvety-spo-explorer`,
+  },
+  {
+    name: "Helvety Screen Tools",
+    href: `${urls.store}/products/helvety-screen-tools`,
+  },
+] as const;
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -23,7 +55,7 @@ vi.mock("next/link", () => ({
 }));
 
 describe("AppSwitcher", () => {
-  it("renders absolute ecosystem URLs to avoid basePath nesting", () => {
+  it("renders all grouped headings", () => {
     render(
       <TooltipProvider>
         <AppSwitcher currentApp="Home" />
@@ -32,17 +64,27 @@ describe("AppSwitcher", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Switch apps" }));
 
-    expect(screen.getByRole("link", { name: "Store" })).toHaveAttribute(
-      "href",
-      urls.store
+    for (const heading of sectionHeadings) {
+      expect(
+        screen.getByRole("heading", { name: heading })
+      ).toBeInTheDocument();
+    }
+  });
+
+  it("renders expected absolute URLs for all ecosystem links", () => {
+    render(
+      <TooltipProvider>
+        <AppSwitcher currentApp="Home" />
+      </TooltipProvider>
     );
-    expect(screen.getByRole("link", { name: "Tasks" })).toHaveAttribute(
-      "href",
-      urls.tasks
-    );
-    expect(screen.getByRole("link", { name: "Contacts" })).toHaveAttribute(
-      "href",
-      urls.contacts
-    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Switch apps" }));
+
+    for (const link of expectedLinks) {
+      expect(screen.getByRole("link", { name: link.name })).toHaveAttribute(
+        "href",
+        link.href
+      );
+    }
   });
 });

@@ -69,19 +69,21 @@ export async function E2eeAppRootLayout({
     logger.logUnexpectedError("Layout initialization failed", error);
   }
 
-  const ldJson = [
-    createHelvetyOrganizationSchema(organizationLogoUrl),
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      name: softwareApplication.name,
-      url: softwareApplication.url,
-      description: softwareApplication.description,
-      applicationCategory: softwareApplication.applicationCategory,
-      operatingSystem: "Any",
-      isAccessibleForFree: true,
-    },
-  ];
+  const ldJson = {
+    "@context": "https://schema.org",
+    "@graph": [
+      createHelvetyOrganizationSchema(organizationLogoUrl),
+      {
+        "@type": "SoftwareApplication",
+        name: softwareApplication.name,
+        url: softwareApplication.url,
+        description: softwareApplication.description,
+        applicationCategory: softwareApplication.applicationCategory,
+        operatingSystem: "Any",
+        isAccessibleForFree: true,
+      },
+    ],
+  };
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>

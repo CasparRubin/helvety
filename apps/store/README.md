@@ -1,132 +1,70 @@
 # Helvety Store
 
-Official Helvety Store for product discovery, app listings, and package downloads.
+Product catalog and package-download app for the Helvety ecosystem.
 
-Store URL: [https://helvety.com/store](https://helvety.com/store)
+**App URL:** <https://helvety.com/store>  
+**Monorepo path:** `apps/store`
 
-Direct-domain root requests on the store deployment (`https://helvety-store.vercel.app/`) are redirected to `/store`, matching the gateway-mounted base path behavior.
+## Key Features
 
-> **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/store/`. See the root README for monorepo setup instructions.
+- Public product catalog at `/store/products`
+- Public package download endpoints (no login required)
+- Optional authenticated account page at `/store/account`
+- Product-detail pages with statically imported artwork
 
-## Current scope
+## Package Download Behavior
 
-- Product catalog (SaaS apps and downloadable packages) with detail pages under `/store/products`
-- Public package downloads (SPO Explorer `.sppkg`, Power Automate extension `.zip`) without account login
-- Account page (`/store/account`) for profile management and data rights tooling
-- Shared legal pages hosted on `helvety.com` (Privacy, Terms, Impressum)
+- Download files are served from Supabase Storage bucket `packages`.
+- `spfx/helvety-spo-explorer`: newest `.sppkg` by timestamp/name.
+- `browserExtensions/power-automate-force-v3-false`: newest `.zip` by timestamp/name.
+- If listing fails, resolver falls back to configured filename path.
+- Download URL generation is IP-rate-limited and fails closed when trusted client IP is unavailable in production.
 
-## Service Availability
+## Crawl and Indexing
 
-Helvety services are primarily intended for customers in Switzerland. Sign-in
-for account-based services includes a confirmation that the user is not located
-in the EU/EEA before verification-code delivery, but technical access from
-outside Switzerland may still occur. Mandatory law in other jurisdictions may
-still apply in specific cases.
+- Public/indexable: `/store`, `/store/products`, `/store/products/[slug]`
+- Non-indexable: `/store/account`
+- `/store/robots.txt` allows public crawl and disallows `/account`, `/api`, `/auth`
+- `/store/sitemap.xml` includes listing and product detail pages only
 
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based
-services collect this non-EU/EEA location-attestation signal during sign-in on
-[helvety.com/auth](https://helvety.com/auth).
+## Environment Variables
 
-## Navigation
+Copy `env.template` to `.env.local`.
 
-- `/store/products` - Browse all Helvety products
-- `/store/products/helvety-spo-explorer` - SPO Explorer page with direct package download
-- `/store/products/helvety-image-upscaler` - Image Upscaler app page with usage details
-- `/store/products/helvety-power-automate-force-v3-false` - Power Automate Browser Extension (ZIP) with install guide
-- `/store/api/packages/spo-explorer/download` - Public download endpoint for SPO Explorer
-- `/store/api/packages/power-automate-force-v3-false/download` - Public download endpoint for the Power Automate extension ZIP
-- `/store/account` - Optional signed-in account management
+| Variable                               | Required | Server-only | Description                      |
+| -------------------------------------- | -------- | ----------- | -------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL             |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key         |
+| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Trusted server-side Supabase key |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL           |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token         |
 
-Public store root (`/store`) redirects to `/store/products` (implemented internally as `/products` with `basePath: "/store"`). Browsing the catalog and public package downloads (for example SPO Explorer `.sppkg` and the Power Automate extension `.zip`) do not require login.
+## Security Model
 
-## Crawl & Indexing Policy
+- `proxy.ts` performs request bootstrap (CSP/CSRF/session refresh), not full auth enforcement.
+- Account actions enforce authz in pages/server actions/route handlers.
+- Public download endpoints use explicit abuse protections and rate limiting.
 
-- Public indexable surfaces: `/store`, `/store/products`, and `/store/products/[slug]`.
-- Non-indexable authenticated surface: `/store/account` (`robots: noindex, nofollow`).
-- `/store/robots.txt` allows crawl for public pages, disallows `/account`, `/api`, and `/auth`, and advertises `/store/sitemap.xml`.
-- `/store/sitemap.xml` contains canonical absolute URLs for listing and product detail pages only.
-- Unknown product slugs return explicit noindex metadata to avoid accidental indexing of fallback pages.
+## Development and Testing
 
-## Package download behavior
+Run from `apps/store`:
 
-- Package files are read from Supabase Storage bucket `packages` (see `lib/packages/config.ts` for folder paths).
-- **SPO Explorer:** `spfx/helvety-spo-explorer` - the resolver selects the newest `.sppkg` by timestamp (then name).
-- **Power Automate extension:** `browserExtensions/power-automate-force-v3-false` - the resolver selects the newest `.zip` the same way.
-- If listing fails or is empty, the download action falls back to the configured `filename` under `storageFolderPath`.
+```bash
+bun run dev
+bun run test
+bun run test:watch
+bun run test:coverage
+```
 
-## Artwork assets
+For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 
-- Product artwork source files live in `apps/store/public`.
-- Catalog rendering imports artwork statically via `lib/data/product-artwork.ts` and `lib/data/products.ts` so Next.js emits content-hashed immutable assets (no manual resizing workflow required).
-- Product detail hero uses `next/image` `preload` for the likely LCP image, while grid cards keep non-critical artwork lazy-loaded.
-- `next.config.ts` sets `images.minimumCacheTTL` (currently 4h) for images served by Next Image Optimization, balancing cache warmth and staleness.
-- `artwork_1.png` - Alexandre Calame - in use
-- `artwork_2.png` - Alexandre Calame - in use
-- `artwork_3.png` - Alexandre Calame - in use
-- `artwork_4.png` - Ferdinand Hodler - in use
-- `artwork_5.png` - Rudolf Koller - in use
-- `artwork_6.png` - Rudolf Koller - in use (Power Automate extension product)
+## Legal and Support
 
-## Environment variables
+- Privacy: <https://helvety.com/privacy>
+- Terms: <https://helvety.com/terms>
+- Impressum and abuse reporting: <https://helvety.com/impressum#abuse>
+- Contact: <mailto:contact@helvety.com>
 
-Copy `env.template` to `.env.local` and fill values:
+## License
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-- `SUPABASE_SECRET_KEY`
-- `UPSTASH_REDIS_REST_URL`
-- `UPSTASH_REDIS_REST_TOKEN`
-
-`SUPABASE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN` are server-side values. Keep them only in server environments and never expose them to client bundles.
-
-> **Monorepo CI (`ci:release`):** From the repository root, `bun run ci:release` sets `SKIP_ENV_VALIDATION=1` for the production `build` step so Next.js can compile without a complete local `.env`. `@helvety/shared/env-validation` uses schema-valid placeholders only for missing values and still validates credentials that are present; production Vercel builds set `VERCEL=1` so placeholder mode is off. See the repository root **README** (Automation).
-
-## Security & session setup
-
-- **Request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present. Session and authorization checks for account flows run in pages, Server Actions, and route handlers, not in the proxy alone.
-- **Download rate limiting** - Public package download URL generation is IP-rate-limited to prevent abuse. The action fails closed when the client IP cannot be resolved in production.
-
-## Tech stack
-
-- Next.js 16 (App Router)
-- React 19 + TypeScript
-- Supabase
-- Tailwind CSS 4
-- shadcn/ui + Radix UI
-
-## Legal pages
-
-Privacy Policy, Terms of Service, and Impressum are hosted centrally on
-[helvety.com](https://helvety.com) and linked in the site footer.
-
-## Abuse reporting
-
-Abuse reports can be submitted to
-[contact@helvety.com](mailto:contact@helvety.com). The Impressum includes an
-abuse-reporting section at
-[helvety.com/impressum#abuse](https://helvety.com/impressum#abuse).
-
-## Testing
-
-Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment via `@helvety/config/vitest`; TypeScript is checked with `bun run type-check`, not inside Vitest. Run from `apps/store`:
-
-| Script                  | Description                       |
-| ----------------------- | --------------------------------- |
-| `bun run test`          | Run all tests once (`vitest run`) |
-| `bun run test:watch`    | Run tests in watch mode           |
-| `bun run test:coverage` | Run tests with v8 coverage report |
-
-From the monorepo root, `bun run test` runs Turbo across workspaces.
-
-Post-delete **account verification** (residual row counts per table) is implemented in `lib/account-deletion-verification.ts` and covered by unit tests alongside existing store tests (downloads, pricing, compliance helpers).
-
-## License & usage
-
-This app is open source under the [MIT License](./LICENSE).
-
-You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of this software, provided the copyright and permission notice are
-included in substantial portions of the software.
-
-The software is provided "as is", without warranty of any kind. See
-[LICENSE](./LICENSE) for full legal terms.
+Licensed under the [MIT License](./LICENSE).

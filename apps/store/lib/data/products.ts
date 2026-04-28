@@ -14,13 +14,14 @@ import type {
 /**
  * Catalog default sort is newest `releaseDate` first. Release dates are chosen to
  * reflect product age (not repo history). Intended chronological order, oldest → newest:
- *   PDF → SPO Explorer → Tasks → Contacts → Notes → Power Automate Browser Extension → Image Upscaler
+ *   PDF → SPO Explorer → Tasks → Contacts → Notes → Power Automate Browser Extension → Screen Tools → Image Upscaler
  *
  * When two products share the same `metadata.releaseDate`, higher number sorts first
  * (treated as newer for display).
  */
 const PRODUCT_RELEASE_TIE_PRIORITY: Record<string, number> = {
-  "helvety-image-upscaler": 7,
+  "helvety-image-upscaler": 8,
+  "helvety-screen-tools": 7,
   "helvety-power-automate-force-v3-false": 6,
   "helvety-notes": 5,
   "helvety-contacts": 4,
@@ -234,17 +235,17 @@ const powerAutomateForceV3False: SoftwareProduct = {
   slug: "helvety-power-automate-force-v3-false",
   name: "Power Automate Browser Extension",
   shortDescription:
-    "A minimal Edge/Chrome extension that keeps Power Automate flow and run URLs on the classic editor by ensuring v3=false. Runs only on make.powerautomate.com.",
+    "A minimal Edge/Chrome extension that keeps Power Automate flow and run URLs on the classic editor by ensuring v3=false and normalizing v3survey=false when present.",
   image: productArtwork.artwork6,
   artist: "Rudolf Koller",
-  description: `Power Automate Browser Extension is a small Manifest V3 extension for Microsoft Edge and Google Chrome. It only runs on https://make.powerautomate.com/ and adjusts URLs whose path contains /flows/ or /runs/ so they use v3=false, which keeps the classic Power Automate editor loading consistently.
+  description: `Power Automate Browser Extension is a small Manifest V3 extension for Microsoft Edge and Google Chrome. It targets Microsoft Power Automate hosts (including *.powerautomate.com and flow.microsoft.com) and adjusts URLs whose path contains /flows/ or /runs/ so they use v3=false, which keeps the classic editor loading consistently.
 
-It adds v3=false when the parameter is missing and replaces v3=true when present. It relies on history.replaceState and History API hooks so behavior applies on first load, refresh, back/forward, and typical client-side navigation inside Power Automate.
+It adds v3=false when the parameter is missing, replaces v3=true when present, and normalizes v3survey=false when that parameter exists. The extension uses a layered approach (declarative redirect rules plus runtime fallbacks) so behavior applies on first load, refresh, back/forward, and typical client-side navigation inside Power Automate.
 
 Access: Free and open source. No Helvety account is needed. Download the packaged ZIP from this Store page and install it with your browser's developer mode. Source and issues are on GitHub.
 
 Key features:
-• Scoped host: only make.powerautomate.com
+• Scoped hosts: Power Automate domains (for example *.powerautomate.com and flow.microsoft.com)
 • URL rules: targets /flows/ and /runs/ paths
 • SPA-friendly: not limited to full page loads
 • Manifest V3: current Edge and Chrome extension model
@@ -254,8 +255,9 @@ Microsoft may change Power Automate URLs or the editor over time; confirm behavi
   category: "integrations",
   status: "available",
   features: [
-    "Scoped to make.powerautomate.com only",
+    "Scoped to Power Automate hosts (*.powerautomate.com and flow.microsoft.com)",
     "Forces v3=false on /flows/ and /runs/ URLs",
+    "Normalizes v3survey=false when the parameter exists",
     "Works with SPA navigation (History API)",
     "Manifest V3 (Edge and Chrome)",
     "No account required for download",
@@ -344,6 +346,113 @@ Microsoft may change Power Automate URLs or the editor over time; confirm behavi
   },
 };
 
+/**
+ * Helvety Screen Tools - Windows screenshot and live annotation utility
+ */
+const helvetyScreenTools: SoftwareProduct = {
+  id: "helvety-screen-tools",
+  slug: "helvety-screen-tools",
+  name: "Helvety Screen Tools",
+  shortDescription:
+    "A WinUI 3 desktop app for Windows with global-hotkey screenshot capture and Live Draw overlay annotation over the real desktop.",
+  image: productArtwork.artwork8,
+  artist: "Ferdinand Hodler",
+  description: `Helvety Screen Tools is a WinUI 3 desktop app for Windows focused on fast screen capture and live on-screen annotation.
+
+Access: Free and open source. No Helvety account is required. Downloads are provided on GitHub Releases.
+
+Key features:
+• Screenshot capture: global hotkey with frozen-screen selection overlay
+• Window snap selection: click to capture snapped window or drag custom region
+• Live Draw: fullscreen transparent overlay to draw over the live desktop
+• Annotation tools: free draw, arrows, straight lines, rectangles, circles, and ellipses
+• Configurable shortcuts: separate hotkeys for screenshot and Live Draw, plus shape modifiers
+• Tray behavior and settings: close-to-tray, startup settings (packaged builds), and quality/performance options
+
+The project README documents current behavior details, packaging modes, and release notes.`,
+  type: "software",
+  category: "utilities",
+  status: "available",
+  features: [
+    "Global hotkey screenshot capture",
+    "Frozen-screen selection overlay with window snapping",
+    "Live Draw fullscreen annotation overlay",
+    "Shape tools: arrows, lines, rectangles, circles, ellipses, and free draw",
+    "Configurable hotkeys and shortcut modifiers",
+    "System tray support with settings-driven behavior",
+    "Free and open source",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    hasYearlyPricing: false,
+    tiers: [
+      {
+        id: "helvety-screen-tools-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "All screenshot and Live Draw features",
+          "No account required",
+          "Free to use",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://github.com/CasparRubin/helvety.screentools/releases",
+    github: "https://github.com/CasparRubin/helvety.screentools",
+  },
+  software: {
+    fileFormat: "zip",
+    requirements: ["Windows 10 or Windows 11"],
+    licenseType: "free",
+    installationSteps: [
+      {
+        title: "Open GitHub Releases",
+        description:
+          "Use the Download button on this page to open the Helvety Screen Tools GitHub Releases page.",
+      },
+      {
+        title: "Download the ZIP asset",
+        description:
+          "Choose the latest release and download the ZIP for your platform (for example win-x64 or win-arm64).",
+      },
+      {
+        title: "Extract the archive",
+        description:
+          "Extract the ZIP to a folder you keep on disk, then open that folder in File Explorer.",
+      },
+      {
+        title: "Run the app",
+        description:
+          "Start helvety.screentools.exe from the extracted folder and configure hotkeys in Settings if needed.",
+      },
+    ],
+  },
+  metadata: {
+    targetAudience: [
+      "Windows users creating screenshots",
+      "Developers and support teams",
+      "Presenters and educators",
+    ],
+    platforms: ["Windows"],
+    keywords: [
+      "screenshot",
+      "screen capture",
+      "annotation",
+      "windows",
+      "winui",
+      "live draw",
+      "hotkey",
+    ],
+    featured: true,
+    releaseDate: "2026-04-21",
+  },
+};
+
 // =============================================================================
 // HELVETY PDF
 // =============================================================================
@@ -372,7 +481,7 @@ Each file can be up to 100 MB. How large or complex a job your device can finish
   type: "saas",
   category: "utilities",
   status: "available",
-  image: productArtwork.artwork2,
+  image: productArtwork.artwork7,
   artist: "Alexandre Calame",
   features: [
     "Client-side processing for supported operations",
@@ -454,7 +563,7 @@ Key features:
 • Flexible sizing: choose 2x/4x scale or a target width/height with preserved aspect ratio
 • Batch flow: process up to 5 images in one run
 • Privacy-first: no account and no server-side image conversion pipeline
-• Download output: save each upscaled image locally
+• Download output: save each upscaled image individually or use download-all when multiple outputs are ready
 
 Current operational limits are intended to keep the browser workflow stable (for example file-size and pixel caps).`,
   type: "saas",
@@ -797,6 +906,7 @@ const products: Product[] = [
   helvetyContacts,
   helvetyNotes,
   powerAutomateForceV3False,
+  helvetyScreenTools,
   helvetyImageUpscaler,
 ];
 

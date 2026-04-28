@@ -1,7 +1,7 @@
 {
   "name": "Helvety Store",
   "short_name": "Helvety Store",
-  "description": "Official Helvety Store for free and open source apps and downloads. Built and designed in Switzerland.",
+  "description": "Official Helvety Store for free and open source apps and downloads. Engineered, Designed & Made in Switzerland.",
   "start_url": "/store",
   "display": "standalone",
   "background_color": "#faf8f7",

@@ -142,9 +142,16 @@ export async function upscaleItemsSequentially(options: {
   targetMode: "width" | "height";
   targetValue: number;
   onProgress: (id: string, patch: Partial<UpscaleItem>) => void;
-}): Promise<{ runtime: string }> {
+}): Promise<{
+  runtime: string;
+  totalCount: number;
+  completedCount: number;
+  failedCount: number;
+}> {
   const worker = createUpscaleWorkerClient();
   let runtime = "wasm-fallback";
+  let completedCount = 0;
+  let failedCount = 0;
 
   try {
     runtime = await worker.getRuntime();
@@ -189,16 +196,23 @@ export async function upscaleItemsSequentially(options: {
           outputUrl: output.outputUrl,
           error: null,
         });
+        completedCount += 1;
       } catch (error) {
         options.onProgress(item.id, {
           status: "failed",
           error: error instanceof Error ? error.message : "Unexpected error",
         });
+        failedCount += 1;
       }
     }
   } finally {
     worker.dispose();
   }
 
-  return { runtime };
+  return {
+    runtime,
+    totalCount: options.items.length,
+    completedCount,
+    failedCount,
+  };
 }

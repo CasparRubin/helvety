@@ -80,9 +80,9 @@ export function TaskCommandBar({
       {/* Left group: Back, New */}
       {onBack && (
         <>
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeftIcon className="mr-1.5 size-4 shrink-0" />
-            <span>Back</span>
+          <Button variant="ghost" size="sm" onClick={onBack} aria-label="Back">
+            <ArrowLeftIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+            <span className="sr-only min-[400px]:not-sr-only">Back</span>
           </Button>
           <Separator
             orientation="vertical"
@@ -90,9 +90,9 @@ export function TaskCommandBar({
           />
         </>
       )}
-      <Button size="sm" onClick={onCreateClick}>
-        <PlusIcon className="mr-1.5 size-4 shrink-0" />
-        <span>{createLabel}</span>
+      <Button size="sm" onClick={onCreateClick} aria-label={createLabel}>
+        <PlusIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+        <span className="sr-only min-[400px]:not-sr-only">{createLabel}</span>
       </Button>
 
       {/* Desktop only: Refresh */}

@@ -111,21 +111,22 @@ export default async function RootLayout({
           type="application/ld+json"
           nonce={nonce}
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
-              createHelvetyOrganizationSchema(brandAssets.identifierPng),
-              {
-                "@context": "https://schema.org",
-                "@type": "WebApplication",
-                name: "Helvety Image Upscaler",
-                url: urls.imageUpscaler,
-                description:
-                  "Upscale images directly in your browser with no upload and no account required.",
-                applicationCategory: "UtilitiesApplication",
-                operatingSystem: "Any",
-                isAccessibleForFree: true,
-                browserRequirements: "Requires a modern web browser",
-              },
-            ]),
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                createHelvetyOrganizationSchema(brandAssets.identifierPng),
+                {
+                  "@type": "WebApplication",
+                  name: "Helvety Image Upscaler",
+                  url: urls.imageUpscaler,
+                  description: IMAGE_UPSCALER_APP_DESCRIPTION_COPY,
+                  applicationCategory: "UtilitiesApplication",
+                  operatingSystem: "Any",
+                  isAccessibleForFree: true,
+                  browserRequirements: "Requires a modern web browser",
+                },
+              ],
+            }),
           }}
         />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>

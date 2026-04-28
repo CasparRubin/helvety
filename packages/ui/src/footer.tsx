@@ -1,8 +1,8 @@
-"use client";
-
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
-import * as React from "react";
+import { Fragment } from "react";
+
+import type { ReactNode } from "react";
 
 const LEGAL_BASE = urls.home;
 
@@ -36,10 +36,10 @@ export function Footer({
   renderLink?: (props: {
     href: string;
     className: string;
-    children: React.ReactNode;
+    children: ReactNode;
     target?: string;
     rel?: string;
-  }) => React.ReactNode;
+  }) => ReactNode;
 }) {
   const currentYear = new Date().getFullYear();
 
@@ -85,10 +85,10 @@ export function Footer({
               {CONTACT_EMAIL}
             </a>
             {LINKS.map(({ href, label }) => (
-              <React.Fragment key={href}>
+              <Fragment key={href}>
                 <span aria-hidden>·</span>
                 {link(href, label)}
-              </React.Fragment>
+              </Fragment>
             ))}
           </nav>
         </div>

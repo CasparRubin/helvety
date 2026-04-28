@@ -1,129 +1,79 @@
 # Helvety Notes
 
-![Next.js](https://img.shields.io/badge/Next.js-16.x-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+End-to-end encrypted notes app with category-based organization.
 
-A privacy-focused notes app with client-side encryption for sensitive fields. Engineered, Designed & Made in Switzerland.
+**App URL:** <https://helvety.com/notes>  
+**Monorepo path:** `apps/notes`
 
-**App:** [helvety.com/notes](https://helvety.com/notes)
+## Key Features
 
-Direct-domain root requests on the notes deployment (`https://helvety-notes.vercel.app/`) are redirected to `/notes`, matching the gateway-mounted base path behavior.
+- Client-side encryption for note title and description
+- Fixed categories (Personal, Work, Other)
+- Client-side search on decrypted title/description
+- Drag-and-drop reorder (disabled while search is active)
+- Cross-app linking with tasks and contacts
+- Client-side decrypted export (server-side encrypted fetch)
 
-> **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/notes/`. See the root README for monorepo setup instructions.
+## E2EE Data Model
 
-## Service Availability
+Encrypted note fields:
 
-Helvety services are primarily intended for customers in Switzerland. Sign-in for account-based services includes a confirmation that the user is not located in the EU/EEA before verification-code delivery, but technical access from outside Switzerland may still occur. Mandatory law in other jurisdictions may still apply in specific cases.
+- `title`
+- `description`
 
-Helvety's legal baseline is Swiss data protection law (nDSG). Account-based services collect this non-EU/EEA location-attestation signal during sign-in on [helvety.com/auth](https://helvety.com/auth).
+Plaintext structural fields:
 
-## Features
+- `id`, `user_id`
+- `category_id`, `sort_order`
+- `created_at`, `updated_at`
 
-- End-to-end encryption for note `title` and `description`
-- Notes list grouped by category (Personal, Work, Other) with sheet editor UX; editor toolbar uses icon buttons on desktop, with an orange **Save Changes** label when edits are pending
-- **Main list search (client-side)** - After unlock, filter notes in the browser by **title** and **description** (plain text from rich content). Search is local only (not sent to the server; not in the URL). Category and dates are **not** search fields. While search has text, **drag-and-drop reorder and category up/down arrows are disabled**
-- Notes link to tasks and contacts (and can be linked from those apps)
-- Drag and drop reorder within and between categories when the main-list search field is empty
-- Client-side decrypted data export (encrypted bulk fetch from the server is per-account rate limited)
-- Dark & Light mode
+## Security Model
 
-## Notes Model
+- Auth is centralized at `helvety.com/auth` (email OTP + passkey).
+- Protected routes use `requireE2eeAppPageAuth("/notes")`.
+- `proxy.ts` handles request bootstrap; authz enforcement lives in pages/actions/route handlers.
+- State-changing actions require CSRF.
+- Read paths use authenticated read model with rate limiting.
+- Bulk export uses tighter export rate limits.
 
-Each note has:
+## Crawl and Indexing
 
-- `title` (encrypted)
-- `description` (encrypted)
-
-Structural metadata remains plaintext for app functionality:
-
-- `id`, `user_id`, `category_id`, `sort_order`, `created_at`, `updated_at`
-
-## Access Model
-
-- 100% free to use
-- No business/account quotas
-- Technical and security safeguards may still apply for abuse prevention and platform reliability
-
-## Crawl & Indexing Policy
-
-- `apps/notes` is intentionally non-indexable (authenticated E2EE workspace).
-- `app/layout.tsx` sets `robots` to `noindex, nofollow`.
-- `/notes/robots.txt` disallows all crawling.
+- `apps/notes` is intentionally non-indexable.
+- `/notes/robots.txt` disallows crawling.
 - `/notes/sitemap.xml` is intentionally empty.
 
 ## Environment Variables
 
-Copy `env.template` to `.env.local` and fill in values.
+Copy `env.template` to `.env.local`.
 
-| Variable                               | Required | Server-only | Description                                                                                                                                                                                                                                        |
-| -------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                                                                                                                                                               |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                                                                                                                                                                                                      |
-| `SUPABASE_SECRET_KEY`                  | Yes      | **Yes**     | Supabase secret key (recommended format: `sb_secret_...`; legacy `service_role` keys may still exist in older setups) for trusted server-side admin operations. It can bypass RLS where object privileges allow; must never be exposed to clients. |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | **Yes**     | Redis URL for rate limiting                                                                                                                                                                                                                        |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | **Yes**     | Redis token for rate limiting                                                                                                                                                                                                                      |
+| Variable                               | Required | Server-only | Description                                |
+| -------------------------------------- | -------- | ----------- | ------------------------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                       |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                   |
+| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Trusted server-side Supabase key           |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL for rate limiting   |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token for rate limiting |
 
-> **Monorepo CI (`ci:release`):** From the repository root, `bun run ci:release` sets `SKIP_ENV_VALIDATION=1` for the production `build` step so Next.js can compile without a complete local `.env`. `@helvety/shared/env-validation` uses schema-valid placeholders only for missing values and still validates credentials that are present; production Vercel builds set `VERCEL=1` so placeholder mode is off. See the repository root **README** (Automation).
+## Development and Testing
 
-## Security
+Run from `apps/notes`:
 
-- **Session / request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present; it is not the primary auth boundary. Session and authorization checks run in pages, Server Actions, and route handlers.
-- **Page-level auth** - Protected routes await `requireE2eeAppPageAuth("/notes")` from `@helvety/shared/e2ee-page-auth` (wraps `requireAuth` from `@helvety/shared/auth-guard`)
-- **Shared E2EE app shell** - Notes, Tasks, and Contacts reuse `@helvety/ui` `E2eeAppRootLayout` and `E2eeAppNavbar` for consistent session recovery, CSRF, encryption gate wiring, and navigation. Root layout errors use `@helvety/ui` `RootGlobalError`.
-- **CSRF protection** - Token validation for **state-changing** server actions. Read paths (GET route handlers for item list/detail and read-only server actions such as export/link reads) omit CSRF by design, still require an authenticated session, and use read-style rate limiting via `authenticateAndRateLimit`. Notes actions additionally use shared primitives for consistent validation/error handling, ownership-scoped reorder checks, capped export handling, and canonical link orchestration.
-- **Data access** - RLS plus explicit `user_id` filters in server actions and route handlers
-- **Rate limiting** - Applied to route handlers and server actions, including a tighter preset for encrypted **bulk export** (`RATE_LIMITS.EXPORT` via `readRateLimitConfig`)
+```bash
+bun run dev
+bun run test
+bun run test:watch
+bun run test:coverage
+```
 
-**Legal Pages:** Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services collect a non-EU/EEA location-attestation signal during sign-in on [helvety.com/auth](https://helvety.com/auth). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations. An informational cookie notice explains essential cookies and privacy-focused telemetry (Vercel Analytics across Helvety apps and Vercel Speed Insights on helvety.com).
+For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 
-**Abuse Reporting:** Abuse reports can be submitted to [contact@helvety.com](mailto:contact@helvety.com). The Impressum on [helvety.com/impressum](https://helvety.com/impressum#abuse) includes an abuse reporting section with guidance for both users and law enforcement.
+## Legal and Support
 
-## Tech Stack
+- Privacy: <https://helvety.com/privacy>
+- Terms: <https://helvety.com/terms>
+- Impressum and abuse reporting: <https://helvety.com/impressum#abuse>
+- Contact: <mailto:contact@helvety.com>
 
-This project is built with modern web technologies:
+## License
 
-- **[Next.js 16.x](https://nextjs.org/)** - React framework with App Router
-- **[React 19.x](https://react.dev/)** - UI library
-- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
-- **[Supabase](https://supabase.com/)** - Backend-as-a-Service (Database; auth is centralized at helvety.com/auth)
-- **[Tiptap](https://tiptap.dev/)** - Headless WYSIWYG rich text editor
-- **[dnd kit](https://dndkit.com/)** - Drag and drop toolkit for React
-- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React component library
-- **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives
-- **[Lucide React](https://lucide.dev/)** - Icon library
-- **[Zod 4](https://zod.dev/)** - TypeScript-first schema validation
-- **[next-themes](https://github.com/pacocoursey/next-themes)** - Dark mode support (via shared `@helvety/ui` theme provider)
-
-## Testing
-
-Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment via `@helvety/config/vitest`; TypeScript is checked with `bun run type-check`, not inside Vitest. Run from `apps/notes`:
-
-| Script                  | Description                       |
-| ----------------------- | --------------------------------- |
-| `bun run test`          | Run all tests once (`vitest run`) |
-| `bun run test:watch`    | Run tests in watch mode           |
-| `bun run test:coverage` | Run tests with v8 coverage report |
-
-Test files follow the `**/*.test.{ts,tsx}` pattern. From the monorepo root, `bun run test` runs Turbo across workspaces. `EntityList` is covered for fixed category shells when the list is empty, the global empty state when no categories are configured, the flat list fallback, the **client-side search no-match** message (`emptySearchMessage`), the case where search hides category shells, and the non-blocking refresh indicator while rows remain visible.
-
-## Developer
-
-This application is developed and maintained by [Helvety](https://helvety.com), a Swiss sole proprietorship (Einzelfirma) focused on security and user privacy.
-
-Vercel Analytics is used across Helvety apps for privacy-oriented, aggregated/pseudonymized usage metrics. Vercel Speed Insights is currently enabled on [helvety.com](https://helvety.com) for performance telemetry. See our [Privacy Policy](https://helvety.com/privacy) for details.
-
-For questions or inquiries, please contact us at [contact@helvety.com](mailto:contact@helvety.com).
-
-## License & Usage
-
-This app is open source under the [MIT License](./LICENSE).
-
-You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of this software, provided the copyright and permission notice are
-included in substantial portions of the software.
-
-The software is provided "as is", without warranty of any kind. See
-[LICENSE](./LICENSE) for full legal terms.
+Licensed under the [MIT License](./LICENSE).

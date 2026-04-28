@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: "%s | Helvety Store",
   },
   description:
-    "Official Helvety Store for free and open source apps and downloads. MIT-licensed software built and designed in Switzerland.",
+    "Official Helvety Store for free and open source apps and downloads. MIT-licensed software engineered, designed, and made in Switzerland.",
   keywords: [
     "Helvety Store",
     "software",
@@ -56,6 +56,8 @@ export const metadata: Metadata = {
     "browser extension",
     "SharePoint",
     "power automate",
+    "screen tools",
+    "windows screenshot",
   ],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -72,7 +74,7 @@ export const metadata: Metadata = {
     siteName: "Helvety Store",
     title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store for free and open source apps and downloads. MIT-licensed software built and designed in Switzerland.",
+      "Official Helvety Store for free and open source apps and downloads. MIT-licensed software engineered, designed, and made in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -86,7 +88,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Helvety Store | Products & Apps",
     description:
-      "Official Helvety Store for free and open source apps and downloads. MIT-licensed software built and designed in Switzerland.",
+      "Official Helvety Store for free and open source apps and downloads. MIT-licensed software engineered, designed, and made in Switzerland.",
     images: [
       {
         url: brandAssets.identifierPng,
@@ -144,19 +146,21 @@ export default async function RootLayout({
           nonce={nonce}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
-              createHelvetyOrganizationSchema(brandAssets.identifierPng),
-              {
-                "@context": "https://schema.org",
-                "@type": "WebApplication",
-                name: "Helvety Store",
-                url: urls.store,
-                description:
-                  "Official Helvety Store for free and open source apps and downloads. MIT-licensed software built and designed in Switzerland.",
-                applicationCategory: "ShoppingApplication",
-                operatingSystem: "Any",
-              },
-            ]),
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                createHelvetyOrganizationSchema(brandAssets.identifierPng),
+                {
+                  "@type": "WebApplication",
+                  name: "Helvety Store",
+                  url: urls.store,
+                  description:
+                    "Official Helvety Store for free and open source apps and downloads. MIT-licensed software engineered, designed, and made in Switzerland.",
+                  applicationCategory: "ShoppingApplication",
+                  operatingSystem: "Any",
+                },
+              ],
+            }),
           }}
         />
         <TooltipProvider>

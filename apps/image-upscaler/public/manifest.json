@@ -1,7 +1,7 @@
 {
   "name": "Helvety Image Upscaler",
   "short_name": "Image Upscaler",
-  "description": "Client-side image upscaling in your browser. No upload, no account.",
+  "description": "Upscale images directly in your browser. No server upload and no account required.",
   "start_url": "/image-upscaler",
   "display": "standalone",
   "background_color": "#faf8f7",

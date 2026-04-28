@@ -69,10 +69,16 @@ export function PdfCommandBar({
     <>
       <CommandBar>
         {/* Add Files button - always visible */}
-        <Button size="sm" onClick={onAddFiles} disabled={isProcessing}>
-          <UploadIcon className="mr-1.5 size-4 shrink-0" />
-          <span className="min-[400px]:hidden">Add</span>
-          <span className="hidden min-[400px]:inline">{addButtonLabel}</span>
+        <Button
+          size="sm"
+          onClick={onAddFiles}
+          disabled={isProcessing}
+          aria-label={addButtonLabel}
+        >
+          <UploadIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+          <span className="sr-only min-[400px]:not-sr-only">
+            {addButtonLabel}
+          </span>
         </Button>
 
         {/* Desktop only: Clear All with confirmation */}
@@ -111,19 +117,27 @@ export function PdfCommandBar({
 
         {/* Download - always visible when files exist */}
         {hasFiles && (
-          <Button size="sm" onClick={onDownload} disabled={isProcessing}>
+          <Button
+            size="sm"
+            onClick={onDownload}
+            disabled={isProcessing}
+            aria-label={
+              isProcessing ? "Download PDF (processing)" : "Download PDF"
+            }
+          >
             {isProcessing ? (
-              <Loader2Icon className="mr-1.5 size-4 shrink-0 animate-spin" />
+              <Loader2Icon className="size-4 shrink-0 animate-spin min-[400px]:mr-1.5" />
             ) : (
-              <DownloadIcon className="mr-1.5 size-4 shrink-0" />
+              <DownloadIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
             )}
             {isProcessing ? (
-              <span>Processing...</span>
+              <span className="sr-only min-[400px]:not-sr-only">
+                Processing...
+              </span>
             ) : (
-              <>
-                <span className="min-[400px]:hidden">Download</span>
-                <span className="hidden min-[400px]:inline">Download PDF</span>
-              </>
+              <span className="sr-only min-[400px]:not-sr-only">
+                Download PDF
+              </span>
             )}
           </Button>
         )}

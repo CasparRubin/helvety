@@ -1,14 +1,26 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   createDownloadName,
   IMAGE_FILE_SIZE_LIMIT_BYTES,
+  MAX_IMAGE_PIXELS,
   calculateTargetSize,
   parseImageFilesSync,
   type UpscaleItem,
+  upscaleItemsSequentially,
 } from "@/lib/upscale-pipeline";
+
+const workerMocks = vi.hoisted(() => ({
+  getRuntime: vi.fn(),
+  upscale: vi.fn(),
+  dispose: vi.fn(),
+}));
+
+vi.mock("@/lib/upscale-worker-client", () => ({
+  createUpscaleWorkerClient: () => workerMocks,
+}));
 
 function createItem(width: number, height: number): UpscaleItem {
   return {
@@ -22,6 +34,10 @@ function createItem(width: number, height: number): UpscaleItem {
     error: null,
   };
 }
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("calculateTargetSize", () => {
   it("calculates scale mode dimensions", () => {
@@ -137,5 +153,108 @@ describe("createDownloadName", () => {
     expect(createDownloadName("no-extension")).toBe(
       "no-extension-upscaled.png"
     );
+  });
+});
+
+describe("upscaleItemsSequentially", () => {
+  it("processes items sequentially and disposes the worker", async () => {
+    workerMocks.getRuntime.mockResolvedValueOnce("webgpu");
+    workerMocks.upscale
+      .mockResolvedValueOnce({ outputUrl: "blob:out-1" })
+      .mockResolvedValueOnce({ outputUrl: "blob:out-2" });
+    const onProgress = vi.fn();
+    const itemA = createItem(100, 50);
+    const itemB = createItem(200, 100);
+
+    const result = await upscaleItemsSequentially({
+      items: [itemA, itemB],
+      sizeMode: "scale",
+      scale: 2,
+      targetMode: "width",
+      targetValue: 0,
+      onProgress,
+    });
+
+    expect(result).toEqual({
+      runtime: "webgpu",
+      totalCount: 2,
+      completedCount: 2,
+      failedCount: 0,
+    });
+    expect(workerMocks.upscale).toHaveBeenNthCalledWith(1, {
+      file: itemA.file,
+      width: 200,
+      height: 100,
+    });
+    expect(workerMocks.upscale).toHaveBeenNthCalledWith(2, {
+      file: itemB.file,
+      width: 400,
+      height: 200,
+    });
+    expect(onProgress).toHaveBeenCalledWith(itemA.id, {
+      status: "processing",
+      error: null,
+    });
+    expect(onProgress).toHaveBeenCalledWith(itemB.id, {
+      status: "done",
+      outputUrl: "blob:out-2",
+      error: null,
+    });
+    expect(workerMocks.dispose).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks oversized images as failed without calling worker upscaling", async () => {
+    workerMocks.getRuntime.mockResolvedValueOnce("wasm-fallback");
+    const onProgress = vi.fn();
+    const huge = createItem(MAX_IMAGE_PIXELS, 2);
+
+    const result = await upscaleItemsSequentially({
+      items: [huge],
+      sizeMode: "scale",
+      scale: 2,
+      targetMode: "width",
+      targetValue: 0,
+      onProgress,
+    });
+
+    expect(result.completedCount).toBe(0);
+    expect(result.failedCount).toBe(1);
+    expect(workerMocks.upscale).not.toHaveBeenCalled();
+    expect(onProgress).toHaveBeenCalledWith(
+      huge.id,
+      expect.objectContaining({
+        status: "failed",
+        error: expect.stringContaining("exceeds"),
+      })
+    );
+  });
+
+  it("revokes stale output URLs before replacing with new output", async () => {
+    const revokeSpy = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => {
+        return;
+      });
+    workerMocks.getRuntime.mockResolvedValueOnce("webgpu");
+    workerMocks.upscale.mockResolvedValueOnce({ outputUrl: "blob:updated" });
+    const onProgress = vi.fn();
+    const item = { ...createItem(120, 60), outputUrl: "blob:stale" };
+
+    const result = await upscaleItemsSequentially({
+      items: [item],
+      sizeMode: "scale",
+      scale: 2,
+      targetMode: "width",
+      targetValue: 0,
+      onProgress,
+    });
+
+    expect(result.completedCount).toBe(1);
+    expect(revokeSpy).toHaveBeenCalledWith("blob:stale");
+    expect(onProgress).toHaveBeenCalledWith(item.id, {
+      status: "done",
+      outputUrl: "blob:updated",
+      error: null,
+    });
   });
 });

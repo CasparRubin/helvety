@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { getAllProducts, getProductBySlug } from "./products";
 
 describe("store product catalog", () => {
-  it("includes all seven listings", () => {
-    expect(getAllProducts()).toHaveLength(7);
+  it("includes all eight listings", () => {
+    expect(getAllProducts()).toHaveLength(8);
   });
 
   it("default sort is newest release first (Image Upscaler last shipped)", () => {
@@ -19,6 +19,7 @@ describe("store product catalog", () => {
     ).toBe("Power Automate Browser Extension");
     expect(getProductBySlug("helvety-spo-explorer")).toBeDefined();
     expect(getProductBySlug("helvety-pdf")).toBeDefined();
+    expect(getProductBySlug("helvety-screen-tools")).toBeDefined();
     expect(getProductBySlug("helvety-image-upscaler")).toBeDefined();
   });
 });

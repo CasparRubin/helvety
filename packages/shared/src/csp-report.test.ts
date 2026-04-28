@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getTrustedClientIp: vi.fn(),
@@ -31,6 +31,10 @@ describe("createCspReportHandler", () => {
     vi.clearAllMocks();
     mocks.getTrustedClientIp.mockReturnValue("203.0.113.10");
     mocks.checkRateLimit.mockResolvedValue({ allowed: true, remaining: 29 });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("rejects oversized request payloads with 413", async () => {
