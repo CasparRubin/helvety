@@ -25,7 +25,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Current coverage focuses on stable primitives (e.g. `Button`, `ListSearchField`, `tiptap-utils`). Add tests when touching complex interactive components.
+Current coverage includes stable primitives and selected navigation surfaces (e.g. `Button`, `ListSearchField`, `tiptap-utils`, `AppSwitcher`). Add tests when touching complex interactive components.
 
 ## Related
 

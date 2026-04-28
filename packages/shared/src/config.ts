@@ -35,6 +35,34 @@ export const urls = {
 } as const;
 
 /**
+ * Convert an app URL to a Next.js-friendly local href when possible.
+ *
+ * Returns a path-based href (`/store`, `/tasks`, etc.) for absolute URLs so
+ * Next `Link` can use client transitions and prefetch. Falls back to the
+ * original value if parsing fails.
+ */
+export function getLocalAppHref(url: string): string {
+  if (url.startsWith("/")) {
+    return url;
+  }
+
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    const isHelvetyHost = host === DOMAIN || host.endsWith(`.${DOMAIN}`);
+    const isLocalhostHost = host === "localhost" || host === "127.0.0.1";
+
+    if (!isHelvetyHost && !isLocalhostHost) {
+      return url;
+    }
+
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return url;
+  }
+}
+
+/**
  * Cookie domain for session sharing.
  *
  * In dev: undefined (defaults to current host).

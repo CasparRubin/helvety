@@ -1,6 +1,6 @@
 "use client";
 
-import { urls } from "@helvety/shared/config";
+import { getLocalAppHref, urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
 import {
   CheckSquare,
@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@helvety/ui/button";
@@ -77,9 +78,9 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
               const Icon = app.icon;
               const isCurrent = currentApp === app.name;
               return (
-                <a
+                <Link
                   key={app.name}
-                  href={app.href}
+                  href={getLocalAppHref(app.href)}
                   className={cn(
                     "flex flex-col items-center gap-2 rounded-lg p-3 text-center transition-colors",
                     isCurrent
@@ -90,7 +91,7 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
                 >
                   <Icon className="h-6 w-6" />
                   <span className="text-xs font-medium">{app.name}</span>
-                </a>
+                </Link>
               );
             })}
           </div>

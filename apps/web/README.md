@@ -32,8 +32,10 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 ## Multi-Zone Routing Notes
 
 - Sub-apps are forwarded by gateway rewrites in `apps/web/next.config.ts`.
+- Shared same-tab ecosystem navigation (hero CTA + app switcher) uses `next/link` with path-based hrefs (`/store`, `/tasks`, etc.) so Next App Router prefetch/client transitions can be used across zones. Absolute app URLs are normalized through `getLocalAppHref` in `packages/shared/src/config.ts`.
 - Use wildcard segment patterns (prefer `:path*`) for zone forwarding rules so App Router Flight/RSC prefetch requests (`?_rsc=...`) and trailing-slash variants are forwarded consistently.
 - Keep wildcard usage consistent across zones (`auth`, `tasks`, `contacts`, `notes`, `store`, `pdf`) and include each zone's static asset prefix routes (`/auth-static`, `/tasks-static`, `/contacts-static`, `/notes-static`) to avoid stale bundles or edge-case misses.
+- New-tab account links intentionally remain regular anchors (`target="_blank"`) and do not use in-tab client transitions.
 
 ## Crawl & Indexing Policy
 

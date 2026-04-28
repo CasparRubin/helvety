@@ -1,9 +1,10 @@
 "use client";
 
 import { HelvetyLogo } from "@helvety/brand/logo";
-import { urls } from "@helvety/shared/config";
+import { getLocalAppHref, urls } from "@helvety/shared/config";
 import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 import { ChevronRight, PackageOpen } from "lucide-react";
+import Link from "next/link";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -92,9 +93,9 @@ export function HeroSection() {
               variants={prefersReducedMotion ? noMotion : fadeInUp}
               className="mt-8 flex w-full justify-center lg:mt-16"
             >
-              <a
+              <Link
                 className="group ring-foreground/10 bg-card/80 text-card-foreground hover:bg-card focus-visible:ring-ring focus-visible:ring-offset-background inline-flex w-full max-w-xl items-center gap-4 rounded-xl px-4 py-3 text-left shadow-xs ring-1 backdrop-blur-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-                href={urls.store}
+                href={getLocalAppHref(urls.store)}
               >
                 <span className="bg-primary/10 text-primary inline-flex size-9 shrink-0 items-center justify-center rounded-full">
                   <PackageOpen className="size-4" aria-hidden="true" />
@@ -111,7 +112,7 @@ export function HeroSection() {
                   className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
                   aria-hidden="true"
                 />
-              </a>
+              </Link>
             </m.div>
           </m.div>
         </div>
