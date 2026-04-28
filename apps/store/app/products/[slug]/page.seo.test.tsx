@@ -16,6 +16,26 @@ vi.mock("./product-detail-client", () => ({
   ),
 }));
 
+/** Normalizes Next metadata image variants to a URL string for assertions. */
+function getMetadataImageUrl(
+  image: string | URL | { url?: string | URL } | undefined
+): string | undefined {
+  if (!image) {
+    return undefined;
+  }
+  if (typeof image === "string") {
+    return image;
+  }
+  if (image instanceof URL) {
+    return image.toString();
+  }
+  const value = image.url;
+  if (!value) {
+    return undefined;
+  }
+  return typeof value === "string" ? value : value.toString();
+}
+
 describe("store product SEO", () => {
   it("returns indexable canonical metadata for a valid product", async () => {
     const product = getAllProducts()[0];
@@ -59,5 +79,47 @@ describe("store product SEO", () => {
     expect(html).toContain('"@type":"Product"');
     expect(html).toContain(`"url":"${urls.store}/products/${product.slug}"`);
     expect(html).toContain(product.slug);
+  });
+
+  it("uses a stable absolute image URL in metadata for products without screenshots", async () => {
+    const productWithoutScreenshot = getAllProducts().find(
+      (product) => !product.media?.screenshots?.length
+    );
+    if (!productWithoutScreenshot) {
+      throw new Error("Expected at least one product without screenshots");
+    }
+
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ slug: productWithoutScreenshot.slug }),
+    });
+
+    const ogImages = metadata.openGraph?.images;
+    const twitterImages = metadata.twitter?.images;
+    const ogImage = Array.isArray(ogImages) ? ogImages[0] : ogImages;
+    const twitterImage = Array.isArray(twitterImages)
+      ? twitterImages[0]
+      : twitterImages;
+
+    expect(ogImage).toBeDefined();
+    expect(twitterImage).toBeDefined();
+    expect(getMetadataImageUrl(ogImage)?.startsWith(urls.home)).toBe(true);
+    expect(getMetadataImageUrl(twitterImage)?.startsWith(urls.home)).toBe(true);
+  });
+
+  it("includes an image URL in JSON-LD for products without screenshots", async () => {
+    const productWithoutScreenshot = getAllProducts().find(
+      (product) => !product.media?.screenshots?.length
+    );
+    if (!productWithoutScreenshot) {
+      throw new Error("Expected at least one product without screenshots");
+    }
+
+    const element = await ProductDetailPage({
+      params: Promise.resolve({ slug: productWithoutScreenshot.slug }),
+    });
+    const html = renderToStaticMarkup(element);
+
+    expect(html).toContain('"image":"');
+    expect(html).toContain(urls.home);
   });
 });

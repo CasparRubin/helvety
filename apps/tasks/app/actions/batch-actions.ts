@@ -15,8 +15,8 @@ interface FlatItemsDashboardData {
 }
 
 /**
- * Batch fetch all data needed for the flat Tasks dashboard.
- * Returns all items across the current user.
+ * Prefetch encrypted tasks for the flat dashboard's initial server render.
+ * Returns the items payload used to hydrate the client before route-handler refreshes.
  */
 export async function getFlatItemsDashboardData(): Promise<
   ActionResponse<FlatItemsDashboardData>

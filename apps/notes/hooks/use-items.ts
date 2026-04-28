@@ -14,13 +14,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { reorderEntities } from "@/app/actions/entity-actions";
-import {
-  createItem,
-  deleteItem,
-  getAllItems,
-  getItem,
-  updateItem,
-} from "@/app/actions/item-actions";
+import { createItem, deleteItem, updateItem } from "@/app/actions/item-actions";
 import { DEFAULT_NOTE_CATEGORY_ID } from "@/lib/config/default-note-categories";
 import {
   decryptItemRow,
@@ -30,7 +24,13 @@ import {
   useEncryptionContext,
 } from "@/lib/crypto";
 
-import type { Item, ItemInput, ItemRow, ReorderUpdate } from "@/lib/types";
+import type {
+  ActionResponse,
+  Item,
+  ItemInput,
+  ItemRow,
+  ReorderUpdate,
+} from "@/lib/types";
 
 /** Options for useItems hook */
 interface UseItemsOptions {
@@ -60,6 +60,24 @@ interface UseItemsReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
   /** Apply a local optimistic patch without a server request */
   patchLocal: (id: string, input: Partial<ItemInput>) => void;
+}
+
+/** Fetches encrypted note rows via GET route handler. */
+async function fetchItems(): Promise<ActionResponse<ItemRow[]>> {
+  const response = await fetch("/api/items", {
+    method: "GET",
+    cache: "no-store",
+  });
+  return (await response.json()) as ActionResponse<ItemRow[]>;
+}
+
+/** Fetches a single encrypted note row via GET route handler. */
+async function fetchItemById(id: string): Promise<ActionResponse<ItemRow>> {
+  const response = await fetch(`/api/items/${id}`, {
+    method: "GET",
+    cache: "no-store",
+  });
+  return (await response.json()) as ActionResponse<ItemRow>;
 }
 
 /**
@@ -98,7 +116,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
     setError(null);
 
     try {
-      const result = await getAllItems();
+      const result = await fetchItems();
       if (!result.success) {
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
@@ -466,7 +484,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     setError(null);
 
     try {
-      const result = await getItem(id);
+      const result = await fetchItemById(id);
       if (!result.success) {
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;

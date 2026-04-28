@@ -15,8 +15,8 @@ interface FlatItemsDashboardData {
 }
 
 /**
- * Batch fetch all data needed for the main Notes dashboard.
- * Returns all notes for the current user (ordered by `sort_order`, with plaintext `category_id`).
+ * Prefetch encrypted notes for the main dashboard's initial server render.
+ * Returns the notes list payload used to hydrate the client before route-handler refreshes.
  */
 export async function getFlatItemsDashboardData(): Promise<
   ActionResponse<FlatItemsDashboardData>

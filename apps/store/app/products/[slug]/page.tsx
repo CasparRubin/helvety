@@ -5,12 +5,23 @@ import { getProductBySlug } from "@/lib/data/products";
 
 import { ProductDetailClient } from "./product-detail-client";
 
+import type { Product } from "@/lib/types/products";
 import type { Metadata } from "next";
 
 /** Props for the product detail page */
 interface ProductPageProps {
   /** Route params containing the product slug */
   params: Promise<{ slug: string }>;
+}
+
+/** Resolves a product image source to an absolute URL for SEO metadata. */
+function getAbsoluteProductImageUrl(product: Product): string | undefined {
+  const imageSrc =
+    typeof product.image === "string" ? product.image : product.image?.src;
+  if (!imageSrc?.startsWith("/")) {
+    return undefined;
+  }
+  return `${urls.home}${imageSrc}`;
 }
 
 /**
@@ -42,11 +53,7 @@ export async function generateMetadata({
   }
 
   const screenshot = product.media?.screenshots?.[0];
-  const ogImageUrl =
-    screenshot?.src ??
-    (product.image?.startsWith("/")
-      ? `${urls.home}${product.image}`
-      : undefined);
+  const ogImageUrl = screenshot?.src ?? getAbsoluteProductImageUrl(product);
   const ogImageAlt = screenshot?.alt ?? product.name;
 
   return {
@@ -87,9 +94,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const jsonLdImage =
     product?.media?.screenshots?.[0]?.src ??
-    (product?.image?.startsWith("/")
-      ? `${urls.home}${product.image}`
-      : undefined);
+    (product ? getAbsoluteProductImageUrl(product) : undefined);
 
   // Build Product JSON-LD structured data for search engines
   const productJsonLd = product

@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { getContactsDashboardData } from "@/app/actions/batch-actions";
 import { ContactsDashboard } from "@/components/contacts-dashboard";
 
-/** Server component that prefetches all encrypted dashboard data for streaming. */
+/** Server component that prefetches encrypted contacts for first render before API-route refreshes. */
 async function PrefetchedDashboard(): Promise<React.JSX.Element> {
   const result = await getContactsDashboardData();
   if (!result.success && shouldForceHardLogout(result.error)) {

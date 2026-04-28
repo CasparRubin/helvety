@@ -14,8 +14,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
-  getContacts,
-  getContact,
   createContact,
   updateContact,
   deleteContact,
@@ -31,6 +29,7 @@ import {
 } from "@/lib/crypto";
 
 import type {
+  ActionResponse,
   Contact,
   ContactInput,
   ContactRow,
@@ -65,6 +64,26 @@ interface UseContactsReturn {
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
   /** Apply a local optimistic patch without a server request */
   patchLocal: (id: string, input: Partial<ContactInput>) => void;
+}
+
+/** Fetches encrypted contact rows via GET route handler. */
+async function fetchContacts(): Promise<ActionResponse<ContactRow[]>> {
+  const response = await fetch("/api/contacts", {
+    method: "GET",
+    cache: "no-store",
+  });
+  return (await response.json()) as ActionResponse<ContactRow[]>;
+}
+
+/** Fetches a single encrypted contact row via GET route handler. */
+async function fetchContactById(
+  id: string
+): Promise<ActionResponse<ContactRow>> {
+  const response = await fetch(`/api/contacts/${id}`, {
+    method: "GET",
+    cache: "no-store",
+  });
+  return (await response.json()) as ActionResponse<ContactRow>;
 }
 
 /**
@@ -108,7 +127,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     setError(null);
 
     try {
-      const result = await getContacts();
+      const result = await fetchContacts();
       if (!result.success) {
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
@@ -504,7 +523,7 @@ export function useContact(
     setError(null);
 
     try {
-      const result = await getContact(id);
+      const result = await fetchContactById(id);
       if (!result.success) {
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;

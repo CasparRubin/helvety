@@ -53,7 +53,10 @@ Public store root (`/store`) redirects to `/store/products` (implemented interna
 
 ## Artwork assets
 
-- Product card artwork lives in `apps/store/public` and is referenced with the store basePath (for example `/store/artwork_1.png`).
+- Product artwork source files live in `apps/store/public`.
+- Catalog rendering imports artwork statically via `lib/data/product-artwork.ts` and `lib/data/products.ts` so Next.js emits content-hashed immutable assets (no manual resizing workflow required).
+- Product detail hero uses `next/image` `preload` for the likely LCP image, while grid cards keep non-critical artwork lazy-loaded.
+- `next.config.ts` sets `images.minimumCacheTTL` (currently 4h) for images served by Next Image Optimization, balancing cache warmth and staleness.
 - `artwork_1.png` - Alexandre Calame - in use
 - `artwork_2.png` - Alexandre Calame - in use
 - `artwork_3.png` - Alexandre Calame - in use

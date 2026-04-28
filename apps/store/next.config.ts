@@ -6,9 +6,9 @@ const ALLOWED_IMAGE_PROTOCOLS = new Set(["http:", "https:"]);
 
 /**
  * Builds strict Next image remotePatterns from NEXT_PUBLIC_SUPABASE_URL.
- * Returns an empty list when the URL is unset so local `next build` / monorepo
- * `ci:release` can run without `.env`; Vercel builds set VERCEL=1 and must
- * provide the variable so misconfiguration fails fast.
+ * If unset, returns [] so local builds are not blocked by remote-image host
+ * config alone. On Vercel (VERCEL=1), the variable is required and
+ * misconfiguration fails fast.
  */
 function getStoreImageRemotePatterns(): Array<{
   protocol: "http" | "https";
@@ -68,6 +68,8 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
     images: {
       formats: ["image/avif", "image/webp"],
       qualities: [75],
+      // Keep optimized images warm in cache while avoiding very long stale periods.
+      minimumCacheTTL: 60 * 60 * 4,
       remotePatterns: getStoreImageRemotePatterns(),
     },
   },

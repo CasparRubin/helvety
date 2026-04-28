@@ -3,6 +3,8 @@
  * Flexible system supporting SaaS, software, and physical products
  */
 
+import type { StaticImageData } from "next/image";
+
 // =============================================================================
 // PRODUCT TYPES
 // =============================================================================
@@ -127,11 +129,11 @@ export interface Product {
   /** Current availability status */
   status: ProductStatus;
   /** Product image URL */
-  image?: string;
+  image?: string | StaticImageData;
   /** Artist name for the product artwork */
   artist?: string;
   /** Hero/banner image URL */
-  heroImage?: string;
+  heroImage?: string | StaticImageData;
   /** Key features list */
   features: string[];
   /** Pricing configuration */

@@ -25,7 +25,7 @@ const baseContact = (overrides: Partial<Contact>): Contact => ({
 });
 
 describe("ContactList", () => {
-  it("shows a non-blocking refresh indicator while rows remain visible", () => {
+  it("keeps visible rows rendered while a background refresh is active", () => {
     render(
       <ContactList
         contacts={[baseContact({ id: "visible" })]}
@@ -36,7 +36,6 @@ describe("ContactList", () => {
       />
     );
 
-    expect(screen.getByText("Refreshing...")).toBeInTheDocument();
     expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
   });
 

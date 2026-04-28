@@ -66,7 +66,11 @@ export function ContactCommandBar({
           size="sm"
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="hidden md:inline-flex"
+          className={cn(
+            "hidden md:inline-flex",
+            isRefreshing &&
+              "bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
+          )}
         >
           <RefreshCwIcon
             className={cn(

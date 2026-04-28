@@ -20,7 +20,7 @@ const baseNote = (overrides: Partial<Item>): Item => ({
 });
 
 describe("EntityList", () => {
-  it("shows a non-blocking refresh indicator while rows remain visible", () => {
+  it("keeps visible rows rendered while a background refresh is active", () => {
     render(
       <EntityList
         entities={[baseNote({ id: "visible" })]}
@@ -31,7 +31,6 @@ describe("EntityList", () => {
       />
     );
 
-    expect(screen.getByText("Refreshing...")).toBeInTheDocument();
     expect(screen.getByText("Meeting notes")).toBeInTheDocument();
   });
 

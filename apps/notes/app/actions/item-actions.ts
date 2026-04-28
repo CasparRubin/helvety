@@ -15,7 +15,7 @@ import { z } from "zod";
 import { ALLOWED_NOTE_CATEGORY_IDS } from "@/lib/config/default-note-categories";
 import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
-import type { ActionResponse, ItemRow } from "@/lib/types";
+import type { ActionResponse } from "@/lib/types";
 
 const NoteCategoryIdSchema = z.enum(ALLOWED_NOTE_CATEGORY_IDS);
 
@@ -26,7 +26,6 @@ function revalidateItemRoutes(): void {
 
 /** Canonical backing table for Notes app items. */
 const NOTES_ITEMS_TABLE = "notes" as const;
-const MAX_ALL_ITEMS_ROWS = 2000;
 
 // =============================================================================
 // Input Validation Schemas
@@ -122,76 +121,6 @@ export async function createItem(
     return { success: true, data: { id: item.id } };
   } catch (error) {
     return unexpectedActionError("Unexpected error in createItem", error);
-  }
-}
-
-/**
- * Get all notes for the current user, ordered by `sort_order` (newest tie-break on `created_at`).
- */
-export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
-  try {
-    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "notes" });
-    if (!auth.ok) return auth.response;
-    const { user, supabase } = auth.ctx;
-
-    const { data: items, error } = await supabase
-      .from(NOTES_ITEMS_TABLE)
-      .select("*")
-      .eq("user_id", user.id)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false })
-      .limit(MAX_ALL_ITEMS_ROWS + 1)
-      .overrideTypes<ItemRow[], { merge: false }>();
-
-    if (error) {
-      logger.logUnexpectedError("Error getting all items", error);
-      return { success: false, error: "Failed to get notes" };
-    }
-    if ((items?.length ?? 0) > MAX_ALL_ITEMS_ROWS) {
-      return {
-        success: false,
-        error: "Too many notes to load in one request",
-      };
-    }
-
-    return { success: true, data: items ?? [] };
-  } catch (error) {
-    return unexpectedActionError("Unexpected error in getAllItems", error);
-  }
-}
-
-/**
- * Get a single Item by ID
- */
-export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
-  try {
-    if (!isUuidString(id)) {
-      return { success: false, error: "Invalid note ID" };
-    }
-
-    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "notes" });
-    if (!auth.ok) return auth.response;
-    const { user, supabase } = auth.ctx;
-
-    // Get item (explicit user_id filter as defense-in-depth alongside RLS)
-    const { data: item, error } = await supabase
-      .from(NOTES_ITEMS_TABLE)
-      .select("*")
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .single();
-
-    if (error || !item) {
-      if (error?.code === "PGRST116" || !item) {
-        return { success: false, error: "Note not found" };
-      }
-      logger.logUnexpectedError("Error getting item", error);
-      return { success: false, error: "Failed to get note" };
-    }
-
-    return { success: true, data: item };
-  } catch (error) {
-    return unexpectedActionError("Unexpected error in getItem", error);
   }
 }
 

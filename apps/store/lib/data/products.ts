@@ -2,6 +2,8 @@
  * Static product data for the Store app (@helvety/store)
  */
 
+import { productArtwork } from "@/lib/data/product-artwork";
+
 import type {
   Product,
   SaaSProduct,
@@ -51,8 +53,7 @@ function compareProductsByReleaseDateOldestFirst(
 // =============================================================================
 // PRODUCT DATA
 // =============================================================================
-// Store artwork is served from apps/store/public and referenced with the
-// store basePath (e.g. "/store/artwork_1.png").
+// Store artwork uses static imports for immutable, content-hashed caching.
 
 /**
  * Helvety SPO Explorer - SharePoint Online Extension
@@ -63,7 +64,7 @@ const helvetyExplorer: SoftwareProduct = {
   name: "Helvety SPO Explorer",
   shortDescription:
     "A privacy-focused SharePoint site navigator. Browse, search, and favorite sites you can access. Favorites and settings stay on your device.",
-  image: "/store/artwork_1.png",
+  image: productArtwork.artwork1,
   artist: "Alexandre Calame",
   description: `Helvety SPO Explorer is a SharePoint Framework (SPFx) application customizer that adds fast site navigation inside Microsoft 365. For the flows it supports, work runs in the browser; favorites and settings stay on the device (for example in localStorage).
 
@@ -233,7 +234,7 @@ const powerAutomateForceV3False: SoftwareProduct = {
   name: "Power Automate Browser Extension",
   shortDescription:
     "A minimal Edge/Chrome extension that keeps Power Automate flow and run URLs on the classic editor by ensuring v3=false. Runs only on make.powerautomate.com.",
-  image: "/store/artwork_6.png",
+  image: productArtwork.artwork6,
   artist: "Rudolf Koller",
   description: `Power Automate Browser Extension is a small Manifest V3 extension for Microsoft Edge and Google Chrome. It only runs on https://make.powerautomate.com/ and adjusts URLs whose path contains /flows/ or /runs/ so they use v3=false, which keeps the classic Power Automate editor loading consistently.
 
@@ -370,7 +371,7 @@ Each file can be up to 100 MB. How large or complex a job your device can finish
   type: "saas",
   category: "utilities",
   status: "available",
-  image: "/store/artwork_2.png",
+  image: productArtwork.artwork2,
   artist: "Alexandre Calame",
   features: [
     "Client-side processing for supported operations",
@@ -459,7 +460,7 @@ Data protection: Processing is subject to applicable Swiss data protection law w
   type: "saas",
   category: "productivity",
   status: "available",
-  image: "/store/artwork_3.png",
+  image: productArtwork.artwork3,
   artist: "Alexandre Calame",
   features: [
     "End-to-end encryption for sensitive task content fields",
@@ -548,7 +549,7 @@ Data protection: Processing is subject to applicable Swiss data protection law w
   type: "saas",
   category: "productivity",
   status: "available",
-  image: "/store/artwork_4.png",
+  image: productArtwork.artwork4,
   artist: "Ferdinand Hodler",
   features: [
     "End-to-end encryption for sensitive contact fields",
@@ -636,7 +637,7 @@ Data protection: Processing is subject to applicable Swiss data protection law w
   type: "saas",
   category: "productivity",
   status: "available",
-  image: "/store/artwork_5.png",
+  image: productArtwork.artwork5,
   artist: "Rudolf Koller",
   features: [
     "End-to-end encryption for sensitive note content",

@@ -78,7 +78,6 @@ interface EntityListProps {
 export function EntityList({
   entities,
   isLoading,
-  isRefreshing = false,
   error,
   onRetry,
   stages,
@@ -348,12 +347,6 @@ export function EntityList({
 
   return (
     <div className="space-y-4">
-      {isRefreshing && (
-        <div className="text-muted-foreground flex items-center justify-end gap-2 text-xs">
-          <Loader2Icon className="size-3 animate-spin" />
-          <span>Refreshing...</span>
-        </div>
-      )}
       {/* Column headers (desktop only) */}
       {entities.length > 0 && (
         <div className="text-muted-foreground border-border hidden items-center gap-2 border-b px-3 pb-2 text-xs font-medium md:flex">

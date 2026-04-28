@@ -6,6 +6,8 @@
 
 import Image from "next/image";
 
+import { productArtwork } from "@/lib/data/product-artwork";
+
 import {
   ArtistBadge,
   ProductBadge,
@@ -15,7 +17,7 @@ import {
 
 import type { Product } from "@/lib/types/products";
 
-const HERO_IMAGE_FALLBACK = "/store/artwork_1.png";
+const HERO_IMAGE_FALLBACK = productArtwork.artwork1;
 
 /** Hero region for a product detail page - image fills the frame; copy sits in the bottom third. */
 export function ProductDetailHero({ product }: { product: Product }) {
@@ -31,7 +33,7 @@ export function ProductDetailHero({ product }: { product: Product }) {
           src={src}
           alt=""
           fill
-          priority
+          preload
           sizes="(max-width: 1024px) 100vw, min(896px, 100vw)"
           className="object-cover"
         />

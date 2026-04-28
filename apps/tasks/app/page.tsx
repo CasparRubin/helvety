@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { getFlatItemsDashboardData } from "@/app/actions/batch-actions";
 import { FlatTasksDashboard } from "@/components/flat-tasks-dashboard";
 
-/** Server component that prefetches all encrypted dashboard data for streaming. */
+/** Server component that prefetches encrypted tasks for first render before API-route refreshes. */
 async function PrefetchedDashboard(): Promise<React.JSX.Element> {
   const result = await getFlatItemsDashboardData();
   if (!result.success && shouldForceHardLogout(result.error)) {

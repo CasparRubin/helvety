@@ -19,12 +19,13 @@ interface ContactsDashboardData {
 }
 
 // =============================================================================
-// BATCH READ ACTIONS
+// DASHBOARD PREFETCH ACTIONS
 // =============================================================================
 
 /**
- * Batch fetch all data needed for the Contacts dashboard.
- * Performs a single auth + rate-limit check, then loads the contacts list.
+ * Prefetch encrypted contacts for the dashboard's initial server render.
+ * Performs one auth + rate-limit check, then loads the contacts list payload
+ * used to hydrate the client.
  */
 export async function getContactsDashboardData(): Promise<
   ActionResponse<ContactsDashboardData>

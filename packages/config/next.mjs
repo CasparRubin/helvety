@@ -38,6 +38,10 @@ export function createHelvetyNextConfig({
       root: path.resolve("../.."),
     },
     reactCompiler: true,
+    // Upgrade guardrail: on every Next major/minor bump, re-check release notes for
+    // `experimental.optimizePackageImports` and
+    // `experimental.serverActions.allowedOrigins`; migrate to stable config keys
+    // when equivalent options become available.
     experimental: {
       optimizePackageImports,
       ...(allowedOrigins.length > 0

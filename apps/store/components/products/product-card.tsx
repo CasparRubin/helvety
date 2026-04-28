@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { productArtwork } from "@/lib/data/product-artwork";
+
 import {
   ArtistBadge,
   ProductBadge,
@@ -12,19 +14,16 @@ import {
 
 import type { Product } from "@/lib/types/products";
 
+const PRODUCT_IMAGE_FALLBACK = productArtwork.artwork1;
+
 /** Props for rendering a single catalog product card. */
 interface ProductCardProps {
   product: Product;
   className?: string;
-  prioritizeImage?: boolean;
 }
 
 /** Renders a single-link product card used in the catalog grid. */
-export function ProductCard({
-  product,
-  className,
-  prioritizeImage = false,
-}: ProductCardProps) {
+export function ProductCard({ product, className }: ProductCardProps) {
   const productHref = `/products/${product.slug}`;
 
   return (
@@ -42,11 +41,10 @@ export function ProductCard({
       >
         {/* Background artwork - desaturated at rest, full color on hover */}
         <Image
-          src={product.image ?? "/store/artwork_1.png"}
+          src={product.image ?? PRODUCT_IMAGE_FALLBACK}
           alt=""
           fill
-          loading={prioritizeImage ? "eager" : "lazy"}
-          fetchPriority={prioritizeImage ? "high" : "auto"}
+          loading="lazy"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
         />
