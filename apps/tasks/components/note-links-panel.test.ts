@@ -7,6 +7,7 @@ describe("getNoteDeepLink", () => {
     const href = getNoteDeepLink("note-123");
     const url = new URL(href);
 
+    expect(url.pathname).toBe("/notes");
     expect(url.searchParams.get("note")).toBe("note-123");
   });
 });

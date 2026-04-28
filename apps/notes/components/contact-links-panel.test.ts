@@ -7,6 +7,7 @@ describe("getContactDeepLink", () => {
     const href = getContactDeepLink("contact-123");
     const url = new URL(href);
 
+    expect(url.pathname).toBe("/contacts");
     expect(url.searchParams.get("contact")).toBe("contact-123");
   });
 });

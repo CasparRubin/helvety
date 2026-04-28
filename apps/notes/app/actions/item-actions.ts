@@ -4,6 +4,10 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
+import {
+  parseActionInput,
+  unexpectedActionError,
+} from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -15,7 +19,7 @@ import type { ActionResponse, ItemRow } from "@/lib/types";
 
 const NoteCategoryIdSchema = z.enum(ALLOWED_NOTE_CATEGORY_IDS);
 
-/** Revalidate item routes impacted by structural item mutations. */
+/** Revalidate notes routes after item mutations. */
 function revalidateItemRoutes(): void {
   revalidatePath("/notes");
 }
@@ -74,15 +78,14 @@ export async function createItem(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = CreateItemSchema.safeParse(data);
+    const validationResult = parseActionInput({
+      schema: CreateItemSchema,
+      data,
+      warnMessage: "Invalid item data",
+      invalidDataMessage: "Invalid note data",
+    });
     if (!validationResult.success) {
-      logger.warn("Invalid item data", {
-        fields: validationResult.error.issues.map((issue) =>
-          issue.path.join(".")
-        ),
-        issueCount: validationResult.error.issues.length,
-      });
-      return { success: false, error: "Invalid note data" };
+      return validationResult;
     }
     const validatedData = validationResult.data;
     // Insert item row into notes table (Notes app canonical store).
@@ -117,8 +120,7 @@ export async function createItem(
     revalidateItemRoutes();
     return { success: true, data: { id: item.id } };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in createItem", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in createItem", error);
   }
 }
 
@@ -146,8 +148,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
 
     return { success: true, data: items ?? [] };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getAllItems", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getAllItems", error);
   }
 }
 
@@ -182,8 +183,7 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
 
     return { success: true, data: item };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getItem", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getItem", error);
   }
 }
 
@@ -209,15 +209,14 @@ export async function updateItem(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = UpdateItemSchema.safeParse(data);
+    const validationResult = parseActionInput({
+      schema: UpdateItemSchema,
+      data,
+      warnMessage: "Invalid item update data",
+      invalidDataMessage: "Invalid note data",
+    });
     if (!validationResult.success) {
-      logger.warn("Invalid item update data", {
-        fields: validationResult.error.issues.map((issue) =>
-          issue.path.join(".")
-        ),
-        issueCount: validationResult.error.issues.length,
-      });
-      return { success: false, error: "Invalid note data" };
+      return validationResult;
     }
     const validatedData = validationResult.data;
 
@@ -253,10 +252,10 @@ export async function updateItem(
       };
     }
 
+    revalidateItemRoutes();
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in updateItem", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in updateItem", error);
   }
 }
 
@@ -292,7 +291,6 @@ export async function deleteItem(
     revalidateItemRoutes();
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in deleteItem", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in deleteItem", error);
   }
 }

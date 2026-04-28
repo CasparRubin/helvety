@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   authenticateAndRateLimit: vi.fn(),
   logUnexpectedError: vi.fn(),
+  revalidatePath: vi.fn(),
 }));
 
 vi.mock("@helvety/shared/action-helpers", () => ({
@@ -19,6 +20,10 @@ vi.mock("@helvety/shared/logger", () => ({
 
 vi.mock("next/server", () => ({
   after: (callback: () => void) => callback(),
+}));
+
+vi.mock("next/cache", () => ({
+  revalidatePath: mocks.revalidatePath,
 }));
 
 import { getAllNoteDataForExport, reorderEntities } from "./entity-actions";
@@ -75,6 +80,7 @@ describe("notes entity-actions reorderEntities", () => {
       sort_order: 0,
       category_id: "work",
     });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/notes");
   });
 
   it("uses EXPORT readRateLimitConfig for getAllNoteDataForExport", async () => {

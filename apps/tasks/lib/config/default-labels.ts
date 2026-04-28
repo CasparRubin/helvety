@@ -83,9 +83,9 @@ const ITEM_DEFAULT: DefaultLabelConfig = {
 
 /**
  * Default label ID for items without a user-selected label.
- * The items table CHECK constraint (items_label_id_fixed_check) allows
- * this value plus the five built-in label IDs below. Use when creating
- * items without a specific label.
+ * Must remain aligned with the database CHECK constraint for `items.label_id`
+ * and the built-in fixed label IDs below. Use when creating items without
+ * a specific label.
  */
 export const DEFAULT_ITEM_LABEL_ID = "default-item-label";
 

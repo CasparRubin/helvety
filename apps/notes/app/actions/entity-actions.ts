@@ -4,8 +4,17 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import {
+  isExportWithinCap,
+  runChunkedReorderUpdates,
+  validateOwnedReorderScope,
+} from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
-import { after } from "next/server";
+import {
+  parseActionInput,
+  unexpectedActionError,
+} from "@helvety/shared/server-action-primitives";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { ALLOWED_NOTE_CATEGORY_IDS } from "@/lib/config/default-note-categories";
@@ -42,6 +51,11 @@ const ReorderSchema = z
 
 const EntityTypeSchema = z.literal("item");
 
+/** Revalidate notes routes after reorder mutations. */
+function revalidateItemRoutes(): void {
+  revalidatePath("/notes");
+}
+
 // =============================================================================
 // BATCH REORDER ACTION (for drag-and-drop)
 // =============================================================================
@@ -69,15 +83,14 @@ export async function reorderEntities(
       return { success: false, error: "Invalid entity type" };
     }
 
-    const validationResult = ReorderSchema.safeParse(updates);
+    const validationResult = parseActionInput({
+      schema: ReorderSchema,
+      data: updates,
+      warnMessage: "Invalid reorder data",
+      invalidDataMessage: "Invalid reorder data",
+    });
     if (!validationResult.success) {
-      logger.warn("Invalid reorder data", {
-        fields: validationResult.error.issues.map((issue) =>
-          issue.path.join(".")
-        ),
-        issueCount: validationResult.error.issues.length,
-      });
-      return { success: false, error: "Invalid reorder data" };
+      return validationResult;
     }
     const validatedUpdates = validationResult.data;
 
@@ -89,68 +102,52 @@ export async function reorderEntities(
 
     // Ensure all entities being reordered belong to the current user.
     const updateIds = validatedUpdates.map((update) => update.id);
-    const { data: allowedRows, error: allowedRowsError } = await supabase
-      .from(NOTES_ITEMS_TABLE)
-      .select("id")
-      .eq("user_id", user.id)
-      .in("id", updateIds);
-    if (allowedRowsError) {
-      logger.logUnexpectedError(
-        "Error validating item reorder scope",
-        allowedRowsError
-      );
-      return { success: false, error: "Failed to reorder items" };
-    }
-    if ((allowedRows ?? []).length !== updateIds.length) {
-      return { success: false, error: "Invalid item reorder scope" };
-    }
-    // Batch updates in chunks to avoid saturating DB connections.
-    const now = new Date().toISOString();
-    const results = [];
-    for (
-      let i = 0;
-      i < validatedUpdates.length;
-      i += ACTION_LIMITS.REORDER_CHUNK_SIZE
-    ) {
-      const chunk = validatedUpdates.slice(
-        i,
-        i + ACTION_LIMITS.REORDER_CHUNK_SIZE
-      );
-      const chunkResults = await Promise.all(
-        chunk.map((update) => {
-          const updateObj: Record<string, unknown> = {
-            sort_order: update.sort_order,
-            updated_at: now,
-          };
-          if (update.category_id !== undefined) {
-            updateObj.category_id = update.category_id;
-          }
-
-          return supabase
-            .from(NOTES_ITEMS_TABLE)
-            .update(updateObj)
-            .eq("id", update.id)
-            .eq("user_id", user.id);
-        })
-      );
-      results.push(...chunkResults);
+    const scopeResult = await validateOwnedReorderScope({
+      supabase,
+      userId: user.id,
+      tableName: NOTES_ITEMS_TABLE,
+      ids: updateIds,
+      scope: "Error validating item reorder scope",
+      failureMessage: "Failed to reorder items",
+      invalidScopeMessage: "Invalid item reorder scope",
+    });
+    if (!scopeResult.success) {
+      return scopeResult;
     }
 
-    const failedResult = results.find((r) => r.error);
-    if (failedResult?.error) {
+    const reorderResult = await runChunkedReorderUpdates({
+      updates: validatedUpdates,
+      updateChunk: async (chunk, nowIso) =>
+        Promise.all(
+          chunk.map((update) => {
+            const updateObj: Record<string, unknown> = {
+              sort_order: update.sort_order,
+              updated_at: nowIso,
+            };
+            if (update.category_id !== undefined) {
+              updateObj.category_id = update.category_id;
+            }
+
+            return supabase
+              .from(NOTES_ITEMS_TABLE)
+              .update(updateObj)
+              .eq("id", update.id)
+              .eq("user_id", user.id);
+          })
+        ),
+    });
+    if (!reorderResult.success) {
       logger.logUnexpectedError(
         `Error reordering ${entityType}`,
-        failedResult.error
+        reorderResult.error
       );
       return { success: false, error: `Failed to reorder ${entityType}s` };
     }
 
+    revalidateItemRoutes();
     return { success: true };
   } catch (error) {
-    after(() =>
-      logger.logUnexpectedError("Unexpected error in reorderEntities", error)
-    );
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in reorderEntities", error);
   }
 }
 
@@ -197,7 +194,7 @@ export async function getAllNoteDataForExport(): Promise<
       return { success: false, error: "Failed to fetch note data" };
     }
 
-    if ((items?.length ?? 0) > ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE) {
+    if (!isExportWithinCap(items?.length ?? 0)) {
       logger.warn("Export exceeds maximum row cap", {
         userId: user.id,
         items: items?.length ?? 0,
@@ -219,12 +216,9 @@ export async function getAllNoteDataForExport(): Promise<
       },
     };
   } catch (error) {
-    after(() =>
-      logger.logUnexpectedError(
-        "Unexpected error in getAllNoteDataForExport",
-        error
-      )
+    return unexpectedActionError(
+      "Unexpected error in getAllNoteDataForExport",
+      error
     );
-    return { success: false, error: "An unexpected error occurred" };
   }
 }

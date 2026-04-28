@@ -10,6 +10,26 @@
 
 import { logger } from "./logger";
 
+export const AUTH_ACTIONS = {
+  sendVerificationCode: "sendVerificationCode",
+  verifyEmailCode: "verifyEmailCode",
+  generatePasskeyAuthOptions: "generatePasskeyAuthOptions",
+  verifyPasskeyAuthentication: "verifyPasskeyAuthentication",
+} as const;
+
+export const AUTH_REASONS = {
+  escalatingLockout: "escalating_lockout",
+  expectedUserNotFound: "expected_user_not_found",
+  challengeExpired: "challenge_expired",
+  credentialNotFound: "credential_not_found",
+  credentialOwnerMismatch: "credential_owner_mismatch",
+  credentialEmailMismatch: "credential_email_mismatch",
+  verificationError: "verification_error",
+  verificationFailed: "verification_failed",
+  noUser: "no_user",
+  unexpectedError: "unexpected_error",
+} as const;
+
 /**
  * Authentication event types
  */

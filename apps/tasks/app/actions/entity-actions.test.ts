@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   authenticateAndRateLimit: vi.fn(),
   logUnexpectedError: vi.fn(),
+  revalidatePath: vi.fn(),
 }));
 
 vi.mock("@helvety/shared/action-helpers", () => ({
@@ -21,7 +22,13 @@ vi.mock("next/server", () => ({
   after: (callback: () => void) => callback(),
 }));
 
-import { getAllTaskDataForExport } from "./entity-actions";
+vi.mock("next/cache", () => ({
+  revalidatePath: mocks.revalidatePath,
+}));
+
+import { getAllTaskDataForExport, reorderEntities } from "./entity-actions";
+
+const TASK_ID = "550e8400-e29b-41d4-a716-446655440000";
 
 describe("tasks entity-actions getAllTaskDataForExport", () => {
   beforeEach(() => {
@@ -42,5 +49,43 @@ describe("tasks entity-actions getAllTaskDataForExport", () => {
         readRateLimitConfig: { maxRequests: 5, windowMs: 60_000 },
       })
     );
+  });
+
+  it("revalidates tasks route after successful reorder", async () => {
+    const from = vi.fn();
+    from.mockImplementationOnce(() => ({
+      select: () => ({
+        eq: () => ({
+          in: () =>
+            Promise.resolve({
+              data: [{ id: TASK_ID }],
+              error: null,
+            }),
+        }),
+      }),
+    }));
+    from.mockImplementation(() => ({
+      update: () => ({
+        eq: () => ({
+          eq: () => Promise.resolve({ error: null }),
+        }),
+      }),
+    }));
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: { from },
+      },
+    });
+
+    const result = await reorderEntities(
+      "item",
+      [{ id: TASK_ID, sort_order: 0 }],
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/tasks");
   });
 });

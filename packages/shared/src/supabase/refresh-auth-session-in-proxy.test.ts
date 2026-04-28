@@ -1,7 +1,74 @@
-import { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
+import { NextRequest, NextResponse } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { requestMayHaveSupabaseAuthCookie } from "./refresh-auth-session-in-proxy";
+import {
+  refreshSupabaseAuthSession,
+  requestMayHaveSupabaseAuthCookie,
+} from "./refresh-auth-session-in-proxy";
+
+const { createServerClientMock } = vi.hoisted(() => ({
+  createServerClientMock: vi.fn(),
+}));
+
+vi.mock("@supabase/ssr", () => ({
+  createServerClient: createServerClientMock,
+}));
+
+vi.mock("../env-validation", () => ({
+  getSupabaseUrl: () => "https://example.supabase.co",
+  getSupabaseKey: () => "anon-key",
+}));
+
+describe("refreshSupabaseAuthSession", () => {
+  beforeEach(() => {
+    createServerClientMock.mockReset();
+  });
+
+  it("propagates refreshed cookies to request and response", async () => {
+    createServerClientMock.mockImplementation((_url, _key, options) => ({
+      auth: {
+        getUser: async () => {
+          options.cookies.setAll([
+            {
+              name: "sb-example-auth-token",
+              value: "updated",
+              options: { path: "/", httpOnly: true },
+            },
+          ]);
+          return { data: { user: null }, error: null };
+        },
+      },
+    }));
+
+    const request = new NextRequest("https://helvety.com/tasks", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    const baseResponse = NextResponse.next({ request });
+
+    const response = await refreshSupabaseAuthSession(request, baseResponse);
+
+    expect(request.cookies.get("sb-example-auth-token")?.value).toBe("updated");
+    expect(response.cookies.get("sb-example-auth-token")?.value).toBe(
+      "updated"
+    );
+  });
+
+  it("returns the original response when auth refresh fails", async () => {
+    createServerClientMock.mockImplementation(() => ({
+      auth: {
+        getUser: async () => {
+          throw new Error("refresh failed");
+        },
+      },
+    }));
+
+    const request = new NextRequest("https://helvety.com/tasks");
+    const baseResponse = NextResponse.next({ request });
+
+    const response = await refreshSupabaseAuthSession(request, baseResponse);
+    expect(response).toBe(baseResponse);
+  });
+});
 
 describe("requestMayHaveSupabaseAuthCookie", () => {
   it("returns false when there are no cookies", () => {

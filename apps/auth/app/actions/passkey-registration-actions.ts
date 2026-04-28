@@ -3,7 +3,6 @@
 import "server-only";
 
 import { PRF_VERSION } from "@helvety/shared/crypto";
-import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
@@ -13,13 +12,16 @@ import {
 } from "@simplewebauthn/server";
 import { z } from "zod";
 
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import {
   RP_NAME,
+  OriginUrlSchema,
   generatePRFSalt,
   getRpId,
   getExpectedOrigins,
+  runRateLimitGuard,
+  runAuthActionGuards,
   storeChallenge,
   getStoredChallenge,
   clearChallenge,
@@ -84,14 +86,16 @@ export async function generatePasskeyRegistrationOptions(
 ): Promise<
   ActionResponse<PublicKeyCredentialCreationOptionsJSON & { prfSalt: string }>
 > {
-  try {
-    await requireCSRFToken(csrfToken);
-  } catch {
-    return {
-      success: false,
-      error: "Security validation failed. Please sign in again.",
-    };
+  const originParse = OriginUrlSchema.safeParse(origin);
+  if (!originParse.success) {
+    return { success: false, error: "Failed to generate registration options" };
   }
+  const safeOrigin = originParse.data;
+  const guard = await runAuthActionGuards({
+    csrfToken,
+    requireClientIP: false,
+  });
+  if (!guard.ok) return guard.response;
 
   const isMobile = options?.isMobile === true;
 
@@ -110,20 +114,15 @@ export async function generatePasskeyRegistrationOptions(
       };
     }
 
-    const rl = await checkRateLimit(
-      `passkey_reg:user:${user.id}`,
-      RATE_LIMITS.PASSKEY_REG.maxRequests,
-      RATE_LIMITS.PASSKEY_REG.windowMs
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
-      };
-    }
+    const rl = await runRateLimitGuard({
+      key: `passkey_reg:user:${user.id}`,
+      maxRequests: RATE_LIMITS.PASSKEY_REG.maxRequests,
+      windowMs: RATE_LIMITS.PASSKEY_REG.windowMs,
+    });
+    if (!rl.ok) return rl.response;
 
     const scopedAdmin = createScopedAdminQuery(user.id);
-    const rpId = getRpId(origin);
+    const rpId = getRpId(safeOrigin);
 
     // Use scoped admin query (Supabase admin client using SUPABASE_SECRET_KEY; legacy service_role) because
     // user_auth_credentials has deny-all RLS for client roles. The same scoped read pattern is used in
@@ -221,14 +220,16 @@ export async function verifyPasskeyRegistration(
   origin: string,
   prfEnabled: boolean = false
 ): Promise<ActionResponse<{ credentialId: string; prfSalt?: string }>> {
-  try {
-    await requireCSRFToken(csrfToken);
-  } catch {
-    return {
-      success: false,
-      error: "Security validation failed. Please sign in again.",
-    };
+  const originParse = OriginUrlSchema.safeParse(origin);
+  if (!originParse.success) {
+    return { success: false, error: "Failed to verify registration" };
   }
+  const safeOrigin = originParse.data;
+  const guard = await runAuthActionGuards({
+    csrfToken,
+    requireClientIP: false,
+  });
+  if (!guard.ok) return guard.response;
 
   try {
     const parsedResponse =
@@ -254,17 +255,12 @@ export async function verifyPasskeyRegistration(
       };
     }
 
-    const rl = await checkRateLimit(
-      `passkey_reg:user:${user.id}`,
-      RATE_LIMITS.PASSKEY_REG.maxRequests,
-      RATE_LIMITS.PASSKEY_REG.windowMs
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
-      };
-    }
+    const rl = await runRateLimitGuard({
+      key: `passkey_reg:user:${user.id}`,
+      maxRequests: RATE_LIMITS.PASSKEY_REG.maxRequests,
+      windowMs: RATE_LIMITS.PASSKEY_REG.windowMs,
+    });
+    if (!rl.ok) return rl.response;
 
     const scopedAdmin = createScopedAdminQuery(user.id);
     // Retrieve stored challenge
@@ -278,7 +274,7 @@ export async function verifyPasskeyRegistration(
       return { success: false, error: "User mismatch" };
     }
 
-    const rpId = getRpId(origin);
+    const rpId = getRpId(safeOrigin);
     const expectedOrigins = getExpectedOrigins(rpId);
 
     const opts: VerifyRegistrationResponseOpts = {

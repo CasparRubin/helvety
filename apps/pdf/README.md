@@ -38,6 +38,13 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Operational safeguards** - 100MB per-file validation for stability; no business/account quotas and no app-enforced page-count cap. Practical throughput depends on browser/device memory and performance
 - **No login required** - Use the tool without an account
 
+## Crawl & Indexing Policy
+
+- `apps/pdf` is publicly indexable.
+- `/pdf/robots.txt` allows crawl, disallows non-content operational paths (`/api`, `/auth`), and advertises `/pdf/sitemap.xml`.
+- `/pdf/sitemap.xml` lists canonical absolute public URLs for the PDF app.
+- Metadata canonical and robots directives are defined in `app/layout.tsx` and kept consistent with the sitemap.
+
 ## How It Works
 
 1. **Upload Files** - Drag and drop or click to browse and select multiple PDF files and/or images

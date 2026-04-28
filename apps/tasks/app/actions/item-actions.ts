@@ -4,6 +4,10 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
+import {
+  parseActionInput,
+  unexpectedActionError,
+} from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -20,10 +24,13 @@ import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ItemRow } from "@/lib/types";
 
-/** Revalidate item routes impacted by structural item mutations. */
+/** Revalidate task routes after item mutations. */
 function revalidateItemRoutes(): void {
   revalidatePath("/tasks");
 }
+
+/** Canonical backing table for Tasks app items. */
+const TASKS_ITEMS_TABLE = "items" as const;
 
 // =============================================================================
 // Input Validation Schemas
@@ -45,30 +52,34 @@ const LabelIdSchema = z.enum(ALLOWED_ITEM_LABEL_IDS).nullable().optional();
 const PrioritySchema = z.number().int().min(0).max(3).optional();
 
 /** Schema for creating an Item */
-const CreateItemSchema = z.object({
-  id: z.string().uuid(),
-  encrypted_title: EncryptedDataSchema,
-  encrypted_description: EncryptedDataSchema.nullable(),
-  encrypted_start_date: EncryptedDataSchema.nullable(),
-  encrypted_end_date: EncryptedDataSchema.nullable(),
-  stage_id: StageIdSchema,
-  label_id: LabelIdSchema,
-  priority: PrioritySchema,
-  sort_order: z.number().int().min(0).optional(),
-});
+const CreateItemSchema = z
+  .object({
+    id: z.string().uuid(),
+    encrypted_title: EncryptedDataSchema,
+    encrypted_description: EncryptedDataSchema.nullable(),
+    encrypted_start_date: EncryptedDataSchema.nullable(),
+    encrypted_end_date: EncryptedDataSchema.nullable(),
+    stage_id: StageIdSchema,
+    label_id: LabelIdSchema,
+    priority: PrioritySchema,
+    sort_order: z.number().int().min(0).optional(),
+  })
+  .strict();
 
 /** Schema for updating an Item */
-const UpdateItemSchema = z.object({
-  id: z.string().uuid(),
-  encrypted_title: EncryptedDataSchema.optional(),
-  encrypted_description: EncryptedDataSchema.nullable().optional(),
-  encrypted_start_date: EncryptedDataSchema.nullable().optional(),
-  encrypted_end_date: EncryptedDataSchema.nullable().optional(),
-  stage_id: StageIdSchema,
-  label_id: LabelIdSchema,
-  priority: PrioritySchema,
-  sort_order: z.number().int().min(0).optional(),
-});
+const UpdateItemSchema = z
+  .object({
+    id: z.string().uuid(),
+    encrypted_title: EncryptedDataSchema.optional(),
+    encrypted_description: EncryptedDataSchema.nullable().optional(),
+    encrypted_start_date: EncryptedDataSchema.nullable().optional(),
+    encrypted_end_date: EncryptedDataSchema.nullable().optional(),
+    stage_id: StageIdSchema,
+    label_id: LabelIdSchema,
+    priority: PrioritySchema,
+    sort_order: z.number().int().min(0).optional(),
+  })
+  .strict();
 
 // =============================================================================
 // ITEM ACTIONS
@@ -104,15 +115,14 @@ export async function createItem(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = CreateItemSchema.safeParse(data);
+    const validationResult = parseActionInput({
+      schema: CreateItemSchema,
+      data,
+      warnMessage: "Invalid item data",
+      invalidDataMessage: "Invalid task data",
+    });
     if (!validationResult.success) {
-      logger.warn("Invalid item data", {
-        fields: validationResult.error.issues.map((issue) =>
-          issue.path.join(".")
-        ),
-        issueCount: validationResult.error.issues.length,
-      });
-      return { success: false, error: "Invalid task data" };
+      return validationResult;
     }
     const validatedData = validationResult.data;
     // Insert item (stage_id and label_id are NOT NULL in DB; use defaults when omitted)
@@ -131,7 +141,7 @@ export async function createItem(
     }
 
     const { data: item, error } = await supabase
-      .from("items")
+      .from(TASKS_ITEMS_TABLE)
       .insert(insertObj)
       .select("id")
       .single();
@@ -151,8 +161,7 @@ export async function createItem(
     revalidateItemRoutes();
     return { success: true, data: { id: item.id } };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in createItem", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in createItem", error);
   }
 }
 
@@ -166,7 +175,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
     const { user, supabase } = auth.ctx;
 
     const { data: items, error } = await supabase
-      .from("items")
+      .from(TASKS_ITEMS_TABLE)
       .select("*")
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
@@ -180,8 +189,7 @@ export async function getAllItems(): Promise<ActionResponse<ItemRow[]>> {
 
     return { success: true, data: items ?? [] };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getAllItems", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getAllItems", error);
   }
 }
 
@@ -200,7 +208,7 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
 
     // Get item (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: item, error } = await supabase
-      .from("items")
+      .from(TASKS_ITEMS_TABLE)
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
@@ -216,8 +224,7 @@ export async function getItem(id: string): Promise<ActionResponse<ItemRow>> {
 
     return { success: true, data: item };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getItem", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getItem", error);
   }
 }
 
@@ -247,15 +254,14 @@ export async function updateItem(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = UpdateItemSchema.safeParse(data);
+    const validationResult = parseActionInput({
+      schema: UpdateItemSchema,
+      data,
+      warnMessage: "Invalid item update data",
+      invalidDataMessage: "Invalid task data",
+    });
     if (!validationResult.success) {
-      logger.warn("Invalid item update data", {
-        fields: validationResult.error.issues.map((issue) =>
-          issue.path.join(".")
-        ),
-        issueCount: validationResult.error.issues.length,
-      });
-      return { success: false, error: "Invalid task data" };
+      return validationResult;
     }
     const validatedData = validationResult.data;
 
@@ -290,7 +296,7 @@ export async function updateItem(
 
     // Update item (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
-      .from("items")
+      .from(TASKS_ITEMS_TABLE)
       .update(updateObj)
       .eq("id", validatedData.id)
       .eq("user_id", user.id);
@@ -303,10 +309,10 @@ export async function updateItem(
       };
     }
 
+    revalidateItemRoutes();
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in updateItem", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in updateItem", error);
   }
 }
 
@@ -329,7 +335,7 @@ export async function deleteItem(
 
     // Delete item (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
-      .from("items")
+      .from(TASKS_ITEMS_TABLE)
       .delete()
       .eq("id", id)
       .eq("user_id", user.id);
@@ -342,7 +348,6 @@ export async function deleteItem(
     revalidateItemRoutes();
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in deleteItem", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in deleteItem", error);
   }
 }

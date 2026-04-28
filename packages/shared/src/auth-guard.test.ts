@@ -51,14 +51,10 @@ describe("requireAuth", () => {
   it("redirects to login when no user and no error", async () => {
     mockGetCachedAuthLookup.mockResolvedValue({ user: null, error: null });
 
-    try {
-      await requireAuth("/tasks");
-      expect.unreachable("should have thrown");
-    } catch (e) {
-      expect(e).toBeInstanceOf(MockRedirect);
-      const url = (e as MockRedirect).url;
-      expect(url).toContain("/auth/login");
-    }
+    await expect(requireAuth("/tasks")).rejects.toBeInstanceOf(MockRedirect);
+    await expect(requireAuth("/tasks")).rejects.toMatchObject({
+      url: expect.stringContaining("/auth/login"),
+    });
   });
 
   it("redirects to global logout for hard-logout errors", async () => {
@@ -69,15 +65,13 @@ describe("requireAuth", () => {
       } as unknown as AuthError,
     });
 
-    try {
-      await requireAuth("/tasks");
-      expect.unreachable("should have thrown");
-    } catch (e) {
-      expect(e).toBeInstanceOf(MockRedirect);
-      const url = (e as MockRedirect).url;
-      expect(url).toContain("/auth/logout");
-      expect(url).toContain("scope=global");
-    }
+    await expect(requireAuth("/tasks")).rejects.toBeInstanceOf(MockRedirect);
+    await expect(requireAuth("/tasks")).rejects.toMatchObject({
+      url: expect.stringContaining("/auth/logout"),
+    });
+    await expect(requireAuth("/tasks")).rejects.toMatchObject({
+      url: expect.stringContaining("scope=global"),
+    });
   });
 
   it("makes only one cached auth lookup (no fallback)", async () => {

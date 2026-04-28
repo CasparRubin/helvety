@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 const mocks = vi.hoisted(() => {
   const adminCreateUser = vi.fn();
@@ -23,25 +24,32 @@ const mocks = vi.hoisted(() => {
     createServerClient: vi.fn(),
     findUserByEmail: vi.fn(),
     generateCSRFToken: vi.fn(),
-    getClientIP: vi.fn(),
     hasEncryptionSetup: vi.fn(),
     logAuthEvent: vi.fn(),
     loggerError: vi.fn(),
     loggerWarn: vi.fn(),
     recordOtpFailureAndCheckLockout: vi.fn(),
-    requireCSRFToken: vi.fn(),
+    runAuthActionGuards: vi.fn(),
     resetEscalatingLockout: vi.fn(),
     resetRateLimit: vi.fn(),
   };
 });
 
 vi.mock("@helvety/shared/auth-logger", () => ({
+  AUTH_ACTIONS: {
+    sendVerificationCode: "sendVerificationCode",
+    verifyEmailCode: "verifyEmailCode",
+  },
+  AUTH_REASONS: {
+    escalatingLockout: "escalating_lockout",
+    noUser: "no_user",
+    unexpectedError: "unexpected_error",
+  },
   logAuthEvent: mocks.logAuthEvent,
 }));
 
 vi.mock("@helvety/shared/csrf", () => ({
   generateCSRFToken: mocks.generateCSRFToken,
-  requireCSRFToken: mocks.requireCSRFToken,
 }));
 
 vi.mock("@helvety/shared/logger", () => ({
@@ -75,7 +83,12 @@ vi.mock("@/lib/rate-limit", () => ({
 
 vi.mock("./auth-action-helpers", () => ({
   checkUserPasskeyStatus: mocks.checkUserPasskeyStatus,
-  getClientIP: mocks.getClientIP,
+  NormalizedEmailSchema: z
+    .string()
+    .trim()
+    .email()
+    .transform((value) => value.toLowerCase()),
+  runAuthActionGuards: mocks.runAuthActionGuards,
 }));
 
 vi.mock("./encryption-actions", () => ({
@@ -92,8 +105,10 @@ describe("otp-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mocks.requireCSRFToken.mockResolvedValue(undefined);
-    mocks.getClientIP.mockResolvedValue("203.0.113.15");
+    mocks.runAuthActionGuards.mockResolvedValue({
+      ok: true,
+      clientIP: "203.0.113.15",
+    });
     mocks.checkRateLimit.mockResolvedValue({ allowed: true });
     mocks.checkEscalatingLockout.mockResolvedValue({ allowed: true });
     mocks.recordOtpFailureAndCheckLockout.mockResolvedValue({ allowed: true });
@@ -119,7 +134,13 @@ describe("otp-actions", () => {
   });
 
   it("rejects sendVerificationCode when client IP is unresolvable", async () => {
-    mocks.getClientIP.mockResolvedValue(null);
+    mocks.runAuthActionGuards.mockResolvedValue({
+      ok: false,
+      response: {
+        success: false,
+        error: "Unable to process request. Please try again.",
+      },
+    });
 
     const result = await sendVerificationCode("csrf-token", "new@user.com", {
       nonEUEEAConfirmed: true,
@@ -133,7 +154,13 @@ describe("otp-actions", () => {
   });
 
   it("rejects verifyEmailCode when client IP is unresolvable", async () => {
-    mocks.getClientIP.mockResolvedValue(null);
+    mocks.runAuthActionGuards.mockResolvedValue({
+      ok: false,
+      response: {
+        success: false,
+        error: "Unable to process request. Please try again.",
+      },
+    });
 
     const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
 
@@ -198,7 +225,7 @@ describe("otp-actions", () => {
 
     expect(result).toEqual({
       error:
-        "Account temporarily locked due to too many failed attempts. Please try again in 2 minutes.",
+        "Too many failed verification attempts from this network. Please try again in 2 minutes, or switch networks/device.",
       success: false,
     });
   });

@@ -41,6 +41,19 @@ export interface RateLimitResult {
 
 /** Rate limit behavior during Redis outages in production. */
 export type RateLimitPolicy = "strict" | "soft";
+/** Internal outcome classification for rate-limit decisions. */
+type RateLimitDecision = "allow" | "deny" | "error";
+/** Internal storage key categories used by Redis and fallbacks. */
+type RateLimitKeyType = "generic" | "otpFailureCounter" | "otpLockoutUntil";
+
+/** Structured metric dimensions recorded for rate-limit observability. */
+interface RateLimitMetricKey {
+  prefix: string;
+  policy: RateLimitPolicy;
+  decision: RateLimitDecision;
+  keyType: RateLimitKeyType;
+  environment: string;
+}
 
 // =============================================================================
 // Upstash Redis Client (singleton)
@@ -48,6 +61,76 @@ export type RateLimitPolicy = "strict" | "soft";
 
 let redis: Redis | null = null;
 let hasWarnedMissingRedis = false;
+const MAX_METRIC_BUCKETS = 500;
+const rateLimitMetrics = new Map<string, number>();
+
+/** Normalize key parts for consistent namespace and comparison behavior. */
+function normalizeKeyPart(part: string): string {
+  return part.trim().toLowerCase();
+}
+
+/** Build canonical storage keys for rate-limit and lockout data. */
+function buildRateLimitStorageKey(
+  keyType: RateLimitKeyType,
+  identifier: string
+): string {
+  const normalizedIdentifier = normalizeKeyPart(identifier);
+  switch (keyType) {
+    case "generic":
+      return `ratelimit:generic:${normalizedIdentifier}`;
+    case "otpFailureCounter":
+      return `ratelimit:otp:lockout:failures:${normalizedIdentifier}`;
+    case "otpLockoutUntil":
+      return `ratelimit:otp:lockout:until:${normalizedIdentifier}`;
+  }
+}
+
+/** Record a bounded in-memory metric bucket for rate-limit outcomes. */
+function recordRateLimitMetric(metric: RateLimitMetricKey): void {
+  const bucket = `${metric.environment}:${metric.prefix}:${metric.policy}:${metric.keyType}:${metric.decision}`;
+  const nextValue = (rateLimitMetrics.get(bucket) ?? 0) + 1;
+  rateLimitMetrics.set(bucket, nextValue);
+  if (rateLimitMetrics.size > MAX_METRIC_BUCKETS) {
+    const oldest = rateLimitMetrics.keys().next().value;
+    if (oldest) {
+      rateLimitMetrics.delete(oldest);
+    }
+  }
+}
+
+/** Log rate-limit outcomes with consistent structured metadata. */
+function logRateLimitDecision(
+  message: string,
+  details: Omit<RateLimitMetricKey, "decision"> & {
+    decision: RateLimitDecision;
+    reason: string;
+    error?: unknown;
+  }
+): void {
+  recordRateLimitMetric({
+    prefix: details.prefix,
+    policy: details.policy,
+    keyType: details.keyType,
+    environment: details.environment,
+    decision: details.decision,
+  });
+  const metadata = {
+    prefix: details.prefix,
+    policy: details.policy,
+    keyType: details.keyType,
+    environment: details.environment,
+    reason: details.reason,
+  };
+  if (details.error) {
+    logger.logUnexpectedError(message, details.error, metadata);
+    return;
+  }
+  if (details.decision === "deny" || details.decision === "error") {
+    logger.warn(message, metadata);
+    return;
+  }
+  logger.info(message, metadata);
+}
 
 /**
  * Get or create the Upstash Redis client.
@@ -92,7 +175,7 @@ function getUpstashLimiter(
   const redisClient = getRedis();
   if (!redisClient) return null;
 
-  const key = `${prefix}:${maxRequests}:${windowMs}`;
+  const key = `${normalizeKeyPart(prefix)}:${maxRequests}:${windowMs}`;
   let limiter = rateLimiters.get(key);
 
   if (!limiter) {
@@ -103,7 +186,7 @@ function getUpstashLimiter(
     limiter = new Ratelimit({
       redis: redisClient,
       limiter: Ratelimit.slidingWindow(maxRequests, duration),
-      prefix: `ratelimit:${prefix}`,
+      prefix: `ratelimit:${normalizeKeyPart(prefix)}`,
       analytics: false,
     });
 
@@ -162,16 +245,18 @@ function startCleanup(): void {
 /** In-memory rate limit check (fallback for development). */
 function checkInMemoryRateLimit(
   key: string,
+  prefix: string,
   maxRequests: number,
   windowMs: number
 ): RateLimitResult {
   startCleanup();
 
+  const namespacedKey = `${normalizeKeyPart(prefix)}:${key}`;
   const now = Date.now();
-  const record = inMemoryStore.get(key);
+  const record = inMemoryStore.get(namespacedKey);
 
   if (!record || now > record.resetTime) {
-    inMemoryStore.set(key, { count: 1, resetTime: now + windowMs });
+    inMemoryStore.set(namespacedKey, { count: 1, resetTime: now + windowMs });
     return { allowed: true, remaining: maxRequests - 1 };
   }
 
@@ -213,14 +298,26 @@ export async function checkRateLimit(
   prefix: string = "api",
   policy: RateLimitPolicy = "strict"
 ): Promise<RateLimitResult> {
-  const limiter = getUpstashLimiter(prefix, maxRequests, windowMs);
+  const normalizedPrefix = normalizeKeyPart(prefix);
+  const environment = process.env.NODE_ENV ?? "unknown";
+  const limiter = getUpstashLimiter(normalizedPrefix, maxRequests, windowMs);
 
   if (limiter) {
     try {
-      const result = await limiter.limit(key);
+      const result = await limiter.limit(
+        buildRateLimitStorageKey("generic", `${normalizedPrefix}:${key}`)
+      );
 
       if (!result.success) {
         const retryAfter = Math.ceil((result.reset - Date.now()) / 1000);
+        logRateLimitDecision("Rate limit denied", {
+          prefix: normalizedPrefix,
+          policy,
+          keyType: "generic",
+          environment,
+          decision: "deny",
+          reason: "upstash_limit_exceeded",
+        });
         return {
           allowed: false,
           remaining: result.remaining,
@@ -228,6 +325,14 @@ export async function checkRateLimit(
         };
       }
 
+      logRateLimitDecision("Rate limit allowed", {
+        prefix: normalizedPrefix,
+        policy,
+        keyType: "generic",
+        environment,
+        decision: "allow",
+        reason: "upstash_allow",
+      });
       return { allowed: true, remaining: result.remaining };
     } catch (error) {
       // In production with strict policy, fail closed when Redis is unavailable.
@@ -235,39 +340,101 @@ export async function checkRateLimit(
       // In-memory fallback does not persist across serverless invocations,
       // making it ineffective for distributed rate limiting.
       if (process.env.NODE_ENV === "production" && policy === "strict") {
-        logger.logUnexpectedError(
+        logRateLimitDecision(
           "Upstash rate limit failed in production — failing closed",
-          error
+          {
+            prefix: normalizedPrefix,
+            policy,
+            keyType: "generic",
+            environment,
+            decision: "error",
+            reason: "upstash_failure_strict",
+            error,
+          }
         );
         return { allowed: false, remaining: 0, retryAfter: 30 };
       }
       if (process.env.NODE_ENV === "production" && policy === "soft") {
-        logger.warn(
-          "Upstash rate limit failed in production for soft policy — allowing request:",
-          error
+        logRateLimitDecision(
+          "Upstash rate limit failed in production for soft policy — allowing request",
+          {
+            prefix: normalizedPrefix,
+            policy,
+            keyType: "generic",
+            environment,
+            decision: "allow",
+            reason: "upstash_failure_soft",
+            error,
+          }
         );
         return { allowed: true, remaining: 0 };
       }
       // In development, fall through to in-memory as a convenience
-      logger.warn(
-        "Upstash rate limit failed, falling back to in-memory:",
-        error
+      logRateLimitDecision(
+        "Upstash rate limit failed, falling back to in-memory",
+        {
+          prefix: normalizedPrefix,
+          policy,
+          keyType: "generic",
+          environment,
+          decision: "error",
+          reason: "upstash_failure_dev_fallback",
+          error,
+        }
       );
     }
   } else if (process.env.NODE_ENV === "production" && policy === "strict") {
     // Fail closed in production when Redis credentials are not configured.
     // In-memory rate limiting does not persist across serverless invocations,
     // so it provides no real protection in production.
+    logRateLimitDecision(
+      "Redis credentials missing in production for strict rate-limit policy — rejecting request",
+      {
+        prefix: normalizedPrefix,
+        policy,
+        keyType: "generic",
+        environment,
+        decision: "deny",
+        reason: "redis_credentials_missing_strict",
+      }
+    );
     return { allowed: false, remaining: 0, retryAfter: 30 };
   } else if (process.env.NODE_ENV === "production" && policy === "soft") {
-    logger.warn(
-      "Redis credentials missing in production for soft rate-limit policy — allowing request."
+    logRateLimitDecision(
+      "Redis credentials missing in production for soft rate-limit policy — allowing request",
+      {
+        prefix: normalizedPrefix,
+        policy,
+        keyType: "generic",
+        environment,
+        decision: "allow",
+        reason: "redis_credentials_missing_soft",
+      }
     );
     return { allowed: true, remaining: 0 };
   }
 
   // Development fallback: in-memory rate limiting (single-server only)
-  return checkInMemoryRateLimit(key, maxRequests, windowMs);
+  const fallbackResult = checkInMemoryRateLimit(
+    key,
+    normalizedPrefix,
+    maxRequests,
+    windowMs
+  );
+  logRateLimitDecision(
+    fallbackResult.allowed
+      ? "In-memory rate limit allowed"
+      : "In-memory rate limit denied",
+    {
+      prefix: normalizedPrefix,
+      policy,
+      keyType: "generic",
+      environment,
+      decision: fallbackResult.allowed ? "allow" : "deny",
+      reason: "in_memory_fallback",
+    }
+  );
+  return fallbackResult;
 }
 
 /**
@@ -287,16 +454,21 @@ export async function resetRateLimit(
   // Get or create a limiter with the matching prefix to use its resetUsedTokens API.
   // The maxRequests/windowMs values don't affect the reset operation — they only
   // matter for the sliding window config — so we use sensible defaults.
-  const limiter = getUpstashLimiter(prefix, 100, 60000);
+  const normalizedPrefix = normalizeKeyPart(prefix);
+  const limiter = getUpstashLimiter(normalizedPrefix, 100, 60000);
+  const storageKey = buildRateLimitStorageKey(
+    "generic",
+    `${normalizedPrefix}:${key}`
+  );
   if (limiter) {
     try {
-      await limiter.resetUsedTokens(key);
+      await limiter.resetUsedTokens(storageKey);
     } catch (error) {
       logger.warn("Failed to reset rate limit in Redis:", error);
     }
   }
 
-  inMemoryStore.delete(key);
+  inMemoryStore.delete(`${normalizedPrefix}:${key}`);
 }
 
 // =============================================================================
@@ -339,8 +511,14 @@ export async function recordOtpFailureAndCheckLockout(
   email: string
 ): Promise<RateLimitResult> {
   const normalizedEmail = email.trim().toLowerCase();
-  const failureCounterKey = `otp_lockout:failures:${normalizedEmail}`;
-  const lockoutUntilKey = `otp_lockout:until:${normalizedEmail}`;
+  const failureCounterKey = buildRateLimitStorageKey(
+    "otpFailureCounter",
+    normalizedEmail
+  );
+  const lockoutUntilKey = buildRateLimitStorageKey(
+    "otpLockoutUntil",
+    normalizedEmail
+  );
 
   const redisClient = getRedis();
   if (redisClient) {
@@ -432,7 +610,10 @@ export async function checkEscalatingLockout(
   email: string
 ): Promise<RateLimitResult> {
   const normalizedEmail = email.trim().toLowerCase();
-  const lockoutUntilKey = `otp_lockout:until:${normalizedEmail}`;
+  const lockoutUntilKey = buildRateLimitStorageKey(
+    "otpLockoutUntil",
+    normalizedEmail
+  );
 
   const redisClient = getRedis();
   if (redisClient) {
@@ -484,8 +665,14 @@ export async function checkEscalatingLockout(
  */
 export async function resetEscalatingLockout(email: string): Promise<void> {
   const normalizedEmail = email.trim().toLowerCase();
-  const failureCounterKey = `otp_lockout:failures:${normalizedEmail}`;
-  const lockoutUntilKey = `otp_lockout:until:${normalizedEmail}`;
+  const failureCounterKey = buildRateLimitStorageKey(
+    "otpFailureCounter",
+    normalizedEmail
+  );
+  const lockoutUntilKey = buildRateLimitStorageKey(
+    "otpLockoutUntil",
+    normalizedEmail
+  );
 
   const redisClient = getRedis();
   if (redisClient) {
@@ -525,3 +712,13 @@ export const RATE_LIMITS = {
   /** Encryption unlock attempts: 5 per minute per user */
   ENCRYPTION_UNLOCK: { maxRequests: 5, windowMs: 60 * 1000 },
 } as const;
+
+export const __rateLimitInternals = {
+  buildRateLimitStorageKey,
+  clearMetrics(): void {
+    rateLimitMetrics.clear();
+  },
+  getMetrics(): ReadonlyMap<string, number> {
+    return new Map(rateLimitMetrics);
+  },
+};

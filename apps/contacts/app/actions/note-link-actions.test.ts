@@ -1,12 +1,14 @@
+import { createAuthSuccessContext } from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   authenticateAndRateLimit: vi.fn(),
-  createEntityLink: vi.fn(),
-  deleteEntityLink: vi.fn(),
   ensureOwnedEntityExists: vi.fn(),
   getEntityLinksForEndpoint: vi.fn(),
   toLinkedEntityReferences: vi.fn(),
+  createCanonicalLink: vi.fn(),
+  deleteCanonicalLink: vi.fn(),
+  validateOwnedLinkEntities: vi.fn(),
   loggerError: vi.fn(),
 }));
 
@@ -22,11 +24,15 @@ vi.mock("@helvety/shared/logger", () => ({
 }));
 
 vi.mock("@helvety/shared/entity-links", () => ({
-  createEntityLink: mocks.createEntityLink,
-  deleteEntityLink: mocks.deleteEntityLink,
   ensureOwnedEntityExists: mocks.ensureOwnedEntityExists,
   getEntityLinksForEndpoint: mocks.getEntityLinksForEndpoint,
   toLinkedEntityReferences: mocks.toLinkedEntityReferences,
+}));
+
+vi.mock("@helvety/shared/entity-link-action-primitives", () => ({
+  createCanonicalLink: mocks.createCanonicalLink,
+  deleteCanonicalLink: mocks.deleteCanonicalLink,
+  validateOwnedLinkEntities: mocks.validateOwnedLinkEntities,
 }));
 
 import {
@@ -95,12 +101,11 @@ describe("contacts note-link-actions", () => {
     expect(mocks.authenticateAndRateLimit).not.toHaveBeenCalled();
   });
 
-  it("uses entity link helpers and returns note-only link data", async () => {
+  it("returns linked notes and supports link/unlink operations", async () => {
     const supabase = createSupabaseMock();
-    mocks.authenticateAndRateLimit.mockResolvedValue({
-      ok: true,
-      ctx: { user: { id: "user-1" }, supabase },
-    });
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
     mocks.ensureOwnedEntityExists.mockResolvedValue(true);
     mocks.getEntityLinksForEndpoint.mockResolvedValue({
       data: [{ id: "link-1" }],
@@ -113,11 +118,12 @@ describe("contacts note-link-actions", () => {
         linked_at: "2026-01-01T00:00:00Z",
       },
     ]);
-    mocks.createEntityLink.mockResolvedValue({
-      data: { id: "new-link", created_at: "2026-01-01T00:00:00Z" },
-      error: null,
+    mocks.validateOwnedLinkEntities.mockResolvedValue({ success: true });
+    mocks.createCanonicalLink.mockResolvedValue({
+      success: true,
+      id: "new-link",
     });
-    mocks.deleteEntityLink.mockResolvedValue({ error: null });
+    mocks.deleteCanonicalLink.mockResolvedValue({ success: true });
 
     const links = await getContactNoteLinks(
       "550e8400-e29b-41d4-a716-446655440000"
@@ -153,7 +159,7 @@ describe("contacts note-link-actions", () => {
     expect(linked).toEqual({ success: true, data: { id: "new-link" } });
     expect(unlinked).toEqual({ success: true });
     expect(mocks.getEntityLinksForEndpoint).toHaveBeenCalled();
-    expect(mocks.createEntityLink).toHaveBeenCalled();
-    expect(mocks.deleteEntityLink).toHaveBeenCalled();
+    expect(mocks.createCanonicalLink).toHaveBeenCalled();
+    expect(mocks.deleteCanonicalLink).toHaveBeenCalled();
   });
 });

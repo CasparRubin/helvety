@@ -4,9 +4,11 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import {
-  createEntityLink,
-  deleteEntityLink,
-  ensureOwnedEntityExists,
+  createCanonicalLink,
+  deleteCanonicalLink,
+  validateOwnedLinkEntities,
+} from "@helvety/shared/entity-link-action-primitives";
+import {
   getEntityLinksForEndpoint,
   toLinkedEntityReferences,
 } from "@helvety/shared/entity-links";
@@ -138,36 +140,41 @@ export async function linkNote(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [noteExists, itemExists] = await Promise.all([
-      ensureOwnedEntityExists(supabase, user.id, "notes", noteId),
-      ensureOwnedEntityExists(supabase, user.id, "items", itemId),
+    const ownedEntities = await validateOwnedLinkEntities(supabase, user.id, [
+      {
+        entityType: "notes",
+        entityId: noteId,
+        notFoundMessage: "Note not found",
+      },
+      {
+        entityType: "items",
+        entityId: itemId,
+        notFoundMessage: "Task not found",
+      },
     ]);
-
-    if (!noteExists) {
-      return { success: false, error: "Note not found" };
-    }
-    if (!itemExists) {
-      return { success: false, error: "Task not found" };
+    if (!ownedEntities.success) {
+      return ownedEntities;
     }
 
-    const linkResult = await createEntityLink({
+    const linkResult = await createCanonicalLink({
       supabase,
       userId: user.id,
       sourceEntityType: "items",
       sourceEntityId: itemId,
       targetEntityType: "notes",
       targetEntityId: noteId,
+      duplicateMessage: "Note is already linked",
+      failureMessage: "Failed to link note",
     });
 
-    if (linkResult.error || !linkResult.data) {
-      if (linkResult.error?.code === "23505") {
-        return { success: false, error: "Note is already linked" };
+    if (!linkResult.success) {
+      if (linkResult.logError) {
+        logger.logUnexpectedError("Error linking note", linkResult.logError);
       }
-      logger.logUnexpectedError("Error linking note", linkResult.error);
-      return { success: false, error: "Failed to link note" };
+      return { success: false, error: linkResult.error };
     }
 
-    return { success: true, data: { id: linkResult.data.id } };
+    return { success: true, data: { id: linkResult.id } };
   } catch (error) {
     logger.logUnexpectedError("Unexpected error in linkNote", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -193,11 +200,20 @@ export async function unlinkNote(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
-
-    if (deleteResult.error) {
-      logger.logUnexpectedError("Error unlinking note", deleteResult.error);
-      return { success: false, error: "Failed to unlink note" };
+    const deleteResult = await deleteCanonicalLink(
+      supabase,
+      user.id,
+      linkId,
+      "Failed to unlink note"
+    );
+    if (!deleteResult.success) {
+      if (deleteResult.logError) {
+        logger.logUnexpectedError(
+          "Error unlinking note",
+          deleteResult.logError
+        );
+      }
+      return { success: false, error: deleteResult.error };
     }
 
     return { success: true };

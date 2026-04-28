@@ -43,9 +43,21 @@ interface UsePdfFilesReturn {
 
 /** Maximum number of retry attempts for transient failures */
 const MAX_RETRIES = 2;
+/** Bounded number of cached PDFDocument instances per session. */
+const MAX_PDF_CACHE_ENTRIES = 40;
+
+/** Evict least-recently-used documents until cache is within configured cap. */
+function enforcePdfCacheLimit(pdfCache: Map<string, PDFDocument>): void {
+  while (pdfCache.size > MAX_PDF_CACHE_ENTRIES) {
+    const oldestKey = pdfCache.keys().next().value;
+    if (!oldestKey) return;
+    pdfCache.delete(oldestKey);
+    logger.log(`Evicted cached PDF document due to cache cap: ${oldestKey}`);
+  }
+}
 
 /**
- * Applies rate limiting between uploads.
+ * Applies a local upload throttle between uploads.
  * Returns after enforcing minimum delay between uploads.
  *
  * @param lastUploadTimeRef - Ref to track last upload timestamp
@@ -249,7 +261,7 @@ export function usePdfFiles(): UsePdfFilesReturn {
       }
 
       // For images, try to re-convert if cache is missing (fallback)
-      // This can happen if cache was cleared or file was uploaded before caching was implemented
+      // This can happen when the cache was cleared or another flow evicted the entry.
       if (fileType === "image") {
         logger.warn(
           `Cache miss for image: "${file.name}" (ID: ${fileId}). Re-converting...`
@@ -262,6 +274,7 @@ export function usePdfFiles(): UsePdfFilesReturn {
           // Re-convert the image to PDF
           const pdf = await convertImageToPdf(file);
           pdfCacheRef.current.set(fileId, pdf);
+          enforcePdfCacheLimit(pdfCacheRef.current);
           logger.log(
             `Re-converted and cached image: "${file.name}" (ID: ${fileId})`
           );
@@ -278,6 +291,7 @@ export function usePdfFiles(): UsePdfFilesReturn {
       try {
         const pdf = await loadPdfFromFile(file);
         pdfCacheRef.current.set(fileId, pdf);
+        enforcePdfCacheLimit(pdfCacheRef.current);
         logger.log(`Loaded and cached PDF: "${file.name}" (ID: ${fileId})`);
         return pdf;
       } catch (err) {
@@ -360,6 +374,7 @@ export function usePdfFiles(): UsePdfFilesReturn {
           validationErrors.push(result.error);
         } else {
           pdfFilesToAdd.push(result.pdfFile);
+          enforcePdfCacheLimit(pdfCacheRef.current);
           logger.log(
             `Successfully processed file '${file.name}' (${i + 1}/${fileArray.length})`
           );

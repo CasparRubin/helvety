@@ -2,12 +2,15 @@
 
 import "server-only";
 
-import { logAuthEvent } from "@helvety/shared/auth-logger";
-import { generateCSRFToken, requireCSRFToken } from "@helvety/shared/csrf";
+import {
+  AUTH_ACTIONS,
+  AUTH_REASONS,
+  logAuthEvent,
+} from "@helvety/shared/auth-logger";
+import { generateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
-import { z } from "zod";
 
 import { resolveAuthStep } from "@/lib/auth-step";
 import { OTP_CODE_REGEX } from "@/lib/otp-code";
@@ -20,7 +23,11 @@ import {
   resetEscalatingLockout,
 } from "@/lib/rate-limit";
 
-import { getClientIP, checkUserPasskeyStatus } from "./auth-action-helpers";
+import {
+  NormalizedEmailSchema,
+  checkUserPasskeyStatus,
+  runAuthActionGuards,
+} from "./auth-action-helpers";
 import { hasEncryptionSetup } from "./encryption-actions";
 import { findUserByEmail } from "./user-lookup";
 
@@ -61,17 +68,15 @@ export async function sendVerificationCode(
   email: string,
   options?: { nonEUEEAConfirmed?: boolean }
 ): Promise<ActionResponse<{ codeSent: boolean }>> {
-  try {
-    await requireCSRFToken(csrfToken);
-  } catch {
-    return {
-      success: false,
-      error: "Security validation failed. Please sign in again.",
-    };
+  const emailParse = NormalizedEmailSchema.safeParse(email);
+  if (!emailParse.success) {
+    return { success: false, error: "Please enter a valid email address" };
   }
+  const normalizedEmail = emailParse.data;
 
-  const normalizedEmail = email.toLowerCase().trim();
-  const clientIP = await getClientIP();
+  const guard = await runAuthActionGuards({ csrfToken });
+  if (!guard.ok) return guard.response;
+  const clientIP = guard.clientIP;
   if (!clientIP) {
     return {
       success: false,
@@ -98,7 +103,7 @@ export async function sendVerificationCode(
       emailRateLimit.retryAfter ?? ipRateLimit.retryAfter ?? 60;
     logAuthEvent("rate_limit_exceeded", {
       metadata: {
-        action: "sendVerificationCode",
+        action: AUTH_ACTIONS.sendVerificationCode,
         email: `${normalizedEmail.slice(0, 3)}***`,
         retryAfter,
       },
@@ -116,11 +121,6 @@ export async function sendVerificationCode(
   });
 
   try {
-    // Validate email format
-    if (!z.string().email().safeParse(normalizedEmail).success) {
-      return { success: false, error: "Please enter a valid email address" };
-    }
-
     const adminClient = createAdminClient();
 
     // Ensure step-1 location confirmation was completed in the same submit.
@@ -195,7 +195,7 @@ export async function sendVerificationCode(
   } catch (error) {
     logger.logUnexpectedError("Error in sendVerificationCode", error);
     logAuthEvent("otp_failed", {
-      metadata: { reason: "unexpected_error" },
+      metadata: { reason: AUTH_REASONS.unexpectedError },
       ip: clientIP,
     });
     // Return generic success to prevent enumeration
@@ -232,17 +232,15 @@ export async function verifyEmailCode(
     isNewUser: boolean;
   }>
 > {
-  try {
-    await requireCSRFToken(csrfToken);
-  } catch {
-    return {
-      success: false,
-      error: "Security validation failed. Please sign in again.",
-    };
+  const emailParse = NormalizedEmailSchema.safeParse(email);
+  if (!emailParse.success) {
+    return { success: false, error: "Please enter a valid email address" };
   }
+  const normalizedEmail = emailParse.data;
 
-  const normalizedEmail = email.toLowerCase().trim();
-  const clientIP = await getClientIP();
+  const guard = await runAuthActionGuards({ csrfToken });
+  if (!guard.ok) return guard.response;
+  const clientIP = guard.clientIP;
   if (!clientIP) {
     return {
       success: false,
@@ -257,16 +255,16 @@ export async function verifyEmailCode(
     const retryMinutes = Math.ceil((lockout.retryAfter ?? 300) / 60);
     logAuthEvent("rate_limit_exceeded", {
       metadata: {
-        action: "verifyEmailCode",
+        action: AUTH_ACTIONS.verifyEmailCode,
         email: `${normalizedEmail.slice(0, 3)}***`,
-        reason: "escalating_lockout",
+        reason: AUTH_REASONS.escalatingLockout,
         retryMinutes,
       },
       ip: clientIP,
     });
     return {
       success: false,
-      error: `Account temporarily locked due to too many failed attempts. Please try again in ${retryMinutes} minute${retryMinutes !== 1 ? "s" : ""}.`,
+      error: `Too many failed verification attempts from this network. Please try again in ${retryMinutes} minute${retryMinutes !== 1 ? "s" : ""}, or switch networks/device.`,
     };
   }
 
@@ -289,7 +287,7 @@ export async function verifyEmailCode(
       emailRateLimit.retryAfter ?? ipRateLimit.retryAfter ?? 60;
     logAuthEvent("rate_limit_exceeded", {
       metadata: {
-        action: "verifyEmailCode",
+        action: AUTH_ACTIONS.verifyEmailCode,
         email: `${normalizedEmail.slice(0, 3)}***`,
         retryAfter,
       },
@@ -321,7 +319,10 @@ export async function verifyEmailCode(
 
     if (verifyError || !data.user) {
       logAuthEvent("login_failed", {
-        metadata: { method: "otp", reason: verifyError?.message ?? "no_user" },
+        metadata: {
+          method: "otp",
+          reason: verifyError?.message ?? AUTH_REASONS.noUser,
+        },
         ip: clientIP,
       });
 
@@ -332,7 +333,7 @@ export async function verifyEmailCode(
         const retryMinutes = Math.ceil((lockoutResult.retryAfter ?? 300) / 60);
         return {
           success: false,
-          error: `Account temporarily locked due to too many failed attempts. Please try again in ${retryMinutes} minute${retryMinutes !== 1 ? "s" : ""}.`,
+          error: `Too many failed verification attempts from this network. Please try again in ${retryMinutes} minute${retryMinutes !== 1 ? "s" : ""}, or switch networks/device.`,
         };
       }
 

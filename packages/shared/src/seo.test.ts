@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   createAppRobots,
   createAppSitemap,
+  createOpenRobots,
   createPrivateAppRobots,
+  createPrivateAppSitemap,
 } from "./seo";
 
 /** Minimal robots rule shape used by helper assertions. */
@@ -103,5 +105,19 @@ describe("seo helpers", () => {
     })();
 
     expect(robots.sitemap).toBe("https://helvety.com/tasks/sitemap.xml");
+  });
+
+  it("returns an allow-all robots policy for open apps", () => {
+    const robots = createOpenRobots("/sitemap.xml")();
+
+    const disallowedPaths = getDisallowedPaths(robots.rules);
+    expect(disallowedPaths).toEqual([]);
+    expect(robots.sitemap).toBe("https://helvety.com/sitemap.xml");
+    expect(robots.host).toBe("https://helvety.com");
+  });
+
+  it("returns an empty sitemap for private apps", () => {
+    const sitemapEntries = createPrivateAppSitemap()();
+    expect(sitemapEntries).toEqual([]);
   });
 });

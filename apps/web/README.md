@@ -26,7 +26,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Legal pages** - Privacy Policy, Terms of Service, and Impressum are hosted centrally on [helvety.com](https://helvety.com) and linked in the site footer. Services are primarily intended for customers in Switzerland, and account-based services collect a non-EU/EEA location-attestation signal during sign-in on [helvety.com/auth](https://helvety.com/auth). The legal baseline is Swiss data protection law (nDSG), and where other mandatory law applies in a specific case, Helvety follows those obligations.
 - **Abuse reporting** - The Impressum includes an abuse reporting section ([helvety.com/impressum#abuse](https://helvety.com/impressum#abuse)) with guidance for users and law enforcement. Abuse contact: [contact@helvety.com](mailto:contact@helvety.com).
 - **Cookie notice** - Informational notice in the footer about essential cookies; analytics and performance telemetry usage is documented in the Privacy Policy
-- **SEO optimized** - Sitemap and robots.txt for search engine visibility
+- **SEO optimized** - Public robots/sitemap endpoints plus canonical metadata for indexable pages
 - **Animated logo** - Subtle glow effect on the main logo
 
 ## Multi-Zone Routing Notes
@@ -34,6 +34,15 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - Sub-apps are forwarded by gateway rewrites in `apps/web/next.config.ts`.
 - Use wildcard segment patterns (prefer `:path*`) for zone forwarding rules so App Router Flight/RSC prefetch requests (`?_rsc=...`) and trailing-slash variants are forwarded consistently.
 - Keep wildcard usage consistent across zones (`auth`, `tasks`, `contacts`, `notes`, `store`, `pdf`) and include each zone's static asset prefix routes (`/auth-static`, `/tasks-static`, `/contacts-static`, `/notes-static`) to avoid stale bundles or edge-case misses.
+
+## Crawl & Indexing Policy
+
+- `apps/web` is indexable and serves:
+  - `/robots.txt` with an allow-all policy and a sitemap index reference.
+  - `/sitemap.xml` for web-owned public pages.
+  - `/sitemap-index.xml` for the monorepo's public app sitemaps (`/`, `/store`, `/pdf`).
+- Canonical metadata is set in `app/layout.tsx`; legal pages keep dedicated metadata exports.
+- Implementation aligns with Next.js App Router metadata file conventions and Google Search Central guidance for robots/sitemaps.
 
 ## Security Features
 

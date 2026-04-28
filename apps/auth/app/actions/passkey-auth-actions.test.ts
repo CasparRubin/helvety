@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 const mocks = vi.hoisted(() => {
   const credentialEq = vi.fn();
@@ -19,17 +20,16 @@ const mocks = vi.hoisted(() => {
     adminGenerateLink: vi.fn(),
     adminGetUserById: vi.fn(),
     adminRpc: vi.fn(),
-    checkRateLimit: vi.fn(),
     clearChallenge: vi.fn(),
     credentialEq,
     credentialSingle,
     generateAuthenticationOptions: vi.fn(),
     generateCSRFToken: vi.fn(),
-    getClientIP: vi.fn(),
     getExpectedOrigins: vi.fn(),
     getRpId: vi.fn(),
     getStoredChallenge: vi.fn(),
-    requireCSRFToken: vi.fn(),
+    runAuthActionGuards: vi.fn(),
+    runRateLimitGuard: vi.fn(),
     resetRateLimit: vi.fn(),
     storeChallenge: vi.fn(),
     supabaseVerifyOtp: vi.fn(),
@@ -38,6 +38,20 @@ const mocks = vi.hoisted(() => {
 });
 
 vi.mock("@helvety/shared/auth-logger", () => ({
+  AUTH_ACTIONS: {
+    generatePasskeyAuthOptions: "generatePasskeyAuthOptions",
+    verifyPasskeyAuthentication: "verifyPasskeyAuthentication",
+  },
+  AUTH_REASONS: {
+    expectedUserNotFound: "expected_user_not_found",
+    challengeExpired: "challenge_expired",
+    credentialNotFound: "credential_not_found",
+    credentialOwnerMismatch: "credential_owner_mismatch",
+    credentialEmailMismatch: "credential_email_mismatch",
+    verificationError: "verification_error",
+    verificationFailed: "verification_failed",
+    unexpectedError: "unexpected_error",
+  },
   logAuthEvent: vi.fn(),
 }));
 
@@ -47,7 +61,6 @@ vi.mock("@helvety/shared/config", () => ({
 
 vi.mock("@helvety/shared/csrf", () => ({
   generateCSRFToken: mocks.generateCSRFToken,
-  requireCSRFToken: mocks.requireCSRFToken,
 }));
 
 vi.mock("@helvety/shared/logger", () => ({
@@ -100,16 +113,17 @@ vi.mock("@/lib/rate-limit", () => ({
   RATE_LIMITS: {
     PASSKEY: { maxRequests: 10, windowMs: 60_000 },
   },
-  checkRateLimit: mocks.checkRateLimit,
   resetRateLimit: mocks.resetRateLimit,
 }));
 
 vi.mock("./auth-action-helpers", () => ({
   clearChallenge: mocks.clearChallenge,
-  getClientIP: mocks.getClientIP,
   getExpectedOrigins: mocks.getExpectedOrigins,
   getRpId: mocks.getRpId,
   getStoredChallenge: mocks.getStoredChallenge,
+  OriginUrlSchema: z.string().url(),
+  runAuthActionGuards: mocks.runAuthActionGuards,
+  runRateLimitGuard: mocks.runRateLimitGuard,
   storeChallenge: mocks.storeChallenge,
 }));
 
@@ -122,10 +136,12 @@ describe("passkey-auth-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mocks.requireCSRFToken.mockResolvedValue(undefined);
-    mocks.checkRateLimit.mockResolvedValue({ allowed: true });
+    mocks.runAuthActionGuards.mockResolvedValue({
+      ok: true,
+      clientIP: "127.0.0.1",
+    });
+    mocks.runRateLimitGuard.mockResolvedValue({ ok: true });
     mocks.resetRateLimit.mockResolvedValue(undefined);
-    mocks.getClientIP.mockResolvedValue("127.0.0.1");
     mocks.getRpId.mockReturnValue("helvety.com");
     mocks.getExpectedOrigins.mockReturnValue(["https://helvety.com"]);
     mocks.generateAuthenticationOptions.mockResolvedValue({
@@ -152,7 +168,13 @@ describe("passkey-auth-actions", () => {
   });
 
   it("rejects generatePasskeyAuthOptions when client IP is unresolvable", async () => {
-    mocks.getClientIP.mockResolvedValue(null);
+    mocks.runAuthActionGuards.mockResolvedValue({
+      ok: false,
+      response: {
+        success: false,
+        error: "Unable to process request. Please try again.",
+      },
+    });
 
     const result = await generatePasskeyAuthOptions(
       "csrf-token",
@@ -163,11 +185,17 @@ describe("passkey-auth-actions", () => {
       success: false,
       error: "Unable to process request. Please try again.",
     });
-    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+    expect(mocks.runRateLimitGuard).not.toHaveBeenCalled();
   });
 
   it("rejects verifyPasskeyAuthentication when client IP is unresolvable", async () => {
-    mocks.getClientIP.mockResolvedValue(null);
+    mocks.runAuthActionGuards.mockResolvedValue({
+      ok: false,
+      response: {
+        success: false,
+        error: "Unable to process request. Please try again.",
+      },
+    });
 
     const response = {
       id: "cred-a",
@@ -183,7 +211,7 @@ describe("passkey-auth-actions", () => {
       success: false,
       error: "Unable to process request. Please try again.",
     });
-    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+    expect(mocks.runRateLimitGuard).not.toHaveBeenCalled();
   });
 
   it("returns generic error when expected user has no passkey credentials", async () => {

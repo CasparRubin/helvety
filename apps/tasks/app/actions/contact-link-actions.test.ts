@@ -1,3 +1,7 @@
+import {
+  createAuthSuccessContext,
+  createOrderedContactListSupabaseMock,
+} from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -35,35 +39,6 @@ import {
   unlinkContact,
 } from "./contact-link-actions";
 
-/** Builds a minimal Supabase mock for item-contact link actions. */
-function createSupabaseMock() {
-  const contactListReturns = vi.fn().mockResolvedValue({
-    data: [
-      {
-        id: "contact-1",
-        encrypted_first_name: "enc",
-        encrypted_last_name: "enc",
-      },
-    ],
-    error: null,
-  });
-  const contactOrderCreated = vi.fn(() => ({
-    overrideTypes: contactListReturns,
-  }));
-  const contactOrderSort = vi.fn(() => ({ order: contactOrderCreated }));
-  const contactEqUser = vi.fn(() => ({ order: contactOrderSort }));
-  const contactSelect = vi.fn(() => ({ eq: contactEqUser }));
-
-  const from = vi.fn((table: string) => {
-    if (table === "contacts") {
-      return { select: contactSelect };
-    }
-    throw new Error(`Unexpected table ${table}`);
-  });
-
-  return { from };
-}
-
 describe("tasks contact-link-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -76,11 +51,10 @@ describe("tasks contact-link-actions", () => {
   });
 
   it("uses entity link helpers for get/link/unlink flow", async () => {
-    const supabase = createSupabaseMock();
-    mocks.authenticateAndRateLimit.mockResolvedValue({
-      ok: true,
-      ctx: { user: { id: "user-1" }, supabase },
-    });
+    const supabase = createOrderedContactListSupabaseMock();
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
     mocks.getEntityLinksForEndpoint.mockResolvedValue({
       data: [{ id: "link-1" }],
       error: null,

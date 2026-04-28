@@ -17,6 +17,7 @@
 import { logger } from "../logger";
 
 const PRF_SALT_CACHE_KEY = "helvety-prf-salt";
+const PRF_SALT_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** Cached PRF salt stored in localStorage for single-touch unlock on subsequent logins */
 interface CachedPRFSalt {
@@ -66,6 +67,13 @@ export function getCachedPRFSalt(): CachedPRFSalt | null {
     if (!parsed.prfSalt || typeof parsed.version !== "number") {
       return null;
     }
+    if (
+      typeof parsed.cachedAt !== "number" ||
+      Date.now() - parsed.cachedAt > PRF_SALT_CACHE_MAX_AGE_MS
+    ) {
+      localStorage.removeItem(PRF_SALT_CACHE_KEY);
+      return null;
+    }
 
     return parsed;
   } catch {
@@ -85,3 +93,7 @@ export function clearCachedPRFSalt(): void {
     // Ignore errors
   }
 }
+
+export const __prfSaltCacheInternals = {
+  PRF_SALT_CACHE_MAX_AGE_MS,
+};

@@ -4,8 +4,11 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import {
-  createEntityLink,
-  deleteEntityLink,
+  createCanonicalLink,
+  deleteCanonicalLink,
+  validateOwnedLinkEntities,
+} from "@helvety/shared/entity-link-action-primitives";
+import {
   ensureOwnedEntityExists,
   getEntityLinksForEndpoint,
   toLinkedEntityReferences,
@@ -181,36 +184,44 @@ export async function linkTaskEntity(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [contactExists, itemExists] = await Promise.all([
-      ensureOwnedEntityExists(supabase, user.id, "contacts", contactId),
-      ensureOwnedEntityExists(supabase, user.id, "items", itemId),
+    const ownedEntities = await validateOwnedLinkEntities(supabase, user.id, [
+      {
+        entityType: "contacts",
+        entityId: contactId,
+        notFoundMessage: "Contact not found",
+      },
+      {
+        entityType: "items",
+        entityId: itemId,
+        notFoundMessage: "Task not found",
+      },
     ]);
-
-    if (!contactExists) {
-      return { success: false, error: "Contact not found" };
-    }
-    if (!itemExists) {
-      return { success: false, error: "Task not found" };
+    if (!ownedEntities.success) {
+      return ownedEntities;
     }
 
-    const linkResult = await createEntityLink({
+    const linkResult = await createCanonicalLink({
       supabase,
       userId: user.id,
       sourceEntityType: "items",
       sourceEntityId: itemId,
       targetEntityType: "contacts",
       targetEntityId: contactId,
+      duplicateMessage: "Task is already linked",
+      failureMessage: "Failed to link task",
     });
 
-    if (linkResult.error || !linkResult.data) {
-      if (linkResult.error?.code === "23505") {
-        return { success: false, error: "Task is already linked" };
+    if (!linkResult.success) {
+      if (linkResult.logError) {
+        logger.logUnexpectedError(
+          "Error linking task item",
+          linkResult.logError
+        );
       }
-      logger.logUnexpectedError("Error linking task item", linkResult.error);
-      return { success: false, error: "Failed to link task" };
+      return { success: false, error: linkResult.error };
     }
 
-    return { success: true, data: { id: linkResult.data.id } };
+    return { success: true, data: { id: linkResult.id } };
   } catch (error) {
     logger.logUnexpectedError("Unexpected error in linkTaskEntity", error);
     return { success: false, error: "An unexpected error occurred" };
@@ -236,14 +247,20 @@ export async function unlinkTaskEntity(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
-
-    if (deleteResult.error) {
-      logger.logUnexpectedError(
-        "Error unlinking task item",
-        deleteResult.error
-      );
-      return { success: false, error: "Failed to unlink task" };
+    const deleteResult = await deleteCanonicalLink(
+      supabase,
+      user.id,
+      linkId,
+      "Failed to unlink task"
+    );
+    if (!deleteResult.success) {
+      if (deleteResult.logError) {
+        logger.logUnexpectedError(
+          "Error unlinking task item",
+          deleteResult.logError
+        );
+      }
+      return { success: false, error: deleteResult.error };
     }
 
     return { success: true };

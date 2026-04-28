@@ -2,9 +2,13 @@
 
 import "server-only";
 
-import { logAuthEvent } from "@helvety/shared/auth-logger";
+import {
+  AUTH_ACTIONS,
+  AUTH_REASONS,
+  logAuthEvent,
+} from "@helvety/shared/auth-logger";
 import { urls } from "@helvety/shared/config";
-import { generateCSRFToken, requireCSRFToken } from "@helvety/shared/csrf";
+import { generateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
 import {
@@ -18,12 +22,14 @@ import {
 } from "@simplewebauthn/server";
 import { z } from "zod";
 
-import { checkRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
+import { RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 
 import {
-  getClientIP,
   getRpId,
   getExpectedOrigins,
+  OriginUrlSchema,
+  runRateLimitGuard,
+  runAuthActionGuards,
   storeChallenge,
   getStoredChallenge,
   clearChallenge,
@@ -98,52 +104,48 @@ export async function generatePasskeyAuthOptions(
   redirectUri?: string,
   authOptions?: { isMobile?: boolean; expectedEmail?: string }
 ): Promise<ActionResponse<PasskeyAuthOptionsResponse>> {
-  try {
-    await requireCSRFToken(csrfToken);
-  } catch {
+  const originParse = OriginUrlSchema.safeParse(origin);
+  if (!originParse.success) {
     return {
       success: false,
-      error: "Security validation failed. Please sign in again.",
+      error: PASSKEY_OPTIONS_GENERIC_ERROR,
     };
   }
+  const safeOrigin = originParse.data;
 
   const isMobile = authOptions?.isMobile === true;
   const normalizedExpectedEmail = authOptions?.expectedEmail
     ?.toLowerCase()
     .trim();
-  const clientIP = await getClientIP();
+  const guard = await runAuthActionGuards({ csrfToken });
+  if (!guard.ok) return guard.response;
+  const clientIP = guard.clientIP;
   if (!clientIP) {
     return {
       success: false,
       error: "Unable to process request. Please try again.",
     };
   }
-
-  // Rate limit by IP
-  const rateLimit = await checkRateLimit(
-    `passkey_auth:ip:${clientIP}`,
-    RATE_LIMITS.PASSKEY.maxRequests,
-    RATE_LIMITS.PASSKEY.windowMs
-  );
-
-  if (!rateLimit.allowed) {
+  const rateLimit = await runRateLimitGuard({
+    key: `passkey_auth:ip:${clientIP}`,
+    maxRequests: RATE_LIMITS.PASSKEY.maxRequests,
+    windowMs: RATE_LIMITS.PASSKEY.windowMs,
+  });
+  if (!rateLimit.ok) {
     logAuthEvent("rate_limit_exceeded", {
       metadata: {
-        action: "generatePasskeyAuthOptions",
+        action: AUTH_ACTIONS.generatePasskeyAuthOptions,
         retryAfter: rateLimit.retryAfter,
       },
       ip: clientIP,
     });
-    return {
-      success: false,
-      error: `Too many attempts. Please wait ${rateLimit.retryAfter} seconds before trying again.`,
-    };
+    return rateLimit.response;
   }
 
   logAuthEvent("passkey_auth_started", { ip: clientIP });
 
   try {
-    const rpId = getRpId(origin);
+    const rpId = getRpId(safeOrigin);
     let expectedUserId: string | undefined;
     let allowCredentials: GenerateAuthenticationOptionsOpts["allowCredentials"] =
       [];
@@ -151,7 +153,7 @@ export async function generatePasskeyAuthOptions(
       const user = await findUserByEmail(normalizedExpectedEmail);
       if (!user) {
         logAuthEvent("passkey_auth_failed", {
-          metadata: { reason: "expected_user_not_found" },
+          metadata: { reason: AUTH_REASONS.expectedUserNotFound },
           ip: clientIP,
         });
         return {
@@ -257,16 +259,15 @@ export async function verifyPasskeyAuthentication(
     userId: string;
   }>
 > {
-  try {
-    await requireCSRFToken(csrfToken);
-  } catch {
-    return {
-      success: false,
-      error: "Security validation failed. Please sign in again.",
-    };
+  const originParse = OriginUrlSchema.safeParse(origin);
+  if (!originParse.success) {
+    return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
   }
+  const safeOrigin = originParse.data;
 
-  const clientIP = await getClientIP();
+  const guard = await runAuthActionGuards({ csrfToken });
+  if (!guard.ok) return guard.response;
+  const clientIP = guard.clientIP;
   if (!clientIP) {
     return {
       success: false,
@@ -275,24 +276,20 @@ export async function verifyPasskeyAuthentication(
   }
 
   // Rate limit by IP to prevent brute force verification attempts
-  const rateLimit = await checkRateLimit(
-    `passkey_verify:ip:${clientIP}`,
-    RATE_LIMITS.PASSKEY.maxRequests,
-    RATE_LIMITS.PASSKEY.windowMs
-  );
-
-  if (!rateLimit.allowed) {
+  const rateLimit = await runRateLimitGuard({
+    key: `passkey_verify:ip:${clientIP}`,
+    maxRequests: RATE_LIMITS.PASSKEY.maxRequests,
+    windowMs: RATE_LIMITS.PASSKEY.windowMs,
+  });
+  if (!rateLimit.ok) {
     logAuthEvent("rate_limit_exceeded", {
       metadata: {
-        action: "verifyPasskeyAuthentication",
+        action: AUTH_ACTIONS.verifyPasskeyAuthentication,
         retryAfter: rateLimit.retryAfter,
       },
       ip: clientIP,
     });
-    return {
-      success: false,
-      error: `Too many attempts. Please wait ${rateLimit.retryAfter} seconds before trying again.`,
-    };
+    return rateLimit.response;
   }
 
   try {
@@ -309,7 +306,7 @@ export async function verifyPasskeyAuthentication(
     const storedData = await getStoredChallenge();
     if (!storedData) {
       logAuthEvent("passkey_auth_failed", {
-        metadata: { reason: "challenge_expired" },
+        metadata: { reason: AUTH_REASONS.challengeExpired },
         ip: clientIP,
       });
       return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
@@ -318,7 +315,7 @@ export async function verifyPasskeyAuthentication(
     // One challenge must be single-use: clear it after the first verification attempt
     // regardless of success/failure to prevent replay within challenge TTL.
     try {
-      const rpId = getRpId(origin);
+      const rpId = getRpId(safeOrigin);
       const expectedOrigins = getExpectedOrigins(rpId);
 
       // Use admin client to look up the credential (before authentication)
@@ -334,7 +331,7 @@ export async function verifyPasskeyAuthentication(
       if (credError || !credentialData) {
         logger.logUnexpectedError("Credential not found", credError);
         logAuthEvent("passkey_auth_failed", {
-          metadata: { reason: "credential_not_found" },
+          metadata: { reason: AUTH_REASONS.credentialNotFound },
           ip: clientIP,
         });
         return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
@@ -348,7 +345,7 @@ export async function verifyPasskeyAuthentication(
       ) {
         logAuthEvent("passkey_auth_failed", {
           userId: credential.user_id,
-          metadata: { reason: "credential_owner_mismatch" },
+          metadata: { reason: AUTH_REASONS.credentialOwnerMismatch },
           ip: clientIP,
         });
         return {
@@ -399,7 +396,7 @@ export async function verifyPasskeyAuthentication(
         logger.logUnexpectedError("Authentication verification failed", error);
         logAuthEvent("passkey_auth_failed", {
           userId: credential.user_id,
-          metadata: { reason: "verification_error" },
+          metadata: { reason: AUTH_REASONS.verificationError },
           ip: clientIP,
         });
         return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
@@ -408,7 +405,7 @@ export async function verifyPasskeyAuthentication(
       if (!verification.verified) {
         logAuthEvent("passkey_auth_failed", {
           userId: credential.user_id,
-          metadata: { reason: "verification_failed" },
+          metadata: { reason: AUTH_REASONS.verificationFailed },
           ip: clientIP,
         });
         return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
@@ -460,7 +457,7 @@ export async function verifyPasskeyAuthentication(
       ) {
         logAuthEvent("passkey_auth_failed", {
           userId: credential.user_id,
-          metadata: { reason: "credential_email_mismatch" },
+          metadata: { reason: AUTH_REASONS.credentialEmailMismatch },
           ip: clientIP,
         });
         return {
@@ -534,7 +531,7 @@ export async function verifyPasskeyAuthentication(
   } catch (error) {
     logger.logUnexpectedError("Error verifying authentication", error);
     logAuthEvent("passkey_auth_failed", {
-      metadata: { reason: "unexpected_error" },
+      metadata: { reason: AUTH_REASONS.unexpectedError },
       ip: clientIP,
     });
     return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };

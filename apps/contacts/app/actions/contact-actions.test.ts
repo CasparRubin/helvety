@@ -258,7 +258,7 @@ describe("contact-actions", () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/contacts");
   });
 
-  it("does not revalidate routes after successful update", async () => {
+  it("revalidates routes after successful update", async () => {
     const updateEqUser = vi.fn().mockResolvedValue({ error: null });
     const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
     const update = vi.fn(() => ({ eq: updateEqId }));
@@ -279,7 +279,7 @@ describe("contact-actions", () => {
     );
 
     expect(result).toEqual({ success: true });
-    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/contacts");
   });
 
   it("validates contact IDs before DB reads", async () => {
@@ -457,6 +457,7 @@ describe("contact-actions", () => {
         sort_order: 0,
       })
     );
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/contacts");
   });
 
   it("rejects reorder when ownership pre-check finds missing IDs", async () => {

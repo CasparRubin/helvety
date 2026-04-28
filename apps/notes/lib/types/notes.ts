@@ -110,8 +110,8 @@ export interface EncryptedNoteExport {
 // TASK LINK TYPES
 // =============================================================================
 
-/** Raw note-item link row. */
-export interface ItemContactLinkRow {
+/** Raw note-task link row. */
+export interface NoteTaskLinkRow {
   id: string;
   note_id: string;
   item_id: string;

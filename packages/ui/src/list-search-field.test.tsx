@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ListSearchField } from "./list-search-field";
@@ -10,9 +10,10 @@ describe("ListSearchField", () => {
       <ListSearchField value="" onChange={onChange} aria-label="Search tasks" />
     );
 
-    expect(document.querySelector('[role="search"]')).toBeInTheDocument();
+    const searchRegion = screen.getByRole("search");
+    expect(searchRegion).toBeInTheDocument();
     expect(
-      screen.getByRole("searchbox", { name: "Search tasks" })
+      within(searchRegion).getByRole("searchbox", { name: "Search tasks" })
     ).toBeInTheDocument();
   });
 

@@ -33,6 +33,13 @@ Helvety Auth (`helvety.com/auth`) handles all authentication for Helvety applica
 - **Session Sharing** - Single sign-on across all Helvety apps
 - **Redirect URI Support** - Cross-app authentication flows
 
+## Crawl & Indexing Policy
+
+- `apps/auth` is intentionally non-indexable.
+- `app/layout.tsx` sets `robots` to `noindex, nofollow`.
+- `/auth/robots.txt` disallows all crawling.
+- `/auth/sitemap.xml` is intentionally empty to avoid advertising auth-only URLs.
+
 ## Environment Variables
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
@@ -61,7 +68,7 @@ Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars
 
 ## Authentication Flows
 
-Users first enter email and confirm they are not located in the EU/EEA. The service then sends a verification code by email (creating the user at OTP-send time when needed). The login UI uses a **four-step** stepper (Email → OTP → Passkey setup → Passkey sign-in) **before** OTP so the flow looks the same for unknown addresses. After OTP: users who already have a passkey **skip** setup and go straight to passkey **sign-in** (stepper shows three nodes: steps 1, 2, and 4). Users who need setup complete **registration** (step 3), then **authentication** (step 4) before redirect.
+Users first enter email and confirm they are not located in the EU/EEA. The service then sends a verification code by email (creating the user at OTP-send time when needed). The login UI uses a **four-step** stepper (Email → OTP → Passkey setup → Passkey sign-in). Before OTP verification, the UI keeps a consistent shape for unknown addresses. After OTP: users who already have a passkey **skip** setup and go straight to passkey **sign-in** (stepper shows three nodes: steps 1, 2, and 4). Users who need setup complete **registration** (step 3), then **authentication** (step 4) before redirect.
 
 ### Unified Auth Flow
 
@@ -231,7 +238,7 @@ CREATE TABLE user_passkey_params (
 
 - **httpOnly Cookies** - Challenge storage uses HttpOnly cookies (`Secure` in production)
 - **PKCE Flow** - Supabase uses PKCE for OAuth code exchange
-- **OTP Code Expiry** - Verification codes expire after 1 hour
+- **OTP Code Expiry** - Verification-code lifetime is managed by Supabase Auth configuration (do not assume a fixed duration in app logic or docs)
 - **Passkey Verification** - Strict origin and RP ID validation
 - **Expected Account Binding** - Returning-user passkey verification enforces the expected account from the login email/challenge metadata
 - **Session Cookies** - Session sharing via `COOKIE_DOMAIN` constant (`.helvety.com` in production)
@@ -249,6 +256,7 @@ The auth service includes the following security hardening:
   - Encryption metadata reads (`hasEncryptionSetup`, `getPasskeyParams`): 30 per minute per signed-in user (`CREDENTIAL_READ`; no CSRF, same read-action model as E2EE list fetches)
   - Saving the encryption key-check value (`saveKeyCheckValue`): 5 per minute per user (`ENCRYPTION`), with CSRF
   - Rate limits reset on successful authentication (e.g. passkey flows)
+  - Redis key namespaces are standardized under `ratelimit:*` with explicit TTL-backed windows/lockouts, and production policy remains fail-closed for security-critical strict paths
 - **CSRF Protection** - Token-based protection with timing-safe comparison for **state-changing** Server Actions (authenticated read-only actions omit CSRF and rely on session plus framework request checks, consistent with E2EE apps)
 - **Server-side Action/Handler Enforcement** - Authentication and authorization checks are enforced in Server Actions and route handlers (aligned with current Next.js security guidance). The proxy refreshes Supabase session cookies only; it does not gate access to protected data.
 - **Audit Logging** - Structured logging for all authentication events:
@@ -259,6 +267,16 @@ The auth service includes the following security hardening:
 - **Standardized Errors** - Consistent error codes and user-friendly messages that don't leak implementation details
 - **Security Headers** - Content Security Policy, HSTS, X-Frame-Options, and other security headers
 - **Session recovery (client)** - The root layout includes `SessionRecovery` with `mode="optional"` alongside `AuthTokenHandler`, complementing `proxy.ts` cookie refresh so long-lived login flows can surface session edge cases without treating unauthenticated steps as hard failures.
+
+### Backend Action Checklist
+
+When adding or changing auth server actions:
+
+- Use `runAuthActionGuards` from `app/actions/auth-action-helpers.ts` for standardized CSRF handling and trusted-IP fail-closed behavior.
+- Use `runRateLimitGuard` for single-key rate limits and keep multi-key abuse checks explicit (e.g. email + IP in OTP flows).
+- Prefer shared typed schemas (`NormalizedEmailSchema`, `OriginUrlSchema`) and parse once near the action boundary.
+- Keep read-only actions and mutating actions explicit: mutating actions require CSRF; read-only actions may omit CSRF only when session checks and framework protections are in place.
+- Keep passkey challenge lifecycle and counter-update invariants intact: challenge must be single-use, and failed counter updates must fail authentication.
 
 ### Supabase Provider Posture Verification
 

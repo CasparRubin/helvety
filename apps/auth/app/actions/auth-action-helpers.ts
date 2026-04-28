@@ -2,11 +2,15 @@ import "server-only";
 
 import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { COOKIE_DOMAIN, DOMAIN, DEV_PORTS } from "@helvety/shared/config";
+import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { cookies, headers } from "next/headers";
 import { z } from "zod";
 
+import { checkRateLimit } from "@/lib/rate-limit";
+
+import type { RateLimitPolicy } from "@helvety/shared/rate-limit";
 import type { ActionResponse } from "@helvety/shared/types/entities";
 
 // =============================================================================
@@ -43,6 +47,61 @@ const StoredChallengeSchema = z.object({
   prfSalt: z.string().min(1).optional(),
 });
 
+export const NormalizedEmailSchema = z
+  .string()
+  .trim()
+  .email()
+  .transform((value) => value.toLowerCase());
+
+export const OriginUrlSchema = z
+  .string()
+  .url()
+  .refine((value) => {
+    try {
+      const parsed = new URL(value);
+      if (parsed.protocol === "https:") return true;
+      return (
+        parsed.protocol === "http:" &&
+        (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1")
+      );
+    } catch {
+      return false;
+    }
+  }, "Invalid origin URL");
+
+/** Config for a single rate-limit guard check. */
+type AuthActionRateLimitOptions = {
+  key: string;
+  maxRequests: number;
+  windowMs: number;
+  prefix?: string;
+  policy?: RateLimitPolicy;
+  message?: (retryAfterSeconds: number) => string;
+};
+
+/** Options for shared auth-action guard execution. */
+type AuthActionGuardOptions = {
+  csrfToken: string;
+  requireClientIP?: boolean;
+  missingIpError?: string;
+  securityError?: string;
+  rateLimit?: AuthActionRateLimitOptions;
+};
+
+/** Discriminated result returned by auth-action guard execution. */
+type AuthActionGuardResult =
+  | { ok: true; clientIP: string | null }
+  | { ok: false; response: { success: false; error: string } };
+
+/** Discriminated result returned by rate-limit guard execution. */
+type RateLimitGuardResult =
+  | { ok: true }
+  | {
+      ok: false;
+      response: { success: false; error: string };
+      retryAfter: number;
+    };
+
 /**
  * Generate a random PRF salt for encryption
  */
@@ -59,11 +118,104 @@ export function generatePRFSalt(): string {
  * Get client IP for rate limiting.
  * Returns null when IP cannot be resolved (callers must fail closed).
  */
-export async function getClientIP(): Promise<string | null> {
+async function getClientIP(): Promise<string | null> {
   const headersList = await headers();
   return getTrustedClientIp(headersList, {
     requireTrustedProxyInProduction: true,
   });
+}
+
+/**
+ * Shared auth-action guard for CSRF, trusted IP resolution, and optional
+ * rate limiting. Returns a typed early-exit response on guard failures.
+ */
+export async function runAuthActionGuards(
+  options: AuthActionGuardOptions
+): Promise<AuthActionGuardResult> {
+  const {
+    csrfToken,
+    requireClientIP = true,
+    missingIpError = "Unable to process request. Please try again.",
+    securityError = "Security validation failed. Please sign in again.",
+    rateLimit,
+  } = options;
+
+  try {
+    await requireCSRFToken(csrfToken);
+  } catch {
+    return {
+      ok: false,
+      response: {
+        success: false,
+        error: securityError,
+      },
+    };
+  }
+
+  const clientIP = requireClientIP ? await getClientIP() : null;
+  if (requireClientIP && !clientIP) {
+    return {
+      ok: false,
+      response: {
+        success: false,
+        error: missingIpError,
+      },
+    };
+  }
+
+  if (rateLimit) {
+    const result = await checkRateLimit(
+      rateLimit.key,
+      rateLimit.maxRequests,
+      rateLimit.windowMs,
+      rateLimit.prefix,
+      rateLimit.policy
+    );
+    if (!result.allowed) {
+      const retryAfter = result.retryAfter ?? 60;
+      return {
+        ok: false,
+        response: {
+          success: false,
+          error:
+            rateLimit.message?.(retryAfter) ??
+            `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
+        },
+      };
+    }
+  }
+
+  return { ok: true, clientIP };
+}
+
+/**
+ * Run one rate-limit check and return an early-exit typed failure response.
+ */
+export async function runRateLimitGuard(
+  options: AuthActionRateLimitOptions
+): Promise<RateLimitGuardResult> {
+  const result = await checkRateLimit(
+    options.key,
+    options.maxRequests,
+    options.windowMs,
+    options.prefix,
+    options.policy
+  );
+  if (result.allowed) {
+    return { ok: true };
+  }
+
+  const retryAfter = result.retryAfter ?? 60;
+  return {
+    ok: false,
+    retryAfter,
+    response: {
+      success: false,
+      error:
+        options.message?.(retryAfter) ??
+        `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
+    },
+  };
 }
 
 // =============================================================================

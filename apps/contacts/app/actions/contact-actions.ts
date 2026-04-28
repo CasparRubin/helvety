@@ -4,11 +4,19 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import {
+  isExportWithinCap,
+  runChunkedReorderUpdates,
+  validateOwnedReorderScope,
+} from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
 import { RATE_LIMITS } from "@helvety/shared/rate-limit";
+import {
+  parseActionInput,
+  unexpectedActionError,
+} from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
 import { revalidatePath } from "next/cache";
-import { after } from "next/server";
 import { z } from "zod";
 
 import {
@@ -26,38 +34,43 @@ function revalidateContactRoutes(contactId?: string): void {
 }
 
 const CategoryIdSchema = z.enum(ALLOWED_CATEGORY_IDS);
+const CONTACTS_TABLE = "contacts" as const;
 
 // =============================================================================
 // Input Validation Schemas
 // =============================================================================
 
 /** Schema for creating a Contact */
-const CreateContactSchema = z.object({
-  id: z.string().uuid(),
-  encrypted_first_name: EncryptedDataSchema,
-  encrypted_last_name: EncryptedDataSchema,
-  encrypted_description: EncryptedDataSchema.nullable(),
-  encrypted_email: EncryptedDataSchema.nullable(),
-  encrypted_phone: EncryptedDataSchema.nullable(),
-  encrypted_birthday: EncryptedDataSchema.nullable(),
-  encrypted_notes: EncryptedDataSchema.nullable(),
-  category_id: CategoryIdSchema.optional(),
-  sort_order: z.number().int().min(0).optional(),
-});
+const CreateContactSchema = z
+  .object({
+    id: z.string().uuid(),
+    encrypted_first_name: EncryptedDataSchema,
+    encrypted_last_name: EncryptedDataSchema,
+    encrypted_description: EncryptedDataSchema.nullable(),
+    encrypted_email: EncryptedDataSchema.nullable(),
+    encrypted_phone: EncryptedDataSchema.nullable(),
+    encrypted_birthday: EncryptedDataSchema.nullable(),
+    encrypted_notes: EncryptedDataSchema.nullable(),
+    category_id: CategoryIdSchema.optional(),
+    sort_order: z.number().int().min(0).optional(),
+  })
+  .strict();
 
 /** Schema for updating a Contact */
-const UpdateContactSchema = z.object({
-  id: z.string().uuid(),
-  encrypted_first_name: EncryptedDataSchema.optional(),
-  encrypted_last_name: EncryptedDataSchema.optional(),
-  encrypted_description: EncryptedDataSchema.nullable().optional(),
-  encrypted_email: EncryptedDataSchema.nullable().optional(),
-  encrypted_phone: EncryptedDataSchema.nullable().optional(),
-  encrypted_birthday: EncryptedDataSchema.nullable().optional(),
-  encrypted_notes: EncryptedDataSchema.nullable().optional(),
-  category_id: CategoryIdSchema.optional(),
-  sort_order: z.number().int().min(0).optional(),
-});
+const UpdateContactSchema = z
+  .object({
+    id: z.string().uuid(),
+    encrypted_first_name: EncryptedDataSchema.optional(),
+    encrypted_last_name: EncryptedDataSchema.optional(),
+    encrypted_description: EncryptedDataSchema.nullable().optional(),
+    encrypted_email: EncryptedDataSchema.nullable().optional(),
+    encrypted_phone: EncryptedDataSchema.nullable().optional(),
+    encrypted_birthday: EncryptedDataSchema.nullable().optional(),
+    encrypted_notes: EncryptedDataSchema.nullable().optional(),
+    category_id: CategoryIdSchema.optional(),
+    sort_order: z.number().int().min(0).optional(),
+  })
+  .strict();
 
 /** Schema for batch reorder updates (capped to prevent DoS via unbounded parallel queries) */
 const ReorderSchema = z
@@ -104,21 +117,20 @@ export async function createContact(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = CreateContactSchema.safeParse(data);
+    const validationResult = parseActionInput({
+      schema: CreateContactSchema,
+      data,
+      warnMessage: "Invalid contact data",
+      invalidDataMessage: "Invalid contact data",
+    });
     if (!validationResult.success) {
-      logger.warn("Invalid contact data", {
-        fields: validationResult.error.issues.map((issue) =>
-          issue.path.join(".")
-        ),
-        issueCount: validationResult.error.issues.length,
-      });
-      return { success: false, error: "Invalid contact data" };
+      return validationResult;
     }
     const validatedData = validationResult.data;
 
     // Insert contact
     const { data: contact, error } = await supabase
-      .from("contacts")
+      .from(CONTACTS_TABLE)
       .insert({
         id: validatedData.id,
         user_id: user.id,
@@ -142,10 +154,7 @@ export async function createContact(
     revalidateContactRoutes();
     return { success: true, data: { id: contact.id } };
   } catch (error) {
-    after(() =>
-      logger.logUnexpectedError("Unexpected error in createContact", error)
-    );
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in createContact", error);
   }
 }
 
@@ -163,7 +172,7 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
 
     // Get contacts (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: contacts, error } = await supabase
-      .from("contacts")
+      .from(CONTACTS_TABLE)
       .select("*")
       .eq("user_id", user.id)
       .order("category_id", { ascending: true })
@@ -178,10 +187,7 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
 
     return { success: true, data: contacts ?? [] };
   } catch (error) {
-    after(() =>
-      logger.logUnexpectedError("Unexpected error in getContacts", error)
-    );
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getContacts", error);
   }
 }
 
@@ -204,7 +210,7 @@ export async function getContact(
 
     // Get contact (explicit user_id filter as defense-in-depth alongside RLS)
     const { data: contact, error } = await supabase
-      .from("contacts")
+      .from(CONTACTS_TABLE)
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
@@ -220,10 +226,7 @@ export async function getContact(
 
     return { success: true, data: contact };
   } catch (error) {
-    after(() =>
-      logger.logUnexpectedError("Unexpected error in getContact", error)
-    );
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getContact", error);
   }
 }
 
@@ -254,15 +257,14 @@ export async function updateContact(
     const { user, supabase } = auth.ctx;
 
     // Validate input
-    const validationResult = UpdateContactSchema.safeParse(data);
+    const validationResult = parseActionInput({
+      schema: UpdateContactSchema,
+      data,
+      warnMessage: "Invalid contact update data",
+      invalidDataMessage: "Invalid contact data",
+    });
     if (!validationResult.success) {
-      logger.warn("Invalid contact update data", {
-        fields: validationResult.error.issues.map((issue) =>
-          issue.path.join(".")
-        ),
-        issueCount: validationResult.error.issues.length,
-      });
-      return { success: false, error: "Invalid contact data" };
+      return validationResult;
     }
     const validatedData = validationResult.data;
 
@@ -300,7 +302,7 @@ export async function updateContact(
 
     // Update contact (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
-      .from("contacts")
+      .from(CONTACTS_TABLE)
       .update(updateObj)
       .eq("id", validatedData.id)
       .eq("user_id", user.id);
@@ -310,12 +312,10 @@ export async function updateContact(
       return { success: false, error: "Failed to update contact" };
     }
 
+    revalidateContactRoutes(validatedData.id);
     return { success: true };
   } catch (error) {
-    after(() =>
-      logger.logUnexpectedError("Unexpected error in updateContact", error)
-    );
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in updateContact", error);
   }
 }
 
@@ -340,7 +340,7 @@ export async function deleteContact(
 
     // Delete contact (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase
-      .from("contacts")
+      .from(CONTACTS_TABLE)
       .delete()
       .eq("id", id)
       .eq("user_id", user.id);
@@ -353,10 +353,7 @@ export async function deleteContact(
     revalidateContactRoutes(id);
     return { success: true };
   } catch (error) {
-    after(() =>
-      logger.logUnexpectedError("Unexpected error in deleteContact", error)
-    );
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in deleteContact", error);
   }
 }
 
@@ -376,15 +373,14 @@ export async function reorderContacts(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const validationResult = ReorderSchema.safeParse(updates);
+    const validationResult = parseActionInput({
+      schema: ReorderSchema,
+      data: updates,
+      warnMessage: "Invalid reorder data",
+      invalidDataMessage: "Invalid reorder data",
+    });
     if (!validationResult.success) {
-      logger.warn("Invalid reorder data", {
-        fields: validationResult.error.issues.map((issue) =>
-          issue.path.join(".")
-        ),
-        issueCount: validationResult.error.issues.length,
-      });
-      return { success: false, error: "Invalid reorder data" };
+      return validationResult;
     }
     const validatedUpdates = validationResult.data;
 
@@ -393,65 +389,51 @@ export async function reorderContacts(
     }
 
     const updateIds = validatedUpdates.map((update) => update.id);
-    const { data: ownedRows, error: ownedRowsError } = await supabase
-      .from("contacts")
-      .select("id")
-      .eq("user_id", user.id)
-      .in("id", updateIds);
-    if (ownedRowsError) {
+    const scopeResult = await validateOwnedReorderScope({
+      supabase,
+      userId: user.id,
+      tableName: CONTACTS_TABLE,
+      ids: updateIds,
+      scope: "Error validating contact reorder scope",
+      failureMessage: "Failed to reorder contacts",
+      invalidScopeMessage: "Invalid contact reorder scope",
+    });
+    if (!scopeResult.success) {
+      return scopeResult;
+    }
+
+    const reorderResult = await runChunkedReorderUpdates({
+      updates: validatedUpdates,
+      updateChunk: async (chunk, nowIso) =>
+        Promise.all(
+          chunk.map((update) => {
+            const updateObj: Record<string, unknown> = {
+              sort_order: update.sort_order,
+              updated_at: nowIso,
+            };
+            if (update.category_id !== undefined) {
+              updateObj.category_id = update.category_id;
+            }
+            return supabase
+              .from(CONTACTS_TABLE)
+              .update(updateObj)
+              .eq("id", update.id)
+              .eq("user_id", user.id);
+          })
+        ),
+    });
+    if (!reorderResult.success) {
       logger.logUnexpectedError(
-        "Error validating contact reorder scope",
-        ownedRowsError
+        "Error reordering contact",
+        reorderResult.error
       );
       return { success: false, error: "Failed to reorder contacts" };
     }
-    if ((ownedRows ?? []).length !== updateIds.length) {
-      return { success: false, error: "Invalid contact reorder scope" };
-    }
 
-    // Batch updates in chunks to avoid saturating DB connections.
-    const now = new Date().toISOString();
-    const results = [];
-    for (
-      let i = 0;
-      i < validatedUpdates.length;
-      i += ACTION_LIMITS.REORDER_CHUNK_SIZE
-    ) {
-      const chunk = validatedUpdates.slice(
-        i,
-        i + ACTION_LIMITS.REORDER_CHUNK_SIZE
-      );
-      const chunkResults = await Promise.all(
-        chunk.map((update) => {
-          const updateObj: Record<string, unknown> = {
-            sort_order: update.sort_order,
-            updated_at: now,
-          };
-          if (update.category_id !== undefined) {
-            updateObj.category_id = update.category_id;
-          }
-          return supabase
-            .from("contacts")
-            .update(updateObj)
-            .eq("id", update.id)
-            .eq("user_id", user.id);
-        })
-      );
-      results.push(...chunkResults);
-    }
-
-    const failedResult = results.find((r) => r.error);
-    if (failedResult?.error) {
-      logger.logUnexpectedError("Error reordering contact", failedResult.error);
-      return { success: false, error: "Failed to reorder contacts" };
-    }
-
+    revalidateContactRoutes();
     return { success: true };
   } catch (error) {
-    after(() =>
-      logger.logUnexpectedError("Unexpected error in reorderContacts", error)
-    );
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in reorderContacts", error);
   }
 }
 
@@ -482,7 +464,7 @@ export async function getAllContactDataForExport(): Promise<
     const { user, supabase } = auth.ctx;
 
     const { data: contacts, error } = await supabase
-      .from("contacts")
+      .from(CONTACTS_TABLE)
       .select("*")
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
@@ -497,7 +479,7 @@ export async function getAllContactDataForExport(): Promise<
       return { success: false, error: "Failed to fetch contact data" };
     }
 
-    if ((contacts?.length ?? 0) > ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE) {
+    if (!isExportWithinCap(contacts?.length ?? 0)) {
       logger.warn("Export exceeds maximum row cap", {
         items: contacts?.length ?? 0,
         cap: ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE,
@@ -513,12 +495,9 @@ export async function getAllContactDataForExport(): Promise<
 
     return { success: true, data: contacts ?? [] };
   } catch (error) {
-    after(() =>
-      logger.logUnexpectedError(
-        "Unexpected error in getAllContactDataForExport",
-        error
-      )
+    return unexpectedActionError(
+      "Unexpected error in getAllContactDataForExport",
+      error
     );
-    return { success: false, error: "An unexpected error occurred" };
   }
 }

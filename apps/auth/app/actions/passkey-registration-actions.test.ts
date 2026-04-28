@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 const mocks = vi.hoisted(() => ({
-  checkRateLimit: vi.fn(),
   clearChallenge: vi.fn(),
   createScopedAdminQuery: vi.fn(),
   createServerClient: vi.fn(),
@@ -11,12 +11,9 @@ const mocks = vi.hoisted(() => ({
   getStoredChallenge: vi.fn(),
   loggerError: vi.fn(),
   loggerWarn: vi.fn(),
-  requireCSRFToken: vi.fn(),
+  runAuthActionGuards: vi.fn(),
+  runRateLimitGuard: vi.fn(),
   verifyRegistrationResponse: vi.fn(),
-}));
-
-vi.mock("@helvety/shared/csrf", () => ({
-  requireCSRFToken: mocks.requireCSRFToken,
 }));
 
 vi.mock("@helvety/shared/logger", () => ({
@@ -45,7 +42,6 @@ vi.mock("@/lib/rate-limit", () => ({
   RATE_LIMITS: {
     PASSKEY_REG: { maxRequests: 5, windowMs: 60_000 },
   },
-  checkRateLimit: mocks.checkRateLimit,
 }));
 
 vi.mock("./auth-action-helpers", () => ({
@@ -58,6 +54,9 @@ vi.mock("./auth-action-helpers", () => ({
   getExpectedOrigins: mocks.getExpectedOrigins,
   getRpId: mocks.getRpId,
   getStoredChallenge: mocks.getStoredChallenge,
+  OriginUrlSchema: z.string().url(),
+  runAuthActionGuards: mocks.runAuthActionGuards,
+  runRateLimitGuard: mocks.runRateLimitGuard,
   storeChallenge: vi.fn(),
 }));
 
@@ -66,8 +65,8 @@ import { verifyPasskeyRegistration } from "./passkey-registration-actions";
 describe("passkey-registration-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.requireCSRFToken.mockResolvedValue(undefined);
-    mocks.checkRateLimit.mockResolvedValue({ allowed: true });
+    mocks.runAuthActionGuards.mockResolvedValue({ ok: true, clientIP: null });
+    mocks.runRateLimitGuard.mockResolvedValue({ ok: true });
     mocks.clearChallenge.mockResolvedValue(undefined);
     mocks.createScopedAdminQuery.mockReturnValue({
       from: vi.fn(() => ({

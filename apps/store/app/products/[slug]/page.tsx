@@ -24,7 +24,21 @@ export async function generateMetadata({
   const product = getProductBySlug(slug);
 
   if (!product) {
-    return { title: "Product Not Found" };
+    return {
+      title: "Product Not Found",
+      description: "The requested product could not be found.",
+      robots: {
+        index: false,
+        follow: false,
+        googleBot: {
+          index: false,
+          follow: false,
+        },
+      },
+      alternates: {
+        canonical: `${urls.store}/products`,
+      },
+    };
   }
 
   const screenshot = product.media?.screenshots?.[0];

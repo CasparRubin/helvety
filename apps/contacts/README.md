@@ -33,7 +33,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Action panel** - View contact metadata dates and set category directly from the editor
 - **Category movement controls** - Move contacts between categories via drag/drop and row-level up/down arrows when the main-list search field is empty
 - **Controlled row-link prefetching** - Dense contact lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
-- **Consistency safeguards for list updates** - UI keeps optimistic interactions fast while ignoring stale in-flight refresh responses; category moves patch local list state immediately, and route revalidation is reserved for structural mutations (create/delete) to keep prefetched pages aligned
+- **Consistency safeguards for list updates** - UI keeps optimistic interactions fast while ignoring stale in-flight refresh responses; category moves patch local list state immediately, and route revalidation runs after create/update/delete/reorder mutations to keep prefetched pages aligned
 - **Task linking** - Link, unlink, and view task items from [Helvety Tasks](https://helvety.com/tasks) directly on the contact editor page
 - **Note linking** - Link, unlink, and view notes from [Helvety Notes](https://helvety.com/notes) directly on the contact editor page
   - **Bidirectional** - Link and unlink notes from either the Contacts app or the Notes app for consistent cross-app UX
@@ -49,6 +49,13 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - 100% free to use
 - No business/account quotas
 - Technical and security safeguards may still apply for abuse prevention and platform reliability
+
+## Crawl & Indexing Policy
+
+- `apps/contacts` is intentionally non-indexable (authenticated E2EE workspace).
+- `app/layout.tsx` sets `robots` to `noindex, nofollow`.
+- `/contacts/robots.txt` disallows all crawling.
+- `/contacts/sitemap.xml` is intentionally empty.
 
 ## Environment Variables
 
@@ -146,7 +153,7 @@ This application includes the following security hardening:
 - **Server-side page guards** - Protected routes await `requireE2eeAppPageAuth("/contacts")` from `@helvety/shared/e2ee-page-auth` (wraps `requireAuth` from `@helvety/shared/auth-guard`: fail-closed redirect when there is no session)
 - **Shared E2EE app shell** - Contacts, Notes, and Tasks reuse `@helvety/ui` `E2eeAppRootLayout` and `E2eeAppNavbar` so session recovery, CSRF, encryption gate wiring, JSON-LD, and top navigation stay aligned across the three apps. Root layout errors use `@helvety/ui` `RootGlobalError`.
 - **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated via `@helvety/shared/redirect-validation` to reduce open-redirect risk
-- **CSRF protection** - Token validation for **state-changing** server actions (reads omit CSRF; they still require a session and use read-style rate limits—see `authenticateAndRateLimit` in `@helvety/shared/action-helpers`)
+- **CSRF protection** - Token validation for **state-changing** server actions (reads omit CSRF; they still require a session and use read-style rate limits via `authenticateAndRateLimit` in `@helvety/shared/action-helpers`). Contacts actions also reuse shared primitives for consistent validation/error handling, ownership-scoped reorder checks, capped export handling, and canonical link orchestration.
 - **Rate limiting** - Mutations, reads, and encrypted **bulk export** are rate-limited (export uses the tighter `RATE_LIMITS.EXPORT` preset in shared rate limits)
 - **Security Headers** - CSP, HSTS, and other security headers
 

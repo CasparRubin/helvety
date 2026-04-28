@@ -44,6 +44,13 @@ Structural metadata remains plaintext for app functionality:
 - No business/account quotas
 - Technical and security safeguards may still apply for abuse prevention and platform reliability
 
+## Crawl & Indexing Policy
+
+- `apps/notes` is intentionally non-indexable (authenticated E2EE workspace).
+- `app/layout.tsx` sets `robots` to `noindex, nofollow`.
+- `/notes/robots.txt` disallows all crawling.
+- `/notes/sitemap.xml` is intentionally empty.
+
 ## Environment Variables
 
 Copy `env.template` to `.env.local` and fill in values.
@@ -63,7 +70,7 @@ Copy `env.template` to `.env.local` and fill in values.
 - **Session / request setup** - `proxy.ts` (via `@helvety/shared/proxy`) sets CSP headers, CSRF cookie bootstrap, and Supabase session cookie refresh when auth cookies are present; it is not the primary auth boundary. Session and authorization checks run in pages, Server Actions, and route handlers.
 - **Page-level auth** - Protected routes await `requireE2eeAppPageAuth("/notes")` from `@helvety/shared/e2ee-page-auth` (wraps `requireAuth` from `@helvety/shared/auth-guard`)
 - **Shared E2EE app shell** - Notes, Tasks, and Contacts reuse `@helvety/ui` `E2eeAppRootLayout` and `E2eeAppNavbar` for consistent session recovery, CSRF, encryption gate wiring, and navigation. Root layout errors use `@helvety/ui` `RootGlobalError`.
-- **CSRF protection** - Token validation for **state-changing** server actions (session-authenticated reads omit CSRF and use read-style rate limits in `authenticateAndRateLimit`)
+- **CSRF protection** - Token validation for **state-changing** server actions (session-authenticated reads omit CSRF and use read-style rate limits in `authenticateAndRateLimit`). Notes actions additionally use shared primitives for consistent validation/error handling, ownership-scoped reorder checks, capped export handling, and canonical link orchestration.
 - **Data access** - RLS plus explicit `user_id` filters in actions
 - **Rate limiting** - Applied to server actions, including a tighter preset for encrypted **bulk export** (`RATE_LIMITS.EXPORT` via `readRateLimitConfig`)
 

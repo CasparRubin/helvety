@@ -44,7 +44,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Privacy** - Note titles are decrypted client-side for display in Tasks. Plaintext should not be intentionally sent to the server.
 - **Drag & drop reordering** - Rearrange entries on desktop when the main-list search field is empty; up/down arrows move items between stages in that case too
 - **Controlled row-link prefetching** - Dense item lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
-- **Consistency safeguards for stage/status moves** - UI keeps optimistic interactions snappy while discarding stale in-flight refresh responses; stage changes patch local list state immediately, and route revalidation is reserved for structural mutations (create/delete) to keep prefetched pages aligned
+- **Consistency safeguards for stage/status moves** - UI keeps optimistic interactions snappy while discarding stale in-flight refresh responses; stage changes patch local list state immediately, and route revalidation runs after create/update/delete/reorder mutations to keep prefetched pages aligned
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched **encrypted** from the server (per-account export rate limits apply) and decrypted **client-side** using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
 - **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes)
 - **Dark & Light mode** - Switch between dark and light themes
@@ -54,6 +54,13 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - 100% free to use
 - No business/account quotas
 - Technical and security safeguards may still apply for abuse prevention and platform reliability
+
+## Crawl & Indexing Policy
+
+- `apps/tasks` is intentionally non-indexable (authenticated E2EE workspace).
+- `app/layout.tsx` sets `robots` to `noindex, nofollow`.
+- `/tasks/robots.txt` disallows all crawling.
+- `/tasks/sitemap.xml` is intentionally empty.
 
 ## Environment Variables
 
@@ -152,7 +159,7 @@ This application includes the following security hardening:
 - **Server-side page guards** - Protected routes await `requireE2eeAppPageAuth("/tasks")` from `@helvety/shared/e2ee-page-auth` (wraps `requireAuth` from `@helvety/shared/auth-guard`: fail-closed redirect when there is no session)
 - **Shared E2EE app shell** - Tasks, Notes, and Contacts reuse `@helvety/ui` `E2eeAppRootLayout` and `E2eeAppNavbar` for consistent session recovery, CSRF, encryption gate wiring, and navigation. Root layout errors use `@helvety/ui` `RootGlobalError`.
 - **Redirect URI Validation** - Redirect URIs in auth-related flows are allowlist-validated via `@helvety/shared/redirect-validation` to reduce open-redirect risk
-- **CSRF protection** - Token validation for **state-changing** server actions (reads omit CSRF but require a session and use read-style rate limits in `authenticateAndRateLimit`)
+- **CSRF protection** - Token validation for **state-changing** server actions (reads omit CSRF but require a session and use read-style rate limits in `authenticateAndRateLimit`). Tasks actions additionally use shared primitives for consistent validation/error handling, ownership-scoped reorder checks, capped export handling, and canonical link orchestration.
 - **Rate limiting** - Mutations, reads, and encrypted **bulk export** are rate-limited (export uses `RATE_LIMITS.EXPORT` in shared rate limits)
 - **Security Headers** - CSP, HSTS, and other security headers
 

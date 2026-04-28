@@ -15,7 +15,7 @@ import { COOKIE_DOMAIN } from "./config";
  * Token lifecycle:
  * 1. The CSRF cookie is typically generated in proxy.ts on each request (if missing).
  *    cookies().set() is not allowed in Server Components or layouts and will throw at runtime.
- * 2. The layout reads the token via getCSRFToken() and passes it to the
+ * 2. The layout reads the token from cached server helpers and passes it to the
  *    CSRFProvider for client components.
  * 3. Server Actions validate the token with validateCSRFToken() /
  *    requireCSRFToken().
@@ -54,16 +54,6 @@ export async function generateCSRFToken(): Promise<string> {
   });
 
   return token;
-}
-
-/**
- * Get the current CSRF token from cookies without generating a new one.
- *
- * @returns The current token or null if not set
- */
-export async function getCSRFToken(): Promise<string | null> {
-  const cookieStore = await cookies();
-  return cookieStore.get(CSRF_COOKIE_NAME)?.value ?? null;
 }
 
 /**

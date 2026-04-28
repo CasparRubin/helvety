@@ -7,6 +7,7 @@ describe("getItemDeepLink", () => {
     const href = getItemDeepLink("item-456");
     const url = new URL(href);
 
+    expect(url.pathname).toBe("/tasks");
     expect(url.searchParams.get("item")).toBe("item-456");
   });
 });

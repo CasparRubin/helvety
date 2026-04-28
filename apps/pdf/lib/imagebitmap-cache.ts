@@ -208,18 +208,46 @@ class ImageBitmapCache {
 
 // Singleton cache instance
 let cacheInstance: ImageBitmapCache | null = null;
+let cacheInitConfig: { maxSize: number; maxMemoryBytes: number } | null = null;
 
 /**
  * Gets the global ImageBitmap cache instance.
  *
- * @param maxSize - Maximum number of entries (default: 50)
- * @param maxMemoryBytes - Maximum memory in bytes (default: 200MB)
+ * Cache limits are applied only on first initialization. Later calls return
+ * the existing singleton and ignore differing limits.
+ *
+ * @param maxSize - Maximum number of entries on first initialization (default: 50)
+ * @param maxMemoryBytes - Maximum memory in bytes on first initialization (default: 200MB)
  * @returns Cache instance
  */
 export function getImageBitmapCache(
   maxSize: number = 50,
   maxMemoryBytes: number = 200 * 1024 * 1024
 ): ImageBitmapCache {
-  cacheInstance ??= new ImageBitmapCache(maxSize, maxMemoryBytes);
+  if (!cacheInstance) {
+    cacheInstance = new ImageBitmapCache(maxSize, maxMemoryBytes);
+    cacheInitConfig = { maxSize, maxMemoryBytes };
+    return cacheInstance;
+  }
+  if (
+    cacheInitConfig &&
+    (cacheInitConfig.maxSize !== maxSize ||
+      cacheInitConfig.maxMemoryBytes !== maxMemoryBytes)
+  ) {
+    logger.warn("ImageBitmap cache already initialized; ignoring new limits", {
+      initialMaxSize: cacheInitConfig.maxSize,
+      initialMaxMemoryBytes: cacheInitConfig.maxMemoryBytes,
+      requestedMaxSize: maxSize,
+      requestedMaxMemoryBytes: maxMemoryBytes,
+    });
+  }
   return cacheInstance;
 }
+
+export const __imageBitmapCacheInternals = {
+  resetForTests(): void {
+    cacheInstance?.clear();
+    cacheInstance = null;
+    cacheInitConfig = null;
+  },
+};

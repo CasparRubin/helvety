@@ -45,20 +45,34 @@ describe("supabase browser lock fallback", () => {
 
       let activeCount = 0;
       let peakConcurrent = 0;
+      let releaseFirst = () => {};
+      let resolveFirstEntered = () => {};
+      const firstEntered = new Promise<void>((resolve) => {
+        resolveFirstEntered = () => resolve();
+      });
 
       const runCriticalSection = (value: number) =>
         lock("auth-test", 1_000, async () => {
           activeCount += 1;
           peakConcurrent = Math.max(peakConcurrent, activeCount);
-          await new Promise((resolve) => setTimeout(resolve, 20));
+          if (value === 1) {
+            await new Promise<void>((resolve) => {
+              resolveFirstEntered();
+              releaseFirst = () => resolve();
+            });
+          }
           activeCount -= 1;
           return value;
         });
 
-      const [first, second] = await Promise.all([
-        runCriticalSection(1),
-        runCriticalSection(2),
-      ]);
+      const firstPromise = runCriticalSection(1);
+      const secondPromise = runCriticalSection(2);
+
+      // Allow first lock holder to complete; second should enter only afterwards.
+      await firstEntered;
+      releaseFirst();
+
+      const [first, second] = await Promise.all([firstPromise, secondPromise]);
 
       expect(first).toBe(1);
       expect(second).toBe(2);

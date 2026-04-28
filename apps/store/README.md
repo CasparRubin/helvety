@@ -36,6 +36,14 @@ services collect this non-EU/EEA location-attestation signal during sign-in on
 
 Public store root (`/store`) redirects to `/store/products` (implemented internally as `/products` with `basePath: "/store"`). Browsing the catalog and public package downloads (for example SPO Explorer `.sppkg` and the Power Automate extension `.zip`) do not require login.
 
+## Crawl & Indexing Policy
+
+- Public indexable surfaces: `/store`, `/store/products`, and `/store/products/[slug]`.
+- Non-indexable authenticated surface: `/store/account` (`robots: noindex, nofollow`).
+- `/store/robots.txt` allows crawl for public pages, disallows `/account`, `/api`, and `/auth`, and advertises `/store/sitemap.xml`.
+- `/store/sitemap.xml` contains canonical absolute URLs for listing and product detail pages only.
+- Unknown product slugs return explicit noindex metadata to avoid accidental indexing of fallback pages.
+
 ## Package download behavior
 
 - Package files are read from Supabase Storage bucket `packages` (see `lib/packages/config.ts` for folder paths).
