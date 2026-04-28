@@ -1,34 +1,19 @@
-import path from "path";
-
-import { createSecurityHeaders } from "@helvety/config/next-headers";
+import { createHelvetyNextConfig } from "@helvety/config/next";
 
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  poweredByHeader: false,
-  // Multi-zone: serve this app under helvety.com/auth
+const nextConfig: NextConfig = createHelvetyNextConfig({
+  appName: "auth",
+  // Multi-zone: serve this app under helvety.com/auth.
   basePath: "/auth",
   // Multi-zone: isolate this zone's Next.js assets when proxied via web gateway.
   assetPrefix: "/auth-static",
-
-  compress: true,
-
-  headers: createSecurityHeaders({ appName: "auth" }),
-
-  turbopack: {
-    root: path.resolve("../.."),
-  },
-
-  reactCompiler: true,
-
-  experimental: {
-    optimizePackageImports: [
-      "lucide-react",
-      "radix-ui",
-      "sonner",
-      "@simplewebauthn/browser",
-    ],
-  },
-};
+  optimizePackageImports: [
+    "lucide-react",
+    "radix-ui",
+    "sonner",
+    "@simplewebauthn/browser",
+  ],
+});
 
 export default nextConfig;

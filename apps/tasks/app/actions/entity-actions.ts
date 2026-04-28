@@ -71,8 +71,7 @@ function revalidateItemRoutes(): void {
 export async function reorderEntities(
   entityType: "item",
   updates: ReorderUpdate[],
-  csrfToken: string,
-  parentId?: string
+  csrfToken: string
 ): Promise<ActionResponse> {
   try {
     const auth = await authenticateAndRateLimit({
@@ -101,8 +100,6 @@ export async function reorderEntities(
     if (validatedUpdates.length === 0) {
       return { success: true };
     }
-
-    void parentId;
 
     // Ensure all entities being reordered belong to the current user.
     const updateIds = validatedUpdates.map((update) => update.id);

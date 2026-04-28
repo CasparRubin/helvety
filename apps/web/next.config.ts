@@ -1,6 +1,4 @@
-import path from "path";
-
-import { createSecurityHeaders } from "@helvety/config/next-headers";
+import { createHelvetyNextConfig } from "@helvety/config/next";
 import { DEV_PORTS } from "@helvety/shared/config";
 
 import type { NextConfig } from "next";
@@ -36,145 +34,134 @@ function isAllowedProductionHost(hostname: string): boolean {
   return false;
 }
 
-const nextConfig: NextConfig = {
-  poweredByHeader: false,
-  compress: true,
+const nextConfig: NextConfig = createHelvetyNextConfig({
+  appName: "web",
+  optimizePackageImports: [
+    "lucide-react",
+    "radix-ui",
+    "sonner",
+    "framer-motion",
+  ],
+  overrides: {
+    // Multi-zone rewrites: proxy path-based URLs to each app's Vercel deployment.
+    async rewrites() {
+      const isDev = process.env.NODE_ENV === "development";
+      const devUrl = (port: number) => `http://localhost:${port}`;
 
-  // Multi-zone rewrites: proxy path-based URLs to each app's Vercel deployment.
-  async rewrites() {
-    const isDev = process.env.NODE_ENV === "development";
-    const devUrl = (port: number) => `http://localhost:${port}`;
+      /**
+       * Resolves sub-app origin: localhost in dev; in production build, internal
+       * Vercel URL from env when set. When unset outside Vercel (e.g. local
+       * `ci:release` / `next build`), falls back to localhost so the gateway
+       * config still loads; Vercel sets VERCEL=1 and must supply these vars.
+       */
+      function getAppUrl(envVar: string, devPort: number): string {
+        if (isDev) {
+          return devUrl(devPort);
+        }
 
-    /**
-     * Resolves sub-app origin: localhost in dev; in production build, internal
-     * Vercel URL from env when set. When unset outside Vercel (e.g. local
-     * `ci:release` / `next build`), falls back to localhost so the gateway
-     * config still loads; Vercel sets VERCEL=1 and must supply these vars.
-     */
-    function getAppUrl(envVar: string, devPort: number): string {
-      if (isDev) {
+        const value = process.env[envVar];
+        if (value) {
+          const parsed = normalizeUrl(value, envVar);
+          if (parsed.protocol !== "https:") {
+            throw new Error(`${envVar} must use https:// in production.`);
+          }
+          if (!isAllowedProductionHost(parsed.hostname)) {
+            throw new Error(
+              `${envVar} host "${parsed.hostname}" is not allowed. Use a *.vercel.app or *.helvety.com host.`
+            );
+          }
+          return parsed.origin;
+        }
+        if (process.env.VERCEL === "1") {
+          throw new Error(
+            `${envVar} is required on Vercel in production. Set it to the deployment URL for this app.`
+          );
+        }
         return devUrl(devPort);
       }
 
-      const value = process.env[envVar];
-      if (value) {
-        const parsed = normalizeUrl(value, envVar);
-        if (parsed.protocol !== "https:") {
-          throw new Error(`${envVar} must use https:// in production.`);
-        }
-        if (!isAllowedProductionHost(parsed.hostname)) {
-          throw new Error(
-            `${envVar} host "${parsed.hostname}" is not allowed. Use a *.vercel.app or *.helvety.com host.`
-          );
-        }
-        return parsed.origin;
-      }
-      if (process.env.VERCEL === "1") {
-        throw new Error(
-          `${envVar} is required on Vercel in production. Set it to the deployment URL for this app.`
-        );
-      }
-      return devUrl(devPort);
-    }
+      const authUrl = getAppUrl("AUTH_URL", DEV_PORTS.auth);
+      const tasksUrl = getAppUrl("TASKS_URL", DEV_PORTS.tasks);
+      const contactsUrl = getAppUrl("CONTACTS_URL", DEV_PORTS.contacts);
+      const notesUrl = getAppUrl("NOTES_URL", DEV_PORTS.notes);
+      const storeUrl = getAppUrl("STORE_URL", DEV_PORTS.store);
+      const pdfUrl = getAppUrl("PDF_URL", DEV_PORTS.pdf);
 
-    const authUrl = getAppUrl("AUTH_URL", DEV_PORTS.auth);
-    const tasksUrl = getAppUrl("TASKS_URL", DEV_PORTS.tasks);
-    const contactsUrl = getAppUrl("CONTACTS_URL", DEV_PORTS.contacts);
-    const notesUrl = getAppUrl("NOTES_URL", DEV_PORTS.notes);
-    const storeUrl = getAppUrl("STORE_URL", DEV_PORTS.store);
-    const pdfUrl = getAppUrl("PDF_URL", DEV_PORTS.pdf);
-
-    return {
-      beforeFiles: [
-        {
-          source: "/auth",
-          destination: `${authUrl}/auth`,
-        },
-        {
-          source: "/auth/:path*",
-          destination: `${authUrl}/auth/:path*`,
-        },
-        {
-          // Forward auth zone static assets (assetPrefix: /auth-static).
-          source: "/auth-static/:path*",
-          destination: `${authUrl}/auth-static/:path*`,
-        },
-        {
-          source: "/tasks",
-          destination: `${tasksUrl}/tasks`,
-        },
-        {
-          // Use :path* so trailing-slash and empty-subpath variants
-          // (including some App Router RSC prefetch forms) are forwarded too.
-          source: "/tasks/:path*",
-          destination: `${tasksUrl}/tasks/:path*`,
-        },
-        {
-          source: "/tasks-static/:path*",
-          destination: `${tasksUrl}/tasks-static/:path*`,
-        },
-        {
-          source: "/contacts",
-          destination: `${contactsUrl}/contacts`,
-        },
-        {
-          // Use :path* so trailing-slash and empty-subpath variants
-          // (including some App Router RSC prefetch forms) are forwarded too.
-          source: "/contacts/:path*",
-          destination: `${contactsUrl}/contacts/:path*`,
-        },
-        {
-          source: "/contacts-static/:path*",
-          destination: `${contactsUrl}/contacts-static/:path*`,
-        },
-        {
-          source: "/notes",
-          destination: `${notesUrl}/notes`,
-        },
-        {
-          source: "/notes/:path*",
-          destination: `${notesUrl}/notes/:path*`,
-        },
-        {
-          source: "/notes-static/:path*",
-          destination: `${notesUrl}/notes-static/:path*`,
-        },
-        {
-          source: "/store",
-          destination: `${storeUrl}/store`,
-        },
-        {
-          source: "/store/:path*",
-          destination: `${storeUrl}/store/:path*`,
-        },
-        {
-          source: "/pdf",
-          destination: `${pdfUrl}/pdf`,
-        },
-        {
-          source: "/pdf/:path*",
-          destination: `${pdfUrl}/pdf/:path*`,
-        },
-      ],
-    };
+      return {
+        beforeFiles: [
+          {
+            source: "/auth",
+            destination: `${authUrl}/auth`,
+          },
+          {
+            source: "/auth/:path*",
+            destination: `${authUrl}/auth/:path*`,
+          },
+          {
+            // Forward auth zone static assets (assetPrefix: /auth-static).
+            source: "/auth-static/:path*",
+            destination: `${authUrl}/auth-static/:path*`,
+          },
+          {
+            source: "/tasks",
+            destination: `${tasksUrl}/tasks`,
+          },
+          {
+            // Use :path* so trailing-slash and empty-subpath variants
+            // (including some App Router RSC prefetch forms) are forwarded too.
+            source: "/tasks/:path*",
+            destination: `${tasksUrl}/tasks/:path*`,
+          },
+          {
+            source: "/tasks-static/:path*",
+            destination: `${tasksUrl}/tasks-static/:path*`,
+          },
+          {
+            source: "/contacts",
+            destination: `${contactsUrl}/contacts`,
+          },
+          {
+            // Use :path* so trailing-slash and empty-subpath variants
+            // (including some App Router RSC prefetch forms) are forwarded too.
+            source: "/contacts/:path*",
+            destination: `${contactsUrl}/contacts/:path*`,
+          },
+          {
+            source: "/contacts-static/:path*",
+            destination: `${contactsUrl}/contacts-static/:path*`,
+          },
+          {
+            source: "/notes",
+            destination: `${notesUrl}/notes`,
+          },
+          {
+            source: "/notes/:path*",
+            destination: `${notesUrl}/notes/:path*`,
+          },
+          {
+            source: "/notes-static/:path*",
+            destination: `${notesUrl}/notes-static/:path*`,
+          },
+          {
+            source: "/store",
+            destination: `${storeUrl}/store`,
+          },
+          {
+            source: "/store/:path*",
+            destination: `${storeUrl}/store/:path*`,
+          },
+          {
+            source: "/pdf",
+            destination: `${pdfUrl}/pdf`,
+          },
+          {
+            source: "/pdf/:path*",
+            destination: `${pdfUrl}/pdf/:path*`,
+          },
+        ],
+      };
+    },
   },
-
-  headers: createSecurityHeaders({ appName: "web" }),
-
-  turbopack: {
-    root: path.resolve("../.."),
-  },
-
-  reactCompiler: true,
-
-  experimental: {
-    optimizePackageImports: [
-      "lucide-react",
-      "radix-ui",
-      "sonner",
-      "framer-motion",
-    ],
-  },
-};
+});
 
 export default nextConfig;

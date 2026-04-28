@@ -1,6 +1,4 @@
-import path from "path";
-
-import { createSecurityHeaders } from "@helvety/config/next-headers";
+import { createHelvetyNextConfig } from "@helvety/config/next";
 
 import type { NextConfig } from "next";
 
@@ -62,30 +60,17 @@ function getStoreImageRemotePatterns(): Array<{
   ];
 }
 
-const nextConfig: NextConfig = {
-  poweredByHeader: false,
-  // Multi-zone: serve this app under helvety.com/store
+const nextConfig: NextConfig = createHelvetyNextConfig({
+  appName: "store",
+  // Multi-zone: serve this app under helvety.com/store.
   basePath: "/store",
-
-  compress: true,
-
-  headers: createSecurityHeaders({ appName: "store" }),
-
-  turbopack: {
-    root: path.resolve("../.."),
+  overrides: {
+    images: {
+      formats: ["image/avif", "image/webp"],
+      qualities: [75],
+      remotePatterns: getStoreImageRemotePatterns(),
+    },
   },
-
-  images: {
-    formats: ["image/avif", "image/webp"],
-    qualities: [75],
-    remotePatterns: getStoreImageRemotePatterns(),
-  },
-
-  reactCompiler: true,
-
-  experimental: {
-    optimizePackageImports: ["lucide-react", "radix-ui", "sonner"],
-  },
-};
+});
 
 export default nextConfig;

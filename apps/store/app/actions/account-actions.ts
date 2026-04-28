@@ -88,7 +88,7 @@ export async function updateUserEmail(
       };
     }
 
-    logger.info(`Email change requested for user ${user.id}`);
+    logger.info("Email change requested", { userId: user.id });
     return { success: true };
   } catch (error) {
     logger.logUnexpectedError("Error in updateUserEmail", error);
@@ -180,7 +180,7 @@ export async function requestAccountDeletion(
       };
     }
 
-    logger.info(`Account deleted for user ${user.id}`, verificationReport);
+    logger.info("Account deleted", verificationReport);
     return { success: true };
   } catch (error) {
     logger.logUnexpectedError("Error in requestAccountDeletion", error);

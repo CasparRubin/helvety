@@ -23,7 +23,8 @@
     "./eslint": "./eslint.mjs",
     "./vitest": "./vitest.mjs",
     "./postcss": "./postcss.mjs",
-    "./next-headers": "./next-headers.mjs"
+    "./next-headers": "./next-headers.mjs",
+    "./next": "./next.mjs"
   },
   "peerDependencies": {
     "eslint": "^9.39.4",
