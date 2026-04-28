@@ -41,7 +41,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
   - **Deep links** - Click any linked note row to open the note detail view in the Notes app (opens in a new tab)
   - **Privacy** - Note titles are decrypted client-side for display in Contacts. Plaintext should not be intentionally sent to the server.
 - **Self-Service Data Export** - Export all your contact data as a decrypted JSON file from the command bar; data is fetched **encrypted** from the server (per-account export rate limits apply) and decrypted **client-side** using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes)
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Image Upscaler, Tasks, Contacts, Notes)
 - **Dark & Light mode** - Switch between dark and light themes
 
 ## Access Model

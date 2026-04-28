@@ -10,15 +10,16 @@ Monorepo for all Helvety applications. Built and designed in Switzerland.
 
 ## Apps
 
-| App                            | URL                                                  | Description                                                                                             |
-| ------------------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **[Web](apps/web/)**           | [helvety.com](https://helvety.com)                   | Gateway app (multi-zone rewrites), main website, legal pages                                            |
-| **[Auth](apps/auth/)**         | [helvety.com/auth](https://helvety.com/auth)         | Centralized passwordless authentication (email verification + passkey; one Helvety session across apps) |
-| **[Store](apps/store/)**       | [helvety.com/store](https://helvety.com/store)       | Product catalog: web apps plus public downloads (e.g. SPFx packages, browser extension ZIPs)            |
-| **[PDF](apps/pdf/)**           | [helvety.com/pdf](https://helvety.com/pdf)           | Client-side PDF toolkit (merge, reorder, rotate, extract)                                               |
-| **[Tasks](apps/tasks/)**       | [helvety.com/tasks](https://helvety.com/tasks)       | Task management with client-side encryption for sensitive data                                          |
-| **[Contacts](apps/contacts/)** | [helvety.com/contacts](https://helvety.com/contacts) | Contact management with client-side encryption for sensitive data                                       |
-| **[Notes](apps/notes/)**       | [helvety.com/notes](https://helvety.com/notes)       | Encrypted notes grouped by category (Personal, Work, Other)                                             |
+| App                                        | URL                                                              | Description                                                                                             |
+| ------------------------------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **[Web](apps/web/)**                       | [helvety.com](https://helvety.com)                               | Gateway app (multi-zone rewrites), main website, legal pages                                            |
+| **[Auth](apps/auth/)**                     | [helvety.com/auth](https://helvety.com/auth)                     | Centralized passwordless authentication (email verification + passkey; one Helvety session across apps) |
+| **[Store](apps/store/)**                   | [helvety.com/store](https://helvety.com/store)                   | Product catalog: web apps plus public downloads (e.g. SPFx packages, browser extension ZIPs)            |
+| **[PDF](apps/pdf/)**                       | [helvety.com/pdf](https://helvety.com/pdf)                       | Client-side PDF toolkit (merge, reorder, rotate, extract)                                               |
+| **[Image Upscaler](apps/image-upscaler/)** | [helvety.com/image-upscaler](https://helvety.com/image-upscaler) | Client-side image upscaler with local processing (2x/4x or target dimensions)                           |
+| **[Tasks](apps/tasks/)**                   | [helvety.com/tasks](https://helvety.com/tasks)                   | Task management with client-side encryption for sensitive data                                          |
+| **[Contacts](apps/contacts/)**             | [helvety.com/contacts](https://helvety.com/contacts)             | Contact management with client-side encryption for sensitive data                                       |
+| **[Notes](apps/notes/)**                   | [helvety.com/notes](https://helvety.com/notes)                   | Encrypted notes grouped by category (Personal, Work, Other)                                             |
 
 ## Shared Packages
 
@@ -51,6 +52,7 @@ cp apps/web/env.template apps/web/.env.local
 cp apps/auth/env.template apps/auth/.env.local
 cp apps/store/env.template apps/store/.env.local
 cp apps/pdf/env.template apps/pdf/.env.local
+cp apps/image-upscaler/env.template apps/image-upscaler/.env.local
 cp apps/tasks/env.template apps/tasks/.env.local
 cp apps/contacts/env.template apps/contacts/.env.local
 cp apps/notes/env.template apps/notes/.env.local
@@ -62,6 +64,7 @@ Copy-Item "apps/web/env.template" "apps/web/.env.local"
 Copy-Item "apps/auth/env.template" "apps/auth/.env.local"
 Copy-Item "apps/store/env.template" "apps/store/.env.local"
 Copy-Item "apps/pdf/env.template" "apps/pdf/.env.local"
+Copy-Item "apps/image-upscaler/env.template" "apps/image-upscaler/.env.local"
 Copy-Item "apps/tasks/env.template" "apps/tasks/.env.local"
 Copy-Item "apps/contacts/env.template" "apps/contacts/.env.local"
 Copy-Item "apps/notes/env.template" "apps/notes/.env.local"
@@ -127,6 +130,7 @@ helvety/
 │   ├── auth/         # helvety.com/auth
 │   ├── store/        # helvety.com/store
 │   ├── pdf/          # helvety.com/pdf
+│   ├── image-upscaler/ # helvety.com/image-upscaler
 │   ├── tasks/        # helvety.com/tasks
 │   ├── contacts/     # helvety.com/contacts
 │   └── notes/        # helvety.com/notes

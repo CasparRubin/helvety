@@ -22,6 +22,7 @@ Helvety Auth (`helvety.com/auth`) handles all authentication for Helvety applica
 - **helvety.com** - Main website
 - **helvety.com/store** - Store application
 - **helvety.com/pdf** - PDF application
+- **helvety.com/image-upscaler** - Image Upscaler application
 - **helvety.com/tasks** - Tasks application
 - **helvety.com/contacts** - Contacts application
 - **helvety.com/notes** - Notes application
@@ -113,7 +114,7 @@ Note: Passkey authentication creates the session directly server-side (via `veri
 - **Resilient login bootstrap** - Initial auth restore on `/auth/login` uses timeout-bounded probing and safe fallback to manual sign-in to avoid infinite loading states when refresh tokens are expired/revoked or the Auth API is rate-limited
 - **Passkey setup completion** - After successful registration, the encryption-setup UI shows a short “Passkey saved” state, then the flow continues to **passkey sign-in** (step 4); redirect happens after successful `verifyPasskeyAuthentication` (same as returning users)
 - **Verification code length** - OTP values are **6–8 digits** (Supabase configuration); the login field uses `otp-code` helpers for client/server alignment
-- **Session-aware `/login`** - With a valid Supabase session, `/login` on the email step still resolves and enforces the required auth sub-step (`encryption-setup` or `passkey-signin`) before redirect for all app targets. This keeps one clean passkey-aware flow across `/web`, `/store`, `/pdf`, `/tasks`, `/notes`, and `/contacts`. `force_login=1` remains supported (for example after logout or explicit re-auth), but standard login already requires the passkey step whenever `passkey-signin` is required.
+- **Session-aware `/login`** - With a valid Supabase session, `/login` on the email step still resolves and enforces the required auth sub-step (`encryption-setup` or `passkey-signin`) before redirect for all app targets. This keeps one clean passkey-aware flow across `/web`, `/store`, `/pdf`, `/image-upscaler`, `/tasks`, `/notes`, and `/contacts`. `force_login=1` remains supported (for example after logout or explicit re-auth), but standard login already requires the passkey step whenever `passkey-signin` is required.
 
 - **Stepper wiring (code)** - `LoginStep` → `AuthStep` / `AuthStepperMode` mapping lives in `lib/login-flow-stepper.ts` and is used by `useLoginFlow` (see `login-flow-stepper.test.ts`). Server-driven “next step after verify” for `/auth/callback` and similar uses `lib/auth-step.ts` (`resolveAuthStep`) from passkey/encryption readiness — keep these in sync when changing flows.
 
@@ -295,6 +296,7 @@ The auth service validates all `redirect_uri` parameters to prevent open redirec
 - `https://helvety.com/auth` - Authentication service
 - `https://helvety.com/store` - Store / product catalog and package downloads
 - `https://helvety.com/pdf` - PDF tools
+- `https://helvety.com/image-upscaler` - Image upscaler
 - `https://helvety.com/tasks` - Task management
 - `https://helvety.com/contacts` - Contact management
 - `https://helvety.com/notes` - Notes management

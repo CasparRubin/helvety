@@ -14,12 +14,13 @@ import type {
 /**
  * Catalog default sort is newest `releaseDate` first. Release dates are chosen to
  * reflect product age (not repo history). Intended chronological order, oldest → newest:
- *   PDF → SPO Explorer → Tasks → Contacts → Notes → Power Automate Browser Extension
+ *   PDF → SPO Explorer → Tasks → Contacts → Notes → Power Automate Browser Extension → Image Upscaler
  *
  * When two products share the same `metadata.releaseDate`, higher number sorts first
  * (treated as newer for display).
  */
 const PRODUCT_RELEASE_TIE_PRIORITY: Record<string, number> = {
+  "helvety-image-upscaler": 7,
   "helvety-power-automate-force-v3-false": 6,
   "helvety-notes": 5,
   "helvety-contacts": 4,
@@ -432,6 +433,93 @@ Each file can be up to 100 MB. How large or complex a job your device can finish
 };
 
 // =============================================================================
+// HELVETY IMAGE UPSCALER
+// =============================================================================
+
+/**
+ * Helvety Image Upscaler - Browser image upscaler
+ */
+const helvetyImageUpscaler: SaaSProduct = {
+  id: "helvety-image-upscaler",
+  slug: "helvety-image-upscaler",
+  name: "Helvety Image Upscaler",
+  shortDescription:
+    "A privacy-focused image upscaler with local browser processing. Upscale with 2x/4x presets or target width/height while preserving aspect ratio.",
+  description: `Helvety Image Upscaler is a browser-based image upscaler. For the operations it supports, image files are processed on your device and are not uploaded to Helvety for upscaling.
+
+Access: Free to use with no account. Standard technical safeguards still apply for reliability and abuse prevention.
+
+Key features:
+• Local processing: upscaling happens in your browser
+• Flexible sizing: choose 2x/4x scale or a target width/height with preserved aspect ratio
+• Batch flow: process up to 5 images in one run
+• Privacy-first: no account and no server-side image conversion pipeline
+• Download output: save each upscaled image locally
+
+Current operational limits are intended to keep the browser workflow stable (for example file-size and pixel caps).`,
+  type: "saas",
+  category: "utilities",
+  status: "available",
+  image: productArtwork.artwork2,
+  artist: "Alexandre Calame",
+  features: [
+    "Client-side processing for supported operations",
+    "2x and 4x upscale presets",
+    "Target width/height mode with preserved aspect ratio",
+    "Batch processing (up to 5 images)",
+    "No login or account required",
+    "Dark & light mode support",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    hasYearlyPricing: false,
+    tiers: [
+      {
+        id: "helvety-image-upscaler-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "All image upscaler features included",
+          "No account required",
+          "Free to use",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.com/image-upscaler",
+    github:
+      "https://github.com/CasparRubin/helvety/tree/main/apps/image-upscaler",
+  },
+  saas: {
+    appUrl: "https://helvety.com/image-upscaler",
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: [
+      "Creators and designers",
+      "Privacy-conscious users",
+      "Anyone improving image resolution",
+    ],
+    platforms: ["Web"],
+    keywords: [
+      "image upscaler",
+      "webgpu",
+      "onnx",
+      "browser",
+      "client-side",
+      "privacy",
+      "free",
+    ],
+    featured: true,
+    releaseDate: "2026-04-28",
+  },
+};
+
+// =============================================================================
 // HELVETY TASKS
 // =============================================================================
 
@@ -709,6 +797,7 @@ const products: Product[] = [
   helvetyContacts,
   helvetyNotes,
   powerAutomateForceV3False,
+  helvetyImageUpscaler,
 ];
 
 // =============================================================================

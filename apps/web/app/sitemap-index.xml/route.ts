@@ -5,6 +5,7 @@ const SITEMAP_PATHS = [
   "/sitemap.xml",
   "/store/sitemap.xml",
   "/pdf/sitemap.xml",
+  "/image-upscaler/sitemap.xml",
 ] as const;
 
 /** Static build-time date for consistent sitemap-index caching. */

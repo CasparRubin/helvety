@@ -29,6 +29,9 @@ export const urls = {
   auth: isDev ? `${DEV_GATEWAY}/auth` : `https://${DOMAIN}/auth`,
   store: isDev ? `${DEV_GATEWAY}/store` : `https://${DOMAIN}/store`,
   pdf: isDev ? `${DEV_GATEWAY}/pdf` : `https://${DOMAIN}/pdf`,
+  imageUpscaler: isDev
+    ? `${DEV_GATEWAY}/image-upscaler`
+    : `https://${DOMAIN}/image-upscaler`,
   tasks: isDev ? `${DEV_GATEWAY}/tasks` : `https://${DOMAIN}/tasks`,
   contacts: isDev ? `${DEV_GATEWAY}/contacts` : `https://${DOMAIN}/contacts`,
   notes: isDev ? `${DEV_GATEWAY}/notes` : `https://${DOMAIN}/notes`,
@@ -86,6 +89,7 @@ export const DEV_PORTS = {
   tasks: 3005,
   contacts: 3006,
   notes: 3007,
+  imageUpscaler: 3008,
 } as const;
 
 /** Shared viewport config reused by every app layout */

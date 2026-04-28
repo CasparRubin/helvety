@@ -1,0 +1,21 @@
+# Helvety Image Upscaler
+
+> Browser-based image upscaler with local-only processing. Upscale images with 2x/4x scaling or target width/height while preserving aspect ratio.
+
+## Canonical URL
+- [Helvety Image Upscaler](https://helvety.com/image-upscaler): Main application route
+
+## Crawling And Indexing
+- The public image upscaler route is intended to be crawlable and indexable.
+
+## Related Helvety Apps
+- [Helvety](https://helvety.com)
+- [Helvety Store](https://helvety.com/store)
+- [Helvety PDF](https://helvety.com/pdf)
+- [Helvety Auth](https://helvety.com/auth)
+- [Helvety Contacts](https://helvety.com/contacts)
+- [Helvety Notes](https://helvety.com/notes)
+- [Helvety Tasks](https://helvety.com/tasks)
+
+## Source
+- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo (MIT)

@@ -29,6 +29,7 @@ services collect this non-EU/EEA location-attestation signal during sign-in on
 
 - `/store/products` - Browse all Helvety products
 - `/store/products/helvety-spo-explorer` - SPO Explorer page with direct package download
+- `/store/products/helvety-image-upscaler` - Image Upscaler app page with usage details
 - `/store/products/helvety-power-automate-force-v3-false` - Power Automate Browser Extension (ZIP) with install guide
 - `/store/api/packages/spo-explorer/download` - Public download endpoint for SPO Explorer
 - `/store/api/packages/power-automate-force-v3-false/download` - Public download endpoint for the Power Automate extension ZIP

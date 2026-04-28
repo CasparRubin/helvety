@@ -86,6 +86,10 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
       const notesUrl = getAppUrl("NOTES_URL", DEV_PORTS.notes);
       const storeUrl = getAppUrl("STORE_URL", DEV_PORTS.store);
       const pdfUrl = getAppUrl("PDF_URL", DEV_PORTS.pdf);
+      const imageUpscalerUrl = getAppUrl(
+        "IMAGE_UPSCALER_URL",
+        DEV_PORTS.imageUpscaler
+      );
 
       return {
         beforeFiles: [
@@ -157,6 +161,14 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
           {
             source: "/pdf/:path*",
             destination: `${pdfUrl}/pdf/:path*`,
+          },
+          {
+            source: "/image-upscaler",
+            destination: `${imageUpscalerUrl}/image-upscaler`,
+          },
+          {
+            source: "/image-upscaler/:path*",
+            destination: `${imageUpscalerUrl}/image-upscaler/:path*`,
           },
         ],
       };

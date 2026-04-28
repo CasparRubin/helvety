@@ -19,7 +19,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 ## Features
 
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes). Downloadable extensions (SharePoint packages, browser ZIPs) are listed on the Store.
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Image Upscaler, Tasks, Contacts, Notes). Downloadable extensions (SharePoint packages, browser ZIPs) are listed on the Store.
 - **Sign in** - Sign in when not authenticated (centralized auth)
 - **Profile menu** - When signed in: user email, links to Store Account, Sign out
 - **Dark & Light mode** - Switch between dark and light themes
@@ -34,7 +34,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - Sub-apps are forwarded by gateway rewrites in `apps/web/next.config.ts`.
 - Shared same-tab ecosystem navigation (hero CTA + app switcher) uses `next/link` with path-based hrefs (`/store`, `/tasks`, etc.) so Next App Router prefetch/client transitions can be used across zones. Absolute app URLs are normalized through `getLocalAppHref` in `packages/shared/src/config.ts`.
 - Use wildcard segment patterns (prefer `:path*`) for zone forwarding rules so App Router Flight/RSC prefetch requests (`?_rsc=...`) and trailing-slash variants are forwarded consistently.
-- Keep wildcard usage consistent across zones (`auth`, `tasks`, `contacts`, `notes`, `store`, `pdf`) and include each zone's static asset prefix routes (`/auth-static`, `/tasks-static`, `/contacts-static`, `/notes-static`) to avoid stale bundles or edge-case misses.
+- Keep wildcard usage consistent across zones (`auth`, `tasks`, `contacts`, `notes`, `store`, `pdf`, `image-upscaler`) and include static asset prefix routes for zones that define them (`/auth-static`, `/tasks-static`, `/contacts-static`, `/notes-static`) to avoid stale bundles or edge-case misses.
 - New-tab account links intentionally remain regular anchors (`target="_blank"`) and do not use in-tab client transitions.
 
 ## Crawl & Indexing Policy
@@ -42,7 +42,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - `apps/web` is indexable and serves:
   - `/robots.txt` with an allow-all policy and a sitemap index reference.
   - `/sitemap.xml` for web-owned public pages.
-  - `/sitemap-index.xml` for the monorepo's public app sitemaps (`/`, `/store`, `/pdf`).
+- `/sitemap-index.xml` for the monorepo's public app sitemap files (`/sitemap.xml`, `/store/sitemap.xml`, `/pdf/sitemap.xml`, `/image-upscaler/sitemap.xml`).
 - Canonical metadata is set in `app/layout.tsx`; legal pages keep dedicated metadata exports.
 - Implementation aligns with Next.js App Router metadata file conventions and Google Search Central guidance for robots/sitemaps.
 
@@ -63,16 +63,17 @@ A single Helvety session cookie applies across apps because they are served unde
 
 Copy `env.template` to `.env.local` and fill in values. All `NEXT_PUBLIC_*` vars are exposed to the client; others are server-only.
 
-| Variable                               | Required | Server-only | Description                                                   |
-| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                          |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                 |
-| `AUTH_URL`                             | Prod     | **Yes**     | Internal Vercel URL for Auth app (gateway rewrite target)     |
-| `STORE_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Store app (gateway rewrite target)    |
-| `PDF_URL`                              | Prod     | **Yes**     | Internal Vercel URL for PDF app (gateway rewrite target)      |
-| `TASKS_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Tasks app (gateway rewrite target)    |
-| `CONTACTS_URL`                         | Prod     | **Yes**     | Internal Vercel URL for Contacts app (gateway rewrite target) |
-| `NOTES_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Notes app (gateway rewrite target)    |
+| Variable                               | Required | Server-only | Description                                                         |
+| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Publishable key (RLS applies)                                       |
+| `AUTH_URL`                             | Prod     | **Yes**     | Internal Vercel URL for Auth app (gateway rewrite target)           |
+| `STORE_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Store app (gateway rewrite target)          |
+| `PDF_URL`                              | Prod     | **Yes**     | Internal Vercel URL for PDF app (gateway rewrite target)            |
+| `IMAGE_UPSCALER_URL`                   | Prod     | **Yes**     | Internal Vercel URL for Image Upscaler app (gateway rewrite target) |
+| `TASKS_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Tasks app (gateway rewrite target)          |
+| `CONTACTS_URL`                         | Prod     | **Yes**     | Internal Vercel URL for Contacts app (gateway rewrite target)       |
+| `NOTES_URL`                            | Prod     | **Yes**     | Internal Vercel URL for Notes app (gateway rewrite target)          |
 
 > **Note:** Public app URL/cookie domain are derived from `NODE_ENV` in `packages/shared/src/config.ts`. Separately, the gateway rewrite URLs (`AUTH_URL`, `STORE_URL`, etc.) are only needed on Vercel production — they point to each sub-app's internal Vercel deployment URL (not `helvety.com`). In development, they fall back to localhost ports. Production rewrite hosts must use the built-in trusted host policy (`*.vercel.app`, `*.helvety.com`, and `helvety.com`). Make sure your production URL (`https://helvety.com`) is in your Supabase Redirect URLs allowlist (Supabase Dashboard > Authentication > URL Configuration > Redirect URLs).
 >

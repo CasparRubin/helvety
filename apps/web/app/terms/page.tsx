@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="April 24, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="April 28, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -314,7 +314,8 @@ export default function TermsPage() {
           (e.g., sort orders), and entity relationships) is stored in plaintext
           to enable application functionality; see our Privacy Policy for
           field-level details. Other Helvety services (helvety.com, Helvety
-          Auth, Helvety PDF, Helvety Store) do not use end-to-end encryption.
+          Auth, Helvety PDF, Helvety Image Upscaler, Helvety Store) do not use
+          end-to-end encryption.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Age Requirement:</strong> You must
@@ -910,6 +911,10 @@ export default function TermsPage() {
           <li>
             <strong className="text-foreground">Helvety PDF</strong> can be used
             without account login in its standard no-account flow.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety Image Upscaler</strong>{" "}
+            can be used without account login in its standard no-account flow.
           </li>
           <li>
             <strong className="text-foreground">Helvety Store</strong> lists web

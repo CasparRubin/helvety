@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="April 24, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="April 28, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -406,6 +406,18 @@ export default function PrivacyPage() {
             session/security proxy logic). The service is provided free of
             charge; technical safeguards may still apply for security and
             operational stability.
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Helvety Image Upscaler (helvety.com/image-upscaler):
+            </strong>{" "}
+            For supported operations in the current architecture, image files
+            are processed in your browser and are not intended to be uploaded to
+            our servers for upscaling. No login or account is required. The
+            service still uses minimal server-side endpoints for platform and
+            security functions (for example CSP reporting and session/security
+            proxy logic). The service is provided free of charge; technical
+            safeguards may still apply for security and operational stability.
           </li>
           <li>
             <strong className="text-foreground">
@@ -1159,9 +1171,9 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           Helvety Tasks, Helvety Contacts, and Helvety Notes implement
           end-to-end encryption to protect your content. Other Helvety services
-          (helvety.com, Helvety Auth, Helvety PDF, Helvety Store) do not use
-          end-to-end encryption. For Helvety Tasks, Helvety Contacts, and
-          Helvety Notes:
+          (helvety.com, Helvety Auth, Helvety PDF, Helvety Image Upscaler,
+          Helvety Store) do not use end-to-end encryption. For Helvety Tasks,
+          Helvety Contacts, and Helvety Notes:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>

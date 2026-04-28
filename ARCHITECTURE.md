@@ -21,6 +21,10 @@ This index is the quickest way to locate runtime entry points and ownership boun
   - PDF workspace page: `apps/pdf/app/page.tsx`
   - PDF pipeline hooks/libs: `apps/pdf/hooks/*`, `apps/pdf/lib/*`
   - Zone proxy: `apps/pdf/proxy.ts`
+- `apps/image-upscaler`
+  - Upscaler workspace page: `apps/image-upscaler/app/page.tsx`
+  - Client upscaling pipeline: `apps/image-upscaler/lib/*`, `apps/image-upscaler/workers/*`
+  - Zone proxy: `apps/image-upscaler/proxy.ts`
 - `apps/tasks`
   - Protected page entry: `apps/tasks/app/page.tsx`
   - Task and link actions: `apps/tasks/app/actions/*`

@@ -46,7 +46,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 - **Controlled row-link prefetching** - Dense item lists disable automatic `next/link` prefetch to prevent repeated background Flight (`?_rsc=...`) 404 noise from stale IDs while keeping click navigation fast
 - **Consistency safeguards for stage/status moves** - UI keeps optimistic interactions snappy while discarding stale in-flight refresh responses; stage changes patch local list state immediately, and route revalidation runs after create/update/delete/reorder mutations to keep prefetched pages aligned
 - **Self-Service Data Export** - Export all your task data as a decrypted JSON file from the command bar; data is fetched **encrypted** from the server (per-account export rate limits apply) and decrypted **client-side** using your passkey (designed to support nDSG Art. 28 data portability requests). Export is only available while your encryption context is unlocked.
-- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Tasks, Contacts, Notes)
+- **App Switcher** - Navigate between Helvety ecosystem apps (Home, Auth, Store, PDF, Image Upscaler, Tasks, Contacts, Notes)
 - **Dark & Light mode** - Switch between dark and light themes
 
 ## Access Model

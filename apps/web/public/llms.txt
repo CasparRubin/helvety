@@ -17,6 +17,7 @@
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint Framework package for SharePoint site navigation
 - [Power Automate Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false): Browser extension for classic Power Automate editor URL behavior
 - [Helvety PDF](https://helvety.com/pdf): Browser-based PDF toolkit for supported operations
+- [Helvety Image Upscaler](https://helvety.com/image-upscaler): Browser-based image upscaler with local-only processing
 - [Helvety Auth](https://helvety.com/auth): Authentication service
 - [Helvety Contacts](https://helvety.com/contacts): Contact management app
 - [Helvety Notes](https://helvety.com/notes): Notes management app

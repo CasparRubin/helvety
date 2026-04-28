@@ -38,6 +38,7 @@ export const metadata: Metadata = {
     "encrypted tasks",
     "encrypted contacts",
     "PDF tools",
+    "image upscaler",
     "open source",
     "MIT",
     "end-to-end encryption",
