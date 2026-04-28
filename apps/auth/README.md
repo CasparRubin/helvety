@@ -19,6 +19,8 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 
 Helvety Auth (`helvety.com/auth`) handles all authentication for Helvety applications:
 
+Direct-domain root requests on the auth deployment (`https://helvety-auth.vercel.app/`) are redirected to `/auth`, matching the gateway-mounted base path behavior.
+
 - **helvety.com** - Main website
 - **helvety.com/store** - Store application
 - **helvety.com/pdf** - PDF application

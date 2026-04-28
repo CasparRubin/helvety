@@ -4,6 +4,8 @@ Official Helvety Store for product discovery, app listings, and package download
 
 Store URL: [https://helvety.com/store](https://helvety.com/store)
 
+Direct-domain root requests on the store deployment (`https://helvety-store.vercel.app/`) are redirected to `/store`, matching the gateway-mounted base path behavior.
+
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/store/`. See the root README for monorepo setup instructions.
 
 ## Current scope

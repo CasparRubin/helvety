@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  canonicalizeRedirectUri,
   getSafeRedirectUri,
   getSafeRelativePath,
   isValidRedirectUri,
@@ -34,6 +35,12 @@ describe("isValidRedirectUri", () => {
     expect(isValidRedirectUri("https://nothelvety.com")).toBe(false);
   });
 
+  it("rejects direct app domains unless canonicalized first", () => {
+    expect(isValidRedirectUri("https://helvety-tasks.vercel.app/tasks")).toBe(
+      false
+    );
+  });
+
   it("rejects javascript: and data: protocols", () => {
     expect(isValidRedirectUri("javascript:alert(1)")).toBe(false);
     expect(isValidRedirectUri("data:text/html,<h1>pwned</h1>")).toBe(false);
@@ -42,6 +49,18 @@ describe("isValidRedirectUri", () => {
   it("rejects invalid URLs", () => {
     expect(isValidRedirectUri("not-a-url")).toBe(false);
     expect(isValidRedirectUri("://missing-protocol")).toBe(false);
+  });
+});
+
+describe("canonicalizeRedirectUri", () => {
+  it("returns canonical URL for trusted direct app domains", () => {
+    expect(canonicalizeRedirectUri("https://helvety-pdf.vercel.app/pdf")).toBe(
+      "https://helvety.com/pdf"
+    );
+  });
+
+  it("returns null for unknown hosts", () => {
+    expect(canonicalizeRedirectUri("https://evil.com/tasks")).toBeNull();
   });
 });
 
@@ -55,6 +74,12 @@ describe("getSafeRedirectUri", () => {
   it("returns default for invalid URIs", () => {
     expect(getSafeRedirectUri("https://evil.com", "https://helvety.com")).toBe(
       "https://helvety.com"
+    );
+  });
+
+  it("canonicalizes trusted direct app domains", () => {
+    expect(getSafeRedirectUri("https://helvety-notes.vercel.app/notes")).toBe(
+      "https://helvety.com/notes"
     );
   });
 

@@ -81,8 +81,15 @@ describe("parseImageFilesSync", () => {
   });
 
   it("deduplicates duplicate files by name/size/lastModified", () => {
-    const fileA = new File(["dup"], "same.png", { type: "image/png" });
-    const fileB = new File(["dup"], "same.png", { type: "image/png" });
+    const sharedLastModified = 1_717_171_717_000;
+    const fileA = new File(["dup"], "same.png", {
+      type: "image/png",
+      lastModified: sharedLastModified,
+    });
+    const fileB = new File(["dup"], "same.png", {
+      type: "image/png",
+      lastModified: sharedLastModified,
+    });
     const files: FileList = {
       0: fileA,
       1: fileB,

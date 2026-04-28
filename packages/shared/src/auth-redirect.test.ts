@@ -58,6 +58,15 @@ describe("getLoginUrl", () => {
     expect(url).toContain("redirect_uri=https%3A%2F%2Fhelvety.com%2Fnotes");
     expect(url).toContain("force_login=1");
   });
+
+  it("canonicalizes trusted direct app domains to helvety.com", () => {
+    const url = getLoginUrl(
+      "https://helvety-tasks.vercel.app/tasks?view=board"
+    );
+    expect(url).toContain(
+      "redirect_uri=https%3A%2F%2Fhelvety.com%2Ftasks%3Fview%3Dboard"
+    );
+  });
 });
 
 describe("getLogoutUrl", () => {
@@ -83,5 +92,10 @@ describe("getLogoutUrl", () => {
 
     const url = getLogoutUrl("https://invalid.example");
     expect(url).toContain("redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fstore");
+  });
+
+  it("canonicalizes trusted direct app domains for logout redirects", () => {
+    const url = getLogoutUrl("https://helvety-notes.vercel.app/notes");
+    expect(url).toContain("redirect_uri=https%3A%2F%2Fhelvety.com%2Fnotes");
   });
 });

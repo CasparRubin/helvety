@@ -9,6 +9,8 @@ A privacy-focused notes app with client-side encryption for sensitive fields. En
 
 **App:** [helvety.com/notes](https://helvety.com/notes)
 
+Direct-domain root requests on the notes deployment (`https://helvety-notes.vercel.app/`) are redirected to `/notes`, matching the gateway-mounted base path behavior.
+
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/notes/`. See the root README for monorepo setup instructions.
 
 ## Service Availability

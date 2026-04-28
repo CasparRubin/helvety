@@ -32,6 +32,7 @@ Helvety's legal baseline is Swiss data protection law (nDSG). Account-based serv
 ## Multi-Zone Routing Notes
 
 - Sub-apps are forwarded by gateway rewrites in `apps/web/next.config.ts`.
+- BasePath apps also handle direct-domain entry (`https://helvety-*.vercel.app/`) by redirecting `/` to their mounted base path (`/auth`, `/store`, `/pdf`, `/image-upscaler`, `/tasks`, `/contacts`, `/notes`), so both gateway and direct-host URLs behave consistently.
 - Shared same-tab ecosystem navigation (hero CTA + app switcher) uses `next/link` with path-based hrefs (`/store`, `/tasks`, etc.) so Next App Router prefetch/client transitions can be used across zones. Absolute app URLs are normalized through `getLocalAppHref` in `packages/shared/src/config.ts`.
 - Use wildcard segment patterns (prefer `:path*`) for zone forwarding rules so App Router Flight/RSC prefetch requests (`?_rsc=...`) and trailing-slash variants are forwarded consistently.
 - Keep wildcard usage consistent across zones (`auth`, `tasks`, `contacts`, `notes`, `store`, `pdf`, `image-upscaler`) and include static asset prefix routes for zones that define them (`/auth-static`, `/tasks-static`, `/contacts-static`, `/notes-static`) to avoid stale bundles or edge-case misses.
@@ -52,6 +53,7 @@ This application includes the following security hardening:
 
 - **Session Management** - `proxy.ts` performs lightweight request setup (headers/CSP and, when Supabase session cookies are present on matched routes, cookie refresh). The web app is primarily public-facing; strict auth enforcement for protected data/actions is handled in the app-specific zones (`/auth`, `/store`, `/tasks`, `/contacts`, `/notes`).
 - **Redirect URI Validation** - Redirect URIs are allowlist-validated in core auth flows via `@helvety/shared/redirect-validation` to reduce open-redirect risk
+- **Canonical Auth Return Targets** - Trusted direct app-domain redirect targets are canonicalized to `https://helvety.com/...` before auth handoff/completion to keep post-auth navigation consistent and avoid broad host allowlists
 - **CSRF Protection** - Token-based protection for state-changing operations
 - **Security Headers** - CSP, HSTS, and other security headers
 

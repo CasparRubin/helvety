@@ -14,6 +14,9 @@ const LEGACY_CONTACT_DETAIL_REGEX =
 
 /** Redirect legacy detail routes, then apply shared security proxy. */
 export async function proxy(request: NextRequest) {
+  if (new URL(request.url).pathname === "/") {
+    return NextResponse.redirect(getContactsRoot(request));
+  }
   if (LEGACY_CONTACT_DETAIL_REGEX.test(request.nextUrl.pathname)) {
     return NextResponse.redirect(getContactsRoot(request));
   }

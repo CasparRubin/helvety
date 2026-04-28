@@ -9,6 +9,8 @@ A privacy-focused contact management app with client-side encryption for sensiti
 
 **App:** [helvety.com/contacts](https://helvety.com/contacts)
 
+Direct-domain root requests on the contacts deployment (`https://helvety-contacts.vercel.app/`) are redirected to `/contacts`, matching the gateway-mounted base path behavior.
+
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/contacts/`. See the root README for monorepo setup instructions.
 
 ## Service Availability

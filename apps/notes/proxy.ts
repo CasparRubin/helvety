@@ -16,6 +16,9 @@ const LEGACY_NOTES_PATH_REGEX =
 
 /** Redirect deprecated legacy note paths, then apply shared security proxy. */
 export async function proxy(request: NextRequest) {
+  if (new URL(request.url).pathname === "/") {
+    return NextResponse.redirect(getNotesRoot(request));
+  }
   if (LEGACY_NOTES_PATH_REGEX.test(request.nextUrl.pathname)) {
     return NextResponse.redirect(getNotesRoot(request));
   }

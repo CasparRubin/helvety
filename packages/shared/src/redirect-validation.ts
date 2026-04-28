@@ -6,22 +6,34 @@
  */
 
 /**
- * Explicit allowlist of redirect hosts.
+ * Explicit allowlist of canonical redirect hosts.
  *
  * Current production deployment serves apps under helvety.com via path-based
  * routing (multi-zone), e.g. helvety.com/auth, /tasks, /contacts.
  *
  * If deployment topology changes (preview domains, additional hosts), this
  * allowlist must be updated accordingly.
+ *
+ * Trusted direct app domains are handled separately and canonicalized to
+ * helvety.com before final allowlist validation.
  */
 const ALLOWED_REDIRECT_HOSTS = new Set(["helvety.com"]);
+const DIRECT_APP_REDIRECT_HOSTS = new Set([
+  "helvety-auth.vercel.app",
+  "helvety-store.vercel.app",
+  "helvety-pdf.vercel.app",
+  "helvety-image-upscaler.vercel.app",
+  "helvety-tasks.vercel.app",
+  "helvety-contacts.vercel.app",
+  "helvety-notes.vercel.app",
+]);
 
 /**
  * Allowed redirect URI patterns
- * Only these domains are permitted as redirect destinations
+ * Only these patterns are permitted as direct redirect destinations
  *
  * Supports:
- * - Explicit allowlist of helvety.com (see ALLOWED_REDIRECT_HOSTS)
+ * - Explicit allowlist of canonical hosts (see ALLOWED_REDIRECT_HOSTS)
  * - localhost with any port (development only)
  * - 127.0.0.1 with any port (development only)
  */
@@ -36,8 +48,41 @@ const ALLOWED_REDIRECT_PATTERNS = [
     : []),
 ];
 
+/** Converts trusted direct app-domain redirects to canonical helvety.com URLs. */
+export function canonicalizeRedirectUri(
+  uri: string | null | undefined
+): string | null {
+  if (!uri) {
+    return null;
+  }
+
+  try {
+    const url = new URL(uri);
+    if (url.protocol !== "https:") {
+      return null;
+    }
+
+    if (ALLOWED_REDIRECT_HOSTS.has(url.hostname)) {
+      return url.toString();
+    }
+
+    if (!DIRECT_APP_REDIRECT_HOSTS.has(url.hostname)) {
+      return null;
+    }
+
+    const canonical = new URL(url.toString());
+    canonical.hostname = "helvety.com";
+    return canonical.toString();
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Validates a redirect URI against the allowlist
+ * Validates a redirect URI against the allowlist.
+ *
+ * Note: trusted direct app domains are intentionally not valid here unless
+ * canonicalized first via canonicalizeRedirectUri/getSafeRedirectUri.
  */
 export function isValidRedirectUri(uri: string | null | undefined): boolean {
   if (!uri) {
@@ -77,6 +122,21 @@ export function getSafeRedirectUri(
   if (uri != null && isValidRedirectUri(uri)) {
     return uri;
   }
+
+  const canonicalUri = canonicalizeRedirectUri(uri);
+  if (canonicalUri && isValidRedirectUri(canonicalUri)) {
+    return canonicalUri;
+  }
+
+  if (defaultUri != null && isValidRedirectUri(defaultUri)) {
+    return defaultUri;
+  }
+
+  const canonicalDefault = canonicalizeRedirectUri(defaultUri);
+  if (canonicalDefault && isValidRedirectUri(canonicalDefault)) {
+    return canonicalDefault;
+  }
+
   return defaultUri ?? null;
 }
 

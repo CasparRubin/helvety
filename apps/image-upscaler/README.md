@@ -9,6 +9,8 @@ Privacy-focused, browser-based image upscaler. Upscale PNG/JPG/WebP files direct
 
 **App:** [helvety.com/image-upscaler](https://helvety.com/image-upscaler)
 
+Direct-domain root requests on the image-upscaler deployment (`https://helvety-image-upscaler.vercel.app/`) are redirected to `/image-upscaler`, matching the gateway-mounted base path behavior.
+
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/image-upscaler/`. See the root README for monorepo setup instructions.
 
 **Privacy Approach** - Image processing runs in your browser. Uploaded image contents are not intended to be uploaded to Helvety servers for image conversion. We use Vercel Analytics across Helvety apps for usage metrics and Vercel Speed Insights on [helvety.com](https://helvety.com) for performance telemetry (see [Privacy Policy](https://helvety.com/privacy)).

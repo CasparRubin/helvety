@@ -9,6 +9,8 @@ A privacy-focused task management app with client-side encryption for sensitive 
 
 **App:** [helvety.com/tasks](https://helvety.com/tasks)
 
+Direct-domain root requests on the tasks deployment (`https://helvety-tasks.vercel.app/`) are redirected to `/tasks`, matching the gateway-mounted base path behavior.
+
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/tasks/`. See the root README for monorepo setup instructions.
 
 ## Service Availability

@@ -9,6 +9,8 @@ A privacy-focused, browser-based PDF toolkit. Merge, reorder, rotate, and extrac
 
 **App:** [helvety.com/pdf](https://helvety.com/pdf)
 
+Direct-domain root requests on the PDF deployment (`https://helvety-pdf.vercel.app/`) are redirected to `/pdf`, matching the gateway-mounted base path behavior.
+
 > **Part of the [Helvety monorepo](https://github.com/CasparRubin/helvety).** This app lives in `apps/pdf/`. See the root README for monorepo setup instructions.
 
 **Privacy Approach** - File contents are processed in your browser and are not intended to be uploaded to Helvety servers for file conversion. We use Vercel Analytics across Helvety apps for usage metrics and Vercel Speed Insights on [helvety.com](https://helvety.com) for performance telemetry (see [Privacy Policy](https://helvety.com/privacy)).

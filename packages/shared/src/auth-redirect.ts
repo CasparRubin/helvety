@@ -10,7 +10,7 @@
  */
 
 import { urls } from "./config";
-import { isValidRedirectUri } from "./redirect-validation";
+import { getSafeRedirectUri, isValidRedirectUri } from "./redirect-validation";
 
 const AUTH_LOGIN_PATH = `${new URL(urls.auth).pathname.replace(/\/$/, "")}/login`;
 const MAX_REDIRECT_UNWRAP_DEPTH = 3;
@@ -86,22 +86,25 @@ function resolveRedirectUri(
   runtimeOrigin?: string
 ): string {
   const normalizedInput = unwrapAuthLoginRedirect(input, runtimeOrigin);
+  const safeAbsolute = getSafeRedirectUri(normalizedInput, null);
 
-  if (normalizedInput && isValidRedirectUri(normalizedInput)) {
-    return normalizedInput;
+  if (safeAbsolute) {
+    return safeAbsolute;
   }
 
   if (normalizedInput && isRelativePath(normalizedInput)) {
     if (runtimeOrigin) {
       const absolute = toAbsoluteUrl(normalizedInput, runtimeOrigin);
-      if (absolute && isValidRedirectUri(absolute)) {
-        return absolute;
+      const safeAbsoluteFromOrigin = getSafeRedirectUri(absolute, null);
+      if (safeAbsoluteFromOrigin) {
+        return safeAbsoluteFromOrigin;
       }
     }
     if (typeof window !== "undefined") {
       const absolute = toAbsoluteUrl(normalizedInput, window.location.origin);
-      if (absolute && isValidRedirectUri(absolute)) {
-        return absolute;
+      const safeAbsoluteFromWindow = getSafeRedirectUri(absolute, null);
+      if (safeAbsoluteFromWindow) {
+        return safeAbsoluteFromWindow;
       }
     }
   }

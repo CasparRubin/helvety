@@ -1,4 +1,5 @@
 import {
+  canonicalizeRedirectUri,
   getSafeRedirectUri,
   getSafeRelativePath,
   isValidRedirectUri,
@@ -42,6 +43,15 @@ describe("isValidRedirectUri", () => {
       isValidRedirectUri("https://contacts.helvety.com/contacts/456")
     ).toBe(false);
     expect(isValidRedirectUri("https://notes.helvety.com/notes/789")).toBe(
+      false
+    );
+  });
+
+  it("rejects direct Vercel app domains directly", () => {
+    expect(isValidRedirectUri("https://helvety-tasks.vercel.app/tasks")).toBe(
+      false
+    );
+    expect(isValidRedirectUri("https://helvety-pdf.vercel.app/pdf")).toBe(
       false
     );
   });
@@ -100,6 +110,26 @@ describe("isValidRedirectUri", () => {
   });
 });
 
+describe("canonicalizeRedirectUri", () => {
+  it("keeps canonical helvety.com URLs unchanged", () => {
+    expect(
+      canonicalizeRedirectUri("https://helvety.com/tasks?view=board")
+    ).toBe("https://helvety.com/tasks?view=board");
+  });
+
+  it("normalizes trusted direct app domains to helvety.com", () => {
+    expect(
+      canonicalizeRedirectUri(
+        "https://helvety-contacts.vercel.app/contacts/123"
+      )
+    ).toBe("https://helvety.com/contacts/123");
+  });
+
+  it("returns null for unknown hosts", () => {
+    expect(canonicalizeRedirectUri("https://evil.example/tasks")).toBeNull();
+  });
+});
+
 // =============================================================================
 // getSafeRedirectUri
 // =============================================================================
@@ -119,6 +149,12 @@ describe("getSafeRedirectUri", () => {
   it("returns default URI when provided and input is invalid", () => {
     expect(getSafeRedirectUri("https://evil.com", "https://helvety.com")).toBe(
       "https://helvety.com"
+    );
+  });
+
+  it("returns canonical URL for trusted direct app domains", () => {
+    expect(getSafeRedirectUri("https://helvety-store.vercel.app/store")).toBe(
+      "https://helvety.com/store"
     );
   });
 
