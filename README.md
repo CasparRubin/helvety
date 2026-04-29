@@ -96,7 +96,7 @@ bun run format
 ## Environment Model
 
 - App URL and cookie domain logic are derived from `NODE_ENV` via shared config.
-- Set `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` as a comma-separated trusted-origin allowlist for server actions; Vercel builds require this variable.
+- `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` can override the server-action trusted-origin allowlist as a comma-separated list; on Vercel, defaults are derived automatically from deployment/runtime URLs plus `https://helvety.com`.
 - App READMEs document per-app env templates; shared runtime/security defaults are documented in this root README and `packages/config`.
 
 ## Supabase Workflow (Remote-First)
