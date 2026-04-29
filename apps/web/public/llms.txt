@@ -1,6 +1,6 @@
 # Helvety
 
-> Main Helvety website for products, legal information, and links to all Helvety apps. Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.
+> Swiss-built apps, crisp legal copy, and deep links into every Helvety surface—MIT-licensed source, minimal marketing fluff.
 
 ## Canonical URLs
 - [Home](https://helvety.com): Main landing page
@@ -13,16 +13,15 @@
 - Private app routes are not intended as search index targets and use noindex and auth-gated controls.
 
 ## Helvety Ecosystem
-- [Helvety Store](https://helvety.com/store): Product catalog, app details, and installable packages (for example SharePoint SPFx and browser extensions)
-- [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint Framework package for SharePoint site navigation
-- [Power Automate Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false): Browser extension for classic Power Automate editor URL behavior
-- [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows desktop screenshot and live-annotation tool (local device processing)
-- [Helvety PDF](https://helvety.com/pdf): Browser-based PDF toolkit for supported operations
-- [Helvety Image Upscaler](https://helvety.com/image-upscaler): Browser-based image upscaler with local-only processing
-- [Helvety Auth](https://helvety.com/auth): Authentication service
-- [Helvety Contacts](https://helvety.com/contacts): Contact management app
-- [Helvety Notes](https://helvety.com/notes): Notes management app
-- [Helvety Tasks](https://helvety.com/tasks): Task management app
+- [Helvety Store](https://helvety.com/store): Specs plus .sppkg / ZIP artifacts straight from the catalog
+- [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SPFx header control for tenant-wide site discovery
+- [Power Automate Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false): Edge/Chrome guardrail that pins classic editor URLs
+- [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): WinUI capture + Live Draw overlay for Windows
+- [Helvety PDF](https://helvety.com/pdf): Thumbnail-first PDF workbench with local processing where supported
+- [Helvety Image Upscaler](https://helvety.com/image-upscaler): ONNX/WebGPU upscales without a conversion farm
+- [Helvety Contacts](https://helvety.com/contacts): Encrypted address book with export tooling
+- [Helvety Notes](https://helvety.com/notes): Encrypted quick notes in Personal / Work / Other lanes
+- [Helvety Tasks](https://helvety.com/tasks): Encrypted kanban with immutable Helvety stages
 
 ## Source
 - [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo (MIT)

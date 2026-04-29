@@ -8,6 +8,9 @@ import { EncryptionProvider } from "@/lib/crypto";
 
 import type { Metadata } from "next";
 
+const CONTACTS_APP_DESCRIPTION_COPY =
+  "People-first address book with client-side encryption—MIT-licensed, Swiss-built.";
+
 export const viewport = sharedViewport;
 
 export const metadata: Metadata = {
@@ -16,8 +19,7 @@ export const metadata: Metadata = {
     default: "Helvety Contacts | Contact Management",
     template: "%s | Helvety Contacts",
   },
-  description:
-    "Free and open-source contact management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+  description: CONTACTS_APP_DESCRIPTION_COPY,
   keywords: [
     "Helvety Contacts",
     "contact management",
@@ -42,8 +44,7 @@ export const metadata: Metadata = {
     url: urls.contacts,
     siteName: "Helvety Contacts",
     title: "Helvety Contacts | Contact Management",
-    description:
-      "Free and open-source contact management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+    description: CONTACTS_APP_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -56,8 +57,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Helvety Contacts | Contact Management",
-    description:
-      "Free and open-source contact management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+    description: CONTACTS_APP_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -96,8 +96,7 @@ export default function RootLayout({
       softwareApplication={{
         name: "Helvety Contacts",
         url: urls.contacts,
-        description:
-          "Free and open-source contact management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+        description: CONTACTS_APP_DESCRIPTION_COPY,
         applicationCategory: "BusinessApplication",
       }}
       EncryptionProvider={EncryptionProvider}

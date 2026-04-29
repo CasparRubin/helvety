@@ -12,7 +12,7 @@ const labels = {
   encryptionTooltipBody:
     "Sensitive contact content fields are encrypted on your device before storage. Some structural metadata (such as timestamps, relationships, and display preferences) remains plaintext to support app functionality.",
   aboutDescription:
-    "Privacy-focused contact management with client-side encryption for sensitive content fields. Engineered, Designed & Made in Switzerland.",
+    "People-first address book with client-side encryption—MIT-licensed, Swiss-built.",
   navigationMenuDescription: "Contacts navigation menu",
 } as const;
 

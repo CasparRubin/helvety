@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { isSoftwareProduct } from "../types/products";
+
 import { getAllProducts, getProductBySlug } from "./products";
 
 describe("store product catalog", () => {
@@ -21,5 +23,45 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-pdf")).toBeDefined();
     expect(getProductBySlug("helvety-screen-tools")).toBeDefined();
     expect(getProductBySlug("helvety-image-upscaler")).toBeDefined();
+  });
+
+  it("stores structured About copy for every product", () => {
+    for (const product of getAllProducts()) {
+      expect(product.description.intro.trim().length).toBeGreaterThan(0);
+      for (const section of product.description.sections ?? []) {
+        expect(section.heading.trim().length).toBeGreaterThan(0);
+        if (section.kind === "paragraph") {
+          expect(section.body.trim().length).toBeGreaterThan(0);
+        } else {
+          expect(section.items.length).toBeGreaterThan(0);
+          for (const item of section.items) {
+            expect(item.trim().length).toBeGreaterThan(0);
+          }
+        }
+      }
+    }
+  });
+
+  it("avoids stale download-button instructions for software without package download CTA", () => {
+    const stalePhrase = "Download button on this page";
+    for (const product of getAllProducts()) {
+      if (!isSoftwareProduct(product)) continue;
+      const hasPackageDownloadCta = Boolean(product.software.publicPackageId);
+      if (hasPackageDownloadCta) continue;
+
+      expect(product.description.intro).not.toContain(stalePhrase);
+      for (const section of product.description.sections ?? []) {
+        if (section.kind === "paragraph") {
+          expect(section.body).not.toContain(stalePhrase);
+        } else {
+          for (const item of section.items) {
+            expect(item).not.toContain(stalePhrase);
+          }
+        }
+      }
+      for (const step of product.software.installationSteps ?? []) {
+        expect(step.description).not.toContain(stalePhrase);
+      }
+    }
   });
 });

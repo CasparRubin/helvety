@@ -195,11 +195,10 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    Privacy-focused, client-side image upscaler. Processing is
-                    performed locally in your browser and never uploaded. Free
-                    to use with technical safeguards (
-                    {IMAGE_FILE_SIZE_LIMIT_COPY}). Engineered, Designed & Made
-                    in Switzerland.
+                    ONNX-driven upscales stay in-browser—no upload farm, no
+                    account wall. Fair-use safeguards apply (
+                    {IMAGE_FILE_SIZE_LIMIT_COPY}). MIT-licensed work from
+                    Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />

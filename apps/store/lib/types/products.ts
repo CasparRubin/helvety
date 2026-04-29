@@ -105,6 +105,40 @@ interface ProductMedia {
 }
 
 // =============================================================================
+// PRODUCT LONG-FORM COPY (About section)
+// =============================================================================
+
+/** One block inside the product detail "About" section. */
+export type ProductDescriptionSection =
+  | { heading: string; kind: "paragraph"; body: string }
+  | { heading: string; kind: "bullets"; items: string[] };
+
+/** Structured long-form copy for the product detail About panel. */
+export interface ProductDescription {
+  intro: string;
+  sections?: ProductDescriptionSection[];
+}
+
+/**
+ * Flatten {@link ProductDescription} for search and plain-text consumers.
+ * @param description
+ */
+export function productDescriptionToPlainText(
+  description: ProductDescription
+): string {
+  const parts: string[] = [description.intro];
+  for (const section of description.sections ?? []) {
+    parts.push(section.heading);
+    if (section.kind === "paragraph") {
+      parts.push(section.body);
+    } else {
+      parts.push(...section.items);
+    }
+  }
+  return parts.join(" ");
+}
+
+// =============================================================================
 // PRODUCT TYPES
 // =============================================================================
 
@@ -120,8 +154,8 @@ export interface Product {
   name: string;
   /** Short description for cards/listings */
   shortDescription: string;
-  /** Full description with details */
-  description: string;
+  /** Full structured copy for the product detail About section */
+  description: ProductDescription;
   /** Product type */
   type: ProductType;
   /** Category for filtering */

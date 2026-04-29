@@ -34,6 +34,7 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
 }) {
   const defaultClassNames = getDefaultClassNames();
+  const localeCode = locale?.code ?? "en-US";
 
   return (
     <DayPicker
@@ -48,7 +49,7 @@ function Calendar({
       locale={locale}
       formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString(locale?.code, { month: "short" }),
+          date.toLocaleString(localeCode, { month: "short" }),
         ...formatters,
       }}
       classNames={{
@@ -200,6 +201,7 @@ function CalendarDayButton({
   ...props
 }: React.ComponentProps<typeof DayButton> & { locale?: Partial<Locale> }) {
   const defaultClassNames = getDefaultClassNames();
+  const localeCode = locale?.code ?? "en-US";
 
   const ref = React.useRef<HTMLButtonElement>(null);
   React.useEffect(() => {
@@ -211,7 +213,7 @@ function CalendarDayButton({
       ref={ref}
       variant="ghost"
       size="icon"
-      data-day={day.date.toLocaleDateString(locale?.code)}
+      data-day={day.date.toLocaleDateString(localeCode)}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&

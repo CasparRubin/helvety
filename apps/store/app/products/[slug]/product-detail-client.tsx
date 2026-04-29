@@ -14,11 +14,27 @@ import { notFound } from "next/navigation";
 import { FeatureList } from "@/components/products/feature-list";
 import { ProductDetailHero } from "@/components/products/product-detail-hero";
 import { getProductBySlug } from "@/lib/data/products";
-import { isSaaSProduct, isSoftwareProduct } from "@/lib/types/products";
+import {
+  isSaaSProduct,
+  isSoftwareProduct,
+  type ProductDescriptionSection,
+} from "@/lib/types/products";
 
 /** Props for the product detail page client component. */
 interface ProductDetailClientProps {
   slug: string;
+}
+
+/**
+ * Builds a stable React key from section heading and body or bullet text.
+ * @param section About subsection from the product catalog.
+ * @returns String suitable as a React `key`.
+ */
+function aboutSectionKey(section: ProductDescriptionSection): string {
+  if (section.kind === "paragraph") {
+    return `${section.heading}:p:${section.body}`;
+  }
+  return `${section.heading}:ul:${section.items.join("\u001e")}`;
 }
 
 /** Renders the full product detail page with access details and features. */
@@ -74,9 +90,29 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             className="bg-surface-panel/40 ring-foreground/5 rounded-2xl p-6 ring-1 sm:p-8"
           >
             <h2 className="mb-4 text-xl font-semibold tracking-tight">About</h2>
-            <div className="prose prose-neutral dark:prose-invert prose-p:text-muted-foreground prose-p:whitespace-pre-line max-w-none">
-              {product.description.split("\n\n").map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
+            <div className="max-w-none space-y-6">
+              <p className="text-muted-foreground text-base leading-relaxed text-pretty">
+                {product.description.intro}
+              </p>
+              {product.description.sections?.map((section) => (
+                <div key={aboutSectionKey(section)}>
+                  <h3 className="text-foreground mb-2 text-base font-semibold tracking-tight">
+                    {section.heading}
+                  </h3>
+                  {section.kind === "paragraph" ? (
+                    <p className="text-muted-foreground text-sm leading-relaxed text-pretty sm:text-base">
+                      {section.body}
+                    </p>
+                  ) : (
+                    <ul className="text-muted-foreground mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed sm:text-base">
+                      {section.items.map((item) => (
+                        <li key={item} className="text-pretty">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               ))}
             </div>
           </section>
@@ -106,8 +142,8 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             <section>
               <h2 className="mb-3 text-lg font-semibold">Access</h2>
               <p className="text-muted-foreground mb-4 text-sm">
-                All Helvety products are free to use with no paid tiers or
-                subscriptions.
+                Current Helvety products in this catalog are free to use with no
+                paid tiers or subscriptions.
               </p>
               <div className="flex flex-col gap-2">
                 {showDownload && packageDownloadUrl && downloadFormat && (

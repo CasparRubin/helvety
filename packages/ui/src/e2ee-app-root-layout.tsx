@@ -2,13 +2,13 @@ import {
   getCachedCSRFToken,
   getCachedUser,
 } from "@helvety/shared/cached-server";
+import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import { publicSans } from "@helvety/shared/fonts";
 import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
 } from "@helvety/shared/layout-primitives";
 import { logger } from "@helvety/shared/logger";
-import { headers } from "next/headers";
 
 import { AuthTokenHandler } from "./auth-token-handler";
 import { CSRFProvider } from "./csrf-provider";
@@ -55,13 +55,12 @@ export async function E2eeAppRootLayout({
   EncryptionProvider,
   renderNavbar,
 }: E2eeAppRootLayoutProps): Promise<React.JSX.Element> {
-  let nonce = "";
+  const nonce = (await getRequestCspNonce()) ?? undefined;
   let csrfToken = "";
   let initialUser: User | null = null;
 
   try {
-    [nonce, csrfToken, initialUser] = await Promise.all([
-      headers().then((h) => h.get("x-nonce") ?? ""),
+    [csrfToken, initialUser] = await Promise.all([
       getCachedCSRFToken().then((t) => t ?? ""),
       getCachedUser(),
     ]);

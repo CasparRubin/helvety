@@ -8,6 +8,9 @@ import { EncryptionProvider } from "@/lib/crypto";
 
 import type { Metadata } from "next";
 
+const NOTES_APP_DESCRIPTION_COPY =
+  "Short-form notes in Personal, Work, and Other buckets—encrypted in the tab first, MIT-licensed, Swiss-built.";
+
 export const viewport = sharedViewport;
 
 export const metadata: Metadata = {
@@ -16,8 +19,7 @@ export const metadata: Metadata = {
     default: "Helvety Notes | Note Management",
     template: "%s | Helvety Notes",
   },
-  description:
-    "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
+  description: NOTES_APP_DESCRIPTION_COPY,
   keywords: [
     "Helvety Notes",
     "note management",
@@ -41,8 +43,7 @@ export const metadata: Metadata = {
     url: urls.notes,
     siteName: "Helvety Notes",
     title: "Helvety Notes | Note Management",
-    description:
-      "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
+    description: NOTES_APP_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -55,8 +56,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Helvety Notes | Note Management",
-    description:
-      "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
+    description: NOTES_APP_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -95,8 +95,7 @@ export default function RootLayout({
       softwareApplication={{
         name: "Helvety Notes",
         url: urls.notes,
-        description:
-          "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other. MIT licensed and engineered in Switzerland.",
+        description: NOTES_APP_DESCRIPTION_COPY,
         applicationCategory: "BusinessApplication",
       }}
       EncryptionProvider={EncryptionProvider}

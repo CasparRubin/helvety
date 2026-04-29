@@ -1,6 +1,6 @@
 # Helvety Image Upscaler
 
-> Browser-based image upscaler with local-only processing. Upscale images with 2x/4x scaling or target width/height while preserving aspect ratio.
+> Helvety Image Upscaler resamples PNG/JPEG/WebP batches with ONNX + WebGPU/WebGL paths—2×/4× or exact dimensions, no farm upload, MIT source from Switzerland.
 
 ## Canonical URL
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler): Main application route

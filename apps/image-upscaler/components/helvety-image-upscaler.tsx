@@ -237,7 +237,8 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                     <p className="text-muted-foreground text-xs">
                       Limits: up to {MAX_BULK_FILES} files,{" "}
                       {(IMAGE_FILE_SIZE_LIMIT_BYTES / (1024 * 1024)).toFixed(0)}
-                      MB each, {MAX_IMAGE_PIXELS.toLocaleString()} pixels max.
+                      MB each, {MAX_IMAGE_PIXELS.toLocaleString("en-US")} pixels
+                      max.
                     </p>
                   </div>
                 </div>

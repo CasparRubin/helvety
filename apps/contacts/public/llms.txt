@@ -1,6 +1,6 @@
 # Helvety Contacts
 
-> Contact management application with client-side encryption for sensitive fields. The main contact list can be filtered in the browser after unlock by name, email, description, and notes (local-only search; not sent to servers). Engineered, Designed & Made in Switzerland.
+> Encrypted Helvety Contacts Rolodex—names through notes stay client-side until ciphertext lands in storage; list filtering runs locally post-unlock. MIT, Switzerland.
 
 ## Canonical URL
 - [Contacts App](https://helvety.com/contacts): Auth-required contacts route

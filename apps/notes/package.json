@@ -1,7 +1,7 @@
 {
   "name": "@helvety/notes",
   "version": "3.1.0",
-  "description": "Privacy-focused note management with client-side encryption; notes grouped by Personal, Work, and Other; optional in-browser list search on decrypted title and description. Engineered, Designed & Made in Switzerland.",
+  "description": "Encrypted Personal/Work/Other notes with rich bodies, optional local search—MIT-licensed Swiss app.",
   "author": "Helvety",
   "homepage": "https://helvety.com/notes",
   "repository": {

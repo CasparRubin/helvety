@@ -5,6 +5,7 @@ import {
   getCachedUser,
 } from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
+import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import { publicSans } from "@helvety/shared/fonts";
 import {
   createHelvetyOrganizationSchema,
@@ -20,13 +21,16 @@ import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
 import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
-import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { StoreNav } from "@/components/store-nav";
 
 import type { Metadata } from "next";
+
+/** Shared store SEO / social copy (single source for metadata + JSON-LD). */
+const STORE_DESCRIPTION_COPY =
+  "Browse free Helvety apps and downloads, including open-source projects engineered and designed in Switzerland.";
 
 export const viewport = sharedViewport;
 
@@ -36,8 +40,7 @@ export const metadata: Metadata = {
     default: "Helvety Store | Products & Apps",
     template: "%s | Helvety Store",
   },
-  description:
-    "Official Helvety Store for free and open source apps and downloads. MIT-licensed software engineered, designed, and made in Switzerland.",
+  description: STORE_DESCRIPTION_COPY,
   keywords: [
     "Helvety Store",
     "software",
@@ -73,8 +76,7 @@ export const metadata: Metadata = {
     url: urls.store,
     siteName: "Helvety Store",
     title: "Helvety Store | Products & Apps",
-    description:
-      "Official Helvety Store for free and open source apps and downloads. MIT-licensed software engineered, designed, and made in Switzerland.",
+    description: STORE_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -87,8 +89,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Helvety Store | Products & Apps",
-    description:
-      "Official Helvety Store for free and open source apps and downloads. MIT-licensed software engineered, designed, and made in Switzerland.",
+    description: STORE_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -123,13 +124,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  let nonce = "";
+  const nonce = (await getRequestCspNonce()) ?? undefined;
   let csrfToken = "";
   let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
 
   try {
-    [nonce, csrfToken, initialUser] = await Promise.all([
-      headers().then((h) => h.get("x-nonce") ?? ""),
+    [csrfToken, initialUser] = await Promise.all([
       getCachedCSRFToken().then((t) => t ?? ""),
       getCachedUser(),
     ]);
@@ -153,8 +153,7 @@ export default async function RootLayout({
                   "@type": "WebApplication",
                   name: "Helvety Store",
                   url: urls.store,
-                  description:
-                    "Official Helvety Store for free and open source apps and downloads. MIT-licensed software engineered, designed, and made in Switzerland.",
+                  description: STORE_DESCRIPTION_COPY,
                   applicationCategory: "ShoppingApplication",
                   operatingSystem: "Any",
                 },

@@ -12,7 +12,7 @@ const labels = {
   encryptionTooltipBody:
     "Sensitive note content fields are encrypted on your device before storage. Some structural metadata (such as timestamps, relationships, and display preferences) remains plaintext to support app functionality.",
   aboutDescription:
-    "Privacy-focused notes management with client-side encryption for sensitive content fields. Engineered, Designed & Made in Switzerland.",
+    "Short-form notes in Personal, Work, and Other buckets—encrypted in the tab first, MIT-licensed, Swiss-built.",
   navigationMenuDescription: "Notes navigation menu",
 } as const;
 

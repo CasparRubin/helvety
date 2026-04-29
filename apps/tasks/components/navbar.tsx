@@ -12,7 +12,7 @@ const labels = {
   encryptionTooltipBody:
     "Sensitive task content fields are encrypted on your device before storage. Some structural metadata (such as timestamps, relationships, and display preferences) remains plaintext to support app functionality.",
   aboutDescription:
-    "Privacy-focused task management with client-side encryption for sensitive content fields. Engineered, Designed & Made in Switzerland.",
+    "Kanban-style tasks encrypted before they leave your browser—MIT open source, built in Switzerland.",
   navigationMenuDescription: "Tasks navigation menu",
 } as const;
 

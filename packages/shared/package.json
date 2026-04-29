@@ -24,6 +24,7 @@
     "./auth-callback": "./src/auth-callback.ts",
     "./client-ip": "./src/client-ip.ts",
     "./config": "./src/config.ts",
+    "./csp-nonce": "./src/csp-nonce.ts",
     "./csp-report": "./src/csp-report.ts",
     "./utils": "./src/utils.ts",
     "./logger": "./src/logger.ts",

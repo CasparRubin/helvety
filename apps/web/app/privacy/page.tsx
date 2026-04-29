@@ -401,43 +401,44 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               helvety.com (Main Website):
             </strong>{" "}
-            Uses essential cookies and privacy-focused telemetry (Vercel
-            Analytics and Vercel Speed Insights). Speed Insights is currently
-            enabled on helvety.com. We do not use advertising trackers or
-            cross-site profiling.
+            Public marketing and legal pages rely on essential cookies plus
+            lightweight telemetry from Vercel Analytics and Vercel Speed
+            Insights (Speed Insights is currently enabled on helvety.com). We do
+            not use advertising trackers or cross-site profiling.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Auth (helvety.com/auth):
             </strong>{" "}
-            Email address, passkey credentials, PRF encryption parameters,
-            location-attestation status (confirmation that you are not located
-            in the EU/EEA and the timestamp of that confirmation), IP address
-            (for rate limiting), and user agent (for device detection). This
-            data is primarily used for authentication and security, and may also
-            be processed where necessary for legal compliance, abuse prevention,
-            and service reliability.
+            The sign-in surface processes email address, passkey credentials,
+            PRF encryption parameters, location-attestation status (confirmation
+            that you are not located in the EU/EEA and the timestamp of that
+            confirmation), IP address (for rate limiting), and user agent (for
+            device detection). Those elements power authentication and security
+            first, and may also be processed where necessary for legal
+            compliance, abuse prevention, and service reliability.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety PDF (helvety.com/pdf):
             </strong>{" "}
-            For supported operations in the current architecture, file contents
-            are processed in your browser and are not uploaded to our servers
-            for file conversion. No login or account is required. The service
-            still uses minimal server-side endpoints for platform and security
-            functions (for example CSP reporting and session/security proxy
-            logic). The service is provided free of charge; technical safeguards
-            may still apply for security and operational stability.
+            Merge, reorder, rotate, extract, and related supported actions keep
+            file contents inside your browser under the current architecture, so
+            nothing is uploaded to our servers for conversion. No login or
+            account is required. The service still uses minimal server-side
+            endpoints for platform and security functions (for example CSP
+            reporting and session/security proxy logic). The service is provided
+            free of charge; technical safeguards may still apply for security
+            and operational stability.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Image Upscaler (helvety.com/image-upscaler):
             </strong>{" "}
-            For supported operations in the current architecture, image files
-            are processed in your browser and are not uploaded to our servers
-            for upscaling. No login or account is required. The service still
-            uses minimal server-side endpoints for platform and security
+            Raster upscales execute locally when the build supports them: image
+            files are processed in your browser and are not uploaded to our
+            servers for upscaling. No login or account is required. The service
+            still uses minimal server-side endpoints for platform and security
             functions (for example CSP reporting and session/security proxy
             logic). The service is provided free of charge; technical safeguards
             may still apply for security and operational stability.
@@ -446,7 +447,7 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Helvety Store (helvety.com/store):
             </strong>{" "}
-            You can browse the catalog and use public package downloads without
+            Catalog browsing and public package downloads work without creating
             an account. We may still process IP address and related technical
             metadata for security, rate limiting, and abuse prevention. When you
             are signed in, we may also process user profile (email) and
@@ -456,8 +457,9 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Helvety ScreenTools (Windows desktop app):
             </strong>{" "}
-            For supported operations, screenshots and annotations are processed
-            on your Windows device. Local files, clipboard interactions, and app
+            Capture and Live Draw workloads stay on your Windows machine for the
+            operations we describe: screenshots and annotations are processed on
+            your Windows device. Local files, clipboard interactions, and app
             settings are handled on-device. Helvety may still process limited
             distribution/support metadata in third-party channels (for example
             release and download context).
@@ -466,15 +468,16 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Helvety Tasks (helvety.com/tasks):
             </strong>{" "}
-            Task content is end-to-end encrypted client-side before storage.
-            Encrypted fields include: titles, descriptions, and start/end dates.
-            These fields are designed to be stored as encrypted ciphertext at
-            rest on our servers. Encryption keys are derived from your passkey
-            on your device and are not transmitted to Helvety servers. Record
-            identifiers for encrypted data are generated on your device and
-            bound to the ciphertext via Additional Authenticated Data (AAD). Our
-            architecture is designed so that we are generally unable to access
-            your task content in plaintext during normal operation.
+            Kanban columns still need trustworthy confidentiality for narrative
+            fields. Task content is end-to-end encrypted client-side before
+            storage. Encrypted fields include: titles, descriptions, and
+            start/end dates. These fields are designed to be stored as encrypted
+            ciphertext at rest on our servers. Encryption keys are derived from
+            your passkey on your device and are not transmitted to Helvety
+            servers. Record identifiers for encrypted data are generated on your
+            device and bound to the ciphertext via Additional Authenticated Data
+            (AAD). Our architecture is designed so that we are generally unable
+            to access your task content in plaintext during normal operation.
             Non-encrypted structural metadata is stored in plaintext to enable
             application functionality: record identifiers, timestamps, priority
             levels, display preferences (sort orders), and entity relationships
@@ -485,29 +488,32 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Helvety Contacts (helvety.com/contacts):
             </strong>{" "}
-            Contact content is end-to-end encrypted client-side before storage.
-            Encrypted fields include: first and last names, description, email,
-            phone, birthday, and notes. These fields are designed to be stored
-            as encrypted ciphertext at rest on our servers. Encryption keys are
-            derived from your passkey on your device and are not transmitted to
-            Helvety servers. Record identifiers for encrypted data are generated
-            on your device and bound to the ciphertext via Additional
-            Authenticated Data (AAD). Our architecture is designed so that we
-            are generally unable to access your contact content in plaintext
-            during normal operation. Non-encrypted structural metadata is stored
-            in plaintext to enable application functionality: record
-            identifiers, timestamps, display preferences (sort orders), and
-            immutable built-in taxonomy references (category IDs). When linking
-            contacts with task entities, additional non-encrypted relationship
-            metadata (link identifiers, linked entity identifiers/types, and
-            timestamps) is stored to enable the cross-app linking feature.
-            Business/account quotas are not applied.
+            Rolodex-style records only stay useful if every sensitive attribute
+            stays private. Contact content is end-to-end encrypted client-side
+            before storage. Encrypted fields include: first and last names,
+            description, email, phone, birthday, and notes. These fields are
+            designed to be stored as encrypted ciphertext at rest on our
+            servers. Encryption keys are derived from your passkey on your
+            device and are not transmitted to Helvety servers. Record
+            identifiers for encrypted data are generated on your device and
+            bound to the ciphertext via Additional Authenticated Data (AAD). Our
+            architecture is designed so that we are generally unable to access
+            your contact content in plaintext during normal operation.
+            Non-encrypted structural metadata is stored in plaintext to enable
+            application functionality: record identifiers, timestamps, display
+            preferences (sort orders), and immutable built-in taxonomy
+            references (category IDs). When linking contacts with task entities,
+            additional non-encrypted relationship metadata (link identifiers,
+            linked entity identifiers/types, and timestamps) is stored to enable
+            the cross-app linking feature. Business/account quotas are not
+            applied.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Notes (helvety.com/notes):
             </strong>{" "}
-            Note content is end-to-end encrypted client-side before storage.
+            Short-form capture should not trade away confidentiality. Note
+            content is end-to-end encrypted client-side before storage.
             Encrypted fields include: title and description. These fields are
             designed to be stored as encrypted ciphertext at rest on our
             servers. Encryption keys are derived from your passkey on your
@@ -642,9 +648,9 @@ export default function PrivacyPage() {
           <li>Product access and download metadata</li>
           <li>
             Non-encrypted structural metadata from Helvety Tasks, Helvety
-            Contacts, and Helvety Notes (priority levels, display preferences
-            such as colors and icons, sort orders, entity relationships, and
-            category assignments)
+            Contacts, and Helvety Notes (for example record identifiers,
+            timestamps, sort order, task priority, stage/label/category
+            references, and relationship/link metadata where linking is used)
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -1044,7 +1050,7 @@ export default function PrivacyPage() {
                   Passkey authentication challenge (httpOnly)
                 </td>
                 <td className="border-border border-b p-3">
-                  helvety.com (path: /)
+                  helvety.com and/or configured subdomain scope (path: /)
                 </td>
                 <td className="border-border border-b p-3">3 minutes</td>
               </tr>
@@ -1088,9 +1094,11 @@ export default function PrivacyPage() {
           .
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          We use Vercel Analytics across Helvety apps and Vercel Speed Insights
-          on helvety.com. We do not intentionally operate advertising trackers
-          or cross-site profiling technologies.
+          We currently use Vercel Analytics on selected Helvety web surfaces
+          (including helvety.com, Helvety Auth, Helvety Store, Helvety PDF, and
+          Helvety Image Upscaler). Vercel Speed Insights is currently enabled on
+          helvety.com. We do not intentionally operate advertising trackers or
+          cross-site profiling technologies.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Essential cookies do not require consent under Swiss law as they are

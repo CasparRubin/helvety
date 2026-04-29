@@ -1,5 +1,5 @@
 import { urls } from "@helvety/shared/config";
-import { headers } from "next/headers";
+import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 
 import { getProductBySlug } from "@/lib/data/products";
 
@@ -87,8 +87,7 @@ export async function generateMetadata({
  * No auth required - users can browse products without logging in.
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const [{ slug }, headersList] = await Promise.all([params, headers()]);
-  const nonce = headersList.get("x-nonce") ?? "";
+  const [{ slug }, nonce] = await Promise.all([params, getRequestCspNonce()]);
 
   const product = getProductBySlug(slug);
 
@@ -117,7 +116,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       {productJsonLd && (
         <script
           type="application/ld+json"
-          nonce={nonce}
+          nonce={nonce ?? undefined}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />

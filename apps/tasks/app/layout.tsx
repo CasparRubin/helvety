@@ -8,6 +8,9 @@ import { EncryptionProvider } from "@/lib/crypto";
 
 import type { Metadata } from "next";
 
+const TASKS_APP_DESCRIPTION_COPY =
+  "Kanban-style tasks encrypted before they leave your browser—MIT open source, built in Switzerland.";
+
 export const viewport = sharedViewport;
 
 export const metadata: Metadata = {
@@ -16,8 +19,7 @@ export const metadata: Metadata = {
     default: "Helvety Tasks | Task Management",
     template: "%s | Helvety Tasks",
   },
-  description:
-    "Free and open-source task management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+  description: TASKS_APP_DESCRIPTION_COPY,
   keywords: [
     "Helvety Tasks",
     "task management",
@@ -42,8 +44,7 @@ export const metadata: Metadata = {
     url: urls.tasks,
     siteName: "Helvety Tasks",
     title: "Helvety Tasks | Task Management",
-    description:
-      "Free and open-source task management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+    description: TASKS_APP_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -56,8 +57,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Helvety Tasks | Task Management",
-    description:
-      "Free and open-source task management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+    description: TASKS_APP_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -96,8 +96,7 @@ export default function RootLayout({
       softwareApplication={{
         name: "Helvety Tasks",
         url: urls.tasks,
-        description:
-          "Free and open-source task management with client-side encryption for sensitive fields. MIT licensed and engineered in Switzerland.",
+        description: TASKS_APP_DESCRIPTION_COPY,
         applicationCategory: "BusinessApplication",
       }}
       EncryptionProvider={EncryptionProvider}

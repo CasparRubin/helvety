@@ -1,7 +1,7 @@
 {
   "name": "@helvety/contacts",
   "version": "3.1.0",
-  "description": "Privacy-focused contact management with client-side encryption for sensitive fields; optional in-browser list search on decrypted name, email, description, and notes. Engineered, Designed & Made in Switzerland.",
+  "description": "Client-encrypted contacts with export tooling and optional local list search—MIT, Switzerland.",
   "author": "Helvety",
   "homepage": "https://helvety.com/contacts",
   "repository": {

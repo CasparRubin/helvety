@@ -1,7 +1,7 @@
 {
   "name": "@helvety/image-upscaler",
   "version": "3.1.0",
-  "description": "Privacy-focused, client-side image upscaler. Upscale photos directly in your browser with no upload or account required.",
+  "description": "WebGPU/WebGL image upscaler with 2×/4× or target sizing—no account, MIT-licensed, Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/image-upscaler",
   "repository": {

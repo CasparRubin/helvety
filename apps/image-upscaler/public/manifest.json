@@ -1,7 +1,7 @@
 {
   "name": "Helvety Image Upscaler",
   "short_name": "Image Upscaler",
-  "description": "Upscale images directly in your browser. No server upload and no account required.",
+  "description": "2×/4× or target-size upscaling in-browser—no account, MIT-licensed, Swiss roots.",
   "start_url": "/image-upscaler",
   "display": "standalone",
   "background_color": "#faf8f7",

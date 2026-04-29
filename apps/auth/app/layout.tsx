@@ -6,6 +6,7 @@ import {
 } from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
 import { EncryptionProvider } from "@helvety/shared/crypto/encryption-context";
+import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import { publicSans } from "@helvety/shared/fonts";
 import {
   createHelvetyOrganizationSchema,
@@ -22,11 +23,13 @@ import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
 import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
-import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
 
 import type { Metadata } from "next";
+
+const AUTH_DESCRIPTION_COPY =
+  "Passwordless entry for Helvety apps—OTP, passkeys, and session recovery where your platform allows. Open source, Swiss-built.";
 
 export const viewport = sharedViewport;
 
@@ -36,8 +39,7 @@ export const metadata: Metadata = {
     default: "Sign In | Helvety",
     template: "%s | Helvety",
   },
-  description:
-    "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
+  description: AUTH_DESCRIPTION_COPY,
   keywords: ["Helvety", "sign in", "login", "authentication"],
   authors: [{ name: "Helvety" }],
   creator: "Helvety",
@@ -53,8 +55,7 @@ export const metadata: Metadata = {
     url: urls.auth,
     siteName: "Helvety Auth",
     title: "Sign In | Helvety",
-    description:
-      "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
+    description: AUTH_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -67,8 +68,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Sign In | Helvety",
-    description:
-      "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
+    description: AUTH_DESCRIPTION_COPY,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -100,13 +100,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  let nonce = "";
+  const nonce = (await getRequestCspNonce()) ?? undefined;
   let csrfToken = "";
   let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
 
   try {
-    [nonce, csrfToken, initialUser] = await Promise.all([
-      headers().then((h) => h.get("x-nonce") ?? ""),
+    [csrfToken, initialUser] = await Promise.all([
       getCachedCSRFToken().then((t) => t ?? ""),
       getCachedUser(),
     ]);
@@ -130,8 +129,7 @@ export default async function RootLayout({
                   "@type": "WebApplication",
                   name: "Helvety Auth",
                   url: urls.auth,
-                  description:
-                    "Sign in to your Helvety account across free and open-source Helvety apps. Engineered, Designed & Made in Switzerland.",
+                  description: AUTH_DESCRIPTION_COPY,
                   applicationCategory: "SecurityApplication",
                   operatingSystem: "Any",
                 },

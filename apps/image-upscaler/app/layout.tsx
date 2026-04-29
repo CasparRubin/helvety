@@ -1,6 +1,7 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { sharedViewport, urls } from "@helvety/shared/config";
+import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import { publicSans } from "@helvety/shared/fonts";
 import {
   createHelvetyOrganizationSchema,
@@ -14,7 +15,6 @@ import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
 import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
-import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
 import { IMAGE_UPSCALER_APP_DESCRIPTION_COPY } from "@/lib/product-copy";
@@ -101,7 +101,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = (await headers()).get("x-nonce") ?? "";
+  const nonce = (await getRequestCspNonce()) ?? undefined;
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>

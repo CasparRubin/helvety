@@ -112,17 +112,49 @@ export default function ImpressumPage() {
 
       {/* Business Activity */}
       <LegalSection title="Business Activity">
-        <p className="text-muted-foreground text-sm">
-          Helvety by Rubin develops and offers software products and web
-          applications, including Helvety SPO Explorer (SharePoint extension),
-          the Power Automate Browser Extension (Edge and Chrome), Helvety PDF,
-          Helvety ScreenTools (Windows desktop app), Helvety Image Upscaler,
-          Helvety Tasks (encrypted task management), Helvety Contacts (encrypted
-          contact management), and Helvety Notes (encrypted notes management).
-          Helvety apps are offered free of charge and are open source under the
-          MIT License in the corresponding repositories. Our products are
-          primarily designed and developed in Switzerland.
+        <p className="text-muted-foreground mb-3 text-sm">
+          Helvety by Rubin designs and ships software products and web
+          applications across Microsoft 365 integrations, browser utilities,
+          desktop tooling, and encrypted productivity apps. Everything listed
+          below is offered free of charge, open source under the MIT License in
+          the referenced repositories, and primarily built in Switzerland.
         </p>
+        <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
+          <li>
+            <strong className="text-foreground">Helvety SPO Explorer</strong> —
+            SharePoint Framework navigation for sites you can access.
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Power Automate Browser Extension
+            </strong>{" "}
+            — Edge/Chrome helper that keeps classic editor URLs predictable.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety PDF</strong> —
+            in-browser PDF toolkit for supported local workflows.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety ScreenTools</strong> —
+            Windows desktop capture and Live Draw overlay.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety Image Upscaler</strong>{" "}
+            — browser-based upscaling with on-device processing where supported.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety Tasks</strong> —
+            encrypted task boards with staged workflows.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety Contacts</strong> —
+            encrypted contact management with export tooling.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety Notes</strong> —
+            encrypted notes grouped by Personal, Work, and Other.
+          </li>
+        </ul>
       </LegalSection>
 
       {/* Trademark */}

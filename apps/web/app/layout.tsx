@@ -1,6 +1,7 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { sharedViewport, urls } from "@helvety/shared/config";
+import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import { publicSans } from "@helvety/shared/fonts";
 import {
   createHelvetyOrganizationSchema,
@@ -15,11 +16,14 @@ import { Toaster } from "@helvety/ui/sonner";
 import { ThemeProvider } from "@helvety/ui/theme-provider";
 import { TooltipProvider } from "@helvety/ui/tooltip";
 import { VercelAnalyticsWithSpeedInsights } from "@helvety/ui/vercel-analytics";
-import { headers } from "next/headers";
 
 import { Navbar } from "@/components/navbar";
 
 import type { Metadata } from "next";
+
+/** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
+const WEB_SITE_DESCRIPTION =
+  "Swiss-built software with a calm UX: encrypted productivity, lightweight browser utilities, and clear legal pages. MIT-licensed where the repo ships code.";
 
 export const viewport = sharedViewport;
 
@@ -30,8 +34,7 @@ export const metadata: Metadata = {
       "Helvety | Software Products | Engineered, Designed & Made in Switzerland",
     template: "%s | Helvety",
   },
-  description:
-    "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
+  description: WEB_SITE_DESCRIPTION,
   keywords: [
     "Helvety",
     "Swiss software",
@@ -60,8 +63,7 @@ export const metadata: Metadata = {
     siteName: "Helvety",
     title:
       "Helvety | Software Products | Engineered, Designed & Made in Switzerland",
-    description:
-      "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
+    description: WEB_SITE_DESCRIPTION,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -75,8 +77,7 @@ export const metadata: Metadata = {
     card: "summary",
     title:
       "Helvety | Software Products | Engineered, Designed & Made in Switzerland",
-    description:
-      "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
+    description: WEB_SITE_DESCRIPTION,
     images: [
       {
         url: brandAssets.identifierPng,
@@ -115,7 +116,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = (await headers()).get("x-nonce") ?? "";
+  const nonce = (await getRequestCspNonce()) ?? undefined;
 
   return (
     <html
@@ -138,8 +139,7 @@ export default async function RootLayout({
                   "@type": "WebSite",
                   name: "Helvety",
                   url: urls.home,
-                  description:
-                    "Engineered, Designed & Made in Switzerland. Software products. Private, simple, clean.",
+                  description: WEB_SITE_DESCRIPTION,
                 },
               ],
             }),

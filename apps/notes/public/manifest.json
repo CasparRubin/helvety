@@ -1,7 +1,7 @@
 {
   "name": "Helvety Notes",
   "short_name": "Helvety Notes",
-  "description": "Free and open-source note management with client-side encryption for sensitive fields; notes grouped by Personal, Work, and Other; optional in-browser list search after unlock. MIT licensed and engineered in Switzerland.",
+  "description": "Personal, Work, and Other note lanes with client-side encryption; optional search after unlock. MIT, Switzerland.",
   "start_url": "/notes",
   "display": "standalone",
   "background_color": "#faf8f7",

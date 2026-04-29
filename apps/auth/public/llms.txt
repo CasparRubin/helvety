@@ -1,6 +1,6 @@
 # Helvety Auth
 
-> Centralized authentication service used by the Helvety ecosystem. Engineered, Designed & Made in Switzerland.
+> Shared Helvety Auth surface for OTP + passkey flows that gate the encrypted productivity apps—open source, operated from Switzerland.
 
 ## Canonical URL
 - [Sign In](https://helvety.com/auth/login): Primary sign-in page

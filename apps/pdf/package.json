@@ -1,7 +1,7 @@
 {
   "name": "@helvety/pdf",
   "version": "3.1.0",
-  "description": "Privacy-focused, client-side PDF toolkit for merging, reordering, rotating, and extracting pages. Engineered, Designed & Made in Switzerland.",
+  "description": "In-browser PDF merge, reorder, rotate, extract where supported—MIT-licensed toolkit from Switzerland.",
   "author": "Helvety",
   "homepage": "https://helvety.com/pdf",
   "repository": {

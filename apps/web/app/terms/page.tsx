@@ -301,21 +301,20 @@ export default function TermsPage() {
           Keychain or Google Password Manager).
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          <strong className="text-foreground">Encryption Setup:</strong> Helvety
-          Tasks, Helvety Contacts, and Helvety Notes use end-to-end encryption
-          to protect your content. When using these services, you will be
-          required to set up an encryption passkey after authentication. This
-          uses the WebAuthn PRF (Pseudo-Random Function) extension to derive
-          encryption keys on your device. The encryption keys are not
-          transmitted to or stored on our servers. If you lose access to your
-          encryption passkey, encrypted content will become permanently
-          inaccessible. Certain non-encrypted structural metadata (such as
-          record identifiers, timestamps, priority levels, display preferences
-          (e.g., sort orders), and entity relationships) is stored in plaintext
-          to enable application functionality; see our Privacy Policy for
-          field-level details. Other Helvety services (helvety.com, Helvety
-          Auth, Helvety PDF, Helvety Image Upscaler, Helvety Store) do not use
-          end-to-end encryption.
+          <strong className="text-foreground">Encryption Setup:</strong> Once
+          you authenticate into Helvety Tasks, Helvety Contacts, or Helvety
+          Notes, you must configure an encryption passkey so those apps can
+          protect your content with end-to-end encryption. This uses the
+          WebAuthn PRF (Pseudo-Random Function) extension to derive encryption
+          keys on your device. The encryption keys are not transmitted to or
+          stored on our servers. If you lose access to your encryption passkey,
+          encrypted content will become permanently inaccessible. Certain
+          non-encrypted structural metadata (such as record identifiers,
+          timestamps, priority levels, display preferences (e.g., sort orders),
+          and entity relationships) is stored in plaintext to enable application
+          functionality; see our Privacy Policy for field-level details. Other
+          Helvety services (helvety.com, Helvety Auth, Helvety PDF, Helvety
+          Image Upscaler, Helvety Store) do not use end-to-end encryption.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Age Requirement:</strong> You must
@@ -926,25 +925,27 @@ export default function TermsPage() {
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
-            <strong className="text-foreground">Helvety PDF</strong> can be used
-            without account login in its standard no-account flow.
+            <strong className="text-foreground">Helvety PDF</strong> ships a
+            default experience that never asks you to log in for routine PDF
+            edits.
           </li>
           <li>
             <strong className="text-foreground">Helvety Image Upscaler</strong>{" "}
-            can be used without account login in its standard no-account flow.
+            likewise runs in a no-account mode for its standard upscaling flow.
           </li>
           <li>
-            <strong className="text-foreground">Helvety Store</strong> lists web
-            apps and downloadable packages. Public package downloads (for
-            example SharePoint .sppkg files and browser-extension ZIP archives)
-            are available without account login unless a specific flow
-            explicitly requires sign-in.
+            <strong className="text-foreground">Helvety Store</strong> mixes
+            SaaS listings with downloadable artifacts; public package downloads
+            (for example SharePoint .sppkg files and browser-extension ZIP
+            archives) stay reachable without signing in unless a particular
+            workflow says otherwise.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Tasks, Helvety Contacts, and Helvety Notes
             </strong>{" "}
-            require account login and passkey-based security controls.
+            gate every session behind authenticated access plus passkey-backed
+            controls.
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">

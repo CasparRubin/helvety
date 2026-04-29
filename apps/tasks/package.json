@@ -1,7 +1,7 @@
 {
   "name": "@helvety/tasks",
   "version": "3.1.0",
-  "description": "Privacy-focused task management with client-side encryption; main list grouped by fixed stages; optional in-browser list search on decrypted title and description. Engineered, Designed & Made in Switzerland.",
+  "description": "Encrypted kanban tasks with immutable stages, optional decrypted list search, MIT license—Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/tasks",
   "repository": {

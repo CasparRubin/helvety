@@ -18,7 +18,6 @@ const sectionHeadings = [
 
 const expectedLinks = [
   { name: "Home", href: urls.home },
-  { name: "Auth", href: urls.auth },
   { name: "Store", href: urls.store },
   { name: "Tasks", href: urls.tasks },
   { name: "Contacts", href: urls.contacts },
@@ -85,6 +84,21 @@ describe("AppSwitcher", () => {
         "href",
         link.href
       );
+    }
+  });
+
+  it("renders an icon for every ecosystem link", () => {
+    render(
+      <TooltipProvider>
+        <AppSwitcher currentApp="Home" />
+      </TooltipProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Switch apps" }));
+
+    for (const link of expectedLinks) {
+      const linkElement = screen.getByRole("link", { name: link.name });
+      expect(linkElement.querySelector("svg")).toBeInTheDocument();
     }
   });
 });

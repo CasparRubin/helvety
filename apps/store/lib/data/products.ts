@@ -3,12 +3,12 @@
  */
 
 import { productArtwork } from "@/lib/data/product-artwork";
-
-import type {
-  Product,
-  SaaSProduct,
-  SoftwareProduct,
-  ProductFilters,
+import {
+  productDescriptionToPlainText,
+  type Product,
+  type ProductFilters,
+  type SaaSProduct,
+  type SoftwareProduct,
 } from "@/lib/types/products";
 
 /**
@@ -65,23 +65,35 @@ const helvetyExplorer: SoftwareProduct = {
   slug: "helvety-spo-explorer",
   name: "Helvety SPO Explorer",
   shortDescription:
-    "A privacy-focused SharePoint site navigator. Browse, search, and favorite sites you can access. Favorites and settings stay on your device.",
+    "SharePoint site picker and search in the header—favorites and preferences stay on the device, not on Helvety servers.",
   image: productArtwork.artwork1,
   artist: "Alexandre Calame",
-  description: `Helvety SPO Explorer is a SharePoint Framework (SPFx) application customizer that adds fast site navigation inside Microsoft 365. For the flows it supports, work runs in the browser; favorites and settings stay on the device (for example in localStorage).
-
-Access: The solution is free to use and open source. IT deploys it from the tenant App Catalog. Users need appropriate Microsoft 365 permissions to see their sites. No separate Helvety account is required.
-
-Key features:
-• Site discovery: list SharePoint sites you can access
-• Search: filter by title, description, and URL with highlighted matches
-• Favorites and quick access: pin sites and open them from the header control
-• Settings: adjust URL display, descriptions, tab behavior, and related options
-• SharePoint themes: follows light and dark modes where the host page supports them
-• Accessibility: keyboard navigation and layouts aimed at common SharePoint pages
-• Performance: caching and efficient UI rendering (details depend on the build you run)
-
-The control appears on supported modern pages that use the standard shell; it does not show on every SharePoint surface. See the GitHub README for page coverage, deployment steps, and update notes.`,
+  description: {
+    intro:
+      "Helvety SPO Explorer is an SPFx application customizer that drops a fast site switcher into Microsoft 365. Where supported, discovery and navigation run in the browser, while favorites and preferences remain only on your device (for example in localStorage).",
+    sections: [
+      {
+        heading: "Who installs it, who uses it",
+        kind: "paragraph",
+        body: "The solution is free, open source, and tenant-deployed from the SharePoint App Catalog. End users need normal Microsoft 365 permissions for the sites they expect to see; no separate Helvety account exists for this product.",
+      },
+      {
+        heading: "What you get in day-to-day use",
+        kind: "bullets",
+        items: [
+          "Pull the accessible-site list instead of bouncing through admin hubs.",
+          "Search by title, description, or URL with highlighted matches.",
+          "Pin favorites and open them from the header control.",
+          "Tune URL display, tab behavior, and related options from settings.",
+        ],
+      },
+      {
+        heading: "Where it appears",
+        kind: "paragraph",
+        body: "The control shows on supported modern pages that use the standard shell; it will not appear on classic pages, every list view, or every specialized modern surface. See the GitHub README for page coverage, packaging, and upgrades.",
+      },
+    ],
+  },
   type: "software",
   category: "integrations",
   status: "available",
@@ -238,19 +250,36 @@ const powerAutomateForceV3False: SoftwareProduct = {
     "A minimal Edge/Chrome extension that keeps Power Automate flow and run URLs on the classic editor by ensuring v3=false and normalizing v3survey=false when present.",
   image: productArtwork.artwork6,
   artist: "Rudolf Koller",
-  description: `Power Automate Browser Extension is a small Manifest V3 extension for Microsoft Edge and Google Chrome. It targets Microsoft Power Automate hosts (including *.powerautomate.com and flow.microsoft.com) and adjusts URLs whose path contains /flows/ or /runs/ so they use v3=false, which keeps the classic editor loading consistently.
-
-It adds v3=false when the parameter is missing, replaces v3=true when present, and normalizes v3survey=false when that parameter exists. The extension uses a layered approach (declarative redirect rules plus runtime fallbacks) so behavior applies on first load, refresh, back/forward, and typical client-side navigation inside Power Automate.
-
-Access: Free and open source. No Helvety account is needed. Download the packaged ZIP from this Store page and install it with your browser's developer mode. Source and issues are on GitHub.
-
-Key features:
-• Scoped hosts: Power Automate domains (for example *.powerautomate.com and flow.microsoft.com)
-• URL rules: targets /flows/ and /runs/ paths
-• SPA-friendly: not limited to full page loads
-• Manifest V3: current Edge and Chrome extension model
-
-Microsoft may change Power Automate URLs or the editor over time; confirm behavior against the build you install and the vendor’s current documentation.`,
+  description: {
+    intro:
+      "A compact Manifest V3 extension for Edge and Chrome that rewrites Microsoft Power Automate URLs on *.powerautomate.com and flow.microsoft.com. Paths under /flows/ and /runs/ get v3=false so the classic editor keeps loading the way you expect.",
+    sections: [
+      {
+        heading: "Mechanics",
+        kind: "paragraph",
+        body: "The extension adds v3=false when missing, replaces v3=true when present, and normalizes v3survey=false when that flag exists. Declarative rules plus runtime hooks cover first paint, refresh, back/forward, and typical SPA transitions inside Power Automate—not only full page loads.",
+      },
+      {
+        heading: "Getting it",
+        kind: "paragraph",
+        body: "Free and open source. Download the ZIP from this Store page, load it unpacked with developer mode, then track issues on GitHub. No Helvety account is involved.",
+      },
+      {
+        heading: "Scope",
+        kind: "bullets",
+        items: [
+          "Host allow-list centres on Power Automate domains.",
+          "Only /flows/ and /runs/ paths are rewritten.",
+          "Manifest V3 aligned with current browser policies.",
+        ],
+      },
+      {
+        heading: "Vendor reality check",
+        kind: "paragraph",
+        body: "Microsoft can change URLs or the editor at any time—validate against the exact build you install and the vendor documentation you rely on.",
+      },
+    ],
+  },
   type: "software",
   category: "integrations",
   status: "available",
@@ -357,19 +386,32 @@ const helvetyScreenTools: SoftwareProduct = {
     "A WinUI 3 desktop app for Windows with global-hotkey screenshot capture and Live Draw overlay annotation over the real desktop.",
   image: productArtwork.artwork8,
   artist: "Ferdinand Hodler",
-  description: `Helvety Screen Tools is a WinUI 3 desktop app for Windows focused on fast screen capture and live on-screen annotation.
-
-Access: Free and open source. No Helvety account is required. Downloads are provided on GitHub Releases.
-
-Key features:
-• Screenshot capture: global hotkey with frozen-screen selection overlay
-• Window snap selection: click to capture snapped window or drag custom region
-• Live Draw: fullscreen transparent overlay to draw over the live desktop
-• Annotation tools: free draw, arrows, straight lines, rectangles, circles, and ellipses
-• Configurable shortcuts: separate hotkeys for screenshot and Live Draw, plus shape modifiers
-• Tray behavior and settings: close-to-tray, startup settings (packaged builds), and quality/performance options
-
-The project README documents current behavior details, packaging modes, and release notes.`,
+  description: {
+    intro:
+      "Helvety Screen Tools is a WinUI 3 Windows desktop companion built around two workflows: freeze-frame capture with a global hotkey, and a transparent Live Draw layer you can sketch on without leaving the desktop.",
+    sections: [
+      {
+        heading: "Distribution",
+        kind: "paragraph",
+        body: "Open source and free; releases live on GitHub. Use the Go to App button on this page to open GitHub Releases, choose the architecture that matches your machine, and download the ZIP.",
+      },
+      {
+        heading: "Workflow highlights",
+        kind: "bullets",
+        items: [
+          "Frozen overlay selection with window snap or free regions.",
+          "Shape primitives from arrows through ellipses plus freehand strokes.",
+          "Separate hotkeys for capture versus Live Draw, with modifier ergonomics.",
+          "Tray behavior, optional autostart on packaged builds, and quality tuning from Settings.",
+        ],
+      },
+      {
+        heading: "Documentation",
+        kind: "paragraph",
+        body: "Packaging modes, keyboard maps, and release notes stay in the project README so the latest details are always next to the source.",
+      },
+    ],
+  },
   type: "software",
   category: "utilities",
   status: "available",
@@ -413,7 +455,7 @@ The project README documents current behavior details, packaging modes, and rele
       {
         title: "Open GitHub Releases",
         description:
-          "Use the Download button on this page to open the Helvety Screen Tools GitHub Releases page.",
+          "Use the Go to App button on this page to open the Helvety Screen Tools GitHub Releases page.",
       },
       {
         title: "Download the ZIP asset",
@@ -465,19 +507,32 @@ const helvetyPdf: SaaSProduct = {
   slug: "helvety-pdf",
   name: "Helvety PDF",
   shortDescription:
-    "A privacy-focused, client-side PDF toolkit. Merge, reorder, rotate, and extract pages from PDF files and images. Browser-based processing for supported operations.",
-  description: `Helvety PDF is a browser-based PDF toolkit. For the operations it supports, files are handled in your browser and are not uploaded to Helvety for processing.
-
-Access: Free to use with no account. Ordinary technical limits may still apply to keep the app reliable (for example per-file size caps or rate safeguards).
-
-Key features:
-• Merge: combine multiple PDFs and images into one document
-• Reorder: drag-and-drop thumbnails to change page order
-• Rotate: turn pages in 90° steps
-• Extract and delete: pull out single pages or remove them from a document
-• Images: PNG, JPEG, WebP, and GIF alongside PDFs
-
-Each file can be up to 100 MB. How large or complex a job your device can finish depends on your browser and hardware.`,
+    "Reorder, merge, rotate, extract, or drop images into a PDF—supported edits stay in your browser instead of uploading the file to Helvety.",
+  description: {
+    intro:
+      "Helvety PDF gives you a thumbnail-first workbench for everyday PDF surgery. When a tool is supported by the current architecture, pages stay inside your browser tab instead of travelling through a Helvety conversion pipeline.",
+    sections: [
+      {
+        heading: "Access model",
+        kind: "paragraph",
+        body: "No account is required. The app stays free; we may still enforce reasonable size or rate safeguards so sessions remain dependable.",
+      },
+      {
+        heading: "What fits comfortably",
+        kind: "bullets",
+        items: [
+          "Combine PDFs and raster inputs (PNG, JPEG, WebP, GIF) in one export.",
+          "Drag thumbnails to reorder, rotate in quarter turns, or lift single pages out.",
+          "Per-file ceiling of 100 MB—actual throughput still depends on device RAM and the browser you use.",
+        ],
+      },
+      {
+        heading: "Privacy posture",
+        kind: "paragraph",
+        body: "Because the sensitive bytes never leave your tab for those supported flows, you can reason about confidentiality the same way you would with any offline editor—minus the install step.",
+      },
+    ],
+  },
   type: "saas",
   category: "utilities",
   status: "available",
@@ -553,19 +608,32 @@ const helvetyImageUpscaler: SaaSProduct = {
   slug: "helvety-image-upscaler",
   name: "Helvety Image Upscaler",
   shortDescription:
-    "A privacy-focused image upscaler with local browser processing. Upscale with 2x/4x presets or target width/height while preserving aspect ratio.",
-  description: `Helvety Image Upscaler is a browser-based image upscaler. For the operations it supports, image files are processed on your device and are not uploaded to Helvety for upscaling.
-
-Access: Free to use with no account. Standard technical safeguards still apply for reliability and abuse prevention.
-
-Key features:
-• Local processing: upscaling happens in your browser
-• Flexible sizing: choose 2x/4x scale or a target width/height with preserved aspect ratio
-• Batch flow: process up to 5 images in one run
-• Privacy-first: no account and no server-side image conversion pipeline
-• Download output: save each upscaled image individually or use download-all when multiple outputs are ready
-
-Current operational limits are intended to keep the browser workflow stable (for example file-size and pixel caps).`,
+    "Sharper PNG, JPEG, or WebP exports from the tab: 2×/4× batches, custom width or height with locked aspect ratio, and caps so the browser stays responsive.",
+  description: {
+    intro:
+      "Helvety Image Upscaler runs ONNX models via WebGPU or WebGL paths in-browser. When an operation is supported, pixels are resampled on-device—there is no Helvety-hosted image conversion farm behind the scenes.",
+    sections: [
+      {
+        heading: "Access model",
+        kind: "paragraph",
+        body: "Launch the tool without signing in. Usage stays free; automated safeguards keep abusive floods from degrading shared infrastructure.",
+      },
+      {
+        heading: "Operator knobs",
+        kind: "bullets",
+        items: [
+          "Pick a fixed multiplier (2×, 4×) or clamp to a target width or height.",
+          "Batch up to five files per run, downloading individually or all together once ready.",
+          "Mind the in-app caps on megabytes and megapixels—they exist so browsers do not chew through laptop batteries.",
+        ],
+      },
+      {
+        heading: "Why it fits sensitive screenshots",
+        kind: "paragraph",
+        body: "Frames never leave your session in the supported pipeline, which makes it easier to audit your own asset workflow when polishing marketing shots or reference stills.",
+      },
+    ],
+  },
   type: "saas",
   category: "utilities",
   status: "available",
@@ -640,20 +708,33 @@ const helvetyTasks: SaaSProduct = {
   slug: "helvety-tasks",
   name: "Helvety Tasks",
   shortDescription:
-    "A privacy-focused task management app with client-side encryption for sensitive fields. Task list grouped by built-in stages with labels and priority in task details.",
-  description: `Helvety Tasks is a task app with end-to-end encryption: sensitive task fields are encrypted in your browser before they are stored.
-
-Access: Free to use. There are no paid tiers, subscriptions, or business usage caps.
-
-Key features:
-• Encryption: sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
-• Workflow: main list grouped by fixed stages (for example Backlog, Discovery, Ready, In Progress, Testing, Acceptance, Completed, The Void); labels and priority are set in task details
-• Rich text: headings, lists, links, and formatting in descriptions
-• Labels and priority: set in the task detail sheet; color-coded in the editor (main list shows title and description)
-• Helvety Contacts: link contacts to tasks where the apps support it
-• Reorder: drag and drop within and between stages
-
-Data protection: Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
+    "Stage-aware task board with at-rest encryption for titles, descriptions, and schedule fields—plus labels, priority, and optional Helvety Contacts links.",
+  description: {
+    intro:
+      "Helvety Tasks pairs a kanban-style spine with real encryption: sensitive fields leave your browser only after WebCrypto transforms them, so the server stores ciphertext tied to passkey-derived keys you control.",
+    sections: [
+      {
+        heading: "Pricing reality",
+        kind: "paragraph",
+        body: "Every productivity feature ships at no charge—no upgrade tiers, subscription packaging, or per-seat business gatekeeping.",
+      },
+      {
+        heading: "How work flows",
+        kind: "bullets",
+        items: [
+          "Immutable Helvety stages keep everyone aligned on meaning (from backlog through acceptance and The Void).",
+          "Labels and priority live in the detail sheet while the board stays readable for status at a glance.",
+          "Rich descriptions carry headings, lists, and inline links without breaking the encryption envelope.",
+          "Link Helvety Contacts when both apps support the relationship metadata.",
+        ],
+      },
+      {
+        heading: "Data protection",
+        kind: "paragraph",
+        body: "Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Under the current encrypted-field architecture, Helvety is not intended to receive usable keys for encrypted task body fields.",
+      },
+    ],
+  },
   type: "saas",
   category: "productivity",
   status: "available",
@@ -728,21 +809,33 @@ const helvetyContacts: SaaSProduct = {
   slug: "helvety-contacts",
   name: "Helvety Contacts",
   shortDescription:
-    "A privacy-focused contact management app with client-side encryption for sensitive fields. Store names, emails, phone numbers, birthdays, and notes.",
-  description: `Helvety Contacts is a contact manager with end-to-end encryption: sensitive contact fields are encrypted in your browser before they are stored.
-
-Access: Free to use. There are no paid tiers, subscriptions, or business usage caps.
-
-Key features:
-• Encryption: sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
-• Fields: names, description, email, phone, birthday, and notes
-• Rich text: formatted notes with headings, lists, and links
-• Categories: fixed set of Personal, Family, Work, Business, and Other
-• Helvety Tasks: link tasks to contacts where the apps support it
-• Reorder: drag and drop within and between categories
-• Export: self-service export for backup and portability; the in-app flow shows the current format and steps
-
-Data protection: Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
+    "Names, numbers, birthdays, and rich notes—encrypted at rest with Personal, Family, Work, Business, or Other buckets, drag reorder, and self-service export.",
+  description: {
+    intro:
+      "Helvety Contacts is a lightweight encrypted Rolodex: structured fields stay opaque to us because encryption happens locally before anything syncs.",
+    sections: [
+      {
+        heading: "Pricing reality",
+        kind: "paragraph",
+        body: "The full address book experience is free—no premium tier hiding CSV export or multi-category sorting.",
+      },
+      {
+        heading: "Everyday ergonomics",
+        kind: "bullets",
+        items: [
+          "Rich-text notes behave like miniature documents with headings and lists.",
+          "Drag-and-drop ordering within a category or across categories keeps tactile muscle memory.",
+          "Self-service encrypted export spells out the on-disk format inside the wizard.",
+          "Hook tasks to contacts whenever both apps expose the shared linking primitives.",
+        ],
+      },
+      {
+        heading: "Data protection",
+        kind: "paragraph",
+        body: "Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted contact payloads.",
+      },
+    ],
+  },
   type: "saas",
   category: "productivity",
   status: "available",
@@ -818,19 +911,32 @@ const helvetyNotes: SaaSProduct = {
   slug: "helvety-notes",
   name: "Helvety Notes",
   shortDescription:
-    "A privacy-focused notes app with client-side encryption for sensitive fields. Title and description notes grouped by Personal, Work, and Other.",
-  description: `Helvety Notes is a notes app with end-to-end encryption: sensitive note fields are encrypted in your browser before they are stored.
-
-Access: Free to use. There are no paid tiers, subscriptions, or business usage caps.
-
-Key features:
-• Encryption: sensitive content is protected with your passkey; Helvety cannot read those fields in plaintext
-• Structure: each note has a title and description; the list is grouped by category (Personal, Work, Other)
-• Rich text: headings, lists, links, and formatting in descriptions
-• Helvety Tasks and Contacts: cross-link where the apps support it
-• Reorder: drag and drop within and between categories
-
-Data protection: Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted content.`,
+    "Encrypted title-and-body notes in Personal, Work, and Other buckets, with rich text and cross-links to tasks or contacts when you use those apps.",
+  description: {
+    intro:
+      "Helvety Notes keeps capture friction low: every record is a title plus an optional long-form description, both encrypted client-side before hitting storage.",
+    sections: [
+      {
+        heading: "Pricing reality",
+        kind: "paragraph",
+        body: "Same gratis stance as the rest of the Helvety productivity trio—no metering on categories, linking, or editors.",
+      },
+      {
+        heading: "Organization philosophy",
+        kind: "bullets",
+        items: [
+          "Three curated buckets (Personal, Work, Other) make sifting faster than infinite nested folders.",
+          "Rich text keeps meeting minutes and scratch ideas in one canvas.",
+          "Cross-link into Helvety Tasks or Helvety Contacts only when you enable both apps.",
+        ],
+      },
+      {
+        heading: "Data protection",
+        kind: "paragraph",
+        body: "Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted note content.",
+      },
+    ],
+  },
   type: "saas",
   category: "productivity",
   status: "available",
@@ -967,7 +1073,9 @@ export function getFilteredProducts(filters: ProductFilters): Product[] {
       (product) =>
         product.name.toLowerCase().includes(searchLower) ||
         product.shortDescription.toLowerCase().includes(searchLower) ||
-        product.description.toLowerCase().includes(searchLower)
+        productDescriptionToPlainText(product.description)
+          .toLowerCase()
+          .includes(searchLower)
     );
   }
 
