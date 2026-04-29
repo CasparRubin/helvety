@@ -24,7 +24,7 @@ Primary login flow:
    - Returning users: passkey sign-in directly
 4. Redirect to requested destination
 
-`/auth/callback` remains for callback compatibility paths (OTP/account recovery/invite/email change), while passkey sign-in establishes session server-side.
+`/auth/callback` remains for compatibility callback paths (OTP/account recovery/invite/email change) and also handles PKCE/OAuth-style code exchange via the shared callback handler; passkey sign-in establishes session server-side.
 
 ## Security Model
 

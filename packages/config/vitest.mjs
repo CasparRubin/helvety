@@ -46,6 +46,12 @@ export function createVitestConfig(rootDir) {
         ],
         exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*.d.ts"],
         reporter: ["text"],
+        thresholds: {
+          lines: 70,
+          functions: 70,
+          branches: 60,
+          statements: 70,
+        },
       },
     },
   });

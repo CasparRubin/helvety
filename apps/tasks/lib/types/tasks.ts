@@ -108,30 +108,6 @@ export interface Label {
   created_at: string;
 }
 
-// =============================================================================
-// CONTACT TYPES (read-only, from the shared contacts table)
-// =============================================================================
-
-/**
- * Contact row as stored in the database (encrypted fields).
- * Mirrors the contacts table in the shared Supabase database.
- * The Tasks app only reads contacts and never creates or edits them.
- */
-export interface ContactRow {
-  id: string;
-  user_id: string;
-  encrypted_first_name: string;
-  encrypted_last_name: string;
-  encrypted_description: string | null;
-  encrypted_email: string | null;
-  encrypted_phone: string | null;
-  encrypted_birthday: string | null;
-  encrypted_notes: string | null;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
 /**
  * Decrypted Contact (client-side only).
  * Note: the notes content is NOT decrypted. Only a `has_notes` flag is exposed.

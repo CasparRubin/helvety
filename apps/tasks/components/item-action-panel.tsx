@@ -26,7 +26,7 @@ import {
   Loader2Icon,
   PencilIcon,
 } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { renderStageIcon } from "@/lib/icons";
@@ -105,6 +105,11 @@ export function ItemActionPanel({
   const stageOpen = stageOverride ?? !isMobile;
   const priorityOpen = priorityOverride ?? !isMobile;
   const labelOpen = labelOverride ?? !isMobile;
+  const [hydratedNowMs, setHydratedNowMs] = useState<number | null>(null);
+
+  useEffect(() => {
+    setHydratedNowMs(Date.now());
+  }, []);
 
   const handleStageClick = useCallback(
     (stageId: string) => {
@@ -210,11 +215,13 @@ export function ItemActionPanel({
                   placeholder="Set end date & time"
                   disabled={isSavingDates}
                 />
-                {item.end_date && new Date(item.end_date) < new Date() && (
-                  <Badge variant="destructive" className="w-fit text-[10px]">
-                    Overdue
-                  </Badge>
-                )}
+                {item.end_date &&
+                  hydratedNowMs !== null &&
+                  new Date(item.end_date).getTime() < hydratedNowMs && (
+                    <Badge variant="destructive" className="w-fit text-[10px]">
+                      Overdue
+                    </Badge>
+                  )}
               </div>
             </CollapsibleContent>
           </Collapsible>

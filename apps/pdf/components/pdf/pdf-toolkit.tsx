@@ -197,52 +197,5 @@ function PdfToolkitComponent({
   );
 }
 
-/**
- * Custom comparison function for React.memo to optimize re-renders.
- * Only re-renders when props actually change.
- */
-function arePropsEqual(
-  prevProps: PdfToolkitProps,
-  nextProps: PdfToolkitProps
-): boolean {
-  // Compare primitive values first (fastest check)
-  if (
-    prevProps.columns !== nextProps.columns ||
-    prevProps.totalPages !== nextProps.totalPages ||
-    prevProps.deletedCount !== nextProps.deletedCount ||
-    prevProps.rotatedCount !== nextProps.rotatedCount
-  ) {
-    return false; // Props changed, re-render
-  }
-
-  // Compare array length first (fast check)
-  if (prevProps.pdfFiles.length !== nextProps.pdfFiles.length) {
-    return false; // Array length changed, re-render
-  }
-
-  // Compare array reference (if reference is same, array hasn't changed)
-  if (prevProps.pdfFiles !== nextProps.pdfFiles) {
-    // Deep comparison only if references differ
-    // Check if any file changed by comparing IDs (more efficient than deep object comparison)
-    const prevIds = new Set(prevProps.pdfFiles.map((f) => f.id));
-    const nextIds = new Set(nextProps.pdfFiles.map((f) => f.id));
-    if (prevIds.size !== nextIds.size) {
-      return false;
-    }
-    for (const id of prevIds) {
-      if (!nextIds.has(id)) {
-        return false;
-      }
-    }
-  }
-
-  // Compare function references (if they're stable, this is fine)
-  // If functions changed, we want to re-render anyway
-  return (
-    prevProps.onRemoveFile === nextProps.onRemoveFile &&
-    prevProps.onColumnsChange === nextProps.onColumnsChange
-  );
-}
-
-// Memoize component to prevent unnecessary re-renders
-export const PdfToolkit = React.memo(PdfToolkitComponent, arePropsEqual);
+// Memoize with default shallow comparison to avoid stale renders from custom comparators.
+export const PdfToolkit = React.memo(PdfToolkitComponent);

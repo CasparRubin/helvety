@@ -13,7 +13,6 @@ export {
 export { buildAAD, decrypt, parseEncryptedData } from "./encryption";
 
 export {
-  decryptContactRows,
   decryptItemRow,
   decryptItemRows,
   encryptItemInput,

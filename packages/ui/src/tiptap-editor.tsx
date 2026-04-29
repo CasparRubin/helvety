@@ -141,6 +141,7 @@ function ToolbarButton({
           size="sm"
           onClick={onClick}
           disabled={disabled}
+          aria-label={tooltip}
           className={cn(
             "text-muted-foreground hover:text-foreground h-7 w-7 p-0",
             isActive && "bg-accent/50 text-foreground"
@@ -468,7 +469,7 @@ export function TiptapEditor({
   );
 }
 
-// Re-export utilities from the lightweight tiptap-utils module for backward compat
+// Re-export utilities from tiptap-utils for backward compatibility with existing imports.
 export {
   parseRichTextContent,
   serializeRichTextContent,

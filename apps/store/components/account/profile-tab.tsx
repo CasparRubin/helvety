@@ -44,7 +44,7 @@ import {
   exportUserData,
 } from "@/app/actions/account-actions";
 
-/** User profile data returned from the API. */
+/** User profile data consumed by the Profile tab UI. */
 interface UserData {
   id: string;
   email: string;
@@ -55,6 +55,13 @@ interface UserData {
 interface ProfileTabProps {
   initialUser: UserData;
 }
+
+const MEMBER_SINCE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC",
+});
 
 /**
  * Profile tab component for account settings.
@@ -111,11 +118,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
 
   /** Format a date string for display. */
   function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return MEMBER_SINCE_FORMATTER.format(new Date(dateString));
   }
 
   // Data export state

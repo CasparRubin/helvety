@@ -85,6 +85,7 @@ bun run format
 
 - `bun run ci:check` runs `format:check`, `lint`, `type-check`, `test`.
 - `bun run ci:release` runs `ci:check` plus `build`.
+- GitHub CI (`.github/workflows/ci.yml`) currently runs `bun run ci:check`.
 - `ci:release` sets `SKIP_ENV_VALIDATION=1` during `build` only; missing env values use schema-valid placeholders in local builds.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.
 - Dependency/security checks:
@@ -95,8 +96,8 @@ bun run format
 ## Environment Model
 
 - App URL and cookie domain logic are derived from `NODE_ENV` via shared config.
-- Server action trusted origin allowlist can be configured with `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` (comma-separated).
-- Each app README documents its exact env template and runtime notes.
+- Set `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` as a comma-separated trusted-origin allowlist for server actions; Vercel builds require this variable.
+- App READMEs document per-app env templates; shared runtime/security defaults are documented in this root README and `packages/config`.
 
 ## Supabase Workflow (Remote-First)
 

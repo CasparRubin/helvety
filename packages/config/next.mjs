@@ -27,6 +27,13 @@ export function createHelvetyNextConfig({
         .map((origin) => origin.trim())
         .filter(Boolean)
     : [];
+  const isVercelProductionBuild = process.env.VERCEL === "1";
+
+  if (isVercelProductionBuild && allowedOrigins.length === 0) {
+    throw new Error(
+      "HELVETY_SERVER_ACTION_ALLOWED_ORIGINS must be set for production builds."
+    );
+  }
 
   return {
     poweredByHeader: false,

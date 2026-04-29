@@ -152,6 +152,7 @@ export const EntityRow = memo(
               variant="ghost"
               size="icon-sm"
               className="text-muted-foreground hover:text-destructive shrink-0"
+              aria-label={`Delete ${title}`}
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete();

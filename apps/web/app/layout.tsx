@@ -128,7 +128,6 @@ export default async function RootLayout({
         <SkipToContent />
         <script
           type="application/ld+json"
-          suppressHydrationWarning
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({

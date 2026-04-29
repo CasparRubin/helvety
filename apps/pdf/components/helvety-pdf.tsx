@@ -45,7 +45,6 @@ export function HelvetyPdf(): React.JSX.Element {
   } = usePdfFiles();
 
   // Error handling
-  const [isProcessing, setIsProcessing] = React.useState(false);
   const errorHandler = useErrorHandler();
 
   // Page state management (deletions, rotations, statistics)
@@ -62,10 +61,7 @@ export function HelvetyPdf(): React.JSX.Element {
     onError: errorHandler.setError,
   });
 
-  // Sync processing state
-  React.useEffect(() => {
-    setIsProcessing(pdfProcessing.isProcessing);
-  }, [pdfProcessing.isProcessing]);
+  const isProcessing = pdfProcessing.isProcessing;
 
   // Drag and drop
   const dragDrop = useDragDrop();

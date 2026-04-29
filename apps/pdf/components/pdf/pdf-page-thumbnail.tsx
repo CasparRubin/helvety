@@ -80,7 +80,12 @@ function PdfPageThumbnailComponent({
   const [useImageBitmap, setUseImageBitmap] = React.useState(false);
   const [renderRetryCount, setRenderRetryCount] = React.useState(0);
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const documentReadyTimeoutRef = React.useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+  const pageRenderTimeoutRef = React.useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
   const { screenSize } = useScreenSize();
 
   // PDF rendering hook for ImageBitmap rendering
@@ -130,9 +135,13 @@ function PdfPageThumbnailComponent({
     setImageBitmap(null);
     setUseImageBitmap(false);
     setRenderRetryCount(0);
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+    if (documentReadyTimeoutRef.current) {
+      clearTimeout(documentReadyTimeoutRef.current);
+      documentReadyTimeoutRef.current = null;
+    }
+    if (pageRenderTimeoutRef.current) {
+      clearTimeout(pageRenderTimeoutRef.current);
+      pageRenderTimeoutRef.current = null;
     }
     // Quality upgrade cleanup is handled by the hook
   }, [fileUrl, setIsHighQuality]);
@@ -178,14 +187,14 @@ function PdfPageThumbnailComponent({
     pdfRendering,
   ]);
 
-  // Cleanup ImageBitmap on unmount
-  React.useEffect(() => {
-    return () => {
-      if (imageBitmap) {
-        imageBitmap.close();
-      }
-    };
-  }, [imageBitmap]);
+  const schedulePageRenderReady = React.useCallback((delayMs: number): void => {
+    if (pageRenderTimeoutRef.current) {
+      clearTimeout(pageRenderTimeoutRef.current);
+    }
+    pageRenderTimeoutRef.current = setTimeout(() => {
+      setPageRenderReady(true);
+    }, delayMs);
+  }, []);
 
   // Measure container width and update page width dynamically
   // This ensures pages (PDFs and images) always display at full width regardless of column count,
@@ -269,27 +278,28 @@ function PdfPageThumbnailComponent({
       setError(false);
       setErrorMessage(null);
       setRenderRetryCount(0);
-      // Clear any existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (documentReadyTimeoutRef.current) {
+        clearTimeout(documentReadyTimeoutRef.current);
+      }
+      if (pageRenderTimeoutRef.current) {
+        clearTimeout(pageRenderTimeoutRef.current);
       }
       // Delay so the pdf.js worker message handler is ready before we render the page.
-      const timeoutId = setTimeout(() => {
+      documentReadyTimeoutRef.current = setTimeout(() => {
         setDocumentReady(true);
-        setTimeout(() => {
-          setPageRenderReady(true);
-        }, PDF_RENDER.PAGE_RENDER_DELAY);
+        schedulePageRenderReady(PDF_RENDER.PAGE_RENDER_DELAY);
       }, PDF_RENDER.DOCUMENT_READY_DELAY);
-      timeoutRef.current = timeoutId;
     },
-    []
+    [schedulePageRenderReady]
   );
 
   React.useEffect(() => {
     return () => {
-      const currentTimeout = timeoutRef.current;
-      if (currentTimeout) {
-        clearTimeout(currentTimeout);
+      if (documentReadyTimeoutRef.current) {
+        clearTimeout(documentReadyTimeoutRef.current);
+      }
+      if (pageRenderTimeoutRef.current) {
+        clearTimeout(pageRenderTimeoutRef.current);
       }
     };
   }, []);
@@ -443,20 +453,10 @@ function PdfPageThumbnailComponent({
                         if (renderRetryCount < 3) {
                           setPageRenderReady(false);
                           setRenderRetryCount((prev) => prev + 1);
-                          // Clear any existing timeout
-                          if (timeoutRef.current) {
-                            clearTimeout(timeoutRef.current);
-                          }
-                          // Set new timeout and store ID
-                          const timeoutId = setTimeout(
-                            () => {
-                              setPageRenderReady(true);
-                            },
+                          schedulePageRenderReady(
                             PDF_RENDER.RENDER_RETRY_DELAY *
                               (renderRetryCount + 1)
                           );
-
-                          timeoutRef.current = timeoutId;
                         } else {
                           setError(true);
                           setErrorMessage("Failed to render page");
@@ -489,20 +489,10 @@ function PdfPageThumbnailComponent({
                             // Reset states and retry after a longer delay
                             setPageRenderReady(false);
                             setRenderRetryCount((prev) => prev + 1);
-                            // Clear any existing timeout
-                            if (timeoutRef.current) {
-                              clearTimeout(timeoutRef.current);
-                            }
-                            // Set new timeout and store ID
-                            const timeoutId = setTimeout(
-                              () => {
-                                setPageRenderReady(true);
-                              },
+                            schedulePageRenderReady(
                               PDF_RENDER.RENDER_RETRY_DELAY *
                                 (renderRetryCount + 1)
                             );
-
-                            timeoutRef.current = timeoutId;
                           } else {
                             // For other errors or after max retries, show error state
                             setError(true);

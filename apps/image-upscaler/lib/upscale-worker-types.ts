@@ -1,6 +1,6 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
-export interface UpscaleRequest {
+interface UpscaleRequest {
   type: "upscale";
   id: string;
   file: File;
@@ -8,26 +8,26 @@ export interface UpscaleRequest {
   height: number;
 }
 
-export interface RuntimeRequest {
+interface RuntimeRequest {
   type: "runtime";
   id: string;
 }
 
 export type WorkerRequest = UpscaleRequest | RuntimeRequest;
 
-export interface UpscaleResponse {
+interface UpscaleResponse {
   type: "upscale:success";
   id: string;
   outputBlob: Blob;
 }
 
-export interface RuntimeResponse {
+interface RuntimeResponse {
   type: "runtime:success";
   id: string;
   runtime: string;
 }
 
-export interface WorkerErrorResponse {
+interface WorkerErrorResponse {
   type: "error";
   id: string;
   message: string;
