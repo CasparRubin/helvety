@@ -1,5 +1,6 @@
 "use client";
 
+import { useDragDrop } from "@helvety/shared/hooks/use-drag-drop";
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import { Input } from "@helvety/ui/input";
@@ -9,7 +10,6 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { ImageUpscalerCommandBar } from "@/components/image-upscaler-command-bar";
-import { useDragDrop } from "@/hooks/use-drag-drop";
 import {
   calculateTargetSize,
   createDownloadName,

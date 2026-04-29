@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {

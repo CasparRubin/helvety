@@ -316,12 +316,12 @@ export default function PrivacyPage() {
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
-          Helvety ScreenTools (Windows desktop app) is distributed outside this
+          Helvety Screen Tools (Windows desktop app) is distributed outside this
           monorepo and primarily processes screenshot and annotation content on
-          your local device. ScreenTools may use local folders, local settings,
+          your local device. Screen Tools may use local folders, local settings,
           and clipboard integrations depending on your chosen actions. Helvety
           does not operate a server-side screenshot conversion pipeline for
-          ScreenTools in normal operation.
+          Screen Tools in normal operation.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">
@@ -455,7 +455,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Helvety ScreenTools (Windows desktop app):
+              Helvety Screen Tools (Windows desktop app):
             </strong>{" "}
             Capture and Live Draw workloads stay on your Windows machine for the
             operations we describe: screenshots and annotations are processed on

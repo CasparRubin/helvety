@@ -135,7 +135,7 @@ export default function ImpressumPage() {
             in-browser PDF toolkit for supported local workflows.
           </li>
           <li>
-            <strong className="text-foreground">Helvety ScreenTools</strong> —
+            <strong className="text-foreground">Helvety Screen Tools</strong> —
             Windows desktop capture and Live Draw overlay.
           </li>
           <li>
@@ -222,7 +222,7 @@ export default function ImpressumPage() {
               up to 10 years where required by Swiss law).
             </p>
             <p className="text-muted-foreground mt-2">
-              For local-device software (for example Helvety ScreenTools), we
+              For local-device software (for example Helvety Screen Tools), we
               generally cannot provide local screenshot or annotation content
               unless that content was separately provided to us by the user (for
               example via support communication).

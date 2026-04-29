@@ -1,3 +1,7 @@
+import {
+  createDashboardListSupabaseMock,
+  createRejectingDashboardListSupabaseMock,
+} from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -16,24 +20,6 @@ vi.mock("@helvety/shared/logger", () => ({
 }));
 
 import { getContactsDashboardData } from "./batch-actions";
-
-/** Supabase query builder ending in `.overrideTypes()` for contacts dashboard list. */
-function createContactsDashboardSupabaseMock(result: {
-  data: unknown[] | null;
-  error: { message: string; code?: string } | null;
-}) {
-  const overrideTypes = vi.fn().mockResolvedValue(result);
-  const limit = vi.fn(() => ({ overrideTypes }));
-  const orderCreatedAt = vi.fn(() => ({ limit }));
-  const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
-  const eqUser = vi.fn(() => ({ order: orderSort }));
-  const select = vi.fn(() => ({ eq: eqUser }));
-  const from = vi.fn((table: string) => {
-    expect(table).toBe("contacts");
-    return { select };
-  });
-  return { from };
-}
 
 describe("contacts batch-actions", () => {
   beforeEach(() => {
@@ -54,7 +40,7 @@ describe("contacts batch-actions", () => {
 
   it("logs via logUnexpectedError when Supabase returns an error", async () => {
     const dbError = { message: "permission denied", code: "42501" };
-    const supabase = createContactsDashboardSupabaseMock({
+    const supabase = createDashboardListSupabaseMock("contacts", {
       data: null,
       error: dbError,
     });
@@ -77,7 +63,7 @@ describe("contacts batch-actions", () => {
 
   it("returns success with contacts when query succeeds", async () => {
     const rows = [{ id: "c-1", user_id: "user-1" }];
-    const supabase = createContactsDashboardSupabaseMock({
+    const supabase = createDashboardListSupabaseMock("contacts", {
       data: rows,
       error: null,
     });
@@ -100,7 +86,7 @@ describe("contacts batch-actions", () => {
       id: `id-${i}`,
       user_id: "user-1",
     }));
-    const supabase = createContactsDashboardSupabaseMock({
+    const supabase = createDashboardListSupabaseMock("contacts", {
       data: rows,
       error: null,
     });
@@ -120,19 +106,12 @@ describe("contacts batch-actions", () => {
 
   it("logs via logUnexpectedError when the query promise rejects", async () => {
     const boom = new Error("network failure");
-    const overrideTypes = vi.fn().mockRejectedValue(boom);
-    const limit = vi.fn(() => ({ overrideTypes }));
-    const orderCreatedAt = vi.fn(() => ({ limit }));
-    const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
-    const eqUser = vi.fn(() => ({ order: orderSort }));
-    const select = vi.fn(() => ({ eq: eqUser }));
-    const from = vi.fn((table: string) => {
-      expect(table).toBe("contacts");
-      return { select };
-    });
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ok: true,
-      ctx: { user: { id: "user-1" }, supabase: { from } },
+      ctx: {
+        user: { id: "user-1" },
+        supabase: createRejectingDashboardListSupabaseMock("contacts", boom),
+      },
     });
 
     const result = await getContactsDashboardData();

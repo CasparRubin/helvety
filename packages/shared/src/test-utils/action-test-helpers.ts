@@ -67,3 +67,86 @@ export function createOrderedContactListSupabaseMock(): {
     },
   };
 }
+
+/** Minimal Supabase mock for dashboard list reads ending in `.limit().overrideTypes()`. */
+export function createDashboardListSupabaseMock<
+  TRow,
+  TError extends { message: string; code?: string } | null,
+>(
+  tableName: string,
+  result: { data: TRow[] | null; error: TError }
+): {
+  from: (table: string) => {
+    select: () => {
+      eq: () => {
+        order: () => {
+          order: () => {
+            limit: () => { overrideTypes: () => Promise<typeof result> };
+          };
+        };
+      };
+    };
+  };
+} {
+  return {
+    from: (table: string) => {
+      if (table !== tableName) {
+        throw new Error(`Unexpected table ${table}`);
+      }
+
+      return {
+        select: () => ({
+          eq: () => ({
+            order: () => ({
+              order: () => ({
+                limit: () => ({
+                  overrideTypes: async () => result,
+                }),
+              }),
+            }),
+          }),
+        }),
+      };
+    },
+  };
+}
+
+/** Minimal Supabase mock for dashboard list reads where `overrideTypes()` rejects. */
+export function createRejectingDashboardListSupabaseMock(
+  tableName: string,
+  error: Error
+): {
+  from: (table: string) => {
+    select: () => {
+      eq: () => {
+        order: () => {
+          order: () => {
+            limit: () => { overrideTypes: () => Promise<never> };
+          };
+        };
+      };
+    };
+  };
+} {
+  return {
+    from: (table: string) => {
+      if (table !== tableName) {
+        throw new Error(`Unexpected table ${table}`);
+      }
+
+      return {
+        select: () => ({
+          eq: () => ({
+            order: () => ({
+              order: () => ({
+                limit: () => ({
+                  overrideTypes: async () => Promise.reject(error),
+                }),
+              }),
+            }),
+          }),
+        }),
+      };
+    },
+  };
+}

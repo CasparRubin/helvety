@@ -23,8 +23,8 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "node ../../scripts/generate-version.mjs && vitest run",
+    "test:watch": "node ../../scripts/generate-version.mjs && vitest",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {

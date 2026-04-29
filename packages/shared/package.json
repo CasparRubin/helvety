@@ -46,6 +46,7 @@
     "./optimistic-entity": "./src/optimistic-entity.ts",
     "./layout-primitives": "./src/layout-primitives.ts",
     "./fonts": "./src/fonts.ts",
+    "./hooks/use-drag-drop": "./src/hooks/use-drag-drop.ts",
     "./e2ee-app-paths": "./src/e2ee-app-paths.ts",
     "./e2ee-page-auth": "./src/e2ee-page-auth.ts",
     "./redirect-validation": "./src/redirect-validation.ts",

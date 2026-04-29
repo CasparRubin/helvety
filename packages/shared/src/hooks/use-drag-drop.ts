@@ -15,8 +15,6 @@ interface UseDragDropReturn {
 /**
  * Custom hook for managing drag and drop state and handlers.
  * Uses a drag counter to prevent false drag leave events when dragging over child elements.
- *
- * @returns Object containing drag state and event handlers
  */
 export function useDragDrop(): UseDragDropReturn {
   const [isDragging, setIsDragging] = React.useState(false);

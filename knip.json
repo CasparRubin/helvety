@@ -12,7 +12,6 @@
     "packages/config/vitest.server-only-mock.ts"
   ],
   "ignoreIssues": {
-    "apps/contacts/hooks/use-task-links.ts": ["exports"],
     "packages/shared/src/types/database.types.ts": [
       "exports",
       "types",

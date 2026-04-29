@@ -1,12 +1,12 @@
 "use client";
 
+import { useDragDrop } from "@helvety/shared/hooks/use-drag-drop";
 import { cn } from "@helvety/shared/utils";
 import { Upload } from "lucide-react";
 import * as React from "react";
 
 import { PdfCommandBar, PdfPageGrid, PdfToolkit } from "@/components/pdf";
 import { useColumns } from "@/hooks/use-columns";
-import { useDragDrop } from "@/hooks/use-drag-drop";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useImageBitmapMemory } from "@/hooks/use-imagebitmap-memory";
 import { usePdfFiles } from "@/hooks/use-pdf-files";

@@ -167,6 +167,8 @@ export function createEslintConfig(rootDir) {
         "**/pdf-processing-telemetry.ts",
         "**/pdf-processing-worker-types.ts",
         "**/pdf-processing.worker.ts",
+        "**/image-upscaler-command-bar.test.tsx",
+        "**/upscale-pipeline.test.ts",
       ],
       rules: {
         "jsdoc/require-jsdoc": "off",

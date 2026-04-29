@@ -1,3 +1,7 @@
+import {
+  createDashboardListSupabaseMock,
+  createRejectingDashboardListSupabaseMock,
+} from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -35,24 +39,6 @@ function makeNoteRow(
   };
 }
 
-/** Supabase query builder ending in `.overrideTypes()` for notes dashboard rows. */
-function createNotesDashboardSupabaseMock(result: {
-  data: unknown[] | null;
-  error: { message: string; code?: string } | null;
-}) {
-  const overrideTypes = vi.fn().mockResolvedValue(result);
-  const limit = vi.fn(() => ({ overrideTypes }));
-  const orderCreatedAt = vi.fn(() => ({ limit }));
-  const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
-  const eqUser = vi.fn(() => ({ order: orderSort }));
-  const select = vi.fn(() => ({ eq: eqUser }));
-  const from = vi.fn((table: string) => {
-    expect(table).toBe("notes");
-    return { select };
-  });
-  return { from };
-}
-
 describe("notes batch-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -72,7 +58,7 @@ describe("notes batch-actions", () => {
 
   it("logs via logUnexpectedError when Supabase returns an error", async () => {
     const dbError = { message: "timeout", code: "57014" };
-    const supabase = createNotesDashboardSupabaseMock({
+    const supabase = createDashboardListSupabaseMock("notes", {
       data: null,
       error: dbError,
     });
@@ -95,7 +81,7 @@ describe("notes batch-actions", () => {
 
   it("returns success with items when query succeeds", async () => {
     const rows = [makeNoteRow({ id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890" })];
-    const supabase = createNotesDashboardSupabaseMock({
+    const supabase = createDashboardListSupabaseMock("notes", {
       data: rows,
       error: null,
     });
@@ -120,7 +106,7 @@ describe("notes batch-actions", () => {
         sort_order: i,
       })
     );
-    const supabase = createNotesDashboardSupabaseMock({
+    const supabase = createDashboardListSupabaseMock("notes", {
       data: rows,
       error: null,
     });
@@ -140,19 +126,12 @@ describe("notes batch-actions", () => {
 
   it("logs via logUnexpectedError when the query promise rejects", async () => {
     const boom = new Error("network failure");
-    const overrideTypes = vi.fn().mockRejectedValue(boom);
-    const limit = vi.fn(() => ({ overrideTypes }));
-    const orderCreatedAt = vi.fn(() => ({ limit }));
-    const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
-    const eqUser = vi.fn(() => ({ order: orderSort }));
-    const select = vi.fn(() => ({ eq: eqUser }));
-    const from = vi.fn((table: string) => {
-      expect(table).toBe("notes");
-      return { select };
-    });
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ok: true,
-      ctx: { user: { id: "user-1" }, supabase: { from } },
+      ctx: {
+        user: { id: "user-1" },
+        supabase: createRejectingDashboardListSupabaseMock("notes", boom),
+      },
     });
 
     const result = await getFlatItemsDashboardData();

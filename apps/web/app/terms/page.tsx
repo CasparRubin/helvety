@@ -424,7 +424,7 @@ export default function TermsPage() {
           Certain products are distributed as extensions or downloadable
           packages (for example Helvety SPO Explorer for SharePoint Online, or
           the Power Automate Browser Extension for supported Chromium-based
-          browsers, and Helvety ScreenTools for Windows). The following
+          browsers, and Helvety Screen Tools for Windows). The following
           additional terms apply to these products:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
@@ -456,7 +456,7 @@ export default function TermsPage() {
             <strong className="text-foreground">
               Local-data responsibility:
             </strong>{" "}
-            For local-processing products (for example ScreenTools), you are
+            For local-processing products (for example Screen Tools), you are
             responsible for handling sensitive files, clipboard content, and
             local storage on your own device. Helvety cannot recover local data
             that is not synchronized to Helvety services.
