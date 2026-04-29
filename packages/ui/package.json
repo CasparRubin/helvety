@@ -44,6 +44,7 @@
     "./footer": "./src/footer.tsx",
     "./icon-renderer": "./src/icon-renderer.tsx",
     "./input": "./src/input.tsx",
+    "./json-ld-script": "./src/json-ld-script.tsx",
     "./label": "./src/label.tsx",
     "./list-search-field": "./src/list-search-field.tsx",
     "./loading-spinner": "./src/loading-spinner.tsx",

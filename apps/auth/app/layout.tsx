@@ -16,6 +16,7 @@ import { logger } from "@helvety/shared/logger";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { Footer } from "@helvety/ui/footer";
+import { JsonLdScript } from "@helvety/ui/json-ld-script";
 import { ScrollArea } from "@helvety/ui/scroll-area";
 import { SessionRecovery } from "@helvety/ui/session-recovery";
 import { SkipToContent } from "@helvety/ui/skip-to-content";
@@ -117,24 +118,21 @@ export default async function RootLayout({
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
         <SkipToContent />
-        <script
-          type="application/ld+json"
+        <JsonLdScript
           nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@graph": [
-                createHelvetyOrganizationSchema(brandAssets.identifierPng),
-                {
-                  "@type": "WebApplication",
-                  name: "Helvety Auth",
-                  url: urls.auth,
-                  description: AUTH_DESCRIPTION_COPY,
-                  applicationCategory: "SecurityApplication",
-                  operatingSystem: "Any",
-                },
-              ],
-            }),
+          json={{
+            "@context": "https://schema.org",
+            "@graph": [
+              createHelvetyOrganizationSchema(brandAssets.identifierPng),
+              {
+                "@type": "WebApplication",
+                name: "Helvety Auth",
+                url: urls.auth,
+                description: AUTH_DESCRIPTION_COPY,
+                applicationCategory: "SecurityApplication",
+                operatingSystem: "Any",
+              },
+            ],
           }}
         />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>

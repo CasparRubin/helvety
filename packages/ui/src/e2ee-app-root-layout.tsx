@@ -14,6 +14,7 @@ import { AuthTokenHandler } from "./auth-token-handler";
 import { CSRFProvider } from "./csrf-provider";
 import { EncryptionGateApp } from "./encryption-gate-app";
 import { Footer } from "./footer";
+import { JsonLdScript } from "./json-ld-script";
 import { ScrollArea } from "./scroll-area";
 import { SessionRecovery } from "./session-recovery";
 import { SkipToContent } from "./skip-to-content";
@@ -88,13 +89,7 @@ export async function E2eeAppRootLayout({
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
         <SkipToContent />
-        <script
-          type="application/ld+json"
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(ldJson),
-          }}
-        />
+        <JsonLdScript nonce={nonce} json={ldJson} />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
           <AuthTokenHandler />
           <SessionRecovery />

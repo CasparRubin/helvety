@@ -9,6 +9,7 @@ import {
 } from "@helvety/shared/layout-primitives";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
+import { JsonLdScript } from "@helvety/ui/json-ld-script";
 import { SessionRecovery } from "@helvety/ui/session-recovery";
 import { SkipToContent } from "@helvety/ui/skip-to-content";
 import { Toaster } from "@helvety/ui/sonner";
@@ -111,27 +112,24 @@ export default async function RootLayout({
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
       <body className="antialiased">
         <SkipToContent />
-        <script
-          type="application/ld+json"
+        <JsonLdScript
           nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@graph": [
-                createHelvetyOrganizationSchema(brandAssets.identifierPng),
-                {
-                  "@type": "WebApplication",
-                  name: "Helvety PDF",
-                  url: urls.pdf,
-                  description:
-                    "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages in one place. For supported operations, file content processing happens locally in your browser.",
-                  applicationCategory: "UtilitiesApplication",
-                  operatingSystem: "Any",
-                  isAccessibleForFree: true,
-                  browserRequirements: "Requires a modern web browser",
-                },
-              ],
-            }),
+          json={{
+            "@context": "https://schema.org",
+            "@graph": [
+              createHelvetyOrganizationSchema(brandAssets.identifierPng),
+              {
+                "@type": "WebApplication",
+                name: "Helvety PDF",
+                url: urls.pdf,
+                description:
+                  "Manage PDF files with ease. Merge, reorder, delete, rotate, and extract PDF pages in one place. For supported operations, file content processing happens locally in your browser.",
+                applicationCategory: "UtilitiesApplication",
+                operatingSystem: "Any",
+                isAccessibleForFree: true,
+                browserRequirements: "Requires a modern web browser",
+              },
+            ],
           }}
         />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>

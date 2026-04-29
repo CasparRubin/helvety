@@ -1,5 +1,6 @@
 import { urls } from "@helvety/shared/config";
 import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
+import { JsonLdScript } from "@helvety/ui/json-ld-script";
 
 import { getProductBySlug } from "@/lib/data/products";
 
@@ -114,12 +115,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   return (
     <>
       {productJsonLd && (
-        <script
-          type="application/ld+json"
-          nonce={nonce ?? undefined}
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
-        />
+        <JsonLdScript nonce={nonce ?? undefined} json={productJsonLd} />
       )}
       <ProductDetailClient slug={slug} />
     </>

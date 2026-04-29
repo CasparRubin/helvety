@@ -9,6 +9,7 @@ import {
 } from "@helvety/shared/layout-primitives";
 import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
 import { Footer } from "@helvety/ui/footer";
+import { JsonLdScript } from "@helvety/ui/json-ld-script";
 import { ScrollArea } from "@helvety/ui/scroll-area";
 import { SessionRecovery } from "@helvety/ui/session-recovery";
 import { SkipToContent } from "@helvety/ui/skip-to-content";
@@ -127,22 +128,19 @@ export default async function RootLayout({
     >
       <body className="antialiased">
         <SkipToContent />
-        <script
-          type="application/ld+json"
+        <JsonLdScript
           nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@graph": [
-                createHelvetyOrganizationSchema(brandAssets.identifierPng),
-                {
-                  "@type": "WebSite",
-                  name: "Helvety",
-                  url: urls.home,
-                  description: WEB_SITE_DESCRIPTION,
-                },
-              ],
-            }),
+          json={{
+            "@context": "https://schema.org",
+            "@graph": [
+              createHelvetyOrganizationSchema(brandAssets.identifierPng),
+              {
+                "@type": "WebSite",
+                name: "Helvety",
+                url: urls.home,
+                description: WEB_SITE_DESCRIPTION,
+              },
+            ],
           }}
         />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
