@@ -1,7 +1,7 @@
 /**
  * Shared security headers factory for all Helvety Next.js apps.
  *
- * Generates consistent HSTS, COOP, COEP, and other security headers.
+ * Generates consistent HSTS, COOP, and other security headers.
  * CSP is generated per-request in proxy.ts with a cryptographic nonce.
  *
  * @param {object} options
@@ -66,13 +66,11 @@ export function createSecurityHeaders({ appName } = {}) {
         key: "Cross-Origin-Opener-Policy",
         value: "same-origin",
       });
-      headersList.push({
-        // "credentialless" allows third-party resources (Vercel Analytics, etc.)
-        // without requiring Cross-Origin-Resource-Policy headers from them,
-        // while still enabling cross-origin isolation benefits.
-        key: "Cross-Origin-Embedder-Policy",
-        value: "credentialless",
-      });
+      // Intentionally omit COEP across all apps.
+      //
+      // Helvety uses multi-zone rewrites for app routing, and strict COEP can
+      // cause browser access-control failures on internal Next.js RSC fetches
+      // (`?_rsc=...`) when responses cross zone boundaries.
     }
 
     return [
