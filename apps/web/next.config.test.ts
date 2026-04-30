@@ -7,6 +7,11 @@ import nextConfig from "./next.config";
 type RewriteRule = {
   source: string;
   destination: string;
+  has?: Array<{
+    type: string;
+    key?: string;
+    value?: string;
+  }>;
 };
 
 /** Extracts beforeFiles rewrites regardless of Next.js return shape. */
@@ -51,6 +56,99 @@ describe("web gateway rewrites", () => {
         {
           source: "/auth-static/:path*",
           destination: `${authOrigin}/auth-static/:path*`,
+        },
+        {
+          source: "/:analyticsId([a-z0-9]+)/script.js",
+          destination: `${authOrigin}/:analyticsId([a-z0-9]+)/script.js`,
+          has: [
+            {
+              type: "header",
+              key: "referer",
+              value: ".*/auth(?:/.*)?$",
+            },
+          ],
+        },
+      ])
+    );
+  });
+
+  it("routes analytics script requests to every zone origin by referer path", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const tasksOrigin = `http://localhost:${DEV_PORTS.tasks}`;
+    const contactsOrigin = `http://localhost:${DEV_PORTS.contacts}`;
+    const notesOrigin = `http://localhost:${DEV_PORTS.notes}`;
+    const storeOrigin = `http://localhost:${DEV_PORTS.store}`;
+    const pdfOrigin = `http://localhost:${DEV_PORTS.pdf}`;
+    const imageUpscalerOrigin = `http://localhost:${DEV_PORTS.imageUpscaler}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        {
+          source: "/:analyticsId([a-z0-9]+)/script.js",
+          destination: `${tasksOrigin}/:analyticsId([a-z0-9]+)/script.js`,
+          has: [
+            {
+              type: "header",
+              key: "referer",
+              value: ".*/tasks(?:/.*)?$",
+            },
+          ],
+        },
+        {
+          source: "/:analyticsId([a-z0-9]+)/script.js",
+          destination: `${contactsOrigin}/:analyticsId([a-z0-9]+)/script.js`,
+          has: [
+            {
+              type: "header",
+              key: "referer",
+              value: ".*/contacts(?:/.*)?$",
+            },
+          ],
+        },
+        {
+          source: "/:analyticsId([a-z0-9]+)/script.js",
+          destination: `${notesOrigin}/:analyticsId([a-z0-9]+)/script.js`,
+          has: [
+            {
+              type: "header",
+              key: "referer",
+              value: ".*/notes(?:/.*)?$",
+            },
+          ],
+        },
+        {
+          source: "/:analyticsId([a-z0-9]+)/script.js",
+          destination: `${storeOrigin}/:analyticsId([a-z0-9]+)/script.js`,
+          has: [
+            {
+              type: "header",
+              key: "referer",
+              value: ".*/store(?:/.*)?$",
+            },
+          ],
+        },
+        {
+          source: "/:analyticsId([a-z0-9]+)/script.js",
+          destination: `${pdfOrigin}/:analyticsId([a-z0-9]+)/script.js`,
+          has: [
+            {
+              type: "header",
+              key: "referer",
+              value: ".*/pdf(?:/.*)?$",
+            },
+          ],
+        },
+        {
+          source: "/:analyticsId([a-z0-9]+)/script.js",
+          destination: `${imageUpscalerOrigin}/:analyticsId([a-z0-9]+)/script.js`,
+          has: [
+            {
+              type: "header",
+              key: "referer",
+              value: ".*/image-upscaler(?:/.*)?$",
+            },
+          ],
         },
       ])
     );

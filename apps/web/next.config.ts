@@ -90,9 +90,63 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
         "IMAGE_UPSCALER_URL",
         DEV_PORTS.imageUpscaler
       );
+      const analyticsScriptSource = "/:analyticsId([a-z0-9]+)/script.js";
 
       return {
         beforeFiles: [
+          {
+            // Vercel Analytics script path (e.g. /75d1cebe0bf9989d/script.js)
+            // uses a root-relative URL, so route by referring app basePath.
+            source: analyticsScriptSource,
+            has: [
+              { type: "header", key: "referer", value: ".*/auth(?:/.*)?$" },
+            ],
+            destination: `${authUrl}${analyticsScriptSource}`,
+          },
+          {
+            source: analyticsScriptSource,
+            has: [
+              { type: "header", key: "referer", value: ".*/tasks(?:/.*)?$" },
+            ],
+            destination: `${tasksUrl}${analyticsScriptSource}`,
+          },
+          {
+            source: analyticsScriptSource,
+            has: [
+              { type: "header", key: "referer", value: ".*/contacts(?:/.*)?$" },
+            ],
+            destination: `${contactsUrl}${analyticsScriptSource}`,
+          },
+          {
+            source: analyticsScriptSource,
+            has: [
+              { type: "header", key: "referer", value: ".*/notes(?:/.*)?$" },
+            ],
+            destination: `${notesUrl}${analyticsScriptSource}`,
+          },
+          {
+            source: analyticsScriptSource,
+            has: [
+              { type: "header", key: "referer", value: ".*/store(?:/.*)?$" },
+            ],
+            destination: `${storeUrl}${analyticsScriptSource}`,
+          },
+          {
+            source: analyticsScriptSource,
+            has: [{ type: "header", key: "referer", value: ".*/pdf(?:/.*)?$" }],
+            destination: `${pdfUrl}${analyticsScriptSource}`,
+          },
+          {
+            source: analyticsScriptSource,
+            has: [
+              {
+                type: "header",
+                key: "referer",
+                value: ".*/image-upscaler(?:/.*)?$",
+              },
+            ],
+            destination: `${imageUpscalerUrl}${analyticsScriptSource}`,
+          },
           {
             source: "/auth",
             destination: `${authUrl}/auth`,

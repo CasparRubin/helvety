@@ -8,6 +8,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 ## Key Features
 
 - Multi-zone gateway rewrites for `/auth`, `/store`, `/pdf`, `/image-upscaler`, `/tasks`, `/contacts`, `/notes`
+- Vercel Analytics script forwarding for sub-app routes so analytics works across all zones
 - Shared ecosystem navigation (grouped app/tool switcher and auth-aware menu)
 - Public legal pages, cookie notice, and abuse-reporting entry points
 - Canonical metadata and sitemap/robots endpoints for indexable content
@@ -15,6 +16,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 ## Routing and SEO
 
 - Sub-app forwarding is defined in `next.config.ts`.
+- Vercel Analytics `/<id>/script.js` requests are forwarded by referer path to the correct zone origin.
 - Direct-domain sub-app roots are expected to redirect to their base path.
 - `apps/web` is indexable and serves:
   - `/robots.txt`
