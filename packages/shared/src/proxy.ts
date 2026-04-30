@@ -20,15 +20,116 @@ export type BuildCspOptions = {
   workerBlob?: boolean;
 };
 
+/** Shared matcher used by all app proxies. */
+export const SECURITY_PROXY_MATCHER = [
+  "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|map|woff2?)$).*)",
+];
+
 /** Configuration for creating a lightweight security proxy handler. */
 export type CreateSecurityProxyOptions = {
   /** CSP options (imgBlob, scriptUnsafeEval, workerBlob) */
   buildCspOptions?: BuildCspOptions;
-  /** Whether to set x-helvety-url header (default: true). Web gateway uses false. */
+  /** Whether to set x-helvety-url header (default: true). Public marketing profile disables this. */
   includeHelvetyUrl?: boolean;
-  /** Whether to generate CSRF token cookie (default: true). Web gateway uses false. */
+  /** Whether to generate CSRF token cookie (default: true). Public marketing profile disables this. */
   includeCsrf?: boolean;
 };
+
+/** Canonical proxy profiles used by app-type groupings. */
+export type SecurityProxyProfile =
+  | "e2ee-app"
+  | "auth-gateway"
+  | "store-gateway"
+  | "public-marketing"
+  | "public-tool";
+
+/** Profile presets for createSecurityProxy options. */
+export const SECURITY_PROXY_PROFILE_OPTIONS: Record<
+  SecurityProxyProfile,
+  CreateSecurityProxyOptions
+> = {
+  "e2ee-app": {
+    buildCspOptions: { imgBlob: true },
+    includeHelvetyUrl: true,
+    includeCsrf: true,
+  },
+  "auth-gateway": {
+    includeHelvetyUrl: true,
+    includeCsrf: true,
+  },
+  "store-gateway": {
+    includeHelvetyUrl: true,
+    includeCsrf: true,
+  },
+  "public-marketing": {
+    includeHelvetyUrl: false,
+    includeCsrf: false,
+  },
+  "public-tool": {
+    buildCspOptions: {
+      imgBlob: true,
+      scriptUnsafeEval: "dev-only",
+      workerBlob: true,
+    },
+    includeHelvetyUrl: true,
+    includeCsrf: true,
+  },
+};
+
+/**
+ * Build the canonical security proxy from a named profile, with optional
+ * per-app overrides. Prefer this over calling createSecurityProxy directly
+ * in app proxies.
+ */
+export function createProfiledSecurityProxy(
+  profile: SecurityProxyProfile,
+  overrides?: Partial<CreateSecurityProxyOptions>
+) {
+  return createSecurityProxy({
+    ...SECURITY_PROXY_PROFILE_OPTIONS[profile],
+    ...overrides,
+  });
+}
+
+/** Redirect direct root requests to the app basePath, if configured. */
+export function redirectRootToBasePath(
+  request: NextRequest,
+  defaultBasePath: string
+): NextResponse | null {
+  if (new URL(request.url).pathname !== "/") {
+    return null;
+  }
+  const basePath = request.nextUrl.basePath || defaultBasePath;
+  return NextResponse.redirect(new URL(basePath, request.url));
+}
+
+/** Build a proxy with standardized root/legacy redirects plus shared security proxy. */
+export function createAppProxy(options: {
+  securityProxy: (request: NextRequest) => Promise<NextResponse>;
+  defaultBasePath?: string;
+  legacyPathRegexes?: RegExp[];
+}) {
+  const { securityProxy, defaultBasePath, legacyPathRegexes = [] } = options;
+
+  return async function proxy(request: NextRequest): Promise<NextResponse> {
+    if (defaultBasePath) {
+      const rootRedirect = redirectRootToBasePath(request, defaultBasePath);
+      if (rootRedirect) {
+        return rootRedirect;
+      }
+    }
+
+    const pathname = request.nextUrl.pathname;
+    if (legacyPathRegexes.some((regex) => regex.test(pathname))) {
+      const basePath = request.nextUrl.basePath || defaultBasePath;
+      if (basePath) {
+        return NextResponse.redirect(new URL(basePath, request.url));
+      }
+    }
+
+    return securityProxy(request);
+  };
+}
 
 /**
  * Creates a lightweight proxy function for Next.js proxy.ts.
@@ -41,12 +142,20 @@ export type CreateSecurityProxyOptions = {
  *
  * Config must be exported separately in each app (Next.js requires static config).
  *
- * Use in each app's proxy.ts:
+ * Use in each app's proxy.ts (preferred):
  * ```ts
- * import { createSecurityProxy } from "@helvety/shared/proxy";
- * const proxy = createSecurityProxy({ buildCspOptions: { imgBlob: true } });
- * export { proxy };
- * export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"] };
+ * import { createAppProxy, createProfiledSecurityProxy } from "@helvety/shared/proxy";
+ *
+ * export const proxy = createAppProxy({
+ *   securityProxy: createProfiledSecurityProxy("e2ee-app"),
+ *   defaultBasePath: "/tasks",
+ * });
+ *
+ * export const config = {
+ *   matcher: [
+ *     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|map|woff2?)$).*)",
+ *   ],
+ * };
  * ```
  */
 export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {

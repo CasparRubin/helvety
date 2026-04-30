@@ -9,7 +9,7 @@ End-to-end encrypted task management app.
 
 - Client-side encryption for sensitive task fields
 - Fixed stage-based main list with drag-and-drop reorder
-- Client-side search on decrypted title/description
+- Client-side search on decrypted title/description; while search is active, reorder/drag is disabled and an empty-search message is shown when nothing matches
 - Rich task editor with metadata panel
 - Cross-app linking with contacts and notes
 - Client-side decrypted export (server-side encrypted fetch)

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const rateLimitMocks = vi.hoisted(() => ({
   checkRateLimit: vi.fn().mockResolvedValue({ allowed: true }),
@@ -27,14 +27,59 @@ vi.mock("./supabase/server", () => ({
 
 import { authenticateAndRateLimit } from "./action-helpers";
 import { getAuthUser } from "./auth-retry";
+import { requireCSRFToken } from "./csrf";
 
 import type { AuthError, User } from "@supabase/supabase-js";
 
 const mockGetAuthUser = vi.mocked(getAuthUser);
+const mockRequireCSRFToken = vi.mocked(requireCSRFToken);
+const buildUser = (id: string): User => ({ id }) as User;
+const buildAuthError = (message: string): AuthError =>
+  ({ message }) as AuthError;
 
 describe("authenticateAndRateLimit", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    rateLimitMocks.checkRateLimit.mockResolvedValue({ allowed: true });
+    mockRequireCSRFToken.mockResolvedValue(undefined);
+  });
+
+  it("validates CSRF and uses mutation rate-limit config for write actions", async () => {
+    const user = buildUser("write-user");
+    mockGetAuthUser.mockResolvedValue({ user, error: null });
+
+    await authenticateAndRateLimit({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "tasks",
+      rateLimitConfig: { maxRequests: 11, windowMs: 22_000 },
+    });
+
+    expect(mockRequireCSRFToken).toHaveBeenCalledWith("csrf-token");
+    expect(rateLimitMocks.checkRateLimit).toHaveBeenCalledWith(
+      "tasks:user:write-user",
+      11,
+      22_000
+    );
+  });
+
+  it("returns early when CSRF validation fails", async () => {
+    mockRequireCSRFToken.mockRejectedValueOnce(new Error("bad csrf"));
+
+    const result = await authenticateAndRateLimit({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "tasks",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.response.error).toContain("Security validation failed");
+    }
+    expect(mockGetAuthUser).not.toHaveBeenCalled();
+    expect(rateLimitMocks.checkRateLimit).not.toHaveBeenCalled();
+  });
+
   it("returns ok when auth succeeds", async () => {
-    const user = { id: "u1" } as unknown as User;
+    const user = buildUser("u1");
     mockGetAuthUser.mockResolvedValue({ user, error: null });
 
     const result = await authenticateAndRateLimit({
@@ -48,7 +93,7 @@ describe("authenticateAndRateLimit", () => {
   });
 
   it("applies readRateLimitConfig to checkRateLimit for read-only actions", async () => {
-    const user = { id: "u1" } as unknown as User;
+    const user = buildUser("u1");
     mockGetAuthUser.mockResolvedValue({ user, error: null });
 
     await authenticateAndRateLimit({
@@ -64,7 +109,7 @@ describe("authenticateAndRateLimit", () => {
   });
 
   it("defaults read path to RATE_LIMITS.READ when readRateLimitConfig omitted", async () => {
-    const user = { id: "u2" } as unknown as User;
+    const user = buildUser("u2");
     mockGetAuthUser.mockResolvedValue({ user, error: null });
     rateLimitMocks.checkRateLimit.mockClear();
 
@@ -79,10 +124,49 @@ describe("authenticateAndRateLimit", () => {
     );
   });
 
+  it("returns mutation rate-limit error when write limit denies request", async () => {
+    const user = buildUser("u3");
+    mockGetAuthUser.mockResolvedValue({ user, error: null });
+    rateLimitMocks.checkRateLimit.mockResolvedValueOnce({
+      allowed: false,
+      retryAfter: 33,
+    });
+
+    const result = await authenticateAndRateLimit({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "contacts",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.response.error).toContain("Too many attempts");
+      expect(result.response.error).toContain("33");
+    }
+  });
+
+  it("returns read rate-limit error when read limit denies request", async () => {
+    const user = buildUser("u4");
+    mockGetAuthUser.mockResolvedValue({ user, error: null });
+    rateLimitMocks.checkRateLimit.mockResolvedValueOnce({
+      allowed: false,
+      retryAfter: 45,
+    });
+
+    const result = await authenticateAndRateLimit({
+      rateLimitPrefix: "export",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.response.error).toContain("Too many requests");
+      expect(result.response.error).toContain("45");
+    }
+  });
+
   it("returns AUTH_REQUIRED error for regular auth failures", async () => {
     mockGetAuthUser.mockResolvedValue({
       user: null,
-      error: { message: "jwt expired" } as unknown as AuthError,
+      error: buildAuthError("jwt expired"),
     });
 
     const result = await authenticateAndRateLimit({
@@ -99,9 +183,7 @@ describe("authenticateAndRateLimit", () => {
   it("returns AUTH_HARD_LOGOUT error for terminal auth failures", async () => {
     mockGetAuthUser.mockResolvedValue({
       user: null,
-      error: {
-        message: "refresh token not found",
-      } as unknown as AuthError,
+      error: buildAuthError("refresh token not found"),
     });
 
     const result = await authenticateAndRateLimit({

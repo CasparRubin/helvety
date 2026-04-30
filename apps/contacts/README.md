@@ -9,7 +9,7 @@ End-to-end encrypted contact management app.
 
 - Client-side encryption for sensitive contact fields
 - Fixed-category main list with drag-and-drop reorder
-- Client-side search on decrypted fields (name/email/description/notes)
+- Client-side search on decrypted fields (name/email/description/notes); while search is active, reorder/drag is disabled and an empty-search message is shown when nothing matches
 - Rich contact editor with linked tasks/notes
 - Client-side decrypted export (server-side encrypted fetch)
 

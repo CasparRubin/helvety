@@ -2,10 +2,10 @@
 
 import "server-only";
 
+import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { PRF_VERSION } from "@helvety/shared/crypto";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
-import { createServerClient } from "@helvety/shared/supabase/server";
 import {
   generateRegistrationOptions as generateRegOptions,
   verifyRegistrationResponse,
@@ -20,8 +20,6 @@ import {
   generatePRFSalt,
   getRpId,
   getExpectedOrigins,
-  runRateLimitGuard,
-  runAuthActionGuards,
   storeChallenge,
   getStoredChallenge,
   clearChallenge,
@@ -58,6 +56,27 @@ type PasskeyRegistrationResponse = z.infer<
   typeof PasskeyRegistrationResponseSchema
 >;
 
+const authenticatorTransportValues = new Set<AuthenticatorTransportFuture>([
+  "ble",
+  "hybrid",
+  "internal",
+  "nfc",
+  "smart-card",
+  "usb",
+]);
+
+/** Narrows stored transport strings to valid WebAuthn transport values. */
+function toAuthenticatorTransports(
+  transports: string[] | null | undefined
+): AuthenticatorTransportFuture[] {
+  return (transports ?? []).filter(
+    (transport): transport is AuthenticatorTransportFuture =>
+      authenticatorTransportValues.has(
+        transport as AuthenticatorTransportFuture
+      )
+  );
+}
+
 // =============================================================================
 // PASSKEY REGISTRATION (for authenticated users)
 // =============================================================================
@@ -68,7 +87,8 @@ type PasskeyRegistrationResponse = z.infer<
  *
  * This includes PRF extension for E2EE encryption key derivation.
  * When isMobile is true, uses platform authenticator (this device); otherwise
- * uses cross-platform/hybrid (phone via QR) for desktop.
+ * uses cross-platform registration for desktop (for example, hybrid/roaming
+ * authenticators such as phone or security key).
  *
  * Security:
  * - CSRF token validation
@@ -91,35 +111,17 @@ export async function generatePasskeyRegistrationOptions(
     return { success: false, error: "Failed to generate registration options" };
   }
   const safeOrigin = originParse.data;
-  const guard = await runAuthActionGuards({
-    csrfToken,
-    requireClientIP: false,
-  });
-  if (!guard.ok) return guard.response;
 
   const isMobile = options?.isMobile === true;
 
   try {
-    const supabase = await createServerClient();
-
-    // Get current user - must be authenticated to register a passkey
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return {
-        success: false,
-        error: "Must be authenticated to register a passkey",
-      };
-    }
-
-    const rl = await runRateLimitGuard({
-      key: `passkey_reg:user:${user.id}`,
-      maxRequests: RATE_LIMITS.PASSKEY_REG.maxRequests,
-      windowMs: RATE_LIMITS.PASSKEY_REG.windowMs,
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "passkey_reg",
+      rateLimitConfig: RATE_LIMITS.PASSKEY_REG,
     });
-    if (!rl.ok) return rl.response;
+    if (!auth.ok) return auth.response;
+    const { user } = auth.ctx;
 
     const scopedAdmin = createScopedAdminQuery(user.id);
     const rpId = getRpId(safeOrigin);
@@ -135,7 +137,7 @@ export async function generatePasskeyRegistrationOptions(
       existingCredentials?.map(
         (cred: { credential_id: string; transports: string[] | null }) => ({
           id: cred.credential_id,
-          transports: (cred.transports ?? []) as AuthenticatorTransportFuture[],
+          transports: toAuthenticatorTransports(cred.transports),
         })
       ) ?? [];
 
@@ -168,7 +170,8 @@ export async function generatePasskeyRegistrationOptions(
     // Generate PRF salt for encryption key derivation
     const prfSalt = generatePRFSalt();
 
-    // Hints: mobile = this device; desktop = phone via QR (hybrid)
+    // Hints: mobile = this device; desktop = cross-platform
+    // (hybrid/roaming authenticators).
     // Note: PRF extension is added client-side in encryption-setup.tsx since
     // Uint8Array cannot be serialized from server to client components
     const optionsWithHints = {
@@ -225,11 +228,6 @@ export async function verifyPasskeyRegistration(
     return { success: false, error: "Failed to verify registration" };
   }
   const safeOrigin = originParse.data;
-  const guard = await runAuthActionGuards({
-    csrfToken,
-    requireClientIP: false,
-  });
-  if (!guard.ok) return guard.response;
 
   try {
     const parsedResponse =
@@ -238,29 +236,26 @@ export async function verifyPasskeyRegistration(
       return { success: false, error: "Invalid passkey registration payload" };
     }
 
-    const verifiedResponse =
-      parsedResponse.data as unknown as RegistrationResponseJSON;
+    const verifiedResponse: RegistrationResponseJSON = {
+      id: parsedResponse.data.id,
+      rawId: parsedResponse.data.rawId,
+      type: parsedResponse.data.type,
+      response: {
+        ...parsedResponse.data.response,
+        transports: toAuthenticatorTransports(
+          parsedResponse.data.response.transports
+        ),
+      },
+      clientExtensionResults: parsedResponse.data.clientExtensionResults ?? {},
+    };
 
-    const supabase = await createServerClient();
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return {
-        success: false,
-        error: "Must be authenticated to verify registration",
-      };
-    }
-
-    const rl = await runRateLimitGuard({
-      key: `passkey_reg:user:${user.id}`,
-      maxRequests: RATE_LIMITS.PASSKEY_REG.maxRequests,
-      windowMs: RATE_LIMITS.PASSKEY_REG.windowMs,
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "passkey_reg",
+      rateLimitConfig: RATE_LIMITS.PASSKEY_REG,
     });
-    if (!rl.ok) return rl.response;
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth.ctx;
 
     const scopedAdmin = createScopedAdminQuery(user.id);
     // Retrieve stored challenge

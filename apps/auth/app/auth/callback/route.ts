@@ -1,25 +1,19 @@
-import { getTrustedClientIp } from "@helvety/shared/client-ip";
+import { createAuthCallbackHandler } from "@helvety/shared/auth-callback";
 import { urls } from "@helvety/shared/config";
-import { generateCSRFToken } from "@helvety/shared/csrf";
-import { logger } from "@helvety/shared/logger";
-import { checkRateLimit, RATE_LIMITS } from "@helvety/shared/rate-limit";
-import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
-import { createServerClient } from "@helvety/shared/supabase/server";
-import { NextResponse } from "next/server";
 
 import { checkUserPasskeyStatus } from "@/app/actions/auth-action-helpers";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 import { resolveAuthStep } from "@/lib/auth-step";
 
-import type { EmailOtpType } from "@supabase/supabase-js";
+import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
 
-const ALLOWED_OTP_TYPES = new Set<string>([
+const ALLOWED_OTP_TYPES: EmailOtpType[] = [
   "magiclink",
   "signup",
   "recovery",
   "invite",
   "email_change",
-]);
+];
 
 /** Builds a login redirect URL with optional error and original redirect target. */
 function buildErrorRedirect(
@@ -37,16 +31,11 @@ function buildErrorRedirect(
   return loginUrl.toString();
 }
 
-/** Returns true when OTP type is accepted by this callback route. */
-function isAllowedOtpType(type: string | null): type is EmailOtpType {
-  return typeof type === "string" && ALLOWED_OTP_TYPES.has(type);
-}
-
 /** Resolves the post-session redirect URL after callback auth succeeds. */
 async function buildPostAuthRedirect(
   authBase: string,
   safeRedirectUri: string | null,
-  supabase: Awaited<ReturnType<typeof createServerClient>>
+  supabase: SupabaseClient
 ): Promise<string> {
   const {
     data: { user },
@@ -75,35 +64,6 @@ async function buildPostAuthRedirect(
   return loginUrl.toString();
 }
 
-/** Enforces callback IP rate-limit and returns early redirect when blocked. */
-async function enforceCallbackRateLimit(
-  request: Request,
-  authBase: string,
-  safeRedirectUri: string | null
-): Promise<NextResponse | null> {
-  const clientIP = getTrustedClientIp(request.headers, {
-    requireTrustedProxyInProduction: true,
-  });
-  if (!clientIP) {
-    return NextResponse.redirect(
-      buildErrorRedirect(authBase, "missing_client_ip", safeRedirectUri)
-    );
-  }
-
-  const rateLimit = await checkRateLimit(
-    `auth_callback:ip:${clientIP}`,
-    RATE_LIMITS.AUTH_CALLBACK.maxRequests,
-    RATE_LIMITS.AUTH_CALLBACK.windowMs
-  );
-  if (!rateLimit.allowed) {
-    return NextResponse.redirect(
-      buildErrorRedirect(authBase, "rate_limited", safeRedirectUri)
-    );
-  }
-
-  return null;
-}
-
 /**
  * Auth callback route for handling Supabase email verification and OAuth
  *
@@ -126,87 +86,10 @@ async function enforceCallbackRateLimit(
  * Redirect URIs are validated against an allowlist to prevent open redirects.
  * Rate limited by IP to prevent auth callback abuse.
  */
-export async function GET(request: Request) {
-  const authBase = urls.auth;
-
-  try {
-    const { searchParams } = new URL(request.url);
-    const code = searchParams.get("code");
-    const token_hash = searchParams.get("token_hash");
-    const type = searchParams.get("type");
-    const rawRedirectUri = searchParams.get("redirect_uri");
-
-    // Validate redirect URI against allowlist (prevents open redirect attacks)
-    const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
-
-    // Validate OTP type early to avoid consuming callback rate-limit budget
-    // with malformed requests.
-    if (token_hash && type && !isAllowedOtpType(type)) {
-      return NextResponse.redirect(
-        buildErrorRedirect(authBase, "invalid_otp_type", safeRedirectUri)
-      );
-    }
-
-    const rateLimitRedirect = await enforceCallbackRateLimit(
-      request,
-      authBase,
-      safeRedirectUri
-    );
-    if (rateLimitRedirect) {
-      return rateLimitRedirect;
-    }
-
-    // Handle PKCE flow (code exchange)
-    if (code) {
-      const supabase = await createServerClient();
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-      if (!error) {
-        await generateCSRFToken();
-        const redirectUrl = await buildPostAuthRedirect(
-          authBase,
-          safeRedirectUri,
-          supabase
-        );
-        return NextResponse.redirect(redirectUrl);
-      }
-
-      logger.logUnexpectedError("Auth callback error (code exchange)", error);
-      return NextResponse.redirect(
-        buildErrorRedirect(authBase, "auth_failed", safeRedirectUri)
-      );
-    }
-
-    // Handle token hash (email OTP verification link)
-    if (token_hash && type) {
-      const supabase = await createServerClient();
-      const { error } = await supabase.auth.verifyOtp({
-        token_hash,
-        type: type as EmailOtpType,
-      });
-
-      if (!error) {
-        await generateCSRFToken();
-        const redirectUrl = await buildPostAuthRedirect(
-          authBase,
-          safeRedirectUri,
-          supabase
-        );
-        return NextResponse.redirect(redirectUrl);
-      }
-
-      logger.logUnexpectedError("Auth callback error (token hash)", error);
-      return NextResponse.redirect(
-        buildErrorRedirect(authBase, "auth_failed", safeRedirectUri)
-      );
-    }
-
-    // No valid auth params (code or token_hash) for callback-based auth flow.
-    return NextResponse.redirect(
-      buildErrorRedirect(authBase, undefined, safeRedirectUri)
-    );
-  } catch (error) {
-    logger.logUnexpectedError("Auth callback unexpected error", error);
-    return NextResponse.redirect(buildErrorRedirect(authBase, "server_error"));
-  }
-}
+export const GET = createAuthCallbackHandler({
+  allowedOtpTypes: ALLOWED_OTP_TYPES,
+  buildLoginUrl: (redirectUri) =>
+    buildErrorRedirect(urls.auth, undefined, redirectUri),
+  onAuthSuccessRedirect: async ({ safeRedirectUri, supabase }) =>
+    buildPostAuthRedirect(urls.auth, safeRedirectUri, supabase),
+});

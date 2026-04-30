@@ -31,6 +31,7 @@ import {
 import { hasEncryptionSetup } from "./encryption-actions";
 import { findUserByEmail } from "./user-lookup";
 
+import type { RequiredAuthStep } from "@/lib/auth-step";
 import type { ActionResponse } from "@helvety/shared/types/entities";
 
 // =============================================================================
@@ -227,7 +228,7 @@ export async function verifyEmailCode(
   code: string
 ): Promise<
   ActionResponse<{
-    nextStep: "encryption-setup" | "passkey-signin";
+    nextStep: RequiredAuthStep;
     userId: string;
     isNewUser: boolean;
   }>

@@ -1,9 +1,6 @@
-import { createSecurityProxy } from "@helvety/shared/proxy";
+import { createProfiledSecurityProxy } from "@helvety/shared/proxy";
 
-const proxy = createSecurityProxy({
-  includeHelvetyUrl: false,
-  includeCsrf: false,
-});
+const proxy = createProfiledSecurityProxy("public-marketing");
 export { proxy };
 export const config = {
   matcher: [

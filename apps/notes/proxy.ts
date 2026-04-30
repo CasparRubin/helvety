@@ -1,29 +1,17 @@
-import { createSecurityProxy } from "@helvety/shared/proxy";
-import { NextResponse, type NextRequest } from "next/server";
-
-const securityProxy = createSecurityProxy({
-  buildCspOptions: { imgBlob: true },
-});
-
-/** Resolve the canonical notes root URL for redirects. */
-function getNotesRoot(request: NextRequest): URL {
-  const basePath = request.nextUrl.basePath || "/notes";
-  return new URL(basePath, request.url);
-}
+import {
+  createAppProxy,
+  createProfiledSecurityProxy,
+} from "@helvety/shared/proxy";
 
 const LEGACY_NOTES_PATH_REGEX =
   /^\/(?:notes\/)?(?:units|spaces|items)(?:\/.*)?$/;
 
 /** Redirect deprecated legacy note paths, then apply shared security proxy. */
-export async function proxy(request: NextRequest) {
-  if (new URL(request.url).pathname === "/") {
-    return NextResponse.redirect(getNotesRoot(request));
-  }
-  if (LEGACY_NOTES_PATH_REGEX.test(request.nextUrl.pathname)) {
-    return NextResponse.redirect(getNotesRoot(request));
-  }
-  return securityProxy(request);
-}
+export const proxy = createAppProxy({
+  securityProxy: createProfiledSecurityProxy("e2ee-app"),
+  defaultBasePath: "/notes",
+  legacyPathRegexes: [LEGACY_NOTES_PATH_REGEX],
+});
 
 export const config = {
   matcher: [

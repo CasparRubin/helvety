@@ -17,23 +17,35 @@ import {
   validateOwnedReorderScope,
 } from "./entity-action-primitives";
 
+/** Parameter shape for validateOwnedReorderScope. */
+type ValidateOwnedReorderScopeParams = Parameters<
+  typeof validateOwnedReorderScope
+>[0];
+
+/** Supabase shape expected by validateOwnedReorderScope. */
+type ReorderSupabase = ValidateOwnedReorderScopeParams["supabase"];
+
+/** Builds the minimal Supabase shape required by reorder scope tests. */
+const buildReorderSupabase = (
+  from: ReturnType<typeof vi.fn>
+): ReorderSupabase => ({ from }) as unknown as ReorderSupabase;
+
 describe("entity-action-primitives", () => {
   it("validates reorder scope when all IDs are owned", async () => {
-    const supabase = {
-      from: vi.fn(() => ({
-        select: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            in: vi.fn().mockResolvedValue({
-              data: [{ id: "a" }, { id: "b" }],
-              error: null,
-            }),
-          })),
+    const from = vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          in: vi.fn().mockResolvedValue({
+            data: [{ id: "a" }, { id: "b" }],
+            error: null,
+          }),
         })),
       })),
-    };
+    }));
+    const supabase = buildReorderSupabase(from);
 
     const result = await validateOwnedReorderScope({
-      supabase: supabase as never,
+      supabase,
       userId: "user-1",
       tableName: "items",
       ids: ["a", "b"],
@@ -46,21 +58,20 @@ describe("entity-action-primitives", () => {
   });
 
   it("returns invalid scope when owned row count mismatches", async () => {
-    const supabase = {
-      from: vi.fn(() => ({
-        select: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            in: vi.fn().mockResolvedValue({
-              data: [{ id: "a" }],
-              error: null,
-            }),
-          })),
+    const from = vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          in: vi.fn().mockResolvedValue({
+            data: [{ id: "a" }],
+            error: null,
+          }),
         })),
       })),
-    };
+    }));
+    const supabase = buildReorderSupabase(from);
 
     const result = await validateOwnedReorderScope({
-      supabase: supabase as never,
+      supabase,
       userId: "user-1",
       tableName: "items",
       ids: ["a", "b"],
@@ -74,21 +85,20 @@ describe("entity-action-primitives", () => {
 
   it("returns failure message and logs when ownership query fails", async () => {
     const dbError = new Error("db down");
-    const supabase = {
-      from: vi.fn(() => ({
-        select: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            in: vi.fn().mockResolvedValue({
-              data: null,
-              error: dbError,
-            }),
-          })),
+    const from = vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          in: vi.fn().mockResolvedValue({
+            data: null,
+            error: dbError,
+          }),
         })),
       })),
-    };
+    }));
+    const supabase = buildReorderSupabase(from);
 
     const result = await validateOwnedReorderScope({
-      supabase: supabase as never,
+      supabase,
       userId: "user-1",
       tableName: "items",
       ids: ["a"],
@@ -133,6 +143,11 @@ describe("entity-action-primitives", () => {
 
   it("enforces export cap checks", () => {
     expect(isExportWithinCap(0)).toBe(true);
-    expect(isExportWithinCap(10_000)).toBe(false);
+    expect(isExportWithinCap(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE)).toBe(
+      true
+    );
+    expect(isExportWithinCap(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)).toBe(
+      false
+    );
   });
 });

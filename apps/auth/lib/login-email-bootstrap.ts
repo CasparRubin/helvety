@@ -3,7 +3,7 @@ import type { RequiredAuthStep } from "@/lib/auth-step";
 /** Result of deciding how to land an authenticated user on the default email step. */
 type AuthenticatedEmailBootstrapAction = {
   kind: "set_step";
-  step: "encryption-setup" | "passkey-signin";
+  step: RequiredAuthStep;
 };
 
 /**

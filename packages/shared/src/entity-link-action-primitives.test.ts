@@ -18,24 +18,48 @@ import {
   validateOwnedLinkEntities,
 } from "./entity-link-action-primitives";
 
+/** Supabase shape expected by validateOwnedLinkEntities. */
+type ValidateSupabase = Parameters<typeof validateOwnedLinkEntities>[0];
+
+/** Parameter shape for createCanonicalLink. */
+type CreateCanonicalLinkParams = Parameters<typeof createCanonicalLink>[0];
+
+/** Supabase shape expected by deleteCanonicalLink. */
+type DeleteCanonicalLinkSupabase = Parameters<typeof deleteCanonicalLink>[0];
+
+/** Builds the minimal Supabase shape for validateOwnedLinkEntities tests. */
+const buildValidateSupabase = (): ValidateSupabase => ({}) as ValidateSupabase;
+
+/** Builds the minimal Supabase shape for createCanonicalLink tests. */
+const buildCreateSupabase = (): CreateCanonicalLinkParams["supabase"] =>
+  ({}) as CreateCanonicalLinkParams["supabase"];
+
+/** Builds the minimal Supabase shape for deleteCanonicalLink tests. */
+const buildDeleteSupabase = (): DeleteCanonicalLinkSupabase =>
+  ({}) as DeleteCanonicalLinkSupabase;
+
 describe("entity-link-action-primitives", () => {
   it("returns first matching not-found message for missing linked entity", async () => {
     entityLinkMocks.ensureOwnedEntityExists
       .mockResolvedValueOnce(true)
       .mockResolvedValueOnce(false);
 
-    const result = await validateOwnedLinkEntities({} as never, "user-1", [
-      {
-        entityType: "items",
-        entityId: "550e8400-e29b-41d4-a716-446655440000",
-        notFoundMessage: "Task not found",
-      },
-      {
-        entityType: "notes",
-        entityId: "550e8400-e29b-41d4-a716-446655440001",
-        notFoundMessage: "Note not found",
-      },
-    ]);
+    const result = await validateOwnedLinkEntities(
+      buildValidateSupabase(),
+      "user-1",
+      [
+        {
+          entityType: "items",
+          entityId: "550e8400-e29b-41d4-a716-446655440000",
+          notFoundMessage: "Task not found",
+        },
+        {
+          entityType: "notes",
+          entityId: "550e8400-e29b-41d4-a716-446655440001",
+          notFoundMessage: "Note not found",
+        },
+      ]
+    );
 
     expect(result).toEqual({ success: false, error: "Note not found" });
   });
@@ -47,7 +71,7 @@ describe("entity-link-action-primitives", () => {
     });
 
     const result = await createCanonicalLink({
-      supabase: {} as never,
+      supabase: buildCreateSupabase(),
       userId: "user-1",
       sourceEntityType: "items",
       sourceEntityId: "550e8400-e29b-41d4-a716-446655440000",
@@ -67,7 +91,7 @@ describe("entity-link-action-primitives", () => {
     });
 
     const result = await createCanonicalLink({
-      supabase: {} as never,
+      supabase: buildCreateSupabase(),
       userId: "user-1",
       sourceEntityType: "items",
       sourceEntityId: "550e8400-e29b-41d4-a716-446655440000",
@@ -86,13 +110,13 @@ describe("entity-link-action-primitives", () => {
       .mockResolvedValueOnce({ error: null });
 
     const failed = await deleteCanonicalLink(
-      {} as never,
+      buildDeleteSupabase(),
       "user-1",
       "550e8400-e29b-41d4-a716-446655440000",
       "Failed unlink"
     );
     const ok = await deleteCanonicalLink(
-      {} as never,
+      buildDeleteSupabase(),
       "user-1",
       "550e8400-e29b-41d4-a716-446655440001",
       "Failed unlink"

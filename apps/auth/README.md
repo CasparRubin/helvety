@@ -20,11 +20,11 @@ Primary login flow:
 1. Email entry + non-EU/EEA attestation
 2. OTP verification (6-8 digits)
 3. Passkey step:
-   - New/incomplete setup users: passkey registration then passkey sign-in
+   - New/incomplete setup users: `encryption-setup` (includes passkey registration when missing), then passkey sign-in
    - Returning users: passkey sign-in directly
 4. Redirect to requested destination
 
-`/auth/callback` remains for compatibility callback paths (OTP/account recovery/invite/email change) and also handles PKCE/OAuth-style code exchange via the shared callback handler; passkey sign-in establishes session server-side.
+`/auth/callback` remains for compatibility callback paths (`magiclink`, `signup`, `recovery`, `invite`, `email_change`) and PKCE/OAuth-style code exchange via the shared callback handler. Primary typed email OTP code verification happens in auth actions; passkey sign-in establishes session server-side.
 
 ## Security Model
 
@@ -33,6 +33,7 @@ Primary login flow:
 - CSRF is required for state-changing actions; read-only actions use authenticated read model.
 - Redirect URIs are allowlist-validated via shared redirect-validation logic.
 - Passkey presence checks for `user_auth_credentials` use trusted server-side reads, not public client reads.
+- Passkey transport values from stored credentials and client payloads are sanitized to supported WebAuthn transport enums before verification/option generation.
 
 ## Crawl and Indexing
 
@@ -66,6 +67,7 @@ bun run test:coverage
 ```
 
 Notable tests include login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`).
+Passkey action tests also cover malformed payload handling, account mismatch protection, and transport sanitization behavior.
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

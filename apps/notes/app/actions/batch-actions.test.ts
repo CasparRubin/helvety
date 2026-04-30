@@ -1,3 +1,4 @@
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import {
   createDashboardListSupabaseMock,
   createRejectingDashboardListSupabaseMock,
@@ -22,6 +23,14 @@ vi.mock("@helvety/shared/logger", () => ({
 import { getFlatItemsDashboardData } from "./batch-actions";
 
 import type { ItemRow } from "@/lib/types";
+
+/** Fluent query mock shape used by dashboard data tests. */
+type DashboardQueryMock = {
+  eq: ReturnType<typeof vi.fn>;
+  order: ReturnType<typeof vi.fn>;
+  limit: ReturnType<typeof vi.fn>;
+  overrideTypes: ReturnType<typeof vi.fn>;
+};
 
 /** Minimal `notes` row matching current DB shape (including `category_id`). */
 function makeNoteRow(
@@ -99,12 +108,53 @@ describe("notes batch-actions", () => {
     expect(mocks.logUnexpectedError).not.toHaveBeenCalled();
   });
 
+  it("queries only owned notes with stable ordering and dashboard limit", async () => {
+    const overrideTypes = vi.fn().mockResolvedValue({
+      data: [makeNoteRow({ id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890" })],
+      error: null,
+    });
+    const query = {} as DashboardQueryMock;
+    query.eq = vi.fn(() => query);
+    query.order = vi
+      .fn()
+      .mockImplementationOnce(() => query)
+      .mockImplementationOnce(() => query);
+    query.limit = vi.fn(() => query);
+    query.overrideTypes = overrideTypes;
+    const supabase = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => query),
+      })),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase },
+    });
+
+    await getFlatItemsDashboardData();
+
+    expect(supabase.from).toHaveBeenCalledWith("notes");
+    expect(query.eq).toHaveBeenCalledWith("user_id", "user-1");
+    expect(query.order).toHaveBeenNthCalledWith(1, "sort_order", {
+      ascending: true,
+    });
+    expect(query.order).toHaveBeenNthCalledWith(2, "created_at", {
+      ascending: false,
+    });
+    expect(query.limit).toHaveBeenCalledWith(
+      ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1
+    );
+    expect(overrideTypes).toHaveBeenCalled();
+  });
+
   it("rejects when row count exceeds dashboard cap", async () => {
-    const rows = Array.from({ length: 2001 }, (_, i) =>
-      makeNoteRow({
-        id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`,
-        sort_order: i,
-      })
+    const rows = Array.from(
+      { length: ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1 },
+      (_, i) =>
+        makeNoteRow({
+          id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`,
+          sort_order: i,
+        })
     );
     const supabase = createDashboardListSupabaseMock("notes", {
       data: rows,

@@ -1,6 +1,6 @@
 /**
  * Shared auth callback handler factory for sub-apps
- * (store, pdf, tasks, contacts, notes).
+ * (store, pdf, image-upscaler, tasks, contacts, notes).
  *
  * Encapsulates the standard Supabase code-exchange / OTP-verification flow
  * with IP-based rate limiting, safe redirect validation, and error handling.
@@ -22,7 +22,27 @@ import {
 } from "./redirect-validation";
 import { createServerClient } from "./supabase/server";
 
-import type { EmailOtpType } from "@supabase/supabase-js";
+import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
+
+const DEFAULT_ALLOWED_OTP_TYPES: readonly EmailOtpType[] = [
+  "signup",
+  "invite",
+  "magiclink",
+  "recovery",
+  "email_change",
+  "email",
+];
+
+/** Optional overrides for callback behavior per app surface. */
+type CreateAuthCallbackHandlerOptions = {
+  allowedOtpTypes?: readonly EmailOtpType[];
+  buildLoginUrl?: (redirectUri?: string) => string;
+  onAuthSuccessRedirect?: (options: {
+    origin: string;
+    safeRedirectUri: string | null;
+    supabase: SupabaseClient;
+  }) => Promise<string>;
+};
 
 /**
  * Creates a GET route handler for the standard Supabase auth callback.
@@ -30,10 +50,19 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  * Handles PKCE code exchange and email OTP token verification, with
  * IP-based rate limiting and safe redirect validation.
  */
-export function createAuthCallbackHandler() {
+export function createAuthCallbackHandler(
+  options: CreateAuthCallbackHandlerOptions = {}
+) {
+  const {
+    allowedOtpTypes = DEFAULT_ALLOWED_OTP_TYPES,
+    buildLoginUrl = getLoginUrl,
+    onAuthSuccessRedirect,
+  } = options;
+  const allowedOtpTypeSet = new Set<EmailOtpType>(allowedOtpTypes);
+
   return async function GET(request: Request) {
     const { origin } = new URL(request.url);
-    let authErrorUrl = getLoginUrl(origin);
+    let authErrorUrl = buildLoginUrl(origin);
 
     try {
       const clientIP = getTrustedClientIp(request.headers, {
@@ -62,7 +91,7 @@ export function createAuthCallbackHandler() {
       const rawRedirectUri = searchParams.get("redirect_uri");
       const rawNext = searchParams.get("next");
       const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
-      authErrorUrl = getLoginUrl(safeRedirectUri ?? origin);
+      authErrorUrl = buildLoginUrl(safeRedirectUri ?? origin);
       if (rawNext && !isValidRelativePath(rawNext)) {
         return NextResponse.redirect(`${authErrorUrl}&error=invalid_next`);
       }
@@ -77,9 +106,14 @@ export function createAuthCallbackHandler() {
 
         if (!error) {
           await generateCSRFToken();
-          return NextResponse.redirect(
-            getLoginUrl(successDestination.toString())
-          );
+          const successRedirect = onAuthSuccessRedirect
+            ? await onAuthSuccessRedirect({
+                origin,
+                safeRedirectUri,
+                supabase,
+              })
+            : buildLoginUrl(successDestination.toString());
+          return NextResponse.redirect(successRedirect);
         }
 
         logger.logUnexpectedError("Auth callback error (code exchange)", error);
@@ -87,15 +121,7 @@ export function createAuthCallbackHandler() {
       }
 
       if (token_hash && type) {
-        const otpType: EmailOtpType[] = [
-          "signup",
-          "invite",
-          "magiclink",
-          "recovery",
-          "email_change",
-          "email",
-        ];
-        if (!otpType.includes(type as EmailOtpType)) {
+        if (!allowedOtpTypeSet.has(type as EmailOtpType)) {
           return NextResponse.redirect(
             `${authErrorUrl}&error=invalid_otp_type`
           );
@@ -109,9 +135,14 @@ export function createAuthCallbackHandler() {
 
         if (!error) {
           await generateCSRFToken();
-          return NextResponse.redirect(
-            getLoginUrl(successDestination.toString())
-          );
+          const successRedirect = onAuthSuccessRedirect
+            ? await onAuthSuccessRedirect({
+                origin,
+                safeRedirectUri,
+                supabase,
+              })
+            : buildLoginUrl(successDestination.toString());
+          return NextResponse.redirect(successRedirect);
         }
 
         logger.logUnexpectedError("Auth callback error (token hash)", error);

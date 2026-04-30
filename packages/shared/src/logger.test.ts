@@ -1,6 +1,22 @@
 /* eslint-disable no-console -- Test file: console spying is required to verify logger output */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const getStructuredLogOutput = (spy: {
+  mock: { calls: unknown[][] };
+}): string => {
+  const firstCall = spy.mock.calls[0];
+  if (!firstCall) {
+    throw new Error("Expected logger call to exist");
+  }
+
+  const firstArg = firstCall[0];
+  if (typeof firstArg !== "string") {
+    throw new Error("Expected logger payload to be a string");
+  }
+
+  return firstArg;
+};
+
 describe("logger", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -23,8 +39,9 @@ describe("logger", () => {
     logger.error("Something failed", { userId: "abc" });
 
     expect(console.error).toHaveBeenCalledOnce();
-    const output = (console.error as ReturnType<typeof vi.fn>).mock
-      .calls[0]![0] as string;
+    const output = getStructuredLogOutput(
+      console.error as unknown as { mock: { calls: unknown[][] } }
+    );
     const parsed = JSON.parse(output);
     expect(parsed.level).toBe("error");
     expect(parsed.message).toBe("Something failed");
@@ -40,8 +57,9 @@ describe("logger", () => {
     logger.warn("Watch out");
 
     expect(console.warn).toHaveBeenCalledOnce();
-    const output = (console.warn as ReturnType<typeof vi.fn>).mock
-      .calls[0]![0] as string;
+    const output = getStructuredLogOutput(
+      console.warn as unknown as { mock: { calls: unknown[][] } }
+    );
     const parsed = JSON.parse(output);
     expect(parsed.level).toBe("warn");
     expect(parsed.message).toBe("Watch out");
@@ -54,8 +72,9 @@ describe("logger", () => {
     logger.info("Audit event", { action: "login" });
 
     expect(console.log).toHaveBeenCalledOnce();
-    const output = (console.log as ReturnType<typeof vi.fn>).mock
-      .calls[0]![0] as string;
+    const output = getStructuredLogOutput(
+      console.log as unknown as { mock: { calls: unknown[][] } }
+    );
     const parsed = JSON.parse(output);
     expect(parsed.level).toBe("info");
     expect(parsed.metadata).toEqual({ action: "login" });
@@ -79,8 +98,9 @@ describe("logger", () => {
       userId: "user-1",
     });
 
-    const output = (console.error as ReturnType<typeof vi.fn>).mock
-      .calls[0]![0] as string;
+    const output = getStructuredLogOutput(
+      console.error as unknown as { mock: { calls: unknown[][] } }
+    );
     const parsed = JSON.parse(output);
     expect(parsed.metadata).not.toHaveProperty("password");
     expect(parsed.metadata.userId).toBe("user-1");
@@ -97,8 +117,9 @@ describe("logger", () => {
       action: "export",
     });
 
-    const output = (console.error as ReturnType<typeof vi.fn>).mock
-      .calls[0]![0] as string;
+    const output = getStructuredLogOutput(
+      console.error as unknown as { mock: { calls: unknown[][] } }
+    );
     const parsed = JSON.parse(output);
     expect(parsed.metadata).not.toHaveProperty("email");
     expect(parsed.metadata).not.toHaveProperty("phone");
@@ -113,8 +134,9 @@ describe("logger", () => {
     logger.logUnexpectedError("createItem", new Error("boom"));
 
     expect(console.error).toHaveBeenCalledOnce();
-    const output = (console.error as ReturnType<typeof vi.fn>).mock
-      .calls[0]![0] as string;
+    const output = getStructuredLogOutput(
+      console.error as unknown as { mock: { calls: unknown[][] } }
+    );
     const parsed = JSON.parse(output);
     expect(parsed.level).toBe("error");
     expect(parsed.message).toBe("boom");
@@ -127,8 +149,9 @@ describe("logger", () => {
 
     logger.logUnexpectedError("rpc", "failure");
 
-    const output = (console.error as ReturnType<typeof vi.fn>).mock
-      .calls[0]![0] as string;
+    const output = getStructuredLogOutput(
+      console.error as unknown as { mock: { calls: unknown[][] } }
+    );
     const parsed = JSON.parse(output);
     expect(parsed.message).toBe("rpc");
     expect(parsed.metadata?.scope).toBe("rpc");

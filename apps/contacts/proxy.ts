@@ -1,27 +1,17 @@
-import { createSecurityProxy } from "@helvety/shared/proxy";
-import { NextResponse, type NextRequest } from "next/server";
-
-const securityProxy = createSecurityProxy();
-
-/** Resolve the canonical contacts root URL for redirects. */
-function getContactsRoot(request: NextRequest): URL {
-  const basePath = request.nextUrl.basePath || "/contacts";
-  return new URL(basePath, request.url);
-}
+import {
+  createAppProxy,
+  createProfiledSecurityProxy,
+} from "@helvety/shared/proxy";
 
 const LEGACY_CONTACT_DETAIL_REGEX =
   /^\/(?:contacts\/)?(?:contacts\/)?[0-9a-fA-F-]{8,}(?:\/.*)?$/;
 
 /** Redirect legacy detail routes, then apply shared security proxy. */
-export async function proxy(request: NextRequest) {
-  if (new URL(request.url).pathname === "/") {
-    return NextResponse.redirect(getContactsRoot(request));
-  }
-  if (LEGACY_CONTACT_DETAIL_REGEX.test(request.nextUrl.pathname)) {
-    return NextResponse.redirect(getContactsRoot(request));
-  }
-  return securityProxy(request);
-}
+export const proxy = createAppProxy({
+  securityProxy: createProfiledSecurityProxy("e2ee-app"),
+  defaultBasePath: "/contacts",
+  legacyPathRegexes: [LEGACY_CONTACT_DETAIL_REGEX],
+});
 
 export const config = {
   matcher: [

@@ -68,6 +68,27 @@ const PasskeyAuthResponseSchema = z.object({
 /** Narrow server-validated authentication payload type. */
 type PasskeyAuthResponse = z.infer<typeof PasskeyAuthResponseSchema>;
 
+const authenticatorTransportValues = new Set<AuthenticatorTransportFuture>([
+  "ble",
+  "hybrid",
+  "internal",
+  "nfc",
+  "smart-card",
+  "usb",
+]);
+
+/** Narrows stored transport strings to valid WebAuthn transport values. */
+function toAuthenticatorTransports(
+  transports: string[] | null | undefined
+): AuthenticatorTransportFuture[] {
+  return (transports ?? []).filter(
+    (transport): transport is AuthenticatorTransportFuture =>
+      authenticatorTransportValues.has(
+        transport as AuthenticatorTransportFuture
+      )
+  );
+}
+
 const PasskeyCredentialIdSchema = z.object({
   id: z.string().min(1),
 });
@@ -183,7 +204,7 @@ export async function generatePasskeyAuthOptions(
       allowCredentials = credentials.map(
         (item: { credential_id: string; transports: string[] | null }) => ({
           id: item.credential_id,
-          transports: (item.transports ?? []) as AuthenticatorTransportFuture[],
+          transports: toAuthenticatorTransports(item.transports),
         })
       );
     }
@@ -337,7 +358,11 @@ export async function verifyPasskeyAuthentication(
         return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
       }
 
-      const credential = credentialData as UserAuthCredential;
+      const credential: UserAuthCredential = {
+        ...credentialData,
+        backed_up: credentialData.backed_up ?? false,
+        transports: credentialData.transports ?? [],
+      };
 
       if (
         storedData.expectedUserId &&
@@ -365,7 +390,17 @@ export async function verifyPasskeyAuthentication(
           if (!parseResult.success) {
             throw new Error("INVALID_AUTH_PAYLOAD");
           }
-          return parseResult.data as AuthenticationResponseJSON;
+          const typedResponse: AuthenticationResponseJSON = {
+            id: parseResult.data.id,
+            rawId: parseResult.data.rawId,
+            type: parseResult.data.type,
+            response: {
+              ...parseResult.data.response,
+              userHandle: parseResult.data.response.userHandle ?? undefined,
+            },
+            clientExtensionResults: {},
+          };
+          return typedResponse;
         })(),
         expectedChallenge: storedData.challenge,
         expectedOrigin: expectedOrigins,
@@ -374,8 +409,7 @@ export async function verifyPasskeyAuthentication(
           id: credential.credential_id,
           publicKey: publicKeyUint8,
           counter: credential.counter,
-          transports: (credential.transports ||
-            []) as AuthenticatorTransportFuture[],
+          transports: toAuthenticatorTransports(credential.transports),
         },
         requireUserVerification: true,
       };

@@ -132,6 +132,24 @@ import {
   verifyPasskeyAuthentication,
 } from "./passkey-auth-actions";
 
+/** Builds a minimal valid passkey verification payload for tests. */
+function buildVerifyResponse(
+  overrides?: Partial<Parameters<typeof verifyPasskeyAuthentication>[1]>
+): Parameters<typeof verifyPasskeyAuthentication>[1] {
+  return {
+    id: "cred-a",
+    rawId: "raw-a",
+    type: "public-key",
+    response: {
+      clientDataJSON: "client-data",
+      authenticatorData: "auth-data",
+      signature: "signature",
+      userHandle: null,
+    },
+    ...overrides,
+  };
+}
+
 describe("passkey-auth-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -197,13 +215,9 @@ describe("passkey-auth-actions", () => {
       },
     });
 
-    const response = {
-      id: "cred-a",
-    } as unknown as Parameters<typeof verifyPasskeyAuthentication>[1];
-
     const result = await verifyPasskeyAuthentication(
       "csrf-token",
-      response,
+      buildVerifyResponse(),
       "https://helvety.com"
     );
 
@@ -249,13 +263,9 @@ describe("passkey-auth-actions", () => {
       error: { code: "PGRST116", message: "not found" },
     });
 
-    const response = {
-      id: "cred-nonexistent",
-    } as unknown as Parameters<typeof verifyPasskeyAuthentication>[1];
-
     const result = await verifyPasskeyAuthentication(
       "csrf-token",
-      response,
+      buildVerifyResponse({ id: "cred-nonexistent" }),
       "https://helvety.com"
     );
 
@@ -310,6 +320,38 @@ describe("passkey-auth-actions", () => {
     }
   });
 
+  it("filters unsupported transports before generating auth options", async () => {
+    mocks.adminRpc.mockResolvedValue({
+      data: [{ id: "user-1", email: "user@example.com" }],
+      error: null,
+    });
+    mocks.credentialEq.mockResolvedValue({
+      data: [
+        {
+          credential_id: "cred-a",
+          transports: ["internal", "invalid-transport", "hybrid"],
+        },
+      ],
+      error: null,
+    });
+
+    const result = await generatePasskeyAuthOptions(
+      "csrf-token",
+      "https://helvety.com",
+      undefined,
+      { expectedEmail: "user@example.com" }
+    );
+
+    expect(result.success).toBe(true);
+    expect(mocks.generateAuthenticationOptions).toHaveBeenCalledWith(
+      expect.objectContaining({
+        allowCredentials: [
+          { id: "cred-a", transports: ["internal", "hybrid"] },
+        ],
+      })
+    );
+  });
+
   it("returns mismatch when credential owner differs from expected user", async () => {
     mocks.getStoredChallenge.mockResolvedValue({
       challenge: "challenge-123",
@@ -330,13 +372,9 @@ describe("passkey-auth-actions", () => {
       error: null,
     });
 
-    const response = {
-      id: "cred-b",
-    } as unknown as Parameters<typeof verifyPasskeyAuthentication>[1];
-
     const result = await verifyPasskeyAuthentication(
       "csrf-token",
-      response,
+      buildVerifyResponse({ id: "cred-b" }),
       "https://helvety.com"
     );
 

@@ -1,6 +1,9 @@
 "use client";
 
-import { matchesClientSearch } from "@helvety/shared/client-search";
+import {
+  filterE2eeDashboardItems,
+  resolveE2eeEmptySearchMessage,
+} from "@helvety/shared/e2ee-dashboard-search";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -44,6 +47,7 @@ interface FlatNotesDashboardProps {
 export function FlatNotesDashboard({
   initialEncryptedItems,
 }: FlatNotesDashboardProps): React.JSX.Element {
+  const defaultCategoryId = DEFAULT_NOTE_CATEGORIES[0]?.id ?? "";
   const searchParams = useSearchParams();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const {
@@ -62,9 +66,7 @@ export function FlatNotesDashboard({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [newCategoryId, setNewCategoryId] = useState(
-    DEFAULT_NOTE_CATEGORIES[0]!.id
-  );
+  const [newCategoryId, setNewCategoryId] = useState(defaultCategoryId);
   const [isRefreshPending, startRefreshTransition] = useTransition();
   const [isCreating, startCreateTransition] = useTransition();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(() => {
@@ -93,20 +95,19 @@ export function FlatNotesDashboard({
   }, [items]);
 
   const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return items;
-    return items.filter((item) =>
-      matchesClientSearch(
-        [item.title, searchableContentById.get(item.id) ?? ""],
-        searchQuery
-      )
-    );
+    return filterE2eeDashboardItems(items, searchQuery, (item) => [
+      item.title,
+      searchableContentById.get(item.id) ?? "",
+    ]);
   }, [items, searchableContentById, searchQuery]);
 
   const isSearchActive = searchQuery.trim() !== "";
-  const emptySearchMessage =
-    isSearchActive && items.length > 0 && filteredItems.length === 0
-      ? "No notes match your search."
-      : undefined;
+  const emptySearchMessage = resolveE2eeEmptySearchMessage({
+    searchQuery,
+    totalCount: items.length,
+    filteredCount: filteredItems.length,
+    emptyMessage: "No notes match your search.",
+  });
 
   const handleCreate = useCallback(
     (e: React.FormEvent) => {
@@ -123,12 +124,12 @@ export function FlatNotesDashboard({
         if (result) {
           setNewTitle("");
           setNewDescription("");
-          setNewCategoryId(DEFAULT_NOTE_CATEGORIES[0]!.id);
+          setNewCategoryId(defaultCategoryId);
           setIsCreateOpen(false);
         }
       });
     },
-    [newTitle, newDescription, newCategoryId, create]
+    [newTitle, newDescription, newCategoryId, create, defaultCategoryId]
   );
 
   const handleRefresh = useCallback(() => {
@@ -281,9 +282,10 @@ export function FlatNotesDashboard({
         entityType="item"
         entityName={deleteState.name ?? undefined}
         onConfirm={() => {
-          if (!deleteState.id) return;
+          const deleteId = deleteState.id;
+          if (!deleteId) return;
           startDeleteTransition(async () => {
-            await remove(deleteState.id!);
+            await remove(deleteId);
             setDeleteState({ open: false, id: null, name: null });
           });
         }}

@@ -5,6 +5,13 @@ import {
   verifyDeletionResidualCounts,
 } from "./account-deletion-verification";
 
+/** Scoped admin shape expected by verifyDeletionResidualCounts. */
+type ScopedAdmin = Parameters<typeof verifyDeletionResidualCounts>[0];
+
+/** Builds the minimal scoped admin client for residual-count tests. */
+const buildScopedAdmin = (from: ReturnType<typeof vi.fn>): ScopedAdmin =>
+  ({ client: { from } }) as unknown as ScopedAdmin;
+
 describe("ACCOUNT_DELETION_VERIFICATION_CHECKS", () => {
   it("matches the post-delete verification surface (update count if tables change)", () => {
     expect(ACCOUNT_DELETION_VERIFICATION_CHECKS).toHaveLength(7);
@@ -30,12 +37,9 @@ describe("verifyDeletionResidualCounts", () => {
     const eq = vi.fn().mockResolvedValue({ count: 0, error: null });
     const select = vi.fn().mockReturnValue({ eq });
     const from = vi.fn().mockReturnValue({ select });
-    const scopedAdmin = { client: { from } };
+    const scopedAdmin = buildScopedAdmin(from);
 
-    const rows = await verifyDeletionResidualCounts(
-      scopedAdmin as never,
-      "user-uuid"
-    );
+    const rows = await verifyDeletionResidualCounts(scopedAdmin, "user-uuid");
 
     expect(rows).toHaveLength(ACCOUNT_DELETION_VERIFICATION_CHECKS.length);
     expect(rows.every((r) => r.count === 0 && r.error === null)).toBe(true);
@@ -50,12 +54,9 @@ describe("verifyDeletionResidualCounts", () => {
     const from = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({ eq }),
     });
-    const scopedAdmin = { client: { from } };
+    const scopedAdmin = buildScopedAdmin(from);
 
-    const rows = await verifyDeletionResidualCounts(
-      scopedAdmin as never,
-      "user-uuid"
-    );
+    const rows = await verifyDeletionResidualCounts(scopedAdmin, "user-uuid");
 
     expect(rows.every((r) => r.error === "boom")).toBe(true);
   });
@@ -65,12 +66,9 @@ describe("verifyDeletionResidualCounts", () => {
     const from = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({ eq }),
     });
-    const scopedAdmin = { client: { from } };
+    const scopedAdmin = buildScopedAdmin(from);
 
-    const rows = await verifyDeletionResidualCounts(
-      scopedAdmin as never,
-      "user-uuid"
-    );
+    const rows = await verifyDeletionResidualCounts(scopedAdmin, "user-uuid");
 
     expect(rows.every((r) => r.count === -1 && r.error === "network")).toBe(
       true

@@ -1,6 +1,6 @@
 # @helvety/shared
 
-Shared backend/security primitives used across Helvety apps.
+Shared security, auth, runtime, and cross-app utilities used across Helvety apps.
 
 ## Scope
 
@@ -13,6 +13,14 @@ This package centralizes:
 - Shared constants, schemas, and utility functions
 
 ## Core Contracts
+
+### Canonical Ownership Map
+
+- Proxy profiles and request bootstrap defaults: `packages/shared/src/proxy.ts`
+- Shared action and export limits: `packages/shared/src/constants.ts`
+- Auth next-step resolver (app-owned): `apps/auth/lib/auth-step.ts`
+- Shared auth callback flow factory: `packages/shared/src/auth-callback.ts`
+- Lint/TypeScript workspace baseline: `packages/config/eslint.mjs` and `packages/config/tsconfig.base.json`
 
 ### Auth and Server Actions
 

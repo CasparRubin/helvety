@@ -29,6 +29,7 @@
     "./utils": "./src/utils.ts",
     "./logger": "./src/logger.ts",
     "./client-search": "./src/client-search.ts",
+    "./e2ee-dashboard-search": "./src/e2ee-dashboard-search.ts",
     "./constants": "./src/constants.ts",
     "./dates": "./src/dates.ts",
     "./csrf": "./src/csrf.ts",

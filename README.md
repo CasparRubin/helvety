@@ -80,10 +80,11 @@ bun run format
 - Keep `vi.mock(...)` at module scope and reset mocks in `beforeEach`; restore spies/globals in `afterEach` where applicable.
 - For async rejection cases, capture one promise and assert multiple expectations against that same invocation.
 - Use explicit `cleanup()` in workspace `vitest.setup.ts` files that use `@testing-library/react`.
+- Prefer typed fixture builders in tests (`buildXxx(...)`) over repeated `as unknown as` casting so test inputs evolve with production types.
 
 ## CI and Release Checks
 
-- `bun run ci:check` runs `format:check`, `lint`, `type-check`, `test`.
+- `bun run ci:check` runs `consistency:proxy-docs`, `consistency:guardrails`, `format:check`, `lint`, `type-check`, `test`.
 - `bun run ci:release` runs `ci:check` plus `build`.
 - GitHub CI (`.github/workflows/ci.yml`) currently runs `bun run ci:check`.
 - `ci:release` sets `SKIP_ENV_VALIDATION=1` during `build` only; missing env values use schema-valid placeholders in local builds.
@@ -113,7 +114,7 @@ SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
 
 ## Security Posture (High Level)
 
-- `proxy.ts` is lightweight request setup (CSP/CSRF bootstrap and Supabase cookie refresh), not the primary auth boundary.
+- `proxy.ts` is lightweight request setup (CSP headers, optional CSRF bootstrap, and Supabase cookie refresh), not the primary auth boundary.
 - Primary auth/authz enforcement lives in Server Components, Server Actions, and route handlers.
 - E2EE apps (`tasks`, `contacts`, `notes`) enforce server-side page guards and passkey-based unlock flows.
 

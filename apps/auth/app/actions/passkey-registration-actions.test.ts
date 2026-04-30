@@ -2,17 +2,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 const mocks = vi.hoisted(() => ({
+  authenticateAndRateLimit: vi.fn(),
   clearChallenge: vi.fn(),
   createScopedAdminQuery: vi.fn(),
-  createServerClient: vi.fn(),
   generateRegistrationOptions: vi.fn(),
   getExpectedOrigins: vi.fn(),
   getRpId: vi.fn(),
   getStoredChallenge: vi.fn(),
   loggerError: vi.fn(),
   loggerWarn: vi.fn(),
-  runAuthActionGuards: vi.fn(),
-  runRateLimitGuard: vi.fn(),
+  storeChallenge: vi.fn(),
   verifyRegistrationResponse: vi.fn(),
 }));
 
@@ -29,8 +28,8 @@ vi.mock("@helvety/shared/supabase/admin", () => ({
   createScopedAdminQuery: mocks.createScopedAdminQuery,
 }));
 
-vi.mock("@helvety/shared/supabase/server", () => ({
-  createServerClient: mocks.createServerClient,
+vi.mock("@helvety/shared/action-helpers", () => ({
+  authenticateAndRateLimit: mocks.authenticateAndRateLimit,
 }));
 
 vi.mock("@simplewebauthn/server", () => ({
@@ -55,34 +54,50 @@ vi.mock("./auth-action-helpers", () => ({
   getRpId: mocks.getRpId,
   getStoredChallenge: mocks.getStoredChallenge,
   OriginUrlSchema: z.string().url(),
-  runAuthActionGuards: mocks.runAuthActionGuards,
-  runRateLimitGuard: mocks.runRateLimitGuard,
-  storeChallenge: vi.fn(),
+  storeChallenge: mocks.storeChallenge,
 }));
 
-import { verifyPasskeyRegistration } from "./passkey-registration-actions";
+import {
+  generatePasskeyRegistrationOptions,
+  verifyPasskeyRegistration,
+} from "./passkey-registration-actions";
+
+/** Builds a minimal valid passkey registration payload for tests. */
+function buildRegistrationResponse(
+  overrides?: Partial<Parameters<typeof verifyPasskeyRegistration>[1]>
+): Parameters<typeof verifyPasskeyRegistration>[1] {
+  return {
+    id: "cred-1",
+    rawId: "raw-1",
+    type: "public-key",
+    response: {
+      clientDataJSON: "client-data",
+      attestationObject: "attestation",
+      transports: ["internal"],
+    },
+    ...overrides,
+  };
+}
 
 describe("passkey-registration-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.runAuthActionGuards.mockResolvedValue({ ok: true, clientIP: null });
-    mocks.runRateLimitGuard.mockResolvedValue({ ok: true });
     mocks.clearChallenge.mockResolvedValue(undefined);
     mocks.createScopedAdminQuery.mockReturnValue({
       from: vi.fn(() => ({
         insert: vi.fn(),
       })),
     });
-    mocks.createServerClient.mockResolvedValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: "user-1" } },
-          error: null,
-        }),
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: {
+          from: vi.fn(() => ({
+            upsert: vi.fn().mockResolvedValue({ error: null }),
+          })),
+        },
       },
-      from: vi.fn(() => ({
-        upsert: vi.fn().mockResolvedValue({ error: null }),
-      })),
     });
     mocks.getStoredChallenge.mockResolvedValue({
       challenge: "challenge-123",
@@ -92,14 +107,57 @@ describe("passkey-registration-actions", () => {
     });
     mocks.getRpId.mockReturnValue("helvety.com");
     mocks.getExpectedOrigins.mockReturnValue(["https://helvety.com"]);
+    mocks.storeChallenge.mockResolvedValue(undefined);
+    mocks.generateRegistrationOptions.mockResolvedValue({
+      challenge: "challenge-123",
+      rp: { name: "Helvety", id: "helvety.com" },
+      user: { id: "dXNlci0x", name: "user@example.com", displayName: "User" },
+      pubKeyCredParams: [],
+      timeout: 60_000,
+      excludeCredentials: [],
+    });
+  });
+
+  it("uses authenticateAndRateLimit and stores challenge in generate flow", async () => {
+    const select = vi.fn().mockResolvedValue({
+      data: [{ credential_id: "cred-1", transports: ["internal", "unknown"] }],
+      error: null,
+    });
+    mocks.createScopedAdminQuery.mockReturnValue({
+      from: vi.fn(() => ({ select })),
+    });
+
+    const result = await generatePasskeyRegistrationOptions(
+      "csrf-token",
+      "https://helvety.com/auth",
+      { isMobile: true }
+    );
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "passkey_reg",
+      rateLimitConfig: { maxRequests: 5, windowMs: 60_000 },
+    });
+    expect(mocks.generateRegistrationOptions).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rpID: "helvety.com",
+        excludeCredentials: [{ id: "cred-1", transports: ["internal"] }],
+      })
+    );
+    expect(mocks.storeChallenge).toHaveBeenCalledWith(
+      expect.objectContaining({
+        challenge: "challenge-123",
+        userId: "user-1",
+        prfSalt: "salt",
+      })
+    );
+    expect(result.success).toBe(true);
   });
 
   it("rejects malformed registration payloads and always clears challenge", async () => {
     const result = await verifyPasskeyRegistration(
       "csrf-token",
-      { id: "cred-1" } as unknown as Parameters<
-        typeof verifyPasskeyRegistration
-      >[1],
+      { id: "cred-1" } as Parameters<typeof verifyPasskeyRegistration>[1],
       "https://helvety.com",
       true
     );
@@ -121,15 +179,7 @@ describe("passkey-registration-actions", () => {
 
     const result = await verifyPasskeyRegistration(
       "csrf-token",
-      {
-        id: "cred-1",
-        rawId: "raw-1",
-        type: "public-key",
-        response: {
-          clientDataJSON: "client-data",
-          attestationObject: "attestation",
-        },
-      },
+      buildRegistrationResponse(),
       "https://helvety.com",
       true
     );
@@ -170,31 +220,23 @@ describe("passkey-registration-actions", () => {
         credentialBackedUp: false,
       },
     });
-    mocks.createServerClient.mockResolvedValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: "user-1" } },
-          error: null,
-        }),
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: {
+          from: vi.fn(() => ({
+            upsert: vi.fn().mockResolvedValue({
+              error: { message: "write failed" },
+            }),
+          })),
+        },
       },
-      from: vi.fn(() => ({
-        upsert: vi.fn().mockResolvedValue({
-          error: { message: "write failed" },
-        }),
-      })),
     });
 
     const result = await verifyPasskeyRegistration(
       "csrf-token",
-      {
-        id: "cred-1",
-        rawId: "raw-1",
-        type: "public-key",
-        response: {
-          clientDataJSON: "client-data",
-          attestationObject: "attestation",
-        },
-      },
+      buildRegistrationResponse(),
       "https://helvety.com",
       true
     );
@@ -245,15 +287,7 @@ describe("passkey-registration-actions", () => {
 
     const result = await verifyPasskeyRegistration(
       "csrf-token",
-      {
-        id: "cred-2",
-        rawId: "raw-2",
-        type: "public-key",
-        response: {
-          clientDataJSON: "client-data",
-          attestationObject: "attestation",
-        },
-      },
+      buildRegistrationResponse({ id: "cred-2", rawId: "raw-2" }),
       "https://helvety.com",
       true
     );
@@ -265,5 +299,35 @@ describe("passkey-registration-actions", () => {
     expect(insert).toHaveBeenCalledOnce();
     expect(remove).toHaveBeenCalledWith("credential_id", "cred-2");
     expect(mocks.clearChallenge).toHaveBeenCalledOnce();
+  });
+
+  it("filters unsupported transports before verification", async () => {
+    mocks.verifyRegistrationResponse.mockResolvedValue({
+      verified: false,
+      registrationInfo: null,
+    });
+
+    await verifyPasskeyRegistration(
+      "csrf-token",
+      buildRegistrationResponse({
+        response: {
+          clientDataJSON: "client-data",
+          attestationObject: "attestation",
+          transports: ["internal", "invalid", "hybrid"],
+        },
+      }),
+      "https://helvety.com",
+      false
+    );
+
+    expect(mocks.verifyRegistrationResponse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        response: expect.objectContaining({
+          response: expect.objectContaining({
+            transports: ["internal", "hybrid"],
+          }),
+        }),
+      })
+    );
   });
 });

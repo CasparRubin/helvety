@@ -172,4 +172,32 @@ describe("createAuthCallbackHandler", () => {
       "https://helvety.com/login?redirect_uri=https%3A%2F%2Fhelvety.com%2Ftasks"
     );
   });
+
+  it("supports custom success redirect and otp type allowlist", async () => {
+    const handler = createAuthCallbackHandler({
+      allowedOtpTypes: ["signup"],
+      buildLoginUrl: (redirectUri) =>
+        `https://helvety.com/login?custom=${encodeURIComponent(redirectUri ?? "https://helvety.com")}`,
+      onAuthSuccessRedirect: async () =>
+        "https://helvety.com/login?step=passkey-signin",
+    });
+
+    const successResponse = await handler(
+      new Request(
+        "https://helvety.com/auth/callback?token_hash=abc123&type=signup&redirect_uri=https://helvety.com/tasks"
+      )
+    );
+    const rejectedTypeResponse = await handler(
+      new Request(
+        "https://helvety.com/auth/callback?token_hash=abc123&type=email_change&redirect_uri=https://helvety.com/tasks"
+      )
+    );
+
+    expect(successResponse.headers.get("location")).toBe(
+      "https://helvety.com/login?step=passkey-signin"
+    );
+    expect(rejectedTypeResponse.headers.get("location")).toContain(
+      "error=invalid_otp_type"
+    );
+  });
 });

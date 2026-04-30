@@ -1,3 +1,4 @@
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import {
   createDashboardListSupabaseMock,
   createRejectingDashboardListSupabaseMock,
@@ -20,6 +21,14 @@ vi.mock("@helvety/shared/logger", () => ({
 }));
 
 import { getContactsDashboardData } from "./batch-actions";
+
+/** Fluent query mock shape used by dashboard data tests. */
+type DashboardQueryMock = {
+  eq: ReturnType<typeof vi.fn>;
+  order: ReturnType<typeof vi.fn>;
+  limit: ReturnType<typeof vi.fn>;
+  overrideTypes: ReturnType<typeof vi.fn>;
+};
 
 describe("contacts batch-actions", () => {
   beforeEach(() => {
@@ -81,11 +90,53 @@ describe("contacts batch-actions", () => {
     expect(mocks.logUnexpectedError).not.toHaveBeenCalled();
   });
 
+  it("queries only owned contacts with stable ordering and dashboard limit", async () => {
+    const overrideTypes = vi.fn().mockResolvedValue({
+      data: [{ id: "c-1", user_id: "user-1" }],
+      error: null,
+    });
+    const query = {} as DashboardQueryMock;
+    query.eq = vi.fn(() => query);
+    query.order = vi
+      .fn()
+      .mockImplementationOnce(() => query)
+      .mockImplementationOnce(() => query);
+    query.limit = vi.fn(() => query);
+    query.overrideTypes = overrideTypes;
+    const supabase = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => query),
+      })),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase },
+    });
+
+    await getContactsDashboardData();
+
+    expect(supabase.from).toHaveBeenCalledWith("contacts");
+    expect(query.eq).toHaveBeenCalledWith("user_id", "user-1");
+    expect(query.order).toHaveBeenNthCalledWith(1, "sort_order", {
+      ascending: true,
+    });
+    expect(query.order).toHaveBeenNthCalledWith(2, "created_at", {
+      ascending: false,
+    });
+    expect(query.limit).toHaveBeenCalledWith(
+      ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1
+    );
+    expect(overrideTypes).toHaveBeenCalled();
+  });
+
   it("rejects when row count exceeds dashboard cap", async () => {
-    const rows = Array.from({ length: 2001 }, (_, i) => ({
-      id: `id-${i}`,
-      user_id: "user-1",
-    }));
+    const rows = Array.from(
+      { length: ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1 },
+      (_, i) => ({
+        id: `id-${i}`,
+        user_id: "user-1",
+      })
+    );
     const supabase = createDashboardListSupabaseMock("contacts", {
       data: rows,
       error: null,

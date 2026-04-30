@@ -1,6 +1,9 @@
 "use client";
 
-import { matchesClientSearch } from "@helvety/shared/client-search";
+import {
+  filterE2eeDashboardItems,
+  resolveE2eeEmptySearchMessage,
+} from "@helvety/shared/e2ee-dashboard-search";
 import { Button } from "@helvety/ui/button";
 import {
   Dialog,
@@ -91,20 +94,19 @@ export function FlatTasksDashboard({
   );
 
   const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return items;
-    return items.filter((item) =>
-      matchesClientSearch(
-        [item.title, getRichTextPlainText(item.description ?? "") ?? ""],
-        searchQuery
-      )
-    );
+    return filterE2eeDashboardItems(items, searchQuery, (item) => [
+      item.title,
+      getRichTextPlainText(item.description ?? "") ?? "",
+    ]);
   }, [items, searchQuery]);
 
   const isSearchActive = searchQuery.trim() !== "";
-  const emptySearchMessage =
-    isSearchActive && items.length > 0 && filteredItems.length === 0
-      ? "No tasks match your search."
-      : undefined;
+  const emptySearchMessage = resolveE2eeEmptySearchMessage({
+    searchQuery,
+    totalCount: items.length,
+    filteredCount: filteredItems.length,
+    emptyMessage: "No tasks match your search.",
+  });
 
   const handleCreate = useCallback(
     (e: React.FormEvent) => {
@@ -263,9 +265,10 @@ export function FlatTasksDashboard({
         entityType="item"
         entityName={deleteState.name ?? undefined}
         onConfirm={() => {
-          if (!deleteState.id) return;
+          const deleteId = deleteState.id;
+          if (!deleteId) return;
           startDeleteTransition(async () => {
-            await remove(deleteState.id!);
+            await remove(deleteId);
             setDeleteState({ open: false, id: null, name: null });
           });
         }}

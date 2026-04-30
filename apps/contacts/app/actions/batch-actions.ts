@@ -3,11 +3,10 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { logger } from "@helvety/shared/logger";
 
 import type { ActionResponse, ContactRow } from "@/lib/types";
-
-const MAX_DASHBOARD_ROWS = 2000;
 
 // =============================================================================
 // Batch Response Types
@@ -43,7 +42,7 @@ export async function getContactsDashboardData(): Promise<
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
-      .limit(MAX_DASHBOARD_ROWS + 1)
+      .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1)
       .overrideTypes<ContactRow[], { merge: false }>();
 
     if (contactsResult.error) {
@@ -54,7 +53,7 @@ export async function getContactsDashboardData(): Promise<
       return { success: false, error: "Failed to load dashboard data" };
     }
 
-    if ((contactsResult.data?.length ?? 0) > MAX_DASHBOARD_ROWS) {
+    if ((contactsResult.data?.length ?? 0) > ACTION_LIMITS.MAX_DASHBOARD_ROWS) {
       return {
         success: false,
         error: "Too many contacts to load in one request",

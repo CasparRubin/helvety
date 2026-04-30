@@ -1,7 +1,10 @@
 "use client";
 
-import { matchesClientSearch } from "@helvety/shared/client-search";
 import { ERROR_MESSAGES, TOAST_DURATIONS } from "@helvety/shared/constants";
+import {
+  filterE2eeDashboardItems,
+  resolveE2eeEmptySearchMessage,
+} from "@helvety/shared/e2ee-dashboard-search";
 import { logger } from "@helvety/shared/logger";
 import { Button } from "@helvety/ui/button";
 import {
@@ -88,19 +91,13 @@ export function ContactsDashboard({
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredContacts = useMemo(() => {
-    if (!searchQuery.trim()) return contacts;
-    return contacts.filter((contact) =>
-      matchesClientSearch(
-        [
-          contact.first_name,
-          contact.last_name,
-          contact.email ?? "",
-          contact.description ?? "",
-          contact.notes ?? "",
-        ],
-        searchQuery
-      )
-    );
+    return filterE2eeDashboardItems(contacts, searchQuery, (contact) => [
+      contact.first_name,
+      contact.last_name,
+      contact.email ?? "",
+      contact.description ?? "",
+      contact.notes ?? "",
+    ]);
   }, [contacts, searchQuery]);
 
   const isSearchActive = searchQuery.trim() !== "";
@@ -108,10 +105,12 @@ export function ContactsDashboard({
     () => contacts.find((contact) => contact.id === selectedContactId) ?? null,
     [contacts, selectedContactId]
   );
-  const emptySearchMessage =
-    isSearchActive && contacts.length > 0 && filteredContacts.length === 0
-      ? "No contacts match your search."
-      : undefined;
+  const emptySearchMessage = resolveE2eeEmptySearchMessage({
+    searchQuery,
+    totalCount: contacts.length,
+    filteredCount: filteredContacts.length,
+    emptyMessage: "No contacts match your search.",
+  });
 
   const handleCreate = useCallback(
     (e: React.FormEvent) => {
@@ -154,9 +153,10 @@ export function ContactsDashboard({
   }, []);
 
   const handleDeleteConfirm = useCallback(() => {
-    if (!deleteState.id) return;
+    const deleteId = deleteState.id;
+    if (!deleteId) return;
     startDeleteTransition(async () => {
-      await remove(deleteState.id!);
+      await remove(deleteId);
       setDeleteState({ open: false, id: null, name: null });
     });
   }, [deleteState.id, remove, startDeleteTransition]);

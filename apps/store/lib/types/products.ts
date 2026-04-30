@@ -114,7 +114,7 @@ export type ProductDescriptionSection =
   | { heading: string; kind: "bullets"; items: string[] };
 
 /** Structured long-form copy for the product detail About panel. */
-export interface ProductDescription {
+interface ProductDescription {
   intro: string;
   sections?: ProductDescriptionSection[];
 }

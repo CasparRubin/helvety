@@ -1,29 +1,17 @@
-import { createSecurityProxy } from "@helvety/shared/proxy";
-import { NextResponse, type NextRequest } from "next/server";
-
-const securityProxy = createSecurityProxy({
-  buildCspOptions: { imgBlob: true },
-});
-
-/** Resolve the canonical tasks root URL for redirects. */
-function getTasksRoot(request: NextRequest): URL {
-  const basePath = request.nextUrl.basePath || "/tasks";
-  return new URL(basePath, request.url);
-}
+import {
+  createAppProxy,
+  createProfiledSecurityProxy,
+} from "@helvety/shared/proxy";
 
 const LEGACY_TASKS_PATH_REGEX =
   /^\/(?:tasks\/)?(?:units|spaces|items)(?:\/.*)?$/;
 
 /** Redirect deprecated legacy task paths, then apply shared security proxy. */
-export async function proxy(request: NextRequest) {
-  if (new URL(request.url).pathname === "/") {
-    return NextResponse.redirect(getTasksRoot(request));
-  }
-  if (LEGACY_TASKS_PATH_REGEX.test(request.nextUrl.pathname)) {
-    return NextResponse.redirect(getTasksRoot(request));
-  }
-  return securityProxy(request);
-}
+export const proxy = createAppProxy({
+  securityProxy: createProfiledSecurityProxy("e2ee-app"),
+  defaultBasePath: "/tasks",
+  legacyPathRegexes: [LEGACY_TASKS_PATH_REGEX],
+});
 
 export const config = {
   matcher: [

@@ -64,6 +64,17 @@ const typescriptRules = {
   "@typescript-eslint/prefer-nullish-coalescing": "warn",
   "@typescript-eslint/prefer-optional-chain": "warn",
   "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+  "@typescript-eslint/no-explicit-any": "warn",
+  "@typescript-eslint/ban-ts-comment": [
+    "warn",
+    {
+      "ts-check": false,
+      "ts-ignore": true,
+      "ts-nocheck": true,
+      "ts-expect-error": "allow-with-description",
+      minimumDescriptionLength: 3,
+    },
+  ],
   "@typescript-eslint/consistent-type-imports": [
     "warn",
     {
