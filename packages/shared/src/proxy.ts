@@ -1,5 +1,3 @@
-import { randomBytes } from "crypto";
-
 import { buildCsp } from "@helvety/config/next-headers";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -12,6 +10,7 @@ import {
 const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
 const CSP_NONCE_LENGTH = 16;
+const HEX_CHARACTERS = "0123456789abcdef";
 
 /** Options for building the Content-Security-Policy header in the proxy. */
 export type BuildCspOptions = {
@@ -34,6 +33,32 @@ export type CreateSecurityProxyOptions = {
   /** Whether to generate CSRF token cookie (default: true). Public marketing profile disables this. */
   includeCsrf?: boolean;
 };
+
+/** Generate cryptographically secure random bytes in edge-safe runtimes. */
+function getRandomBytes(length: number): Uint8Array {
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return bytes;
+}
+
+/** Encode bytes as lowercase hexadecimal. */
+function toHex(bytes: Uint8Array): string {
+  let hex = "";
+  for (const byte of bytes) {
+    hex += HEX_CHARACTERS[(byte >> 4) & 0x0f] ?? "";
+    hex += HEX_CHARACTERS[byte & 0x0f] ?? "";
+  }
+  return hex;
+}
+
+/** Encode bytes as base64 using web platform APIs. */
+function toBase64(bytes: Uint8Array): string {
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
 
 /** Canonical proxy profiles used by app-type groupings. */
 export type SecurityProxyProfile =
@@ -166,7 +191,7 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
   } = options;
 
   return async function proxy(request: NextRequest) {
-    const nonce = randomBytes(CSP_NONCE_LENGTH).toString("base64");
+    const nonce = toBase64(getRandomBytes(CSP_NONCE_LENGTH));
     const csp = buildCsp({ nonce, ...buildCspOptions });
 
     // NOTE: Header propagation from proxy to Server Components can vary by
@@ -189,7 +214,7 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
     }
 
     if (includeCsrf && !request.cookies.get(CSRF_COOKIE_NAME)?.value) {
-      const token = randomBytes(CSRF_TOKEN_LENGTH).toString("hex");
+      const token = toHex(getRandomBytes(CSRF_TOKEN_LENGTH));
       response.cookies.set(CSRF_COOKIE_NAME, token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",

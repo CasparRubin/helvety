@@ -7,6 +7,8 @@ import { resolveAuthStep } from "@/lib/auth-step";
 
 import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
 
+export const runtime = "nodejs";
+
 const ALLOWED_OTP_TYPES: EmailOtpType[] = [
   "magiclink",
   "signup",
@@ -67,9 +69,11 @@ async function buildPostAuthRedirect(
 /**
  * Auth callback route for handling Supabase email verification and OAuth
  *
- * This route is a compatibility path for non-primary email/OAuth callbacks.
- * The primary sign-in flow uses typed OTP codes followed by passkey setup/sign-in,
- * but this route is kept for:
+ * This route is the canonical auth callback endpoint for Supabase email/OAuth
+ * verification flows. The primary sign-in UX still centers typed OTP codes
+ * followed by passkey setup/sign-in after callback completion.
+ *
+ * It handles:
  * - Account recovery, invite, and email change confirmation links
  * - OAuth flows
  *

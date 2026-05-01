@@ -20,7 +20,7 @@ function parseOriginCsv(value) {
 }
 
 /**
- * Build production-safe default server-action origins for Vercel deployments.
+ * Build default server-action allowed origins for Vercel builds (preview + production).
  * Falls back to explicit env config when provided.
  *
  * @returns {string[]}
@@ -81,6 +81,29 @@ export function createHelvetyNextConfig({
     );
   }
 
+  const {
+    experimental: experimentalOverrides = {},
+    serverActions: explicitServerActionsOverrides = {},
+    optimizePackageImports: explicitOptimizePackageImports,
+    ...restOverrides
+  } = overrides;
+
+  const {
+    optimizePackageImports: experimentalOptimizePackageImports,
+    serverActions: experimentalServerActions = {},
+    ...restExperimentalOverrides
+  } = experimentalOverrides;
+
+  const mergedOptimizePackageImports =
+    explicitOptimizePackageImports ??
+    experimentalOptimizePackageImports ??
+    optimizePackageImports;
+
+  const mergedAllowedOrigins =
+    explicitServerActionsOverrides.allowedOrigins ??
+    experimentalServerActions.allowedOrigins ??
+    (allowedOrigins.length > 0 ? allowedOrigins : undefined);
+
   return {
     poweredByHeader: false,
     compress: true,
@@ -91,21 +114,20 @@ export function createHelvetyNextConfig({
       root: path.resolve("../.."),
     },
     reactCompiler: true,
-    // Upgrade guardrail: on every Next major/minor bump, re-check release notes for
-    // `experimental.optimizePackageImports` and
-    // `experimental.serverActions.allowedOrigins`; migrate to stable config keys
-    // when equivalent options become available.
+    // Next.js currently documents both options under experimental config.
     experimental: {
-      optimizePackageImports,
-      ...(allowedOrigins.length > 0
+      ...restExperimentalOverrides,
+      optimizePackageImports: mergedOptimizePackageImports,
+      ...(mergedAllowedOrigins
         ? {
             serverActions: {
-              allowedOrigins,
+              ...experimentalServerActions,
+              ...explicitServerActionsOverrides,
+              allowedOrigins: mergedAllowedOrigins,
             },
           }
         : {}),
-      ...(overrides.experimental ?? {}),
     },
-    ...overrides,
+    ...restOverrides,
   };
 }

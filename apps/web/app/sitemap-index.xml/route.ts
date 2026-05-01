@@ -1,6 +1,8 @@
 import { urls } from "@helvety/shared/config";
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 const SITEMAP_PATHS = [
   "/sitemap.xml",
   "/store/sitemap.xml",
@@ -8,7 +10,7 @@ const SITEMAP_PATHS = [
   "/image-upscaler/sitemap.xml",
 ] as const;
 
-/** Static build-time date for consistent sitemap-index caching. */
+/** Timestamp captured at module initialization for stable response caching. */
 const lastModified = new Date().toISOString();
 
 /** Builds XML for the gateway sitemap index. */

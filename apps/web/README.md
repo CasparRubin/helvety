@@ -21,7 +21,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 - `apps/web` is indexable and serves:
   - `/robots.txt`
   - `/sitemap.xml` (web-owned pages)
-  - `/sitemap-index.xml` (cross-app public sitemap index)
+  - `/sitemap-index.xml` (public sitemap index for `web`, `store`, `pdf`, and `image-upscaler`)
 
 ## Security Model
 
@@ -34,17 +34,17 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 
 Copy `env.template` to `.env.local`.
 
-| Variable                               | Required   | Server-only | Description                                     |
-| -------------------------------------- | ---------- | ----------- | ----------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes        | No          | Supabase project URL                            |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes        | No          | Supabase publishable key                        |
-| `AUTH_URL`                             | Production | Yes         | Internal Vercel URL for auth zone rewrites      |
-| `STORE_URL`                            | Production | Yes         | Internal Vercel URL for store zone rewrites     |
-| `PDF_URL`                              | Production | Yes         | Internal Vercel URL for PDF zone rewrites       |
-| `IMAGE_UPSCALER_URL`                   | Production | Yes         | Internal Vercel URL for image-upscaler rewrites |
-| `TASKS_URL`                            | Production | Yes         | Internal Vercel URL for tasks zone rewrites     |
-| `CONTACTS_URL`                         | Production | Yes         | Internal Vercel URL for contacts zone rewrites  |
-| `NOTES_URL`                            | Production | Yes         | Internal Vercel URL for notes zone rewrites     |
+| Variable                               | Required                       | Server-only | Description                                     |
+| -------------------------------------- | ------------------------------ | ----------- | ----------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes                            | No          | Supabase project URL                            |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes                            | No          | Supabase publishable key                        |
+| `AUTH_URL`                             | Vercel production (`VERCEL=1`) | Yes         | Internal Vercel URL for auth zone rewrites      |
+| `STORE_URL`                            | Vercel production (`VERCEL=1`) | Yes         | Internal Vercel URL for store zone rewrites     |
+| `PDF_URL`                              | Vercel production (`VERCEL=1`) | Yes         | Internal Vercel URL for PDF zone rewrites       |
+| `IMAGE_UPSCALER_URL`                   | Vercel production (`VERCEL=1`) | Yes         | Internal Vercel URL for image-upscaler rewrites |
+| `TASKS_URL`                            | Vercel production (`VERCEL=1`) | Yes         | Internal Vercel URL for tasks zone rewrites     |
+| `CONTACTS_URL`                         | Vercel production (`VERCEL=1`) | Yes         | Internal Vercel URL for contacts zone rewrites  |
+| `NOTES_URL`                            | Vercel production (`VERCEL=1`) | Yes         | Internal Vercel URL for notes zone rewrites     |
 
 Local development falls back to localhost targets; production uses trusted internal hosts.
 
@@ -70,4 +70,4 @@ For monorepo setup and CI/release commands, use the root [`README.md`](../../REA
 
 ## License
 
-Licensed under the [MIT License](./LICENSE).
+Licensed under the [MIT License](../../LICENSE).

@@ -25,7 +25,7 @@ async function main() {
     );
   }
 
-  console.log("Proxy/README consistency checks passed.");
+  console.log("Web proxy/README consistency checks passed.");
 }
 
 main().catch((error) => {

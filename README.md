@@ -34,7 +34,7 @@ Helvety is a Next.js monorepo for a path-routed ecosystem on `helvety.com`:
 
 ## Prerequisites
 
-- [Bun](https://bun.sh/) `>= 1.3`
+- [Bun](https://bun.sh/) `1.3.10`
 - [Node.js](https://nodejs.org/) `24.x`
 
 ## Getting Started
@@ -84,12 +84,12 @@ bun run format
 
 ## CI and Release Checks
 
-- `bun run ci:check` runs `consistency:proxy-docs`, `consistency:guardrails`, `format:check`, `lint`, `type-check`, `test`.
+- `bun run ci:check` runs `consistency:proxy-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
 - `bun run ci:release` runs `ci:check` plus `build`.
-- GitHub CI (`.github/workflows/ci.yml`) currently runs `bun run ci:check`.
+- GitHub CI (`.github/workflows/ci.yml`) runs `bun run deps:unused` and `bun run ci:check`.
 - `ci:release` sets `SKIP_ENV_VALIDATION=1` during `build` only; missing env values use schema-valid placeholders in local builds.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.
-- Dependency/security checks:
+- Additional manual dependency/security checks:
   - `bun run deps:security` (security floors + `bun audit`)
   - `bun run deps:drift` (workspace version drift)
   - `bun run deps:check` / `bun run knip:exports` / `bun run deps:unused`
@@ -98,6 +98,7 @@ bun run format
 
 - App URL and cookie domain logic are derived from `NODE_ENV` via shared config.
 - `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` can override the server-action trusted-origin allowlist as a comma-separated list; on Vercel, defaults are derived automatically from deployment/runtime URLs plus `https://helvety.com`.
+- `apps/web` additionally requires `AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, and `NOTES_URL` when `VERCEL=1` so multi-zone rewrites can resolve trusted internal origins.
 - App READMEs document per-app env templates; shared runtime/security defaults are documented in this root README and `packages/config`.
 
 ## Supabase Workflow (Remote-First)

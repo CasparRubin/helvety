@@ -7,6 +7,8 @@ import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { NextRequest } from "next/server";
 
+export const runtime = "nodejs";
+
 /** Resolve a package download URL and redirect the caller. */
 export async function GET(
   request: NextRequest,

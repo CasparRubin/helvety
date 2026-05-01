@@ -611,7 +611,7 @@ const helvetyImageUpscaler: SaaSProduct = {
     "Sharper PNG, JPEG, or WebP exports from the tab: 2×/4× batches, custom width or height with locked aspect ratio, and caps so the browser stays responsive.",
   description: {
     intro:
-      "Helvety Image Upscaler runs ONNX models via WebGPU or WebGL paths in-browser. When an operation is supported, pixels are resampled on-device—there is no Helvety-hosted image conversion farm behind the scenes.",
+      "Helvety Image Upscaler processes supported operations in-browser with a WebGPU-ready runtime check and canvas fallback. Pixels are resampled on-device—there is no Helvety-hosted image conversion farm behind the scenes.",
     sections: [
       {
         heading: "Access model",
