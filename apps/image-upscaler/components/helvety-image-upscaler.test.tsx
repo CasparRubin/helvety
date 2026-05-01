@@ -21,6 +21,9 @@ vi.mock("@/lib/upscale-pipeline", async (importOriginal) => {
   return {
     ...actual,
     upscaleItemsSequentially: vi.fn(actual.upscaleItemsSequentially),
+    readImageDimensions: vi
+      .fn()
+      .mockResolvedValue({ width: 1200, height: 800 }),
   };
 });
 
@@ -42,33 +45,38 @@ describe("HelvetyImageUpscaler", () => {
     fireEvent.change(input, { target: { files: [file] } });
   }
 
-  it("renders empty state and default runtime text", () => {
+  it("renders empty state for local-only processing", () => {
     render(<HelvetyImageUpscaler />);
 
     expect(screen.getByText("Drag and drop images here")).toBeInTheDocument();
     expect(
       screen.getByText(/Processed locally in your browser\./)
     ).toBeInTheDocument();
-    expect(screen.getByText("Runtime: pending")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Upscale" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Upscale all" })).toBeDisabled();
   });
 
-  it("shows command-bar actions for a queued image", () => {
+  it("shows command-bar actions for a queued image", async () => {
     render(<HelvetyImageUpscaler />);
 
     uploadImageFile();
 
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Add More" })).toBeEnabled();
+    });
     expect(screen.getByRole("button", { name: "Add More" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "Upscale" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Upscale all" })).toBeEnabled();
     expect(
       screen.getByRole("button", { name: "Clear All", hidden: true })
     ).toBeEnabled();
   });
 
-  it("shows clear confirmation copy from the command bar", () => {
+  it("shows clear confirmation copy from the command bar", async () => {
     render(<HelvetyImageUpscaler />);
 
     uploadImageFile();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Clear All" })).toBeEnabled();
+    });
     fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
 
     expect(screen.getByText("Clear all images?")).toBeInTheDocument();
@@ -117,7 +125,49 @@ describe("HelvetyImageUpscaler", () => {
     expect(screen.getAllByDisplayValue("3000")).not.toHaveLength(0);
   });
 
-  it("uses success toast and runtime label when all items complete", async () => {
+  it("toggles per-image action between upscale and download based on settings", async () => {
+    mockUpscaleItemsSequentially.mockImplementationOnce(async (options) => {
+      const [firstItem] = options.items;
+      if (firstItem) {
+        options.onProgress(firstItem.id, {
+          status: "processing",
+          error: null,
+        });
+        options.onProgress(firstItem.id, {
+          status: "done",
+          outputUrl: "blob:out-1",
+          error: null,
+        });
+      }
+      return {
+        runtime: "webgpu",
+        totalCount: 1,
+        completedCount: 1,
+        failedCount: 0,
+      };
+    });
+    render(<HelvetyImageUpscaler />);
+    uploadImageFile();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Upscale" })).toBeEnabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Upscale" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Download" })).toBeEnabled();
+    });
+
+    const [modeSelect] = screen.getAllByRole("combobox");
+    if (!modeSelect) {
+      throw new Error("Mode select was not rendered.");
+    }
+    fireEvent.change(modeSelect, { target: { value: "target" } });
+
+    expect(screen.getByRole("button", { name: "Upscale" })).toBeEnabled();
+  });
+
+  it("uses success toast when all items complete", async () => {
     mockUpscaleItemsSequentially.mockResolvedValueOnce({
       runtime: "webgpu",
       totalCount: 1,
@@ -126,15 +176,17 @@ describe("HelvetyImageUpscaler", () => {
     });
     render(<HelvetyImageUpscaler />);
     uploadImageFile();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Upscale all" })).toBeEnabled();
+    });
 
-    fireEvent.click(screen.getByRole("button", { name: "Upscale" }));
+    fireEvent.click(screen.getByRole("button", { name: "Upscale all" }));
 
     await waitFor(() => {
       expect(toastMocks.success).toHaveBeenCalledWith(
         "Upscaling complete (1/1 images)."
       );
     });
-    expect(screen.getByText("Runtime: webgpu")).toBeInTheDocument();
   });
 
   it("uses warning toast when upscaling partially succeeds", async () => {
@@ -146,8 +198,11 @@ describe("HelvetyImageUpscaler", () => {
     });
     render(<HelvetyImageUpscaler />);
     uploadImageFile();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Upscale all" })).toBeEnabled();
+    });
 
-    fireEvent.click(screen.getByRole("button", { name: "Upscale" }));
+    fireEvent.click(screen.getByRole("button", { name: "Upscale all" }));
 
     await waitFor(() => {
       expect(toastMocks.warning).toHaveBeenCalledWith(
@@ -162,8 +217,11 @@ describe("HelvetyImageUpscaler", () => {
     );
     render(<HelvetyImageUpscaler />);
     uploadImageFile();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Upscale all" })).toBeEnabled();
+    });
 
-    fireEvent.click(screen.getByRole("button", { name: "Upscale" }));
+    fireEvent.click(screen.getByRole("button", { name: "Upscale all" }));
 
     await waitFor(() => {
       expect(toastMocks.error).toHaveBeenCalledWith("Worker failed");

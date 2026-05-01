@@ -1,7 +1,7 @@
 {
   "name": "@helvety/image-upscaler",
   "version": "3.1.0",
-  "description": "In-browser image upscaler with 2×/4× or target sizing and runtime fallback processing—no account, MIT-licensed, Swiss-built.",
+  "description": "In-browser image upscaler with 2×/4× or target sizing, plus per-image and batch flows—no account, MIT-licensed, Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/image-upscaler",
   "repository": {

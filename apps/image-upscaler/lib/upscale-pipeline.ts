@@ -15,6 +15,7 @@ export interface UpscaleItem {
   file: File;
   previewUrl: string;
   outputUrl: string | null;
+  outputSignature: string | null;
   width: number;
   height: number;
   status: UpscaleStatus;
@@ -73,7 +74,7 @@ export function calculateTargetSize(
   return { width, height };
 }
 
-function loadImageDimensions(
+export function readImageDimensions(
   file: File
 ): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
@@ -127,6 +128,7 @@ export function parseImageFiles(files: FileList): ParsedFiles {
     file,
     previewUrl: URL.createObjectURL(file),
     outputUrl: null,
+    outputSignature: null,
     width: 0,
     height: 0,
     status: "queued" as const,
@@ -161,7 +163,7 @@ export async function upscaleItemsSequentially(options: {
         const dimensions =
           item.width > 0 && item.height > 0
             ? { width: item.width, height: item.height }
-            : await loadImageDimensions(item.file);
+            : await readImageDimensions(item.file);
 
         if (dimensions.width * dimensions.height > MAX_IMAGE_PIXELS) {
           throw new Error(

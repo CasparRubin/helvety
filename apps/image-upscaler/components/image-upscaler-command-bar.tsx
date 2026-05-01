@@ -40,7 +40,6 @@ interface ImageUpscalerCommandBarProps {
   readonly hasItems: boolean;
   readonly hasOutput: boolean;
   readonly isProcessing: boolean;
-  readonly runtime: string | null;
   readonly sizeMode: SizeMode;
   readonly scale: 2 | 4;
   readonly targetMode: "width" | "height";
@@ -60,7 +59,6 @@ export function ImageUpscalerCommandBar({
   hasItems,
   hasOutput,
   isProcessing,
-  runtime,
   sizeMode,
   scale,
   targetMode,
@@ -94,7 +92,7 @@ export function ImageUpscalerCommandBar({
           size="sm"
           onClick={onUpscale}
           disabled={isProcessing || !hasItems}
-          aria-label={isProcessing ? "Upscale (processing)" : "Upscale"}
+          aria-label={isProcessing ? "Upscale all (processing)" : "Upscale all"}
         >
           {isProcessing ? (
             <Loader2Icon className="size-4 shrink-0 animate-spin min-[400px]:mr-1.5" />
@@ -106,7 +104,7 @@ export function ImageUpscalerCommandBar({
               Processing...
             </span>
           ) : (
-            <span className="sr-only min-[400px]:not-sr-only">Upscale</span>
+            <span className="sr-only min-[400px]:not-sr-only">Upscale all</span>
           )}
         </Button>
 
@@ -142,10 +140,6 @@ export function ImageUpscalerCommandBar({
         )}
 
         <CommandBarSpacer />
-
-        <span className="text-muted-foreground hidden text-xs sm:inline">
-          {runtime ? `Runtime: ${runtime}` : "Runtime: pending"}
-        </span>
 
         {hasOutput && (
           <Button

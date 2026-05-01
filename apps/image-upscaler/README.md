@@ -7,7 +7,7 @@ Browser-based image upscaler for PNG/JPG/WebP files.
 
 ## Key Features
 
-- WebGPU-first processing with compatibility fallback
+- In-browser image resizing with per-image or batch upscale flows
 - Upscale by fixed factors (`2x`, `4x`) or target dimensions
 - Batch queue with per-item statuses
 - Shared command bar UX (primary/secondary actions)

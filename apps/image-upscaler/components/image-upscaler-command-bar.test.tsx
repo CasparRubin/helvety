@@ -12,7 +12,6 @@ function renderCommandBar(
       hasItems={false}
       hasOutput={false}
       isProcessing={false}
-      runtime={null}
       sizeMode="scale"
       scale={2}
       targetMode="width"
@@ -35,8 +34,7 @@ describe("ImageUpscalerCommandBar", () => {
     renderCommandBar();
 
     expect(screen.getByRole("button", { name: "Add Images" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "Upscale" })).toBeDisabled();
-    expect(screen.getByText("Runtime: pending")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Upscale all" })).toBeDisabled();
   });
 
   it("wires add/upscale/download callbacks for actionable controls", () => {
@@ -47,20 +45,18 @@ describe("ImageUpscalerCommandBar", () => {
     renderCommandBar({
       hasItems: true,
       hasOutput: true,
-      runtime: "webgpu",
       onAddImages,
       onUpscale,
       onDownloadAll,
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Add More" }));
-    fireEvent.click(screen.getByRole("button", { name: "Upscale" }));
+    fireEvent.click(screen.getByRole("button", { name: "Upscale all" }));
     fireEvent.click(screen.getByRole("button", { name: "Download All" }));
 
     expect(onAddImages).toHaveBeenCalledTimes(1);
     expect(onUpscale).toHaveBeenCalledTimes(1);
     expect(onDownloadAll).toHaveBeenCalledTimes(1);
-    expect(screen.getByText("Runtime: webgpu")).toBeInTheDocument();
   });
 
   it("shows processing state labels and disables mutating actions while processing", () => {
@@ -71,7 +67,7 @@ describe("ImageUpscalerCommandBar", () => {
     });
 
     expect(
-      screen.getByRole("button", { name: "Upscale (processing)" })
+      screen.getByRole("button", { name: "Upscale all (processing)" })
     ).toBeDisabled();
     expect(screen.getByRole("button", { name: "Add More" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Download All" })).toBeDisabled();
@@ -93,7 +89,6 @@ describe("ImageUpscalerCommandBar", () => {
           hasItems
           hasOutput={false}
           isProcessing={false}
-          runtime={null}
           sizeMode={sizeMode}
           scale={scale}
           targetMode={targetMode}

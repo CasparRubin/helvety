@@ -17,6 +17,7 @@ import {
   MAX_BULK_FILES,
   MAX_IMAGE_PIXELS,
   parseImageFiles,
+  readImageDimensions,
   type SizeMode,
   type UpscaleItem,
   upscaleItemsSequentially,
@@ -38,21 +39,59 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
   );
   const [targetInput, setTargetInput] = React.useState<string>("2048");
   const [isProcessing, setIsProcessing] = React.useState(false);
-  const [runtime, setRuntime] = React.useState<string | null>(null);
+  const targetValue = Number.parseInt(targetInput, 10) || 0;
+  const targetIsValid =
+    sizeMode !== "target" ||
+    (Number.isInteger(targetValue) &&
+      Number.isFinite(targetValue) &&
+      targetValue > 0);
+  const activeOutputSignature =
+    sizeMode === "scale"
+      ? `scale:${scale}`
+      : `target:${targetMode}:${targetIsValid ? targetValue : "invalid"}`;
 
   const addFiles = React.useCallback((fileList: FileList): void => {
     const parsed = parseImageFiles(fileList);
     parsed.errors.forEach((message) => toast.error(message));
     if (parsed.items.length === 0) return;
 
-    setItems((current) => {
-      const availableSlots = Math.max(0, MAX_BULK_FILES - current.length);
-      const accepted = parsed.items.slice(0, availableSlots);
-      if (parsed.items.length > availableSlots) {
-        toast.error(`Maximum ${MAX_BULK_FILES} files per batch.`);
-      }
-      return [...current, ...accepted];
-    });
+    void (async () => {
+      const hydrated = await Promise.all(
+        parsed.items.map(async (item) => {
+          try {
+            const dimensions = await readImageDimensions(item.file);
+            return { item: { ...item, ...dimensions }, error: null };
+          } catch (error) {
+            return {
+              item: null,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : `Failed to decode "${item.file.name}".`,
+            };
+          }
+        })
+      );
+
+      hydrated.forEach((result) => {
+        if (result.error) toast.error(result.error);
+      });
+
+      const decodedItems = hydrated
+        .map((result) => result.item)
+        .filter((item): item is UpscaleItem => item !== null);
+
+      if (decodedItems.length === 0) return;
+
+      setItems((current) => {
+        const availableSlots = Math.max(0, MAX_BULK_FILES - current.length);
+        const accepted = decodedItems.slice(0, availableSlots);
+        if (decodedItems.length > availableSlots) {
+          toast.error(`Maximum ${MAX_BULK_FILES} files per batch.`);
+        }
+        return [...current, ...accepted];
+      });
+    })();
   }, []);
 
   const handleFileInput = React.useCallback(
@@ -85,53 +124,81 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
     });
   }, []);
 
+  const runUpscaleForIds = React.useCallback(
+    async (ids: string[]): Promise<void> => {
+      if (ids.length === 0) return;
+      if (!targetIsValid) {
+        toast.error("Target value must be a positive whole number.");
+        return;
+      }
+
+      const idSet = new Set(ids);
+      const selectedItems = items.filter((item) => idSet.has(item.id));
+      if (selectedItems.length === 0) return;
+
+      setIsProcessing(true);
+      try {
+        const result = await upscaleItemsSequentially({
+          items: selectedItems,
+          sizeMode,
+          scale,
+          targetMode,
+          targetValue,
+          onProgress: (id, partial) => {
+            setItems((current) =>
+              current.map((item) =>
+                item.id === id
+                  ? {
+                      ...item,
+                      ...partial,
+                      outputSignature:
+                        partial.status === "done"
+                          ? activeOutputSignature
+                          : item.outputSignature,
+                    }
+                  : item
+              )
+            );
+          },
+        });
+        if (result.failedCount === 0) {
+          toast.success(
+            `Upscaling complete (${result.completedCount}/${result.totalCount} images).`
+          );
+        } else if (result.completedCount === 0) {
+          toast.error(`Upscaling failed for all ${result.totalCount} images.`);
+        } else {
+          toast.warning(
+            `Upscaling finished with errors (${result.completedCount} succeeded, ${result.failedCount} failed).`
+          );
+        }
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to upscale."
+        );
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [
+      activeOutputSignature,
+      items,
+      scale,
+      sizeMode,
+      targetIsValid,
+      targetMode,
+      targetValue,
+    ]
+  );
+
   const runUpscale = React.useCallback(async (): Promise<void> => {
     if (items.length === 0) return;
-    const target = Number(targetInput);
-    if (
-      sizeMode === "target" &&
-      (!Number.isInteger(target) || !Number.isFinite(target) || target <= 0)
-    ) {
+    if (!targetIsValid) {
       toast.error("Target value must be a positive whole number.");
       return;
     }
-
-    setIsProcessing(true);
-    try {
-      const result = await upscaleItemsSequentially({
-        items,
-        sizeMode,
-        scale,
-        targetMode,
-        targetValue: target,
-        onProgress: (id, partial) => {
-          setItems((current) =>
-            current.map((item) =>
-              item.id === id ? { ...item, ...partial } : item
-            )
-          );
-        },
-      });
-      setRuntime(result.runtime);
-      if (result.failedCount === 0) {
-        toast.success(
-          `Upscaling complete (${result.completedCount}/${result.totalCount} images).`
-        );
-      } else if (result.completedCount === 0) {
-        toast.error(`Upscaling failed for all ${result.totalCount} images.`);
-      } else {
-        toast.warning(
-          `Upscaling finished with errors (${result.completedCount} succeeded, ${result.failedCount} failed).`
-        );
-      }
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to upscale."
-      );
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [items, scale, sizeMode, targetInput, targetMode]);
+    await runUpscaleForIds(items.map((item) => item.id));
+  }, [items, runUpscaleForIds, targetIsValid]);
 
   const downloadItem = React.useCallback((item: UpscaleItem): void => {
     if (!item.outputUrl) return;
@@ -157,7 +224,6 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
         hasItems={items.length > 0}
         hasOutput={hasOutput}
         isProcessing={isProcessing}
-        runtime={runtime}
         sizeMode={sizeMode}
         scale={scale}
         targetMode={targetMode}
@@ -247,12 +313,15 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
               {items.length > 0 && (
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {items.map((item) => {
-                    const target = calculateTargetSize(item, {
-                      sizeMode,
-                      scale,
-                      targetMode,
-                      targetValue: Number.parseInt(targetInput, 10) || 0,
-                    });
+                    const hasDimensions = item.width > 0 && item.height > 0;
+                    const target = hasDimensions
+                      ? calculateTargetSize(item, {
+                          sizeMode,
+                          scale,
+                          targetMode,
+                          targetValue: Number.parseInt(targetInput, 10) || 0,
+                        })
+                      : null;
                     return (
                       <article
                         key={item.id}
@@ -264,8 +333,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                               {item.file.name}
                             </p>
                             <p className="text-muted-foreground text-xs">
-                              {item.width}x{item.height} → {target.width}x
-                              {target.height}
+                              {target
+                                ? `${item.width}x${item.height} → ${target.width}x${target.height}`
+                                : "Reading image dimensions..."}
                             </p>
                           </div>
                           <Button
@@ -279,23 +349,57 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                         </div>
                         <div className="bg-muted mb-2 flex aspect-video items-center justify-center overflow-hidden rounded-md">
                           <img
-                            src={item.outputUrl ?? item.previewUrl}
+                            src={
+                              item.outputUrl &&
+                              item.outputSignature === activeOutputSignature
+                                ? item.outputUrl
+                                : item.previewUrl
+                            }
                             alt={item.file.name}
                             className="h-full w-full object-contain"
                           />
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground text-xs">
-                            {item.status}
+                          <span
+                            className={cn(
+                              "text-xs",
+                              item.status === "processing" && "text-blue-600",
+                              item.status === "done" && "text-emerald-600",
+                              item.status !== "processing" &&
+                                item.status !== "done" &&
+                                "invisible"
+                            )}
+                          >
+                            {item.status === "processing"
+                              ? "Processing"
+                              : item.status === "done"
+                                ? "Done"
+                                : "Status"}
                           </span>
                           <Button
                             size="sm"
                             variant="outline"
-                            disabled={!item.outputUrl}
-                            onClick={() => downloadItem(item)}
+                            disabled={isProcessing}
+                            onClick={() => {
+                              if (
+                                item.outputUrl &&
+                                item.outputSignature === activeOutputSignature
+                              ) {
+                                downloadItem(item);
+                                return;
+                              }
+                              void runUpscaleForIds([item.id]);
+                            }}
                           >
-                            <Download className="h-4 w-4" />
-                            Download
+                            {item.outputUrl &&
+                            item.outputSignature === activeOutputSignature ? (
+                              <>
+                                <Download className="h-4 w-4" />
+                                Download
+                              </>
+                            ) : (
+                              <>Upscale</>
+                            )}
                           </Button>
                         </div>
                         {item.error && (
@@ -379,10 +483,6 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                 </div>
               </>
             )}
-            <p className="text-muted-foreground text-xs">
-              WebGPU-first runtime with safe fallback. Bulk runs sequentially
-              for memory stability.
-            </p>
           </div>
         </aside>
       </div>

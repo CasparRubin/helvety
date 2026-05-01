@@ -26,6 +26,7 @@ function createItem(width: number, height: number): UpscaleItem {
     file: new File(["x"], "sample.png", { type: "image/png" }),
     previewUrl: "blob:preview",
     outputUrl: null,
+    outputSignature: null,
     width,
     height,
     status: "queued",
