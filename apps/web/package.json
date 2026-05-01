@@ -12,7 +12,7 @@
   "private": true,
   "license": "MIT",
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "node ../../scripts/generate-version.mjs && next dev -p 3001",

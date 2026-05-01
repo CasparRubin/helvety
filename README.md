@@ -35,7 +35,7 @@ Helvety is a Next.js monorepo for a path-routed ecosystem on `helvety.com`:
 ## Prerequisites
 
 - [Bun](https://bun.sh/) `>= 1.3`
-- [Node.js](https://nodejs.org/) `22.x`
+- [Node.js](https://nodejs.org/) `24.x`
 
 ## Getting Started
 
@@ -129,7 +129,7 @@ helvety/
 └── package.json
 ```
 
-See [`ARCHITECTURE.md`](ARCHITECTURE.md) for architecture entry points and flow references.
+Architecture entry points and flow references are documented in each app/package README and in the shared runtime/security docs under `packages/shared`.
 
 ## Service and Legal
 
