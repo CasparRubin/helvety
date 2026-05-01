@@ -314,6 +314,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {items.map((item) => {
                     const hasDimensions = item.width > 0 && item.height > 0;
+                    const hasFreshOutput =
+                      !!item.outputUrl &&
+                      item.outputSignature === activeOutputSignature;
                     const target = hasDimensions
                       ? calculateTargetSize(item, {
                           sizeMode,
@@ -350,8 +353,7 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                         <div className="bg-muted mb-2 flex aspect-video items-center justify-center overflow-hidden rounded-md">
                           <img
                             src={
-                              item.outputUrl &&
-                              item.outputSignature === activeOutputSignature
+                              hasFreshOutput && item.outputUrl
                                 ? item.outputUrl
                                 : item.previewUrl
                             }
@@ -364,15 +366,17 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                             className={cn(
                               "text-xs",
                               item.status === "processing" && "text-blue-600",
-                              item.status === "done" && "text-emerald-600",
+                              item.status === "done" &&
+                                hasFreshOutput &&
+                                "text-emerald-600",
                               item.status !== "processing" &&
-                                item.status !== "done" &&
+                                !(item.status === "done" && hasFreshOutput) &&
                                 "invisible"
                             )}
                           >
                             {item.status === "processing"
                               ? "Processing"
-                              : item.status === "done"
+                              : item.status === "done" && hasFreshOutput
                                 ? "Done"
                                 : "Status"}
                           </span>
@@ -381,18 +385,14 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                             variant="outline"
                             disabled={isProcessing}
                             onClick={() => {
-                              if (
-                                item.outputUrl &&
-                                item.outputSignature === activeOutputSignature
-                              ) {
+                              if (hasFreshOutput) {
                                 downloadItem(item);
                                 return;
                               }
                               void runUpscaleForIds([item.id]);
                             }}
                           >
-                            {item.outputUrl &&
-                            item.outputSignature === activeOutputSignature ? (
+                            {hasFreshOutput ? (
                               <>
                                 <Download className="h-4 w-4" />
                                 Download
