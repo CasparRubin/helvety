@@ -113,6 +113,7 @@ export function E2eeAppNavbar({
   const isAuthenticated = !!user;
   const isEncryptedForCurrentUser =
     isUnlocked && !!user?.id && unlockedForUserId === user.id;
+  const buildInfo = versionLabel?.replace(/^Built on\s+/u, "");
 
   return (
     <nav className="bg-surface-chrome/80 supports-[backdrop-filter]:bg-surface-chrome/60 sticky top-0 z-50 w-full border-b backdrop-blur">
@@ -237,24 +238,23 @@ export function E2eeAppNavbar({
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    {labels.aboutDescription}
+                    {labels.aboutDescription} Helvety is an open-source
+                    initiative by{" "}
+                    <a
+                      href="https://casparrubin.ch"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2"
+                    >
+                      Caspar Rubin
+                    </a>
+                    , with software engineered, designed, and made in
+                    Switzerland.{" "}
+                    {buildInfo
+                      ? `This version was built on ${buildInfo}.`
+                      : "This is a development build."}
                   </DialogDescription>
                 </DialogHeader>
-                <div className="border-t" />
-                <p className="text-muted-foreground text-xs">
-                  Built by{" "}
-                  <a
-                    href="https://casparrubin.ch"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline underline-offset-2"
-                  >
-                    Caspar Rubin
-                  </a>
-                </p>
-                <p className="text-muted-foreground text-xs">
-                  {versionLabel ?? "Development build"}
-                </p>
                 <DialogClose asChild>
                   <Button variant="outline" className="w-full">
                     Close

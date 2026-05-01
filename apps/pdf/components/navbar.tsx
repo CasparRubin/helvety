@@ -83,6 +83,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   };
 
   const isAuthenticated = !!user;
+  const buildInfo = VERSION?.replace(/^Built on\s+/u, "");
 
   const handleLogin = () => {
     redirectToLogin();
@@ -199,25 +200,23 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                     pages directly in your browser. The workflow is quick and
                     visual, with tools built for everyday document cleanup. It
                     is free to use with technical safeguards (
-                    {PDF_FILE_SIZE_LIMIT_COPY}). Designed and built in
-                    Switzerland.
+                    {PDF_FILE_SIZE_LIMIT_COPY}). Helvety is an open-source
+                    initiative by{" "}
+                    <a
+                      href="https://casparrubin.ch"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2"
+                    >
+                      Caspar Rubin
+                    </a>
+                    , with software engineered, designed, and made in
+                    Switzerland.{" "}
+                    {buildInfo
+                      ? `This version was built on ${buildInfo}.`
+                      : "This is a development build."}
                   </DialogDescription>
                 </DialogHeader>
-                <div className="border-t" />
-                <p className="text-muted-foreground text-xs">
-                  Built by{" "}
-                  <a
-                    href="https://casparrubin.ch"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline underline-offset-2"
-                  >
-                    Caspar Rubin
-                  </a>
-                </p>
-                <p className="text-muted-foreground text-xs">
-                  {VERSION ?? "Development build"}
-                </p>
                 <DialogClose asChild>
                   <Button variant="outline" className="w-full">
                     Close
