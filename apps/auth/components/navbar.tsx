@@ -217,11 +217,24 @@ export function Navbar({
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    Centralized authentication service for the Helvety
-                    ecosystem. Engineered, Designed & Made in Switzerland.
+                    Helvety Auth handles sign-in for all Helvety apps. It keeps
+                    access simple with one account and shared sessions across
+                    the ecosystem. Security stays focused so each product can
+                    stay focused too. Designed and built in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  Built by{" "}
+                  <a
+                    href="https://casparrubin.ch"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    Caspar Rubin
+                  </a>
+                </p>
                 <p className="text-muted-foreground text-xs">
                   {VERSION ?? "Development build"}
                 </p>

@@ -189,11 +189,24 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    The main Helvety website. Engineered, Designed & Made in
-                    Switzerland.
+                    This is the home base for Helvety. It helps you move between
+                    apps, discover tools, and access your account in one place.
+                    Helvety builds practical software that respects clarity and
+                    privacy. Designed and built in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  Built by{" "}
+                  <a
+                    href="https://casparrubin.ch"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    Caspar Rubin
+                  </a>
+                </p>
                 <p className="text-muted-foreground text-xs">
                   {VERSION ?? "Development build"}
                 </p>

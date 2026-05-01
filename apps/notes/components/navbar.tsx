@@ -12,7 +12,7 @@ const labels = {
   encryptionTooltipBody:
     "Sensitive note content fields are encrypted on your device before storage. Some structural metadata (such as timestamps, relationships, and display preferences) remains plaintext to support app functionality.",
   aboutDescription:
-    "Short-form notes in Personal, Work, and Other buckets—encrypted in the tab first, MIT-licensed, Swiss-built.",
+    "Helvety Notes is a simple space for capturing thoughts and keeping them organized. Personal, Work, and Other views help you stay focused without over-structuring. Sensitive note content is encrypted on your device before storage. Designed and built in Switzerland.",
   navigationMenuDescription: "Notes navigation menu",
 } as const;
 

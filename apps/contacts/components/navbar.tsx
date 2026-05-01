@@ -12,7 +12,7 @@ const labels = {
   encryptionTooltipBody:
     "Sensitive contact content fields are encrypted on your device before storage. Some structural metadata (such as timestamps, relationships, and display preferences) remains plaintext to support app functionality.",
   aboutDescription:
-    "People-first address book with client-side encryption—MIT-licensed, Swiss-built.",
+    "Helvety Contacts gives you a clean, reliable place to keep the people you work with and care about. It focuses on fast lookup, practical organization, and low-friction editing. Sensitive contact content is encrypted on your device before storage. Designed and built in Switzerland.",
   navigationMenuDescription: "Contacts navigation menu",
 } as const;
 

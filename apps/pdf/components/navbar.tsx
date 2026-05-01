@@ -195,13 +195,26 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    Thumbnail-first PDF workbench: merge, reorder, rotate, and
-                    extract where the build keeps bytes in your tab. Free to use
-                    with technical safeguards ({PDF_FILE_SIZE_LIMIT_COPY}).
-                    Swiss-built under the MIT license.
+                    Helvety PDF helps you merge, reorder, rotate, and extract
+                    pages directly in your browser. The workflow is quick and
+                    visual, with tools built for everyday document cleanup. It
+                    is free to use with technical safeguards (
+                    {PDF_FILE_SIZE_LIMIT_COPY}). Designed and built in
+                    Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  Built by{" "}
+                  <a
+                    href="https://casparrubin.ch"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    Caspar Rubin
+                  </a>
+                </p>
                 <p className="text-muted-foreground text-xs">
                   {VERSION ?? "Development build"}
                 </p>

@@ -242,6 +242,17 @@ export function E2eeAppNavbar({
                 </DialogHeader>
                 <div className="border-t" />
                 <p className="text-muted-foreground text-xs">
+                  Built by{" "}
+                  <a
+                    href="https://casparrubin.ch"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    Caspar Rubin
+                  </a>
+                </p>
+                <p className="text-muted-foreground text-xs">
                   {versionLabel ?? "Development build"}
                 </p>
                 <DialogClose asChild>

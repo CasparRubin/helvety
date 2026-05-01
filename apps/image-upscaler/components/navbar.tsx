@@ -195,13 +195,25 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    In-browser upscales stay on-device—no upload farm, no
-                    account wall. Fair-use safeguards apply (
-                    {IMAGE_FILE_SIZE_LIMIT_COPY}). MIT-licensed work from
-                    Switzerland.
+                    Helvety Image Upscaler sharpens your images right in the
+                    browser. It is built for simple, fast quality boosts without
+                    unnecessary friction. Fair-use safeguards apply (
+                    {IMAGE_FILE_SIZE_LIMIT_COPY}) so the service stays stable.
+                    Designed and built in Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  Built by{" "}
+                  <a
+                    href="https://casparrubin.ch"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    Caspar Rubin
+                  </a>
+                </p>
                 <p className="text-muted-foreground text-xs">
                   {VERSION ?? "Development build"}
                 </p>

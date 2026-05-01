@@ -186,11 +186,25 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    Curated Helvety installers and SaaS entry points, assembled
-                    in Switzerland.
+                    Helvety Store is where Helvety products are published and
+                    maintained. You can explore tools, access downloads, and
+                    manage your account from one place. It is made to stay
+                    straightforward and easy to trust. Designed and built in
+                    Switzerland.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="border-t" />
+                <p className="text-muted-foreground text-xs">
+                  Built by{" "}
+                  <a
+                    href="https://casparrubin.ch"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    Caspar Rubin
+                  </a>
+                </p>
                 <p className="text-muted-foreground text-xs">
                   {VERSION ?? "Development build"}
                 </p>

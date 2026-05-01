@@ -12,7 +12,7 @@ const labels = {
   encryptionTooltipBody:
     "Sensitive task content fields are encrypted on your device before storage. Some structural metadata (such as timestamps, relationships, and display preferences) remains plaintext to support app functionality.",
   aboutDescription:
-    "Kanban-style tasks encrypted before they leave your browser—MIT open source, built in Switzerland.",
+    "Helvety Tasks helps you move work forward with clear stages and drag-and-drop flow. It is built to keep planning lightweight while still giving structure to daily execution. Sensitive task content is encrypted on your device before storage. Designed and built in Switzerland.",
   navigationMenuDescription: "Tasks navigation menu",
 } as const;
 
