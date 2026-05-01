@@ -115,9 +115,11 @@ export default function ImpressumPage() {
         <p className="text-muted-foreground mb-3 text-sm">
           Helvety by Rubin designs and ships software products and web
           applications across Microsoft 365 integrations, browser utilities,
-          desktop tooling, and encrypted productivity apps. Everything listed
-          below is offered free of charge, open source under the MIT License in
-          the referenced repositories, and primarily built in Switzerland.
+          desktop tooling, and encrypted productivity apps. The listed products
+          are currently offered free of charge. Where source repositories are
+          published, licensing is defined by each repository&apos;s LICENSE file
+          (currently MIT in the referenced public repositories). Product
+          development is primarily based in Switzerland.
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
@@ -331,11 +333,11 @@ export default function ImpressumPage() {
         <p className="text-muted-foreground text-sm">
           Our services are primarily intended for customers in Switzerland.
           Sign-in for account-based services requires a confirmation that the
-          user is not located in the EU/EEA before verification-code delivery,
-          but this attestation is not strict geoblocking and technical access
-          from outside Switzerland may still occur. Where mandatory law in
-          another jurisdiction applies in a specific case, those mandatory
-          provisions remain unaffected.
+          user is not located in the EU/EEA before verification-code delivery.
+          This attestation is an eligibility control, not strict geolocation
+          enforcement, and technical access from outside Switzerland may still
+          occur. Where mandatory law in another jurisdiction applies in a
+          specific case, those mandatory provisions remain unaffected.
         </p>
       </LegalSection>
 

@@ -104,13 +104,12 @@ export async function updateUserEmail(
  * Permanently delete the user's account.
  *
  * This action:
- * 1. Deletes the user via Supabase Admin API (cascade deletes handle
- *    all user-owned rows in current product tables; post-delete
- *    verification below enforces cleanup expectations)
+ * 1. Deletes the user via Supabase Admin API.
+ * 2. Verifies cleanup across the configured critical tables.
  *
- * Legal basis: nDSG Art. 32(2) (right to request deletion) + Art. 6(4)
- * (purpose limitation). Certain security/compliance records may be retained
- * where required by applicable legal obligations and documented policy.
+ * Retention and legal handling are defined in product legal documents and
+ * operational policy. Certain security/compliance records may be retained where
+ * required by applicable law or documented policy.
  *
  * @param csrfToken - CSRF token for security validation
  */
@@ -143,7 +142,7 @@ export async function requestAccountDeletion(
       };
     }
 
-    // 3. Post-delete verification to prove data cleanup completeness.
+    // 3. Post-delete verification over configured critical tables.
     const [residualCounts, authLookup] = await Promise.all([
       verifyDeletionResidualCounts(scopedAdmin, user.id),
       adminClient.auth.admin.getUserById(user.id),
@@ -189,7 +188,7 @@ export async function requestAccountDeletion(
 }
 
 // =============================================================================
-// DATA EXPORT (nDSG Art. 28, Right to Data Portability)
+// DATA EXPORT
 // =============================================================================
 
 /**
@@ -200,8 +199,7 @@ export async function requestAccountDeletion(
  * included; that content must be exported client-side from within those apps
  * while the user is authenticated with their passkey.
  *
- * Legal basis: nDSG Art. 28 (right to data portability; data should be
- * provided in a structured, commonly used format).
+ * Export format and legal context are documented in the product legal pages.
  */
 export async function exportUserData(): Promise<
   ActionResponse<UserDataExport>

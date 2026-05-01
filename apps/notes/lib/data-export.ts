@@ -4,8 +4,7 @@
  * Fetches all encrypted note data from the server, decrypts it client-side
  * using the user's master key, and provides a downloadable JSON export.
  *
- * Legal basis: nDSG Art. 28 (right to data portability; data must be
- * provided in a structured, commonly used format).
+ * Export rights and legal context are documented in the product legal pages.
  *
  * IMPORTANT: Decryption happens client-side.
  * Plaintext note data is not sent to the server.

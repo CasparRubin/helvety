@@ -167,7 +167,7 @@ export function ContactsDashboard({
     });
   }, [refresh, startRefreshTransition]);
 
-  /** Export decrypted contact data as JSON (supports nDSG Art. 28 data portability) */
+  /** Export decrypted contact data as JSON. */
   const handleExportData = useCallback(() => {
     if (!masterKey) return;
     startExportTransition(async () => {

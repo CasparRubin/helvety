@@ -23,6 +23,6 @@ export const RATE_LIMITS = {
   ACCOUNT_MUTATE: { maxRequests: 3, windowMs: 60 * 1000 },
   /** Data export: 3 per minute per user */
   DATA_EXPORT: { maxRequests: 3, windowMs: 60 * 1000 },
-  /** Signed download URL generation: 10 per minute per user */
+  /** Signed download URL generation: 10 per minute per IP */
   DOWNLOAD_URL: { maxRequests: 10, windowMs: 60 * 1000 },
 } as const;

@@ -18,7 +18,7 @@ export interface PackageDownloadInfo {
 }
 
 // =============================================================================
-// DATA EXPORT TYPES (nDSG Art. 28, Right to Data Portability)
+// DATA EXPORT TYPES
 // =============================================================================
 
 /** Exported user data structure */

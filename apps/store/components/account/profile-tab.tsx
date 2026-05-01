@@ -128,7 +128,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
 
-  /** Exports account profile data as JSON (nDSG Art. 28 portability). */
+  /** Exports account profile data as JSON. */
   async function handleDataExport() {
     setIsExporting(true);
     const result = await exportUserData().catch((error: unknown) => {
@@ -303,7 +303,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
         </CardContent>
       </Card>
 
-      {/* Data Export (nDSG Art. 28, Right to Data Portability) */}
+      {/* Data Export */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -341,7 +341,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
         </CardContent>
       </Card>
 
-      {/* Account Deletion (nDSG Art. 32(2), Right to Erasure) */}
+      {/* Account Deletion */}
       <Card className="border-destructive/50">
         <CardHeader>
           <CardTitle className="text-destructive flex items-center gap-2">

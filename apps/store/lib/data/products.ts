@@ -611,7 +611,7 @@ const helvetyImageUpscaler: SaaSProduct = {
     "Sharper PNG, JPEG, or WebP exports from the tab: 2×/4× batches, custom width or height with locked aspect ratio, and caps so the browser stays responsive.",
   description: {
     intro:
-      "Helvety Image Upscaler processes supported operations in-browser with a WebGPU-ready runtime check and canvas fallback. Pixels are resampled on-device—there is no Helvety-hosted image conversion farm behind the scenes.",
+      "Helvety Image Upscaler processes supported operations in-browser with a WebGPU-ready runtime check and canvas fallback. Pixels are resampled on-device for the supported pipeline, without a Helvety-hosted conversion service in the normal flow.",
     sections: [
       {
         heading: "Access model",
@@ -809,7 +809,7 @@ const helvetyContacts: SaaSProduct = {
   slug: "helvety-contacts",
   name: "Helvety Contacts",
   shortDescription:
-    "Names, numbers, birthdays, and rich notes—encrypted at rest with Personal, Family, Work, Business, or Other buckets, drag reorder, and self-service export.",
+    "Names, numbers, birthdays, and rich notes—encrypted at rest with Personal, Work, and Other buckets, drag reorder, and self-service export.",
   description: {
     intro:
       "Helvety Contacts is a lightweight encrypted Rolodex: structured fields stay opaque to us because encryption happens locally before anything syncs.",
@@ -845,7 +845,7 @@ const helvetyContacts: SaaSProduct = {
     "End-to-end encryption for sensitive contact fields",
     "Rich contact fields (name, email, phone, birthday)",
     "Rich text notes with formatting",
-    "Immutable built-in categories (Personal, Family, Work, Business, Other)",
+    "Immutable built-in categories (Personal, Work, Other)",
     "Task linking with Helvety Tasks",
     "Drag & drop reordering",
     "Self-service encrypted data export",

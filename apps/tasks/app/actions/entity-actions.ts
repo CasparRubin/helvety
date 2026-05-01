@@ -139,7 +139,7 @@ export async function reorderEntities(
 }
 
 // =============================================================================
-// DATA EXPORT (nDSG Art. 28, Right to Data Portability)
+// DATA EXPORT
 // =============================================================================
 
 /**
@@ -151,7 +151,7 @@ export async function reorderEntities(
  * Security: read-only server action (no CSRF token); requires a session and uses
  * `readRateLimitConfig: RATE_LIMITS.EXPORT` for per-user throttling.
  *
- * Legal basis: nDSG Art. 28 (right to data portability)
+ * Export format and legal context are documented in the product legal pages.
  */
 export async function getAllTaskDataForExport(): Promise<
   ActionResponse<EncryptedTaskExport>

@@ -98,7 +98,7 @@ export interface Contact {
 }
 
 // =============================================================================
-// DATA EXPORT TYPES (nDSG Art. 28, Right to Data Portability)
+// DATA EXPORT TYPES
 // =============================================================================
 
 /** All encrypted note data for export (decrypted client-side) */

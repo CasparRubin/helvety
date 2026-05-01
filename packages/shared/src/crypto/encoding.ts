@@ -49,10 +49,11 @@ export function generateSalt(length: number = 16): Uint8Array<ArrayBuffer> {
  * before a collision becomes probable (at probability ~2^-32). Given that:
  * - Master keys are cached in IndexedDB for up to 24 hours (key-storage.ts)
  *   and re-derived from passkey PRF + salt when needed (cache TTL != key rotation)
- * - Typical usage is well under 1 million encryptions per key lifetime
+ * - Typical usage is expected to remain well under 1 million encryptions per
+ *   key lifetime (operational estimate, not a hard runtime cap)
  * - Each user has their own key (no key sharing between users)
  * The collision probability is negligibly small (~2^-56 for 10^6 operations).
- * Under current assumptions and expected volume, collision risk remains very low.
+ * Under these assumptions, collision risk remains very low.
  */
 export function generateIV(): Uint8Array<ArrayBuffer> {
   const buffer = new ArrayBuffer(12);

@@ -39,10 +39,12 @@ export default function PrivacyPage() {
           Our services are primarily intended for customers located in
           Switzerland. Sign-in includes a location attestation step where users
           confirm they are not located in the EU/EEA before verification-code
-          delivery. Access from outside Switzerland may still occur. This
-          Privacy Policy is primarily based on the Swiss Federal Act on Data
-          Protection (nDSG). Where mandatory law in another jurisdiction applies
-          in a specific case, we comply with applicable legal obligations.
+          delivery. This attestation is an eligibility control, not strict
+          geolocation enforcement, and access from outside Switzerland may still
+          occur. This Privacy Policy is primarily based on the Swiss Federal Act
+          on Data Protection (nDSG). Where mandatory law in another jurisdiction
+          applies in a specific case, we comply with applicable legal
+          obligations.
         </p>
       </section>
 
@@ -833,9 +835,10 @@ export default function PrivacyPage() {
           <li>
             <strong className="text-foreground">Technical logs:</strong>{" "}
             Retained for a limited period for security, fraud-prevention,
-            service reliability, and incident response (target retention up to 6
-            months / 183 days under current operational policy, unless a longer
-            period is required for a specific incident, dispute, or legal hold).
+            service reliability, and incident response (typically up to 6 months
+            / 183 days under current operational policy, subject to provider
+            constraints, incident handling needs, disputes, and legal hold
+            requirements).
           </li>
           <li>
             <strong className="text-foreground">
@@ -1336,9 +1339,10 @@ export default function PrivacyPage() {
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">
-          We encourage you to review this Privacy Policy periodically. Your
-          continued use of the Services after changes are posted constitutes
-          your acceptance of the revised policy.
+          We encourage you to review this Privacy Policy periodically. If you
+          continue using the Services after an update becomes effective, that
+          continued use indicates acceptance to the extent permitted by
+          applicable law.
         </p>
       </section>
 

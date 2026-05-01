@@ -1095,11 +1095,11 @@ export default function TermsPage() {
 
         <h3 className="mb-3 text-lg font-medium">13.3 Maximum Liability</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, OUR TOTAL
+          TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, OUR TOTAL
           CUMULATIVE LIABILITY FOR CLAIMS ARISING FROM OR RELATED TO THESE TERMS
-          OR THE SERVICES IS EXCLUDED. WHERE LIABILITY CANNOT BE FULLY EXCLUDED
-          UNDER MANDATORY LAW, IT IS LIMITED TO THE MINIMUM EXTENT PERMITTED BY
-          SUCH LAW.
+          OR THE SERVICES IS LIMITED. WHERE LIABILITY CANNOT BE EXCLUDED OR
+          LIMITED UNDER MANDATORY LAW, THIS SECTION APPLIES ONLY TO THE EXTENT
+          LEGALLY PERMITTED.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">13.4 Assumption of Risk</h3>

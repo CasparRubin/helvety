@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { downloadNoteDataExport } from "@/lib/data-export";
 
 /**
- * Hook for exporting decrypted note data as JSON (supports nDSG Art. 28 data portability).
+ * Hook for exporting decrypted note data as JSON.
  *
  * Encapsulates the export flow: loading state, error handling, and toast
  * notifications. Used by the Notes dashboard.
