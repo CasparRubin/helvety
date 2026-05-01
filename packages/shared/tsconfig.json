@@ -1,5 +1,5 @@
 {
-  "extends": "../config/tsconfig.base.json",
+  "extends": "@helvety/config/tsconfig.base.json",
   "compilerOptions": {
     "paths": {
       "@helvety/shared/*": ["./src/*"]

@@ -18,6 +18,8 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
     "test": "echo \"No tests in @helvety/brand\"",
+    "test:watch": "echo \"No tests in @helvety/brand\"",
+    "test:coverage": "echo \"No tests in @helvety/brand\"",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

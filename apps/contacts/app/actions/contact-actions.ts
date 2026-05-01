@@ -5,6 +5,7 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import {
+  assignDefinedField,
   isExportWithinCap,
   reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
@@ -199,33 +200,43 @@ export async function updateContact(
     const updateObj: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
-    if (validatedData.encrypted_first_name !== undefined) {
-      updateObj.encrypted_first_name = validatedData.encrypted_first_name;
-    }
-    if (validatedData.encrypted_last_name !== undefined) {
-      updateObj.encrypted_last_name = validatedData.encrypted_last_name;
-    }
-    if (validatedData.encrypted_description !== undefined) {
-      updateObj.encrypted_description = validatedData.encrypted_description;
-    }
-    if (validatedData.encrypted_email !== undefined) {
-      updateObj.encrypted_email = validatedData.encrypted_email;
-    }
-    if (validatedData.encrypted_phone !== undefined) {
-      updateObj.encrypted_phone = validatedData.encrypted_phone;
-    }
-    if (validatedData.encrypted_birthday !== undefined) {
-      updateObj.encrypted_birthday = validatedData.encrypted_birthday;
-    }
-    if (validatedData.encrypted_notes !== undefined) {
-      updateObj.encrypted_notes = validatedData.encrypted_notes;
-    }
-    if (validatedData.category_id !== undefined) {
-      updateObj.category_id = validatedData.category_id;
-    }
-    if (validatedData.sort_order !== undefined) {
-      updateObj.sort_order = validatedData.sort_order;
-    }
+    assignDefinedField(
+      updateObj,
+      "encrypted_first_name",
+      validatedData.encrypted_first_name
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_last_name",
+      validatedData.encrypted_last_name
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_description",
+      validatedData.encrypted_description
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_email",
+      validatedData.encrypted_email
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_phone",
+      validatedData.encrypted_phone
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_birthday",
+      validatedData.encrypted_birthday
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_notes",
+      validatedData.encrypted_notes
+    );
+    assignDefinedField(updateObj, "category_id", validatedData.category_id);
+    assignDefinedField(updateObj, "sort_order", validatedData.sort_order);
 
     // Update contact (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase

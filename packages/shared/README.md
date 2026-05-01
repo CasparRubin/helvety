@@ -29,9 +29,12 @@ This package centralizes:
   - `server-action-primitives`
   - `entity-action-primitives`
     - includes `reorderOwnedEntities(...)` for scoped reorder mutations
+    - includes `assignDefinedField(...)` for concise, consistent partial-update payload construction
   - `entity-link-action-primitives`
   - `entity-list-reorder`
     - includes `computeReorderUpdates(...)` for shared DnD reorder computation
+- Shared editor draft helper:
+  - `hooks/use-rich-text-draft-state` for saved/baseline/dirty-state tracking across rich-text editors
 - `proxy` is request bootstrap only (CSP/CSRF/session refresh), not the primary authorization boundary.
 
 ### Supabase SSR

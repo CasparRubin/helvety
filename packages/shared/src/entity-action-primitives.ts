@@ -92,6 +92,19 @@ export function isExportWithinCap(rowCount: number): boolean {
 }
 
 /**
+ * Assign a field when value is defined.
+ */
+export function assignDefinedField(
+  target: Record<string, unknown>,
+  key: string,
+  value: unknown
+): void {
+  if (value !== undefined) {
+    target[key] = value;
+  }
+}
+
+/**
  * Validates ownership and applies chunked reorder updates for an entity table.
  */
 export async function reorderOwnedEntities<T extends ReorderUpdateLike>({

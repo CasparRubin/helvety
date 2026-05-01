@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { assignDefinedField } from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
 import {
   parseActionInput,
@@ -161,18 +162,18 @@ export async function updateItem(
     const updateObj: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
-    if (validatedData.encrypted_title !== undefined) {
-      updateObj.encrypted_title = validatedData.encrypted_title;
-    }
-    if (validatedData.encrypted_description !== undefined) {
-      updateObj.encrypted_description = validatedData.encrypted_description;
-    }
-    if (validatedData.sort_order !== undefined) {
-      updateObj.sort_order = validatedData.sort_order;
-    }
-    if (validatedData.category_id !== undefined) {
-      updateObj.category_id = validatedData.category_id;
-    }
+    assignDefinedField(
+      updateObj,
+      "encrypted_title",
+      validatedData.encrypted_title
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_description",
+      validatedData.encrypted_description
+    );
+    assignDefinedField(updateObj, "sort_order", validatedData.sort_order);
+    assignDefinedField(updateObj, "category_id", validatedData.category_id);
 
     // Update item (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase

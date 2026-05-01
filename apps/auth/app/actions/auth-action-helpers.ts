@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getTrustedClientIp } from "@helvety/shared/client-ip";
-import { COOKIE_DOMAIN, DOMAIN, DEV_PORTS } from "@helvety/shared/config";
+import { COOKIE_DOMAIN } from "@helvety/shared/config";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
@@ -12,6 +12,8 @@ import { checkRateLimit } from "@/lib/rate-limit";
 
 import type { RateLimitPolicy } from "@helvety/shared/rate-limit";
 import type { ActionResponse } from "@helvety/shared/types/entities";
+
+export { getExpectedOrigins, getRpId, RP_NAME } from "./auth-rp-config";
 
 // =============================================================================
 // TYPES
@@ -32,7 +34,6 @@ type StoredChallenge = {
 // CONFIGURATION
 // =============================================================================
 
-export const RP_NAME = "Helvety";
 const CHALLENGE_COOKIE_NAME = "webauthn_challenge";
 const CHALLENGE_EXPIRY_MS = 3 * 60 * 1000; // 3 minutes
 const PRF_SALT_LENGTH = 32; // PRF salt length in bytes
@@ -216,52 +217,6 @@ export async function runRateLimitGuard(
         `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
     },
   };
-}
-
-// =============================================================================
-// RELYING PARTY CONFIGURATION
-// =============================================================================
-
-/**
- * Get the Relying Party ID
- *
- * IMPORTANT: For centralized auth, we use 'helvety.com' as the rpId in production.
- * This allows passkeys registered on helvety.com/auth to work across all paths.
- *
- * @param origin - The origin URL (used only for development detection)
- */
-export function getRpId(origin: string): string {
-  try {
-    const url = new URL(origin);
-    // In development, use localhost
-    if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
-      return "localhost";
-    }
-    // In production topology, use the root domain for passkey sharing across app paths
-    return DOMAIN;
-  } catch {
-    // Fallback to production domain
-    return DOMAIN;
-  }
-}
-
-/**
- * Get expected origins for passkey verification.
- * In production there is a single origin (https://helvety.com) because all
- * apps are served under one domain via path-based routing (multi-zone).
- * In development each app runs on a separate localhost port.
- */
-export function getExpectedOrigins(rpId: string): string[] {
-  if (rpId === "localhost") {
-    // All local development ports for Helvety apps.
-    // Support both localhost and 127.0.0.1 because developers often mix both.
-    return [
-      ...Object.values(DEV_PORTS).map((port) => `http://localhost:${port}`),
-      ...Object.values(DEV_PORTS).map((port) => `http://127.0.0.1:${port}`),
-    ];
-  }
-  // All apps served under helvety.com via path-based routing (multi-zone)
-  return [`https://${DOMAIN}`];
 }
 
 // =============================================================================

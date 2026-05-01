@@ -18,6 +18,8 @@
     "type-check": "echo \"No TypeScript sources in @helvety/config\"",
     "lint": "eslint --config eslint.mjs . --max-warnings 0",
     "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

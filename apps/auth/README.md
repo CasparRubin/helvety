@@ -68,6 +68,7 @@ bun run test:coverage
 
 Notable tests include login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`).
 Passkey action tests also cover malformed payload handling, account mismatch protection, and transport sanitization behavior.
+Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

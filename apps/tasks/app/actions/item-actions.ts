@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { assignDefinedField } from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
 import {
   parseActionInput,
@@ -206,30 +207,30 @@ export async function updateItem(
     const updateObj: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
-    if (validatedData.encrypted_title !== undefined) {
-      updateObj.encrypted_title = validatedData.encrypted_title;
-    }
-    if (validatedData.encrypted_description !== undefined) {
-      updateObj.encrypted_description = validatedData.encrypted_description;
-    }
-    if (validatedData.encrypted_start_date !== undefined) {
-      updateObj.encrypted_start_date = validatedData.encrypted_start_date;
-    }
-    if (validatedData.encrypted_end_date !== undefined) {
-      updateObj.encrypted_end_date = validatedData.encrypted_end_date;
-    }
-    if (validatedData.stage_id !== undefined) {
-      updateObj.stage_id = validatedData.stage_id;
-    }
-    if (validatedData.label_id !== undefined) {
-      updateObj.label_id = validatedData.label_id;
-    }
-    if (validatedData.priority !== undefined) {
-      updateObj.priority = validatedData.priority;
-    }
-    if (validatedData.sort_order !== undefined) {
-      updateObj.sort_order = validatedData.sort_order;
-    }
+    assignDefinedField(
+      updateObj,
+      "encrypted_title",
+      validatedData.encrypted_title
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_description",
+      validatedData.encrypted_description
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_start_date",
+      validatedData.encrypted_start_date
+    );
+    assignDefinedField(
+      updateObj,
+      "encrypted_end_date",
+      validatedData.encrypted_end_date
+    );
+    assignDefinedField(updateObj, "stage_id", validatedData.stage_id);
+    assignDefinedField(updateObj, "label_id", validatedData.label_id);
+    assignDefinedField(updateObj, "priority", validatedData.priority);
+    assignDefinedField(updateObj, "sort_order", validatedData.sort_order);
 
     // Update item (RLS + explicit user_id check for defense-in-depth)
     const { error } = await supabase

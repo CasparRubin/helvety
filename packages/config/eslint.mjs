@@ -94,6 +94,44 @@ const codeQualityRules = {
   "no-console": ["warn", { allow: ["warn", "error"] }],
 };
 
+/** Import boundary rules for application workspaces. */
+const appBoundaryRules = {
+  "no-restricted-imports": [
+    "error",
+    {
+      patterns: [
+        {
+          group: [
+            "@helvety/auth",
+            "@helvety/auth/*",
+            "@helvety/contacts",
+            "@helvety/contacts/*",
+            "@helvety/image-upscaler",
+            "@helvety/image-upscaler/*",
+            "@helvety/notes",
+            "@helvety/notes/*",
+            "@helvety/pdf",
+            "@helvety/pdf/*",
+            "@helvety/store",
+            "@helvety/store/*",
+            "@helvety/tasks",
+            "@helvety/tasks/*",
+            "@helvety/web",
+            "@helvety/web/*",
+          ],
+          message:
+            "Do not import code directly from other apps. Promote shared code through @helvety/shared or @helvety/ui.",
+        },
+        {
+          group: ["../../apps/**", "../../../apps/**", "../../../../apps/**"],
+          message:
+            "Cross-app relative imports are not allowed. Extract shared modules into packages.",
+        },
+      ],
+    },
+  ],
+};
+
 /** JSDoc rules shared between app and package configs. */
 const jsdocRules = {
   "jsdoc/require-jsdoc": [
@@ -159,6 +197,7 @@ export function createEslintConfig(rootDir) {
         ...importRules,
         ...typescriptRules,
         ...codeQualityRules,
+        ...appBoundaryRules,
         ...jsdocRules,
       },
     },

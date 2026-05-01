@@ -1,5 +1,6 @@
 "use client";
 
+import { useRichTextDraftState } from "@helvety/shared/hooks/use-rich-text-draft-state";
 import { cn } from "@helvety/shared/utils";
 import {
   AlertDialog,
@@ -135,24 +136,17 @@ export function ItemEditor({
     null
   );
 
-  // Value-comparison refs for unsaved-changes detection.
-  // We track what was last saved/initialized so we can compare against current values
-  // instead of relying on fragile event-flag tracking.
-  const savedTitleRef = useRef("");
-  const savedDescriptionRef = useRef<string | null>(null);
-  // Captures the editor's normalized output on its first emission (initialization).
-  // Until captured, description changes are not treated as user edits.
-  const editorBaselineCaptured = useRef(false);
+  const draftState = useRichTextDraftState();
 
   // Initialize form with item data
   useEffect(() => {
     if (item && !hasInitialized) {
       setTitle(item.title);
-      savedTitleRef.current = item.title;
-      // Description baseline is captured via editorBaselineCaptured on first TiptapEditor emission
+      draftState.initializeTitle(item.title);
+      // Description baseline is captured on first Tiptap editor emission.
       setHasInitialized(true);
     }
-  }, [item, hasInitialized]);
+  }, [item, hasInitialized, draftState]);
 
   // Save function
   const save = useCallback(
@@ -169,13 +163,10 @@ export function ItemEditor({
       });
 
       if (success) {
-        // Update saved-value refs so subsequent comparisons use the just-saved values
-        savedTitleRef.current = newTitle;
-        if (newDescription) {
-          savedDescriptionRef.current = JSON.stringify(newDescription);
-        } else {
-          savedDescriptionRef.current = null;
-        }
+        draftState.markSaved(
+          newTitle,
+          newDescription ? JSON.stringify(newDescription) : null
+        );
 
         setSaveStatus("saved");
         setHasUnsavedChanges(false);
@@ -185,7 +176,7 @@ export function ItemEditor({
         setSaveStatus("error");
       }
     },
-    [update]
+    [update, draftState]
   );
 
   // Handle title change: compare against saved value to determine dirty state
@@ -195,17 +186,16 @@ export function ItemEditor({
       setTitle(newTitle);
 
       if (hasInitialized) {
-        const titleChanged = newTitle !== savedTitleRef.current;
         const currentDescJson = editorRef.current?.getJSON();
         const currentDescSerialized = currentDescJson
           ? JSON.stringify(currentDescJson)
           : null;
-        const descChanged =
-          currentDescSerialized !== savedDescriptionRef.current;
-        setHasUnsavedChanges(titleChanged || descChanged);
+        setHasUnsavedChanges(
+          draftState.isDirty(newTitle, currentDescSerialized)
+        );
       }
     },
-    [hasInitialized]
+    [hasInitialized, draftState]
   );
 
   // Handle description change: capture editor baseline on first emission, then compare values
@@ -216,19 +206,15 @@ export function ItemEditor({
       // On the first emission after mount/refresh, capture the editor's normalized
       // output as the baseline. This accounts for any content normalization TiptapEditor
       // performs on the initial content (e.g., adding empty paragraphs, restructuring).
-      if (!editorBaselineCaptured.current) {
-        savedDescriptionRef.current = serialized;
-        editorBaselineCaptured.current = true;
+      if (draftState.captureEditorBaseline(serialized)) {
         return;
       }
 
       if (hasInitialized) {
-        const descChanged = serialized !== savedDescriptionRef.current;
-        const titleChanged = title !== savedTitleRef.current;
-        setHasUnsavedChanges(descChanged || titleChanged);
+        setHasUnsavedChanges(draftState.isDirty(title, serialized));
       }
     },
-    [hasInitialized, title]
+    [hasInitialized, title, draftState]
   );
 
   // Manual save (for button in command bar)
@@ -256,12 +242,12 @@ export function ItemEditor({
       setHasInitialized(false);
       setHasUnsavedChanges(false);
       // Reset baseline so the next TiptapEditor emission is captured as the new baseline
-      editorBaselineCaptured.current = false;
+      draftState.resetDescriptionBaselineCapture();
       await refresh();
     } finally {
       setIsRefreshing(false);
     }
-  }, [refresh]);
+  }, [refresh, draftState]);
 
   // Handle back navigation - confirms if unsaved changes
   const handleBack = useCallback(() => {

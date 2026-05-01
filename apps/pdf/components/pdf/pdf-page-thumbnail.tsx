@@ -11,13 +11,9 @@ import { usePdfWorker } from "@/hooks/use-pdf-worker";
 import { useProgressiveQuality } from "@/hooks/use-progressive-quality";
 import { useScreenSize } from "@/hooks/use-screen-size";
 import { useThumbnailIntersection } from "@/hooks/use-thumbnail-intersection";
-import {
-  THUMBNAIL_DIMENSIONS,
-  PDF_RENDER,
-  ROTATION_ANGLES,
-} from "@/lib/constants";
+import { useThumbnailLayout } from "@/hooks/use-thumbnail-layout";
+import { PDF_RENDER, ROTATION_ANGLES } from "@/lib/constants";
 import { getImageBitmapCache } from "@/lib/imagebitmap-cache";
-import { debounce } from "@/lib/pdf-helpers";
 import { calculateOptimalDPR } from "@/lib/thumbnail-dpr";
 
 import { PdfImageThumbnail } from "./pdf-image-thumbnail";
@@ -72,14 +68,11 @@ function PdfPageThumbnailComponent({
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [documentReady, setDocumentReady] = React.useState(false);
   const [pageRenderReady, setPageRenderReady] = React.useState(false);
-  const [pageWidth, setPageWidth] = React.useState<number>(400);
-  const [devicePixelRatio, setDevicePixelRatio] = React.useState(1.0);
   const [imageBitmap, setImageBitmap] = React.useState<ImageBitmap | null>(
     null
   );
   const [useImageBitmap, setUseImageBitmap] = React.useState(false);
   const [renderRetryCount, setRenderRetryCount] = React.useState(0);
-  const containerRef = React.useRef<HTMLDivElement>(null);
   const documentReadyTimeoutRef = React.useRef<ReturnType<
     typeof setTimeout
   > | null>(null);
@@ -123,6 +116,9 @@ function PdfPageThumbnailComponent({
     },
     [screenSize, totalPages]
   );
+  const { containerRef, pageWidth, devicePixelRatio } = useThumbnailLayout({
+    calculateDPR,
+  });
 
   // Reset states when fileUrl changes (new file loaded)
   React.useEffect(() => {
@@ -195,74 +191,6 @@ function PdfPageThumbnailComponent({
       setPageRenderReady(true);
     }, delayMs);
   }, []);
-
-  // Measure container width and update page width dynamically
-  // This ensures pages (PDFs and images) always display at full width regardless of column count,
-  // with height automatically adjusting to maintain proper aspect ratio
-  React.useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const updateWidth = (): void => {
-      const rect = container.getBoundingClientRect();
-      // Calculate available width accounting for any padding/borders
-      const computedStyle = window.getComputedStyle(container);
-      const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
-      const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
-      const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0;
-      const borderRight = parseFloat(computedStyle.borderRightWidth) || 0;
-
-      const availableWidth =
-        rect.width - paddingLeft - paddingRight - borderLeft - borderRight;
-
-      // Apply min/max limits to prevent memory issues
-      const calculatedWidth = Math.max(
-        THUMBNAIL_DIMENSIONS.MIN_WIDTH,
-        Math.min(availableWidth, THUMBNAIL_DIMENSIONS.MAX_WIDTH)
-      );
-      setPageWidth(calculatedWidth);
-
-      // Update DPR when width changes
-      const optimalDPR = calculateDPR(calculatedWidth);
-      setDevicePixelRatio(optimalDPR);
-    };
-
-    // Initial measurement
-    updateWidth();
-
-    // Debounced version of updateWidth to prevent excessive calculations
-    const debouncedUpdateWidth = debounce(updateWidth, 150);
-
-    // Use ResizeObserver if available, fallback to window resize
-    let resizeObserver: ResizeObserver | null = null;
-    let usingResizeObserver = false;
-
-    if (typeof ResizeObserver !== "undefined") {
-      resizeObserver = new ResizeObserver(() => {
-        debouncedUpdateWidth();
-      });
-      resizeObserver.observe(container);
-      usingResizeObserver = true;
-    } else {
-      // Fallback to window resize event
-      window.addEventListener("resize", debouncedUpdateWidth);
-    }
-
-    return (): void => {
-      // Cancel any pending debounced calls
-      debouncedUpdateWidth.cancel();
-
-      // Clean up ResizeObserver or window event listener
-      if (usingResizeObserver && resizeObserver) {
-        resizeObserver.disconnect();
-        resizeObserver = null;
-      } else {
-        // For window resize, we need to remove the listener
-        // Note: This works because we cancel the debounce first
-        window.removeEventListener("resize", debouncedUpdateWidth);
-      }
-    };
-  }, [calculateDPR]);
 
   /**
    * Callback handler for when the PDF document successfully loads.

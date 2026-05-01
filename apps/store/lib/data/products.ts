@@ -44,7 +44,7 @@ function compareProductsByReleaseDateNewestFirst(
   return pb - pa;
 }
 
-/** Oldest `releaseDate` first; pairs with sortOrder like other sortBy fields. */
+/** Oldest `releaseDate` first; pairs with sort direction like other sort modes. */
 function compareProductsByReleaseDateOldestFirst(
   a: Product,
   b: Product
@@ -1092,14 +1092,6 @@ export function getFilteredProducts(filters: ProductFilters): Product[] {
           const aPrice = a.pricing.tiers[0]?.price ?? 0;
           const bPrice = b.pricing.tiers[0]?.price ?? 0;
           comparison = aPrice - bPrice;
-          break;
-        case "sortOrder":
-          const aOrder = a.metadata?.sortOrder ?? 999;
-          const bOrder = b.metadata?.sortOrder ?? 999;
-          comparison = aOrder - bOrder;
-          break;
-        case "createdAt":
-          comparison = (a.createdAt ?? "").localeCompare(b.createdAt ?? "");
           break;
         case "releaseDate":
           comparison = compareProductsByReleaseDateOldestFirst(a, b);

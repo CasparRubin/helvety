@@ -82,6 +82,11 @@ bun run format
 - Use explicit `cleanup()` in workspace `vitest.setup.ts` files that use `@testing-library/react`.
 - Prefer typed fixture builders in tests (`buildXxx(...)`) over repeated `as unknown as` casting so test inputs evolve with production types.
 
+## Monorepo Conventions
+
+- Architectural and workspace conventions are documented in [`MONOREPO_CONVENTIONS.md`](./MONOREPO_CONVENTIONS.md).
+- ESLint boundary rules enforce that apps do not import code directly from other apps; shared logic must live in workspace packages.
+
 ## CI and Release Checks
 
 - `bun run ci:check` runs `consistency:proxy-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.

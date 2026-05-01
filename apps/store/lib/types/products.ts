@@ -305,7 +305,7 @@ export interface ProductFilters {
   /** Only show featured products */
   featured?: boolean;
   /** Sort field */
-  sortBy?: "name" | "price" | "createdAt" | "sortOrder" | "releaseDate";
+  sortBy?: "name" | "price" | "releaseDate";
   /** Sort direction */
   sortOrder?: "asc" | "desc";
 }
