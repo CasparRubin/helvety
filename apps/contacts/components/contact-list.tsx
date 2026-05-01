@@ -10,6 +10,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { computeReorderUpdates } from "@helvety/shared/entity-list-reorder";
 import { Button } from "@helvety/ui/button";
 import { useE2eeEntityListDndSensors } from "@helvety/ui/use-e2ee-entity-list-dnd-sensors";
 import { Loader2Icon } from "lucide-react";
@@ -134,62 +135,16 @@ export function ContactList({
         targetCategoryId = overContact.category_id;
       }
 
-      const sortedContacts = [...contacts].sort(
-        (a, b) => a.sort_order - b.sort_order
-      );
-
-      const oldIndex = sortedContacts.findIndex((c) => c.id === activeId);
-      const newIndex =
-        overContact || over.data?.current?.type !== "category"
-          ? sortedContacts.findIndex((c) => c.id === overId)
-          : -1;
-
-      if (oldIndex === -1) return;
-
-      sortedContacts.splice(oldIndex, 1);
-      const insertAt = newIndex === -1 ? sortedContacts.length : newIndex;
-      sortedContacts.splice(insertAt, 0, activeContact);
-
-      const startIndex = Math.min(oldIndex, insertAt);
-      const endIndex = Math.max(oldIndex, insertAt);
-      const updates: ReorderUpdate[] = [];
-      for (let index = startIndex; index <= endIndex; index++) {
-        const contactAtIndex = sortedContacts[index];
-        if (!contactAtIndex) continue;
-        const originalContact = contacts.find(
-          (c) => c.id === contactAtIndex.id
-        );
-        if (!originalContact) continue;
-
-        const hasSortOrderChange = originalContact.sort_order !== index;
-        const isActiveContact = contactAtIndex.id === activeId;
-        const hasCategoryChange =
-          isActiveContact &&
-          typeof targetCategoryId === "string" &&
-          originalContact.category_id !== targetCategoryId;
-        if (!hasSortOrderChange && !hasCategoryChange) continue;
-
-        const update: ReorderUpdate = {
-          id: contactAtIndex.id,
-          sort_order: index,
-        };
-        if (hasCategoryChange) {
-          update.category_id = targetCategoryId;
-        }
-        updates.push(update);
-      }
-
-      if (
-        updates.length === 0 &&
-        typeof targetCategoryId === "string" &&
-        activeContact.category_id !== targetCategoryId
-      ) {
-        updates.push({
-          id: activeContact.id,
-          sort_order: activeContact.sort_order,
-          category_id: targetCategoryId,
-        });
-      }
+      const updates = computeReorderUpdates({
+        entities: contacts,
+        activeId,
+        overId,
+        activeEntity: activeContact,
+        targetGroupId: targetCategoryId,
+        groupKey: "category_id",
+        droppedOnGroupContainer:
+          !overContact && over.data?.current?.type === "category",
+      }) as ReorderUpdate[];
 
       if (updates.length === 0) return;
 

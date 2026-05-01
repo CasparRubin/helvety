@@ -10,6 +10,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { computeReorderUpdates } from "@helvety/shared/entity-list-reorder";
 import { Button } from "@helvety/ui/button";
 import { useE2eeEntityListDndSensors } from "@helvety/ui/use-e2ee-entity-list-dnd-sensors";
 import { Loader2Icon } from "lucide-react";
@@ -100,12 +101,8 @@ export function EntityList({
 
       const activeId = active.id as string;
       const overId = over.id as string;
-      const entitiesById = new Map(
-        entities.map((entity) => [entity.id, entity])
-      );
-
-      const activeEntity = entitiesById.get(activeId);
-      const overEntity = entitiesById.get(overId);
+      const activeEntity = entities.find((entity) => entity.id === activeId);
+      const overEntity = entities.find((entity) => entity.id === overId);
 
       if (!activeEntity) return;
 
@@ -120,60 +117,16 @@ export function EntityList({
         targetCategoryId = overEntity.category_id;
       }
 
-      const sortedEntities = [...entities].sort(
-        (a, b) => a.sort_order - b.sort_order
-      );
-
-      const oldIndex = sortedEntities.findIndex((e) => e.id === activeId);
-      const newIndex =
-        overEntity || over.data?.current?.type !== "category"
-          ? sortedEntities.findIndex((e) => e.id === overId)
-          : -1;
-
-      if (oldIndex === -1) return;
-
-      sortedEntities.splice(oldIndex, 1);
-      const insertAt = newIndex === -1 ? sortedEntities.length : newIndex;
-      sortedEntities.splice(insertAt, 0, activeEntity);
-
-      const startIndex = Math.min(oldIndex, insertAt);
-      const endIndex = Math.max(oldIndex, insertAt);
-      const updates: ReorderUpdate[] = [];
-      for (let index = startIndex; index <= endIndex; index++) {
-        const entityAtIndex = sortedEntities[index];
-        if (!entityAtIndex) continue;
-        const originalEntity = entitiesById.get(entityAtIndex.id);
-        if (!originalEntity) continue;
-
-        const hasSortOrderChange = originalEntity.sort_order !== index;
-        const isActiveEntity = entityAtIndex.id === activeId;
-        const hasCategoryChange =
-          isActiveEntity &&
-          typeof targetCategoryId === "string" &&
-          originalEntity.category_id !== targetCategoryId;
-        if (!hasSortOrderChange && !hasCategoryChange) continue;
-
-        const update: ReorderUpdate = {
-          id: entityAtIndex.id,
-          sort_order: index,
-        };
-        if (hasCategoryChange) {
-          update.category_id = targetCategoryId;
-        }
-        updates.push(update);
-      }
-
-      if (
-        updates.length === 0 &&
-        typeof targetCategoryId === "string" &&
-        activeEntity.category_id !== targetCategoryId
-      ) {
-        updates.push({
-          id: activeEntity.id,
-          sort_order: activeEntity.sort_order,
-          category_id: targetCategoryId,
-        });
-      }
+      const updates = computeReorderUpdates({
+        entities,
+        activeId,
+        overId,
+        activeEntity,
+        targetGroupId: targetCategoryId,
+        groupKey: "category_id",
+        droppedOnGroupContainer:
+          !overEntity && over.data?.current?.type === "category",
+      }) as ReorderUpdate[];
 
       if (updates.length === 0) return;
 

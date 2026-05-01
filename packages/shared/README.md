@@ -28,7 +28,10 @@ This package centralizes:
 - Action modules can compose:
   - `server-action-primitives`
   - `entity-action-primitives`
+    - includes `reorderOwnedEntities(...)` for scoped reorder mutations
   - `entity-link-action-primitives`
+  - `entity-list-reorder`
+    - includes `computeReorderUpdates(...)` for shared DnD reorder computation
 - `proxy` is request bootstrap only (CSP/CSRF/session refresh), not the primary authorization boundary.
 
 ### Supabase SSR

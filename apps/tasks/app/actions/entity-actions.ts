@@ -6,8 +6,7 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import {
   isExportWithinCap,
-  runChunkedReorderUpdates,
-  validateOwnedReorderScope,
+  reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
 import {
@@ -101,46 +100,33 @@ export async function reorderEntities(
       return { success: true };
     }
 
-    // Ensure all entities being reordered belong to the current user.
-    const updateIds = validatedUpdates.map((update) => update.id);
-    const scopeResult = await validateOwnedReorderScope({
+    const reorderResult = await reorderOwnedEntities({
       supabase,
       userId: user.id,
       tableName: "items",
-      ids: updateIds,
+      updates: validatedUpdates,
       scope: "Error validating item reorder scope",
       failureMessage: "Failed to reorder items",
       invalidScopeMessage: "Invalid item reorder scope",
-    });
-    if (!scopeResult.success) {
-      return scopeResult;
-    }
-    const reorderResult = await runChunkedReorderUpdates({
-      updates: validatedUpdates,
-      updateChunk: async (chunk, nowIso) =>
-        Promise.all(
-          chunk.map((update) => {
-            const updateObj: Record<string, unknown> = {
-              sort_order: update.sort_order,
-              updated_at: nowIso,
-            };
-            if (update.stage_id !== undefined) {
-              updateObj.stage_id = update.stage_id;
-            }
-
-            return supabase
-              .from("items")
-              .update(updateObj)
-              .eq("id", update.id)
-              .eq("user_id", user.id);
-          })
-        ),
+      buildUpdateObject: (update, nowIso) => {
+        const updateObj: Record<string, unknown> = {
+          sort_order: update.sort_order,
+          updated_at: nowIso,
+        };
+        if (update.stage_id !== undefined) {
+          updateObj.stage_id = update.stage_id;
+        }
+        return updateObj;
+      },
     });
 
     if (!reorderResult.success) {
+      if (reorderResult.cause === undefined) {
+        return { success: false, error: reorderResult.error };
+      }
       logger.logUnexpectedError(
         `Error reordering ${entityType}`,
-        reorderResult.error
+        reorderResult.cause
       );
       return { success: false, error: `Failed to reorder ${entityType}s` };
     }

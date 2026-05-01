@@ -3,7 +3,22 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "SUPABASE_SECRET_KEY",
+        "AUTH_URL",
+        "TASKS_URL",
+        "CONTACTS_URL",
+        "NOTES_URL",
+        "STORE_URL",
+        "PDF_URL",
+        "IMAGE_UPSCALER_URL",
+        "HELVETY_SERVER_ACTION_ALLOWED_ORIGINS",
+        "UPSTASH_REDIS_REST_URL",
+        "UPSTASH_REDIS_REST_TOKEN"
+      ]
     },
     "dev": {
       "cache": false,
@@ -13,22 +28,5 @@
     "type-check": {},
     "test": {}
   },
-  "globalEnv": [
-    "NODE_ENV",
-    "SKIP_ENV_VALIDATION",
-    "VERCEL",
-    "NEXT_PUBLIC_SUPABASE_URL",
-    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-    "SUPABASE_SECRET_KEY",
-    "AUTH_URL",
-    "TASKS_URL",
-    "CONTACTS_URL",
-    "NOTES_URL",
-    "STORE_URL",
-    "PDF_URL",
-    "IMAGE_UPSCALER_URL",
-    "HELVETY_SERVER_ACTION_ALLOWED_ORIGINS",
-    "UPSTASH_REDIS_REST_URL",
-    "UPSTASH_REDIS_REST_TOKEN"
-  ]
+  "globalEnv": ["NODE_ENV", "SKIP_ENV_VALIDATION", "VERCEL"]
 }

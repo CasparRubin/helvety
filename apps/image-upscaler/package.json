@@ -23,9 +23,9 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node ../../scripts/generate-version.mjs && vitest run",
-    "test:watch": "node ../../scripts/generate-version.mjs && vitest",
-    "test:coverage": "node ../../scripts/generate-version.mjs && vitest run --coverage"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@helvety/brand": "workspace:*",

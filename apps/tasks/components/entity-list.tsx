@@ -10,6 +10,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { computeReorderUpdates } from "@helvety/shared/entity-list-reorder";
 import { Button } from "@helvety/ui/button";
 import { useE2eeEntityListDndSensors } from "@helvety/ui/use-e2ee-entity-list-dnd-sensors";
 import { Loader2Icon } from "lucide-react";
@@ -193,63 +194,15 @@ export function EntityList({
         targetStageId = overEntity.stage_id;
       }
 
-      // Build reorder updates
-      // Calculate new sort_order based on position
-      const sortedEntities = [...entities].sort(
-        (a, b) => a.sort_order - b.sort_order
-      );
-
-      const oldIndex = sortedEntities.findIndex((e) => e.id === activeId);
-      const newIndex = sortedEntities.findIndex((e) => e.id === overId);
-
-      if (oldIndex === -1) return;
-
-      // Remove active entity and reinsert at new position
-      sortedEntities.splice(oldIndex, 1);
-      const insertAt = newIndex === -1 ? sortedEntities.length : newIndex;
-      sortedEntities.splice(insertAt, 0, activeEntity);
-
-      // Generate only the minimal changed range to reduce rerender/load.
-      const startIndex = Math.min(oldIndex, insertAt);
-      const endIndex = Math.max(oldIndex, insertAt);
-      const updates: ReorderUpdate[] = [];
-      for (let index = startIndex; index <= endIndex; index++) {
-        const entityAtIndex = sortedEntities[index];
-        if (!entityAtIndex) continue;
-        const originalEntity = entities.find((e) => e.id === entityAtIndex.id);
-        if (!originalEntity) continue;
-
-        const hasSortOrderChange = originalEntity.sort_order !== index;
-        const isActiveEntity = entityAtIndex.id === activeId;
-        const hasStageChange =
-          isActiveEntity &&
-          typeof targetStageId === "string" &&
-          originalEntity.stage_id !== targetStageId;
-
-        if (!hasSortOrderChange && !hasStageChange) continue;
-
-        const update: ReorderUpdate = {
-          id: entityAtIndex.id,
-          sort_order: index,
-        };
-        if (hasStageChange) {
-          update.stage_id = targetStageId;
-        }
-        updates.push(update);
-      }
-
-      // Handle stage-only moves where index did not change.
-      if (
-        updates.length === 0 &&
-        typeof targetStageId === "string" &&
-        activeEntity.stage_id !== targetStageId
-      ) {
-        updates.push({
-          id: activeEntity.id,
-          sort_order: activeEntity.sort_order,
-          stage_id: targetStageId,
-        });
-      }
+      const updates = computeReorderUpdates({
+        entities,
+        activeId,
+        overId,
+        activeEntity,
+        targetGroupId: targetStageId,
+        groupKey: "stage_id",
+        droppedOnGroupContainer: over.data?.current?.type === "stage",
+      }) as ReorderUpdate[];
 
       if (updates.length === 0) return;
 

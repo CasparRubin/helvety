@@ -24,27 +24,11 @@ export const DEFAULT_CATEGORIES: DefaultCategory[] = [
     default_rows_shown: 20,
   },
   {
-    id: "family",
-    name: "Family",
-    color: "#10b981",
-    icon: "home",
-    sort_order: 1,
-    default_rows_shown: 20,
-  },
-  {
     id: "work",
     name: "Work",
     color: "#f59e0b",
     icon: "briefcase",
-    sort_order: 2,
-    default_rows_shown: 20,
-  },
-  {
-    id: "business",
-    name: "Business",
-    color: "#8b5cf6",
-    icon: "database",
-    sort_order: 3,
+    sort_order: 1,
     default_rows_shown: 20,
   },
   {
@@ -52,8 +36,8 @@ export const DEFAULT_CATEGORIES: DefaultCategory[] = [
     name: "Other",
     color: "#6b7280",
     icon: "tag",
-    sort_order: 4,
-    default_rows_shown: 5,
+    sort_order: 2,
+    default_rows_shown: 20,
   },
 ];
 

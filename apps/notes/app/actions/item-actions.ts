@@ -9,11 +9,11 @@ import {
   unexpectedActionError,
 } from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
+import { EncryptedDataSchema } from "@helvety/shared/validation/encrypted-data";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { ALLOWED_NOTE_CATEGORY_IDS } from "@/lib/config/default-note-categories";
-import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse } from "@/lib/types";
 

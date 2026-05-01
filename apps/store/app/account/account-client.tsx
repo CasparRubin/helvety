@@ -1,6 +1,6 @@
 "use client";
 
-import { ProfileTab } from "@/components/account";
+import { ProfileTab } from "@/components/account/profile-tab";
 
 /** User profile data pre-fetched server-side. */
 interface UserData {

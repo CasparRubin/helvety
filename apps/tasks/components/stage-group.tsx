@@ -5,10 +5,9 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { renderIcon as renderStageIcon } from "@helvety/ui/icon-renderer";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import React, { useState } from "react";
-
-import { renderStageIcon } from "@/lib/icons";
 
 import type { Stage } from "@/lib/types";
 

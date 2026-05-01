@@ -25,11 +25,11 @@ describe("DEFAULT_CATEGORIES", () => {
     }
   });
 
-  it("uses expected icons for personal and family categories", () => {
+  it("uses expected icons for personal and work categories", () => {
     const personal = DEFAULT_CATEGORIES.find((c) => c.id === "personal");
-    const family = DEFAULT_CATEGORIES.find((c) => c.id === "family");
+    const work = DEFAULT_CATEGORIES.find((c) => c.id === "work");
 
     expect(personal?.icon).toBe("heart");
-    expect(family?.icon).toBe("home");
+    expect(work?.icon).toBe("briefcase");
   });
 });

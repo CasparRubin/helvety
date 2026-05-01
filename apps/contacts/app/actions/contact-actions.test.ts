@@ -353,7 +353,7 @@ describe("contact-actions", () => {
     const result = await reorderContacts(
       [
         {
-          category_id: "business",
+          category_id: "other",
           id: "550e8400-e29b-41d4-a716-446655440001",
           sort_order: 0,
         },
@@ -364,7 +364,7 @@ describe("contact-actions", () => {
     expect(result).toEqual({ success: true });
     expect(update).toHaveBeenCalledWith(
       expect.objectContaining({
-        category_id: "business",
+        category_id: "other",
         sort_order: 0,
       })
     );

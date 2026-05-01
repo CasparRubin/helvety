@@ -13,6 +13,7 @@ vi.mock("./logger", () => ({
 import { ACTION_LIMITS } from "./constants";
 import {
   isExportWithinCap,
+  reorderOwnedEntities,
   runChunkedReorderUpdates,
   validateOwnedReorderScope,
 } from "./entity-action-primitives";
@@ -149,5 +150,86 @@ describe("entity-action-primitives", () => {
     expect(isExportWithinCap(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)).toBe(
       false
     );
+  });
+
+  it("reorders owned entities and applies update payloads", async () => {
+    const eqUser = vi.fn().mockResolvedValue({ error: null });
+    const eqId = vi.fn(() => ({ eq: eqUser }));
+    const update = vi.fn(() => ({ eq: eqId }));
+    const from = vi
+      .fn()
+      .mockImplementationOnce(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            in: vi.fn().mockResolvedValue({
+              data: [{ id: "a" }, { id: "b" }],
+              error: null,
+            }),
+          })),
+        })),
+      }))
+      .mockImplementation(() => ({ update }));
+    const supabase = buildReorderSupabase(from);
+
+    const result = await reorderOwnedEntities({
+      supabase,
+      userId: "user-1",
+      tableName: "items",
+      updates: [
+        { id: "a", sort_order: 0, stage_id: "todo" },
+        { id: "b", sort_order: 1 },
+      ],
+      scope: "scope",
+      failureMessage: "failed",
+      invalidScopeMessage: "invalid",
+      buildUpdateObject: (entry, nowIso) => ({
+        sort_order: entry.sort_order,
+        updated_at: nowIso,
+        ...(entry.stage_id ? { stage_id: entry.stage_id } : {}),
+      }),
+    });
+
+    expect(result).toEqual({ success: true });
+    expect(from).toHaveBeenCalledWith("items");
+    expect(update).toHaveBeenCalled();
+    expect(eqId).toHaveBeenCalledWith("id", "a");
+    expect(eqUser).toHaveBeenCalledWith("user_id", "user-1");
+  });
+
+  it("returns failure when chunk update fails", async () => {
+    const dbError = new Error("update failed");
+    const eqUser = vi.fn().mockResolvedValue({ error: dbError });
+    const eqId = vi.fn(() => ({ eq: eqUser }));
+    const update = vi.fn(() => ({ eq: eqId }));
+    const from = vi
+      .fn()
+      .mockImplementationOnce(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            in: vi.fn().mockResolvedValue({
+              data: [{ id: "a" }],
+              error: null,
+            }),
+          })),
+        })),
+      }))
+      .mockImplementation(() => ({ update }));
+    const supabase = buildReorderSupabase(from);
+
+    const result = await reorderOwnedEntities({
+      supabase,
+      userId: "user-1",
+      tableName: "items",
+      updates: [{ id: "a", sort_order: 0 }],
+      scope: "scope",
+      failureMessage: "failed",
+      invalidScopeMessage: "invalid",
+      buildUpdateObject: (entry, nowIso) => ({
+        sort_order: entry.sort_order,
+        updated_at: nowIso,
+      }),
+    });
+
+    expect(result).toEqual({ success: false, error: "failed", cause: dbError });
   });
 });

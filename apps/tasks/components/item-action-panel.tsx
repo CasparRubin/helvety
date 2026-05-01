@@ -17,6 +17,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@helvety/ui/collapsible";
+import { renderIcon as renderStageIcon } from "@helvety/ui/icon-renderer";
 import { Label as FormLabel } from "@helvety/ui/label";
 import { Separator } from "@helvety/ui/separator";
 import { useIsMobile } from "@helvety/ui/use-is-mobile";
@@ -29,7 +30,6 @@ import {
 import { useCallback, useEffect, useState } from "react";
 
 import { DateTimePicker } from "@/components/ui/date-time-picker";
-import { renderStageIcon } from "@/lib/icons";
 import { PRIORITIES, getPriorityConfig } from "@/lib/priorities";
 
 import type { Item, Stage, Label } from "@/lib/types";

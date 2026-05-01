@@ -11,6 +11,11 @@ interface ReorderUpdateLike {
   sort_order: number;
 }
 
+/** Result type for combined reorder scope validation + updates. */
+type ReorderOperationResult =
+  | { success: true }
+  | { success: false; error: string; cause?: unknown };
+
 /**
  * Ensures every provided ID belongs to the authenticated user.
  */
@@ -84,4 +89,65 @@ export async function runChunkedReorderUpdates<T extends ReorderUpdateLike>({
  */
 export function isExportWithinCap(rowCount: number): boolean {
   return rowCount <= ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE;
+}
+
+/**
+ * Validates ownership and applies chunked reorder updates for an entity table.
+ */
+export async function reorderOwnedEntities<T extends ReorderUpdateLike>({
+  supabase,
+  userId,
+  tableName,
+  updates,
+  scope,
+  failureMessage,
+  invalidScopeMessage,
+  buildUpdateObject,
+}: {
+  supabase: SupabaseClient;
+  userId: string;
+  tableName: string;
+  updates: T[];
+  scope: string;
+  failureMessage: string;
+  invalidScopeMessage: string;
+  buildUpdateObject: (update: T, nowIso: string) => Record<string, unknown>;
+}): Promise<ReorderOperationResult> {
+  const updateIds = updates.map((update) => update.id);
+  const scopeResult = await validateOwnedReorderScope({
+    supabase,
+    userId,
+    tableName,
+    ids: updateIds,
+    scope,
+    failureMessage,
+    invalidScopeMessage,
+  });
+  if (!scopeResult.success) {
+    return scopeResult;
+  }
+
+  const reorderResult = await runChunkedReorderUpdates({
+    updates,
+    updateChunk: async (chunk, nowIso) =>
+      Promise.all(
+        chunk.map((update) =>
+          supabase
+            .from(tableName)
+            .update(buildUpdateObject(update, nowIso))
+            .eq("id", update.id)
+            .eq("user_id", userId)
+        )
+      ),
+  });
+
+  if (!reorderResult.success) {
+    return {
+      success: false,
+      error: failureMessage,
+      cause: reorderResult.error,
+    };
+  }
+
+  return { success: true };
 }

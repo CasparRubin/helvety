@@ -6,8 +6,7 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import {
   isExportWithinCap,
-  runChunkedReorderUpdates,
-  validateOwnedReorderScope,
+  reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
 import { RATE_LIMITS } from "@helvety/shared/rate-limit";
@@ -16,6 +15,7 @@ import {
   unexpectedActionError,
 } from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
+import { EncryptedDataSchema } from "@helvety/shared/validation/encrypted-data";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -23,7 +23,6 @@ import {
   ALLOWED_CATEGORY_IDS,
   DEFAULT_CONTACT_CATEGORY_ID,
 } from "@/lib/config/default-categories";
-import { EncryptedDataSchema } from "@/lib/validation-schemas";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
 
@@ -316,44 +315,32 @@ export async function reorderContacts(
       return { success: true };
     }
 
-    const updateIds = validatedUpdates.map((update) => update.id);
-    const scopeResult = await validateOwnedReorderScope({
+    const reorderResult = await reorderOwnedEntities({
       supabase,
       userId: user.id,
       tableName: CONTACTS_TABLE,
-      ids: updateIds,
+      updates: validatedUpdates,
       scope: "Error validating contact reorder scope",
       failureMessage: "Failed to reorder contacts",
       invalidScopeMessage: "Invalid contact reorder scope",
-    });
-    if (!scopeResult.success) {
-      return scopeResult;
-    }
-
-    const reorderResult = await runChunkedReorderUpdates({
-      updates: validatedUpdates,
-      updateChunk: async (chunk, nowIso) =>
-        Promise.all(
-          chunk.map((update) => {
-            const updateObj: Record<string, unknown> = {
-              sort_order: update.sort_order,
-              updated_at: nowIso,
-            };
-            if (update.category_id !== undefined) {
-              updateObj.category_id = update.category_id;
-            }
-            return supabase
-              .from(CONTACTS_TABLE)
-              .update(updateObj)
-              .eq("id", update.id)
-              .eq("user_id", user.id);
-          })
-        ),
+      buildUpdateObject: (update, nowIso) => {
+        const updateObj: Record<string, unknown> = {
+          sort_order: update.sort_order,
+          updated_at: nowIso,
+        };
+        if (update.category_id !== undefined) {
+          updateObj.category_id = update.category_id;
+        }
+        return updateObj;
+      },
     });
     if (!reorderResult.success) {
+      if (reorderResult.cause === undefined) {
+        return { success: false, error: reorderResult.error };
+      }
       logger.logUnexpectedError(
         "Error reordering contact",
-        reorderResult.error
+        reorderResult.cause
       );
       return { success: false, error: "Failed to reorder contacts" };
     }

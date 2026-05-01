@@ -12,11 +12,9 @@ import { Suspense } from "react";
 
 import { EncryptionSetup } from "@/components/encryption-setup";
 import { AuthStepper } from "@/components/encryption-stepper";
-import {
-  EmailStep,
-  VerifyCodeStep,
-  PasskeySignInStep,
-} from "@/components/login";
+import { EmailStep } from "@/components/login/email-step";
+import { PasskeySignInStep } from "@/components/login/passkey-signin-step";
+import { VerifyCodeStep } from "@/components/login/verify-code-step";
 import { useLoginFlow } from "@/hooks/use-login-flow";
 
 import type { LoginStep } from "@/lib/login-flow-stepper";
