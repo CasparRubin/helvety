@@ -1,38 +1,23 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
+import { getCachedUser } from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
-import { publicSans } from "@helvety/shared/fonts";
-import {
-  createHelvetyOrganizationSchema,
-  DEFAULT_THEME_PROVIDER_PROPS,
-} from "@helvety/shared/layout-primitives";
-import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
-import { Footer } from "@helvety/ui/footer";
-import { JsonLdScript } from "@helvety/ui/json-ld-script";
-import { ScrollArea } from "@helvety/ui/scroll-area";
-import { SessionRecovery } from "@helvety/ui/session-recovery";
-import { SkipToContent } from "@helvety/ui/skip-to-content";
-import { Toaster } from "@helvety/ui/sonner";
-import { ThemeProvider } from "@helvety/ui/theme-provider";
-import { TooltipProvider } from "@helvety/ui/tooltip";
-import { VercelAnalyticsWithSpeedInsights } from "@helvety/ui/vercel-analytics";
+import { logger } from "@helvety/shared/logger";
+import { createHelvetyProductMetadata } from "@helvety/shared/seo";
+import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
 
-import type { Metadata } from "next";
-
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
-const WEB_SITE_DESCRIPTION =
+export const WEB_SITE_DESCRIPTION =
   "Swiss-built software with a calm UX: encrypted productivity, lightweight browser utilities, and clear legal pages. MIT-licensed where the repo ships code.";
 
 export const viewport = sharedViewport;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(urls.home),
+export const metadata = createHelvetyProductMetadata({
+  metadataBase: urls.home,
   title: {
-    default:
-      "Helvety | Software Products | Engineered, Designed & Made in Switzerland",
+    default: "Helvety | Swiss-built open source software",
     template: "%s | Helvety",
   },
   description: WEB_SITE_DESCRIPTION,
@@ -49,58 +34,15 @@ export const metadata: Metadata = {
     "privacy",
     "Switzerland",
   ],
-  authors: [{ name: "Helvety" }],
-  creator: "Helvety",
-  publisher: "Helvety",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: urls.home,
-    siteName: "Helvety",
-    title:
-      "Helvety | Software Products | Engineered, Designed & Made in Switzerland",
-    description: WEB_SITE_DESCRIPTION,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-        width: 500,
-        height: 500,
-        alt: "Helvety",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary",
-    title:
-      "Helvety | Software Products | Engineered, Designed & Made in Switzerland",
-    description: WEB_SITE_DESCRIPTION,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-      },
-    ],
+  siteName: "Helvety",
+  canonicalUrl: urls.home,
+  brandImage: {
+    url: brandAssets.identifierPng,
+    ogAlt: "Helvety",
   },
   manifest: "/manifest.json",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  alternates: {
-    canonical: urls.home,
-  },
-};
+  indexing: "all",
+});
 
 /**
  * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer (contact + legal links).
@@ -109,60 +51,38 @@ export const metadata: Metadata = {
  * exposes public metadata/API endpoints such as robots, sitemap, and CSP
  * reporting routes.
  * No explicit force-dynamic export. This layout reads request headers for CSP
- * nonce propagation; navbar auth state is resolved client-side via an initial
- * Supabase user probe plus onAuthStateChange updates.
+ * nonce propagation. The navbar receives an SSR `initialUser` snapshot from
+ * `getCachedUser` (with graceful fallback on failure); `useNavbarAuthState`
+ * still reconciles with the client session on updates.
  */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = (await getRequestCspNonce()) ?? undefined;
+  let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
 
-  return (
-    <html
-      lang="en"
-      className={publicSans.variable}
-      data-scroll-behavior="smooth"
-      suppressHydrationWarning
-    >
-      <body className="antialiased">
-        <SkipToContent />
-        <JsonLdScript
-          nonce={nonce}
-          json={{
-            "@context": "https://schema.org",
-            "@graph": [
-              createHelvetyOrganizationSchema(brandAssets.identifierPng),
-              {
-                "@type": "WebSite",
-                name: "Helvety",
-                url: urls.home,
-                description: WEB_SITE_DESCRIPTION,
-              },
-            ],
-          }}
-        />
-        <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
-          <AuthTokenHandler />
-          <SessionRecovery mode="optional" />
-          <TooltipProvider>
-            <div className="flex h-screen flex-col overflow-hidden">
-              <header className="shrink-0">
-                <Navbar />
-              </header>
-              <ScrollArea className="min-h-0 flex-1">
-                <div className="container mx-auto w-full px-4">
-                  <main id="main-content">{children}</main>
-                </div>
-              </ScrollArea>
-              <Footer className="shrink-0" external={false} />
-            </div>
-            <Toaster />
-          </TooltipProvider>
-        </ThemeProvider>
-        <VercelAnalyticsWithSpeedInsights />
-      </body>
-    </html>
-  );
+  try {
+    initialUser = await getCachedUser();
+  } catch (error) {
+    logger.logUnexpectedError("Layout initialization failed", error);
+  }
+
+  return HelvetyPublicShellRootLayout({
+    children,
+    organizationLogoUrl: brandAssets.identifierPng,
+    jsonLdGraphTail: [
+      {
+        "@type": "WebSite",
+        name: "Helvety",
+        url: urls.home,
+        description: WEB_SITE_DESCRIPTION,
+      },
+    ],
+    renderNavbar: <Navbar initialUser={initialUser} />,
+    mainVariant: "scroll-area",
+    footerExternal: false,
+    analytics: "with-speed-insights",
+    htmlSmoothScroll: true,
+  });
 }

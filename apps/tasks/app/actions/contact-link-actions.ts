@@ -11,6 +11,7 @@ import {
   toLinkedEntityReferences,
 } from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
 
 import type { ActionResponse } from "@/lib/types";
@@ -62,13 +63,12 @@ export async function getContacts(): Promise<
 
     if (error) {
       logger.logUnexpectedError("Error getting contacts", error);
-      return { success: false, error: "Failed to get contacts" };
+      return { success: false, error: "Failed to load contacts" };
     }
 
     return { success: true, data: contacts ?? [] };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getContacts", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getContacts", error);
   }
 }
 
@@ -101,7 +101,7 @@ export async function getItemContactLinks(
         "Error getting contact links",
         linksResult.error
       );
-      return { success: false, error: "Failed to get contact links" };
+      return { success: false, error: "Failed to load contact links" };
     }
 
     const references = toLinkedEntityReferences(
@@ -121,8 +121,10 @@ export async function getItemContactLinks(
 
     return { success: true, data: rows };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getItemContactLinks", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError(
+      "Unexpected error in getItemContactLinks",
+      error
+    );
   }
 }
 
@@ -180,8 +182,7 @@ export async function linkContact(
 
     return { success: true, data: { id: linkResult.data.id } };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in linkContact", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in linkContact", error);
   }
 }
 
@@ -213,7 +214,6 @@ export async function unlinkContact(
 
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in unlinkContact", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in unlinkContact", error);
   }
 }

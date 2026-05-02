@@ -1,13 +1,116 @@
 /**
- * Shared SEO helpers for sitemap and robots.txt generation.
- *
- * Centralizes shared sitemap/robots factories and path sanitization
- * utilities used by sub-apps.
+ * Shared SEO helpers for sub-apps: sitemap and robots.txt generation, path
+ * sanitization, and {@link createHelvetyProductMetadata} for consistent Next.js
+ * `Metadata` (Open Graph, Twitter, robots presets) across gateway and product apps.
  */
 
 import { urls } from "./config";
 
-import type { MetadataRoute } from "next";
+import type { Metadata, MetadataRoute } from "next";
+
+const GOOGLE_BOT_SNIPPET = {
+  "max-video-preview": -1,
+  "max-image-preview": "large" as const,
+  "max-snippet": -1,
+};
+
+/** Input for {@link createHelvetyProductMetadata}. */
+export type CreateHelvetyProductMetadataParams = Readonly<{
+  metadataBase: string;
+  title: { default: string; template: string };
+  description: string;
+  keywords: readonly string[];
+  /** `openGraph.siteName` */
+  siteName: string;
+  /** `openGraph.url` and `alternates.canonical` */
+  canonicalUrl: string;
+  /** Primary OG/Twitter image (e.g. `brandAssets.identifierPng`). */
+  brandImage: Readonly<{
+    url: string;
+    width?: number;
+    height?: number;
+    /** `openGraph.images[0].alt` */
+    ogAlt: string;
+    /** When set, `twitter.images[0].alt`; otherwise Twitter image omits alt. */
+    twitterAlt?: string;
+  }>;
+  manifest?: string;
+  category?: string;
+  /** `none` = noindex (E2EE zone, auth); `all` = indexable marketing/tools. */
+  indexing: "none" | "all";
+  /**
+   * When set, used for `openGraph.title` and `twitter.title` instead of
+   * `title.default` (same value in most apps).
+   */
+  socialTitle?: string;
+}>;
+
+/**
+ * Builds Next.js `Metadata` shared across Helvety product apps: authors,
+ * formatDetection, OG/Twitter cards, robots presets, canonical URL.
+ */
+export function createHelvetyProductMetadata(
+  params: CreateHelvetyProductMetadataParams
+): Metadata {
+  const socialTitle = params.socialTitle ?? params.title.default;
+  const index = params.indexing === "all";
+  const imageWidth = params.brandImage.width ?? 500;
+  const imageHeight = params.brandImage.height ?? 500;
+  const ogImage = {
+    url: params.brandImage.url,
+    width: imageWidth,
+    height: imageHeight,
+    alt: params.brandImage.ogAlt,
+  };
+  const twitterImage =
+    params.brandImage.twitterAlt !== undefined
+      ? { url: params.brandImage.url, alt: params.brandImage.twitterAlt }
+      : { url: params.brandImage.url };
+
+  return {
+    metadataBase: new URL(params.metadataBase),
+    title: params.title,
+    description: params.description,
+    keywords: [...params.keywords],
+    authors: [{ name: "Helvety" }],
+    creator: "Helvety",
+    publisher: "Helvety",
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
+    ...(params.manifest !== undefined ? { manifest: params.manifest } : {}),
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: params.canonicalUrl,
+      siteName: params.siteName,
+      title: socialTitle,
+      description: params.description,
+      images: [ogImage],
+    },
+    twitter: {
+      card: "summary",
+      title: socialTitle,
+      description: params.description,
+      images: [twitterImage],
+    },
+    robots: {
+      index,
+      follow: index,
+      googleBot: {
+        index,
+        follow: index,
+        ...GOOGLE_BOT_SNIPPET,
+      },
+    },
+    alternates: {
+      canonical: params.canonicalUrl,
+    },
+    ...(params.category !== undefined ? { category: params.category } : {}),
+  };
+}
 
 const DOMAIN = urls.home;
 

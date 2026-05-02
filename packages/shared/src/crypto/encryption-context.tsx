@@ -33,7 +33,7 @@ interface EncryptionState {
   masterKey: CryptoKey | null;
   /** The userId for which the current masterKey was derived/loaded */
   unlockedForUserId: string | null;
-  /** Error message if something went wrong */
+  /** User-visible error when the last encryption check failed */
   error: string | null;
   /** Whether passkey/PRF is supported on this device */
   prfSupported: boolean | null;
@@ -178,7 +178,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
           isUnlocked: false,
           isLoading: false,
           masterKey: null,
-          error: "Failed to check encryption state",
+          error: "Failed to check encryption status",
         }));
       }
     },

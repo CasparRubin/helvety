@@ -2,6 +2,7 @@
 
 import { CONTACT_EMAIL } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
+import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -22,7 +23,7 @@ interface AppErrorProps {
 export function AppError({
   error,
   reset,
-  title = "Something went wrong",
+  title = GENERIC_USER_ERROR,
   homeHref,
   showBackButton = false,
 }: AppErrorProps) {
@@ -42,7 +43,7 @@ export function AppError({
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
           <p className="text-muted-foreground max-w-md">
-            An unexpected error occurred. Please try again, or contact us at{" "}
+            Please try again, or contact us at{" "}
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               className="text-primary underline-offset-4 hover:underline"

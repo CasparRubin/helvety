@@ -64,20 +64,20 @@ function safeInternalErrorLog(...args: unknown[]): void {
  * Currently a no-op, but can be extended to integrate with actual services
  */
 class ErrorTracker implements ErrorTrackingService {
-  private service: ErrorTrackingService | null = null;
+  private _service: ErrorTrackingService | null = null;
 
   /**
    * Initialize with an external error tracking provider.
    * @param service
    */
   init(service: ErrorTrackingService): void {
-    this.service = service;
+    this._service = service;
   }
 
   captureException(error: Error, context?: Record<string, unknown>): void {
-    if (this.service) {
+    if (this._service) {
       try {
-        this.service.captureException(error, context);
+        this._service.captureException(error, context);
       } catch (e) {
         // Use safe internal logger to avoid circular dependency
         // Cannot use logger.error here as it would call errorTracker again
@@ -91,9 +91,9 @@ class ErrorTracker implements ErrorTrackingService {
     level: "error" | "warning" | "info" = "error",
     context?: Record<string, unknown>
   ): void {
-    if (this.service) {
+    if (this._service) {
       try {
-        this.service.captureMessage(message, level, context);
+        this._service.captureMessage(message, level, context);
       } catch (e) {
         // Use safe internal logger to avoid circular dependency
         // Cannot use logger.error here as it would call errorTracker again

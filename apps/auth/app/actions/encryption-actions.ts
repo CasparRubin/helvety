@@ -6,7 +6,9 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { isAuthRequiredError } from "@helvety/shared/auth-errors";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { createServerClient } from "@helvety/shared/supabase/server";
+import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 import { fetchUserPasskeyParamsForUser } from "@helvety/shared/user-passkey-params-db";
 
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -94,13 +96,13 @@ export async function getPasskeyParams(): Promise<
       "Error getting PRF params"
     );
     if (!row.ok) {
-      return { success: false, error: "Failed to get encryption params" };
+      return { success: false, error: "Failed to load encryption params" };
     }
 
     return { success: true, data: row.params };
   } catch (error) {
     logger.logUnexpectedError("Error in getPasskeyParams", error);
-    return { success: false, error: "Failed to get encryption params" };
+    return { success: false, error: "Failed to load encryption params" };
   }
 }
 
@@ -151,7 +153,7 @@ export async function saveKeyCheckValue(
     if (!rl.allowed) {
       return {
         success: false,
-        error: `Too many attempts. Please wait ${rl.retryAfter ?? 60} seconds before trying again.`,
+        error: buildRateLimitedUserMessage(rl.retryAfter),
       };
     }
 
@@ -167,7 +169,9 @@ export async function saveKeyCheckValue(
 
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in saveKeyCheckValue", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError(
+      "Unexpected error in saveKeyCheckValue",
+      error
+    );
   }
 }

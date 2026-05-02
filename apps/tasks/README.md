@@ -7,6 +7,7 @@ End-to-end encrypted task management app.
 
 ## Key Features
 
+- Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (per-request CSRF token + `getCachedUser`, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable
 - Client-side encryption for sensitive task fields
 - Fixed stage-based main list with drag-and-drop reorder
 - Client-side search on decrypted title/description; while search is active, reorder/drag is disabled and an empty-search message is shown when nothing matches

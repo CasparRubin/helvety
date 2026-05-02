@@ -1,25 +1,25 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { sharedViewport, urls } from "@helvety/shared/config";
+import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { E2eeAppRootLayout } from "@helvety/ui/e2ee-app-root-layout";
 
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
 
-import type { Metadata } from "next";
-
-const TASKS_APP_DESCRIPTION_COPY =
+/** Shared tasks SEO / social copy (single source for metadata + JSON-LD). */
+export const TASKS_APP_DESCRIPTION =
   "Kanban-style tasks encrypted before they leave your browser—MIT open source, built in Switzerland.";
 
 export const viewport = sharedViewport;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(urls.tasks),
+export const metadata = createHelvetyProductMetadata({
+  metadataBase: urls.tasks,
   title: {
-    default: "Helvety Tasks | Task Management",
+    default: "Helvety Tasks | Encrypted Kanban tasks",
     template: "%s | Helvety Tasks",
   },
-  description: TASKS_APP_DESCRIPTION_COPY,
+  description: TASKS_APP_DESCRIPTION,
   keywords: [
     "Helvety Tasks",
     "task management",
@@ -29,58 +29,17 @@ export const metadata: Metadata = {
     "secure",
     "encrypted",
   ],
-  authors: [{ name: "Helvety" }],
-  creator: "Helvety",
-  publisher: "Helvety",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
+  siteName: "Helvety Tasks",
+  canonicalUrl: urls.tasks,
+  brandImage: {
+    url: brandAssets.identifierPng,
+    ogAlt: "Helvety Tasks",
+    twitterAlt: "Helvety Tasks",
   },
   manifest: "/tasks/manifest.json",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: urls.tasks,
-    siteName: "Helvety Tasks",
-    title: "Helvety Tasks | Task Management",
-    description: TASKS_APP_DESCRIPTION_COPY,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-        width: 500,
-        height: 500,
-        alt: "Helvety Tasks",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary",
-    title: "Helvety Tasks | Task Management",
-    description: TASKS_APP_DESCRIPTION_COPY,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-        alt: "Helvety Tasks",
-      },
-    ],
-  },
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  alternates: {
-    canonical: urls.tasks,
-  },
   category: "productivity",
-};
+  indexing: "none",
+});
 
 /**
  * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer.
@@ -96,10 +55,10 @@ export default function RootLayout({
       softwareApplication={{
         name: "Helvety Tasks",
         url: urls.tasks,
-        description: TASKS_APP_DESCRIPTION_COPY,
+        description: TASKS_APP_DESCRIPTION,
         applicationCategory: "BusinessApplication",
       }}
-      EncryptionProvider={EncryptionProvider}
+      encryptionProvider={EncryptionProvider}
       renderNavbar={(initialUser) => <Navbar initialUser={initialUser} />}
     >
       {children}

@@ -14,6 +14,7 @@ import {
   toLinkedEntityReferences,
 } from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
 
 import type {
@@ -60,7 +61,7 @@ export async function getContactTaskLinks(
 
     if (linksResult.error) {
       logger.logUnexpectedError("Error getting task links", linksResult.error);
-      return { success: false, error: "Failed to get task links" };
+      return { success: false, error: "Failed to load task links" };
     }
 
     const links = toLinkedEntityReferences(
@@ -93,7 +94,7 @@ export async function getContactTaskLinks(
 
     if (itemsError) {
       logger.logUnexpectedError("Error fetching linked items", itemsError);
-      return { success: false, error: "Failed to fetch linked items" };
+      return { success: false, error: "Failed to load linked items" };
     }
 
     const linkMap = new Map(
@@ -121,8 +122,10 @@ export async function getContactTaskLinks(
       },
     };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getContactTaskLinks", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError(
+      "Unexpected error in getContactTaskLinks",
+      error
+    );
   }
 }
 
@@ -151,13 +154,12 @@ export async function getTaskEntities(): Promise<
 
     if (error) {
       logger.logUnexpectedError("Error fetching tasks", error);
-      return { success: false, error: "Failed to fetch tasks" };
+      return { success: false, error: "Failed to load tasks" };
     }
 
     return { success: true, data: { items: items ?? [] } };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getTaskEntities", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getTaskEntities", error);
   }
 }
 
@@ -223,8 +225,7 @@ export async function linkTaskEntity(
 
     return { success: true, data: { id: linkResult.id } };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in linkTaskEntity", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in linkTaskEntity", error);
   }
 }
 
@@ -265,7 +266,6 @@ export async function unlinkTaskEntity(
 
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in unlinkTaskEntity", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in unlinkTaskEntity", error);
   }
 }

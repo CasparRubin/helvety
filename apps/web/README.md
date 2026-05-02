@@ -9,7 +9,8 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 
 - Multi-zone gateway rewrites for `/auth`, `/store`, `/pdf`, `/image-upscaler`, `/tasks`, `/contacts`, `/notes`
 - Vercel Analytics script forwarding for sub-app routes so analytics works across all zones
-- Shared ecosystem navigation (grouped app/tool switcher and auth-aware menu)
+- Shared ecosystem navigation via `@helvety/ui/helvety-shell-navbar` (grouped app/tool switcher and auth-aware menu; SSR `getCachedUser` in `app/layout.tsx` feeds `initialUser` so the bar does not flash through a loading-only state when a session exists)
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (scroll-area main, Speed Insights) and `@helvety/shared/seo` (`createHelvetyProductMetadata`) for gateway metadata
 - Public legal pages, cookie notice, and abuse-reporting entry points
 - Canonical metadata and sitemap/robots endpoints for indexable content
 

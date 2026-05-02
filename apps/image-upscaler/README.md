@@ -7,6 +7,7 @@ Browser-based image upscaler for PNG/JPG/WebP files.
 
 ## Key Features
 
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (overflow-main) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `getCachedUser()` supplies an optional SSR session snapshot to the navbar (no login required for upscaling)
 - In-browser image resizing with per-image or batch upscale flows
 - Upscale by fixed factors (`2x`, `4x`) or target dimensions
 - Batch queue with per-item statuses

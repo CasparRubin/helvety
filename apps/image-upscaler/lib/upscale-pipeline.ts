@@ -1,6 +1,8 @@
 "use client";
 /* eslint-disable jsdoc/require-jsdoc */
 
+import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
+
 import { createUpscaleWorkerClient } from "@/lib/upscale-worker-client";
 
 export const MAX_BULK_FILES = 5;
@@ -202,7 +204,7 @@ export async function upscaleItemsSequentially(options: {
       } catch (error) {
         options.onProgress(item.id, {
           status: "failed",
-          error: error instanceof Error ? error.message : "Unexpected error",
+          error: error instanceof Error ? error.message : GENERIC_USER_ERROR,
         });
         failedCount += 1;
       }

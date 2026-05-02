@@ -159,7 +159,7 @@ describe("store download-actions", () => {
 
     expect(result).toEqual({
       success: false,
-      error: "Too many requests. Please wait 42 seconds.",
+      error: "Too many requests. Wait 42 seconds, then try again.",
     });
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });

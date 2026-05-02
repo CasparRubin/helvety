@@ -51,7 +51,7 @@ interface UseNoteLinksReturn {
   linkedNotes: LinkedNote[];
   /** Whether data is being loaded */
   isLoading: boolean;
-  /** Error message if something went wrong */
+  /** User-visible error when the last note-links operation failed */
   error: string | null;
   /** Refresh all data from server */
   refresh: () => Promise<void>;
@@ -148,7 +148,7 @@ export function useNoteLinks(
         ) {
           return;
         }
-        const msg = notesResult.error ?? "Failed to fetch notes";
+        const msg = notesResult.error ?? "Failed to load notes";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;
@@ -174,7 +174,7 @@ export function useNoteLinks(
         ) {
           return;
         }
-        const msg = linksResult.error ?? "Failed to fetch linked notes";
+        const msg = linksResult.error ?? "Failed to load linked notes";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;
@@ -203,7 +203,7 @@ export function useNoteLinks(
         return;
       }
       const msg =
-        err instanceof Error ? err.message : "Failed to fetch note data";
+        err instanceof Error ? err.message : "Failed to load note data";
       if (
         triggerE2eeHookAuthErrorNavigation("tasks-use-note-links", msg, {
           redirectUri: routeAtStart,

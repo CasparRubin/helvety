@@ -131,7 +131,7 @@ describe("encryption-actions", () => {
     });
     await expect(saveKeyCheckValue("token", "kcv")).resolves.toEqual({
       success: false,
-      error: "Too many attempts. Please wait 42 seconds before trying again.",
+      error: "Too many requests. Wait 42 seconds, then try again.",
     });
   });
 });

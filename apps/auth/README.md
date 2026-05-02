@@ -7,11 +7,13 @@ Centralized passwordless authentication for the Helvety ecosystem.
 
 ## Key Features
 
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider` for the navbar), parallel `getCachedCSRFToken` / `getCachedUser`, and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
 - Email OTP + passkey authentication (WebAuthn)
 - Account-bound returning-user passkey sign-in
 - Session sharing across Helvety path-routed apps
 - Redirect URI validation for cross-app sign-in flows
 - Auth-step resolution for passkey setup vs passkey sign-in
+- Logout (`/logout`): clears local crypto artifacts in the browser, then calls the server action in [`app/logout/logout-actions.ts`](app/logout/logout-actions.ts) to end the Supabase session (CSRF-protected)
 
 ## Authentication Flow
 
@@ -69,6 +71,7 @@ bun run test:coverage
 Notable tests include login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`).
 Passkey action tests also cover malformed payload handling, account mismatch protection, and transport sanitization behavior.
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
+`components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots.
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

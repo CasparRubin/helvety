@@ -173,7 +173,7 @@ export async function getAllNoteDataForExport(): Promise<
         "Error fetching note data for export",
         itemsError
       );
-      return { success: false, error: "Failed to fetch note data" };
+      return { success: false, error: "Failed to load note data" };
     }
 
     if (!isExportWithinCap(items?.length ?? 0)) {

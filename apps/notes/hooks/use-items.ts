@@ -104,7 +104,7 @@ interface UseItemsReturn {
   isLoading: boolean;
   /** Whether items are currently being refreshed with stale data still visible */
   isRefreshing: boolean;
-  /** Error message if something went wrong */
+  /** User-visible error when the last notes operation failed */
   error: string | null;
   /** Refresh items from server */
   refresh: () => Promise<void>;
@@ -126,7 +126,7 @@ async function fetchItems(): Promise<ActionResponse<ItemRow[]>> {
     method: "GET",
     cache: "no-store",
   });
-  return parseActionResponse<ItemRow[]>(response, "Failed to fetch notes");
+  return parseActionResponse<ItemRow[]>(response, "Failed to load notes");
 }
 
 /** Fetches a single encrypted note row via GET route handler. */
@@ -135,7 +135,7 @@ async function fetchItemById(id: string): Promise<ActionResponse<ItemRow>> {
     method: "GET",
     cache: "no-store",
   });
-  return parseActionResponse<ItemRow>(response, "Failed to fetch note");
+  return parseActionResponse<ItemRow>(response, "Failed to load note");
 }
 
 /**
@@ -188,7 +188,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to fetch notes";
+        const msg = result.error ?? "Failed to load notes";
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
         }
@@ -212,7 +212,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
         `${perfLabel}:end`
       );
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to fetch notes";
+      const msg = err instanceof Error ? err.message : "Failed to load notes";
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
@@ -497,7 +497,7 @@ interface UseItemReturn {
   item: Item | null;
   /** Whether the item is being loaded */
   isLoading: boolean;
-  /** Error message if something went wrong */
+  /** User-visible error when the last notes operation failed */
   error: string | null;
   /** Refresh the item from server */
   refresh: () => Promise<void>;
@@ -556,7 +556,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to fetch note";
+        const msg = result.error ?? "Failed to load note";
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
         }
@@ -572,7 +572,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
       }
       setItem(decrypted);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to fetch note";
+      const msg = err instanceof Error ? err.message : "Failed to load note";
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }

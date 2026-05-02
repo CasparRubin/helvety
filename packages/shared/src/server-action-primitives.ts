@@ -1,6 +1,7 @@
 import "server-only";
 
 import { logger } from "./logger";
+import { GENERIC_USER_ERROR } from "./user-facing-errors";
 
 import type { ZodType } from "zod";
 
@@ -36,12 +37,15 @@ export function parseActionInput<T>({
 }
 
 /**
- * Shared fallback for unexpected errors in server actions.
+ * Shared fallback for unexpected errors in server actions: logs with
+ * `logger.logUnexpectedError` and returns `{ success: false, error }` using
+ * `GENERIC_USER_ERROR` from `./user-facing-errors` so user-facing copy stays
+ * canonical.
  */
 export function unexpectedActionError(
   scope: string,
   error: unknown
 ): ValidationFailure {
   logger.logUnexpectedError(scope, error);
-  return { success: false, error: "An unexpected error occurred" };
+  return { success: false, error: GENERIC_USER_ERROR };
 }

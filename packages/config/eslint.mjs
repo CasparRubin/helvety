@@ -82,6 +82,72 @@ const typescriptRules = {
       fixStyle: "separate-type-imports",
     },
   ],
+  "@typescript-eslint/naming-convention": [
+    "error",
+    {
+      selector: "default",
+      format: ["camelCase"],
+      leadingUnderscore: "allow",
+      trailingUnderscore: "allow",
+    },
+    {
+      selector: "variable",
+      format: ["camelCase", "UPPER_CASE", "PascalCase"],
+      leadingUnderscore: "allow",
+    },
+    {
+      selector: "parameter",
+      format: ["camelCase"],
+      leadingUnderscore: "allow",
+    },
+    {
+      selector: "function",
+      format: ["camelCase", "PascalCase"],
+      leadingUnderscore: "allow",
+    },
+    {
+      selector: "memberLike",
+      modifiers: ["private"],
+      format: ["camelCase"],
+      leadingUnderscore: "allow",
+    },
+    {
+      selector: "typeLike",
+      format: ["PascalCase"],
+    },
+    {
+      selector: "interface",
+      format: ["PascalCase"],
+      custom: {
+        regex: "^I[A-Z]",
+        match: false,
+      },
+    },
+    {
+      selector: "typeParameter",
+      format: ["PascalCase"],
+    },
+    {
+      selector: "enumMember",
+      format: ["PascalCase", "UPPER_CASE"],
+    },
+    {
+      selector: "objectLiteralProperty",
+      format: null,
+    },
+    {
+      selector: "typeProperty",
+      format: null,
+    },
+    {
+      selector: "method",
+      format: ["camelCase", "PascalCase", "UPPER_CASE"],
+    },
+    {
+      selector: "import",
+      format: ["camelCase", "PascalCase", "UPPER_CASE"],
+    },
+  ],
 };
 
 /** Code quality rules shared between app and package configs. */
@@ -204,6 +270,14 @@ export function createEslintConfig(rootDir) {
     // Dense UI modules (link pickers) and PDF worker/pipeline files export many
     // small functions without JSDoc; require-jsdoc would add noise. Keep the
     // exception list in one place and add globs here instead of per-file disables.
+    // Vitest mocks and Next font metadata tests use PascalCase object literal
+    // methods and third-party-shaped keys; keep naming rules on production code.
+    {
+      files: ["**/*.test.ts", "**/*.test.tsx", "**/*.test.mts"],
+      rules: {
+        "@typescript-eslint/naming-convention": "off",
+      },
+    },
     {
       files: [
         "**/note-link-actions.ts",
@@ -270,6 +344,12 @@ export function createPackageEslintConfig(rootDir) {
         ...typescriptRules,
         ...codeQualityRules,
         ...jsdocRules,
+      },
+    },
+    {
+      files: ["**/*.test.ts", "**/*.test.tsx", "**/*.test.mts"],
+      rules: {
+        "@typescript-eslint/naming-convention": "off",
       },
     },
     globalIgnores(["node_modules/**"]),

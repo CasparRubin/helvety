@@ -43,7 +43,7 @@ interface UseContactLinksReturn {
   linkedContacts: LinkedContact[];
   /** Whether data is being loaded */
   isLoading: boolean;
-  /** Error message if something went wrong */
+  /** User-visible error when the last contact-links operation failed */
   error: string | null;
   /** Refresh all data from server */
   refresh: () => Promise<void>;
@@ -119,7 +119,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
         ) {
           return;
         }
-        const msg = contactsResult.error ?? "Failed to fetch contacts";
+        const msg = contactsResult.error ?? "Failed to load contacts";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;
@@ -145,7 +145,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
         ) {
           return;
         }
-        const msg = linksResult.error ?? "Failed to fetch linked contacts";
+        const msg = linksResult.error ?? "Failed to load linked contacts";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;
@@ -172,7 +172,7 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
         return;
       }
       const msg =
-        err instanceof Error ? err.message : "Failed to fetch contact data";
+        err instanceof Error ? err.message : "Failed to load contact data";
       if (
         triggerE2eeHookAuthErrorNavigation("notes-use-contact-links", msg, {
           redirectUri: routeAtStart,

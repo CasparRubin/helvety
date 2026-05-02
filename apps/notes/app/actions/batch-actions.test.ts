@@ -1,8 +1,10 @@
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import { DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR } from "@helvety/shared/dashboard-prefetch";
 import {
   createDashboardListSupabaseMock,
   createRejectingDashboardListSupabaseMock,
 } from "@helvety/shared/test-utils/action-test-helpers";
+import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -169,7 +171,7 @@ describe("notes batch-actions", () => {
 
     expect(result).toEqual({
       success: false,
-      error: "Too many items to load in one request",
+      error: DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR,
     });
     expect(mocks.logUnexpectedError).not.toHaveBeenCalled();
   });
@@ -188,7 +190,7 @@ describe("notes batch-actions", () => {
 
     expect(result).toEqual({
       success: false,
-      error: "An unexpected error occurred",
+      error: GENERIC_USER_ERROR,
     });
     expect(mocks.logUnexpectedError).toHaveBeenCalledWith(
       "Unexpected error in getFlatItemsDashboardData",

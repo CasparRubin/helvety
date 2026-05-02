@@ -7,6 +7,7 @@ End-to-end encrypted notes app with category-based organization.
 
 ## Key Features
 
+- Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (per-request CSRF token + `getCachedUser`, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable
 - Client-side encryption for note title and description
 - Fixed categories (Personal, Work, Other)
 - Client-side search on decrypted title/description

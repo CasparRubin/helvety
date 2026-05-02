@@ -13,7 +13,7 @@ vi.mock("@helvety/shared/logger", () => ({
 }));
 
 import {
-  __imageBitmapCacheInternals,
+  imageBitmapCacheInternals,
   getImageBitmapCache,
 } from "./imagebitmap-cache";
 
@@ -34,7 +34,7 @@ function createBitmap(
 describe("imagebitmap-cache", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    __imageBitmapCacheInternals.resetForTests();
+    imageBitmapCacheInternals.resetForTests();
   });
 
   it("evicts least recently used entry when max size is exceeded", () => {

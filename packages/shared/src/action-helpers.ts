@@ -9,6 +9,7 @@ import { getAuthUser } from "./auth-retry";
 import { requireCSRFToken } from "./csrf";
 import { checkRateLimit, RATE_LIMITS } from "./rate-limit";
 import { createServerClient } from "./supabase/server";
+import { buildRateLimitedUserMessage } from "./user-facing-errors";
 
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
@@ -143,7 +144,7 @@ export async function authenticateAndRateLimit(
         ok: false,
         response: {
           success: false,
-          error: `Too many attempts. Please wait ${rateLimit.retryAfter ?? 60} seconds before trying again.`,
+          error: buildRateLimitedUserMessage(rateLimit.retryAfter),
         },
       };
     }
@@ -159,7 +160,7 @@ export async function authenticateAndRateLimit(
         ok: false,
         response: {
           success: false,
-          error: `Too many requests. Please wait ${readLimit.retryAfter ?? 60} seconds before trying again.`,
+          error: buildRateLimitedUserMessage(readLimit.retryAfter),
         },
       };
     }

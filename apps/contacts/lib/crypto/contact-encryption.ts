@@ -98,12 +98,12 @@ export async function decryptContactRow(
   key: CryptoKey
 ): Promise<Contact> {
   const aad = buildAAD("contacts", row.id);
-  const first_name = await decrypt(
+  const firstName = await decrypt(
     parseEncryptedData(row.encrypted_first_name),
     key,
     aad
   );
-  const last_name = await decrypt(
+  const lastName = await decrypt(
     parseEncryptedData(row.encrypted_last_name),
     key,
     aad
@@ -145,8 +145,8 @@ export async function decryptContactRow(
   return {
     id: row.id,
     user_id: row.user_id,
-    first_name,
-    last_name,
+    first_name: firstName,
+    last_name: lastName,
     description,
     email,
     phone,

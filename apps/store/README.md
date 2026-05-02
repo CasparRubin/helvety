@@ -7,6 +7,7 @@ Product catalog and package-download app for the Helvety ecosystem.
 
 ## Key Features
 
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar (catalog routes avoid a full-tree theme script); `wrapInsideTooltipProvider` wraps the shell column in `@helvety/ui/csrf-provider` (`CSRFProvider`); parallel `getCachedCSRFToken` / `getCachedUser` feed CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
 - Public product catalog at `/store/products`
 - Public package download endpoints (no login required)
 - Optional authenticated account page at `/store/account`

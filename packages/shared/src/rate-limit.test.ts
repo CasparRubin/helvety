@@ -94,22 +94,19 @@ describe("RATE_LIMITS.EXPORT", () => {
 
 describe("rate-limit internals", () => {
   it("uses consistent key namespaces for all key types", async () => {
-    const { __rateLimitInternals } = await import("./rate-limit");
+    const { rateLimitInternals } = await import("./rate-limit");
 
     expect(
-      __rateLimitInternals.buildRateLimitStorageKey(
-        "generic",
-        "Contacts:USER-1"
-      )
+      rateLimitInternals.buildRateLimitStorageKey("generic", "Contacts:USER-1")
     ).toBe("ratelimit:generic:contacts:user-1");
     expect(
-      __rateLimitInternals.buildRateLimitStorageKey(
+      rateLimitInternals.buildRateLimitStorageKey(
         "otpFailureCounter",
         "USER@example.com"
       )
     ).toBe("ratelimit:otp:lockout:failures:user@example.com");
     expect(
-      __rateLimitInternals.buildRateLimitStorageKey(
+      rateLimitInternals.buildRateLimitStorageKey(
         "otpLockoutUntil",
         "USER@example.com"
       )
@@ -120,13 +117,12 @@ describe("rate-limit internals", () => {
     vi.stubEnv("NODE_ENV", "production");
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
-    const { __rateLimitInternals, checkRateLimit } =
-      await import("./rate-limit");
-    __rateLimitInternals.clearMetrics();
+    const { rateLimitInternals, checkRateLimit } = await import("./rate-limit");
+    rateLimitInternals.clearMetrics();
 
     await checkRateLimit("test-key", 5, 60_000, "api", "strict");
 
-    expect(__rateLimitInternals.getMetrics().size).toBeGreaterThan(0);
+    expect(rateLimitInternals.getMetrics().size).toBeGreaterThan(0);
   });
 
   it("keeps development in-memory fallback separated by prefix", async () => {

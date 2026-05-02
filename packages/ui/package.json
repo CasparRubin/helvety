@@ -2,7 +2,7 @@
   "name": "@helvety/ui",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared UI: shadcn/ui, Sonner, footer, theme, Tiptap, ListSearchField (E2EE search), CSRF, EncryptionGate/EncryptionGateApp, E2eeAppRootLayout, E2eeAppNavbar, RootGlobalError, useE2eeEntityListDndSensors, AppSwitcher, ThemeSwitcher, AuthTokenHandler, SessionRecovery, SkipToContent, Vercel analytics (Vitest on selected exports)",
+  "description": "Shared UI: shadcn/ui, Sonner, footer, theme, Tiptap, ListSearchField (E2EE search), CSRF, EncryptionGate/EncryptionGateApp, EncryptionTooltipContent, E2eeAppRootLayout, HelvetyPublicShellRootLayout, HelvetyShellNavbar, E2eeAppNavbar, RootGlobalError, useE2eeEntityListDndSensors, AppSwitcher, ThemeSwitcher, AuthTokenHandler, SessionRecovery, SkipToContent, Vercel analytics (Vitest on selected exports)",
   "author": "Helvety",
   "license": "MIT",
   "homepage": "https://helvety.com",
@@ -39,6 +39,7 @@
     "./csrf-provider": "./src/csrf-provider.tsx",
     "./delete-confirmation-dialog": "./src/delete-confirmation-dialog.tsx",
     "./encryption-gate-app": "./src/encryption-gate-app.tsx",
+    "./encryption-tooltip-content": "./src/encryption-tooltip-content.tsx",
     "./dialog": "./src/dialog.tsx",
     "./tiptap-editor": "./src/tiptap-editor.tsx",
     "./tiptap-utils": "./src/tiptap-utils.ts",
@@ -72,6 +73,8 @@
     "./root-global-error": "./src/root-global-error.tsx",
     "./e2ee-app-root-layout": "./src/e2ee-app-root-layout.tsx",
     "./e2ee-app-navbar": "./src/e2ee-app-navbar.tsx",
+    "./helvety-public-shell-root-layout": "./src/helvety-public-shell-root-layout.tsx",
+    "./helvety-shell-navbar": "./src/helvety-shell-navbar.tsx",
     "./use-e2ee-entity-list-dnd-sensors": "./src/use-e2ee-entity-list-dnd-sensors.ts"
   },
   "dependencies": {

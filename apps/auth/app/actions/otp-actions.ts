@@ -11,6 +11,7 @@ import { generateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
+import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 
 import { resolveAuthStep } from "@/lib/auth-step";
 import { OTP_CODE_REGEX } from "@/lib/otp-code";
@@ -112,7 +113,7 @@ export async function sendVerificationCode(
     });
     return {
       success: false,
-      error: `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
+      error: buildRateLimitedUserMessage(retryAfter),
     };
   }
 
@@ -296,7 +297,7 @@ export async function verifyEmailCode(
     });
     return {
       success: false,
-      error: `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
+      error: buildRateLimitedUserMessage(retryAfter),
     };
   }
 

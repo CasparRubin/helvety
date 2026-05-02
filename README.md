@@ -6,9 +6,12 @@ Monorepo for all Helvety applications.
 
 Helvety is a Next.js monorepo for a path-routed ecosystem on `helvety.com`:
 
-- Public apps: `web`, `store`, `pdf`, `image-upscaler`
-- Account/E2EE apps: `auth`, `tasks`, `contacts`, `notes`
+- Public gateway and tools: `web`, `store`, `pdf`, `image-upscaler`
+- Centralized account: `auth` (not an E2EE vault app; hosts shared sign-in)
+- Client-encrypted (E2EE) productivity: `tasks`, `contacts`, `notes`
 - Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/brand`
+
+Root layouts: public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) compose `@helvety/ui/helvety-public-shell-root-layout`; E2EE apps (`tasks`, `contacts`, `notes`) compose `@helvety/ui/e2ee-app-root-layout`. Product `metadata` is built with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in each app’s `app/layout.tsx`. Public layouts typically call `getCachedUser()` so the shared navbar gets an SSR session snapshot (with graceful fallback); E2EE layouts receive the user from `E2eeAppRootLayout`, which performs the same bootstrap internally.
 
 ## Applications
 
@@ -25,12 +28,12 @@ Helvety is a Next.js monorepo for a path-routed ecosystem on `helvety.com`:
 
 ## Shared Packages
 
-| Package                               | Purpose                                                        |
-| ------------------------------------- | -------------------------------------------------------------- |
-| [`packages/brand`](packages/brand/)   | Shared brand assets                                            |
-| [`packages/config`](packages/config/) | Shared TypeScript, ESLint, Vitest, PostCSS, Next config        |
-| [`packages/shared`](packages/shared/) | Security/auth/rate-limit/Supabase helpers and shared constants |
-| [`packages/ui`](packages/ui/)         | Shared UI components and app-shell primitives                  |
+| Package                               | Purpose                                                                                                                                 |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| [`packages/brand`](packages/brand/)   | Shared brand assets                                                                                                                     |
+| [`packages/config`](packages/config/) | Shared TypeScript, ESLint, Vitest, PostCSS, Next config                                                                                 |
+| [`packages/shared`](packages/shared/) | Security/auth/rate-limit/Supabase helpers, shared constants, SEO metadata factory, user-facing error copy, dashboard prefetch utilities |
+| [`packages/ui`](packages/ui/)         | Shared UI components and app-shell primitives                                                                                           |
 
 ## Prerequisites
 
@@ -81,11 +84,13 @@ bun run format
 - For async rejection cases, capture one promise and assert multiple expectations against that same invocation.
 - Use explicit `cleanup()` in workspace `vitest.setup.ts` files that use `@testing-library/react`.
 - Prefer typed fixture builders in tests (`buildXxx(...)`) over repeated `as unknown as` casting so test inputs evolve with production types.
+- Apps that import `getCachedUser` (or related server helpers) from `app/layout.tsx` should mock `@helvety/shared/cached-server` in `app/layout-metadata.test.ts` so metadata tests stay hermetic (see existing `web`, `store`, `auth`, and E2EE app tests).
 
 ## Monorepo Conventions
 
-- Architectural and workspace conventions are documented in [`MONOREPO_CONVENTIONS.md`](./MONOREPO_CONVENTIONS.md).
 - ESLint boundary rules enforce that apps do not import code directly from other apps; shared logic must live in workspace packages.
+- **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and `consistency:guardrails` (see [`scripts/check-consistency-guardrails.mjs`](scripts/check-consistency-guardrails.mjs)).
+- Workspace layout, per-app entry points, and CI/release expectations are described in this file and in each app or package `README.md` (for example [`packages/ui/README.md`](packages/ui/README.md) for shared UI shells).
 
 ## CI and Release Checks
 

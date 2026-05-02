@@ -14,6 +14,7 @@ import {
 import { cachePRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
+import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 import { Button } from "@helvety/ui/button";
 import {
   Card,
@@ -161,7 +162,7 @@ export function EncryptionSetup({
         }
       );
       if (!serverOptions.success) {
-        const msg = serverOptions.error ?? "Failed to get passkey options";
+        const msg = serverOptions.error ?? "Failed to load passkey options";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         resetSetup();
@@ -303,8 +304,7 @@ export function EncryptionSetup({
       setIsLoading(false);
       setSetupStep("complete");
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "An unexpected error occurred";
+      const message = err instanceof Error ? err.message : GENERIC_USER_ERROR;
       setError(message);
       toast.error(message, { duration: TOAST_DURATIONS.ERROR });
       resetSetup();

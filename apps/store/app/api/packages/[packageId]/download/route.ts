@@ -1,5 +1,6 @@
 import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { logger } from "@helvety/shared/logger";
+import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 import { NextResponse } from "next/server";
 
 import { getPackageDownloadUrl } from "@/app/actions/download-actions";
@@ -18,7 +19,10 @@ export async function GET(
     requireTrustedProxyInProduction: true,
   });
   if (!clientIp) {
-    return NextResponse.json({ error: "Missing client IP" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "Missing client IP" },
+      { status: 400 }
+    );
   }
 
   const downloadRateLimit = await checkRateLimit(
@@ -30,7 +34,11 @@ export async function GET(
   if (!downloadRateLimit.allowed) {
     return NextResponse.json(
       {
-        error: `Too many download requests. Please wait ${downloadRateLimit.retryAfter ?? 60} seconds and try again.`,
+        success: false,
+        error: buildRateLimitedUserMessage(
+          downloadRateLimit.retryAfter,
+          "download"
+        ),
       },
       { status: 429 }
     );
@@ -45,7 +53,10 @@ export async function GET(
       error: result.error,
     });
     return NextResponse.json(
-      { error: result.error ?? "Failed to generate download URL" },
+      {
+        success: false,
+        error: result.error ?? "Failed to generate download URL",
+      },
       { status: 404 }
     );
   }
@@ -55,7 +66,7 @@ export async function GET(
       packageId,
     });
     return NextResponse.json(
-      { error: "Failed to generate download URL" },
+      { success: false, error: "Failed to generate download URL" },
       { status: 404 }
     );
   }

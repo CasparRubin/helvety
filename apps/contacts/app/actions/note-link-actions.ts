@@ -14,6 +14,7 @@ import {
   toLinkedEntityReferences,
 } from "@helvety/shared/entity-links";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
 
 import type { ActionResponse } from "@/lib/types";
@@ -67,7 +68,7 @@ export async function getContactNoteLinks(
 
     if (linksResult.error) {
       logger.logUnexpectedError("Error getting note links", linksResult.error);
-      return { success: false, error: "Failed to get note links" };
+      return { success: false, error: "Failed to load note links" };
     }
 
     const links = toLinkedEntityReferences(
@@ -94,7 +95,7 @@ export async function getContactNoteLinks(
 
     if (notesError) {
       logger.logUnexpectedError("Error fetching linked notes", notesError);
-      return { success: false, error: "Failed to fetch linked notes" };
+      return { success: false, error: "Failed to load linked notes" };
     }
 
     const linkMap = new Map(
@@ -122,8 +123,10 @@ export async function getContactNoteLinks(
       },
     };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getContactNoteLinks", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError(
+      "Unexpected error in getContactNoteLinks",
+      error
+    );
   }
 }
 
@@ -149,13 +152,12 @@ export async function getNoteEntities(): Promise<
 
     if (error) {
       logger.logUnexpectedError("Error fetching notes", error);
-      return { success: false, error: "Failed to fetch notes" };
+      return { success: false, error: "Failed to load notes" };
     }
 
     return { success: true, data: { notes: notes ?? [] } };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getNoteEntities", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getNoteEntities", error);
   }
 }
 
@@ -215,8 +217,7 @@ export async function linkNoteEntity(
 
     return { success: true, data: { id: linkResult.id } };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in linkNoteEntity", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in linkNoteEntity", error);
   }
 }
 
@@ -254,7 +255,6 @@ export async function unlinkNoteEntity(
 
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in unlinkNoteEntity", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in unlinkNoteEntity", error);
   }
 }

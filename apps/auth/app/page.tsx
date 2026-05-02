@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
  * - Checking passkey/encryption status
  * - Choosing passkey sign-in vs redirect (E2EE app destinations do not skip passkey)
  */
-export default async function Home({
+export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ redirect_uri?: string }>;

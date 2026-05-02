@@ -526,7 +526,7 @@ export function useLoginFlow(): LoginFlowState {
           }
         );
         if (!optionsResult.success) {
-          const msg = optionsResult.error ?? "Failed to get passkey options";
+          const msg = optionsResult.error ?? "Failed to load passkey options";
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
           setIsLoading(false);

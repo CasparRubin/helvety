@@ -47,6 +47,11 @@ function sanitizeErrorMessage(message: string): string {
   return sanitized;
 }
 
+/** Strip trailing punctuation/spaces so a full sentence can follow with a period. */
+function trimContextForSentence(context: string): string {
+  return context.replace(/[:;,\s]+$/g, "").trim();
+}
+
 /**
  * Determines the error type from an error message.
  *
@@ -99,35 +104,23 @@ function formatPdfError(error: unknown, context: string): string {
   const errorType = detectErrorType(sanitizedErrorMessage);
 
   const sanitizedContext = sanitizeErrorMessage(context);
-  let userMessage = sanitizedContext;
+  const base = trimContextForSentence(sanitizedContext);
+  const lead = base.length > 0 ? `${base}. ` : "";
 
   switch (errorType) {
     case PdfErrorType.PASSWORD_PROTECTED:
-      userMessage +=
-        " password-protected. Please remove the password and try again.";
-      break;
+      return `${lead}This file is password-protected. Remove the password and try again.`;
     case PdfErrorType.CORRUPTED:
-      userMessage +=
-        " file may be corrupted. Please ensure the file is not damaged and try a different file.";
-      break;
+      return `${lead}The file may be corrupted. Try a different file or check that it is not damaged.`;
     case PdfErrorType.NETWORK:
-      userMessage +=
-        " a network error occurred. Please check your connection and try again.";
-      break;
+      return `${lead}A network error occurred. Check your connection and try again.`;
     case PdfErrorType.TIMEOUT:
-      userMessage +=
-        " request timed out. Please try again with a smaller file or check your connection.";
-      break;
+      return `${lead}The request timed out. Try a smaller file or check your connection.`;
     case PdfErrorType.INVALID_FORMAT:
-      userMessage +=
-        " file format is not supported. Please ensure the file is a valid PDF or image.";
-      break;
+      return `${lead}This file format is not supported. Use a valid PDF or image.`;
     default:
-      userMessage +=
-        " an unexpected error occurred while processing this file. Please try again.";
+      return `${lead}Something went wrong while processing this file. Please try again.`;
   }
-
-  return userMessage;
 }
 
 /**

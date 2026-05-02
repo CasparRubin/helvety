@@ -94,6 +94,7 @@ export function clearCachedPRFSalt(): void {
   }
 }
 
-export const __prfSaltCacheInternals = {
+/** Test-only surface for PRF salt cache timing (see `prf-salt-cache.test.ts`). */
+export const prfSaltCacheInternals = {
   PRF_SALT_CACHE_MAX_AGE_MS,
 };

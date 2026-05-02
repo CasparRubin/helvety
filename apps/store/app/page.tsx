@@ -5,6 +5,6 @@ import { redirect } from "next/navigation";
  * All users (authenticated or not) → /products.
  * Keeps / clean for future use (e.g. landing, dashboard).
  */
-export default function Home() {
+export default function Page() {
   redirect("/products");
 }

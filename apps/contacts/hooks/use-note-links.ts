@@ -159,7 +159,7 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to fetch note links";
+        const msg = result.error ?? "Failed to load note links";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setNotes([]);
@@ -182,7 +182,7 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
         return;
       }
       const msg =
-        err instanceof Error ? err.message : "Failed to fetch note links";
+        err instanceof Error ? err.message : "Failed to load note links";
       if (
         triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", msg, {
           redirectUri: routeAtStart,
@@ -236,7 +236,7 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
         ) {
           return;
         }
-        toast.error(result.error ?? "Failed to fetch notes", {
+        toast.error(result.error ?? "Failed to load notes", {
           duration: TOAST_DURATIONS.ERROR,
         });
         return;
@@ -259,7 +259,7 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
         return;
       }
       const message =
-        err instanceof Error ? err.message : "Failed to fetch notes";
+        err instanceof Error ? err.message : "Failed to load notes";
       if (
         triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", message, {
           redirectUri: routeAtStart,

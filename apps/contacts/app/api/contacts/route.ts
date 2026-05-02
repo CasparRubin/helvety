@@ -1,5 +1,7 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR } from "@helvety/shared/dashboard-prefetch";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { NextResponse } from "next/server";
 
 import type { ActionResponse, ContactRow } from "@/lib/types";
@@ -37,7 +39,7 @@ export async function GET(): Promise<
       return NextResponse.json(
         {
           success: false,
-          error: "Failed to get contacts",
+          error: "Failed to load contacts",
         },
         { headers: NO_STORE_HEADERS }
       );
@@ -46,7 +48,7 @@ export async function GET(): Promise<
       return NextResponse.json(
         {
           success: false,
-          error: "Too many contacts to load in one request",
+          error: CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR,
         },
         { headers: NO_STORE_HEADERS }
       );
@@ -60,12 +62,8 @@ export async function GET(): Promise<
       { headers: NO_STORE_HEADERS }
     );
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in contacts GET route", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "An unexpected error occurred",
-      },
+      unexpectedActionError("Unexpected error in contacts GET route", error),
       { headers: NO_STORE_HEADERS }
     );
   }

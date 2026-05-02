@@ -10,6 +10,7 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { CONTACT_EMAIL } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { z } from "zod";
 
@@ -91,8 +92,7 @@ export async function updateUserEmail(
     logger.info("Email change requested", { userId: user.id });
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Error in updateUserEmail", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Error in updateUserEmail", error);
   }
 }
 
@@ -182,8 +182,7 @@ export async function requestAccountDeletion(
     logger.info("Account deleted", verificationReport);
     return { success: true };
   } catch (error) {
-    logger.logUnexpectedError("Error in requestAccountDeletion", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Error in requestAccountDeletion", error);
   }
 }
 
@@ -231,7 +230,6 @@ export async function exportUserData(): Promise<
     logger.info("Data export requested", { source: "store" });
     return { success: true, data: exportData };
   } catch (error) {
-    logger.logUnexpectedError("Error in exportUserData", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Error in exportUserData", error);
   }
 }

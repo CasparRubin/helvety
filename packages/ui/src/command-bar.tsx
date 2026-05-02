@@ -4,9 +4,10 @@ import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
 /**
- * CommandBar -- shared sticky toolbar shell used below the navbar in every app.
- * Provides the consistent outer nav, container, and flex row.
- * Each app fills in its own buttons / links as children.
+ * CommandBar — shared sticky toolbar shell used below the main app navbar on
+ * surfaces that expose a sticky action row (tasks, contacts, notes, PDF,
+ * image upscaler, store). Provides the outer container and flex row; each app
+ * supplies its own buttons and links as children.
  */
 export function CommandBar({
   children,

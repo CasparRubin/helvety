@@ -2,6 +2,7 @@
 
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
+import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 import { useEffect } from "react";
 
 /** Props for `RootGlobalError`. */
@@ -34,10 +35,10 @@ export function RootGlobalError({
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="space-y-2">
               <h1 className="text-2xl font-semibold tracking-tight">
-                Something went wrong
+                {GENERIC_USER_ERROR}
               </h1>
               <p className="text-muted-foreground max-w-md">
-                A critical error occurred. Please try again, or contact us at{" "}
+                Please try again, or contact us at{" "}
                 <a
                   href={`mailto:${CONTACT_EMAIL}`}
                   className="text-primary underline-offset-4 hover:underline"

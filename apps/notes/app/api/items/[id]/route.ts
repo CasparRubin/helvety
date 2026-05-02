@@ -1,5 +1,6 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
 import { NextResponse } from "next/server";
 
@@ -44,7 +45,7 @@ export async function GET(
       }
       logger.logUnexpectedError("Error getting note via API route", error);
       return NextResponse.json(
-        { success: false, error: "Failed to get note" },
+        { success: false, error: "Failed to load note" },
         { headers: NO_STORE_HEADERS }
       );
     }
@@ -54,12 +55,8 @@ export async function GET(
       { headers: NO_STORE_HEADERS }
     );
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in note GET route", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "An unexpected error occurred",
-      },
+      unexpectedActionError("Unexpected error in note GET route", error),
       { headers: NO_STORE_HEADERS }
     );
   }

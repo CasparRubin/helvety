@@ -8,8 +8,8 @@ import {
   isAuthRequiredError,
   normalizeActionError,
 } from "@helvety/shared/auth-errors";
-import { logger } from "@helvety/shared/logger";
 
+import { unexpectedActionError } from "./server-action-primitives";
 import { fetchUserPasskeyParamsForUser } from "./user-passkey-params-db";
 
 import type {
@@ -39,14 +39,13 @@ export async function getPasskeyParams(): Promise<
     if (!row.ok) {
       return {
         success: false,
-        error: "Failed to get passkey encryption settings",
+        error: "Failed to load passkey encryption settings",
       };
     }
 
     return { success: true, data: row.params };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getPasskeyParams", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Unexpected error in getPasskeyParams", error);
   }
 }
 
@@ -96,7 +95,9 @@ export async function getEncryptionParams(): Promise<
       data: { type: null },
     };
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in getEncryptionParams", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError(
+      "Unexpected error in getEncryptionParams",
+      error
+    );
   }
 }

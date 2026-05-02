@@ -92,18 +92,18 @@ export async function decryptItemRow(
     );
   }
 
-  let start_date: string | null = null;
+  let startDate: string | null = null;
   if (row.encrypted_start_date) {
-    start_date = await decrypt(
+    startDate = await decrypt(
       parseEncryptedData(row.encrypted_start_date),
       key,
       aad
     );
   }
 
-  let end_date: string | null = null;
+  let endDate: string | null = null;
   if (row.encrypted_end_date) {
-    end_date = await decrypt(
+    endDate = await decrypt(
       parseEncryptedData(row.encrypted_end_date),
       key,
       aad
@@ -115,8 +115,8 @@ export async function decryptItemRow(
     user_id: row.user_id,
     title,
     description,
-    start_date,
-    end_date,
+    start_date: startDate,
+    end_date: endDate,
     stage_id: row.stage_id,
     label_id: row.label_id,
     priority: row.priority,

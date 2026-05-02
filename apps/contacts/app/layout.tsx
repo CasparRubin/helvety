@@ -1,25 +1,25 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { sharedViewport, urls } from "@helvety/shared/config";
+import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { E2eeAppRootLayout } from "@helvety/ui/e2ee-app-root-layout";
 
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
 
-import type { Metadata } from "next";
-
-const CONTACTS_APP_DESCRIPTION_COPY =
+/** Shared contacts SEO / social copy (single source for metadata + JSON-LD). */
+export const CONTACTS_APP_DESCRIPTION =
   "People-first address book with client-side encryption—MIT-licensed, Swiss-built.";
 
 export const viewport = sharedViewport;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(urls.contacts),
+export const metadata = createHelvetyProductMetadata({
+  metadataBase: urls.contacts,
   title: {
-    default: "Helvety Contacts | Contact Management",
+    default: "Helvety Contacts | Encrypted address book",
     template: "%s | Helvety Contacts",
   },
-  description: CONTACTS_APP_DESCRIPTION_COPY,
+  description: CONTACTS_APP_DESCRIPTION,
   keywords: [
     "Helvety Contacts",
     "contact management",
@@ -29,58 +29,17 @@ export const metadata: Metadata = {
     "secure",
     "encrypted",
   ],
-  authors: [{ name: "Helvety" }],
-  creator: "Helvety",
-  publisher: "Helvety",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
+  siteName: "Helvety Contacts",
+  canonicalUrl: urls.contacts,
+  brandImage: {
+    url: brandAssets.identifierPng,
+    ogAlt: "Helvety Contacts",
+    twitterAlt: "Helvety Contacts",
   },
   manifest: "/contacts/manifest.json",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: urls.contacts,
-    siteName: "Helvety Contacts",
-    title: "Helvety Contacts | Contact Management",
-    description: CONTACTS_APP_DESCRIPTION_COPY,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-        width: 500,
-        height: 500,
-        alt: "Helvety Contacts",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary",
-    title: "Helvety Contacts | Contact Management",
-    description: CONTACTS_APP_DESCRIPTION_COPY,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-        alt: "Helvety Contacts",
-      },
-    ],
-  },
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  alternates: {
-    canonical: urls.contacts,
-  },
   category: "productivity",
-};
+  indexing: "none",
+});
 
 /**
  * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer.
@@ -96,10 +55,10 @@ export default function RootLayout({
       softwareApplication={{
         name: "Helvety Contacts",
         url: urls.contacts,
-        description: CONTACTS_APP_DESCRIPTION_COPY,
+        description: CONTACTS_APP_DESCRIPTION,
         applicationCategory: "BusinessApplication",
       }}
-      EncryptionProvider={EncryptionProvider}
+      encryptionProvider={EncryptionProvider}
       renderNavbar={(initialUser) => <Navbar initialUser={initialUser} />}
     >
       {children}

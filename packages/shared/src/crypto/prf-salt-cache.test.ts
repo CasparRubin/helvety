@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  __prfSaltCacheInternals,
+  prfSaltCacheInternals,
   cachePRFSalt,
   clearCachedPRFSalt,
   getCachedPRFSalt,
@@ -27,9 +27,7 @@ describe("prf-salt-cache", () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
     cachePRFSalt("salt-value", 1);
-    vi.setSystemTime(
-      now + __prfSaltCacheInternals.PRF_SALT_CACHE_MAX_AGE_MS + 1
-    );
+    vi.setSystemTime(now + prfSaltCacheInternals.PRF_SALT_CACHE_MAX_AGE_MS + 1);
 
     expect(getCachedPRFSalt()).toBeNull();
     expect(localStorage.getItem("helvety-prf-salt")).toBeNull();

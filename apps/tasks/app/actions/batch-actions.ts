@@ -4,7 +4,12 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import {
+  DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR,
+  isDashboardPrefetchOverCap,
+} from "@helvety/shared/dashboard-prefetch";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 
 import type { ActionResponse, ItemRow } from "@/lib/types";
 
@@ -42,10 +47,15 @@ export async function getFlatItemsDashboardData(): Promise<
       return { success: false, error: "Failed to load dashboard data" };
     }
 
-    if ((itemsResult.data?.length ?? 0) > ACTION_LIMITS.MAX_DASHBOARD_ROWS) {
+    if (
+      isDashboardPrefetchOverCap(
+        itemsResult.data?.length ?? 0,
+        ACTION_LIMITS.MAX_DASHBOARD_ROWS
+      )
+    ) {
       return {
         success: false,
-        error: "Too many items to load in one request",
+        error: DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR,
       };
     }
 
@@ -56,10 +66,9 @@ export async function getFlatItemsDashboardData(): Promise<
       },
     };
   } catch (error) {
-    logger.logUnexpectedError(
+    return unexpectedActionError(
       "Unexpected error in getFlatItemsDashboardData",
       error
     );
-    return { success: false, error: "An unexpected error occurred" };
   }
 }

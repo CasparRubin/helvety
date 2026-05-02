@@ -713,7 +713,8 @@ export const RATE_LIMITS = {
   ENCRYPTION_UNLOCK: { maxRequests: 5, windowMs: 60 * 1000 },
 } as const;
 
-export const __rateLimitInternals = {
+/** Test-only surface for rate-limit helpers and metrics (see `rate-limit.test.ts`). */
+export const rateLimitInternals = {
   buildRateLimitStorageKey,
   clearMetrics(): void {
     rateLimitMetrics.clear();

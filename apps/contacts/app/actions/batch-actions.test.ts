@@ -1,8 +1,10 @@
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import { CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR } from "@helvety/shared/dashboard-prefetch";
 import {
   createDashboardListSupabaseMock,
   createRejectingDashboardListSupabaseMock,
 } from "@helvety/shared/test-utils/action-test-helpers";
+import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -150,7 +152,7 @@ describe("contacts batch-actions", () => {
 
     expect(result).toEqual({
       success: false,
-      error: "Too many contacts to load in one request",
+      error: CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR,
     });
     expect(mocks.logUnexpectedError).not.toHaveBeenCalled();
   });
@@ -169,7 +171,7 @@ describe("contacts batch-actions", () => {
 
     expect(result).toEqual({
       success: false,
-      error: "An unexpected error occurred",
+      error: GENERIC_USER_ERROR,
     });
     expect(mocks.logUnexpectedError).toHaveBeenCalledWith(
       "Unexpected error in getContactsDashboardData",

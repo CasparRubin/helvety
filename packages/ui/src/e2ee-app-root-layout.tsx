@@ -41,21 +41,27 @@ export type E2eeAppRootLayoutProps = Readonly<{
   organizationLogoUrl: string;
   softwareApplication: E2eeSoftwareApplicationLd;
   /** App-local client encryption context (e.g. `@/lib/crypto`). */
-  EncryptionProvider: ComponentType<{ children: ReactNode }>;
+  encryptionProvider: ComponentType<{ children: ReactNode }>;
+  /**
+   * Sticky header for the zone; conventionally the app's `Navbar` component
+   * forwarding `initialUser` into `E2eeAppNavbar`.
+   */
   renderNavbar: (initialUser: User | null) => ReactNode;
 }>;
 
 /**
- * Shared root shell for Contacts, Notes, and Tasks: nonce/CSRF/user bootstrap,
- * JSON-LD, providers, EncryptionGateApp when authenticated.
+ * Shared root shell for Contacts, Notes, and Tasks: nonce, per-request CSRF +
+ * user bootstrap (`getCachedCSRFToken`, `getCachedUser`), JSON-LD, theme and
+ * tooltip shell, app `encryptionProvider`, `EncryptionGateApp` when authenticated.
  */
 export async function E2eeAppRootLayout({
   children,
   organizationLogoUrl,
   softwareApplication,
-  EncryptionProvider,
+  encryptionProvider,
   renderNavbar,
 }: E2eeAppRootLayoutProps): Promise<React.JSX.Element> {
+  const EncryptionProviderSlot = encryptionProvider;
   const nonce = (await getRequestCspNonce()) ?? undefined;
   let csrfToken = "";
   let initialUser: User | null = null;
@@ -95,7 +101,7 @@ export async function E2eeAppRootLayout({
           <SessionRecovery />
           <TooltipProvider>
             <CSRFProvider csrfToken={csrfToken}>
-              <EncryptionProvider>
+              <EncryptionProviderSlot>
                 <div className="flex h-screen flex-col overflow-hidden">
                   <header className="shrink-0">
                     {renderNavbar(initialUser)}
@@ -116,7 +122,7 @@ export async function E2eeAppRootLayout({
                   <Footer className="shrink-0" />
                 </div>
                 <Toaster />
-              </EncryptionProvider>
+              </EncryptionProviderSlot>
             </CSRFProvider>
           </TooltipProvider>
         </ThemeProvider>

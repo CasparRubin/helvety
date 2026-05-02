@@ -17,6 +17,7 @@ import {
   parseActionInput,
   unexpectedActionError,
 } from "./server-action-primitives";
+import { GENERIC_USER_ERROR } from "./user-facing-errors";
 
 describe("server-action-primitives", () => {
   it("returns parsed payload when validation succeeds", () => {
@@ -58,7 +59,7 @@ describe("server-action-primitives", () => {
 
     expect(result).toEqual({
       success: false,
-      error: "An unexpected error occurred",
+      error: GENERIC_USER_ERROR,
     });
     expect(loggerMocks.logUnexpectedError).toHaveBeenCalledWith(
       "Unexpected error in testAction",

@@ -108,7 +108,7 @@ interface UseContactsReturn {
   isLoading: boolean;
   /** Whether contacts are currently being refreshed with stale data still visible */
   isRefreshing: boolean;
-  /** Error message if something went wrong */
+  /** User-visible error when the last contacts operation failed */
   error: string | null;
   /** Refresh contacts from server */
   refresh: () => Promise<void>;
@@ -130,10 +130,7 @@ async function fetchContacts(): Promise<ActionResponse<ContactRow[]>> {
     method: "GET",
     cache: "no-store",
   });
-  return parseActionResponse<ContactRow[]>(
-    response,
-    "Failed to fetch contacts"
-  );
+  return parseActionResponse<ContactRow[]>(response, "Failed to load contacts");
 }
 
 /** Fetches a single encrypted contact row via GET route handler. */
@@ -144,7 +141,7 @@ async function fetchContactById(
     method: "GET",
     cache: "no-store",
   });
-  return parseActionResponse<ContactRow>(response, "Failed to fetch contact");
+  return parseActionResponse<ContactRow>(response, "Failed to load contact");
 }
 
 /**
@@ -206,7 +203,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to fetch contacts";
+        const msg = result.error ?? "Failed to load contacts";
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
         }
@@ -231,7 +228,7 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       );
     } catch (err) {
       const msg =
-        err instanceof Error ? err.message : "Failed to fetch contacts";
+        err instanceof Error ? err.message : "Failed to load contacts";
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
@@ -544,7 +541,7 @@ interface UseContactReturn {
   contact: Contact | null;
   /** Whether the contact is being loaded */
   isLoading: boolean;
-  /** Error message if something went wrong */
+  /** User-visible error when the last contacts operation failed */
   error: string | null;
   /** Refresh the contact from server */
   refresh: () => Promise<void>;
@@ -602,7 +599,7 @@ export function useContact(
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to fetch contact";
+        const msg = result.error ?? "Failed to load contact";
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
         }
@@ -619,7 +616,7 @@ export function useContact(
       setContact(decrypted);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to fetch contact";
+        err instanceof Error ? err.message : "Failed to load contact";
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }

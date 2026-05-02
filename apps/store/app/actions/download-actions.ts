@@ -9,7 +9,9 @@ import "server-only";
 
 import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
+import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 import { headers } from "next/headers";
 import { z } from "zod";
 
@@ -81,7 +83,7 @@ export async function getPackageDownloadUrl(
     if (!rateLimit.allowed) {
       return {
         success: false,
-        error: `Too many requests. Please wait ${rateLimit.retryAfter} seconds.`,
+        error: buildRateLimitedUserMessage(rateLimit.retryAfter),
       };
     }
 
@@ -117,7 +119,6 @@ export async function getPackageDownloadUrl(
       },
     };
   } catch (error) {
-    logger.logUnexpectedError("Error in getPackageDownloadUrl", error);
-    return { success: false, error: "An unexpected error occurred" };
+    return unexpectedActionError("Error in getPackageDownloadUrl", error);
   }
 }

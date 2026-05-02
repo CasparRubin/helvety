@@ -402,7 +402,7 @@ export async function getAllContactDataForExport(): Promise<
         "Error fetching contact data for export",
         error
       );
-      return { success: false, error: "Failed to fetch contact data" };
+      return { success: false, error: "Failed to load contact data" };
     }
 
     if (!isExportWithinCap(contacts?.length ?? 0)) {

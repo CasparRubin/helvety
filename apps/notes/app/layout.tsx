@@ -1,25 +1,25 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { sharedViewport, urls } from "@helvety/shared/config";
+import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { E2eeAppRootLayout } from "@helvety/ui/e2ee-app-root-layout";
 
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
 
-import type { Metadata } from "next";
-
-const NOTES_APP_DESCRIPTION_COPY =
+/** Shared notes SEO / social copy (single source for metadata + JSON-LD). */
+export const NOTES_APP_DESCRIPTION =
   "Short-form notes in Personal, Work, and Other buckets—encrypted in the tab first, MIT-licensed, Swiss-built.";
 
 export const viewport = sharedViewport;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(urls.notes),
+export const metadata = createHelvetyProductMetadata({
+  metadataBase: urls.notes,
   title: {
-    default: "Helvety Notes | Note Management",
+    default: "Helvety Notes | End-to-end encrypted notes",
     template: "%s | Helvety Notes",
   },
-  description: NOTES_APP_DESCRIPTION_COPY,
+  description: NOTES_APP_DESCRIPTION,
   keywords: [
     "Helvety Notes",
     "note management",
@@ -28,58 +28,17 @@ export const metadata: Metadata = {
     "secure",
     "encrypted",
   ],
-  authors: [{ name: "Helvety" }],
-  creator: "Helvety",
-  publisher: "Helvety",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
+  siteName: "Helvety Notes",
+  canonicalUrl: urls.notes,
+  brandImage: {
+    url: brandAssets.identifierPng,
+    ogAlt: "Helvety Notes",
+    twitterAlt: "Helvety Notes",
   },
   manifest: "/notes/manifest.json",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: urls.notes,
-    siteName: "Helvety Notes",
-    title: "Helvety Notes | Note Management",
-    description: NOTES_APP_DESCRIPTION_COPY,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-        width: 500,
-        height: 500,
-        alt: "Helvety Notes",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary",
-    title: "Helvety Notes | Note Management",
-    description: NOTES_APP_DESCRIPTION_COPY,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-        alt: "Helvety Notes",
-      },
-    ],
-  },
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  alternates: {
-    canonical: urls.notes,
-  },
   category: "productivity",
-};
+  indexing: "none",
+});
 
 /**
  * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer.
@@ -95,10 +54,10 @@ export default function RootLayout({
       softwareApplication={{
         name: "Helvety Notes",
         url: urls.notes,
-        description: NOTES_APP_DESCRIPTION_COPY,
+        description: NOTES_APP_DESCRIPTION,
         applicationCategory: "BusinessApplication",
       }}
-      EncryptionProvider={EncryptionProvider}
+      encryptionProvider={EncryptionProvider}
       renderNavbar={(initialUser) => <Navbar initialUser={initialUser} />}
     >
       {children}

@@ -125,7 +125,7 @@ describe("auth-action-helpers", () => {
       retryAfter: 19,
       response: {
         success: false,
-        error: "Too many attempts. Please wait 19 seconds before trying again.",
+        error: "Too many requests. Wait 19 seconds, then try again.",
       },
     });
   });

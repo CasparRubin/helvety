@@ -1,5 +1,6 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { NextResponse } from "next/server";
 
 import type { ActionResponse, ItemRow } from "@/lib/types";
@@ -30,7 +31,7 @@ export async function GET(): Promise<NextResponse<ActionResponse<ItemRow[]>>> {
     if (error) {
       logger.logUnexpectedError("Error getting notes via API route", error);
       return NextResponse.json(
-        { success: false, error: "Failed to get notes" },
+        { success: false, error: "Failed to load notes" },
         { headers: NO_STORE_HEADERS }
       );
     }
@@ -49,12 +50,8 @@ export async function GET(): Promise<NextResponse<ActionResponse<ItemRow[]>>> {
       { headers: NO_STORE_HEADERS }
     );
   } catch (error) {
-    logger.logUnexpectedError("Unexpected error in notes GET route", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "An unexpected error occurred",
-      },
+      unexpectedActionError("Unexpected error in notes GET route", error),
       { headers: NO_STORE_HEADERS }
     );
   }

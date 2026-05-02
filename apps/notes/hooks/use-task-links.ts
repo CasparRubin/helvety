@@ -141,7 +141,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to fetch task links";
+        const msg = result.error ?? "Failed to load task links";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setItems([]);
@@ -164,7 +164,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         return;
       }
       const msg =
-        err instanceof Error ? err.message : "Failed to fetch task links";
+        err instanceof Error ? err.message : "Failed to load task links";
       if (
         triggerE2eeHookAuthErrorNavigation("notes-use-task-links", msg, {
           redirectUri: routeAtStart,
@@ -218,7 +218,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         ) {
           return;
         }
-        toast.error(result.error ?? "Failed to fetch tasks", {
+        toast.error(result.error ?? "Failed to load tasks", {
           duration: TOAST_DURATIONS.ERROR,
         });
         return;
@@ -241,7 +241,7 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
         return;
       }
       const message =
-        err instanceof Error ? err.message : "Failed to fetch tasks";
+        err instanceof Error ? err.message : "Failed to load tasks";
       if (
         triggerE2eeHookAuthErrorNavigation("notes-use-task-links", message, {
           redirectUri: routeAtStart,

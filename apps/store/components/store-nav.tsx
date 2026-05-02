@@ -65,8 +65,9 @@ export function StoreNav({
     <CommandBar>
       {/* Desktop: horizontal link row */}
       <div className="hidden items-center gap-1 md:flex">
-        {links.map(({ href, label, icon: Icon }) => {
+        {links.map(({ href, label, icon }) => {
           const isActive = getIsActive(href);
+          const IconComponent = icon;
 
           return (
             <Link
@@ -79,7 +80,7 @@ export function StoreNav({
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}
             >
-              <Icon className="size-4 shrink-0" />
+              <IconComponent className="size-4 shrink-0" />
               <span>{label}</span>
             </Link>
           );
@@ -96,8 +97,9 @@ export function StoreNav({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          {links.map(({ href, label, icon: Icon }) => {
+          {links.map(({ href, label, icon }) => {
             const isActive = getIsActive(href);
+            const IconComponent = icon;
 
             return (
               <DropdownMenuItem
@@ -106,7 +108,7 @@ export function StoreNav({
                 className={cn(isActive && "bg-accent")}
               >
                 <Link href={href}>
-                  <Icon className="mr-2 size-4" />
+                  <IconComponent className="mr-2 size-4" />
                   <span>{label}</span>
                 </Link>
               </DropdownMenuItem>

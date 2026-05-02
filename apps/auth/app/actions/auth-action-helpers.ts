@@ -5,6 +5,7 @@ import { COOKIE_DOMAIN } from "@helvety/shared/config";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
+import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 import { cookies, headers } from "next/headers";
 import { z } from "zod";
 
@@ -180,7 +181,7 @@ export async function runAuthActionGuards(
           success: false,
           error:
             rateLimit.message?.(retryAfter) ??
-            `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
+            buildRateLimitedUserMessage(retryAfter),
         },
       };
     }
@@ -214,7 +215,7 @@ export async function runRateLimitGuard(
       success: false,
       error:
         options.message?.(retryAfter) ??
-        `Too many attempts. Please wait ${retryAfter} seconds before trying again.`,
+        buildRateLimitedUserMessage(retryAfter),
     },
   };
 }

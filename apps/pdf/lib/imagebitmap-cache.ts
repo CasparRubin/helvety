@@ -244,7 +244,8 @@ export function getImageBitmapCache(
   return cacheInstance;
 }
 
-export const __imageBitmapCacheInternals = {
+/** Test-only hooks for the global ImageBitmap cache (see `imagebitmap-cache.test.ts`). */
+export const imageBitmapCacheInternals = {
   resetForTests(): void {
     cacheInstance?.clear();
     cacheInstance = null;

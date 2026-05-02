@@ -11,6 +11,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { computeReorderUpdates } from "@helvety/shared/entity-list-reorder";
+import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 import { Button } from "@helvety/ui/button";
 import { useE2eeEntityListDndSensors } from "@helvety/ui/use-e2ee-entity-list-dnd-sensors";
 import { Loader2Icon } from "lucide-react";
@@ -231,7 +232,7 @@ export function EntityList({
     return (
       <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
         <p role="alert" className="text-muted-foreground text-sm">
-          Something went wrong
+          {GENERIC_USER_ERROR}
         </p>
         {onRetry && (
           <Button variant="outline" size="sm" onClick={() => onRetry()}>

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   createAppRobots,
   createAppSitemap,
+  createHelvetyProductMetadata,
   createOpenRobots,
   createPrivateAppRobots,
   createPrivateAppSitemap,
@@ -119,5 +120,100 @@ describe("seo helpers", () => {
   it("returns an empty sitemap for private apps", () => {
     const sitemapEntries = createPrivateAppSitemap()();
     expect(sitemapEntries).toEqual([]);
+  });
+});
+
+describe("createHelvetyProductMetadata", () => {
+  const baseParams = {
+    metadataBase: "https://helvety.com/pdf",
+    title: {
+      default: "Helvety PDF | Edit PDFs in your browser",
+      template: "%s | Helvety PDF",
+    },
+    description: "PDF toolkit description",
+    keywords: ["pdf", "merge"] as const,
+    siteName: "Helvety PDF",
+    canonicalUrl: "https://helvety.com/pdf",
+    brandImage: {
+      url: "https://cdn.example.com/id.png",
+      ogAlt: "Helvety PDF",
+      twitterAlt: "Helvety PDF",
+    },
+    manifest: "/pdf/manifest.json",
+    category: "productivity",
+  } as const;
+
+  it("sets indexable robots when indexing is all", () => {
+    const m = createHelvetyProductMetadata({ ...baseParams, indexing: "all" });
+    expect(m.robots).toMatchObject({
+      index: true,
+      follow: true,
+      googleBot: expect.objectContaining({ index: true, follow: true }),
+    });
+    expect(m.alternates?.canonical).toBe("https://helvety.com/pdf");
+    expect(m.manifest).toBe("/pdf/manifest.json");
+    expect(m.category).toBe("productivity");
+  });
+
+  it("sets noindex robots when indexing is none", () => {
+    const m = createHelvetyProductMetadata({
+      ...baseParams,
+      canonicalUrl: "https://helvety.com/notes",
+      metadataBase: "https://helvety.com/notes",
+      indexing: "none",
+    });
+    expect(m.robots).toMatchObject({
+      index: false,
+      follow: false,
+      googleBot: expect.objectContaining({ index: false, follow: false }),
+    });
+  });
+
+  it("omits twitter image alt when twitterAlt is unset", () => {
+    const m = createHelvetyProductMetadata({
+      ...baseParams,
+      indexing: "all",
+      brandImage: {
+        url: "https://cdn.example.com/id.png",
+        ogAlt: "Helvety",
+      },
+    });
+    const twImages = m.twitter?.images;
+    const twImg = Array.isArray(twImages) ? twImages[0] : twImages;
+    expect(twImg).toEqual({ url: "https://cdn.example.com/id.png" });
+  });
+
+  it("uses socialTitle for OG and Twitter titles when provided", () => {
+    const m = createHelvetyProductMetadata({
+      ...baseParams,
+      indexing: "all",
+      title: { default: "Home", template: "%s | Helvety" },
+      socialTitle: "Helvety | Swiss-built open source software",
+    });
+    expect(m.openGraph?.title).toBe(
+      "Helvety | Swiss-built open source software"
+    );
+    expect(m.twitter?.title).toBe("Helvety | Swiss-built open source software");
+  });
+
+  it("omits manifest and category when not passed", () => {
+    const m = createHelvetyProductMetadata({
+      metadataBase: "https://helvety.com/auth",
+      title: {
+        default: "Helvety Auth | Sign in",
+        template: "%s | Helvety",
+      },
+      description: "Auth desc",
+      keywords: ["auth"],
+      siteName: "Helvety Auth",
+      canonicalUrl: "https://helvety.com/auth",
+      brandImage: {
+        url: "https://cdn.example.com/id.png",
+        ogAlt: "Helvety",
+      },
+      indexing: "none",
+    });
+    expect(m.manifest).toBeUndefined();
+    expect(m.category).toBeUndefined();
   });
 });

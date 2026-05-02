@@ -20,22 +20,40 @@ import { useLoginFlow } from "@/hooks/use-login-flow";
 import type { LoginStep } from "@/lib/login-flow-stepper";
 
 /** Card titles when the outer card is shown (not on encryption-setup). */
-const STEP_TITLES: Partial<Record<LoginStep, string>> = {
-  email: "Welcome to Helvety",
-  "verify-code": "Check Your Email",
-  "passkey-signin": "Confirm with your passkey",
-};
+function loginStepTitle(step: LoginStep): string {
+  switch (step) {
+    case "email":
+      return "Welcome to Helvety";
+    case "verify-code":
+      return "Check Your Email";
+    case "passkey-signin":
+      return "Confirm with your passkey";
+    case "encryption-setup":
+      return "";
+    default: {
+      const _exhaustive: never = step;
+      return _exhaustive;
+    }
+  }
+}
 
-/** Card descriptions for the same steps as `STEP_TITLES`. */
-const STEP_DESCRIPTIONS: Partial<
-  Record<LoginStep, string | ((email: string) => string)>
-> = {
-  email: "Enter your email and confirm your location to continue",
-  "verify-code": (email: string) =>
-    `We sent a verification code to ${email}. Check your spam folder if you don\u2019t see it.`,
-  "passkey-signin":
-    "Use your passkey to complete sign-in. This confirms the passkey you use for your account.",
-};
+/** Card descriptions for the same steps as `loginStepTitle`. */
+function loginStepDescription(step: LoginStep, email: string): string {
+  switch (step) {
+    case "email":
+      return "Enter your email and confirm your location to continue";
+    case "verify-code":
+      return `We sent a verification code to ${email}. Check your spam folder if you don\u2019t see it.`;
+    case "passkey-signin":
+      return "Use your passkey to complete sign-in. This confirms the passkey you use for your account.";
+    case "encryption-setup":
+      return "";
+    default: {
+      const _exhaustive: never = step;
+      return _exhaustive;
+    }
+  }
+}
 
 /** Main login page: email → OTP → passkey (with optional encryption setup between OTP and sign-in when required). */
 function LoginContent() {
@@ -49,12 +67,8 @@ function LoginContent() {
     );
   }
 
-  const title = STEP_TITLES[flow.step] ?? "";
-  const descriptionValue = STEP_DESCRIPTIONS[flow.step];
-  const description =
-    typeof descriptionValue === "function"
-      ? descriptionValue(flow.email)
-      : (descriptionValue ?? "");
+  const title = loginStepTitle(flow.step);
+  const description = loginStepDescription(flow.step, flow.email);
 
   return (
     <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">

@@ -4,7 +4,12 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import {
+  CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR,
+  isDashboardPrefetchOverCap,
+} from "@helvety/shared/dashboard-prefetch";
 import { logger } from "@helvety/shared/logger";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 
 import type { ActionResponse, ContactRow } from "@/lib/types";
 
@@ -53,10 +58,15 @@ export async function getContactsDashboardData(): Promise<
       return { success: false, error: "Failed to load dashboard data" };
     }
 
-    if ((contactsResult.data?.length ?? 0) > ACTION_LIMITS.MAX_DASHBOARD_ROWS) {
+    if (
+      isDashboardPrefetchOverCap(
+        contactsResult.data?.length ?? 0,
+        ACTION_LIMITS.MAX_DASHBOARD_ROWS
+      )
+    ) {
       return {
         success: false,
-        error: "Too many contacts to load in one request",
+        error: CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR,
       };
     }
 
@@ -67,10 +77,9 @@ export async function getContactsDashboardData(): Promise<
       },
     };
   } catch (error) {
-    logger.logUnexpectedError(
+    return unexpectedActionError(
       "Unexpected error in getContactsDashboardData",
       error
     );
-    return { success: false, error: "An unexpected error occurred" };
   }
 }

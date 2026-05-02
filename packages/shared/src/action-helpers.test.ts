@@ -139,7 +139,7 @@ describe("authenticateAndRateLimit", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.response.error).toContain("Too many attempts");
+      expect(result.response.error).toContain("Too many requests");
       expect(result.response.error).toContain("33");
     }
   });

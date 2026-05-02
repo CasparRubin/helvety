@@ -46,6 +46,7 @@ describe("GET /api/packages/[packageId]/download", () => {
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
+      success: false,
       error: "Missing client IP",
     });
   });
@@ -63,8 +64,8 @@ describe("GET /api/packages/[packageId]/download", () => {
 
     expect(response.status).toBe(429);
     await expect(response.json()).resolves.toEqual({
-      error:
-        "Too many download requests. Please wait 42 seconds and try again.",
+      success: false,
+      error: "Too many download requests. Wait 42 seconds, then try again.",
     });
   });
 
@@ -116,6 +117,7 @@ describe("GET /api/packages/[packageId]/download", () => {
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toEqual({
+      success: false,
       error: "Package not found",
     });
   });

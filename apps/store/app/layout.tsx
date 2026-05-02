@@ -5,43 +5,27 @@ import {
   getCachedUser,
 } from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
-import { publicSans } from "@helvety/shared/fonts";
-import {
-  createHelvetyOrganizationSchema,
-  DEFAULT_THEME_PROVIDER_PROPS,
-} from "@helvety/shared/layout-primitives";
 import { logger } from "@helvety/shared/logger";
-import { AuthTokenHandler } from "@helvety/ui/auth-token-handler";
-import { Footer } from "@helvety/ui/footer";
-import { JsonLdScript } from "@helvety/ui/json-ld-script";
-import { ScrollArea } from "@helvety/ui/scroll-area";
-import { SessionRecovery } from "@helvety/ui/session-recovery";
-import { SkipToContent } from "@helvety/ui/skip-to-content";
-import { Toaster } from "@helvety/ui/sonner";
-import { ThemeProvider } from "@helvety/ui/theme-provider";
-import { TooltipProvider } from "@helvety/ui/tooltip";
-import { VercelAnalytics } from "@helvety/ui/vercel-analytics";
+import { createHelvetyProductMetadata } from "@helvety/shared/seo";
+import { CSRFProvider } from "@helvety/ui/csrf-provider";
+import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
-import { Providers } from "@/components/providers";
 import { StoreNav } from "@/components/store-nav";
 
-import type { Metadata } from "next";
-
 /** Shared store SEO / social copy (single source for metadata + JSON-LD). */
-const STORE_DESCRIPTION_COPY =
+export const STORE_DESCRIPTION =
   "Browse free Helvety apps and downloads, including open-source projects engineered and designed in Switzerland.";
 
 export const viewport = sharedViewport;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(urls.store),
+export const metadata = createHelvetyProductMetadata({
+  metadataBase: urls.store,
   title: {
-    default: "Helvety Store | Products & Apps",
+    default: "Helvety Store | Apps and downloads",
     template: "%s | Helvety Store",
   },
-  description: STORE_DESCRIPTION_COPY,
+  description: STORE_DESCRIPTION,
   keywords: [
     "Helvety Store",
     "software",
@@ -63,57 +47,16 @@ export const metadata: Metadata = {
     "screen tools",
     "windows screenshot",
   ],
-  authors: [{ name: "Helvety" }],
-  creator: "Helvety",
-  publisher: "Helvety",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: urls.store,
-    siteName: "Helvety Store",
-    title: "Helvety Store | Products & Apps",
-    description: STORE_DESCRIPTION_COPY,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-        width: 500,
-        height: 500,
-        alt: "Helvety Store",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary",
-    title: "Helvety Store | Products & Apps",
-    description: STORE_DESCRIPTION_COPY,
-    images: [
-      {
-        url: brandAssets.identifierPng,
-      },
-    ],
+  siteName: "Helvety Store",
+  canonicalUrl: urls.store,
+  brandImage: {
+    url: brandAssets.identifierPng,
+    ogAlt: "Helvety Store",
   },
   manifest: "/store/manifest.json",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  alternates: {
-    canonical: urls.store,
-  },
   category: "software",
-};
+  indexing: "all",
+});
 
 /**
  * Root layout: ThemeProvider wraps only the Navbar (next-themes injects a script; keep route content outside).
@@ -125,7 +68,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const nonce = (await getRequestCspNonce()) ?? undefined;
   let csrfToken = "";
   let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
 
@@ -138,52 +80,26 @@ export default async function RootLayout({
     logger.logUnexpectedError("Layout initialization failed", error);
   }
 
-  return (
-    <html lang="en" className={publicSans.variable} suppressHydrationWarning>
-      <body className="antialiased">
-        <SkipToContent />
-        <JsonLdScript
-          nonce={nonce}
-          json={{
-            "@context": "https://schema.org",
-            "@graph": [
-              createHelvetyOrganizationSchema(brandAssets.identifierPng),
-              {
-                "@type": "WebApplication",
-                name: "Helvety Store",
-                url: urls.store,
-                description: STORE_DESCRIPTION_COPY,
-                applicationCategory: "ShoppingApplication",
-                operatingSystem: "Any",
-              },
-            ],
-          }}
-        />
-        <TooltipProvider>
-          <Providers csrfToken={csrfToken}>
-            <AuthTokenHandler />
-            <SessionRecovery mode="optional" />
-            <div className="flex h-screen flex-col overflow-hidden">
-              <header className="shrink-0">
-                <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
-                  <Navbar initialUser={initialUser} />
-                </ThemeProvider>
-              </header>
-              <ScrollArea className="min-h-0 flex-1">
-                <div className="container mx-auto w-full px-4">
-                  <StoreNav initialUser={initialUser} />
-                  <main id="main-content" className="min-w-0">
-                    {children}
-                  </main>
-                </div>
-              </ScrollArea>
-              <Footer className="shrink-0" />
-            </div>
-            <Toaster />
-          </Providers>
-        </TooltipProvider>
-        <VercelAnalytics />
-      </body>
-    </html>
-  );
+  return HelvetyPublicShellRootLayout({
+    children,
+    organizationLogoUrl: brandAssets.identifierPng,
+    jsonLdGraphTail: [
+      {
+        "@type": "WebApplication",
+        name: "Helvety Store",
+        url: urls.store,
+        description: STORE_DESCRIPTION,
+        applicationCategory: "ShoppingApplication",
+        operatingSystem: "Any",
+      },
+    ],
+    renderNavbar: <Navbar initialUser={initialUser} />,
+    mainVariant: "scroll-area",
+    themeProviderScope: "navbar-only",
+    scrollAreaMainPrefix: <StoreNav initialUser={initialUser} />,
+    scrollAreaMainClassName: "min-w-0",
+    wrapInsideTooltipProvider: (shell) => (
+      <CSRFProvider csrfToken={csrfToken}>{shell}</CSRFProvider>
+    ),
+  });
 }

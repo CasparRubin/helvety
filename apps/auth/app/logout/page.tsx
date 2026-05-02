@@ -9,7 +9,7 @@ import { useCSRFSafe } from "@helvety/ui/csrf-provider";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef } from "react";
 
-import { signOutAction } from "./actions";
+import { signOutAction } from "./logout-actions";
 
 /**
  * Logout page - clears local encryption artifacts before sign-out.

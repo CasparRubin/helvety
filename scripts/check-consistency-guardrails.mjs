@@ -1,3 +1,9 @@
+/**
+ * Cross-workspace consistency checks for CI (`bun run consistency:guardrails`).
+ * Covers invariants that are awkward for ESLint alone (legal dates, security.txt,
+ * shared action limits, etc.) and enforces root `app/page.tsx` default export name
+ * `Page` per `docs/naming-conventions.md`.
+ */
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -141,6 +147,30 @@ async function main() {
     if (expiresDate.getTime() - now.getTime() > maxAheadMs) {
       throw new Error(
         "security.txt Expires is too far in the future; keep it within roughly 12 months."
+      );
+    }
+  }
+
+  const rootAppPagePaths = [
+    "apps/auth/app/page.tsx",
+    "apps/contacts/app/page.tsx",
+    "apps/image-upscaler/app/page.tsx",
+    "apps/notes/app/page.tsx",
+    "apps/pdf/app/page.tsx",
+    "apps/store/app/page.tsx",
+    "apps/tasks/app/page.tsx",
+    "apps/web/app/page.tsx",
+  ];
+  const rootAppPageContents = await Promise.all(
+    rootAppPagePaths.map(async (relativePath) => ({
+      relativePath,
+      content: await readFile(resolve(rootDir, relativePath), "utf8"),
+    }))
+  );
+  for (const file of rootAppPageContents) {
+    if (!/export default (?:async )?function Page\b/.test(file.content)) {
+      throw new Error(
+        `${file.relativePath} must default-export a function named Page (see docs/naming-conventions.md).`
       );
     }
   }

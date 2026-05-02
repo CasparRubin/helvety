@@ -86,7 +86,7 @@ export function createAuthCallbackHandler(
 
       const { searchParams } = new URL(request.url);
       const code = searchParams.get("code");
-      const token_hash = searchParams.get("token_hash");
+      const tokenHash = searchParams.get("token_hash");
       const type = searchParams.get("type");
       const rawRedirectUri = searchParams.get("redirect_uri");
       const rawNext = searchParams.get("next");
@@ -120,7 +120,7 @@ export function createAuthCallbackHandler(
         return NextResponse.redirect(`${authErrorUrl}&error=auth_failed`);
       }
 
-      if (token_hash && type) {
+      if (tokenHash && type) {
         if (!allowedOtpTypeSet.has(type as EmailOtpType)) {
           return NextResponse.redirect(
             `${authErrorUrl}&error=invalid_otp_type`
@@ -129,7 +129,7 @@ export function createAuthCallbackHandler(
 
         const supabase = await createServerClient();
         const { error } = await supabase.auth.verifyOtp({
-          token_hash,
+          token_hash: tokenHash,
           type: type as EmailOtpType,
         });
 
