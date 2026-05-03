@@ -74,6 +74,7 @@ async function main() {
   const vitestVersions = new Map();
   const jestDomVersions = new Map();
   const testingLibraryReactVersions = new Map();
+  const jsdomVersions = new Map();
 
   for (const packageJsonPath of packageJsonFiles) {
     const content = await readFile(packageJsonPath, "utf8");
@@ -109,6 +110,17 @@ async function main() {
         relativePackageJsonPath,
         testingLibraryReactVersion
       );
+    }
+
+    const jsdomVersion = allDeps.jsdom;
+    if (jsdomVersion) {
+      jsdomVersions.set(relativePackageJsonPath, jsdomVersion);
+      const major = extractMajor(jsdomVersion);
+      if (major !== null && major < 24) {
+        issues.push(
+          `${relativePackageJsonPath} uses jsdom ${jsdomVersion}. Expected jsdom v24+ with Vitest 4 / Node 24.`
+        );
+      }
     }
 
     const testScript = pkg.scripts?.test;
@@ -150,6 +162,13 @@ async function main() {
   if (uniqueTestingLibraryReactVersions.size > 1) {
     issues.push(
       `@testing-library/react version drift detected: ${Array.from(uniqueTestingLibraryReactVersions).join(", ")}`
+    );
+  }
+
+  const uniqueJsdomVersions = new Set(jsdomVersions.values());
+  if (uniqueJsdomVersions.size > 1) {
+    issues.push(
+      `jsdom version drift detected: ${Array.from(uniqueJsdomVersions).join(", ")}`
     );
   }
 

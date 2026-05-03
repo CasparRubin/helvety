@@ -4,7 +4,7 @@ This document is the source of truth for how we name and format code across `app
 
 ## References
 
-- **Next.js App Router structure**: [Project structure and file conventions](https://github.com/vercel/next.js/blob/v16.2.2/docs/01-app/01-getting-started/02-project-structure.mdx) — special filenames (`page.tsx`, `layout.tsx`, `route.ts`, `loading.tsx`, `error.tsx`, …), route groups `(segment)`, private folders `_segment`, colocation.
+- **Next.js App Router structure**: [Project structure and file conventions](https://github.com/vercel/next.js/blob/v16.2.4/docs/01-app/01-getting-started/02-project-structure.mdx) — special filenames (`page.tsx`, `layout.tsx`, `route.ts`, `loading.tsx`, `error.tsx`, …), route groups `(segment)`, private folders `_segment`, colocation (link revision tracks `apps/web` `next`).
 - **TypeScript identifiers**: [typescript-eslint naming-convention](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/naming-convention.mdx).
 - **Tests**: [Vitest — test files](https://github.com/vitest-dev/vitest/blob/main/docs/guide/learn/writing-tests.md) — we standardize on `*.test.ts` / `*.test.tsx` (not `*.spec.*`).
 

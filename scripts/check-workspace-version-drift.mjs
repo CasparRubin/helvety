@@ -11,11 +11,14 @@ const REQUIRED_VERSION_BY_DEP = new Map([
   ["eslint", "^9.39.4"],
   ["vitest", "^4.1.5"],
   ["@vitest/coverage-v8", "^4.1.5"],
-  ["@supabase/supabase-js", "^2.104.1"],
+  ["@testing-library/jest-dom", "^6.9.1"],
+  ["@testing-library/react", "^16.3.2"],
+  ["jsdom", "29.1.1"],
+  ["@supabase/supabase-js", "^2.105.1"],
   ["@supabase/ssr", "^0.10.2"],
   ["@simplewebauthn/server", "^13.3.0"],
   ["@simplewebauthn/browser", "^13.3.0"],
-  ["zod", "^4.3.6"],
+  ["zod", "^4.4.2"],
   ["prettier-plugin-tailwindcss", "^0.8.0"],
 ]);
 

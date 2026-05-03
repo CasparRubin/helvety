@@ -37,7 +37,7 @@ Root layouts: public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) comp
 
 ## Prerequisites
 
-- [Bun](https://bun.sh/) `1.3.10`
+- [Bun](https://bun.sh/) `1.3.13`
 - [Node.js](https://nodejs.org/) `24.x`
 
 ## Getting Started
@@ -94,7 +94,7 @@ bun run format
 
 ## CI and Release Checks
 
-- `bun run ci:check` runs `consistency:proxy-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
+- `bun run ci:check` runs `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
 - `bun run ci:release` runs `ci:check` plus `build`.
 - GitHub CI (`.github/workflows/ci.yml`) runs `bun run deps:unused` and `bun run ci:check`.
 - `ci:release` sets `SKIP_ENV_VALIDATION=1` during `build` only; missing env values use schema-valid placeholders in local builds.
