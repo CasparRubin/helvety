@@ -601,17 +601,17 @@ const helvetyPdf: SaaSProduct = {
 // =============================================================================
 
 /**
- * Helvety Image Upscaler - Browser image upscaler
+ * Helvety Image Upscaler - in-browser canvas resampling (not server-side AI)
  */
 const helvetyImageUpscaler: SaaSProduct = {
   id: "helvety-image-upscaler",
   slug: "helvety-image-upscaler",
   name: "Helvety Image Upscaler",
   shortDescription:
-    "Sharper PNG, JPEG, or WebP exports from the tab: 2×/4× batches, custom width or height with locked aspect ratio, and caps so the browser stays responsive.",
+    "Larger PNG, JPEG, or WebP dimensions from the tab: 2×/4× batches, target width or height with locked aspect ratio, high-quality canvas resampling, and limits so tabs stay responsive.",
   description: {
     intro:
-      "Helvety Image Upscaler processes supported operations in-browser with a WebGPU-ready runtime check and canvas fallback. Pixels are resampled on-device for the supported pipeline, without a Helvety-hosted conversion service in the normal flow.",
+      "Helvety Image Upscaler resizes images in your browser using a canvas-based worker (OffscreenCanvas). Pixels are resampled on-device—no Helvety-hosted image conversion in the normal flow—and very large exports may be clamped to fit each browser’s canvas limits.",
     sections: [
       {
         heading: "Access model",
@@ -641,7 +641,7 @@ const helvetyImageUpscaler: SaaSProduct = {
   artist: "Alexandre Calame",
   features: [
     "Client-side processing for supported operations",
-    "2x and 4x upscale presets",
+    "2× and 4× scale presets",
     "Target width/height mode with preserved aspect ratio",
     "Batch processing (up to 5 images)",
     "No login or account required",
@@ -679,14 +679,13 @@ const helvetyImageUpscaler: SaaSProduct = {
     targetAudience: [
       "Creators and designers",
       "Privacy-conscious users",
-      "Anyone improving image resolution",
+      "Anyone resizing images for web or documents",
     ],
     platforms: ["Web"],
     keywords: [
       "image upscaler",
-      "webgpu",
-      "onnx",
-      "browser",
+      "browser image resize",
+      "canvas",
       "client-side",
       "privacy",
       "free",

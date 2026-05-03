@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  clampOutputDimensions,
+  resetCanvasExportLimitsCacheForTests,
+  type CanvasExportLimits,
+} from "@/lib/canvas-export-limits";
+import { UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE } from "@/lib/upscale-export-limit-message";
+import {
   createDownloadName,
   IMAGE_FILE_SIZE_LIMIT_BYTES,
   MAX_IMAGE_PIXELS,
@@ -9,6 +15,12 @@ import {
   type UpscaleItem,
   upscaleItemsSequentially,
 } from "@/lib/upscale-pipeline";
+
+const UNCLAMPED_TEST_CANVAS_LIMITS: CanvasExportLimits = {
+  maxWidth: 60_000,
+  maxHeight: 60_000,
+  maxTotalPixels: 3_000_000_000,
+};
 
 const workerMocks = vi.hoisted(() => ({
   getRuntime: vi.fn(),
@@ -31,11 +43,13 @@ function createItem(width: number, height: number): UpscaleItem {
     height,
     status: "queued",
     error: null,
+    exportDimensions: null,
   };
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
+  resetCanvasExportLimitsCacheForTests();
 });
 
 describe("calculateTargetSize", () => {
@@ -172,6 +186,7 @@ describe("upscaleItemsSequentially", () => {
       targetMode: "width",
       targetValue: 0,
       onProgress,
+      canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
     });
 
     expect(result).toEqual({
@@ -193,11 +208,13 @@ describe("upscaleItemsSequentially", () => {
     expect(onProgress).toHaveBeenCalledWith(itemA.id, {
       status: "processing",
       error: null,
+      exportDimensions: null,
     });
     expect(onProgress).toHaveBeenCalledWith(itemB.id, {
       status: "done",
       outputUrl: "blob:out-2",
       error: null,
+      exportDimensions: { width: 400, height: 200 },
     });
     expect(workerMocks.dispose).toHaveBeenCalledTimes(1);
   });
@@ -214,6 +231,7 @@ describe("upscaleItemsSequentially", () => {
       targetMode: "width",
       targetValue: 0,
       onProgress,
+      canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
     });
 
     expect(result.completedCount).toBe(0);
@@ -224,6 +242,7 @@ describe("upscaleItemsSequentially", () => {
       expect.objectContaining({
         status: "failed",
         error: expect.stringContaining("exceeds"),
+        exportDimensions: null,
       })
     );
   });
@@ -246,6 +265,7 @@ describe("upscaleItemsSequentially", () => {
       targetMode: "width",
       targetValue: 0,
       onProgress,
+      canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
     });
 
     expect(result.completedCount).toBe(1);
@@ -254,6 +274,111 @@ describe("upscaleItemsSequentially", () => {
       status: "done",
       outputUrl: "blob:updated",
       error: null,
+      exportDimensions: { width: 240, height: 120 },
+    });
+  });
+
+  it("clamps full-resolution phone 2× output to strict canvas limits and notifies", async () => {
+    workerMocks.getRuntime.mockResolvedValueOnce("wasm-fallback");
+    workerMocks.upscale.mockResolvedValueOnce({ outputUrl: "blob:phone" });
+    const onProgress = vi.fn();
+    const onOutputClamped = vi.fn();
+    const phonePhoto = createItem(4032, 3024);
+    const strictLimits: CanvasExportLimits = {
+      maxWidth: 4096,
+      maxHeight: 4096,
+      maxTotalPixels: 16_777_216,
+    };
+    const expectedApplied = clampOutputDimensions(8064, 6048, strictLimits);
+
+    const result = await upscaleItemsSequentially({
+      items: [phonePhoto],
+      sizeMode: "scale",
+      scale: 2,
+      targetMode: "width",
+      targetValue: 0,
+      onProgress,
+      onOutputClamped,
+      canvasLimitsOverride: strictLimits,
+    });
+
+    expect(result.completedCount).toBe(1);
+    expect(onOutputClamped).toHaveBeenCalledTimes(1);
+    expect(onOutputClamped).toHaveBeenCalledWith({
+      fileName: phonePhoto.file.name,
+      requested: { width: 8064, height: 6048 },
+      applied: {
+        width: expectedApplied.width,
+        height: expectedApplied.height,
+      },
+    });
+    expect(workerMocks.upscale).toHaveBeenCalledWith({
+      file: phonePhoto.file,
+      width: expect.any(Number),
+      height: expect.any(Number),
+    });
+    const firstCall = workerMocks.upscale.mock.calls[0];
+    if (!firstCall) {
+      throw new Error("expected upscale to be called");
+    }
+    const upscaleArg = firstCall[0];
+    expect(upscaleArg.width).toBeLessThanOrEqual(4096);
+    expect(upscaleArg.height).toBeLessThanOrEqual(4096);
+    expect(upscaleArg.width * upscaleArg.height).toBeLessThanOrEqual(
+      16_777_216
+    );
+  });
+
+  it("maps invalid state worker errors to the shared export limit message", async () => {
+    workerMocks.getRuntime.mockResolvedValueOnce("wasm-fallback");
+    workerMocks.upscale.mockRejectedValueOnce(
+      new Error("The object is in an invalid state.")
+    );
+    const onProgress = vi.fn();
+    const item = createItem(100, 50);
+
+    await upscaleItemsSequentially({
+      items: [item],
+      sizeMode: "scale",
+      scale: 2,
+      targetMode: "width",
+      targetValue: 0,
+      onProgress,
+      canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
+    });
+
+    expect(onProgress).toHaveBeenCalledWith(item.id, {
+      status: "failed",
+      error: UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE,
+      exportDimensions: null,
+    });
+  });
+
+  it("maps DOMException InvalidStateError to the shared export limit message", async () => {
+    workerMocks.getRuntime.mockResolvedValueOnce("wasm-fallback");
+    workerMocks.upscale.mockRejectedValueOnce(
+      new DOMException(
+        "The object is in an invalid state.",
+        "InvalidStateError"
+      )
+    );
+    const onProgress = vi.fn();
+    const item = createItem(100, 50);
+
+    await upscaleItemsSequentially({
+      items: [item],
+      sizeMode: "scale",
+      scale: 2,
+      targetMode: "width",
+      targetValue: 0,
+      onProgress,
+      canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
+    });
+
+    expect(onProgress).toHaveBeenCalledWith(item.id, {
+      status: "failed",
+      error: UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE,
+      exportDimensions: null,
     });
   });
 });

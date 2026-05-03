@@ -13,6 +13,10 @@ type EmailLookupUser = {
 
 /**
  * Find a user by email using the indexed `get_auth_user_by_email` RPC.
+ *
+ * Security: call only with the Supabase **service role** client. Database grants
+ * must keep EXECUTE on `public.get_auth_user_by_email` limited to `service_role`
+ * (see `supabase/sql/verify_get_auth_user_by_email_grants.sql` for an audit query).
  */
 export async function findUserByEmail(
   email: string,

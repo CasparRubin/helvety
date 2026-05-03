@@ -3,7 +3,26 @@
 
 import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 
+import {
+  clampOutputDimensions,
+  getCanvasExportLimitsCached,
+  type CanvasExportLimits,
+} from "@/lib/canvas-export-limits";
+import { UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE } from "@/lib/upscale-export-limit-message";
 import { createUpscaleWorkerClient } from "@/lib/upscale-worker-client";
+
+function normalizeUpscaleWorkerError(error: unknown): string {
+  if (error instanceof DOMException && error.name === "InvalidStateError") {
+    return UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE;
+  }
+  if (error instanceof Error) {
+    if (/invalid state/i.test(error.message)) {
+      return UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE;
+    }
+    return error.message;
+  }
+  return GENERIC_USER_ERROR;
+}
 
 export const MAX_BULK_FILES = 5;
 export const IMAGE_FILE_SIZE_LIMIT_BYTES = 25 * 1024 * 1024;
@@ -22,7 +41,18 @@ export interface UpscaleItem {
   height: number;
   status: UpscaleStatus;
   error: string | null;
+  /** Last successful export pixel size (after browser canvas limits); null if none or cleared. */
+  exportDimensions: { width: number; height: number } | null;
 }
+
+/** Fired when output dimensions are reduced to fit the browser canvas limit. */
+export interface OutputClampedPayload {
+  fileName: string;
+  requested: { width: number; height: number };
+  applied: { width: number; height: number };
+}
+
+export type { CanvasExportLimits };
 
 interface ParsedFiles {
   items: UpscaleItem[];
@@ -135,6 +165,7 @@ export function parseImageFiles(files: FileList): ParsedFiles {
     height: 0,
     status: "queued" as const,
     error: null,
+    exportDimensions: null,
   }));
   return { items, errors };
 }
@@ -146,6 +177,9 @@ export async function upscaleItemsSequentially(options: {
   targetMode: "width" | "height";
   targetValue: number;
   onProgress: (id: string, patch: Partial<UpscaleItem>) => void;
+  onOutputClamped?: (payload: OutputClampedPayload) => void;
+  /** Vitest: skip canvas-size probe and use fixed limits. */
+  canvasLimitsOverride?: CanvasExportLimits;
 }): Promise<{
   runtime: string;
   totalCount: number;
@@ -157,10 +191,17 @@ export async function upscaleItemsSequentially(options: {
   let completedCount = 0;
   let failedCount = 0;
 
+  const limits =
+    options.canvasLimitsOverride ?? (await getCanvasExportLimitsCached());
+
   try {
     runtime = await worker.getRuntime();
     for (const item of options.items) {
-      options.onProgress(item.id, { status: "processing", error: null });
+      options.onProgress(item.id, {
+        status: "processing",
+        error: null,
+        exportDimensions: null,
+      });
       try {
         const dimensions =
           item.width > 0 && item.height > 0
@@ -188,10 +229,24 @@ export async function upscaleItemsSequentially(options: {
           }
         );
 
+        const requested = { width: target.width, height: target.height };
+        const { width, height, clamped } = clampOutputDimensions(
+          target.width,
+          target.height,
+          limits
+        );
+        if (clamped && options.onOutputClamped) {
+          options.onOutputClamped({
+            fileName: item.file.name,
+            requested,
+            applied: { width, height },
+          });
+        }
+
         const output = await worker.upscale({
           file: item.file,
-          width: target.width,
-          height: target.height,
+          width,
+          height,
         });
 
         if (item.outputUrl) URL.revokeObjectURL(item.outputUrl);
@@ -199,12 +254,14 @@ export async function upscaleItemsSequentially(options: {
           status: "done",
           outputUrl: output.outputUrl,
           error: null,
+          exportDimensions: { width, height },
         });
         completedCount += 1;
       } catch (error) {
         options.onProgress(item.id, {
           status: "failed",
-          error: error instanceof Error ? error.message : GENERIC_USER_ERROR,
+          error: normalizeUpscaleWorkerError(error),
+          exportDimensions: null,
         });
         failedCount += 1;
       }

@@ -1,6 +1,6 @@
 # Helvety Image Upscaler
 
-> Helvety Image Upscaler resamples PNG/JPEG/WebP batches in-browser with a WebGPU-ready runtime and canvas fallback—2×/4× or exact dimensions, no farm upload, MIT source from Switzerland.
+> Helvety Image Upscaler resizes PNG/JPEG/WebP in the browser using a canvas-based pipeline (OffscreenCanvas in a worker): 2×/4× or target width/height, PNG export, no image upload to Helvety servers. Output dimensions are capped when needed to fit each browser’s canvas limits (especially relevant on mobile Safari). MIT source from Switzerland.
 
 ## Canonical URL
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler): Main application route

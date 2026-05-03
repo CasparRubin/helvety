@@ -160,6 +160,11 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
               )
             );
           },
+          onOutputClamped: (payload) => {
+            toast.info("Output size limited by your browser", {
+              description: `${payload.fileName}: ${payload.requested.width}×${payload.requested.height} → ${payload.applied.width}×${payload.applied.height}.`,
+            });
+          },
         });
         if (result.failedCount === 0) {
           toast.success(
@@ -325,6 +330,22 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                           targetValue: Number.parseInt(targetInput, 10) || 0,
                         })
                       : null;
+                    const dimensionSummary = (() => {
+                      if (!hasDimensions) {
+                        return "Reading image dimensions...";
+                      }
+                      if (
+                        item.exportDimensions &&
+                        item.status === "done" &&
+                        hasFreshOutput
+                      ) {
+                        return `${item.width}×${item.height} → ${item.exportDimensions.width}×${item.exportDimensions.height}`;
+                      }
+                      if (target) {
+                        return `${item.width}×${item.height} → ${target.width}×${target.height}`;
+                      }
+                      return "Reading image dimensions...";
+                    })();
                     return (
                       <article
                         key={item.id}
@@ -336,9 +357,7 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                               {item.file.name}
                             </p>
                             <p className="text-muted-foreground text-xs">
-                              {target
-                                ? `${item.width}x${item.height} → ${target.width}x${target.height}`
-                                : "Reading image dimensions..."}
+                              {dimensionSummary}
                             </p>
                           </div>
                           <Button

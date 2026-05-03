@@ -1604,9 +1604,11 @@ SELECT json_build_object(
       ),
 
       -- =================================================================
-      -- LINT 0003: RLS Policies Using Deprecated auth.* Helpers
-      -- Flags policies that still reference deprecated auth helpers instead
-      -- of claim-based expressions (e.g. (auth.jwt() ->> 'sub')::uuid).
+      -- LINT 0003: RLS Policies Using Deprecated auth.* Helpers (initplan)
+      -- Flags bare auth.uid()/auth.role()/auth.email() when not already wrapped
+      -- in a sub-SELECT form Postgres stores as "SELECT auth.uid() ..." (Supabase
+      -- recommendation: (select auth.uid()) per row to avoid per-row re-eval).
+      -- Policies that already use "(SELECT auth.uid() ...)" are excluded.
       -- =================================================================
       'deprecated_auth_helpers_in_policies', (
         SELECT COALESCE(json_agg(
@@ -1616,26 +1618,56 @@ SELECT json_build_object(
             'policy_name', policyname,
             'command', cmd,
             'uses_auth_uid',
-              COALESCE(qual, '') ILIKE '%auth.uid()%'
-              OR COALESCE(with_check, '') ILIKE '%auth.uid()%',
+              (
+                (COALESCE(qual, '') ~* 'auth\.uid\s*\(' OR COALESCE(with_check, '') ~* 'auth\.uid\s*\(')
+                AND NOT (
+                  COALESCE(qual, '') ~* 'SELECT\s+auth\.uid\s*\('
+                  OR COALESCE(with_check, '') ~* 'SELECT\s+auth\.uid\s*\('
+                )
+              ),
             'uses_auth_role',
-              COALESCE(qual, '') ILIKE '%auth.role()%'
-              OR COALESCE(with_check, '') ILIKE '%auth.role()%',
+              (
+                (COALESCE(qual, '') ~* 'auth\.role\s*\(' OR COALESCE(with_check, '') ~* 'auth\.role\s*\(')
+                AND NOT (
+                  COALESCE(qual, '') ~* 'SELECT\s+auth\.role\s*\('
+                  OR COALESCE(with_check, '') ~* 'SELECT\s+auth\.role\s*\('
+                )
+              ),
             'uses_auth_email',
-              COALESCE(qual, '') ILIKE '%auth.email()%'
-              OR COALESCE(with_check, '') ILIKE '%auth.email()%'
+              (
+                (COALESCE(qual, '') ~* 'auth\.email\s*\(' OR COALESCE(with_check, '') ~* 'auth\.email\s*\(')
+                AND NOT (
+                  COALESCE(qual, '') ~* 'SELECT\s+auth\.email\s*\('
+                  OR COALESCE(with_check, '') ~* 'SELECT\s+auth\.email\s*\('
+                )
+              )
           )
           ORDER BY schemaname, tablename, policyname
         ), '[]'::json)
         FROM pg_policies
         WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
           AND (
-            COALESCE(qual, '') ILIKE '%auth.uid()%'
-            OR COALESCE(with_check, '') ILIKE '%auth.uid()%'
-            OR COALESCE(qual, '') ILIKE '%auth.role()%'
-            OR COALESCE(with_check, '') ILIKE '%auth.role()%'
-            OR COALESCE(qual, '') ILIKE '%auth.email()%'
-            OR COALESCE(with_check, '') ILIKE '%auth.email()%'
+            (
+              (COALESCE(qual, '') ~* 'auth\.uid\s*\(' OR COALESCE(with_check, '') ~* 'auth\.uid\s*\(')
+              AND NOT (
+                COALESCE(qual, '') ~* 'SELECT\s+auth\.uid\s*\('
+                OR COALESCE(with_check, '') ~* 'SELECT\s+auth\.uid\s*\('
+              )
+            )
+            OR (
+              (COALESCE(qual, '') ~* 'auth\.role\s*\(' OR COALESCE(with_check, '') ~* 'auth\.role\s*\(')
+              AND NOT (
+                COALESCE(qual, '') ~* 'SELECT\s+auth\.role\s*\('
+                OR COALESCE(with_check, '') ~* 'SELECT\s+auth\.role\s*\('
+              )
+            )
+            OR (
+              (COALESCE(qual, '') ~* 'auth\.email\s*\(' OR COALESCE(with_check, '') ~* 'auth\.email\s*\(')
+              AND NOT (
+                COALESCE(qual, '') ~* 'SELECT\s+auth\.email\s*\('
+                OR COALESCE(with_check, '') ~* 'SELECT\s+auth\.email\s*\('
+              )
+            )
           )
       ),
 

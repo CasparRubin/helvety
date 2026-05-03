@@ -8,7 +8,7 @@ import { IMAGE_FILE_SIZE_LIMIT_COPY } from "@/lib/product-copy";
 
 import type { User } from "@supabase/supabase-js";
 
-const aboutDescription = `Helvety Image Upscaler sharpens your images right in the browser. It is built for simple, fast quality boosts without unnecessary friction. Fair-use safeguards apply (${IMAGE_FILE_SIZE_LIMIT_COPY}) so the service stays stable.`;
+const aboutDescription = `Helvety Image Upscaler resizes images in your browser—2×/4× or exact target dimensions with high-quality resampling, no upload of image pixels to our servers. Fair-use safeguards apply (${IMAGE_FILE_SIZE_LIMIT_COPY}) so the tool stays stable.`;
 
 /** Main navigation bar for the Image Upscaler app — see `HelvetyShellNavbar` in `@helvety/ui`. */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {

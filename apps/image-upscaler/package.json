@@ -1,7 +1,7 @@
 {
   "name": "@helvety/image-upscaler",
   "version": "3.1.0",
-  "description": "In-browser image upscaler with 2×/4× or target sizing, plus per-image and batch flows—no account, MIT-licensed, Swiss-built.",
+  "description": "In-browser image resize (high-quality canvas resampling): 2×/4× or target dimensions, per-image and batch flows, no server-side image processing—no account, MIT-licensed, Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/image-upscaler",
   "repository": {
@@ -32,6 +32,7 @@
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
     "@supabase/supabase-js": "^2.104.1",
+    "canvas-size": "^2.0.0",
     "lucide-react": "^0.577.0",
     "next": "^16.2.4",
     "next-themes": "^0.4.6",

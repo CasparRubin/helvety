@@ -2,6 +2,8 @@
 
 import * as ort from "onnxruntime-web";
 
+import { UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE } from "@/lib/upscale-export-limit-message";
+
 import type { WorkerRequest, WorkerResponse } from "@/lib/upscale-worker-types";
 
 let runtimeLabel = "wasm-fallback";
@@ -27,6 +29,7 @@ async function initializeRuntime(): Promise<string> {
   return runtimeLabel;
 }
 
+// PNG export: createImageBitmap + OffscreenCanvas. ORT init in this module is unused for this path.
 async function upscaleWithCanvas(
   file: File,
   width: number,
@@ -50,30 +53,36 @@ function post(message: WorkerResponse): void {
 }
 
 self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
-  const message = event.data;
+  const request = event.data;
   try {
-    if (message.type === "runtime") {
+    if (request.type === "runtime") {
       const runtime = await initializeRuntime();
-      post({ type: "runtime:success", id: message.id, runtime });
+      post({ type: "runtime:success", id: request.id, runtime });
       return;
     }
 
     const outputBlob = await upscaleWithCanvas(
-      message.file,
-      message.width,
-      message.height
+      request.file,
+      request.width,
+      request.height
     );
     post({
       type: "upscale:success",
-      id: message.id,
+      id: request.id,
       outputBlob,
     });
   } catch (error) {
+    let errorMessage =
+      error instanceof Error ? error.message : "Unexpected worker error";
+    if (error instanceof DOMException && error.name === "InvalidStateError") {
+      errorMessage = UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE;
+    } else if (/invalid state/i.test(errorMessage)) {
+      errorMessage = UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE;
+    }
     post({
       type: "error",
-      id: message.id,
-      message:
-        error instanceof Error ? error.message : "Unexpected worker error",
+      id: request.id,
+      message: errorMessage,
     });
   }
 };

@@ -1,6 +1,6 @@
 # Helvety Image Upscaler
 
-Browser-based image upscaler for PNG/JPG/WebP files.
+Browser-based image resizer for PNG/JPEG/WebP: high-quality canvas resampling in a Web Worker (not server-side AI super-resolution).
 
 **App URL:** <https://helvety.com/image-upscaler>  
 **Monorepo path:** `apps/image-upscaler`
@@ -8,8 +8,8 @@ Browser-based image upscaler for PNG/JPG/WebP files.
 ## Key Features
 
 - Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (overflow-main) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `getCachedUser()` supplies an optional SSR session snapshot to the navbar (no login required for upscaling)
-- In-browser image resizing with per-image or batch upscale flows
-- Upscale by fixed factors (`2x`, `4x`) or target dimensions
+- In-browser resizing with per-image or batch flows (2×/4× or target width/height)
+- Uses `canvas-size` to probe browser canvas limits and clamps export dimensions when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
 - Batch queue with per-item statuses
 - Shared command bar UX (primary/secondary actions)
 - No login required
@@ -19,7 +19,7 @@ Browser-based image upscaler for PNG/JPG/WebP files.
 - Maximum files per batch: `5`
 - Supported formats: `PNG`, `JPG/JPEG`, `WebP`
 - Maximum file size: `25MB` per image
-- Maximum pixels: `32,000,000` per image
+- Maximum **input** pixels per image: `32,000,000` (export size may be lower when the browser canvas cap requires clamping)
 
 ## Crawl and Indexing
 

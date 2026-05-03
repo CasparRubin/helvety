@@ -8,6 +8,7 @@ import type * as UpscalePipelineModule from "@/lib/upscale-pipeline";
 
 const toastMocks = vi.hoisted(() => ({
   error: vi.fn(),
+  info: vi.fn(),
   success: vi.fn(),
   warning: vi.fn(),
 }));
@@ -132,11 +133,13 @@ describe("HelvetyImageUpscaler", () => {
         options.onProgress(firstItem.id, {
           status: "processing",
           error: null,
+          exportDimensions: null,
         });
         options.onProgress(firstItem.id, {
           status: "done",
           outputUrl: "blob:out-1",
           error: null,
+          exportDimensions: { width: 2400, height: 1600 },
         });
       }
       return {
@@ -225,6 +228,52 @@ describe("HelvetyImageUpscaler", () => {
 
     await waitFor(() => {
       expect(toastMocks.error).toHaveBeenCalledWith("Worker failed");
+    });
+  });
+
+  it("shows info toast when the pipeline reports clamped output dimensions", async () => {
+    mockUpscaleItemsSequentially.mockImplementationOnce(async (options) => {
+      options.onOutputClamped?.({
+        fileName: "sample.png",
+        requested: { width: 8064, height: 6048 },
+        applied: { width: 4096, height: 3072 },
+      });
+      const [first] = options.items;
+      if (first) {
+        options.onProgress(first.id, {
+          status: "processing",
+          error: null,
+          exportDimensions: null,
+        });
+        options.onProgress(first.id, {
+          status: "done",
+          outputUrl: "blob:out",
+          error: null,
+          exportDimensions: { width: 4096, height: 3072 },
+        });
+      }
+      return {
+        runtime: "wasm-fallback",
+        totalCount: 1,
+        completedCount: 1,
+        failedCount: 0,
+      };
+    });
+    render(<HelvetyImageUpscaler />);
+    uploadImageFile();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Upscale all" })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Upscale all" }));
+
+    await waitFor(() => {
+      expect(toastMocks.info).toHaveBeenCalledWith(
+        "Output size limited by your browser",
+        expect.objectContaining({
+          description: expect.stringContaining("8064×6048"),
+        })
+      );
     });
   });
 });
