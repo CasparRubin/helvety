@@ -103,6 +103,7 @@ All quality gates run locally. There is no GitHub Actions or other remote CI in 
 - Additional manual dependency/security checks:
   - `bun run deps:security` (security floors + `bun audit`)
   - `bun run deps:drift` (workspace version drift)
+  - `bun run deadcode:sweep` (repo-wide dead-code sweep: Knip + lint + type-check)
   - `bun run deps:check` / `bun run knip:exports` / `bun run deps:unused`
 
 ## Environment Model

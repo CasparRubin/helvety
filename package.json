@@ -40,6 +40,7 @@
     "deps:check": "knip --no-progress --include files,dependencies",
     "knip:exports": "knip --no-progress --include exports,types",
     "deps:unused": "bun run deps:check && bun run knip:exports",
+    "deadcode:sweep": "bun run deps:unused && bun run lint && bun run type-check",
     "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"
   },
   "overrides": {

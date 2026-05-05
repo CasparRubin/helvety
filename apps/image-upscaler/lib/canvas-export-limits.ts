@@ -107,7 +107,7 @@ export function clampOutputDimensions(
   return { width, height, clamped: true };
 }
 
-export async function getCanvasExportLimits(): Promise<CanvasExportLimits> {
+async function getCanvasExportLimits(): Promise<CanvasExportLimits> {
   if (typeof window === "undefined") {
     return DEFAULT_LIMITS;
   }

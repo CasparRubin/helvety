@@ -1,5 +1,27 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "apps/*": {
+      "entry": [
+        "app/**/*.{ts,tsx,js,jsx,mjs,cjs}",
+        "{instrumentation,proxy}.{ts,tsx,js,mjs,cjs}",
+        "next.config.{ts,js,mjs,cjs}",
+        "vitest.config.{ts,js,mjs,cjs}"
+      ],
+      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"]
+    },
+    "packages/*": {
+      "entry": [
+        "src/**/*.{ts,tsx,js,jsx,mjs,cjs}",
+        "*.{ts,tsx,js,jsx,mjs,cjs}"
+      ],
+      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"]
+    },
+    "packages/config": {
+      "entry": ["*.{ts,tsx,js,jsx,mjs,cjs}"],
+      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"]
+    }
+  },
   "ignoreDependencies": [
     "@tailwindcss/postcss",
     "prettier-plugin-tailwindcss",
@@ -7,10 +29,7 @@
     "tailwindcss",
     "pdfjs-dist"
   ],
-  "ignore": [
-    "apps/pdf/public/pdf.worker.min.mjs",
-    "packages/config/vitest.server-only-mock.ts"
-  ],
+  "ignore": ["apps/pdf/public/pdf.worker.min.mjs"],
   "ignoreIssues": {
     "packages/shared/src/types/database.types.ts": [
       "exports",
