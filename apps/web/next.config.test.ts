@@ -41,7 +41,7 @@ describe("web gateway rewrites", () => {
     const beforeFiles = getBeforeFiles(rewritesResult);
     const authOrigin = `http://localhost:${DEV_PORTS.auth}`;
 
-    expect(beforeFiles).toBeDefined();
+    expect(Array.isArray(beforeFiles)).toBe(true);
 
     expect(beforeFiles).toEqual(
       expect.arrayContaining([

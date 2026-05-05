@@ -17,9 +17,9 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
-    "test": "echo \"No tests in @helvety/brand\"",
-    "test:watch": "echo \"No tests in @helvety/brand\"",
-    "test:coverage": "echo \"No tests in @helvety/brand\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -37,8 +37,14 @@
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^19",
+    "@types/react-dom": "^19",
     "eslint": "^9.39.4",
-    "typescript": "^5"
+    "jsdom": "29.1.1",
+    "react-dom": "^19.2.0",
+    "typescript": "^5",
+    "vitest": "^4.1.5"
   }
 }

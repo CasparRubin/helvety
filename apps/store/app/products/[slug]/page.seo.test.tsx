@@ -100,10 +100,13 @@ describe("store product SEO", () => {
       ? twitterImages[0]
       : twitterImages;
 
-    expect(ogImage).toBeDefined();
-    expect(twitterImage).toBeDefined();
-    expect(getMetadataImageUrl(ogImage)?.startsWith(urls.home)).toBe(true);
-    expect(getMetadataImageUrl(twitterImage)?.startsWith(urls.home)).toBe(true);
+    const ogImageUrl = getMetadataImageUrl(ogImage);
+    const twitterImageUrl = getMetadataImageUrl(twitterImage);
+
+    expect(ogImageUrl).toBeTruthy();
+    expect(twitterImageUrl).toBeTruthy();
+    expect(ogImageUrl).toContain(urls.home);
+    expect(twitterImageUrl).toContain(urls.home);
   });
 
   it("includes an image URL in JSON-LD for products without screenshots", async () => {

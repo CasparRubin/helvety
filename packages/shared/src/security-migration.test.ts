@@ -36,6 +36,7 @@ describe("security hardening migration", () => {
     }
 
     const sql = readFileSync(securityMigrationPath, "utf8");
+    expect(sql.trim().length).toBeGreaterThan(0);
 
     expect(sql).toContain(
       "REVOKE EXECUTE ON FUNCTION storage.delete_leaf_prefixes(text[], text[]) FROM PUBLIC;"

@@ -27,8 +27,10 @@ export function createVitestConfig(rootDir) {
     test: {
       environment: "jsdom",
       setupFiles: [path.resolve(rootDir, "vitest.setup.ts")],
-      include: ["**/*.test.{ts,tsx}"],
+      include: ["**/*.{test,spec}.{ts,tsx}"],
       exclude: ["node_modules", ".next"],
+      // Kept intentionally permissive for now to avoid broad breakages while
+      // test quality is being uplifted workspace-by-workspace.
       passWithNoTests: true,
       // TypeScript is checked by `turbo run type-check` (tsc --noEmit);
       // keep Vitest typecheck disabled to avoid duplicate type-check work.
@@ -44,8 +46,14 @@ export function createVitestConfig(rootDir) {
           "lib/**/*.{ts,tsx}",
           "src/**/*.{ts,tsx}",
         ],
-        exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*.d.ts"],
-        reporter: ["text"],
+        exclude: [
+          "**/*.test.ts",
+          "**/*.test.tsx",
+          "**/*.spec.ts",
+          "**/*.spec.tsx",
+          "**/*.d.ts",
+        ],
+        reporter: ["text", "lcov"],
         thresholds: {
           lines: 70,
           functions: 70,

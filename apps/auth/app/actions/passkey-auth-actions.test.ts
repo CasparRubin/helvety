@@ -132,6 +132,8 @@ import {
   verifyPasskeyAuthentication,
 } from "./passkey-auth-actions";
 
+const CHALLENGE_TIMESTAMP = 1_700_000_000_000;
+
 /** Builds a minimal valid passkey verification payload for tests. */
 function buildVerifyResponse(
   overrides?: Partial<Parameters<typeof verifyPasskeyAuthentication>[1]>
@@ -256,7 +258,7 @@ describe("passkey-auth-actions", () => {
   it("returns generic error when credential is not found during verification", async () => {
     mocks.getStoredChallenge.mockResolvedValue({
       challenge: "challenge-123",
-      timestamp: Date.now(),
+      timestamp: CHALLENGE_TIMESTAMP,
     });
     mocks.credentialSingle.mockResolvedValue({
       data: null,
@@ -358,7 +360,7 @@ describe("passkey-auth-actions", () => {
       expectedUserId: "user-1",
       expectedEmail: "user@example.com",
       redirectUri: "https://helvety.com/tasks",
-      timestamp: Date.now(),
+      timestamp: CHALLENGE_TIMESTAMP,
     });
 
     mocks.credentialSingle.mockResolvedValue({

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createSecurityHeaders } from "./next-headers.mjs";
+import { buildCsp, createSecurityHeaders } from "./next-headers.mjs";
 
 describe("createSecurityHeaders", () => {
   it("omits COEP in production while keeping COOP", async () => {
@@ -35,5 +35,26 @@ describe("createSecurityHeaders", () => {
         expect.objectContaining({ key: "Cross-Origin-Opener-Policy" }),
       ])
     );
+  });
+});
+
+describe("buildCsp", () => {
+  it("adds nonce and omits unsafe-eval in production by default", () => {
+    process.env.NODE_ENV = "production";
+    const csp = buildCsp({ nonce: "nonce-123" });
+
+    expect(csp).toContain(
+      "script-src 'self' 'nonce-nonce-123' 'strict-dynamic'"
+    );
+    expect(csp).not.toContain("'unsafe-eval'");
+    expect(csp).toContain("upgrade-insecure-requests");
+  });
+
+  it("enables blob directives when requested", () => {
+    process.env.NODE_ENV = "development";
+    const csp = buildCsp({ imgBlob: true, workerBlob: true });
+
+    expect(csp).toContain("img-src 'self' data: blob:");
+    expect(csp).toContain("worker-src 'self' blob:");
   });
 });

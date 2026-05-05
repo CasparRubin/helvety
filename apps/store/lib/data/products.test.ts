@@ -19,10 +19,16 @@ describe("store product catalog", () => {
     expect(
       getProductBySlug("helvety-power-automate-force-v3-false")?.name
     ).toBe("Power Automate Browser Extension");
-    expect(getProductBySlug("helvety-spo-explorer")).toBeDefined();
-    expect(getProductBySlug("helvety-pdf")).toBeDefined();
-    expect(getProductBySlug("helvety-screen-tools")).toBeDefined();
-    expect(getProductBySlug("helvety-image-upscaler")).toBeDefined();
+    expect(getProductBySlug("helvety-spo-explorer")?.slug).toBe(
+      "helvety-spo-explorer"
+    );
+    expect(getProductBySlug("helvety-pdf")?.slug).toBe("helvety-pdf");
+    expect(getProductBySlug("helvety-screen-tools")?.slug).toBe(
+      "helvety-screen-tools"
+    );
+    expect(getProductBySlug("helvety-image-upscaler")?.slug).toBe(
+      "helvety-image-upscaler"
+    );
   });
 
   it("stores structured About copy for every product", () => {

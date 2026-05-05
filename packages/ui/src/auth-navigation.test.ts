@@ -6,8 +6,8 @@ vi.mock("@helvety/shared/auth-errors", () => ({
 
 vi.mock("@helvety/shared/auth-redirect", () => ({
   getLoginUrl: vi.fn(
-    (target?: string) =>
-      `https://helvety.com/auth/login?redirect_uri=${encodeURIComponent(target ?? "")}`
+    (target?: string, options?: { forceLogin?: boolean }) =>
+      `https://helvety.com/auth/login?redirect_uri=${encodeURIComponent(target ?? "")}${options?.forceLogin ? "&force_login=1" : ""}`
   ),
 }));
 
@@ -70,5 +70,38 @@ describe("global redirect lock", () => {
     resetGlobalRedirectLockForTests();
     redirectToLoginOnce("https://helvety.com/notes", "second");
     expect(window.location.replace).toHaveBeenCalledTimes(2);
+  });
+
+  it("returns false when expected route is stale and emits a deduped event", () => {
+    const result = redirectToLoginOnce("https://helvety.com/tasks", "stale", {
+      expectedRoute: "https://helvety.com/notes",
+      requestStartedAt: Date.now() - 100,
+    });
+
+    expect(result).toBe(false);
+    expect(window.location.replace).not.toHaveBeenCalled();
+    expect(window.dispatchEvent).toHaveBeenCalledTimes(1);
+    expect(window.dispatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "helvety:auth-navigation",
+        detail: expect.objectContaining({
+          deduped: true,
+          routeMatched: false,
+          source: "stale",
+          type: "login",
+        }),
+      })
+    );
+  });
+
+  it("passes forceLogin through login URL generation", () => {
+    const result = redirectToLoginOnce("https://helvety.com/tasks", "force", {
+      forceLogin: true,
+    });
+
+    expect(result).toBe(true);
+    expect(window.location.replace).toHaveBeenCalledWith(
+      expect.stringContaining("force_login=1")
+    );
   });
 });

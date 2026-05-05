@@ -62,6 +62,8 @@ import {
   verifyPasskeyRegistration,
 } from "./passkey-registration-actions";
 
+const CHALLENGE_TIMESTAMP = 1_700_000_000_000;
+
 /** Builds a minimal valid passkey registration payload for tests. */
 function buildRegistrationResponse(
   overrides?: Partial<Parameters<typeof verifyPasskeyRegistration>[1]>
@@ -103,7 +105,7 @@ describe("passkey-registration-actions", () => {
       challenge: "challenge-123",
       userId: "user-1",
       prfSalt: "salt",
-      timestamp: Date.now(),
+      timestamp: CHALLENGE_TIMESTAMP,
     });
     mocks.getRpId.mockReturnValue("helvety.com");
     mocks.getExpectedOrigins.mockReturnValue(["https://helvety.com"]);
@@ -174,7 +176,7 @@ describe("passkey-registration-actions", () => {
       challenge: "challenge-123",
       userId: "other-user",
       prfSalt: "salt",
-      timestamp: Date.now(),
+      timestamp: CHALLENGE_TIMESTAMP,
     });
 
     const result = await verifyPasskeyRegistration(
@@ -282,7 +284,7 @@ describe("passkey-registration-actions", () => {
     mocks.getStoredChallenge.mockResolvedValue({
       challenge: "challenge-123",
       userId: "user-1",
-      timestamp: Date.now(),
+      timestamp: CHALLENGE_TIMESTAMP,
     });
 
     const result = await verifyPasskeyRegistration(

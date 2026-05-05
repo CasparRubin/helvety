@@ -79,6 +79,35 @@ describe("resolveLatestPackageVersion", () => {
     });
   });
 
+  it("returns null when storage listing fails", async () => {
+    mocks.list.mockResolvedValue({
+      data: null,
+      error: { message: "storage error" },
+    });
+
+    const result = await resolveLatestPackageVersion("spo-explorer");
+
+    expect(result).toBeNull();
+  });
+
+  it("returns null when no package files match expected suffix", async () => {
+    mocks.list.mockResolvedValue({
+      data: [
+        {
+          name: "readme.txt",
+          id: "x1",
+          created_at: "2026-03-10T10:00:00.000Z",
+        },
+        { name: "subfolder", id: null },
+      ],
+      error: null,
+    });
+
+    const result = await resolveLatestPackageVersion("spo-explorer");
+
+    expect(result).toBeNull();
+  });
+
   it("selects the newest .zip by timestamp for browser extension packages", async () => {
     mocks.list.mockResolvedValue({
       data: [

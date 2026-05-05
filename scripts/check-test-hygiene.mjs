@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 const rootDir = process.cwd();
 const WORKSPACE_DIRS = ["apps", "packages"];
-const TEST_FILE_SUFFIX = [".test.ts", ".test.tsx"];
+const TEST_FILE_SUFFIX = [".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx"];
 const SKIP_DIR_NAMES = new Set(["node_modules", ".next", ".turbo", "dist"]);
 const FORBIDDEN_PATTERNS = [
   { name: "test.only", regex: /\b(?:it|test)\.only\(/ },
@@ -127,11 +127,21 @@ async function main() {
     const usesVitest =
       typeof testScript === "string" && /vitest/.test(testScript);
     if (usesVitest && (await hasTestFiles(workspaceRoot))) {
-      const vitestConfigPath = resolve(workspaceRoot, "vitest.config.ts");
+      const vitestConfigCandidates = [
+        resolve(workspaceRoot, "vitest.config.ts"),
+        resolve(workspaceRoot, "vitest.config.mts"),
+        resolve(workspaceRoot, "vitest.config.mjs"),
+        resolve(workspaceRoot, "vitest.mjs"),
+      ];
       const vitestSetupPath = resolve(workspaceRoot, "vitest.setup.ts");
-      if (!(await fileExists(vitestConfigPath))) {
+      const hasVitestConfig = (
+        await Promise.all(
+          vitestConfigCandidates.map((candidate) => fileExists(candidate))
+        )
+      ).some(Boolean);
+      if (!hasVitestConfig) {
         issues.push(
-          `${relativePackageJsonPath} has a Vitest test script but is missing vitest.config.ts`
+          `${relativePackageJsonPath} has a Vitest test script but is missing a Vitest config file (vitest.config.ts|vitest.config.mts|vitest.config.mjs|vitest.mjs)`
         );
       }
       if (!(await fileExists(vitestSetupPath))) {

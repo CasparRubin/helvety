@@ -92,10 +92,7 @@ describe("HelvetyImageUpscaler", () => {
     render(<HelvetyImageUpscaler />);
 
     const [modeSelect] = screen.getAllByRole("combobox");
-    expect(modeSelect).toBeDefined();
-    if (!modeSelect) {
-      throw new Error("Mode select was not rendered.");
-    }
+    expect(modeSelect).toBeInTheDocument();
     fireEvent.change(modeSelect, { target: { value: "target" } });
 
     expect(screen.getByDisplayValue("Width")).toBeInTheDocument();

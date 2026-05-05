@@ -273,7 +273,14 @@ export function createEslintConfig(rootDir) {
     // Vitest mocks and Next font metadata tests use PascalCase object literal
     // methods and third-party-shaped keys; keep naming rules on production code.
     {
-      files: ["**/*.test.ts", "**/*.test.tsx", "**/*.test.mts"],
+      files: [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.test.mts",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "**/*.spec.mts",
+      ],
       rules: {
         "@typescript-eslint/naming-convention": "off",
       },
@@ -302,6 +309,7 @@ export function createEslintConfig(rootDir) {
       ".next/**",
       "out/**",
       "build/**",
+      "coverage/**",
       "node_modules/**",
       "next-env.d.ts",
       "public/**",
@@ -347,12 +355,19 @@ export function createPackageEslintConfig(rootDir) {
       },
     },
     {
-      files: ["**/*.test.ts", "**/*.test.tsx", "**/*.test.mts"],
+      files: [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.test.mts",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "**/*.spec.mts",
+      ],
       rules: {
         "@typescript-eslint/naming-convention": "off",
       },
     },
-    globalIgnores(["node_modules/**"]),
+    globalIgnores(["node_modules/**", "coverage/**"]),
     eslintConfigPrettier,
   ]);
 }

@@ -80,6 +80,7 @@ bun run format
 ## Testing Consistency
 
 - Prefer semantic Testing Library queries (`getByRole`, `getByLabelText`) over DOM-structure or text-count assertions.
+- Prefer `*.test.ts(x)` naming for new tests; `*.spec.ts(x)` is also supported by shared tooling.
 - Keep `vi.mock(...)` at module scope and reset mocks in `beforeEach`; restore spies/globals in `afterEach` where applicable.
 - For async rejection cases, capture one promise and assert multiple expectations against that same invocation.
 - Use explicit `cleanup()` in workspace `vitest.setup.ts` files that use `@testing-library/react`.
