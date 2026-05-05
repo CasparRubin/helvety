@@ -1,6 +1,6 @@
 /**
  * Keeps documented toolchain versions aligned with manifests:
- * - Root `packageManager` (Bun) ↔ README prerequisites ↔ GitHub Actions `setup-bun`
+ * - Root `packageManager` (Bun) ↔ README prerequisites
  * - `apps/web` `next` semver ↔ Next.js doc deep link in `docs/naming-conventions.md`
  */
 import { readFile } from "node:fs/promises";
@@ -31,19 +31,6 @@ async function main() {
   if (!readmeBun.test(readme)) {
     throw new Error(
       `README.md prerequisites must list Bun \`${bunVersion}\` to match packageManager.`
-    );
-  }
-
-  const ciYml = await readFile(
-    resolve(rootDir, ".github/workflows/ci.yml"),
-    "utf8"
-  );
-  const ciOk =
-    ciYml.includes(`bun-version: "${bunVersion}"`) ||
-    ciYml.includes(`bun-version: '${bunVersion}'`);
-  if (!ciOk) {
-    throw new Error(
-      `.github/workflows/ci.yml setup-bun bun-version must be "${bunVersion}" (match packageManager).`
     );
   }
 

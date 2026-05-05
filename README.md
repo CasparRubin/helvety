@@ -92,11 +92,12 @@ bun run format
 - **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and `consistency:guardrails` (see [`scripts/check-consistency-guardrails.mjs`](scripts/check-consistency-guardrails.mjs)).
 - Workspace layout, per-app entry points, and CI/release expectations are described in this file and in each app or package `README.md` (for example [`packages/ui/README.md`](packages/ui/README.md) for shared UI shells).
 
-## CI and Release Checks
+## Automation
 
-- `bun run ci:check` runs `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
-- `bun run ci:release` runs `ci:check` plus `build`.
-- GitHub CI (`.github/workflows/ci.yml`) runs `bun run deps:unused` and `bun run ci:check`.
+All quality gates run locally. There is no GitHub Actions or other remote CI in this repo; deployment is handled by Vercel from the pushed commit.
+
+- `bun run ci:check` (run during development) — `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
+- `bun run ci:release` (run before `git push` / before Vercel deploys) — `ci:check` plus `build`.
 - `ci:release` sets `SKIP_ENV_VALIDATION=1` during `build` only; missing env values use schema-valid placeholders in local builds.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.
 - Additional manual dependency/security checks:
