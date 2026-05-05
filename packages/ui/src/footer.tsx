@@ -5,6 +5,7 @@ import { Fragment } from "react";
 import type { ReactNode } from "react";
 
 const LEGAL_BASE = urls.home;
+const COPYRIGHT_GLUE = "\u00A0";
 
 const linkClass = "hover:text-muted-foreground transition-colors";
 
@@ -75,7 +76,9 @@ export function Footer({
       <div className="mx-auto w-full max-w-[2000px] px-4 py-5">
         <div className="text-muted-foreground flex flex-col items-center gap-1 text-center text-xs">
           <p>
-            &copy; {currentYear} Helvety &middot; This site uses essential
+            &copy; {currentYear}
+            {COPYRIGHT_GLUE}
+            Helvety &middot; This site uses essential
             cookies and similar storage technologies for security and core
             functionality; account-based services also use authentication
             cookies.
