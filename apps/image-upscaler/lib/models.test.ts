@@ -35,7 +35,8 @@ describe("upscale model registry", () => {
           `${STORAGE_PATH_PREFIX}real_esrgan_general_x4v3.data`
         ),
         path: "real_esrgan_general_x4v3.data",
-        sha256: null,
+        sha256:
+          "512d0ec9940c2e9d85d27f2952f12a0b77b7841dc22df4ce9f3ea458bc98f37f",
       },
     ]);
   });

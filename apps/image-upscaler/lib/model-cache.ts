@@ -224,12 +224,19 @@ async function loadAsset(
 ): Promise<{ bytes: Uint8Array; fromCache: boolean }> {
   const cached = await readCacheEntry(url);
   if (cached) {
-    onProgress?.({
-      modelId,
-      received: cached.byteLength,
-      total: cached.byteLength,
-    });
-    return { bytes: cached, fromCache: true };
+    try {
+      if (expectedSha256) {
+        await verifySha256(cached, expectedSha256, modelId);
+      }
+      onProgress?.({
+        modelId,
+        received: cached.byteLength,
+        total: cached.byteLength,
+      });
+      return { bytes: cached, fromCache: true };
+    } catch {
+      await evictModel(url);
+    }
   }
 
   const downloaded = await streamFetch(url, modelId, onProgress);

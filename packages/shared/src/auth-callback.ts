@@ -1,11 +1,10 @@
 /**
- * Shared auth callback handler factory for sub-apps
- * (store, pdf, image-upscaler, tasks, contacts, notes).
+ * Shared auth callback handler factory for sub-apps.
  *
  * Encapsulates the standard Supabase code-exchange / OTP-verification flow
  * with IP-based rate limiting, safe redirect validation, and error handling.
- * The auth app has its own callback with passkey/encryption logic and is not
- * included here.
+ * This handler is used across surfaces (including `apps/auth`) with optional
+ * app-specific overrides for post-auth routing.
  */
 
 import { NextResponse } from "next/server";
@@ -93,6 +92,9 @@ export function createAuthCallbackHandler(
       const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
       authErrorUrl = buildLoginUrl(safeRedirectUri ?? origin);
       if (rawNext && !isValidRelativePath(rawNext)) {
+        logger.warn("Auth callback rejected invalid next path", {
+          next: rawNext,
+        });
         return NextResponse.redirect(`${authErrorUrl}&error=invalid_next`);
       }
       const next = getSafeRelativePath(rawNext, "/");
@@ -122,6 +124,7 @@ export function createAuthCallbackHandler(
 
       if (tokenHash && type) {
         if (!allowedOtpTypeSet.has(type as EmailOtpType)) {
+          logger.warn("Auth callback rejected OTP type", { type });
           return NextResponse.redirect(
             `${authErrorUrl}&error=invalid_otp_type`
           );

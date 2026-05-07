@@ -23,10 +23,10 @@ ever leaves the client.
 
 ## Engine
 
-| Engine                 | User-facing | Size  | Best for                                 |
-| ---------------------- | ----------- | ----- | ---------------------------------------- |
-| `realesr-general-x4v3` | yes         | ~5 MB | Photos, screenshots, mixed content       |
-| `canvas` (no AI)       | no          | 0     | Silent fallback when WASM is unavailable |
+| Engine                 | User-facing | Size  | Best for                                                  |
+| ---------------------- | ----------- | ----- | --------------------------------------------------------- |
+| `realesr-general-x4v3` | yes         | ~5 MB | Photos, screenshots, mixed content                        |
+| `canvas` (no AI)       | no          | 0     | Automatic fallback when WASM is unavailable (with notice) |
 
 The user never chooses an engine. The app uses Real-ESRGAN by default; if the
 browser does not expose WebAssembly, the app shows a notice and silently uses
@@ -35,8 +35,9 @@ the canvas fallback instead.
 ## Hosting model weights
 
 The ONNX graph and its external-data sidecar are hosted in a public Supabase Storage bucket
-(`image-upscaler-models`) and downloaded once per browser, then cached locally
-via the Cache API. URLs are derived from `NEXT_PUBLIC_SUPABASE_URL` at build
+(`image-upscaler-models`) and typically downloaded once per browser, then cached locally
+via the Cache API. They can re-download after cache eviction/integrity mismatch or when the
+Cache API is unavailable. URLs are derived from `NEXT_PUBLIC_SUPABASE_URL` at build
 time so each environment uses its own Supabase project. See the
 [hosting runbook](./public/models/README.md) for the upload procedure, exact
 filenames, cache headers, and how to verify integrity.

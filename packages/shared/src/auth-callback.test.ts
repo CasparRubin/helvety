@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   verifyOtp: vi.fn(),
   generateCSRFToken: vi.fn(),
   loggerError: vi.fn(),
+  loggerWarn: vi.fn(),
 }));
 
 vi.mock("./auth-redirect", () => ({
@@ -54,6 +55,7 @@ vi.mock("./logger", () => ({
   logger: {
     error: mocks.loggerError,
     logUnexpectedError: mocks.loggerError,
+    warn: mocks.loggerWarn,
   },
 }));
 

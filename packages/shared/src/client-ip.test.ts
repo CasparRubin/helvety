@@ -18,7 +18,7 @@ afterEach(() => {
 });
 
 describe("getTrustedClientIp", () => {
-  it("prefers x-forwarded-for in production when trusted proxy is required", () => {
+  it("prefers x-real-ip in production when trusted proxy is required", () => {
     vi.stubEnv("NODE_ENV", "production");
 
     const ip = getTrustedClientIp(
@@ -29,7 +29,7 @@ describe("getTrustedClientIp", () => {
       { requireTrustedProxyInProduction: true }
     );
 
-    expect(ip).toBe("203.0.113.7");
+    expect(ip).toBe("198.51.100.2");
   });
 
   it("returns null in production with required trusted proxy and no proxy headers", () => {
@@ -60,5 +60,32 @@ describe("getTrustedClientIp", () => {
     const ip = getTrustedClientIp(toHeaders({}), { fallback: "unknown" });
 
     expect(ip).toBe("unknown");
+  });
+
+  it("rejects malformed proxy header values", () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    const ip = getTrustedClientIp(
+      toHeaders({
+        "x-real-ip": "not-an-ip",
+        "x-forwarded-for": "unknown",
+      }),
+      { requireTrustedProxyInProduction: true }
+    );
+
+    expect(ip).toBeNull();
+  });
+
+  it("normalizes ip:port values from forwarded headers", () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    const ip = getTrustedClientIp(
+      toHeaders({
+        "x-forwarded-for": "203.0.113.7:443, 10.0.0.1",
+      }),
+      { requireTrustedProxyInProduction: true }
+    );
+
+    expect(ip).toBeNull();
   });
 });

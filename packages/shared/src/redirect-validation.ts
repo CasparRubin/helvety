@@ -2,7 +2,8 @@
  * Redirect URI validation utilities
  *
  * Prevents open redirect vulnerabilities by validating redirect URIs
- * against a configured allowlist of domains.
+ * against a configured allowlist of trusted hosts/protocols and dev-only
+ * localhost patterns.
  */
 
 /**

@@ -50,6 +50,7 @@ describe("model-cache", () => {
   });
 
   it("downloads and caches ONNX external-data sidecars with their protobuf path", async () => {
+    // Test URLs are synthetic fixture paths, not production hosting endpoints.
     const { cache, caches } = createMemoryCache();
     const fetchMock = vi.fn(async (url: string) => {
       if (url.endsWith(".onnx")) {
@@ -141,5 +142,38 @@ describe("model-cache", () => {
 
     expect(cache.delete).toHaveBeenCalledWith("/model.onnx");
     expect(cache.delete).toHaveBeenCalledWith("/model.data");
+  });
+
+  it("evicts cached bytes and re-downloads when cached hash does not match", async () => {
+    const { cache, caches, entries } = createMemoryCache();
+    const staleBytes = bytes([9, 9, 9]);
+    const freshBytes = bytes([1, 2, 3]);
+    const digestBuffer = await crypto.subtle.digest(
+      "SHA-256",
+      freshBytes.buffer.slice(
+        freshBytes.byteOffset,
+        freshBytes.byteOffset + freshBytes.byteLength
+      )
+    );
+    const expectedSha = Array.from(new Uint8Array(digestBuffer))
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+
+    entries.set("/test/model.onnx", new Response(body(staleBytes)));
+    const fetchMock = vi.fn(async () => new Response(body(freshBytes)));
+    vi.stubGlobal("caches", caches);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getModelBytes({
+      id: "verified-model",
+      url: "/test/model.onnx",
+      sha256: expectedSha,
+      externalData: null,
+    });
+
+    expect(result.bytes).toEqual(freshBytes);
+    expect(result.fromCache).toBe(false);
+    expect(cache.delete).toHaveBeenCalledWith("/test/model.onnx");
+    expect(fetchMock).toHaveBeenCalledWith("/test/model.onnx");
   });
 });

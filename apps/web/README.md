@@ -27,7 +27,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 ## Security Model
 
 - `proxy.ts` handles lightweight request setup (CSP headers + Supabase cookie refresh), not full auth enforcement.
-- CSRF cookie bootstrap is intentionally disabled in the web gateway (`includeCsrf: false`) because state-changing auth/data actions execute in app-specific zones.
+- CSRF cookie bootstrap is intentionally disabled in the web gateway by using the `public-marketing` security proxy profile (equivalent to `includeCsrf: false`) because state-changing auth/data actions execute in app-specific zones.
 - Redirect target validation is enforced in shared auth callback/action flows via shared redirect-validation utilities.
 - Sensitive auth/data enforcement remains in app-specific zones (`auth`, `store`, `tasks`, `contacts`, `notes`).
 

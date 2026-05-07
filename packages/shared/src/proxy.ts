@@ -33,7 +33,7 @@ export const SECURITY_PROXY_MATCHER = [
 
 /** Configuration for creating a lightweight security proxy handler. */
 export type CreateSecurityProxyOptions = {
-  /** CSP options (imgBlob, scriptUnsafeEval, workerBlob) */
+  /** CSP options (imgBlob, scriptUnsafeEval, workerBlob, wasmUnsafeEval) */
   buildCspOptions?: BuildCspOptions;
   /** Whether to set x-helvety-url header (default: true). Public marketing profile disables this. */
   includeHelvetyUrl?: boolean;

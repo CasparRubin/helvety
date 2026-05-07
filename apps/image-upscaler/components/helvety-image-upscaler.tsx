@@ -48,6 +48,7 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
   const [targetInput, setTargetInput] = React.useState<string>("2048");
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [modelId] = React.useState<UpscaleModelId>(getDefaultEngineForRuntime);
+  const itemsRef = React.useRef<UpscaleItem[]>([]);
 
   const targetValue = Number.parseInt(targetInput, 10) || 0;
   const targetIsValid =
@@ -61,6 +62,10 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
       : `target:${targetMode}:${targetIsValid ? targetValue : "invalid"}:${modelId}`;
   const activeModel = getModelById(modelId);
   const isCanvasFallback = activeModel.kind === "canvas";
+
+  React.useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   const addFiles = React.useCallback((fileList: FileList): void => {
     const parsed = parseImageFiles(fileList);
@@ -124,16 +129,35 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
   );
 
   const removeItem = React.useCallback((id: string): void => {
-    setItems((current) => current.filter((item) => item.id !== id));
+    setItems((current) => {
+      const removed = current.find((item) => item.id === id);
+      if (removed) {
+        URL.revokeObjectURL(removed.previewUrl);
+        if (removed.outputUrl) {
+          URL.revokeObjectURL(removed.outputUrl);
+        }
+      }
+      return current.filter((item) => item.id !== id);
+    });
   }, []);
 
   const clearAll = React.useCallback((): void => {
     setItems((current) => {
       current.forEach((item) => {
+        URL.revokeObjectURL(item.previewUrl);
         if (item.outputUrl) URL.revokeObjectURL(item.outputUrl);
       });
       return [];
     });
+  }, []);
+
+  React.useEffect(() => {
+    return () => {
+      itemsRef.current.forEach((item) => {
+        URL.revokeObjectURL(item.previewUrl);
+        if (item.outputUrl) URL.revokeObjectURL(item.outputUrl);
+      });
+    };
   }, []);
 
   const runUpscaleForIds = React.useCallback(

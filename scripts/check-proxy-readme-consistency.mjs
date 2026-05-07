@@ -16,8 +16,11 @@ async function main() {
     /createProfiledSecurityProxy\("public-marketing"\)/.test(proxyContent);
   const csrfDisabledInline = /includeCsrf:\s*false/.test(proxyContent);
   const csrfDisabled = usesPublicMarketingProfile || csrfDisabledInline;
-  const readmeMentionsCsrfDisabled =
-    /CSRF cookie bootstrap is intentionally disabled/i.test(readmeContent);
+  const readmeMentionsCsrfDisabled = [
+    /CSRF cookie bootstrap is intentionally disabled/i,
+    /public-marketing/i,
+    /includeCsrf:\s*false/i,
+  ].every((pattern) => pattern.test(readmeContent));
 
   if (csrfDisabled && !readmeMentionsCsrfDisabled) {
     throw new Error(

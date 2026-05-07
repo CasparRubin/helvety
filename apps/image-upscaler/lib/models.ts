@@ -180,12 +180,13 @@ export const UPSCALE_MODELS: readonly UpscaleModel[] = [
     scale: 4,
     url: resolveModelAssetUrl("real_esrgan_general_x4v3.onnx"),
     tile: TILE_X4,
-    sha256: null,
+    sha256: "a848eba3a04de14cc5846733032c3fdc2eee175fd29df264067c3e85ab29d9b3",
     externalData: [
       {
         url: resolveModelAssetUrl("real_esrgan_general_x4v3.data"),
         path: "real_esrgan_general_x4v3.data",
-        sha256: null,
+        sha256:
+          "512d0ec9940c2e9d85d27f2952f12a0b77b7841dc22df4ce9f3ea458bc98f37f",
       },
     ],
     maxInputPixels: ONNX_X4_MAX_INPUT_PIXELS,

@@ -6,7 +6,9 @@ keeping that bucket in sync with the registry in
 [`apps/image-upscaler/lib/models.ts`](../../lib/models.ts).
 
 The browser worker fetches weights lazily on first AI run and caches them locally
-via the Cache API (`upscale-models-v1`). Image data never leaves the client.
+via the Cache API (`upscale-models-v1`). This is typically a one-time download per
+browser profile, but assets can be re-fetched after cache eviction/integrity mismatch
+or when Cache API storage is unavailable. Image data never leaves the client.
 
 ## Where weights are hosted
 
@@ -113,6 +115,10 @@ filename embedded in the `.onnx` protobuf.
 
 ## Verify integrity (recommended)
 
+For the current default model, SHA-256 values are already set in
+[`apps/image-upscaler/lib/models.ts`](../../lib/models.ts), so runtime verification is
+enforced by default.
+
 After uploading, download the files back and compute their SHA-256 hashes:
 
 ```bash
@@ -127,6 +133,11 @@ main `.onnx` (`UpscaleModel.sha256`) and for each sidecar
 (`UpscaleModel.externalData[].sha256`). Once a hash is set, the worker
 rejects mismatched downloads with a clear error and re-downloads on the next
 attempt.
+
+Current expected digests (must match the files uploaded to Supabase):
+
+- `real_esrgan_general_x4v3.onnx`: `a848eba3a04de14cc5846733032c3fdc2eee175fd29df264067c3e85ab29d9b3`
+- `real_esrgan_general_x4v3.data`: `512d0ec9940c2e9d85d27f2952f12a0b77b7841dc22df4ce9f3ea458bc98f37f`
 
 ## Why this folder still exists
 
