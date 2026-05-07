@@ -460,7 +460,7 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                             className={cn(
                               "text-xs",
                               item.status === "processing" &&
-                                "text-violet-700 dark:text-violet-300",
+                                "processing-shine [--processing-shine-base:var(--color-violet-700)] dark:[--processing-shine-base:var(--color-violet-300)]",
                               item.status === "done" &&
                                 hasFreshOutput &&
                                 "text-teal-700 dark:text-teal-300",

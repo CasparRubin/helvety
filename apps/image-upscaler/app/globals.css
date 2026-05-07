@@ -4,3 +4,43 @@
    Workspace packages must be added explicitly so their classes are generated. */
 @source "../../../packages/ui/src";
 @source "../../../packages/brand/src";
+
+@keyframes processing-shine {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+@layer utilities {
+  .processing-shine {
+    color: var(--processing-shine-base, currentColor);
+    background-image: linear-gradient(
+      110deg,
+      var(--processing-shine-base, currentColor) 35%,
+      color-mix(
+          in srgb,
+          white 70%,
+          var(--processing-shine-base, currentColor) 30%
+        )
+        50%,
+      var(--processing-shine-base, currentColor) 65%
+    );
+    background-size: 220% 100%;
+    background-position: 120% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: processing-shine 1.4s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .processing-shine {
+      animation: none;
+      background-image: none;
+      -webkit-text-fill-color: currentColor;
+    }
+  }
+}

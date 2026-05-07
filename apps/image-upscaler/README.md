@@ -18,7 +18,7 @@ ever leaves the client.
 - Per-image or batch flow (2x/4x or target width/height). Runtime uses a
   single native 4x AI model; 2x outputs are produced by final resampling.
 - Uses `canvas-size` to probe browser canvas limits and clamps export dimensions when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
-- Batch queue with per-item statuses
+- Batch queue with per-item statuses and an animated "Processing" indicator
 - Shared command bar UX (primary/secondary actions)
 - No login required
 

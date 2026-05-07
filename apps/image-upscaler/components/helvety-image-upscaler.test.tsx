@@ -309,4 +309,36 @@ describe("HelvetyImageUpscaler", () => {
       );
     });
   });
+
+  it("applies shimmer styling while an image is processing", async () => {
+    mockUpscaleItemsSequentially.mockImplementationOnce(async (options) => {
+      const [first] = options.items;
+      if (first) {
+        options.onProgress(first.id, {
+          status: "processing",
+          error: null,
+          exportDimensions: null,
+        });
+      }
+      return {
+        runtime: "webgpu",
+        totalCount: 1,
+        completedCount: 0,
+        failedCount: 1,
+      };
+    });
+
+    render(<HelvetyImageUpscaler />);
+    uploadImageFile();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Upscale all" })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Upscale all" }));
+
+    await waitFor(() => {
+      const processingLabel = screen.getByText("Processing");
+      expect(processingLabel).toHaveClass("processing-shine");
+    });
+  });
 });
