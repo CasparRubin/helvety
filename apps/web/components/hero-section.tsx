@@ -78,12 +78,12 @@ export function HeroSection() {
               variants={prefersReducedMotion ? noMotion : fadeInUp}
               className="space-y-1.5"
             >
+              <p className="text-foreground/80 text-xs md:text-sm">
+                Software products
+              </p>
               <p className="text-muted-foreground text-sm md:text-base">
                 Engineered, Designed & Made in{" "}
                 <span className="font-medium text-[#FF0000]">Switzerland</span>
-              </p>
-              <p className="text-foreground/80 text-xs md:text-sm">
-                Software products
               </p>
               <p className="text-muted-foreground/80 text-[11px] tracking-[0.08em] md:text-xs">
                 private, simple, clean
