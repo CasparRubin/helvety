@@ -147,11 +147,16 @@ Architecture entry points and flow references are documented in each app/package
 
 ## Service and Legal
 
-Services are primarily intended for customers in Switzerland. Account-based flows include a non-EU/EEA attestation step during sign-in as an eligibility control (not strict geolocation enforcement). Legal pages are hosted on <https://helvety.com>:
+Services are primarily intended for customers in Switzerland and are not
+actively targeted to EU/EEA markets at this time. Account-based flows include a
+non-EU/EEA attestation step during sign-in as an eligibility control (not
+strict geolocation enforcement). Legal pages are hosted on
+<https://helvety.com>:
 
 - Privacy: <https://helvety.com/privacy>
 - Terms: <https://helvety.com/terms>
 - Impressum (including abuse reporting): <https://helvety.com/impressum#abuse>
+- Internal legal update guardrails: [`docs/legal-change-guardrails.md`](docs/legal-change-guardrails.md)
 
 ## License
 

@@ -37,14 +37,14 @@ export default function PrivacyPage() {
         </p>
         <p className="text-muted-foreground text-sm">
           Our services are primarily intended for customers located in
-          Switzerland. Sign-in includes a location attestation step where users
-          confirm they are not located in the EU/EEA before verification-code
-          delivery. This attestation is an eligibility control, not strict
-          geolocation enforcement, and access from outside Switzerland may still
-          occur. This Privacy Policy is primarily based on the Swiss Federal Act
-          on Data Protection (nDSG). Where mandatory law in another jurisdiction
-          applies in a specific case, we comply with applicable legal
-          obligations.
+          Switzerland, and we do not actively target EU/EEA markets at this
+          time. Sign-in includes a location attestation step where users confirm
+          they are not located in the EU/EEA before verification-code delivery.
+          This attestation is an eligibility control, not strict geolocation
+          enforcement, and access from outside Switzerland may still occur. This
+          Privacy Policy is primarily based on the Swiss Federal Act on Data
+          Protection (nDSG). Where mandatory law in another jurisdiction applies
+          in a specific case, we comply with applicable legal obligations.
         </p>
       </section>
 
@@ -533,6 +533,18 @@ export default function PrivacyPage() {
             applied.
           </li>
         </ul>
+        <p className="text-muted-foreground mt-4 text-sm">
+          <strong className="text-foreground">
+            AI model training and retention statement:
+          </strong>{" "}
+          For Helvety Image Upscaler, we do not use your image pixels to train
+          or fine-tune machine-learning models under the current architecture.
+          Model files used by the app are downloaded to your browser and may be
+          cached locally by your browser. In normal operation, the minimal
+          server-side endpoints referenced above process technical/security
+          context and are not intended to receive full image payloads for
+          upscaling.
+        </p>
       </section>
 
       {/* Section 3 */}
@@ -589,6 +601,11 @@ export default function PrivacyPage() {
           <li>To detect and prevent fraud and security incidents</li>
           <li>To comply with legal obligations</li>
           <li>To improve and optimize the Services</li>
+          <li>
+            To run local-only AI-assisted tooling (for example Helvety Image
+            Upscaler) without using user image pixels for model training under
+            the current architecture
+          </li>
           <li>To enforce our Terms of Service</li>
           <li>
             To respond to valid legal requests from Swiss law enforcement and

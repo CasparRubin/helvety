@@ -204,13 +204,14 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           The Services are primarily intended for customers located in
-          Switzerland. Service availability may be restricted for users in
-          certain regions, including the European Union (EU) and European
-          Economic Area (EEA). Sign-in for account-based services includes a
-          location attestation step (confirmation that the user is not located
-          in the EU/EEA) before verification-code delivery, but this is not
-          equivalent to strict geoblocking. Access from outside Switzerland may
-          still occur; in such cases, you remain responsible for compliance with
+          Switzerland, and we do not actively target EU/EEA markets at this
+          time. Service availability may be restricted for users in certain
+          regions, including the European Union (EU) and European Economic Area
+          (EEA). Sign-in for account-based services includes a location
+          attestation step (confirmation that the user is not located in the
+          EU/EEA) before verification-code delivery, but this is not equivalent
+          to strict geoblocking. Access from outside Switzerland may still
+          occur; in such cases, you remain responsible for compliance with
           applicable local law, and mandatory consumer/data-protection rules in
           your jurisdiction may still apply.
         </p>
@@ -462,6 +463,22 @@ export default function TermsPage() {
             that is not synchronized to Helvety services.
           </li>
         </ul>
+
+        <h3 className="mb-3 text-lg font-medium">
+          4.6 AI-assisted tools (including Helvety Image Upscaler)
+        </h3>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Certain Services use AI-assisted processing. For Helvety Image
+          Upscaler, image transformation runs in your browser under the current
+          architecture. We do not guarantee that outputs will be accurate,
+          visually improved, fit for a specific purpose, or free from artifacts
+          in every case.
+        </p>
+        <p className="text-muted-foreground text-sm">
+          You are responsible for reviewing outputs before relying on them in
+          production, professional, legal, safety-critical, or compliance
+          contexts.
+        </p>
       </section>
 
       {/* Section 5 - Free Services and Beta Features */}
@@ -614,6 +631,13 @@ export default function TermsPage() {
           termination of your access to the Services and may expose you to civil
           and/or criminal liability.
         </p>
+        <p className="text-muted-foreground mt-4 text-sm">
+          For AI-assisted tools (including Helvety Image Upscaler), you also
+          agree not to use the Services to create or distribute unlawful,
+          deceptive, rights-infringing, or harmful synthetic media, including
+          deepfake content intended to impersonate individuals or mislead
+          others.
+        </p>
       </section>
 
       {/* Section 7 - User Content */}
@@ -638,6 +662,13 @@ export default function TermsPage() {
           content delivery).
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
+          For local-processing tools such as Helvety Image Upscaler, this
+          license does not grant us rights to train machine-learning models on
+          your image pixels. Under the current architecture, image upscaling is
+          designed to run on your device and not as a server-side model-training
+          pipeline.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
           For end-to-end encrypted content in Helvety Tasks, Helvety Contacts,
           and Helvety Notes, our systems are designed to prevent routine access
           to plaintext content. This license applies to encrypted data as stored
@@ -653,6 +684,11 @@ export default function TermsPage() {
           <li>
             You own or have the necessary rights to use and authorize the use of
             your User Content
+          </li>
+          <li>
+            For local image files processed through Helvety Image Upscaler, you
+            have the rights or permissions needed for the source image and any
+            generated output you use or distribute
           </li>
           <li>
             Your User Content does not violate any applicable law, regulation,

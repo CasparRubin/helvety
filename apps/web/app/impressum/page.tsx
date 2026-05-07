@@ -331,10 +331,11 @@ export default function ImpressumPage() {
           provides otherwise.
         </p>
         <p className="text-muted-foreground text-sm">
-          Our services are primarily intended for customers in Switzerland.
-          Sign-in for account-based services requires a confirmation that the
-          user is not located in the EU/EEA before verification-code delivery.
-          This attestation is an eligibility control, not strict geolocation
+          Our services are primarily intended for customers in Switzerland, and
+          we do not actively target EU/EEA markets at this time. Sign-in for
+          account-based services requires a confirmation that the user is not
+          located in the EU/EEA before verification-code delivery. This
+          attestation is an eligibility control, not strict geolocation
           enforcement, and technical access from outside Switzerland may still
           occur. Where mandatory law in another jurisdiction applies in a
           specific case, those mandatory provisions remain unaffected.
