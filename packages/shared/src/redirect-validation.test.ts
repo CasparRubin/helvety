@@ -90,6 +90,12 @@ describe("getSafeRedirectUri", () => {
   it("returns null for null input with no default", () => {
     expect(getSafeRedirectUri(null)).toBeNull();
   });
+
+  it("fails closed when both uri and default are invalid", () => {
+    expect(
+      getSafeRedirectUri("https://evil.com", "https://evil2.com")
+    ).toBeNull();
+  });
 });
 
 describe("isValidRelativePath", () => {

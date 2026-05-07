@@ -161,6 +161,12 @@ describe("getSafeRedirectUri", () => {
   it("returns null when default is also null", () => {
     expect(getSafeRedirectUri(null, null)).toBeNull();
   });
+
+  it("returns null when both input and default are invalid", () => {
+    expect(
+      getSafeRedirectUri("https://evil.example", "https://evil2.example")
+    ).toBeNull();
+  });
 });
 
 // =============================================================================

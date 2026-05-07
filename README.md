@@ -99,7 +99,7 @@ All quality gates run locally. There is no GitHub Actions or other remote CI in 
 
 - `bun run ci:check` (run during development) — `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
 - `bun run ci:release` (run before `git push` / before Vercel deploys) — `ci:check` plus `build`.
-- `ci:release` sets `SKIP_ENV_VALIDATION=1` during `build` only; missing env values use schema-valid placeholders in local builds.
+- Placeholder env mode (`SKIP_ENV_VALIDATION=1` off Vercel) is available for local build smoke tests, but `ci:release` runs with normal env validation.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.
 - Additional manual dependency/security checks:
   - `bun run deps:security` (security floors + `bun audit`)

@@ -2,6 +2,10 @@ import "server-only";
 
 import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { COOKIE_DOMAIN } from "@helvety/shared/config";
+import {
+  signCookiePayload,
+  verifySignedCookiePayload,
+} from "@helvety/shared/cookie-signing";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
@@ -235,9 +239,12 @@ export async function storeChallenge(
     ...data,
     timestamp: Date.now(),
   };
+  const signedChallenge = await signCookiePayload(
+    JSON.stringify(challengeData)
+  );
 
   const isProduction = process.env.NODE_ENV === "production";
-  cookieStore.set(CHALLENGE_COOKIE_NAME, JSON.stringify(challengeData), {
+  cookieStore.set(CHALLENGE_COOKIE_NAME, signedChallenge, {
     httpOnly: true,
     secure: isProduction,
     sameSite: "strict",
@@ -259,7 +266,11 @@ export async function getStoredChallenge(): Promise<StoredChallenge | null> {
   }
 
   try {
-    const parsedJson = JSON.parse(cookie.value);
+    const unsignedPayload = await verifySignedCookiePayload(cookie.value);
+    if (!unsignedPayload) {
+      return null;
+    }
+    const parsedJson = JSON.parse(unsignedPayload);
     const parsed = StoredChallengeSchema.safeParse(parsedJson);
     if (!parsed.success) {
       return null;

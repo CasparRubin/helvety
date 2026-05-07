@@ -2,6 +2,7 @@ import { buildCsp } from "@helvety/config/next-headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { COOKIE_DOMAIN } from "./config";
+import { signCookiePayload } from "./cookie-signing";
 import {
   refreshSupabaseAuthSession,
   requestMayHaveSupabaseAuthCookie,
@@ -215,7 +216,8 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
 
     if (includeCsrf && !request.cookies.get(CSRF_COOKIE_NAME)?.value) {
       const token = toHex(getRandomBytes(CSRF_TOKEN_LENGTH));
-      response.cookies.set(CSRF_COOKIE_NAME, token, {
+      const signedToken = await signCookiePayload(token);
+      response.cookies.set(CSRF_COOKIE_NAME, signedToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",

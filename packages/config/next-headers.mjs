@@ -85,11 +85,8 @@ export function createSecurityHeaders({ appName } = {}) {
 /**
  * Builds the Content-Security-Policy header value with a per-request nonce.
  *
- * Uses 'strict-dynamic' so scripts loaded by a nonced script are automatically
- * trusted (cascading trust). In supporting browsers, 'strict-dynamic' shifts
- * trust primarily to nonce-seeded script execution chains. The
- * 'unsafe-inline' and URL fallbacks are kept
- * for graceful degradation in older browsers without 'strict-dynamic' support.
+ * Uses nonce + strict-dynamic and intentionally avoids legacy inline-script
+ * fallback to keep a fail-closed policy in modern browsers.
  *
  * @param {object} opts
  * @param {string} opts.nonce - Cryptographic nonce for this request
@@ -106,20 +103,36 @@ export function buildCsp({
 } = {}) {
   const isDevelopment = process.env.NODE_ENV === "development";
   const cspReportEndpoint = "/api/csp-report";
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   const useUnsafeEval =
     scriptUnsafeEval === "always" ||
     (scriptUnsafeEval === "dev-only" && isDevelopment);
 
   const nonceDirective = nonce ? ` 'nonce-${nonce}'` : "";
+  const connectSources = new Set(["'self'", "https://va.vercel-scripts.com"]);
+  const imageSources = new Set(["'self'", "data:", "https://helvety.com"]);
+
+  if (supabaseUrl) {
+    try {
+      const parsed = new URL(supabaseUrl);
+      if (parsed.protocol === "https:") {
+        connectSources.add(parsed.origin);
+        connectSources.add(`wss://${parsed.host}`);
+        imageSources.add(parsed.origin);
+      }
+    } catch {
+      // Ignore malformed env values; runtime env validation handles this.
+    }
+  }
 
   const directives = [
     "default-src 'self'",
-    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${nonceDirective} 'strict-dynamic' 'unsafe-inline'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
+    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${nonceDirective} 'strict-dynamic'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
     "style-src 'self' 'unsafe-inline'",
-    `img-src 'self' data:${imgBlob ? " blob:" : ""} https://helvety.com https://*.helvety.com https://*.supabase.co`,
+    `img-src ${Array.from(imageSources).join(" ")}${imgBlob ? " blob:" : ""}`,
     "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://va.vercel-scripts.com",
+    `connect-src ${Array.from(connectSources).join(" ")}`,
     ...(workerBlob ? ["worker-src 'self' blob:"] : []),
     "frame-src 'self'",
     "object-src 'none'",

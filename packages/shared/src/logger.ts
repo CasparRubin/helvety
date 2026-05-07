@@ -135,6 +135,8 @@ const SENSITIVE_KEYS = new Set([
   "email",
   "phone",
   "address",
+  "userid",
+  "user_id",
 ]);
 
 /**

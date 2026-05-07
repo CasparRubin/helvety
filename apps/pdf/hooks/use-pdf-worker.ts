@@ -29,7 +29,7 @@ interface UsePdfWorkerReturn {
  *
  * The worker is configured to use a basePath-prefixed local worker file from
  * the public folder, which is automatically kept in sync with the `pdfjs-dist`
- * version resolved from `react-pdf` via the postinstall script in package.json.
+ * version resolved from `react-pdf` via the `sync:pdf-worker` script.
  *
  * Uses a module-level promise to ensure only one worker is initialized across
  * all component instances.

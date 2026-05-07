@@ -36,7 +36,7 @@ describe("logger", () => {
     vi.stubEnv("NODE_ENV", "production");
     const { logger } = await import("./logger");
 
-    logger.error("Something failed", { userId: "abc" });
+    logger.error("Something failed", { userId: "abc", action: "test" });
 
     expect(console.error).toHaveBeenCalledOnce();
     const output = getStructuredLogOutput(
@@ -47,7 +47,7 @@ describe("logger", () => {
     expect(parsed.message).toBe("Something failed");
     expect(parsed.timestamp).toEqual(expect.any(String));
     expect(Number.isNaN(Date.parse(parsed.timestamp))).toBe(false);
-    expect(parsed.metadata).toEqual({ userId: "abc" });
+    expect(parsed.metadata).toEqual({ action: "test" });
   });
 
   it("emits structured JSON for warn in production", async () => {
@@ -102,8 +102,7 @@ describe("logger", () => {
       console.error as unknown as { mock: { calls: unknown[][] } }
     );
     const parsed = JSON.parse(output);
-    expect(parsed.metadata).not.toHaveProperty("password");
-    expect(parsed.metadata.userId).toBe("user-1");
+    expect(parsed.metadata).toBeUndefined();
   });
 
   it("redacts PII keys (email, phone, address) from structured output", async () => {

@@ -1,3 +1,5 @@
+import path from "path";
+
 import { describe, expect, it } from "vitest";
 
 import { createVitestConfig } from "./vitest.mjs";
@@ -16,8 +18,10 @@ describe("createVitestConfig", () => {
   it("configures alias and setup path from workspace root", () => {
     const rootDir = "/tmp/app";
     const config = createVitestConfig(rootDir);
+    const expectedRoot = path.resolve(rootDir, ".");
+    const expectedSetupFile = path.resolve(rootDir, "vitest.setup.ts");
 
-    expect(config.resolve?.alias?.["@"]).toBe("/tmp/app");
-    expect(config.test?.setupFiles).toEqual(["/tmp/app/vitest.setup.ts"]);
+    expect(config.resolve?.alias?.["@"]).toBe(expectedRoot);
+    expect(config.test?.setupFiles).toEqual([expectedSetupFile]);
   });
 });

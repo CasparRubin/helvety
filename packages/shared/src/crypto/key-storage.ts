@@ -15,8 +15,8 @@ const DB_NAME = "helvety-crypto";
 const DB_VERSION = 1;
 const MASTER_KEY_STORE = "master-keys";
 
-/** Cache duration for keys (24 hours) */
-const KEY_CACHE_DURATION = 24 * 60 * 60 * 1000;
+/** Cache duration for keys (30 minutes) */
+const KEY_CACHE_DURATION = 30 * 60 * 1000;
 
 // =============================================================================
 // Cross-Tab Coordination via BroadcastChannel

@@ -1040,7 +1040,7 @@ export default function PrivacyPage() {
               <tr>
                 <td className="border-border border-b p-3">csrf_token</td>
                 <td className="border-border border-b p-3">
-                  CSRF protection (httpOnly)
+                  CSRF protection (signed, httpOnly)
                 </td>
                 <td className="border-border border-b p-3">.helvety.com</td>
                 <td className="border-border border-b p-3">24 hours</td>
@@ -1050,7 +1050,7 @@ export default function PrivacyPage() {
                   webauthn_challenge
                 </td>
                 <td className="border-border border-b p-3">
-                  Passkey authentication challenge (httpOnly)
+                  Passkey authentication challenge (signed, httpOnly)
                 </td>
                 <td className="border-border border-b p-3">
                   helvety.com and/or configured subdomain scope (path: /)

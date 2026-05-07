@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 
 import { getAuthUser } from "./auth-retry";
+import { getCSRFTokenFromCookieValue } from "./csrf";
 import { createServerClient } from "./supabase/server";
 
 import type { AuthError, User } from "@supabase/supabase-js";
@@ -40,5 +41,7 @@ export const getCachedUser = cache(async (): Promise<User | null> => {
  */
 export const getCachedCSRFToken = cache(async (): Promise<string | null> => {
   const cookieStore = await cookies();
-  return cookieStore.get(CSRF_COOKIE_NAME)?.value ?? null;
+  return getCSRFTokenFromCookieValue(
+    cookieStore.get(CSRF_COOKIE_NAME)?.value ?? null
+  );
 });

@@ -35,6 +35,9 @@ interface DecryptedTaskExport {
   }>;
 }
 
+const PLAINTEXT_EXPORT_WARNING =
+  "This export file contains decrypted plaintext task data and can be read by anyone with access to your device. Continue?";
+
 /**
  * Fetch, decrypt, and structure all task data for export.
  *
@@ -81,8 +84,14 @@ async function exportDecryptedTaskData(
  * @param masterKey - The user's decryption key (from EncryptionContext)
  */
 export async function downloadTaskDataExport(
-  masterKey: CryptoKey
+  masterKey: CryptoKey,
+  options: { requireConfirmation?: boolean } = {}
 ): Promise<void> {
+  const { requireConfirmation = true } = options;
+  if (requireConfirmation && !window.confirm(PLAINTEXT_EXPORT_WARNING)) {
+    return;
+  }
+
   const data = await exportDecryptedTaskData(masterKey);
 
   const blob = new Blob([JSON.stringify(data, null, 2)], {

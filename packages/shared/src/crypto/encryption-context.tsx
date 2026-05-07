@@ -68,6 +68,8 @@ interface EncryptionProviderProps {
   children: ReactNode;
 }
 
+const INACTIVITY_LOCK_MS = 15 * 60 * 1000;
+
 /**
  * Provider component for end-to-end encryption state management.
  * Handles passkey-based encryption initialization, unlocking, and key management.
@@ -201,6 +203,46 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
       error: null,
     }));
   }, []);
+
+  useEffect(() => {
+    if (!state.isUnlocked || !state.unlockedForUserId) {
+      return;
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const activeUserId = state.unlockedForUserId;
+
+    const scheduleIdleLock = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        void lockEncryption(activeUserId);
+      }, INACTIVITY_LOCK_MS);
+    };
+
+    const activityEvents: Array<keyof WindowEventMap> = [
+      "pointerdown",
+      "keydown",
+      "touchstart",
+      "focus",
+    ];
+
+    for (const eventName of activityEvents) {
+      window.addEventListener(eventName, scheduleIdleLock, { passive: true });
+    }
+
+    scheduleIdleLock();
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      for (const eventName of activityEvents) {
+        window.removeEventListener(eventName, scheduleIdleLock);
+      }
+    };
+  }, [lockEncryption, state.isUnlocked, state.unlockedForUserId]);
 
   const value: EncryptionContextValue = {
     ...state,

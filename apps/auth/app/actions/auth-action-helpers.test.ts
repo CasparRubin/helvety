@@ -68,6 +68,8 @@ describe("auth-action-helpers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.cookieState.value = undefined;
+    process.env.SUPABASE_SECRET_KEY =
+      "test_supabase_secret_key_for_cookie_signing_1234567890";
     mocks.requireCSRFToken.mockResolvedValue(undefined);
     mocks.headers.mockResolvedValue(new Headers());
     mocks.getTrustedClientIp.mockReturnValue("203.0.113.1");
@@ -143,6 +145,18 @@ describe("auth-action-helpers", () => {
     await clearChallenge();
     expect(mocks.cookieStore.delete).toHaveBeenCalledWith("webauthn_challenge");
     vi.useRealTimers();
+  });
+
+  it("rejects tampered challenge cookies", async () => {
+    await storeChallenge({
+      challenge: "ch",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+    });
+    const original = mocks.cookieState.value;
+    expect(original).toBeTruthy();
+    mocks.cookieState.value = `${original}tampered`;
+
+    await expect(getStoredChallenge()).resolves.toBeNull();
   });
 
   it("checks passkey status from scoped admin query", async () => {

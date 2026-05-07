@@ -137,7 +137,7 @@ export function getSafeRedirectUri(
     return canonicalDefault;
   }
 
-  return defaultUri ?? null;
+  return null;
 }
 
 /**
