@@ -32,6 +32,7 @@ const mocks = vi.hoisted(() => {
     runAuthActionGuards: vi.fn(),
     resetEscalatingLockout: vi.fn(),
     resetRateLimit: vi.fn(),
+    setDeviceTrustCookie: vi.fn(),
   };
 });
 
@@ -99,6 +100,10 @@ vi.mock("./user-lookup", () => ({
   findUserByEmail: mocks.findUserByEmail,
 }));
 
+vi.mock("./device-trust-cookie", () => ({
+  setDeviceTrustCookie: mocks.setDeviceTrustCookie,
+}));
+
 import { sendVerificationCode, verifyEmailCode } from "./otp-actions";
 
 describe("otp-actions", () => {
@@ -131,6 +136,7 @@ describe("otp-actions", () => {
     mocks.resetRateLimit.mockResolvedValue(undefined);
     mocks.resetEscalatingLockout.mockResolvedValue(undefined);
     mocks.hasEncryptionSetup.mockResolvedValue({ data: true, success: true });
+    mocks.setDeviceTrustCookie.mockResolvedValue(undefined);
   });
 
   it("rejects sendVerificationCode when client IP is unresolvable", async () => {
@@ -314,6 +320,7 @@ describe("otp-actions", () => {
       success: true,
     });
     expect(mocks.generateCSRFToken).toHaveBeenCalledOnce();
+    expect(mocks.setDeviceTrustCookie).toHaveBeenCalledWith("user-123");
     expect(mocks.resetEscalatingLockout).toHaveBeenCalledWith(
       "user@ex.com:203.0.113.15"
     );

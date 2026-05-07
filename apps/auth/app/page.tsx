@@ -2,6 +2,8 @@ import { urls } from "@helvety/shared/config";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
 import { redirect } from "next/navigation";
 
+import { getDeviceTrustStatus } from "./actions/device-trust-actions";
+
 /**
  * Root page - redirects to login with any redirect_uri preserved
  *
@@ -23,7 +25,10 @@ export default async function Page({
 
   // Build login URL with redirect_uri if valid
   const redirectTarget = safeRedirectUri ?? urls.home;
-  const loginUrl = `/login?redirect_uri=${encodeURIComponent(redirectTarget)}`;
+  const trust = await getDeviceTrustStatus();
+  const stepParam =
+    trust.success && trust.data?.trusted ? "&step=passkey-signin" : "";
+  const loginUrl = `/login?redirect_uri=${encodeURIComponent(redirectTarget)}${stepParam}`;
 
   // Redirect to login page - it handles all auth logic
   redirect(loginUrl);

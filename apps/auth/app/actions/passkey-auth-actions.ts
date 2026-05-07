@@ -34,6 +34,11 @@ import {
   getStoredChallenge,
   clearChallenge,
 } from "./auth-action-helpers";
+import {
+  clearDeviceTrustCookie,
+  getValidDeviceTrustCookie,
+  setDeviceTrustCookie,
+} from "./device-trust-cookie";
 import { findUserByEmail } from "./user-lookup";
 
 import type {
@@ -116,14 +121,18 @@ const PASSKEY_VERIFY_GENERIC_ERROR =
  * @param csrfToken - CSRF token for request validation
  * @param origin - The origin URL
  * @param redirectUri - Optional redirect URI to preserve through auth flow
- * @param authOptions - Optional { isMobile, expectedEmail } to choose platform/hybrid and bind passkey to account
+ * @param authOptions - Optional { isMobile, expectedEmail, expectedUserId } to choose platform/hybrid and bind passkey to account (email-bound or trusted-device user-bound)
  * @returns Authentication options for WebAuthn
  */
 export async function generatePasskeyAuthOptions(
   csrfToken: string,
   origin: string,
   redirectUri?: string,
-  authOptions?: { isMobile?: boolean; expectedEmail?: string }
+  authOptions?: {
+    isMobile?: boolean;
+    expectedEmail?: string;
+    expectedUserId?: string;
+  }
 ): Promise<ActionResponse<PasskeyAuthOptionsResponse>> {
   const originParse = OriginUrlSchema.safeParse(origin);
   if (!originParse.success) {
@@ -138,6 +147,7 @@ export async function generatePasskeyAuthOptions(
   const normalizedExpectedEmail = authOptions?.expectedEmail
     ?.toLowerCase()
     .trim();
+  const expectedUserId = authOptions?.expectedUserId;
   const guard = await runAuthActionGuards({ csrfToken });
   if (!guard.ok) return guard.response;
   const clientIP = guard.clientIP;
@@ -167,7 +177,7 @@ export async function generatePasskeyAuthOptions(
 
   try {
     const rpId = getRpId(safeOrigin);
-    let expectedUserId: string | undefined;
+    let expectedUserIdForChallenge: string | undefined;
     let allowCredentials: GenerateAuthenticationOptionsOpts["allowCredentials"] =
       [];
     if (normalizedExpectedEmail) {
@@ -183,7 +193,7 @@ export async function generatePasskeyAuthOptions(
         };
       }
 
-      expectedUserId = user.id;
+      expectedUserIdForChallenge = user.id;
       const scopedAdmin = createScopedAdminQuery(user.id);
 
       const { data: credentials, error: credentialsError } = await scopedAdmin
@@ -195,6 +205,32 @@ export async function generatePasskeyAuthOptions(
           credentialsError,
           userId: user.id,
         });
+        return {
+          success: false,
+          error: PASSKEY_OPTIONS_GENERIC_ERROR,
+        };
+      }
+
+      allowCredentials = credentials.map(
+        (item: { credential_id: string; transports: string[] | null }) => ({
+          id: item.credential_id,
+          transports: toAuthenticatorTransports(item.transports),
+        })
+      );
+    } else if (expectedUserId) {
+      // Trusted-device passkey-first path: bind allowCredentials to the trusted user
+      // without requiring the user to re-enter email on this device.
+      const userIdParse = z.string().uuid().safeParse(expectedUserId);
+      if (!userIdParse.success) {
+        return { success: false, error: PASSKEY_OPTIONS_GENERIC_ERROR };
+      }
+      expectedUserIdForChallenge = userIdParse.data;
+      const scopedAdmin = createScopedAdminQuery(userIdParse.data);
+      const { data: credentials, error: credentialsError } = await scopedAdmin
+        .from("user_auth_credentials")
+        .select("credential_id, transports");
+
+      if (credentialsError || !credentials || credentials.length === 0) {
         return {
           success: false,
           error: PASSKEY_OPTIONS_GENERIC_ERROR,
@@ -238,7 +274,7 @@ export async function generatePasskeyAuthOptions(
     await storeChallenge({
       challenge: authOpts.challenge,
       redirectUri: safeRedirectUri,
-      expectedUserId,
+      expectedUserId: expectedUserIdForChallenge,
       expectedEmail: normalizedExpectedEmail,
     });
 
@@ -548,6 +584,19 @@ export async function verifyPasskeyAuthentication(
       // Re-validate stored redirectUri as defense-in-depth
       const redirectUrl =
         getSafeRedirectUri(storedData.redirectUri, urls.home) ?? urls.home;
+
+      // Sliding device-trust renewal: renew only if an existing valid trust cookie
+      // is present and matches the authenticated user. Never create trust on
+      // passkey auth alone (trust is minted on email OTP verification).
+      const existingTrust = await getValidDeviceTrustCookie();
+      if (existingTrust) {
+        if (existingTrust.userId === credential.user_id) {
+          await setDeviceTrustCookie(credential.user_id);
+        } else {
+          await clearDeviceTrustCookie();
+        }
+      }
+
       return {
         success: true,
         data: {

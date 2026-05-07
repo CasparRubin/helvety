@@ -6,6 +6,9 @@ import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createServerClient } from "@helvety/shared/supabase/server";
 
+import { clearChallenge } from "../actions/auth-action-helpers";
+import { clearDeviceTrustCookie } from "../actions/device-trust-cookie";
+
 /**
  * Server action to sign out the user's Supabase session.
  * Called from the client-side logout page after encryption keys are cleared.
@@ -37,6 +40,28 @@ export async function signOutAction(
         status: error.status,
       });
       return { success: false, error: "signout_failed" };
+    }
+
+    // Best-effort cleanup of device-local auth artifacts (should not fail logout).
+    try {
+      await clearDeviceTrustCookie();
+    } catch (cookieError) {
+      logger.warn("Unable to clear device trust cookie during logout.", {
+        message:
+          cookieError instanceof Error
+            ? cookieError.message
+            : String(cookieError),
+      });
+    }
+    try {
+      await clearChallenge();
+    } catch (challengeError) {
+      logger.warn("Unable to clear WebAuthn challenge cookie during logout.", {
+        message:
+          challengeError instanceof Error
+            ? challengeError.message
+            : String(challengeError),
+      });
     }
     return { success: true };
   } catch (error) {

@@ -30,7 +30,7 @@ Plaintext structural fields:
 
 ## Security Model
 
-- Auth is centralized at `helvety.com/auth` (email OTP + passkey).
+- Auth is centralized at `helvety.com/auth` (email OTP + passkey; trusted devices may start at passkey sign-in without re-entering email).
 - Protected routes use `requireE2eeAppPageAuth("/notes")`.
 - `proxy.ts` handles request bootstrap; authz enforcement lives in pages/actions/route handlers.
 - State-changing actions require CSRF.

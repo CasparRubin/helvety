@@ -8,10 +8,18 @@ import {
   serverEnvSchema,
   upstashEnvSchema,
 } from "@helvety/shared/env-validation";
+import { z } from "zod";
 
-import type { z } from "zod";
-
-const authEnvSchema = serverEnvSchema.merge(upstashEnvSchema);
+const authEnvSchema = serverEnvSchema.merge(upstashEnvSchema).merge(
+  z.object({
+    DEVICE_TRUST_COOKIE_SECRET: z
+      .string()
+      .min(
+        32,
+        "DEVICE_TRUST_COOKIE_SECRET must be at least 32 characters (used to sign device trust cookies)"
+      ),
+  })
+);
 
 let validated: z.infer<typeof authEnvSchema> | null = null;
 
@@ -26,11 +34,19 @@ export function getValidatedAuthEnv(): z.infer<typeof authEnvSchema> {
   if (validated) return validated;
 
   if (isCiBuildPlaceholderEnvEnabled() && !hasRealServerUpstashEnv()) {
-    validated = getCiPlaceholderServerUpstashEnv();
+    validated = {
+      ...getCiPlaceholderServerUpstashEnv(),
+      DEVICE_TRUST_COOKIE_SECRET:
+        "ci_build_placeholder_device_trust_cookie_secret_not_for_production",
+    };
     return validated;
   }
 
-  const raw = readServerUpstashEnvFromProcess();
+  const raw = {
+    ...readServerUpstashEnvFromProcess(),
+    DEVICE_TRUST_COOKIE_SECRET:
+      process.env.DEVICE_TRUST_COOKIE_SECRET?.trim() ?? "",
+  };
 
   const result = authEnvSchema.safeParse(raw);
 

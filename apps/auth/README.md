@@ -10,6 +10,7 @@ Centralized passwordless authentication for the Helvety ecosystem.
 - Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider` for the navbar), parallel `getCachedCSRFToken` / `getCachedUser`, and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
 - Email OTP + passkey authentication (WebAuthn)
 - Account-bound returning-user passkey sign-in
+- Trusted-device optimization (rolling 30-day device email verification) to allow passkey-first sign-in on previously verified devices
 - Session sharing across Helvety path-routed apps
 - Redirect URI validation for cross-app sign-in flows
 - Auth-step resolution for passkey setup vs passkey sign-in
@@ -25,6 +26,13 @@ Primary login flow:
    - New/incomplete setup users: `encryption-setup` (includes passkey registration when missing), then passkey sign-in
    - Returning users: passkey sign-in directly
 4. Redirect to requested destination
+
+Trusted-device shortcut:
+
+- After a successful OTP verification, the auth service stores a **signed HttpOnly device-trust cookie**.
+- On that same device, subsequent sign-ins may start at passkey sign-in (no email entry) as long as the device-trust cookie is still valid.
+- The trust window is **30 days** and renews (sliding window) on successful passkey sign-in.
+- Manual logout clears the trust cookie for this device.
 
 `/auth/callback` remains for compatibility callback paths (`magiclink`, `signup`, `recovery`, `invite`, `email_change`) and PKCE/OAuth-style code exchange via the shared callback handler. Primary typed email OTP code verification happens in auth actions; passkey sign-in establishes session server-side.
 
@@ -47,13 +55,14 @@ Primary login flow:
 
 Copy `env.template` to `.env.local`.
 
-| Variable                               | Required | Server-only | Description                              |
-| -------------------------------------- | -------- | ----------- | ---------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                     |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                 |
-| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Trusted server-side Supabase key         |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL for rate limiting |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token                 |
+| Variable                               | Required | Server-only | Description                               |
+| -------------------------------------- | -------- | ----------- | ----------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                      |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                  |
+| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Trusted server-side Supabase key          |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL for rate limiting  |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token                  |
+| `DEVICE_TRUST_COOKIE_SECRET`           | Yes      | Yes         | Signs device-trust cookies (min 32 chars) |
 
 This app uses Supabase Auth + passkeys (not NextAuth/Auth.js).
 

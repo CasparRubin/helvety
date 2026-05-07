@@ -78,10 +78,9 @@ export function Footer({
           <p>
             &copy; {currentYear}
             {COPYRIGHT_GLUE}
-            Helvety &middot; This site uses essential
-            cookies and similar storage technologies for security and core
-            functionality; account-based services also use authentication
-            cookies.
+            Helvety &middot; This site uses essential cookies and similar
+            storage technologies for security and core functionality;
+            account-based services also use authentication cookies.
           </p>
           <nav className="text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px]">
             <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>

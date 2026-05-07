@@ -29,6 +29,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { getDeviceTrustStatus } from "@/app/actions/device-trust-actions";
 import {
   getPasskeyParams,
   saveKeyCheckValue,
@@ -185,6 +186,7 @@ export function useLoginFlow(): LoginFlowState {
   const [step, setStep] = useState<LoginStep>(initialStep);
   const [error, setError] = useState(initialError);
   const [userId, setUserId] = useState<string | null>(null);
+  const [trustedUserId, setTrustedUserId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const hasAutoRetriedMismatch = useRef(false);
   const hasInitializedAuth = useRef(false);
@@ -269,9 +271,20 @@ export function useLoginFlow(): LoginFlowState {
           !user &&
           (step === "passkey-signin" || step === "encryption-setup")
         ) {
-          if (!cancelled) {
-            setStep("email");
+          if (step === "passkey-signin") {
+            const trust = await getDeviceTrustStatus();
+            const isTrusted = trust.success && trust.data.trusted;
+            if (!cancelled) {
+              if (isTrusted) {
+                setTrustedUserId(trust.data.userId);
+                setStep("passkey-signin");
+              } else {
+                setStep("email");
+              }
+            }
+            return;
           }
+          if (!cancelled) setStep("email");
           return;
         }
 
@@ -283,6 +296,7 @@ export function useLoginFlow(): LoginFlowState {
           if (!cancelled) {
             setEmail(user.email ?? "");
             setUserId(user.id);
+            setTrustedUserId(null);
           }
           return;
         }
@@ -292,6 +306,7 @@ export function useLoginFlow(): LoginFlowState {
           if (!cancelled) {
             setEmail(user.email ?? "");
             setUserId(user.id);
+            setTrustedUserId(null);
           }
 
           const probe = await getRequiredAuthStep();
@@ -523,6 +538,7 @@ export function useLoginFlow(): LoginFlowState {
           {
             isMobile: isMobileDevice(),
             expectedEmail: email ? email.toLowerCase().trim() : undefined,
+            expectedUserId: !email && trustedUserId ? trustedUserId : undefined,
           }
         );
         if (!optionsResult.success) {
@@ -617,8 +633,9 @@ export function useLoginFlow(): LoginFlowState {
           }
 
           if (verifyResult.error === "PASSKEY_ACCOUNT_MISMATCH") {
-            const mismatchMsg =
-              "This passkey belongs to a different account. Please use the passkey for the email you entered.";
+            const mismatchMsg = email
+              ? "This passkey belongs to a different account. Please use the passkey for the email you entered."
+              : "This passkey belongs to a different account. Please try a different passkey, or sign in with email.";
             setError(mismatchMsg);
             toast.error(mismatchMsg, { duration: TOAST_DURATIONS.ERROR });
             hasAutoRetriedMismatch.current = false;
@@ -752,6 +769,7 @@ export function useLoginFlow(): LoginFlowState {
     email,
     passkeySupported,
     redirectUri,
+    trustedUserId,
   ]);
 
   const handlePasskeyRegistrationComplete = useCallback(() => {

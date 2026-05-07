@@ -91,9 +91,9 @@ describe("HelvetyImageUpscaler", () => {
   it("shows target input controls when target dimension mode is selected", () => {
     render(<HelvetyImageUpscaler />);
 
-    const [modeSelect] = screen.getAllByRole("combobox");
+    const modeSelect = screen.getAllByRole("combobox")[0];
     expect(modeSelect).toBeInTheDocument();
-    fireEvent.change(modeSelect, { target: { value: "target" } });
+    fireEvent.change(modeSelect!, { target: { value: "target" } });
 
     expect(screen.getByDisplayValue("Width")).toBeInTheDocument();
     expect(screen.getAllByDisplayValue("2048")).not.toHaveLength(0);

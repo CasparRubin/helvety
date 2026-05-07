@@ -29,6 +29,7 @@ import {
   checkUserPasskeyStatus,
   runAuthActionGuards,
 } from "./auth-action-helpers";
+import { setDeviceTrustCookie } from "./device-trust-cookie";
 import { hasEncryptionSetup } from "./encryption-actions";
 import { findUserByEmail } from "./user-lookup";
 
@@ -349,6 +350,11 @@ export async function verifyEmailCode(
 
     // Rotate CSRF token after successful auth state change.
     await generateCSRFToken();
+
+    // Mark this device as email-verified for this user (sliding window renewed
+    // on subsequent passkey sign-ins). This does not grant access by itself;
+    // it only allows passkey-first UX on this device for returning sign-ins.
+    await setDeviceTrustCookie(user.id);
 
     // Reset rate limit and escalating lockout on successful verification
     await Promise.all([

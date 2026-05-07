@@ -4,6 +4,19 @@ import { z } from "zod";
 const mocks = vi.hoisted(() => {
   const credentialEq = vi.fn();
   const credentialSingle = vi.fn();
+  const credentialUpdateMaybeSingle = vi.fn();
+  const credentialUpdateSelect = vi.fn(() => ({
+    maybeSingle: credentialUpdateMaybeSingle,
+  }));
+  const credentialUpdateEq2 = vi.fn(() => ({
+    select: credentialUpdateSelect,
+  }));
+  const credentialUpdateEq1 = vi.fn(() => ({
+    eq: credentialUpdateEq2,
+  }));
+  const credentialUpdate = vi.fn(() => ({
+    eq: credentialUpdateEq1,
+  }));
   const credentialSelect = vi.fn((fields: string) => {
     if (fields === "*") {
       return {
@@ -16,13 +29,17 @@ const mocks = vi.hoisted(() => {
   });
 
   return {
-    adminFrom: vi.fn(() => ({ select: credentialSelect })),
+    adminFrom: vi.fn(() => ({
+      select: credentialSelect,
+      update: credentialUpdate,
+    })),
     adminGenerateLink: vi.fn(),
     adminGetUserById: vi.fn(),
     adminRpc: vi.fn(),
     clearChallenge: vi.fn(),
     credentialEq,
     credentialSingle,
+    credentialUpdateMaybeSingle,
     generateAuthenticationOptions: vi.fn(),
     generateCSRFToken: vi.fn(),
     getExpectedOrigins: vi.fn(),
@@ -34,6 +51,9 @@ const mocks = vi.hoisted(() => {
     storeChallenge: vi.fn(),
     supabaseVerifyOtp: vi.fn(),
     verifyAuthenticationResponse: vi.fn(),
+    clearDeviceTrustCookie: vi.fn(),
+    getValidDeviceTrustCookie: vi.fn(),
+    setDeviceTrustCookie: vi.fn(),
   };
 });
 
@@ -127,6 +147,12 @@ vi.mock("./auth-action-helpers", () => ({
   storeChallenge: mocks.storeChallenge,
 }));
 
+vi.mock("./device-trust-cookie", () => ({
+  clearDeviceTrustCookie: mocks.clearDeviceTrustCookie,
+  getValidDeviceTrustCookie: mocks.getValidDeviceTrustCookie,
+  setDeviceTrustCookie: mocks.setDeviceTrustCookie,
+}));
+
 import {
   generatePasskeyAuthOptions,
   verifyPasskeyAuthentication,
@@ -183,6 +209,11 @@ describe("passkey-auth-actions", () => {
           verification_type: "magiclink",
         },
       },
+      error: null,
+    });
+    mocks.getValidDeviceTrustCookie.mockResolvedValue(null);
+    mocks.credentialUpdateMaybeSingle.mockResolvedValue({
+      data: { credential_id: "cred-a" },
       error: null,
     });
   });
@@ -320,6 +351,69 @@ describe("passkey-auth-actions", () => {
       expect("prfSalt" in result.data).toBe(false);
       expect("prfVersion" in result.data).toBe(false);
     }
+  });
+
+  it("restricts auth options to trusted user credentials when expectedUserId is provided", async () => {
+    mocks.credentialEq.mockResolvedValue({
+      data: [{ credential_id: "cred-a", transports: ["internal"] }],
+      error: null,
+    });
+
+    const result = await generatePasskeyAuthOptions(
+      "csrf-token",
+      "https://helvety.com",
+      "https://helvety.com/tasks",
+      { expectedUserId: "550e8400-e29b-41d4-a716-446655440000" }
+    );
+
+    expect(result.success).toBe(true);
+    expect(mocks.generateAuthenticationOptions).toHaveBeenCalledWith(
+      expect.objectContaining({
+        allowCredentials: [{ id: "cred-a", transports: ["internal"] }],
+      })
+    );
+  });
+
+  it("renews trust when valid trust cookie matches authenticated user", async () => {
+    mocks.getStoredChallenge.mockResolvedValue({
+      challenge: "challenge-123",
+      redirectUri: "https://helvety.com/tasks",
+      timestamp: CHALLENGE_TIMESTAMP,
+    });
+    mocks.credentialSingle.mockResolvedValue({
+      data: {
+        credential_id: "cred-a",
+        public_key: Buffer.from("public-key").toString("base64url"),
+        counter: 1,
+        transports: ["internal"],
+        user_id: "user-1",
+      },
+      error: null,
+    });
+    mocks.verifyAuthenticationResponse.mockResolvedValue({
+      verified: true,
+      authenticationInfo: { newCounter: 2 },
+    });
+    mocks.credentialEq.mockResolvedValue({
+      data: { credential_id: "cred-a" },
+      error: null,
+    });
+    mocks.getValidDeviceTrustCookie.mockResolvedValue({
+      v: 1,
+      userId: "user-1",
+      iat: 1,
+      exp: 2,
+    });
+
+    const result = await verifyPasskeyAuthentication(
+      "csrf-token",
+      buildVerifyResponse({ id: "cred-a" }),
+      "https://helvety.com"
+    );
+
+    expect(result.success).toBe(true);
+    expect(mocks.setDeviceTrustCookie).toHaveBeenCalledWith("user-1");
+    expect(mocks.clearDeviceTrustCookie).not.toHaveBeenCalled();
   });
 
   it("filters unsupported transports before generating auth options", async () => {
