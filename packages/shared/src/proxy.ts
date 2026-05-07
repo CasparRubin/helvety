@@ -12,6 +12,7 @@ const CSRF_COOKIE_NAME = "csrf_token";
 const CSRF_TOKEN_LENGTH = 32;
 const CSP_NONCE_LENGTH = 16;
 const HEX_CHARACTERS = "0123456789abcdef";
+export const CSRF_BOOTSTRAP_HEADER_NAME = "x-csrf-bootstrap-token";
 
 /** Options for building the Content-Security-Policy header in the proxy. */
 export type BuildCspOptions = {
@@ -191,30 +192,39 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
   return async function proxy(request: NextRequest) {
     const nonce = toBase64(getRandomBytes(CSP_NONCE_LENGTH));
     const csp = buildCsp({ nonce, ...buildCspOptions });
+    const requestHeaders = new Headers(request.headers);
+    const shouldBootstrapCsrf =
+      includeCsrf && !request.cookies.get(CSRF_COOKIE_NAME)?.value;
+    let bootstrapCsrfToken: string | null = null;
+    let signedBootstrapCsrfToken: string | null = null;
 
     // NOTE: Header propagation from proxy to Server Components can vary by
     // runtime/version. Treat x-helvety-url and x-nonce as best-effort signals.
     // Auth redirects should rely on explicit currentPath values where available.
-    request.headers.set("x-nonce", nonce);
-    request.headers.set("Content-Security-Policy", csp);
+    requestHeaders.set("x-nonce", nonce);
+    requestHeaders.set("Content-Security-Policy", csp);
 
     if (includeHelvetyUrl) {
       const publicUrl = `${request.nextUrl.origin}${request.nextUrl.basePath}${request.nextUrl.pathname}${request.nextUrl.search}`;
-      request.headers.set("x-helvety-url", publicUrl);
+      requestHeaders.set("x-helvety-url", publicUrl);
+    }
+
+    if (shouldBootstrapCsrf) {
+      bootstrapCsrfToken = toHex(getRandomBytes(CSRF_TOKEN_LENGTH));
+      signedBootstrapCsrfToken = await signCookiePayload(bootstrapCsrfToken);
+      requestHeaders.set(CSRF_BOOTSTRAP_HEADER_NAME, bootstrapCsrfToken);
     }
 
     let response = NextResponse.next({
-      request: { headers: new Headers(request.headers) },
+      request: { headers: requestHeaders },
     });
 
     if (requestMayHaveSupabaseAuthCookie(request)) {
       response = await refreshSupabaseAuthSession(request, response);
     }
 
-    if (includeCsrf && !request.cookies.get(CSRF_COOKIE_NAME)?.value) {
-      const token = toHex(getRandomBytes(CSRF_TOKEN_LENGTH));
-      const signedToken = await signCookiePayload(token);
-      response.cookies.set(CSRF_COOKIE_NAME, signedToken, {
+    if (shouldBootstrapCsrf && signedBootstrapCsrfToken) {
+      response.cookies.set(CSRF_COOKIE_NAME, signedBootstrapCsrfToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",

@@ -1,10 +1,11 @@
 import "server-only";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { cache } from "react";
 
 import { getAuthUser } from "./auth-retry";
 import { getCSRFTokenFromCookieValue } from "./csrf";
+import { CSRF_BOOTSTRAP_HEADER_NAME } from "./proxy";
 import { createServerClient } from "./supabase/server";
 
 import type { AuthError, User } from "@supabase/supabase-js";
@@ -40,8 +41,14 @@ export const getCachedUser = cache(async (): Promise<User | null> => {
  * need the token within a single render pass.
  */
 export const getCachedCSRFToken = cache(async (): Promise<string | null> => {
-  const cookieStore = await cookies();
-  return getCSRFTokenFromCookieValue(
+  const [cookieStore, headersList] = await Promise.all([cookies(), headers()]);
+  const cookieToken = await getCSRFTokenFromCookieValue(
     cookieStore.get(CSRF_COOKIE_NAME)?.value ?? null
   );
+
+  if (cookieToken) {
+    return cookieToken;
+  }
+
+  return headersList.get(CSRF_BOOTSTRAP_HEADER_NAME);
 });
