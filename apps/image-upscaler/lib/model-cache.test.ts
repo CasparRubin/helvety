@@ -8,8 +8,8 @@ function bytes(values: readonly number[]): Uint8Array {
   return new Uint8Array(values);
 }
 
-function body(values: readonly number[]): ArrayBuffer {
-  const raw = bytes(values);
+function body(values: readonly number[] | Uint8Array): ArrayBuffer {
+  const raw = values instanceof Uint8Array ? values : bytes(values);
   return raw.buffer.slice(
     raw.byteOffset,
     raw.byteOffset + raw.byteLength
@@ -150,10 +150,7 @@ describe("model-cache", () => {
     const freshBytes = bytes([1, 2, 3]);
     const digestBuffer = await crypto.subtle.digest(
       "SHA-256",
-      freshBytes.buffer.slice(
-        freshBytes.byteOffset,
-        freshBytes.byteOffset + freshBytes.byteLength
-      )
+      body(freshBytes)
     );
     const expectedSha = Array.from(new Uint8Array(digestBuffer))
       .map((byte) => byte.toString(16).padStart(2, "0"))

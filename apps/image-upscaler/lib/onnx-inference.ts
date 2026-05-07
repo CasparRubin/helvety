@@ -3,13 +3,15 @@
  *
  * Workflow:
  *   1. Load the model bytes (Cache API or network) and create an ORT session.
- *   2. Walk the source image in tiles of {@link OnnxTileConfig.size} pixels with
- *      a per-side overlap of {@link OnnxTileConfig.overlap} pixels.
- *   3. For each tile, edge-replicate to a multiple of `padMultiple` and run the
+ *   2. Derive effective tile geometry from {@link OnnxTileConfig} plus model
+ *      input metadata (fixed-shape models may clamp configured tile size).
+ *   3. Walk the source image in those effective tiles with a per-side overlap
+ *      of {@link OnnxTileConfig.overlap} pixels.
+ *   4. For each tile, edge-replicate to a multiple of `padMultiple` and run the
  *      model (NCHW float32 in [0, 1]).
- *   4. Stitch outputs with a separable linear-blend weight in the overlap band
+ *   5. Stitch outputs with a separable linear-blend weight in the overlap band
  *      to remove tile seams.
- *   5. If the requested target dimensions differ from the model's native
+ *   6. If the requested target dimensions differ from the model's native
  *      output size (typically 4× the input), down/up-scale to target using
  *      a high-quality canvas resample as a final step.
  *
@@ -220,14 +222,92 @@ interface InferTilesResult {
   height: number;
 }
 
+interface SessionInputSpatialShape {
+  readonly fixedHeight: number | null;
+  readonly fixedWidth: number | null;
+}
+
+interface EffectiveTileGeometry {
+  readonly tileSize: number;
+  readonly stride: number;
+}
+
+function normalizePositiveDimension(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+  if (value <= 0 || !Number.isInteger(value)) {
+    return null;
+  }
+  return value;
+}
+
+function hasDimensions(
+  value: unknown
+): value is { dimensions: readonly unknown[] } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "dimensions" in value &&
+    Array.isArray((value as { dimensions?: unknown }).dimensions)
+  );
+}
+
+/**
+ * Derives fixed spatial constraints from the first model input metadata.
+ *
+ * Many super-resolution ONNX exports keep dynamic H/W, but some ship
+ * fixed NCHW dimensions (e.g. 1x3x128x128). We treat configured tile size
+ * as a preference and clamp to the model's fixed shape when required.
+ */
+export function getSessionInputSpatialShape(
+  session: ort.InferenceSession
+): SessionInputSpatialShape {
+  const metadata = session.inputMetadata[0];
+  if (!hasDimensions(metadata)) {
+    return { fixedHeight: null, fixedWidth: null };
+  }
+  const dims = metadata.dimensions;
+  if (dims.length < 4) {
+    return { fixedHeight: null, fixedWidth: null };
+  }
+  return {
+    fixedHeight: normalizePositiveDimension(dims[2]),
+    fixedWidth: normalizePositiveDimension(dims[3]),
+  };
+}
+
+export function getEffectiveTileGeometry(
+  configuredTileSize: number,
+  overlap: number,
+  fixedHeight: number | null,
+  fixedWidth: number | null
+): EffectiveTileGeometry {
+  const fixedLimit = Math.min(
+    fixedHeight ?? Number.POSITIVE_INFINITY,
+    fixedWidth ?? Number.POSITIVE_INFINITY
+  );
+  const tileSize = Math.max(1, Math.min(configuredTileSize, fixedLimit));
+  return {
+    tileSize,
+    stride: Math.max(1, tileSize - overlap),
+  };
+}
+
 async function runTiledInference(
   session: ort.InferenceSession,
   src: ReadImageDataResult,
   model: OnnxModel
 ): Promise<InferTilesResult> {
-  const { size: tileSize, overlap, padMultiple } = model.tile;
+  const { size: configuredTileSize, overlap, padMultiple } = model.tile;
+  const { fixedHeight, fixedWidth } = getSessionInputSpatialShape(session);
+  const { tileSize, stride } = getEffectiveTileGeometry(
+    configuredTileSize,
+    overlap,
+    fixedHeight,
+    fixedWidth
+  );
   const scale = model.scale;
-  const stride = Math.max(1, tileSize - overlap);
 
   const dstWidth = src.width * scale;
   const dstHeight = src.height * scale;
@@ -248,13 +328,25 @@ async function runTiledInference(
 
   const overlapOut = overlap * scale;
 
-  // Pre-allocate the tile input buffer at the maximum possible size so we can
-  // reuse it across every tile (and let ORT see a stable backing store).
-  const maxPadW = Math.max(
-    padMultiple,
-    Math.ceil(tileSize / padMultiple) * padMultiple
-  );
-  const maxPadH = maxPadW;
+  if (fixedHeight && fixedHeight % padMultiple !== 0) {
+    throw new Error(
+      `Model "${model.id}" requires fixed input height ${fixedHeight}, which is incompatible with padMultiple=${padMultiple}.`
+    );
+  }
+  if (fixedWidth && fixedWidth % padMultiple !== 0) {
+    throw new Error(
+      `Model "${model.id}" requires fixed input width ${fixedWidth}, which is incompatible with padMultiple=${padMultiple}.`
+    );
+  }
+
+  // Pre-allocate the tile input buffer at the maximum possible shape we will
+  // feed into ORT for this model/session.
+  const maxPadW =
+    fixedWidth ??
+    Math.max(padMultiple, Math.ceil(tileSize / padMultiple) * padMultiple);
+  const maxPadH =
+    fixedHeight ??
+    Math.max(padMultiple, Math.ceil(tileSize / padMultiple) * padMultiple);
   const tileBuffer = new Float32Array(3 * maxPadW * maxPadH);
 
   for (let tileY = 0; tileY < src.height; tileY += stride) {
@@ -267,14 +359,21 @@ async function runTiledInference(
       const blendLeft = tileX > 0;
       const blendRight = tileX + tileW < src.width;
 
-      const padW = Math.max(
+      const dynamicPadW = Math.max(
         padMultiple,
         Math.ceil(tileW / padMultiple) * padMultiple
       );
-      const padH = Math.max(
+      const dynamicPadH = Math.max(
         padMultiple,
         Math.ceil(tileH / padMultiple) * padMultiple
       );
+      const padW = fixedWidth ?? dynamicPadW;
+      const padH = fixedHeight ?? dynamicPadH;
+      if (padW < tileW || padH < tileH) {
+        throw new Error(
+          `Model "${model.id}" fixed input shape ${padH}x${padW} cannot fit source tile ${tileH}x${tileW}.`
+        );
+      }
       const planeSize = padW * padH;
 
       // Slice the tail off the reusable buffer and zero-fill it; the writer

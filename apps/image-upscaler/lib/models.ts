@@ -24,7 +24,13 @@ export type UpscaleModelId = "canvas" | "realesr-general-x4v3";
  */
 export type UpscaleEngineKind = "canvas" | "onnx";
 
-/** Tile geometry used by the ONNX inference path for memory-bounded stitching. */
+/**
+ * Preferred tile geometry used by ONNX tiled inference.
+ *
+ * The runtime may clamp `size` when a loaded model declares fixed input
+ * dimensions (for example 128x128). Overlap and padding semantics stay the
+ * same; this config remains the default target for dynamic-shape models.
+ */
 export interface OnnxTileConfig {
   /** Tile edge length in source pixels. */
   readonly size: number;

@@ -31,21 +31,21 @@ which means the small `.onnx` graph references its `.data` weight sidecar by
 the literal filename `real_esrgan_general_x4v3.data`. Renaming the sidecar
 will break inference.
 
-| Filename                          | Engine ID              | Size    | Scale | Notes                                                |
-| --------------------------------- | ---------------------- | ------- | ----- | ---------------------------------------------------- |
-| `real_esrgan_general_x4v3.onnx`   | `realesr-general-x4v3` | ~43 KB  | 4x    | Graph file (external-data format).                   |
-| `real_esrgan_general_x4v3.data`   | `realesr-general-x4v3` | ~4.8 MB | 4x    | Sidecar weight tensors. **Required** alongside .onnx |
+| Filename                        | Engine ID              | Size    | Scale | Notes                                                |
+| ------------------------------- | ---------------------- | ------- | ----- | ---------------------------------------------------- |
+| `real_esrgan_general_x4v3.onnx` | `realesr-general-x4v3` | ~43 KB  | 4x    | Graph file (external-data format).                   |
+| `real_esrgan_general_x4v3.data` | `realesr-general-x4v3` | ~4.8 MB | 4x    | Sidecar weight tensors. **Required** alongside .onnx |
 
 ## Bucket configuration
 
 Create the bucket once per Supabase project (Dashboard → Storage → New bucket):
 
-| Setting              | Value                                  |
-| -------------------- | -------------------------------------- |
-| Name                 | `image-upscaler-models`                |
-| Public bucket        | **on** (read-only is anonymous)        |
-| File size limit      | optional; `10 MB` is enough for the current model pair |
-| Allowed MIME types   | leave empty, or `application/octet-stream` |
+| Setting            | Value                                                  |
+| ------------------ | ------------------------------------------------------ |
+| Name               | `image-upscaler-models`                                |
+| Public bucket      | **on** (read-only is anonymous)                        |
+| File size limit    | optional; `10 MB` is enough for the current model pair |
+| Allowed MIME types | leave empty, or `application/octet-stream`             |
 
 CORS does not need any custom configuration — public Storage objects are
 served with `Access-Control-Allow-Origin: *` by default.
@@ -54,10 +54,10 @@ served with `Access-Control-Allow-Origin: *` by default.
 
 When uploading each file, set:
 
-| Header           | Value                                         | Why                                                   |
-| ---------------- | --------------------------------------------- | ----------------------------------------------------- |
-| `Content-Type`   | `application/octet-stream`                    | Generic binary, plays well with Supabase + ORT.       |
-| `Cache-Control`  | `public, max-age=31536000, immutable`         | Weights never change; aggressive cache is safe.       |
+| Header          | Value                                 | Why                                             |
+| --------------- | ------------------------------------- | ----------------------------------------------- |
+| `Content-Type`  | `application/octet-stream`            | Generic binary, plays well with Supabase + ORT. |
+| `Cache-Control` | `public, max-age=31536000, immutable` | Weights never change; aggressive cache is safe. |
 
 After upload, smoke-test by opening the public URLs in your browser; each
 should download as a binary blob.

@@ -204,7 +204,7 @@ export async function HelvetyPublicShellRootLayout({
           : {})}
         suppressHydrationWarning
       >
-        <body className="antialiased">
+        <body className="font-sans antialiased">
           <SkipToContent />
           <JsonLdScript nonce={nonce} json={ldJson} />
           <TooltipProvider>{wrappedStore}</TooltipProvider>
@@ -227,7 +227,7 @@ export async function HelvetyPublicShellRootLayout({
         : {})}
       suppressHydrationWarning
     >
-      <body className="antialiased">
+      <body className="font-sans antialiased">
         <SkipToContent />
         <JsonLdScript nonce={nonce} json={ldJson} />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>

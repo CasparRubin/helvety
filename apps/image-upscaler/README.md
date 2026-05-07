@@ -13,7 +13,7 @@ ever leaves the client.
 - Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (overflow-main) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); shared layout-session bootstrap supplies an optional SSR session snapshot to the navbar (no login required for upscaling)
 - Single user-facing AI engine (`realesr-general-x4v3`) with an automatic no-AI canvas fallback for browsers that cannot run WebAssembly
 - AI inference runs entirely in a Web Worker via `onnxruntime-web` (`webgpu` -> `wasm` execution providers)
-- Tiled inference with linear-blend stitching to keep memory usage bounded on large images
+- Tiled inference with linear-blend stitching to keep memory usage bounded on large images; tile geometry adapts to fixed-shape ONNX inputs when required
 - Lazy model download: weights fetch on first use and persist in the browser Cache API (`upscale-models-v1`)
 - Per-image or batch flow (2x/4x or target width/height)
 - Uses `canvas-size` to probe browser canvas limits and clamps export dimensions when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
@@ -84,10 +84,11 @@ Real-ESRGAN by xinntao (BSD-3-Clause).
 
 Copy `env.template` to `.env.local`.
 
-| Variable                               | Required | Server-only | Description              |
-| -------------------------------------- | -------- | ----------- | ------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL     |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key |
+| Variable                               | Required | Server-only | Description                                         |
+| -------------------------------------- | -------- | ----------- | --------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                            |
+| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF/session cookies in proxy bootstrap flows |
 
 ## Development and Testing
 

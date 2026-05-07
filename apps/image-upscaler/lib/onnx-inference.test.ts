@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getModelById } from "@/lib/models";
 
+import type { InferenceSession } from "onnxruntime-web";
+
 const generalModel = getModelById("realesr-general-x4v3");
 const generalSidecar = generalModel.externalData?.[0];
 if (!generalSidecar) {
@@ -107,5 +109,92 @@ describe("onnx-inference session loading", () => {
       generalSidecar.url,
     ]);
     expect(mocks.createSession).not.toHaveBeenCalled();
+  });
+});
+
+describe("getSessionInputSpatialShape", () => {
+  it("returns fixed H/W when metadata dimensions are static", async () => {
+    const { getSessionInputSpatialShape } =
+      await import("@/lib/onnx-inference");
+    const fakeSession = {
+      inputNames: ["image"],
+      inputMetadata: [
+        {
+          dimensions: [1, 3, 128, 128],
+        },
+      ],
+    };
+
+    expect(
+      getSessionInputSpatialShape(fakeSession as unknown as InferenceSession)
+    ).toEqual({
+      fixedHeight: 128,
+      fixedWidth: 128,
+    });
+  });
+
+  it("treats symbolic or non-positive spatial dims as dynamic", async () => {
+    const { getSessionInputSpatialShape } =
+      await import("@/lib/onnx-inference");
+    const fakeSession = {
+      inputNames: ["image"],
+      inputMetadata: [
+        {
+          dimensions: [1, 3, "height", 0],
+        },
+      ],
+    };
+
+    expect(
+      getSessionInputSpatialShape(fakeSession as unknown as InferenceSession)
+    ).toEqual({
+      fixedHeight: null,
+      fixedWidth: null,
+    });
+  });
+
+  it("returns dynamic shape when metadata is missing", async () => {
+    const { getSessionInputSpatialShape } =
+      await import("@/lib/onnx-inference");
+    const fakeSession = {
+      inputNames: ["image"],
+      inputMetadata: [],
+    };
+
+    expect(
+      getSessionInputSpatialShape(fakeSession as unknown as InferenceSession)
+    ).toEqual({
+      fixedHeight: null,
+      fixedWidth: null,
+    });
+  });
+});
+
+describe("getEffectiveTileGeometry", () => {
+  it("keeps configured tile size for dynamic-shape models", async () => {
+    const { getEffectiveTileGeometry } = await import("@/lib/onnx-inference");
+
+    expect(getEffectiveTileGeometry(256, 16, null, null)).toEqual({
+      tileSize: 256,
+      stride: 240,
+    });
+  });
+
+  it("clamps tile size to fixed model dimensions", async () => {
+    const { getEffectiveTileGeometry } = await import("@/lib/onnx-inference");
+
+    expect(getEffectiveTileGeometry(256, 16, 128, 128)).toEqual({
+      tileSize: 128,
+      stride: 112,
+    });
+  });
+
+  it("never returns a zero or negative stride", async () => {
+    const { getEffectiveTileGeometry } = await import("@/lib/onnx-inference");
+
+    expect(getEffectiveTileGeometry(8, 16, 8, 8)).toEqual({
+      tileSize: 8,
+      stride: 1,
+    });
   });
 });
