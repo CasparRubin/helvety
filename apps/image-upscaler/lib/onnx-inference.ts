@@ -242,15 +242,14 @@ function normalizePositiveDimension(value: unknown): number | null {
   return value;
 }
 
-function hasDimensions(
+function hasTensorShape(
   value: unknown
-): value is { dimensions: readonly unknown[] } {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "dimensions" in value &&
-    Array.isArray((value as { dimensions?: unknown }).dimensions)
-  );
+): value is { isTensor: true; shape: readonly unknown[] } {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const candidate = value as { isTensor?: unknown; shape?: unknown };
+  return candidate.isTensor === true && Array.isArray(candidate.shape);
 }
 
 /**
@@ -264,10 +263,10 @@ export function getSessionInputSpatialShape(
   session: ort.InferenceSession
 ): SessionInputSpatialShape {
   const metadata = session.inputMetadata[0];
-  if (!hasDimensions(metadata)) {
+  if (!hasTensorShape(metadata)) {
     return { fixedHeight: null, fixedWidth: null };
   }
-  const dims = metadata.dimensions;
+  const dims = metadata.shape;
   if (dims.length < 4) {
     return { fixedHeight: null, fixedWidth: null };
   }

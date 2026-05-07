@@ -459,10 +459,11 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                           <span
                             className={cn(
                               "text-xs",
-                              item.status === "processing" && "text-blue-600",
+                              item.status === "processing" &&
+                                "text-violet-700 dark:text-violet-300",
                               item.status === "done" &&
                                 hasFreshOutput &&
-                                "text-emerald-600",
+                                "text-teal-700 dark:text-teal-300",
                               item.status !== "processing" &&
                                 !(item.status === "done" && hasFreshOutput) &&
                                 "invisible"
@@ -497,7 +498,7 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                           </Button>
                         </div>
                         {item.error && (
-                          <p className="mt-2 text-xs text-red-500">
+                          <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
                             {item.error}
                           </p>
                         )}

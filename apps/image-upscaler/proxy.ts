@@ -6,7 +6,7 @@ import {
 export const proxy = createAppProxy({
   securityProxy: createProfiledSecurityProxy("public-tool", {
     // onnxruntime-web compiles WebAssembly modules at startup; required for
-    // the ONNX-backed AI upscale engines.
+    // the ONNX-backed AI upscale engine.
     buildCspOptions: { wasmUnsafeEval: true },
   }),
   defaultBasePath: "/image-upscaler",

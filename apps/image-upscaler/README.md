@@ -15,7 +15,8 @@ ever leaves the client.
 - AI inference runs entirely in a Web Worker via `onnxruntime-web` (`webgpu` -> `wasm` execution providers)
 - Tiled inference with linear-blend stitching to keep memory usage bounded on large images; tile geometry adapts to fixed-shape ONNX inputs when required
 - Lazy model download: weights fetch on first use and persist in the browser Cache API (`upscale-models-v1`)
-- Per-image or batch flow (2x/4x or target width/height)
+- Per-image or batch flow (2x/4x or target width/height). Runtime uses a
+  single native 4x AI model; 2x outputs are produced by final resampling.
 - Uses `canvas-size` to probe browser canvas limits and clamps export dimensions when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
 - Batch queue with per-item statuses
 - Shared command bar UX (primary/secondary actions)
@@ -23,10 +24,10 @@ ever leaves the client.
 
 ## Engine
 
-| Engine                 | User-facing | Size  | Best for                                                  |
-| ---------------------- | ----------- | ----- | --------------------------------------------------------- |
-| `realesr-general-x4v3` | yes         | ~5 MB | Photos, screenshots, mixed content                        |
-| `canvas` (no AI)       | no          | 0     | Automatic fallback when WASM is unavailable (with notice) |
+| Engine                 | User-facing | Size                                         | Best for                                                  |
+| ---------------------- | ----------- | -------------------------------------------- | --------------------------------------------------------- |
+| `realesr-general-x4v3` | yes         | ~4.8 MB weights + ~43 KB graph (~5 MB total) | Photos, screenshots, mixed content                        |
+| `canvas` (no AI)       | no          | 0                                            | Automatic fallback when WASM is unavailable (with notice) |
 
 The user never chooses an engine. The app uses Real-ESRGAN by default; if the
 browser does not expose WebAssembly, the app shows a notice and silently uses
@@ -76,7 +77,7 @@ Real-ESRGAN by xinntao (BSD-3-Clause).
 - Image processing runs client-side for supported operations.
 - AI inference runs entirely in the browser; image data never leaves the client.
 - The first AI run fetches the Real-ESRGAN weights from the public Supabase Storage bucket configured for the active environment, then caches them locally.
-- `proxy.ts` handles request bootstrap and security headers; the strict CSP includes `'wasm-unsafe-eval'` for `onnxruntime-web` to compile WebAssembly, and `connect-src` is automatically extended to the configured Supabase origin so the worker can fetch weights.
+- `proxy.ts` handles request bootstrap and security headers; the strict CSP includes `'wasm-unsafe-eval'` for `onnxruntime-web` to compile WebAssembly, and `connect-src` is extended to the configured Supabase origin when `NEXT_PUBLIC_SUPABASE_URL` is a valid HTTPS URL (plus matching `wss://`).
 - Input guards enforce file type, size, and pixel limits.
 - E2EE is not used in this app (E2EE apps are `tasks`, `contacts`, `notes`).
 

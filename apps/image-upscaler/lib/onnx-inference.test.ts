@@ -113,14 +113,15 @@ describe("onnx-inference session loading", () => {
 });
 
 describe("getSessionInputSpatialShape", () => {
-  it("returns fixed H/W when metadata dimensions are static", async () => {
+  it("returns fixed H/W when metadata shape is static", async () => {
     const { getSessionInputSpatialShape } =
       await import("@/lib/onnx-inference");
     const fakeSession = {
       inputNames: ["image"],
       inputMetadata: [
         {
-          dimensions: [1, 3, 128, 128],
+          isTensor: true,
+          shape: [1, 3, 128, 128],
         },
       ],
     };
@@ -140,7 +141,8 @@ describe("getSessionInputSpatialShape", () => {
       inputNames: ["image"],
       inputMetadata: [
         {
-          dimensions: [1, 3, "height", 0],
+          isTensor: true,
+          shape: [1, 3, "height", 0],
         },
       ],
     };
@@ -159,6 +161,27 @@ describe("getSessionInputSpatialShape", () => {
     const fakeSession = {
       inputNames: ["image"],
       inputMetadata: [],
+    };
+
+    expect(
+      getSessionInputSpatialShape(fakeSession as unknown as InferenceSession)
+    ).toEqual({
+      fixedHeight: null,
+      fixedWidth: null,
+    });
+  });
+
+  it("returns dynamic shape when first input is not a tensor", async () => {
+    const { getSessionInputSpatialShape } =
+      await import("@/lib/onnx-inference");
+    const fakeSession = {
+      inputNames: ["image"],
+      inputMetadata: [
+        {
+          isTensor: false,
+          shape: [1, 3, 128, 128],
+        },
+      ],
     };
 
     expect(
