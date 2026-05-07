@@ -30,7 +30,7 @@ export const metadata = createHelvetyProductMetadata({
   siteName: "Helvety Auth",
   canonicalUrl: urls.auth,
   brandImage: {
-    url: brandAssets.identifierPng,
+    url: brandAssets.identifierLogo,
     ogAlt: "Helvety",
   },
   manifest: "/auth/manifest.json",
@@ -59,7 +59,7 @@ export default async function RootLayout({
 
   return HelvetyPublicShellRootLayout({
     children,
-    organizationLogoUrl: brandAssets.identifierPng,
+    organizationLogoUrl: brandAssets.identifierLogo,
     jsonLdGraphTail: [
       {
         "@type": "WebApplication",

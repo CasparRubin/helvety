@@ -81,3 +81,9 @@ export {
 
 // Passkey capability helpers (setup/auth flows live in apps/auth)
 export { isPasskeySupported } from "./passkey";
+
+// Safe UI display decryption (neutral fallback on failure)
+export {
+  safeDecryptDisplayField,
+  type SafeDecryptDisplayAadTable,
+} from "./safe-decrypt-display-field";

@@ -23,7 +23,7 @@ import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { getUserSingleflight } from "@helvety/ui/auth-session-singleflight";
-import { useCSRF } from "@helvety/ui/csrf-provider";
+import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -157,7 +157,7 @@ export async function withLoginAuthProbeTimeout<T>(
 export function useLoginFlow(): LoginFlowState {
   const searchParams = useSearchParams();
   const supabase = createBrowserClient();
-  const csrfToken = useCSRF();
+  const csrfToken = useCSRFToken();
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");

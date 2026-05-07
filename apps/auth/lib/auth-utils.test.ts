@@ -1,3 +1,4 @@
+import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -68,7 +69,7 @@ describe("auth-utils getRequiredAuthStep", () => {
   it("returns not_authenticated when passkey check reports not authenticated", async () => {
     mocks.getOwnPasskeyStatus.mockResolvedValue({
       success: false,
-      error: "Not authenticated",
+      error: buildAuthRequiredError(),
     });
 
     await expect(getRequiredAuthStep()).resolves.toEqual({
@@ -97,7 +98,7 @@ describe("auth-utils getRequiredAuthStep", () => {
     });
     mocks.hasEncryptionSetup.mockResolvedValue({
       success: false,
-      error: "Not authenticated",
+      error: buildAuthRequiredError(),
     });
 
     await expect(getRequiredAuthStep()).resolves.toEqual({

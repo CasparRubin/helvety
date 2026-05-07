@@ -7,7 +7,7 @@ Browser-based PDF toolkit for merge/reorder/rotate/extract workflows.
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (overflow-main) and `@helvety/shared/seo` (`createHelvetyProductMetadata`) for shared metadata and shell chrome; `getCachedUser()` supplies an optional SSR session snapshot to the navbar (login still not required for tools)
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (overflow-main) and `@helvety/shared/seo` (`createHelvetyProductMetadata`) for shared metadata and shell chrome; shared layout-session bootstrap supplies an optional SSR session snapshot to the navbar (login still not required for tools)
 - Local browser processing for supported operations
 - PDF and image input support
 - Page thumbnail preview with drag-and-drop reordering

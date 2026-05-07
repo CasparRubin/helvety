@@ -32,7 +32,7 @@ export const metadata = createHelvetyProductMetadata({
   siteName: "Helvety Tasks",
   canonicalUrl: urls.tasks,
   brandImage: {
-    url: brandAssets.identifierPng,
+    url: brandAssets.identifierLogo,
     ogAlt: "Helvety Tasks",
     twitterAlt: "Helvety Tasks",
   },
@@ -51,7 +51,7 @@ export default function RootLayout({
 }>) {
   return (
     <E2eeAppRootLayout
-      organizationLogoUrl={brandAssets.identifierPng}
+      organizationLogoUrl={brandAssets.identifierLogo}
       softwareApplication={{
         name: "Helvety Tasks",
         url: urls.tasks,

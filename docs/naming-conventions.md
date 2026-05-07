@@ -6,7 +6,7 @@ This document is the source of truth for how we name and format code across `app
 
 - **Next.js App Router structure**: [Project structure and file conventions](https://github.com/vercel/next.js/blob/v16.2.4/docs/01-app/01-getting-started/02-project-structure.mdx) — special filenames (`page.tsx`, `layout.tsx`, `route.ts`, `loading.tsx`, `error.tsx`, …), route groups `(segment)`, private folders `_segment`, colocation (link revision tracks `apps/web` `next`).
 - **TypeScript identifiers**: [typescript-eslint naming-convention](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/naming-convention.mdx).
-- **Tests**: [Vitest — test files](https://github.com/vitest-dev/vitest/blob/main/docs/guide/learn/writing-tests.md) — prefer `*.test.ts` / `*.test.tsx`; `*.spec.ts` / `*.spec.tsx` are also supported for compatibility.
+- **Tests**: [Vitest — test files](https://github.com/vitest-dev/vitest/blob/main/docs/guide/learn/writing-tests.md) — use `*.test.ts` / `*.test.tsx`.
 
 ## Formatting
 
@@ -18,7 +18,7 @@ This document is the source of truth for how we name and format code across `app
 - **Source modules**: `kebab-case` (`batch-actions.ts`, `helvety-shell-navbar.tsx`, `use-contacts.ts`).
 - **Next.js reserved names**: exact names required by the framework (`page.tsx`, `layout.tsx`, `route.ts`, `template.tsx`, `default.tsx`, `opengraph-image.tsx`, …).
 - **Server actions**: prefer dedicated files under `app/actions/` named `*-actions.ts` with `"use server"` at the top; colocated actions next to a route use the same `*-actions.ts` pattern (e.g. `logout-actions.ts` beside `logout/page.tsx`).
-- **Tests**: prefer `**/*.test.ts`, `**/*.test.tsx`; `**/*.spec.ts`, `**/*.spec.tsx` are allowed and recognized by tooling.
+- **Tests**: prefer `**/*.test.ts`, `**/*.test.tsx`.
 
 ## TypeScript and React symbols
 

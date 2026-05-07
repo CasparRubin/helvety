@@ -22,7 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@helvety/ui/card";
-import { useCSRF } from "@helvety/ui/csrf-provider";
+import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Separator } from "@helvety/ui/separator";
@@ -68,7 +68,7 @@ const MEMBER_SINCE_FORMATTER = new Intl.DateTimeFormat("en-US", {
  * Receives pre-fetched user data from the server to avoid a client-side waterfall.
  */
 export function ProfileTab({ initialUser }: ProfileTabProps) {
-  const csrfToken = useCSRF();
+  const csrfToken = useCSRFToken();
 
   const [user] = React.useState<UserData>(initialUser);
   const isLoadingUser = false;

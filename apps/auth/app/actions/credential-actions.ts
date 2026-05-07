@@ -2,6 +2,7 @@
 
 import "server-only";
 
+import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
@@ -25,7 +26,7 @@ export async function getOwnPasskeyStatus(): Promise<
       error: userError,
     } = await supabase.auth.getUser();
     if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
+      return { success: false, error: buildAuthRequiredError() };
     }
 
     // user_auth_credentials uses deny-all RLS for client roles; align with

@@ -35,7 +35,7 @@ export const metadata = createHelvetyProductMetadata({
   siteName: "Helvety PDF",
   canonicalUrl: urls.pdf,
   brandImage: {
-    url: brandAssets.identifierPng,
+    url: brandAssets.identifierLogo,
     ogAlt: "Helvety PDF",
     twitterAlt: "Helvety PDF",
   },
@@ -62,7 +62,7 @@ export default async function RootLayout({
 
   return HelvetyPublicShellRootLayout({
     children,
-    organizationLogoUrl: brandAssets.identifierPng,
+    organizationLogoUrl: brandAssets.identifierLogo,
     jsonLdGraphTail: [
       {
         "@type": "WebApplication",

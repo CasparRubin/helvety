@@ -129,27 +129,18 @@ export function redirectRootToBasePath(
   return NextResponse.redirect(new URL(basePath, request.url));
 }
 
-/** Build a proxy with standardized root/legacy redirects plus shared security proxy. */
+/** Build a proxy with root → basePath redirect (when set) plus shared security proxy. */
 export function createAppProxy(options: {
   securityProxy: (request: NextRequest) => Promise<NextResponse>;
   defaultBasePath?: string;
-  legacyPathRegexes?: RegExp[];
 }) {
-  const { securityProxy, defaultBasePath, legacyPathRegexes = [] } = options;
+  const { securityProxy, defaultBasePath } = options;
 
   return async function proxy(request: NextRequest): Promise<NextResponse> {
     if (defaultBasePath) {
       const rootRedirect = redirectRootToBasePath(request, defaultBasePath);
       if (rootRedirect) {
         return rootRedirect;
-      }
-    }
-
-    const pathname = request.nextUrl.pathname;
-    if (legacyPathRegexes.some((regex) => regex.test(pathname))) {
-      const basePath = request.nextUrl.basePath || defaultBasePath;
-      if (basePath) {
-        return NextResponse.redirect(new URL(basePath, request.url));
       }
     }
 

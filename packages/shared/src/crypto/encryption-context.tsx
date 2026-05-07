@@ -16,12 +16,12 @@ import {
   clearAllKeys,
   isStorageAvailable,
 } from "./key-storage";
+import { isPasskeySupported } from "./passkey";
 import {
-  isPasskeySupported,
-  isPRFSupported,
   getPRFSupportInfo,
-} from "./passkey";
-import { type PRFSupportInfo } from "./prf-key-derivation";
+  isPRFSupported,
+  type PRFSupportInfo,
+} from "./prf-key-derivation";
 
 /** Internal state for the encryption context */
 interface EncryptionState {

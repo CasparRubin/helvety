@@ -111,11 +111,3 @@ export async function registerPasskey(
     );
   }
 }
-
-// Re-export PRF support utilities from the canonical location
-// to maintain backward compatibility for consumers of this module
-export {
-  isPRFSupported,
-  getPRFSupportInfo,
-  type PRFSupportInfo,
-} from "./prf-key-derivation";

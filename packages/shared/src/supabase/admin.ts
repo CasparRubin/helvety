@@ -47,10 +47,10 @@ function withScopeValue<T>(
 }
 
 /**
- * Get the Supabase secret key from environment (legacy name: service_role key).
+ * Get the Supabase secret key from environment (formerly `service_role` JWT).
  * This key is privileged and can bypass RLS where object privileges allow.
  */
-function getServiceRoleKey(): string {
+function getSupabaseSecretKey(): string {
   const key = process.env.SUPABASE_SECRET_KEY;
   if (!key) {
     throw new Error(
@@ -83,7 +83,7 @@ let adminClient: SupabaseClient<DatabaseSchema> | null = null;
  * Uses a singleton pattern for efficiency.
  *
  * SECURITY NOTES:
- * - This client uses the Supabase secret key (legacy service_role); treat as highly privileged
+ * - This client uses the Supabase secret key (formerly service_role); treat as highly privileged
  * - It can bypass RLS where object-level privileges allow
  * - ONLY use this for admin operations that require elevated privileges
  * - This client and its operations must not be exposed to the client
@@ -95,11 +95,11 @@ export function createAdminClient(): SupabaseClient<DatabaseSchema> {
   }
 
   const supabaseUrl = getSupabaseUrl();
-  const serviceRoleKey = getServiceRoleKey();
+  const supabaseSecretKey = getSupabaseSecretKey();
 
   adminClient = createClient<DatabaseSchema, "public">(
     supabaseUrl,
-    serviceRoleKey,
+    supabaseSecretKey,
     {
       auth: {
         autoRefreshToken: false,

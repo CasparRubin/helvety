@@ -24,7 +24,7 @@ export type CreateHelvetyProductMetadataParams = Readonly<{
   siteName: string;
   /** `openGraph.url` and `alternates.canonical` */
   canonicalUrl: string;
-  /** Primary OG/Twitter image (e.g. `brandAssets.identifierPng`). */
+  /** Primary OG/Twitter image (e.g. `brandAssets.identifierLogo`). */
   brandImage: Readonly<{
     url: string;
     width?: number;

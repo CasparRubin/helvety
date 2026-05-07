@@ -46,7 +46,7 @@ interface PdfPageThumbnailProps {
   listIndex?: number;
 }
 
-/** Renders a single page thumbnail using react-pdf (fallback), ImageBitmap cache, or image URL. */
+/** Renders a single page thumbnail via ImageBitmap cache, image URL, or react-pdf canvas render. */
 function PdfPageThumbnailComponent({
   fileUrl,
   fileData,
@@ -349,7 +349,7 @@ function PdfPageThumbnailComponent({
                   setErrorMessage("Unable to render page");
                 }}
               />
-            ) : // Render PDFs using react-pdf (fallback)
+            ) : // PDF canvas render path (react-pdf Document)
             canRenderPdfFallback ? (
               <Document
                 key={`${documentKey}-${pageNumber}-${listIndex}`}

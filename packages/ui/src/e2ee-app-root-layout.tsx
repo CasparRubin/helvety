@@ -1,14 +1,10 @@
-import {
-  getCachedCSRFToken,
-  getCachedUser,
-} from "@helvety/shared/cached-server";
 import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import { publicSans } from "@helvety/shared/fonts";
 import {
   createHelvetyOrganizationSchema,
   DEFAULT_THEME_PROVIDER_PROPS,
 } from "@helvety/shared/layout-primitives";
-import { logger } from "@helvety/shared/logger";
+import { bootstrapE2eeLayoutSession } from "@helvety/shared/layout-session-bootstrap";
 
 import { AuthTokenHandler } from "./auth-token-handler";
 import { CSRFProvider } from "./csrf-provider";
@@ -37,7 +33,7 @@ export type E2eeSoftwareApplicationLd = {
 /** Props for `E2eeAppRootLayout`. */
 export type E2eeAppRootLayoutProps = Readonly<{
   children: ReactNode;
-  /** Organization + product logo URL (e.g. `brandAssets.identifierPng`). */
+  /** Organization + product logo URL (e.g. `brandAssets.identifierLogo`). */
   organizationLogoUrl: string;
   softwareApplication: E2eeSoftwareApplicationLd;
   /** App-local client encryption context (e.g. `@/lib/crypto`). */
@@ -63,17 +59,7 @@ export async function E2eeAppRootLayout({
 }: E2eeAppRootLayoutProps): Promise<React.JSX.Element> {
   const EncryptionProviderSlot = encryptionProvider;
   const nonce = (await getRequestCspNonce()) ?? undefined;
-  let csrfToken = "";
-  let initialUser: User | null = null;
-
-  try {
-    [csrfToken, initialUser] = await Promise.all([
-      getCachedCSRFToken().then((t) => t ?? ""),
-      getCachedUser(),
-    ]);
-  } catch (error) {
-    logger.logUnexpectedError("Layout initialization failed", error);
-  }
+  const { csrfToken, initialUser } = await bootstrapE2eeLayoutSession();
 
   const ldJson = {
     "@context": "https://schema.org",

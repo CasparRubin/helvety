@@ -80,7 +80,6 @@ function LoginContent() {
 
         {flow.step === "encryption-setup" && flow.userId && (
           <EncryptionSetup
-            redirectUri={flow.redirectUri ?? undefined}
             userId={flow.userId}
             onRegistrationComplete={flow.handlePasskeyRegistrationComplete}
           />

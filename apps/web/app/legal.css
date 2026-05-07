@@ -141,7 +141,7 @@
   margin-top: 0.875rem !important;
 }
 
-/* Keep text/list/table rhythm consistent despite legacy utility classes */
+/* Keep text/list/table rhythm consistent with imported legal markup */
 .legal-doc p,
 .legal-doc address,
 .legal-doc ul,

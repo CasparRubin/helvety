@@ -3,7 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { isAuthRequiredError } from "@helvety/shared/auth-errors";
+import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
@@ -26,14 +26,6 @@ import type {
 // `authenticateAndRateLimit` with `readRateLimitConfig: CREDENTIAL_READ` (no
 // CSRF). Mutations (`saveKeyCheckValue`) keep CSRF plus `ENCRYPTION` limits.
 
-/** Maps shared action auth errors to legacy strings expected by `auth-utils`. */
-function mapEncryptionReadAuthError(error: string): string {
-  if (isAuthRequiredError(error)) {
-    return "Not authenticated";
-  }
-  return error;
-}
-
 /**
  * Check if user has encryption (PRF params) set up.
  *
@@ -46,10 +38,7 @@ export async function hasEncryptionSetup(): Promise<ActionResponse<boolean>> {
       readRateLimitConfig: RATE_LIMITS.CREDENTIAL_READ,
     });
     if (!auth.ok) {
-      return {
-        success: false,
-        error: mapEncryptionReadAuthError(auth.response.error),
-      };
+      return auth.response;
     }
     const { user, supabase } = auth.ctx;
 
@@ -83,10 +72,7 @@ export async function getPasskeyParams(): Promise<
       readRateLimitConfig: RATE_LIMITS.CREDENTIAL_READ,
     });
     if (!auth.ok) {
-      return {
-        success: false,
-        error: mapEncryptionReadAuthError(auth.response.error),
-      };
+      return auth.response;
     }
     const { user, supabase } = auth.ctx;
 
@@ -141,7 +127,7 @@ export async function saveKeyCheckValue(
       error: userError,
     } = await supabase.auth.getUser();
     if (userError || !user) {
-      return { success: false, error: "Not authenticated" };
+      return { success: false, error: buildAuthRequiredError() };
     }
 
     const rl = await checkRateLimit(

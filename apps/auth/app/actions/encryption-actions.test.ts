@@ -1,3 +1,4 @@
+import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -75,14 +76,15 @@ describe("encryption-actions", () => {
     });
   });
 
-  it("maps read auth failures to legacy not-authenticated error", async () => {
+  it("passes through authenticateAndRateLimit auth failures", async () => {
+    const authError = buildAuthRequiredError();
     mocks.authenticateAndRateLimit.mockResolvedValueOnce({
       ok: false,
-      response: { success: false, error: "Not authenticated" },
+      response: { success: false, error: authError },
     });
     await expect(hasEncryptionSetup()).resolves.toEqual({
       success: false,
-      error: "Not authenticated",
+      error: authError,
     });
   });
 
@@ -132,6 +134,22 @@ describe("encryption-actions", () => {
     await expect(saveKeyCheckValue("token", "kcv")).resolves.toEqual({
       success: false,
       error: "Too many requests. Wait 42 seconds, then try again.",
+    });
+  });
+
+  it("rejects saveKeyCheckValue when session has no user", async () => {
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: null },
+          error: null,
+        }),
+      },
+      from: vi.fn(),
+    });
+    await expect(saveKeyCheckValue("token", "kcv")).resolves.toEqual({
+      success: false,
+      error: buildAuthRequiredError(),
     });
   });
 });

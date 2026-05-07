@@ -5,13 +5,13 @@
  * Implemented via server actions (`getOwnPasskeyStatus`, `hasEncryptionSetup`); safe from client code (e.g. `useLoginFlow`).
  */
 
+import { isAuthRequiredError } from "@helvety/shared/auth-errors";
+
 import { getOwnPasskeyStatus } from "@/app/actions/credential-actions";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 import { resolveAuthStep } from "@/lib/auth-step";
 
 import type { RequiredAuthStep } from "@/lib/auth-step";
-
-const NOT_AUTHENTICATED = "Not authenticated";
 
 /** Outcome of probing passkey + encryption readiness for the current session. */
 type AuthStepProbeResult =
@@ -39,7 +39,7 @@ export async function getRequiredAuthStep(): Promise<AuthStepProbeResult> {
   const passkeyResult = await getOwnPasskeyStatus();
 
   if (!passkeyResult.success) {
-    if (passkeyResult.error === NOT_AUTHENTICATED) {
+    if (isAuthRequiredError(passkeyResult.error)) {
       return { status: "not_authenticated" };
     }
     return {
@@ -51,7 +51,7 @@ export async function getRequiredAuthStep(): Promise<AuthStepProbeResult> {
   const encryptionResult = await hasEncryptionSetup();
 
   if (!encryptionResult.success) {
-    if (encryptionResult.error === NOT_AUTHENTICATED) {
+    if (isAuthRequiredError(encryptionResult.error)) {
       return { status: "not_authenticated" };
     }
     return {

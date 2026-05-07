@@ -1,6 +1,5 @@
 "use client";
 
-import { urls } from "@helvety/shared/config";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { base64Decode } from "@helvety/shared/crypto/encoding";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
@@ -13,7 +12,6 @@ import {
 } from "@helvety/shared/crypto/prf-key-derivation";
 import { cachePRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
 import { logger } from "@helvety/shared/logger";
-import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 import { Button } from "@helvety/ui/button";
 import {
@@ -23,7 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@helvety/ui/card";
-import { useCSRF } from "@helvety/ui/csrf-provider";
+import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -47,15 +45,13 @@ import { isMobileDevice } from "@/lib/device-utils";
  * Props for the EncryptionSetup component
  */
 interface EncryptionSetupProps {
-  redirectUri?: string;
   /** Authenticated user's ID, used to store the master key in IndexedDB */
   userId?: string;
   /**
    * Called after passkey registration succeeds (after a short success state).
-   * Parent should advance to passkey sign-in (step 4). If omitted, redirects
-   * to `redirectUri` or home (legacy behavior).
+   * Parent advances to passkey sign-in (step 4).
    */
-  onRegistrationComplete?: () => void;
+  onRegistrationComplete: () => void;
 }
 
 /** Setup step for tracking progress through the flow */
@@ -66,7 +62,7 @@ type SetupStep = "initial" | "registering" | "complete";
  * Uses WebAuthn PRF extension to register a passkey that can derive encryption keys.
  * Also registers the passkey for authentication (passwordless login).
  *
- * Flow: initial → registering → complete → parent advances to passkey sign-in (or redirect if no callback)
+ * Flow: initial → registering → complete → parent advances to passkey sign-in
  *
  * After passkey registration, the credential and PRF params are stored server-side.
  * The PRF salt is also cached in localStorage so that subsequent logins include
@@ -85,7 +81,6 @@ type SetupStep = "initial" | "registering" | "complete";
  * On desktop, user scans QR code with phone and uses the phone for passkey.
  */
 export function EncryptionSetup({
-  redirectUri,
   userId,
   onRegistrationComplete,
 }: EncryptionSetupProps) {
@@ -93,7 +88,7 @@ export function EncryptionSetup({
 
   const { prfSupported, prfSupportInfo, checkPRFSupport } =
     useEncryptionContext();
-  const csrfToken = useCSRF();
+  const csrfToken = useCSRFToken();
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -121,17 +116,11 @@ export function EncryptionSetup({
     if (setupStep !== "complete") {
       return undefined;
     }
-    if (onRegistrationComplete) {
-      const id = window.setTimeout(() => {
-        onRegistrationComplete();
-      }, 600);
-      return () => window.clearTimeout(id);
-    }
-    const destination =
-      redirectUri && isValidRedirectUri(redirectUri) ? redirectUri : urls.home;
-    window.location.href = destination;
-    return undefined;
-  }, [setupStep, onRegistrationComplete, redirectUri]);
+    const id = window.setTimeout(() => {
+      onRegistrationComplete();
+    }, 600);
+    return () => window.clearTimeout(id);
+  }, [setupStep, onRegistrationComplete]);
 
   // Reset to initial state (used when cancelling during registration)
   const resetSetup = () => {
@@ -439,9 +428,8 @@ export function EncryptionSetup({
               <CardTitle>Passkey saved</CardTitle>
             </div>
             <CardDescription>
-              {onRegistrationComplete
-                ? "Your passkey and encryption setup are complete. Continuing to sign-in…"
-                : "Your passkey and encryption setup are complete. Redirecting you now…"}
+              Your passkey and encryption setup are complete. Continuing to
+              sign-in…
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4 py-6">

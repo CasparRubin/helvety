@@ -1,4 +1,4 @@
-import { buildAAD, decrypt, parseEncryptedData } from "@/lib/crypto";
+import { safeDecryptDisplayField } from "@helvety/shared/crypto";
 
 /** Decrypt a single encrypted item title for linking UI. */
 export async function decryptItemTitle(
@@ -6,10 +6,10 @@ export async function decryptItemTitle(
   itemId: string,
   key: CryptoKey
 ): Promise<string> {
-  try {
-    const parsed = parseEncryptedData(encryptedTitle);
-    return await decrypt(parsed, key, buildAAD("items", itemId));
-  } catch {
-    return "(encrypted)";
-  }
+  return safeDecryptDisplayField({
+    encrypted: encryptedTitle,
+    recordId: itemId,
+    key,
+    aadTable: "items",
+  });
 }

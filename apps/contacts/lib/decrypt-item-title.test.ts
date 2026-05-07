@@ -1,48 +1,34 @@
 import { describe, expect, it, vi } from "vitest";
 
 const cryptoMocks = vi.hoisted(() => ({
-  buildAAD: vi.fn(),
-  decrypt: vi.fn(),
-  parseEncryptedData: vi.fn(),
+  safeDecryptDisplayField: vi.fn(),
 }));
 
-vi.mock("@/lib/crypto", async () => {
-  const actual = await vi.importActual("@/lib/crypto");
-  return {
-    ...actual,
-    buildAAD: cryptoMocks.buildAAD,
-    decrypt: cryptoMocks.decrypt,
-    parseEncryptedData: cryptoMocks.parseEncryptedData,
-  };
-});
+vi.mock("@helvety/shared/crypto", () => ({
+  safeDecryptDisplayField: cryptoMocks.safeDecryptDisplayField,
+}));
 
 import { decryptItemTitle } from "./decrypt-item-title";
 
 describe("decryptItemTitle", () => {
-  it("decrypts with item AAD", async () => {
+  it("delegates to safeDecryptDisplayField with items AAD", async () => {
     const key = {} as CryptoKey;
-    const parsedPayload = { iv: "iv", data: "data" };
-    cryptoMocks.parseEncryptedData.mockReturnValue(parsedPayload);
-    cryptoMocks.buildAAD.mockReturnValue("aad:items:item-1");
-    cryptoMocks.decrypt.mockResolvedValue("Readable Title");
+    cryptoMocks.safeDecryptDisplayField.mockResolvedValue("Readable Title");
 
     const result = await decryptItemTitle("enc", "item-1", key);
 
-    expect(cryptoMocks.parseEncryptedData).toHaveBeenCalledWith("enc");
-    expect(cryptoMocks.buildAAD).toHaveBeenCalledWith("items", "item-1");
-    expect(cryptoMocks.decrypt).toHaveBeenCalledWith(
-      parsedPayload,
+    expect(cryptoMocks.safeDecryptDisplayField).toHaveBeenCalledWith({
+      encrypted: "enc",
+      recordId: "item-1",
       key,
-      "aad:items:item-1"
-    );
+      aadTable: "items",
+    });
     expect(result).toBe("Readable Title");
   });
 
-  it("returns fallback when parsing/decryption fails", async () => {
+  it("returns fallback value from shared helper on failure", async () => {
     const key = {} as CryptoKey;
-    cryptoMocks.parseEncryptedData.mockImplementation(() => {
-      throw new Error("bad payload");
-    });
+    cryptoMocks.safeDecryptDisplayField.mockResolvedValue("(encrypted)");
 
     const result = await decryptItemTitle("invalid", "item-2", key);
 

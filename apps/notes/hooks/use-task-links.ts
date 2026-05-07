@@ -1,6 +1,7 @@
 "use client";
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { safeDecryptDisplayField } from "@helvety/shared/crypto";
 import { triggerE2eeHookAuthErrorNavigation } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -12,12 +13,7 @@ import {
   linkTaskEntity,
   unlinkTaskEntity,
 } from "@/app/actions/task-link-actions";
-import {
-  useEncryptionContext,
-  buildAAD,
-  decrypt,
-  parseEncryptedData,
-} from "@/lib/crypto";
+import { useEncryptionContext } from "@/lib/crypto";
 
 import type {
   LinkedItem,
@@ -48,12 +44,12 @@ async function decryptItemTitle(
   itemId: string,
   key: CryptoKey
 ): Promise<string> {
-  try {
-    const parsed = parseEncryptedData(encryptedTitle);
-    return await decrypt(parsed, key, buildAAD("items", itemId));
-  } catch {
-    return "(encrypted)";
-  }
+  return safeDecryptDisplayField({
+    encrypted: encryptedTitle,
+    recordId: itemId,
+    key,
+    aadTable: "items",
+  });
 }
 
 async function decryptTaskLinkData(

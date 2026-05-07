@@ -1,3 +1,4 @@
+import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -63,9 +64,10 @@ describe("notes item-actions cache invalidation", () => {
   });
 
   it("returns auth guard response and skips DB work when auth fails", async () => {
+    const authError = buildAuthRequiredError();
     mocks.authenticateAndRateLimit.mockResolvedValueOnce({
       ok: false,
-      response: { success: false, error: "Not authenticated" },
+      response: { success: false, error: authError },
     });
 
     await expect(
@@ -76,7 +78,7 @@ describe("notes item-actions cache invalidation", () => {
         },
         "csrf-token"
       )
-    ).resolves.toEqual({ success: false, error: "Not authenticated" });
+    ).resolves.toEqual({ success: false, error: authError });
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 

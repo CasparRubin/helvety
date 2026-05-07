@@ -1,6 +1,7 @@
 "use client";
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { safeDecryptDisplayField } from "@helvety/shared/crypto";
 import { triggerE2eeHookAuthErrorNavigation } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -12,12 +13,7 @@ import {
   linkNoteEntity,
   unlinkNoteEntity,
 } from "@/app/actions/note-link-actions";
-import {
-  useEncryptionContext,
-  buildAAD,
-  decrypt,
-  parseEncryptedData,
-} from "@/lib/crypto";
+import { useEncryptionContext } from "@/lib/crypto";
 
 export interface LinkedNote {
   id: string;
@@ -66,12 +62,12 @@ async function decryptNoteTitle(
   noteId: string,
   key: CryptoKey
 ): Promise<string> {
-  try {
-    const parsed = parseEncryptedData(encryptedTitle);
-    return await decrypt(parsed, key, buildAAD("notes", noteId));
-  } catch {
-    return "(encrypted)";
-  }
+  return safeDecryptDisplayField({
+    encrypted: encryptedTitle,
+    recordId: noteId,
+    key,
+    aadTable: "notes",
+  });
 }
 
 async function decryptNoteLinkData(

@@ -60,7 +60,7 @@ interface ContactListProps {
  *
  * Features:
  * - Always shows category groups when categories are available (even with no contacts)
- * - Flat list fallback when no categories are configured
+ * - Flat list mode when no categories are configured
  * - Drag-and-drop reordering within and between categories (desktop)
  * - Up/down arrows to move contacts between categories on all screen sizes
  */

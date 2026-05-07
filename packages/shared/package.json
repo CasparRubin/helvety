@@ -58,6 +58,8 @@
     "./hooks/use-rich-text-draft-state": "./src/hooks/use-rich-text-draft-state.ts",
     "./e2ee-page-auth": "./src/e2ee-page-auth.ts",
     "./redirect-validation": "./src/redirect-validation.ts",
+    "./parse-action-response": "./src/parse-action-response.ts",
+    "./layout-session-bootstrap": "./src/layout-session-bootstrap.ts",
     "./request-origin": "./src/request-origin.ts",
     "./server-action-primitives": "./src/server-action-primitives.ts",
     "./user-facing-errors": "./src/user-facing-errors.ts",

@@ -55,13 +55,6 @@ export function useCSRFToken(): string {
 }
 
 /**
- * Backward-compatible alias for apps still importing useCSRF.
- */
-export function useCSRF(): string {
-  return useCSRFToken();
-}
-
-/**
  * Safe token accessor for components that can render without provider context.
  */
 export function useCSRFSafe(): string | null {

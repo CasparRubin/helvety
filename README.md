@@ -11,7 +11,7 @@ Helvety is a Next.js monorepo for a path-routed ecosystem on `helvety.com`:
 - Client-encrypted (E2EE) productivity: `tasks`, `contacts`, `notes`
 - Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/brand`
 
-Root layouts: public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) compose `@helvety/ui/helvety-public-shell-root-layout`; E2EE apps (`tasks`, `contacts`, `notes`) compose `@helvety/ui/e2ee-app-root-layout`. Product `metadata` is built with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in each app’s `app/layout.tsx`. Public layouts typically call `getCachedUser()` so the shared navbar gets an SSR session snapshot (with graceful fallback); E2EE layouts receive the user from `E2eeAppRootLayout`, which performs the same bootstrap internally.
+Root layouts: public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) compose `@helvety/ui/helvety-public-shell-root-layout`; E2EE apps (`tasks`, `contacts`, `notes`) compose `@helvety/ui/e2ee-app-root-layout`. Product `metadata` is built with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in each app’s `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF + user state inside `E2eeAppRootLayout` via the same shared helper layer.
 
 ## Applications
 
@@ -80,12 +80,12 @@ bun run format
 ## Testing Consistency
 
 - Prefer semantic Testing Library queries (`getByRole`, `getByLabelText`) over DOM-structure or text-count assertions.
-- Prefer `*.test.ts(x)` naming for new tests; `*.spec.ts(x)` is also supported by shared tooling.
+- Prefer `*.test.ts(x)` naming for tests.
 - Keep `vi.mock(...)` at module scope and reset mocks in `beforeEach`; restore spies/globals in `afterEach` where applicable.
 - For async rejection cases, capture one promise and assert multiple expectations against that same invocation.
 - Use explicit `cleanup()` in workspace `vitest.setup.ts` files that use `@testing-library/react`.
 - Prefer typed fixture builders in tests (`buildXxx(...)`) over repeated `as unknown as` casting so test inputs evolve with production types.
-- Apps that import `getCachedUser` (or related server helpers) from `app/layout.tsx` should mock `@helvety/shared/cached-server` in `app/layout-metadata.test.ts` so metadata tests stay hermetic (see existing `web`, `store`, `auth`, and E2EE app tests).
+- Apps that bootstrap session state from `app/layout.tsx` should mock the relevant `@helvety/shared/*` helpers in `app/layout-metadata.test.ts` so metadata tests stay hermetic (see existing `web`, `store`, `auth`, and E2EE app tests).
 
 ## Monorepo Conventions
 

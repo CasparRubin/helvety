@@ -13,7 +13,7 @@ const PDF_COLOR_PALETTE = [
   "oklch(0.68 0.21 277)", // 7: Purple - 252° from red
   "oklch(0.70 0.22 313)", // 8: Magenta - 288° from red
   "oklch(0.74 0.19 349)", // 9: Pink - 324° from red
-];
+] as const;
 
 /**
  * Gets a color for a PDF file based on its index.
@@ -23,12 +23,8 @@ const PDF_COLOR_PALETTE = [
  * @returns An oklch color string from the palette
  */
 export function getPdfColor(fileIndex: number): string {
-  // Modulo guarantees valid index, use fallback for type safety
-  return (
-    PDF_COLOR_PALETTE[fileIndex % PDF_COLOR_PALETTE.length] ??
-    PDF_COLOR_PALETTE[0] ??
-    "oklch(0.65 0.22 25)"
-  );
+  const index = fileIndex % PDF_COLOR_PALETTE.length;
+  return PDF_COLOR_PALETTE[index]!;
 }
 
 /**

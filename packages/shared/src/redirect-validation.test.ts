@@ -9,138 +9,209 @@ import {
 } from "./redirect-validation";
 
 describe("isValidRedirectUri", () => {
-  it("rejects null and undefined", () => {
+  it("returns false for null/undefined/empty", () => {
     expect(isValidRedirectUri(null)).toBe(false);
     expect(isValidRedirectUri(undefined)).toBe(false);
-  });
-
-  it("rejects empty string", () => {
     expect(isValidRedirectUri("")).toBe(false);
   });
 
-  it("allows https://helvety.com paths", () => {
+  it("accepts production helvety.com paths", () => {
     expect(isValidRedirectUri("https://helvety.com")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/some/path")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/auth")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/store/products")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/pdf")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/tasks")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/contacts")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/notes")).toBe(true);
   });
 
-  it("rejects http://helvety.com (non-HTTPS)", () => {
-    expect(isValidRedirectUri("http://helvety.com")).toBe(false);
-  });
-
-  it("rejects unknown domains", () => {
-    expect(isValidRedirectUri("https://evil.com")).toBe(false);
-    expect(isValidRedirectUri("https://helvety.com.evil.com")).toBe(false);
-    expect(isValidRedirectUri("https://nothelvety.com")).toBe(false);
-  });
-
-  it("rejects direct app domains unless canonicalized first", () => {
-    expect(isValidRedirectUri("https://helvety-tasks.vercel.app/tasks")).toBe(
+  it("rejects old subdomain URLs (no longer allowed)", () => {
+    expect(isValidRedirectUri("https://auth.helvety.com")).toBe(false);
+    expect(isValidRedirectUri("https://store.helvety.com/products")).toBe(
+      false
+    );
+    expect(isValidRedirectUri("https://pdf.helvety.com")).toBe(false);
+    expect(isValidRedirectUri("https://tasks.helvety.com/tasks?item=123")).toBe(
+      false
+    );
+    expect(
+      isValidRedirectUri("https://contacts.helvety.com/contacts/456")
+    ).toBe(false);
+    expect(isValidRedirectUri("https://notes.helvety.com/notes/789")).toBe(
       false
     );
   });
 
+  it("rejects direct Vercel app domains directly", () => {
+    expect(isValidRedirectUri("https://helvety-tasks.vercel.app/tasks")).toBe(
+      false
+    );
+    expect(isValidRedirectUri("https://helvety-pdf.vercel.app/pdf")).toBe(
+      false
+    );
+  });
+
+  it("accepts localhost for development", () => {
+    expect(isValidRedirectUri("http://localhost")).toBe(true);
+    expect(isValidRedirectUri("http://localhost:3000")).toBe(true);
+    expect(isValidRedirectUri("http://localhost:3001")).toBe(true);
+    expect(isValidRedirectUri("http://localhost:3002/login")).toBe(true);
+    expect(isValidRedirectUri("http://127.0.0.1:3000")).toBe(true);
+  });
+
+  it("rejects non-helvety domains", () => {
+    expect(isValidRedirectUri("https://evil.com")).toBe(false);
+    expect(isValidRedirectUri("https://helvety.com.evil.com")).toBe(false);
+    expect(isValidRedirectUri("https://nothelvet.com")).toBe(false);
+    expect(isValidRedirectUri("https://google.com")).toBe(false);
+  });
+
   it("rejects javascript: and data: protocols", () => {
     expect(isValidRedirectUri("javascript:alert(1)")).toBe(false);
-    expect(isValidRedirectUri("data:text/html,<h1>pwned</h1>")).toBe(false);
+    expect(isValidRedirectUri("data:text/html,<h1>Hi</h1>")).toBe(false);
+  });
+
+  it("rejects mixed-case protocol attacks", () => {
+    expect(isValidRedirectUri("JaVaScRiPt:alert(1)")).toBe(false);
+    expect(isValidRedirectUri("JAVASCRIPT:alert(1)")).toBe(false);
+    expect(isValidRedirectUri("DATA:text/html,<h1>Hi</h1>")).toBe(false);
   });
 
   it("rejects invalid URLs", () => {
     expect(isValidRedirectUri("not-a-url")).toBe(false);
     expect(isValidRedirectUri("://missing-protocol")).toBe(false);
   });
+
+  it("rejects HTTP for production domains (requires HTTPS)", () => {
+    expect(isValidRedirectUri("http://helvety.com")).toBe(false);
+  });
+
+  it("rejects whitespace-only and padded input", () => {
+    expect(isValidRedirectUri("   ")).toBe(false);
+    expect(isValidRedirectUri("\t")).toBe(false);
+    expect(isValidRedirectUri("\n")).toBe(false);
+  });
+
+  it("rejects backslash-based bypass attempts", () => {
+    expect(isValidRedirectUri("https://evil.com\\@helvety.com")).toBe(false);
+  });
+
+  it("accepts additional localhost variants for development", () => {
+    expect(isValidRedirectUri("http://localhost:3001")).toBe(true);
+    expect(isValidRedirectUri("http://localhost:3002")).toBe(true);
+    expect(isValidRedirectUri("http://127.0.0.1")).toBe(true);
+    expect(isValidRedirectUri("http://127.0.0.1:3001")).toBe(true);
+    expect(isValidRedirectUri("http://127.0.0.1:3002")).toBe(true);
+  });
 });
 
 describe("canonicalizeRedirectUri", () => {
-  it("returns canonical URL for trusted direct app domains", () => {
-    expect(canonicalizeRedirectUri("https://helvety-pdf.vercel.app/pdf")).toBe(
-      "https://helvety.com/pdf"
-    );
+  it("keeps canonical helvety.com URLs unchanged", () => {
+    expect(
+      canonicalizeRedirectUri("https://helvety.com/tasks?view=board")
+    ).toBe("https://helvety.com/tasks?view=board");
+  });
+
+  it("normalizes trusted direct app domains to helvety.com", () => {
+    expect(
+      canonicalizeRedirectUri(
+        "https://helvety-contacts.vercel.app/contacts/123"
+      )
+    ).toBe("https://helvety.com/contacts/123");
   });
 
   it("returns null for unknown hosts", () => {
-    expect(canonicalizeRedirectUri("https://evil.com/tasks")).toBeNull();
+    expect(canonicalizeRedirectUri("https://evil.example/tasks")).toBeNull();
   });
 });
 
 describe("getSafeRedirectUri", () => {
-  it("returns valid URIs unchanged", () => {
-    expect(getSafeRedirectUri("https://helvety.com/auth")).toBe(
-      "https://helvety.com/auth"
+  it("returns valid URI when valid", () => {
+    expect(getSafeRedirectUri("https://helvety.com")).toBe(
+      "https://helvety.com"
     );
   });
 
-  it("returns default for invalid URIs", () => {
+  it("returns null for invalid URI with no default", () => {
+    expect(getSafeRedirectUri("https://evil.com")).toBeNull();
+    expect(getSafeRedirectUri(null)).toBeNull();
+  });
+
+  it("returns default URI when provided and input is invalid", () => {
     expect(getSafeRedirectUri("https://evil.com", "https://helvety.com")).toBe(
       "https://helvety.com"
     );
   });
 
-  it("canonicalizes trusted direct app domains", () => {
-    expect(getSafeRedirectUri("https://helvety-notes.vercel.app/notes")).toBe(
-      "https://helvety.com/notes"
+  it("returns canonical URL for trusted direct app domains", () => {
+    expect(getSafeRedirectUri("https://helvety-store.vercel.app/store")).toBe(
+      "https://helvety.com/store"
     );
   });
 
-  it("returns null when no default provided", () => {
-    expect(getSafeRedirectUri("https://evil.com")).toBeNull();
+  it("returns null when default is also null", () => {
+    expect(getSafeRedirectUri(null, null)).toBeNull();
   });
 
-  it("returns null for null input with no default", () => {
-    expect(getSafeRedirectUri(null)).toBeNull();
-  });
-
-  it("fails closed when both uri and default are invalid", () => {
+  it("returns null when both input and default are invalid", () => {
     expect(
-      getSafeRedirectUri("https://evil.com", "https://evil2.com")
+      getSafeRedirectUri("https://evil.example", "https://evil2.example")
     ).toBeNull();
   });
 });
 
 describe("isValidRelativePath", () => {
-  it("allows simple relative paths", () => {
-    expect(isValidRelativePath("/")).toBe(true);
-    expect(isValidRelativePath("/tasks")).toBe(true);
-    expect(isValidRelativePath("/store/products/spo-explorer")).toBe(true);
-  });
-
-  it("rejects null and undefined", () => {
+  it("returns false for null/undefined/empty", () => {
     expect(isValidRelativePath(null)).toBe(false);
     expect(isValidRelativePath(undefined)).toBe(false);
+    expect(isValidRelativePath("")).toBe(false);
   });
 
-  it("rejects empty string", () => {
-    expect(isValidRelativePath("")).toBe(false);
+  it("accepts valid relative paths", () => {
+    expect(isValidRelativePath("/")).toBe(true);
+    expect(isValidRelativePath("/login")).toBe(true);
+    expect(isValidRelativePath("/products/123")).toBe(true);
+    expect(isValidRelativePath("/account")).toBe(true);
   });
 
   it("rejects protocol-relative URLs", () => {
     expect(isValidRelativePath("//evil.com")).toBe(false);
-    expect(isValidRelativePath("//evil.com/path")).toBe(false);
   });
 
-  it("rejects paths with colons (protocol indicators)", () => {
-    expect(isValidRelativePath("javascript:alert(1)")).toBe(false);
-    expect(isValidRelativePath("/foo:bar")).toBe(false);
+  it("rejects paths with protocol indicators", () => {
+    expect(isValidRelativePath("/javascript:alert(1)")).toBe(false);
+    expect(isValidRelativePath("/data:text")).toBe(false);
   });
 
   it("rejects paths not starting with /", () => {
-    expect(isValidRelativePath("relative/path")).toBe(false);
+    expect(isValidRelativePath("login")).toBe(false);
     expect(isValidRelativePath("https://helvety.com")).toBe(false);
+  });
+
+  it("rejects backslash-prefixed paths", () => {
+    expect(isValidRelativePath("\\evil.com")).toBe(false);
+  });
+
+  it("accepts paths with query strings and fragments", () => {
+    expect(isValidRelativePath("/search?q=test")).toBe(true);
+    expect(isValidRelativePath("/page#section")).toBe(true);
   });
 });
 
 describe("getSafeRelativePath", () => {
-  it("returns valid paths unchanged", () => {
-    expect(getSafeRelativePath("/tasks")).toBe("/tasks");
+  it("returns valid path when valid", () => {
+    expect(getSafeRelativePath("/login")).toBe("/login");
   });
 
-  it("returns default for invalid paths", () => {
-    expect(getSafeRelativePath("//evil.com", "/")).toBe("/");
-  });
-
-  it("defaults to / when no default specified", () => {
+  it("returns default '/' for invalid path", () => {
+    expect(getSafeRelativePath("//evil.com")).toBe("/");
     expect(getSafeRelativePath(null)).toBe("/");
-    expect(getSafeRelativePath(undefined)).toBe("/");
+  });
+
+  it("returns custom default path when provided", () => {
+    expect(getSafeRelativePath(null, "/home")).toBe("/home");
+    expect(getSafeRelativePath("//evil.com", "/dashboard")).toBe("/dashboard");
   });
 });

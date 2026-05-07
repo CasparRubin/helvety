@@ -31,7 +31,7 @@ export const metadata = createHelvetyProductMetadata({
   siteName: "Helvety Image Upscaler",
   canonicalUrl: urls.imageUpscaler,
   brandImage: {
-    url: brandAssets.identifierPng,
+    url: brandAssets.identifierLogo,
     ogAlt: "Helvety Image Upscaler",
     twitterAlt: "Helvety Image Upscaler",
   },
@@ -58,7 +58,7 @@ export default async function RootLayout({
 
   return HelvetyPublicShellRootLayout({
     children,
-    organizationLogoUrl: brandAssets.identifierPng,
+    organizationLogoUrl: brandAssets.identifierLogo,
     jsonLdGraphTail: [
       {
         "@type": "WebApplication",

@@ -7,7 +7,7 @@ Browser-based image resizer for PNG/JPEG/WebP: high-quality canvas resampling in
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (overflow-main) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `getCachedUser()` supplies an optional SSR session snapshot to the navbar (no login required for upscaling)
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (overflow-main) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); shared layout-session bootstrap supplies an optional SSR session snapshot to the navbar (no login required for upscaling)
 - In-browser resizing with per-image or batch flows (2×/4× or target width/height)
 - Uses `canvas-size` to probe browser canvas limits and clamps export dimensions when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
 - Batch queue with per-item statuses

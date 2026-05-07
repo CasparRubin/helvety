@@ -5,7 +5,7 @@ import { brandAssets } from "./urls";
 
 describe("brandAssets", () => {
   it("exposes stable absolute URLs for metadata assets", () => {
-    expect(brandAssets.identifierPng).toBe(
+    expect(brandAssets.identifierLogo).toBe(
       `${urls.home}/helvety_identifier.svg`
     );
   });

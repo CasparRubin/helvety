@@ -11,9 +11,6 @@
 import { urls } from "@helvety/shared/config";
 
 export const brandAssets = {
-  /**
-   * Helvety identifier icon URL.
-   * Kept as `identifierPng` for API compatibility with existing imports.
-   */
-  identifierPng: `${urls.home}/helvety_identifier.svg`,
+  /** Absolute URL for the Helvety identifier logo (SVG). */
+  identifierLogo: `${urls.home}/helvety_identifier.svg`,
 } as const;

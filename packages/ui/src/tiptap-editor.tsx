@@ -468,10 +468,3 @@ export function TiptapEditor({
     </div>
   );
 }
-
-// Re-export utilities from tiptap-utils for backward compatibility with existing imports.
-export {
-  parseRichTextContent,
-  serializeRichTextContent,
-  getRichTextPlainText,
-} from "./tiptap-utils";

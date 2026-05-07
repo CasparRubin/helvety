@@ -1,3 +1,4 @@
+import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -57,7 +58,10 @@ describe("credential-actions", () => {
 
     const result = await getOwnPasskeyStatus();
 
-    expect(result).toEqual({ success: false, error: "Not authenticated" });
+    expect(result).toEqual({
+      success: false,
+      error: buildAuthRequiredError(),
+    });
     expect(mocks.createScopedAdminQuery).not.toHaveBeenCalled();
   });
 

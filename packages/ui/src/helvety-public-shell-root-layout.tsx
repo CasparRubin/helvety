@@ -40,7 +40,7 @@ export type HelvetyPublicShellThemeProviderScope = "full" | "navbar-only";
 /** Props for {@link HelvetyPublicShellRootLayout}. */
 export type HelvetyPublicShellRootLayoutProps = Readonly<{
   children: ReactNode;
-  /** Organization + product logo URL (e.g. `brandAssets.identifierPng`). */
+  /** Organization + product logo URL (e.g. `brandAssets.identifierLogo`). */
   organizationLogoUrl: string;
   /** Objects appended after `createHelvetyOrganizationSchema` in JSON-LD `@graph`. */
   jsonLdGraphTail: ReadonlyArray<Record<string, unknown>>;

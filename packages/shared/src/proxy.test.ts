@@ -75,20 +75,16 @@ describe("proxy shared abstractions", () => {
     expect(childResult).toBeNull();
   });
 
-  it("createAppProxy prioritizes root redirect and legacy redirects before security proxy", async () => {
+  it("createAppProxy applies root redirect before security proxy", async () => {
     const securityProxy = vi.fn(async () =>
       NextResponse.redirect("https://helvety.com/security")
     );
     const proxy = createAppProxy({
       securityProxy,
       defaultBasePath: "/notes",
-      legacyPathRegexes: [/^\/(?:notes\/)?(?:units|spaces|items)(?:\/.*)?$/],
     });
 
     const rootResponse = await proxy(makeRequest("https://helvety.com/", "/"));
-    const legacyResponse = await proxy(
-      makeRequest("https://helvety.com/units/old", "/units/old")
-    );
     const normalResponse = await proxy(
       makeRequest("https://helvety.com/notes/current", "/notes/current")
     );
@@ -96,30 +92,8 @@ describe("proxy shared abstractions", () => {
     expect(rootResponse.headers.get("location")).toBe(
       "https://helvety.com/notes"
     );
-    expect(legacyResponse.headers.get("location")).toBe(
-      "https://helvety.com/notes"
-    );
     expect(normalResponse.headers.get("location")).toBe(
       "https://helvety.com/security"
-    );
-    expect(securityProxy).toHaveBeenCalledTimes(1);
-  });
-
-  it("falls through to security proxy when legacy regex matches without base path", async () => {
-    const securityProxy = vi.fn(async () =>
-      NextResponse.redirect("https://helvety.com/security-fallback")
-    );
-    const proxy = createAppProxy({
-      securityProxy,
-      legacyPathRegexes: [/^\/legacy(?:\/.*)?$/],
-    });
-
-    const response = await proxy(
-      makeRequest("https://helvety.com/legacy/path", "/legacy/path")
-    );
-
-    expect(response.headers.get("location")).toBe(
-      "https://helvety.com/security-fallback"
     );
     expect(securityProxy).toHaveBeenCalledTimes(1);
   });
