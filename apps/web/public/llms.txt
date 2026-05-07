@@ -18,7 +18,7 @@
 - [Power Automate Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false): Edge/Chrome guardrail that pins classic editor URLs
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): WinUI capture + Live Draw overlay for Windows
 - [Helvety PDF](https://helvety.com/pdf): Thumbnail-first PDF workbench with local processing where supported
-- [Helvety Image Upscaler](https://helvety.com/image-upscaler): In-browser 2×/4× or target-size resize (canvas resampling), no image upload to Helvety servers
+- [Helvety Image Upscaler](https://helvety.com/image-upscaler): In-browser 2×/4× or target-size upscaler with on-device AI (Real-ESRGAN via WebGPU/WASM) and a canvas-resample fallback, no image upload to Helvety servers
 - [Helvety Contacts](https://helvety.com/contacts): Encrypted address book with export tooling
 - [Helvety Notes](https://helvety.com/notes): Encrypted quick notes in Personal / Work / Other lanes
 - [Helvety Tasks](https://helvety.com/tasks): Encrypted kanban with immutable Helvety stages

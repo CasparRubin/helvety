@@ -18,6 +18,12 @@ export type BuildCspOptions = {
   imgBlob?: boolean;
   scriptUnsafeEval?: "always" | "dev-only";
   workerBlob?: boolean;
+  /**
+   * Adds `'wasm-unsafe-eval'` to script-src. Required for WebAssembly
+   * compilation in production when `'unsafe-eval'` is not granted (e.g.
+   * onnxruntime-web in the image upscaler).
+   */
+  wasmUnsafeEval?: boolean;
 };
 
 /** Shared matcher used by all app proxies. */

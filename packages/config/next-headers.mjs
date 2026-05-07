@@ -93,6 +93,7 @@ export function createSecurityHeaders({ appName } = {}) {
  * @param {boolean} [opts.imgBlob=false] - Allow blob: in img-src
  * @param {"always" | "dev-only"} [opts.scriptUnsafeEval="dev-only"] - When to allow 'unsafe-eval'
  * @param {boolean} [opts.workerBlob=false] - Add worker-src 'self' blob:
+ * @param {boolean} [opts.wasmUnsafeEval=false] - Add 'wasm-unsafe-eval' to script-src (required for WebAssembly compilation, e.g. onnxruntime-web)
  * @returns {string}
  */
 export function buildCsp({
@@ -100,6 +101,7 @@ export function buildCsp({
   imgBlob = false,
   scriptUnsafeEval = "dev-only",
   workerBlob = false,
+  wasmUnsafeEval = false,
 } = {}) {
   const isDevelopment = process.env.NODE_ENV === "development";
   const cspReportEndpoint = "/api/csp-report";
@@ -108,6 +110,9 @@ export function buildCsp({
   const useUnsafeEval =
     scriptUnsafeEval === "always" ||
     (scriptUnsafeEval === "dev-only" && isDevelopment);
+  // 'wasm-unsafe-eval' is implied when 'unsafe-eval' is present, so only emit it
+  // explicitly when 'unsafe-eval' is not.
+  const useWasmUnsafeEval = wasmUnsafeEval && !useUnsafeEval;
 
   const nonceDirective = nonce ? ` 'nonce-${nonce}'` : "";
   const connectSources = new Set(["'self'", "https://va.vercel-scripts.com"]);
@@ -128,7 +133,7 @@ export function buildCsp({
 
   const directives = [
     "default-src 'self'",
-    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${nonceDirective} 'strict-dynamic'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
+    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${useWasmUnsafeEval ? " 'wasm-unsafe-eval'" : ""}${nonceDirective} 'strict-dynamic'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
     "style-src 'self' 'unsafe-inline'",
     `img-src ${Array.from(imageSources).join(" ")}${imgBlob ? " blob:" : ""}`,
     "font-src 'self' data:",

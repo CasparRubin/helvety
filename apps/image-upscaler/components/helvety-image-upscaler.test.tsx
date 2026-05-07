@@ -31,12 +31,16 @@ vi.mock("@/lib/upscale-pipeline", async (importOriginal) => {
 const mockUpscaleItemsSequentially = vi.mocked(upscaleItemsSequentially);
 
 describe("HelvetyImageUpscaler", () => {
+  const originalWebAssembly = globalThis.WebAssembly;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal("WebAssembly", originalWebAssembly);
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.stubGlobal("WebAssembly", originalWebAssembly);
   });
 
   /** Uploads a single valid image file into the hidden input. */
@@ -91,11 +95,11 @@ describe("HelvetyImageUpscaler", () => {
   it("shows target input controls when target dimension mode is selected", () => {
     render(<HelvetyImageUpscaler />);
 
-    const modeSelect = screen.getAllByRole("combobox")[0];
+    const modeSelect = screen.getByLabelText("Mode");
     expect(modeSelect).toBeInTheDocument();
-    fireEvent.change(modeSelect!, { target: { value: "target" } });
+    fireEvent.change(modeSelect, { target: { value: "target" } });
 
-    expect(screen.getByDisplayValue("Width")).toBeInTheDocument();
+    expect(screen.getAllByDisplayValue("Width").length).toBeGreaterThan(0);
     expect(screen.getAllByDisplayValue("2048")).not.toHaveLength(0);
   });
 
@@ -104,7 +108,8 @@ describe("HelvetyImageUpscaler", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Upscale settings" }));
 
-    expect(screen.getByLabelText("Mode")).toBeInTheDocument();
+    expect(document.getElementById("mobile-upscale-mode")).toBeInTheDocument();
+    expect(document.getElementById("mobile-upscale-engine")).toBeNull();
   });
 
   it("keeps mobile settings controls wired to upscale state", () => {
@@ -112,15 +117,22 @@ describe("HelvetyImageUpscaler", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Upscale settings" }));
 
-    fireEvent.change(screen.getByLabelText("Mode"), {
-      target: { value: "target" },
-    });
-    expect(screen.getByLabelText("Dimension")).toBeInTheDocument();
+    const mobileModeSelect = document.getElementById(
+      "mobile-upscale-mode"
+    ) as HTMLSelectElement | null;
+    if (!mobileModeSelect) {
+      throw new Error("Mobile Mode select was not rendered.");
+    }
+    fireEvent.change(mobileModeSelect, { target: { value: "target" } });
 
-    fireEvent.change(screen.getByLabelText("Target value"), {
-      target: { value: "3000" },
-    });
-    expect(screen.getAllByDisplayValue("3000")).not.toHaveLength(0);
+    const mobileTargetValue = document.getElementById(
+      "mobile-upscale-target"
+    ) as HTMLInputElement | null;
+    if (!mobileTargetValue) {
+      throw new Error("Mobile Target value input was not rendered.");
+    }
+    fireEvent.change(mobileTargetValue, { target: { value: "3000" } });
+    expect(screen.getAllByDisplayValue("3000").length).toBeGreaterThan(0);
   });
 
   it("toggles per-image action between upscale and download based on settings", async () => {
@@ -158,10 +170,7 @@ describe("HelvetyImageUpscaler", () => {
       expect(screen.getByRole("button", { name: "Download" })).toBeEnabled();
     });
 
-    const [modeSelect] = screen.getAllByRole("combobox");
-    if (!modeSelect) {
-      throw new Error("Mode select was not rendered.");
-    }
+    const modeSelect = screen.getByLabelText("Mode");
     fireEvent.change(modeSelect, { target: { value: "target" } });
 
     expect(screen.getByRole("button", { name: "Upscale" })).toBeEnabled();
@@ -225,6 +234,33 @@ describe("HelvetyImageUpscaler", () => {
 
     await waitFor(() => {
       expect(toastMocks.error).toHaveBeenCalledWith("Worker failed");
+    });
+  });
+
+  it("shows a missing-out notice and uses canvas when WebAssembly is unavailable", async () => {
+    vi.stubGlobal("WebAssembly", undefined);
+    mockUpscaleItemsSequentially.mockResolvedValueOnce({
+      runtime: "canvas",
+      totalCount: 1,
+      completedCount: 1,
+      failedCount: 0,
+    });
+
+    render(<HelvetyImageUpscaler />);
+
+    expect(
+      screen.getByText("Your browser is missing out on AI upscaling.")
+    ).toBeInTheDocument();
+    uploadImageFile();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Upscale all" })).toBeEnabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Upscale all" }));
+
+    await waitFor(() => {
+      expect(mockUpscaleItemsSequentially).toHaveBeenCalledWith(
+        expect.objectContaining({ modelId: "canvas" })
+      );
     });
   });
 

@@ -8,8 +8,12 @@ import {
   getCanvasExportLimitsCached,
   type CanvasExportLimits,
 } from "@/lib/canvas-export-limits";
+import { getModelById, type UpscaleModelId } from "@/lib/models";
 import { UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE } from "@/lib/upscale-export-limit-message";
-import { createUpscaleWorkerClient } from "@/lib/upscale-worker-client";
+import {
+  createUpscaleWorkerClient,
+  type ModelDownloadProgress,
+} from "@/lib/upscale-worker-client";
 
 function normalizeUpscaleWorkerError(error: unknown): string {
   if (error instanceof DOMException && error.name === "InvalidStateError") {
@@ -26,6 +30,13 @@ function normalizeUpscaleWorkerError(error: unknown): string {
 
 export const MAX_BULK_FILES = 5;
 export const IMAGE_FILE_SIZE_LIMIT_BYTES = 25 * 1024 * 1024;
+/**
+ * Hard upper bound shown in the dropzone hint. The active engine is decided
+ * automatically (AI when WebAssembly is available, canvas otherwise), and
+ * each engine has its own stricter `UpscaleModel.maxInputPixels`. We advertise
+ * this most-permissive ceiling because images that exceed even the canvas
+ * fallback's cap will fail upfront, regardless of engine.
+ */
 export const MAX_IMAGE_PIXELS = 32_000_000;
 
 export type SizeMode = "scale" | "target";
@@ -176,8 +187,10 @@ export async function upscaleItemsSequentially(options: {
   scale: 2 | 4;
   targetMode: "width" | "height";
   targetValue: number;
+  modelId: UpscaleModelId;
   onProgress: (id: string, patch: Partial<UpscaleItem>) => void;
   onOutputClamped?: (payload: OutputClampedPayload) => void;
+  onModelDownloadProgress?: (progress: ModelDownloadProgress) => void;
   /** Vitest: skip canvas-size probe and use fixed limits. */
   canvasLimitsOverride?: CanvasExportLimits;
 }): Promise<{
@@ -193,6 +206,7 @@ export async function upscaleItemsSequentially(options: {
 
   const limits =
     options.canvasLimitsOverride ?? (await getCanvasExportLimitsCached());
+  const model = getModelById(options.modelId);
 
   try {
     runtime = await worker.getRuntime();
@@ -208,9 +222,12 @@ export async function upscaleItemsSequentially(options: {
             ? { width: item.width, height: item.height }
             : await readImageDimensions(item.file);
 
-        if (dimensions.width * dimensions.height > MAX_IMAGE_PIXELS) {
+        const inputPixels = dimensions.width * dimensions.height;
+        if (inputPixels > model.maxInputPixels) {
+          // Engine selection is automatic (no user-facing picker), so the only
+          // actionable advice is to provide a smaller image.
           throw new Error(
-            `"${item.file.name}" exceeds ${MAX_IMAGE_PIXELS.toLocaleString()} pixels.`
+            `"${item.file.name}" exceeds ${model.maxInputPixels.toLocaleString()} pixels. Try a smaller image.`
           );
         }
 
@@ -247,6 +264,8 @@ export async function upscaleItemsSequentially(options: {
           file: item.file,
           width,
           height,
+          modelId: options.modelId,
+          onModelDownloadProgress: options.onModelDownloadProgress,
         });
 
         if (item.outputUrl) URL.revokeObjectURL(item.outputUrl);

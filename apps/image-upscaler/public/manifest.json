@@ -1,7 +1,7 @@
 {
   "name": "Helvety Image Upscaler",
   "short_name": "Image Upscaler",
-  "description": "2×/4× or target-size image resize in your browser (canvas resampling)—no account, MIT-licensed, Swiss roots.",
+  "description": "2×/4× or target-size image upscaler in your browser (Real-ESRGAN AI with canvas fallback)—no account, MIT-licensed, Swiss roots.",
   "start_url": "/image-upscaler",
   "display": "standalone",
   "background_color": "#faf8f7",

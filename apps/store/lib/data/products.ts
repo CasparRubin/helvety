@@ -601,17 +601,18 @@ const helvetyPdf: SaaSProduct = {
 // =============================================================================
 
 /**
- * Helvety Image Upscaler - in-browser canvas resampling (not server-side AI)
+ * Helvety Image Upscaler - in-browser AI upscaler (Real-ESRGAN via
+ * onnxruntime-web with WebGPU/WASM) plus a canvas-resample fallback.
  */
 const helvetyImageUpscaler: SaaSProduct = {
   id: "helvety-image-upscaler",
   slug: "helvety-image-upscaler",
   name: "Helvety Image Upscaler",
   shortDescription:
-    "Larger PNG, JPEG, or WebP dimensions from the tab: 2×/4× batches, target width or height with locked aspect ratio, high-quality canvas resampling, and limits so tabs stay responsive.",
+    "Browser-based image upscaler with on-device AI (Real-ESRGAN via WebGPU/WASM) and a canvas-resample fallback: 2×/4× batches, target width or height with locked aspect ratio, and limits so tabs stay responsive.",
   description: {
     intro:
-      "Helvety Image Upscaler resizes images in your browser using a canvas-based worker (OffscreenCanvas). Pixels are resampled on-device—no Helvety-hosted image conversion in the normal flow—and very large exports may be clamped to fit each browser’s canvas limits.",
+      "Helvety Image Upscaler runs a Real-ESRGAN ONNX model inside a Web Worker via onnxruntime-web (WebGPU with WASM fallback) so PNG, JPEG, and WebP images can be upscaled entirely on-device. The model downloads lazily on first AI run and caches locally; a high-quality canvas-resample fallback is used automatically when WebAssembly is unavailable. No Helvety-hosted image conversion in the normal flow, and very large exports may be clamped to fit each browser’s canvas limits.",
     sections: [
       {
         heading: "Access model",
@@ -622,15 +623,16 @@ const helvetyImageUpscaler: SaaSProduct = {
         heading: "Operator knobs",
         kind: "bullets",
         items: [
+          "Use the built-in Real-ESRGAN AI engine by default, with canvas resampling only as an automatic fallback for browsers that cannot run WebAssembly.",
           "Pick a fixed multiplier (2×, 4×) or clamp to a target width or height.",
           "Batch up to five files per run, downloading individually or all together once ready.",
-          "Mind the in-app caps on megabytes and megapixels—they exist so browsers do not chew through laptop batteries.",
+          "Mind the in-app caps: 32 MP for the canvas fallback, 4 MP per image for AI upscaling (Float32 stitching buffers fit comfortably in a worker).",
         ],
       },
       {
         heading: "Why it fits sensitive screenshots",
         kind: "paragraph",
-        body: "Frames never leave your session in the supported pipeline, which makes it easier to audit your own asset workflow when polishing marketing shots or reference stills.",
+        body: "Frames never leave your session in the supported pipeline, including the AI flow, which makes it easier to audit your own asset workflow when polishing marketing shots or reference stills.",
       },
     ],
   },
@@ -640,7 +642,11 @@ const helvetyImageUpscaler: SaaSProduct = {
   image: productArtwork.artwork2,
   artist: "Alexandre Calame",
   features: [
-    "Client-side processing for supported operations",
+    "On-device AI super-resolution (Real-ESRGAN via onnxruntime-web)",
+    "WebGPU acceleration with automatic WASM fallback",
+    "Lazy model download cached locally (works offline after first run)",
+    "Tiled inference with linear-blend stitching for seam-free output",
+    "Automatic canvas-resample fallback for browsers without WebAssembly",
     "2× and 4× scale presets",
     "Target width/height mode with preserved aspect ratio",
     "Batch processing (up to 5 images)",
@@ -684,6 +690,10 @@ const helvetyImageUpscaler: SaaSProduct = {
     platforms: ["Web"],
     keywords: [
       "image upscaler",
+      "AI image upscaler",
+      "Real-ESRGAN",
+      "onnxruntime-web",
+      "WebGPU",
       "browser image resize",
       "canvas",
       "client-side",

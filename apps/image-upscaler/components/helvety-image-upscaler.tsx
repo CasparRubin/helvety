@@ -11,6 +11,12 @@ import { toast } from "sonner";
 
 import { ImageUpscalerCommandBar } from "@/components/image-upscaler-command-bar";
 import {
+  getDefaultEngineForRuntime,
+  getModelById,
+  MIN_ONNX_INPUT_PIXELS,
+  type UpscaleModelId,
+} from "@/lib/models";
+import {
   calculateTargetSize,
   createDownloadName,
   IMAGE_FILE_SIZE_LIMIT_BYTES,
@@ -22,6 +28,8 @@ import {
   type UpscaleItem,
   upscaleItemsSequentially,
 } from "@/lib/upscale-pipeline";
+
+const MODEL_DOWNLOAD_TOAST_ID = "image-upscaler-model-download";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -39,6 +47,8 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
   );
   const [targetInput, setTargetInput] = React.useState<string>("2048");
   const [isProcessing, setIsProcessing] = React.useState(false);
+  const [modelId] = React.useState<UpscaleModelId>(getDefaultEngineForRuntime);
+
   const targetValue = Number.parseInt(targetInput, 10) || 0;
   const targetIsValid =
     sizeMode !== "target" ||
@@ -47,8 +57,10 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
       targetValue > 0);
   const activeOutputSignature =
     sizeMode === "scale"
-      ? `scale:${scale}`
-      : `target:${targetMode}:${targetIsValid ? targetValue : "invalid"}`;
+      ? `scale:${scale}:${modelId}`
+      : `target:${targetMode}:${targetIsValid ? targetValue : "invalid"}:${modelId}`;
+  const activeModel = getModelById(modelId);
+  const isCanvasFallback = activeModel.kind === "canvas";
 
   const addFiles = React.useCallback((fileList: FileList): void => {
     const parsed = parseImageFiles(fileList);
@@ -144,6 +156,7 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
           scale,
           targetMode,
           targetValue,
+          modelId,
           onProgress: (id, partial) => {
             setItems((current) =>
               current.map((item) =>
@@ -164,6 +177,25 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
             toast.info("Output size limited by your browser", {
               description: `${payload.fileName}: ${payload.requested.width}×${payload.requested.height} → ${payload.applied.width}×${payload.applied.height}.`,
             });
+          },
+          onModelDownloadProgress: (progress) => {
+            if (activeModel.kind !== "onnx") return;
+            const total = progress.total ?? activeModel.sizeMb * 1024 * 1024;
+            const percent =
+              total > 0
+                ? Math.min(100, Math.round((progress.received / total) * 100))
+                : 0;
+            const description =
+              progress.received >= total && total > 0
+                ? "Preparing model..."
+                : `${percent}% (${(progress.received / (1024 * 1024)).toFixed(1)} / ${(total / (1024 * 1024)).toFixed(0)} MB)`;
+            toast.loading(`Downloading ${activeModel.label} model`, {
+              id: MODEL_DOWNLOAD_TOAST_ID,
+              description,
+            });
+            if (progress.received >= total && total > 0) {
+              toast.dismiss(MODEL_DOWNLOAD_TOAST_ID);
+            }
           },
         });
         if (result.failedCount === 0) {
@@ -187,7 +219,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
     },
     [
       activeOutputSignature,
+      activeModel,
       items,
+      modelId,
       scale,
       sizeMode,
       targetIsValid,
@@ -242,6 +276,21 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
         onTargetModeChange={setTargetMode}
         onTargetInputChange={setTargetInput}
       />
+
+      {isCanvasFallback && (
+        <div
+          className="mt-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 dark:text-amber-100"
+          role="status"
+        >
+          <p className="font-medium">
+            Your browser is missing out on AI upscaling.
+          </p>
+          <p className="mt-1">
+            WebAssembly is unavailable here, so Helvety is using a basic
+            high-quality resize fallback instead of the Real-ESRGAN AI model.
+          </p>
+        </div>
+      )}
 
       <div
         className={cn(
@@ -309,7 +358,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                       Limits: up to {MAX_BULK_FILES} files,{" "}
                       {(IMAGE_FILE_SIZE_LIMIT_BYTES / (1024 * 1024)).toFixed(0)}
                       MB each, {MAX_IMAGE_PIXELS.toLocaleString("en-US")} pixels
-                      max.
+                      max. AI upscaling additionally caps at{" "}
+                      {MIN_ONNX_INPUT_PIXELS.toLocaleString("en-US")} pixels per
+                      image.
                     </p>
                   </div>
                 </div>
@@ -451,8 +502,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
         >
           <div className="bg-card space-y-4 rounded-lg border p-4">
             <div className="space-y-2">
-              <Label>Mode</Label>
+              <Label htmlFor="desktop-upscale-mode">Mode</Label>
               <select
+                id="desktop-upscale-mode"
                 value={sizeMode}
                 onChange={(event) =>
                   setSizeMode(event.target.value as SizeMode)
@@ -465,8 +517,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
             </div>
             {sizeMode === "scale" ? (
               <div className="space-y-2">
-                <Label>Scale</Label>
+                <Label htmlFor="desktop-upscale-scale">Scale</Label>
                 <select
+                  id="desktop-upscale-scale"
                   value={String(scale)}
                   onChange={(event) =>
                     setScale(event.target.value === "4" ? 4 : 2)
@@ -480,8 +533,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
             ) : (
               <>
                 <div className="space-y-2">
-                  <Label>Dimension</Label>
+                  <Label htmlFor="desktop-upscale-dimension">Dimension</Label>
                   <select
+                    id="desktop-upscale-dimension"
                     value={targetMode}
                     onChange={(event) =>
                       setTargetMode(event.target.value as "width" | "height")
@@ -493,8 +547,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Target value</Label>
+                  <Label htmlFor="desktop-upscale-target">Target value</Label>
                   <Input
+                    id="desktop-upscale-target"
                     value={targetInput}
                     onChange={(event) => setTargetInput(event.target.value)}
                     inputMode="numeric"

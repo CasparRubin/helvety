@@ -1,6 +1,6 @@
 # Helvety Image Upscaler
 
-> Helvety Image Upscaler resizes PNG/JPEG/WebP in the browser using a canvas-based pipeline (OffscreenCanvas in a worker): 2×/4× or target width/height, PNG export, no image upload to Helvety servers. Output dimensions are capped when needed to fit each browser’s canvas limits (especially relevant on mobile Safari). MIT source from Switzerland.
+> Helvety Image Upscaler upscales PNG/JPEG/WebP in the browser. The Real-ESRGAN AI model runs inside a Web Worker via onnxruntime-web (WebGPU with WASM fallback); weights download lazily on first AI run and cache locally via the Cache API. A high-quality canvas-resample fallback is used automatically when WebAssembly is unavailable. Choose 2×/4× or target width/height, batch up to five files, PNG export, no image upload to Helvety servers. Output dimensions are capped when needed to fit each browser’s canvas limits (especially relevant on mobile Safari). MIT source from Switzerland.
 
 ## Canonical URL
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler): Main application route

@@ -4,7 +4,11 @@ import {
 } from "@helvety/shared/proxy";
 
 export const proxy = createAppProxy({
-  securityProxy: createProfiledSecurityProxy("public-tool"),
+  securityProxy: createProfiledSecurityProxy("public-tool", {
+    // onnxruntime-web compiles WebAssembly modules at startup; required for
+    // the ONNX-backed AI upscale engines.
+    buildCspOptions: { wasmUnsafeEval: true },
+  }),
   defaultBasePath: "/image-upscaler",
 });
 

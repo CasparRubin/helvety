@@ -21,6 +21,10 @@ export const metadata = createHelvetyProductMetadata({
   keywords: [
     "Helvety Image Upscaler",
     "image upscaler",
+    "AI image upscaler",
+    "Real-ESRGAN browser",
+    "onnxruntime-web",
+    "WebGPU image upscaling",
     "upscale image",
     "browser image upscaler",
     "client-side image resize",

@@ -16,6 +16,8 @@ import {
   upscaleItemsSequentially,
 } from "@/lib/upscale-pipeline";
 
+const TEST_MODEL_ID = "canvas" as const;
+
 const UNCLAMPED_TEST_CANVAS_LIMITS: CanvasExportLimits = {
   maxWidth: 60_000,
   maxHeight: 60_000,
@@ -185,6 +187,7 @@ describe("upscaleItemsSequentially", () => {
       scale: 2,
       targetMode: "width",
       targetValue: 0,
+      modelId: TEST_MODEL_ID,
       onProgress,
       canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
     });
@@ -199,11 +202,15 @@ describe("upscaleItemsSequentially", () => {
       file: itemA.file,
       width: 200,
       height: 100,
+      modelId: TEST_MODEL_ID,
+      onModelDownloadProgress: undefined,
     });
     expect(workerMocks.upscale).toHaveBeenNthCalledWith(2, {
       file: itemB.file,
       width: 400,
       height: 200,
+      modelId: TEST_MODEL_ID,
+      onModelDownloadProgress: undefined,
     });
     expect(onProgress).toHaveBeenCalledWith(itemA.id, {
       status: "processing",
@@ -230,6 +237,7 @@ describe("upscaleItemsSequentially", () => {
       scale: 2,
       targetMode: "width",
       targetValue: 0,
+      modelId: TEST_MODEL_ID,
       onProgress,
       canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
     });
@@ -245,6 +253,48 @@ describe("upscaleItemsSequentially", () => {
         exportDimensions: null,
       })
     );
+  });
+
+  it("rejects images above the AI engine pixel cap with a smaller-image hint", async () => {
+    workerMocks.getRuntime.mockResolvedValueOnce("webgpu");
+    const onProgress = vi.fn();
+    // Above the 4 MP cap for the AI engine but well under the 32 MP canvas cap.
+    const tooBigForAi = createItem(3000, 2000);
+
+    const result = await upscaleItemsSequentially({
+      items: [tooBigForAi],
+      sizeMode: "scale",
+      scale: 4,
+      targetMode: "width",
+      targetValue: 0,
+      modelId: "realesr-general-x4v3",
+      onProgress,
+      canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
+    });
+
+    expect(result.completedCount).toBe(0);
+    expect(result.failedCount).toBe(1);
+    expect(workerMocks.upscale).not.toHaveBeenCalled();
+
+    const failureCall = onProgress.mock.calls.find((call) => {
+      const patch = call[1] as { status?: string } | undefined;
+      return patch?.status === "failed";
+    });
+    if (!failureCall) {
+      throw new Error("expected a failure progress update");
+    }
+    const failurePatch = failureCall[1] as { error?: string };
+    // The number is rendered via `toLocaleString()` so the digit grouping
+    // depends on the host locale ("4,000,000" / "4 000 000" / "4'000'000").
+    // Match locale-tolerantly while still asserting the exact value.
+    expect(failurePatch.error).toMatch(
+      /4[\s,'’.\u00a0]?000[\s,'’.\u00a0]?000\s+pixels/
+    );
+    // Engine selection is automatic, so the message must NOT tell the user to
+    // pick a different engine. The only actionable advice is "smaller image".
+    expect(failurePatch.error).toContain("Try a smaller image");
+    expect(failurePatch.error).not.toContain("Fast resize");
+    expect(failurePatch.error).not.toContain("switch to");
   });
 
   it("revokes stale output URLs before replacing with new output", async () => {
@@ -264,6 +314,7 @@ describe("upscaleItemsSequentially", () => {
       scale: 2,
       targetMode: "width",
       targetValue: 0,
+      modelId: TEST_MODEL_ID,
       onProgress,
       canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
     });
@@ -297,6 +348,7 @@ describe("upscaleItemsSequentially", () => {
       scale: 2,
       targetMode: "width",
       targetValue: 0,
+      modelId: TEST_MODEL_ID,
       onProgress,
       onOutputClamped,
       canvasLimitsOverride: strictLimits,
@@ -316,6 +368,8 @@ describe("upscaleItemsSequentially", () => {
       file: phonePhoto.file,
       width: expect.any(Number),
       height: expect.any(Number),
+      modelId: TEST_MODEL_ID,
+      onModelDownloadProgress: undefined,
     });
     const firstCall = workerMocks.upscale.mock.calls[0];
     if (!firstCall) {
@@ -343,6 +397,7 @@ describe("upscaleItemsSequentially", () => {
       scale: 2,
       targetMode: "width",
       targetValue: 0,
+      modelId: TEST_MODEL_ID,
       onProgress,
       canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
     });
@@ -371,6 +426,7 @@ describe("upscaleItemsSequentially", () => {
       scale: 2,
       targetMode: "width",
       targetValue: 0,
+      modelId: TEST_MODEL_ID,
       onProgress,
       canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
     });
@@ -379,6 +435,65 @@ describe("upscaleItemsSequentially", () => {
       status: "failed",
       error: UPSCALE_EXPORT_SIZE_LIMIT_MESSAGE,
       exportDimensions: null,
+    });
+  });
+
+  it("forwards the selected modelId and surfaces model download progress to the caller", async () => {
+    workerMocks.getRuntime.mockResolvedValueOnce("webgpu");
+    workerMocks.upscale.mockImplementationOnce(
+      async (request: {
+        file: File;
+        width: number;
+        height: number;
+        modelId: string;
+        onModelDownloadProgress?: (p: {
+          modelId: string;
+          received: number;
+          total: number | null;
+        }) => void;
+      }) => {
+        request.onModelDownloadProgress?.({
+          modelId: request.modelId,
+          received: 1024,
+          total: 4096,
+        });
+        request.onModelDownloadProgress?.({
+          modelId: request.modelId,
+          received: 4096,
+          total: 4096,
+        });
+        return { outputUrl: "blob:ai-output" };
+      }
+    );
+    const onProgress = vi.fn();
+    const onModelDownloadProgress = vi.fn();
+    const item = createItem(50, 50);
+
+    const result = await upscaleItemsSequentially({
+      items: [item],
+      sizeMode: "scale",
+      scale: 2,
+      targetMode: "width",
+      targetValue: 0,
+      modelId: "realesr-general-x4v3",
+      onProgress,
+      onModelDownloadProgress,
+      canvasLimitsOverride: UNCLAMPED_TEST_CANVAS_LIMITS,
+    });
+
+    expect(result.completedCount).toBe(1);
+    expect(workerMocks.upscale).toHaveBeenCalledWith({
+      file: item.file,
+      width: 100,
+      height: 100,
+      modelId: "realesr-general-x4v3",
+      onModelDownloadProgress,
+    });
+    expect(onModelDownloadProgress).toHaveBeenCalledTimes(2);
+    expect(onModelDownloadProgress).toHaveBeenLastCalledWith({
+      modelId: "realesr-general-x4v3",
+      received: 4096,
+      total: 4096,
     });
   });
 });

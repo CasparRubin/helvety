@@ -1,8 +1,11 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
+import type { UpscaleModelId } from "@/lib/models";
+
 interface UpscaleRequest {
   type: "upscale";
   id: string;
+  modelId: UpscaleModelId;
   file: File;
   width: number;
   height: number;
@@ -27,6 +30,14 @@ interface RuntimeResponse {
   runtime: string;
 }
 
+interface ModelDownloadProgressResponse {
+  type: "model:download:progress";
+  id: string;
+  modelId: UpscaleModelId;
+  received: number;
+  total: number | null;
+}
+
 interface WorkerErrorResponse {
   type: "error";
   id: string;
@@ -36,4 +47,5 @@ interface WorkerErrorResponse {
 export type WorkerResponse =
   | UpscaleResponse
   | RuntimeResponse
+  | ModelDownloadProgressResponse
   | WorkerErrorResponse;
