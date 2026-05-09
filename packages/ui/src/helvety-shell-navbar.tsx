@@ -118,7 +118,7 @@ function AccountMenuLink({
     return (
       <Button variant="outline" className={className} asChild>
         <Link href={account.href} onClick={onNavigate}>
-          <Settings className="h-4 w-4" />
+          <Settings className="size-4" />
           Account
         </Link>
       </Button>
@@ -132,7 +132,7 @@ function AccountMenuLink({
         rel="noopener noreferrer"
         onClick={onNavigate}
       >
-        <Settings className="h-4 w-4" />
+        <Settings className="size-4" />
         Account
       </a>
     </Button>
@@ -153,7 +153,7 @@ function AccountMobileLink({
     return (
       <Button variant="ghost" className={className} asChild>
         <Link href={account.href} onClick={onNavigate}>
-          <Settings className="h-4 w-4" />
+          <Settings className="size-4" />
           Account
         </Link>
       </Button>
@@ -167,7 +167,7 @@ function AccountMobileLink({
         rel="noopener noreferrer"
         onClick={onNavigate}
       >
-        <Settings className="h-4 w-4" />
+        <Settings className="size-4" />
         Account
       </a>
     </Button>
@@ -244,7 +244,7 @@ export function HelvetyShellNavbar({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm">
-                    <ShieldCheck className="h-4 w-4 text-green-500" />
+                    <ShieldCheck className="text-primary size-4" />
                     <span className="hidden md:inline">Encryption enabled</span>
                   </div>
                 </TooltipTrigger>
@@ -256,7 +256,7 @@ export function HelvetyShellNavbar({
 
             {!isAuthenticated && !isLoading && (
               <Button variant="default" size="sm" onClick={handleLogin}>
-                <LogIn className="h-4 w-4" />
+                <LogIn className="size-4" />
                 Sign in
               </Button>
             )}
@@ -269,14 +269,14 @@ export function HelvetyShellNavbar({
                     size="icon"
                     aria-label="Open profile menu"
                   >
-                    <UserIcon className="h-5 w-5" />
+                    <UserIcon className="size-5" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-80">
                   <PopoverHeader>
                     <div className="flex items-center gap-3">
-                      <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
-                        <UserIcon className="text-primary h-5 w-5" />
+                      <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                        <UserIcon className="text-primary size-5" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <PopoverTitle className="truncate">
@@ -304,7 +304,7 @@ export function HelvetyShellNavbar({
                         handleLogout();
                       }}
                     >
-                      <LogOut className="h-4 w-4" />
+                      <LogOut className="size-4" />
                       Sign out
                     </Button>
                   </div>
@@ -318,11 +318,11 @@ export function HelvetyShellNavbar({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9"
+                    className="size-9"
                     aria-label="Open about dialog"
                     onClick={() => setAboutOpen(true)}
                   >
-                    <Info className="h-4 w-4" />
+                    <Info className="size-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -366,7 +366,7 @@ export function HelvetyShellNavbar({
                   aria-label="View source code on GitHub"
                 >
                   <Button variant="ghost" size="icon" className="h-9 w-9">
-                    <Github className="h-4 w-4" />
+                    <Github className="size-4" />
                   </Button>
                 </a>
               </TooltipTrigger>
@@ -381,7 +381,7 @@ export function HelvetyShellNavbar({
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild className="inline-flex sm:hidden">
               <Button variant="ghost" size="icon" aria-label="Open menu">
-                <Menu className="h-5 w-5" />
+                <Menu className="size-5" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
@@ -395,7 +395,7 @@ export function HelvetyShellNavbar({
               <nav className="mt-6 flex flex-col gap-2 px-4">
                 {encryptionBadge && (
                   <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
-                    <ShieldCheck className="h-4 w-4 shrink-0 text-green-500" />
+                    <ShieldCheck className="text-primary size-4 shrink-0" />
                     <span>Encryption enabled</span>
                   </div>
                 )}
@@ -408,14 +408,14 @@ export function HelvetyShellNavbar({
                       handleLogin();
                     }}
                   >
-                    <LogIn className="h-4 w-4" />
+                    <LogIn className="size-4" />
                     Sign in
                   </Button>
                 )}
                 {isAuthenticated && !isLoading && (
                   <>
                     <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
-                      <UserIcon className="h-4 w-4 shrink-0" />
+                      <UserIcon className="size-4 shrink-0" />
                       <span className="truncate">
                         {user?.email ?? "Account"}
                       </span>
@@ -434,7 +434,7 @@ export function HelvetyShellNavbar({
                         handleLogout();
                       }}
                     >
-                      <LogOut className="h-4 w-4" />
+                      <LogOut className="size-4" />
                       Sign out
                     </Button>
                   </>
@@ -448,7 +448,7 @@ export function HelvetyShellNavbar({
                     setAboutOpen(true);
                   }}
                 >
-                  <Info className="h-4 w-4" />
+                  <Info className="size-4" />
                   About
                 </Button>
                 <Button
@@ -462,7 +462,7 @@ export function HelvetyShellNavbar({
                     rel="noopener noreferrer"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Github className="h-4 w-4" />
+                    <Github className="size-4" />
                     GitHub
                   </a>
                 </Button>
@@ -475,9 +475,9 @@ export function HelvetyShellNavbar({
                   }}
                 >
                   {isDark ? (
-                    <Sun className="h-4 w-4" />
+                    <Sun className="size-4" />
                   ) : (
-                    <Moon className="h-4 w-4" />
+                    <Moon className="size-4" />
                   )}
                   {isDark ? "Light mode" : "Dark mode"}
                 </Button>

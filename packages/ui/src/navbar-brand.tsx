@@ -3,7 +3,7 @@
 import { HelvetyIdentifier, HelvetyLogo } from "@helvety/brand";
 import Link from "next/link";
 
-import { AppSwitcher } from "@helvety/ui/app-switcher";
+import { AppSwitcher } from "./app-switcher";
 
 /** Shared left-side navbar brand shell used across apps. */
 interface NavbarBrandProps {

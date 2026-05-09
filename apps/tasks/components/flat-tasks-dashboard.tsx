@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@helvety/ui/dialog";
+import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { ListSearchField } from "@helvety/ui/list-search-field";
@@ -157,32 +158,34 @@ export function FlatTasksDashboard({
         isExporting={isExporting}
       />
 
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-4 text-2xl font-semibold">Tasks</h1>
-
-        <ListSearchField
-          className="mb-4"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search tasks…"
-          aria-label="Search tasks"
-        />
-
-        <EntityList
-          entities={filteredItems}
-          isLoading={isLoading}
-          isRefreshing={isRefreshing}
-          error={error}
-          onRetry={refresh}
-          stages={stages}
-          onEntityClick={(entity) => setSelectedItemId(entity.id)}
-          onEntityDelete={(id, title) =>
-            setDeleteState({ open: true, id, name: title })
-          }
-          onReorder={isSearchActive ? undefined : reorder}
-          emptySearchMessage={emptySearchMessage}
-        />
-      </div>
+      <EntityDashboardShell
+        title="Tasks"
+        searchField={
+          <ListSearchField
+            className="mb-4"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search tasks…"
+            aria-label="Search tasks"
+          />
+        }
+        list={
+          <EntityList
+            entities={filteredItems}
+            isLoading={isLoading}
+            isRefreshing={isRefreshing}
+            error={error}
+            onRetry={refresh}
+            stages={stages}
+            onEntityClick={(entity) => setSelectedItemId(entity.id)}
+            onEntityDelete={(id, title) =>
+              setDeleteState({ open: true, id, name: title })
+            }
+            onReorder={isSearchActive ? undefined : reorder}
+            emptySearchMessage={emptySearchMessage}
+          />
+        }
+      />
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent>

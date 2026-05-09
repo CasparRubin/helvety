@@ -91,6 +91,7 @@ bun run format
 
 - ESLint boundary rules enforce that apps do not import code directly from other apps; shared logic must live in workspace packages.
 - **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and `consistency:guardrails` (see [`scripts/check-consistency-guardrails.mjs`](scripts/check-consistency-guardrails.mjs)).
+- **UI/shadcn integration boundaries** (shared-vs-local primitive ownership, allowed app-local wrappers, and guardrail expectations): [`docs/ui-shadcn-integration-policy.md`](docs/ui-shadcn-integration-policy.md).
 - Workspace layout, per-app entry points, and CI/release expectations are described in this file and in each app or package `README.md` (for example [`packages/ui/README.md`](packages/ui/README.md) for shared UI shells).
 
 ## Automation

@@ -13,9 +13,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@helvety/ui/dialog";
+import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { ListSearchField } from "@helvety/ui/list-search-field";
+import { NativeSelect } from "@helvety/ui/native-select";
 import {
   Sheet,
   SheetContent,
@@ -159,32 +161,34 @@ export function FlatNotesDashboard({
         isExporting={isExporting}
       />
 
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-4 text-2xl font-semibold">Notes</h1>
-
-        <ListSearchField
-          className="mb-4"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search notes…"
-          aria-label="Search notes"
-        />
-
-        <EntityList
-          entities={filteredItems}
-          isLoading={isLoading}
-          isRefreshing={isRefreshing}
-          error={error}
-          onRetry={refresh}
-          categories={DEFAULT_NOTE_CATEGORIES}
-          onEntityClick={(entity) => setSelectedItemId(entity.id)}
-          onEntityDelete={(id, title) =>
-            setDeleteState({ open: true, id, name: title })
-          }
-          onReorder={isSearchActive ? undefined : reorder}
-          emptySearchMessage={emptySearchMessage}
-        />
-      </div>
+      <EntityDashboardShell
+        title="Notes"
+        searchField={
+          <ListSearchField
+            className="mb-4"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search notes…"
+            aria-label="Search notes"
+          />
+        }
+        list={
+          <EntityList
+            entities={filteredItems}
+            isLoading={isLoading}
+            isRefreshing={isRefreshing}
+            error={error}
+            onRetry={refresh}
+            categories={DEFAULT_NOTE_CATEGORIES}
+            onEntityClick={(entity) => setSelectedItemId(entity.id)}
+            onEntityDelete={(id, title) =>
+              setDeleteState({ open: true, id, name: title })
+            }
+            onReorder={isSearchActive ? undefined : reorder}
+            emptySearchMessage={emptySearchMessage}
+          />
+        }
+      />
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent>
@@ -219,9 +223,8 @@ export function FlatNotesDashboard({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="note-category">Category</Label>
-                <select
+                <NativeSelect
                   id="note-category"
-                  className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 disabled:cursor-not-allowed disabled:opacity-50"
                   value={newCategoryId}
                   onChange={(e) => setNewCategoryId(e.target.value)}
                 >
@@ -230,7 +233,7 @@ export function FlatNotesDashboard({
                       {c.name}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
             </div>
             <DialogFooter>

@@ -23,26 +23,23 @@ const typeConfig: Record<
   {
     label: string;
     icon: typeof Cloud;
-    className: string;
+    variant: "secondary" | "outline";
   }
 > = {
   saas: {
     label: "Web App",
     icon: Cloud,
-    className:
-      "bg-blue-600/90 text-white border-blue-500/40 dark:bg-blue-500/90",
+    variant: "secondary",
   },
   software: {
     label: "Software",
     icon: Download,
-    className:
-      "bg-purple-600/90 text-white border-purple-500/40 dark:bg-purple-500/90",
+    variant: "secondary",
   },
   physical: {
     label: "Physical",
     icon: Package,
-    className:
-      "bg-amber-600/90 text-white border-amber-500/40 dark:bg-amber-500/90",
+    variant: "outline",
   },
 };
 
@@ -56,7 +53,7 @@ export function ProductBadge({
   const Icon = config.icon;
 
   return (
-    <Badge variant="outline" className={cn(config.className, className)}>
+    <Badge variant={config.variant} className={cn("gap-1.5", className)}>
       {showIcon && <Icon className="size-3" />}
       {config.label}
     </Badge>
@@ -73,23 +70,20 @@ const statusConfig: Record<
   ProductStatus,
   {
     label: string;
-    className: string;
+    variant: "default" | "secondary" | "outline" | "destructive";
   }
 > = {
   available: {
     label: "Available",
-    className:
-      "bg-green-600/90 text-white border-green-500/40 dark:bg-green-500/90",
+    variant: "default",
   },
   "coming-soon": {
     label: "Coming Soon",
-    className:
-      "bg-yellow-500/90 text-white border-yellow-400/40 dark:bg-yellow-500/90",
+    variant: "secondary",
   },
   discontinued: {
     label: "Discontinued",
-    className:
-      "bg-neutral-600/90 text-white border-neutral-500/40 dark:bg-neutral-500/90",
+    variant: "outline",
   },
 };
 
@@ -98,7 +92,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = statusConfig[status];
 
   return (
-    <Badge variant="outline" className={cn(config.className, className)}>
+    <Badge variant={config.variant} className={className}>
       {config.label}
     </Badge>
   );
@@ -125,13 +119,7 @@ export function ReleaseDateBadge({
   showIcon = true,
 }: ReleaseDateBadgeProps) {
   return (
-    <Badge
-      variant="outline"
-      className={cn(
-        "border-sky-500/40 bg-sky-600/90 text-white dark:bg-sky-500/90",
-        className
-      )}
-    >
+    <Badge variant="secondary" className={cn("gap-1.5", className)}>
       {showIcon && <Calendar className="size-3" />}
       {formatStoreReleaseDate(isoDate)}
     </Badge>
@@ -145,13 +133,7 @@ export function ArtistBadge({
   showIcon = true,
 }: ArtistBadgeProps) {
   return (
-    <Badge
-      variant="outline"
-      className={cn(
-        "border-stone-500/40 bg-stone-600/90 text-white dark:bg-stone-500/90",
-        className
-      )}
-    >
+    <Badge variant="outline" className={cn("gap-1.5", className)}>
       {showIcon && <Palette className="size-3" />}
       {`Art by ${artist}`}
     </Badge>

@@ -24,14 +24,14 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useImperativeHandle, type Ref } from "react";
 
-import { Button } from "@helvety/ui/button";
-import { Separator } from "@helvety/ui/separator";
+import { Button } from "./button";
+import { Separator } from "./separator";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@helvety/ui/tooltip";
+} from "./tooltip";
 
 import type { Editor, JSONContent } from "@tiptap/react";
 

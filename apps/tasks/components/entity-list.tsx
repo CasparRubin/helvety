@@ -12,9 +12,13 @@ import {
 } from "@dnd-kit/sortable";
 import { computeReorderUpdates } from "@helvety/shared/entity-list-reorder";
 import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
-import { Button } from "@helvety/ui/button";
+import {
+  ListEmptySearchState,
+  ListEmptyState,
+  ListErrorState,
+  ListLoadingState,
+} from "@helvety/ui/list-states";
 import { useE2eeEntityListDndSensors } from "@helvety/ui/use-e2ee-entity-list-dnd-sensors";
-import { Loader2Icon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
 import { EntityRow } from "@/components/entity-row";
@@ -268,35 +272,16 @@ export function EntityList({
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2Icon className="text-muted-foreground size-8 animate-spin" />
-      </div>
-    );
+    return <ListLoadingState />;
   }
 
   // Error state - friendly UI with retry (toast already shown by hooks)
   if (error) {
-    return (
-      <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
-        <p role="alert" className="text-muted-foreground text-sm">
-          {GENERIC_USER_ERROR}
-        </p>
-        {onRetry && (
-          <Button variant="outline" size="sm" onClick={() => onRetry()}>
-            Retry
-          </Button>
-        )}
-      </div>
-    );
+    return <ListErrorState message={GENERIC_USER_ERROR} onRetry={onRetry} />;
   }
 
   if (entities.length === 0 && emptySearchMessage) {
-    return (
-      <div className="text-muted-foreground flex justify-center py-12 text-center text-sm">
-        {emptySearchMessage}
-      </div>
-    );
+    return <ListEmptySearchState message={emptySearchMessage} />;
   }
 
   const sortedEntities = [...entities].sort(
@@ -377,12 +362,7 @@ export function EntityList({
         </DndContext>
       ) : entities.length === 0 ? (
         /* Empty state - only shown when no stages AND no entities */
-        <div className="border-border flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <h3 className="mb-2 text-lg font-medium">{emptyTitle}</h3>
-          <p className="text-muted-foreground text-center text-sm">
-            {emptyDescription}
-          </p>
-        </div>
+        <ListEmptyState title={emptyTitle} description={emptyDescription} />
       ) : (
         /* Flat list (no stages) */
         <DndContext

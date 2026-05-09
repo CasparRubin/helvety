@@ -12,7 +12,7 @@ describe("TaskCommandBar", () => {
     ).toBeInTheDocument();
   });
 
-  it("styles the desktop refresh button in amber while refreshing", () => {
+  it("disables refresh and shows a spinner while refreshing", () => {
     render(
       <TaskCommandBar
         onCreateClick={vi.fn()}
@@ -24,7 +24,7 @@ describe("TaskCommandBar", () => {
 
     const refreshButton = screen.getByRole("button", { name: "Refresh" });
     expect(refreshButton).toBeDisabled();
-    expect(refreshButton).toHaveClass("bg-amber-500");
+    expect(refreshButton.querySelector("svg")).toHaveClass("animate-spin");
   });
 
   it("shows overflow and secondary actions for export/settings", () => {

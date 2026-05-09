@@ -15,9 +15,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@helvety/ui/dialog";
+import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { ListSearchField } from "@helvety/ui/list-search-field";
+import { NativeSelect } from "@helvety/ui/native-select";
 import {
   Sheet,
   SheetContent,
@@ -202,30 +204,32 @@ export function ContactsDashboard({
         isExporting={isExporting}
       />
 
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-4 text-2xl font-semibold">Contacts</h1>
-
-        <ListSearchField
-          className="mb-4"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search contacts…"
-          aria-label="Search contacts"
-        />
-
-        <ContactList
-          contacts={filteredContacts}
-          isLoading={isLoading}
-          isRefreshing={isRefreshing}
-          error={error}
-          onRetry={refresh}
-          onContactClick={(contact) => setSelectedContactId(contact.id)}
-          onContactDelete={handleDeleteClick}
-          onReorder={isSearchActive ? undefined : reorder}
-          categories={DEFAULT_CATEGORIES}
-          emptySearchMessage={emptySearchMessage}
-        />
-      </div>
+      <EntityDashboardShell
+        title="Contacts"
+        searchField={
+          <ListSearchField
+            className="mb-4"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search contacts…"
+            aria-label="Search contacts"
+          />
+        }
+        list={
+          <ContactList
+            contacts={filteredContacts}
+            isLoading={isLoading}
+            isRefreshing={isRefreshing}
+            error={error}
+            onRetry={refresh}
+            onContactClick={(contact) => setSelectedContactId(contact.id)}
+            onContactDelete={handleDeleteClick}
+            onReorder={isSearchActive ? undefined : reorder}
+            categories={DEFAULT_CATEGORIES}
+            emptySearchMessage={emptySearchMessage}
+          />
+        }
+      />
 
       <Sheet
         open={selectedContactId !== null}
@@ -298,18 +302,17 @@ export function ContactsDashboard({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="contact-category">Category</Label>
-                <select
+                <NativeSelect
                   id="contact-category"
                   value={newCategoryId}
                   onChange={(e) => setNewCategoryId(e.target.value)}
-                  className="border-input bg-background h-10 rounded-md border px-3 text-sm"
                 >
                   {DEFAULT_CATEGORIES.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
             </div>
 

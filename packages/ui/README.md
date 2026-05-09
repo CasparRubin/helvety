@@ -34,6 +34,10 @@ This package provides:
 - `@helvety/ui/app-error` → `AppError` — shared `error.tsx` UI; default title uses **`GENERIC_USER_ERROR`** from `@helvety/shared/user-facing-errors` (same canonical line as server actions), with support text to retry or email support
 - `@helvety/ui/root-global-error` → `RootGlobalError` — minimal root-layout error surface; same title constant and retry/contact pattern as `AppError`
 - `@helvety/ui/use-e2ee-entity-list-dnd-sensors` -> shared dnd sensor setup
+- `@helvety/ui/entity-command-bar` -> `EntityCommandBar` — shared responsive list-toolbar pattern for create/refresh/export/settings/edit/delete actions
+- `@helvety/ui/entity-dashboard-shell` -> `EntityDashboardShell` — shared title + search + list page-shell composition
+- `@helvety/ui/list-states` -> `ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState` — standardized list feedback surfaces
+- `@helvety/ui/native-select` -> `NativeSelect` — consistent native-select styling wrapper for simple select controls
 
 Also includes reusable UI building blocks used across zones (for example command bars, search fields, and selected editor helpers).
 
@@ -59,4 +63,5 @@ Coverage focuses on stable primitives and key shared UX surfaces (`HelvetyShellN
 
 - Root monorepo docs: [`README.md`](../../README.md)
 - Monorepo naming and formatting: [`docs/naming-conventions.md`](../../docs/naming-conventions.md)
+- UI/shadcn integration policy and ownership boundaries: [`docs/ui-shadcn-integration-policy.md`](../../docs/ui-shadcn-integration-policy.md)
 - Shared backend package: [`packages/shared/README.md`](../shared/README.md)

@@ -4,8 +4,8 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import * as React from "react";
 
-import { Button } from "@helvety/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
+import { Button } from "./button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 /**
  * Theme toggle button for switching between light and dark modes.

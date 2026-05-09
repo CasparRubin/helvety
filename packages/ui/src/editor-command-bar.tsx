@@ -9,16 +9,16 @@ import {
   SaveIcon,
 } from "lucide-react";
 
-import { Button } from "@helvety/ui/button";
-import { CommandBar, CommandBarSpacer } from "@helvety/ui/command-bar";
+import { Button } from "./button";
+import { CommandBar, CommandBarSpacer } from "./command-bar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@helvety/ui/dropdown-menu";
-import { Separator } from "@helvety/ui/separator";
+} from "./dropdown-menu";
+import { Separator } from "./separator";
 
 import type { ReactNode } from "react";
 
@@ -159,7 +159,7 @@ export function EditorCommandBar({
             hasUnsavedChanges &&
               saveStatus === "idle" &&
               !isSaving &&
-              "bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700",
+              "bg-primary text-primary-foreground hover:bg-primary/90",
             !showSaveChangesLabel && "gap-0"
           )}
         >

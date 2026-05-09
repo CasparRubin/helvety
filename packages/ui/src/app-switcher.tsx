@@ -18,16 +18,16 @@ import {
 import Link from "next/link";
 import { type ComponentType, type SVGProps, useState } from "react";
 
-import { Button } from "@helvety/ui/button";
-import { ScrollArea } from "@helvety/ui/scroll-area";
+import { Button } from "./button";
+import { ScrollArea } from "./scroll-area";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@helvety/ui/sheet";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@helvety/ui/tooltip";
+} from "./sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 /** Link item shown inside an ecosystem section. */
 interface SectionLink {

@@ -12,7 +12,7 @@ describe("ContactCommandBar", () => {
     ).toBeInTheDocument();
   });
 
-  it("styles the desktop refresh button in amber while refreshing", () => {
+  it("disables refresh and shows a spinner while refreshing", () => {
     render(
       <ContactCommandBar
         onCreateClick={vi.fn()}
@@ -23,7 +23,7 @@ describe("ContactCommandBar", () => {
 
     const refreshButton = screen.getByRole("button", { name: "Refresh" });
     expect(refreshButton).toBeDisabled();
-    expect(refreshButton).toHaveClass("bg-amber-500");
+    expect(refreshButton.querySelector("svg")).toHaveClass("animate-spin");
   });
 
   it("shows secondary action labels when export/settings are enabled", () => {

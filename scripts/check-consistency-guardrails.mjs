@@ -5,9 +5,27 @@
  * `Page` per `docs/naming-conventions.md`.
  */
 import { readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const rootDir = process.cwd();
+const appsDir = resolve(rootDir, "apps");
+
+async function listTsxFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const absolutePath = resolve(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await listTsxFiles(absolutePath)));
+      continue;
+    }
+    if (entry.isFile() && absolutePath.endsWith(".tsx")) {
+      files.push(absolutePath);
+    }
+  }
+  return files;
+}
 
 const filesToCheck = [
   "apps/contacts/app/actions/batch-actions.ts",
@@ -222,6 +240,94 @@ async function main() {
     if (!/validateServerUpstashEnv\(/.test(file.content)) {
       throw new Error(
         `${file.relativePath} must validate env via validateServerUpstashEnv from @helvety/shared/env-validation.`
+      );
+    }
+  }
+
+  const appDirectories = await readdir(appsDir, { withFileTypes: true });
+  const componentConfigs = await Promise.all(
+    appDirectories
+      .filter((entry) => entry.isDirectory())
+      .map(async (entry) => {
+        const relativePath = `apps/${entry.name}/components.json`;
+        return {
+          relativePath,
+          content: await readFile(resolve(rootDir, relativePath), "utf8"),
+        };
+      })
+  );
+
+  const requiredShadcnConfig = {
+    style: "radix-vega",
+    iconLibrary: "lucide",
+    aliases: {
+      components: "@/components",
+      ui: "@/components/ui",
+      utils: "@/lib/utils",
+      lib: "@/lib",
+      hooks: "@/hooks",
+    },
+    tailwind: {
+      css: "app/globals.css",
+      cssVariables: true,
+    },
+  };
+
+  for (const file of componentConfigs) {
+    const parsed = JSON.parse(file.content);
+    if (parsed.style !== requiredShadcnConfig.style) {
+      throw new Error(
+        `${file.relativePath} must use style "${requiredShadcnConfig.style}".`
+      );
+    }
+    if (parsed.iconLibrary !== requiredShadcnConfig.iconLibrary) {
+      throw new Error(
+        `${file.relativePath} must use iconLibrary "${requiredShadcnConfig.iconLibrary}".`
+      );
+    }
+    if (
+      parsed.tailwind?.css !== requiredShadcnConfig.tailwind.css ||
+      parsed.tailwind?.cssVariables !==
+        requiredShadcnConfig.tailwind.cssVariables
+    ) {
+      throw new Error(
+        `${file.relativePath} must keep tailwind config aligned (css: app/globals.css, cssVariables: true).`
+      );
+    }
+
+    for (const [key, value] of Object.entries(requiredShadcnConfig.aliases)) {
+      if (parsed.aliases?.[key] !== value) {
+        throw new Error(
+          `${file.relativePath} must map aliases.${key} to "${value}".`
+        );
+      }
+    }
+  }
+
+  const appComponentRoots = await Promise.all(
+    appDirectories
+      .filter((entry) => entry.isDirectory())
+      .map(async (entry) =>
+        listTsxFiles(resolve(rootDir, "apps", entry.name, "components"))
+      )
+  );
+
+  for (const tsxPath of appComponentRoots.flat()) {
+    const source = await readFile(tsxPath, "utf8");
+    const localUiImports = [
+      ...source.matchAll(/from\s+["']@\/components\/ui\/([^"']+)["'];?/gu),
+      ...source.matchAll(/from\s+["']\.\.\/ui\/([^"']+)["'];?/gu),
+    ];
+    if (localUiImports.length === 0) {
+      continue;
+    }
+    const onlyApprovedWrappers = localUiImports.every((match) =>
+      /^(date-picker|date-time-picker)$/u.test(match[1] ?? "")
+    );
+    if (!onlyApprovedWrappers) {
+      const relativePath = tsxPath.replace(`${rootDir}/`, "");
+      throw new Error(
+        `${relativePath} imports app-local UI primitives. Use @helvety/ui/* for shared primitives.`
       );
     }
   }

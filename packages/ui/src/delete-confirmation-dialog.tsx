@@ -12,7 +12,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@helvety/ui/alert-dialog";
+} from "./alert-dialog";
 
 /** Props for the base DeleteConfirmationDialog */
 export interface DeleteConfirmationDialogProps {
