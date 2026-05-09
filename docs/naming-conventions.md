@@ -36,9 +36,11 @@ This document is the source of truth for how we name and format code across `app
 
 ## Metadata and copy constants
 
-- Primary **metadata `description`** string for an app (used in `createHelvetyProductMetadata` and tests): export or file-local name **`{APP|PRODUCT}_DESCRIPTION`** or **`WEB_SITE_DESCRIPTION`** for the gateway - suffix **`_DESCRIPTION`**, not `_DESCRIPTION_COPY`.
-- **Product one-liners** in `lib/product-copy.ts`: same pattern, e.g. `PDF_APP_DESCRIPTION`, `IMAGE_UPSCALER_APP_DESCRIPTION`.
-- **JSON-LD** (`jsonLdGraphTail` `SoftwareApplication` / `WebApplication` `description`): prefer the **same** exported string as metadata when the copy can stay aligned (avoids drift; `app/layout-metadata.test.ts` asserts one source - e.g. PDF uses `PDF_APP_DESCRIPTION` for both today). If metadata and structured-data copy must diverge, add a second app-scoped constant with an explicit name (e.g. `*_JSON_LD_DESCRIPTION`) and document why both exist in the app README or layout comment.
+- Primary **metadata `description`** for an app (used in `createHelvetyProductMetadata`, Open Graph, Twitter, tests): export **`{APP|PRODUCT}_*DESCRIPTION`** or **`WEB_SITE_DESCRIPTION`** for the gateway; suffix **`_DESCRIPTION`**, not `_DESCRIPTION_COPY`. Example: **`AUTH_DESCRIPTION`**, **`CONTACTS_APP_DESCRIPTION`**, **`STORE_DESCRIPTION`** (see each `app/layout.tsx`).
+- **`lib/product-copy.ts`** (where used): holds long-form **`PDF_APP_DESCRIPTION`**, **`IMAGE_UPSCALER_APP_DESCRIPTION`**, and related limits copy; layouts import these for metadata / JSON-LD.
+- **`public/manifest.json` `description`** (PWA install prompt): often matches the metadata string; when it must be shorter, use an explicit **`AUTH_PWA_MANIFEST_DESCRIPTION`** in `app/layout.tsx`, or **`PDF_PWA_MANIFEST_DESCRIPTION`** / **`IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION`** in `lib/product-copy.ts`, and keep the JSON identical. **`bun run consistency:install-manifest-metadata`** ([`scripts/check-install-manifest-metadata.mjs`](../scripts/check-install-manifest-metadata.mjs)) fails if manifests drift from those constants (or from exported layout strings for apps without a separate PWA field).
+- **JSON-LD** (`jsonLdGraphTail` `SoftwareApplication` / `WebApplication` `description`): prefer the **same** string as **`metadata.description`** where possible (avoids drift; `app/layout-metadata.test.ts` locks this). Example: PDF uses **`PDF_APP_DESCRIPTION`** for metadata and JSON-LD, while **`PDF_PWA_MANIFEST_DESCRIPTION`** is only for **`public/manifest.json`**. If JSON-LD and metadata must diverge, add **`*_JSON_LD_DESCRIPTION`** (or similarly explicit name) and document why both exist.
+- **`public/llms.txt`**: opening summary lines are hand-maintained crawler hints—keep factual claims aligned with runtime and with legal/product copy whenever behavior or eligibility changes (no automated check today).
 
 ## User-visible errors (product copy)
 

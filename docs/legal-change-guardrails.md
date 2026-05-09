@@ -29,8 +29,9 @@ At minimum, review and update all of:
 - `apps/web/app/privacy/page.tsx`
 - `apps/web/app/terms/page.tsx`
 - `apps/web/app/impressum/page.tsx`
-- app-specific product/legal copy (for example:
-  `apps/image-upscaler/lib/product-copy.ts`, app `README.md`, navbar/about
+- app-specific product/legal-facing copy (for example:
+  `apps/*/lib/product-copy.ts`, `apps/*/public/manifest.json` install
+  descriptions, `apps/*/public/llms.txt` summaries, app `README.md`, navbar/about
   text)
 
 ## Verification checklist

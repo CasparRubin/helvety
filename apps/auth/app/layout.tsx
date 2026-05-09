@@ -15,7 +15,11 @@ import { Navbar } from "@/components/navbar";
 
 /** Shared auth SEO / social copy (single source for metadata + JSON-LD). */
 export const AUTH_DESCRIPTION =
-  "Passwordless entry for Helvety apps-OTP, passkeys, and session recovery where your platform allows. Open source, Swiss-built.";
+  "Passwordless entry for Helvety apps: OTP, passkeys, and session recovery where your platform allows. Open source, Swiss-built.";
+
+/** Shorter PWA install line; must match `public/manifest.json` (see `consistency:install-manifest-metadata`). */
+export const AUTH_PWA_MANIFEST_DESCRIPTION =
+  "Passwordless Helvety sign-in: OTP and passkeys for encrypted apps. Open source, Swiss-built.";
 
 export const viewport = sharedViewport;
 

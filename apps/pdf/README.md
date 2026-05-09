@@ -8,6 +8,7 @@ Browser-based PDF toolkit for merge/reorder/rotate/extract workflows.
 ## Key Features
 
 - Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (overflow-main) and `@helvety/shared/seo` (`createHelvetyProductMetadata`) for shared metadata and shell chrome; shared layout-session bootstrap supplies an optional SSR session snapshot to the navbar (login still not required for tools)
+- User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) feeds metadata / JSON-LD (`PDF_APP_DESCRIPTION`) and PWA [`public/manifest.json`](./public/manifest.json) (`PDF_PWA_MANIFEST_DESCRIPTION`; verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
 - Local browser processing for supported operations
 - PDF and image input support
 - Page thumbnail preview with drag-and-drop reordering

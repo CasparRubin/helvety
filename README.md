@@ -90,7 +90,7 @@ bun run format
 ## Monorepo Conventions
 
 - ESLint boundary rules enforce that apps do not import code directly from other apps; shared logic must live in workspace packages.
-- **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and `consistency:guardrails` (see [`scripts/check-consistency-guardrails.mjs`](scripts/check-consistency-guardrails.mjs)).
+- **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and root `consistency:*` scripts such as `consistency:guardrails` ([`scripts/check-consistency-guardrails.mjs`](scripts/check-consistency-guardrails.mjs)) and `consistency:install-manifest-metadata` ([`scripts/check-install-manifest-metadata.mjs`](scripts/check-install-manifest-metadata.mjs)); see `package.json` for the full list.
 - **UI/shadcn integration boundaries** (shared-vs-local primitive ownership, allowed app-local wrappers, and guardrail expectations): [`docs/ui-shadcn-integration-policy.md`](docs/ui-shadcn-integration-policy.md).
 - Workspace layout, per-app entry points, and CI/release expectations are described in this file and in each app or package `README.md` (for example [`packages/ui/README.md`](packages/ui/README.md) for shared UI shells).
 
@@ -98,7 +98,7 @@ bun run format
 
 All quality gates run locally. There is no GitHub Actions or other remote CI in this repo; deployment is handled by Vercel from the pushed commit.
 
-- `bun run ci:check` (run during development) - `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
+- `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
 - `bun run ci:release` (run before `git push` / before Vercel deploys) - `ci:check` plus `build`.
 - Placeholder env mode (`SKIP_ENV_VALIDATION=1` off Vercel) is available for local build smoke tests, but `ci:release` runs with normal env validation.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.

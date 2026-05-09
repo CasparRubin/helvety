@@ -1,7 +1,7 @@
 {
   "name": "Helvety",
   "short_name": "Helvety",
-  "description": "Helvety.com hub for Swiss-built apps, policies, and deep links into every product-MIT-licensed code, minimal marketing noise.",
+  "description": "Swiss-built software with a calm UX: encrypted productivity, lightweight browser utilities, and clear legal pages. MIT-licensed where the repo ships code.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf8f7",

@@ -1,7 +1,7 @@
 {
   "name": "Helvety Tasks",
   "short_name": "Helvety Tasks",
-  "description": "Stage-based tasks encrypted in-browser; optional list search after unlock. MIT license, Swiss team.",
+  "description": "Kanban-style tasks encrypted before they leave your browser. MIT-licensed open source, built in Switzerland.",
   "start_url": "/tasks",
   "display": "standalone",
   "background_color": "#faf8f7",

@@ -1,7 +1,7 @@
 {
   "name": "Helvety Auth",
   "short_name": "Helvety Auth",
-  "description": "Passwordless Helvety sign-in-OTP and passkeys for encrypted apps. Open source, Swiss-built.",
+  "description": "Passwordless Helvety sign-in: OTP and passkeys for encrypted apps. Open source, Swiss-built.",
   "start_url": "/auth",
   "display": "standalone",
   "background_color": "#faf8f7",

@@ -3,6 +3,9 @@
  * Covers invariants that are awkward for ESLint alone (legal dates, security.txt,
  * shared action limits, etc.) and enforces root `app/page.tsx` default export name
  * `Page` per `docs/naming-conventions.md`.
+ *
+ * Sibling repo checks live under root `consistency:*` scripts (manifest vs SEO blurbs,
+ * proxy readme sync, toolchain docs, lifecycle package.json scripts, test hygiene).
  */
 import { readFile } from "node:fs/promises";
 import { readdir } from "node:fs/promises";

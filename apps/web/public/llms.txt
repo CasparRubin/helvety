@@ -1,6 +1,6 @@
 # Helvety
 
-> Swiss-built apps, crisp legal copy, and deep links into every Helvety surface-MIT-licensed source, minimal marketing fluff.
+> Swiss-built apps, crisp legal pages, and deep links across the Helvety product surface. MIT-licensed source code, minimal marketing fluff.
 
 ## Canonical URLs
 - [Home](https://helvety.com): Main landing page

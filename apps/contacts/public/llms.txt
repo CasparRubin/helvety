@@ -1,6 +1,6 @@
 # Helvety Contacts
 
-> Encrypted Helvety Contacts Rolodex-names through notes stay client-side until ciphertext lands in storage; list filtering runs locally post-unlock. MIT, Switzerland.
+> Encrypted Helvety Contacts: names and notes stay client-side until ciphertext is stored; list filtering runs locally after you unlock. MIT-licensed, Swiss-built.
 
 ## Canonical URL
 - [Contacts App](https://helvety.com/contacts): Auth-required contacts route
