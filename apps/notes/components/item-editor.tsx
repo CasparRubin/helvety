@@ -79,6 +79,7 @@ const TaskLinksPanel = dynamic(
  * Save status for the editor
  */
 type SaveStatus = "idle" | "saving" | "saved" | "error";
+const APP_HOME_PATH = "/notes";
 
 /**
  * Item Editor - Full page editor for note title and description.
@@ -117,6 +118,9 @@ export function ItemEditor({
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const editorRef = useRef<TiptapEditorRef>(null);
+  const saveStatusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   // Track if there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -137,6 +141,14 @@ export function ItemEditor({
   );
 
   const draftState = useRichTextDraftState();
+
+  useEffect(() => {
+    return () => {
+      if (saveStatusTimeoutRef.current) {
+        clearTimeout(saveStatusTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Initialize form with item data
   useEffect(() => {
@@ -171,7 +183,12 @@ export function ItemEditor({
         setSaveStatus("saved");
         setHasUnsavedChanges(false);
         // Reset to idle after a short delay
-        setTimeout(() => setSaveStatus("idle"), 2000);
+        if (saveStatusTimeoutRef.current) {
+          clearTimeout(saveStatusTimeoutRef.current);
+        }
+        saveStatusTimeoutRef.current = setTimeout(() => {
+          setSaveStatus("idle");
+        }, 2000);
       } else {
         setSaveStatus("error");
       }
@@ -231,7 +248,7 @@ export function ItemEditor({
       onClose();
       return;
     }
-    router.replace("/");
+    router.replace(APP_HOME_PATH);
   }, [onClose, router]);
 
   // Actual refresh (no confirmation)
@@ -305,7 +322,7 @@ export function ItemEditor({
         if (onClose) {
           onClose();
         } else {
-          router.replace("/");
+          router.replace(APP_HOME_PATH);
         }
       }
     } finally {

@@ -1,12 +1,9 @@
 import "server-only";
 
 import {
-  getCiPlaceholderServerUpstashEnv,
-  hasRealServerUpstashEnv,
-  isCiBuildPlaceholderEnvEnabled,
-  readServerUpstashEnvFromProcess,
   serverEnvSchema,
   upstashEnvSchema,
+  validateServerUpstashEnv,
 } from "@helvety/shared/env-validation";
 
 import type { z } from "zod";
@@ -24,25 +21,10 @@ let validated: z.infer<typeof contactsEnvSchema> | null = null;
  */
 export function getValidatedContactsEnv(): z.infer<typeof contactsEnvSchema> {
   if (validated) return validated;
-
-  if (isCiBuildPlaceholderEnvEnabled() && !hasRealServerUpstashEnv()) {
-    validated = getCiPlaceholderServerUpstashEnv();
-    return validated;
-  }
-
-  const raw = readServerUpstashEnvFromProcess();
-
-  const result = contactsEnvSchema.safeParse(raw);
-
-  if (!result.success) {
-    const errors = result.error.issues
-      .map((e) => `  - ${e.path.join(".")}: ${e.message}`)
-      .join("\n");
-    throw new Error(
-      `[contacts] Invalid environment variables:\n${errors}\n\nSee apps/contacts/env.template for required values.`
-    );
-  }
-
-  validated = result.data;
+  validated = validateServerUpstashEnv({
+    appName: "contacts",
+    envTemplatePath: "apps/contacts/env.template",
+    schema: contactsEnvSchema,
+  });
   return validated;
 }

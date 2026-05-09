@@ -19,6 +19,7 @@ Product catalog and package-download app for the Helvety ecosystem.
 - `spfx/helvety-spo-explorer`: newest `.sppkg` by timestamp/name.
 - `browserExtensions/power-automate-force-v3-false`: newest `.zip` by timestamp/name.
 - If listing fails, resolver falls back to configured filename path.
+- Download URL generation and public download endpoint throttling both use centralized helpers in `lib/download-security.ts` (`buildDownloadUrlRateLimitKey`, `buildPublicDownloadRateLimitKey`) to keep key naming and validation rules consistent.
 - Download URL generation is IP-rate-limited and fails closed when trusted client IP is unavailable in production.
 
 ## Crawl and Indexing

@@ -103,7 +103,9 @@ async function main() {
   );
   if (
     downloadActions &&
-    !/`download_url:ip:\$\{clientIp\}`/.test(downloadActions.content)
+    !/`download_url:ip:\$\{clientIp\}`|buildDownloadUrlRateLimitKey\(clientIp\)/.test(
+      downloadActions.content
+    )
   ) {
     throw new Error(
       "apps/store/app/actions/download-actions.ts must enforce DOWNLOAD_URL throttling with an IP-scoped key."
@@ -171,6 +173,55 @@ async function main() {
     if (!/export default (?:async )?function Page\b/.test(file.content)) {
       throw new Error(
         `${file.relativePath} must default-export a function named Page (see docs/naming-conventions.md).`
+      );
+    }
+  }
+
+  const securityProxyTargets = [
+    "apps/auth/proxy.ts",
+    "apps/contacts/proxy.ts",
+    "apps/notes/proxy.ts",
+    "apps/pdf/proxy.ts",
+    "apps/store/proxy.ts",
+    "apps/tasks/proxy.ts",
+  ];
+  const securityProxyContents = await Promise.all(
+    securityProxyTargets.map(async (relativePath) => ({
+      relativePath,
+      content: await readFile(resolve(rootDir, relativePath), "utf8"),
+    }))
+  );
+  const canonicalSecurityProxyMatcher =
+    '"/((?!_next/static|_next/image|favicon.ico|.*\\\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|map|woff2?)$).*)"';
+  for (const file of securityProxyContents) {
+    const hasCanonicalStaticMatcher =
+      file.content.includes(canonicalSecurityProxyMatcher) &&
+      file.content.includes("matcher: [");
+
+    if (!hasCanonicalStaticMatcher) {
+      throw new Error(
+        `${file.relativePath} must define the canonical static SECURITY_PROXY_MATCHER required by Next.js proxy config.`
+      );
+    }
+  }
+
+  const envModules = [
+    "apps/auth/lib/env.ts",
+    "apps/contacts/lib/env.ts",
+    "apps/notes/lib/env.ts",
+    "apps/store/lib/env.ts",
+    "apps/tasks/lib/env.ts",
+  ];
+  const envModuleContents = await Promise.all(
+    envModules.map(async (relativePath) => ({
+      relativePath,
+      content: await readFile(resolve(rootDir, relativePath), "utf8"),
+    }))
+  );
+  for (const file of envModuleContents) {
+    if (!/validateServerUpstashEnv\(/.test(file.content)) {
+      throw new Error(
+        `${file.relativePath} must validate env via validateServerUpstashEnv from @helvety/shared/env-validation.`
       );
     }
   }

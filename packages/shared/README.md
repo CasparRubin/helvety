@@ -56,7 +56,7 @@ This package centralizes:
 ### Rate Limits and Caching
 
 - Security rate limiting is distributed via Upstash.
-- Rate-limit keys follow `ratelimit:<domain>:<resource>:...` naming.
+- New shared rate-limit keys should use explicit, readable namespaces and stable key builders (for example `buildDownloadUrlRateLimitKey(...)`) to avoid string drift.
 - Security keys require explicit TTL semantics.
 - Strict production paths fail closed on rate-limit backend failure.
 - Request cache helpers are per-request only, not global data caches.

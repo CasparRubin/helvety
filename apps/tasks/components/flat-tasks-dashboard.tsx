@@ -25,7 +25,13 @@ import {
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
 import { Loader2Icon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
@@ -79,6 +85,10 @@ export function FlatTasksDashboard({
   }>({ open: false, id: null, name: null });
   const [isDeleting, startDeleteTransition] = useTransition();
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    setSelectedItemId(searchParams.get("item"));
+  }, [searchParams]);
 
   const defaultStageId =
     stages.length > 0

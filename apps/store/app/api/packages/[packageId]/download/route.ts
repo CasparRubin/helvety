@@ -2,50 +2,18 @@ import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { logger } from "@helvety/shared/logger";
 import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { getPackageDownloadUrl } from "@/app/actions/download-actions";
+import {
+  buildPublicDownloadRateLimitKey,
+  isAllowedDownloadUrl,
+  packageIdSchema,
+} from "@/lib/download-security";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
-
-const PackageIdSchema = z
-  .string()
-  .min(1)
-  .max(100)
-  .regex(/^[a-z0-9-]+$/);
-
-/** Ensures public download redirects only target trusted storage origins. */
-function isAllowedDownloadUrl(rawUrl: string): boolean {
-  try {
-    const parsed = new URL(rawUrl);
-    if (parsed.protocol !== "https:") return false;
-
-    const allowedOrigins = new Set<string>();
-    const envCandidates = [
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_URL,
-    ];
-    for (const candidate of envCandidates) {
-      if (!candidate) continue;
-      try {
-        allowedOrigins.add(new URL(candidate).origin);
-      } catch {
-        // Ignore malformed env values; runtime validation handles these separately.
-      }
-    }
-
-    if (allowedOrigins.size === 0) {
-      return process.env.NODE_ENV !== "production";
-    }
-
-    return allowedOrigins.has(parsed.origin);
-  } catch {
-    return false;
-  }
-}
 
 /** Resolve a package download URL and redirect the caller. */
 export async function GET(
@@ -63,7 +31,7 @@ export async function GET(
   }
 
   const downloadRateLimit = await checkRateLimit(
-    `public-download:ip:${clientIp}`,
+    buildPublicDownloadRateLimitKey(clientIp),
     RATE_LIMITS.DOWNLOADS.maxRequests,
     RATE_LIMITS.DOWNLOADS.windowMs,
     "store-downloads"
@@ -82,7 +50,7 @@ export async function GET(
   }
 
   const { packageId } = await context.params;
-  if (!PackageIdSchema.safeParse(packageId).success) {
+  if (!packageIdSchema.safeParse(packageId).success) {
     return NextResponse.json(
       { success: false, error: "Invalid package ID" },
       { status: 400 }

@@ -100,8 +100,8 @@ export function EntityList({
       if (!over || !onReorder) return;
       if (active.id === over.id) return;
 
-      const activeId = active.id as string;
-      const overId = over.id as string;
+      const activeId = String(active.id);
+      const overId = String(over.id);
       const activeEntity = entities.find((entity) => entity.id === activeId);
       const overEntity = entities.find((entity) => entity.id === overId);
 
@@ -127,7 +127,11 @@ export function EntityList({
         groupKey: "category_id",
         droppedOnGroupContainer:
           !overEntity && over.data?.current?.type === "category",
-      }) as ReorderUpdate[];
+      }).map((update) => ({
+        id: update.id,
+        sort_order: update.sort_order,
+        category_id: update.category_id ?? activeEntity.category_id,
+      })) satisfies ReorderUpdate[];
 
       if (updates.length === 0) return;
 

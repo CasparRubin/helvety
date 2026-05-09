@@ -170,8 +170,8 @@ export function EntityList({
       if (!over || !onReorder) return;
       if (active.id === over.id) return;
 
-      const activeId = active.id as string;
-      const overId = over.id as string;
+      const activeId = String(active.id);
+      const overId = String(over.id);
 
       // Determine target stage
       let targetStageId: string | undefined;
@@ -203,7 +203,11 @@ export function EntityList({
         targetGroupId: targetStageId,
         groupKey: "stage_id",
         droppedOnGroupContainer: over.data?.current?.type === "stage",
-      }) as ReorderUpdate[];
+      }).map((update) => ({
+        id: update.id,
+        sort_order: update.sort_order,
+        stage_id: update.stage_id ?? null,
+      })) satisfies ReorderUpdate[];
 
       if (updates.length === 0) return;
 

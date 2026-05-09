@@ -568,6 +568,9 @@ export function usePdfProcessing({
           handleError(err, "Can't extract page:", onError);
         }
       } finally {
+        if (abortControllerRef.current === abortController) {
+          abortControllerRef.current = null;
+        }
         if (isMountedRef.current) {
           setIsProcessing(false);
         }
@@ -755,6 +758,9 @@ export function usePdfProcessing({
         handleError(err, "Download failed:", onError);
       }
     } finally {
+      if (abortControllerRef.current === abortController) {
+        abortControllerRef.current = null;
+      }
       if (isMountedRef.current) {
         setIsProcessing(false);
       }

@@ -189,7 +189,7 @@ export function useLoginFlow(): LoginFlowState {
   const [trustedUserId, setTrustedUserId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const hasAutoRetriedMismatch = useRef(false);
-  const hasInitializedAuth = useRef(false);
+  const lastAuthBootstrapKey = useRef<string | null>(null);
   const hasRecoveredTerminalAuth = useRef(false);
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -197,6 +197,7 @@ export function useLoginFlow(): LoginFlowState {
   /** After OTP: direct to sign-in vs setup then sign-in (drives 3- vs 4-step stepper). */
   const [postOtpPasskeyPath, setPostOtpPasskeyPath] =
     useState<PostOtpPasskeyPath>(null);
+  const authBootstrapKey = `${step}|${redirectUri ?? ""}|${forceLogin ? "1" : "0"}`;
 
   // Device detection for passkey flow (client-only, set on mount)
   useEffect(() => {
@@ -215,10 +216,10 @@ export function useLoginFlow(): LoginFlowState {
 
   // Initialize: check passkey support and existing session
   useEffect(() => {
-    if (hasInitializedAuth.current) {
+    if (lastAuthBootstrapKey.current === authBootstrapKey) {
       return;
     }
-    hasInitializedAuth.current = true;
+    lastAuthBootstrapKey.current = authBootstrapKey;
     let cancelled = false;
 
     const init = async () => {
@@ -399,7 +400,7 @@ export function useLoginFlow(): LoginFlowState {
     return () => {
       cancelled = true;
     };
-  }, [supabase, step, redirectUri, forceLogin]);
+  }, [authBootstrapKey, forceLogin, redirectUri, step, supabase]);
 
   // Handle email submission; on success continue to OTP verification.
   const handleEmailSubmit = useCallback(

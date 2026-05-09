@@ -1,12 +1,9 @@
 import "server-only";
 
 import {
-  getCiPlaceholderServerUpstashEnv,
-  hasRealServerUpstashEnv,
-  isCiBuildPlaceholderEnvEnabled,
-  readServerUpstashEnvFromProcess,
   serverEnvSchema,
   upstashEnvSchema,
+  validateServerUpstashEnv,
 } from "@helvety/shared/env-validation";
 
 import type { z } from "zod";
@@ -24,25 +21,10 @@ let validated: z.infer<typeof storeEnvSchema> | null = null;
  */
 export function getValidatedStoreEnv(): z.infer<typeof storeEnvSchema> {
   if (validated) return validated;
-
-  if (isCiBuildPlaceholderEnvEnabled() && !hasRealServerUpstashEnv()) {
-    validated = getCiPlaceholderServerUpstashEnv();
-    return validated;
-  }
-
-  const raw = readServerUpstashEnvFromProcess();
-
-  const result = storeEnvSchema.safeParse(raw);
-
-  if (!result.success) {
-    const errors = result.error.issues
-      .map((e) => `  - ${e.path.join(".")}: ${e.message}`)
-      .join("\n");
-    throw new Error(
-      `[store] Invalid environment variables:\n${errors}\n\nSee apps/store/env.template for required values.`
-    );
-  }
-
-  validated = result.data;
+  validated = validateServerUpstashEnv({
+    appName: "store",
+    envTemplatePath: "apps/store/env.template",
+    schema: storeEnvSchema,
+  });
   return validated;
 }

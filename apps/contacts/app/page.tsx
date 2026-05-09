@@ -1,8 +1,7 @@
 import { shouldForceHardLogout } from "@helvety/shared/auth-errors";
 import { getLogoutUrl } from "@helvety/shared/auth-redirect";
+import { urls } from "@helvety/shared/config";
 import { requireE2eeAppPageAuth } from "@helvety/shared/e2ee-page-auth";
-import { resolveRequestOrigin } from "@helvety/shared/request-origin";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getContactsDashboardData } from "@/app/actions/batch-actions";
@@ -12,11 +11,10 @@ import { ContactsDashboard } from "@/components/contacts-dashboard";
 async function PrefetchedDashboard(): Promise<React.JSX.Element> {
   const result = await getContactsDashboardData();
   if (!result.success && shouldForceHardLogout(result.error)) {
-    const requestOrigin = resolveRequestOrigin(await headers()) ?? undefined;
     redirect(
       getLogoutUrl("/contacts", {
         global: true,
-        currentOrigin: requestOrigin,
+        currentOrigin: urls.home,
       })
     );
   }

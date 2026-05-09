@@ -35,6 +35,8 @@ interface EncryptionGateProps {
 
 /** Encryption gate status states */
 type EncryptionStatus = "loading" | "needs_login" | "needs_logout" | "unlocked";
+/** Redirect intent derived from encryption/auth checks before rendering. */
+type RedirectIntent = "unknown" | "login" | "logout" | "none";
 
 /**
  * Gate component that requires encryption setup/unlock in this UI flow before
@@ -60,10 +62,14 @@ export function EncryptionGate({
 
   const alreadyUnlocked = isUnlocked && unlockedForUserId === userId;
 
-  const [hasCheckedParams, setHasCheckedParams] = useState(alreadyUnlocked);
-  const [needsLogin, setNeedsLogin] = useState(false);
-  const [needsLogout, setNeedsLogout] = useState(false);
+  const [redirectIntent, setRedirectIntent] = useState<RedirectIntent>(
+    alreadyUnlocked ? "none" : "unknown"
+  );
   const redirectingRef = useRef(false);
+
+  useEffect(() => {
+    setRedirectIntent(alreadyUnlocked ? "none" : "unknown");
+  }, [alreadyUnlocked, userId]);
 
   useEffect(() => {
     if (alreadyUnlocked || redirectingRef.current) {
@@ -92,23 +98,20 @@ export function EncryptionGate({
               if (unlockedForUserId) {
                 void lockEncryption(unlockedForUserId);
               }
-              setNeedsLogout(true);
+              setRedirectIntent("logout");
             } else {
-              setNeedsLogin(true);
+              setRedirectIntent("login");
             }
-            setHasCheckedParams(true);
             return;
           }
 
           // This app never unlocks in-place. If we are not already unlocked,
           // return to centralized auth flow without forcing global logout.
-          setNeedsLogin(!alreadyUnlocked);
-          setHasCheckedParams(true);
+          setRedirectIntent(alreadyUnlocked ? "none" : "login");
         })
         .catch(() => {
           if (cancelled) return;
-          setNeedsLogin(true);
-          setHasCheckedParams(true);
+          setRedirectIntent("login");
         });
     };
 
@@ -138,11 +141,11 @@ export function EncryptionGate({
         sessionUserId !== unlockedForUserId
       ) {
         void lockEncryption(unlockedForUserId);
-        setNeedsLogout(true);
+        setRedirectIntent("logout");
       }
       if (!session && event === "SIGNED_OUT") {
         if (unlockedForUserId) void lockEncryption(unlockedForUserId);
-        setNeedsLogin(true);
+        setRedirectIntent("login");
       }
     });
     return () => subscription.unsubscribe();
@@ -152,12 +155,12 @@ export function EncryptionGate({
     return onKeyEvent((msg) => {
       if (msg.type === "keys-cleared" && unlockedForUserId) {
         void lockEncryption(unlockedForUserId);
-        setNeedsLogin(true);
+        setRedirectIntent("login");
       }
       if (msg.type === "master-key-deleted" && unlockedForUserId) {
         if (msg.userId === unlockedForUserId) {
           void lockEncryption(unlockedForUserId);
-          setNeedsLogin(true);
+          setRedirectIntent("login");
         }
       }
     });
@@ -166,20 +169,19 @@ export function EncryptionGate({
   const status: EncryptionStatus = useMemo(() => {
     const contextIntent = classifyActionAuthError(contextError);
     if (alreadyUnlocked) return "unlocked";
-    if (contextLoading || !hasCheckedParams) return "loading";
-    if (needsLogout || contextIntent === "hard_logout") return "needs_logout";
-    if (needsLogin || contextIntent === "login" || Boolean(contextError)) {
+    if (contextLoading || redirectIntent === "unknown") return "loading";
+    if (redirectIntent === "logout" || contextIntent === "hard_logout") {
+      return "needs_logout";
+    }
+    if (
+      redirectIntent === "login" ||
+      contextIntent === "login" ||
+      contextError
+    ) {
       return "needs_login";
     }
     return "needs_login";
-  }, [
-    alreadyUnlocked,
-    contextError,
-    contextLoading,
-    hasCheckedParams,
-    needsLogin,
-    needsLogout,
-  ]);
+  }, [alreadyUnlocked, contextError, contextLoading, redirectIntent]);
 
   useEffect(() => {
     if (redirectingRef.current) return;

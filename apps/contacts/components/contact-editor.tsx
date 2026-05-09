@@ -49,6 +49,7 @@ import type { JSONContent } from "@tiptap/react";
 
 /** Save status type */
 type SaveStatus = "idle" | "saving" | "saved" | "error";
+const APP_HOME_PATH = "/contacts";
 
 /** Props for ContactEditor */
 interface ContactEditorProps {
@@ -92,6 +93,9 @@ export function ContactEditor({
   const [birthday, setBirthday] = useState<string | null>(null);
   const [notesContent, setNotesContent] = useState<JSONContent | null>(null);
   const editorRef = useRef<TiptapEditorRef>(null);
+  const saveStatusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   // Save tracking
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -118,6 +122,14 @@ export function ContactEditor({
   const [pendingAction, setPendingAction] = useState<"back" | "refresh" | null>(
     null
   );
+
+  useEffect(() => {
+    return () => {
+      if (saveStatusTimeoutRef.current) {
+        clearTimeout(saveStatusTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Populate form when contact loads
   useEffect(() => {
@@ -200,7 +212,12 @@ export function ContactEditor({
         savedBirthdayRef.current = birthday;
         savedNotesRef.current = currentNotes;
         setSaveStatus("saved");
-        setTimeout(() => setSaveStatus("idle"), 2000);
+        if (saveStatusTimeoutRef.current) {
+          clearTimeout(saveStatusTimeoutRef.current);
+        }
+        saveStatusTimeoutRef.current = setTimeout(() => {
+          setSaveStatus("idle");
+        }, 2000);
       } else {
         setSaveStatus("error");
       }
@@ -227,7 +244,7 @@ export function ContactEditor({
       onClose();
       return;
     }
-    router.replace("/");
+    router.replace(APP_HOME_PATH);
   }, [onClose, router]);
 
   const handleBack = useCallback(() => {
@@ -303,7 +320,7 @@ export function ContactEditor({
         if (onClose) {
           onClose();
         } else {
-          router.replace("/");
+          router.replace(APP_HOME_PATH);
         }
       }
     } finally {

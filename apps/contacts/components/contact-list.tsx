@@ -117,8 +117,8 @@ export function ContactList({
       if (!over || !onReorder) return;
       if (active.id === over.id) return;
 
-      const activeId = active.id as string;
-      const overId = over.id as string;
+      const activeId = String(active.id);
+      const overId = String(over.id);
 
       const activeContact = contacts.find((c) => c.id === activeId);
       const overContact = contacts.find((c) => c.id === overId);
@@ -145,7 +145,11 @@ export function ContactList({
         groupKey: "category_id",
         droppedOnGroupContainer:
           !overContact && over.data?.current?.type === "category",
-      }) as ReorderUpdate[];
+      }).map((update) => ({
+        id: update.id,
+        sort_order: update.sort_order,
+        category_id: update.category_id ?? activeContact.category_id,
+      })) satisfies ReorderUpdate[];
 
       if (updates.length === 0) return;
 

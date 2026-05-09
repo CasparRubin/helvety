@@ -1,12 +1,9 @@
 import "server-only";
 
 import {
-  getCiPlaceholderServerUpstashEnv,
-  hasRealServerUpstashEnv,
-  isCiBuildPlaceholderEnvEnabled,
-  readServerUpstashEnvFromProcess,
   serverEnvSchema,
   upstashEnvSchema,
+  validateServerUpstashEnv,
 } from "@helvety/shared/env-validation";
 import { z } from "zod";
 
@@ -32,33 +29,18 @@ let validated: z.infer<typeof authEnvSchema> | null = null;
  */
 export function getValidatedAuthEnv(): z.infer<typeof authEnvSchema> {
   if (validated) return validated;
-
-  if (isCiBuildPlaceholderEnvEnabled() && !hasRealServerUpstashEnv()) {
-    validated = {
-      ...getCiPlaceholderServerUpstashEnv(),
+  validated = validateServerUpstashEnv({
+    appName: "auth",
+    envTemplatePath: "apps/auth/env.template",
+    schema: authEnvSchema,
+    readExtraFromProcess: () => ({
+      DEVICE_TRUST_COOKIE_SECRET:
+        process.env.DEVICE_TRUST_COOKIE_SECRET?.trim() ?? "",
+    }),
+    ciPlaceholderExtra: {
       DEVICE_TRUST_COOKIE_SECRET:
         "ci_build_placeholder_device_trust_cookie_secret_not_for_production",
-    };
-    return validated;
-  }
-
-  const raw = {
-    ...readServerUpstashEnvFromProcess(),
-    DEVICE_TRUST_COOKIE_SECRET:
-      process.env.DEVICE_TRUST_COOKIE_SECRET?.trim() ?? "",
-  };
-
-  const result = authEnvSchema.safeParse(raw);
-
-  if (!result.success) {
-    const errors = result.error.issues
-      .map((e) => `  - ${e.path.join(".")}: ${e.message}`)
-      .join("\n");
-    throw new Error(
-      `[auth] Invalid environment variables:\n${errors}\n\nSee apps/auth/env.template for required values.`
-    );
-  }
-
-  validated = result.data;
+    },
+  });
   return validated;
 }

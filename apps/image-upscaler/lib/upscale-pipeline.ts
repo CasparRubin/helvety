@@ -199,6 +199,10 @@ export async function upscaleItemsSequentially(options: {
   completedCount: number;
   failedCount: number;
 }> {
+  if (options.items.length > MAX_BULK_FILES) {
+    throw new Error(`You can upscale up to ${MAX_BULK_FILES} files at once.`);
+  }
+
   const worker = createUpscaleWorkerClient();
   let runtime = "wasm-fallback";
   let completedCount = 0;

@@ -137,7 +137,7 @@ export function createScopedAdminQuery(userId: string) {
      */
     client: admin,
     from(table: ScopedTable) {
-      const query = admin.from(table as never) as ReturnType<
+      const query = admin.from(table) as ReturnType<
         SupabaseClient<DatabaseSchema>["from"]
       >;
       const scopeColumn = USER_SCOPE_COLUMNS[table];

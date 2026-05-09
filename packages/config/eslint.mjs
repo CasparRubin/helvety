@@ -35,7 +35,7 @@ const importRules = {
       },
     },
   ],
-  "import-x/no-unresolved": "off",
+  "import-x/no-unresolved": "error",
   "import-x/no-duplicates": "error",
 };
 

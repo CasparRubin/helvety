@@ -202,6 +202,48 @@ export function getCiPlaceholderServerUpstashEnv(): z.infer<
   return cachedCiPlaceholderServerUpstash;
 }
 
+/** Shared parser for app server env modules (Supabase secret + Upstash + optional extras). */
+export function validateServerUpstashEnv<
+  TSchema extends z.ZodTypeAny,
+>(options: {
+  appName: string;
+  envTemplatePath: string;
+  schema: TSchema;
+  readExtraFromProcess?: () => Record<string, string>;
+  ciPlaceholderExtra?: Record<string, string>;
+}): z.infer<TSchema> {
+  const {
+    appName,
+    envTemplatePath,
+    schema,
+    readExtraFromProcess,
+    ciPlaceholderExtra,
+  } = options;
+
+  const rawBase =
+    isCiBuildPlaceholderEnvEnabled() && !hasRealServerUpstashEnv()
+      ? {
+          ...getCiPlaceholderServerUpstashEnv(),
+          ...(ciPlaceholderExtra ?? {}),
+        }
+      : {
+          ...readServerUpstashEnvFromProcess(),
+          ...(readExtraFromProcess ? readExtraFromProcess() : {}),
+        };
+
+  const result = schema.safeParse(rawBase);
+  if (!result.success) {
+    const errors = result.error.issues
+      .map((issue) => `  - ${issue.path.join(".")}: ${issue.message}`)
+      .join("\n");
+    throw new Error(
+      `[${appName}] Invalid environment variables:\n${errors}\n\nSee ${envTemplatePath} for required values.`
+    );
+  }
+
+  return result.data;
+}
+
 /** Validated environment variable types */
 type Env = z.infer<typeof envSchema>;
 

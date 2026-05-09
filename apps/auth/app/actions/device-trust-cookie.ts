@@ -25,10 +25,7 @@ export type DeviceTrustPayload = z.infer<typeof DeviceTrustPayloadSchema>;
 
 /** Return validated cookie-signing secret for device trust. */
 function getDeviceTrustSecret(): string {
-  const env = getValidatedAuthEnv() as unknown as {
-    DEVICE_TRUST_COOKIE_SECRET?: string;
-  };
-  const secret = env.DEVICE_TRUST_COOKIE_SECRET?.trim() ?? "";
+  const secret = getValidatedAuthEnv().DEVICE_TRUST_COOKIE_SECRET?.trim() ?? "";
   if (!secret) {
     throw new Error(
       "[auth] Missing DEVICE_TRUST_COOKIE_SECRET (required for device trust cookie signing)"

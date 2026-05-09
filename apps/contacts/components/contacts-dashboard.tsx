@@ -26,7 +26,13 @@ import {
 } from "@helvety/ui/sheet";
 import { Loader2Icon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 
 import { ContactCommandBar } from "@/components/contact-command-bar";
@@ -89,6 +95,10 @@ export function ContactsDashboard({
     () => searchParams.get("contact")
   );
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    setSelectedContactId(searchParams.get("contact"));
+  }, [searchParams]);
 
   const filteredContacts = useMemo(() => {
     return filterE2eeDashboardItems(contacts, searchQuery, (contact) => [

@@ -13,31 +13,17 @@ import { unexpectedActionError } from "@helvety/shared/server-action-primitives"
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 import { headers } from "next/headers";
-import { z } from "zod";
 
+import {
+  buildDownloadUrlRateLimitKey,
+  packageIdSchema,
+} from "@/lib/download-security";
 import { getPackageInfo, isPublicPackage } from "@/lib/packages/config";
 import { resolveLatestPackageVersion } from "@/lib/packages/resolve-version";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { ActionResponse } from "@/lib/types";
 import type { PackageDownloadInfo } from "@/lib/types/store";
-
-// =============================================================================
-// INPUT VALIDATION SCHEMAS
-// =============================================================================
-
-/**
- * Package ID validation schema
- * Package IDs are lowercase alphanumeric with hyphens
- */
-const PackageIdSchema = z
-  .string()
-  .min(1, "Package ID is required")
-  .max(100, "Package ID too long")
-  .regex(
-    /^[a-z0-9-]+$/,
-    "Package ID must be lowercase alphanumeric with hyphens"
-  );
 
 // =============================================================================
 // DOWNLOAD ACTIONS
@@ -55,7 +41,7 @@ export async function getPackageDownloadUrl(
 ): Promise<ActionResponse<PackageDownloadInfo>> {
   try {
     // Validate input
-    const parseResult = PackageIdSchema.safeParse(packageId);
+    const parseResult = packageIdSchema.safeParse(packageId);
     if (!parseResult.success) {
       return { success: false, error: "Invalid package ID" };
     }
@@ -76,7 +62,7 @@ export async function getPackageDownloadUrl(
       return { success: false, error: "Unable to process request" };
     }
     const rateLimit = await checkRateLimit(
-      `download_url:ip:${clientIp}`,
+      buildDownloadUrlRateLimitKey(clientIp),
       RATE_LIMITS.DOWNLOAD_URL.maxRequests,
       RATE_LIMITS.DOWNLOAD_URL.windowMs
     );
