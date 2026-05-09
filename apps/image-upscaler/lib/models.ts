@@ -22,7 +22,7 @@ export type UpscaleModelId = "canvas" | "realesr-general-x4v3";
  * Coarse classification used by the worker to dispatch between the canvas
  * resampler and the ONNX inference path.
  */
-export type UpscaleEngineKind = "canvas" | "onnx";
+type UpscaleEngineKind = "canvas" | "onnx";
 
 /**
  * Preferred tile geometry used by ONNX tiled inference.
@@ -31,7 +31,7 @@ export type UpscaleEngineKind = "canvas" | "onnx";
  * dimensions (for example 128x128). Overlap and padding semantics stay the
  * same; this config remains the default target for dynamic-shape models.
  */
-export interface OnnxTileConfig {
+interface OnnxTileConfig {
   /** Tile edge length in source pixels. */
   readonly size: number;
   /** Per-side overlap in source pixels (used for linear-blend stitching). */
@@ -50,7 +50,7 @@ export interface OnnxTileConfig {
  * accepts these files at session creation time, so we can host both files
  * verbatim instead of converting to a single self-contained `.onnx`.
  */
-export interface OnnxExternalDataFile {
+interface OnnxExternalDataFile {
   /** Public URL of the sidecar file in Supabase Storage. */
   readonly url: string;
   /**
@@ -247,11 +247,6 @@ export function getModelById(id: UpscaleModelId): UpscaleModel {
     throw new Error(`Unknown upscale model id: ${String(id)}`);
   }
   return model;
-}
-
-/** Type guard that narrows a string to a registered model id. */
-export function isUpscaleModelId(value: unknown): value is UpscaleModelId {
-  return typeof value === "string" && MODEL_INDEX.has(value as UpscaleModelId);
 }
 
 /**

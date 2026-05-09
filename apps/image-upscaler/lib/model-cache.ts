@@ -282,18 +282,6 @@ export async function getModelBytes(
   };
 }
 
-/** Tests whether a given model is already present in the browser cache. */
-export async function isModelCached(url: string): Promise<boolean> {
-  if (typeof globalThis.caches === "undefined") return false;
-  try {
-    const cache = await globalThis.caches.open(MODEL_CACHE_NAME);
-    const match = await cache.match(url);
-    return Boolean(match);
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Removes a single model (and any of its external-data sidecars) from the
  * cache, e.g. when an integrity check fails so the next attempt re-downloads.

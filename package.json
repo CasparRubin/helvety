@@ -48,7 +48,7 @@
     "rollup": "4.59.0",
     "minimatch": "10.2.4",
     "ajv": "6.14.0",
-    "hono": "4.12.14",
+    "hono": "4.12.18",
     "@hono/node-server": "1.19.13",
     "vite": "7.3.2",
     "express-rate-limit": "8.2.2",
@@ -57,13 +57,15 @@
     "yaml": "2.8.3",
     "brace-expansion": "5.0.5",
     "path-to-regexp": "8.4.0",
-    "picomatch": "2.3.2"
+    "picomatch": "2.3.2",
+    "ip-address": "10.2.0",
+    "postcss": "8.5.14"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.5",
-    "knip": "^6.11.0",
+    "knip": "^6.12.2",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
-    "turbo": "^2.9.8"
+    "turbo": "^2.9.12"
   }
 }
