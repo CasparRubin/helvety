@@ -13,7 +13,7 @@
   - `createSecurityHeaders`
   - shared ESLint/TS policy entrypoints
 - `@helvety/shared`
-  - `createAppProxy` and `createProfiledSecurityProxy`
+  - `createAppProxy`, `createProfiledSecurityProxy`, and `SECURITY_PROXY_MATCHER` (canonical `proxy.ts` zone matcher pattern; apps inline the literal per Next.js)
   - auth redirect/callback behavior
   - server env validation and Supabase client factories
 - `@helvety/ui`

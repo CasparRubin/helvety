@@ -129,7 +129,7 @@ SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
 
 ## Security Posture (High Level)
 
-- `proxy.ts` is lightweight request setup (CSP headers, optional CSRF bootstrap, and Supabase cookie refresh), not the primary auth boundary.
+- `proxy.ts` is lightweight request setup (CSP headers, optional CSRF bootstrap, and Supabase cookie refresh), not the primary auth boundary. Zone apps inline the same `config.matcher` pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal; CI guardrails keep parity) so common static files—including PDF.js and ONNX worker assets (`.mjs`, `.wasm`, `.json`)—skip that chain. The `apps/web` gateway uses a custom matcher with the same static extension exclusions plus zone path skips.
 - Primary auth/authz enforcement lives in Server Components, Server Actions, and route handlers.
 - E2EE apps (`tasks`, `contacts`, `notes`) enforce server-side page guards and passkey-based unlock flows.
 

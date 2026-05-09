@@ -39,7 +39,7 @@ Trusted-device shortcut:
 
 ## Security Model
 
-- `proxy.ts` performs request bootstrap (CSP/CSRF/session refresh), not full auth enforcement.
+- `proxy.ts` performs request bootstrap (CSP/CSRF/session refresh), not full auth enforcement. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Rate limits apply to OTP send/verify and passkey operations.
 - CSRF is required for state-changing actions; read-only actions use authenticated read model.
 - Redirect URIs are allowlist-validated via shared redirect-validation logic.

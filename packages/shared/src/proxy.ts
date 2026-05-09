@@ -27,9 +27,13 @@ export type BuildCspOptions = {
   wasmUnsafeEval?: boolean;
 };
 
-/** Shared matcher used by all app proxies. */
+/**
+ * Shared matcher for Next.js `proxy.ts` config.
+ * Excludes common `public/` static extensions so they are not run through the
+ * security proxy (PDF.js worker `.mjs`, ONNX `.mjs`/`.wasm`, JSON, etc.).
+ */
 export const SECURITY_PROXY_MATCHER = [
-  "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|map|woff2?)$).*)",
+  "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|json|map|woff2?|mjs|wasm)$).*)",
 ];
 
 /** Configuration for creating a lightweight security proxy handler. */
@@ -166,7 +170,10 @@ export function createAppProxy(options: {
  *
  * Config must be exported separately in each app (Next.js requires static config).
  *
- * Use in each app's proxy.ts (preferred):
+ * Use in each app's `proxy.ts` (canonical pattern lives on `SECURITY_PROXY_MATCHER`
+ * for tests and docs). **Next.js requires `config.matcher` to be a static string
+ * literal**, so zone apps must copy the same string into `matcher: [ "…" ]`
+ * (see `scripts/check-consistency-guardrails.mjs` for CI parity checks):
  * ```ts
  * import { createAppProxy, createProfiledSecurityProxy } from "@helvety/shared/proxy";
  *
@@ -177,7 +184,7 @@ export function createAppProxy(options: {
  *
  * export const config = {
  *   matcher: [
- *     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|map|woff2?)$).*)",
+ *     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|json|map|woff2?|mjs|wasm)$).*)",
  *   ],
  * };
  * ```

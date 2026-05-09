@@ -19,7 +19,7 @@ This package centralizes:
 
 ### Canonical Ownership Map
 
-- Proxy profiles and request bootstrap defaults: `packages/shared/src/proxy.ts`
+- Proxy profiles, `SECURITY_PROXY_MATCHER` (canonical zone `proxy.ts` matcher pattern; excludes `_next/static`, `_next/image`, `favicon.ico`, and common `public/` extensions including `mjs`, `wasm`, and `json`—zone apps **inline** this string because Next.js requires a static literal), and request bootstrap defaults: `packages/shared/src/proxy.ts`
 - Shared action and export limits: `packages/shared/src/constants.ts`
 - Auth next-step resolver (app-owned): `apps/auth/lib/auth-step.ts`
 - Shared auth callback flow factory: `packages/shared/src/auth-callback.ts`
@@ -38,7 +38,7 @@ This package centralizes:
     - includes `computeReorderUpdates(...)` for shared DnD reorder computation
 - Shared editor draft helper:
   - `hooks/use-rich-text-draft-state` for saved/baseline/dirty-state tracking across rich-text editors
-- `proxy` is request bootstrap only (CSP/CSRF/session refresh), not the primary authorization boundary.
+- `proxy` is request bootstrap only (CSP/CSRF/session refresh), not the primary authorization boundary. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal (Next.js requirement); `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
 
 ### Supabase SSR
 

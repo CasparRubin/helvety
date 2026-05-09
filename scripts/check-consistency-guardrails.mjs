@@ -6,6 +6,12 @@
  *
  * Sibling repo checks live under root `consistency:*` scripts (manifest vs SEO blurbs,
  * proxy readme sync, toolchain docs, lifecycle package.json scripts, test hygiene).
+ *
+ * Zone `proxy.ts` files must inline the same `config.matcher` string as
+ * `SECURITY_PROXY_MATCHER` in `packages/shared/src/proxy.ts` (Next.js requires a
+ * static literal, not an imported binding). `apps/web/proxy.ts` uses a custom
+ * matcher but must keep the same static-file extension exclusions (e.g. `mjs`,
+ * `wasm`, `json`).
  */
 import { readFile } from "node:fs/promises";
 import { readdir } from "node:fs/promises";
@@ -201,29 +207,86 @@ async function main() {
   const securityProxyTargets = [
     "apps/auth/proxy.ts",
     "apps/contacts/proxy.ts",
+    "apps/image-upscaler/proxy.ts",
     "apps/notes/proxy.ts",
     "apps/pdf/proxy.ts",
     "apps/store/proxy.ts",
     "apps/tasks/proxy.ts",
   ];
+  const sharedProxySource = await readFile(
+    resolve(rootDir, "packages/shared/src/proxy.ts"),
+    "utf8"
+  );
+  /** @returns {string | null} */
+  function parseSecurityProxyMatcherPattern(source) {
+    const multiline = source.match(
+      /export const SECURITY_PROXY_MATCHER = \[\s*\r?\n\s*["']([^"']+)["']/
+    );
+    if (multiline?.[1]) return multiline[1];
+    const singleLine = source.match(
+      /export const SECURITY_PROXY_MATCHER = \[\s*["']([^"']+)["']\s*\]/
+    );
+    return singleLine?.[1] ?? null;
+  }
+  const canonicalZoneMatcherPattern =
+    parseSecurityProxyMatcherPattern(sharedProxySource);
+  if (!canonicalZoneMatcherPattern) {
+    throw new Error(
+      "Could not parse SECURITY_PROXY_MATCHER string from packages/shared/src/proxy.ts (expected multiline or single-line export)."
+    );
+  }
   const securityProxyContents = await Promise.all(
     securityProxyTargets.map(async (relativePath) => ({
       relativePath,
       content: await readFile(resolve(rootDir, relativePath), "utf8"),
     }))
   );
-  const canonicalSecurityProxyMatcher =
-    '"/((?!_next/static|_next/image|favicon.ico|.*\\\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|map|woff2?)$).*)"';
   for (const file of securityProxyContents) {
-    const hasCanonicalStaticMatcher =
-      file.content.includes(canonicalSecurityProxyMatcher) &&
-      file.content.includes("matcher: [");
-
-    if (!hasCanonicalStaticMatcher) {
+    if (/import\s*\{[^}]*\bSECURITY_PROXY_MATCHER\b/.test(file.content)) {
       throw new Error(
-        `${file.relativePath} must define the canonical static SECURITY_PROXY_MATCHER required by Next.js proxy config.`
+        `${file.relativePath} must not import SECURITY_PROXY_MATCHER: Next.js requires config.matcher to use a static string literal in proxy.ts. Inline the same pattern as packages/shared/src/proxy.ts (verified below).`
       );
     }
+    const zoneMatcherMatch = file.content.match(
+      /matcher:\s*\[\s*["']([^"']+)["']\s*,?\s*\]/
+    );
+    if (zoneMatcherMatch?.[1] !== canonicalZoneMatcherPattern) {
+      throw new Error(
+        `${file.relativePath} config.matcher[0] must equal SECURITY_PROXY_MATCHER[0] in packages/shared/src/proxy.ts.`
+      );
+    }
+  }
+
+  const webProxyPath = "apps/web/proxy.ts";
+  const webProxyContent = await readFile(
+    resolve(rootDir, webProxyPath),
+    "utf8"
+  );
+  const webMatcherMatch = webProxyContent.match(
+    /matcher:\s*\[\s*["']([^"']+)["']\s*,?\s*\]/
+  );
+  if (!webMatcherMatch?.[1]) {
+    throw new Error(
+      `${webProxyPath} must export a config.matcher array with a single string pattern.`
+    );
+  }
+  const webMatcherPattern = webMatcherMatch[1];
+  for (const ext of ["json", "mjs", "wasm"]) {
+    if (!webMatcherPattern.includes(ext)) {
+      throw new Error(
+        `${webProxyPath} matcher must exclude static .${ext} files (same baseline as SECURITY_PROXY_MATCHER).`
+      );
+    }
+  }
+  const zoneExtGroupMatch =
+    canonicalZoneMatcherPattern.match(/(\(\?:svg\|[^)]+\))/);
+  if (
+    zoneExtGroupMatch?.[1] &&
+    !webMatcherPattern.includes(zoneExtGroupMatch[1])
+  ) {
+    throw new Error(
+      `${webProxyPath} matcher must include the same static file-extension group as zone SECURITY_PROXY_MATCHER (found gap vs ${zoneExtGroupMatch[1]}).`
+    );
   }
 
   const envModules = [

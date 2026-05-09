@@ -79,7 +79,7 @@ Real-ESRGAN by xinntao (BSD-3-Clause).
 - AI inference runs entirely in the browser; image data never leaves the client.
 - The first AI run fetches the Real-ESRGAN weights from the public Supabase Storage bucket configured for the active environment, then caches them locally.
 - Under the current architecture, user image pixels are not used by Helvety for server-side AI model training or fine-tuning.
-- `proxy.ts` handles request bootstrap and security headers; the strict CSP includes `'wasm-unsafe-eval'` for `onnxruntime-web` to compile WebAssembly, and `connect-src` is extended to the configured Supabase origin when `NEXT_PUBLIC_SUPABASE_URL` is a valid HTTPS URL (plus matching `wss://`).
+- `proxy.ts` handles request bootstrap and security headers; the strict CSP includes `'wasm-unsafe-eval'` for `onnxruntime-web` to compile WebAssembly, and `connect-src` is extended to the configured Supabase origin when `NEXT_PUBLIC_SUPABASE_URL` is a valid HTTPS URL (plus matching `wss://`). Like other basePath zones, its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined static literal per Next.js), so self-hosted ONNX assets under `public/ort/` (`.mjs`, `.wasm`, `.json` from `copy-ort-runtime`) skip the proxy chain.
 - Input guards enforce file type, size, and pixel limits.
 - E2EE is not used in this app (E2EE apps are `tasks`, `contacts`, `notes`).
 

@@ -20,6 +20,6 @@
 ## Shared Architecture Guardrails
 
 - Added baseline/contract documentation for modernization phases.
-- Standardized security proxy matcher usage in app proxies through shared matcher constants.
+- Standardized Next.js `proxy.ts` matchers: basePath-mounted apps **inline** the same static pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a literal `config.matcher`, not an imported binding) so static `public/` assets (including `.mjs` / `.wasm` / `.json` for PDF.js and ONNX runtimes) skip the security proxy chain; CI guardrails parse the shared source and enforce parity.
 - Consolidated app env validation flow via `validateServerUpstashEnv`.
-- Added CI guardrails that enforce shared proxy matcher and env-validation contract usage.
+- Added CI guardrails that enforce shared matcher parity, `apps/web` extension alignment, and env-validation contract usage.

@@ -29,7 +29,10 @@ interface UsePdfWorkerReturn {
  *
  * The worker is configured to use a basePath-prefixed local worker file from
  * the public folder, which is automatically kept in sync with the `pdfjs-dist`
- * version resolved from `react-pdf` via the `sync:pdf-worker` script.
+ * version resolved from `react-pdf` via the `sync:pdf-worker` script. That file
+ * must be served as a normal static asset (Next `public/`); zone `proxy.ts`
+ * `config.matcher` follows `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy`
+ * (inlined static literal) so `.mjs` requests are not run through the security proxy.
  *
  * Uses a module-level promise to ensure only one worker is initialized across
  * all component instances.

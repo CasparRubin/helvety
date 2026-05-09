@@ -28,7 +28,7 @@ function makeRequest(
 describe("proxy shared abstractions", () => {
   it("exposes the shared security matcher baseline", () => {
     expect(SECURITY_PROXY_MATCHER).toEqual([
-      "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|map|woff2?)$).*)",
+      "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|json|map|woff2?|mjs|wasm)$).*)",
     ]);
   });
 
@@ -44,6 +44,9 @@ describe("proxy shared abstractions", () => {
     expect(matcherPattern).toContain("favicon.ico");
     expect(matcherPattern).toContain("webp");
     expect(matcherPattern).toContain("woff2?");
+    expect(matcherPattern).toContain("json");
+    expect(matcherPattern).toContain("mjs");
+    expect(matcherPattern).toContain("wasm");
   });
 
   it("defines canonical profile defaults", () => {
