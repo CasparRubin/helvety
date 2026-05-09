@@ -297,7 +297,7 @@ export async function clearChallenge(): Promise<void> {
 }
 
 // =============================================================================
-// PASSKEY STATUS (internal helper — NOT a server action)
+// PASSKEY STATUS (internal helper - NOT a server action)
 // =============================================================================
 
 /**

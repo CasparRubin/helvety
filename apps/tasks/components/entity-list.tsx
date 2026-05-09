@@ -26,9 +26,7 @@ import { StageGroup } from "@/components/stage-group";
 
 import type { Item, Stage, ReorderUpdate } from "@/lib/types";
 
-/**
- * Unified entity type for the list.
- */
+/** Unified task row shape used by the list UI. */
 type AnyEntity = Item & {
   title: string;
   description: string | null;
@@ -39,7 +37,7 @@ type AnyEntity = Item & {
   id: string;
 };
 
-/** Props for the stage-grouped entity list. */
+/** Props for the stage-grouped task list. */
 interface EntityListProps {
   /** The entities to display */
   entities: AnyEntity[];
@@ -55,7 +53,7 @@ interface EntityListProps {
   stages: Stage[];
   /** Callback when an entity row is clicked (fallback when entityHref not provided) */
   onEntityClick?: (entity: AnyEntity) => void;
-  /** URL for entity navigation — use Link instead of imperative router.push callbacks where possible */
+  /** URL for entity navigation - use Link instead of imperative router.push callbacks where possible */
   entityHref?: (entity: AnyEntity) => string;
   /** Callback used to prefetch an entity route on hover/focus */
   onEntityPrefetch?: (entity: AnyEntity) => void;
@@ -71,16 +69,7 @@ interface EntityListProps {
   emptyDescription?: string;
 }
 
-/**
- * EntityList - Generic stage-aware list/table component.
- *
- * Features:
- * - Always shows stage groups when stages are available (even with no entities)
- * - Flat list mode (when no stages are available)
- * - Drag-and-drop reordering within and between stages (desktop)
- * - Up/down arrows to move entities between stages on all screen sizes
- * - Consistent row layout across all entity types
- */
+/** Stage-aware task list with grouped and flat rendering modes. */
 export function EntityList({
   entities,
   isLoading,
@@ -93,8 +82,8 @@ export function EntityList({
   onEntityDelete,
   onReorder,
   emptySearchMessage,
-  emptyTitle = "Nothing here yet",
-  emptyDescription = "Create your first entry to get started.",
+  emptyTitle = "No tasks yet",
+  emptyDescription = "Create your first task to get started.",
 }: EntityListProps) {
   const hasStages = stages.length > 0;
   const sortableDisabled = onReorder == null;

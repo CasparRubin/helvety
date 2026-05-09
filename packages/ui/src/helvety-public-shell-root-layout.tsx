@@ -33,7 +33,7 @@ export type HelvetyPublicShellAnalyticsVariant =
 
 /**
  * Where `ThemeProvider` wraps the tree: full app (default) or navbar only
- * (Store catalog — avoids theme flash on route content).
+ * (Store catalog - avoids theme flash on route content).
  */
 export type HelvetyPublicShellThemeProviderScope = "full" | "navbar-only";
 

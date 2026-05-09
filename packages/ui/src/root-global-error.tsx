@@ -14,7 +14,7 @@ export type RootGlobalErrorProps = {
 };
 
 /**
- * Root layout error boundary — catches errors that occur in the root layout itself.
+ * Root layout error boundary - catches errors that occur in the root layout itself.
  *
  * Kept intentionally minimal (no heavy UI imports) so it remains functional when
  * the root layout or its dependencies are the source of the error.

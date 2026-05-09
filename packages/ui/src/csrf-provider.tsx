@@ -7,7 +7,7 @@ import { createContext, useContext, useMemo, type ReactNode } from "react";
  *
  * Provides CSRF token to client components for use with Server Actions.
  * The token is read server-side from the cookie (set by the proxy) and
- * passed as a prop — no client-side fetch or regeneration needed.
+ * passed as a prop - no client-side fetch or regeneration needed.
  */
 
 /** CSRF token context value. */

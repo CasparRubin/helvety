@@ -12,7 +12,7 @@ export type LoginStep =
 
 /**
  * After OTP (or session bootstrap), whether the user goes straight to passkey
- * sign-in or completed setup first — drives 3- vs 4-step stepper.
+ * sign-in or completed setup first - drives 3- vs 4-step stepper.
  */
 export type PostOtpPasskeyPath = "direct_signin" | "setup_then_signin" | null;
 

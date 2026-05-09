@@ -27,10 +27,10 @@ import { EntityRow } from "@/components/entity-row";
 import type { DefaultNoteCategory } from "@/lib/config/default-note-categories";
 import type { Item, ReorderUpdate } from "@/lib/types";
 
-/** Decrypted note row as shown in the main list. */
+/** Decrypted note row shown in list views. */
 type AnyEntity = Item;
 
-/** Props for the category-grouped notes entity list. */
+/** Props for the category-grouped notes list. */
 interface EntityListProps {
   entities: AnyEntity[];
   isLoading: boolean;
@@ -49,9 +49,7 @@ interface EntityListProps {
   emptyDescription?: string;
 }
 
-/**
- * Category-grouped list for notes (matches Contacts list UX).
- */
+/** Category-grouped list for notes with drag-and-drop ordering. */
 export function EntityList({
   entities,
   isLoading,
@@ -64,8 +62,8 @@ export function EntityList({
   onEntityDelete,
   onReorder,
   emptySearchMessage,
-  emptyTitle = "Nothing here yet",
-  emptyDescription = "Create your first entry to get started.",
+  emptyTitle = "No notes yet",
+  emptyDescription = "Create your first note to get started.",
 }: EntityListProps) {
   const hasCategories = categories.length > 0;
   const sortableDisabled = onReorder == null;

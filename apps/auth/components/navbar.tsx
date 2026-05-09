@@ -27,7 +27,7 @@ const encryptionTooltipContent = (
   />
 );
 
-/** Main navigation bar for the Auth app — see `HelvetyShellNavbar` in `@helvety/ui`. */
+/** Main navigation bar for the Auth app - see `HelvetyShellNavbar` in `@helvety/ui`. */
 export function Navbar({
   initialUser = null,
 }: {

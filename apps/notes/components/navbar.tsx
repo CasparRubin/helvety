@@ -16,7 +16,7 @@ const labels = {
   navigationMenuDescription: "Notes navigation menu",
 } as const;
 
-/** Notes app shell navbar — see `E2eeAppNavbar` in `@helvety/ui`. */
+/** Notes app shell navbar - see `E2eeAppNavbar` in `@helvety/ui`. */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   return (
     <E2eeAppNavbar

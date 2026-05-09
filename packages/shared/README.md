@@ -10,7 +10,7 @@ This package centralizes:
 - Supabase server/client utilities
 - CSRF and rate-limiting primitives
 - Logging and error-handling helpers
-- Canonical **user-visible** error strings and rate-limit copy via `@helvety/shared/user-facing-errors` (`GENERIC_USER_ERROR`, `buildRateLimitedUserMessage`) — safe to import from client components (no `server-only`)
+- Canonical **user-visible** error strings and rate-limit copy via `@helvety/shared/user-facing-errors` (`GENERIC_USER_ERROR`, `buildRateLimitedUserMessage`) - safe to import from client components (no `server-only`)
 - Shared constants, schemas, and utility functions
 - Next.js product metadata via `@helvety/shared/seo` (`createHelvetyProductMetadata` plus sitemap/robots factories)
 - Dashboard list prefetch helpers via `@helvety/shared/dashboard-prefetch` (row-cap detection plus over-cap messages: generic items string vs contacts-specific copy; see module exports)

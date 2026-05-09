@@ -1,7 +1,7 @@
 /**
  * Registry of available upscale engines.
  *
- * Helvety ships a single user-facing AI engine — `realesr-general-x4v3` — and
+ * Helvety ships a single user-facing AI engine - `realesr-general-x4v3` - and
  * a canvas resampler (`canvas`) used silently as an automatic fallback when
  * the browser cannot run WebAssembly. There is no user-facing selector; the
  * effective engine is decided once at app boot via
@@ -77,7 +77,7 @@ export interface UpscaleModel {
   /**
    * Free-form bullet points retained for product copy, documentation, and
    * any future internal surface (e.g. an admin debug panel). The runtime UI
-   * does not render these — engine selection is automatic.
+   * does not render these - engine selection is automatic.
    */
   readonly recommendedFor: readonly string[];
   /** Approximate download size in MB. Zero for the canvas engine. */
@@ -255,7 +255,7 @@ export function getModelById(id: UpscaleModelId): UpscaleModel {
  * The AI engine requires WebAssembly; if the host environment does not expose
  * `WebAssembly` (extremely rare in modern browsers but possible in locked-down
  * embedded webviews), we fall back silently to the canvas resampler. This is
- * the single decision point — no other code branches on browser capabilities.
+ * the single decision point - no other code branches on browser capabilities.
  */
 export function getDefaultEngineForRuntime(): UpscaleModelId {
   return typeof WebAssembly !== "undefined"

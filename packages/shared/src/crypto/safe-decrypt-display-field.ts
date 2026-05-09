@@ -13,7 +13,7 @@ export type SafeDecryptDisplayAadTable =
 
 /**
  * Decrypt a stored encrypted field for safe UI display; returns a neutral label on failure.
- * Never throws — avoids breaking lists when a single row fails to decrypt.
+ * Never throws - avoids breaking lists when a single row fails to decrypt.
  */
 export async function safeDecryptDisplayField(options: {
   encrypted: string;

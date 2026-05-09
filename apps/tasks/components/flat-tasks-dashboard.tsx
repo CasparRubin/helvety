@@ -46,12 +46,12 @@ import { useEncryptionContext } from "@/lib/crypto";
 
 import type { ItemRow } from "@/lib/types";
 
-/** Props for the flat tasks dashboard. */
+/** Props for the tasks dashboard component. */
 interface FlatTasksDashboardProps {
   initialEncryptedItems?: ItemRow[];
 }
 
-/** Flat `/tasks` dashboard with item list and sheet detail editor. */
+/** Tasks dashboard with list view, create dialog, and details sheet. */
 export function FlatTasksDashboard({
   initialEncryptedItems,
 }: FlatTasksDashboardProps): React.JSX.Element {
@@ -193,9 +193,9 @@ export function FlatTasksDashboard({
             <DialogHeader>
               <DialogTitle>Create Task</DialogTitle>
               <DialogDescription>
-                Create a new task. Sensitive content fields are end-to-end
-                encrypted; some structural metadata remains unencrypted for app
-                functionality.
+                Create a new task. Title, description, and schedule fields are
+                end-to-end encrypted. Stage, ordering, and related structural
+                metadata stay plaintext so the board can group and sort tasks.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">

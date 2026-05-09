@@ -1,4 +1,4 @@
-# Image Upscaler Model Weights — Hosting Runbook
+# Image Upscaler Model Weights - Hosting Runbook
 
 The AI engine in `apps/image-upscaler` is backed by ONNX weights served from a
 public Supabase Storage bucket. This document is the operator runbook for
@@ -15,7 +15,7 @@ or when Cache API storage is unavailable. Image data never leaves the client.
 Weights live in the public Supabase Storage bucket
 [`UPSCALE_MODEL_BUCKET`](../../lib/models.ts) (`image-upscaler-models`). Each
 environment (local, staging, production) reads from its **own** Supabase
-project — URLs are derived from `NEXT_PUBLIC_SUPABASE_URL` at build time.
+project - URLs are derived from `NEXT_PUBLIC_SUPABASE_URL` at build time.
 
 The full URL pattern for an asset is:
 
@@ -47,7 +47,7 @@ Create the bucket once per Supabase project (Dashboard → Storage → New bucke
 | File size limit    | optional; `10 MB` is enough for the current model pair |
 | Allowed MIME types | leave empty, or `application/octet-stream`             |
 
-CORS does not need any custom configuration — public Storage objects are
+CORS does not need any custom configuration - public Storage objects are
 served with `Access-Control-Allow-Origin: *` by default.
 
 ## Per-file upload metadata
@@ -128,7 +128,7 @@ Get-FileHash -Algorithm SHA256 *.onnx, *.data
 ```
 
 Then paste the hex digests into the matching `sha256` field in
-[`apps/image-upscaler/lib/models.ts`](../../lib/models.ts) — both for the
+[`apps/image-upscaler/lib/models.ts`](../../lib/models.ts) - both for the
 main `.onnx` (`UpscaleModel.sha256`) and for each sidecar
 (`UpscaleModel.externalData[].sha256`). Once a hash is set, the worker
 rejects mismatched downloads with a clear error and re-downloads on the next

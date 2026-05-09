@@ -130,7 +130,7 @@ export function createScopedAdminQuery(userId: string) {
   return {
     userId,
     /**
-     * Raw admin client — bypasses RLS and has no user-ID scoping.
+     * Raw admin client - bypasses RLS and has no user-ID scoping.
      * ONLY use for `auth.admin.*` calls (e.g. `deleteUser`, `getUserById`).
      * NEVER use `.from(table)` on this client for user-owned tables;
      * use the scoped `.from()` helper below instead.

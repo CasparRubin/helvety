@@ -2,29 +2,29 @@ import { Loader2 } from "lucide-react";
 
 import { Button } from "./button";
 
-/** Props for list loading feedback. */
+/** Optional override for loading feedback text. */
 interface ListLoadingStateProps {
   message?: string;
 }
 
-/** Props for list error feedback. */
+/** Error message with optional retry action. */
 interface ListErrorStateProps {
   message: string;
   onRetry?: () => void;
 }
 
-/** Props for list empty-state feedback. */
+/** Empty state heading and supporting description. */
 interface ListEmptyStateProps {
   title: string;
   description: string;
 }
 
-/** Props for empty-search feedback. */
+/** Message shown when a search has no matches. */
 interface ListEmptySearchStateProps {
   message: string;
 }
 
-/** Standard loading state for list surfaces. */
+/** Standard loading state used by list surfaces. */
 export function ListLoadingState({
   message = "Loading...",
 }: ListLoadingStateProps): React.JSX.Element {
@@ -38,7 +38,7 @@ export function ListLoadingState({
   );
 }
 
-/** Standard error state for list surfaces. */
+/** Standard error state with an optional retry button. */
 export function ListErrorState({
   message,
   onRetry,
@@ -57,7 +57,7 @@ export function ListErrorState({
   );
 }
 
-/** Standard empty state for list surfaces. */
+/** Standard empty state for lists without data. */
 export function ListEmptyState({
   title,
   description,
@@ -70,7 +70,7 @@ export function ListEmptyState({
   );
 }
 
-/** Standard empty-search state for list surfaces. */
+/** Empty-search state for filtered lists with zero results. */
 export function ListEmptySearchState({
   message,
 }: ListEmptySearchStateProps): React.JSX.Element {

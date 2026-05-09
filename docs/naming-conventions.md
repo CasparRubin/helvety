@@ -4,9 +4,9 @@ This document is the source of truth for how we name and format code across `app
 
 ## References
 
-- **Next.js App Router structure**: [Project structure and file conventions](https://github.com/vercel/next.js/blob/v16.2.4/docs/01-app/01-getting-started/02-project-structure.mdx) — special filenames (`page.tsx`, `layout.tsx`, `route.ts`, `loading.tsx`, `error.tsx`, …), route groups `(segment)`, private folders `_segment`, colocation (link revision tracks `apps/web` `next`).
+- **Next.js App Router structure**: [Project structure and file conventions](https://github.com/vercel/next.js/blob/v16.2.4/docs/01-app/01-getting-started/02-project-structure.mdx) - special filenames (`page.tsx`, `layout.tsx`, `route.ts`, `loading.tsx`, `error.tsx`, …), route groups `(segment)`, private folders `_segment`, colocation (link revision tracks `apps/web` `next`).
 - **TypeScript identifiers**: [typescript-eslint naming-convention](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/naming-convention.mdx).
-- **Tests**: [Vitest — test files](https://github.com/vitest-dev/vitest/blob/main/docs/guide/learn/writing-tests.md) — use `*.test.ts` / `*.test.tsx`.
+- **Tests**: [Vitest - test files](https://github.com/vitest-dev/vitest/blob/main/docs/guide/learn/writing-tests.md) - use `*.test.ts` / `*.test.tsx`.
 
 ## Formatting
 
@@ -36,9 +36,9 @@ This document is the source of truth for how we name and format code across `app
 
 ## Metadata and copy constants
 
-- Primary **metadata `description`** string for an app (used in `createHelvetyProductMetadata` and tests): export or file-local name **`{APP|PRODUCT}_DESCRIPTION`** or **`WEB_SITE_DESCRIPTION`** for the gateway — suffix **`_DESCRIPTION`**, not `_DESCRIPTION_COPY`.
+- Primary **metadata `description`** string for an app (used in `createHelvetyProductMetadata` and tests): export or file-local name **`{APP|PRODUCT}_DESCRIPTION`** or **`WEB_SITE_DESCRIPTION`** for the gateway - suffix **`_DESCRIPTION`**, not `_DESCRIPTION_COPY`.
 - **Product one-liners** in `lib/product-copy.ts`: same pattern, e.g. `PDF_APP_DESCRIPTION`, `IMAGE_UPSCALER_APP_DESCRIPTION`.
-- **JSON-LD** (`jsonLdGraphTail` `SoftwareApplication` / `WebApplication` `description`): prefer the **same** exported string as metadata when the copy can stay aligned (avoids drift; `app/layout-metadata.test.ts` asserts one source — e.g. PDF uses `PDF_APP_DESCRIPTION` for both today). If metadata and structured-data copy must diverge, add a second app-scoped constant with an explicit name (e.g. `*_JSON_LD_DESCRIPTION`) and document why both exist in the app README or layout comment.
+- **JSON-LD** (`jsonLdGraphTail` `SoftwareApplication` / `WebApplication` `description`): prefer the **same** exported string as metadata when the copy can stay aligned (avoids drift; `app/layout-metadata.test.ts` asserts one source - e.g. PDF uses `PDF_APP_DESCRIPTION` for both today). If metadata and structured-data copy must diverge, add a second app-scoped constant with an explicit name (e.g. `*_JSON_LD_DESCRIPTION`) and document why both exist in the app README or layout comment.
 
 ## User-visible errors (product copy)
 

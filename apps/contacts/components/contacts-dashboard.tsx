@@ -57,9 +57,7 @@ interface ContactsDashboardProps {
   initialEncryptedContacts?: ContactRow[];
 }
 
-/**
- * ContactsDashboard - Main dashboard showing all contacts
- */
+/** Contacts dashboard with list, create dialog, and side-sheet editor. */
 export function ContactsDashboard({
   initialEncryptedContacts,
 }: ContactsDashboardProps = {}) {
@@ -179,7 +177,6 @@ export function ContactsDashboard({
     });
   }, [refresh, startRefreshTransition]);
 
-  /** Export decrypted contact data as JSON. */
   const handleExportData = useCallback(() => {
     if (!masterKey) return;
     startExportTransition(async () => {
@@ -263,9 +260,9 @@ export function ContactsDashboard({
             <DialogHeader>
               <DialogTitle>Create Contact</DialogTitle>
               <DialogDescription>
-                Create a new contact. Sensitive content fields are end-to-end
-                encrypted; some structural metadata remains unencrypted for app
-                functionality.
+                Create a new contact. Name, email, phone, birthday, and notes
+                are end-to-end encrypted. Category and ordering stay plaintext
+                so contacts can be grouped and sorted in the list.
               </DialogDescription>
             </DialogHeader>
 

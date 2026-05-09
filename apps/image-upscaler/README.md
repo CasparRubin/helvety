@@ -59,7 +59,7 @@ Real-ESRGAN by xinntao (BSD-3-Clause).
 - Supported formats: `PNG`, `JPG/JPEG`, `WebP`
 - Maximum file size: `25MB` per image
 - Maximum **input** pixels per image (canvas engine): `32,000,000`
-- Maximum **input** pixels per image (AI upscaling): `4,000,000` — bounds the
+- Maximum **input** pixels per image (AI upscaling): `4,000,000` - bounds the
   Float32 stitching buffers so a 4× upscale fits comfortably in a worker;
   declared per-engine via `UpscaleModel.maxInputPixels` in
   [`lib/models.ts`](./lib/models.ts)

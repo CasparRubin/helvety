@@ -41,7 +41,7 @@ interface ContactListProps {
   onRetry?: () => void;
   /** Callback when a contact row is clicked (fallback when contactHref not provided) */
   onContactClick?: (contact: Contact) => void;
-  /** URL for contact navigation — use Link instead of imperative router.push callbacks where possible */
+  /** URL for contact navigation - use Link instead of imperative router.push callbacks where possible */
   contactHref?: (contact: Contact) => string;
   /** Callback used to prefetch a contact route on hover/focus */
   onContactPrefetch?: (contact: Contact) => void;
@@ -234,7 +234,7 @@ export function ContactList({
     return groups;
   }, [categories, contacts, hasCategories]);
 
-  // Flat list branch only — skip sorting/id lists while the grouped view is active.
+  // Flat list branch only - skip sorting/id lists while the grouped view is active.
   const sortedContactsFlat = useMemo(() => {
     if (hasCategories) {
       return [];
@@ -277,7 +277,7 @@ export function ContactList({
       )}
 
       {hasCategories ? (
-        /* Category groups — always shown when categories exist (even with no contacts) */
+        /* Category groups - always shown when categories exist (even with no contacts) */
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -339,7 +339,7 @@ export function ContactList({
           </div>
         </DndContext>
       ) : contacts.length === 0 ? (
-        /* Empty state — only when no categories and no contacts */
+        /* Empty state - only when no categories and no contacts */
         <ListEmptyState title={emptyTitle} description={emptyDescription} />
       ) : (
         /* Flat list (no categories configured) */

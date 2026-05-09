@@ -4,14 +4,14 @@ Monorepo for all Helvety applications.
 
 ## Overview
 
-Helvety is a Next.js monorepo for a path-routed ecosystem on `helvety.com`:
+Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 
 - Public gateway and tools: `web`, `store`, `pdf`, `image-upscaler`
 - Centralized account: `auth` (not an E2EE vault app; hosts shared sign-in)
 - Client-encrypted (E2EE) productivity: `tasks`, `contacts`, `notes`
 - Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/brand`
 
-Root layouts: public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) compose `@helvety/ui/helvety-public-shell-root-layout`; E2EE apps (`tasks`, `contacts`, `notes`) compose `@helvety/ui/e2ee-app-root-layout`. Product `metadata` is built with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in each app’s `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF + user state inside `E2eeAppRootLayout` via the same shared helper layer.
+Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`) use `@helvety/ui/e2ee-app-root-layout`. Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF and user state inside `E2eeAppRootLayout` through the same shared helper layer.
 
 ## Applications
 
@@ -28,12 +28,12 @@ Root layouts: public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) comp
 
 ## Shared Packages
 
-| Package                               | Purpose                                                                                                                                 |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [`packages/brand`](packages/brand/)   | Shared brand assets                                                                                                                     |
-| [`packages/config`](packages/config/) | Shared TypeScript, ESLint, Vitest, PostCSS, Next config                                                                                 |
-| [`packages/shared`](packages/shared/) | Security/auth/rate-limit/Supabase helpers, shared constants, SEO metadata factory, user-facing error copy, dashboard prefetch utilities |
-| [`packages/ui`](packages/ui/)         | Shared UI components and app-shell primitives                                                                                           |
+| Package                               | Purpose                                                                                                                                                 |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`packages/brand`](packages/brand/)   | Shared brand assets                                                                                                                                     |
+| [`packages/config`](packages/config/) | Shared TypeScript, ESLint, Vitest, PostCSS, Next config                                                                                                 |
+| [`packages/shared`](packages/shared/) | Security, auth, rate-limit, and Supabase helpers, plus shared constants, SEO metadata factory, user-facing error copy, and dashboard prefetch utilities |
+| [`packages/ui`](packages/ui/)         | Shared UI components and app-shell primitives                                                                                                           |
 
 ## Prerequisites
 
@@ -98,8 +98,8 @@ bun run format
 
 All quality gates run locally. There is no GitHub Actions or other remote CI in this repo; deployment is handled by Vercel from the pushed commit.
 
-- `bun run ci:check` (run during development) — `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
-- `bun run ci:release` (run before `git push` / before Vercel deploys) — `ci:check` plus `build`.
+- `bun run ci:check` (run during development) - `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
+- `bun run ci:release` (run before `git push` / before Vercel deploys) - `ci:check` plus `build`.
 - Placeholder env mode (`SKIP_ENV_VALIDATION=1` off Vercel) is available for local build smoke tests, but `ci:release` runs with normal env validation.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.
 - Additional manual dependency/security checks:

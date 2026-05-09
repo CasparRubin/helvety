@@ -1,6 +1,6 @@
 # Helvety PDF
 
-> Helvety PDF stitches, rotates, and carves pages without shipping supported jobs to a conversion API—runs locally in-browser under MIT, Swiss-built.
+> Helvety PDF stitches, rotates, and carves pages without shipping supported jobs to a conversion API-runs locally in-browser under MIT, Swiss-built.
 
 ## Canonical URL
 - [Helvety PDF](https://helvety.com/pdf): Main PDF application route

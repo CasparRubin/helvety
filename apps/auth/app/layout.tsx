@@ -15,7 +15,7 @@ import { Navbar } from "@/components/navbar";
 
 /** Shared auth SEO / social copy (single source for metadata + JSON-LD). */
 export const AUTH_DESCRIPTION =
-  "Passwordless entry for Helvety apps—OTP, passkeys, and session recovery where your platform allows. Open source, Swiss-built.";
+  "Passwordless entry for Helvety apps-OTP, passkeys, and session recovery where your platform allows. Open source, Swiss-built.";
 
 export const viewport = sharedViewport;
 

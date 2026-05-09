@@ -341,7 +341,7 @@ export async function checkRateLimit(
       // making it ineffective for distributed rate limiting.
       if (process.env.NODE_ENV === "production" && policy === "strict") {
         logRateLimitDecision(
-          "Upstash rate limit failed in production — failing closed",
+          "Upstash rate limit failed in production - failing closed",
           {
             prefix: normalizedPrefix,
             policy,
@@ -356,7 +356,7 @@ export async function checkRateLimit(
       }
       if (process.env.NODE_ENV === "production" && policy === "soft") {
         logRateLimitDecision(
-          "Upstash rate limit failed in production for soft policy — allowing request",
+          "Upstash rate limit failed in production for soft policy - allowing request",
           {
             prefix: normalizedPrefix,
             policy,
@@ -388,7 +388,7 @@ export async function checkRateLimit(
     // In-memory rate limiting does not persist across serverless invocations,
     // so it provides no real protection in production.
     logRateLimitDecision(
-      "Redis credentials missing in production for strict rate-limit policy — rejecting request",
+      "Redis credentials missing in production for strict rate-limit policy - rejecting request",
       {
         prefix: normalizedPrefix,
         policy,
@@ -401,7 +401,7 @@ export async function checkRateLimit(
     return { allowed: false, remaining: 0, retryAfter: 30 };
   } else if (process.env.NODE_ENV === "production" && policy === "soft") {
     logRateLimitDecision(
-      "Redis credentials missing in production for soft rate-limit policy — allowing request",
+      "Redis credentials missing in production for soft rate-limit policy - allowing request",
       {
         prefix: normalizedPrefix,
         policy,
@@ -452,8 +452,8 @@ export async function resetRateLimit(
   prefix: string = "api"
 ): Promise<void> {
   // Get or create a limiter with the matching prefix to use its resetUsedTokens API.
-  // The maxRequests/windowMs values don't affect the reset operation — they only
-  // matter for the sliding window config — so we use sensible defaults.
+  // The maxRequests/windowMs values don't affect the reset operation - they only
+  // matter for the sliding window config - so we use sensible defaults.
   const normalizedPrefix = normalizeKeyPart(prefix);
   const limiter = getUpstashLimiter(normalizedPrefix, 100, 60000);
   const storageKey = buildRateLimitStorageKey(
@@ -706,7 +706,7 @@ export const RATE_LIMITS = {
   READ: { maxRequests: 300, windowMs: 60 * 1000 },
   /**
    * Encrypted bulk export (data portability). Use with `readRateLimitConfig` in
-   * `authenticateAndRateLimit` — export actions are read-only (no CSRF token).
+   * `authenticateAndRateLimit` - export actions are read-only (no CSRF token).
    */
   EXPORT: { maxRequests: 5, windowMs: 60 * 1000 },
   /** Encryption unlock attempts: 5 per minute per user */

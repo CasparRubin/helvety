@@ -22,7 +22,7 @@ interface ContactRowProps {
   email: string | null;
   createdAt: string;
   categoryColor?: string;
-  /** Navigation URL — when provided, renders Link for declarative nav to reduce stale imperative-push callbacks */
+  /** Navigation URL - when provided, renders Link for declarative nav to reduce stale imperative-push callbacks */
   href?: string;
   isFirst?: boolean;
   isLast?: boolean;

@@ -1,7 +1,7 @@
 {
   "name": "@helvety/tasks",
   "version": "3.1.0",
-  "description": "Encrypted kanban tasks with immutable stages, optional decrypted list search, MIT license—Swiss-built.",
+  "description": "Encrypted kanban tasks with immutable stages, optional decrypted list search, MIT license-Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/tasks",
   "repository": {

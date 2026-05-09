@@ -17,7 +17,7 @@ export type E2eeAppPagePath = (typeof E2EE_APP_PAGE_PATHS)[number];
  * Server-side guard for E2EE app pages (contacts, notes, tasks).
  *
  * Each app’s default `page.tsx` should `await` this with its public path so
- * new routes do not ship without an explicit auth check — layouts only wrap
+ * new routes do not ship without an explicit auth check - layouts only wrap
  * `EncryptionGateApp` when a user exists and do not replace `requireAuth`.
  */
 export async function requireE2eeAppPageAuth(

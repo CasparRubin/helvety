@@ -10,7 +10,7 @@ import type { User } from "@supabase/supabase-js";
 
 const aboutDescription = `Helvety PDF helps you merge, reorder, rotate, and extract pages directly in your browser. The workflow is quick and visual, with tools built for everyday document cleanup. It is free to use with technical safeguards (${PDF_FILE_SIZE_LIMIT_COPY}).`;
 
-/** Main navigation bar for the PDF app — see `HelvetyShellNavbar` in `@helvety/ui`. */
+/** Main navigation bar for the PDF app - see `HelvetyShellNavbar` in `@helvety/ui`. */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   return (
     <HelvetyShellNavbar

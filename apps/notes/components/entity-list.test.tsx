@@ -62,9 +62,9 @@ describe("EntityList", () => {
       />
     );
 
-    expect(screen.queryByText("Nothing here yet")).not.toBeInTheDocument();
+    expect(screen.queryByText("No notes yet")).not.toBeInTheDocument();
     expect(
-      screen.queryByText("Create your first entry to get started.")
+      screen.queryByText("Create your first note to get started.")
     ).not.toBeInTheDocument();
   });
 
@@ -78,9 +78,9 @@ describe("EntityList", () => {
       />
     );
 
-    expect(screen.getByText("Nothing here yet")).toBeInTheDocument();
+    expect(screen.getByText("No notes yet")).toBeInTheDocument();
     expect(
-      screen.getByText("Create your first entry to get started.")
+      screen.getByText("Create your first note to get started.")
     ).toBeInTheDocument();
   });
 

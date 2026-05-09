@@ -16,7 +16,7 @@ const labels = {
   navigationMenuDescription: "Tasks navigation menu",
 } as const;
 
-/** Tasks app shell navbar — see `E2eeAppNavbar` in `@helvety/ui`. */
+/** Tasks app shell navbar - see `E2eeAppNavbar` in `@helvety/ui`. */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   return (
     <E2eeAppNavbar

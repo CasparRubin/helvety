@@ -9,7 +9,7 @@ import { EncryptionProvider } from "@/lib/crypto";
 
 /** Shared tasks SEO / social copy (single source for metadata + JSON-LD). */
 export const TASKS_APP_DESCRIPTION =
-  "Kanban-style tasks encrypted before they leave your browser—MIT open source, built in Switzerland.";
+  "Kanban-style tasks encrypted before they leave your browser-MIT open source, built in Switzerland.";
 
 export const viewport = sharedViewport;
 

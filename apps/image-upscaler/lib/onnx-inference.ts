@@ -129,7 +129,7 @@ export async function disposeAllSessions(): Promise<void> {
  * Yields control to the worker event loop so the next macrotask (download
  * progress message, error from a different request, etc.) can run between
  * tile inferences. `setTimeout(0)` is the cross-browser equivalent of the
- * proposed `scheduler.yield()` — `await Promise.resolve()` only runs the
+ * proposed `scheduler.yield()` - `await Promise.resolve()` only runs the
  * microtask queue and wouldn't service `MessagePort` events.
  */
 function yieldToEventLoop(): Promise<void> {

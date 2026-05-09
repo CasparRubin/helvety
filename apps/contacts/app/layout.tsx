@@ -9,7 +9,7 @@ import { EncryptionProvider } from "@/lib/crypto";
 
 /** Shared contacts SEO / social copy (single source for metadata + JSON-LD). */
 export const CONTACTS_APP_DESCRIPTION =
-  "People-first address book with client-side encryption—MIT-licensed, Swiss-built.";
+  "People-first address book with client-side encryption-MIT-licensed, Swiss-built.";
 
 export const viewport = sharedViewport;
 

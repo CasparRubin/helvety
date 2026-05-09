@@ -3,7 +3,7 @@ public/ort/
 
 # Upscaler model weights now live in a public Supabase Storage bucket
 # (see public/models/README.md). These ignore patterns remain as a safety net
-# in case an operator drops local copies into this folder while testing —
+# in case an operator drops local copies into this folder while testing -
 # we never want the .onnx graph or its `.data` sidecar committed.
 public/models/*.onnx
 public/models/*.data

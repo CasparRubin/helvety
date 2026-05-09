@@ -1,6 +1,6 @@
 /**
  * Path prefixes for apps that use EncryptionGate and require a browser passkey
- * unlock (master key) before the UI can load — not just a Supabase session.
+ * unlock (master key) before the UI can load - not just a Supabase session.
  *
  * Keep in sync with apps using `EncryptionGateApp` (notes, tasks, contacts).
  * Server pages for those apps should call `requireE2eeAppPageAuth` from

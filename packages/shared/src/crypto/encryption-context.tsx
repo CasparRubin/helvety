@@ -122,7 +122,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
    */
   const checkEncryptionState = useCallback(
     async (userId: string) => {
-      // Already unlocked for this user — skip the IndexedDB read entirely.
+      // Already unlocked for this user - skip the IndexedDB read entirely.
       // This prevents the isLoading toggle and a new CryptoKey reference
       // (IndexedDB structured-clone always returns a fresh object) from
       // cascading through every data hook and triggering mass re-fetches.

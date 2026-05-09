@@ -10,7 +10,7 @@ import type { User } from "@supabase/supabase-js";
 const aboutDescription =
   "Helvety Store is where Helvety products are published and maintained. You can explore tools, access downloads, and manage your account from one place. It is made to stay straightforward and easy to trust.";
 
-/** Main navigation bar for the Store app — see `HelvetyShellNavbar` in `@helvety/ui`. */
+/** Main navigation bar for the Store app - see `HelvetyShellNavbar` in `@helvety/ui`. */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   return (
     <HelvetyShellNavbar

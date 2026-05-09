@@ -6,38 +6,38 @@ Shared React UI components and app-shell primitives for Helvety apps.
 
 This package provides:
 
-- Shared design-system and utility components
+- Shared design system and utility components
 - Theme and layout helpers
-- **Public** app root shell (`HelvetyPublicShellRootLayout`): web, auth, store, PDF, and image-upscaler share CSP nonce, JSON-LD, theme (`ThemeProvider`), auth/session wiring (`AuthTokenHandler`, `SessionRecovery`), `TooltipProvider`, optional `wrapInsideTooltipProvider` (CSRF and/or app-specific client providers), navbar slot, main region, footer, toaster, and Vercel analytics (store uses navbar-only `ThemeProvider` scope via `themeProviderScope: "navbar-only"`)
-- **E2EE** app-shell primitives (`E2eeAppRootLayout`, encryption gate, CSRF/session wiring) for `tasks`, `contacts`, and `notes`
-- Shared top navigation chrome (`HelvetyShellNavbar`) across public zones; E2EE apps use `E2eeAppNavbar`, which composes `HelvetyShellNavbar` with encryption-aware props
+- **Public** app root shell (`HelvetyPublicShellRootLayout`): `web`, `auth`, `store`, `pdf`, and `image-upscaler` share CSP nonce, JSON-LD, theme (`ThemeProvider`), auth/session wiring (`AuthTokenHandler`, `SessionRecovery`), `TooltipProvider`, optional `wrapInsideTooltipProvider` (CSRF and app-specific client providers), navbar slot, main region, footer, toaster, and Vercel analytics. Store uses a navbar-only `ThemeProvider` scope via `themeProviderScope: "navbar-only"`.
+- **E2EE** app shell primitives (`E2eeAppRootLayout`, encryption gate, CSRF/session wiring) for `tasks`, `contacts`, and `notes`
+- Shared top navigation chrome (`HelvetyShellNavbar`) across public zones. E2EE apps use `E2eeAppNavbar`, which composes `HelvetyShellNavbar` with encryption-aware props.
 - Cross-app navigation primitives (for example `AppSwitcher` inside `NavbarBrand`)
 
 ## Key Exports
 
 **Public zones (`web`, `auth`, `store`, `pdf`, `image-upscaler`):**
 
-- `@helvety/ui/helvety-public-shell-root-layout` → `HelvetyPublicShellRootLayout` — async root layout: JSON-LD (`organization` + caller-supplied `@graph` tail), theme (full tree or navbar-only), `AuthTokenHandler`, `SessionRecovery`, `TooltipProvider`, optional `wrapInsideTooltipProvider` (Auth: CSRF + encryption; Store: `CSRFProvider`), scroll-area or overflow-main main, footer, toaster, analytics
+- `@helvety/ui/helvety-public-shell-root-layout` -> `HelvetyPublicShellRootLayout`: Async root layout with JSON-LD (`organization` plus caller-supplied `@graph` tail), theme (full tree or navbar-only), `AuthTokenHandler`, `SessionRecovery`, `TooltipProvider`, optional `wrapInsideTooltipProvider` (Auth: CSRF plus encryption, Store: `CSRFProvider`), main-region variants, footer, toaster, and analytics.
 
 **E2EE zones (`tasks`, `contacts`, `notes`):**
 
-- `@helvety/ui/e2ee-app-root-layout` → `E2eeAppRootLayout` — each app’s `app/layout.tsx` passes **`encryptionProvider`** (the zone’s client encryption context component, e.g. from `@/lib/crypto`), **`renderNavbar`**, **`softwareApplication`** (fields for JSON-LD `SoftwareApplication`), **`organizationLogoUrl`**, and **`children`**.
-- `@helvety/ui/e2ee-app-navbar` → `E2eeAppNavbar`, `E2eeAppNavbarLabels`
+- `@helvety/ui/e2ee-app-root-layout` -> `E2eeAppRootLayout`: Each app's `app/layout.tsx` passes **`encryptionProvider`** (the zone's client encryption context component, for example from `@/lib/crypto`), **`renderNavbar`**, **`softwareApplication`** (fields for JSON-LD `SoftwareApplication`), **`organizationLogoUrl`**, and **`children`**.
+- `@helvety/ui/e2ee-app-navbar` -> `E2eeAppNavbar`, `E2eeAppNavbarLabels`
 
 **Top bar (all zones that render the shared chrome):**
 
-- `@helvety/ui/helvety-shell-navbar` -> `HelvetyShellNavbar`, `HelvetyShellNavbarEncryption`, `HelvetyShellNavbarAuthSnapshot` — `E2eeAppNavbar` and the Auth app pass `encryption` as a function of the navbar auth snapshot (E2EE: unlock badge tied to `user.id`; Auth: same gating plus app-specific tooltip body via `@helvety/ui/encryption-tooltip-content`)
+- `@helvety/ui/helvety-shell-navbar` -> `HelvetyShellNavbar`, `HelvetyShellNavbarEncryption`, `HelvetyShellNavbarAuthSnapshot`: `E2eeAppNavbar` and the Auth app pass `encryption` as a function of the navbar auth snapshot (E2EE: unlock badge tied to `user.id`; Auth: same gating plus app-specific tooltip body via `@helvety/ui/encryption-tooltip-content`).
 
 **Other shared primitives:**
 
-- `@helvety/ui/encryption-tooltip-content` → `EncryptionTooltipContent` — shared 3-block encryption tooltip shell (heading + caller body + passkey lockout disclaimer); used by `E2eeAppNavbar` and `apps/auth`
-- `@helvety/ui/app-error` → `AppError` — shared `error.tsx` UI; default title uses **`GENERIC_USER_ERROR`** from `@helvety/shared/user-facing-errors` (same canonical line as server actions), with support text to retry or email support
-- `@helvety/ui/root-global-error` → `RootGlobalError` — minimal root-layout error surface; same title constant and retry/contact pattern as `AppError`
+- `@helvety/ui/encryption-tooltip-content` -> `EncryptionTooltipContent`: Shared three-block encryption tooltip shell (heading plus caller body plus passkey lockout disclaimer), used by `E2eeAppNavbar` and `apps/auth`.
+- `@helvety/ui/app-error` -> `AppError`: Shared `error.tsx` UI. The default title uses **`GENERIC_USER_ERROR`** from `@helvety/shared/user-facing-errors` (same canonical line as server actions), with support text to retry or email support.
+- `@helvety/ui/root-global-error` -> `RootGlobalError`: Minimal root-layout error surface with the same title constant and retry/contact pattern as `AppError`.
 - `@helvety/ui/use-e2ee-entity-list-dnd-sensors` -> shared dnd sensor setup
-- `@helvety/ui/entity-command-bar` -> `EntityCommandBar` — shared responsive list-toolbar pattern for create/refresh/export/settings/edit/delete actions
-- `@helvety/ui/entity-dashboard-shell` -> `EntityDashboardShell` — shared title + search + list page-shell composition
-- `@helvety/ui/list-states` -> `ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState` — standardized list feedback surfaces
-- `@helvety/ui/native-select` -> `NativeSelect` — consistent native-select styling wrapper for simple select controls
+- `@helvety/ui/entity-command-bar` -> `EntityCommandBar`: Shared responsive list toolbar pattern for create/refresh/export/settings/edit/delete actions.
+- `@helvety/ui/entity-dashboard-shell` -> `EntityDashboardShell`: Shared title, search, and list page shell composition.
+- `@helvety/ui/list-states` -> `ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState`: Standardized list feedback surfaces.
+- `@helvety/ui/native-select` -> `NativeSelect`: Consistent native select styling wrapper for simple select controls.
 
 Also includes reusable UI building blocks used across zones (for example command bars, search fields, and selected editor helpers).
 

@@ -1,7 +1,7 @@
 {
   "name": "@helvety/contacts",
   "version": "3.1.0",
-  "description": "Client-encrypted contacts with export tooling and optional local list search—MIT, Switzerland.",
+  "description": "Client-encrypted contacts with export tooling and optional local list search-MIT, Switzerland.",
   "author": "Helvety",
   "homepage": "https://helvety.com/contacts",
   "repository": {

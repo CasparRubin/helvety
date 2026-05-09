@@ -97,7 +97,7 @@ export const DEFAULT_STAGE_CONFIGS = {
   item: ITEM_DEFAULT,
 };
 
-/** First stage ID per entity — use when stage_id is required and omitted. */
+/** First stage ID per entity - use when stage_id is required and omitted. */
 export const DEFAULT_ITEM_STAGE_ID = DEFAULT_STAGE_CONFIGS.item.stages[0]?.id;
 
 /** Returns true when a config ID is a built-in default ID. */

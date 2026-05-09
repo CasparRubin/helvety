@@ -1,7 +1,7 @@
 {
   "name": "Helvety PDF",
   "short_name": "Helvety PDF",
-  "description": "Merge, reorder, rotate, extract PDFs in the tab where supported—MIT-licensed, Swiss-built.",
+  "description": "Merge, reorder, rotate, extract PDFs in the tab where supported-MIT-licensed, Swiss-built.",
   "start_url": "/pdf",
   "display": "standalone",
   "background_color": "#faf8f7",

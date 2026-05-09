@@ -1,7 +1,7 @@
 {
   "name": "Helvety",
   "short_name": "Helvety",
-  "description": "Helvety.com hub for Swiss-built apps, policies, and deep links into every product—MIT-licensed code, minimal marketing noise.",
+  "description": "Helvety.com hub for Swiss-built apps, policies, and deep links into every product-MIT-licensed code, minimal marketing noise.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf8f7",

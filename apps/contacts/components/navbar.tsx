@@ -16,7 +16,7 @@ const labels = {
   navigationMenuDescription: "Contacts navigation menu",
 } as const;
 
-/** Contacts app shell navbar — see `E2eeAppNavbar` in `@helvety/ui`. */
+/** Contacts app shell navbar - see `E2eeAppNavbar` in `@helvety/ui`. */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
   return (
     <E2eeAppNavbar

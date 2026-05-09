@@ -10,8 +10,8 @@
  *   works offline once cached.
  *
  * Object keys in the bucket mirror upstream filenames verbatim (see
- * `public/models/README.md`) so paths referenced inside the `.onnx` protobuf —
- * e.g. `real_esrgan_general_x4v3.data` — resolve correctly when ORT loads the
+ * `public/models/README.md`) so paths referenced inside the `.onnx` protobuf -
+ * e.g. `real_esrgan_general_x4v3.data` - resolve correctly when ORT loads the
  * external initializers.
  *
  * Designed to run inside a DedicatedWorker (where `caches` is exposed in all
@@ -66,7 +66,7 @@ interface ExternalDataDescriptor {
   readonly sha256: string | null;
 }
 
-/** Internal shape used by {@link getModelBytes} — a subset of `UpscaleModel`. */
+/** Internal shape used by {@link getModelBytes} - a subset of `UpscaleModel`. */
 interface ModelDescriptor {
   readonly id: string;
   readonly url: string;

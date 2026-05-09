@@ -28,7 +28,7 @@ function configureOrtRuntime(): void {
   // pin to single-thread to avoid noisy console warnings about the missing
   // SAB and to make startup deterministic.
   ort.env.wasm.numThreads = 1;
-  // Steer WebGPU toward the discrete GPU when one is available — the default
+  // Steer WebGPU toward the discrete GPU when one is available - the default
   // ("low-power") favours integrated GPUs which are too slow for image
   // super-resolution at typical photo sizes.
   if (typeof ort.env.webgpu === "object") {

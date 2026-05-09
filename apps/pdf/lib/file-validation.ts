@@ -69,7 +69,7 @@ const VALID_IMAGE_EXTENSIONS = new Set<string>([
   ".bmp",
   ".tiff",
   ".tif",
-  // .svg intentionally excluded (XSS risk — see VALID_IMAGE_MIME_TYPES comment)
+  // .svg intentionally excluded (XSS risk - see VALID_IMAGE_MIME_TYPES comment)
 ]);
 
 /**

@@ -65,7 +65,7 @@ const helvetyExplorer: SoftwareProduct = {
   slug: "helvety-spo-explorer",
   name: "Helvety SPO Explorer",
   shortDescription:
-    "SharePoint site picker and search in the header—favorites and preferences stay on the device, not on Helvety servers.",
+    "SharePoint site picker and search in the header. Favorites and preferences stay on the device, not on Helvety servers.",
   image: productArtwork.artwork1,
   artist: "Alexandre Calame",
   description: {
@@ -257,7 +257,7 @@ const powerAutomateForceV3False: SoftwareProduct = {
       {
         heading: "Mechanics",
         kind: "paragraph",
-        body: "The extension adds v3=false when missing, replaces v3=true when present, and normalizes v3survey=false when that flag exists. Declarative rules plus runtime hooks cover first paint, refresh, back/forward, and typical SPA transitions inside Power Automate—not only full page loads.",
+        body: "The extension adds v3=false when missing, replaces v3=true when present, and normalizes v3survey=false when that flag exists. Declarative rules plus runtime hooks cover first paint, refresh, back/forward, and typical SPA transitions inside Power Automate, not only full page loads.",
       },
       {
         heading: "Getting it",
@@ -276,7 +276,7 @@ const powerAutomateForceV3False: SoftwareProduct = {
       {
         heading: "Vendor reality check",
         kind: "paragraph",
-        body: "Microsoft can change URLs or the editor at any time—validate against the exact build you install and the vendor documentation you rely on.",
+        body: "Microsoft can change URLs or the editor at any time. Validate against the exact build you install and the vendor documentation you rely on.",
       },
     ],
   },
@@ -507,7 +507,7 @@ const helvetyPdf: SaaSProduct = {
   slug: "helvety-pdf",
   name: "Helvety PDF",
   shortDescription:
-    "Reorder, merge, rotate, extract, or drop images into a PDF—supported edits stay in your browser instead of uploading the file to Helvety.",
+    "Reorder, merge, rotate, extract, or drop images into a PDF. Supported edits stay in your browser instead of uploading files to Helvety.",
   description: {
     intro:
       "Helvety PDF gives you a thumbnail-first workbench for everyday PDF surgery. When a tool is supported by the current architecture, pages stay inside your browser tab instead of travelling through a Helvety conversion pipeline.",
@@ -523,13 +523,13 @@ const helvetyPdf: SaaSProduct = {
         items: [
           "Combine PDFs and raster inputs (PNG, JPEG, WebP, GIF) in one export.",
           "Drag thumbnails to reorder, rotate in quarter turns, or lift single pages out.",
-          "Per-file ceiling of 100 MB—actual throughput still depends on device RAM and the browser you use.",
+          "Per-file ceiling of 100 MB. Actual throughput still depends on device RAM and the browser you use.",
         ],
       },
       {
         heading: "Privacy posture",
         kind: "paragraph",
-        body: "Because the sensitive bytes never leave your tab for those supported flows, you can reason about confidentiality the same way you would with any offline editor—minus the install step.",
+        body: "Because the sensitive bytes never leave your tab for those supported flows, you can reason about confidentiality the same way you would with any offline editor, minus the install step.",
       },
     ],
   },
@@ -717,15 +717,15 @@ const helvetyTasks: SaaSProduct = {
   slug: "helvety-tasks",
   name: "Helvety Tasks",
   shortDescription:
-    "Stage-aware task board with at-rest encryption for titles, descriptions, and schedule fields—plus labels, priority, and optional Helvety Contacts links.",
+    "Stage-aware task board with encrypted titles, descriptions, and schedule fields, plus labels, priority, and optional Helvety Contacts links.",
   description: {
     intro:
       "Helvety Tasks pairs a kanban-style spine with real encryption: sensitive fields leave your browser only after WebCrypto transforms them, so the server stores ciphertext tied to passkey-derived keys you control.",
     sections: [
       {
-        heading: "Pricing reality",
+        heading: "Pricing",
         kind: "paragraph",
-        body: "Every productivity feature ships at no charge—no upgrade tiers, subscription packaging, or per-seat business gatekeeping.",
+        body: "Every productivity feature ships at no charge. There are no upgrade tiers, subscription packages, or per-seat business gatekeeping.",
       },
       {
         heading: "How work flows",
@@ -818,15 +818,15 @@ const helvetyContacts: SaaSProduct = {
   slug: "helvety-contacts",
   name: "Helvety Contacts",
   shortDescription:
-    "Names, numbers, birthdays, and rich notes—encrypted at rest with Personal, Work, and Other buckets, drag reorder, and self-service export.",
+    "Names, numbers, birthdays, and rich notes encrypted at rest with Personal, Work, and Other buckets, drag reorder, and self-service export.",
   description: {
     intro:
       "Helvety Contacts is a lightweight encrypted Rolodex: structured fields stay opaque to us because encryption happens locally before anything syncs.",
     sections: [
       {
-        heading: "Pricing reality",
+        heading: "Pricing",
         kind: "paragraph",
-        body: "The full address book experience is free—no premium tier hiding CSV export or multi-category sorting.",
+        body: "The full address book experience is free, with no premium tier hiding CSV export or multi-category sorting.",
       },
       {
         heading: "Everyday ergonomics",
@@ -920,15 +920,15 @@ const helvetyNotes: SaaSProduct = {
   slug: "helvety-notes",
   name: "Helvety Notes",
   shortDescription:
-    "Encrypted title-and-body notes in Personal, Work, and Other buckets, with rich text and cross-links to tasks or contacts when you use those apps.",
+    "Encrypted title and body notes in Personal, Work, and Other buckets, with rich text and cross-links to tasks or contacts when you use those apps.",
   description: {
     intro:
       "Helvety Notes keeps capture friction low: every record is a title plus an optional long-form description, both encrypted client-side before hitting storage.",
     sections: [
       {
-        heading: "Pricing reality",
+        heading: "Pricing",
         kind: "paragraph",
-        body: "Same gratis stance as the rest of the Helvety productivity trio—no metering on categories, linking, or editors.",
+        body: "Same free stance as the rest of the Helvety productivity trio, with no metering on categories, linking, or editors.",
       },
       {
         heading: "Organization philosophy",

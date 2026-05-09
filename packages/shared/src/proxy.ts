@@ -162,7 +162,7 @@ export function createAppProxy(options: {
  * same response. Server Components cannot persist refreshed session cookies
  * (`createServerComponentClient` swallows `setAll` in RSC); the proxy runs early
  * enough to call `getUser()` and write `Set-Cookie` per @supabase/ssr guidance.
- * Still no application DB or business logic in the proxy—only Supabase Auth HTTP.
+ * Still no application DB or business logic in the proxy-only Supabase Auth HTTP.
  *
  * Config must be exported separately in each app (Next.js requires static config).
  *

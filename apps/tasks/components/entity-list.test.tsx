@@ -87,9 +87,9 @@ describe("EntityList", () => {
       />
     );
 
-    expect(screen.queryByText("Nothing here yet")).not.toBeInTheDocument();
+    expect(screen.queryByText("No tasks yet")).not.toBeInTheDocument();
     expect(
-      screen.queryByText("Create your first entry to get started.")
+      screen.queryByText("Create your first task to get started.")
     ).not.toBeInTheDocument();
   });
 
@@ -98,9 +98,9 @@ describe("EntityList", () => {
       <EntityList entities={[]} isLoading={false} error={null} stages={[]} />
     );
 
-    expect(screen.getByText("Nothing here yet")).toBeInTheDocument();
+    expect(screen.getByText("No tasks yet")).toBeInTheDocument();
     expect(
-      screen.getByText("Create your first entry to get started.")
+      screen.getByText("Create your first task to get started.")
     ).toBeInTheDocument();
   });
 

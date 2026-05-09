@@ -53,7 +53,7 @@ export function createSecurityHeaders({ appName } = {}) {
           endpoints: [{ url: "/api/csp-report" }],
         }),
       },
-      // CSP is set per-request in proxy.ts with a nonce — not as a static header.
+      // CSP is set per-request in proxy.ts with a nonce - not as a static header.
     ];
 
     // Production-only security headers
