@@ -1,3 +1,4 @@
+import { urls } from "@helvety/shared/config";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -29,5 +30,10 @@ describe("web root layout metadata", () => {
       index: true,
       follow: true,
     });
+  });
+
+  it("uses the same canonical and Open Graph URL for the gateway home", () => {
+    expect(metadata.alternates?.canonical).toBe(urls.home);
+    expect(metadata.openGraph?.url).toBe(urls.home);
   });
 });

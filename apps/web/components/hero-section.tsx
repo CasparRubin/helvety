@@ -34,10 +34,7 @@ const identifierFloatTransition = {
   ease: "easeInOut" as const,
 };
 
-/**
- * Animated hero section with Firefox-specific entrance handling
- * and prefers-reduced-motion support.
- */
+/** Marketing hero: text + store CTA stacked; identifier + motion from `md` (two-column). */
 export function HeroSection() {
   const prefersReducedMotion = useReducedMotion();
   const isFirefox =
@@ -53,12 +50,23 @@ export function HeroSection() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <section className="relative w-full min-w-0 pt-20 pb-16 md:pt-28 md:pb-20 lg:pt-32">
+      <section className="relative w-full min-w-0 overflow-hidden pt-20 pb-16 md:pt-28 md:pb-20 lg:pt-32">
+        <div
+          className="from-background via-background to-background/80 pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b"
+          aria-hidden="true"
+        />
+        <div
+          className="hero-bg-pattern pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+          aria-hidden="true"
+        >
+          <div className="hero-bg-pattern-draw" aria-hidden="true" />
+        </div>
+
         <m.div
           variants={prefersReducedMotion ? noStagger : staggerContainer}
           initial="initial"
           animate="animate"
-          className="mx-auto grid w-full max-w-6xl min-w-0 grid-cols-1 items-start gap-8 md:grid-cols-2 md:items-center md:gap-10 lg:gap-12"
+          className="relative z-10 mx-auto grid w-full max-w-6xl min-w-0 grid-cols-1 items-start gap-8 md:grid-cols-2 md:items-center md:gap-10 lg:gap-12"
         >
           <m.div
             variants={prefersReducedMotion ? noMotion : fadeInUp}
@@ -78,7 +86,7 @@ export function HeroSection() {
             </div>
 
             <div className="flex flex-col items-center gap-2 lg:items-start">
-              <Button size="lg" className="w-full sm:w-auto" asChild>
+              <Button size="lg" asChild>
                 <Link href={getLocalAppHref(urls.store)}>
                   <PackageOpen className="size-5" aria-hidden="true" />
                   Browse Helvety products
@@ -96,7 +104,7 @@ export function HeroSection() {
 
           <m.div
             variants={prefersReducedMotion ? noMotion : fadeInUp}
-            className="hero-visual-panel relative flex w-full min-w-0 justify-center pt-2 md:pt-0"
+            className="hero-visual-panel relative hidden w-full min-w-0 justify-center pt-2 md:flex md:pt-0"
           >
             <div
               className="hero-visual-orb hero-visual-orb-a"
@@ -131,10 +139,12 @@ export function HeroSection() {
               className="hero-identifier-visual relative z-[1] flex w-full max-w-[min(268px,76vw)] justify-center sm:max-w-[min(284px,62vw)] md:max-w-[min(272px,48vw)] lg:max-w-[292px]"
             >
               {prefersReducedMotion ? (
-                identifierMark
+                <div className="hero-identifier-float relative aspect-square size-full">
+                  {identifierMark}
+                </div>
               ) : (
                 <m.div
-                  className="relative aspect-square size-full"
+                  className="hero-identifier-float relative aspect-square size-full"
                   animate={{
                     y: [0, -14, 7, 0],
                     rotate: [0, 1.45, -1.2, 0],
@@ -147,8 +157,6 @@ export function HeroSection() {
             </m.div>
           </m.div>
         </m.div>
-
-        <div className="from-background via-background to-background/80 absolute inset-0 -z-10 bg-gradient-to-b" />
       </section>
     </LazyMotion>
   );

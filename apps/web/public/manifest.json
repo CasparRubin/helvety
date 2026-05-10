@@ -13,11 +13,6 @@
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
-    },
-    {
-      "src": "https://helvety.com/helvety_identifier.svg",
-      "type": "image/svg+xml",
-      "purpose": "any"
     }
   ],
   "categories": ["business"],

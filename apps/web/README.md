@@ -7,6 +7,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 
 ## Key Features
 
+- Marketing home page (`/`) with hero copy, store CTA, and (from `md` up) animated Helvety identifier; stacked layout omits the visual column
 - Multi-zone gateway rewrites for `/auth`, `/store`, `/pdf`, `/image-upscaler`, `/tasks`, `/contacts`, `/notes`
 - Vercel Analytics script forwarding for sub-app routes so analytics works across all zones
 - Shared ecosystem navigation via `@helvety/ui/helvety-shell-navbar` (grouped app/tool switcher and auth-aware menu; `app/layout.tsx` seeds `initialUser` via `@helvety/shared/layout-session-bootstrap` so the bar does not flash through a loading-only state when a session exists)

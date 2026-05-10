@@ -5,6 +5,58 @@
 @source "../../../packages/ui/src";
 @source "../../../packages/brand/src";
 
+@keyframes hero-pattern-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-28px, 28px, 0);
+  }
+}
+
+.hero-bg-pattern {
+  mask-image: radial-gradient(
+    ellipse 120% 88% at 50% 22%,
+    rgb(0 0 0) 0%,
+    rgb(0 0 0 / 55%) 48%,
+    transparent 88%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 120% 88% at 50% 22%,
+    rgb(0 0 0) 0%,
+    rgb(0 0 0 / 55%) 48%,
+    transparent 88%
+  );
+}
+
+.hero-bg-pattern-draw {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -100vmax;
+  margin-top: -100vmax;
+  width: 200vmax;
+  height: 200vmax;
+  backface-visibility: hidden;
+  background-repeat: repeat;
+  background-size: 28px 28px;
+  background-image: radial-gradient(
+    circle at center,
+    color-mix(in oklch, var(--foreground) 20%, transparent) 0.75px,
+    transparent 1.15px
+  );
+  animation: hero-pattern-drift 42s linear infinite;
+}
+
+.dark .hero-bg-pattern-draw {
+  background-image: radial-gradient(
+    circle at center,
+    color-mix(in oklch, var(--foreground) 17%, transparent) 0.75px,
+    transparent 1.15px
+  );
+}
+
 /* Hero right column: ambient orbs + identifier mark breathe (motion off when reduced-motion) */
 .hero-visual-panel {
   isolation: isolate;
@@ -76,7 +128,7 @@
   }
 }
 
-/* Hero identifier (square mark): subtle mark pulse — scoped to hero panel */
+/* Hero identifier: subtle scale/breathe on red path */
 .hero-identifier-visual .helvety-identifier-mark {
   transform-box: fill-box;
   transform-origin: center;
@@ -96,8 +148,26 @@
   }
 }
 
+/* Feather the floating identifier tile so hard edges do not pick up orb chroma. */
+.hero-identifier-float {
+  isolation: isolate;
+  filter: drop-shadow(0 0 1px rgb(255 255 255 / 0.88))
+    drop-shadow(0 0 18px rgb(255 255 255 / 0.5))
+    drop-shadow(0 0 44px rgb(255 255 255 / 0.22));
+}
+
+.dark .hero-identifier-float {
+  filter: drop-shadow(0 0 1px rgb(255 255 255 / 0.2))
+    drop-shadow(0 0 16px rgb(255 255 255 / 0.12))
+    drop-shadow(0 0 40px rgb(0 0 0 / 0.35));
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-visual-orb {
+    animation: none;
+  }
+
+  .hero-bg-pattern-draw {
     animation: none;
   }
 

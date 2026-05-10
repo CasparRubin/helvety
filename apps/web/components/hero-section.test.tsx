@@ -46,5 +46,7 @@ describe("HeroSection", () => {
     expect(html).toContain("private · simple · clean");
     expect(html).toContain("Engineered, designed");
     expect(html).toContain("Switzerland");
+    expect(html).toContain("hero-identifier-float");
+    expect(html).toContain("hero-visual-panel");
   });
 });
