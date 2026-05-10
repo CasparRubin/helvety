@@ -37,9 +37,7 @@ const identifierFloatTransition = {
 /**
  * Marketing hero for `/`: fills the first main viewport band (below navbar / above footer),
  * centers content vertically, dot-grid + radial mask in `app/globals.css`, and from `md` a
- * second column with the floating `HelvetyIdentifier` (hidden on small screens).
- * Hero-only motion: CSS tile ring on `.hero-identifier-float`, optional `edgeHighlight` on the
- * SVG when reduced motion is off (`prefers-reduced-motion`); parent float uses Framer Motion.
+ * second column with the floating identifier (hidden on small screens).
  */
 export function HeroSection() {
   const prefersReducedMotion = useReducedMotion();
@@ -51,7 +49,6 @@ export function HeroSection() {
     <HelvetyIdentifier
       aria-label="Helvety mark"
       className={identifierTileClassName}
-      edgeHighlight={prefersReducedMotion === false}
     />
   );
 

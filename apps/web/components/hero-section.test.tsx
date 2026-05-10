@@ -5,14 +5,6 @@ import { HeroSection } from "./hero-section";
 
 import type { ComponentProps, ReactNode, SVGProps } from "react";
 
-const mockUseReducedMotion = vi.hoisted(
-  (): {
-    prefersReducedMotion: boolean | null;
-  } => ({
-    prefersReducedMotion: false,
-  })
-);
-
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -29,18 +21,9 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("@helvety/brand/identifier", () => ({
-  HelvetyIdentifier: (
-    props: SVGProps<SVGSVGElement> & { edgeHighlight?: boolean }
-  ) => {
-    const { edgeHighlight, ...rest } = props;
-    return (
-      <svg
-        data-testid="helvety-identifier"
-        data-edge-highlight={String(edgeHighlight === true)}
-        {...rest}
-      />
-    );
-  },
+  HelvetyIdentifier: (props: SVGProps<SVGSVGElement>) => (
+    <svg data-testid="helvety-identifier" {...props} />
+  ),
 }));
 
 vi.mock("framer-motion", () => ({
@@ -51,12 +34,11 @@ vi.mock("framer-motion", () => ({
       <div {...props}>{children}</div>
     ),
   },
-  useReducedMotion: () => mockUseReducedMotion.prefersReducedMotion,
+  useReducedMotion: () => false,
 }));
 
 describe("HeroSection", () => {
   it("renders the store CTA with local href", () => {
-    mockUseReducedMotion.prefersReducedMotion = false;
     const html = renderToStaticMarkup(<HeroSection />);
 
     expect(html).toContain('href="/store"');
@@ -66,11 +48,9 @@ describe("HeroSection", () => {
     expect(html).toContain("Switzerland");
     expect(html).toContain("hero-identifier-float");
     expect(html).toContain("hero-visual-panel");
-    expect(html).toContain('data-edge-highlight="true"');
   });
 
   it("uses a first-viewport band, vertical centering, bg pattern, and aligned grid columns", () => {
-    mockUseReducedMotion.prefersReducedMotion = false;
     const html = renderToStaticMarkup(<HeroSection />);
 
     expect(html).toContain("min-h-[calc(100dvh-4rem-7.5rem)]");
@@ -78,15 +58,5 @@ describe("HeroSection", () => {
     expect(html).toContain("hero-bg-pattern");
     expect(html).toContain("hero-bg-pattern-draw");
     expect(html).toMatch(/grid-cols-1[^\n]*items-center/);
-  });
-
-  it("does not enable identifier edge highlight when reduced motion is preferred", () => {
-    mockUseReducedMotion.prefersReducedMotion = true;
-    try {
-      const html = renderToStaticMarkup(<HeroSection />);
-      expect(html).toContain('data-edge-highlight="false"');
-    } finally {
-      mockUseReducedMotion.prefersReducedMotion = false;
-    }
   });
 });
