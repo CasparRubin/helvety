@@ -1,0 +1,24 @@
+/*
+ * Hyperspeed is mounted in a breakout layer (`w-[100svw]`, centered).
+ * Softer lateral edges so the road doesn’t read as hard cut-off on very wide monitors.
+ */
+.hero-hyperspeed-bleed {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 clamp(56px, 7vw, 168px),
+    #000 calc(100% - clamp(56px, 7vw, 168px)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 clamp(56px, 7vw, 168px),
+    #000 calc(100% - clamp(56px, 7vw, 168px)),
+    transparent 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}

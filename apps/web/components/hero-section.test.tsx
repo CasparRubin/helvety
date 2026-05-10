@@ -1,9 +1,10 @@
+import { getLocalAppHref, urls } from "@helvety/shared/config";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HeroSection } from "./hero-section";
 
-import type { ComponentProps, ReactNode, SVGProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -20,10 +21,8 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@helvety/brand/identifier", () => ({
-  HelvetyIdentifier: (props: SVGProps<SVGSVGElement>) => (
-    <svg data-testid="helvety-identifier" {...props} />
-  ),
+const motionMocks = vi.hoisted(() => ({
+  prefersReducedMotion: false,
 }));
 
 vi.mock("framer-motion", () => ({
@@ -34,29 +33,52 @@ vi.mock("framer-motion", () => ({
       <div {...props}>{children}</div>
     ),
   },
-  useReducedMotion: () => false,
+  useReducedMotion: () => motionMocks.prefersReducedMotion,
 }));
 
 describe("HeroSection", () => {
-  it("renders the store CTA with local href", () => {
+  beforeEach(() => {
+    motionMocks.prefersReducedMotion = false;
+  });
+
+  it("renders headline, tagline, store CTA via getLocalAppHref; no legacy identifier markup", () => {
     const html = renderToStaticMarkup(<HeroSection />);
 
-    expect(html).toContain('href="/store"');
+    expect(html).toContain(`href="${getLocalAppHref(urls.store)}"`);
     expect(html).toContain("Browse Helvety products");
     expect(html).toContain("private · simple · clean");
     expect(html).toContain("Engineered, designed");
     expect(html).toContain("Switzerland");
-    expect(html).toContain("hero-identifier-float");
-    expect(html).toContain("hero-visual-panel");
+    expect(html).not.toContain("helvety-identifier");
   });
 
-  it("uses a first-viewport band, vertical centering, bg pattern, and aligned grid columns", () => {
+  it("mounts Hyperspeed bleed layer with full-viewport width and isolate; copy uses pointer-events split", () => {
     const html = renderToStaticMarkup(<HeroSection />);
 
-    expect(html).toContain("helvety-main-band");
+    expect(html).toContain('data-testid="hero-hyperspeed-host"');
+    expect(html).toContain("hero-hyperspeed-bleed");
+    expect(html).toContain("w-[100svw]");
+    expect(html).toContain("isolate");
+    expect(html).toContain("overflow-visible");
+    expect(html).toContain("pointer-events-none");
+    expect(html).toContain("pointer-events-auto");
+  });
+
+  it("uses flex growth and svh-derived min-height shell floor for hero layout", () => {
+    const html = renderToStaticMarkup(<HeroSection />);
+
+    expect(html).toContain("flex-1");
+    expect(html).toContain("min-h-[max(100%,calc(100svh-4rem-12.5rem))]");
     expect(html).toContain("flex-col justify-center");
-    expect(html).toContain("hero-bg-pattern");
-    expect(html).toContain("hero-bg-pattern-draw");
-    expect(html).toMatch(/grid-cols-1[^\n]*items-center/);
+    expect(html).toContain("max-w-3xl");
+  });
+
+  it("omits Hyperspeed and backgrounds the section when reduced motion is preferred", () => {
+    motionMocks.prefersReducedMotion = true;
+    const html = renderToStaticMarkup(<HeroSection />);
+
+    expect(html).not.toContain('data-testid="hero-hyperspeed-host"');
+    expect(html).not.toContain("hero-hyperspeed-bleed");
+    expect(html).toContain("bg-background");
   });
 });

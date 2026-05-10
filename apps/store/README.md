@@ -43,21 +43,15 @@ and the `@helvety/web` landing showcase render the exact same copy and order.
      long-copy fields (`description`, `features`, `pricing`, `links`,
      `metadata.releaseDate: c<Name>.releaseDate`, `image: productArtwork.*`).
    - Add the new product to the `products` array near the bottom of the file.
-3. **Add a Lucide icon** for the gateway showcase in
-   `apps/web/components/store-apps-showcase.tsx`:
-   - The `STORE_PRODUCT_ICONS` registry is typed
-     `Record<StoreProductId, LucideIcon>` — TypeScript will fail the build until
-     a new product id has an icon entry.
+3. **Add a Lucide icon** in [`apps/web/components/store-apps-showcase.tsx`](../web/components/store-apps-showcase.tsx):
+   **`STORE_PRODUCT_ICONS`** must stay `Record<StoreProductId, LucideIcon>` (the file is optional on `/` until the gateway mounts the showcase again, but builds still type-check once you edit it).
 4. **(Optional) Add ecosystem-level icon** in
    `packages/ui/src/app-switcher.tsx` if the product should appear in the app
    switcher.
 5. **Run pre-deployment validations** from the repo root:
    `bun run lint && bun run format:check && bun run test && bun run build`.
 
-The marketing band (`apps/web/components/store-apps-showcase.tsx`) renders one
-`.helvety-main-band.showcase-band` per catalog entry and rotates through four
-`.showcase-band-v{1..4}` decorative variants in `apps/web/app/globals.css`.
-No additional wiring is needed there once the catalog and icon are in place.
+When mounted on the gateway, the showcase renders one `.showcase-band` per catalog entry and cycles decorative variants (see `apps/web/app/globals.css`). **`apps/web/app/page.tsx` does not import it yet** — only the hero is shown on `/`.
 
 ## Crawl and Indexing
 

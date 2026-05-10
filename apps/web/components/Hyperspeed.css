@@ -1,0 +1,15 @@
+/*
+ * React Bits Hyperspeed — container + canvas fill parent.
+ * Hero wraps this in an absolute inset-0 host; width/height 100% fill that box.
+ */
+#lights {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#lights canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

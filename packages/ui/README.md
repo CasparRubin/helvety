@@ -8,7 +8,7 @@ This package provides:
 
 - Shared design system and utility components
 - Theme and layout helpers
-- **Public** app root shell (`HelvetyPublicShellRootLayout`): `web`, `auth`, `store`, `pdf`, and `image-upscaler` share CSP nonce, JSON-LD, theme (`ThemeProvider`), auth/session wiring (`AuthTokenHandler`, `SessionRecovery`), `TooltipProvider`, optional `wrapInsideTooltipProvider` (CSRF and app-specific client providers), navbar slot, main region, footer, toaster, and Vercel analytics. Store uses a navbar-only `ThemeProvider` scope via `themeProviderScope: "navbar-only"`.
+- **Public** app root shell (`HelvetyPublicShellRootLayout`): `web`, `auth`, `store`, `pdf`, and `image-upscaler` share CSP nonce, JSON-LD, theme (`ThemeProvider`), auth/session wiring (`AuthTokenHandler`, `SessionRecovery`), `TooltipProvider`, optional `wrapInsideTooltipProvider` (CSRF and app-specific client providers), navbar slot, main region, footer, toaster, and Vercel analytics. Store uses a navbar-only `ThemeProvider` scope via `themeProviderScope: "navbar-only"`. For `mainVariant: "scroll-area"`, optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**, **`scrollAreaViewportClassName`**, and **`bodyClassName`** relax default overflow so content can paint past the scroll column (used on `apps/web` for full-bleed Hyperspeed). **`ScrollArea`** accepts **`viewportClassName`** to override Radix viewport overflow (for example `!overflow-visible`).
 - **E2EE** app shell primitives (`E2eeAppRootLayout`, encryption gate, CSRF/session wiring) for `tasks`, `contacts`, and `notes`
 - Shared top navigation chrome (`HelvetyShellNavbar`) across public zones. E2EE apps use `E2eeAppNavbar`, which composes `HelvetyShellNavbar` with encryption-aware props.
 - Cross-app navigation primitives (for example `AppSwitcher` inside `NavbarBrand`)
@@ -17,7 +17,7 @@ This package provides:
 
 **Public zones (`web`, `auth`, `store`, `pdf`, `image-upscaler`):**
 
-- `@helvety/ui/helvety-public-shell-root-layout` -> `HelvetyPublicShellRootLayout`: Async root layout with JSON-LD (`organization` plus caller-supplied `@graph` tail), theme (full tree or navbar-only), `AuthTokenHandler`, `SessionRecovery`, `TooltipProvider`, optional `wrapInsideTooltipProvider` (Auth: CSRF plus encryption, Store: `CSRFProvider`), main-region variants, footer, toaster, and analytics.
+- `@helvety/ui/helvety-public-shell-root-layout` -> `HelvetyPublicShellRootLayout`: Async root layout with JSON-LD (`organization` plus caller-supplied `@graph` tail), theme (full tree or navbar-only), `AuthTokenHandler`, `SessionRecovery`, `TooltipProvider`, optional `wrapInsideTooltipProvider` (Auth: CSRF plus encryption, Store: `CSRFProvider`), **`mainVariant`** — `scroll-area` (Radix `ScrollArea` from `@helvety/ui/scroll-area`) or `overflow-main` — footer, toaster, and analytics. Optional overflow-related props (see **Scope** above) for horizontal bleed.
 
 **E2EE zones (`tasks`, `contacts`, `notes`):**
 

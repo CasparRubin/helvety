@@ -77,12 +77,21 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
   /** Optional class on `<main>` when `mainVariant` is `scroll-area`. */
   scrollAreaMainClassName?: string;
   /**
-   * Optional classes on the ScrollArea **viewport** (element that scrolls).
-   * Use for `scroll-snap-*`, overflow tweaks, etc.
+   * Optional extra classes on the ScrollArea **root** (`ScrollAreaPrimitive.Root`).
+   * Passed last in `cn(...)` so callers can override defaults (e.g. `!overflow-visible` for horizontal bleed).
    */
+  scrollAreaRootClassName?: string;
+  /** Optional classes on the ScrollArea **viewport** — see {@link ScrollArea} `viewportClassName`. */
   scrollAreaViewportClassName?: string;
-  /** Optional fragment rendered near the end of `<body>` before analytics scripts. */
-  bodyTail?: ReactNode;
+  /**
+   * Optional classes on the outer **`h-svh`** shell column (navbar + main + footer).
+   * Defaults to `overflow-hidden`. Use e.g. `!overflow-visible` when main content must paint
+   * horizontally past the column (full-bleed heroes); pair with `bodyClassName` e.g.
+   * `overflow-x-clip` if stray horizontal scrollbars appear.
+   */
+  shellColumnClassName?: string;
+  /** Extra classes on `<body>` (both theme branches). */
+  bodyClassName?: string;
 }>;
 
 /** Scroll-area vs overflow-main content for the public shell column. */
@@ -91,20 +100,34 @@ function buildMainBlock(
   children: ReactNode,
   scrollAreaMainPrefix: ReactNode | undefined,
   scrollAreaMainClassName: string | undefined,
+  scrollAreaRootClassName: string | undefined,
   scrollAreaViewportClassName: string | undefined
 ): React.JSX.Element {
+  const scrollColumn = (
+    <div className="container mx-auto flex min-h-0 min-w-0 flex-1 flex-col px-4">
+      {scrollAreaMainPrefix}
+      <main
+        id="main-content"
+        className={cn(
+          "flex min-h-0 min-w-0 flex-1 flex-col",
+          scrollAreaMainClassName
+        )}
+      >
+        {children}
+      </main>
+    </div>
+  );
+
   if (mainVariant === "scroll-area") {
     return (
       <ScrollArea
-        className="min-h-0 flex-1"
+        className={cn(
+          "flex min-h-0 min-w-0 flex-1 flex-col [&>[data-radix-scroll-area-viewport]]:max-h-full [&>[data-radix-scroll-area-viewport]]:min-h-0 [&>[data-radix-scroll-area-viewport]]:flex-1",
+          scrollAreaRootClassName ?? "overflow-hidden"
+        )}
         viewportClassName={scrollAreaViewportClassName}
       >
-        <div className="container mx-auto w-full px-4">
-          {scrollAreaMainPrefix}
-          <main id="main-content" className={cn(scrollAreaMainClassName)}>
-            {children}
-          </main>
-        </div>
+        {scrollColumn}
       </ScrollArea>
     );
   }
@@ -124,8 +147,13 @@ function buildMainBlock(
  * `image-upscaler`): CSP nonce, JSON-LD, theme (see {@link HelvetyPublicShellThemeProviderScope}),
  * auth token handler, session recovery, `TooltipProvider`, optional
  * {@link wrapInsideTooltipProvider} (e.g. CSRF / encryption for Auth, `CSRFProvider` for Store),
- * navbar + main + footer, toaster, Vercel analytics. E2EE apps (`tasks`, `contacts`, `notes`) use
- * `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
+ * navbar + main + footer, toaster, Vercel analytics.
+ *
+ * With `mainVariant: "scroll-area"`, optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
+ * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
+ * content can extend horizontally (for example gateway web Hyperspeed). Other apps keep the defaults.
+ *
+ * E2EE apps (`tasks`, `contacts`, `notes`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
  */
 export async function HelvetyPublicShellRootLayout({
   children,
@@ -142,8 +170,10 @@ export async function HelvetyPublicShellRootLayout({
   themeProviderScope = "full",
   scrollAreaMainPrefix,
   scrollAreaMainClassName,
+  scrollAreaRootClassName,
   scrollAreaViewportClassName,
-  bodyTail,
+  shellColumnClassName,
+  bodyClassName,
 }: HelvetyPublicShellRootLayoutProps): Promise<React.JSX.Element> {
   const nonce = (await getRequestCspNonce()) ?? undefined;
 
@@ -160,6 +190,7 @@ export async function HelvetyPublicShellRootLayout({
     children,
     scrollAreaMainPrefix,
     scrollAreaMainClassName,
+    scrollAreaRootClassName,
     scrollAreaViewportClassName
   );
 
@@ -175,7 +206,12 @@ export async function HelvetyPublicShellRootLayout({
     );
 
   const column = (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div
+      className={cn(
+        "flex h-svh max-h-svh min-h-0 flex-col",
+        shellColumnClassName ?? "overflow-hidden"
+      )}
+    >
       {header}
       {mainBlock}
       <Footer className={footerClassName} external={footerExternal} />
@@ -218,11 +254,10 @@ export async function HelvetyPublicShellRootLayout({
           : {})}
         suppressHydrationWarning
       >
-        <body className="font-sans antialiased">
+        <body className={cn("font-sans antialiased", bodyClassName)}>
           <SkipToContent />
           <JsonLdScript nonce={nonce} json={ldJson} />
           <TooltipProvider>{wrappedStore}</TooltipProvider>
-          {bodyTail}
           {analyticsBlock}
         </body>
       </html>
@@ -242,7 +277,7 @@ export async function HelvetyPublicShellRootLayout({
         : {})}
       suppressHydrationWarning
     >
-      <body className="font-sans antialiased">
+      <body className={cn("font-sans antialiased", bodyClassName)}>
         <SkipToContent />
         <JsonLdScript nonce={nonce} json={ldJson} />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
@@ -250,7 +285,6 @@ export async function HelvetyPublicShellRootLayout({
           <SessionRecovery mode={sessionRecoveryMode} />
           <TooltipProvider>{tooltipBody}</TooltipProvider>
         </ThemeProvider>
-        {bodyTail}
         {analyticsBlock}
       </body>
     </html>

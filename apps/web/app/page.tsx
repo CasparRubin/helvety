@@ -1,12 +1,6 @@
 import { HeroSection } from "@/components/hero-section";
-import { StoreAppsShowcase } from "@/components/store-apps-showcase";
 
-/** Home page (`/`): hero plus Store-aligned app bands (shared card copy). */
+/** Gateway home (`/`): hero with WebGL Hyperspeed when reduced motion is off. */
 export default function Page() {
-  return (
-    <>
-      <HeroSection />
-      <StoreAppsShowcase />
-    </>
-  );
+  return <HeroSection />;
 }

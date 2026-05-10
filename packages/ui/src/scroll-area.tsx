@@ -4,16 +4,23 @@ import { cn } from "@helvety/shared/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import * as React from "react";
 
-/** Scrollable area with custom scrollbar styling and stable gutter reservation. */
+/** Combined Radix ScrollArea root props plus optional viewport class override. */
+type ScrollAreaProps = React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
+  /** Merged onto the Radix viewport (e.g. `!overflow-visible` to defeat inline overflow clipping). */
+  viewportClassName?: string;
+};
+
+/**
+ * Scrollable area with custom scrollbar styling and stable gutter reservation.
+ * Pass **`viewportClassName`** to override Radix inline overflow on the viewport
+ * (for example `!overflow-visible` for full-bleed content inside the scroll region).
+ */
 function ScrollArea({
   className,
   viewportClassName,
   children,
   ...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
-  /** Classes merged onto the Radix viewport (the actual scroll container). */
-  viewportClassName?: string;
-}) {
+}: ScrollAreaProps) {
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
@@ -23,7 +30,12 @@ function ScrollArea({
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
         className={cn(
-          "scroll-gutter-stable focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1",
+          "scroll-gutter-stable focus-visible:ring-ring/50 flex size-full min-h-0 flex-col rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1",
+          /*
+           * Radix sets inline `display:table` + `minWidth:100%` on the content wrapper.
+           * Classes alone lose to that inline rule — need `!` so flex fill works vertically.
+           */
+          "[&>div]:!flex [&>div]:min-h-0 [&>div]:w-full [&>div]:flex-1 [&>div]:!flex-col",
           viewportClassName
         )}
       >

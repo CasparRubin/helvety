@@ -46,6 +46,7 @@ This package centralizes:
 - Refresh auth session cookies early when `sb-*` cookies are present.
 - Use trusted user reads (`getUser`) for security-sensitive checks.
 - `@helvety/shared/cached-server` exposes per-request cached helpers such as `getCachedUser` and `getCachedCSRFToken` (built with React `cache`) so root layouts and navbars can share one Supabase `getUser` / CSRF read per request without duplicate round-trips.
+- `@helvety/shared/layout-session-bootstrap` exports `bootstrapPublicLayoutUser()` (wraps `getCachedUser` with logging and null fallback) for public shells such as `apps/web` that want a single call site in `app/layout.tsx`.
 
 ### Logging and Errors
 

@@ -41,6 +41,8 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
     "radix-ui",
     "sonner",
     "framer-motion",
+    "three",
+    "postprocessing",
   ],
   overrides: {
     // Multi-zone rewrites: proxy path-based URLs to each app's Vercel deployment.

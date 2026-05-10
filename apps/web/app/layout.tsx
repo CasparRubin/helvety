@@ -6,7 +6,6 @@ import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
-import { ScrollViewportMetricsBridge } from "@/components/scroll-viewport-metrics";
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
 export const WEB_SITE_DESCRIPTION =
@@ -45,15 +44,21 @@ export const metadata = createHelvetyProductMetadata({
 });
 
 /**
- * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer (contact + legal links).
+ * Root layout: fixed header (`Navbar`), `ScrollArea` main with shared container
+ * gutters, fixed footer (contact + legal links).
  *
- * The web app is primarily public-facing (marketing/legal pages) and also
- * exposes public metadata/API endpoints such as robots, sitemap, and CSP
- * reporting routes.
- * No explicit force-dynamic export. This layout reads request headers for CSP
- * nonce propagation. The navbar receives an SSR `initialUser` snapshot from
- * `getCachedUser` (with graceful fallback on failure); `useNavbarAuthState`
- * still reconciles with the client session on updates.
+ * Full-bleed Hyperspeed on `/` paints wider than the content column (`100svw`,
+ * centered on the hero). The shell passes `shellColumnClassName`,
+ * `scrollAreaRootClassName`, `scrollAreaViewportClassName`, and `bodyClassName`
+ * so Radix scroll clipping and the `h-svh` column do not crop the canvas; see
+ * `@helvety/ui` README for these optional `HelvetyPublicShellRootLayout` props.
+ *
+ * Public marketing/legal pages plus metadata routes (robots, sitemap, CSP
+ * reporting). CSP nonce flows from request headers. The navbar gets an SSR
+ * `initialUser` snapshot via `bootstrapPublicLayoutUser()` from
+ * `@helvety/shared/layout-session-bootstrap` (logs and falls
+ * back to null on failure); `useNavbarAuthState` reconciles with the client
+ * session afterward.
  */
 export default async function RootLayout({
   children,
@@ -64,6 +69,11 @@ export default async function RootLayout({
 
   return HelvetyPublicShellRootLayout({
     children,
+    /* Full-bleed Hyperspeed: `100svw` breakout + lateral CSS mask; defeats shell + Radix overflow clipping. */
+    shellColumnClassName: "!overflow-visible",
+    bodyClassName: "overflow-x-clip",
+    scrollAreaRootClassName: "!overflow-visible",
+    scrollAreaViewportClassName: "!overflow-visible",
     organizationLogoUrl: brandAssets.identifierLogo,
     jsonLdGraphTail: [
       {
@@ -77,7 +87,5 @@ export default async function RootLayout({
     mainVariant: "scroll-area",
     footerExternal: false,
     analytics: "with-speed-insights",
-    scrollAreaViewportClassName: "helvety-web-scroll-snap-viewport",
-    bodyTail: <ScrollViewportMetricsBridge />,
   });
 }

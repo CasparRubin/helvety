@@ -41,7 +41,51 @@ const STORE_PRODUCT_ICONS: Record<StoreProductId, LucideIcon> = {
 /** Number of `.showcase-band-vN` variants defined in `apps/web/app/globals.css`. */
 const SHOWCASE_BAND_VARIANTS = 4;
 
-/** Server-rendered catalog bands: same blurbs and order as the Store (newest release first). */
+/** Random number in `[min, max]` rounded to the nearest half pixel. */
+function randomTilePx(min: number, max: number): number {
+  return Math.round((Math.random() * (max - min) + min) * 2) / 2;
+}
+
+/**
+ * Per-band random pattern tile size, served as inline CSS custom properties.
+ * Each variant exposes one knob in `apps/web/app/globals.css`
+ * (`--cube-tile`, `--dot-tile`, `--stripe-tile`); the CSS rules fall back to
+ * the legacy hard-coded values when the variable is absent.
+ *
+ * Ranges hug the original values so the visual rhythm stays familiar but each
+ * page load reshuffles the patterns. The hero (`.hero-bg-pattern`) is not a
+ * `.showcase-band` and is intentionally excluded.
+ */
+function pickPatternStyle(variant: number): React.CSSProperties {
+  switch (variant) {
+    case 1:
+      return {
+        "--cube-tile": `${randomTilePx(22, 30)}px`,
+      } as React.CSSProperties;
+    case 2:
+      return {
+        "--dot-tile": `${randomTilePx(18, 26)}px`,
+      } as React.CSSProperties;
+    case 3:
+      return {
+        "--stripe-tile": `${randomTilePx(12, 20)}px`,
+      } as React.CSSProperties;
+    case 4:
+      return {
+        "--cube-tile": `${randomTilePx(28, 36)}px`,
+      } as React.CSSProperties;
+    default:
+      return {};
+  }
+}
+
+/**
+ * Server-rendered catalog bands: same blurbs and order as the Store (newest
+ * release first). Pattern tile sizes are randomized per band on each render so
+ * the home page feels fresh without changing the design language; the root
+ * layout's CSP-nonce / cookie reads already opt this route into dynamic
+ * rendering, so each request resamples the spacings.
+ */
 export function StoreAppsShowcase() {
   const products = getStoreCatalogNewestFirst();
 
@@ -60,10 +104,11 @@ export function StoreAppsShowcase() {
           <div
             key={product.id}
             className={cn(
-              "showcase-band helvety-main-band border-border/30 flex flex-col justify-center border-b last:border-b-0",
+              "showcase-band border-border/30 flex flex-col justify-center border-b py-14 last:border-b-0 md:py-20 lg:py-24",
               `showcase-band-v${variant}`,
               isShaded && "showcase-band-shaded"
             )}
+            style={pickPatternStyle(variant)}
           >
             <div className="mx-auto w-full max-w-6xl min-w-0 px-4 py-10 sm:px-6 md:px-0 md:py-14 lg:py-16">
               <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-14 lg:gap-20">
