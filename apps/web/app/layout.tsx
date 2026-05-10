@@ -6,6 +6,7 @@ import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
+import { ScrollViewportMetricsBridge } from "@/components/scroll-viewport-metrics";
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
 export const WEB_SITE_DESCRIPTION =
@@ -76,6 +77,7 @@ export default async function RootLayout({
     mainVariant: "scroll-area",
     footerExternal: false,
     analytics: "with-speed-insights",
-    htmlSmoothScroll: true,
+    scrollAreaViewportClassName: "helvety-web-scroll-snap-viewport",
+    bodyTail: <ScrollViewportMetricsBridge />,
   });
 }

@@ -59,7 +59,6 @@ export type HelvetyShellNavbarBrand = {
   currentApp: string;
   homeHref: string;
   homeAriaLabel: string;
-  openHomeInNewTab?: boolean;
   titleText?: string;
   titleHref?: string;
 };

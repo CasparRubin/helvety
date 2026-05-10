@@ -19,7 +19,6 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
         currentApp: "PDF",
         homeHref: urls.home,
         homeAriaLabel: "Visit Helvety.com",
-        openHomeInNewTab: true,
         titleText: "PDF",
         titleHref: "/",
       }}

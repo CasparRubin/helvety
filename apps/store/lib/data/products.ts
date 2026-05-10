@@ -2,6 +2,12 @@
  * Static product data for the Store app (@helvety/store)
  */
 
+import {
+  compareStoreCatalogEntriesNewestFirst,
+  requireStoreProductCard,
+  type StoreProductType,
+} from "@helvety/shared/store-catalog";
+
 import { productArtwork } from "@/lib/data/product-artwork";
 import {
   productDescriptionToPlainText,
@@ -12,36 +18,39 @@ import {
 } from "@/lib/types/products";
 
 /**
- * Catalog default sort is newest `releaseDate` first. Release dates are chosen to
- * reflect product age (not repo history). Intended chronological order, oldest → newest:
- *   PDF → SPO Explorer → Tasks → Contacts → Notes → Power Automate Browser Extension → Screen Tools → Image Upscaler
- *
- * When two products share the same `metadata.releaseDate`, higher number sorts first
- * (treated as newer for display).
+ * Card-level fields (name, blurbs, release date, type, category) from
+ * `@helvety/shared/store-catalog`, narrowed to the literal `type` the caller
+ * declares (e.g. `"saas"` or `"software"`). Throws if the catalog declares a
+ * different `type` for `id`, so {@link StoreProductCard.type} cannot drift
+ * away from the Store-side `Product` discriminant.
  */
-const PRODUCT_RELEASE_TIE_PRIORITY: Record<string, number> = {
-  "helvety-image-upscaler": 8,
-  "helvety-screen-tools": 7,
-  "helvety-power-automate-force-v3-false": 6,
-  "helvety-notes": 5,
-  "helvety-contacts": 4,
-  "helvety-tasks": 3,
-  "helvety-spo-explorer": 2,
-  "helvety-pdf": 1,
-};
+function cardCore<T extends StoreProductType>(id: string, expectedType: T) {
+  const c = requireStoreProductCard(id);
+  if (c.type !== expectedType) {
+    throw new Error(
+      `Store product "${id}" is declared as "${c.type}" in @helvety/shared/store-catalog, expected "${expectedType}".`
+    );
+  }
+  return {
+    id: c.id,
+    slug: c.slug,
+    name: c.name,
+    shortDescription: c.shortDescription,
+    type: expectedType,
+    category: c.category,
+    releaseDate: c.releaseDate,
+  };
+}
 
-/** Newest `releaseDate` first; ties use {@link PRODUCT_RELEASE_TIE_PRIORITY}. */
+/** Newest `releaseDate` first; ties match `@helvety/shared/store-catalog`. */
 function compareProductsByReleaseDateNewestFirst(
   a: Product,
   b: Product
 ): number {
-  const dateA = a.metadata?.releaseDate ?? "";
-  const dateB = b.metadata?.releaseDate ?? "";
-  const cmp = dateB.localeCompare(dateA);
-  if (cmp !== 0) return cmp;
-  const pa = PRODUCT_RELEASE_TIE_PRIORITY[a.id] ?? 0;
-  const pb = PRODUCT_RELEASE_TIE_PRIORITY[b.id] ?? 0;
-  return pb - pa;
+  return compareStoreCatalogEntriesNewestFirst(
+    { id: a.id, releaseDate: a.metadata?.releaseDate ?? "" },
+    { id: b.id, releaseDate: b.metadata?.releaseDate ?? "" }
+  );
 }
 
 /** Oldest `releaseDate` first; pairs with sort direction like other sort modes. */
@@ -60,12 +69,14 @@ function compareProductsByReleaseDateOldestFirst(
 /**
  * Helvety SPO Explorer - SharePoint Online Extension
  */
+const cHelvetyExplorer = cardCore("helvety-spo-explorer", "software");
 const helvetyExplorer: SoftwareProduct = {
-  id: "helvety-spo-explorer",
-  slug: "helvety-spo-explorer",
-  name: "Helvety SPO Explorer",
-  shortDescription:
-    "SharePoint site picker and search in the header. Favorites and preferences stay on the device, not on Helvety servers.",
+  id: cHelvetyExplorer.id,
+  slug: cHelvetyExplorer.slug,
+  name: cHelvetyExplorer.name,
+  shortDescription: cHelvetyExplorer.shortDescription,
+  type: cHelvetyExplorer.type,
+  category: cHelvetyExplorer.category,
   image: productArtwork.artwork1,
   artist: "Alexandre Calame",
   description: {
@@ -94,8 +105,6 @@ const helvetyExplorer: SoftwareProduct = {
       },
     ],
   },
-  type: "software",
-  category: "integrations",
   status: "available",
   features: [
     "Site Discovery - auto-fetch all accessible sites",
@@ -235,19 +244,24 @@ const helvetyExplorer: SoftwareProduct = {
       "privacy",
     ],
     featured: true,
-    releaseDate: "2025-10-05",
+    releaseDate: cHelvetyExplorer.releaseDate,
   },
 };
 
 /**
  * Power Automate browser extension - forces v3=false for classic Power Automate editor URLs
  */
+const cPowerAutomate = cardCore(
+  "helvety-power-automate-force-v3-false",
+  "software"
+);
 const powerAutomateForceV3False: SoftwareProduct = {
-  id: "helvety-power-automate-force-v3-false",
-  slug: "helvety-power-automate-force-v3-false",
-  name: "Power Automate Browser Extension",
-  shortDescription:
-    "A minimal Edge/Chrome extension that keeps Power Automate flow and run URLs on the classic editor by ensuring v3=false and normalizing v3survey=false when present.",
+  id: cPowerAutomate.id,
+  slug: cPowerAutomate.slug,
+  name: cPowerAutomate.name,
+  shortDescription: cPowerAutomate.shortDescription,
+  type: cPowerAutomate.type,
+  category: cPowerAutomate.category,
   image: productArtwork.artwork6,
   artist: "Rudolf Koller",
   description: {
@@ -280,8 +294,6 @@ const powerAutomateForceV3False: SoftwareProduct = {
       },
     ],
   },
-  type: "software",
-  category: "integrations",
   status: "available",
   features: [
     "Scoped to Power Automate hosts (*.powerautomate.com and flow.microsoft.com)",
@@ -371,19 +383,21 @@ const powerAutomateForceV3False: SoftwareProduct = {
       "microsoft 365",
     ],
     featured: true,
-    releaseDate: "2026-04-03",
+    releaseDate: cPowerAutomate.releaseDate,
   },
 };
 
 /**
  * Helvety Screen Tools - Windows screenshot and live annotation utility
  */
+const cHelvetyScreenTools = cardCore("helvety-screen-tools", "software");
 const helvetyScreenTools: SoftwareProduct = {
-  id: "helvety-screen-tools",
-  slug: "helvety-screen-tools",
-  name: "Helvety Screen Tools",
-  shortDescription:
-    "A WinUI 3 desktop app for Windows with global-hotkey screenshot capture and Live Draw overlay annotation over the real desktop.",
+  id: cHelvetyScreenTools.id,
+  slug: cHelvetyScreenTools.slug,
+  name: cHelvetyScreenTools.name,
+  shortDescription: cHelvetyScreenTools.shortDescription,
+  type: cHelvetyScreenTools.type,
+  category: cHelvetyScreenTools.category,
   image: productArtwork.artwork8,
   artist: "Ferdinand Hodler",
   description: {
@@ -412,8 +426,6 @@ const helvetyScreenTools: SoftwareProduct = {
       },
     ],
   },
-  type: "software",
-  category: "utilities",
   status: "available",
   features: [
     "Global hotkey screenshot capture",
@@ -491,7 +503,7 @@ const helvetyScreenTools: SoftwareProduct = {
       "hotkey",
     ],
     featured: true,
-    releaseDate: "2026-04-21",
+    releaseDate: cHelvetyScreenTools.releaseDate,
   },
 };
 
@@ -502,12 +514,14 @@ const helvetyScreenTools: SoftwareProduct = {
 /**
  * Helvety PDF - PDF Toolkit
  */
+const cHelvetyPdf = cardCore("helvety-pdf", "saas");
 const helvetyPdf: SaaSProduct = {
-  id: "helvety-pdf",
-  slug: "helvety-pdf",
-  name: "Helvety PDF",
-  shortDescription:
-    "Reorder, merge, rotate, extract, or drop images into a PDF. Supported edits stay in your browser instead of uploading files to Helvety.",
+  id: cHelvetyPdf.id,
+  slug: cHelvetyPdf.slug,
+  name: cHelvetyPdf.name,
+  shortDescription: cHelvetyPdf.shortDescription,
+  type: cHelvetyPdf.type,
+  category: cHelvetyPdf.category,
   description: {
     intro:
       "Helvety PDF gives you a thumbnail-first workbench for everyday PDF surgery. When a tool is supported by the current architecture, pages stay inside your browser tab instead of travelling through a Helvety conversion pipeline.",
@@ -533,8 +547,6 @@ const helvetyPdf: SaaSProduct = {
       },
     ],
   },
-  type: "saas",
-  category: "utilities",
   status: "available",
   image: productArtwork.artwork7,
   artist: "Alexandre Calame",
@@ -592,7 +604,7 @@ const helvetyPdf: SaaSProduct = {
       "client-side",
     ],
     featured: true,
-    releaseDate: "2025-09-14",
+    releaseDate: cHelvetyPdf.releaseDate,
   },
 };
 
@@ -604,12 +616,14 @@ const helvetyPdf: SaaSProduct = {
  * Helvety Image Upscaler - in-browser AI upscaler (Real-ESRGAN via
  * onnxruntime-web with WebGPU/WASM) plus a canvas-resample fallback.
  */
+const cHelvetyImageUpscaler = cardCore("helvety-image-upscaler", "saas");
 const helvetyImageUpscaler: SaaSProduct = {
-  id: "helvety-image-upscaler",
-  slug: "helvety-image-upscaler",
-  name: "Helvety Image Upscaler",
-  shortDescription:
-    "Browser-based image upscaler with on-device AI (Real-ESRGAN via WebGPU/WASM) and a canvas-resample fallback: 2×/4× batches, target width or height with locked aspect ratio, and limits so tabs stay responsive.",
+  id: cHelvetyImageUpscaler.id,
+  slug: cHelvetyImageUpscaler.slug,
+  name: cHelvetyImageUpscaler.name,
+  shortDescription: cHelvetyImageUpscaler.shortDescription,
+  type: cHelvetyImageUpscaler.type,
+  category: cHelvetyImageUpscaler.category,
   description: {
     intro:
       "Helvety Image Upscaler runs a Real-ESRGAN ONNX model inside a Web Worker via onnxruntime-web (WebGPU with WASM fallback) so PNG, JPEG, and WebP images can be upscaled entirely on-device. The model downloads lazily on first AI run and caches locally; a high-quality canvas-resample fallback is used automatically when WebAssembly is unavailable. No Helvety-hosted image conversion in the normal flow, and very large exports may be clamped to fit each browser’s canvas limits.",
@@ -636,8 +650,6 @@ const helvetyImageUpscaler: SaaSProduct = {
       },
     ],
   },
-  type: "saas",
-  category: "utilities",
   status: "available",
   image: productArtwork.artwork2,
   artist: "Alexandre Calame",
@@ -701,7 +713,7 @@ const helvetyImageUpscaler: SaaSProduct = {
       "free",
     ],
     featured: true,
-    releaseDate: "2026-04-28",
+    releaseDate: cHelvetyImageUpscaler.releaseDate,
   },
 };
 
@@ -712,12 +724,14 @@ const helvetyImageUpscaler: SaaSProduct = {
 /**
  * Helvety Tasks - E2E Encrypted Task Management
  */
+const cHelvetyTasks = cardCore("helvety-tasks", "saas");
 const helvetyTasks: SaaSProduct = {
-  id: "helvety-tasks",
-  slug: "helvety-tasks",
-  name: "Helvety Tasks",
-  shortDescription:
-    "Stage-aware task board with encrypted titles, descriptions, and schedule fields, plus labels, priority, and optional Helvety Contacts links.",
+  id: cHelvetyTasks.id,
+  slug: cHelvetyTasks.slug,
+  name: cHelvetyTasks.name,
+  shortDescription: cHelvetyTasks.shortDescription,
+  type: cHelvetyTasks.type,
+  category: cHelvetyTasks.category,
   description: {
     intro:
       "Helvety Tasks pairs a kanban-style spine with real encryption: sensitive fields leave your browser only after WebCrypto transforms them, so the server stores ciphertext tied to passkey-derived keys you control.",
@@ -744,8 +758,6 @@ const helvetyTasks: SaaSProduct = {
       },
     ],
   },
-  type: "saas",
-  category: "productivity",
   status: "available",
   image: productArtwork.artwork3,
   artist: "Alexandre Calame",
@@ -802,7 +814,7 @@ const helvetyTasks: SaaSProduct = {
       "productivity",
     ],
     featured: true,
-    releaseDate: "2025-11-11",
+    releaseDate: cHelvetyTasks.releaseDate,
   },
 };
 
@@ -813,12 +825,14 @@ const helvetyTasks: SaaSProduct = {
 /**
  * Helvety Contacts - E2E Encrypted Contact Management
  */
+const cHelvetyContacts = cardCore("helvety-contacts", "saas");
 const helvetyContacts: SaaSProduct = {
-  id: "helvety-contacts",
-  slug: "helvety-contacts",
-  name: "Helvety Contacts",
-  shortDescription:
-    "Names, numbers, birthdays, and rich notes encrypted at rest with Personal, Work, and Other buckets, drag reorder, and self-service export.",
+  id: cHelvetyContacts.id,
+  slug: cHelvetyContacts.slug,
+  name: cHelvetyContacts.name,
+  shortDescription: cHelvetyContacts.shortDescription,
+  type: cHelvetyContacts.type,
+  category: cHelvetyContacts.category,
   description: {
     intro:
       "Helvety Contacts is a lightweight encrypted Rolodex: structured fields stay opaque to us because encryption happens locally before anything syncs.",
@@ -845,8 +859,6 @@ const helvetyContacts: SaaSProduct = {
       },
     ],
   },
-  type: "saas",
-  category: "productivity",
   status: "available",
   image: productArtwork.artwork4,
   artist: "Ferdinand Hodler",
@@ -904,7 +916,7 @@ const helvetyContacts: SaaSProduct = {
       "crm",
     ],
     featured: true,
-    releaseDate: "2025-12-02",
+    releaseDate: cHelvetyContacts.releaseDate,
   },
 };
 
@@ -915,12 +927,14 @@ const helvetyContacts: SaaSProduct = {
 /**
  * Helvety Notes - E2E Encrypted Notes
  */
+const cHelvetyNotes = cardCore("helvety-notes", "saas");
 const helvetyNotes: SaaSProduct = {
-  id: "helvety-notes",
-  slug: "helvety-notes",
-  name: "Helvety Notes",
-  shortDescription:
-    "Encrypted title and body notes in Personal, Work, and Other buckets, with rich text and cross-links to tasks or contacts when you use those apps.",
+  id: cHelvetyNotes.id,
+  slug: cHelvetyNotes.slug,
+  name: cHelvetyNotes.name,
+  shortDescription: cHelvetyNotes.shortDescription,
+  type: cHelvetyNotes.type,
+  category: cHelvetyNotes.category,
   description: {
     intro:
       "Helvety Notes keeps capture friction low: every record is a title plus an optional long-form description, both encrypted client-side before hitting storage.",
@@ -946,8 +960,6 @@ const helvetyNotes: SaaSProduct = {
       },
     ],
   },
-  type: "saas",
-  category: "productivity",
   status: "available",
   image: productArtwork.artwork5,
   artist: "Rudolf Koller",
@@ -1002,7 +1014,7 @@ const helvetyNotes: SaaSProduct = {
       "productivity",
     ],
     featured: true,
-    releaseDate: "2026-01-20",
+    releaseDate: cHelvetyNotes.releaseDate,
   },
 };
 
@@ -1013,7 +1025,7 @@ const helvetyNotes: SaaSProduct = {
 /**
  * All available products
  */
-/** Source order matches oldest → newest (see {@link PRODUCT_RELEASE_TIE_PRIORITY}). */
+/** Source order matches oldest → newest (see `@helvety/shared/store-catalog` tie priority). */
 const products: Product[] = [
   helvetyPdf,
   helvetyExplorer,

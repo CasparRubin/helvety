@@ -76,6 +76,13 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
   scrollAreaMainPrefix?: ReactNode;
   /** Optional class on `<main>` when `mainVariant` is `scroll-area`. */
   scrollAreaMainClassName?: string;
+  /**
+   * Optional classes on the ScrollArea **viewport** (element that scrolls).
+   * Use for `scroll-snap-*`, overflow tweaks, etc.
+   */
+  scrollAreaViewportClassName?: string;
+  /** Optional fragment rendered near the end of `<body>` before analytics scripts. */
+  bodyTail?: ReactNode;
 }>;
 
 /** Scroll-area vs overflow-main content for the public shell column. */
@@ -83,11 +90,15 @@ function buildMainBlock(
   mainVariant: HelvetyPublicShellMainVariant,
   children: ReactNode,
   scrollAreaMainPrefix: ReactNode | undefined,
-  scrollAreaMainClassName: string | undefined
+  scrollAreaMainClassName: string | undefined,
+  scrollAreaViewportClassName: string | undefined
 ): React.JSX.Element {
   if (mainVariant === "scroll-area") {
     return (
-      <ScrollArea className="min-h-0 flex-1">
+      <ScrollArea
+        className="min-h-0 flex-1"
+        viewportClassName={scrollAreaViewportClassName}
+      >
         <div className="container mx-auto w-full px-4">
           {scrollAreaMainPrefix}
           <main id="main-content" className={cn(scrollAreaMainClassName)}>
@@ -131,6 +142,8 @@ export async function HelvetyPublicShellRootLayout({
   themeProviderScope = "full",
   scrollAreaMainPrefix,
   scrollAreaMainClassName,
+  scrollAreaViewportClassName,
+  bodyTail,
 }: HelvetyPublicShellRootLayoutProps): Promise<React.JSX.Element> {
   const nonce = (await getRequestCspNonce()) ?? undefined;
 
@@ -146,7 +159,8 @@ export async function HelvetyPublicShellRootLayout({
     mainVariant,
     children,
     scrollAreaMainPrefix,
-    scrollAreaMainClassName
+    scrollAreaMainClassName,
+    scrollAreaViewportClassName
   );
 
   const header =
@@ -208,6 +222,7 @@ export async function HelvetyPublicShellRootLayout({
           <SkipToContent />
           <JsonLdScript nonce={nonce} json={ldJson} />
           <TooltipProvider>{wrappedStore}</TooltipProvider>
+          {bodyTail}
           {analyticsBlock}
         </body>
       </html>
@@ -235,6 +250,7 @@ export async function HelvetyPublicShellRootLayout({
           <SessionRecovery mode={sessionRecoveryMode} />
           <TooltipProvider>{tooltipBody}</TooltipProvider>
         </ThemeProvider>
+        {bodyTail}
         {analyticsBlock}
       </body>
     </html>

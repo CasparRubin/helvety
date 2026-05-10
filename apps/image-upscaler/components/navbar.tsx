@@ -19,7 +19,6 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
         currentApp: "Image Upscaler",
         homeHref: urls.home,
         homeAriaLabel: "Visit Helvety.com",
-        openHomeInNewTab: true,
         titleText: "Image Upscaler",
         titleHref: "/",
       }}

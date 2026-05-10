@@ -64,6 +64,7 @@
     "./server-action-primitives": "./src/server-action-primitives.ts",
     "./user-facing-errors": "./src/user-facing-errors.ts",
     "./seo": "./src/seo.ts",
+    "./store-catalog": "./src/store-catalog.ts",
     "./supabase/client": "./src/supabase/client.ts",
     "./supabase/server": "./src/supabase/server.ts",
     "./supabase/admin": "./src/supabase/admin.ts",

@@ -46,7 +46,6 @@ export function Navbar({
         currentApp: "Auth",
         homeHref: urls.home,
         homeAriaLabel: "Visit Helvety.com",
-        openHomeInNewTab: true,
       }}
       aboutDescription={aboutDescription}
       navigationMenuDescription="Auth navigation menu"

@@ -55,7 +55,6 @@ export function E2eeAppNavbar({
         currentApp: labels.currentApp,
         homeHref: urls.home,
         homeAriaLabel: "Visit Helvety.com",
-        openHomeInNewTab: true,
         titleText: labels.titleText,
         titleHref: "/",
       }}

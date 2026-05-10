@@ -1,0 +1,226 @@
+/**
+ * Card-level Helvety Store catalog fields shared by @helvety/store listings and
+ * @helvety/web marketing. Full Product rows (images, pricing, long copy) stay in the Store app.
+ */
+
+/** Mirrors {@link ProductType} in apps/store without importing Next-specific types. */
+export type StoreProductType = "saas" | "software" | "physical";
+
+/** Mirrors store {@link ProductCategory}. */
+export type StoreProductCategory =
+  | "productivity"
+  | "developer-tools"
+  | "utilities"
+  | "integrations"
+  | "other";
+
+/** Fields shown on Store cards and the web gateway landing showcase. */
+export interface StoreProductCard {
+  id: string;
+  slug: string;
+  name: string;
+  shortDescription: string;
+  /** ISO date YYYY-MM-DD; ties use {@link PRODUCT_RELEASE_TIE_PRIORITY}. */
+  releaseDate: string;
+  type: StoreProductType;
+  category: StoreProductCategory;
+  /**
+   * Short label for where the product runs (gateway showcase badge).
+   * Keep in sync with Store `metadata.platforms` intent.
+   */
+  runsOn: string;
+  /** True when the product has a free tier with no paywalled feature gates. */
+  isFree: boolean;
+  /** True when the source code is publicly available (e.g. GitHub). */
+  isOpenSource: boolean;
+}
+
+/**
+ * When two products share the same `releaseDate`, higher number sorts first
+ * (newer for display when using newest-first sort).
+ */
+export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
+  "helvety-image-upscaler": 8,
+  "helvety-screen-tools": 7,
+  "helvety-power-automate-force-v3-false": 6,
+  "helvety-notes": 5,
+  "helvety-contacts": 4,
+  "helvety-tasks": 3,
+  "helvety-spo-explorer": 2,
+  "helvety-pdf": 1,
+};
+
+/** Source order: oldest → newest (see tie map). */
+export const STORE_PRODUCT_CARDS = [
+  {
+    id: "helvety-pdf",
+    slug: "helvety-pdf",
+    name: "Helvety PDF",
+    shortDescription:
+      "Reorder, merge, rotate, extract, or drop images into a PDF. Supported edits stay in your browser instead of uploading files to Helvety.",
+    releaseDate: "2025-09-14",
+    type: "saas",
+    category: "utilities",
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-spo-explorer",
+    slug: "helvety-spo-explorer",
+    name: "Helvety SPO Explorer",
+    shortDescription:
+      "SharePoint site picker and search in the header. Favorites and preferences stay on the device, not on Helvety servers.",
+    releaseDate: "2025-10-05",
+    type: "software",
+    category: "integrations",
+    runsOn: "SharePoint Online",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-tasks",
+    slug: "helvety-tasks",
+    name: "Helvety Tasks",
+    shortDescription:
+      "Stage-aware task board with encrypted titles, descriptions, and schedule fields, plus labels, priority, and optional Helvety Contacts links.",
+    releaseDate: "2025-11-11",
+    type: "saas",
+    category: "productivity",
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-contacts",
+    slug: "helvety-contacts",
+    name: "Helvety Contacts",
+    shortDescription:
+      "Names, numbers, birthdays, and rich notes encrypted at rest with Personal, Work, and Other buckets, drag reorder, and self-service export.",
+    releaseDate: "2025-12-02",
+    type: "saas",
+    category: "productivity",
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-notes",
+    slug: "helvety-notes",
+    name: "Helvety Notes",
+    shortDescription:
+      "Encrypted title and body notes in Personal, Work, and Other buckets, with rich text and cross-links to tasks or contacts when you use those apps.",
+    releaseDate: "2026-01-20",
+    type: "saas",
+    category: "productivity",
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-power-automate-force-v3-false",
+    slug: "helvety-power-automate-force-v3-false",
+    name: "Power Automate Browser Extension",
+    shortDescription:
+      "A minimal Edge/Chrome extension that keeps Power Automate flow and run URLs on the classic editor by ensuring v3=false and normalizing v3survey=false when present.",
+    releaseDate: "2026-04-03",
+    type: "software",
+    category: "integrations",
+    runsOn: "Edge & Chrome",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-screen-tools",
+    slug: "helvety-screen-tools",
+    name: "Helvety Screen Tools",
+    shortDescription:
+      "A WinUI 3 desktop app for Windows with global-hotkey screenshot capture and Live Draw overlay annotation over the real desktop.",
+    releaseDate: "2026-04-21",
+    type: "software",
+    category: "utilities",
+    runsOn: "Windows 10 & 11",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-image-upscaler",
+    slug: "helvety-image-upscaler",
+    name: "Helvety Image Upscaler",
+    shortDescription:
+      "Browser-based image upscaler with on-device AI (Real-ESRGAN via WebGPU/WASM) and a canvas-resample fallback: 2×/4× batches, target width or height with locked aspect ratio, and limits so tabs stay responsive.",
+    releaseDate: "2026-04-28",
+    type: "saas",
+    category: "utilities",
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  },
+] as const satisfies readonly StoreProductCard[];
+
+/**
+ * Literal union of every product id in {@link STORE_PRODUCT_CARDS}.
+ * Use as the key type for exhaustive registries (icons, artwork, copy
+ * overrides), so TypeScript catches missing entries when a new product is
+ * added to the catalog.
+ */
+export type StoreProductId = (typeof STORE_PRODUCT_CARDS)[number]["id"];
+
+/**
+ * Catalog entry with its literal {@link StoreProductId} preserved (instead of
+ * widening `id` to `string`). Returned from listing helpers so consumers can
+ * key exhaustive registries directly off `entry.id`.
+ */
+export type StoreProductCardEntry = (typeof STORE_PRODUCT_CARDS)[number];
+
+const storeCardById: ReadonlyMap<string, StoreProductCard> = new Map(
+  STORE_PRODUCT_CARDS.map((c) => [c.id, c])
+);
+
+/** Lookup card fields by product id (throws if unknown). */
+export function requireStoreProductCard(id: string): StoreProductCard {
+  const card = storeCardById.get(id);
+  if (!card) {
+    throw new Error(`Unknown store product card id: ${id}`);
+  }
+  return card;
+}
+
+/** Newest `releaseDate` first; ties use {@link PRODUCT_RELEASE_TIE_PRIORITY}. */
+export function compareStoreCatalogEntriesNewestFirst(
+  a: Pick<StoreProductCard, "id" | "releaseDate">,
+  b: Pick<StoreProductCard, "id" | "releaseDate">
+): number {
+  const cmp = b.releaseDate.localeCompare(a.releaseDate);
+  if (cmp !== 0) return cmp;
+  const pa = PRODUCT_RELEASE_TIE_PRIORITY[a.id] ?? 0;
+  const pb = PRODUCT_RELEASE_TIE_PRIORITY[b.id] ?? 0;
+  return pb - pa;
+}
+
+/**
+ * Same ordering as Store `getAllProducts()` default (newest release first).
+ * Returns {@link StoreProductCardEntry}[] (literal `id` union preserved) so
+ * callers can key off `entry.id` against {@link StoreProductId} registries.
+ */
+export function getStoreCatalogNewestFirst(): StoreProductCardEntry[] {
+  return [...STORE_PRODUCT_CARDS].sort(compareStoreCatalogEntriesNewestFirst);
+}
+
+/** Labels aligned with apps/store/components/products/product-badge.tsx `ProductBadge`. */
+export const storeProductTypeBadgeLabel: Record<StoreProductType, string> = {
+  saas: "Web App",
+  software: "Software",
+  physical: "Physical",
+};
+
+export const storeProductCategoryBadgeLabel: Record<
+  StoreProductCategory,
+  string
+> = {
+  productivity: "Productivity",
+  "developer-tools": "Developer tools",
+  utilities: "Utilities",
+  integrations: "Integrations",
+  other: "Other",
+};

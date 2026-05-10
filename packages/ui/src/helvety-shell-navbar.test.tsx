@@ -45,7 +45,6 @@ const defaultBrand = {
   currentApp: "PDF",
   homeHref: urls.home,
   homeAriaLabel: "Visit Helvety.com",
-  openHomeInNewTab: true as const,
   titleText: "PDF",
   titleHref: "/" as const,
 };
@@ -81,6 +80,13 @@ describe("HelvetyShellNavbar", () => {
   it("renders Sign in when there is no session", () => {
     renderShell();
     expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
+  });
+
+  it("renders the brand home link without opening a new tab", () => {
+    renderShell();
+    const home = screen.getByRole("link", { name: "Visit Helvety.com" });
+    expect(home).toHaveAttribute("href", urls.home);
+    expect(home).not.toHaveAttribute("target");
   });
 
   it("renders profile menu trigger when authenticated", () => {

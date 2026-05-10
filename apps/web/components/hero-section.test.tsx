@@ -53,7 +53,7 @@ describe("HeroSection", () => {
   it("uses a first-viewport band, vertical centering, bg pattern, and aligned grid columns", () => {
     const html = renderToStaticMarkup(<HeroSection />);
 
-    expect(html).toContain("min-h-[calc(100dvh-4rem-7.5rem)]");
+    expect(html).toContain("helvety-main-band");
     expect(html).toContain("flex-col justify-center");
     expect(html).toContain("hero-bg-pattern");
     expect(html).toContain("hero-bg-pattern-draw");

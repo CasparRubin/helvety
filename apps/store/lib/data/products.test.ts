@@ -1,3 +1,7 @@
+import {
+  STORE_PRODUCT_CARDS,
+  requireStoreProductCard,
+} from "@helvety/shared/store-catalog";
 import { describe, expect, it } from "vitest";
 
 import { isSoftwareProduct } from "../types/products";
@@ -7,6 +11,24 @@ import { getAllProducts, getProductBySlug } from "./products";
 describe("store product catalog", () => {
   it("includes all eight listings", () => {
     expect(getAllProducts()).toHaveLength(8);
+  });
+
+  it("card-level fields match shared store-catalog for every product", () => {
+    for (const product of getAllProducts()) {
+      const card = requireStoreProductCard(product.id);
+      expect(product.slug).toBe(card.slug);
+      expect(product.name).toBe(card.name);
+      expect(product.shortDescription).toBe(card.shortDescription);
+      expect(product.type).toBe(card.type);
+      expect(product.category).toBe(card.category);
+      expect(product.metadata?.releaseDate).toBe(card.releaseDate);
+    }
+  });
+
+  it("shared catalog ids match store listing count", () => {
+    expect(new Set(getAllProducts().map((p) => p.id))).toEqual(
+      new Set(STORE_PRODUCT_CARDS.map((c) => c.id))
+    );
   });
 
   it("default sort is newest release first (Image Upscaler last shipped)", () => {

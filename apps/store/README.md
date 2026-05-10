@@ -22,6 +22,43 @@ Product catalog and package-download app for the Helvety ecosystem.
 - Download URL generation and public download endpoint throttling both use centralized helpers in `lib/download-security.ts` (`buildDownloadUrlRateLimitKey`, `buildPublicDownloadRateLimitKey`) to keep key naming and validation rules consistent.
 - Download URL generation is IP-rate-limited and fails closed when trusted client IP is unavailable in production.
 
+## Adding a New Product
+
+Card-level fields (name, blurb, release date, type, category, runs-on, free /
+open-source flags) live in `@helvety/shared/store-catalog` so the Store catalog
+and the `@helvety/web` landing showcase render the exact same copy and order.
+
+1. **Add the card entry** in `packages/shared/src/store-catalog.ts`:
+   - Append to `STORE_PRODUCT_CARDS` (preserves source order; sorting is done at
+     read time via `getStoreCatalogNewestFirst()` / `compareStoreCatalogEntriesNewestFirst`).
+   - If the new product shares a `releaseDate` with an existing card, add a
+     priority value to `PRODUCT_RELEASE_TIE_PRIORITY` (higher = newer).
+   - Run `bun run test --filter @helvety/shared` to confirm the catalog tests
+     still cover the new entry (counts, runs-on, free / open-source flags).
+2. **Add the full Store product** in `apps/store/lib/data/products.ts`:
+   - Call `cardCore("<id>", "<saas|software|physical>")` — TS narrows `type`
+     to the literal you pass, and the helper throws at startup if the catalog
+     declares a different `type` for that id (no `as` casts needed).
+   - Spread the `c<Name>` object into the `Product` literal and fill in the
+     long-copy fields (`description`, `features`, `pricing`, `links`,
+     `metadata.releaseDate: c<Name>.releaseDate`, `image: productArtwork.*`).
+   - Add the new product to the `products` array near the bottom of the file.
+3. **Add a Lucide icon** for the gateway showcase in
+   `apps/web/components/store-apps-showcase.tsx`:
+   - The `STORE_PRODUCT_ICONS` registry is typed
+     `Record<StoreProductId, LucideIcon>` — TypeScript will fail the build until
+     a new product id has an icon entry.
+4. **(Optional) Add ecosystem-level icon** in
+   `packages/ui/src/app-switcher.tsx` if the product should appear in the app
+   switcher.
+5. **Run pre-deployment validations** from the repo root:
+   `bun run lint && bun run format:check && bun run test && bun run build`.
+
+The marketing band (`apps/web/components/store-apps-showcase.tsx`) renders one
+`.helvety-main-band.showcase-band` per catalog entry and rotates through four
+`.showcase-band-v{1..4}` decorative variants in `apps/web/app/globals.css`.
+No additional wiring is needed there once the catalog and icon are in place.
+
 ## Crawl and Indexing
 
 - Public/indexable: `/store`, `/store/products`, `/store/products/[slug]`

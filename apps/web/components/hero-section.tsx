@@ -54,7 +54,7 @@ export function HeroSection() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <section className="relative flex min-h-[calc(100dvh-4rem-7.5rem)] w-full min-w-0 flex-col justify-center overflow-hidden py-8 md:py-10">
+      <section className="helvety-main-band relative flex w-full min-w-0 flex-col justify-center overflow-hidden py-8 md:py-10">
         <div
           className="from-background via-background to-background/80 pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b"
           aria-hidden="true"
