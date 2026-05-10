@@ -49,4 +49,14 @@ describe("HeroSection", () => {
     expect(html).toContain("hero-identifier-float");
     expect(html).toContain("hero-visual-panel");
   });
+
+  it("uses a first-viewport band, vertical centering, bg pattern, and aligned grid columns", () => {
+    const html = renderToStaticMarkup(<HeroSection />);
+
+    expect(html).toContain("min-h-[calc(100dvh-4rem-7.5rem)]");
+    expect(html).toContain("flex-col justify-center");
+    expect(html).toContain("hero-bg-pattern");
+    expect(html).toContain("hero-bg-pattern-draw");
+    expect(html).toMatch(/grid-cols-1[^\n]*items-center/);
+  });
 });

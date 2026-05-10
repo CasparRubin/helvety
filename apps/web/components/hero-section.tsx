@@ -34,7 +34,11 @@ const identifierFloatTransition = {
   ease: "easeInOut" as const,
 };
 
-/** Marketing hero: text + store CTA stacked; identifier + motion from `md` (two-column). */
+/**
+ * Marketing hero for `/`: fills the first main viewport band (below navbar / above footer),
+ * centers content vertically, dot-grid + radial mask in `app/globals.css`, and from `md` a
+ * second column with the floating identifier (hidden on small screens).
+ */
 export function HeroSection() {
   const prefersReducedMotion = useReducedMotion();
   const isFirefox =
@@ -50,7 +54,7 @@ export function HeroSection() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <section className="relative w-full min-w-0 overflow-hidden pt-20 pb-16 md:pt-28 md:pb-20 lg:pt-32">
+      <section className="relative flex min-h-[calc(100dvh-4rem-7.5rem)] w-full min-w-0 flex-col justify-center overflow-hidden py-8 md:py-10">
         <div
           className="from-background via-background to-background/80 pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b"
           aria-hidden="true"
@@ -66,7 +70,7 @@ export function HeroSection() {
           variants={prefersReducedMotion ? noStagger : staggerContainer}
           initial="initial"
           animate="animate"
-          className="relative z-10 mx-auto grid w-full max-w-6xl min-w-0 grid-cols-1 items-start gap-8 md:grid-cols-2 md:items-center md:gap-10 lg:gap-12"
+          className="relative z-10 mx-auto grid w-full max-w-6xl min-w-0 grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-10 lg:gap-12"
         >
           <m.div
             variants={prefersReducedMotion ? noMotion : fadeInUp}
@@ -104,7 +108,7 @@ export function HeroSection() {
 
           <m.div
             variants={prefersReducedMotion ? noMotion : fadeInUp}
-            className="hero-visual-panel relative hidden w-full min-w-0 justify-center pt-2 md:flex md:pt-0"
+            className="hero-visual-panel relative hidden w-full min-w-0 justify-center md:flex"
           >
             <div
               className="hero-visual-orb hero-visual-orb-a"

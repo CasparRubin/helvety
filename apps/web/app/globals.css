@@ -15,15 +15,16 @@
   }
 }
 
+/* Fade the repeating dots toward the edges; ellipse center matches viewport middle (50% 50%). */
 .hero-bg-pattern {
   mask-image: radial-gradient(
-    ellipse 120% 88% at 50% 22%,
+    ellipse 118% 92% at 50% 50%,
     rgb(0 0 0) 0%,
     rgb(0 0 0 / 55%) 48%,
     transparent 88%
   );
   -webkit-mask-image: radial-gradient(
-    ellipse 120% 88% at 50% 22%,
+    ellipse 118% 92% at 50% 50%,
     rgb(0 0 0) 0%,
     rgb(0 0 0 / 55%) 48%,
     transparent 88%
