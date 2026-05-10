@@ -20,9 +20,9 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@helvety/brand/logo", () => ({
-  HelvetyLogo: (props: SVGProps<SVGSVGElement>) => (
-    <svg data-testid="helvety-logo" {...props} />
+vi.mock("@helvety/brand/identifier", () => ({
+  HelvetyIdentifier: (props: SVGProps<SVGSVGElement>) => (
+    <svg data-testid="helvety-identifier" {...props} />
   ),
 }));
 
@@ -43,5 +43,8 @@ describe("HeroSection", () => {
 
     expect(html).toContain('href="/store"');
     expect(html).toContain("Browse Helvety products");
+    expect(html).toContain("private · simple · clean");
+    expect(html).toContain("Engineered, designed");
+    expect(html).toContain("Switzerland");
   });
 });

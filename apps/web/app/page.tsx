@@ -1,12 +1,6 @@
 import { HeroSection } from "@/components/hero-section";
 
-/**
- * Home page - server component shell with client-side animated hero.
- */
+/** Home page renders the marketing hero (client component). */
 export default function Page() {
-  return (
-    <section>
-      <HeroSection />
-    </section>
-  );
+  return <HeroSection />;
 }

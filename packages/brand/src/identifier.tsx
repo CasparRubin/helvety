@@ -12,8 +12,14 @@ export function HelvetyIdentifier(props: React.SVGProps<SVGSVGElement>) {
       role="img"
       {...props}
     >
-      <rect fill="#fff" width="500" height="500" />
+      <rect
+        className="helvety-identifier-bg"
+        fill="#fff"
+        width="500"
+        height="500"
+      />
       <path
+        className="helvety-identifier-mark"
         fill="red"
         d="m0,0v85.69h95.95v104.47h-40.11v114h40.11v110.14H0v85.69h500V0H0Zm307.62,414.31h-96.68v-125.49h-114.99v-84.96h114.99v-118.16h96.68v328.61Z"
       />
