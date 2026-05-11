@@ -77,16 +77,19 @@ export function HeroSection() {
               Engineered, designed &amp; made in{" "}
               <span className="font-medium text-[#FF0000]">Switzerland</span>
             </h1>
-            <p className="text-muted-foreground text-base tracking-[0.08em] md:text-lg">
+            <p
+              className={cn(
+                "text-base tracking-[0.08em] md:text-lg",
+                prefersReducedMotion
+                  ? "text-muted-foreground"
+                  : "hero-tagline-glow"
+              )}
+            >
               private · simple · clean
             </p>
           </div>
 
-          <Button
-            size="lg"
-            asChild
-            className="pointer-events-auto w-full max-w-xs sm:w-auto"
-          >
+          <Button size="lg" asChild className="pointer-events-auto">
             <Link href={getLocalAppHref(urls.store)}>
               <PackageOpen className="size-5" aria-hidden="true" />
               Browse Helvety products

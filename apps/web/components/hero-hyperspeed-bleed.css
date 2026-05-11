@@ -22,3 +22,40 @@
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
 }
+
+/* Text-only shimmer sweep for `private · simple · clean` (no outer halo/glow). */
+.hero-tagline-glow {
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.78) 35%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(255, 255, 255, 0.78) 65%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  background-size: 240% 100%;
+  background-position: 115% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: hero-tagline-glow-sweep 2.4s linear infinite;
+}
+
+@keyframes hero-tagline-glow-sweep {
+  0% {
+    background-position: 115% 50%;
+  }
+  100% {
+    background-position: -15% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-tagline-glow {
+    animation: none;
+    color: var(--muted-foreground);
+    -webkit-text-fill-color: currentcolor !important;
+    background-image: none;
+  }
+}

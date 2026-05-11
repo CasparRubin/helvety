@@ -52,16 +52,22 @@ describe("HeroSection", () => {
     expect(html).not.toContain("helvety-identifier");
   });
 
-  it("mounts Hyperspeed bleed layer with full-viewport width and isolate; copy uses pointer-events split", () => {
+  it("mounts Hyperspeed bleed layer with full-viewport width, grab cursor, and pointer-events split", () => {
     const html = renderToStaticMarkup(<HeroSection />);
 
     expect(html).toContain('data-testid="hero-hyperspeed-host"');
     expect(html).toContain("hero-hyperspeed-bleed");
     expect(html).toContain("w-[100svw]");
+    expect(html).toContain("cursor-grab");
+    expect(html).toContain("active:cursor-grabbing");
     expect(html).toContain("isolate");
     expect(html).toContain("overflow-visible");
     expect(html).toContain("pointer-events-none");
     expect(html).toContain("pointer-events-auto");
+    expect(html).not.toContain("cursor-zoom-in");
+    expect(html).not.toContain("cursor-zoom-out");
+    expect(html).toContain("hero-tagline-glow");
+    expect(html).not.toContain("w-full max-w-xs sm:w-auto");
   });
 
   it("uses flex growth and svh-derived min-height shell floor for hero layout", () => {
@@ -79,6 +85,8 @@ describe("HeroSection", () => {
 
     expect(html).not.toContain('data-testid="hero-hyperspeed-host"');
     expect(html).not.toContain("hero-hyperspeed-bleed");
+    expect(html).not.toContain("hero-tagline-glow");
+    expect(html).toContain("text-muted-foreground");
     expect(html).toContain("bg-background");
   });
 });
