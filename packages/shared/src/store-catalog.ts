@@ -120,7 +120,7 @@ export const STORE_PRODUCT_CARDS = [
   {
     id: "helvety-power-automate-force-v3-false",
     slug: "helvety-power-automate-force-v3-false",
-    name: "Power Automate Browser Extension",
+    name: "Power Automate Force v3=false Browser Extension",
     shortDescription:
       "A minimal Edge/Chrome extension that keeps Power Automate flow and run URLs on the classic editor by ensuring v3=false and normalizing v3survey=false when present.",
     releaseDate: "2026-04-03",

@@ -40,7 +40,7 @@ describe("store product catalog", () => {
   it("resolves known product slugs", () => {
     expect(
       getProductBySlug("helvety-power-automate-force-v3-false")?.name
-    ).toBe("Power Automate Browser Extension");
+    ).toBe("Power Automate Force v3=false Browser Extension");
     expect(getProductBySlug("helvety-spo-explorer")?.slug).toBe(
       "helvety-spo-explorer"
     );

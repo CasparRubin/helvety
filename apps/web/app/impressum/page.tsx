@@ -128,7 +128,7 @@ export default function ImpressumPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Power Automate Browser Extension
+              Power Automate Force v3=false Browser Extension
             </strong>{" "}
             — Edge/Chrome helper that keeps classic editor URLs predictable.
           </li>

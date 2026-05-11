@@ -69,7 +69,7 @@ const sections: AppSection[] = [
     title: "Browser Extensions",
     links: [
       {
-        name: "Power Automate Browser Extension",
+        name: "Power Automate Force v3=false Browser Extension",
         href: `${urls.store}/products/helvety-power-automate-force-v3-false`,
         icon: Puzzle,
       },

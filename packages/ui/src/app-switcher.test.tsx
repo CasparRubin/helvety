@@ -25,7 +25,7 @@ const expectedLinks = [
   { name: "PDF", href: urls.pdf },
   { name: "Image Upscaler", href: urls.imageUpscaler },
   {
-    name: "Power Automate Browser Extension",
+    name: "Power Automate Force v3=false Browser Extension",
     href: `${urls.store}/products/helvety-power-automate-force-v3-false`,
   },
   {

@@ -15,7 +15,7 @@
 ## Helvety Ecosystem
 - [Helvety Store](https://helvety.com/store): Specs plus .sppkg / ZIP artifacts straight from the catalog
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SPFx header control for tenant-wide site discovery
-- [Power Automate Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false): Edge/Chrome guardrail that pins classic editor URLs
+- [Power Automate Force v3=false Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false): Edge/Chrome guardrail that pins classic editor URLs
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): WinUI capture + Live Draw overlay for Windows
 - [Helvety PDF](https://helvety.com/pdf): Thumbnail-first PDF workbench with local processing where supported
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler): In-browser 2×/4× or target-size upscaler with on-device AI (Real-ESRGAN via WebGPU/WASM) and a canvas-resample fallback, no image upload to Helvety servers

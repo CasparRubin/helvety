@@ -45,7 +45,7 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     storageFolderPath: "browserExtensions/power-automate-force-v3-false",
     storageFileSuffix: ".zip",
     productId: "helvety-power-automate-force-v3-false",
-    productName: "Power Automate Browser Extension",
+    productName: "Power Automate Force v3=false Browser Extension",
     isPublic: true,
   },
 } as const;

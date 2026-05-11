@@ -304,7 +304,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Power Automate Browser Extension:
+              Power Automate Force v3=false Browser Extension:
             </strong>{" "}
             URL normalization on supported Power Automate hosts for selected
             editor routes (flows/runs), with optional local extension state
