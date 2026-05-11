@@ -1,6 +1,6 @@
 # Helvety
 
-> Swiss-built apps, crisp legal pages, and deep links across the Helvety product surface. MIT-licensed source code, minimal marketing fluff.
+> Swiss-built helvety.com web apps, crisp legal pages, and Store links for related Helvety products. MIT-licensed source for this monorepo, minimal marketing fluff.
 
 ## Canonical URLs
 - [Home](https://helvety.com): Main landing page
@@ -12,7 +12,7 @@
 - Public pages are intended to be indexable by search and AI crawlers.
 - Private app routes are not intended as search index targets and use noindex and auth-gated controls.
 
-## Helvety Ecosystem
+## Related apps and tools
 - [Helvety Store](https://helvety.com/store): Specs plus .sppkg / ZIP artifacts straight from the catalog
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SPFx header control for tenant-wide site discovery
 - [Power Automate Force v3=false Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false): Edge/Chrome guardrail that pins classic editor URLs
@@ -24,4 +24,4 @@
 - [Helvety Tasks](https://helvety.com/tasks): Encrypted kanban with immutable Helvety stages
 
 ## Source
-- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo (MIT)
+- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo for helvety.com web applications and shared packages (MIT)

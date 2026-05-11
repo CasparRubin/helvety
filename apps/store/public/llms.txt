@@ -22,4 +22,4 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - Account routes are intended not to be indexed and are protected by authentication and noindex metadata.
 
 ## Source
-- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo (MIT)
+- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo for helvety.com web applications and shared packages (MIT)

@@ -9,9 +9,9 @@
  * private key, not the salt. Caching it locally allows the login flow
  * to request PRF output during authentication without a separate unlock step.
  *
- * The salt is cached per-origin. Since all apps now share the same origin
- * (helvety.com via path-based routing), a salt cached during tasks unlock
- * is available during the next login on the same device.
+ * The salt is cached per-origin. Path-routed Helvety web apps on helvety.com
+ * share one site origin, so a salt cached during tasks unlock is available
+ * during the next login on the same device.
  */
 
 import { logger } from "../logger";

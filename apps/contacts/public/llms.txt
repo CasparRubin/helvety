@@ -19,4 +19,4 @@
 - [Helvety Notes](https://helvety.com/notes)
 
 ## Source
-- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo (MIT)
+- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo for helvety.com web applications and shared packages (MIT)

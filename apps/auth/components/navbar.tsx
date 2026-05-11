@@ -10,7 +10,7 @@ import { VERSION } from "@/lib/config/version";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const aboutDescription =
-  "Helvety Auth handles sign-in for all Helvety apps. It keeps access simple with one account and shared sessions across the ecosystem. Security stays focused so each product can stay focused too.";
+  "Helvety Auth handles sign-in for Helvety web apps on helvety.com. It keeps access simple with one account and shared sessions across those apps. Security stays focused so each product can stay focused too.";
 
 const encryptionTooltipContent = (
   <EncryptionTooltipContent

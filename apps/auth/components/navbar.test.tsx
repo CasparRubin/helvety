@@ -1,6 +1,6 @@
 import { TooltipProvider } from "@helvety/ui/tooltip";
 import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Navbar } from "./navbar";
@@ -114,5 +114,13 @@ describe("Auth Navbar", () => {
     });
     renderAuthNavbar(user);
     expect(screen.queryByText("Encryption enabled")).not.toBeInTheDocument();
+  });
+
+  it("about dialog scopes sign-in copy to helvety.com web apps", () => {
+    renderAuthNavbar();
+    fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveTextContent("Helvety web apps on helvety.com");
+    expect(dialog).not.toHaveTextContent("all Helvety apps");
   });
 });

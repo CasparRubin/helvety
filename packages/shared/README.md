@@ -1,6 +1,6 @@
 # @helvety/shared
 
-Shared security, auth, runtime, and cross-app utilities used across Helvety apps.
+Shared security, auth, runtime, and cross-app utilities used across Helvety web apps in this monorepo (helvety.com).
 
 ## Scope
 

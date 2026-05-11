@@ -19,4 +19,4 @@
 - [Helvety Tasks](https://helvety.com/tasks)
 
 ## Source
-- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo (MIT)
+- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo for helvety.com web applications and shared packages (MIT)

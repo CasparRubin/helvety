@@ -30,5 +30,5 @@ If a new app-local wrapper is needed, add it deliberately with a short rationale
 ## Enforcement
 
 - `scripts/check-consistency-guardrails.mjs` enforces:
-  - `components.json` parity across all apps.
+  - `components.json` parity across every `apps/*` package that ships a UI surface.
   - import-policy violations for app-local `@/components/ui/*` usage outside the allowlist.

@@ -12,7 +12,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 - **`store-apps-showcase`:** [`store-apps-showcase.tsx`](components/store-apps-showcase.tsx) is **not imported** on `/` today — add it back when you ship marketing bands below the hero.
 - Multi-zone gateway rewrites for `/auth`, `/store`, `/pdf`, `/image-upscaler`, `/tasks`, `/contacts`, `/notes`
 - Vercel Analytics script forwarding for sub-app routes so analytics works across all zones
-- Shared ecosystem navigation via `@helvety/ui/helvety-shell-navbar` (`app/layout.tsx` seeds `initialUser` through `bootstrapPublicLayoutUser()` so the bar does not flash loading when a session exists)
+- Shared navigation across helvety.com web zones via `@helvety/ui/helvety-shell-navbar` (`app/layout.tsx` seeds `initialUser` through `bootstrapPublicLayoutUser()` so the bar does not flash loading when a session exists)
 - `@helvety/shared/seo` (`createHelvetyProductMetadata`) for gateway-level metadata / OG defaults
 - Public legal pages, cookie notice, and abuse-reporting entry points
 - Canonical metadata and sitemap/robots endpoints for indexable content

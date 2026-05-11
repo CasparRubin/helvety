@@ -5,7 +5,8 @@
  * auth-specific rate limit configurations.
  *
  * The core engine (checkRateLimit, resetRateLimit, OTP lockout) lives in the
- * shared package so that security fixes propagate to all apps automatically.
+ * shared package so that security fixes propagate to every workspace app that
+ * imports it automatically.
  */
 
 // Re-export the shared rate-limit engine

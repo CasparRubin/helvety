@@ -29,14 +29,14 @@ import {
 } from "./sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
-/** Link item shown inside an ecosystem section. */
+/** Link item shown inside a navigation section. */
 interface SectionLink {
   name: string;
   href: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
-/** Group of ecosystem links rendered with a section heading. */
+/** Group of navigation links rendered with a section heading. */
 interface AppSection {
   title: string;
   links: SectionLink[];
@@ -103,7 +103,7 @@ interface AppSwitcherProps {
 }
 
 /**
- * App switcher for navigating between Helvety ecosystem apps and tools.
+ * App switcher for navigating between helvety.com web apps, store entries, and related links.
  * Displays grouped sections of links in a slide-out sheet.
  */
 export function AppSwitcher({ currentApp }: AppSwitcherProps) {
@@ -124,15 +124,15 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Helvety Ecosystem</p>
+          <p>Helvety apps and tools</p>
         </TooltipContent>
       </Tooltip>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="flex flex-col">
           <SheetHeader className="shrink-0">
-            <SheetTitle>Helvety Ecosystem</SheetTitle>
+            <SheetTitle>Helvety apps and tools</SheetTitle>
             <SheetDescription className="sr-only">
-              Select an app or tool from the Helvety ecosystem.
+              Navigate between helvety.com web apps and related store links.
             </SheetDescription>
           </SheetHeader>
           <ScrollArea className="mt-6 min-h-0 flex-1">

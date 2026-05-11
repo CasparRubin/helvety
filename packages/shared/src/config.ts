@@ -1,5 +1,5 @@
 /**
- * Centralized configuration for all Helvety apps.
+ * Centralized configuration for Helvety web apps in this monorepo (helvety.com Next.js path zones).
  *
  * Derives default values (URLs, cookie domain, ports) from NODE_ENV for the
  * current Helvety deployment model.
@@ -92,7 +92,7 @@ export const DEV_PORTS = {
   imageUpscaler: 3008,
 } as const;
 
-/** Shared viewport config reused by every app layout */
+/** Shared viewport config reused by each web app layout in this monorepo */
 export const sharedViewport: Viewport = {
   width: "device-width",
   initialScale: 1,

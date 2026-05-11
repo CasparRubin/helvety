@@ -1,5 +1,5 @@
 /**
- * Shared auth callback handler factory for sub-apps.
+ * Shared auth callback handler factory for helvety.com path-zoned Next.js apps (this monorepo).
  *
  * Encapsulates the standard Supabase code-exchange / OTP-verification flow
  * with IP-based rate limiting, safe redirect validation, and error handling.

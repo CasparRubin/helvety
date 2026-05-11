@@ -1,6 +1,6 @@
 # Helvety Store
 
-Product catalog and package-download app for the Helvety ecosystem.
+Product catalog and package-download app for Helvety products: specs and artifacts for helvety.com web apps **and** separately distributed software (extensions, SPFx, Windows tools, and more), including items whose primary source lives outside this monorepo.
 
 **App URL:** <https://helvety.com/store>  
 **Monorepo path:** `apps/store`
@@ -45,9 +45,8 @@ and the `@helvety/web` landing showcase render the exact same copy and order.
    - Add the new product to the `products` array near the bottom of the file.
 3. **Add a Lucide icon** in [`apps/web/components/store-apps-showcase.tsx`](../web/components/store-apps-showcase.tsx):
    **`STORE_PRODUCT_ICONS`** must stay `Record<StoreProductId, LucideIcon>` (the file is optional on `/` until the gateway mounts the showcase again, but builds still type-check once you edit it).
-4. **(Optional) Add ecosystem-level icon** in
-   `packages/ui/src/app-switcher.tsx` if the product should appear in the app
-   switcher.
+4. **(Optional) Add a switcher entry** in
+   `packages/ui/src/app-switcher.tsx` if the product should appear in the helvety.com app switcher.
 5. **Run pre-deployment validations** from the repo root:
    `bun run lint && bun run format:check && bun run test && bun run build`.
 

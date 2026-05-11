@@ -2,7 +2,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 /**
- * Shared Vercel analytics mount for all apps.
+ * Shared Vercel analytics mount for Helvety web app packages in this monorepo.
  */
 export function VercelAnalytics(): React.JSX.Element {
   return <Analytics />;

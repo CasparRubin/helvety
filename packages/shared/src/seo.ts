@@ -1,7 +1,8 @@
 /**
- * Shared SEO helpers for sub-apps: sitemap and robots.txt generation, path
- * sanitization, and {@link createHelvetyProductMetadata} for consistent Next.js
- * `Metadata` (Open Graph, Twitter, robots presets) across gateway and product apps.
+ * Shared SEO helpers for helvety.com Next.js path zones: sitemap and robots.txt
+ * generation, path sanitization, and {@link createHelvetyProductMetadata} for
+ * consistent Next.js `Metadata` (Open Graph, Twitter, robots presets) across
+ * the gateway and product routes in this monorepo.
  */
 
 import { urls } from "./config";
@@ -148,7 +149,7 @@ function sanitizeDisallowedPaths(
 }
 
 /**
- * Creates a sitemap for a sub-app, including:
+ * Creates a sitemap for a helvety.com path-zone app, including:
  * - the app root URL
  * - optionally, the app's llms.txt URL
  *
@@ -187,7 +188,7 @@ export function createAppSitemap(
 }
 
 /**
- * Creates a robots.txt configuration for a sub-app.
+ * Creates a robots.txt configuration for a helvety.com path-zone app.
  *
  * @param disallowedPaths - Paths to disallow (e.g. ["/api", "/auth/callback"])
  * @param sitemapPath - Path to the sitemap (e.g. "/auth/sitemap.xml")

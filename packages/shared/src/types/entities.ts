@@ -1,6 +1,6 @@
 /**
- * Entity type definitions shared across all Helvety apps
- * These types represent database entities (source of truth in @helvety/shared)
+ * Entity type definitions shared across Helvety web apps in this monorepo.
+ * These types represent database entities (source of truth in @helvety/shared).
  */
 
 // =============================================================================
@@ -56,7 +56,7 @@ export interface UserPasskeyParams {
 // =============================================================================
 
 /**
- * User profile (central identity across all Helvety apps)
+ * User profile (central identity across helvety.com web apps that share this backend)
  */
 export interface UserProfile {
   id: string;

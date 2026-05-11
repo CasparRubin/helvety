@@ -174,7 +174,7 @@ function AccountMobileLink({
 }
 
 /**
- * Shared top navigation chrome for Helvety ecosystem apps.
+ * Shared top navigation chrome for Helvety web apps in this monorepo.
  * Does not call `useEncryptionContext`; callers may pass `encryption` as a
  * function of navbar auth state (Auth and `E2eeAppNavbar`), as a static object
  * (tests or rare one-offs), or omit it (`web`, `store`, `pdf`, `image-upscaler`).

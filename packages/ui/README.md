@@ -1,6 +1,6 @@
 # @helvety/ui
 
-Shared React UI components and app-shell primitives for Helvety apps.
+Shared React UI components and app-shell primitives for Helvety web apps in this monorepo (helvety.com).
 
 ## Scope
 

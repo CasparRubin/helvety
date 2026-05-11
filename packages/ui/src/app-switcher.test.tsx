@@ -63,6 +63,10 @@ describe("AppSwitcher", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Switch apps" }));
 
+    expect(
+      screen.getByRole("heading", { name: "Helvety apps and tools" })
+    ).toBeInTheDocument();
+
     for (const heading of sectionHeadings) {
       expect(
         screen.getByRole("heading", { name: heading })
@@ -70,7 +74,7 @@ describe("AppSwitcher", () => {
     }
   });
 
-  it("renders expected absolute URLs for all ecosystem links", () => {
+  it("renders expected absolute URLs for all navigation links", () => {
     render(
       <TooltipProvider>
         <AppSwitcher currentApp="Home" />
@@ -87,7 +91,7 @@ describe("AppSwitcher", () => {
     }
   });
 
-  it("renders an icon for every ecosystem link", () => {
+  it("renders an icon for every navigation link", () => {
     render(
       <TooltipProvider>
         <AppSwitcher currentApp="Home" />

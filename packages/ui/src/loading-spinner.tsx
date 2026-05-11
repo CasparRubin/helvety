@@ -1,8 +1,9 @@
 import { Loader2 } from "lucide-react";
 
 /**
- * Shared loading spinner used as the root loading boundary across all apps.
- * Shown immediately during route transitions while the server component renders.
+ * Shared loading spinner used as the root loading boundary across Helvety web
+ * app packages in this monorepo. Shown during route transitions while the
+ * server component renders.
  */
 export function LoadingSpinner() {
   return (

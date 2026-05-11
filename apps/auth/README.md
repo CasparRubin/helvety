@@ -1,6 +1,6 @@
 # Helvety Auth
 
-Centralized passwordless authentication for the Helvety ecosystem.
+Centralized passwordless authentication for Helvety web apps on helvety.com (this monorepo’s path zones).
 
 **App URL:** <https://helvety.com/auth>  
 **Monorepo path:** `apps/auth`
