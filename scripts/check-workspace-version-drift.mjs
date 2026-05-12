@@ -4,13 +4,13 @@ import path from "node:path";
 const ROOT_DIR = process.cwd();
 const WORKSPACE_DIRS = ["apps", "packages"];
 const REQUIRED_VERSION_BY_DEP = new Map([
-  ["next", "^16.2.4"],
+  ["next", "^16.2.6"],
   ["react", "^19.2.5"],
   ["react-dom", "^19.2.5"],
   ["typescript", "^5"],
   ["eslint", "^9.39.4"],
-  ["vitest", "^4.1.5"],
-  ["@vitest/coverage-v8", "^4.1.5"],
+  ["vitest", "^4.1.6"],
+  ["@vitest/coverage-v8", "^4.1.6"],
   ["@testing-library/jest-dom", "^6.9.1"],
   ["@testing-library/react", "^16.3.2"],
   ["jsdom", "29.1.1"],
