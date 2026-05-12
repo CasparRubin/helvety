@@ -48,9 +48,9 @@ export const metadata = createHelvetyProductMetadata({
  * gutters, fixed footer (contact + legal links).
  *
  * Full-bleed Hyperspeed on `/` paints wider than the content column (`100svw`,
- * centered on the hero). The shell passes `shellColumnClassName`,
+ * centered on the hero; WebGL mounts client-side only). The shell passes `shellColumnClassName`,
  * `scrollAreaRootClassName`, `scrollAreaViewportClassName`, and `bodyClassName`
- * so Radix scroll clipping and the `h-svh` column do not crop the canvas; see
+ * so Radix scroll clipping and the `h-svh` column do not crop the full-bleed backdrop; see
  * `@helvety/ui` README for these optional `HelvetyPublicShellRootLayout` props.
  *
  * Public marketing/legal pages plus metadata routes (robots, sitemap, CSP

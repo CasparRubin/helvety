@@ -151,7 +151,8 @@ function buildMainBlock(
  *
  * With `mainVariant: "scroll-area"`, optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
  * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
- * content can extend horizontally (for example gateway web Hyperspeed). Other apps keep the defaults.
+ * content can extend horizontally (for example gateway web: full-bleed Hyperspeed host — SSR-stable
+ * wrapper, WebGL client-only). Other apps keep the defaults.
  *
  * E2EE apps (`tasks`, `contacts`, `notes`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
  */

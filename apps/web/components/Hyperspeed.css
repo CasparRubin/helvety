@@ -1,6 +1,6 @@
 /*
- * React Bits Hyperspeed — container + canvas fill parent.
- * Hero wraps this in an absolute inset-0 host; width/height 100% fill that box.
+ * React Bits Hyperspeed — `#lights` fills the hero bleed host; canvas fills `#lights` when mounted.
+ * Under `prefers-reduced-motion: reduce`, Hyperspeed never appends a canvas (host may be hidden via CSS).
  */
 #lights {
   width: 100%;

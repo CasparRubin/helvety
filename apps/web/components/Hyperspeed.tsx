@@ -1,6 +1,10 @@
 "use client";
 
-/* React Bits Hyperspeed registry component (WebGL shaders). Lint scope kept vendor-wide. */
+/*
+ * React Bits Hyperspeed (Three.js + postprocessing). WebGLRenderer uses `depth: false` and
+ * `stencil: false` so EffectComposer owns depth buffers (see postprocessing README). Lint scope
+ * kept vendor-wide.
+ */
 /* eslint-disable */
 
 import {
@@ -764,6 +768,8 @@ class App {
     this.renderer = new THREE.WebGLRenderer({
       antialias: false,
       alpha: true,
+      depth: false,
+      stencil: false,
     });
     this.renderer.setSize(initW, initH, false);
     this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -1158,6 +1164,11 @@ const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {} }) => {
 
     const container = hyperspeed.current;
     if (!container) return;
+
+    /* Hero hides the bleed layer with `motion-reduce:hidden`; skip GPU work too. */
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
 
     const options: HyperspeedOptions = {
       ...defaultOptions,
