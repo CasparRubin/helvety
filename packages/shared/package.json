@@ -99,7 +99,7 @@
     "zod": "^4.4.2"
   },
   "peerDependencies": {
-    "next": "^16",
+    "next": "^16.2.6",
     "react": "^19"
   },
   "devDependencies": {
