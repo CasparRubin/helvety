@@ -87,6 +87,7 @@ bun run format
 - Use explicit `cleanup()` in workspace `vitest.setup.ts` files that use `@testing-library/react`.
 - Prefer typed fixture builders in tests (`buildXxx(...)`) over repeated `as unknown as` casting so test inputs evolve with production types.
 - Apps that bootstrap session state from `app/layout.tsx` should mock the relevant `@helvety/shared/*` helpers in `app/layout-metadata.test.ts` so metadata tests stay hermetic (see existing `web`, `store`, `auth`, and E2EE app tests).
+- Vitest and related testing dependency specifiers are kept in lockstep across workspaces by [`scripts/check-workspace-version-drift.mjs`](scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`) and [`scripts/check-test-hygiene.mjs`](scripts/check-test-hygiene.mjs) (`bun run test:hygiene`).
 
 ## Monorepo Conventions
 
@@ -100,6 +101,7 @@ bun run format
 All quality gates run locally. There is no GitHub Actions or other remote CI in this repo; deployment is handled by Vercel from the pushed commit.
 
 - `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
+  - `consistency:toolchain-docs` keeps the Bun version called out in this README aligned with root `packageManager`, and keeps the Next.js documentation deep link in [`docs/naming-conventions.md`](docs/naming-conventions.md) aligned with the caret minimum in [`apps/web/package.json`](apps/web/package.json) `dependencies.next`.
 - `bun run ci:release` (run before `git push` / before Vercel deploys) - `ci:check` plus `build`.
 - Placeholder env mode (`SKIP_ENV_VALIDATION=1` off Vercel) is available for local build smoke tests, but `ci:release` runs with normal env validation.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.

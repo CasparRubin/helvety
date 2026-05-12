@@ -57,7 +57,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Coverage focuses on stable primitives and key shared UX surfaces (`HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionTooltipContent`, and `HelvetyPublicShellRootLayout`).
+Coverage focuses on stable primitives and key shared UX surfaces (`HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionTooltipContent`, and `HelvetyPublicShellRootLayout`). Vitest and related devDependency specifiers are normalized across workspaces from the repo root (`bun run deps:drift`, `bun run test:hygiene`); see the root [`README.md`](../../README.md) › **Testing Consistency**.
 
 ## Related
 
