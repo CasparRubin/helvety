@@ -779,7 +779,8 @@ class App {
   fovTarget: number;
   speedUpTarget: number;
   speedUp: number;
-  timeOffset: number;
+  /** Integrated scene time for distortion / lights; advances at `1 + speedUp` per real second (matches legacy `clock + timeOffset`). */
+  sceneTime: number;
   hasValidSize: boolean;
   variationConfig: VariationOptions;
   variationEnabled: boolean;
@@ -883,7 +884,7 @@ class App {
     this.fovTarget = options.fov;
     this.speedUpTarget = 0;
     this.speedUp = 0;
-    this.timeOffset = 0;
+    this.sceneTime = 0;
     this.variationEnabled = false;
     this.variationScale = 0;
     this.variationPerfScale = 1;
@@ -1099,6 +1100,11 @@ class App {
     });
     this.container.addEventListener("contextmenu", this.onContextMenu);
 
+    document.addEventListener(
+      "visibilitychange",
+      this.onDocumentVisibilityChange
+    );
+
     this.tick();
   }
 
@@ -1132,6 +1138,12 @@ class App {
 
   readonly onGlobalInteractRelease = (): void => {
     this.endInteractBoost();
+  };
+
+  private readonly onDocumentVisibilityChange = (): void => {
+    if (document.visibilityState === "hidden") {
+      this.endInteractBoost();
+    }
   };
 
   beginInteractBoost(ev?: MouseEvent | TouchEvent | PointerEvent): void {
@@ -1186,8 +1198,9 @@ class App {
       lerpPercentage,
       0.00001
     );
-    this.timeOffset += this.speedUp * delta;
-    const time = this.clock.elapsedTime + this.timeOffset;
+    this.speedUp = clamp(this.speedUp, 0, this.options.speedUp);
+    this.sceneTime += delta * (1 + this.speedUp);
+    const time = this.sceneTime;
     this.applyVariation(delta);
 
     this.rightCarLights.update(time);
@@ -1267,6 +1280,10 @@ class App {
     }
 
     window.removeEventListener("resize", this.onWindowResize);
+    document.removeEventListener(
+      "visibilitychange",
+      this.onDocumentVisibilityChange
+    );
     if (this.interactionBoostActive) {
       this.detachGlobalInteractRelease();
       this.interactionBoostActive = false;
