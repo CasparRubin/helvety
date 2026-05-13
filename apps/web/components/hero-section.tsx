@@ -5,21 +5,11 @@ import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import { LazyMotion, MotionConfig, domAnimation, m } from "framer-motion";
 import { ChevronRight, PackageOpen } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 
-import { HERO_HYPERSPEED_EFFECT_OPTIONS } from "@/components/hero-hyperspeed-options";
+import { HeroHyperspeedBackdrop } from "@/components/hero-hyperspeed-backdrop";
 
 import "./hero-hyperspeed-bleed.css";
-
-/**
- * Hyperspeed bundle (WebGL). `ssr: false` keeps Three/postprocessing off the server;
- * the bleed host wrapper in this file is still SSR-stable for hydration.
- */
-const HeroHyperspeed = dynamic(() => import("@/components/Hyperspeed"), {
-  ssr: false,
-  loading: () => null,
-});
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -39,7 +29,7 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
 /**
  * Landing hero (`/`): React Bits Hyperspeed fullscreen behind copy + Store CTA.
- * `effectOptions` use module-level {@link HERO_HYPERSPEED_EFFECT_OPTIONS} so mounted WebGL isn't torn down each render.
+ * Backdrop lives in {@link HeroHyperspeedBackdrop} (black base, fade-in after first WebGL frame).
  *
  * Hyperspeed host markup is identical on SSR and first client paint (`motion-reduce:*` for visuals;
  * WebGL skips init when `prefers-reduced-motion` is set — see {@link Hyperspeed}).
@@ -62,7 +52,7 @@ export function HeroSection() {
             aria-hidden="true"
             data-testid="hero-hyperspeed-host"
           >
-            <HeroHyperspeed effectOptions={HERO_HYPERSPEED_EFFECT_OPTIONS} />
+            <HeroHyperspeedBackdrop />
           </div>
 
           <m.div

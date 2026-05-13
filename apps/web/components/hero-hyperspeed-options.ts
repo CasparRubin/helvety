@@ -20,7 +20,7 @@ export const HERO_HYPERSPEED_EFFECT_OPTIONS = {
   ...base,
   variation: {
     ...base.variation,
-    intensity: 0.42,
+    intensity: 0.36,
     reseedIntervalMs: 3000,
   },
   colors: {

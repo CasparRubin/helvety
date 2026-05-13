@@ -24,24 +24,12 @@ describe("Hyperspeed", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders #lights and skips WebGL when prefers-reduced-motion is reduce", async () => {
+  it("skips WebGL under reduce motion; optional variation props and onReady are inert", async () => {
     stubMatchMedia(true);
-    const { container } = render(<Hyperspeed />);
-    const host = container.querySelector("#lights");
-    expect(host).not.toBeNull();
-
-    await waitFor(
-      () => {
-        expect(host?.querySelector("canvas")).toBeNull();
-      },
-      { timeout: 500 }
-    );
-  });
-
-  it("accepts explicit variation options without breaking reduced-motion skip", async () => {
-    stubMatchMedia(true);
+    const onReady = vi.fn();
     const { container } = render(
       <Hyperspeed
+        onReady={onReady}
         effectOptions={{
           variation: {
             enabled: true,
@@ -53,13 +41,13 @@ describe("Hyperspeed", () => {
         }}
       />
     );
-
     const host = container.querySelector("#lights");
     expect(host).not.toBeNull();
 
     await waitFor(
       () => {
         expect(host?.querySelector("canvas")).toBeNull();
+        expect(onReady).not.toHaveBeenCalled();
       },
       { timeout: 500 }
     );

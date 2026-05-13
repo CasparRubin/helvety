@@ -83,6 +83,8 @@ interface VariationOptions {
 
 interface HyperspeedProps {
   effectOptions?: Partial<HyperspeedOptions>;
+  /** Fires once after the first successful WebGL composer frame (same tick as first render). */
+  onReady?: () => void;
 }
 
 /** Registry defaults mirror {@link hyperspeedDefaultPreset}. */
@@ -91,10 +93,10 @@ const defaultOptions: HyperspeedOptions = {
 };
 const defaultVariationOptions: VariationOptions = {
   enabled: true,
-  intensity: 0.35,
+  intensity: 0.28,
   reseedIntervalMs: 3200,
   mobileScale: 0.55,
-  maxDelta: 0.08,
+  maxDelta: 0.055,
 };
 
 function nsin(val: number) {
@@ -102,9 +104,11 @@ function nsin(val: number) {
 }
 
 function createTurbulentDistortion(): Distortion {
+  /* Lower freqs / amps = longer “straights” and gentler bends; Y uses a milder
+   * exponent than legacy pow(·,5) so small-scale kinks read smoother. */
   const uniforms = {
-    uFreq: { value: new THREE.Vector4(4, 8, 8, 1) },
-    uAmp: { value: new THREE.Vector4(25, 5, 10, 10) },
+    uFreq: { value: new THREE.Vector4(2.4, 4.8, 4.8, 0.65) },
+    uAmp: { value: new THREE.Vector4(15, 3.2, 6.5, 4.5) },
   };
 
   return {
@@ -125,7 +129,7 @@ function createTurbulentDistortion(): Distortion {
       float getDistortionY(float progress){
         return (
           -nsin(PI * progress * uFreq.b + uTime) * uAmp.b +
-          -pow(nsin(PI * progress * uFreq.a + uTime / (uFreq.b / uFreq.a)), 5.) * uAmp.a
+          -pow(nsin(PI * progress * uFreq.a + uTime / (uFreq.b / uFreq.a)), 2.75) * uAmp.a
         );
       }
       vec3 getDistortion(float progress){
@@ -150,7 +154,10 @@ function createTurbulentDistortion(): Distortion {
 
       const getY = (p: number) =>
         -nsin(Math.PI * p * uFreq.z + time) * uAmp.z -
-        Math.pow(nsin(Math.PI * p * uFreq.w + time / (uFreq.z / uFreq.w)), 5) *
+        Math.pow(
+          nsin(Math.PI * p * uFreq.w + time / (uFreq.z / uFreq.w)),
+          2.75
+        ) *
           uAmp.w;
 
       const distortion = new THREE.Vector3(
@@ -699,14 +706,6 @@ const roadMarkings_vars = `
   uniform float uShoulderLinesWidthPercentage;
   uniform float uBrokenLinesWidthPercentage;
   uniform float uBrokenLinesLengthPercentage;
-  highp float random(vec2 co) {
-    highp float a = 12.9898;
-    highp float b = 78.233;
-    highp float c = 43758.5453;
-    highp float dt = dot(co.xy, vec2(a, b));
-    highp float sn = mod(dt, 3.14);
-    return fract(sin(sn) * c);
-  }
 `;
 
 const roadMarkings_fragment = `
@@ -794,8 +793,14 @@ class App {
   variationTargetAmp: THREE.Vector4 | null;
   /** True while press/hold boosting; window listeners tear down releases outside `#lights`. */
   interactionBoostActive = false;
+  private readonly onReady?: () => void;
+  private readyFired = false;
 
-  constructor(container: HTMLElement, options: HyperspeedOptions) {
+  constructor(
+    container: HTMLElement,
+    options: HyperspeedOptions,
+    callbacks?: { onReady?: () => void }
+  ) {
     this.options = options;
     if (!this.options.distortion) {
       this.options.distortion = createDefaultDistortion();
@@ -884,6 +889,7 @@ class App {
     this.variationBaseAmp = null;
     this.variationTargetFreq = null;
     this.variationTargetAmp = null;
+    this.onReady = callbacks?.onReady;
 
     this.tick = this.tick.bind(this);
     this.init = this.init.bind(this);
@@ -948,17 +954,18 @@ class App {
       clamp(this.variationConfig.maxDelta, 0.01, 0.25) * this.variationScale;
     const jitter = () => (Math.random() * 2 - 1) * percentDelta;
 
+    /* Cap spatial frequency so runtime variation cannot reintroduce hairpin wiggles. */
     this.variationTargetFreq.set(
-      clamp(this.variationBaseFreq.x * (1 + jitter()), 0.25, 12),
-      clamp(this.variationBaseFreq.y * (1 + jitter()), 0.25, 12),
-      clamp(this.variationBaseFreq.z * (1 + jitter()), 0.25, 12),
-      clamp(this.variationBaseFreq.w * (1 + jitter()), 0.25, 12)
+      clamp(this.variationBaseFreq.x * (1 + jitter()), 0.3, 7.5),
+      clamp(this.variationBaseFreq.y * (1 + jitter()), 0.3, 7.5),
+      clamp(this.variationBaseFreq.z * (1 + jitter()), 0.3, 7.5),
+      clamp(this.variationBaseFreq.w * (1 + jitter()), 0.2, 1.25)
     );
     this.variationTargetAmp.set(
-      clamp(this.variationBaseAmp.x * (1 + jitter()), 1, 40),
-      clamp(this.variationBaseAmp.y * (1 + jitter()), 0.5, 30),
-      clamp(this.variationBaseAmp.z * (1 + jitter()), 1, 30),
-      clamp(this.variationBaseAmp.w * (1 + jitter()), 1, 30)
+      clamp(this.variationBaseAmp.x * (1 + jitter()), 1, 26),
+      clamp(this.variationBaseAmp.y * (1 + jitter()), 0.5, 18),
+      clamp(this.variationBaseAmp.z * (1 + jitter()), 1, 22),
+      clamp(this.variationBaseAmp.w * (1 + jitter()), 0.5, 14)
     );
     this.variationLastReseedMs = performance.now();
   }
@@ -1304,15 +1311,25 @@ class App {
       const delta = this.clock.getDelta();
       this.render(delta);
       this.update(delta);
+      if (!this.readyFired) {
+        this.readyFired = true;
+        requestAnimationFrame(() => {
+          if (!this.disposed) {
+            this.onReady?.();
+          }
+        });
+      }
     }
 
     requestAnimationFrame(this.tick);
   }
 }
 
-const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {} }) => {
+const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {}, onReady }) => {
   const hyperspeed = useRef<HTMLDivElement>(null);
   const appRef = useRef<App | null>(null);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   useEffect(() => {
     if (appRef.current) {
@@ -1339,7 +1356,9 @@ const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {} }) => {
       },
     };
 
-    const myApp = new App(container, options);
+    const myApp = new App(container, options, {
+      onReady: () => onReadyRef.current?.(),
+    });
     appRef.current = myApp;
     void Promise.resolve().then(() => {
       if (myApp.disposed || appRef.current !== myApp) return;
