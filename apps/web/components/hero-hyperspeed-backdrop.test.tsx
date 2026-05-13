@@ -18,20 +18,21 @@ vi.mock("next/dynamic", () => ({
 import { HeroHyperspeedBackdrop } from "./hero-hyperspeed-backdrop";
 
 describe("HeroHyperspeedBackdrop", () => {
-  it("fades in the WebGL layer after onReady (first-frame signal)", async () => {
+  it("lifts black veil after onReady (no fade on transparent WebGL layer)", async () => {
     const { container } = render(<HeroHyperspeedBackdrop />);
 
     expect(
       container.querySelector('[data-testid="stub-hyperspeed"]')
     ).not.toBeNull();
 
-    const fadeLayer = container.querySelector(".transition-opacity");
-    expect(fadeLayer).not.toBeNull();
+    const veil = container.querySelector(
+      '[data-testid="hero-hyperspeed-veil"]'
+    );
+    expect(veil).not.toBeNull();
 
     await waitFor(
       () => {
-        expect(fadeLayer).toHaveClass("opacity-100");
-        expect(fadeLayer).toHaveClass("pointer-events-auto");
+        expect(veil).toHaveClass("opacity-0");
       },
       { timeout: 3000 }
     );

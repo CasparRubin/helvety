@@ -18,33 +18,34 @@ const HeroHyperspeed = dynamic(() => import("@/components/Hyperspeed"), {
 });
 
 /**
- * Black base + opacity fade-in after first WebGL frame ({@link Hyperspeed} `onReady`).
- * Chunk load shows the same black placeholder from `next/dynamic` `loading`.
+ * Black base, then **black veil** fades out after first WebGL frame (`onReady`).
+ * WebGL stays at full opacity underneath so transparent canvas / bloom never flashes
+ * the page background (fading the canvas layer in caused white flashes with `alpha: true`).
  */
 export function HeroHyperspeedBackdrop() {
-  const [canvasReady, setCanvasReady] = useState(false);
+  const [veilHidden, setVeilHidden] = useState(false);
   const handleReady = useCallback(() => {
     requestAnimationFrame(() => {
-      setCanvasReady(true);
+      setVeilHidden(true);
     });
   }, []);
 
   return (
     <>
       <div aria-hidden className="absolute inset-0 z-0 bg-black" />
-      <div
-        className={cn(
-          "absolute inset-0 z-[1] h-full min-h-0 w-full",
-          "transition-opacity duration-500 ease-out",
-          canvasReady
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-0",
-          "motion-reduce:opacity-100 motion-reduce:transition-none"
-        )}
-      >
+      <div className="absolute inset-0 z-[1] h-full min-h-0 w-full">
         <HeroHyperspeed
           effectOptions={HERO_HYPERSPEED_EFFECT_OPTIONS}
           onReady={handleReady}
+        />
+        <div
+          aria-hidden
+          data-testid="hero-hyperspeed-veil"
+          className={cn(
+            "absolute inset-0 z-[2] bg-black",
+            "pointer-events-none transition-opacity duration-500 ease-out motion-reduce:transition-none",
+            veilHidden ? "opacity-0" : "opacity-100"
+          )}
         />
       </div>
     </>

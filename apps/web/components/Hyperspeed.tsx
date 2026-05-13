@@ -4,6 +4,10 @@
  * React Bits Hyperspeed (Three.js + postprocessing). WebGLRenderer uses `depth: false` and
  * `stencil: false` so EffectComposer owns depth buffers (see postprocessing README). Lint scope
  * kept vendor-wide.
+ *
+ * Hero: opaque clear (`setClearColor(colors.background, 1)`) + solid `scene.background` so
+ * alpha canvas / bloom never shows page chrome before paint; pairs with veil in
+ * {@link ./hero-hyperspeed-backdrop.tsx}. See {@link ./Hyperspeed.css} for `#lights` black base.
  */
 /* eslint-disable */
 
@@ -827,6 +831,8 @@ class App {
     });
     this.renderer.setSize(initW, initH, false);
     this.renderer.setPixelRatio(window.devicePixelRatio);
+    /* Opaque black clears: alpha canvas + null scene bg otherwise composites page (white). */
+    this.renderer.setClearColor(options.colors.background, 1);
     this.composer = new EffectComposer(this.renderer);
     container.appendChild(this.renderer.domElement);
 
@@ -841,7 +847,7 @@ class App {
     this.camera.position.x = 0;
 
     this.scene = new THREE.Scene();
-    this.scene.background = null;
+    this.scene.background = new THREE.Color(options.colors.background);
 
     const fog = new THREE.Fog(
       options.colors.background,

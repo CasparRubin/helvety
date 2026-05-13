@@ -68,7 +68,9 @@ describe("HeroSection", () => {
     expect(html).toContain("min-h-[max(100%,calc(100svh-4rem-12.5rem))]");
     expect(html).toContain("flex-col justify-center");
     expect(html).toContain("max-w-3xl");
-    /* HeroHyperspeedBackdrop: black base + opacity fade shell (client render in tests). */
+    /* HeroHyperspeedBackdrop: black underlay, veil (`transition-opacity`), chunk loading slot. */
+    expect(html).toContain('data-testid="hero-hyperspeed-veil"');
+    expect(html).toContain('data-testid="hero-hyperspeed-loading"');
     expect(html).toContain("bg-black");
     expect(html).toContain("transition-opacity");
   });

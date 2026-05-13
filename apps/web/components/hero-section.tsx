@@ -29,7 +29,8 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
 /**
  * Landing hero (`/`): React Bits Hyperspeed fullscreen behind copy + Store CTA.
- * Backdrop lives in {@link HeroHyperspeedBackdrop} (black base, fade-in after first WebGL frame).
+ * Backdrop: {@link HeroHyperspeedBackdrop} — black base, **black veil** fades out after
+ * {@link Hyperspeed} `onReady` (first composited frame); WebGL stays opaque underneath.
  *
  * Hyperspeed host markup is identical on SSR and first client paint (`motion-reduce:*` for visuals;
  * WebGL skips init when `prefers-reduced-motion` is set — see {@link Hyperspeed}).
