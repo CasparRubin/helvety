@@ -1,23 +1,11 @@
 "use client";
 
-import { getLocalAppHref, urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
-import {
-  Building2,
-  FileText,
-  Grip,
-  House,
-  ImageUp,
-  ListTodo,
-  Monitor,
-  NotebookPen,
-  Puzzle,
-  Store,
-  Users,
-} from "lucide-react";
+import { Grip } from "lucide-react";
 import Link from "next/link";
-import { type ComponentType, type SVGProps, useState } from "react";
+import { useState } from "react";
 
+import { appSwitcherSections } from "./app-switcher-sections";
 import { Button } from "./button";
 import { ScrollArea } from "./scroll-area";
 import {
@@ -29,74 +17,6 @@ import {
 } from "./sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
-/** Link item shown inside a navigation section. */
-interface SectionLink {
-  name: string;
-  href: string;
-  icon: ComponentType<SVGProps<SVGSVGElement>>;
-}
-
-/** Group of navigation links rendered with a section heading. */
-interface AppSection {
-  title: string;
-  links: SectionLink[];
-}
-
-const sections: AppSection[] = [
-  {
-    title: "Core Apps",
-    links: [
-      { name: "Home", href: urls.home, icon: House },
-      { name: "Store", href: urls.store, icon: Store },
-    ],
-  },
-  {
-    title: "Encryption Apps",
-    links: [
-      { name: "Tasks", href: urls.tasks, icon: ListTodo },
-      { name: "Contacts", href: urls.contacts, icon: Users },
-      { name: "Notes", href: urls.notes, icon: NotebookPen },
-    ],
-  },
-  {
-    title: "File Tools",
-    links: [
-      { name: "PDF", href: urls.pdf, icon: FileText },
-      { name: "Image Upscaler", href: urls.imageUpscaler, icon: ImageUp },
-    ],
-  },
-  {
-    title: "Browser Extensions",
-    links: [
-      {
-        name: "Power Automate Force v3=false Browser Extension",
-        href: `${urls.store}/products/helvety-power-automate-force-v3-false`,
-        icon: Puzzle,
-      },
-    ],
-  },
-  {
-    title: "SharePoint Apps",
-    links: [
-      {
-        name: "Helvety SPO Explorer",
-        href: `${urls.store}/products/helvety-spo-explorer`,
-        icon: Building2,
-      },
-    ],
-  },
-  {
-    title: "Desktop Apps",
-    links: [
-      {
-        name: "Helvety Screen Tools",
-        href: `${urls.store}/products/helvety-screen-tools`,
-        icon: Monitor,
-      },
-    ],
-  },
-];
-
 /** Props for the AppSwitcher component. */
 interface AppSwitcherProps {
   currentApp?: string;
@@ -106,10 +26,9 @@ interface AppSwitcherProps {
  * App switcher for navigating between helvety.com web apps, store entries, and related links.
  * Displays grouped sections of links in a slide-out sheet.
  *
- * Each link passes its configured URL through **`getLocalAppHref`** so **`next/link`** receives
- * path `href`s on the helvety.com gateway (same-origin paths tend to integrate better with the
- * shell than absolute same-origin URLs). Hard navigations, new tabs, and multi-zone edge cases
- * can still differ; see **`getLocalAppHref`** in `@helvety/shared/config` for when to keep absolute URLs.
+ * Links keep **absolute** `urls.*` hrefs so **`next/link`** does not prepend the current app’s
+ * Next.js **`basePath`** (`/auth`, `/store`, `/pdf`, …) to another zone’s path (which would yield
+ * wrong targets like `/auth/pdf` and spurious RSC **404** prefetches).
  */
 export function AppSwitcher({ currentApp }: AppSwitcherProps) {
   const [open, setOpen] = useState(false);
@@ -142,7 +61,7 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
           </SheetHeader>
           <ScrollArea className="mt-6 min-h-0 flex-1">
             <div className="space-y-5 px-1 pb-6">
-              {sections.map((section) => (
+              {appSwitcherSections.map((section) => (
                 <section key={section.title} className="space-y-2">
                   <h3 className="text-muted-foreground px-2 text-xs font-semibold tracking-wide uppercase">
                     {section.title}
@@ -154,7 +73,7 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
                       return (
                         <Link
                           key={link.name}
-                          href={getLocalAppHref(link.href)}
+                          href={link.href}
                           className={cn(
                             "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm transition-colors",
                             isCurrent

@@ -46,7 +46,7 @@ and the `@helvety/web` landing showcase render the exact same copy and order.
 3. **Add a Lucide icon** in [`apps/web/components/store-apps-showcase.tsx`](../web/components/store-apps-showcase.tsx):
    **`STORE_PRODUCT_ICONS`** must stay `Record<StoreProductId, LucideIcon>` (the file is optional on `/` until the gateway mounts the showcase again, but builds still type-check once you edit it).
 4. **(Optional) Add a switcher entry** in
-   `packages/ui/src/app-switcher.tsx` if the product should appear in the helvety.com app switcher.
+   [`packages/ui/src/app-switcher-sections.tsx`](../ui/src/app-switcher-sections.tsx) if the product should appear in the helvety.com app switcher (left sheet in the shared navbar).
 5. **Run pre-deployment validations** from the repo root:
    `bun run lint && bun run format:check && bun run test && bun run build`.
 

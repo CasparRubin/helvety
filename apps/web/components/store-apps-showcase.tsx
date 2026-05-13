@@ -25,7 +25,7 @@ import Link from "next/link";
  * One Lucide icon per product id. Typed as
  * `Record<StoreProductId, LucideIcon>` so TypeScript blocks the build if a new
  * product is added to `@helvety/shared/store-catalog` without an icon entry.
- * Same icons as `packages/ui/src/app-switcher.tsx` where applicable.
+ * Same icons as `packages/ui/src/app-switcher-sections.tsx` where applicable.
  */
 const STORE_PRODUCT_ICONS: Record<StoreProductId, LucideIcon> = {
   "helvety-pdf": FileText,
@@ -85,6 +85,9 @@ function pickPatternStyle(variant: number): React.CSSProperties {
  * the home page feels fresh without changing the design language; the root
  * layout's CSP-nonce / cookie reads already opt this route into dynamic
  * rendering, so each request resamples the spacings.
+ *
+ * Product links use {@link getLocalAppHref} because this component is mounted on **`apps/web`**
+ * (no Next **`basePath`**). Do not reuse that pattern for links rendered inside zoned apps.
  */
 export function StoreAppsShowcase() {
   const products = getStoreCatalogNewestFirst();

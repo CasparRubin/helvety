@@ -4,6 +4,7 @@
 
 - Removed request-header reads from E2EE root pages to avoid forcing dynamic rendering when handling auth-failure redirects.
 - Preserved centralized auth redirect behavior while relying on canonical URL config.
+- Shell **ecosystem** navigation (`AppSwitcher` in `@helvety/ui`) uses **absolute** `urls.*` hrefs so Next.js **`basePath`** on zoned apps does not prefix another app’s path (for example `/auth/pdf` by mistake).
 
 ## React 19 Hook/Effect Hygiene
 

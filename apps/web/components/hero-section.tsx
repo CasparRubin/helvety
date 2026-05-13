@@ -34,6 +34,9 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
  *
  * Hyperspeed host markup is identical on SSR and first client paint (`motion-reduce:*` for visuals;
  * WebGL skips init when `prefers-reduced-motion` is set — see {@link Hyperspeed}).
+ *
+ * Store CTA uses {@link getLocalAppHref} because this route runs on **`apps/web`** (no Next **`basePath`**).
+ * Shell cross-app links use absolute **`urls.*`** instead — see **`AppSwitcher`** in `@helvety/ui`.
  */
 export function HeroSection() {
   return (

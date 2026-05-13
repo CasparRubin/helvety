@@ -41,6 +41,11 @@ This package centralizes:
   - `hooks/use-rich-text-draft-state` for saved/baseline/dirty-state tracking across rich-text editors
 - `proxy` is request bootstrap only (CSP/CSRF/session refresh), not the primary authorization boundary. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal (Next.js requirement); `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
 
+### Cross-app URLs (`config.ts`)
+
+- **`urls`**: canonical absolute base URLs for each helvety.com zone (and the dev gateway host).
+- **`getLocalAppHref`**: strips Helvety / localhost origins to **root-relative** paths for **`next/link`** in the **gateway** (`apps/web`, no Next **`basePath`**). Do **not** use it for cross-zone **`Link`** targets rendered inside **`basePath`** apps — use absolute **`urls.*`** (see **`AppSwitcher`** / `packages/ui` README).
+
 ### Supabase SSR
 
 - Refresh auth session cookies early when `sb-*` cookies are present.

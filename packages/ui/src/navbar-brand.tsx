@@ -18,6 +18,9 @@ interface NavbarBrandProps {
  * Renders app switcher + brand link + optional app title.
  * The brand link always navigates in the current tab so users move between
  * Helvety surfaces without accumulating tabs.
+ *
+ * {@link AppSwitcher} loads canonical link data from **`app-switcher-sections`** (absolute **`urls.*`**
+ * hrefs) so navigation stays correct under each zone’s Next **`basePath`**.
  */
 export function NavbarBrand({
   currentApp,

@@ -1,44 +1,14 @@
-import { getLocalAppHref, urls } from "@helvety/shared/config";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AppSwitcher } from "./app-switcher";
+import { appSwitcherSections } from "./app-switcher-sections";
 import { TooltipProvider } from "./tooltip";
 
 import type { ReactNode } from "react";
 
-const sectionHeadings = [
-  "Core Apps",
-  "Encryption Apps",
-  "File Tools",
-  "Browser Extensions",
-  "SharePoint Apps",
-  "Desktop Apps",
-] as const;
-
-const expectedLinks = [
-  { name: "Home", href: getLocalAppHref(urls.home) },
-  { name: "Store", href: getLocalAppHref(urls.store) },
-  { name: "Tasks", href: getLocalAppHref(urls.tasks) },
-  { name: "Contacts", href: getLocalAppHref(urls.contacts) },
-  { name: "Notes", href: getLocalAppHref(urls.notes) },
-  { name: "PDF", href: getLocalAppHref(urls.pdf) },
-  { name: "Image Upscaler", href: getLocalAppHref(urls.imageUpscaler) },
-  {
-    name: "Power Automate Force v3=false Browser Extension",
-    href: getLocalAppHref(
-      `${urls.store}/products/helvety-power-automate-force-v3-false`
-    ),
-  },
-  {
-    name: "Helvety SPO Explorer",
-    href: getLocalAppHref(`${urls.store}/products/helvety-spo-explorer`),
-  },
-  {
-    name: "Helvety Screen Tools",
-    href: getLocalAppHref(`${urls.store}/products/helvety-screen-tools`),
-  },
-] as const;
+const sectionTitles = appSwitcherSections.map((s) => s.title);
+const expectedLinks = appSwitcherSections.flatMap((s) => s.links);
 
 vi.mock("next/link", () => ({
   default: ({
@@ -69,14 +39,12 @@ describe("AppSwitcher", () => {
       screen.getByRole("heading", { name: "Helvety apps and tools" })
     ).toBeInTheDocument();
 
-    for (const heading of sectionHeadings) {
-      expect(
-        screen.getByRole("heading", { name: heading })
-      ).toBeInTheDocument();
+    for (const title of sectionTitles) {
+      expect(screen.getByRole("heading", { name: title })).toBeInTheDocument();
     }
   });
 
-  it("renders expected same-origin path hrefs for all navigation links", () => {
+  it("renders absolute cross-zone hrefs for all navigation links", () => {
     render(
       <TooltipProvider>
         <AppSwitcher currentApp="Home" />

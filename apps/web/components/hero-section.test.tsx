@@ -33,7 +33,7 @@ vi.mock("framer-motion", () => ({
 }));
 
 describe("HeroSection", () => {
-  it("renders headline, tagline, store CTA via getLocalAppHref; no legacy identifier markup", () => {
+  it("renders headline, tagline, store CTA with gateway path href; no legacy identifier markup", () => {
     const html = renderToStaticMarkup(<HeroSection />);
 
     expect(html).toContain(`href="${getLocalAppHref(urls.store)}"`);
