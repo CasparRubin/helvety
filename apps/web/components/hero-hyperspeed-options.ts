@@ -13,9 +13,16 @@ const base = hyperspeedDefaultPreset;
 /**
  * Hero backdrop: default turbulent scene with lane markings **white** and Helvety-style
  * **red** tail lights vs **bright / white** “headlight” streaks; side sticks read as white glow.
+ * Keeps default variation safety rails, with a slightly stronger intensity for visible
+ * per-session uniqueness.
  */
 export const HERO_HYPERSPEED_EFFECT_OPTIONS = {
   ...base,
+  variation: {
+    ...base.variation,
+    intensity: 0.42,
+    reseedIntervalMs: 3000,
+  },
   colors: {
     ...base.colors,
     shoulderLines: 0xffffff,

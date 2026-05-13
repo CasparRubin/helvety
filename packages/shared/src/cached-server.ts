@@ -40,7 +40,7 @@ export const getCachedUser = cache(async (): Promise<User | null> => {
  * Deduplicates cookie reads when the layout and child page both
  * need the token within a single render pass.
  */
-export const getCachedCSRFToken = cache(async (): Promise<string | null> => {
+export const getCSRFToken = async (): Promise<string | null> => {
   const [cookieStore, headersList] = await Promise.all([cookies(), headers()]);
   const cookieToken = await getCSRFTokenFromCookieValue(
     cookieStore.get(CSRF_COOKIE_NAME)?.value ?? null
@@ -51,4 +51,10 @@ export const getCachedCSRFToken = cache(async (): Promise<string | null> => {
   }
 
   return headersList.get(CSRF_BOOTSTRAP_HEADER_NAME);
-});
+};
+
+/**
+ * Cached CSRF token reader for request-scoped deduplication.
+ * Wraps {@link getCSRFToken} to keep behavior testable without module resets.
+ */
+export const getCachedCSRFToken = cache(getCSRFToken);

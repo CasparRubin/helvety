@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getCSRFToken } from "./cached-server";
+
 const mocks = vi.hoisted(() => ({
   cookieValue: undefined as string | undefined,
   headerValue: null as string | null,
@@ -36,7 +38,6 @@ vi.mock("./auth-retry", () => ({
 describe("getCachedCSRFToken", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.resetModules();
     mocks.cookieValue = undefined;
     mocks.headerValue = null;
     mocks.parsedCookieToken = null;
@@ -47,8 +48,7 @@ describe("getCachedCSRFToken", () => {
     mocks.parsedCookieToken = "cookie-token";
     mocks.headerValue = "header-token";
 
-    const { getCachedCSRFToken } = await import("./cached-server");
-    await expect(getCachedCSRFToken()).resolves.toBe("cookie-token");
+    await expect(getCSRFToken()).resolves.toBe("cookie-token");
   });
 
   it("falls back to bootstrap header when cookie token is missing", async () => {
@@ -56,12 +56,10 @@ describe("getCachedCSRFToken", () => {
     mocks.parsedCookieToken = null;
     mocks.headerValue = "bootstrap-token";
 
-    const { getCachedCSRFToken } = await import("./cached-server");
-    await expect(getCachedCSRFToken()).resolves.toBe("bootstrap-token");
+    await expect(getCSRFToken()).resolves.toBe("bootstrap-token");
   });
 
   it("returns null when neither cookie nor bootstrap header is present", async () => {
-    const { getCachedCSRFToken } = await import("./cached-server");
-    await expect(getCachedCSRFToken()).resolves.toBeNull();
+    await expect(getCSRFToken()).resolves.toBeNull();
   });
 });

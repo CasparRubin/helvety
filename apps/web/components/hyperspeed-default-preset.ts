@@ -1,5 +1,6 @@
 /**
- * Default Hyperspeed scene (`turbulentDistortion`). Hero overrides colors in
+ * Default Hyperspeed scene (`turbulentDistortion`) with conservative runtime
+ * variation. Hero overrides colors and lightly tweaks variation in
  * {@link "./hero-hyperspeed-options"}.
  */
 export const hyperspeedDefaultPreset = {
@@ -28,6 +29,13 @@ export const hyperspeedDefaultPreset = {
   carWidthPercentage: [0.3, 0.5],
   carShiftX: [-0.8, 0.8],
   carFloorSeparation: [0, 5],
+  variation: {
+    enabled: true,
+    intensity: 0.35,
+    reseedIntervalMs: 3200,
+    mobileScale: 0.55,
+    maxDelta: 0.08,
+  },
   colors: {
     roadColor: 0x080808,
     islandColor: 0x0a0a0a,

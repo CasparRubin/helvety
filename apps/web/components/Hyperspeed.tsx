@@ -29,7 +29,7 @@ interface Distortion {
 }
 
 interface Distortions {
-  [key: string]: Distortion;
+  [key: string]: () => Distortion;
 }
 
 interface Colors {
@@ -70,6 +70,15 @@ interface HyperspeedOptions {
   carShiftX: [number, number];
   carFloorSeparation: [number, number];
   colors: Colors;
+  variation?: VariationOptions;
+}
+
+interface VariationOptions {
+  enabled: boolean;
+  intensity: number;
+  reseedIntervalMs: number;
+  mobileScale: number;
+  maxDelta: number;
 }
 
 interface HyperspeedProps {
@@ -80,19 +89,26 @@ interface HyperspeedProps {
 const defaultOptions: HyperspeedOptions = {
   ...(hyperspeedDefaultPreset as unknown as HyperspeedOptions),
 };
+const defaultVariationOptions: VariationOptions = {
+  enabled: true,
+  intensity: 0.35,
+  reseedIntervalMs: 3200,
+  mobileScale: 0.55,
+  maxDelta: 0.08,
+};
 
 function nsin(val: number) {
   return Math.sin(val) * 0.5 + 0.5;
 }
 
-const turbulentUniforms = {
-  uFreq: { value: new THREE.Vector4(4, 8, 8, 1) },
-  uAmp: { value: new THREE.Vector4(25, 5, 10, 10) },
-};
+function createTurbulentDistortion(): Distortion {
+  const uniforms = {
+    uFreq: { value: new THREE.Vector4(4, 8, 8, 1) },
+    uAmp: { value: new THREE.Vector4(25, 5, 10, 10) },
+  };
 
-const distortions: Distortions = {
-  turbulentDistortion: {
-    uniforms: turbulentUniforms,
+  return {
+    uniforms,
     getDistortion: `
       uniform vec4 uFreq;
       uniform vec4 uAmp;
@@ -121,8 +137,8 @@ const distortions: Distortions = {
       }
     `,
     getJS: (progress: number, time: number) => {
-      const uFreq = turbulentUniforms.uFreq.value;
-      const uAmp = turbulentUniforms.uAmp.value;
+      const uFreq = uniforms.uFreq.value;
+      const uAmp = uniforms.uAmp.value;
 
       const getX = (p: number) =>
         Math.cos(Math.PI * p * uFreq.x + time) * uAmp.x +
@@ -146,7 +162,11 @@ const distortions: Distortions = {
       const lookAtOffset = new THREE.Vector3(0, 0, -10);
       return distortion.multiply(lookAtAmp).add(lookAtOffset);
     },
-  },
+  };
+}
+
+const distortions: Distortions = {
+  turbulentDistortion: createTurbulentDistortion,
 };
 
 const distortion_uniforms = {
@@ -200,6 +220,20 @@ function lerp(
     change = target - current;
   }
   return change;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function createDefaultDistortion(): Distortion {
+  return {
+    uniforms: {
+      uDistortionX: { value: distortion_uniforms.uDistortionX.value.clone() },
+      uDistortionY: { value: distortion_uniforms.uDistortionY.value.clone() },
+    },
+    getDistortion: distortion_vertex,
+  };
 }
 
 class CarLights {
@@ -748,17 +782,32 @@ class App {
   speedUp: number;
   timeOffset: number;
   hasValidSize: boolean;
+  variationConfig: VariationOptions;
+  variationEnabled: boolean;
+  variationScale: number;
+  variationPerfScale: number;
+  variationLastReseedMs: number;
+  variationSmoothedFrameMs: number;
+  variationBaseFreq: THREE.Vector4 | null;
+  variationBaseAmp: THREE.Vector4 | null;
+  variationTargetFreq: THREE.Vector4 | null;
+  variationTargetAmp: THREE.Vector4 | null;
   /** True while press/hold boosting; window listeners tear down releases outside `#lights`. */
   interactionBoostActive = false;
 
   constructor(container: HTMLElement, options: HyperspeedOptions) {
     this.options = options;
     if (!this.options.distortion) {
-      this.options.distortion = {
-        uniforms: distortion_uniforms,
-        getDistortion: distortion_vertex,
-      };
+      this.options.distortion = createDefaultDistortion();
+    } else if (typeof this.options.distortion === "string") {
+      const factory = distortions[this.options.distortion];
+      this.options.distortion = factory ? factory() : createDefaultDistortion();
     }
+    this.variationConfig = {
+      ...defaultVariationOptions,
+      ...this.options.variation,
+    };
+    this.options.variation = this.variationConfig;
     this.container = container;
     this.hasValidSize = false;
 
@@ -826,6 +875,15 @@ class App {
     this.speedUpTarget = 0;
     this.speedUp = 0;
     this.timeOffset = 0;
+    this.variationEnabled = false;
+    this.variationScale = 0;
+    this.variationPerfScale = 1;
+    this.variationLastReseedMs = 0;
+    this.variationSmoothedFrameMs = 16;
+    this.variationBaseFreq = null;
+    this.variationBaseAmp = null;
+    this.variationTargetFreq = null;
+    this.variationTargetAmp = null;
 
     this.tick = this.tick.bind(this);
     this.init = this.init.bind(this);
@@ -840,10 +898,109 @@ class App {
 
     this.onWindowResize = this.onWindowResize.bind(this);
     window.addEventListener("resize", this.onWindowResize);
+    this.initVariation();
 
     if (container.offsetWidth > 0 && container.offsetHeight > 0) {
       this.hasValidSize = true;
     }
+  }
+
+  initVariation(): void {
+    if (
+      !this.variationConfig.enabled ||
+      typeof this.options.distortion !== "object"
+    ) {
+      return;
+    }
+
+    const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    this.variationScale =
+      clamp(this.variationConfig.intensity, 0, 1) *
+      (coarsePointer ? clamp(this.variationConfig.mobileScale, 0, 1) : 1);
+    if (this.variationScale <= 0) return;
+
+    const uFreq = this.options.distortion.uniforms.uFreq?.value;
+    const uAmp = this.options.distortion.uniforms.uAmp?.value;
+    if (!(uFreq instanceof THREE.Vector4) || !(uAmp instanceof THREE.Vector4)) {
+      return;
+    }
+
+    this.variationBaseFreq = uFreq.clone();
+    this.variationBaseAmp = uAmp.clone();
+    this.variationTargetFreq = uFreq.clone();
+    this.variationTargetAmp = uAmp.clone();
+    this.variationEnabled = true;
+    this.reseedVariationTargets();
+  }
+
+  reseedVariationTargets(): void {
+    if (
+      !this.variationEnabled ||
+      !this.variationBaseFreq ||
+      !this.variationBaseAmp ||
+      !this.variationTargetFreq ||
+      !this.variationTargetAmp
+    ) {
+      return;
+    }
+
+    const percentDelta =
+      clamp(this.variationConfig.maxDelta, 0.01, 0.25) * this.variationScale;
+    const jitter = () => (Math.random() * 2 - 1) * percentDelta;
+
+    this.variationTargetFreq.set(
+      clamp(this.variationBaseFreq.x * (1 + jitter()), 0.25, 12),
+      clamp(this.variationBaseFreq.y * (1 + jitter()), 0.25, 12),
+      clamp(this.variationBaseFreq.z * (1 + jitter()), 0.25, 12),
+      clamp(this.variationBaseFreq.w * (1 + jitter()), 0.25, 12)
+    );
+    this.variationTargetAmp.set(
+      clamp(this.variationBaseAmp.x * (1 + jitter()), 1, 40),
+      clamp(this.variationBaseAmp.y * (1 + jitter()), 0.5, 30),
+      clamp(this.variationBaseAmp.z * (1 + jitter()), 1, 30),
+      clamp(this.variationBaseAmp.w * (1 + jitter()), 1, 30)
+    );
+    this.variationLastReseedMs = performance.now();
+  }
+
+  applyVariation(delta: number): void {
+    if (
+      !this.variationEnabled ||
+      typeof this.options.distortion !== "object" ||
+      !this.variationTargetFreq ||
+      !this.variationTargetAmp
+    ) {
+      return;
+    }
+
+    const frameMs = delta * 1000;
+    this.variationSmoothedFrameMs =
+      this.variationSmoothedFrameMs * 0.9 + frameMs * 0.1;
+    this.variationPerfScale = this.variationSmoothedFrameMs > 24 ? 0.6 : 1;
+
+    const now = performance.now();
+    const reseedIntervalMs = clamp(
+      this.variationConfig.reseedIntervalMs,
+      800,
+      10000
+    );
+    if (now - this.variationLastReseedMs >= reseedIntervalMs) {
+      this.reseedVariationTargets();
+    }
+
+    const uFreq = this.options.distortion.uniforms.uFreq?.value;
+    const uAmp = this.options.distortion.uniforms.uAmp?.value;
+    if (!(uFreq instanceof THREE.Vector4) || !(uAmp instanceof THREE.Vector4)) {
+      return;
+    }
+
+    const smoothing = clamp(
+      delta * 0.85 * this.variationPerfScale,
+      0.003,
+      0.04
+    );
+    uFreq.lerp(this.variationTargetFreq, smoothing);
+    uAmp.lerp(this.variationTargetAmp, smoothing);
   }
 
   onWindowResize() {
@@ -1020,6 +1177,7 @@ class App {
     );
     this.timeOffset += this.speedUp * delta;
     const time = this.clock.elapsedTime + this.timeOffset;
+    this.applyVariation(delta);
 
     this.rightCarLights.update(time);
     this.leftCarLights.update(time);
@@ -1174,10 +1332,12 @@ const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {} }) => {
       ...defaultOptions,
       ...effectOptions,
       colors: { ...defaultOptions.colors, ...effectOptions.colors },
+      variation: {
+        ...defaultVariationOptions,
+        ...defaultOptions.variation,
+        ...effectOptions.variation,
+      },
     };
-    if (typeof options.distortion === "string") {
-      options.distortion = distortions[options.distortion];
-    }
 
     const myApp = new App(container, options);
     appRef.current = myApp;
