@@ -1,6 +1,6 @@
 "use client";
 
-import { urls } from "@helvety/shared/config";
+import { getLocalAppHref, urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
 import {
   Building2,
@@ -105,6 +105,11 @@ interface AppSwitcherProps {
 /**
  * App switcher for navigating between helvety.com web apps, store entries, and related links.
  * Displays grouped sections of links in a slide-out sheet.
+ *
+ * Each link passes its configured URL through **`getLocalAppHref`** so **`next/link`** receives
+ * path `href`s on the helvety.com gateway (same-origin paths tend to integrate better with the
+ * shell than absolute same-origin URLs). Hard navigations, new tabs, and multi-zone edge cases
+ * can still differ; see **`getLocalAppHref`** in `@helvety/shared/config` for when to keep absolute URLs.
  */
 export function AppSwitcher({ currentApp }: AppSwitcherProps) {
   const [open, setOpen] = useState(false);
@@ -149,7 +154,7 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
                       return (
                         <Link
                           key={link.name}
-                          href={link.href}
+                          href={getLocalAppHref(link.href)}
                           className={cn(
                             "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm transition-colors",
                             isCurrent

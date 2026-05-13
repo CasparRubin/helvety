@@ -1,4 +1,4 @@
-import { urls } from "@helvety/shared/config";
+import { getLocalAppHref, urls } from "@helvety/shared/config";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -17,24 +17,26 @@ const sectionHeadings = [
 ] as const;
 
 const expectedLinks = [
-  { name: "Home", href: urls.home },
-  { name: "Store", href: urls.store },
-  { name: "Tasks", href: urls.tasks },
-  { name: "Contacts", href: urls.contacts },
-  { name: "Notes", href: urls.notes },
-  { name: "PDF", href: urls.pdf },
-  { name: "Image Upscaler", href: urls.imageUpscaler },
+  { name: "Home", href: getLocalAppHref(urls.home) },
+  { name: "Store", href: getLocalAppHref(urls.store) },
+  { name: "Tasks", href: getLocalAppHref(urls.tasks) },
+  { name: "Contacts", href: getLocalAppHref(urls.contacts) },
+  { name: "Notes", href: getLocalAppHref(urls.notes) },
+  { name: "PDF", href: getLocalAppHref(urls.pdf) },
+  { name: "Image Upscaler", href: getLocalAppHref(urls.imageUpscaler) },
   {
     name: "Power Automate Force v3=false Browser Extension",
-    href: `${urls.store}/products/helvety-power-automate-force-v3-false`,
+    href: getLocalAppHref(
+      `${urls.store}/products/helvety-power-automate-force-v3-false`
+    ),
   },
   {
     name: "Helvety SPO Explorer",
-    href: `${urls.store}/products/helvety-spo-explorer`,
+    href: getLocalAppHref(`${urls.store}/products/helvety-spo-explorer`),
   },
   {
     name: "Helvety Screen Tools",
-    href: `${urls.store}/products/helvety-screen-tools`,
+    href: getLocalAppHref(`${urls.store}/products/helvety-screen-tools`),
   },
 ] as const;
 
@@ -74,7 +76,7 @@ describe("AppSwitcher", () => {
     }
   });
 
-  it("renders expected absolute URLs for all navigation links", () => {
+  it("renders expected same-origin path hrefs for all navigation links", () => {
     render(
       <TooltipProvider>
         <AppSwitcher currentApp="Home" />

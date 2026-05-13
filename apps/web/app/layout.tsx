@@ -53,6 +53,10 @@ export const metadata = createHelvetyProductMetadata({
  * so Radix scroll clipping and the `h-svh` column do not crop the full-bleed backdrop; see
  * `@helvety/ui` README for these optional `HelvetyPublicShellRootLayout` props.
  *
+ * `app/loading.tsx` wraps the route fallback in `min-h-svh bg-background` so pending navigations
+ * match the theme. `HelvetyPublicShellRootLayout` merges `bg-background text-foreground` on `<body>`
+ * with `bodyClassName` below.
+ *
  * Public marketing/legal pages plus metadata routes (robots, sitemap, CSP
  * reporting). CSP nonce flows from request headers. The navbar gets an SSR
  * `initialUser` snapshot via `bootstrapPublicLayoutUser()` from
@@ -73,7 +77,7 @@ export default async function RootLayout({
     shellColumnClassName: "!overflow-visible",
     bodyClassName: "overflow-x-clip",
     scrollAreaRootClassName: "!overflow-visible",
-    scrollAreaViewportClassName: "!overflow-visible",
+    scrollAreaViewportClassName: "!overflow-visible bg-background",
     organizationLogoUrl: brandAssets.identifierLogo,
     jsonLdGraphTail: [
       {

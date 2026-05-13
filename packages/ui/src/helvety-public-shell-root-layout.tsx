@@ -154,6 +154,9 @@ function buildMainBlock(
  * content can extend horizontally (for example gateway web: full-bleed Hyperspeed host — SSR-stable
  * wrapper, WebGL client-only). Other apps keep the defaults.
  *
+ * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional
+ * **`bodyClassName`** so the document canvas matches the active theme before app content paints.
+ *
  * E2EE apps (`tasks`, `contacts`, `notes`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
  */
 export async function HelvetyPublicShellRootLayout({
@@ -255,7 +258,12 @@ export async function HelvetyPublicShellRootLayout({
           : {})}
         suppressHydrationWarning
       >
-        <body className={cn("font-sans antialiased", bodyClassName)}>
+        <body
+          className={cn(
+            "bg-background text-foreground font-sans antialiased",
+            bodyClassName
+          )}
+        >
           <SkipToContent />
           <JsonLdScript nonce={nonce} json={ldJson} />
           <TooltipProvider>{wrappedStore}</TooltipProvider>
@@ -278,7 +286,12 @@ export async function HelvetyPublicShellRootLayout({
         : {})}
       suppressHydrationWarning
     >
-      <body className={cn("font-sans antialiased", bodyClassName)}>
+      <body
+        className={cn(
+          "bg-background text-foreground font-sans antialiased",
+          bodyClassName
+        )}
+      >
         <SkipToContent />
         <JsonLdScript nonce={nonce} json={ldJson} />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>

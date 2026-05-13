@@ -57,6 +57,8 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain('data-testid="navbar"');
     expect(html).toContain('id="main-content"');
     expect(html).toContain("Body");
+    expect(html).toContain("bg-background");
+    expect(html).toContain("text-foreground");
   });
 
   it("renders scroll-area variant with main content", async () => {
@@ -72,6 +74,8 @@ describe("HelvetyPublicShellRootLayout", () => {
     const html = renderToStaticMarkup(tree);
     expect(html).toContain('data-testid="nb"');
     expect(html).toContain("In scroll");
+    expect(html).toContain("bg-background");
+    expect(html).toContain("text-foreground");
   });
 
   it("navbar-only scope passes auth+session+column+toaster into wrap and renders scroll prefix", async () => {
@@ -92,5 +96,7 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain('data-testid="providers-mock"');
     expect(html).toContain('data-testid="store-subnav"');
     expect(html).toContain("Catalog");
+    expect(html).toContain("bg-background");
+    expect(html).toContain("text-foreground");
   });
 });

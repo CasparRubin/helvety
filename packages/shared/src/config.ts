@@ -41,10 +41,17 @@ export const urls = {
  * Convert an app URL to a Next.js-friendly local href when possible.
  *
  * Returns a path-based href (`/store`, `/tasks`, etc.) for absolute Helvety
- * URLs when local-path navigation is desired. Prefer absolute `urls.*` values
- * for cross-app app-switcher links in basePath-mounted zones to avoid nested
- * paths (e.g. `/tasks/contacts`). Falls back to the original value if parsing
- * fails.
+ * URLs on `helvety.com`, `*.helvety.com`, `localhost`, or `127.0.0.1` when you
+ * want **`next/link`** to treat navigation as same-origin (for example
+ * **`AppSwitcher`** in `@helvety/ui` and store product links built from `urls.store`).
+ *
+ * Keep **absolute** `urls.*` strings when you need a full URL: metadata,
+ * Open Graph, redirects, `new URL()`, APIs, or non-React anchors. Apps mounted
+ * under a **basePath** may still need absolute or carefully prefixed hrefs so
+ * targets resolve under the correct zone (path `href`s are rooted at `/` on
+ * the gateway host unless your app or proxy rewrites them).
+ *
+ * Falls back to the original value if parsing fails.
  */
 export function getLocalAppHref(url: string): string {
   if (url.startsWith("/")) {
