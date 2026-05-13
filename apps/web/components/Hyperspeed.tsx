@@ -97,10 +97,10 @@ const defaultOptions: HyperspeedOptions = {
 };
 const defaultVariationOptions: VariationOptions = {
   enabled: true,
-  intensity: 0.28,
+  intensity: 0.26,
   reseedIntervalMs: 3200,
   mobileScale: 0.55,
-  maxDelta: 0.055,
+  maxDelta: 0.04,
 };
 
 function nsin(val: number) {
@@ -108,11 +108,12 @@ function nsin(val: number) {
 }
 
 function createTurbulentDistortion(): Distortion {
-  /* Lower freqs / amps = longer “straights” and gentler bends; Y uses a milder
-   * exponent than legacy pow(·,5) so small-scale kinks read smoother. */
+  /* Long straights: low spatial uFreq, weak 2nd harmonic (uAmp.g), milder Y pow.
+   * uTime factors < 1.0 slow phase drift so the mesh scrolls without “buzzing” curves.
+   * getJS must mirror the GLSL (same exponents, same 0.0125 finite difference as shader). */
   const uniforms = {
-    uFreq: { value: new THREE.Vector4(2.4, 4.8, 4.8, 0.65) },
-    uAmp: { value: new THREE.Vector4(15, 3.2, 6.5, 4.5) },
+    uFreq: { value: new THREE.Vector4(1.45, 2.45, 2.45, 0.4) },
+    uAmp: { value: new THREE.Vector4(10.5, 1.5, 3.75, 2.55) },
   };
 
   return {
@@ -126,14 +127,14 @@ function createTurbulentDistortion(): Distortion {
       #define PI 3.14159265358979
       float getDistortionX(float progress){
         return (
-          cos(PI * progress * uFreq.r + uTime) * uAmp.r +
-          pow(cos(PI * progress * uFreq.g + uTime * (uFreq.g / uFreq.r)), 2. ) * uAmp.g
+          cos(PI * progress * uFreq.r + uTime * 0.62) * uAmp.r +
+          pow(cos(PI * progress * uFreq.g + uTime * 0.5 * (uFreq.g / uFreq.r)), 2. ) * uAmp.g
         );
       }
       float getDistortionY(float progress){
         return (
-          -nsin(PI * progress * uFreq.b + uTime) * uAmp.b +
-          -pow(nsin(PI * progress * uFreq.a + uTime / (uFreq.b / uFreq.a)), 2.75) * uAmp.a
+          -nsin(PI * progress * uFreq.b + uTime * 0.62) * uAmp.b +
+          -pow(nsin(PI * progress * uFreq.a + uTime * 0.45 / (uFreq.b / uFreq.a)), 3.0) * uAmp.a
         );
       }
       vec3 getDistortion(float progress){
@@ -147,26 +148,21 @@ function createTurbulentDistortion(): Distortion {
     getJS: (progress: number, time: number) => {
       const uFreq = uniforms.uFreq.value;
       const uAmp = uniforms.uAmp.value;
+      const timeLane = time * 0.62;
+      const timeSecondX = time * 0.5 * (uFreq.y / uFreq.x);
+      const timeSecondY = (time * 0.45) / (uFreq.z / uFreq.w);
 
       const getX = (p: number) =>
-        Math.cos(Math.PI * p * uFreq.x + time) * uAmp.x +
-        Math.pow(
-          Math.cos(Math.PI * p * uFreq.y + time * (uFreq.y / uFreq.x)),
-          2
-        ) *
-          uAmp.y;
+        Math.cos(Math.PI * p * uFreq.x + timeLane) * uAmp.x +
+        Math.pow(Math.cos(Math.PI * p * uFreq.y + timeSecondX), 2) * uAmp.y;
 
       const getY = (p: number) =>
-        -nsin(Math.PI * p * uFreq.z + time) * uAmp.z -
-        Math.pow(
-          nsin(Math.PI * p * uFreq.w + time / (uFreq.z / uFreq.w)),
-          2.75
-        ) *
-          uAmp.w;
+        -nsin(Math.PI * p * uFreq.z + timeLane) * uAmp.z -
+        Math.pow(nsin(Math.PI * p * uFreq.w + timeSecondY), 3.0) * uAmp.w;
 
       const distortion = new THREE.Vector3(
-        getX(progress) - getX(progress + 0.007),
-        getY(progress) - getY(progress + 0.007),
+        getX(progress) - getX(progress + 0.0125),
+        getY(progress) - getY(progress + 0.0125),
         0
       );
       const lookAtAmp = new THREE.Vector3(-2, -5, 0);
@@ -601,11 +597,11 @@ class Road {
 
   createPlane(side: number, _width: number, isRoad: boolean) {
     const options = this.options;
-    const segments = 100;
+    const segments = 128;
     const geometry = new THREE.PlaneGeometry(
       isRoad ? options.roadWidth : options.islandWidth,
       options.length,
-      20,
+      28,
       segments
     );
 
@@ -795,6 +791,8 @@ class App {
   variationBaseAmp: THREE.Vector4 | null;
   variationTargetFreq: THREE.Vector4 | null;
   variationTargetAmp: THREE.Vector4 | null;
+  /** Exponential smoothing for `lookAt` from turbulent `getJS` (reduces high-frequency camera jitter). */
+  private smoothedLookAt: THREE.Vector3 | null = null;
   /** True while press/hold boosting; window listeners tear down releases outside `#lights`. */
   interactionBoostActive = false;
   private readonly onReady?: () => void;
@@ -962,16 +960,16 @@ class App {
 
     /* Cap spatial frequency so runtime variation cannot reintroduce hairpin wiggles. */
     this.variationTargetFreq.set(
-      clamp(this.variationBaseFreq.x * (1 + jitter()), 0.3, 7.5),
-      clamp(this.variationBaseFreq.y * (1 + jitter()), 0.3, 7.5),
-      clamp(this.variationBaseFreq.z * (1 + jitter()), 0.3, 7.5),
-      clamp(this.variationBaseFreq.w * (1 + jitter()), 0.2, 1.25)
+      clamp(this.variationBaseFreq.x * (1 + jitter()), 0.25, 4.0),
+      clamp(this.variationBaseFreq.y * (1 + jitter()), 0.25, 4.0),
+      clamp(this.variationBaseFreq.z * (1 + jitter()), 0.25, 4.0),
+      clamp(this.variationBaseFreq.w * (1 + jitter()), 0.28, 0.88)
     );
     this.variationTargetAmp.set(
-      clamp(this.variationBaseAmp.x * (1 + jitter()), 1, 26),
-      clamp(this.variationBaseAmp.y * (1 + jitter()), 0.5, 18),
-      clamp(this.variationBaseAmp.z * (1 + jitter()), 1, 22),
-      clamp(this.variationBaseAmp.w * (1 + jitter()), 0.5, 14)
+      clamp(this.variationBaseAmp.x * (1 + jitter()), 1, 18),
+      clamp(this.variationBaseAmp.y * (1 + jitter()), 0.4, 10),
+      clamp(this.variationBaseAmp.z * (1 + jitter()), 1, 14),
+      clamp(this.variationBaseAmp.w * (1 + jitter()), 0.4, 9)
     );
     this.variationLastReseedMs = performance.now();
   }
@@ -1010,7 +1008,7 @@ class App {
     const smoothing = clamp(
       delta * 0.85 * this.variationPerfScale,
       0.003,
-      0.04
+      0.032
     );
     uFreq.lerp(this.variationTargetFreq, smoothing);
     uAmp.lerp(this.variationTargetAmp, smoothing);
@@ -1209,13 +1207,18 @@ class App {
       this.options.distortion.getJS
     ) {
       const distortion = this.options.distortion.getJS(0.025, time);
-      this.camera.lookAt(
-        new THREE.Vector3(
-          this.camera.position.x + distortion.x,
-          this.camera.position.y + distortion.y,
-          this.camera.position.z + distortion.z
-        )
+      const rawLookAt = new THREE.Vector3(
+        this.camera.position.x + distortion.x,
+        this.camera.position.y + distortion.y,
+        this.camera.position.z + distortion.z
       );
+      const lookSmooth = 1 - Math.exp(-12 * delta);
+      if (this.smoothedLookAt === null) {
+        this.smoothedLookAt = rawLookAt.clone();
+      } else {
+        this.smoothedLookAt.lerp(rawLookAt, lookSmooth);
+      }
+      this.camera.lookAt(this.smoothedLookAt);
       updateCamera = true;
     }
 

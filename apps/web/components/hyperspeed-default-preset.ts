@@ -31,10 +31,10 @@ export const hyperspeedDefaultPreset = {
   carFloorSeparation: [0, 5],
   variation: {
     enabled: true,
-    intensity: 0.28,
+    intensity: 0.26,
     reseedIntervalMs: 3200,
     mobileScale: 0.55,
-    maxDelta: 0.055,
+    maxDelta: 0.04,
   },
   colors: {
     roadColor: 0x080808,

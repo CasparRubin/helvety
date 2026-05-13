@@ -11,8 +11,8 @@ describe("Hyperspeed effect options", () => {
 
     expect(variation).toBeDefined();
     expect(variation.enabled).toBe(true);
-    expect(variation.intensity).toBe(0.28);
-    expect(variation.maxDelta).toBe(0.055);
+    expect(variation.intensity).toBe(0.26);
+    expect(variation.maxDelta).toBe(0.04);
     expect(variation.reseedIntervalMs).toBe(3200);
     expect(variation.mobileScale).toBe(0.55);
     expect(variation.intensity).toBeLessThanOrEqual(1);
@@ -20,7 +20,7 @@ describe("Hyperspeed effect options", () => {
     expect(variation.reseedIntervalMs).toBeGreaterThanOrEqual(800);
   });
 
-  it("hero options keep base variation safety while applying subtle tuning", () => {
+  it("hero options keep base variation safety with calmer reseed than default preset", () => {
     const baseVariation = hyperspeedDefaultPreset.variation;
     const heroVariation = HERO_HYPERSPEED_EFFECT_OPTIONS.variation;
 
@@ -31,10 +31,9 @@ describe("Hyperspeed effect options", () => {
     expect(heroVariation.enabled).toBe(baseVariation.enabled);
     expect(heroVariation.mobileScale).toBe(baseVariation.mobileScale);
     expect(heroVariation.maxDelta).toBe(baseVariation.maxDelta);
-    expect(heroVariation.intensity).toBe(0.36);
-    expect(heroVariation.intensity).toBeGreaterThan(baseVariation.intensity);
-    expect(heroVariation.reseedIntervalMs).toBe(3000);
-    expect(heroVariation.reseedIntervalMs).toBeLessThanOrEqual(
+    expect(heroVariation.intensity).toBe(baseVariation.intensity);
+    expect(heroVariation.reseedIntervalMs).toBe(4200);
+    expect(heroVariation.reseedIntervalMs).toBeGreaterThanOrEqual(
       baseVariation.reseedIntervalMs
     );
   });
