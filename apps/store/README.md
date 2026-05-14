@@ -33,8 +33,7 @@ and the `@helvety/web` landing showcase render the exact same copy and order.
      read time via `getStoreCatalogNewestFirst()` / `compareStoreCatalogEntriesNewestFirst`).
    - If the new product shares a `releaseDate` with an existing card, add a
      priority value to `PRODUCT_RELEASE_TIE_PRIORITY` (higher = newer).
-   - Run `bun run test --filter @helvety/shared` to confirm the catalog tests
-     still cover the new entry (counts, runs-on, free / open-source flags).
+   - Run `bun run test --filter=@helvety/shared` (from repo root; same `--filter=` style as the root [`README.md`](../../README.md)) to confirm catalog tests still pass: id uniqueness, `PRODUCT_RELEASE_TIE_PRIORITY` parity with every card id, runs-on labels, free/open-source flags, and default sort endpoints.
 2. **Add the full Store product** in `apps/store/lib/data/products.ts`:
    - Call `cardCore("<id>", "<saas|software|physical>")` — TS narrows `type`
      to the literal you pass, and the helper throws at startup if the catalog

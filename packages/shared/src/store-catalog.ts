@@ -1,7 +1,11 @@
 /**
  * Card-level Helvety Store catalog fields shared by @helvety/store listings and
  * @helvety/web marketing. Full Product rows (images, pricing, long copy) stay in the Store app.
+ * Power Automate Editor Version Enforcer card blurbs are composed from
+ * `./power-automate-editor-enforcer-copy` so they stay aligned with the extension manifest summary.
  */
+
+import { POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION } from "./power-automate-editor-enforcer-copy";
 
 /** Mirrors {@link ProductType} in apps/store without importing Next-specific types. */
 export type StoreProductType = "saas" | "software" | "physical";
@@ -121,8 +125,7 @@ export const STORE_PRODUCT_CARDS = [
     id: "helvety-power-automate-editor-preference",
     slug: "helvety-power-automate-editor-preference",
     name: "Power Automate Editor Version Enforcer",
-    shortDescription:
-      "Edge/Chrome extension: keep flow and run links opening in the classic editor or the new designer (your choice), optional v3survey handling on the Survey tab (Hide by default sets false on rewrites; Show only normalizes when already present), or pause without uninstalling.",
+    shortDescription: POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
     releaseDate: "2026-04-03",
     type: "software",
     category: "integrations",

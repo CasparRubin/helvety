@@ -2,6 +2,7 @@
  * Static product data for the Store app (@helvety/store)
  */
 
+import { POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY } from "@helvety/shared/power-automate-editor-enforcer-copy";
 import {
   compareStoreCatalogEntriesNewestFirst,
   requireStoreProductCard,
@@ -249,7 +250,7 @@ const helvetyExplorer: SoftwareProduct = {
 };
 
 /**
- * Power Automate Editor Version Enforcer — MV3 extension for classic vs new designer URLs
+ * Power Automate Editor Version Enforcer — canonical store blurb + Survey tab / Paused semantics
  */
 const cPowerAutomate = cardCore(
   "helvety-power-automate-editor-preference",
@@ -265,8 +266,7 @@ const powerAutomateEditorPreference: SoftwareProduct = {
   image: productArtwork.artwork6,
   artist: "Rudolf Koller",
   description: {
-    intro:
-      "A Manifest V3 extension for Edge and Chrome that aligns Microsoft Power Automate flow and run URLs on *.powerautomate.com and flow.microsoft.com with the editor mode you choose: classic (v3=false), new designer (v3=true), or paused (no rewrites while the extension stays installed).",
+    intro: `${POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY} Manifest V3 for Edge and Chrome: flow and run URLs on *.powerautomate.com and flow.microsoft.com are aligned with your choice—classic (v3=false), new designer (v3=true), or paused (no rewrites while the extension stays installed).`,
     sections: [
       {
         heading: "Mechanics",
@@ -326,7 +326,8 @@ const powerAutomateEditorPreference: SoftwareProduct = {
     ],
   },
   links: {
-    github: "https://github.com/CasparRubin/power-automate-editor-version-enforcer",
+    github:
+      "https://github.com/CasparRubin/power-automate-editor-version-enforcer",
   },
   software: {
     fileFormat: "zip",

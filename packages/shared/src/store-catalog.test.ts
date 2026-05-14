@@ -1,15 +1,35 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
 
+import { POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION } from "./power-automate-editor-enforcer-copy";
 import {
+  PRODUCT_RELEASE_TIE_PRIORITY,
   STORE_PRODUCT_CARDS,
   compareStoreCatalogEntriesNewestFirst,
   getStoreCatalogNewestFirst,
   requireStoreProductCard,
 } from "./store-catalog";
 
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
+
 describe("store-catalog", () => {
-  it("lists eight products", () => {
-    expect(STORE_PRODUCT_CARDS).toHaveLength(8);
+  it("keeps catalog metadata self-consistent (ids unique; tie map matches cards)", () => {
+    const ids = STORE_PRODUCT_CARDS.map((c) => c.id);
+    expect(ids.length).toBeGreaterThan(0);
+    expect(new Set(ids).size).toBe(ids.length);
+
+    const cardIds = new Set<string>(ids);
+    const tieIds = new Set(Object.keys(PRODUCT_RELEASE_TIE_PRIORITY));
+    expect(tieIds.size).toBe(cardIds.size);
+    for (const id of cardIds) {
+      expect(tieIds.has(id)).toBe(true);
+    }
+    for (const id of tieIds) {
+      expect(cardIds.has(id)).toBe(true);
+    }
   });
 
   it("sorts newest release first with expected endpoints", () => {
@@ -38,14 +58,25 @@ describe("store-catalog", () => {
     expect(compareStoreCatalogEntriesNewestFirst(b, a)).toBeLessThan(0);
   });
 
-  it("Power Automate card blurb matches extension Survey tab (not legacy Feedback copy)", () => {
-    const card = requireStoreProductCard("helvety-power-automate-editor-preference");
+  it("Power Automate card and llms.txt use canonical copy (Survey tab, not legacy Feedback)", () => {
+    const card = requireStoreProductCard(
+      "helvety-power-automate-editor-preference"
+    );
     expect(card.name).toBe("Power Automate Editor Version Enforcer");
-    const { shortDescription } = card;
-    expect(shortDescription).toContain("Survey tab");
-    expect(shortDescription).not.toContain("Feedback tab");
-    expect(shortDescription).toContain("Hide");
-    expect(shortDescription).toContain("Show");
-    expect(shortDescription).not.toMatch(/ignore by default/i);
+    expect(card.shortDescription).toBe(
+      POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION
+    );
+    expect(card.shortDescription).not.toContain("Feedback tab");
+    expect(card.shortDescription).not.toMatch(/ignore by default/i);
+
+    for (const rel of [
+      "apps/store/public/llms.txt",
+      "apps/web/public/llms.txt",
+    ] as const) {
+      const text = readFileSync(join(repoRoot, rel), "utf8");
+      expect(text).toContain(
+        POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION
+      );
+    }
   });
 });

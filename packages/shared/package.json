@@ -64,6 +64,7 @@
     "./server-action-primitives": "./src/server-action-primitives.ts",
     "./user-facing-errors": "./src/user-facing-errors.ts",
     "./seo": "./src/seo.ts",
+    "./power-automate-editor-enforcer-copy": "./src/power-automate-editor-enforcer-copy.ts",
     "./store-catalog": "./src/store-catalog.ts",
     "./supabase/client": "./src/supabase/client.ts",
     "./supabase/server": "./src/supabase/server.ts",
@@ -89,14 +90,14 @@
   "dependencies": {
     "@helvety/config": "workspace:*",
     "@simplewebauthn/browser": "^13.3.0",
-    "@supabase/ssr": "^0.10.2",
-    "@supabase/supabase-js": "^2.105.1",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
     "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.37.0",
+    "@upstash/redis": "^1.38.0",
     "clsx": "^2.1.1",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.5.0",
-    "zod": "^4.4.2"
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
     "next": "^16.2.6",
@@ -108,6 +109,8 @@
     "@types/react": "^19",
     "eslint": "^9.39.4",
     "jsdom": "29.1.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "typescript": "^5",
     "vitest": "^4.1.6"
   }

@@ -1,4 +1,8 @@
 import {
+  POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
+  POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
+} from "@helvety/shared/power-automate-editor-enforcer-copy";
+import {
   STORE_PRODUCT_CARDS,
   requireStoreProductCard,
 } from "@helvety/shared/store-catalog";
@@ -9,8 +13,8 @@ import { isSoftwareProduct } from "../types/products";
 import { getAllProducts, getProductBySlug } from "./products";
 
 describe("store product catalog", () => {
-  it("includes all eight listings", () => {
-    expect(getAllProducts()).toHaveLength(8);
+  it("includes one store listing per shared catalog card", () => {
+    expect(getAllProducts()).toHaveLength(STORE_PRODUCT_CARDS.length);
   });
 
   it("card-level fields match shared store-catalog for every product", () => {
@@ -94,13 +98,28 @@ describe("store product catalog", () => {
   });
 
   it("Power Automate product copy matches extension Survey tab semantics (regression)", () => {
-    const product = getProductBySlug("helvety-power-automate-editor-preference");
+    const product = getProductBySlug(
+      "helvety-power-automate-editor-preference"
+    );
     expect(product).toBeDefined();
     if (!product) {
       return;
     }
 
     expect(product.name).toBe("Power Automate Editor Version Enforcer");
+    expect(isSoftwareProduct(product)).toBe(true);
+    if (!isSoftwareProduct(product)) {
+      return;
+    }
+
+    expect(product.shortDescription).toBe(
+      POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION
+    );
+    expect(
+      product.description.intro.startsWith(
+        POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY
+      )
+    ).toBe(true);
 
     const sectionText = (product.description.sections ?? []).flatMap((s) =>
       s.kind === "paragraph" ? [s.body] : s.items
@@ -110,11 +129,14 @@ describe("store product catalog", () => {
       product.description.intro,
       ...sectionText,
       ...product.features,
-      ...(product.software?.installationSteps ?? []).map((st) => st.description),
+      ...(product.software?.installationSteps ?? []).map(
+        (st) => st.description
+      ),
       ...(product.metadata?.keywords ?? []),
     ].join("\n");
 
     expect(combined).toContain("Survey tab");
+    expect(combined).toContain("Microsoft survey prompt");
     expect(combined).not.toContain("Feedback tab");
     expect(combined).not.toContain("Ignore v3survey");
     expect(combined).not.toContain("Enforce v3survey=true");
@@ -125,9 +147,11 @@ describe("store product catalog", () => {
   });
 
   it("Power Automate store listing points GitHub link at canonical extension repo", () => {
-    const product = getProductBySlug("helvety-power-automate-editor-preference");
+    const product = getProductBySlug(
+      "helvety-power-automate-editor-preference"
+    );
     expect(product?.links?.github).toBe(
-      "https://github.com/CasparRubin/power-automate-editor-version-enforcer",
+      "https://github.com/CasparRubin/power-automate-editor-version-enforcer"
     );
   });
 });

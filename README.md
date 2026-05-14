@@ -87,7 +87,7 @@ bun run format
 - Use explicit `cleanup()` in workspace `vitest.setup.ts` files that use `@testing-library/react`.
 - Prefer typed fixture builders in tests (`buildXxx(...)`) over repeated `as unknown as` casting so test inputs evolve with production types.
 - Apps that bootstrap session state from `app/layout.tsx` should mock the relevant `@helvety/shared/*` helpers in `app/layout-metadata.test.ts` so metadata tests stay hermetic (see existing `web`, `store`, `auth`, and E2EE app tests).
-- Vitest and related testing dependency specifiers are kept in lockstep across workspaces by [`scripts/check-workspace-version-drift.mjs`](scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`) and [`scripts/check-test-hygiene.mjs`](scripts/check-test-hygiene.mjs) (`bun run test:hygiene`).
+- Vitest and related testing dependency specifiers are kept in lockstep across workspaces by [`scripts/check-workspace-version-drift.mjs`](scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`) and [`scripts/check-test-hygiene.mjs`](scripts/check-test-hygiene.mjs) (`bun run test:hygiene`). Store listing counts in tests follow `STORE_PRODUCT_CARDS.length` and assert the tie-break map matches every card id—see [`packages/shared/src/store-catalog.test.ts`](packages/shared/src/store-catalog.test.ts) and [`apps/store/README.md`](apps/store/README.md) › **Adding a New Product**.
 
 ## Monorepo Conventions
 

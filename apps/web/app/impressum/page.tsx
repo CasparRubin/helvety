@@ -130,12 +130,15 @@ export default function ImpressumPage() {
             <strong className="text-foreground">
               Power Automate Editor Version Enforcer
             </strong>{" "}
-            — Edge/Chrome extension for choosing classic or new designer on flow
-            and run links, optional{" "}
-            <code className="text-foreground">v3survey</code> handling on the
-            Survey tab (Hide by default on rewrites; Show normalizes{" "}
-            <code className="text-foreground">v3survey</code> only when the URL
-            already includes it), or pausing without uninstalling.
+            — Allows you to enforce either the Classic or New Designer
+            experience in Microsoft Power Automate Cloud Flows using{" "}
+            <code className="text-foreground">v3=false</code> or{" "}
+            <code className="text-foreground">v3=true</code>, while also giving
+            you the option to hide the Microsoft survey prompt asking why you
+            made your selection. Edge/Chrome MV3 extension. Survey tab: optional{" "}
+            <code className="text-foreground">v3survey</code> — Hide (default)
+            sets false on rewrites; Show only normalizes when already present.
+            Paused: no URL rewrites while the extension stays installed.
           </li>
           <li>
             <strong className="text-foreground">Helvety PDF</strong> —

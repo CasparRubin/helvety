@@ -6,7 +6,7 @@ This document is the source of truth for how we name and format code across `app
 
 - **Next.js App Router structure**: [Project structure and file conventions](https://github.com/vercel/next.js/blob/v16.2.6/docs/01-app/01-getting-started/02-project-structure.mdx) - special filenames (`page.tsx`, `layout.tsx`, `route.ts`, `loading.tsx`, `error.tsx`, …), route groups `(segment)`, private folders `_segment`, colocation. The `blob/v…/docs/` path must match the caret minimum in `apps/web` `dependencies.next` (enforced by `bun run consistency:toolchain-docs`).
 - **TypeScript identifiers**: [typescript-eslint naming-convention](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/naming-convention.mdx).
-- **Tests**: [Vitest - test files](https://github.com/vitest-dev/vitest/blob/main/docs/guide/learn/writing-tests.md) - use `*.test.ts` / `*.test.tsx`. Shared Vitest and related devDependency specifiers stay identical across workspaces via `scripts/check-workspace-version-drift.mjs` (`bun run deps:drift`) plus `bun run test:hygiene`.
+- **Tests**: [Vitest - test files](https://github.com/vitest-dev/vitest/blob/main/docs/guide/learn/writing-tests.md) - use `*.test.ts` / `*.test.tsx`. The monorepo pins **Vitest 4.x** (see workspace `package.json` files). Shared Vitest and related devDependency specifiers stay identical across workspaces via `scripts/check-workspace-version-drift.mjs` (`bun run deps:drift`) plus `bun run test:hygiene`.
 
 ## Formatting
 

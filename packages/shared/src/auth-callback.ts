@@ -123,7 +123,7 @@ export function createAuthCallbackHandler(
       }
 
       if (tokenHash && type) {
-        if (!allowedOtpTypeSet.has(type as EmailOtpType)) {
+        if (!allowedOtpTypeSet.has(type)) {
           logger.warn("Auth callback rejected OTP type", { type });
           return NextResponse.redirect(
             `${authErrorUrl}&error=invalid_otp_type`
@@ -133,7 +133,7 @@ export function createAuthCallbackHandler(
         const supabase = await createServerClient();
         const { error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
-          type: type as EmailOtpType,
+          type,
         });
 
         if (!error) {

@@ -306,16 +306,16 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Power Automate Editor Version Enforcer:
             </strong>{" "}
-            URL adjustments on supported Power Automate hosts for flow and run
-            routes according to your selected editor mode (classic or new
-            designer), optional classic-designer survey URL flag (
-            <code className="text-foreground">v3survey</code>) handling on the
-            extension&apos;s Survey tab (Hide by default sets{" "}
-            <code className="text-foreground">v3survey=false</code> on rewrites;
-            Show only normalizes an existing flag to true), pause without
-            uninstalling,
-            enforcement preferences synced where the browser allows it, and popup
-            appearance settings kept locally on the device
+            Allows you to enforce either the Classic or New Designer experience
+            in Microsoft Power Automate Cloud Flows using{" "}
+            <code className="text-foreground">v3=false</code> or{" "}
+            <code className="text-foreground">v3=true</code>, while also giving
+            you the option to hide the Microsoft survey prompt asking why you
+            made your selection. Survey tab: optional v3survey — Hide (default)
+            sets false on rewrites; Show only normalizes when already present.
+            Paused: no URL rewrites while the extension stays installed.
+            Enforcement preferences sync where the browser allows it; popup
+            appearance settings stay locally on the device.
           </li>
           <li>
             <strong className="text-foreground">

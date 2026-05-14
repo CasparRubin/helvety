@@ -5,8 +5,8 @@ const ROOT_DIR = process.cwd();
 const WORKSPACE_DIRS = ["apps", "packages"];
 const REQUIRED_VERSION_BY_DEP = new Map([
   ["next", "^16.2.6"],
-  ["react", "^19.2.5"],
-  ["react-dom", "^19.2.5"],
+  ["react", "^19.2.6"],
+  ["react-dom", "^19.2.6"],
   ["typescript", "^5"],
   ["eslint", "^9.39.4"],
   ["vitest", "^4.1.6"],
@@ -14,11 +14,11 @@ const REQUIRED_VERSION_BY_DEP = new Map([
   ["@testing-library/jest-dom", "^6.9.1"],
   ["@testing-library/react", "^16.3.2"],
   ["jsdom", "29.1.1"],
-  ["@supabase/supabase-js", "^2.105.1"],
-  ["@supabase/ssr", "^0.10.2"],
+  ["@supabase/supabase-js", "^2.105.4"],
+  ["@supabase/ssr", "^0.10.3"],
   ["@simplewebauthn/server", "^13.3.0"],
   ["@simplewebauthn/browser", "^13.3.0"],
-  ["zod", "^4.4.2"],
+  ["zod", "^4.4.3"],
   ["prettier-plugin-tailwindcss", "^0.8.0"],
 ]);
 

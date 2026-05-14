@@ -1,6 +1,6 @@
 {
   "name": "@helvety/image-upscaler",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "In-browser image upscaler with on-device AI (Real-ESRGAN via onnxruntime-web, WebGPU with WASM fallback) and a canvas-resample fallback: 2×/4× or target dimensions, per-image and batch flows, no server-side image processing, no account required. MIT-licensed, Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/image-upscaler",
@@ -33,18 +33,18 @@
     "@helvety/brand": "workspace:*",
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
-    "@supabase/supabase-js": "^2.105.1",
+    "@supabase/supabase-js": "^2.105.4",
     "canvas-size": "^2.0.0",
     "lucide-react": "^0.577.0",
     "next": "^16.2.6",
     "onnxruntime-web": "^1.25.1",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
-    "@tailwindcss/postcss": "^4.2.4",
+    "@tailwindcss/postcss": "^4.3.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^24.12.2",
@@ -56,7 +56,7 @@
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "shadcn": "^3.8.5",
-    "tailwindcss": "^4.2.4",
+    "tailwindcss": "^4.3.0",
     "typescript": "^5",
     "vitest": "^4.1.6"
   }
