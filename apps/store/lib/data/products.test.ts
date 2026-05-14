@@ -40,7 +40,7 @@ describe("store product catalog", () => {
   it("resolves known product slugs", () => {
     expect(
       getProductBySlug("helvety-power-automate-editor-preference")?.name
-    ).toBe("Power Automate: editor preference");
+    ).toBe("Power Automate Editor Version Enforcer");
     expect(getProductBySlug("helvety-spo-explorer")?.slug).toBe(
       "helvety-spo-explorer"
     );
@@ -91,5 +91,43 @@ describe("store product catalog", () => {
         expect(step.description).not.toContain(stalePhrase);
       }
     }
+  });
+
+  it("Power Automate product copy matches extension Survey tab semantics (regression)", () => {
+    const product = getProductBySlug("helvety-power-automate-editor-preference");
+    expect(product).toBeDefined();
+    if (!product) {
+      return;
+    }
+
+    expect(product.name).toBe("Power Automate Editor Version Enforcer");
+
+    const sectionText = (product.description.sections ?? []).flatMap((s) =>
+      s.kind === "paragraph" ? [s.body] : s.items
+    );
+    const combined = [
+      product.shortDescription,
+      product.description.intro,
+      ...sectionText,
+      ...product.features,
+      ...(product.software?.installationSteps ?? []).map((st) => st.description),
+      ...(product.metadata?.keywords ?? []),
+    ].join("\n");
+
+    expect(combined).toContain("Survey tab");
+    expect(combined).not.toContain("Feedback tab");
+    expect(combined).not.toContain("Ignore v3survey");
+    expect(combined).not.toContain("Enforce v3survey=true");
+    expect(combined).toContain("Hide");
+    expect(combined).toContain("Show");
+    expect(product.metadata?.keywords).toContain("survey");
+    expect(product.metadata?.keywords).not.toContain("feedback");
+  });
+
+  it("Power Automate store listing points GitHub link at canonical extension repo", () => {
+    const product = getProductBySlug("helvety-power-automate-editor-preference");
+    expect(product?.links?.github).toBe(
+      "https://github.com/CasparRubin/power-automate-editor-version-enforcer",
+    );
   });
 });

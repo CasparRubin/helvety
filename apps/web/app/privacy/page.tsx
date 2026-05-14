@@ -304,13 +304,16 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Power Automate: editor preference:
+              Power Automate Editor Version Enforcer:
             </strong>{" "}
             URL adjustments on supported Power Automate hosts for flow and run
             routes according to your selected editor mode (classic or new
-            designer), optional classic-designer feedback URL flag (
+            designer), optional classic-designer survey URL flag (
             <code className="text-foreground">v3survey</code>) handling on the
-            extension&apos;s Feedback tab, pause without uninstalling,
+            extension&apos;s Survey tab (Hide by default sets{" "}
+            <code className="text-foreground">v3survey=false</code> on rewrites;
+            Show only normalizes an existing flag to true), pause without
+            uninstalling,
             enforcement preferences synced where the browser allows it, and popup
             appearance settings kept locally on the device
           </li>

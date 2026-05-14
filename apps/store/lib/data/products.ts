@@ -249,7 +249,7 @@ const helvetyExplorer: SoftwareProduct = {
 };
 
 /**
- * Power Automate: editor preference — MV3 extension for classic vs new designer URLs
+ * Power Automate Editor Version Enforcer — MV3 extension for classic vs new designer URLs
  */
 const cPowerAutomate = cardCore(
   "helvety-power-automate-editor-preference",
@@ -271,7 +271,7 @@ const powerAutomateEditorPreference: SoftwareProduct = {
       {
         heading: "Mechanics",
         kind: "paragraph",
-        body: "While enforcement is on, paths under /flows/ and /runs/ get the v3 query parameter adjusted to match your selection. Declarative Net Request rules only rewrite v3; the service worker and content script apply the full policy from sync. On the Feedback tab, Ignore v3survey (default) never adds, changes, or removes v3survey. Enforce v3survey=true adds it when missing on a rewrite and collapses duplicate keys to a single true. Enforcement combines DNR, webNavigation (including tabs.update where the browser allows), and a document_start content script so first paint, refresh, back/forward, and typical SPA transitions are covered—not only full page loads.",
+        body: "While enforcement is on, paths under /flows/ and /runs/ get the v3 query parameter adjusted to match your selection. Declarative Net Request rules only rewrite v3; the service worker and content script apply the full policy from sync. On the Survey tab, Hide (default) sets v3survey=false on rewrites (adds the parameter if missing). Show only applies when v3survey is already on the URL: duplicate keys collapse to a single v3survey=true; the extension does not add v3survey when it is absent. Enforcement combines DNR, webNavigation (including tabs.update where the browser allows), and a document_start content script so first paint, refresh, back/forward, and typical SPA transitions are covered—not only full page loads.",
       },
       {
         heading: "Getting it",
@@ -299,7 +299,7 @@ const powerAutomateEditorPreference: SoftwareProduct = {
   features: [
     "Scoped to Power Automate hosts (*.powerautomate.com and flow.microsoft.com)",
     "Classic editor, new designer, or paused (no URL changes while installed)",
-    "Feedback tab: optional v3survey policy (ignore by default or enforce true)",
+    "Survey tab: optional v3survey policy (Hide by default or Show when already present)",
     "Layered enforcement: declarative net request, navigation hooks, and in-page SPA handling",
     "Popup appearance preference stored locally on the device",
     "Manifest V3 (Edge and Chrome)",
@@ -326,7 +326,7 @@ const powerAutomateEditorPreference: SoftwareProduct = {
     ],
   },
   links: {
-    github: "https://github.com/CasparRubin/power-automate-version-enforcer",
+    github: "https://github.com/CasparRubin/power-automate-editor-version-enforcer",
   },
   software: {
     fileFormat: "zip",
@@ -366,7 +366,7 @@ const powerAutomateEditorPreference: SoftwareProduct = {
       {
         title: "Verify in Power Automate",
         description:
-          "Open https://make.powerautomate.com/ and open or edit a flow or run. In the extension popup Editor tab, pick classic or new designer and confirm URLs match your choice; switch to Paused to confirm links are no longer adjusted. Optionally use the Feedback tab to try Ignore vs Enforce v3survey=true and observe v3survey on URLs when the service worker or content script rewrites them.",
+          "Open https://make.powerautomate.com/ and open or edit a flow or run. In the extension popup Editor tab, pick classic or new designer and confirm URLs match your choice; switch to Paused to confirm links are no longer adjusted. Optionally use the Survey tab to try Hide vs Show and observe v3survey on URLs when the service worker or content script rewrites them.",
       },
     ],
   },
@@ -383,7 +383,7 @@ const powerAutomateEditorPreference: SoftwareProduct = {
       "classic editor",
       "new designer",
       "pause",
-      "feedback",
+      "survey",
       "v3survey",
       "make.powerautomate.com",
       "microsoft 365",

@@ -120,9 +120,9 @@ export const STORE_PRODUCT_CARDS = [
   {
     id: "helvety-power-automate-editor-preference",
     slug: "helvety-power-automate-editor-preference",
-    name: "Power Automate: editor preference",
+    name: "Power Automate Editor Version Enforcer",
     shortDescription:
-      "Edge/Chrome extension: keep flow and run links opening in the classic editor or the new designer (your choice), optional v3survey handling on the Feedback tab (ignore by default), or pause without uninstalling.",
+      "Edge/Chrome extension: keep flow and run links opening in the classic editor or the new designer (your choice), optional v3survey handling on the Survey tab (Hide by default sets false on rewrites; Show only normalizes when already present), or pause without uninstalling.",
     releaseDate: "2026-04-03",
     type: "software",
     category: "integrations",

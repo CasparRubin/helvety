@@ -128,12 +128,14 @@ export default function ImpressumPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Power Automate: editor preference
+              Power Automate Editor Version Enforcer
             </strong>{" "}
             — Edge/Chrome extension for choosing classic or new designer on flow
             and run links, optional{" "}
             <code className="text-foreground">v3survey</code> handling on the
-            Feedback tab, or pausing without uninstalling.
+            Survey tab (Hide by default on rewrites; Show normalizes{" "}
+            <code className="text-foreground">v3survey</code> only when the URL
+            already includes it), or pausing without uninstalling.
           </li>
           <li>
             <strong className="text-foreground">Helvety PDF</strong> —

@@ -424,7 +424,7 @@ export default function TermsPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           Certain products are distributed as extensions or downloadable
           packages (for example Helvety SPO Explorer for SharePoint Online, or
-          Power Automate: editor preference for supported Chromium-based
+          Power Automate Editor Version Enforcer for supported Chromium-based
           browsers, and Helvety Screen Tools for Windows). The
           following additional terms apply to these products:
         </p>

@@ -45,7 +45,7 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     storageFolderPath: "browserExtensions/power-automate-editor-preference",
     storageFileSuffix: ".zip",
     productId: "helvety-power-automate-editor-preference",
-    productName: "Power Automate: editor preference",
+    productName: "Power Automate Editor Version Enforcer",
     isPublic: true,
   },
   /** @deprecated Legacy package id; same storage as power-automate-editor-preference */
@@ -55,7 +55,7 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     storageFolderPath: "browserExtensions/power-automate-editor-preference",
     storageFileSuffix: ".zip",
     productId: "helvety-power-automate-editor-preference",
-    productName: "Power Automate: editor preference",
+    productName: "Power Automate Editor Version Enforcer",
     isPublic: true,
   },
 } as const;
