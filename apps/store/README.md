@@ -17,7 +17,9 @@ Product catalog and package-download app for Helvety products: specs and artifac
 
 - Download files are served from Supabase Storage bucket `packages`.
 - `spfx/helvety-spo-explorer`: newest `.sppkg` by timestamp/name.
-- `browserExtensions/power-automate-editor-preference`: newest `.zip` by timestamp/name. Legacy package id `power-automate-force-v3-false` resolves to the same folder.
+- `browserExtensions/power-automate-editor-version-enforcer`: newest `.zip` by timestamp/name (Power Automate Editor Version Enforcer). Permanent redirects in [`next.config.ts`](next.config.ts) keep old bookmarks working (paths below are relative to the Store `basePath` `/store`):
+  - `/products/helvety-power-automate-force-v3-false` and `/products/helvety-power-automate-editor-preference` → `/products/helvety-power-automate-editor-version-enforcer`
+  - `/api/packages/power-automate-editor-preference/download` and `/api/packages/power-automate-force-v3-false/download` → `/api/packages/power-automate-editor-version-enforcer/download`
 - If listing fails, resolver falls back to configured filename path.
 - Download URL generation and public download endpoint throttling both use centralized helpers in `lib/download-security.ts` (`buildDownloadUrlRateLimitKey`, `buildPublicDownloadRateLimitKey`) to keep key naming and validation rules consistent.
 - Download URL generation is IP-rate-limited and fails closed when trusted client IP is unavailable in production.

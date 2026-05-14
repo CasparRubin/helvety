@@ -1,6 +1,7 @@
 /**
- * Package configuration for downloadable products
- * Maps product IDs to their storage paths and metadata
+ * Package configuration for downloadable artifacts.
+ * Keys are **public download package ids** (segment in `/store/api/packages/{id}/download`),
+ * not necessarily the same string as a store catalog card `id`.
  */
 
 // =============================================================================
@@ -17,7 +18,7 @@ interface PackageInfo {
   storageFolderPath: string;
   /** File extension to match in storage (e.g. ".sppkg", ".zip"), case-insensitive. */
   storageFileSuffix: string;
-  /** Product ID this package belongs to */
+  /** Helvety store catalog product card `id` (see `@helvety/shared/store-catalog`). */
   productId: string;
   /** Human-readable product name */
   productName: string;
@@ -39,22 +40,13 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     productName: "Helvety SPO Explorer",
     isPublic: true,
   },
-  "power-automate-editor-preference": {
-    version: "2.1.0",
-    filename: "power-automate-editor-preference.zip",
-    storageFolderPath: "browserExtensions/power-automate-editor-preference",
+  "power-automate-editor-version-enforcer": {
+    version: "2.4.0",
+    filename: "power-automate-editor-version-enforcer.zip",
+    storageFolderPath:
+      "browserExtensions/power-automate-editor-version-enforcer",
     storageFileSuffix: ".zip",
-    productId: "helvety-power-automate-editor-preference",
-    productName: "Power Automate Editor Version Enforcer",
-    isPublic: true,
-  },
-  /** @deprecated Legacy package id; same storage as power-automate-editor-preference */
-  "power-automate-force-v3-false": {
-    version: "2.1.0",
-    filename: "power-automate-editor-preference.zip",
-    storageFolderPath: "browserExtensions/power-automate-editor-preference",
-    storageFileSuffix: ".zip",
-    productId: "helvety-power-automate-editor-preference",
+    productId: "helvety-power-automate-editor-version-enforcer",
     productName: "Power Automate Editor Version Enforcer",
     isPublic: true,
   },

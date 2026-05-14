@@ -249,7 +249,7 @@ interface SoftwareProductDetails {
   licenseType?: "free" | "perpetual";
   /**
    * When set, the store serves downloads at
-   * `/store/api/packages/{publicPackageId}/download`.
+   * `/store/api/packages/{publicPackageId}/download` (must match a key in `apps/store/lib/packages/config.ts`).
    */
   publicPackageId?: string;
   /** Step-by-step installation copy for the product detail page */

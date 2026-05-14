@@ -43,7 +43,7 @@ describe("store product catalog", () => {
 
   it("resolves known product slugs", () => {
     expect(
-      getProductBySlug("helvety-power-automate-editor-preference")?.name
+      getProductBySlug("helvety-power-automate-editor-version-enforcer")?.name
     ).toBe("Power Automate Editor Version Enforcer");
     expect(getProductBySlug("helvety-spo-explorer")?.slug).toBe(
       "helvety-spo-explorer"
@@ -99,7 +99,7 @@ describe("store product catalog", () => {
 
   it("Power Automate product copy matches extension Survey tab semantics (regression)", () => {
     const product = getProductBySlug(
-      "helvety-power-automate-editor-preference"
+      "helvety-power-automate-editor-version-enforcer"
     );
     expect(product).toBeDefined();
     if (!product) {
@@ -148,10 +148,23 @@ describe("store product catalog", () => {
 
   it("Power Automate store listing points GitHub link at canonical extension repo", () => {
     const product = getProductBySlug(
-      "helvety-power-automate-editor-preference"
+      "helvety-power-automate-editor-version-enforcer"
     );
     expect(product?.links?.github).toBe(
       "https://github.com/CasparRubin/power-automate-editor-version-enforcer"
+    );
+  });
+
+  it("Power Automate publicPackageId matches downloadable package config key", () => {
+    const product = getProductBySlug(
+      "helvety-power-automate-editor-version-enforcer"
+    );
+    expect(product).toBeDefined();
+    if (!product || !isSoftwareProduct(product)) {
+      throw new Error("Expected Power Automate software product");
+    }
+    expect(product.software.publicPackageId).toBe(
+      "power-automate-editor-version-enforcer"
     );
   });
 });

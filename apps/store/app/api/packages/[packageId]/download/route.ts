@@ -15,7 +15,10 @@ import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
-/** Resolve a package download URL and redirect the caller. */
+/**
+ * Public GET handler for `/store/api/packages/{packageId}/download`.
+ * `packageId` must match a key in `lib/packages/config.ts`. Legacy package ids hit Next redirects before this route.
+ */
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ packageId: string }> }

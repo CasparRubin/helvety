@@ -33,7 +33,7 @@ const STORE_PRODUCT_ICONS: Record<StoreProductId, LucideIcon> = {
   "helvety-tasks": ListTodo,
   "helvety-contacts": Users,
   "helvety-notes": NotebookPen,
-  "helvety-power-automate-editor-preference": Puzzle,
+  "helvety-power-automate-editor-version-enforcer": Puzzle,
   "helvety-spo-explorer": Building2,
   "helvety-screen-tools": Monitor,
 };

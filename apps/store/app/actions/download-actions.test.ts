@@ -78,6 +78,16 @@ describe("store download-actions", () => {
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
 
+  it("returns not found for legacy package ids removed from config (redirects handle HTTP)", async () => {
+    expect(
+      await getPackageDownloadUrl("power-automate-editor-preference")
+    ).toEqual({ success: false, error: "Package not found" });
+    expect(
+      await getPackageDownloadUrl("power-automate-force-v3-false")
+    ).toEqual({ success: false, error: "Package not found" });
+    expect(mocks.adminClientFactory).not.toHaveBeenCalled();
+  });
+
   it("creates a signed URL for public packages", async () => {
     const result = await getPackageDownloadUrl("spo-explorer");
 
@@ -100,13 +110,13 @@ describe("store download-actions", () => {
 
   it("creates a signed URL for the Power Automate extension zip package", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue({
-      version: "2.1.0",
+      version: "2.4.0",
       storagePath:
-        "browserExtensions/power-automate-editor-preference/power-automate-editor-preference.zip",
+        "browserExtensions/power-automate-editor-version-enforcer/power-automate-editor-version-enforcer.zip",
     });
 
     const result = await getPackageDownloadUrl(
-      "power-automate-editor-preference"
+      "power-automate-editor-version-enforcer"
     );
 
     expect(result.success).toBe(true);
@@ -115,34 +125,13 @@ describe("store download-actions", () => {
     }
     expect(result.data).toEqual({
       downloadUrl: "https://download.example/signed",
-      filename: "power-automate-editor-preference.zip",
-      version: "2.1.0",
+      filename: "power-automate-editor-version-enforcer.zip",
+      version: "2.4.0",
     });
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
-      "browserExtensions/power-automate-editor-preference/power-automate-editor-preference.zip",
+      "browserExtensions/power-automate-editor-version-enforcer/power-automate-editor-version-enforcer.zip",
       60,
-      { download: "power-automate-editor-preference.zip" }
-    );
-  });
-
-  it("creates a signed URL for legacy Power Automate package id", async () => {
-    mocks.resolveLatestPackageVersion.mockResolvedValue({
-      version: "2.1.0",
-      storagePath:
-        "browserExtensions/power-automate-editor-preference/power-automate-editor-preference.zip",
-    });
-
-    const result = await getPackageDownloadUrl("power-automate-force-v3-false");
-
-    expect(result.success).toBe(true);
-    if (!result.success) {
-      throw new Error("Expected successful download URL response");
-    }
-    expect(result.data?.filename).toBe("power-automate-editor-preference.zip");
-    expect(mocks.createSignedUrl).toHaveBeenCalledWith(
-      "browserExtensions/power-automate-editor-preference/power-automate-editor-preference.zip",
-      60,
-      { download: "power-automate-editor-preference.zip" }
+      { download: "power-automate-editor-version-enforcer.zip" }
     );
   });
 
@@ -156,6 +145,29 @@ describe("store download-actions", () => {
       "spfx/helvety-spo-explorer/helvety-spo-explorer.sppkg",
       60,
       { download: "helvety-spo-explorer.sppkg" }
+    );
+  });
+
+  it("falls back to configured zip path when resolver returns null for Power Automate package", async () => {
+    mocks.resolveLatestPackageVersion.mockResolvedValue(null);
+
+    const result = await getPackageDownloadUrl(
+      "power-automate-editor-version-enforcer"
+    );
+
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      throw new Error("Expected successful download URL response");
+    }
+    expect(result.data).toEqual({
+      downloadUrl: "https://download.example/signed",
+      filename: "power-automate-editor-version-enforcer.zip",
+      version: "2.4.0",
+    });
+    expect(mocks.createSignedUrl).toHaveBeenCalledWith(
+      "browserExtensions/power-automate-editor-version-enforcer/power-automate-editor-version-enforcer.zip",
+      60,
+      { download: "power-automate-editor-version-enforcer.zip" }
     );
   });
 

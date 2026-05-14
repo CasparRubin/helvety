@@ -253,10 +253,10 @@ const helvetyExplorer: SoftwareProduct = {
  * Power Automate Editor Version Enforcer — canonical store blurb + Survey tab / Paused semantics
  */
 const cPowerAutomate = cardCore(
-  "helvety-power-automate-editor-preference",
+  "helvety-power-automate-editor-version-enforcer",
   "software"
 );
-const powerAutomateEditorPreference: SoftwareProduct = {
+const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
   id: cPowerAutomate.id,
   slug: cPowerAutomate.slug,
   name: cPowerAutomate.name,
@@ -311,7 +311,7 @@ const powerAutomateEditorPreference: SoftwareProduct = {
     hasYearlyPricing: false,
     tiers: [
       {
-        id: "helvety-power-automate-editor-preference-free",
+        id: "helvety-power-automate-editor-version-enforcer-free",
         name: "Free",
         price: 0,
         currency: "CHF",
@@ -331,7 +331,7 @@ const powerAutomateEditorPreference: SoftwareProduct = {
   },
   software: {
     fileFormat: "zip",
-    publicPackageId: "power-automate-editor-preference",
+    publicPackageId: "power-automate-editor-version-enforcer",
     requirements: [
       "Microsoft Edge or Google Chrome",
       "Access to https://make.powerautomate.com/",
@@ -342,7 +342,7 @@ const powerAutomateEditorPreference: SoftwareProduct = {
       {
         title: "Download the ZIP",
         description:
-          "Use the Download button on this page to save power-automate-editor-preference.zip to your computer.",
+          "Use the Download button on this page to save power-automate-editor-version-enforcer.zip to your computer.",
       },
       {
         title: "Extract the archive",
@@ -1039,7 +1039,7 @@ const products: Product[] = [
   helvetyTasks,
   helvetyContacts,
   helvetyNotes,
-  powerAutomateEditorPreference,
+  powerAutomateEditorVersionEnforcer,
   helvetyScreenTools,
   helvetyImageUpscaler,
 ];

@@ -46,7 +46,7 @@ export interface StoreProductCard {
 export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
   "helvety-image-upscaler": 8,
   "helvety-screen-tools": 7,
-  "helvety-power-automate-editor-preference": 6,
+  "helvety-power-automate-editor-version-enforcer": 6,
   "helvety-notes": 5,
   "helvety-contacts": 4,
   "helvety-tasks": 3,
@@ -122,8 +122,8 @@ export const STORE_PRODUCT_CARDS = [
     isOpenSource: true,
   },
   {
-    id: "helvety-power-automate-editor-preference",
-    slug: "helvety-power-automate-editor-preference",
+    id: "helvety-power-automate-editor-version-enforcer",
+    slug: "helvety-power-automate-editor-version-enforcer",
     name: "Power Automate Editor Version Enforcer",
     shortDescription: POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
     releaseDate: "2026-04-03",

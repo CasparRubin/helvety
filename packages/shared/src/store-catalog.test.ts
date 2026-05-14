@@ -60,7 +60,7 @@ describe("store-catalog", () => {
 
   it("Power Automate card and llms.txt use canonical copy (Survey tab, not legacy Feedback)", () => {
     const card = requireStoreProductCard(
-      "helvety-power-automate-editor-preference"
+      "helvety-power-automate-editor-version-enforcer"
     );
     expect(card.name).toBe("Power Automate Editor Version Enforcer");
     expect(card.shortDescription).toBe(

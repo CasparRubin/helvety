@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-/** Package IDs are lowercase alphanumeric with hyphens. */
+/** Public download package ids (`/store/api/packages/{id}/download`): lowercase alphanumeric with hyphens. */
 export const packageIdSchema = z
   .string()
   .min(1, "Package ID is required")

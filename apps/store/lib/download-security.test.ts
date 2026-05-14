@@ -17,10 +17,8 @@ describe("download-security", () => {
   it("validates package ids with strict lowercase format", () => {
     expect(packageIdSchema.safeParse("spo-explorer").success).toBe(true);
     expect(
-      packageIdSchema.safeParse("power-automate-editor-preference").success
-    ).toBe(true);
-    expect(
-      packageIdSchema.safeParse("power-automate-force-v3-false").success
+      packageIdSchema.safeParse("power-automate-editor-version-enforcer")
+        .success
     ).toBe(true);
     expect(packageIdSchema.safeParse("UPPERCASE").success).toBe(false);
     expect(packageIdSchema.safeParse("bad_id").success).toBe(false);
