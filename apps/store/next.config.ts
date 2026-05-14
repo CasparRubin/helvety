@@ -72,6 +72,15 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
       minimumCacheTTL: 60 * 60 * 4,
       remotePatterns: getStoreImageRemotePatterns(),
     },
+    async redirects() {
+      return [
+        {
+          source: "/products/helvety-power-automate-force-v3-false",
+          destination: "/products/helvety-power-automate-editor-preference",
+          permanent: true,
+        },
+      ];
+    },
   },
 });
 

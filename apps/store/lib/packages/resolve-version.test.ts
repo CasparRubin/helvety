@@ -117,12 +117,12 @@ describe("resolveLatestPackageVersion", () => {
           created_at: "2026-04-01T10:00:00.000Z",
         },
         {
-          name: "power-automate-force-v3-false-old.zip",
+          name: "power-automate-editor-preference-old.zip",
           id: "x1",
           created_at: "2026-04-02T10:00:00.000Z",
         },
         {
-          name: "power-automate-force-v3-false.zip",
+          name: "power-automate-editor-preference.zip",
           id: "x2",
           created_at: "2026-04-04T10:00:00.000Z",
           updated_at: "2026-04-04T10:00:00.000Z",
@@ -133,20 +133,43 @@ describe("resolveLatestPackageVersion", () => {
     });
 
     const result = await resolveLatestPackageVersion(
-      "power-automate-force-v3-false"
+      "power-automate-editor-preference"
     );
 
     expect(mocks.list).toHaveBeenCalledWith(
-      "browserExtensions/power-automate-force-v3-false",
+      "browserExtensions/power-automate-editor-preference",
       {
         limit: 500,
         sortBy: { column: "name", order: "asc" },
       }
     );
     expect(result).toEqual({
-      version: "1.0.0",
+      version: "2.1.0",
       storagePath:
-        "browserExtensions/power-automate-force-v3-false/power-automate-force-v3-false.zip",
+        "browserExtensions/power-automate-editor-preference/power-automate-editor-preference.zip",
     });
+  });
+
+  it("legacy power-automate-force-v3-false package id uses the same storage folder", async () => {
+    mocks.list.mockResolvedValue({
+      data: [
+        {
+          name: "power-automate-editor-preference.zip",
+          id: "x2",
+          created_at: "2026-04-04T10:00:00.000Z",
+        },
+      ],
+      error: null,
+    });
+
+    await resolveLatestPackageVersion("power-automate-force-v3-false");
+
+    expect(mocks.list).toHaveBeenCalledWith(
+      "browserExtensions/power-automate-editor-preference",
+      {
+        limit: 500,
+        sortBy: { column: "name", order: "asc" },
+      }
+    );
   });
 });

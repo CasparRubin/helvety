@@ -304,10 +304,15 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Power Automate Force v3=false Browser Extension:
+              Power Automate: editor preference:
             </strong>{" "}
-            URL normalization on supported Power Automate hosts for selected
-            editor routes (flows/runs), with optional local extension state
+            URL adjustments on supported Power Automate hosts for flow and run
+            routes according to your selected editor mode (classic or new
+            designer), optional classic-designer feedback URL flag (
+            <code className="text-foreground">v3survey</code>) handling on the
+            extension&apos;s Feedback tab, pause without uninstalling,
+            enforcement preferences synced where the browser allows it, and popup
+            appearance settings kept locally on the device
           </li>
           <li>
             <strong className="text-foreground">

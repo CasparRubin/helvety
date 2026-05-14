@@ -249,13 +249,13 @@ const helvetyExplorer: SoftwareProduct = {
 };
 
 /**
- * Power Automate browser extension - forces v3=false for classic Power Automate editor URLs
+ * Power Automate: editor preference — MV3 extension for classic vs new designer URLs
  */
 const cPowerAutomate = cardCore(
-  "helvety-power-automate-force-v3-false",
+  "helvety-power-automate-editor-preference",
   "software"
 );
-const powerAutomateForceV3False: SoftwareProduct = {
+const powerAutomateEditorPreference: SoftwareProduct = {
   id: cPowerAutomate.id,
   slug: cPowerAutomate.slug,
   name: cPowerAutomate.name,
@@ -266,12 +266,12 @@ const powerAutomateForceV3False: SoftwareProduct = {
   artist: "Rudolf Koller",
   description: {
     intro:
-      "A compact Manifest V3 extension for Edge and Chrome that rewrites Microsoft Power Automate URLs on *.powerautomate.com and flow.microsoft.com. Paths under /flows/ and /runs/ get v3=false so the classic editor keeps loading the way you expect.",
+      "A Manifest V3 extension for Edge and Chrome that aligns Microsoft Power Automate flow and run URLs on *.powerautomate.com and flow.microsoft.com with the editor mode you choose: classic (v3=false), new designer (v3=true), or paused (no rewrites while the extension stays installed).",
     sections: [
       {
         heading: "Mechanics",
         kind: "paragraph",
-        body: "The extension adds v3=false when missing, replaces v3=true when present, and normalizes v3survey=false when that flag exists. Declarative rules plus runtime hooks cover first paint, refresh, back/forward, and typical SPA transitions inside Power Automate, not only full page loads.",
+        body: "While enforcement is on, paths under /flows/ and /runs/ get the v3 query parameter adjusted to match your selection. Declarative Net Request rules only rewrite v3; the service worker and content script apply the full policy from sync. On the Feedback tab, Ignore v3survey (default) never adds, changes, or removes v3survey. Enforce v3survey=true adds it when missing on a rewrite and collapses duplicate keys to a single true. Enforcement combines DNR, webNavigation (including tabs.update where the browser allows), and a document_start content script so first paint, refresh, back/forward, and typical SPA transitions are covered—not only full page loads.",
       },
       {
         heading: "Getting it",
@@ -283,7 +283,8 @@ const powerAutomateForceV3False: SoftwareProduct = {
         kind: "bullets",
         items: [
           "Host allow-list centres on Power Automate domains.",
-          "Only /flows/ and /runs/ paths are rewritten.",
+          "Only /flows/ and /runs/ paths are rewritten when enforcement is active.",
+          "Paused mode disables rewrites but keeps the extension installed.",
           "Manifest V3 aligned with current browser policies.",
         ],
       },
@@ -297,9 +298,10 @@ const powerAutomateForceV3False: SoftwareProduct = {
   status: "available",
   features: [
     "Scoped to Power Automate hosts (*.powerautomate.com and flow.microsoft.com)",
-    "Forces v3=false on /flows/ and /runs/ URLs",
-    "Normalizes v3survey=false when the parameter exists",
-    "Works with SPA navigation (History API)",
+    "Classic editor, new designer, or paused (no URL changes while installed)",
+    "Feedback tab: optional v3survey policy (ignore by default or enforce true)",
+    "Layered enforcement: declarative net request, navigation hooks, and in-page SPA handling",
+    "Popup appearance preference stored locally on the device",
     "Manifest V3 (Edge and Chrome)",
     "No account required for download",
     "Free and open source",
@@ -309,7 +311,7 @@ const powerAutomateForceV3False: SoftwareProduct = {
     hasYearlyPricing: false,
     tiers: [
       {
-        id: "helvety-power-automate-force-v3-false-free",
+        id: "helvety-power-automate-editor-preference-free",
         name: "Free",
         price: 0,
         currency: "CHF",
@@ -324,11 +326,11 @@ const powerAutomateForceV3False: SoftwareProduct = {
     ],
   },
   links: {
-    github: "https://github.com/CasparRubin/power-automate-force-v3-false",
+    github: "https://github.com/CasparRubin/power-automate-version-enforcer",
   },
   software: {
     fileFormat: "zip",
-    publicPackageId: "power-automate-force-v3-false",
+    publicPackageId: "power-automate-editor-preference",
     requirements: [
       "Microsoft Edge or Google Chrome",
       "Access to https://make.powerautomate.com/",
@@ -339,7 +341,7 @@ const powerAutomateForceV3False: SoftwareProduct = {
       {
         title: "Download the ZIP",
         description:
-          "Use the Download button on this page to save power-automate-force-v3-false.zip to your computer.",
+          "Use the Download button on this page to save power-automate-editor-preference.zip to your computer.",
       },
       {
         title: "Extract the archive",
@@ -364,7 +366,7 @@ const powerAutomateForceV3False: SoftwareProduct = {
       {
         title: "Verify in Power Automate",
         description:
-          "Open https://make.powerautomate.com/ and open or edit a flow or run. URLs should include v3=false so the classic editor loads as expected.",
+          "Open https://make.powerautomate.com/ and open or edit a flow or run. In the extension popup Editor tab, pick classic or new designer and confirm URLs match your choice; switch to Paused to confirm links are no longer adjusted. Optionally use the Feedback tab to try Ignore vs Enforce v3survey=true and observe v3survey on URLs when the service worker or content script rewrites them.",
       },
     ],
   },
@@ -379,6 +381,10 @@ const powerAutomateForceV3False: SoftwareProduct = {
       "browser extension",
       "v3",
       "classic editor",
+      "new designer",
+      "pause",
+      "feedback",
+      "v3survey",
       "make.powerautomate.com",
       "microsoft 365",
     ],
@@ -1032,7 +1038,7 @@ const products: Product[] = [
   helvetyTasks,
   helvetyContacts,
   helvetyNotes,
-  powerAutomateForceV3False,
+  powerAutomateEditorPreference,
   helvetyScreenTools,
   helvetyImageUpscaler,
 ];

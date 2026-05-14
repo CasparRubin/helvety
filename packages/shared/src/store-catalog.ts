@@ -42,7 +42,7 @@ export interface StoreProductCard {
 export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
   "helvety-image-upscaler": 8,
   "helvety-screen-tools": 7,
-  "helvety-power-automate-force-v3-false": 6,
+  "helvety-power-automate-editor-preference": 6,
   "helvety-notes": 5,
   "helvety-contacts": 4,
   "helvety-tasks": 3,
@@ -118,11 +118,11 @@ export const STORE_PRODUCT_CARDS = [
     isOpenSource: true,
   },
   {
-    id: "helvety-power-automate-force-v3-false",
-    slug: "helvety-power-automate-force-v3-false",
-    name: "Power Automate Force v3=false Browser Extension",
+    id: "helvety-power-automate-editor-preference",
+    slug: "helvety-power-automate-editor-preference",
+    name: "Power Automate: editor preference",
     shortDescription:
-      "A minimal Edge/Chrome extension that keeps Power Automate flow and run URLs on the classic editor by ensuring v3=false and normalizing v3survey=false when present.",
+      "Edge/Chrome extension: keep flow and run links opening in the classic editor or the new designer (your choice), optional v3survey handling on the Feedback tab (ignore by default), or pause without uninstalling.",
     releaseDate: "2026-04-03",
     type: "software",
     category: "integrations",

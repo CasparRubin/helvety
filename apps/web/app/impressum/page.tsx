@@ -128,9 +128,12 @@ export default function ImpressumPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Power Automate Force v3=false Browser Extension
+              Power Automate: editor preference
             </strong>{" "}
-            — Edge/Chrome helper that keeps classic editor URLs predictable.
+            — Edge/Chrome extension for choosing classic or new designer on flow
+            and run links, optional{" "}
+            <code className="text-foreground">v3survey</code> handling on the
+            Feedback tab, or pausing without uninstalling.
           </li>
           <li>
             <strong className="text-foreground">Helvety PDF</strong> —

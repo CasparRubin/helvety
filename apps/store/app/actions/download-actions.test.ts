@@ -100,9 +100,36 @@ describe("store download-actions", () => {
 
   it("creates a signed URL for the Power Automate extension zip package", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue({
-      version: "1.0.0",
+      version: "2.1.0",
       storagePath:
-        "browserExtensions/power-automate-force-v3-false/power-automate-force-v3-false.zip",
+        "browserExtensions/power-automate-editor-preference/power-automate-editor-preference.zip",
+    });
+
+    const result = await getPackageDownloadUrl(
+      "power-automate-editor-preference"
+    );
+
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      throw new Error("Expected successful download URL response");
+    }
+    expect(result.data).toEqual({
+      downloadUrl: "https://download.example/signed",
+      filename: "power-automate-editor-preference.zip",
+      version: "2.1.0",
+    });
+    expect(mocks.createSignedUrl).toHaveBeenCalledWith(
+      "browserExtensions/power-automate-editor-preference/power-automate-editor-preference.zip",
+      60,
+      { download: "power-automate-editor-preference.zip" }
+    );
+  });
+
+  it("creates a signed URL for legacy Power Automate package id", async () => {
+    mocks.resolveLatestPackageVersion.mockResolvedValue({
+      version: "2.1.0",
+      storagePath:
+        "browserExtensions/power-automate-editor-preference/power-automate-editor-preference.zip",
     });
 
     const result = await getPackageDownloadUrl("power-automate-force-v3-false");
@@ -111,15 +138,11 @@ describe("store download-actions", () => {
     if (!result.success) {
       throw new Error("Expected successful download URL response");
     }
-    expect(result.data).toEqual({
-      downloadUrl: "https://download.example/signed",
-      filename: "power-automate-force-v3-false.zip",
-      version: "1.0.0",
-    });
+    expect(result.data?.filename).toBe("power-automate-editor-preference.zip");
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
-      "browserExtensions/power-automate-force-v3-false/power-automate-force-v3-false.zip",
+      "browserExtensions/power-automate-editor-preference/power-automate-editor-preference.zip",
       60,
-      { download: "power-automate-force-v3-false.zip" }
+      { download: "power-automate-editor-preference.zip" }
     );
   });
 

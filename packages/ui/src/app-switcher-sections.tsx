@@ -58,8 +58,8 @@ export const appSwitcherSections: AppSwitcherSection[] = [
     title: "Browser Extensions",
     links: [
       {
-        name: "Power Automate Force v3=false Browser Extension",
-        href: `${urls.store}/products/helvety-power-automate-force-v3-false`,
+        name: "Power Automate: editor preference",
+        href: `${urls.store}/products/helvety-power-automate-editor-preference`,
         icon: Puzzle,
       },
     ],

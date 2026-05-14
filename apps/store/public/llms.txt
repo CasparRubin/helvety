@@ -15,7 +15,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - [Helvety Tasks](https://helvety.com/store/products/helvety-tasks)
 - [Helvety Contacts](https://helvety.com/store/products/helvety-contacts)
 - [Helvety Notes](https://helvety.com/store/products/helvety-notes)
-- [Power Automate Force v3=false Browser Extension](https://helvety.com/store/products/helvety-power-automate-force-v3-false)
+- [Power Automate: editor preference](https://helvety.com/store/products/helvety-power-automate-editor-preference): Edge/Chrome MV3 extension for classic vs new designer on flow/run links, optional v3survey on the Feedback tab (ignore by default), pause without uninstalling
 
 ## Crawling and Indexing
 - Public catalog and product pages are intended to be crawlable and indexable.

@@ -39,13 +39,23 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     productName: "Helvety SPO Explorer",
     isPublic: true,
   },
-  "power-automate-force-v3-false": {
-    version: "1.0.0",
-    filename: "power-automate-force-v3-false.zip",
-    storageFolderPath: "browserExtensions/power-automate-force-v3-false",
+  "power-automate-editor-preference": {
+    version: "2.1.0",
+    filename: "power-automate-editor-preference.zip",
+    storageFolderPath: "browserExtensions/power-automate-editor-preference",
     storageFileSuffix: ".zip",
-    productId: "helvety-power-automate-force-v3-false",
-    productName: "Power Automate Force v3=false Browser Extension",
+    productId: "helvety-power-automate-editor-preference",
+    productName: "Power Automate: editor preference",
+    isPublic: true,
+  },
+  /** @deprecated Legacy package id; same storage as power-automate-editor-preference */
+  "power-automate-force-v3-false": {
+    version: "2.1.0",
+    filename: "power-automate-editor-preference.zip",
+    storageFolderPath: "browserExtensions/power-automate-editor-preference",
+    storageFileSuffix: ".zip",
+    productId: "helvety-power-automate-editor-preference",
+    productName: "Power Automate: editor preference",
     isPublic: true,
   },
 } as const;
