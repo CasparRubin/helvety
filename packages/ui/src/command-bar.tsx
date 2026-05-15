@@ -9,18 +9,27 @@ import * as React from "react";
  * upscaler, store). Parents must place this **outside** scroll regions (shell
  * prefix slot or {@link CommandBarPageLayout}); layout owns pinning via
  * `shrink-0`, not CSS sticky.
+ *
+ * **`variant`**: `solid` (default) or `translucent`. Translucent uses a frosted
+ * toolbar surface (lighter than main navbar `bg-surface-chrome/*`) for section
+ * nav over full-bleed backgrounds (Store shell Light Pillar).
  */
 export function CommandBar({
   children,
   className,
+  variant = "solid",
 }: {
   children: React.ReactNode;
   className?: string;
+  variant?: "solid" | "translucent";
 }) {
   return (
     <nav
       className={cn(
-        "bg-surface-toolbar z-40 w-full shrink-0 border-x border-b",
+        "border-border z-40 w-full shrink-0 border-x border-b",
+        variant === "solid" && "bg-surface-toolbar",
+        variant === "translucent" &&
+          "bg-surface-toolbar/65 supports-[backdrop-filter]:bg-surface-toolbar/40 backdrop-blur",
         className
       )}
     >

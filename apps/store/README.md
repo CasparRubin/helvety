@@ -7,7 +7,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar (catalog routes avoid a full-tree theme script); `scrollAreaMainPrefix` pins `StoreNav` above the main `ScrollArea` (section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell column in `@helvety/ui/csrf-provider` (`CSRFProvider`); shared session bootstrap helpers feed CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar (catalog routes avoid a full-tree theme script); `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (frosted `CommandBar` `variant="translucent"` over the shell backdrop; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` then [`StoreShellWithBackdrop`](components/store-shell-with-backdrop.tsx) (fixed React Bits **Light Pillar** WebGL on all routes, Helvety red/white, client-only via `next/dynamic`; the fixed layer is hidden when `prefers-reduced-motion: reduce` with a `bg-background` fallback); shared session bootstrap helpers feed CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
 - Public product catalog at `/store/products`
 - Public package download endpoints (no login required)
 - Optional authenticated account page at `/store/account`
@@ -82,6 +82,15 @@ Copy `env.template` to `.env.local`.
 - `proxy.ts` performs request bootstrap (CSP/CSRF/session refresh), not full auth enforcement. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Account actions enforce authz in pages/server actions/route handlers.
 - Public download endpoints use explicit abuse protections and rate limiting.
+
+## Shell backdrop (Light Pillar)
+
+- Component: [React Bits Light Pillar](https://reactbits.dev/backgrounds/light-pillar), **TypeScript + CSS** variant (`@react-bits/LightPillar-TS-CSS` via shadcn), same shader as the JS+CSS integration guide. Source: [`components/LightPillar.tsx`](components/LightPillar.tsx) + [`LightPillar.css`](components/LightPillar.css). Dependency: `three`.
+- Preset: [`store-light-pillar-options.ts`](components/store-light-pillar-options.ts) (`STORE_LIGHT_PILLAR_OPTIONS`). Same tuning as the React Bits template snippet (`intensity: 1`, `glowAmount: 0.002`, `pillarHeight: 0.2`, `pillarRotation: 25`, etc.); only colors differ (`#ffffff` top, `#ff102a` base, same vivid red as web Hyperspeed tail lights). `mixBlendMode` (`screen`) and `quality` (`high`) stay at component defaults.
+- Mounting: not the guide’s `600px` relative box. [`store-shell-with-backdrop.tsx`](components/store-shell-with-backdrop.tsx) pins [`store-light-pillar-backdrop.tsx`](components/store-light-pillar-backdrop.tsx) `fixed inset-0` behind the whole shell (`pointer-events-none`, shell content at `z-10`). The backdrop uses `next/dynamic` (`ssr: false`), a black underlay, WebGL, and a black veil that fades after the first composited frame (`onReady`; Helvety-specific, not in the React Bits snippet).
+- Reduced motion: [`store-shell-with-backdrop.tsx`](components/store-shell-with-backdrop.tsx) applies `motion-reduce:hidden` on the fixed WebGL host and `motion-reduce:block` on a `bg-background` fallback. [`LightPillar.tsx`](components/LightPillar.tsx) also skips WebGL init when `prefers-reduced-motion: reduce` (defense in depth). Unlike gateway Hyperspeed, Store does not use shell overflow overrides; the pillar paints in a fixed layer only.
+- Section nav: [`store-nav.tsx`](components/store-nav.tsx) uses `@helvety/ui/command-bar` `variant="translucent"` so the toolbar reads as a frosted layer above the pillar (main navbar chrome stays on `HelvetyShellNavbar`).
+- Catalog copy and cards use existing opaque surfaces (`bg-card/95`, navbar chrome); tune `intensity` in the preset if the pillar feels too strong or too subtle.
 
 ## Development and Testing
 

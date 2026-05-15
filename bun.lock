@@ -14,7 +14,7 @@
     },
     "apps/auth": {
       "name": "@helvety/auth",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",
@@ -51,7 +51,7 @@
     },
     "apps/contacts": {
       "name": "@helvety/contacts",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -92,7 +92,7 @@
     },
     "apps/image-upscaler": {
       "name": "@helvety/image-upscaler",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",
@@ -127,7 +127,7 @@
     },
     "apps/notes": {
       "name": "@helvety/notes",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -167,7 +167,7 @@
     },
     "apps/pdf": {
       "name": "@helvety/pdf",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",
@@ -203,7 +203,7 @@
     },
     "apps/store": {
       "name": "@helvety/store",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",
@@ -215,6 +215,7 @@
         "react-dom": "^19.2.6",
         "server-only": "^0.0.1",
         "sonner": "^2.0.7",
+        "three": "^0.184.0",
         "zod": "^4.4.3",
       },
       "devDependencies": {
@@ -225,6 +226,7 @@
         "@types/node": "^24.12.2",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "@types/three": "0.184.1",
         "babel-plugin-react-compiler": "^1.0.0",
         "eslint": "^9.39.4",
         "jsdom": "29.1.1",
@@ -238,7 +240,7 @@
     },
     "apps/tasks": {
       "name": "@helvety/tasks",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
@@ -279,7 +281,7 @@
     },
     "apps/web": {
       "name": "@helvety/web",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",

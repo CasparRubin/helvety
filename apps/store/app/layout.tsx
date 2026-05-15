@@ -13,6 +13,7 @@ import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-r
 
 import { Navbar } from "@/components/navbar";
 import { StoreNav } from "@/components/store-nav";
+import { StoreShellWithBackdrop } from "@/components/store-shell-with-backdrop";
 
 export { STORE_DESCRIPTION };
 
@@ -59,6 +60,10 @@ export const metadata = createHelvetyProductMetadata({
  * Root layout: ThemeProvider wraps only the Navbar (next-themes injects a script; keep route content outside).
  * Pinned StoreNav (`scrollAreaMainPrefix`), scrollable main (`ScrollArea`), and footer follow.
  * Navbar-only ThemeProvider is intentional to avoid theme flash on catalog pages.
+ * {@link StoreShellWithBackdrop} adds a fixed Light Pillar WebGL backdrop on all routes
+ * (`next/dynamic` + `ssr: false` in the backdrop; `StoreShellWithBackdrop` hides the
+ * fixed layer when `prefers-reduced-motion: reduce` and shows a `bg-background` fallback).
+ * Does not use shell overflow overrides (unlike gateway Hyperspeed).
  */
 export default async function RootLayout({
   children,
@@ -96,7 +101,9 @@ export default async function RootLayout({
     scrollAreaMainPrefix: <StoreNav initialUser={initialUser} />,
     scrollAreaMainClassName: "min-w-0",
     wrapInsideTooltipProvider: (shell) => (
-      <CSRFProvider csrfToken={csrfToken}>{shell}</CSRFProvider>
+      <CSRFProvider csrfToken={csrfToken}>
+        <StoreShellWithBackdrop>{shell}</StoreShellWithBackdrop>
+      </CSRFProvider>
     ),
   });
 }

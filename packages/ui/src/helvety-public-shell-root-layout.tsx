@@ -59,8 +59,8 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
    * only (Auth: CSRF + encryption around that fragment; auth/session stay outside).
    *
    * When {@link themeProviderScope} is `"navbar-only"` (Store): wraps **auth handler +
-   * session recovery + column + toaster** so outer wrappers (e.g. `CSRFProvider` in
-   * `wrapInsideTooltipProvider`) wrap the same subtree as the store layout.
+   * session recovery + column + toaster** so outer wrappers (e.g. `CSRFProvider` and
+   * `StoreShellWithBackdrop` in `wrapInsideTooltipProvider`) wrap the same subtree as the store layout.
    */
   wrapInsideTooltipProvider?: (shell: ReactNode) => ReactNode;
   /**
@@ -148,15 +148,17 @@ function buildMainBlock(
  * Shared root shell for **public** Helvety apps (`web`, `auth`, `store`, `pdf`,
  * `image-upscaler`): CSP nonce, JSON-LD, theme (see {@link HelvetyPublicShellThemeProviderScope}),
  * auth token handler, session recovery, `TooltipProvider`, optional
- * {@link wrapInsideTooltipProvider} (e.g. CSRF / encryption for Auth, `CSRFProvider` for Store),
+ * {@link wrapInsideTooltipProvider} (e.g. CSRF / encryption for Auth; Store: `CSRFProvider` +
+ * `StoreShellWithBackdrop` for the fixed Light Pillar backdrop),
  * navbar + main + footer, toaster, Vercel analytics.
  *
  * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
- * section nav) renders **above** the main `ScrollArea` so it stays visible while catalog
- * content scrolls. Optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
+ * section nav, translucent `CommandBar` on Store) renders **above** the main `ScrollArea`
+ * so it stays visible while catalog content scrolls. Optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
  * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
- * content can extend horizontally (for example gateway web: full-bleed Hyperspeed host, SSR-stable
- * wrapper, WebGL client-only). Other apps keep the defaults.
+ * content can extend horizontally (gateway `apps/web`: full-bleed Hyperspeed hero). Store keeps
+ * default overflow and mounts Light Pillar in a fixed layer via `StoreShellWithBackdrop`
+ * (`apps/store`). Other public apps keep the defaults.
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional
  * **`bodyClassName`** so the document canvas matches the active theme before app content paints.

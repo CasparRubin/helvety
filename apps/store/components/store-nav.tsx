@@ -3,6 +3,8 @@
 /**
  * Store section navigation: pinned below the navbar via
  * `scrollAreaMainPrefix` on `HelvetyPublicShellRootLayout` (outside main scroll).
+ * Uses `CommandBar` `variant="translucent"` so the bar is frosted over the shell
+ * Light Pillar backdrop (main navbar chrome stays opaque on `HelvetyShellNavbar`).
  * Desktop: horizontal flex row of link-buttons.
  * Mobile: dropdown showing the active link as trigger.
  */
@@ -62,7 +64,7 @@ export function StoreNav({
   const ActiveIcon = activeLink.icon;
 
   return (
-    <CommandBar>
+    <CommandBar variant="translucent">
       {/* Desktop: horizontal link row */}
       <div className="hidden items-center gap-1 md:flex">
         {links.map(({ href, label, icon }) => {
