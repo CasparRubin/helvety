@@ -25,6 +25,7 @@ vi.mock("framer-motion", () => ({
   LazyMotion: ({ children }: { children: ReactNode }) => <>{children}</>,
   MotionConfig: ({ children }: { children: ReactNode }) => <>{children}</>,
   domAnimation: {},
+  useReducedMotion: () => false,
   m: {
     div: ({ children, ...props }: ComponentProps<"div">) => (
       <div {...props}>{children}</div>
@@ -32,13 +33,28 @@ vi.mock("framer-motion", () => ({
   },
 }));
 
+/* Isolate layout/SSR from React Bits + GSAP; preset wiring is covered in hero-text.test.tsx */
+vi.mock("@/components/hero-text", () => ({
+  HeroSoftwareProducts: () => (
+    <p data-testid="hero-software-products">Software products</p>
+  ),
+  HeroSwitzerland: () => (
+    <span data-testid="hero-switzerland">Switzerland</span>
+  ),
+  HeroTagline: () => <p data-testid="hero-tagline">private · simple · clean</p>,
+}));
+
 describe("HeroSection", () => {
-  it("renders headline, tagline, store CTA with gateway path href; no legacy identifier markup", () => {
+  it("renders hero copy slots, headline, tagline, and store CTA", () => {
     const html = renderToStaticMarkup(<HeroSection />);
 
+    expect(html).toContain('data-testid="hero-software-products"');
+    expect(html).toContain('data-testid="hero-switzerland"');
+    expect(html).toContain('data-testid="hero-tagline"');
     expect(html).toContain(`href="${getLocalAppHref(urls.store)}"`);
     expect(html).toContain("Browse Helvety products");
     expect(html).toContain("private · simple · clean");
+    expect(html).toContain("Software products");
     expect(html).toContain("Engineered, designed");
     expect(html).toContain("Switzerland");
     expect(html).not.toContain("helvety-identifier");
@@ -62,7 +78,8 @@ describe("HeroSection", () => {
     expect(html).toContain("pointer-events-auto");
     expect(html).not.toContain("cursor-zoom-in");
     expect(html).not.toContain("cursor-zoom-out");
-    expect(html).toContain("hero-tagline-glow");
+    expect(html).not.toContain("hero-tagline-glow");
+    expect(html).not.toContain("text-[#FF0000]");
     expect(html).not.toContain("w-full max-w-xs sm:w-auto");
     expect(html).toContain("flex-1");
     expect(html).toContain("min-h-[max(100%,calc(100svh-4rem-12.5rem))]");

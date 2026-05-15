@@ -8,6 +8,11 @@ import { ChevronRight, PackageOpen } from "lucide-react";
 import Link from "next/link";
 
 import { HeroHyperspeedBackdrop } from "@/components/hero-hyperspeed-backdrop";
+import {
+  HeroSoftwareProducts,
+  HeroSwitzerland,
+  HeroTagline,
+} from "@/components/hero-text";
 
 import "./hero-hyperspeed-bleed.css";
 
@@ -29,8 +34,12 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
 /**
  * Landing hero (`/`): React Bits Hyperspeed fullscreen behind copy + Store CTA.
- * Backdrop: {@link HeroHyperspeedBackdrop}: black base, **black veil** fades out after
- * {@link Hyperspeed} `onReady` (first composited frame); WebGL stays opaque underneath.
+ *
+ * - **Text:** {@link ./hero-text}: Shuffle eyebrow, Gradient Text on Switzerland, Shiny Text tagline;
+ *   static/muted fallbacks when `useReducedMotion()` is true (wired to `MotionConfig reducedMotion="user"`).
+ * - **Backdrop:** {@link HeroHyperspeedBackdrop}: black base, **black veil** fades out after
+ *   {@link Hyperspeed} `onReady`; WebGL stays opaque underneath.
+ * - **Block entrance:** Framer `fadeInUp` on the copy + CTA column (respects reduced motion via `MotionConfig`).
  *
  * Hyperspeed host markup is identical on SSR and first client paint (`motion-reduce:*` for visuals;
  * WebGL skips init when `prefers-reduced-motion` is set (see {@link Hyperspeed}).
@@ -66,16 +75,11 @@ export function HeroSection() {
             className="pointer-events-none relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center gap-10 px-4 text-center md:px-6"
           >
             <div className={cn("space-y-5", COPY_SHADOW_MOTION_SAFE)}>
-              <p className="text-foreground text-xs font-medium tracking-[0.12em] uppercase md:text-sm">
-                Software products
-              </p>
+              <HeroSoftwareProducts />
               <h1 className="text-foreground text-4xl font-semibold tracking-tight text-balance md:text-5xl lg:text-[2.75rem] lg:leading-[1.1]">
-                Engineered, designed &amp; made in{" "}
-                <span className="font-medium text-[#FF0000]">Switzerland</span>
+                Engineered, designed &amp; made in <HeroSwitzerland />
               </h1>
-              <p className="hero-tagline-glow text-base tracking-[0.08em] md:text-lg">
-                private · simple · clean
-              </p>
+              <HeroTagline />
             </div>
 
             <Button size="lg" asChild className="pointer-events-auto">

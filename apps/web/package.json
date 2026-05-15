@@ -28,12 +28,15 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@helvety/brand": "workspace:*",
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
     "@supabase/supabase-js": "^2.105.4",
     "framer-motion": "^12.38.0",
+    "gsap": "^3.13.0",
     "lucide-react": "^0.577.0",
+    "motion": "^12.23.12",
     "next": "^16.2.6",
     "postprocessing": "^6.39.1",
     "react": "^19.2.6",

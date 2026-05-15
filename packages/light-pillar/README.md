@@ -2,7 +2,7 @@
 
 Shared React Bits **Light Pillar** shell backdrop for Helvety public apps (**Store**, **Auth**).
 
-Not used on the gateway (`apps/web`): the marketing homepage uses React Bits **Hyperspeed** in the hero only ([`hero-hyperspeed-backdrop.tsx`](../../apps/web/components/hero-hyperspeed-backdrop.tsx)), which uses a different reveal pattern (viewport black veil). Light Pillar keeps shell UI on `bg-background` and fades in a fixed WebGL layer behind content—no full-screen veil over the UI.
+Not used on the gateway (`apps/web`): the marketing homepage uses React Bits **Hyperspeed** plus text animations in the hero ([`hero-hyperspeed-backdrop.tsx`](../../apps/web/components/hero-hyperspeed-backdrop.tsx), [`hero-text.tsx`](../../apps/web/components/hero-text.tsx)), which use a different reveal pattern (viewport black veil) than Light Pillar. Light Pillar keeps shell UI on `bg-background` and fades in a fixed WebGL layer behind content—no full-screen veil over the UI.
 
 ## Usage
 
