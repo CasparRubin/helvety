@@ -1,4 +1,5 @@
 import { urls } from "@helvety/shared/config";
+import { HELVETY_WEB_DEFAULT_TITLE } from "@helvety/shared/licensing";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -40,5 +41,19 @@ describe("web root layout metadata", () => {
   it("describes encrypted apps specifically, not vague encrypted productivity", () => {
     expect(WEB_SITE_DESCRIPTION).not.toContain("encrypted productivity");
     expect(WEB_SITE_DESCRIPTION).toMatch(/encrypted task and contact apps/i);
+  });
+
+  it("states AGPL-3.0 for all published Helvety source", () => {
+    expect(WEB_SITE_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
+    expect(WEB_SITE_DESCRIPTION).not.toMatch(/where the repo ships/i);
+    expect(metadata.keywords).toContain("AGPL-3.0");
+    expect(metadata.keywords).not.toContain("MIT");
+  });
+
+  it("uses the shared AGPL-aware default document title", () => {
+    expect(metadata.title).toMatchObject({
+      default: HELVETY_WEB_DEFAULT_TITLE,
+    });
+    expect(HELVETY_WEB_DEFAULT_TITLE).toContain("AGPL-3.0");
   });
 });

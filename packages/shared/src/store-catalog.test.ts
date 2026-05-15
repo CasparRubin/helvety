@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { HELVETY_LLMS_LICENSING_NOTE } from "./licensing";
 import { POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION } from "./power-automate-editor-enforcer-copy";
 import {
   PRODUCT_RELEASE_TIE_PRIORITY,
@@ -44,7 +45,7 @@ describe("store-catalog", () => {
     }
   });
 
-  it("declares free and open-source flags on every current card", () => {
+  it("declares free and AGPL open-source flags on every current card", () => {
     for (const card of STORE_PRODUCT_CARDS) {
       expect(card.isFree).toBe(true);
       expect(card.isOpenSource).toBe(true);
@@ -77,6 +78,10 @@ describe("store-catalog", () => {
       expect(text).toContain(
         POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION
       );
+      expect(text).toContain("## Licensing");
+      expect(text).toContain(HELVETY_LLMS_LICENSING_NOTE);
+      expect(text).not.toContain("MIT License");
+      expect(text).not.toContain("MIT-licensed");
     }
   });
 });

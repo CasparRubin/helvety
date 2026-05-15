@@ -1,10 +1,12 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
+import { STORE_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import {
   getCachedCSRFToken,
   getCachedUser,
 } from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
+import { HELVETY_SOURCE_LICENSE_LABEL } from "@helvety/shared/licensing";
 import { logger } from "@helvety/shared/logger";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
@@ -13,9 +15,7 @@ import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-r
 import { Navbar } from "@/components/navbar";
 import { StoreNav } from "@/components/store-nav";
 
-/** Shared store SEO / social copy (single source for metadata + JSON-LD). */
-export const STORE_DESCRIPTION =
-  "Browse free Helvety apps and downloads, including open-source projects engineered and designed in Switzerland.";
+export { STORE_DESCRIPTION };
 
 export const viewport = sharedViewport;
 
@@ -38,7 +38,7 @@ export const metadata = createHelvetyProductMetadata({
     "notes",
     "privacy",
     "open source",
-    "MIT",
+    HELVETY_SOURCE_LICENSE_LABEL,
     "Swiss",
     "catalog",
     "browser extension",

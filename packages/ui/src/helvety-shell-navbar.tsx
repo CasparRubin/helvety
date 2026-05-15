@@ -332,7 +332,8 @@ export function HelvetyShellNavbar({
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    {aboutDescription} Helvety is an open-source initiative by{" "}
+                    {aboutDescription} Helvety is AGPL-3.0-licensed open-source
+                    software by{" "}
                     <a
                       href="https://casparrubin.ch"
                       target="_blank"

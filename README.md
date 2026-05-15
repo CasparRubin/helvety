@@ -6,7 +6,7 @@ Monorepo for Helvety **web applications** served from **helvety.com** (Next.js p
 
 Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 
-- Other Helvety products (browser extensions, SPFx controls, WinUI tools, and similar) are **distributed separately**; some open-source projects ship from other repositories. The [Helvety Store](https://helvety.com/store) lists installers and deep links across the full product line.
+- Other Helvety products (browser extensions, SPFx controls, WinUI tools, and similar) are **distributed separately** from their own repositories; where source is published for those products, it is **AGPL-3.0-licensed**. The [Helvety Store](https://helvety.com/store) lists installers and deep links across the full product line.
 - Public gateway and tools: `web`, `store`, `pdf`, `image-upscaler`
 - Centralized account: `auth` (not an E2EE vault app; hosts shared sign-in)
 - Client-encrypted apps (E2EE): `tasks`, `contacts`, `notes`

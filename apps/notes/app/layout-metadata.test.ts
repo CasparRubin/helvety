@@ -30,4 +30,8 @@ describe("notes root layout metadata", () => {
       follow: false,
     });
   });
+
+  it("includes AGPL-3.0 in SEO description", () => {
+    expect(NOTES_APP_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
+  });
 });

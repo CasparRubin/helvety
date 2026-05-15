@@ -1,6 +1,6 @@
 # Helvety Notes
 
-> Encrypted notes with titles and rich text in Personal, Work, and Other groups. MIT-licensed, Swiss-built.
+> Encrypted notes with titles and rich text in Personal, Work, and Other groups. AGPL-3.0-licensed open source, Swiss-built.
 
 ## Canonical URL
 - [Notes App](https://helvety.com/notes): Auth-required notes route
@@ -18,5 +18,8 @@
 - [Helvety Contacts](https://helvety.com/contacts)
 - [Helvety Tasks](https://helvety.com/tasks)
 
+## Licensing
+All Helvety products with published source are released under AGPL-3.0 or later (including browser extensions, SharePoint solutions, and desktop tools distributed outside this repository).
+
 ## Source
-- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo for helvety.com web applications and shared packages (MIT)
+- [GitHub - helvety.com monorepo](https://github.com/CasparRubin/helvety): Web applications and shared packages (AGPL-3.0)

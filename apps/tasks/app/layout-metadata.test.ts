@@ -43,4 +43,8 @@ describe("tasks root layout metadata", () => {
     expect(String(defaultTitle).toLowerCase()).not.toContain("kanban");
     expect(String(defaultTitle).toLowerCase()).toContain("stage-based");
   });
+
+  it("includes AGPL-3.0 in SEO description", () => {
+    expect(TASKS_APP_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
+  });
 });

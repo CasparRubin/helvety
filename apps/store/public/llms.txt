@@ -21,5 +21,8 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - Public catalog and product pages are intended to be crawlable and indexable.
 - Account routes are intended not to be indexed and are protected by authentication and noindex metadata.
 
+## Licensing
+All Helvety products with published source are released under AGPL-3.0 or later (including browser extensions, SharePoint solutions, and desktop tools distributed outside this repository).
+
 ## Source
-- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo for helvety.com web applications and shared packages (MIT)
+- [GitHub - helvety.com monorepo](https://github.com/CasparRubin/helvety): Web applications and shared packages (AGPL-3.0)

@@ -344,15 +344,20 @@ export default function TermsPage() {
           and account-based apps is governed by these Terms.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          Source code published in our official public repositories is licensed
-          under the MIT License. Your rights to use, copy, modify, distribute,
-          sublicense, and sell that source code are governed by the applicable
-          repository LICENSE file.
+          Source code published in our official public repositories for Helvety
+          products (including this website, browser extensions, SharePoint
+          solutions, and desktop tools) is licensed under the GNU Affero General
+          Public License version 3 (AGPL-3.0) or later. Your rights to use,
+          study, modify, and share that source code are governed by the
+          applicable repository LICENSE file, including copyleft obligations
+          when you convey modified versions or offer the software as a network
+          service.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           These Terms govern the use of our hosted services, websites, account
           features, and product delivery flows. They do not reduce or override
-          rights granted to source code under the MIT License.
+          rights or obligations under the applicable open-source license for
+          repository source code.
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>Use software and services only for lawful purposes.</li>
@@ -1057,7 +1062,8 @@ export default function TermsPage() {
           compilations) is owned by Helvety by Rubin or its licensors and is
           protected by Swiss and international copyright, trademark, and other
           intellectual property laws. Source code published in our official
-          public repositories is licensed under the MIT License.
+          public repositories for Helvety products is licensed under the GNU
+          Affero General Public License version 3 (AGPL-3.0) or later.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           The Helvety name, logo, and all related names, logos, product and
@@ -1067,7 +1073,7 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground text-sm">
           Nothing in these Terms limits rights expressly granted by applicable
-          open-source licenses (including MIT) for repository source code.
+          open-source licenses (including AGPL-3.0) for repository source code.
           Trademark and brand usage rights remain separate and are not granted
           unless expressly stated.
         </p>

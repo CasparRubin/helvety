@@ -1,6 +1,10 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import {
+  AUTH_DESCRIPTION,
+  AUTH_PWA_MANIFEST_DESCRIPTION,
+} from "@helvety/shared/app-product-descriptions";
+import {
   getCachedCSRFToken,
   getCachedUser,
 } from "@helvety/shared/cached-server";
@@ -13,13 +17,7 @@ import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-r
 
 import { Navbar } from "@/components/navbar";
 
-/** Shared auth SEO / social copy (single source for metadata + JSON-LD). */
-export const AUTH_DESCRIPTION =
-  "Passwordless entry for Helvety apps: OTP, passkeys, and session recovery where your platform allows. Open source, Swiss-built.";
-
-/** Shorter PWA install line; must match `public/manifest.json` (see `consistency:install-manifest-metadata`). */
-export const AUTH_PWA_MANIFEST_DESCRIPTION =
-  "Passwordless Helvety sign-in: OTP and passkeys for encrypted apps. Open source, Swiss-built.";
+export { AUTH_DESCRIPTION, AUTH_PWA_MANIFEST_DESCRIPTION };
 
 export const viewport = sharedViewport;
 

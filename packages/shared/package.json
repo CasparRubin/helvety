@@ -29,6 +29,7 @@
     "./client-ip": "./src/client-ip.ts",
     "./config": "./src/config.ts",
     "./licensing": "./src/licensing.ts",
+    "./app-product-descriptions": "./src/app-product-descriptions.ts",
     "./cookie-signing": "./src/cookie-signing.ts",
     "./csp-nonce": "./src/csp-nonce.ts",
     "./csp-report": "./src/csp-report.ts",

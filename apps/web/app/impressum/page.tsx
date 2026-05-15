@@ -121,9 +121,11 @@ export default function ImpressumPage() {
           applications across Microsoft 365 integrations, browser utilities,
           desktop tooling, and encrypted Tasks, Contacts, and Notes. The listed
           products are currently offered free of charge. Where source
-          repositories are published, licensing is defined by each
-          repository&apos;s LICENSE file (currently MIT in the referenced public
-          repositories). Product development is primarily based in Switzerland.
+          repositories are published, source is released under the GNU Affero
+          General Public License version 3 or later (AGPL-3.0), including
+          browser extensions, SharePoint solutions, and desktop tools outside
+          the helvety.com monorepo. Product development is primarily based in
+          Switzerland.
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
@@ -170,7 +172,8 @@ export default function ImpressumPage() {
           The Helvety name is used as a trademark by Helvety by Rubin. All
           rights reserved for trademarks and brand assets to the extent
           permitted by law. This does not limit source-code rights granted in
-          official public repositories under the applicable MIT license.
+          official public repositories under the GNU Affero General Public
+          License version 3 (AGPL-3.0) or later.
         </p>
       </LegalSection>
 
@@ -322,7 +325,8 @@ export default function ImpressumPage() {
             distribution, and any kind of use outside the limits of copyright
             law require the written consent of the respective author or creator.
             Source code published in Helvety public repositories is licensed
-            under the MIT License in the corresponding repository.
+            under the GNU Affero General Public License version 3 (AGPL-3.0) or
+            later.
           </p>
         </LegalSubsection>
       </LegalSection>

@@ -1,7 +1,7 @@
 {
   "name": "@helvety/store",
   "version": "3.2.0",
-  "description": "Official Helvety Store for free and open source apps and downloads. Built and designed in Switzerland.",
+  "description": "Official Helvety Store for free apps and downloads. Published Helvety source is AGPL-3.0-licensed open source. Built and designed in Switzerland.",
   "author": "Helvety",
   "homepage": "https://helvety.com/store",
   "repository": {

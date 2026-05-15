@@ -4,6 +4,10 @@ import {
   findBannedCustomerCopySubstring,
 } from "@helvety/shared/customer-copy-guardrails";
 import {
+  HELVETY_FREE_AGPL_FEATURE,
+  HELVETY_FREE_AGPL_INLINE,
+} from "@helvety/shared/licensing";
+import {
   POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
   POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
 } from "@helvety/shared/power-automate-editor-enforcer-copy";
@@ -203,6 +207,44 @@ describe("store product catalog", () => {
     );
     expect(product?.links?.github).toBe(
       "https://github.com/CasparRubin/power-automate-editor-version-enforcer"
+    );
+  });
+
+  it("open-source software listings use AGPL feature copy, not generic open source", () => {
+    for (const slug of [
+      "helvety-spo-explorer",
+      "helvety-power-automate-editor-version-enforcer",
+      "helvety-screen-tools",
+    ] as const) {
+      const product = getProductBySlug(slug);
+      expect(product, slug).toBeDefined();
+      if (!product) continue;
+
+      const blob = [
+        product.description.intro,
+        ...product.features,
+        ...(product.description.sections ?? []).flatMap((s) =>
+          s.kind === "paragraph" ? [s.body] : s.items
+        ),
+      ].join("\n");
+
+      expect(blob, slug).toContain("AGPL-3.0");
+      expect(blob, slug).not.toContain("Free and open source");
+      expect(blob, slug).not.toContain("free, open source");
+    }
+
+    const spoSectionBodies = (
+      getProductBySlug("helvety-spo-explorer")?.description.sections ?? []
+    )
+      .filter((s) => s.kind === "paragraph")
+      .map((s) => s.body);
+    expect(spoSectionBodies.join("\n")).toContain(HELVETY_FREE_AGPL_INLINE);
+    expect(
+      getProductBySlug("helvety-power-automate-editor-version-enforcer")
+        ?.features
+    ).toContain(HELVETY_FREE_AGPL_FEATURE);
+    expect(getProductBySlug("helvety-screen-tools")?.features).toContain(
+      HELVETY_FREE_AGPL_FEATURE
     );
   });
 

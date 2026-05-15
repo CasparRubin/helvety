@@ -1,0 +1,97 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { describe, expect, it } from "vitest";
+
+import {
+  HELVETY_FREE_AGPL_FEATURE,
+  HELVETY_FREE_AGPL_INLINE,
+  HELVETY_LLMS_LICENSING_NOTE,
+  HELVETY_MONOREPO_LLMS_GITHUB_LINE,
+  HELVETY_OPEN_SOURCE_BADGE_LABEL,
+  HELVETY_SOURCE_LICENSE_LABEL,
+  HELVETY_SOURCE_LICENSE_LEGAL_NAME,
+  HELVETY_SOURCE_LICENSE_MARKETING,
+  HELVETY_SOURCE_LICENSE_SPDX,
+  HELVETY_WEB_DEFAULT_TITLE,
+} from "./licensing";
+
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+describe("licensing constants", () => {
+  it("declares AGPL-3.0-or-later as the SPDX identifier", () => {
+    expect(HELVETY_SOURCE_LICENSE_SPDX).toBe("AGPL-3.0-or-later");
+    expect(HELVETY_SOURCE_LICENSE_LABEL).toBe("AGPL-3.0");
+    expect(HELVETY_SOURCE_LICENSE_MARKETING).toContain("AGPL-3.0");
+    expect(HELVETY_SOURCE_LICENSE_MARKETING).toContain("open source");
+  });
+
+  it("uses AGPL wording for store features and catalog badges", () => {
+    expect(HELVETY_FREE_AGPL_FEATURE).toBe(
+      "Free and AGPL-3.0-licensed open source"
+    );
+    expect(HELVETY_FREE_AGPL_INLINE).toContain("AGPL-3.0-licensed open source");
+    expect(HELVETY_OPEN_SOURCE_BADGE_LABEL).toBe("AGPL-3.0");
+  });
+
+  it("documents AGPL in llms and legal naming helpers", () => {
+    expect(HELVETY_SOURCE_LICENSE_LEGAL_NAME).toContain("AGPL-3.0");
+    expect(HELVETY_LLMS_LICENSING_NOTE).toContain("AGPL-3.0");
+    expect(HELVETY_MONOREPO_LLMS_GITHUB_LINE).toContain("AGPL-3.0");
+    expect(HELVETY_MONOREPO_LLMS_GITHUB_LINE).not.toContain("\u2014");
+  });
+
+  it("uses AGPL in the helvety.com gateway default title", () => {
+    expect(HELVETY_WEB_DEFAULT_TITLE).toContain("AGPL-3.0");
+    expect(HELVETY_WEB_DEFAULT_TITLE).not.toBe(
+      "Helvety | Swiss-built open source software"
+    );
+  });
+});
+
+describe("workspace package manifests", () => {
+  const packageJsonPaths = [
+    "package.json",
+    "apps/web/package.json",
+    "apps/auth/package.json",
+    "apps/store/package.json",
+    "apps/pdf/package.json",
+    "apps/image-upscaler/package.json",
+    "apps/tasks/package.json",
+    "apps/contacts/package.json",
+    "apps/notes/package.json",
+    "packages/shared/package.json",
+    "packages/ui/package.json",
+    "packages/config/package.json",
+    "packages/brand/package.json",
+  ];
+
+  it("declares AGPL-3.0-or-later in every workspace package.json", () => {
+    for (const rel of packageJsonPaths) {
+      const pkg = JSON.parse(readFileSync(join(repoRoot, rel), "utf8")) as {
+        license?: string;
+      };
+      expect(pkg.license, rel).toBe("AGPL-3.0-or-later");
+    }
+  });
+
+  it("mentions AGPL in customer-facing app package descriptions", () => {
+    const appPackagesWithAgplCopy = [
+      "apps/web/package.json",
+      "apps/auth/package.json",
+      "apps/store/package.json",
+      "apps/pdf/package.json",
+      "apps/image-upscaler/package.json",
+      "apps/tasks/package.json",
+      "apps/contacts/package.json",
+      "apps/notes/package.json",
+    ];
+    for (const rel of appPackagesWithAgplCopy) {
+      const pkg = JSON.parse(readFileSync(join(repoRoot, rel), "utf8")) as {
+        description?: string;
+      };
+      expect(pkg.description, rel).toMatch(/AGPL-3\.0/);
+    }
+  });
+});

@@ -1,3 +1,4 @@
+import { STORE_PRODUCTS_PAGE_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { urls } from "@helvety/shared/config";
 
 import { ProductsCatalog } from "@/components/products/products-catalog";
@@ -6,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Products",
-  description: "Browse free and open source Helvety products and apps.",
+  description: STORE_PRODUCTS_PAGE_DESCRIPTION,
   alternates: {
     canonical: `${urls.store}/products`,
   },

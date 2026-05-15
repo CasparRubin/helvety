@@ -21,6 +21,12 @@ export const CUSTOMER_COPY_BANNED_SUBSTRINGS = [
   "stitch, rotate",
   "carve out",
   "Swiss roots",
+  "MIT License",
+  "MIT-licensed",
+  "where the repo ships",
+  "applicable open-source license",
+  "Free and open source",
+  ">Open Source<",
 ] as const;
 
 /** Repo-relative app and root README intros (developer docs; keep tone aligned with Store). */

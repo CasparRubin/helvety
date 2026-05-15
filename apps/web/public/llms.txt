@@ -1,6 +1,6 @@
 # Helvety
 
-> Swiss-built helvety.com web apps, crisp legal pages, and Store links for related Helvety products. MIT-licensed source for this monorepo, minimal marketing fluff.
+> Swiss-built helvety.com web apps, crisp legal pages, and Store links for related Helvety products. All published Helvety source is AGPL-3.0-licensed open source.
 
 ## Canonical URLs
 - [Home](https://helvety.com): Main landing page
@@ -23,5 +23,8 @@
 - [Helvety Notes](https://helvety.com/notes): Encrypted notes in Personal, Work, and Other groups
 - [Helvety Tasks](https://helvety.com/tasks): Encrypted stage-based task board
 
+## Licensing
+All Helvety products with published source are released under AGPL-3.0 or later (including browser extensions, SharePoint solutions, and desktop tools distributed outside this repository).
+
 ## Source
-- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo for helvety.com web applications and shared packages (MIT)
+- [GitHub - helvety.com monorepo](https://github.com/CasparRubin/helvety): Web applications and shared packages (AGPL-3.0)

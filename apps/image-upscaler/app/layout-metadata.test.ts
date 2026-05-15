@@ -40,4 +40,10 @@ describe("image upscaler layout metadata", () => {
     expect(IMAGE_UPSCALER_APP_DESCRIPTION).toMatch(/Swiss-built/i);
     expect(IMAGE_UPSCALER_APP_DESCRIPTION.toLowerCase()).toContain("on-device");
   });
+
+  it("includes AGPL-3.0 in SEO description", () => {
+    expect(IMAGE_UPSCALER_APP_DESCRIPTION).toContain(
+      "AGPL-3.0-licensed open source"
+    );
+  });
 });

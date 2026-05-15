@@ -1,5 +1,6 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
+import { CONTACTS_APP_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { E2eeAppRootLayout } from "@helvety/ui/e2ee-app-root-layout";
@@ -7,9 +8,7 @@ import { E2eeAppRootLayout } from "@helvety/ui/e2ee-app-root-layout";
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
 
-/** Shared contacts SEO / social copy (single source for metadata + JSON-LD). */
-export const CONTACTS_APP_DESCRIPTION =
-  "Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups. MIT-licensed, Swiss-built.";
+export { CONTACTS_APP_DESCRIPTION };
 
 export const viewport = sharedViewport;
 

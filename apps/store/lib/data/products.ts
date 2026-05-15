@@ -3,6 +3,10 @@
  */
 
 import {
+  HELVETY_FREE_AGPL_FEATURE,
+  HELVETY_FREE_AGPL_INLINE,
+} from "@helvety/shared/licensing";
+import {
   compareStoreCatalogEntriesNewestFirst,
   requireStoreProductCard,
   type StoreProductType,
@@ -86,7 +90,7 @@ const helvetyExplorer: SoftwareProduct = {
       {
         heading: "Who installs it, who uses it",
         kind: "paragraph",
-        body: "The solution is free, open source, and tenant-deployed from the SharePoint App Catalog. End users need normal Microsoft 365 permissions for the sites they expect to see; no separate Helvety account exists for this product.",
+        body: `The solution is ${HELVETY_FREE_AGPL_INLINE}, and tenant-deployed from the SharePoint App Catalog. End users need normal Microsoft 365 permissions for the sites they expect to see; no separate Helvety account exists for this product.`,
       },
       {
         heading: "What you get in day-to-day use",
@@ -276,7 +280,7 @@ const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
       {
         heading: "Getting it",
         kind: "paragraph",
-        body: "Free and open source. Download the ZIP from this Store page, load it unpacked with developer mode in Edge or Chrome, then track issues on GitHub. No Helvety account is involved.",
+        body: `${HELVETY_FREE_AGPL_FEATURE}. Download the ZIP from this Store page, load it unpacked with developer mode in Edge or Chrome, then track issues on GitHub. No Helvety account is involved.`,
       },
       {
         heading: "Scope",
@@ -303,7 +307,7 @@ const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
     "Popup appearance preference stored locally on your device",
     "For Microsoft Edge and Google Chrome",
     "No account required for download",
-    "Free and open source",
+    HELVETY_FREE_AGPL_FEATURE,
   ],
   pricing: {
     hasFreeTier: true,
@@ -413,7 +417,7 @@ const helvetyScreenTools: SoftwareProduct = {
       {
         heading: "Distribution",
         kind: "paragraph",
-        body: "Open source and free; releases live on GitHub. Use the Go to App button on this page to open GitHub Releases, choose the architecture that matches your machine, and download the ZIP.",
+        body: `${HELVETY_FREE_AGPL_FEATURE}; releases live on GitHub. Use the Go to App button on this page to open GitHub Releases, choose the architecture that matches your machine, and download the ZIP.`,
       },
       {
         heading: "Workflow highlights",
@@ -440,7 +444,7 @@ const helvetyScreenTools: SoftwareProduct = {
     "Shape tools: arrows, lines, rectangles, circles, ellipses, and free draw",
     "Configurable hotkeys and shortcut modifiers",
     "System tray support with settings-driven behavior",
-    "Free and open source",
+    HELVETY_FREE_AGPL_FEATURE,
   ],
   pricing: {
     hasFreeTier: true,

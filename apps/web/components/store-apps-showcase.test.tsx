@@ -1,4 +1,5 @@
 import { getLocalAppHref, urls } from "@helvety/shared/config";
+import { HELVETY_OPEN_SOURCE_BADGE_LABEL } from "@helvety/shared/licensing";
 import { getStoreCatalogNewestFirst } from "@helvety/shared/store-catalog";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -44,12 +45,18 @@ describe("StoreAppsShowcase", () => {
     }
   });
 
-  it("renders Free and Open Source badges in line with catalog flags", () => {
+  it("renders Free and AGPL badges in line with catalog flags", () => {
     const html = renderToStaticMarkup(<StoreAppsShowcase />);
 
     const freeMatches = html.match(/>Free</g) ?? [];
-    const openSourceMatches = html.match(/>Open Source</g) ?? [];
+    const agplMatches =
+      html.match(
+        new RegExp(
+          `>${HELVETY_OPEN_SOURCE_BADGE_LABEL.replace(".", "\\.")}<`,
+          "g"
+        )
+      ) ?? [];
     expect(freeMatches.length).toBe(expectedFreeCount);
-    expect(openSourceMatches.length).toBe(expectedOpenSourceCount);
+    expect(agplMatches.length).toBe(expectedOpenSourceCount);
   });
 });

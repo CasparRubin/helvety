@@ -30,4 +30,11 @@ describe("store root layout metadata", () => {
       follow: true,
     });
   });
+
+  it("states AGPL-3.0 for every product with published source", () => {
+    expect(STORE_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
+    expect(STORE_DESCRIPTION).toMatch(/Every product with published source/i);
+    expect(metadata.keywords).toContain("AGPL-3.0");
+    expect(metadata.keywords).not.toContain("MIT");
+  });
 });

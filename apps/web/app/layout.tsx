@@ -1,22 +1,25 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
+import { WEB_SITE_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
 import { bootstrapPublicLayoutUser } from "@helvety/shared/layout-session-bootstrap";
+import {
+  HELVETY_SOURCE_LICENSE_LABEL,
+  HELVETY_WEB_DEFAULT_TITLE,
+} from "@helvety/shared/licensing";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
 
-/** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
-export const WEB_SITE_DESCRIPTION =
-  "Swiss-built software with a calm UX: encrypted task and contact apps, lightweight browser utilities, and clear legal pages. MIT-licensed where the repo ships code.";
+export { WEB_SITE_DESCRIPTION };
 
 export const viewport = sharedViewport;
 
 export const metadata = createHelvetyProductMetadata({
   metadataBase: urls.home,
   title: {
-    default: "Helvety | Swiss-built open source software",
+    default: HELVETY_WEB_DEFAULT_TITLE,
     template: "%s | Helvety",
   },
   description: WEB_SITE_DESCRIPTION,
@@ -28,7 +31,7 @@ export const metadata = createHelvetyProductMetadata({
     "PDF tools",
     "image upscaler",
     "open source",
-    "MIT",
+    HELVETY_SOURCE_LICENSE_LABEL,
     "end-to-end encryption",
     "privacy",
     "Switzerland",

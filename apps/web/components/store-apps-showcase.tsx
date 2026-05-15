@@ -1,4 +1,5 @@
 import { getLocalAppHref, urls } from "@helvety/shared/config";
+import { HELVETY_OPEN_SOURCE_BADGE_LABEL } from "@helvety/shared/licensing";
 import {
   getStoreCatalogNewestFirst,
   storeProductCategoryBadgeLabel,
@@ -167,7 +168,7 @@ export function StoreAppsShowcase() {
                         variant="outline"
                         className="border-primary/40 bg-primary/5 text-primary font-medium"
                       >
-                        Open Source
+                        {HELVETY_OPEN_SOURCE_BADGE_LABEL}
                       </Badge>
                     ) : null}
                   </div>

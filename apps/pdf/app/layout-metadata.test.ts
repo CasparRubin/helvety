@@ -39,4 +39,8 @@ describe("pdf root layout metadata", () => {
     expect(PDF_APP_DESCRIPTION.toLowerCase()).not.toContain("stitch");
     expect(PDF_APP_DESCRIPTION.toLowerCase()).not.toContain("carve");
   });
+
+  it("includes AGPL-3.0 in SEO description", () => {
+    expect(PDF_APP_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
+  });
 });

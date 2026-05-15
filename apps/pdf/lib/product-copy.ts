@@ -1,7 +1,8 @@
+import { HELVETY_SOURCE_LICENSE_MARKETING } from "@helvety/shared/licensing";
+
 export const PDF_FILE_SIZE_LIMIT_COPY = "up to 100MB per file";
 
-export const PDF_APP_DESCRIPTION = `Reorder, merge, rotate, or extract PDF pages in the tab; add images where supported. Work stays local (${PDF_FILE_SIZE_LIMIT_COPY}). Fair-use safeguards still apply, and no Helvety subscription gates the tools. Swiss-built under the MIT license.`;
+export const PDF_APP_DESCRIPTION = `Reorder, merge, rotate, or extract PDF pages in the tab; add images where supported. Work stays local (${PDF_FILE_SIZE_LIMIT_COPY}). Fair-use safeguards still apply, and no Helvety subscription gates the tools. Swiss-built ${HELVETY_SOURCE_LICENSE_MARKETING}.`;
 
 /** PWA `public/manifest.json` summary; keep aligned with CI (`consistency:install-manifest-metadata`). */
-export const PDF_PWA_MANIFEST_DESCRIPTION =
-  "Merge, reorder, rotate, or extract PDFs in the tab; supported work stays local. MIT-licensed, Swiss-built.";
+export const PDF_PWA_MANIFEST_DESCRIPTION = `Merge, reorder, rotate, or extract PDFs in the tab; supported work stays local. ${HELVETY_SOURCE_LICENSE_MARKETING}, Swiss-built.`;

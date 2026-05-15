@@ -1,6 +1,6 @@
 # Helvety PDF
 
-> Helvety PDF merges, reorders, rotates, and extracts pages in the tab. Add images where supported. Work stays in the browser and is not sent to a conversion API. MIT-licensed, Swiss-built.
+> Helvety PDF merges, reorders, rotates, and extracts pages in the tab. Add images where supported. Work stays in the browser and is not sent to a conversion API. AGPL-3.0-licensed open source, Swiss-built.
 
 ## Canonical URL
 - [Helvety PDF](https://helvety.com/pdf): Main PDF application route
@@ -17,5 +17,8 @@
 - [Helvety Notes](https://helvety.com/notes)
 - [Helvety Tasks](https://helvety.com/tasks)
 
+## Licensing
+All Helvety products with published source are released under AGPL-3.0 or later (including browser extensions, SharePoint solutions, and desktop tools distributed outside this repository).
+
 ## Source
-- [GitHub Repository](https://github.com/CasparRubin/helvety): Open-source monorepo for helvety.com web applications and shared packages (MIT)
+- [GitHub - helvety.com monorepo](https://github.com/CasparRubin/helvety): Web applications and shared packages (AGPL-3.0)
