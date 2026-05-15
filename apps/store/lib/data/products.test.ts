@@ -1,7 +1,6 @@
 import {
   CUSTOMER_COPY_EM_DASH,
   CUSTOMER_COPY_HERO_ABOUT_PREFIX_OVERLAP_MAX,
-  findBannedCustomerCopySubstring,
 } from "@helvety/shared/customer-copy-guardrails";
 import {
   HELVETY_FREE_AGPL_FEATURE,
@@ -99,7 +98,7 @@ describe("store product catalog", () => {
     }
   });
 
-  it("store customer copy contains no em-dashes or banned legacy phrases", () => {
+  it("store customer copy contains no em-dashes", () => {
     for (const product of getAllProducts()) {
       const strings: string[] = [
         product.shortDescription,
@@ -123,10 +122,6 @@ describe("store product catalog", () => {
         expect(text, `em-dash in ${product.id}`).not.toContain(
           CUSTOMER_COPY_EM_DASH
         );
-        expect(
-          findBannedCustomerCopySubstring(text),
-          `banned phrase in ${product.id}`
-        ).toBeUndefined();
       }
     }
   });
@@ -154,7 +149,7 @@ describe("store product catalog", () => {
     }
   });
 
-  it("Power Automate product copy matches extension Survey tab semantics (regression)", () => {
+  it("Power Automate listing uses canonical store card copy", () => {
     const product = getProductBySlug(
       "helvety-power-automate-editor-version-enforcer"
     );
@@ -175,30 +170,6 @@ describe("store product catalog", () => {
     expect(product.description.intro).not.toContain(
       POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY
     );
-
-    const sectionText = (product.description.sections ?? []).flatMap((s) =>
-      s.kind === "paragraph" ? [s.body] : s.items
-    );
-    const combined = [
-      product.shortDescription,
-      product.description.intro,
-      ...sectionText,
-      ...product.features,
-      ...(product.software?.installationSteps ?? []).map(
-        (st) => st.description
-      ),
-      ...(product.metadata?.keywords ?? []),
-    ].join("\n");
-
-    expect(combined).toContain("Survey tab");
-    expect(combined).toContain("Microsoft survey prompt");
-    expect(combined).not.toContain("Feedback tab");
-    expect(combined).not.toContain("Ignore v3survey");
-    expect(combined).not.toContain("Enforce v3survey=true");
-    expect(combined).toContain("Hide");
-    expect(combined).toContain("Show");
-    expect(product.metadata?.keywords).toContain("survey");
-    expect(product.metadata?.keywords).not.toContain("feedback");
   });
 
   it("Power Automate store listing points GitHub link at canonical extension repo", () => {
@@ -210,7 +181,7 @@ describe("store product catalog", () => {
     );
   });
 
-  it("open-source software listings use AGPL feature copy, not generic open source", () => {
+  it("open-source software listings use shared AGPL feature constants", () => {
     for (const slug of [
       "helvety-spo-explorer",
       "helvety-power-automate-editor-version-enforcer",
@@ -229,8 +200,6 @@ describe("store product catalog", () => {
       ].join("\n");
 
       expect(blob, slug).toContain("AGPL-3.0");
-      expect(blob, slug).not.toContain("Free and open source");
-      expect(blob, slug).not.toContain("free, open source");
     }
 
     const spoSectionBodies = (

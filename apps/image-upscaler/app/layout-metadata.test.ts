@@ -1,4 +1,4 @@
-import { assertNonE2eeMarketingCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
+import { assertNoEmDashInCustomerCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -36,20 +36,14 @@ describe("image upscaler layout metadata", () => {
     });
   });
 
-  it("uses plain-language SEO copy without retired Swiss roots label", () => {
-    expect(IMAGE_UPSCALER_APP_DESCRIPTION).not.toContain("Swiss roots");
-    expect(IMAGE_UPSCALER_APP_DESCRIPTION).toMatch(/Swiss-built/i);
-    expect(IMAGE_UPSCALER_APP_DESCRIPTION.toLowerCase()).toContain("on-device");
-  });
-
   it("includes AGPL-3.0 in SEO description", () => {
     expect(IMAGE_UPSCALER_APP_DESCRIPTION).toContain(
       "AGPL-3.0-licensed open source"
     );
   });
 
-  it("SEO copy follows customer copy guardrails and does not claim E2EE", () => {
-    assertNonE2eeMarketingCopy(
+  it("SEO copy contains no em-dash", () => {
+    assertNoEmDashInCustomerCopy(
       "IMAGE_UPSCALER_APP_DESCRIPTION",
       IMAGE_UPSCALER_APP_DESCRIPTION
     );

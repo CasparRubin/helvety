@@ -54,7 +54,7 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 | **App SEO / PWA**      | `app/layout.tsx`, `lib/product-copy.ts`, `public/manifest.json`           | Metadata and install prompt; align verbs and claims with the Store card where they describe the same product.                         |
 | **Extension manifest** | External repo + `power-automate-editor-enforcer-copy.ts` `PUBLIC_SUMMARY` | Shortest installed-extension blurb only; not the Store About body.                                                                    |
 
-**Style:** easy to scan, human tone, no em-dashes (U+2014). Use commas, periods, or parentheses instead. Do not claim end-to-end encryption for apps that legal pages list as non-E2EE (PDF, Image Upscaler, Store, gateway).
+**Style:** easy to scan, human tone. **No em-dashes (U+2014)** in user-facing copy; use commas, periods, or parentheses instead. Enforced by `bun run consistency:customer-copy` and Vitest (`assertNoEmDashInCustomerCopy`).
 
 **Copy voice (customer-facing):**
 
@@ -70,7 +70,7 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 
 **Sync order when product behavior or claims change:** `store-catalog.ts` → `products.ts` → app metadata / manifests → `llms.txt` → app `README.md` intros → legal pages if claims shift (see `docs/legal-change-guardrails.md`).
 
-**Regression tests:** `@helvety/shared/customer-copy-guardrails` defines banned legacy phrases and `llms.txt` paths; `store-copy-guardrails.test.ts`, `app-navbar-about.test.ts`, `app-navbar-wiring.test.ts`, `app-product-descriptions.test.ts`, `apps/store/lib/data/products.test.ts`, and app `layout-metadata` / legal tests enforce separation, no em-dashes, and current wording. Reuse **`assertCustomerCopyStyle`** / **`assertNonE2eeMarketingCopy`** from `@helvety/shared/test-utils/customer-copy-test-helpers` in Vitest. **`bun run consistency:customer-copy`** scans the repo for U+2014 em-dashes. Update `CUSTOMER_COPY_BANNED_SUBSTRINGS` when retiring phrasing intentionally.
+**Regression tests:** `@helvety/shared/customer-copy-guardrails` lists user-facing copy paths; `customer-copy-em-dash.test.ts`, `store-copy-guardrails.test.ts`, and app tests call **`assertNoEmDashInCustomerCopy`**. **`bun run consistency:customer-copy`** scans user-facing files and app UI `.tsx` for U+2014 em-dashes.
 
 - **Root README and root `package.json` `description`**: describe this repository as **helvety.com web applications** (Next.js path zones and shared packages). Do not imply that every Helvety product line (browser extensions, SPFx, WinUI tools, and so on) is developed or released only from this tree; the README overview already points at separately distributed software and the Store.
 

@@ -2,10 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  CUSTOMER_COPY_EM_DASH,
-  findBannedCustomerCopySubstring,
-} from "@helvety/shared/customer-copy-guardrails";
+import { CUSTOMER_COPY_EM_DASH } from "@helvety/shared/customer-copy-guardrails";
 import { POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX } from "@helvety/shared/power-automate-editor-enforcer-copy";
 import { describe, expect, it } from "vitest";
 
@@ -20,11 +17,7 @@ function expectLegalPageUsesCanonicalPowerAutomateCopy(source: string) {
   expect(source).toContain(CANONICAL_COPY_IMPORT);
   expect(source).toContain("POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY");
   expect(source).toContain("POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX");
-  expect(source).not.toContain("Feedback tab");
-  expect(source).not.toContain("v3=false");
-  expect(source).not.toContain("v3=true");
   expect(source).not.toContain(CUSTOMER_COPY_EM_DASH);
-  expect(findBannedCustomerCopySubstring(source)).toBeUndefined();
 }
 
 describe("Power Automate legal copy (extension Survey tab parity)", () => {

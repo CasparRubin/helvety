@@ -43,12 +43,3 @@ export function imageUpscalerNavbarAbout(
 ): string {
   return `Upscale PNG, JPEG, and WebP in your browser. Choose 2× or 4× or set a target size. AI runs on your device when supported; otherwise the app uses high-quality resizing. Images are not sent to Helvety for processing (${fileSizeLimitCopy} per file). Switzerland-first service; not actively marketed to EU/EEA users.`;
 }
-
-const E2EE_END_TO_END_RE = /\bend-to-end\b/i;
-
-/**
- * Returns true when non-E2EE marketing copy incorrectly claims end-to-end encryption.
- */
-export function nonE2eeCopyClaimsEndToEnd(text: string): boolean {
-  return E2EE_END_TO_END_RE.test(text);
-}

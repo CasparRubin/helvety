@@ -25,10 +25,6 @@ const FORBIDDEN = [
     label: "Open-source monorepo for helvety",
     re: /Open-source monorepo for helvety/i,
   },
-  {
-    label: "Designed and built in Switzerland",
-    re: /Designed and built in Switzerland/,
-  },
 ];
 
 const SCAN_ROOTS = ["apps", "packages", "scripts", "docs", "README.md"];

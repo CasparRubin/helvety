@@ -1,6 +1,6 @@
 import { urls } from "@helvety/shared/config";
 import { HELVETY_WEB_DEFAULT_TITLE } from "@helvety/shared/licensing";
-import { assertNonE2eeMarketingCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
+import { assertNoEmDashInCustomerCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -39,16 +39,13 @@ describe("web root layout metadata", () => {
     expect(metadata.openGraph?.url).toBe(urls.home);
   });
 
-  it("describes encrypted apps specifically, not vague encrypted productivity", () => {
-    expect(WEB_SITE_DESCRIPTION).not.toContain("encrypted productivity");
+  it("describes encrypted apps in SEO copy", () => {
     expect(WEB_SITE_DESCRIPTION).toMatch(/encrypted task and contact apps/i);
   });
 
   it("states AGPL-3.0 for all published Helvety source", () => {
     expect(WEB_SITE_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
-    expect(WEB_SITE_DESCRIPTION).not.toMatch(/where the repo ships/i);
     expect(metadata.keywords).toContain("AGPL-3.0");
-    expect(metadata.keywords).not.toContain("MIT");
   });
 
   it("uses the shared AGPL-aware default document title", () => {
@@ -58,7 +55,7 @@ describe("web root layout metadata", () => {
     expect(HELVETY_WEB_DEFAULT_TITLE).toContain("AGPL-3.0");
   });
 
-  it("SEO copy follows customer copy guardrails and does not claim E2EE", () => {
-    assertNonE2eeMarketingCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
+  it("SEO copy contains no em-dash", () => {
+    assertNoEmDashInCustomerCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
   });
 });

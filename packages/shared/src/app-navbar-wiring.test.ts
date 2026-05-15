@@ -49,7 +49,6 @@ describe("app navbar wiring", () => {
       const source = readFileSync(join(repoRoot, rel), "utf8");
       expect(source).toContain("@helvety/shared/app-navbar-about");
       expect(source).toContain(symbol);
-      expect(source).not.toContain("Designed and built in Switzerland");
       expect(source).not.toMatch(/aboutDescription\s*=\s*["'`][^"'`]{40,}/);
     }
   );

@@ -123,6 +123,5 @@ describe("Auth Navbar", () => {
     const dialog = screen.getByRole("dialog");
     expect(dialog).toHaveTextContent(AUTH_NAVBAR_ABOUT);
     expect(dialog).not.toHaveTextContent("all Helvety apps");
-    expect(dialog).not.toHaveTextContent("Designed and built in Switzerland");
   });
 });

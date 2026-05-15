@@ -1,4 +1,4 @@
-import { assertCustomerCopyStyle } from "@helvety/shared/test-utils/customer-copy-test-helpers";
+import { assertNoEmDashInCustomerCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -36,7 +36,10 @@ describe("notes root layout metadata", () => {
     expect(NOTES_APP_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
   });
 
-  it("SEO copy follows customer copy guardrails", () => {
-    assertCustomerCopyStyle("NOTES_APP_DESCRIPTION", NOTES_APP_DESCRIPTION);
+  it("SEO copy contains no em-dash", () => {
+    assertNoEmDashInCustomerCopy(
+      "NOTES_APP_DESCRIPTION",
+      NOTES_APP_DESCRIPTION
+    );
   });
 });

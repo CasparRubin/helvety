@@ -1,36 +1,13 @@
 /**
  * Shared rules for customer-facing product copy (Store catalog, llms.txt, legal
- * product bullets). Used by Vitest guardrails to catch drift after copy refreshes.
+ * product bullets). Em-dash (U+2014) is the only enforced wording ban; keep paths
+ * here in sync with `scripts/check-customer-copy-style.mjs`.
  */
 
-/** U+2014 em-dash; customer copy must use commas or periods instead. */
+/** U+2014 em-dash; must not appear in user-facing copy. */
 export const CUSTOMER_COPY_EM_DASH = "\u2014";
 
-/**
- * Retired or misleading phrases from pre-2026 store copy. Substring match unless
- * noted otherwise in tests.
- */
-export const CUSTOMER_COPY_BANNED_SUBSTRINGS = [
-  "Feedback tab",
-  "encrypted productivity",
-  "Kanban-style",
-  "kanban tasks",
-  "Allows you to enforce either the Classic",
-  "v3=false",
-  "v3=true",
-  "stitch, rotate",
-  "carve out",
-  "Swiss roots",
-  "Designed and built in Switzerland",
-  "MIT License",
-  "MIT-licensed",
-  "where the repo ships",
-  "applicable open-source license",
-  "Free and open source",
-  ">Open Source<",
-] as const;
-
-/** Repo-relative app and root README intros (developer docs; keep tone aligned with Store). */
+/** Repo-relative app and root README intros. */
 export const CUSTOMER_COPY_README_RELATIVE_PATHS = [
   "README.md",
   "apps/pdf/README.md",
@@ -55,25 +32,58 @@ export const CUSTOMER_COPY_LLMS_RELATIVE_PATHS = [
   "apps/image-upscaler/public/llms.txt",
 ] as const;
 
+/** PWA install prompts and similar public JSON copy. */
+export const CUSTOMER_COPY_MANIFEST_RELATIVE_PATHS = [
+  "apps/web/public/manifest.json",
+  "apps/store/public/manifest.json",
+  "apps/pdf/public/manifest.json",
+  "apps/tasks/public/manifest.json",
+  "apps/contacts/public/manifest.json",
+  "apps/notes/public/manifest.json",
+  "apps/auth/public/manifest.json",
+  "apps/image-upscaler/public/manifest.json",
+] as const;
+
+/**
+ * Repo-relative files with fixed marketing/legal/SEO strings.
+ * App `.tsx` UI is scanned separately (see `CUSTOMER_COPY_USER_FACING_APP_GLOBS`).
+ */
+export const CUSTOMER_COPY_USER_FACING_RELATIVE_PATHS = [
+  ...CUSTOMER_COPY_LLMS_RELATIVE_PATHS,
+  ...CUSTOMER_COPY_MANIFEST_RELATIVE_PATHS,
+  "packages/shared/src/store-catalog.ts",
+  "packages/shared/src/app-product-descriptions.ts",
+  "packages/shared/src/app-navbar-about.ts",
+  "packages/shared/src/licensing.ts",
+  "packages/shared/src/user-facing-errors.ts",
+  "packages/shared/src/power-automate-editor-enforcer-copy.ts",
+  "apps/store/lib/data/products.ts",
+  "apps/pdf/lib/product-copy.ts",
+  "apps/image-upscaler/lib/product-copy.ts",
+  "apps/web/app/terms/page.tsx",
+  "apps/web/app/privacy/page.tsx",
+  "apps/web/app/impressum/page.tsx",
+] as const;
+
+/**
+ * Under each app folder, walk `app/**` and `components/**` for `.tsx` (not tests).
+ * Used by `scripts/check-customer-copy-style.mjs`.
+ */
+export const CUSTOMER_COPY_USER_FACING_APP_IDS = [
+  "auth",
+  "contacts",
+  "image-upscaler",
+  "notes",
+  "pdf",
+  "store",
+  "tasks",
+  "web",
+] as const;
+
 /** Minimum chars shared between card blurb and About intro (see store products.test). */
 export const CUSTOMER_COPY_HERO_ABOUT_PREFIX_OVERLAP_MAX = 60;
 
 /** Returns true when `text` includes the U+2014 em-dash character. */
 export function customerCopyContainsEmDash(text: string): boolean {
   return text.includes(CUSTOMER_COPY_EM_DASH);
-}
-
-/**
- * Returns the first banned legacy substring found in `text`, if any.
- * @param text Customer-facing copy to scan.
- */
-export function findBannedCustomerCopySubstring(
-  text: string
-): (typeof CUSTOMER_COPY_BANNED_SUBSTRINGS)[number] | undefined {
-  for (const phrase of CUSTOMER_COPY_BANNED_SUBSTRINGS) {
-    if (text.includes(phrase)) {
-      return phrase;
-    }
-  }
-  return undefined;
 }

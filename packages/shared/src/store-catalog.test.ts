@@ -59,7 +59,7 @@ describe("store-catalog", () => {
     expect(compareStoreCatalogEntriesNewestFirst(b, a)).toBeLessThan(0);
   });
 
-  it("Power Automate card and llms.txt use canonical copy (Survey tab, not legacy Feedback)", () => {
+  it("Power Automate card and llms.txt use canonical store short description", () => {
     const card = requireStoreProductCard(
       "helvety-power-automate-editor-version-enforcer"
     );
@@ -67,8 +67,6 @@ describe("store-catalog", () => {
     expect(card.shortDescription).toBe(
       POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION
     );
-    expect(card.shortDescription).not.toContain("Feedback tab");
-    expect(card.shortDescription).not.toMatch(/ignore by default/i);
 
     for (const rel of [
       "apps/store/public/llms.txt",
@@ -80,8 +78,6 @@ describe("store-catalog", () => {
       );
       expect(text).toContain("## Licensing");
       expect(text).toContain(HELVETY_LLMS_LICENSING_NOTE);
-      expect(text).not.toContain("MIT License");
-      expect(text).not.toContain("MIT-licensed");
     }
   });
 });

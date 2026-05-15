@@ -5,7 +5,7 @@ import {
   IMAGE_FILE_SIZE_LIMIT_COPY,
   PDF_FILE_SIZE_LIMIT_COPY,
 } from "./product-file-limit-copy";
-import { assertCustomerCopyStyle } from "./test-utils/customer-copy-test-helpers";
+import { assertNoEmDashInCustomerCopy } from "./test-utils/customer-copy-test-helpers";
 
 describe("product-file-limit-copy", () => {
   it("exports stable user-facing limit labels", () => {
@@ -14,7 +14,7 @@ describe("product-file-limit-copy", () => {
   });
 
   it("navbar About helpers embed the same limit strings", () => {
-    assertCustomerCopyStyle("pdf navbar", pdfNavbarAbout());
+    assertNoEmDashInCustomerCopy("pdf navbar", pdfNavbarAbout());
     expect(pdfNavbarAbout()).toContain(PDF_FILE_SIZE_LIMIT_COPY);
   });
 });

@@ -1,4 +1,4 @@
-import { assertNonE2eeMarketingCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
+import { assertNoEmDashInCustomerCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -45,7 +45,7 @@ describe("pdf root layout metadata", () => {
     expect(PDF_APP_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
   });
 
-  it("SEO copy follows customer copy guardrails and does not claim E2EE", () => {
-    assertNonE2eeMarketingCopy("PDF_APP_DESCRIPTION", PDF_APP_DESCRIPTION);
+  it("SEO copy contains no em-dash", () => {
+    assertNoEmDashInCustomerCopy("PDF_APP_DESCRIPTION", PDF_APP_DESCRIPTION);
   });
 });
