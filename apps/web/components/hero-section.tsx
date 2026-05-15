@@ -35,7 +35,7 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 /**
  * Landing hero (`/`): React Bits Hyperspeed fullscreen behind copy + Store CTA.
  *
- * - **Text:** {@link ./hero-text}: Shuffle eyebrow (5s loop), Gradient Text on Switzerland, Shiny Text tagline;
+ * - **Text:** {@link ./hero-text}: Shuffle eyebrow (5s loop), static red Switzerland, Shiny Text tagline;
  *   static/muted fallbacks when `useReducedMotion()` is true (wired to `MotionConfig reducedMotion="user"`).
  * - **Backdrop:** {@link HeroHyperspeedBackdrop}: black base, **black veil** fades out after
  *   {@link Hyperspeed} `onReady`; WebGL stays opaque underneath.

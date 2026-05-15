@@ -7,15 +7,10 @@ import {
   HeroTagline,
 } from "./hero-text";
 
-import type { ReactNode } from "react";
-
 const mocks = vi.hoisted(() => ({
   useReducedMotion: vi.fn(() => false),
   Shuffle: vi.fn(({ text }: { text: string }) => (
     <p data-testid="shuffle">{text}</p>
-  )),
-  GradientText: vi.fn(({ children }: { children: ReactNode }) => (
-    <span data-testid="gradient">{children}</span>
   )),
   ShinyText: vi.fn(({ text }: { text: string }) => (
     <span data-testid="shiny">{text}</span>
@@ -28,10 +23,6 @@ vi.mock("framer-motion", () => ({
 
 vi.mock("@/components/ShinyText", () => ({
   default: mocks.ShinyText,
-}));
-
-vi.mock("@/components/GradientText", () => ({
-  default: mocks.GradientText,
 }));
 
 vi.mock("@/components/Shuffle", () => ({
@@ -56,9 +47,9 @@ describe("hero-text", () => {
 
       expect(html).toContain("Software products");
       expect(html).toContain("Switzerland");
+      expect(html).toContain('class="font-medium text-[#FF0000]"');
       expect(html).toContain("private · simple · clean");
       expect(html).toContain('data-testid="shuffle"');
-      expect(html).toContain('data-testid="gradient"');
       expect(html).toContain('data-testid="shiny"');
     });
 
@@ -80,29 +71,14 @@ describe("hero-text", () => {
       );
     });
 
-    it("passes Helvety Gradient Text preset for Switzerland", () => {
-      renderToStaticMarkup(<HeroSwitzerland />);
-
-      expect(mocks.GradientText).toHaveBeenCalledWith(
-        expect.objectContaining({
-          showBorder: false,
-          colors: ["#FF0000", "#ff4d4d", "#ffffff", "#FF0000"],
-          animationSpeed: 6,
-          direction: "horizontal",
-          className: expect.stringContaining("inline-flex"),
-        }),
-        undefined
-      );
-    });
-
-    it("passes Helvety Shiny Text preset inside a semantic tagline paragraph", () => {
+    it("passes lighter Shiny Text preset inside a semantic tagline paragraph", () => {
       const html = renderToStaticMarkup(<HeroTagline />);
 
       expect(html).toContain('class="text-base tracking-[0.08em] md:text-lg"');
       expect(mocks.ShinyText).toHaveBeenCalledWith(
         expect.objectContaining({
           text: "private · simple · clean",
-          color: "rgba(255,255,255,0.55)",
+          color: "rgba(255, 255, 255, 0.82)",
           shineColor: "#ffffff",
           speed: 2.4,
         }),
@@ -129,10 +105,9 @@ describe("hero-text", () => {
         }),
         undefined
       );
-      expect(mocks.GradientText).not.toHaveBeenCalled();
     });
 
-    it("falls back to static Switzerland and muted tagline without React Bits text effects", () => {
+    it("falls back to static Switzerland and lighter tagline without Shiny Text", () => {
       const html = renderToStaticMarkup(
         <>
           <HeroSwitzerland />
@@ -142,11 +117,10 @@ describe("hero-text", () => {
 
       expect(html).toContain('class="font-medium text-[#FF0000]"');
       expect(html).toContain("Switzerland");
-      expect(html).toContain("text-muted-foreground");
+      expect(html).toContain("text-foreground/85");
       expect(html).toContain("private · simple · clean");
       expect(html).toContain("tracking-[0.08em]");
       expect(html).toContain("md:text-lg");
-      expect(mocks.GradientText).not.toHaveBeenCalled();
       expect(mocks.ShinyText).not.toHaveBeenCalled();
     });
   });

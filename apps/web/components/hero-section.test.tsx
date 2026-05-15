@@ -39,7 +39,9 @@ vi.mock("@/components/hero-text", () => ({
     <p data-testid="hero-software-products">Software products</p>
   ),
   HeroSwitzerland: () => (
-    <span data-testid="hero-switzerland">Switzerland</span>
+    <span className="font-medium text-[#FF0000]" data-testid="hero-switzerland">
+      Switzerland
+    </span>
   ),
   HeroTagline: () => <p data-testid="hero-tagline">private · simple · clean</p>,
 }));
@@ -79,7 +81,7 @@ describe("HeroSection", () => {
     expect(html).not.toContain("cursor-zoom-in");
     expect(html).not.toContain("cursor-zoom-out");
     expect(html).not.toContain("hero-tagline-glow");
-    expect(html).not.toContain("text-[#FF0000]");
+    expect(html).toContain("text-[#FF0000]");
     expect(html).not.toContain("w-full max-w-xs sm:w-auto");
     expect(html).toContain("flex-1");
     expect(html).toContain("min-h-[max(100%,calc(100svh-4rem-12.5rem))]");
