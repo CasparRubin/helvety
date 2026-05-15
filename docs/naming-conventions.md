@@ -46,13 +46,13 @@ This document is the source of truth for how we name and format code across `app
 
 Layered copy avoids repeating the same paragraph on a product page and across surfaces:
 
-| Layer                  | Source                                                                    | Purpose                                                                                                                               |
-| ---------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **Card / hero**        | `packages/shared/src/store-catalog.ts` → `shortDescription`               | One or two plain sentences: what it is and the main benefit. Shown on Store cards, product hero, and OG when the Store owns the page. |
-| **About intro**        | `apps/store/lib/data/products.ts` → `description.intro`                   | Who it is for and what changes day to day. Must **not** duplicate the card opening (tests enforce separation).                        |
-| **About sections**     | `products.ts` → `description.sections`                                    | Install steps, limits, privacy, optional “how it works”. Plain language; jargon only when needed.                                     |
-| **App SEO / PWA**      | `app/layout.tsx`, `lib/product-copy.ts`, `public/manifest.json`           | Metadata and install prompt; align verbs and claims with the Store card where they describe the same product.                         |
-| **Extension manifest** | External repo + `power-automate-editor-enforcer-copy.ts` `PUBLIC_SUMMARY` | Shortest installed-extension blurb only; not the Store About body.                                                                    |
+| Layer                  | Source                                                                    | Purpose                                                                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Store catalog card** | `packages/shared/src/store-catalog.ts` → `shortDescription`               | One or two plain sentences: what it is and the main benefit. Shown on Store listing cards, the product detail hero, and OG when the Store owns the page. |
+| **About intro**        | `apps/store/lib/data/products.ts` → `description.intro`                   | Who it is for and what changes day to day. Must **not** duplicate the card opening (tests enforce separation).                                           |
+| **About sections**     | `products.ts` → `description.sections`                                    | Install steps, limits, privacy, optional “how it works”. Plain language; jargon only when needed.                                                        |
+| **App SEO / PWA**      | `app/layout.tsx`, `lib/product-copy.ts`, `public/manifest.json`           | Metadata and install prompt; align verbs and claims with the Store card where they describe the same product.                                            |
+| **Extension manifest** | External repo + `power-automate-editor-enforcer-copy.ts` `PUBLIC_SUMMARY` | Shortest installed-extension blurb only; not the Store About body.                                                                                       |
 
 **Style:** easy to scan, human tone. **No em-dashes (U+2014)** in user-facing copy; use commas, periods, or parentheses instead. Enforced by `bun run consistency:customer-copy` and Vitest (`assertNoEmDashInCustomerCopy`).
 

@@ -9,7 +9,6 @@ import {
   HELVETY_FREE_AGPL_INLINE,
   HELVETY_LLMS_LICENSING_NOTE,
   HELVETY_MONOREPO_LLMS_GITHUB_LINE,
-  HELVETY_OPEN_SOURCE_BADGE_LABEL,
   HELVETY_SOURCE_LICENSE_LABEL,
   HELVETY_SOURCE_LICENSE_LEGAL_NAME,
   HELVETY_SOURCE_LICENSE_MARKETING,
@@ -27,12 +26,11 @@ describe("licensing constants", () => {
     expect(HELVETY_SOURCE_LICENSE_MARKETING).toContain("open source");
   });
 
-  it("uses AGPL wording for store features and catalog badges", () => {
+  it("uses AGPL wording for store feature bullets", () => {
     expect(HELVETY_FREE_AGPL_FEATURE).toBe(
       "Free and AGPL-3.0-licensed open source"
     );
     expect(HELVETY_FREE_AGPL_INLINE).toContain("AGPL-3.0-licensed open source");
-    expect(HELVETY_OPEN_SOURCE_BADGE_LABEL).toBe("AGPL-3.0");
   });
 
   it("documents AGPL in llms and legal naming helpers", () => {

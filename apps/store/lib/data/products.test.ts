@@ -1,6 +1,6 @@
 import {
   CUSTOMER_COPY_EM_DASH,
-  CUSTOMER_COPY_HERO_ABOUT_PREFIX_OVERLAP_MAX,
+  CUSTOMER_COPY_CARD_ABOUT_PREFIX_OVERLAP_MAX,
 } from "@helvety/shared/customer-copy-guardrails";
 import {
   HELVETY_FREE_AGPL_FEATURE,
@@ -82,14 +82,14 @@ describe("store product catalog", () => {
     }
   });
 
-  it("keeps hero card blurbs separate from About intros", () => {
+  it("keeps catalog card blurbs separate from About intros", () => {
     for (const product of getAllProducts()) {
       const hero = product.shortDescription.trim();
       const about = product.description.intro.trim();
       expect(about).not.toBe(hero);
       const overlap = hero.slice(
         0,
-        CUSTOMER_COPY_HERO_ABOUT_PREFIX_OVERLAP_MAX
+        CUSTOMER_COPY_CARD_ABOUT_PREFIX_OVERLAP_MAX
       );
       expect(
         about.startsWith(overlap),

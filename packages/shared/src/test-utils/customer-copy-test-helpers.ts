@@ -9,6 +9,3 @@ export function assertNoEmDashInCustomerCopy(
 ): void {
   expect(text, `${label} em-dash`).not.toContain(CUSTOMER_COPY_EM_DASH);
 }
-
-/** @deprecated Use {@link assertNoEmDashInCustomerCopy}. */
-export const assertCustomerCopyStyle = assertNoEmDashInCustomerCopy;

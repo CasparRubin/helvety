@@ -100,7 +100,7 @@ bun run format
 
 All quality gates run locally. There is no GitHub Actions or other remote CI in this repo; deployment is handled by Vercel from the pushed commit.
 
-- `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `test:hygiene`, `format:check`, `lint`, `type-check`, `test`.
+- `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `test:hygiene`, `deps:unused` (Knip: unused files, dependencies, exports, types), `format:check`, `lint`, `type-check`, `test`.
   - `consistency:toolchain-docs` keeps the Bun version called out in this README aligned with root `packageManager`, and keeps the Next.js documentation deep link in [`docs/naming-conventions.md`](docs/naming-conventions.md) aligned with the caret minimum in [`apps/web/package.json`](apps/web/package.json) `dependencies.next`.
 - `bun run ci:release` (run before `git push` / before Vercel deploys) - `ci:check` plus `build`.
 - Placeholder env mode (`SKIP_ENV_VALIDATION=1` off Vercel) is available for local build smoke tests, but `ci:release` runs with normal env validation.
@@ -108,8 +108,8 @@ All quality gates run locally. There is no GitHub Actions or other remote CI in 
 - Additional manual dependency/security checks:
   - `bun run deps:security` (security floors + `bun audit`)
   - `bun run deps:drift` (workspace version drift)
-  - `bun run deadcode:sweep` (repo-wide dead-code sweep: Knip + lint + type-check)
-  - `bun run deps:check` / `bun run knip:exports` / `bun run deps:unused`
+  - `bun run deadcode:sweep` (lighter Knip + lint + type-check without the full `ci:check` suite; `deps:unused` already runs inside `ci:check`)
+  - `bun run deps:check` / `bun run knip:exports` / `bun run deps:unused` (also available individually)
 
 ## Environment Model
 

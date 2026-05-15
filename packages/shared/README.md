@@ -14,7 +14,7 @@ This package centralizes:
 - Shared constants, schemas, and utility functions
 - Next.js product metadata via `@helvety/shared/seo` (`createHelvetyProductMetadata` plus sitemap/robots factories)
 - Dashboard list prefetch helpers via `@helvety/shared/dashboard-prefetch` (row-cap detection plus over-cap messages: generic items string vs contacts-specific copy; see module exports)
-- Card-level Helvety Store catalog via `@helvety/shared/store-catalog` (`STORE_PRODUCT_CARDS`, `StoreProductId` literal-id union, plus typed sort/lookup/badge-label helpers) so the Store listings and the marketing gateway showcase share one source of truth for product name, blurb, type, category, runs-on, free / open-source flags, and release date; see `apps/store/README.md` › "Adding a New Product" for the end-to-end add-a-product flow
+- Card-level Helvety Store catalog via `@helvety/shared/store-catalog` (`STORE_PRODUCT_CARDS`, `StoreProductId` literal-id union, plus typed sort/lookup/badge-label helpers) as the single source of truth for Store card fields (name, blurb, type, category, runs-on, free / open-source flags, release date); see `apps/store/README.md` › "Adding a New Product" for the end-to-end add-a-product flow
 - Customer-facing copy guardrails via `@helvety/shared/customer-copy-guardrails` (user-facing path list, em-dash rule only; enforced by `consistency:customer-copy` and Vitest)
 
 ## Core Contracts

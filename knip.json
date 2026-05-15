@@ -1,6 +1,11 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "workspaces": {
+    ".": {
+      "entry": ["scripts/**/*.{mjs,js}"],
+      "project": ["scripts/**/*.{mjs,js}"],
+      "ignoreDependencies": ["onnxruntime-web"]
+    },
     "apps/*": {
       "entry": [
         "app/**/*.{ts,tsx,js,jsx,mjs,cjs}",
@@ -19,15 +24,15 @@
     },
     "packages/config": {
       "entry": ["*.{ts,tsx,js,jsx,mjs,cjs}"],
-      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"]
+      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
+      "ignoreBinaries": ["vitest"]
     }
   },
   "ignoreDependencies": [
     "@tailwindcss/postcss",
     "prettier-plugin-tailwindcss",
     "shadcn",
-    "tailwindcss",
-    "pdfjs-dist"
+    "tailwindcss"
   ],
   "ignore": ["apps/pdf/public/pdf.worker.min.mjs"],
   "ignoreIssues": {

@@ -1,6 +1,6 @@
 /**
- * Card-level Helvety Store catalog fields shared by @helvety/store listings and
- * @helvety/web marketing. Full Product rows (images, pricing, long copy) stay in the Store app.
+ * Card-level Helvety Store catalog fields for @helvety/store product cards.
+ * Full Product rows (images, pricing, long copy) stay in the Store app.
  * Power Automate Editor Version Enforcer card blurbs are composed from
  * `./power-automate-editor-enforcer-copy` so they stay aligned with the extension manifest summary.
  */
@@ -18,7 +18,7 @@ export type StoreProductCategory =
   | "integrations"
   | "other";
 
-/** Fields shown on Store cards and the web gateway landing showcase. */
+/** Fields shown on Store product cards. */
 export interface StoreProductCard {
   id: string;
   slug: string;
@@ -29,8 +29,8 @@ export interface StoreProductCard {
   type: StoreProductType;
   category: StoreProductCategory;
   /**
-   * Short label for where the product runs (gateway showcase badge).
-   * Keep in sync with Store `metadata.platforms` intent.
+   * Short label for where the product runs (catalog metadata).
+   * Keep in sync with Store `metadata.platforms` intent; not rendered on Store cards today.
    */
   runsOn: string;
   /** True when the product has a free tier with no paywalled feature gates. */
@@ -209,21 +209,3 @@ export function compareStoreCatalogEntriesNewestFirst(
 export function getStoreCatalogNewestFirst(): StoreProductCardEntry[] {
   return [...STORE_PRODUCT_CARDS].sort(compareStoreCatalogEntriesNewestFirst);
 }
-
-/** Labels aligned with apps/store/components/products/product-badge.tsx `ProductBadge`. */
-export const storeProductTypeBadgeLabel: Record<StoreProductType, string> = {
-  saas: "Web App",
-  software: "Software",
-  physical: "Physical",
-};
-
-export const storeProductCategoryBadgeLabel: Record<
-  StoreProductCategory,
-  string
-> = {
-  productivity: "Productivity",
-  "developer-tools": "Developer tools",
-  utilities: "Utilities",
-  integrations: "Integrations",
-  other: "Other",
-};

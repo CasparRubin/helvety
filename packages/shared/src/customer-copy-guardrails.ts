@@ -80,8 +80,8 @@ export const CUSTOMER_COPY_USER_FACING_APP_IDS = [
   "web",
 ] as const;
 
-/** Minimum chars shared between card blurb and About intro (see store products.test). */
-export const CUSTOMER_COPY_HERO_ABOUT_PREFIX_OVERLAP_MAX = 60;
+/** Minimum chars shared between catalog card blurb and Store About intro (see store products.test). */
+export const CUSTOMER_COPY_CARD_ABOUT_PREFIX_OVERLAP_MAX = 60;
 
 /** Returns true when `text` includes the U+2014 em-dash character. */
 export function customerCopyContainsEmDash(text: string): boolean {

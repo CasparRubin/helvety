@@ -27,8 +27,8 @@ Product catalog and package-download app for Helvety products: specs and artifac
 ## Adding a New Product
 
 Card-level fields (name, blurb, release date, type, category, runs-on, free /
-open-source flags) live in `@helvety/shared/store-catalog` so the Store catalog
-and the `@helvety/web` landing showcase render the exact same copy and order.
+open-source flags) live in `@helvety/shared/store-catalog` as the single source
+of truth for Store product cards (listing grid, detail metadata, and related surfaces).
 
 1. **Add the card entry** in `packages/shared/src/store-catalog.ts`:
    - Append to `STORE_PRODUCT_CARDS` (preserves source order; sorting is done at
@@ -53,14 +53,10 @@ and the `@helvety/web` landing showcase render the exact same copy and order.
    - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
    - Run `bun run test --filter=@helvety/shared` (copy guardrails) and
      `bun run consistency:install-manifest-metadata`
-4. **Add a Lucide icon** in [`apps/web/components/store-apps-showcase.tsx`](../web/components/store-apps-showcase.tsx):
-   **`STORE_PRODUCT_ICONS`** must stay `Record<StoreProductId, LucideIcon>` (the file is optional on `/` until the gateway mounts the showcase again, but builds still type-check once you edit it).
-5. **(Optional) Add a switcher entry** in
-   [`packages/ui/src/app-switcher-sections.tsx`](../ui/src/app-switcher-sections.tsx) if the product should appear in the helvety.com app switcher (left sheet in the shared navbar).
-6. **Run pre-deployment validations** from the repo root:
+4. **(Optional) Add a switcher entry** in
+   [`packages/ui/src/app-switcher-sections.tsx`](../ui/src/app-switcher-sections.tsx) if the product should appear in the helvety.com app switcher (left sheet in the shared navbar). Keep `links[].icon` aligned with product identity (same Lucide icons as store product UI where applicable).
+5. **Run pre-deployment validations** from the repo root:
    `bun run lint && bun run format:check && bun run test && bun run build`.
-
-When mounted on the gateway, the showcase renders one `.showcase-band` per catalog entry and cycles decorative variants (see `apps/web/app/globals.css`). **`apps/web/app/page.tsx` does not import it yet**; only the hero is shown on `/`.
 
 ## Crawl and Indexing
 

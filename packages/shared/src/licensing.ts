@@ -11,9 +11,6 @@ export const HELVETY_SOURCE_LICENSE_MARKETING = "AGPL-3.0-licensed open source";
 export const HELVETY_WEB_DEFAULT_TITLE =
   "Helvety | Swiss-built AGPL-3.0 open source software";
 
-/** Catalog / gateway badge when {@link StoreProductCard.isOpenSource} is true. */
-export const HELVETY_OPEN_SOURCE_BADGE_LABEL = "AGPL-3.0";
-
 /** Store feature bullets and product copy for free AGPL products. */
 export const HELVETY_FREE_AGPL_FEATURE =
   "Free and AGPL-3.0-licensed open source";
