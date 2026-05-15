@@ -164,4 +164,4 @@ strict geolocation enforcement). Legal pages are hosted on
 
 ## License
 
-Licensed under the [MIT License](./LICENSE).
+Licensed under the [GNU Affero General Public License v3.0 or later](./LICENSE).

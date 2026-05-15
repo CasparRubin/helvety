@@ -74,4 +74,4 @@ For monorepo setup and CI/release commands, use the root [`README.md`](../../REA
 
 ## License
 
-Licensed under the [MIT License](../../LICENSE).
+Licensed under the [GNU Affero General Public License v3.0 or later](../../LICENSE).
