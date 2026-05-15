@@ -1,4 +1,8 @@
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
+import {
+  POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
+  POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX,
+} from "@helvety/shared/power-automate-editor-enforcer-copy";
 
 import "@/app/legal.css";
 import {
@@ -306,16 +310,10 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Power Automate Editor Version Enforcer:
             </strong>{" "}
-            Allows you to enforce either the Classic or New Designer experience
-            in Microsoft Power Automate Cloud Flows using{" "}
-            <code className="text-foreground">v3=false</code> or{" "}
-            <code className="text-foreground">v3=true</code>, while also giving
-            you the option to hide the Microsoft survey prompt asking why you
-            made your selection. Survey tab: optional v3survey — Hide (default)
-            sets false on rewrites; Show only normalizes when already present.
-            Paused: no URL rewrites while the extension stays installed.
-            Enforcement preferences sync where the browser allows it; popup
-            appearance settings stay locally on the device.
+            {POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY}{" "}
+            {POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX} Enforcement
+            preferences sync where the browser allows it; popup appearance
+            settings stay locally on the device.
           </li>
           <li>
             <strong className="text-foreground">
@@ -478,9 +476,9 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Helvety Tasks (helvety.com/tasks):
             </strong>{" "}
-            Kanban columns still need trustworthy confidentiality for narrative
-            fields. Task content is end-to-end encrypted client-side before
-            storage. Encrypted fields include: titles, descriptions, and
+            Stage-based columns still need trustworthy confidentiality for
+            narrative fields. Task content is end-to-end encrypted client-side
+            before storage. Encrypted fields include: titles, descriptions, and
             start/end dates. These fields are designed to be stored as encrypted
             ciphertext at rest on our servers. Encryption keys are derived from
             your passkey on your device and are not transmitted to Helvety
@@ -498,11 +496,11 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Helvety Contacts (helvety.com/contacts):
             </strong>{" "}
-            Rolodex-style records only stay useful if every sensitive attribute
-            stays private. Contact content is end-to-end encrypted client-side
-            before storage. Encrypted fields include: first and last names,
-            description, email, phone, birthday, and notes. These fields are
-            designed to be stored as encrypted ciphertext at rest on our
+            Address-book-style records only stay useful if every sensitive
+            attribute stays private. Contact content is end-to-end encrypted
+            client-side before storage. Encrypted fields include: first and last
+            names, description, email, phone, birthday, and notes. These fields
+            are designed to be stored as encrypted ciphertext at rest on our
             servers. Encryption keys are derived from your passkey on your
             device and are not transmitted to Helvety servers. Record
             identifiers for encrypted data are generated on your device and

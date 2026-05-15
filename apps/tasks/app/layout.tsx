@@ -9,14 +9,14 @@ import { EncryptionProvider } from "@/lib/crypto";
 
 /** Shared tasks SEO / social copy (single source for metadata + JSON-LD). */
 export const TASKS_APP_DESCRIPTION =
-  "Kanban-style tasks encrypted before they leave your browser. MIT-licensed open source, built in Switzerland.";
+  "Stage-based tasks encrypted before they leave your browser. MIT-licensed open source, built in Switzerland.";
 
 export const viewport = sharedViewport;
 
 export const metadata = createHelvetyProductMetadata({
   metadataBase: urls.tasks,
   title: {
-    default: "Helvety Tasks | Encrypted Kanban tasks",
+    default: "Helvety Tasks | Encrypted stage-based tasks",
     template: "%s | Helvety Tasks",
   },
   description: TASKS_APP_DESCRIPTION,

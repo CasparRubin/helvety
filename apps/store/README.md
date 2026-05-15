@@ -37,21 +37,30 @@ and the `@helvety/web` landing showcase render the exact same copy and order.
      priority value to `PRODUCT_RELEASE_TIE_PRIORITY` (higher = newer).
    - Run `bun run test --filter=@helvety/shared` (from repo root; same `--filter=` style as the root [`README.md`](../../README.md)) to confirm catalog tests still pass: id uniqueness, `PRODUCT_RELEASE_TIE_PRIORITY` parity with every card id, runs-on labels, free/open-source flags, and default sort endpoints.
 2. **Add the full Store product** in `apps/store/lib/data/products.ts`:
-   - Call `cardCore("<id>", "<saas|software|physical>")` — TS narrows `type`
+   - Call `cardCore("<id>", "<saas|software|physical>")`: TS narrows `type`
      to the literal you pass, and the helper throws at startup if the catalog
      declares a different `type` for that id (no `as` casts needed).
    - Spread the `c<Name>` object into the `Product` literal and fill in the
      long-copy fields (`description`, `features`, `pricing`, `links`,
      `metadata.releaseDate: c<Name>.releaseDate`, `image: productArtwork.*`).
+   - Write `description.intro` and sections in plain language; it must **not**
+     repeat the catalog `shortDescription` opening (see
+     [`docs/naming-conventions.md`](../../docs/naming-conventions.md) › Customer-facing product copy).
    - Add the new product to the `products` array near the bottom of the file.
-3. **Add a Lucide icon** in [`apps/web/components/store-apps-showcase.tsx`](../web/components/store-apps-showcase.tsx):
+3. **Sync other surfaces** for the same product (when applicable):
+   - App `layout.tsx` / `lib/product-copy.ts` metadata and `public/manifest.json`
+   - `public/llms.txt` for that app or Store/web crawler files
+   - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
+   - Run `bun run test --filter=@helvety/shared` (copy guardrails) and
+     `bun run consistency:install-manifest-metadata`
+4. **Add a Lucide icon** in [`apps/web/components/store-apps-showcase.tsx`](../web/components/store-apps-showcase.tsx):
    **`STORE_PRODUCT_ICONS`** must stay `Record<StoreProductId, LucideIcon>` (the file is optional on `/` until the gateway mounts the showcase again, but builds still type-check once you edit it).
-4. **(Optional) Add a switcher entry** in
+5. **(Optional) Add a switcher entry** in
    [`packages/ui/src/app-switcher-sections.tsx`](../ui/src/app-switcher-sections.tsx) if the product should appear in the helvety.com app switcher (left sheet in the shared navbar).
-5. **Run pre-deployment validations** from the repo root:
+6. **Run pre-deployment validations** from the repo root:
    `bun run lint && bun run format:check && bun run test && bun run build`.
 
-When mounted on the gateway, the showcase renders one `.showcase-band` per catalog entry and cycles decorative variants (see `apps/web/app/globals.css`). **`apps/web/app/page.tsx` does not import it yet** — only the hero is shown on `/`.
+When mounted on the gateway, the showcase renders one `.showcase-band` per catalog entry and cycles decorative variants (see `apps/web/app/globals.css`). **`apps/web/app/page.tsx` does not import it yet**; only the hero is shown on `/`.
 
 ## Crawl and Indexing
 

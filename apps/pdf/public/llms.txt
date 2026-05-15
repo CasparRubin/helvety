@@ -1,6 +1,6 @@
 # Helvety PDF
 
-> Helvety PDF merges, reorders, rotates, and extracts pages in the tab. Supported work stays in the browser and is not sent to a conversion API. MIT-licensed, Swiss-built.
+> Helvety PDF merges, reorders, rotates, and extracts pages in the tab. Add images where supported. Work stays in the browser and is not sent to a conversion API. MIT-licensed, Swiss-built.
 
 ## Canonical URL
 - [Helvety PDF](https://helvety.com/pdf): Main PDF application route

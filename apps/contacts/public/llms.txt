@@ -1,6 +1,6 @@
 # Helvety Contacts
 
-> Encrypted Helvety Contacts: names and notes stay client-side until ciphertext is stored; list filtering runs locally after you unlock. MIT-licensed, Swiss-built.
+> Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups. MIT-licensed, Swiss-built.
 
 ## Canonical URL
 - [Contacts App](https://helvety.com/contacts): Auth-required contacts route

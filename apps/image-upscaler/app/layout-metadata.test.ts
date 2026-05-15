@@ -34,4 +34,10 @@ describe("image upscaler layout metadata", () => {
       follow: true,
     });
   });
+
+  it("uses plain-language SEO copy without retired Swiss roots label", () => {
+    expect(IMAGE_UPSCALER_APP_DESCRIPTION).not.toContain("Swiss roots");
+    expect(IMAGE_UPSCALER_APP_DESCRIPTION).toMatch(/Swiss-built/i);
+    expect(IMAGE_UPSCALER_APP_DESCRIPTION.toLowerCase()).toContain("on-device");
+  });
 });

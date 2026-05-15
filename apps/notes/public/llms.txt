@@ -1,6 +1,6 @@
 # Helvety Notes
 
-> Helvety Notes pairs short titles with rich encrypted bodies, organizes entries into Personal / Work / Other, and keeps post-unlock search inside the tab. MIT-licensed, Swiss-built.
+> Encrypted notes with titles and rich text in Personal, Work, and Other groups. MIT-licensed, Swiss-built.
 
 ## Canonical URL
 - [Notes App](https://helvety.com/notes): Auth-required notes route

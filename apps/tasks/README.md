@@ -1,6 +1,6 @@
 # Helvety Tasks
 
-End-to-end encrypted task management app.
+End-to-end encrypted, stage-based task management app.
 
 **App URL:** <https://helvety.com/tasks>  
 **Monorepo path:** `apps/tasks`

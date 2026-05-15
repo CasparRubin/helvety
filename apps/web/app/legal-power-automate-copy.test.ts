@@ -2,35 +2,53 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { POWER_AUTOMATE_EDITOR_ENFORCER_LEGAL_PAGE_MARKERS } from "@helvety/shared/power-automate-editor-enforcer-copy";
+import {
+  CUSTOMER_COPY_EM_DASH,
+  findBannedCustomerCopySubstring,
+} from "@helvety/shared/customer-copy-guardrails";
+import { POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX } from "@helvety/shared/power-automate-editor-enforcer-copy";
 import { describe, expect, it } from "vitest";
 
 /** `apps/web/app/` */
 const appDir = dirname(fileURLToPath(import.meta.url));
 
+const CANONICAL_COPY_IMPORT =
+  "@helvety/shared/power-automate-editor-enforcer-copy";
+
+/** Asserts legal TSX sources the shared Power Automate copy constants. */
+function expectLegalPageUsesCanonicalPowerAutomateCopy(source: string) {
+  expect(source).toContain(CANONICAL_COPY_IMPORT);
+  expect(source).toContain("POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY");
+  expect(source).toContain("POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX");
+  expect(source).not.toContain("Feedback tab");
+  expect(source).not.toContain("v3=false");
+  expect(source).not.toContain("v3=true");
+  expect(source).not.toContain(CUSTOMER_COPY_EM_DASH);
+  expect(findBannedCustomerCopySubstring(source)).toBeUndefined();
+}
+
 describe("Power Automate legal copy (extension Survey tab parity)", () => {
   const officialTitle = "Power Automate Editor Version Enforcer";
 
-  it("privacy page uses Survey tab, not legacy Feedback tab label", () => {
+  it("privacy page renders canonical public summary and store card suffix", () => {
     const privacy = readFileSync(join(appDir, "privacy", "page.tsx"), "utf8");
-    expect(privacy).toContain("Survey tab");
-    expect(privacy).not.toContain("Feedback tab");
     expect(privacy).toContain(officialTitle);
-    for (const needle of POWER_AUTOMATE_EDITOR_ENFORCER_LEGAL_PAGE_MARKERS) {
-      expect(privacy).toContain(needle);
-    }
+    expectLegalPageUsesCanonicalPowerAutomateCopy(privacy);
+    expect(POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX).toContain(
+      "Survey tab"
+    );
+    expect(POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX).toContain(
+      "v3survey"
+    );
   });
 
-  it("impressum uses Survey tab for v3survey handling", () => {
+  it("impressum renders canonical public summary and store card suffix", () => {
     const impressum = readFileSync(
       join(appDir, "impressum", "page.tsx"),
       "utf8"
     );
-    expect(impressum).toContain("Survey tab");
-    expect(impressum).not.toContain("Feedback tab");
     expect(impressum).toContain(officialTitle);
-    for (const needle of POWER_AUTOMATE_EDITOR_ENFORCER_LEGAL_PAGE_MARKERS) {
-      expect(impressum).toContain(needle);
-    }
+    expectLegalPageUsesCanonicalPowerAutomateCopy(impressum);
+    expect(impressum).toContain("Edge/Chrome");
   });
 });

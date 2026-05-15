@@ -6,10 +6,10 @@ Monorepo for Helvety **web applications** served from **helvety.com** (Next.js p
 
 Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 
-- Other Helvety products—browser extensions, SPFx controls, WinUI tools, and similar—are **distributed separately**; some open-source projects ship from other repositories. The [Helvety Store](https://helvety.com/store) lists installers and deep links across the full product line.
+- Other Helvety products (browser extensions, SPFx controls, WinUI tools, and similar) are **distributed separately**; some open-source projects ship from other repositories. The [Helvety Store](https://helvety.com/store) lists installers and deep links across the full product line.
 - Public gateway and tools: `web`, `store`, `pdf`, `image-upscaler`
 - Centralized account: `auth` (not an E2EE vault app; hosts shared sign-in)
-- Client-encrypted (E2EE) productivity: `tasks`, `contacts`, `notes`
+- Client-encrypted apps (E2EE): `tasks`, `contacts`, `notes`
 - Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/brand`
 
 Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`) use `@helvety/ui/e2ee-app-root-layout`. Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF and user state inside `E2eeAppRootLayout` through the same shared helper layer.
@@ -87,7 +87,7 @@ bun run format
 - Use explicit `cleanup()` in workspace `vitest.setup.ts` files that use `@testing-library/react`.
 - Prefer typed fixture builders in tests (`buildXxx(...)`) over repeated `as unknown as` casting so test inputs evolve with production types.
 - Apps that bootstrap session state from `app/layout.tsx` should mock the relevant `@helvety/shared/*` helpers in `app/layout-metadata.test.ts` so metadata tests stay hermetic (see existing `web`, `store`, `auth`, and E2EE app tests).
-- Vitest and related testing dependency specifiers are kept in lockstep across workspaces by [`scripts/check-workspace-version-drift.mjs`](scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`) and [`scripts/check-test-hygiene.mjs`](scripts/check-test-hygiene.mjs) (`bun run test:hygiene`). Store listing counts in tests follow `STORE_PRODUCT_CARDS.length` and assert the tie-break map matches every card id—see [`packages/shared/src/store-catalog.test.ts`](packages/shared/src/store-catalog.test.ts) and [`apps/store/README.md`](apps/store/README.md) › **Adding a New Product**.
+- Vitest and related testing dependency specifiers are kept in lockstep across workspaces by [`scripts/check-workspace-version-drift.mjs`](scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`) and [`scripts/check-test-hygiene.mjs`](scripts/check-test-hygiene.mjs) (`bun run test:hygiene`). Store listing counts in tests follow `STORE_PRODUCT_CARDS.length` and assert the tie-break map matches every card id; see [`packages/shared/src/store-catalog.test.ts`](packages/shared/src/store-catalog.test.ts) and [`apps/store/README.md`](apps/store/README.md) › **Adding a New Product**.
 
 ## Monorepo Conventions
 
@@ -132,7 +132,7 @@ SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
 
 ## Security Posture (High Level)
 
-- `proxy.ts` is lightweight request setup (CSP headers, optional CSRF bootstrap, and Supabase cookie refresh), not the primary auth boundary. Zone apps inline the same `config.matcher` pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal; CI guardrails keep parity) so common static files—including PDF.js and ONNX worker assets (`.mjs`, `.wasm`, `.json`)—skip that chain. The `apps/web` gateway uses a custom matcher with the same static extension exclusions plus zone path skips.
+- `proxy.ts` is lightweight request setup (CSP headers, optional CSRF bootstrap, and Supabase cookie refresh), not the primary auth boundary. Zone apps inline the same `config.matcher` pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal; CI guardrails keep parity) so common static files (including PDF.js and ONNX worker assets: `.mjs`, `.wasm`, `.json`) skip that chain. The `apps/web` gateway uses a custom matcher with the same static extension exclusions plus zone path skips.
 - Primary auth/authz enforcement lives in Server Components, Server Actions, and route handlers.
 - E2EE apps (`tasks`, `contacts`, `notes`) enforce server-side page guards and passkey-based unlock flows.
 

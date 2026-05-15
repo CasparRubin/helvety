@@ -36,4 +36,9 @@ describe("web root layout metadata", () => {
     expect(metadata.alternates?.canonical).toBe(urls.home);
     expect(metadata.openGraph?.url).toBe(urls.home);
   });
+
+  it("describes encrypted apps specifically, not vague encrypted productivity", () => {
+    expect(WEB_SITE_DESCRIPTION).not.toContain("encrypted productivity");
+    expect(WEB_SITE_DESCRIPTION).toMatch(/encrypted task and contact apps/i);
+  });
 });

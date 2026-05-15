@@ -66,6 +66,7 @@
     "./seo": "./src/seo.ts",
     "./power-automate-editor-enforcer-copy": "./src/power-automate-editor-enforcer-copy.ts",
     "./store-catalog": "./src/store-catalog.ts",
+    "./customer-copy-guardrails": "./src/customer-copy-guardrails.ts",
     "./supabase/client": "./src/supabase/client.ts",
     "./supabase/server": "./src/supabase/server.ts",
     "./supabase/admin": "./src/supabase/admin.ts",

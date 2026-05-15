@@ -9,7 +9,7 @@ import { Navbar } from "@/components/navbar";
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
 export const WEB_SITE_DESCRIPTION =
-  "Swiss-built software with a calm UX: encrypted productivity, lightweight browser utilities, and clear legal pages. MIT-licensed where the repo ships code.";
+  "Swiss-built software with a calm UX: encrypted task and contact apps, lightweight browser utilities, and clear legal pages. MIT-licensed where the repo ships code.";
 
 export const viewport = sharedViewport;
 

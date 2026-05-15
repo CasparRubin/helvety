@@ -1,4 +1,9 @@
 import {
+  CUSTOMER_COPY_EM_DASH,
+  CUSTOMER_COPY_HERO_ABOUT_PREFIX_OVERLAP_MAX,
+  findBannedCustomerCopySubstring,
+} from "@helvety/shared/customer-copy-guardrails";
+import {
   POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
   POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
 } from "@helvety/shared/power-automate-editor-enforcer-copy";
@@ -74,6 +79,54 @@ describe("store product catalog", () => {
     }
   });
 
+  it("keeps hero card blurbs separate from About intros", () => {
+    for (const product of getAllProducts()) {
+      const hero = product.shortDescription.trim();
+      const about = product.description.intro.trim();
+      expect(about).not.toBe(hero);
+      const overlap = hero.slice(
+        0,
+        CUSTOMER_COPY_HERO_ABOUT_PREFIX_OVERLAP_MAX
+      );
+      expect(
+        about.startsWith(overlap),
+        `About intro for ${product.id} must not repeat the card opening`
+      ).toBe(false);
+    }
+  });
+
+  it("store customer copy contains no em-dashes or banned legacy phrases", () => {
+    for (const product of getAllProducts()) {
+      const strings: string[] = [
+        product.shortDescription,
+        product.description.intro,
+        ...product.features,
+        ...(product.metadata?.keywords ?? []),
+      ];
+      for (const section of product.description.sections ?? []) {
+        if (section.kind === "paragraph") {
+          strings.push(section.body);
+        } else {
+          strings.push(...section.items);
+        }
+      }
+      if (isSoftwareProduct(product)) {
+        for (const step of product.software.installationSteps ?? []) {
+          strings.push(step.title, step.description);
+        }
+      }
+      for (const text of strings) {
+        expect(text, `em-dash in ${product.id}`).not.toContain(
+          CUSTOMER_COPY_EM_DASH
+        );
+        expect(
+          findBannedCustomerCopySubstring(text),
+          `banned phrase in ${product.id}`
+        ).toBeUndefined();
+      }
+    }
+  });
+
   it("avoids stale download-button instructions for software without package download CTA", () => {
     const stalePhrase = "Download button on this page";
     for (const product of getAllProducts()) {
@@ -115,11 +168,9 @@ describe("store product catalog", () => {
     expect(product.shortDescription).toBe(
       POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION
     );
-    expect(
-      product.description.intro.startsWith(
-        POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY
-      )
-    ).toBe(true);
+    expect(product.description.intro).not.toContain(
+      POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY
+    );
 
     const sectionText = (product.description.sections ?? []).flatMap((s) =>
       s.kind === "paragraph" ? [s.body] : s.items

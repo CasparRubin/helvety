@@ -1,9 +1,12 @@
 # Helvety Image Upscaler
 
-Browser-based image upscaler for PNG/JPEG/WebP. Runs the Real-ESRGAN General
-x4v3 ONNX model locally via `onnxruntime-web` (WebGPU with WASM fallback) or a
-high-quality canvas resample when WebAssembly is unavailable. No image data
-ever leaves the client.
+Browser-based image upscaler for PNG/JPEG/WebP. Shopper-facing summaries live in
+[`lib/product-copy.ts`](./lib/product-copy.ts) and the Helvety Store catalog;
+this README documents implementation details.
+
+Runs the Real-ESRGAN General x4v3 ONNX model locally via `onnxruntime-web`
+(WebGPU with WASM fallback) or a high-quality canvas resample when WebAssembly is
+unavailable. No image data ever leaves the client.
 
 **App URL:** <https://helvety.com/image-upscaler>  
 **Monorepo path:** `apps/image-upscaler`

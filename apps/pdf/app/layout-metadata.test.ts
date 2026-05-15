@@ -32,4 +32,11 @@ describe("pdf root layout metadata", () => {
       follow: true,
     });
   });
+
+  it("uses merge/extract verbs in SEO copy, not retired stitch/carve wording", () => {
+    expect(PDF_APP_DESCRIPTION).toMatch(/merge/i);
+    expect(PDF_APP_DESCRIPTION).toMatch(/extract/i);
+    expect(PDF_APP_DESCRIPTION.toLowerCase()).not.toContain("stitch");
+    expect(PDF_APP_DESCRIPTION.toLowerCase()).not.toContain("carve");
+  });
 });

@@ -1,7 +1,7 @@
 {
   "name": "@helvety/pdf",
   "version": "3.2.0",
-  "description": "In-browser PDF merge, reorder, rotate, and extract; supported work stays local. MIT-licensed toolkit from Switzerland.",
+  "description": "In-browser PDF merge, reorder, rotate, extract, and add images; supported work stays local. MIT-licensed toolkit from Switzerland.",
   "author": "Helvety",
   "homepage": "https://helvety.com/pdf",
   "repository": {

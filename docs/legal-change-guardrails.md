@@ -30,9 +30,10 @@ At minimum, review and update all of:
 - `apps/web/app/terms/page.tsx`
 - `apps/web/app/impressum/page.tsx`
 - app-specific product/legal-facing copy (for example:
+  `packages/shared/src/store-catalog.ts`, `apps/store/lib/data/products.ts`,
   `apps/*/lib/product-copy.ts`, `apps/*/public/manifest.json` install
   descriptions, `apps/*/public/llms.txt` summaries, app `README.md`, navbar/about
-  text)
+  text; see `docs/naming-conventions.md` › Customer-facing product copy)
 
 ## Verification checklist
 

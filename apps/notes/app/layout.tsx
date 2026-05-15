@@ -9,7 +9,7 @@ import { EncryptionProvider } from "@/lib/crypto";
 
 /** Shared notes SEO / social copy (single source for metadata + JSON-LD). */
 export const NOTES_APP_DESCRIPTION =
-  "Short-form notes in Personal, Work, and Other buckets; encrypted in the tab first. MIT-licensed, Swiss-built.";
+  "Encrypted notes with titles and rich text in Personal, Work, and Other groups. MIT-licensed, Swiss-built.";
 
 export const viewport = sharedViewport;
 

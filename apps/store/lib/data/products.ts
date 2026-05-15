@@ -2,7 +2,6 @@
  * Static product data for the Store app (@helvety/store)
  */
 
-import { POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY } from "@helvety/shared/power-automate-editor-enforcer-copy";
 import {
   compareStoreCatalogEntriesNewestFirst,
   requireStoreProductCard,
@@ -82,7 +81,7 @@ const helvetyExplorer: SoftwareProduct = {
   artist: "Alexandre Calame",
   description: {
     intro:
-      "Helvety SPO Explorer is an SPFx application customizer that drops a fast site switcher into Microsoft 365. Where supported, discovery and navigation run in the browser, while favorites and preferences remain only on your device (for example in localStorage).",
+      "Helvety SPO Explorer adds a site switcher to SharePoint so you can open any site you already have access to without hunting through admin hubs. IT deploys it once from the tenant App Catalog; everyday users just pick sites from the header.",
     sections: [
       {
         heading: "Who installs it, who uses it",
@@ -250,7 +249,7 @@ const helvetyExplorer: SoftwareProduct = {
 };
 
 /**
- * Power Automate Editor Version Enforcer — canonical store blurb + Survey tab / Paused semantics
+ * Power Automate Editor Version Enforcer (store blurb from shared copy module)
  */
 const cPowerAutomate = cardCore(
   "helvety-power-automate-editor-version-enforcer",
@@ -266,26 +265,27 @@ const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
   image: productArtwork.artwork6,
   artist: "Rudolf Koller",
   description: {
-    intro: `${POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY} Manifest V3 for Edge and Chrome: flow and run URLs on *.powerautomate.com and flow.microsoft.com are aligned with your choice—classic (v3=false), new designer (v3=true), or paused (no rewrites while the extension stays installed).`,
+    intro:
+      "When Power Automate keeps opening the wrong flow designer or asking why you switched, this extension lets you pick classic or new and keep that choice. You can tame the follow-up survey, or use Paused to leave the add-on installed without changing links.",
     sections: [
       {
-        heading: "Mechanics",
+        heading: "How it works",
         kind: "paragraph",
-        body: "While enforcement is on, paths under /flows/ and /runs/ get the v3 query parameter adjusted to match your selection. Declarative Net Request rules only rewrite v3; the service worker and content script apply the full policy from sync. On the Survey tab, Hide (default) sets v3survey=false on rewrites (adds the parameter if missing). Show only applies when v3survey is already on the URL: duplicate keys collapse to a single v3survey=true; the extension does not add v3survey when it is absent. Enforcement combines DNR, webNavigation (including tabs.update where the browser allows), and a document_start content script so first paint, refresh, back/forward, and typical SPA transitions are covered—not only full page loads.",
+        body: "While enforcement is on, flow and run pages on Power Automate sites open with the designer you selected. The Survey tab controls Microsoft's optional prompt: Hide (default) keeps it off when links are adjusted; Show only tidies URLs that already include the survey parameter. Paused turns off all link changes until you turn enforcement back on.",
       },
       {
         heading: "Getting it",
         kind: "paragraph",
-        body: "Free and open source. Download the ZIP from this Store page, load it unpacked with developer mode, then track issues on GitHub. No Helvety account is involved.",
+        body: "Free and open source. Download the ZIP from this Store page, load it unpacked with developer mode in Edge or Chrome, then track issues on GitHub. No Helvety account is involved.",
       },
       {
         heading: "Scope",
         kind: "bullets",
         items: [
-          "Host allow-list centres on Power Automate domains.",
-          "Only /flows/ and /runs/ paths are rewritten when enforcement is active.",
+          "Works on Power Automate web hosts (powerautomate.com and flow.microsoft.com).",
+          "Adjusts flow and run links when enforcement is active.",
           "Paused mode disables rewrites but keeps the extension installed.",
-          "Manifest V3 aligned with current browser policies.",
+          "Built for current Edge and Chrome extension policies.",
         ],
       },
       {
@@ -297,12 +297,11 @@ const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
   },
   status: "available",
   features: [
-    "Scoped to Power Automate hosts (*.powerautomate.com and flow.microsoft.com)",
-    "Classic editor, new designer, or paused (no URL changes while installed)",
-    "Survey tab: optional v3survey policy (Hide by default or Show when already present)",
-    "Layered enforcement: declarative net request, navigation hooks, and in-page SPA handling",
-    "Popup appearance preference stored locally on the device",
-    "Manifest V3 (Edge and Chrome)",
+    "Classic or new Power Automate designer, or paused (no link changes while installed)",
+    "Survey tab: Hide by default, or Show when the survey parameter is already present",
+    "Covers flow and run pages on supported Power Automate sites",
+    "Popup appearance preference stored locally on your device",
+    "For Microsoft Edge and Google Chrome",
     "No account required for download",
     "Free and open source",
   ],
@@ -367,7 +366,7 @@ const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
       {
         title: "Verify in Power Automate",
         description:
-          "Open https://make.powerautomate.com/ and open or edit a flow or run. In the extension popup Editor tab, pick classic or new designer and confirm URLs match your choice; switch to Paused to confirm links are no longer adjusted. Optionally use the Survey tab to try Hide vs Show and observe v3survey on URLs when the service worker or content script rewrites them.",
+          "Open https://make.powerautomate.com/ and open or edit a flow or run. In the extension popup, pick classic or new designer on the Editor tab and confirm pages open the way you expect. Switch to Paused to confirm links stop changing. On the Survey tab, try Hide vs Show to see how the follow-up prompt behaves.",
       },
     ],
   },
@@ -409,7 +408,7 @@ const helvetyScreenTools: SoftwareProduct = {
   artist: "Ferdinand Hodler",
   description: {
     intro:
-      "Helvety Screen Tools is a WinUI 3 Windows desktop companion built around two workflows: freeze-frame capture with a global hotkey, and a transparent Live Draw layer you can sketch on without leaving the desktop.",
+      "Helvety Screen Tools is a small Windows desktop app for two jobs: grab a screenshot with a global hotkey, or draw on a transparent layer that sits above your desktop.",
     sections: [
       {
         heading: "Distribution",
@@ -531,7 +530,7 @@ const helvetyPdf: SaaSProduct = {
   category: cHelvetyPdf.category,
   description: {
     intro:
-      "Helvety PDF gives you a thumbnail-first workbench for everyday PDF surgery. When a tool is supported by the current architecture, pages stay inside your browser tab instead of travelling through a Helvety conversion pipeline.",
+      "Helvety PDF is a thumbnail-first workbench for everyday PDF jobs: combine files, reorder pages, rotate, pull out a page, or add images. When a tool is supported, your files stay in the browser tab instead of uploading to Helvety.",
     sections: [
       {
         heading: "Access model",
@@ -619,10 +618,7 @@ const helvetyPdf: SaaSProduct = {
 // HELVETY IMAGE UPSCALER
 // =============================================================================
 
-/**
- * Helvety Image Upscaler - in-browser AI upscaler (Real-ESRGAN via
- * onnxruntime-web with WebGPU/WASM) plus a canvas-resample fallback.
- */
+/** Helvety Image Upscaler - in-browser image upscaler with on-device AI. */
 const cHelvetyImageUpscaler = cardCore("helvety-image-upscaler", "saas");
 const helvetyImageUpscaler: SaaSProduct = {
   id: cHelvetyImageUpscaler.id,
@@ -633,7 +629,7 @@ const helvetyImageUpscaler: SaaSProduct = {
   category: cHelvetyImageUpscaler.category,
   description: {
     intro:
-      "Helvety Image Upscaler runs a Real-ESRGAN ONNX model inside a Web Worker via onnxruntime-web (WebGPU with WASM fallback) so PNG, JPEG, and WebP images can be upscaled entirely on-device. The model downloads lazily on first AI run and caches locally; a high-quality canvas-resample fallback is used automatically when WebAssembly is unavailable. No Helvety-hosted image conversion in the normal flow, and very large exports may be clamped to fit each browser’s canvas limits.",
+      "Helvety Image Upscaler enlarges PNG, JPEG, and WebP photos in your browser. AI upscaling runs on your device when supported; otherwise the app falls back to high-quality resizing. Images are not sent to Helvety for processing in the normal flow. Helvety is Switzerland-first and not actively marketed to EU/EEA users; see our Privacy Policy for details.",
     sections: [
       {
         heading: "Access model",
@@ -641,13 +637,13 @@ const helvetyImageUpscaler: SaaSProduct = {
         body: "Launch the tool without signing in. Usage stays free; automated safeguards keep abusive floods from degrading shared infrastructure.",
       },
       {
-        heading: "Operator knobs",
+        heading: "What you can adjust",
         kind: "bullets",
         items: [
-          "Use the built-in Real-ESRGAN AI engine by default, with canvas resampling only as an automatic fallback for browsers that cannot run WebAssembly.",
-          "Pick a fixed multiplier (2×, 4×) or clamp to a target width or height.",
-          "Batch up to five files per run, downloading individually or all together once ready.",
-          "Mind the in-app caps: 32 MP for the canvas fallback, 4 MP per image for AI upscaling (Float32 stitching buffers fit comfortably in a worker).",
+          "Choose 2× or 4× upscale, or set a target width or height.",
+          "Process up to five images per batch and download them one by one or together.",
+          "The AI model downloads on first use and stays cached for later runs.",
+          "Very large images may be limited so your browser tab stays stable.",
         ],
       },
       {
@@ -661,13 +657,11 @@ const helvetyImageUpscaler: SaaSProduct = {
   image: productArtwork.artwork2,
   artist: "Alexandre Calame",
   features: [
-    "On-device AI super-resolution (Real-ESRGAN via onnxruntime-web)",
-    "WebGPU acceleration with automatic WASM fallback",
-    "Lazy model download cached locally (works offline after first run)",
-    "Tiled inference with linear-blend stitching for seam-free output",
-    "Automatic canvas-resample fallback for browsers without WebAssembly",
+    "On-device AI upscaling when your browser supports it",
+    "High-quality resize fallback when AI is unavailable",
+    "Model downloads once and stays cached for later use",
     "2× and 4× scale presets",
-    "Target width/height mode with preserved aspect ratio",
+    "Target width or height with aspect ratio preserved",
     "Batch processing (up to 5 images)",
     "No login or account required",
     "Dark & light mode support",
@@ -741,7 +735,7 @@ const helvetyTasks: SaaSProduct = {
   category: cHelvetyTasks.category,
   description: {
     intro:
-      "Helvety Tasks pairs a kanban-style spine with real encryption: sensitive fields leave your browser only after WebCrypto transforms them, so the server stores ciphertext tied to passkey-derived keys you control.",
+      "Helvety Tasks is a stage-based board for work you want to keep private. Titles, descriptions, and schedule fields are encrypted in your browser before they sync; you unlock them with your passkey.",
     sections: [
       {
         heading: "Pricing",
@@ -754,14 +748,14 @@ const helvetyTasks: SaaSProduct = {
         items: [
           "Immutable Helvety stages keep everyone aligned on meaning (from backlog through acceptance and The Void).",
           "Labels and priority live in the detail sheet while the board stays readable for status at a glance.",
-          "Rich descriptions carry headings, lists, and inline links without breaking the encryption envelope.",
+          "Rich descriptions support headings, lists, and links while staying encrypted.",
           "Link Helvety Contacts when both apps support the relationship metadata.",
         ],
       },
       {
         heading: "Data protection",
         kind: "paragraph",
-        body: "Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Under the current encrypted-field architecture, Helvety is not intended to receive usable keys for encrypted task body fields.",
+        body: "Processing follows applicable Swiss data protection law where it applies. Helvety does not hold keys that could read your encrypted task content.",
       },
     ],
   },
@@ -842,7 +836,7 @@ const helvetyContacts: SaaSProduct = {
   category: cHelvetyContacts.category,
   description: {
     intro:
-      "Helvety Contacts is a lightweight encrypted Rolodex: structured fields stay opaque to us because encryption happens locally before anything syncs.",
+      "Helvety Contacts is a simple address book that encrypts names, numbers, birthdays, and notes on your device before anything syncs. Sign in with Helvety Auth and use your passkey to unlock your data.",
     sections: [
       {
         heading: "Pricing",
@@ -855,14 +849,14 @@ const helvetyContacts: SaaSProduct = {
         items: [
           "Rich-text notes behave like miniature documents with headings and lists.",
           "Drag-and-drop ordering within a category or across categories keeps tactile muscle memory.",
-          "Self-service encrypted export spells out the on-disk format inside the wizard.",
+          "Export an encrypted backup when you need a copy; the wizard explains the format.",
           "Hook tasks to contacts whenever both apps expose the shared linking primitives.",
         ],
       },
       {
         heading: "Data protection",
         kind: "paragraph",
-        body: "Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted contact payloads.",
+        body: "Processing follows applicable Swiss data protection law where it applies. Helvety does not hold keys that could read your encrypted contact data.",
       },
     ],
   },
@@ -944,7 +938,7 @@ const helvetyNotes: SaaSProduct = {
   category: cHelvetyNotes.category,
   description: {
     intro:
-      "Helvety Notes keeps capture friction low: every record is a title plus an optional long-form description, both encrypted client-side before hitting storage.",
+      "Helvety Notes is for quick capture: a title and an optional longer body, both encrypted on your device before they sync. Sign in with Helvety Auth and unlock with your passkey.",
     sections: [
       {
         heading: "Pricing",
@@ -963,7 +957,7 @@ const helvetyNotes: SaaSProduct = {
       {
         heading: "Data protection",
         kind: "paragraph",
-        body: "Processing is subject to applicable Swiss data protection law where it applies, including the revised Federal Act on Data Protection (nDSG). Helvety does not hold keys to your encrypted note content.",
+        body: "Processing follows applicable Swiss data protection law where it applies. Helvety does not hold keys that could read your encrypted notes.",
       },
     ],
   },

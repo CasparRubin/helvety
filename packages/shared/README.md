@@ -14,13 +14,14 @@ This package centralizes:
 - Shared constants, schemas, and utility functions
 - Next.js product metadata via `@helvety/shared/seo` (`createHelvetyProductMetadata` plus sitemap/robots factories)
 - Dashboard list prefetch helpers via `@helvety/shared/dashboard-prefetch` (row-cap detection plus over-cap messages: generic items string vs contacts-specific copy; see module exports)
-- Card-level Helvety Store catalog via `@helvety/shared/store-catalog` (`STORE_PRODUCT_CARDS`, `StoreProductId` literal-id union, plus typed sort/lookup/badge-label helpers) so the Store listings and the marketing gateway showcase share one source of truth for product name, blurb, type, category, runs-on, free / open-source flags, and release date — see `apps/store/README.md` › "Adding a New Product" for the end-to-end add-a-product flow
+- Card-level Helvety Store catalog via `@helvety/shared/store-catalog` (`STORE_PRODUCT_CARDS`, `StoreProductId` literal-id union, plus typed sort/lookup/badge-label helpers) so the Store listings and the marketing gateway showcase share one source of truth for product name, blurb, type, category, runs-on, free / open-source flags, and release date; see `apps/store/README.md` › "Adding a New Product" for the end-to-end add-a-product flow
+- Customer-facing copy guardrails via `@helvety/shared/customer-copy-guardrails` (banned legacy phrases, `llms.txt` paths, README paths; enforced by `store-copy-guardrails.test.ts` and Store product tests)
 
 ## Core Contracts
 
 ### Canonical Ownership Map
 
-- Proxy profiles, `SECURITY_PROXY_MATCHER` (canonical zone `proxy.ts` matcher pattern; excludes `_next/static`, `_next/image`, `favicon.ico`, and common `public/` extensions including `mjs`, `wasm`, and `json`—zone apps **inline** this string because Next.js requires a static literal), and request bootstrap defaults: `packages/shared/src/proxy.ts`
+- Proxy profiles, `SECURITY_PROXY_MATCHER` (canonical zone `proxy.ts` matcher pattern; excludes `_next/static`, `_next/image`, `favicon.ico`, and common `public/` extensions including `mjs`, `wasm`, and `json`; zone apps **inline** this string because Next.js requires a static literal), and request bootstrap defaults: `packages/shared/src/proxy.ts`
 - Shared action and export limits: `packages/shared/src/constants.ts`
 - Auth next-step resolver (app-owned): `apps/auth/lib/auth-step.ts`
 - Shared auth callback flow factory: `packages/shared/src/auth-callback.ts`
@@ -44,7 +45,7 @@ This package centralizes:
 ### Cross-app URLs (`config.ts`)
 
 - **`urls`**: canonical absolute base URLs for each helvety.com zone (and the dev gateway host).
-- **`getLocalAppHref`**: strips Helvety / localhost origins to **root-relative** paths for **`next/link`** in the **gateway** (`apps/web`, no Next **`basePath`**). Do **not** use it for cross-zone **`Link`** targets rendered inside **`basePath`** apps — use absolute **`urls.*`** (see **`AppSwitcher`** / `packages/ui` README).
+- **`getLocalAppHref`**: strips Helvety / localhost origins to **root-relative** paths for **`next/link`** in the **gateway** (`apps/web`, no Next **`basePath`**). Do **not** use it for cross-zone **`Link`** targets rendered inside **`basePath`** apps; use absolute **`urls.*`** (see **`AppSwitcher`** / `packages/ui` README).
 
 ### Supabase SSR
 

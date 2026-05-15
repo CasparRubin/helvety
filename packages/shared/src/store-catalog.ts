@@ -61,7 +61,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-pdf",
     name: "Helvety PDF",
     shortDescription:
-      "Reorder, merge, rotate, extract, or drop images into a PDF. Supported edits stay in your browser instead of uploading files to Helvety.",
+      "Reorder, merge, rotate, extract, or add images to a PDF. Supported edits stay in your browser, not on Helvety servers.",
     releaseDate: "2025-09-14",
     type: "saas",
     category: "utilities",
@@ -74,7 +74,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-spo-explorer",
     name: "Helvety SPO Explorer",
     shortDescription:
-      "SharePoint site picker and search in the header. Favorites and preferences stay on the device, not on Helvety servers.",
+      "Jump between SharePoint sites from the header. Favorites and settings stay on your device.",
     releaseDate: "2025-10-05",
     type: "software",
     category: "integrations",
@@ -87,7 +87,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-tasks",
     name: "Helvety Tasks",
     shortDescription:
-      "Stage-aware task board with encrypted titles, descriptions, and schedule fields, plus labels, priority, and optional Helvety Contacts links.",
+      "Stage-based task board with encrypted titles, descriptions, and dates. Labels, priority, and optional links to Helvety Contacts.",
     releaseDate: "2025-11-11",
     type: "saas",
     category: "productivity",
@@ -100,7 +100,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-contacts",
     name: "Helvety Contacts",
     shortDescription:
-      "Names, numbers, birthdays, and rich notes encrypted at rest with Personal, Work, and Other buckets, drag reorder, and self-service export.",
+      "Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups, drag to reorder, and export when you need a copy.",
     releaseDate: "2025-12-02",
     type: "saas",
     category: "productivity",
@@ -113,7 +113,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-notes",
     name: "Helvety Notes",
     shortDescription:
-      "Encrypted title and body notes in Personal, Work, and Other buckets, with rich text and cross-links to tasks or contacts when you use those apps.",
+      "Encrypted notes with titles and rich text. Group by Personal, Work, or Other, with links to tasks or contacts when you use those apps.",
     releaseDate: "2026-01-20",
     type: "saas",
     category: "productivity",
@@ -138,7 +138,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-screen-tools",
     name: "Helvety Screen Tools",
     shortDescription:
-      "A WinUI 3 desktop app for Windows with global-hotkey screenshot capture and Live Draw overlay annotation over the real desktop.",
+      "Windows app for quick screenshots and a see-through drawing layer on top of your desktop.",
     releaseDate: "2026-04-21",
     type: "software",
     category: "utilities",
@@ -151,7 +151,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-image-upscaler",
     name: "Helvety Image Upscaler",
     shortDescription:
-      "Browser-based image upscaler with on-device AI (Real-ESRGAN via WebGPU/WASM) and a canvas-resample fallback: 2×/4× batches, target width or height with locked aspect ratio, and limits so tabs stay responsive.",
+      "Upscale PNG, JPEG, or WebP in the browser. AI quality when your device supports it, with sensible limits so tabs stay responsive.",
     releaseDate: "2026-04-28",
     type: "saas",
     category: "utilities",

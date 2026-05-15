@@ -30,4 +30,17 @@ describe("tasks root layout metadata", () => {
       follow: false,
     });
   });
+
+  it("uses stage-based wording in SEO copy, not legacy kanban labels", () => {
+    expect(TASKS_APP_DESCRIPTION.toLowerCase()).toContain("stage-based");
+    expect(TASKS_APP_DESCRIPTION.toLowerCase()).not.toContain("kanban");
+    const defaultTitle =
+      typeof metadata.title === "object" &&
+      metadata.title !== null &&
+      "default" in metadata.title
+        ? metadata.title.default
+        : metadata.title;
+    expect(String(defaultTitle).toLowerCase()).not.toContain("kanban");
+    expect(String(defaultTitle).toLowerCase()).toContain("stage-based");
+  });
 });

@@ -1,6 +1,6 @@
 # Helvety PDF
 
-Browser-based PDF toolkit for merge/reorder/rotate/extract workflows.
+Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images workflows.
 
 **App URL:** <https://helvety.com/pdf>  
 **Monorepo path:** `apps/pdf`
@@ -32,7 +32,7 @@ Browser-based PDF toolkit for merge/reorder/rotate/extract workflows.
 ## Security Model
 
 - File conversion is client-side for supported operations.
-- `proxy.ts` provides request bootstrap and headers; this app does not require login. Its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js). Static `public/` files—including `pdf.worker.min.mjs` (copied from `pdfjs-dist` by `bun run sync:pdf-worker` before dev/build), which PDF.js loads from `/pdf/pdf.worker.min.mjs`—therefore skip the proxy chain.
+- `proxy.ts` provides request bootstrap and headers; this app does not require login. Its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js). Static `public/` files (including `pdf.worker.min.mjs`, copied from `pdfjs-dist` by `bun run sync:pdf-worker` before dev/build, which PDF.js loads from `/pdf/pdf.worker.min.mjs`) therefore skip the proxy chain.
 - E2EE is not used in this app (E2EE apps are `tasks`, `contacts`, `notes`).
 
 ## Environment Variables

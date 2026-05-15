@@ -32,6 +32,14 @@ const DEFAULT_ALLOWED_OTP_TYPES: readonly EmailOtpType[] = [
   "email",
 ];
 
+/** Narrows callback `type` query values to configured Supabase email OTP types. */
+function isAllowedEmailOtpType(
+  value: string,
+  allowed: ReadonlySet<EmailOtpType>
+): value is EmailOtpType {
+  return allowed.has(value as EmailOtpType);
+}
+
 /** Optional overrides for callback behavior per app surface. */
 type CreateAuthCallbackHandlerOptions = {
   allowedOtpTypes?: readonly EmailOtpType[];
@@ -123,7 +131,7 @@ export function createAuthCallbackHandler(
       }
 
       if (tokenHash && type) {
-        if (!allowedOtpTypeSet.has(type)) {
+        if (!isAllowedEmailOtpType(type, allowedOtpTypeSet)) {
           logger.warn("Auth callback rejected OTP type", { type });
           return NextResponse.redirect(
             `${authErrorUrl}&error=invalid_otp_type`

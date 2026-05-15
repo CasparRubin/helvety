@@ -1,6 +1,6 @@
 # Helvety Auth
 
-> Shared Helvety Auth for OTP and passkey flows that gate the encrypted productivity apps. Open source, operated from Switzerland.
+> Shared Helvety Auth for OTP and passkey flows that gate Helvety Tasks, Contacts, and Notes. Open source, operated from Switzerland.
 
 ## Canonical URL
 - [Sign In](https://helvety.com/auth/login): Primary sign-in page

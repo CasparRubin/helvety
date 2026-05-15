@@ -1,4 +1,8 @@
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
+import {
+  POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
+  POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX,
+} from "@helvety/shared/power-automate-editor-enforcer-copy";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -115,53 +119,46 @@ export default function ImpressumPage() {
         <p className="text-muted-foreground mb-3 text-sm">
           Helvety by Rubin designs and ships software products and web
           applications across Microsoft 365 integrations, browser utilities,
-          desktop tooling, and encrypted productivity apps. The listed products
-          are currently offered free of charge. Where source repositories are
-          published, licensing is defined by each repository&apos;s LICENSE file
-          (currently MIT in the referenced public repositories). Product
-          development is primarily based in Switzerland.
+          desktop tooling, and encrypted Tasks, Contacts, and Notes. The listed
+          products are currently offered free of charge. Where source
+          repositories are published, licensing is defined by each
+          repository&apos;s LICENSE file (currently MIT in the referenced public
+          repositories). Product development is primarily based in Switzerland.
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
-            <strong className="text-foreground">Helvety SPO Explorer</strong> —
+            <strong className="text-foreground">Helvety SPO Explorer</strong>:
             SharePoint Framework navigation for sites you can access.
           </li>
           <li>
             <strong className="text-foreground">
               Power Automate Editor Version Enforcer
-            </strong>{" "}
-            — Allows you to enforce either the Classic or New Designer
-            experience in Microsoft Power Automate Cloud Flows using{" "}
-            <code className="text-foreground">v3=false</code> or{" "}
-            <code className="text-foreground">v3=true</code>, while also giving
-            you the option to hide the Microsoft survey prompt asking why you
-            made your selection. Edge/Chrome MV3 extension. Survey tab: optional{" "}
-            <code className="text-foreground">v3survey</code> — Hide (default)
-            sets false on rewrites; Show only normalizes when already present.
-            Paused: no URL rewrites while the extension stays installed.
+            </strong>
+            : {POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY} Edge/Chrome
+            extension. {POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX}
           </li>
           <li>
-            <strong className="text-foreground">Helvety PDF</strong> —
-            in-browser PDF toolkit for supported local workflows.
+            <strong className="text-foreground">Helvety PDF</strong>: in-browser
+            PDF toolkit for supported local workflows.
           </li>
           <li>
-            <strong className="text-foreground">Helvety Screen Tools</strong> —
+            <strong className="text-foreground">Helvety Screen Tools</strong>:
             Windows desktop capture and Live Draw overlay.
           </li>
           <li>
-            <strong className="text-foreground">Helvety Image Upscaler</strong>{" "}
-            — browser-based upscaling with on-device processing where supported.
+            <strong className="text-foreground">Helvety Image Upscaler</strong>:
+            browser-based upscaling with on-device processing where supported.
           </li>
           <li>
-            <strong className="text-foreground">Helvety Tasks</strong> —
+            <strong className="text-foreground">Helvety Tasks</strong>:
             encrypted task boards with staged workflows.
           </li>
           <li>
-            <strong className="text-foreground">Helvety Contacts</strong> —
+            <strong className="text-foreground">Helvety Contacts</strong>:
             encrypted contact management with export tooling.
           </li>
           <li>
-            <strong className="text-foreground">Helvety Notes</strong> —
+            <strong className="text-foreground">Helvety Notes</strong>:
             encrypted notes grouped by Personal, Work, and Other.
           </li>
         </ul>

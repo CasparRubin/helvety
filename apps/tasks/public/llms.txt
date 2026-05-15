@@ -1,6 +1,6 @@
 # Helvety Tasks
 
-> Stage-based Helvety Tasks board: ciphertext for titles, descriptions, and schedule fields, with optional in-tab list search once you unlock. MIT-licensed open source, Swiss-built.
+> Stage-based Helvety Tasks board with encrypted titles, descriptions, and schedule fields. MIT-licensed open source, Swiss-built.
 
 ## Canonical URL
 - [Tasks App](https://helvety.com/tasks): Auth-required task management route

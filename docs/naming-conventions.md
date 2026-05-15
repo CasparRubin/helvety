@@ -40,7 +40,26 @@ This document is the source of truth for how we name and format code across `app
 - **`lib/product-copy.ts`** (where used): holds long-form **`PDF_APP_DESCRIPTION`**, **`IMAGE_UPSCALER_APP_DESCRIPTION`**, and related limits copy; layouts import these for metadata / JSON-LD.
 - **`public/manifest.json` `description`** (PWA install prompt): often matches the metadata string; when it must be shorter, use an explicit **`AUTH_PWA_MANIFEST_DESCRIPTION`** in `app/layout.tsx`, or **`PDF_PWA_MANIFEST_DESCRIPTION`** / **`IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION`** in `lib/product-copy.ts`, and keep the JSON identical. **`bun run consistency:install-manifest-metadata`** ([`scripts/check-install-manifest-metadata.mjs`](../scripts/check-install-manifest-metadata.mjs)) fails if manifests drift from those constants (or from exported layout strings for apps without a separate PWA field).
 - **JSON-LD** (`jsonLdGraphTail` `SoftwareApplication` / `WebApplication` `description`): prefer the **same** string as **`metadata.description`** where possible (avoids drift; `app/layout-metadata.test.ts` locks this). Example: PDF uses **`PDF_APP_DESCRIPTION`** for metadata and JSON-LD, while **`PDF_PWA_MANIFEST_DESCRIPTION`** is only for **`public/manifest.json`**. If JSON-LD and metadata must diverge, add **`*_JSON_LD_DESCRIPTION`** (or similarly explicit name) and document why both exist.
-- **`public/llms.txt`**: opening summary lines are hand-maintained crawler hints—keep factual claims aligned with runtime and with legal/product copy whenever behavior or eligibility changes (no automated check today).
+- **`public/llms.txt`**: opening summary lines are hand-maintained crawler hints; keep factual claims aligned with runtime and with legal/product copy whenever behavior or eligibility changes (no automated check today).
+
+## Customer-facing product copy (Store and apps)
+
+Layered copy avoids repeating the same paragraph on a product page and across surfaces:
+
+| Layer                  | Source                                                                    | Purpose                                                                                                                               |
+| ---------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Card / hero**        | `packages/shared/src/store-catalog.ts` → `shortDescription`               | One or two plain sentences: what it is and the main benefit. Shown on Store cards, product hero, and OG when the Store owns the page. |
+| **About intro**        | `apps/store/lib/data/products.ts` → `description.intro`                   | Who it is for and what changes day to day. Must **not** duplicate the card opening (tests enforce separation).                        |
+| **About sections**     | `products.ts` → `description.sections`                                    | Install steps, limits, privacy, optional “how it works”. Plain language; jargon only when needed.                                     |
+| **App SEO / PWA**      | `app/layout.tsx`, `lib/product-copy.ts`, `public/manifest.json`           | Metadata and install prompt; align verbs and claims with the Store card where they describe the same product.                         |
+| **Extension manifest** | External repo + `power-automate-editor-enforcer-copy.ts` `PUBLIC_SUMMARY` | Shortest installed-extension blurb only; not the Store About body.                                                                    |
+
+**Style:** easy to scan, human tone, no em-dashes (U+2014). Use commas, periods, or parentheses instead. Do not claim end-to-end encryption for apps that legal pages list as non-E2EE (PDF, Image Upscaler, Store, gateway).
+
+**Sync order when product behavior or claims change:** `store-catalog.ts` → `products.ts` → app metadata / manifests → `llms.txt` → app `README.md` intros → legal pages if claims shift (see `docs/legal-change-guardrails.md`).
+
+**Regression tests:** `@helvety/shared/customer-copy-guardrails` defines banned legacy phrases and `llms.txt` paths; `store-copy-guardrails.test.ts`, `apps/store/lib/data/products.test.ts`, and app `layout-metadata` / legal tests enforce separation, no em-dashes, and current wording. Update `CUSTOMER_COPY_BANNED_SUBSTRINGS` when retiring phrasing intentionally.
+
 - **Root README and root `package.json` `description`**: describe this repository as **helvety.com web applications** (Next.js path zones and shared packages). Do not imply that every Helvety product line (browser extensions, SPFx, WinUI tools, and so on) is developed or released only from this tree; the README overview already points at separately distributed software and the Store.
 
 ## User-visible errors (product copy)
