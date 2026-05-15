@@ -1,6 +1,6 @@
 # Helvety
 
-> Private, simple, clean Swiss software: helvety.com web apps, legal pages, and Store links for Helvety products. Engineered, designed and made in Switzerland.
+> Helvety software products engineered, designed and made in Switzerland. Private, simple, clean. Web apps, legal pages, and Store links for the full product line.
 
 ## Canonical URLs
 - [Home](https://helvety.com): Main landing page

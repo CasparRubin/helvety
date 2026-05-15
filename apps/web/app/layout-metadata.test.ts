@@ -1,8 +1,5 @@
 import { urls } from "@helvety/shared/config";
-import {
-  HELVETY_COMPANY_VALUES_TAGLINE,
-  HELVETY_WEB_DEFAULT_TITLE,
-} from "@helvety/shared/licensing";
+import { HELVETY_WEB_DEFAULT_TITLE } from "@helvety/shared/licensing";
 import {
   assertLicenseFreeSeoCopy,
   assertLicenseFreeSeoKeywords,
@@ -53,7 +50,8 @@ describe("web root layout metadata", () => {
   it("uses license-free company SEO copy and keywords", () => {
     assertLicenseFreeSeoCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
     assertLicenseFreeSeoKeywords("web metadata.keywords", metadata.keywords);
-    expect(WEB_SITE_DESCRIPTION).toContain(HELVETY_COMPANY_VALUES_TAGLINE);
+    expect(WEB_SITE_DESCRIPTION).toMatch(/Software products/i);
+    expect(WEB_SITE_DESCRIPTION).toMatch(/Private, simple, clean/i);
   });
 
   it("uses the shared license-free default document title", () => {

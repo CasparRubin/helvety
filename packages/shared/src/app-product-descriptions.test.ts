@@ -11,10 +11,6 @@ import {
   WEB_SITE_DESCRIPTION,
 } from "./app-product-descriptions";
 import {
-  HELVETY_COMPANY_VALUES_TAGLINE,
-  HELVETY_SWISS_ORIGIN_SEO,
-} from "./licensing";
-import {
   assertLicenseFreeSeoCopy,
   assertNoEmDashInCustomerCopy,
   assertSwissOriginInSeoCopy,
@@ -39,8 +35,9 @@ describe("app-product-descriptions", () => {
   });
 
   it("uses company values and Swiss origin on the gateway blurb", () => {
-    expect(WEB_SITE_DESCRIPTION).toContain(HELVETY_COMPANY_VALUES_TAGLINE);
-    expect(WEB_SITE_DESCRIPTION).toContain(HELVETY_SWISS_ORIGIN_SEO);
+    expect(WEB_SITE_DESCRIPTION).toMatch(/Software products/i);
+    assertSwissOriginInSeoCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
+    expect(WEB_SITE_DESCRIPTION).toMatch(/Private, simple, clean/i);
   });
 
   it("signals Swiss origin in store and encrypted-app SEO copy", () => {

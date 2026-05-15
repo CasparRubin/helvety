@@ -22,7 +22,7 @@ export const HELVETY_SWISS_BUILT_SUFFIX = "Swiss-built.";
 
 /** Default helvety.com gateway document title (metadata + social when no page override). */
 export const HELVETY_WEB_DEFAULT_TITLE =
-  "Helvety | Private, simple, clean Swiss software";
+  "Helvety | Software Products - Engineered, Designed and Made in Switzerland - Private, Simple, Clean";
 
 /** Store feature bullets and product copy for free AGPL products. */
 export const HELVETY_FREE_AGPL_FEATURE =

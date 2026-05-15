@@ -26,7 +26,7 @@ export function assertLicenseFreeSeoCopy(label: string, text: string): void {
 /** Accepts full Swiss-origin SEO closing or the compact PWA suffix. */
 export function assertSwissOriginInSeoCopy(label: string, text: string): void {
   expect(text, `${label} Swiss origin`).toMatch(
-    /Engineered, designed and made in Switzerland|Swiss-built\./
+    /engineered, designed and made in Switzerland|Swiss-built\./i
   );
 }
 

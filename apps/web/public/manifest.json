@@ -1,7 +1,7 @@
 {
   "name": "Helvety",
   "short_name": "Helvety",
-  "description": "Private, simple, clean. Software with a calm UX: encrypted task and contact apps, lightweight browser utilities, extensions, and desktop tools. Engineered, designed and made in Switzerland.",
+  "description": "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task and contact apps, lightweight browser utilities, extensions, and desktop tools.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf8f7",

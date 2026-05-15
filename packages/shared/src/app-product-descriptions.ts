@@ -1,11 +1,11 @@
 import {
-  HELVETY_COMPANY_VALUES_TAGLINE,
   HELVETY_SWISS_BUILT_SUFFIX,
   HELVETY_SWISS_ORIGIN_SEO,
 } from "./licensing";
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
-export const WEB_SITE_DESCRIPTION = `${HELVETY_COMPANY_VALUES_TAGLINE} Software with a calm UX: encrypted task and contact apps, lightweight browser utilities, extensions, and desktop tools. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const WEB_SITE_DESCRIPTION =
+  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task and contact apps, lightweight browser utilities, extensions, and desktop tools.";
 
 /** Shared auth SEO / social copy. */
 export const AUTH_DESCRIPTION = `Passwordless entry for Helvety apps: OTP, passkeys, and session recovery where your platform allows. ${HELVETY_SWISS_ORIGIN_SEO}`;

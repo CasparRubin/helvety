@@ -38,13 +38,14 @@ const SHARED_SEO_DESCRIPTIONS = [
 describe("seo customer copy guardrails", () => {
   it("gateway title uses company values without license wording", () => {
     expect(HELVETY_WEB_DEFAULT_TITLE).toBe(
-      "Helvety | Private, simple, clean Swiss software"
+      "Helvety | Software Products - Engineered, Designed and Made in Switzerland - Private, Simple, Clean"
     );
     assertLicenseFreeSeoCopy(
       "HELVETY_WEB_DEFAULT_TITLE",
       HELVETY_WEB_DEFAULT_TITLE
     );
-    expect(HELVETY_WEB_DEFAULT_TITLE).toMatch(/Private, simple, clean/i);
+    expect(HELVETY_WEB_DEFAULT_TITLE).toMatch(/Software Products/i);
+    expect(HELVETY_WEB_DEFAULT_TITLE).toMatch(/Private, Simple, Clean/i);
   });
 
   it("company brand constants match helvety.com positioning", () => {
@@ -62,10 +63,10 @@ describe("seo customer copy guardrails", () => {
     }
   });
 
-  it("gateway blurb leads with company values", () => {
-    expect(
-      WEB_SITE_DESCRIPTION.startsWith(HELVETY_COMPANY_VALUES_TAGLINE)
-    ).toBe(true);
+  it("gateway blurb states software products and company values", () => {
+    expect(WEB_SITE_DESCRIPTION).toMatch(/Software products/i);
+    assertSwissOriginInSeoCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
+    expect(WEB_SITE_DESCRIPTION).toMatch(/Private, simple, clean/i);
   });
 
   it("PWA manifest descriptions avoid license marketing", () => {

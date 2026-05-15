@@ -51,7 +51,7 @@ describe("licensing constants", () => {
 
   it("uses license-free company branding in the helvety.com gateway default title", () => {
     expect(HELVETY_WEB_DEFAULT_TITLE).toBe(
-      "Helvety | Private, simple, clean Swiss software"
+      "Helvety | Software Products - Engineered, Designed and Made in Switzerland - Private, Simple, Clean"
     );
     expect(HELVETY_WEB_DEFAULT_TITLE).not.toContain("AGPL");
   });
