@@ -1,7 +1,7 @@
 {
   "name": "Helvety PDF",
   "short_name": "Helvety PDF",
-  "description": "Merge, reorder, rotate, or extract PDFs in the tab; supported work stays local. AGPL-3.0-licensed open source, Swiss-built.",
+  "description": "Merge, reorder, rotate, or extract PDFs in the tab; supported work stays local. Engineered, designed and made in Switzerland.",
   "start_url": "/pdf",
   "display": "standalone",
   "background_color": "#faf8f7",

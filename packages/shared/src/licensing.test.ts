@@ -5,9 +5,11 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import {
+  HELVETY_COMPANY_VALUES_TAGLINE,
   HELVETY_FREE_AGPL_FEATURE,
   HELVETY_FREE_AGPL_INLINE,
   HELVETY_LLMS_LICENSING_NOTE,
+  HELVETY_SWISS_ORIGIN_SEO,
   HELVETY_MONOREPO_LLMS_GITHUB_LINE,
   HELVETY_SOURCE_LICENSE_LABEL,
   HELVETY_SOURCE_LICENSE_LEGAL_NAME,
@@ -40,11 +42,18 @@ describe("licensing constants", () => {
     expect(HELVETY_MONOREPO_LLMS_GITHUB_LINE).not.toContain("\u2014");
   });
 
-  it("uses AGPL in the helvety.com gateway default title", () => {
-    expect(HELVETY_WEB_DEFAULT_TITLE).toContain("AGPL-3.0");
-    expect(HELVETY_WEB_DEFAULT_TITLE).not.toBe(
-      "Helvety | Swiss-built open source software"
+  it("exposes company values and Swiss origin for SEO copy", () => {
+    expect(HELVETY_COMPANY_VALUES_TAGLINE).toBe("Private, simple, clean.");
+    expect(HELVETY_SWISS_ORIGIN_SEO).toBe(
+      "Engineered, designed and made in Switzerland."
     );
+  });
+
+  it("uses license-free company branding in the helvety.com gateway default title", () => {
+    expect(HELVETY_WEB_DEFAULT_TITLE).toBe(
+      "Helvety | Private, simple, clean Swiss software"
+    );
+    expect(HELVETY_WEB_DEFAULT_TITLE).not.toContain("AGPL");
   });
 });
 
@@ -74,8 +83,8 @@ describe("workspace package manifests", () => {
     }
   });
 
-  it("mentions AGPL in customer-facing app package descriptions", () => {
-    const appPackagesWithAgplCopy = [
+  it("does not mention AGPL in customer-facing app package descriptions", () => {
+    const appPackages = [
       "apps/web/package.json",
       "apps/auth/package.json",
       "apps/store/package.json",
@@ -85,11 +94,12 @@ describe("workspace package manifests", () => {
       "apps/contacts/package.json",
       "apps/notes/package.json",
     ];
-    for (const rel of appPackagesWithAgplCopy) {
+    for (const rel of appPackages) {
       const pkg = JSON.parse(readFileSync(join(repoRoot, rel), "utf8")) as {
         description?: string;
       };
-      expect(pkg.description, rel).toMatch(/AGPL-3\.0/);
+      expect(pkg.description, rel).toBeDefined();
+      expect(pkg.description, rel).not.toMatch(/AGPL-3\.0/);
     }
   });
 });

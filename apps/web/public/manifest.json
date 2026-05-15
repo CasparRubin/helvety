@@ -1,7 +1,7 @@
 {
   "name": "Helvety",
   "short_name": "Helvety",
-  "description": "Swiss-built software with a calm UX: encrypted task and contact apps, lightweight browser utilities, extensions, and desktop tools. All published Helvety source is AGPL-3.0-licensed open source.",
+  "description": "Private, simple, clean. Software with a calm UX: encrypted task and contact apps, lightweight browser utilities, extensions, and desktop tools. Engineered, designed and made in Switzerland.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf8f7",

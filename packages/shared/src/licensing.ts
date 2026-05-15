@@ -1,15 +1,28 @@
-/** SPDX license identifier for published Helvety source code. */
+/**
+ * SPDX license identifier for published Helvety source code (`package.json` `"license"`).
+ * Not for SEO metadata, manifests, or `llms.txt` taglines.
+ */
 export const HELVETY_SOURCE_LICENSE_SPDX = "AGPL-3.0-or-later";
 
-/** Short label for SEO keywords and structured data. */
+/** Short label for legal pages and product licensing copy. */
 export const HELVETY_SOURCE_LICENSE_LABEL = "AGPL-3.0";
 
-/** Marketing copy suffix used in app descriptions and PWA manifests. */
+/** Marketing copy for store listings and product pages about open-source licensing. */
 export const HELVETY_SOURCE_LICENSE_MARKETING = "AGPL-3.0-licensed open source";
+
+/** Company values (helvety.com hero tagline). */
+export const HELVETY_COMPANY_VALUES_TAGLINE = "Private, simple, clean.";
+
+/** Swiss origin for SEO, PWA manifests, and AI summaries (not license-specific). */
+export const HELVETY_SWISS_ORIGIN_SEO =
+  "Engineered, designed and made in Switzerland.";
+
+/** Compact geographic closing when space is tight. */
+export const HELVETY_SWISS_BUILT_SUFFIX = "Swiss-built.";
 
 /** Default helvety.com gateway document title (metadata + social when no page override). */
 export const HELVETY_WEB_DEFAULT_TITLE =
-  "Helvety | Swiss-built AGPL-3.0 open source software";
+  "Helvety | Private, simple, clean Swiss software";
 
 /** Store feature bullets and product copy for free AGPL products. */
 export const HELVETY_FREE_AGPL_FEATURE =

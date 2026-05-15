@@ -12,10 +12,12 @@ This package centralizes:
 - Logging and error-handling helpers
 - Canonical **user-visible** error strings and rate-limit copy via `@helvety/shared/user-facing-errors` (`GENERIC_USER_ERROR`, `buildRateLimitedUserMessage`) - safe to import from client components (no `server-only`)
 - Shared constants, schemas, and utility functions
-- Next.js product metadata via `@helvety/shared/seo` (`createHelvetyProductMetadata` plus sitemap/robots factories)
+- Next.js product metadata via `@helvety/shared/seo` (`createHelvetyProductMetadata` plus sitemap/robots factories) and shared SEO blurbs in `@helvety/shared/app-product-descriptions` (`WEB_SITE_DESCRIPTION`, per-app `*_DESCRIPTION`, PWA variants)
+- Company and licensing copy constants in `@helvety/shared/licensing` (`HELVETY_COMPANY_VALUES_TAGLINE`, `HELVETY_SWISS_ORIGIN_SEO`, `HELVETY_WEB_DEFAULT_TITLE`, plus AGPL helpers for Store/legal/`llms.txt` licensing sections only)
 - Dashboard list prefetch helpers via `@helvety/shared/dashboard-prefetch` (row-cap detection plus over-cap messages: generic items string vs contacts-specific copy; see module exports)
 - Card-level Helvety Store catalog via `@helvety/shared/store-catalog` (`STORE_PRODUCT_CARDS`, `StoreProductId` literal-id union, plus typed sort/lookup/badge-label helpers) as the single source of truth for Store card fields (name, blurb, type, category, runs-on, free / open-source flags, release date); see `apps/store/README.md` › "Adding a New Product" for the end-to-end add-a-product flow
-- Customer-facing copy guardrails via `@helvety/shared/customer-copy-guardrails` (user-facing path list, em-dash rule only; enforced by `consistency:customer-copy` and Vitest)
+- Customer-facing copy guardrails via `@helvety/shared/customer-copy-guardrails` (user-facing path list; em-dash rule; SEO license-free checks in `seo-customer-copy.test.ts` and `store-copy-guardrails.test.ts`; enforced by `consistency:customer-copy`, `consistency:install-manifest-metadata`, and Vitest)
+- Navbar About blurbs via `@helvety/shared/app-navbar-about` (per-app product copy; Swiss closing uses `HELVETY_SWISS_ORIGIN_SEO`)
 
 ## Core Contracts
 

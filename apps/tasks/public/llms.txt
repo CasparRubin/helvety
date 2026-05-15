@@ -1,6 +1,6 @@
 # Helvety Tasks
 
-> Stage-based Helvety Tasks board with encrypted titles, descriptions, and schedule fields. AGPL-3.0-licensed open source, Swiss-built.
+> Stage-based Helvety Tasks board with encrypted titles, descriptions, and schedule fields. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Tasks App](https://helvety.com/tasks): Auth-required task management route

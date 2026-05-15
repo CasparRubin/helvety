@@ -332,8 +332,7 @@ export function HelvetyShellNavbar({
                 <DialogHeader className="pr-8">
                   <DialogTitle>About</DialogTitle>
                   <DialogDescription className="pt-2">
-                    {aboutDescription} Helvety is AGPL-3.0-licensed open-source
-                    software by{" "}
+                    {aboutDescription} Helvety software by{" "}
                     <a
                       href="https://casparrubin.ch"
                       target="_blank"
@@ -342,8 +341,7 @@ export function HelvetyShellNavbar({
                     >
                       Caspar Rubin
                     </a>
-                    , with software engineered, designed, and made in
-                    Switzerland.{" "}
+                    , engineered, designed, and made in Switzerland.{" "}
                     {buildInfo
                       ? `This version was built on ${buildInfo}.`
                       : "This is a development build."}

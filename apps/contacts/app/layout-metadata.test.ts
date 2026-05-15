@@ -1,4 +1,8 @@
-import { assertNoEmDashInCustomerCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
+import {
+  assertLicenseFreeSeoCopy,
+  assertNoEmDashInCustomerCopy,
+  assertSwissOriginInSeoCopy,
+} from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -32,8 +36,16 @@ describe("contacts root layout metadata", () => {
     });
   });
 
-  it("includes AGPL-3.0 in SEO description", () => {
-    expect(CONTACTS_APP_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
+  it("uses license-free encrypted contacts SEO copy", () => {
+    assertLicenseFreeSeoCopy(
+      "CONTACTS_APP_DESCRIPTION",
+      CONTACTS_APP_DESCRIPTION
+    );
+    assertSwissOriginInSeoCopy(
+      "CONTACTS_APP_DESCRIPTION",
+      CONTACTS_APP_DESCRIPTION
+    );
+    expect(CONTACTS_APP_DESCRIPTION).toMatch(/Encrypted contacts/i);
   });
 
   it("SEO copy contains no em-dash", () => {

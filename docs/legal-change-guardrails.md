@@ -38,8 +38,10 @@ At minimum, review and update all of:
 ## Verification checklist
 
 - license and open-source claims match `LICENSE`, `packages/shared/src/licensing.ts`,
-  legal pages, Store copy, `public/llms.txt`, and app `package.json` descriptions
-  (run `bun run consistency:license` and shared copy guardrail tests)
+  legal pages, Store product About copy, and `public/llms.txt` **`## Licensing`** sections
+  (run `bun run consistency:license` and shared copy guardrail tests). App SEO metadata,
+  PWA manifests, `llms.txt` taglines, and `package.json` `description` fields stay
+  product-focused and must not market AGPL (SPDX `"license"` fields are unchanged).
 - claims about local vs server processing match runtime behavior
 - claims about no training/no retention are technically true
 - login/account requirement claims match actual access flow

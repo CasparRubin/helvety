@@ -9,13 +9,17 @@ import {
   CUSTOMER_COPY_LLMS_RELATIVE_PATHS,
   CUSTOMER_COPY_README_RELATIVE_PATHS,
 } from "./customer-copy-guardrails";
-import { HELVETY_LLMS_LICENSING_NOTE } from "./licensing";
+import {
+  HELVETY_LLMS_LICENSING_NOTE,
+  HELVETY_SOURCE_LICENSE_MARKETING,
+} from "./licensing";
 import {
   POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
   POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX,
   POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
 } from "./power-automate-editor-enforcer-copy";
 import { STORE_PRODUCT_CARDS } from "./store-catalog";
+import { assertLicenseFreeSeoCopy } from "./test-utils/customer-copy-test-helpers";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -66,6 +70,26 @@ describe("store copy guardrails", () => {
       expect(text, rel).toContain("## Licensing");
       expect(text, rel).toContain(HELVETY_LLMS_LICENSING_NOTE);
       expect(text, rel).toMatch(/AGPL-3\.0/);
+    }
+  });
+
+  it("llms.txt taglines avoid license wording (licensing lives under ## Licensing)", () => {
+    for (const rel of CUSTOMER_COPY_LLMS_RELATIVE_PATHS) {
+      const text = readFileSync(join(repoRoot, rel), "utf8");
+      const tagline = text.match(/^> (.+)$/m)?.[1] ?? "";
+      assertLicenseFreeSeoCopy(`${rel} tagline`, tagline);
+    }
+  });
+
+  it("app README intros avoid AGPL marketing outside the License section", () => {
+    const appReadmes = CUSTOMER_COPY_README_RELATIVE_PATHS.filter((rel) =>
+      rel.startsWith("apps/")
+    );
+    for (const rel of appReadmes) {
+      const text = readFileSync(join(repoRoot, rel), "utf8");
+      const intro = text.split(/^## License\b/m)[0] ?? text;
+      expect(intro, rel).not.toContain(HELVETY_SOURCE_LICENSE_MARKETING);
+      expect(intro, rel).not.toMatch(/All published Helvety source/i);
     }
   });
 });

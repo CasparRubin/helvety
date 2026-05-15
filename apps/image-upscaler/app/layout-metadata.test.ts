@@ -1,4 +1,8 @@
-import { assertNoEmDashInCustomerCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
+import {
+  assertLicenseFreeSeoCopy,
+  assertNoEmDashInCustomerCopy,
+  assertSwissOriginInSeoCopy,
+} from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -36,10 +40,16 @@ describe("image upscaler layout metadata", () => {
     });
   });
 
-  it("includes AGPL-3.0 in SEO description", () => {
-    expect(IMAGE_UPSCALER_APP_DESCRIPTION).toContain(
-      "AGPL-3.0-licensed open source"
+  it("uses license-free image upscaler SEO copy", () => {
+    assertLicenseFreeSeoCopy(
+      "IMAGE_UPSCALER_APP_DESCRIPTION",
+      IMAGE_UPSCALER_APP_DESCRIPTION
     );
+    assertSwissOriginInSeoCopy(
+      "IMAGE_UPSCALER_APP_DESCRIPTION",
+      IMAGE_UPSCALER_APP_DESCRIPTION
+    );
+    expect(IMAGE_UPSCALER_APP_DESCRIPTION).toMatch(/Upscale/i);
   });
 
   it("SEO copy contains no em-dash", () => {

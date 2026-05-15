@@ -6,7 +6,6 @@ import {
   getCachedUser,
 } from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { HELVETY_SOURCE_LICENSE_LABEL } from "@helvety/shared/licensing";
 import { logger } from "@helvety/shared/logger";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
@@ -37,8 +36,6 @@ export const metadata = createHelvetyProductMetadata({
     "contacts",
     "notes",
     "privacy",
-    "open source",
-    HELVETY_SOURCE_LICENSE_LABEL,
     "Swiss",
     "catalog",
     "browser extension",

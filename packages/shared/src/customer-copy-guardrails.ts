@@ -1,7 +1,9 @@
 /**
  * Shared rules for customer-facing product copy (Store catalog, llms.txt, legal
- * product bullets). Em-dash (U+2014) is the only enforced wording ban; keep paths
- * here in sync with `scripts/check-customer-copy-style.mjs`.
+ * product bullets, SEO metadata constants). Em-dash (U+2014) is enforced via
+ * `consistency:customer-copy` and Vitest. SEO/PWA summaries must stay license-free
+ * (AGPL only in legal pages, Store product About, and llms.txt `## Licensing`).
+ * Keep paths here in sync with `scripts/check-customer-copy-style.mjs`.
  */
 
 /** U+2014 em-dash; must not appear in user-facing copy. */

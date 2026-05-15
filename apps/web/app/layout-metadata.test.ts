@@ -1,6 +1,13 @@
 import { urls } from "@helvety/shared/config";
-import { HELVETY_WEB_DEFAULT_TITLE } from "@helvety/shared/licensing";
-import { assertNoEmDashInCustomerCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
+import {
+  HELVETY_COMPANY_VALUES_TAGLINE,
+  HELVETY_WEB_DEFAULT_TITLE,
+} from "@helvety/shared/licensing";
+import {
+  assertLicenseFreeSeoCopy,
+  assertLicenseFreeSeoKeywords,
+  assertNoEmDashInCustomerCopy,
+} from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -43,16 +50,20 @@ describe("web root layout metadata", () => {
     expect(WEB_SITE_DESCRIPTION).toMatch(/encrypted task and contact apps/i);
   });
 
-  it("states AGPL-3.0 for all published Helvety source", () => {
-    expect(WEB_SITE_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
-    expect(metadata.keywords).toContain("AGPL-3.0");
+  it("uses license-free company SEO copy and keywords", () => {
+    assertLicenseFreeSeoCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
+    assertLicenseFreeSeoKeywords("web metadata.keywords", metadata.keywords);
+    expect(WEB_SITE_DESCRIPTION).toContain(HELVETY_COMPANY_VALUES_TAGLINE);
   });
 
-  it("uses the shared AGPL-aware default document title", () => {
+  it("uses the shared license-free default document title", () => {
     expect(metadata.title).toMatchObject({
       default: HELVETY_WEB_DEFAULT_TITLE,
     });
-    expect(HELVETY_WEB_DEFAULT_TITLE).toContain("AGPL-3.0");
+    assertLicenseFreeSeoCopy(
+      "HELVETY_WEB_DEFAULT_TITLE",
+      HELVETY_WEB_DEFAULT_TITLE
+    );
   });
 
   it("SEO copy contains no em-dash", () => {

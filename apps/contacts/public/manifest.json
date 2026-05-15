@@ -1,7 +1,7 @@
 {
   "name": "Helvety Contacts",
   "short_name": "Helvety Contacts",
-  "description": "Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups. AGPL-3.0-licensed open source, Swiss-built.",
+  "description": "Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups. Engineered, designed and made in Switzerland.",
   "start_url": "/contacts",
   "display": "standalone",
   "background_color": "#faf8f7",

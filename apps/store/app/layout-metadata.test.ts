@@ -1,3 +1,8 @@
+import {
+  assertLicenseFreeSeoCopy,
+  assertLicenseFreeSeoKeywords,
+  assertSwissOriginInSeoCopy,
+} from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -31,9 +36,10 @@ describe("store root layout metadata", () => {
     });
   });
 
-  it("states AGPL-3.0 for every product with published source", () => {
-    expect(STORE_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
-    expect(STORE_DESCRIPTION).toMatch(/Every product with published source/i);
-    expect(metadata.keywords).toContain("AGPL-3.0");
+  it("uses license-free catalog SEO copy and keywords", () => {
+    assertLicenseFreeSeoCopy("STORE_DESCRIPTION", STORE_DESCRIPTION);
+    assertLicenseFreeSeoKeywords("store metadata.keywords", metadata.keywords);
+    assertSwissOriginInSeoCopy("STORE_DESCRIPTION", STORE_DESCRIPTION);
+    expect(STORE_DESCRIPTION).toMatch(/Browse free Helvety apps/i);
   });
 });

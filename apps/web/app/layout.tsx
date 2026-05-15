@@ -3,10 +3,7 @@ import { brandAssets } from "@helvety/brand/urls";
 import { WEB_SITE_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
 import { bootstrapPublicLayoutUser } from "@helvety/shared/layout-session-bootstrap";
-import {
-  HELVETY_SOURCE_LICENSE_LABEL,
-  HELVETY_WEB_DEFAULT_TITLE,
-} from "@helvety/shared/licensing";
+import { HELVETY_WEB_DEFAULT_TITLE } from "@helvety/shared/licensing";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
@@ -30,8 +27,6 @@ export const metadata = createHelvetyProductMetadata({
     "encrypted contacts",
     "PDF tools",
     "image upscaler",
-    "open source",
-    HELVETY_SOURCE_LICENSE_LABEL,
     "end-to-end encryption",
     "privacy",
     "Switzerland",

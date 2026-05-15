@@ -1,3 +1,7 @@
+import {
+  assertLicenseFreeSeoCopy,
+  assertSwissOriginInSeoCopy,
+} from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -31,7 +35,9 @@ describe("auth root layout metadata", () => {
     });
   });
 
-  it("includes AGPL-3.0 in SEO description", () => {
-    expect(AUTH_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
+  it("uses license-free sign-in SEO copy", () => {
+    assertLicenseFreeSeoCopy("AUTH_DESCRIPTION", AUTH_DESCRIPTION);
+    assertSwissOriginInSeoCopy("AUTH_DESCRIPTION", AUTH_DESCRIPTION);
+    expect(AUTH_DESCRIPTION).toMatch(/passwordless/i);
   });
 });

@@ -1,7 +1,7 @@
 {
   "name": "@helvety/contacts",
   "version": "3.2.0",
-  "description": "Encrypted contacts with Personal, Work, and Other groups, export tooling, and optional local list filtering. AGPL-3.0-licensed open source, Swiss-built.",
+  "description": "Encrypted contacts with Personal, Work, and Other groups, export tooling, and optional local list filtering. Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/contacts",
   "repository": {

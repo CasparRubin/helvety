@@ -1,6 +1,6 @@
 # Helvety Image Upscaler
 
-> Upscale PNG, JPEG, or WebP in your browser on your device. AI quality when supported, with sensible limits so tabs stay responsive. No image upload to Helvety servers in the normal flow. AGPL-3.0-licensed open source, Swiss-built.
+> Upscale PNG, JPEG, or WebP in your browser on your device. AI quality when supported, with sensible limits so tabs stay responsive. No image upload to Helvety servers in the normal flow. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler): Main application route

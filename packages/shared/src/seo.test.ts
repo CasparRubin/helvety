@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { HELVETY_WEB_DEFAULT_TITLE } from "./licensing";
 import {
   createAppRobots,
   createAppSitemap,
@@ -188,12 +189,10 @@ describe("createHelvetyProductMetadata", () => {
       ...baseParams,
       indexing: "all",
       title: { default: "Home", template: "%s | Helvety" },
-      socialTitle: "Helvety | Swiss-built open source software",
+      socialTitle: HELVETY_WEB_DEFAULT_TITLE,
     });
-    expect(m.openGraph?.title).toBe(
-      "Helvety | Swiss-built open source software"
-    );
-    expect(m.twitter?.title).toBe("Helvety | Swiss-built open source software");
+    expect(m.openGraph?.title).toBe(HELVETY_WEB_DEFAULT_TITLE);
+    expect(m.twitter?.title).toBe(HELVETY_WEB_DEFAULT_TITLE);
   });
 
   it("omits manifest and category when not passed", () => {

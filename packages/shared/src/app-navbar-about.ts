@@ -1,15 +1,18 @@
 /**
- * Navbar About-dialog copy shared across helvety.com apps. Keep aligned with
- * `store-catalog` card blurbs and app SEO descriptions; tests enforce style rules.
+ * Navbar About-dialog product blurbs shared across helvety.com apps. Keep aligned
+ * with Store catalog cards and app SEO descriptions. Swiss closing uses
+ * `HELVETY_SWISS_ORIGIN_SEO`. Licensing is not repeated here (see legal pages,
+ * Store product About sections, and `llms.txt` ## Licensing).
  */
 
+import { HELVETY_SWISS_ORIGIN_SEO } from "./licensing";
 import {
   IMAGE_FILE_SIZE_LIMIT_COPY,
   PDF_FILE_SIZE_LIMIT_COPY,
 } from "./product-file-limit-copy";
 
 /** Shown at the end of E2EE product About dialogs. */
-export const HELVETY_NAVBAR_SWISS_CLOSING = "Built in Switzerland." as const;
+export const HELVETY_NAVBAR_SWISS_CLOSING = HELVETY_SWISS_ORIGIN_SEO;
 
 /** E2EE apps: encryption badge tooltip body (Tasks, Contacts, Notes). */
 export const E2EE_NAVBAR_ENCRYPTION_TOOLTIP =

@@ -1,6 +1,6 @@
 # Helvety Auth
 
-> Shared Helvety Auth for OTP and passkey flows that gate Helvety Tasks, Contacts, and Notes. AGPL-3.0-licensed open source, operated from Switzerland.
+> Passwordless Helvety Auth for OTP and passkey flows across Tasks, Contacts, and Notes. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Sign In](https://helvety.com/auth/login): Primary sign-in page

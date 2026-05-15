@@ -1,6 +1,6 @@
 # Helvety
 
-> Swiss-built helvety.com web apps, crisp legal pages, and Store links for related Helvety products. All published Helvety source is AGPL-3.0-licensed open source.
+> Private, simple, clean Swiss software: helvety.com web apps, legal pages, and Store links for Helvety products. Engineered, designed and made in Switzerland.
 
 ## Canonical URLs
 - [Home](https://helvety.com): Main landing page

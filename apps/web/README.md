@@ -12,12 +12,13 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 - Multi-zone gateway rewrites for `/auth`, `/store`, `/pdf`, `/image-upscaler`, `/tasks`, `/contacts`, `/notes`
 - Vercel Analytics script forwarding for sub-app routes so analytics works across all zones
 - Shared navigation across helvety.com web zones via `@helvety/ui/helvety-shell-navbar` (`app/layout.tsx` seeds `initialUser` through `bootstrapPublicLayoutUser()` so the bar does not flash loading when a session exists). The shell’s **AppSwitcher** uses absolute `urls.*` hrefs so it works from every zone’s Next **`basePath`**; marketing components on `/` may still use **`getLocalAppHref`** for path-shaped same-origin links (see [`packages/shared/README.md`](../../packages/shared/README.md) and [`packages/ui/README.md`](../../packages/ui/README.md)).
-- `@helvety/shared/seo` (`createHelvetyProductMetadata`) for gateway-level metadata / OG defaults
+- `@helvety/shared/seo` (`createHelvetyProductMetadata`) plus `WEB_SITE_DESCRIPTION` / `HELVETY_WEB_DEFAULT_TITLE` from `@helvety/shared` for gateway metadata, Open Graph, Twitter, and JSON-LD (company positioning: private · simple · clean; Swiss origin; no license terms in SEO)
 - Public legal pages, cookie notice, and abuse-reporting entry points
 - Canonical metadata and sitemap/robots endpoints for indexable content
 
 ## Routing and SEO
 
+- Default title and description come from `HELVETY_WEB_DEFAULT_TITLE` and `WEB_SITE_DESCRIPTION` in [`app/layout.tsx`](app/layout.tsx); [`public/manifest.json`](public/manifest.json) and [`public/llms.txt`](public/llms.txt) stay aligned (tagline is company/product copy; AGPL details live under `## Licensing` in `llms.txt` only).
 - Sub-app forwarding is defined in `next.config.ts`.
 - Vercel Analytics `/<id>/script.js` requests are forwarded by referer path to the correct zone origin.
 - Direct-domain sub-app roots are expected to redirect to their base path.

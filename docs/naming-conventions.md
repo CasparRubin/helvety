@@ -40,7 +40,8 @@ This document is the source of truth for how we name and format code across `app
 - **`lib/product-copy.ts`** (where used): holds long-form **`PDF_APP_DESCRIPTION`**, **`IMAGE_UPSCALER_APP_DESCRIPTION`**, and related limits copy; layouts import these for metadata / JSON-LD.
 - **`public/manifest.json` `description`** (PWA install prompt): often matches the metadata string; when it must be shorter, use an explicit **`AUTH_PWA_MANIFEST_DESCRIPTION`** in `app/layout.tsx`, or **`PDF_PWA_MANIFEST_DESCRIPTION`** / **`IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION`** in `lib/product-copy.ts`, and keep the JSON identical. **`bun run consistency:install-manifest-metadata`** ([`scripts/check-install-manifest-metadata.mjs`](../scripts/check-install-manifest-metadata.mjs)) fails if manifests drift from those constants (or from exported layout strings for apps without a separate PWA field).
 - **JSON-LD** (`jsonLdGraphTail` `SoftwareApplication` / `WebApplication` `description`): prefer the **same** string as **`metadata.description`** where possible (avoids drift; `app/layout-metadata.test.ts` locks this). Example: PDF uses **`PDF_APP_DESCRIPTION`** for metadata and JSON-LD, while **`PDF_PWA_MANIFEST_DESCRIPTION`** is only for **`public/manifest.json`**. If JSON-LD and metadata must diverge, add **`*_JSON_LD_DESCRIPTION`** (or similarly explicit name) and document why both exist.
-- **`public/llms.txt`**: opening summary lines are hand-maintained crawler hints; keep factual claims aligned with runtime and with legal/product copy whenever behavior or eligibility changes (no automated check today).
+- **`public/llms.txt`**: the `>` tagline is a hand-maintained crawler summary (company/product positioning only). Put license terms under **`## Licensing`** using `HELVETY_LLMS_LICENSING_NOTE` from `@helvety/shared/licensing`. Vitest enforces em-dashes, a license-free tagline, and a present licensing section (`store-copy-guardrails.test.ts`).
+- **Gateway default document title**: `HELVETY_WEB_DEFAULT_TITLE` in `@helvety/shared/licensing` (used by `apps/web/app/layout.tsx` when no page overrides the title).
 
 ## Customer-facing product copy (Store and apps)
 
@@ -58,19 +59,21 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 
 **Copy voice (customer-facing):**
 
-| Topic                  | Standard                                                                                                                                |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Product names          | `Helvety Tasks`, `Helvety Contacts`, … (title case; full name on first mention in a block)                                              |
-| Encryption (E2EE apps) | Prefer **encrypted on your device before storage** in short UI; reserve **end-to-end encrypted** for legal/privacy and detailed dialogs |
-| Encryption (non-E2EE)  | State **browser-local** / **not sent to Helvety**; never imply E2EE for PDF, Image Upscaler, Store, gateway                             |
-| Swiss origin           | SEO: **Swiss-built**; navbar About closings: **Built in Switzerland.**                                                                  |
-| Open source            | **AGPL-3.0** via `@helvety/shared/licensing` constants; never MIT or generic “free and open source”                                     |
-| Sentence shape         | Short, active voice; one idea per sentence                                                                                              |
-| Navbar About           | `@helvety/shared/app-navbar-about` (`*_NAVBAR_ABOUT`, `E2EE_NAVBAR_ENCRYPTION_TOOLTIP`)                                                 |
+| Topic                   | Standard                                                                                                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product names           | `Helvety Tasks`, `Helvety Contacts`, … (title case; full name on first mention in a block)                                                                                                        |
+| Encryption (E2EE apps)  | Prefer **encrypted on your device before storage** in short UI; reserve **end-to-end encrypted** for legal/privacy and detailed dialogs                                                           |
+| Encryption (non-E2EE)   | State **browser-local** / **not sent to Helvety**; never imply E2EE for PDF, Image Upscaler, Store, gateway                                                                                       |
+| Company values          | **Private, simple, clean.** (`HELVETY_COMPANY_VALUES_TAGLINE`); lead gateway SEO with this where it fits                                                                                          |
+| Swiss origin            | SEO / About closings: **Engineered, designed and made in Switzerland.** (`HELVETY_SWISS_ORIGIN_SEO`); compact PWA lines may use **Swiss-built.** (`HELVETY_SWISS_BUILT_SUFFIX`)                   |
+| SEO / PWA / AI taglines | Product value first; **do not** mention AGPL, “open source”, or repo-wide license claims (see `assertLicenseFreeSeoCopy` in tests)                                                                |
+| Open-source licensing   | **AGPL-3.0** only on Store product About copy, legal pages, `llms.txt` **`## Licensing`**, and `HELVETY_FREE_AGPL_*` store bullets; never MIT or generic “free and open source” in those surfaces |
+| Sentence shape          | Short, active voice; one idea per sentence                                                                                                                                                        |
+| Navbar About            | `@helvety/shared/app-navbar-about` (`*_NAVBAR_ABOUT`, `E2EE_NAVBAR_ENCRYPTION_TOOLTIP`); global About dialog in `HelvetyShellNavbar` adds attribution only (no license paragraph)                 |
 
 **Sync order when product behavior or claims change:** `store-catalog.ts` → `products.ts` → app metadata / manifests → `llms.txt` → app `README.md` intros → legal pages if claims shift (see `docs/legal-change-guardrails.md`).
 
-**Regression tests:** `@helvety/shared/customer-copy-guardrails` lists user-facing copy paths; `customer-copy-em-dash.test.ts`, `store-copy-guardrails.test.ts`, and app tests call **`assertNoEmDashInCustomerCopy`**. **`bun run consistency:customer-copy`** scans user-facing files and app UI `.tsx` for U+2014 em-dashes.
+**Regression tests:** `@helvety/shared/customer-copy-guardrails` lists user-facing copy paths; `customer-copy-em-dash.test.ts`, `store-copy-guardrails.test.ts`, `seo-customer-copy.test.ts`, and per-app `layout-metadata.test.ts` files use **`assertNoEmDashInCustomerCopy`**, **`assertLicenseFreeSeoCopy`**, and **`assertSwissOriginInSeoCopy`** from `@helvety/shared/test-utils/customer-copy-test-helpers`. **`bun run consistency:customer-copy`** scans user-facing files and app UI `.tsx` for U+2014 em-dashes; **`bun run consistency:install-manifest-metadata`** keeps PWA `manifest.json` descriptions aligned with shared SEO constants.
 
 - **Root README and root `package.json` `description`**: describe this repository as **helvety.com web applications** (Next.js path zones and shared packages). Do not imply that every Helvety product line (browser extensions, SPFx, WinUI tools, and so on) is developed or released only from this tree; the README overview already points at separately distributed software and the Store.
 

@@ -1,6 +1,6 @@
 # Helvety Notes
 
-> Encrypted notes with titles and rich text in Personal, Work, and Other groups. AGPL-3.0-licensed open source, Swiss-built.
+> Encrypted notes with titles and rich text in Personal, Work, and Other groups. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Notes App](https://helvety.com/notes): Auth-required notes route

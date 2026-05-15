@@ -48,8 +48,8 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
      [`docs/naming-conventions.md`](../../docs/naming-conventions.md) › Customer-facing product copy).
    - Add the new product to the `products` array near the bottom of the file.
 3. **Sync other surfaces** for the same product (when applicable):
-   - App `layout.tsx` / `lib/product-copy.ts` metadata and `public/manifest.json`
-   - `public/llms.txt` for that app or Store/web crawler files
+   - App `layout.tsx` / `lib/product-copy.ts` metadata and `public/manifest.json` (SEO describes the product; do not add AGPL to metadata or manifest `description`)
+   - `public/llms.txt` for that app or Store/web crawler files (`>` tagline = product/company summary; license text under `## Licensing` only)
    - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
    - Run `bun run test --filter=@helvety/shared` (copy guardrails) and
      `bun run consistency:install-manifest-metadata`

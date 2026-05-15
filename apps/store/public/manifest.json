@@ -1,7 +1,7 @@
 {
   "name": "Helvety Store",
   "short_name": "Helvety Store",
-  "description": "Browse free Helvety apps and downloads. Every product with published source is AGPL-3.0-licensed open source, engineered and designed in Switzerland.",
+  "description": "Browse free Helvety apps and downloads. Engineered, designed and made in Switzerland.",
   "start_url": "/store",
   "display": "standalone",
   "background_color": "#faf8f7",

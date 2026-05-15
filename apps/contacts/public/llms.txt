@@ -1,6 +1,6 @@
 # Helvety Contacts
 
-> Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups. AGPL-3.0-licensed open source, Swiss-built.
+> Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Contacts App](https://helvety.com/contacts): Auth-required contacts route

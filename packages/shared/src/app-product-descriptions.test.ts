@@ -10,8 +10,15 @@ import {
   TASKS_APP_DESCRIPTION,
   WEB_SITE_DESCRIPTION,
 } from "./app-product-descriptions";
-import { HELVETY_SOURCE_LICENSE_MARKETING } from "./licensing";
-import { assertNoEmDashInCustomerCopy } from "./test-utils/customer-copy-test-helpers";
+import {
+  HELVETY_COMPANY_VALUES_TAGLINE,
+  HELVETY_SWISS_ORIGIN_SEO,
+} from "./licensing";
+import {
+  assertLicenseFreeSeoCopy,
+  assertNoEmDashInCustomerCopy,
+  assertSwissOriginInSeoCopy,
+} from "./test-utils/customer-copy-test-helpers";
 
 const DESCRIPTIONS = [
   ["WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION],
@@ -25,16 +32,26 @@ const DESCRIPTIONS = [
 ] as const;
 
 describe("app-product-descriptions", () => {
-  it("uses shared AGPL marketing copy in every exported description", () => {
+  it("keeps exported SEO descriptions license-free", () => {
     for (const [label, text] of DESCRIPTIONS) {
-      expect(text, label).toContain(HELVETY_SOURCE_LICENSE_MARKETING);
+      assertLicenseFreeSeoCopy(label, text);
     }
   });
 
-  it("does not scope AGPL to this monorepo only", () => {
-    expect(WEB_SITE_DESCRIPTION).not.toMatch(/where the repo ships/i);
-    expect(WEB_SITE_DESCRIPTION).toMatch(/All published Helvety source/i);
-    expect(STORE_DESCRIPTION).toMatch(/Every product with published source/i);
+  it("uses company values and Swiss origin on the gateway blurb", () => {
+    expect(WEB_SITE_DESCRIPTION).toContain(HELVETY_COMPANY_VALUES_TAGLINE);
+    expect(WEB_SITE_DESCRIPTION).toContain(HELVETY_SWISS_ORIGIN_SEO);
+  });
+
+  it("signals Swiss origin in store and encrypted-app SEO copy", () => {
+    for (const [label, text] of [
+      ["STORE_DESCRIPTION", STORE_DESCRIPTION],
+      ["STORE_PRODUCTS_PAGE_DESCRIPTION", STORE_PRODUCTS_PAGE_DESCRIPTION],
+      ["TASKS_APP_DESCRIPTION", TASKS_APP_DESCRIPTION],
+      ["CONTACTS_APP_DESCRIPTION", CONTACTS_APP_DESCRIPTION],
+    ] as const) {
+      assertSwissOriginInSeoCopy(label, text);
+    }
   });
 
   it("exported descriptions contain no em-dash", () => {

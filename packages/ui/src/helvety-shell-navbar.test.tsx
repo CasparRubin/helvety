@@ -1,4 +1,5 @@
 import { urls } from "@helvety/shared/config";
+import { assertLicenseFreeSeoCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -149,6 +150,16 @@ describe("HelvetyShellNavbar", () => {
       }),
     });
     expect(screen.getAllByText("Encryption enabled").length).toBeGreaterThan(0);
+  });
+
+  it("About dialog does not mention software licenses", async () => {
+    renderShell();
+    fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));
+    const dialog = await screen.findByRole("dialog");
+    assertLicenseFreeSeoCopy("About dialog", dialog.textContent ?? "");
+    expect(dialog.textContent).toMatch(
+      /engineered, designed, and made in Switzerland/i
+    );
   });
 
   it("calls redirectToLogin with no args by default when Sign in is clicked", () => {

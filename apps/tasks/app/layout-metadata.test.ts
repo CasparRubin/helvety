@@ -1,4 +1,8 @@
-import { assertNoEmDashInCustomerCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
+import {
+  assertLicenseFreeSeoCopy,
+  assertNoEmDashInCustomerCopy,
+  assertSwissOriginInSeoCopy,
+} from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -45,8 +49,10 @@ describe("tasks root layout metadata", () => {
     expect(String(defaultTitle).toLowerCase()).toContain("stage-based");
   });
 
-  it("includes AGPL-3.0 in SEO description", () => {
-    expect(TASKS_APP_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
+  it("uses license-free encrypted tasks SEO copy", () => {
+    assertLicenseFreeSeoCopy("TASKS_APP_DESCRIPTION", TASKS_APP_DESCRIPTION);
+    assertSwissOriginInSeoCopy("TASKS_APP_DESCRIPTION", TASKS_APP_DESCRIPTION);
+    expect(TASKS_APP_DESCRIPTION).toMatch(/encrypted/i);
   });
 
   it("SEO copy contains no em-dash", () => {
