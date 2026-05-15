@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Task command bar - sticky toolbar below navbar
+ * Task command bar - pinned toolbar below navbar (via CommandBarPageLayout).
  * Primary actions: create (and optional back when enabled)
  * Secondary actions (desktop inline, mobile dropdown): refresh, settings, edit, delete
  */

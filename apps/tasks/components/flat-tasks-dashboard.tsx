@@ -5,6 +5,7 @@ import {
   resolveE2eeEmptySearchMessage,
 } from "@helvety/shared/e2ee-dashboard-search";
 import { Button } from "@helvety/ui/button";
+import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
 import {
   Dialog,
   DialogContent,
@@ -149,43 +150,47 @@ export function FlatTasksDashboard({
 
   return (
     <>
-      <TaskCommandBar
-        onCreateClick={() => setIsCreateOpen(true)}
-        createLabel="New Task"
-        onRefresh={handleRefresh}
-        isRefreshing={isRefreshing || isRefreshPending}
-        onExport={isUnlocked && masterKey ? handleExportData : undefined}
-        isExporting={isExporting}
-      />
-
-      <EntityDashboardShell
-        title="Tasks"
-        searchField={
-          <ListSearchField
-            className="mb-4"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tasks…"
-            aria-label="Search tasks"
+      <CommandBarPageLayout
+        commandBar={
+          <TaskCommandBar
+            onCreateClick={() => setIsCreateOpen(true)}
+            createLabel="New Task"
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing || isRefreshPending}
+            onExport={isUnlocked && masterKey ? handleExportData : undefined}
+            isExporting={isExporting}
           />
         }
-        list={
-          <EntityList
-            entities={filteredItems}
-            isLoading={isLoading}
-            isRefreshing={isRefreshing}
-            error={error}
-            onRetry={refresh}
-            stages={stages}
-            onEntityClick={(entity) => setSelectedItemId(entity.id)}
-            onEntityDelete={(id, title) =>
-              setDeleteState({ open: true, id, name: title })
-            }
-            onReorder={isSearchActive ? undefined : reorder}
-            emptySearchMessage={emptySearchMessage}
-          />
-        }
-      />
+      >
+        <EntityDashboardShell
+          title="Tasks"
+          searchField={
+            <ListSearchField
+              className="mb-4"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search tasks…"
+              aria-label="Search tasks"
+            />
+          }
+          list={
+            <EntityList
+              entities={filteredItems}
+              isLoading={isLoading}
+              isRefreshing={isRefreshing}
+              error={error}
+              onRetry={refresh}
+              stages={stages}
+              onEntityClick={(entity) => setSelectedItemId(entity.id)}
+              onEntityDelete={(id, title) =>
+                setDeleteState({ open: true, id, name: title })
+              }
+              onReorder={isSearchActive ? undefined : reorder}
+              emptySearchMessage={emptySearchMessage}
+            />
+          }
+        />
+      </CommandBarPageLayout>
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent>
@@ -251,19 +256,21 @@ export function FlatTasksDashboard({
       >
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto sm:max-w-[95vw] 2xl:max-w-[1800px]"
+          className="flex w-full flex-col overflow-hidden sm:max-w-[95vw] 2xl:max-w-[1800px]"
         >
-          <SheetHeader>
+          <SheetHeader className="shrink-0">
             <SheetTitle>Task Details</SheetTitle>
           </SheetHeader>
           {selectedItemId && selectedItem ? (
-            <ItemEditor
-              itemId={selectedItemId}
-              initialItem={selectedItem}
-              embedded
-              onClose={() => setSelectedItemId(null)}
-              onLocalPatch={(id, input) => patchLocal(id, input)}
-            />
+            <div className="min-h-0 flex-1">
+              <ItemEditor
+                itemId={selectedItemId}
+                initialItem={selectedItem}
+                embedded
+                onClose={() => setSelectedItemId(null)}
+                onLocalPatch={(id, input) => patchLocal(id, input)}
+              />
+            </div>
           ) : null}
         </SheetContent>
       </Sheet>

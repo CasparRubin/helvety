@@ -7,7 +7,7 @@ End-to-end encrypted contact management app.
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (shared CSRF/user bootstrap, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable
+- Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (shared CSRF/user bootstrap, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable. Dashboard and editor surfaces pin the contact command bar with `@helvety/ui/command-bar-page-layout` (body scrolls in shadcn `ScrollArea`).
 - Client-side encryption for sensitive contact fields
 - Fixed-category main list (`Personal`, `Work`, `Other`) with drag-and-drop reorder
 - Client-side search on decrypted fields (name/email/description/notes); while search is active, reorder/drag is disabled and an empty-search message is shown when nothing matches

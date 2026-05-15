@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
+import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import {
@@ -354,16 +355,22 @@ export function ContactEditor({
     );
   }
 
+  const pageLayoutClassName = embedded ? "min-h-0 flex-1" : undefined;
+
   // Error state - friendly UI with retry (toast already shown by hooks)
   if (error || !contact) {
     return (
-      <>
-        <ContactEditorCommandBar
-          onBack={handleBack}
-          showBack={!embedded}
-          onRefresh={handleRefresh}
-          isRefreshing={isRefreshing}
-        />
+      <CommandBarPageLayout
+        className={pageLayoutClassName}
+        commandBar={
+          <ContactEditorCommandBar
+            onBack={handleBack}
+            showBack={!embedded}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing}
+          />
+        }
+      >
         <div className="container mx-auto px-4 py-8">
           <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
             <p className="text-muted-foreground text-sm">
@@ -376,143 +383,148 @@ export function ContactEditor({
             </Button>
           </div>
         </div>
-      </>
+      </CommandBarPageLayout>
     );
   }
 
   return (
     <>
-      <ContactEditorCommandBar
-        onBack={handleBack}
-        showBack={!embedded}
-        onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
-        onSave={handleSave}
-        isSaving={isSaving}
-        hasUnsavedChanges={hasUnsavedChanges}
-        saveStatus={saveStatus}
-        onDelete={handleDelete}
-      />
+      <CommandBarPageLayout
+        className={pageLayoutClassName}
+        commandBar={
+          <ContactEditorCommandBar
+            onBack={handleBack}
+            showBack={!embedded}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing}
+            onSave={handleSave}
+            isSaving={isSaving}
+            hasUnsavedChanges={hasUnsavedChanges}
+            saveStatus={saveStatus}
+            onDelete={handleDelete}
+          />
+        }
+      >
+        <div className="container mx-auto px-4 py-8">
+          <div
+            className={
+              embedded
+                ? "flex flex-col gap-6"
+                : "flex flex-col-reverse gap-6 md:flex-row md:gap-8"
+            }
+          >
+            {/* Left column: Form fields + Notes editor */}
+            <div className="min-w-0 flex-1 space-y-6">
+              {/* Name fields */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="first-name">First Name(s)</Label>
+                  <Input
+                    id="first-name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="First name(s)"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="last-name">Last Name(s)</Label>
+                  <Input
+                    id="last-name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Last name(s)"
+                  />
+                </div>
+              </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div
-          className={
-            embedded
-              ? "flex flex-col gap-6"
-              : "flex flex-col-reverse gap-6 md:flex-row md:gap-8"
-          }
-        >
-          {/* Left column: Form fields + Notes editor */}
-          <div className="min-w-0 flex-1 space-y-6">
-            {/* Name fields */}
-            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Description field */}
               <div className="grid gap-2">
-                <Label htmlFor="first-name">First Name(s)</Label>
+                <Label htmlFor="description">Description</Label>
                 <Input
-                  id="first-name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="First name(s)"
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="e.g., Cousin, Product Manager"
                 />
               </div>
+
+              {/* Email and Phone fields */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@example.com"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+41 79 123 45 67"
+                  />
+                </div>
+              </div>
+
+              {/* Birthday field */}
               <div className="grid gap-2">
-                <Label htmlFor="last-name">Last Name(s)</Label>
-                <Input
-                  id="last-name"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Last name(s)"
+                <Label>Birthday</Label>
+                <DatePicker
+                  value={birthday}
+                  onChange={setBirthday}
+                  placeholder="Pick a birthday"
                 />
               </div>
-            </div>
 
-            {/* Description field */}
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g., Cousin, Product Manager"
-              />
-            </div>
-
-            {/* Email and Phone fields */}
-            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Notes TipTap Editor */}
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@example.com"
-                />
+                <Label>Notes</Label>
+                {editorBaselineCaptured ? (
+                  <TiptapEditor
+                    ref={editorRef}
+                    content={notesContent}
+                    onChange={handleNotesChange}
+                    placeholder="Add notes about this contact..."
+                  />
+                ) : (
+                  <div className="border-border/40 bg-background dark:bg-input/30 min-h-[200px] rounded-md border" />
+                )}
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+41 79 123 45 67"
-                />
-              </div>
-            </div>
 
-            {/* Birthday field */}
-            <div className="grid gap-2">
-              <Label>Birthday</Label>
-              <DatePicker
-                value={birthday}
-                onChange={setBirthday}
-                placeholder="Pick a birthday"
-              />
-            </div>
-
-            {/* Notes TipTap Editor */}
-            <div className="grid gap-2">
-              <Label>Notes</Label>
-              {editorBaselineCaptured ? (
-                <TiptapEditor
-                  ref={editorRef}
-                  content={notesContent}
-                  onChange={handleNotesChange}
-                  placeholder="Add notes about this contact..."
-                />
-              ) : (
-                <div className="border-border/40 bg-background dark:bg-input/30 min-h-[200px] rounded-md border" />
+              {!embedded && (
+                <div className="space-y-6">
+                  <TaskLinksPanel contactId={contactId} />
+                  <NoteLinksPanel contactId={contactId} />
+                </div>
               )}
             </div>
 
-            {!embedded && (
+            {/* Right column: Action panel */}
+            <ContactActionPanel
+              contact={contact}
+              categories={DEFAULT_CATEGORIES}
+              onCategoryChange={(categoryId) => {
+                void handleCategoryChange(categoryId);
+              }}
+              isSavingCategory={isSavingCategory}
+              stacked={embedded}
+            />
+
+            {embedded && (
               <div className="space-y-6">
                 <TaskLinksPanel contactId={contactId} />
                 <NoteLinksPanel contactId={contactId} />
               </div>
             )}
           </div>
-
-          {/* Right column: Action panel */}
-          <ContactActionPanel
-            contact={contact}
-            categories={DEFAULT_CATEGORIES}
-            onCategoryChange={(categoryId) => {
-              void handleCategoryChange(categoryId);
-            }}
-            isSavingCategory={isSavingCategory}
-            stacked={embedded}
-          />
-
-          {embedded && (
-            <div className="space-y-6">
-              <TaskLinksPanel contactId={contactId} />
-              <NoteLinksPanel contactId={contactId} />
-            </div>
-          )}
         </div>
-      </div>
+      </CommandBarPageLayout>
 
       {/* Unsaved Changes Confirmation Dialog */}
       <AlertDialog

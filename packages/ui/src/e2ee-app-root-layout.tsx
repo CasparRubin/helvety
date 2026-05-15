@@ -11,7 +11,6 @@ import { CSRFProvider } from "./csrf-provider";
 import { EncryptionGateApp } from "./encryption-gate-app";
 import { Footer } from "./footer";
 import { JsonLdScript } from "./json-ld-script";
-import { ScrollArea } from "./scroll-area";
 import { SessionRecovery } from "./session-recovery";
 import { SkipToContent } from "./skip-to-content";
 import { Toaster } from "./sonner";
@@ -39,8 +38,8 @@ export type E2eeAppRootLayoutProps = Readonly<{
   /** App-local client encryption context (e.g. `@/lib/crypto`). */
   encryptionProvider: ComponentType<{ children: ReactNode }>;
   /**
-   * Sticky header for the zone; conventionally the app's `Navbar` component
-   * forwarding `initialUser` into `E2eeAppNavbar`.
+   * Fixed header for the zone (non-scrolling); conventionally the app's `Navbar`
+   * component forwarding `initialUser` into `E2eeAppNavbar`.
    */
   renderNavbar: (initialUser: User | null) => ReactNode;
 }>;
@@ -49,6 +48,9 @@ export type E2eeAppRootLayoutProps = Readonly<{
  * Shared root shell for Contacts, Notes, and Tasks: nonce, per-request CSRF +
  * user bootstrap (`getCachedCSRFToken`, `getCachedUser`), JSON-LD, theme and
  * tooltip shell, app `encryptionProvider`, `EncryptionGateApp` when authenticated.
+ *
+ * Main does not scroll at the layout level; list/editor pages pin the command bar
+ * with {@link CommandBarPageLayout} and scroll body content via `ScrollArea`.
  */
 export async function E2eeAppRootLayout({
   children,
@@ -92,19 +94,20 @@ export async function E2eeAppRootLayout({
                   <header className="shrink-0">
                     {renderNavbar(initialUser)}
                   </header>
-                  <ScrollArea className="min-h-0 flex-1">
-                    <div className="container mx-auto w-full px-4">
-                      <main id="main-content">
-                        {initialUser ? (
-                          <EncryptionGateApp userId={initialUser.id}>
-                            {children}
-                          </EncryptionGateApp>
-                        ) : (
-                          children
-                        )}
-                      </main>
+                  <main
+                    id="main-content"
+                    className="flex min-h-0 flex-1 flex-col overflow-hidden"
+                  >
+                    <div className="container mx-auto flex min-h-0 w-full flex-1 flex-col overflow-hidden px-4">
+                      {initialUser ? (
+                        <EncryptionGateApp userId={initialUser.id}>
+                          {children}
+                        </EncryptionGateApp>
+                      ) : (
+                        children
+                      )}
                     </div>
-                  </ScrollArea>
+                  </main>
                   <Footer className="shrink-0" />
                 </div>
                 <Toaster />

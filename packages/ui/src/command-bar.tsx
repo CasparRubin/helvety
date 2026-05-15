@@ -4,10 +4,11 @@ import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
 /**
- * CommandBar - shared sticky toolbar shell used below the main app navbar on
- * surfaces that expose a sticky action row (tasks, contacts, notes, PDF,
- * image upscaler, store). Provides the outer container and flex row; each app
- * supplies its own buttons and links as children.
+ * CommandBar - shared pinned toolbar shell used below the main app navbar on
+ * surfaces that expose an action row (tasks, contacts, notes, PDF, image
+ * upscaler, store). Parents must place this **outside** scroll regions (shell
+ * prefix slot or {@link CommandBarPageLayout}); layout owns pinning via
+ * `shrink-0`, not CSS sticky.
  */
 export function CommandBar({
   children,
@@ -19,7 +20,7 @@ export function CommandBar({
   return (
     <nav
       className={cn(
-        "bg-surface-toolbar sticky top-0 z-40 w-full border-x border-b",
+        "bg-surface-toolbar z-40 w-full shrink-0 border-x border-b",
         className
       )}
     >

@@ -7,6 +7,7 @@ import {
 } from "@helvety/shared/e2ee-dashboard-search";
 import { logger } from "@helvety/shared/logger";
 import { Button } from "@helvety/ui/button";
+import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
 import {
   Dialog,
   DialogContent,
@@ -193,40 +194,44 @@ export function ContactsDashboard({
 
   return (
     <>
-      <ContactCommandBar
-        onCreateClick={() => setIsCreateOpen(true)}
-        onRefresh={handleRefresh}
-        isRefreshing={isRefreshing || isRefreshPending}
-        onExport={isUnlocked && masterKey ? handleExportData : undefined}
-        isExporting={isExporting}
-      />
-
-      <EntityDashboardShell
-        title="Contacts"
-        searchField={
-          <ListSearchField
-            className="mb-4"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search contacts…"
-            aria-label="Search contacts"
+      <CommandBarPageLayout
+        commandBar={
+          <ContactCommandBar
+            onCreateClick={() => setIsCreateOpen(true)}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing || isRefreshPending}
+            onExport={isUnlocked && masterKey ? handleExportData : undefined}
+            isExporting={isExporting}
           />
         }
-        list={
-          <ContactList
-            contacts={filteredContacts}
-            isLoading={isLoading}
-            isRefreshing={isRefreshing}
-            error={error}
-            onRetry={refresh}
-            onContactClick={(contact) => setSelectedContactId(contact.id)}
-            onContactDelete={handleDeleteClick}
-            onReorder={isSearchActive ? undefined : reorder}
-            categories={DEFAULT_CATEGORIES}
-            emptySearchMessage={emptySearchMessage}
-          />
-        }
-      />
+      >
+        <EntityDashboardShell
+          title="Contacts"
+          searchField={
+            <ListSearchField
+              className="mb-4"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search contacts…"
+              aria-label="Search contacts"
+            />
+          }
+          list={
+            <ContactList
+              contacts={filteredContacts}
+              isLoading={isLoading}
+              isRefreshing={isRefreshing}
+              error={error}
+              onRetry={refresh}
+              onContactClick={(contact) => setSelectedContactId(contact.id)}
+              onContactDelete={handleDeleteClick}
+              onReorder={isSearchActive ? undefined : reorder}
+              categories={DEFAULT_CATEGORIES}
+              emptySearchMessage={emptySearchMessage}
+            />
+          }
+        />
+      </CommandBarPageLayout>
 
       <Sheet
         open={selectedContactId !== null}
@@ -236,19 +241,21 @@ export function ContactsDashboard({
       >
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto sm:max-w-[95vw] 2xl:max-w-[1800px]"
+          className="flex w-full flex-col overflow-hidden sm:max-w-[95vw] 2xl:max-w-[1800px]"
         >
-          <SheetHeader>
+          <SheetHeader className="shrink-0">
             <SheetTitle>Contact Details</SheetTitle>
           </SheetHeader>
           {selectedContactId ? (
-            <ContactEditor
-              contactId={selectedContactId}
-              initialContact={selectedContact ?? undefined}
-              embedded
-              onClose={() => setSelectedContactId(null)}
-              onLocalPatch={(id, input) => patchLocal(id, input)}
-            />
+            <div className="min-h-0 flex-1">
+              <ContactEditor
+                contactId={selectedContactId}
+                initialContact={selectedContact ?? undefined}
+                embedded
+                onClose={() => setSelectedContactId(null)}
+                onLocalPatch={(id, input) => patchLocal(id, input)}
+              />
+            </div>
           ) : null}
         </SheetContent>
       </Sheet>

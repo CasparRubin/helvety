@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Store section navigation
- * Renders section links below the navbar.
- * Desktop: horizontal flex row of link-buttons
- * Mobile: dropdown showing the active link as trigger
+ * Store section navigation — pinned below the navbar via
+ * `scrollAreaMainPrefix` on `HelvetyPublicShellRootLayout` (outside main scroll).
+ * Desktop: horizontal flex row of link-buttons.
+ * Mobile: dropdown showing the active link as trigger.
  */
 
 import { cn } from "@helvety/shared/utils";

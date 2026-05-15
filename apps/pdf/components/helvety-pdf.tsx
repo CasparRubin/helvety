@@ -154,7 +154,7 @@ export function HelvetyPdf(): React.JSX.Element {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Command Bar - sticky toolbar below navbar */}
+      {/* Command bar - pinned above scrollable workspace */}
       <PdfCommandBar
         fileCount={pdfFiles.length}
         onAddFiles={() => fileInputRef.current?.click()}

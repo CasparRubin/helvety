@@ -44,7 +44,7 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
   organizationLogoUrl: string;
   /** Objects appended after `createHelvetyOrganizationSchema` in JSON-LD `@graph`. */
   jsonLdGraphTail: ReadonlyArray<Record<string, unknown>>;
-  /** Sticky header (conventionally the app `Navbar`). */
+  /** Fixed header slot (conventionally the app `Navbar`; non-scrolling). */
   renderNavbar: ReactNode;
   mainVariant: HelvetyPublicShellMainVariant;
   sessionRecoveryMode?: "optional" | "required";
@@ -70,8 +70,8 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
    */
   themeProviderScope?: HelvetyPublicShellThemeProviderScope;
   /**
-   * When `mainVariant` is `scroll-area`, rendered inside the container before
-   * `<main>` (e.g. Store sub-navigation).
+   * When `mainVariant` is `scroll-area`, rendered **above** the main `ScrollArea`
+   * (pinned like the navbar; e.g. Store sub-navigation).
    */
   scrollAreaMainPrefix?: ReactNode;
   /** Optional class on `<main>` when `mainVariant` is `scroll-area`. */
@@ -103,32 +103,34 @@ function buildMainBlock(
   scrollAreaRootClassName: string | undefined,
   scrollAreaViewportClassName: string | undefined
 ): React.JSX.Element {
-  const scrollColumn = (
-    <div className="container mx-auto flex min-h-0 min-w-0 flex-1 flex-col px-4">
-      {scrollAreaMainPrefix}
-      <main
-        id="main-content"
-        className={cn(
-          "flex min-h-0 min-w-0 flex-1 flex-col",
-          scrollAreaMainClassName
-        )}
-      >
-        {children}
-      </main>
-    </div>
-  );
-
   if (mainVariant === "scroll-area") {
     return (
-      <ScrollArea
-        className={cn(
-          "flex min-h-0 min-w-0 flex-1 flex-col [&>[data-radix-scroll-area-viewport]]:max-h-full [&>[data-radix-scroll-area-viewport]]:min-h-0 [&>[data-radix-scroll-area-viewport]]:flex-1",
-          scrollAreaRootClassName ?? "overflow-hidden"
-        )}
-        viewportClassName={scrollAreaViewportClassName}
-      >
-        {scrollColumn}
-      </ScrollArea>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        {scrollAreaMainPrefix ? (
+          <div className="container mx-auto w-full shrink-0 px-4">
+            {scrollAreaMainPrefix}
+          </div>
+        ) : null}
+        <ScrollArea
+          className={cn(
+            "flex min-h-0 min-w-0 flex-1 flex-col [&>[data-radix-scroll-area-viewport]]:max-h-full [&>[data-radix-scroll-area-viewport]]:min-h-0 [&>[data-radix-scroll-area-viewport]]:flex-1",
+            scrollAreaRootClassName ?? "overflow-hidden"
+          )}
+          viewportClassName={scrollAreaViewportClassName}
+        >
+          <div className="container mx-auto flex min-h-0 min-w-0 flex-1 flex-col px-4">
+            <main
+              id="main-content"
+              className={cn(
+                "flex min-h-0 min-w-0 flex-1 flex-col",
+                scrollAreaMainClassName
+              )}
+            >
+              {children}
+            </main>
+          </div>
+        </ScrollArea>
+      </div>
     );
   }
 
@@ -149,7 +151,9 @@ function buildMainBlock(
  * {@link wrapInsideTooltipProvider} (e.g. CSRF / encryption for Auth, `CSRFProvider` for Store),
  * navbar + main + footer, toaster, Vercel analytics.
  *
- * With `mainVariant: "scroll-area"`, optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
+ * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
+ * section nav) renders **above** the main `ScrollArea` so it stays visible while catalog
+ * content scrolls. Optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
  * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
  * content can extend horizontally (for example gateway web: full-bleed Hyperspeed host — SSR-stable
  * wrapper, WebGL client-only). Other apps keep the defaults.

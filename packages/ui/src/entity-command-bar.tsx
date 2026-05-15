@@ -40,7 +40,11 @@ export interface EntityCommandBarProps {
   isExporting?: boolean;
 }
 
-/** Shared responsive command bar used by entity list dashboards. */
+/**
+ * Shared responsive command bar used by entity list dashboards. Compose inside
+ * `CommandBar`; pair with `CommandBarPageLayout` on E2EE dashboards so the bar
+ * stays pinned while the list scrolls.
+ */
 export function EntityCommandBar({
   createLabel,
   onCreateClick,

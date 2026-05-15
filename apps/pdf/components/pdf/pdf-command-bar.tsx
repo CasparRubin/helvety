@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * PDF command bar - sticky toolbar below navbar for the PDF app.
+ * PDF command bar - pinned toolbar below navbar for the PDF app.
  * Primary actions (always visible): add files, download
  * Secondary actions (desktop inline, mobile dropdown): clear all
  */

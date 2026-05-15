@@ -4,7 +4,7 @@
   "private": true,
   "description": "Monorepo for Helvety web applications on helvety.com. Engineered, Designed & Made in Switzerland.",
   "author": "Helvety",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "homepage": "https://helvety.com",
   "repository": {
     "type": "git",

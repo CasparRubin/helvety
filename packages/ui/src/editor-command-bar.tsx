@@ -107,7 +107,11 @@ function getSaveButtonContent(
   );
 }
 
-/** Shared responsive command bar for editor pages. */
+/**
+ * Shared responsive command bar for editor pages. Compose inside `CommandBar`;
+ * parent pages should wrap toolbar + body in `CommandBarPageLayout` so the bar
+ * stays pinned while editor content scrolls.
+ */
 export function EditorCommandBar({
   backIcon,
   backLabel = "Back",

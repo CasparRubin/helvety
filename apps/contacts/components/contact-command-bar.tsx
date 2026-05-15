@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Contact command bar - sticky toolbar below navbar for the contacts list page.
+ * Contact command bar - pinned toolbar below navbar for the contacts list page.
  * Primary actions (always visible): create
  * Secondary actions (desktop inline, mobile dropdown): refresh, settings
  */

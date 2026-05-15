@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
+import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
 import { Input } from "@helvety/ui/input";
 import {
   parseRichTextContent,
@@ -400,16 +401,22 @@ export function ItemEditor({
     );
   }
 
+  const pageLayoutClassName = embedded ? "min-h-0 flex-1" : undefined;
+
   // Error state - friendly UI with retry (toast already shown by hooks)
   if (error || !item) {
     return (
-      <>
-        <ItemCommandBar
-          onBack={handleBack}
-          showBack={!embedded}
-          onRefresh={handleRefresh}
-          isRefreshing={isRefreshing}
-        />
+      <CommandBarPageLayout
+        className={pageLayoutClassName}
+        commandBar={
+          <ItemCommandBar
+            onBack={handleBack}
+            showBack={!embedded}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing}
+          />
+        }
+      >
         <div className="container mx-auto px-4 py-8">
           <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
             <p className="text-muted-foreground text-sm">
@@ -422,102 +429,108 @@ export function ItemEditor({
             </Button>
           </div>
         </div>
-      </>
+      </CommandBarPageLayout>
     );
   }
 
   return (
     <>
-      <ItemCommandBar
-        onBack={handleBack}
-        showBack={!embedded}
-        onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
-        onSave={handleManualSave}
-        isSaving={saveStatus === "saving"}
-        hasUnsavedChanges={hasUnsavedChanges}
-        saveStatus={saveStatus}
-        onDelete={() => setIsDeleteOpen(true)}
-        deleteLabel="Delete Task"
-      />
-      <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb removed: list opens this sheet (no in-app hierarchy). */}
+      <CommandBarPageLayout
+        className={pageLayoutClassName}
+        commandBar={
+          <ItemCommandBar
+            onBack={handleBack}
+            showBack={!embedded}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing}
+            onSave={handleManualSave}
+            isSaving={saveStatus === "saving"}
+            hasUnsavedChanges={hasUnsavedChanges}
+            saveStatus={saveStatus}
+            onDelete={() => setIsDeleteOpen(true)}
+            deleteLabel="Delete Task"
+          />
+        }
+      >
+        <div className="container mx-auto px-4 py-8">
+          {/* Breadcrumb removed: list opens this sheet (no in-app hierarchy). */}
 
-        {/* Full-page mode: two-column layout. Sheet-embedded mode: always stacked. */}
-        <div
-          className={
-            embedded
-              ? "flex flex-col gap-6"
-              : "flex flex-col-reverse gap-6 md:flex-row md:gap-8"
-          }
-        >
-          {/* Left column - main content */}
-          <div className="min-w-0 flex-1">
-            {/* Title input */}
-            <div className="mb-6">
-              {embedded ? (
-                <Input
-                  id="item-title"
-                  value={title}
-                  onChange={handleTitleChange}
-                  placeholder="Task title..."
+          {/* Full-page mode: two-column layout. Sheet-embedded mode: always stacked. */}
+          <div
+            className={
+              embedded
+                ? "flex flex-col gap-6"
+                : "flex flex-col-reverse gap-6 md:flex-row md:gap-8"
+            }
+          >
+            {/* Left column - main content */}
+            <div className="min-w-0 flex-1">
+              {/* Title input */}
+              <div className="mb-6">
+                {embedded ? (
+                  <Input
+                    id="item-title"
+                    value={title}
+                    onChange={handleTitleChange}
+                    placeholder="Task title..."
+                  />
+                ) : (
+                  <input
+                    id="item-title"
+                    value={title}
+                    onChange={handleTitleChange}
+                    placeholder="Task title..."
+                    className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-2xl leading-tight font-bold outline-none md:text-4xl"
+                  />
+                )}
+              </div>
+
+              {/* Description editor */}
+              <div className="mb-6">
+                <TiptapEditor
+                  ref={editorRef}
+                  content={parseRichTextContent(item.description)}
+                  onChange={handleDescriptionChange}
+                  placeholder="Add a description... Use the toolbar above for formatting."
                 />
-              ) : (
-                <input
-                  id="item-title"
-                  value={title}
-                  onChange={handleTitleChange}
-                  placeholder="Task title..."
-                  className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-2xl leading-tight font-bold outline-none md:text-4xl"
-                />
+              </div>
+
+              {!embedded && (
+                <div className="mb-6 space-y-6">
+                  <NoteLinksPanel itemId={itemId} />
+                  <ContactLinksPanel itemId={itemId} />
+                </div>
               )}
             </div>
 
-            {/* Description editor */}
-            <div className="mb-6">
-              <TiptapEditor
-                ref={editorRef}
-                content={parseRichTextContent(item.description)}
-                onChange={handleDescriptionChange}
-                placeholder="Add a description... Use the toolbar above for formatting."
-              />
-            </div>
+            {/* Right column - action panel */}
+            <ItemActionPanel
+              item={item}
+              stages={stages}
+              isLoadingStages={isLoadingStages}
+              onStageChange={handleStageChange}
+              isSavingStage={isSavingStage}
+              labels={labels}
+              isLoadingLabels={isLoadingLabels}
+              onLabelChange={handleLabelChange}
+              isSavingLabel={isSavingLabel}
+              onPriorityChange={handlePriorityChange}
+              isSavingPriority={isSavingPriority}
+              onStartDateChange={handleStartDateChange}
+              onEndDateChange={handleEndDateChange}
+              isSavingDates={isSavingDates}
+              stacked={embedded}
+            />
 
-            {!embedded && (
-              <div className="mb-6 space-y-6">
+            {embedded && (
+              <div className="w-full space-y-6">
                 <NoteLinksPanel itemId={itemId} />
                 <ContactLinksPanel itemId={itemId} />
               </div>
             )}
           </div>
-
-          {/* Right column - action panel */}
-          <ItemActionPanel
-            item={item}
-            stages={stages}
-            isLoadingStages={isLoadingStages}
-            onStageChange={handleStageChange}
-            isSavingStage={isSavingStage}
-            labels={labels}
-            isLoadingLabels={isLoadingLabels}
-            onLabelChange={handleLabelChange}
-            isSavingLabel={isSavingLabel}
-            onPriorityChange={handlePriorityChange}
-            isSavingPriority={isSavingPriority}
-            onStartDateChange={handleStartDateChange}
-            onEndDateChange={handleEndDateChange}
-            isSavingDates={isSavingDates}
-            stacked={embedded}
-          />
-
-          {embedded && (
-            <div className="w-full space-y-6">
-              <NoteLinksPanel itemId={itemId} />
-              <ContactLinksPanel itemId={itemId} />
-            </div>
-          )}
         </div>
-      </div>
+      </CommandBarPageLayout>
 
       {/* Delete Task Confirmation Dialog */}
       <DeleteConfirmationDialog

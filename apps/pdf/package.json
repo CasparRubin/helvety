@@ -1,7 +1,7 @@
 {
   "name": "@helvety/pdf",
   "version": "3.2.0",
-  "description": "In-browser PDF merge, reorder, rotate, extract, and add images; supported work stays local. MIT-licensed toolkit from Switzerland.",
+  "description": "In-browser PDF merge, reorder, rotate, extract, and add images; supported work stays local. AGPL-3.0-licensed open source toolkit from Switzerland.",
   "author": "Helvety",
   "homepage": "https://helvety.com/pdf",
   "repository": {
@@ -10,7 +10,7 @@
     "directory": "apps/pdf"
   },
   "private": true,
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "engines": {
     "node": "24.x"
   },

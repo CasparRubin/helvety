@@ -60,7 +60,7 @@ export const metadata = createHelvetyProductMetadata({
 
 /**
  * Root layout: ThemeProvider wraps only the Navbar (next-themes injects a script; keep route content outside).
- * ScrollArea main, StoreNav, and footer follow.
+ * Pinned StoreNav (`scrollAreaMainPrefix`), scrollable main (`ScrollArea`), and footer follow.
  * Navbar-only ThemeProvider is intentional to avoid theme flash on catalog pages.
  */
 export default async function RootLayout({

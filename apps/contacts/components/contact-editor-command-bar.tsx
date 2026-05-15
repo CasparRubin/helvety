@@ -29,7 +29,7 @@ interface ContactEditorCommandBarProps {
 }
 
 /**
- * Renders the contact editor command bar.
+ * Renders the contact editor command bar (parent uses CommandBarPageLayout).
  */
 export function ContactEditorCommandBar({
   onBack,

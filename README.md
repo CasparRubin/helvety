@@ -12,7 +12,7 @@ Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 - Client-encrypted apps (E2EE): `tasks`, `contacts`, `notes`
 - Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/brand`
 
-Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`) use `@helvety/ui/e2ee-app-root-layout`. Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF and user state inside `E2eeAppRootLayout` through the same shared helper layer.
+Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`) use `@helvety/ui/e2ee-app-root-layout`. Command bars (store section nav, list toolbars, PDF/image toolbars, E2EE dashboards/editors) stay pinned outside scroll via shell slots (`scrollAreaMainPrefix`, `overflow-main` flex columns, or `CommandBarPageLayout` + shadcn `ScrollArea`). Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF and user state inside `E2eeAppRootLayout` through the same shared helper layer.
 
 ## Applications
 

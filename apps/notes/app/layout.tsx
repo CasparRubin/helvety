@@ -41,7 +41,7 @@ export const metadata = createHelvetyProductMetadata({
 });
 
 /**
- * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer.
+ * Root layout: fixed header (Navbar), overflow-hidden main (pages own scroll via CommandBarPageLayout), fixed footer.
  */
 export default function RootLayout({
   children,

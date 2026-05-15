@@ -35,6 +35,7 @@ interface ItemCommandBarProps {
 /**
  * Renders the item command bar with primary actions always visible
  * and secondary actions collapsed into a dropdown on mobile.
+ * Parent pages use CommandBarPageLayout so the bar stays pinned while content scrolls.
  */
 export function ItemCommandBar({
   onBack,

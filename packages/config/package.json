@@ -4,7 +4,7 @@
   "private": true,
   "description": "Shared TypeScript, ESLint (createEslintConfig / createPackageEslintConfig + @typescript-eslint/naming-convention; default export for package self-lint), Vitest, PostCSS, and Next.js security-header configurations",
   "author": "Helvety",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "homepage": "https://helvety.com",
   "repository": {
     "type": "git",

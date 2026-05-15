@@ -78,6 +78,25 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain("text-foreground");
   });
 
+  it("scroll-area variant without prefix wraps only main content in ScrollArea", async () => {
+    const tree = await HelvetyPublicShellRootLayout({
+      children: <p data-testid="body">In scroll</p>,
+      organizationLogoUrl: "https://example.com/logo.png",
+      jsonLdGraphTail: [],
+      renderNavbar: <div data-testid="nb">X</div>,
+      mainVariant: "scroll-area",
+    });
+
+    const html = renderToStaticMarkup(tree);
+    const scrollIndex = html.indexOf('data-slot="scroll-area"');
+    const mainIndex = html.indexOf('id="main-content"');
+    const bodyIndex = html.indexOf('data-testid="body"');
+
+    expect(scrollIndex).toBeGreaterThan(-1);
+    expect(mainIndex).toBeGreaterThan(scrollIndex);
+    expect(bodyIndex).toBeGreaterThan(mainIndex);
+  });
+
   it("navbar-only scope passes auth+session+column+toaster into wrap and renders scroll prefix", async () => {
     const tree = await HelvetyPublicShellRootLayout({
       children: <p>Catalog</p>,
@@ -95,6 +114,14 @@ describe("HelvetyPublicShellRootLayout", () => {
     const html = renderToStaticMarkup(tree);
     expect(html).toContain('data-testid="providers-mock"');
     expect(html).toContain('data-testid="store-subnav"');
+    const subnavIndex = html.indexOf('data-testid="store-subnav"');
+    const scrollIndex = html.indexOf('data-slot="scroll-area"');
+    expect(subnavIndex).toBeGreaterThan(-1);
+    expect(scrollIndex).toBeGreaterThan(-1);
+    expect(subnavIndex).toBeLessThan(scrollIndex);
+    const betweenSubnavAndScroll = html.slice(subnavIndex, scrollIndex);
+    expect(betweenSubnavAndScroll).not.toContain("Catalog");
+    expect(betweenSubnavAndScroll).not.toContain('id="main-content"');
     expect(html).toContain("Catalog");
     expect(html).toContain("bg-background");
     expect(html).toContain("text-foreground");

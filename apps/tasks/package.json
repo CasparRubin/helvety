@@ -1,7 +1,7 @@
 {
   "name": "@helvety/tasks",
   "version": "3.2.0",
-  "description": "Encrypted stage-based tasks with immutable stages and optional decrypted list search. MIT-licensed, Swiss-built.",
+  "description": "Encrypted stage-based tasks with immutable stages and optional decrypted list search. AGPL-3.0-licensed open source, Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/tasks",
   "repository": {
@@ -10,7 +10,7 @@
     "directory": "apps/tasks"
   },
   "private": true,
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "engines": {
     "node": "24.x"
   },

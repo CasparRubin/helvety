@@ -19,6 +19,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@helvety/ui/collapsible";
+import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
 import { renderIcon } from "@helvety/ui/icon-renderer";
 import { Input } from "@helvety/ui/input";
 import {
@@ -341,16 +342,22 @@ export function ItemEditor({
     );
   }
 
+  const pageLayoutClassName = embedded ? "min-h-0 flex-1" : undefined;
+
   // Error state - friendly UI with retry (toast already shown by hooks)
   if (error || !item) {
     return (
-      <>
-        <ItemCommandBar
-          onBack={handleBack}
-          showBack={!embedded}
-          onRefresh={handleRefresh}
-          isRefreshing={isRefreshing}
-        />
+      <CommandBarPageLayout
+        className={pageLayoutClassName}
+        commandBar={
+          <ItemCommandBar
+            onBack={handleBack}
+            showBack={!embedded}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing}
+          />
+        }
+      >
         <div className="container mx-auto px-4 py-8">
           <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
             <p className="text-muted-foreground text-sm">
@@ -363,137 +370,143 @@ export function ItemEditor({
             </Button>
           </div>
         </div>
-      </>
+      </CommandBarPageLayout>
     );
   }
 
   return (
     <>
-      <ItemCommandBar
-        onBack={handleBack}
-        showBack={!embedded}
-        onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
-        onSave={handleManualSave}
-        isSaving={saveStatus === "saving"}
-        hasUnsavedChanges={hasUnsavedChanges}
-        saveStatus={saveStatus}
-        onDelete={() => setIsDeleteOpen(true)}
-        deleteLabel="Delete Note"
-      />
-      <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb removed: list opens this sheet (no in-app hierarchy). */}
+      <CommandBarPageLayout
+        className={pageLayoutClassName}
+        commandBar={
+          <ItemCommandBar
+            onBack={handleBack}
+            showBack={!embedded}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing}
+            onSave={handleManualSave}
+            isSaving={saveStatus === "saving"}
+            hasUnsavedChanges={hasUnsavedChanges}
+            saveStatus={saveStatus}
+            onDelete={() => setIsDeleteOpen(true)}
+            deleteLabel="Delete Note"
+          />
+        }
+      >
+        <div className="container mx-auto px-4 py-8">
+          {/* Breadcrumb removed: list opens this sheet (no in-app hierarchy). */}
 
-        <div className="flex flex-col gap-6">
-          <div className="min-w-0">
-            {/* Title input */}
-            <div className="mb-6">
-              {embedded ? (
-                <Input
-                  id="item-title"
-                  value={title}
-                  onChange={handleTitleChange}
-                  placeholder="Note title..."
+          <div className="flex flex-col gap-6">
+            <div className="min-w-0">
+              {/* Title input */}
+              <div className="mb-6">
+                {embedded ? (
+                  <Input
+                    id="item-title"
+                    value={title}
+                    onChange={handleTitleChange}
+                    placeholder="Note title..."
+                  />
+                ) : (
+                  <input
+                    id="item-title"
+                    value={title}
+                    onChange={handleTitleChange}
+                    placeholder="Note title..."
+                    className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-2xl leading-tight font-bold outline-none md:text-4xl"
+                  />
+                )}
+              </div>
+
+              {/* Description editor */}
+              <div className="mb-6">
+                <TiptapEditor
+                  ref={editorRef}
+                  content={parseRichTextContent(item.description)}
+                  onChange={handleDescriptionChange}
+                  placeholder="Add a description... Use the toolbar above for formatting."
                 />
-              ) : (
-                <input
-                  id="item-title"
-                  value={title}
-                  onChange={handleTitleChange}
-                  placeholder="Note title..."
-                  className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-2xl leading-tight font-bold outline-none md:text-4xl"
-                />
+              </div>
+
+              <div className="mb-6">
+                <Card size="sm" className="bg-surface-panel">
+                  <CardContent>
+                    <Collapsible
+                      open={categoryOpen}
+                      onOpenChange={setCategoryOverride}
+                    >
+                      <CollapsibleTrigger className="group flex w-full items-center justify-between">
+                        <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+                          Category
+                          {isSavingCategory && (
+                            <Loader2Icon className="size-3 animate-spin" />
+                          )}
+                        </h3>
+                        <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="mt-2 flex flex-col gap-1">
+                          {DEFAULT_NOTE_CATEGORIES.map((category) => {
+                            const isActive = item.category_id === category.id;
+                            return (
+                              <Button
+                                key={category.id}
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                disabled={isSavingCategory}
+                                className={cn(
+                                  "h-auto justify-start gap-2 px-2.5 py-1.5",
+                                  isActive && "ring-ring/30 bg-muted ring-1"
+                                )}
+                                style={
+                                  isActive
+                                    ? { backgroundColor: `${category.color}18` }
+                                    : undefined
+                                }
+                                onClick={() => {
+                                  void handleCategoryChange(category.id);
+                                }}
+                              >
+                                {renderIcon(category.icon, "size-4 shrink-0", {
+                                  color:
+                                    category.color ?? "var(--muted-foreground)",
+                                })}
+                                <span
+                                  className={cn(
+                                    "truncate text-sm",
+                                    isActive ? "font-medium" : "font-normal"
+                                  )}
+                                >
+                                  {category.name}
+                                </span>
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {!embedded && (
+                <div className="mb-6 space-y-6">
+                  <TaskLinksPanel noteId={itemId} />
+                  <ContactLinksPanel itemId={itemId} />
+                </div>
               )}
             </div>
 
-            {/* Description editor */}
-            <div className="mb-6">
-              <TiptapEditor
-                ref={editorRef}
-                content={parseRichTextContent(item.description)}
-                onChange={handleDescriptionChange}
-                placeholder="Add a description... Use the toolbar above for formatting."
-              />
-            </div>
-
-            <div className="mb-6">
-              <Card size="sm" className="bg-surface-panel">
-                <CardContent>
-                  <Collapsible
-                    open={categoryOpen}
-                    onOpenChange={setCategoryOverride}
-                  >
-                    <CollapsibleTrigger className="group flex w-full items-center justify-between">
-                      <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
-                        Category
-                        {isSavingCategory && (
-                          <Loader2Icon className="size-3 animate-spin" />
-                        )}
-                      </h3>
-                      <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="mt-2 flex flex-col gap-1">
-                        {DEFAULT_NOTE_CATEGORIES.map((category) => {
-                          const isActive = item.category_id === category.id;
-                          return (
-                            <Button
-                              key={category.id}
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              disabled={isSavingCategory}
-                              className={cn(
-                                "h-auto justify-start gap-2 px-2.5 py-1.5",
-                                isActive && "ring-ring/30 bg-muted ring-1"
-                              )}
-                              style={
-                                isActive
-                                  ? { backgroundColor: `${category.color}18` }
-                                  : undefined
-                              }
-                              onClick={() => {
-                                void handleCategoryChange(category.id);
-                              }}
-                            >
-                              {renderIcon(category.icon, "size-4 shrink-0", {
-                                color:
-                                  category.color ?? "var(--muted-foreground)",
-                              })}
-                              <span
-                                className={cn(
-                                  "truncate text-sm",
-                                  isActive ? "font-medium" : "font-normal"
-                                )}
-                              >
-                                {category.name}
-                              </span>
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </CardContent>
-              </Card>
-            </div>
-
-            {!embedded && (
-              <div className="mb-6 space-y-6">
+            {embedded && (
+              <div className="w-full space-y-6">
                 <TaskLinksPanel noteId={itemId} />
                 <ContactLinksPanel itemId={itemId} />
               </div>
             )}
           </div>
-
-          {embedded && (
-            <div className="w-full space-y-6">
-              <TaskLinksPanel noteId={itemId} />
-              <ContactLinksPanel itemId={itemId} />
-            </div>
-          )}
         </div>
-      </div>
+      </CommandBarPageLayout>
 
       {/* Delete Note Confirmation Dialog */}
       <DeleteConfirmationDialog

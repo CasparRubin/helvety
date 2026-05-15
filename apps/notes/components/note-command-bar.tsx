@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Note command bar - sticky toolbar below navbar
+ * Note command bar - pinned toolbar below navbar (via CommandBarPageLayout)
  * Primary actions: create (and optional back when enabled)
  * Secondary actions (desktop inline, mobile dropdown): refresh, settings, edit, delete
  */
