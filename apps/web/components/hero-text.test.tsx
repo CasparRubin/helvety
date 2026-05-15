@@ -72,6 +72,8 @@ describe("hero-text", () => {
           triggerOnHover: false,
           respectReducedMotion: true,
           threshold: 0.01,
+          loop: true,
+          loopDelay: 5,
           className: expect.stringContaining("uppercase"),
         }),
         undefined
@@ -122,6 +124,8 @@ describe("hero-text", () => {
         expect.objectContaining({
           text: "Software products",
           respectReducedMotion: true,
+          loop: true,
+          loopDelay: 5,
         }),
         undefined
       );

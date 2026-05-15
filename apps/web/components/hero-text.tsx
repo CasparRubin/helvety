@@ -3,7 +3,7 @@
 /**
  * Helvety presets for React Bits hero text on `/` (see {@link ./hero-section}).
  *
- * - **Shuffle**: eyebrow (`Software products`); `respectReducedMotion` handles reduced motion internally.
+ * - **Shuffle**: eyebrow (`Software products`), replays every 5s; `respectReducedMotion` handles reduced motion internally.
  * - **Gradient Text**: `Switzerland`; static red span when `useReducedMotion()` is true.
  * - **Shiny Text**: tagline; muted static paragraph when `useReducedMotion()` is true.
  *
@@ -21,6 +21,9 @@ const TAGLINE = "private · simple · clean";
 
 const TAGLINE_CLASS = "text-base tracking-[0.08em] md:text-lg";
 
+/** Seconds between Shuffle replays on the hero eyebrow (GSAP `loopDelay`). */
+const HERO_SOFTWARE_PRODUCTS_SHUFFLE_LOOP_DELAY_S = 5;
+
 /** Eyebrow: React Bits Shuffle (https://reactbits.dev/text-animations/shuffle) */
 export function HeroSoftwareProducts() {
   return (
@@ -31,6 +34,8 @@ export function HeroSoftwareProducts() {
       triggerOnHover={false}
       respectReducedMotion
       threshold={0.01}
+      loop
+      loopDelay={HERO_SOFTWARE_PRODUCTS_SHUFFLE_LOOP_DELAY_S}
     />
   );
 }
