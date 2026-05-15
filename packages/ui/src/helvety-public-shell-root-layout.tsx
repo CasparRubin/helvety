@@ -81,7 +81,7 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
    * Passed last in `cn(...)` so callers can override defaults (e.g. `!overflow-visible` for horizontal bleed).
    */
   scrollAreaRootClassName?: string;
-  /** Optional classes on the ScrollArea **viewport** — see {@link ScrollArea} `viewportClassName`. */
+  /** Optional classes on the ScrollArea **viewport**; see {@link ScrollArea} `viewportClassName`. */
   scrollAreaViewportClassName?: string;
   /**
    * Optional classes on the outer **`h-svh`** shell column (navbar + main + footer).
@@ -155,7 +155,7 @@ function buildMainBlock(
  * section nav) renders **above** the main `ScrollArea` so it stays visible while catalog
  * content scrolls. Optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
  * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
- * content can extend horizontally (for example gateway web: full-bleed Hyperspeed host — SSR-stable
+ * content can extend horizontally (for example gateway web: full-bleed Hyperspeed host, SSR-stable
  * wrapper, WebGL client-only). Other apps keep the defaults.
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional

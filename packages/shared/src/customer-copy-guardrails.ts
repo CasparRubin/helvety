@@ -21,6 +21,7 @@ export const CUSTOMER_COPY_BANNED_SUBSTRINGS = [
   "stitch, rotate",
   "carve out",
   "Swiss roots",
+  "Designed and built in Switzerland",
   "MIT License",
   "MIT-licensed",
   "where the repo ships",

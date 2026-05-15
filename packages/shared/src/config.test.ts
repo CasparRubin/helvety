@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { getLocalAppHref } from "./config";
 
-describe("getLocalAppHref (gateway path helper — not for cross-zone Link inside basePath apps)", () => {
+describe("getLocalAppHref (gateway path helper: not for cross-zone Link inside basePath apps)", () => {
   it("returns local paths unchanged", () => {
     expect(getLocalAppHref("/store")).toBe("/store");
     expect(getLocalAppHref("/notes?tab=all#section")).toBe(

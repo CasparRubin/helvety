@@ -14,6 +14,7 @@ function readLegalPage(rel: string): string {
 describe("web legal pages source license copy", () => {
   const terms = () => readLegalPage("apps/web/app/terms/page.tsx");
   const impressum = () => readLegalPage("apps/web/app/impressum/page.tsx");
+  const privacy = () => readLegalPage("apps/web/app/privacy/page.tsx");
 
   it("terms describe AGPL-3.0 for all Helvety public repositories", () => {
     const text = terms();
@@ -27,6 +28,13 @@ describe("web legal pages source license copy", () => {
     const text = impressum();
     expect(text).toContain("AGPL-3.0");
     expect(text).toMatch(/browser extensions/i);
+    expect(text).not.toContain("MIT License");
+    expect(text).not.toContain("unless the repository LICENSE");
+    expect(text).not.toContain("applicable open-source license");
+  });
+
+  it("privacy avoids MIT legacy license wording", () => {
+    const text = privacy();
     expect(text).not.toContain("MIT License");
     expect(text).not.toContain("unless the repository LICENSE");
     expect(text).not.toContain("applicable open-source license");

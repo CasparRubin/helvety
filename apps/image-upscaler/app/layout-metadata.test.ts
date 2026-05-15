@@ -1,3 +1,4 @@
+import { assertNonE2eeMarketingCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -44,6 +45,13 @@ describe("image upscaler layout metadata", () => {
   it("includes AGPL-3.0 in SEO description", () => {
     expect(IMAGE_UPSCALER_APP_DESCRIPTION).toContain(
       "AGPL-3.0-licensed open source"
+    );
+  });
+
+  it("SEO copy follows customer copy guardrails and does not claim E2EE", () => {
+    assertNonE2eeMarketingCopy(
+      "IMAGE_UPSCALER_APP_DESCRIPTION",
+      IMAGE_UPSCALER_APP_DESCRIPTION
     );
   });
 });

@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  E2EE_NAVBAR_ENCRYPTION_TOOLTIP,
+  NOTES_NAVBAR_ABOUT,
+} from "@helvety/shared/app-navbar-about";
 import { E2eeAppNavbar } from "@helvety/ui/e2ee-app-navbar";
 
 import { VERSION } from "@/lib/config/version";
@@ -9,10 +13,8 @@ import type { User } from "@supabase/supabase-js";
 const labels = {
   currentApp: "Notes",
   titleText: "Notes",
-  encryptionTooltipBody:
-    "Sensitive note content fields are encrypted on your device before storage. Some structural metadata (such as timestamps, relationships, and display preferences) remains plaintext to support app functionality.",
-  aboutDescription:
-    "Helvety Notes is a simple space for capturing thoughts and keeping them organized. Personal, Work, and Other views help you stay focused without over-structuring. Sensitive note content is encrypted on your device before storage. Designed and built in Switzerland.",
+  encryptionTooltipBody: E2EE_NAVBAR_ENCRYPTION_TOOLTIP,
+  aboutDescription: NOTES_NAVBAR_ABOUT,
   navigationMenuDescription: "Notes navigation menu",
 } as const;
 

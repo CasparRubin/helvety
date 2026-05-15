@@ -29,14 +29,14 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
 /**
  * Landing hero (`/`): React Bits Hyperspeed fullscreen behind copy + Store CTA.
- * Backdrop: {@link HeroHyperspeedBackdrop} — black base, **black veil** fades out after
+ * Backdrop: {@link HeroHyperspeedBackdrop}: black base, **black veil** fades out after
  * {@link Hyperspeed} `onReady` (first composited frame); WebGL stays opaque underneath.
  *
  * Hyperspeed host markup is identical on SSR and first client paint (`motion-reduce:*` for visuals;
- * WebGL skips init when `prefers-reduced-motion` is set — see {@link Hyperspeed}).
+ * WebGL skips init when `prefers-reduced-motion` is set (see {@link Hyperspeed}).
  *
  * Store CTA uses {@link getLocalAppHref} because this route runs on **`apps/web`** (no Next **`basePath`**).
- * Shell cross-app links use absolute **`urls.*`** instead — see **`AppSwitcher`** in `@helvety/ui`.
+ * Shell cross-app links use absolute **`urls.*`** instead; see **`AppSwitcher`** in `@helvety/ui`.
  */
 export function HeroSection() {
   return (
@@ -45,7 +45,7 @@ export function HeroSection() {
         <section
           className={cn(
             /* Avoid `h-full`: % height often collapses before flex layout + scroll viewport are definite. */
-            /* WebGL host uses `100svw` centered — keep section overflow visible so bleed isn’t clipped. */
+            /* WebGL host uses `100svw` centered: keep section overflow visible so bleed isn’t clipped. */
             "relative isolate flex w-full min-w-0 flex-1 flex-col justify-center overflow-visible",
             HERO_MIN_MAIN,
             "motion-reduce:bg-background"

@@ -1,3 +1,4 @@
+import { AUTH_NAVBAR_ABOUT } from "@helvety/shared/app-navbar-about";
 import { TooltipProvider } from "@helvety/ui/tooltip";
 import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -116,11 +117,12 @@ describe("Auth Navbar", () => {
     expect(screen.queryByText("Encryption enabled")).not.toBeInTheDocument();
   });
 
-  it("about dialog scopes sign-in copy to helvety.com web apps", () => {
+  it("about dialog shows shared auth navbar copy", () => {
     renderAuthNavbar();
     fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));
     const dialog = screen.getByRole("dialog");
-    expect(dialog).toHaveTextContent("Helvety web apps on helvety.com");
+    expect(dialog).toHaveTextContent(AUTH_NAVBAR_ABOUT);
     expect(dialog).not.toHaveTextContent("all Helvety apps");
+    expect(dialog).not.toHaveTextContent("Designed and built in Switzerland");
   });
 });

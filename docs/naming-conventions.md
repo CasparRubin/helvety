@@ -56,9 +56,21 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 
 **Style:** easy to scan, human tone, no em-dashes (U+2014). Use commas, periods, or parentheses instead. Do not claim end-to-end encryption for apps that legal pages list as non-E2EE (PDF, Image Upscaler, Store, gateway).
 
+**Copy voice (customer-facing):**
+
+| Topic                  | Standard                                                                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Product names          | `Helvety Tasks`, `Helvety Contacts`, … (title case; full name on first mention in a block)                                              |
+| Encryption (E2EE apps) | Prefer **encrypted on your device before storage** in short UI; reserve **end-to-end encrypted** for legal/privacy and detailed dialogs |
+| Encryption (non-E2EE)  | State **browser-local** / **not sent to Helvety**; never imply E2EE for PDF, Image Upscaler, Store, gateway                             |
+| Swiss origin           | SEO: **Swiss-built**; navbar About closings: **Built in Switzerland.**                                                                  |
+| Open source            | **AGPL-3.0** via `@helvety/shared/licensing` constants; never MIT or generic “free and open source”                                     |
+| Sentence shape         | Short, active voice; one idea per sentence                                                                                              |
+| Navbar About           | `@helvety/shared/app-navbar-about` (`*_NAVBAR_ABOUT`, `E2EE_NAVBAR_ENCRYPTION_TOOLTIP`)                                                 |
+
 **Sync order when product behavior or claims change:** `store-catalog.ts` → `products.ts` → app metadata / manifests → `llms.txt` → app `README.md` intros → legal pages if claims shift (see `docs/legal-change-guardrails.md`).
 
-**Regression tests:** `@helvety/shared/customer-copy-guardrails` defines banned legacy phrases and `llms.txt` paths; `store-copy-guardrails.test.ts`, `apps/store/lib/data/products.test.ts`, and app `layout-metadata` / legal tests enforce separation, no em-dashes, and current wording. Update `CUSTOMER_COPY_BANNED_SUBSTRINGS` when retiring phrasing intentionally.
+**Regression tests:** `@helvety/shared/customer-copy-guardrails` defines banned legacy phrases and `llms.txt` paths; `store-copy-guardrails.test.ts`, `app-navbar-about.test.ts`, `app-navbar-wiring.test.ts`, `app-product-descriptions.test.ts`, `apps/store/lib/data/products.test.ts`, and app `layout-metadata` / legal tests enforce separation, no em-dashes, and current wording. Reuse **`assertCustomerCopyStyle`** / **`assertNonE2eeMarketingCopy`** from `@helvety/shared/test-utils/customer-copy-test-helpers` in Vitest. **`bun run consistency:customer-copy`** scans the repo for U+2014 em-dashes. Update `CUSTOMER_COPY_BANNED_SUBSTRINGS` when retiring phrasing intentionally.
 
 - **Root README and root `package.json` `description`**: describe this repository as **helvety.com web applications** (Next.js path zones and shared packages). Do not imply that every Helvety product line (browser extensions, SPFx, WinUI tools, and so on) is developed or released only from this tree; the README overview already points at separately distributed software and the Store.
 

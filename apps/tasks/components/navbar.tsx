@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  E2EE_NAVBAR_ENCRYPTION_TOOLTIP,
+  TASKS_NAVBAR_ABOUT,
+} from "@helvety/shared/app-navbar-about";
 import { E2eeAppNavbar } from "@helvety/ui/e2ee-app-navbar";
 
 import { VERSION } from "@/lib/config/version";
@@ -9,10 +13,8 @@ import type { User } from "@supabase/supabase-js";
 const labels = {
   currentApp: "Tasks",
   titleText: "Tasks",
-  encryptionTooltipBody:
-    "Sensitive task content fields are encrypted on your device before storage. Some structural metadata (such as timestamps, relationships, and display preferences) remains plaintext to support app functionality.",
-  aboutDescription:
-    "Helvety Tasks helps you move work forward with clear stages and drag-and-drop flow. It is built to keep planning lightweight while still giving structure to daily execution. Sensitive task content is encrypted on your device before storage. Designed and built in Switzerland.",
+  encryptionTooltipBody: E2EE_NAVBAR_ENCRYPTION_TOOLTIP,
+  aboutDescription: TASKS_NAVBAR_ABOUT,
   navigationMenuDescription: "Tasks navigation menu",
 } as const;
 

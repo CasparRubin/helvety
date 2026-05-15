@@ -1,5 +1,5 @@
 /*
- * React Bits Hyperspeed — `#lights` fills the hero bleed host; canvas fills `#lights` when mounted.
+ * React Bits Hyperspeed: `#lights` fills the hero bleed host; canvas fills `#lights` when mounted.
  * Under `prefers-reduced-motion: reduce`, Hyperspeed never appends a canvas (host may be hidden via CSS).
  * Black `#lights` / canvas background matches hero veil + opaque GL clear (avoids white flash).
  */

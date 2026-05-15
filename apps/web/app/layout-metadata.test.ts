@@ -1,5 +1,6 @@
 import { urls } from "@helvety/shared/config";
 import { HELVETY_WEB_DEFAULT_TITLE } from "@helvety/shared/licensing";
+import { assertNonE2eeMarketingCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -55,5 +56,9 @@ describe("web root layout metadata", () => {
       default: HELVETY_WEB_DEFAULT_TITLE,
     });
     expect(HELVETY_WEB_DEFAULT_TITLE).toContain("AGPL-3.0");
+  });
+
+  it("SEO copy follows customer copy guardrails and does not claim E2EE", () => {
+    assertNonE2eeMarketingCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
   });
 });

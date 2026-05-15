@@ -1,14 +1,12 @@
 "use client";
 
+import { STORE_NAVBAR_ABOUT } from "@helvety/shared/app-navbar-about";
 import { urls } from "@helvety/shared/config";
 import { HelvetyShellNavbar } from "@helvety/ui/helvety-shell-navbar";
 
 import { VERSION } from "@/lib/config/version";
 
 import type { User } from "@supabase/supabase-js";
-
-const aboutDescription =
-  "Helvety Store is where Helvety products are published and maintained. You can explore tools, access downloads, and manage your account from one place. It is made to stay straightforward and easy to trust.";
 
 /** Main navigation bar for the Store app - see `HelvetyShellNavbar` in `@helvety/ui`. */
 export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
@@ -22,7 +20,7 @@ export function Navbar({ initialUser = null }: { initialUser?: User | null }) {
         titleText: "STORE",
         titleHref: "/",
       }}
-      aboutDescription={aboutDescription}
+      aboutDescription={STORE_NAVBAR_ABOUT}
       navigationMenuDescription="Store navigation menu"
       versionLabel={VERSION ?? null}
       account={{ variant: "same-origin", href: "/account" }}

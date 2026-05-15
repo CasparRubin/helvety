@@ -33,7 +33,7 @@ function ScrollArea({
           "scroll-gutter-stable focus-visible:ring-ring/50 flex size-full min-h-0 flex-col rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1",
           /*
            * Radix sets inline `display:table` + `minWidth:100%` on the content wrapper.
-           * Classes alone lose to that inline rule — need `!` so flex fill works vertically.
+           * Classes alone lose to that inline rule; need `!` so flex fill works vertically.
            */
           "[&>div]:!flex [&>div]:min-h-0 [&>div]:w-full [&>div]:flex-1 [&>div]:!flex-col",
           viewportClassName

@@ -1,5 +1,6 @@
 "use client";
 
+import { AUTH_NAVBAR_ABOUT } from "@helvety/shared/app-navbar-about";
 import { urls } from "@helvety/shared/config";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { EncryptionTooltipContent } from "@helvety/ui/encryption-tooltip-content";
@@ -8,9 +9,6 @@ import { HelvetyShellNavbar } from "@helvety/ui/helvety-shell-navbar";
 import { VERSION } from "@/lib/config/version";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";
-
-const aboutDescription =
-  "Helvety Auth handles sign-in for Helvety web apps on helvety.com. It keeps access simple with one account and shared sessions across those apps. Security stays focused so each product can stay focused too.";
 
 const encryptionTooltipContent = (
   <EncryptionTooltipContent
@@ -47,7 +45,7 @@ export function Navbar({
         homeHref: urls.home,
         homeAriaLabel: "Visit Helvety.com",
       }}
-      aboutDescription={aboutDescription}
+      aboutDescription={AUTH_NAVBAR_ABOUT}
       navigationMenuDescription="Auth navigation menu"
       versionLabel={VERSION ?? null}
       account={{ variant: "external-store" }}

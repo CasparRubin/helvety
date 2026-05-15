@@ -1,3 +1,4 @@
+import { assertCustomerCopyStyle } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
@@ -46,5 +47,9 @@ describe("tasks root layout metadata", () => {
 
   it("includes AGPL-3.0 in SEO description", () => {
     expect(TASKS_APP_DESCRIPTION).toContain("AGPL-3.0-licensed open source");
+  });
+
+  it("SEO copy follows customer copy guardrails", () => {
+    assertCustomerCopyStyle("TASKS_APP_DESCRIPTION", TASKS_APP_DESCRIPTION);
   });
 });

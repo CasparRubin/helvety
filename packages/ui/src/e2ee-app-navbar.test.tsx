@@ -1,3 +1,7 @@
+import {
+  E2EE_NAVBAR_ENCRYPTION_TOOLTIP,
+  NOTES_NAVBAR_ABOUT,
+} from "@helvety/shared/app-navbar-about";
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -18,8 +22,8 @@ vi.mock("@helvety/shared/crypto/encryption-context", () => ({
 const labels = {
   currentApp: "Notes",
   titleText: "Notes",
-  encryptionTooltipBody: "Sensitive fields are encrypted on your device.",
-  aboutDescription: "Helvety Notes is a simple space for capturing thoughts.",
+  encryptionTooltipBody: E2EE_NAVBAR_ENCRYPTION_TOOLTIP,
+  aboutDescription: NOTES_NAVBAR_ABOUT,
   navigationMenuDescription: "Notes navigation menu",
 } as const;
 
