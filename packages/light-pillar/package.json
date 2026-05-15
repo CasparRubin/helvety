@@ -1,0 +1,55 @@
+{
+  "name": "@helvety/light-pillar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared React Bits Light Pillar shell backdrop for Helvety public apps (Store, Auth)",
+  "author": "Helvety",
+  "license": "AGPL-3.0-or-later",
+  "homepage": "https://helvety.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CasparRubin/helvety.git",
+    "directory": "packages/light-pillar"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit -p tsconfig.typecheck.json",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./preset": "./src/helvety-light-pillar-preset.ts",
+    "./light-pillar": "./src/LightPillar.tsx"
+  },
+  "dependencies": {
+    "@helvety/shared": "workspace:*",
+    "three": "^0.184.0"
+  },
+  "peerDependencies": {
+    "next": "^16",
+    "react": "^19",
+    "react-dom": "^19"
+  },
+  "devDependencies": {
+    "@helvety/config": "workspace:*",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "0.184.1",
+    "eslint": "^9.39.4",
+    "jsdom": "29.1.1",
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "typescript": "^5",
+    "vitest": "^4.1.6"
+  }
+}

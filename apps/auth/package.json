@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@helvety/brand": "workspace:*",
+    "@helvety/light-pillar": "workspace:*",
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
     "@simplewebauthn/browser": "^13.3.0",

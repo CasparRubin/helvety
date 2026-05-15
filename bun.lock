@@ -17,6 +17,7 @@
       "version": "3.2.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
+        "@helvety/light-pillar": "workspace:*",
         "@helvety/shared": "workspace:*",
         "@helvety/ui": "workspace:*",
         "@simplewebauthn/browser": "^13.3.0",
@@ -206,6 +207,7 @@
       "version": "3.2.0",
       "dependencies": {
         "@helvety/brand": "workspace:*",
+        "@helvety/light-pillar": "workspace:*",
         "@helvety/shared": "workspace:*",
         "@helvety/ui": "workspace:*",
         "@supabase/supabase-js": "^2.105.4",
@@ -215,7 +217,6 @@
         "react-dom": "^19.2.6",
         "server-only": "^0.0.1",
         "sonner": "^2.0.7",
-        "three": "^0.184.0",
         "zod": "^4.4.3",
       },
       "devDependencies": {
@@ -226,7 +227,6 @@
         "@types/node": "^24.12.2",
         "@types/react": "^19",
         "@types/react-dom": "^19",
-        "@types/three": "0.184.1",
         "babel-plugin-react-compiler": "^1.0.0",
         "eslint": "^9.39.4",
         "jsdom": "29.1.1",
@@ -353,6 +353,34 @@
       "peerDependencies": {
         "eslint": "^9.39.4",
         "vitest": "^4.1.6",
+      },
+    },
+    "packages/light-pillar": {
+      "name": "@helvety/light-pillar",
+      "version": "0.1.0",
+      "dependencies": {
+        "@helvety/shared": "workspace:*",
+        "three": "^0.184.0",
+      },
+      "devDependencies": {
+        "@helvety/config": "workspace:*",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "@types/three": "0.184.1",
+        "eslint": "^9.39.4",
+        "jsdom": "29.1.1",
+        "next": "^16.2.6",
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6",
+        "typescript": "^5",
+        "vitest": "^4.1.6",
+      },
+      "peerDependencies": {
+        "next": "^16",
+        "react": "^19",
+        "react-dom": "^19",
       },
     },
     "packages/shared": {
@@ -657,6 +685,8 @@
     "@helvety/contacts": ["@helvety/contacts@workspace:apps/contacts"],
 
     "@helvety/image-upscaler": ["@helvety/image-upscaler@workspace:apps/image-upscaler"],
+
+    "@helvety/light-pillar": ["@helvety/light-pillar@workspace:packages/light-pillar"],
 
     "@helvety/notes": ["@helvety/notes@workspace:apps/notes"],
 

@@ -22,53 +22,48 @@ vi.mock("next/dynamic", () => ({
     },
 }));
 
-import { StoreLightPillarBackdrop } from "./store-light-pillar-backdrop";
-import { STORE_LIGHT_PILLAR_OPTIONS } from "./store-light-pillar-options";
+import { HelvetyLightPillarBackdrop } from "./helvety-light-pillar-backdrop";
+import { HELVETY_LIGHT_PILLAR_OPTIONS } from "./helvety-light-pillar-preset";
 
-describe("StoreLightPillarBackdrop", () => {
-  it("lifts black veil after onReady", async () => {
-    const { container } = render(<StoreLightPillarBackdrop />);
+describe("HelvetyLightPillarBackdrop", () => {
+  it("calls onReady without a viewport veil", async () => {
+    const onReady = vi.fn();
+    const { container } = render(
+      <HelvetyLightPillarBackdrop onReady={onReady} />
+    );
 
     expect(
       container.querySelector('[data-testid="stub-light-pillar"]')
     ).not.toBeNull();
-
-    const veil = container.querySelector(
-      '[data-testid="store-light-pillar-veil"]'
-    );
-    expect(veil).not.toBeNull();
-
-    expect(veil).toHaveClass(
-      "transition-opacity",
-      "duration-500",
-      "motion-reduce:transition-none"
-    );
+    expect(
+      container.querySelector('[data-testid="helvety-light-pillar-veil"]')
+    ).toBeNull();
 
     await waitFor(
       () => {
-        expect(veil).toHaveClass("opacity-0");
+        expect(onReady).toHaveBeenCalledTimes(1);
       },
       { timeout: 3000 }
     );
   });
 
   it("paints a black underlay behind the WebGL host", () => {
-    const { container } = render(<StoreLightPillarBackdrop />);
+    const { container } = render(<HelvetyLightPillarBackdrop />);
     const blackBase = container.querySelector(
-      '[data-testid="store-light-pillar-host"]'
+      '[data-testid="helvety-light-pillar-host"]'
     )?.previousElementSibling;
     expect(blackBase).toHaveClass("bg-black");
   });
 
-  it("passes store preset options to LightPillar", () => {
+  it("passes Helvety preset options to LightPillar", () => {
     lightPillarRenderSpy.mockClear();
-    render(<StoreLightPillarBackdrop />);
+    render(<HelvetyLightPillarBackdrop />);
 
     expect(lightPillarRenderSpy).toHaveBeenCalled();
     const props = lightPillarRenderSpy.mock.calls.at(-1)?.[0];
     expect(props).toEqual(
       expect.objectContaining({
-        ...STORE_LIGHT_PILLAR_OPTIONS,
+        ...HELVETY_LIGHT_PILLAR_OPTIONS,
         className: "h-full w-full",
       })
     );

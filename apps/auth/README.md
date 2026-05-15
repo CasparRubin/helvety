@@ -7,7 +7,7 @@ Centralized passwordless authentication for Helvety web apps on helvety.com (thi
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider` for the navbar), shared session bootstrap helpers for CSRF/user state, and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`wrapInsideTooltipProvider` wraps the shell in `CSRFProvider`, `EncryptionProvider`, and `HelvetyShellWithLightPillarBackdrop` from `@helvety/light-pillar`), shared session bootstrap helpers for CSRF/user state, and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
 - Metadata / OG / JSON-LD use `AUTH_DESCRIPTION` in [`app/layout.tsx`](./app/layout.tsx); PWA [`public/manifest.json`](./public/manifest.json) matches the shorter `AUTH_PWA_MANIFEST_DESCRIPTION`. Root `bun run consistency:install-manifest-metadata` fails if those diverge.
 - Email OTP + passkey authentication (WebAuthn)
 - Account-bound returning-user passkey sign-in
@@ -36,6 +36,13 @@ Trusted-device shortcut:
 - Manual logout clears the trust cookie for this device.
 
 `/auth/callback` remains for compatibility callback paths (`magiclink`, `signup`, `recovery`, `invite`, `email_change`) and PKCE/OAuth-style code exchange via the shared callback handler. Primary typed email OTP code verification happens in auth actions; passkey sign-in establishes session server-side.
+
+## Shell backdrop (Light Pillar)
+
+Same shared package as Store: [`@helvety/light-pillar`](../packages/light-pillar/README.md). Auth wires `HelvetyShellWithLightPillarBackdrop` in `app/layout.tsx` (inside `CSRFProvider` and `EncryptionProvider`).
+
+- **Reveal:** Login cards and navbar paint on `bg-background` first; WebGL loads after two animation frames; when the pillar is ready, the fixed backdrop fades in over **700ms** `ease-out` (no full-screen black flash over the UI).
+- **Reduced motion:** WebGL host hidden; `bg-background` fallback only.
 
 ## Security Model
 

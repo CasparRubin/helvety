@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { STORE_LIGHT_PILLAR_OPTIONS } from "./store-light-pillar-options";
+import { HELVETY_LIGHT_PILLAR_OPTIONS } from "./helvety-light-pillar-preset";
 
 /** React Bits default colors in {@link ./LightPillar.tsx} (purple/pink demo). */
 const REACT_BITS_TEMPLATE_COLORS = {
@@ -8,20 +8,20 @@ const REACT_BITS_TEMPLATE_COLORS = {
   bottomColor: "#FF9FFC",
 } as const;
 
-describe("Store Light Pillar options", () => {
+describe("Helvety Light Pillar preset", () => {
   it("uses Helvety red and white instead of the React Bits template colors", () => {
-    expect(STORE_LIGHT_PILLAR_OPTIONS.topColor).toBe("#ffffff");
-    expect(STORE_LIGHT_PILLAR_OPTIONS.bottomColor).toBe("#ff102a");
-    expect(STORE_LIGHT_PILLAR_OPTIONS.topColor).not.toBe(
+    expect(HELVETY_LIGHT_PILLAR_OPTIONS.topColor).toBe("#ffffff");
+    expect(HELVETY_LIGHT_PILLAR_OPTIONS.bottomColor).toBe("#ff102a");
+    expect(HELVETY_LIGHT_PILLAR_OPTIONS.topColor).not.toBe(
       REACT_BITS_TEMPLATE_COLORS.topColor
     );
-    expect(STORE_LIGHT_PILLAR_OPTIONS.bottomColor).not.toBe(
+    expect(HELVETY_LIGHT_PILLAR_OPTIONS.bottomColor).not.toBe(
       REACT_BITS_TEMPLATE_COLORS.bottomColor
     );
   });
 
   it("matches the React Bits template tuning (colors aside)", () => {
-    expect(STORE_LIGHT_PILLAR_OPTIONS).toMatchObject({
+    expect(HELVETY_LIGHT_PILLAR_OPTIONS).toMatchObject({
       intensity: 1,
       rotationSpeed: 0.3,
       interactive: false,
@@ -34,7 +34,7 @@ describe("Store Light Pillar options", () => {
   });
 
   it("leaves mixBlendMode and quality at LightPillar defaults (screen, high)", () => {
-    expect(STORE_LIGHT_PILLAR_OPTIONS).not.toHaveProperty("mixBlendMode");
-    expect(STORE_LIGHT_PILLAR_OPTIONS).not.toHaveProperty("quality");
+    expect(HELVETY_LIGHT_PILLAR_OPTIONS).not.toHaveProperty("mixBlendMode");
+    expect(HELVETY_LIGHT_PILLAR_OPTIONS).not.toHaveProperty("quality");
   });
 });

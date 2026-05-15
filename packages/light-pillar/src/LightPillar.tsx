@@ -1,11 +1,9 @@
 /**
  * React Bits Light Pillar (`LightPillar-TS-CSS`). Upstream: https://reactbits.dev/backgrounds/light-pillar
- * Store tuning in {@link ./store-light-pillar-options.ts} follows the React Bits template except colors;
- * Helvety adds `onReady`, reduced-motion GPU skip, and veil wiring in
- * {@link ./store-light-pillar-backdrop.tsx} (shell-level hide/fallback in
- * {@link ./store-shell-with-backdrop.tsx}). Defaults: `mixBlendMode` `screen`, `quality` `high`.
+ * Helvety preset in {@link ./helvety-light-pillar-preset.ts}; shell reveal in
+ * {@link ./helvety-shell-with-light-pillar-backdrop.tsx}. Defaults: `mixBlendMode` `screen`, `quality` `high`.
  */
-/* eslint-disable jsdoc/require-jsdoc, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unused-vars, react-hooks/exhaustive-deps */
+/* eslint-disable jsdoc/require-jsdoc, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unused-vars */
 import React, { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import "./LightPillar.css";
@@ -79,7 +77,7 @@ const LightPillar: React.FC<LightPillarProps> = ({
   useEffect(() => {
     if (!containerRef.current || !webGLSupported) return;
 
-    /* StoreShellWithBackdrop hides the fixed host with `motion-reduce:hidden`; skip GPU too. */
+    /* Shell wrapper hides the fixed host with `motion-reduce:hidden`; skip GPU too. */
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
