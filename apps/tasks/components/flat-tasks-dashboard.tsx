@@ -4,33 +4,18 @@ import {
   filterE2eeDashboardItems,
   resolveE2eeEmptySearchMessage,
 } from "@helvety/shared/e2ee-dashboard-search";
-import { Button } from "@helvety/ui/button";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@helvety/ui/dialog";
+import { E2eeEntityDetailSheet } from "@helvety/ui/e2ee-entity-detail-sheet";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
-import { Input } from "@helvety/ui/input";
-import { Label } from "@helvety/ui/label";
 import { ListSearchField } from "@helvety/ui/list-search-field";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@helvety/ui/sheet";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
-import { Loader2Icon } from "lucide-react";
+import { useE2eeEntityPanel } from "@helvety/ui/use-e2ee-entity-panel";
 import { useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -43,8 +28,14 @@ import { useDataExport } from "@/hooks/use-data-export";
 import { useItems } from "@/hooks/use-items";
 import { useStages } from "@/hooks/use-stages";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
+import {
+  createTaskDraftInput,
+  createTaskDraftSnapshot,
+  isTaskDraftUnchanged,
+} from "@/lib/config/draft-defaults";
 import { useEncryptionContext } from "@/lib/crypto";
 
+import type { TaskDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ItemRow } from "@/lib/types";
 
 /** Props for the tasks dashboard component. */
@@ -52,7 +43,7 @@ interface FlatTasksDashboardProps {
   initialEncryptedItems?: ItemRow[];
 }
 
-/** Tasks dashboard with list view, create dialog, and details sheet. */
+/** Tasks dashboard with list view and entity detail sheet. */
 export function FlatTasksDashboard({
   initialEncryptedItems,
 }: FlatTasksDashboardProps): React.JSX.Element {
@@ -72,14 +63,13 @@ export function FlatTasksDashboard({
   const { stages } = useStages(DEFAULT_STAGE_CONFIGS.item.id);
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newDescription, setNewDescription] = useState("");
+  const initialEntityId = searchParams.get("item");
+  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
+    useE2eeEntityPanel(initialEntityId);
+
+  const draftSnapshots = useRef<Map<string, TaskDraftSnapshot>>(new Map());
+
   const [isRefreshPending, startRefreshTransition] = useTransition();
-  const [isCreating, startCreateTransition] = useTransition();
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(() =>
-    searchParams.get("item")
-  );
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     id: string | null;
@@ -87,10 +77,6 @@ export function FlatTasksDashboard({
   }>({ open: false, id: null, name: null });
   const [isDeleting, startDeleteTransition] = useTransition();
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    setSelectedItemId(searchParams.get("item"));
-  }, [searchParams]);
 
   const defaultStageId =
     stages.length > 0
@@ -101,8 +87,9 @@ export function FlatTasksDashboard({
       : null;
 
   const selectedItem = useMemo(
-    () => items.find((item) => item.id === selectedItemId) ?? null,
-    [items, selectedItemId]
+    () =>
+      entityId ? (items.find((item) => item.id === entityId) ?? null) : null,
+    [items, entityId]
   );
 
   const filteredItems = useMemo(() => {
@@ -120,27 +107,70 @@ export function FlatTasksDashboard({
     emptyMessage: "No tasks match your search.",
   });
 
-  const handleCreate = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!newTitle.trim()) return;
-
-      startCreateTransition(async () => {
-        const result = await create({
-          title: newTitle.trim(),
-          description: newDescription.trim() || null,
-          stage_id: defaultStageId,
-        });
-
-        if (result) {
-          setNewTitle("");
-          setNewDescription("");
-          setIsCreateOpen(false);
-        }
-      });
+  const cleanupDraftIfUnchanged = useCallback(
+    (id: string) => {
+      const item = items.find((i) => i.id === id);
+      const snapshot = draftSnapshots.current.get(id);
+      if (item && snapshot && isTaskDraftUnchanged(item, snapshot)) {
+        void remove(id);
+      }
+      draftSnapshots.current.delete(id);
     },
-    [newTitle, newDescription, create, defaultStageId]
+    [items, remove]
   );
+
+  const handleSelectEntity = useCallback(
+    (id: string) => {
+      if (entityId && entityId !== id) {
+        cleanupDraftIfUnchanged(entityId);
+      }
+      openEntity(id);
+    },
+    [cleanupDraftIfUnchanged, entityId, openEntity]
+  );
+
+  const entityIdRef = useRef(entityId);
+  entityIdRef.current = entityId;
+
+  useEffect(() => {
+    const id = searchParams.get("item");
+    if (id) {
+      handleSelectEntity(id);
+      return;
+    }
+    const currentId = entityIdRef.current;
+    if (currentId) {
+      cleanupDraftIfUnchanged(currentId);
+    }
+    closePanel();
+  }, [searchParams, handleSelectEntity, cleanupDraftIfUnchanged, closePanel]);
+
+  const handleSheetOpenChange = useCallback(
+    (open: boolean) => {
+      if (open) {
+        return;
+      }
+      if (entityId) {
+        cleanupDraftIfUnchanged(entityId);
+      }
+      closePanel();
+    },
+    [cleanupDraftIfUnchanged, closePanel, entityId]
+  );
+
+  const handleCreateClick = useCallback(() => {
+    if (entityId) {
+      cleanupDraftIfUnchanged(entityId);
+    }
+    const snapshot = createTaskDraftSnapshot(defaultStageId);
+    openNewDraft(async () => {
+      const result = await create(createTaskDraftInput(defaultStageId));
+      if (result) {
+        draftSnapshots.current.set(result.id, snapshot);
+      }
+      return result;
+    });
+  }, [cleanupDraftIfUnchanged, create, defaultStageId, entityId, openNewDraft]);
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
@@ -153,7 +183,7 @@ export function FlatTasksDashboard({
       <CommandBarPageLayout
         commandBar={
           <TaskCommandBar
-            onCreateClick={() => setIsCreateOpen(true)}
+            onCreateClick={handleCreateClick}
             createLabel="New Task"
             onRefresh={handleRefresh}
             isRefreshing={isRefreshing || isRefreshPending}
@@ -181,7 +211,7 @@ export function FlatTasksDashboard({
               error={error}
               onRetry={refresh}
               stages={stages}
-              onEntityClick={(entity) => setSelectedItemId(entity.id)}
+              onEntityClick={(entity) => handleSelectEntity(entity.id)}
               onEntityDelete={(id, title) =>
                 setDeleteState({ open: true, id, name: title })
               }
@@ -192,88 +222,23 @@ export function FlatTasksDashboard({
         />
       </CommandBarPageLayout>
 
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
-          <form onSubmit={handleCreate}>
-            <DialogHeader>
-              <DialogTitle>Create Task</DialogTitle>
-              <DialogDescription>
-                Create a new task. Title, description, and schedule fields are
-                end-to-end encrypted. Stage, ordering, and related structural
-                metadata stay plaintext so the board can group and sort tasks.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="item-title">Title</Label>
-                <Input
-                  id="item-title"
-                  placeholder="e.g., Renew domain before Friday"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="item-description">Description (optional)</Label>
-                <Input
-                  id="item-description"
-                  placeholder="e.g., Check DNS configuration and SSL renewal"
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsCreateOpen(false)}
-                disabled={isCreating}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isCreating || !newTitle.trim()}>
-                {isCreating ? (
-                  <>
-                    <Loader2Icon className="mr-2 size-4 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  "Create Task"
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <Sheet
-        open={selectedItemId !== null}
-        onOpenChange={(open) => {
-          if (!open) setSelectedItemId(null);
-        }}
+      <E2eeEntityDetailSheet
+        open={isOpen}
+        onOpenChange={handleSheetOpenChange}
+        title="Task Details"
+        entityId={entityId}
       >
-        <SheetContent
-          side="right"
-          className="flex w-full flex-col overflow-hidden sm:max-w-[95vw] 2xl:max-w-[1800px]"
-        >
-          <SheetHeader className="shrink-0">
-            <SheetTitle>Task Details</SheetTitle>
-          </SheetHeader>
-          {selectedItemId && selectedItem ? (
-            <div className="min-h-0 flex-1">
-              <ItemEditor
-                itemId={selectedItemId}
-                initialItem={selectedItem}
-                embedded
-                onClose={() => setSelectedItemId(null)}
-                onLocalPatch={(id, input) => patchLocal(id, input)}
-              />
-            </div>
-          ) : null}
-        </SheetContent>
-      </Sheet>
+        {entityId ? (
+          <ItemEditor
+            key={entityId}
+            itemId={entityId}
+            initialItem={selectedItem ?? undefined}
+            embedded
+            onClose={() => handleSheetOpenChange(false)}
+            onLocalPatch={(id, input) => patchLocal(id, input)}
+          />
+        ) : null}
+      </E2eeEntityDetailSheet>
 
       <DeleteConfirmationDialog
         open={deleteState.open}
@@ -288,7 +253,11 @@ export function FlatTasksDashboard({
           const deleteId = deleteState.id;
           if (!deleteId) return;
           startDeleteTransition(async () => {
+            draftSnapshots.current.delete(deleteId);
             await remove(deleteId);
+            if (entityId === deleteId) {
+              closePanel();
+            }
             setDeleteState({ open: false, id: null, name: null });
           });
         }}

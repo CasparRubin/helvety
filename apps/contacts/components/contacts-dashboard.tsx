@@ -6,33 +6,17 @@ import {
   resolveE2eeEmptySearchMessage,
 } from "@helvety/shared/e2ee-dashboard-search";
 import { logger } from "@helvety/shared/logger";
-import { Button } from "@helvety/ui/button";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@helvety/ui/dialog";
+import { E2eeEntityDetailSheet } from "@helvety/ui/e2ee-entity-detail-sheet";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
-import { Input } from "@helvety/ui/input";
-import { Label } from "@helvety/ui/label";
 import { ListSearchField } from "@helvety/ui/list-search-field";
-import { NativeSelect } from "@helvety/ui/native-select";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@helvety/ui/sheet";
-import { Loader2Icon } from "lucide-react";
+import { useE2eeEntityPanel } from "@helvety/ui/use-e2ee-entity-panel";
 import { useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -47,9 +31,15 @@ import {
   DEFAULT_CATEGORIES,
   DEFAULT_CONTACT_CATEGORY_ID,
 } from "@/lib/config/default-categories";
+import {
+  createContactDraftInput,
+  createContactDraftSnapshot,
+  isContactDraftUnchanged,
+} from "@/lib/config/draft-defaults";
 import { useEncryptionContext } from "@/lib/crypto";
 import { downloadContactDataExport } from "@/lib/data-export";
 
+import type { ContactDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ContactRow } from "@/lib/types";
 
 /** Props for the main contacts dashboard component. */
@@ -58,7 +48,7 @@ interface ContactsDashboardProps {
   initialEncryptedContacts?: ContactRow[];
 }
 
-/** Contacts dashboard with list, create dialog, and side-sheet editor. */
+/** Contacts dashboard with list and side-sheet editor. */
 export function ContactsDashboard({
   initialEncryptedContacts,
 }: ContactsDashboardProps = {}) {
@@ -76,14 +66,12 @@ export function ContactsDashboard({
     patchLocal,
   } = useContacts({ initialEncryptedData: initialEncryptedContacts });
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isCreating, startCreateTransition] = useTransition();
-  const [newFirstName, setNewFirstName] = useState("");
-  const [newLastName, setNewLastName] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newCategoryId, setNewCategoryId] = useState(
-    DEFAULT_CONTACT_CATEGORY_ID
-  );
+  const initialEntityId = searchParams.get("contact");
+  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
+    useE2eeEntityPanel(initialEntityId);
+
+  const draftSnapshots = useRef<Map<string, ContactDraftSnapshot>>(new Map());
+
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     id: string | null;
@@ -92,14 +80,7 @@ export function ContactsDashboard({
   const [isDeleting, startDeleteTransition] = useTransition();
   const [isRefreshPending, startRefreshTransition] = useTransition();
   const [isExporting, startExportTransition] = useTransition();
-  const [selectedContactId, setSelectedContactId] = useState<string | null>(
-    () => searchParams.get("contact")
-  );
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    setSelectedContactId(searchParams.get("contact"));
-  }, [searchParams]);
 
   const filteredContacts = useMemo(() => {
     return filterE2eeDashboardItems(contacts, searchQuery, (contact) => [
@@ -113,8 +94,11 @@ export function ContactsDashboard({
 
   const isSearchActive = searchQuery.trim() !== "";
   const selectedContact = useMemo(
-    () => contacts.find((contact) => contact.id === selectedContactId) ?? null,
-    [contacts, selectedContactId]
+    () =>
+      entityId
+        ? (contacts.find((contact) => contact.id === entityId) ?? null)
+        : null,
+    [contacts, entityId]
   );
   const emptySearchMessage = resolveE2eeEmptySearchMessage({
     searchQuery,
@@ -123,41 +107,72 @@ export function ContactsDashboard({
     emptyMessage: "No contacts match your search.",
   });
 
-  const handleCreate = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!newFirstName.trim() || !newLastName.trim()) return;
-
-      startCreateTransition(async () => {
-        const result = await create({
-          first_name: newFirstName.trim(),
-          last_name: newLastName.trim(),
-          description: null,
-          email: newEmail.trim() || null,
-          phone: null,
-          birthday: null,
-          notes: null,
-          category_id: newCategoryId,
-        });
-
-        if (result) {
-          setNewFirstName("");
-          setNewLastName("");
-          setNewEmail("");
-          setNewCategoryId(DEFAULT_CONTACT_CATEGORY_ID);
-          setIsCreateOpen(false);
-        }
-      });
+  const cleanupDraftIfUnchanged = useCallback(
+    (id: string) => {
+      const contact = contacts.find((c) => c.id === id);
+      const snapshot = draftSnapshots.current.get(id);
+      if (contact && snapshot && isContactDraftUnchanged(contact, snapshot)) {
+        void remove(id);
+      }
+      draftSnapshots.current.delete(id);
     },
-    [
-      newFirstName,
-      newLastName,
-      newEmail,
-      newCategoryId,
-      create,
-      startCreateTransition,
-    ]
+    [contacts, remove]
   );
+
+  const handleSelectEntity = useCallback(
+    (id: string) => {
+      if (entityId && entityId !== id) {
+        cleanupDraftIfUnchanged(entityId);
+      }
+      openEntity(id);
+    },
+    [cleanupDraftIfUnchanged, entityId, openEntity]
+  );
+
+  const entityIdRef = useRef(entityId);
+  entityIdRef.current = entityId;
+
+  useEffect(() => {
+    const id = searchParams.get("contact");
+    if (id) {
+      handleSelectEntity(id);
+      return;
+    }
+    const currentId = entityIdRef.current;
+    if (currentId) {
+      cleanupDraftIfUnchanged(currentId);
+    }
+    closePanel();
+  }, [searchParams, handleSelectEntity, cleanupDraftIfUnchanged, closePanel]);
+
+  const handleSheetOpenChange = useCallback(
+    (open: boolean) => {
+      if (open) {
+        return;
+      }
+      if (entityId) {
+        cleanupDraftIfUnchanged(entityId);
+      }
+      closePanel();
+    },
+    [cleanupDraftIfUnchanged, closePanel, entityId]
+  );
+
+  const handleCreateClick = useCallback(() => {
+    if (entityId) {
+      cleanupDraftIfUnchanged(entityId);
+    }
+    const snapshot = createContactDraftSnapshot(DEFAULT_CONTACT_CATEGORY_ID);
+    openNewDraft(async () => {
+      const result = await create(
+        createContactDraftInput(DEFAULT_CONTACT_CATEGORY_ID)
+      );
+      if (result) {
+        draftSnapshots.current.set(result.id, snapshot);
+      }
+      return result;
+    });
+  }, [cleanupDraftIfUnchanged, create, entityId, openNewDraft]);
 
   const handleDeleteClick = useCallback((id: string, name: string) => {
     setDeleteState({ open: true, id, name });
@@ -167,10 +182,14 @@ export function ContactsDashboard({
     const deleteId = deleteState.id;
     if (!deleteId) return;
     startDeleteTransition(async () => {
+      draftSnapshots.current.delete(deleteId);
       await remove(deleteId);
+      if (entityId === deleteId) {
+        closePanel();
+      }
       setDeleteState({ open: false, id: null, name: null });
     });
-  }, [deleteState.id, remove, startDeleteTransition]);
+  }, [closePanel, deleteState.id, entityId, remove, startDeleteTransition]);
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
@@ -197,7 +216,7 @@ export function ContactsDashboard({
       <CommandBarPageLayout
         commandBar={
           <ContactCommandBar
-            onCreateClick={() => setIsCreateOpen(true)}
+            onCreateClick={handleCreateClick}
             onRefresh={handleRefresh}
             isRefreshing={isRefreshing || isRefreshPending}
             onExport={isUnlocked && masterKey ? handleExportData : undefined}
@@ -223,7 +242,7 @@ export function ContactsDashboard({
               isRefreshing={isRefreshing}
               error={error}
               onRetry={refresh}
-              onContactClick={(contact) => setSelectedContactId(contact.id)}
+              onContactClick={(contact) => handleSelectEntity(contact.id)}
               onContactDelete={handleDeleteClick}
               onReorder={isSearchActive ? undefined : reorder}
               categories={DEFAULT_CATEGORIES}
@@ -233,123 +252,24 @@ export function ContactsDashboard({
         />
       </CommandBarPageLayout>
 
-      <Sheet
-        open={selectedContactId !== null}
-        onOpenChange={(open) => {
-          if (!open) setSelectedContactId(null);
-        }}
+      <E2eeEntityDetailSheet
+        open={isOpen}
+        onOpenChange={handleSheetOpenChange}
+        title="Contact Details"
+        entityId={entityId}
       >
-        <SheetContent
-          side="right"
-          className="flex w-full flex-col overflow-hidden sm:max-w-[95vw] 2xl:max-w-[1800px]"
-        >
-          <SheetHeader className="shrink-0">
-            <SheetTitle>Contact Details</SheetTitle>
-          </SheetHeader>
-          {selectedContactId ? (
-            <div className="min-h-0 flex-1">
-              <ContactEditor
-                contactId={selectedContactId}
-                initialContact={selectedContact ?? undefined}
-                embedded
-                onClose={() => setSelectedContactId(null)}
-                onLocalPatch={(id, input) => patchLocal(id, input)}
-              />
-            </div>
-          ) : null}
-        </SheetContent>
-      </Sheet>
+        {entityId ? (
+          <ContactEditor
+            key={entityId}
+            contactId={entityId}
+            initialContact={selectedContact ?? undefined}
+            embedded
+            onClose={() => handleSheetOpenChange(false)}
+            onLocalPatch={(id, input) => patchLocal(id, input)}
+          />
+        ) : null}
+      </E2eeEntityDetailSheet>
 
-      {/* Create Contact Dialog */}
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
-          <form onSubmit={handleCreate}>
-            <DialogHeader>
-              <DialogTitle>Create Contact</DialogTitle>
-              <DialogDescription>
-                Create a new contact. Name, email, phone, birthday, and notes
-                are end-to-end encrypted. Category and ordering stay plaintext
-                so contacts can be grouped and sorted in the list.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="contact-first-name">First Name(s)</Label>
-                <Input
-                  id="contact-first-name"
-                  placeholder="e.g., John"
-                  value={newFirstName}
-                  onChange={(e) => setNewFirstName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="contact-last-name">Last Name(s)</Label>
-                <Input
-                  id="contact-last-name"
-                  placeholder="e.g., Doe"
-                  value={newLastName}
-                  onChange={(e) => setNewLastName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="contact-email">Email (optional)</Label>
-                <Input
-                  id="contact-email"
-                  type="email"
-                  placeholder="e.g., john@example.com"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="contact-category">Category</Label>
-                <NativeSelect
-                  id="contact-category"
-                  value={newCategoryId}
-                  onChange={(e) => setNewCategoryId(e.target.value)}
-                >
-                  {DEFAULT_CATEGORIES.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </NativeSelect>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsCreateOpen(false)}
-                disabled={isCreating}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={
-                  isCreating || !newFirstName.trim() || !newLastName.trim()
-                }
-              >
-                {isCreating ? (
-                  <>
-                    <Loader2Icon className="mr-2 size-4 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  "Create Contact"
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Contact Confirmation Dialog */}
       <DeleteConfirmationDialog
         open={deleteState.open}
         onOpenChange={(open) => {

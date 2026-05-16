@@ -42,6 +42,7 @@ This package centralizes:
     - includes `computeReorderUpdates(...)` for shared DnD reorder computation
 - Shared editor draft helper:
   - `hooks/use-rich-text-draft-state` for saved/baseline/dirty-state tracking across rich-text editors
+- E2EE list and draft cleanup helpers via `@helvety/shared/e2ee-draft` (`getE2eeListTitle`, `isDraftSnapshotUnchanged` for pristine-draft deletion on sheet close)
 - `proxy` is request bootstrap only (CSP/CSRF/session refresh), not the primary authorization boundary. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal (Next.js requirement); `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
 
 ### Cross-app URLs (`config.ts`)

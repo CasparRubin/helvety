@@ -4,34 +4,18 @@ import {
   filterE2eeDashboardItems,
   resolveE2eeEmptySearchMessage,
 } from "@helvety/shared/e2ee-dashboard-search";
-import { Button } from "@helvety/ui/button";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@helvety/ui/dialog";
+import { E2eeEntityDetailSheet } from "@helvety/ui/e2ee-entity-detail-sheet";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
-import { Input } from "@helvety/ui/input";
-import { Label } from "@helvety/ui/label";
 import { ListSearchField } from "@helvety/ui/list-search-field";
-import { NativeSelect } from "@helvety/ui/native-select";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@helvety/ui/sheet";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
-import { Loader2Icon } from "lucide-react";
+import { useE2eeEntityPanel } from "@helvety/ui/use-e2ee-entity-panel";
 import { useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -43,8 +27,14 @@ import { NoteCommandBar } from "@/components/note-command-bar";
 import { useDataExport } from "@/hooks/use-data-export";
 import { useItems } from "@/hooks/use-items";
 import { DEFAULT_NOTE_CATEGORIES } from "@/lib/config/default-note-categories";
+import {
+  createNoteDraftInput,
+  createNoteDraftSnapshot,
+  isNoteDraftUnchanged,
+} from "@/lib/config/draft-defaults";
 import { useEncryptionContext } from "@/lib/crypto";
 
+import type { NoteDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ItemRow } from "@/lib/types";
 
 /** Props for the main `/notes` dashboard (category-grouped list + sheet editor). */
@@ -72,16 +62,13 @@ export function FlatNotesDashboard({
   } = useItems({ initialEncryptedData: initialEncryptedItems });
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newDescription, setNewDescription] = useState("");
-  const [newCategoryId, setNewCategoryId] = useState(defaultCategoryId);
+  const initialEntityId = searchParams.get("note") ?? searchParams.get("item");
+  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
+    useE2eeEntityPanel(initialEntityId);
+
+  const draftSnapshots = useRef<Map<string, NoteDraftSnapshot>>(new Map());
+
   const [isRefreshPending, startRefreshTransition] = useTransition();
-  const [isCreating, startCreateTransition] = useTransition();
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(() => {
-    // Prefer the canonical `note` query param used by cross-app deep links.
-    return searchParams.get("note") ?? searchParams.get("item");
-  });
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     id: string | null;
@@ -90,13 +77,10 @@ export function FlatNotesDashboard({
   const [isDeleting, startDeleteTransition] = useTransition();
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    setSelectedItemId(searchParams.get("note") ?? searchParams.get("item"));
-  }, [searchParams]);
-
   const selectedItem = useMemo(
-    () => items.find((item) => item.id === selectedItemId) ?? null,
-    [items, selectedItemId]
+    () =>
+      entityId ? (items.find((item) => item.id === entityId) ?? null) : null,
+    [items, entityId]
   );
 
   const searchableContentById = useMemo(() => {
@@ -122,28 +106,76 @@ export function FlatNotesDashboard({
     emptyMessage: "No notes match your search.",
   });
 
-  const handleCreate = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!newTitle.trim()) return;
-
-      startCreateTransition(async () => {
-        const result = await create({
-          title: newTitle.trim(),
-          description: newDescription.trim() || null,
-          category_id: newCategoryId,
-        });
-
-        if (result) {
-          setNewTitle("");
-          setNewDescription("");
-          setNewCategoryId(defaultCategoryId);
-          setIsCreateOpen(false);
-        }
-      });
+  const cleanupDraftIfUnchanged = useCallback(
+    (id: string) => {
+      const item = items.find((i) => i.id === id);
+      const snapshot = draftSnapshots.current.get(id);
+      if (item && snapshot && isNoteDraftUnchanged(item, snapshot)) {
+        void remove(id);
+      }
+      draftSnapshots.current.delete(id);
     },
-    [newTitle, newDescription, newCategoryId, create, defaultCategoryId]
+    [items, remove]
   );
+
+  const handleSelectEntity = useCallback(
+    (id: string) => {
+      if (entityId && entityId !== id) {
+        cleanupDraftIfUnchanged(entityId);
+      }
+      openEntity(id);
+    },
+    [cleanupDraftIfUnchanged, entityId, openEntity]
+  );
+
+  const entityIdRef = useRef(entityId);
+  entityIdRef.current = entityId;
+
+  useEffect(() => {
+    const id = searchParams.get("note") ?? searchParams.get("item");
+    if (id) {
+      handleSelectEntity(id);
+      return;
+    }
+    const currentId = entityIdRef.current;
+    if (currentId) {
+      cleanupDraftIfUnchanged(currentId);
+    }
+    closePanel();
+  }, [searchParams, handleSelectEntity, cleanupDraftIfUnchanged, closePanel]);
+
+  const handleSheetOpenChange = useCallback(
+    (open: boolean) => {
+      if (open) {
+        return;
+      }
+      if (entityId) {
+        cleanupDraftIfUnchanged(entityId);
+      }
+      closePanel();
+    },
+    [cleanupDraftIfUnchanged, closePanel, entityId]
+  );
+
+  const handleCreateClick = useCallback(() => {
+    if (entityId) {
+      cleanupDraftIfUnchanged(entityId);
+    }
+    const snapshot = createNoteDraftSnapshot(defaultCategoryId);
+    openNewDraft(async () => {
+      const result = await create(createNoteDraftInput(defaultCategoryId));
+      if (result) {
+        draftSnapshots.current.set(result.id, snapshot);
+      }
+      return result;
+    });
+  }, [
+    cleanupDraftIfUnchanged,
+    create,
+    defaultCategoryId,
+    entityId,
+    openNewDraft,
+  ]);
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
@@ -156,7 +188,7 @@ export function FlatNotesDashboard({
       <CommandBarPageLayout
         commandBar={
           <NoteCommandBar
-            onCreateClick={() => setIsCreateOpen(true)}
+            onCreateClick={handleCreateClick}
             createLabel="New Note"
             onRefresh={handleRefresh}
             isRefreshing={isRefreshing || isRefreshPending}
@@ -184,7 +216,7 @@ export function FlatNotesDashboard({
               error={error}
               onRetry={refresh}
               categories={DEFAULT_NOTE_CATEGORIES}
-              onEntityClick={(entity) => setSelectedItemId(entity.id)}
+              onEntityClick={(entity) => handleSelectEntity(entity.id)}
               onEntityDelete={(id, title) =>
                 setDeleteState({ open: true, id, name: title })
               }
@@ -195,102 +227,23 @@ export function FlatNotesDashboard({
         />
       </CommandBarPageLayout>
 
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
-          <form onSubmit={handleCreate}>
-            <DialogHeader>
-              <DialogTitle>Create Note</DialogTitle>
-              <DialogDescription>
-                Create a new note. Title and description are end-to-end
-                encrypted. Category (Personal, Work, Other) and ordering stay
-                plaintext so the app can group and sort your list.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="item-title">Title</Label>
-                <Input
-                  id="item-title"
-                  placeholder="e.g., Meeting notes - Q2 planning"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="item-description">Description (optional)</Label>
-                <Input
-                  id="item-description"
-                  placeholder="e.g., Decisions, follow-ups, and open questions"
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="note-category">Category</Label>
-                <NativeSelect
-                  id="note-category"
-                  value={newCategoryId}
-                  onChange={(e) => setNewCategoryId(e.target.value)}
-                >
-                  {DEFAULT_NOTE_CATEGORIES.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </NativeSelect>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsCreateOpen(false)}
-                disabled={isCreating}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isCreating || !newTitle.trim()}>
-                {isCreating ? (
-                  <>
-                    <Loader2Icon className="mr-2 size-4 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  "Create Note"
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <Sheet
-        open={selectedItemId !== null}
-        onOpenChange={(open) => {
-          if (!open) setSelectedItemId(null);
-        }}
+      <E2eeEntityDetailSheet
+        open={isOpen}
+        onOpenChange={handleSheetOpenChange}
+        title="Note Details"
+        entityId={entityId}
       >
-        <SheetContent
-          side="right"
-          className="flex w-full flex-col overflow-hidden sm:max-w-[95vw] 2xl:max-w-[1800px]"
-        >
-          <SheetHeader className="shrink-0">
-            <SheetTitle>Note Details</SheetTitle>
-          </SheetHeader>
-          {selectedItemId && selectedItem ? (
-            <div className="min-h-0 flex-1">
-              <ItemEditor
-                itemId={selectedItemId}
-                initialItem={selectedItem}
-                embedded
-                onClose={() => setSelectedItemId(null)}
-                onLocalPatch={(id, input) => patchLocal(id, input)}
-              />
-            </div>
-          ) : null}
-        </SheetContent>
-      </Sheet>
+        {entityId ? (
+          <ItemEditor
+            key={entityId}
+            itemId={entityId}
+            initialItem={selectedItem ?? undefined}
+            embedded
+            onClose={() => handleSheetOpenChange(false)}
+            onLocalPatch={(id, input) => patchLocal(id, input)}
+          />
+        ) : null}
+      </E2eeEntityDetailSheet>
 
       <DeleteConfirmationDialog
         open={deleteState.open}
@@ -305,7 +258,11 @@ export function FlatNotesDashboard({
           const deleteId = deleteState.id;
           if (!deleteId) return;
           startDeleteTransition(async () => {
+            draftSnapshots.current.delete(deleteId);
             await remove(deleteId);
+            if (entityId === deleteId) {
+              closePanel();
+            }
             setDeleteState({ open: false, id: null, name: null });
           });
         }}

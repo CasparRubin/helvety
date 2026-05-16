@@ -12,10 +12,6 @@ import { ALL_FOLDER_ID, isAllFolderId } from "@/lib/all-folder";
 
 import type { LinkFolder } from "@/lib/types";
 
-/** Matches contacts/tasks/notes right-hand detail sheets. */
-export const LINKS_SHEET_CONTENT_CLASS =
-  "flex w-full flex-col overflow-hidden sm:max-w-[95vw] 2xl:max-w-[1800px]";
-
 /**
  * Single label + control group (`grid gap-2`).
  */
@@ -36,7 +32,7 @@ export function LinksFormField({
   );
 }
 
-/** URL, name, and folder fields shared by create/edit link forms (folder select includes All). */
+/** URL, name, and folder fields for the link detail sheet editor (folder select includes All). */
 export function LinkFormFields({
   url,
   name,
@@ -62,7 +58,7 @@ export function LinkFormFields({
   nameInputId?: string;
   folderSelectId?: string;
   autoFocusUrl?: boolean;
-  /** Use {@link E2EE_CREATE_DIALOG_FIELDS_STACK_CLASS} in create dialogs. */
+  /** Optional stack class override for form field groups. */
   fieldsStackClassName?: string;
 }): React.JSX.Element {
   return (

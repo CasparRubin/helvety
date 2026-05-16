@@ -6,6 +6,7 @@ import {
 } from "@helvety/shared/e2ee-dashboard-search";
 import { Button } from "@helvety/ui/button";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
+import { E2eeEntityDetailSheet } from "@helvety/ui/e2ee-entity-detail-sheet";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import {
@@ -13,34 +14,44 @@ import {
   ListErrorState,
   ListLoadingState,
 } from "@helvety/ui/list-states";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@helvety/ui/sheet";
 import { Pencil } from "lucide-react";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
-import { FolderCreateDialog } from "@/components/folder-create-dialog";
 import { FolderEditor } from "@/components/folder-editor";
-import { LinkCreateDialog } from "@/components/link-create-dialog";
 import { LinkEditor } from "@/components/link-editor";
-import { LINKS_SHEET_CONTENT_CLASS } from "@/components/link-form-fields";
 import { LinksCommandBar } from "@/components/links-command-bar";
 import { LinksTreeList } from "@/components/links-tree-list";
 import { useDataExport } from "@/hooks/use-data-export";
 import { useLinkLibrary } from "@/hooks/use-link-library";
 import {
   ALL_FOLDER_ID,
-  ALL_FOLDER_NAME,
   isAllFolderId,
+  toStorageFolderId,
 } from "@/lib/all-folder";
+import {
+  createFolderDraftSnapshot,
+  createLinkDraftSnapshot,
+  FOLDER_DRAFT_DEFAULT_NAME,
+  isFolderDraftUnchanged,
+  isLinkDraftUnchanged,
+  LINK_DRAFT_DEFAULT_NAME,
+  LINK_DRAFT_PLACEHOLDER_URL,
+} from "@/lib/config/draft-defaults";
 import { useEncryptionContext } from "@/lib/crypto";
 import { formatFolderPath } from "@/lib/link-tree";
+import { resolveLinkDisplayName } from "@/lib/url-normalize";
 
+import type {
+  FolderDraftSnapshot,
+  LinkDraftSnapshot,
+} from "@/lib/config/draft-defaults";
 import type { Link, LinkFolderRow, LinkRow } from "@/lib/types";
+
+/** Right-hand sheet panel state for links and folders. */
+type LinksPanelState =
+  | { mode: "closed" }
+  | { mode: "open"; kind: "link" | "folder"; id: string };
 
 /** Props for the links dashboard page client. */
 interface LinksDashboardProps {
@@ -48,7 +59,7 @@ interface LinksDashboardProps {
   initialEncryptedLinks?: LinkRow[];
 }
 
-/** Main links dashboard: command bar, search, nested tree, and create/edit sheets. */
+/** Main links dashboard: command bar, search, nested tree, and entity detail sheet. */
 export function LinksDashboard({
   initialEncryptedFolders,
   initialEncryptedLinks,
@@ -68,10 +79,12 @@ export function LinksDashboard({
   >(null);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
-  const [isCreateLinkOpen, setIsCreateLinkOpen] = useState(false);
-  const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
-  const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
+  const [panel, setPanel] = useState<LinksPanelState>({ mode: "closed" });
+  const linkDraftSnapshots = useRef<Map<string, LinkDraftSnapshot>>(new Map());
+  const folderDraftSnapshots = useRef<Map<string, FolderDraftSnapshot>>(
+    new Map()
+  );
+
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
     type: "folder" | "link" | null;
@@ -80,38 +93,73 @@ export function LinksDashboard({
   }>({ open: false, type: null, id: null, name: null });
 
   const [isRefreshPending, startRefreshTransition] = useTransition();
-  const [isCreatePending, startCreateTransition] = useTransition();
+  const [, startOpenDraftTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
 
-  const openCreateLink = useCallback(() => {
-    setEditingLinkId(null);
-    setEditingFolderId(null);
-    setIsCreateFolderOpen(false);
-    setIsCreateLinkOpen(true);
+  const closePanel = useCallback(() => {
+    setPanel({ mode: "closed" });
   }, []);
 
-  const openCreateFolder = useCallback(() => {
-    setEditingLinkId(null);
-    setEditingFolderId(null);
-    setIsCreateLinkOpen(false);
-    setIsCreateFolderOpen(true);
-  }, []);
+  const cleanupDraftIfUnchanged = useCallback(
+    (state: Extract<LinksPanelState, { mode: "open" }>) => {
+      if (state.kind === "link") {
+        const link = library.links.find((l) => l.id === state.id);
+        const snapshot = linkDraftSnapshots.current.get(state.id);
+        if (link && snapshot && isLinkDraftUnchanged(link, snapshot)) {
+          void library.removeLink(state.id);
+        }
+        linkDraftSnapshots.current.delete(state.id);
+        return;
+      }
+      const folder = library.folders.find((f) => f.id === state.id);
+      const snapshot = folderDraftSnapshots.current.get(state.id);
+      if (folder && snapshot && isFolderDraftUnchanged(folder, snapshot)) {
+        void library.removeFolder(state.id);
+      }
+      folderDraftSnapshots.current.delete(state.id);
+    },
+    [library]
+  );
 
-  const openEditLink = useCallback((linkId: string) => {
-    setIsCreateLinkOpen(false);
-    setIsCreateFolderOpen(false);
-    setEditingFolderId(null);
-    setEditingLinkId(linkId);
-  }, []);
+  const setPanelWithCleanup = useCallback(
+    (next: LinksPanelState) => {
+      if (panel.mode === "open") {
+        const unchangedTarget =
+          next.mode === "open" &&
+          next.id === panel.id &&
+          next.kind === panel.kind;
+        if (!unchangedTarget) {
+          cleanupDraftIfUnchanged(panel);
+        }
+      }
+      setPanel(next);
+    },
+    [cleanupDraftIfUnchanged, panel]
+  );
 
-  const openEditFolder = useCallback((folderId: string) => {
-    if (isAllFolderId(folderId)) {
-      return;
-    }
-    setIsCreateLinkOpen(false);
-    setIsCreateFolderOpen(false);
-    setEditingLinkId(null);
-    setEditingFolderId(folderId);
+  const handleSheetOpenChange = useCallback(
+    (open: boolean) => {
+      if (open) {
+        return;
+      }
+      if (panel.mode === "open") {
+        cleanupDraftIfUnchanged(panel);
+      }
+      closePanel();
+    },
+    [cleanupDraftIfUnchanged, closePanel, panel]
+  );
+
+  const expandFolder = useCallback((folderId: string | null) => {
+    const displayId = folderId ?? ALL_FOLDER_ID;
+    setExpandedFolderIds((prev) => {
+      if (prev.has(displayId)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(displayId);
+      return next;
+    });
   }, []);
 
   const toggleFolder = useCallback((folderId: string) => {
@@ -127,38 +175,117 @@ export function LinksDashboard({
     setCreateParentFolderId(isAllFolderId(folderId) ? ALL_FOLDER_ID : folderId);
   }, []);
 
-  const expandFolder = useCallback((folderId: string) => {
-    setExpandedFolderIds((prev) => {
-      if (prev.has(folderId)) {
-        return prev;
-      }
-      const next = new Set(prev);
-      next.add(folderId);
-      return next;
-    });
-  }, []);
-
-  const createParentFolderName = useMemo(() => {
-    if (!createParentFolderId) {
-      return null;
+  const openCreateLink = useCallback(() => {
+    if (panel.mode === "open") {
+      cleanupDraftIfUnchanged(panel);
     }
-    if (isAllFolderId(createParentFolderId)) {
-      return ALL_FOLDER_NAME;
-    }
-    return (
-      library.folders.find((f) => f.id === createParentFolderId)?.name ?? null
+    const storageFolderId = toStorageFolderId(
+      createParentFolderId ?? ALL_FOLDER_ID
     );
-  }, [createParentFolderId, library.folders]);
+    startOpenDraftTransition(async () => {
+      const created = await library.createLink(
+        { name: LINK_DRAFT_DEFAULT_NAME, url: LINK_DRAFT_PLACEHOLDER_URL },
+        storageFolderId
+      );
+      if (!created) {
+        return;
+      }
+      const displayName = resolveLinkDisplayName(
+        LINK_DRAFT_DEFAULT_NAME,
+        LINK_DRAFT_PLACEHOLDER_URL
+      );
+      linkDraftSnapshots.current.set(
+        created.id,
+        createLinkDraftSnapshot(
+          displayName,
+          LINK_DRAFT_PLACEHOLDER_URL,
+          storageFolderId
+        )
+      );
+      expandFolder(storageFolderId);
+      setCreateParentFolderId(storageFolderId ?? ALL_FOLDER_ID);
+      setPanelWithCleanup({ mode: "open", kind: "link", id: created.id });
+    });
+  }, [
+    cleanupDraftIfUnchanged,
+    createParentFolderId,
+    expandFolder,
+    library,
+    panel,
+    setPanelWithCleanup,
+  ]);
+
+  const openCreateFolder = useCallback(() => {
+    if (panel.mode === "open") {
+      cleanupDraftIfUnchanged(panel);
+    }
+    const storageParentId = toStorageFolderId(
+      createParentFolderId ?? ALL_FOLDER_ID
+    );
+    startOpenDraftTransition(async () => {
+      const created = await library.createFolder(
+        { name: FOLDER_DRAFT_DEFAULT_NAME },
+        storageParentId
+      );
+      if (!created) {
+        return;
+      }
+      folderDraftSnapshots.current.set(
+        created.id,
+        createFolderDraftSnapshot(FOLDER_DRAFT_DEFAULT_NAME, storageParentId)
+      );
+      expandFolder(storageParentId);
+      setCreateParentFolderId(storageParentId ?? ALL_FOLDER_ID);
+      setPanelWithCleanup({ mode: "open", kind: "folder", id: created.id });
+    });
+  }, [
+    cleanupDraftIfUnchanged,
+    createParentFolderId,
+    expandFolder,
+    library,
+    panel,
+    setPanelWithCleanup,
+  ]);
+
+  const openEditLink = useCallback(
+    (linkId: string) => {
+      setPanelWithCleanup({ mode: "open", kind: "link", id: linkId });
+    },
+    [setPanelWithCleanup]
+  );
+
+  const openEditFolder = useCallback(
+    (folderId: string) => {
+      if (isAllFolderId(folderId)) {
+        return;
+      }
+      setPanelWithCleanup({ mode: "open", kind: "folder", id: folderId });
+    },
+    [setPanelWithCleanup]
+  );
 
   const editingLink = useMemo(
-    () => library.links.find((l) => l.id === editingLinkId) ?? null,
-    [library.links, editingLinkId]
+    () =>
+      panel.mode === "open" && panel.kind === "link"
+        ? (library.links.find((l) => l.id === panel.id) ?? null)
+        : null,
+    [library.links, panel]
   );
 
   const editingFolder = useMemo(
-    () => library.folders.find((f) => f.id === editingFolderId) ?? null,
-    [library.folders, editingFolderId]
+    () =>
+      panel.mode === "open" && panel.kind === "folder"
+        ? (library.folders.find((f) => f.id === panel.id) ?? null)
+        : null,
+    [library.folders, panel]
   );
+
+  const sheetTitle =
+    panel.mode === "open"
+      ? panel.kind === "link"
+        ? "Link Details"
+        : "Folder Details"
+      : "";
 
   const searchActive = searchQuery.trim().length > 0;
 
@@ -179,41 +306,6 @@ export function LinksDashboard({
     });
   };
 
-  const handleCreateFolder = (input: {
-    name: string;
-    parent_folder_id: string | null;
-  }) => {
-    startCreateTransition(async () => {
-      const created = await library.createFolder(
-        { name: input.name },
-        input.parent_folder_id
-      );
-      if (created) {
-        expandFolder(input.parent_folder_id ?? ALL_FOLDER_ID);
-        setCreateParentFolderId(input.parent_folder_id ?? ALL_FOLDER_ID);
-        setIsCreateFolderOpen(false);
-      }
-    });
-  };
-
-  const handleCreateLink = (input: {
-    url: string;
-    name: string;
-    folder_id: string | null;
-  }) => {
-    startCreateTransition(async () => {
-      const created = await library.createLink(
-        { name: input.name, url: input.url },
-        input.folder_id
-      );
-      if (created) {
-        expandFolder(input.folder_id ?? ALL_FOLDER_ID);
-        setCreateParentFolderId(input.folder_id ?? ALL_FOLDER_ID);
-        setIsCreateLinkOpen(false);
-      }
-    });
-  };
-
   const handleConfirmDelete = () => {
     const targetId = deleteState.id;
     const targetType = deleteState.type;
@@ -223,6 +315,7 @@ export function LinksDashboard({
     startDeleteTransition(async () => {
       if (targetType === "folder") {
         await library.removeFolder(targetId);
+        folderDraftSnapshots.current.delete(targetId);
         setExpandedFolderIds((prev) => {
           const next = new Set(prev);
           next.delete(targetId);
@@ -231,13 +324,14 @@ export function LinksDashboard({
         if (createParentFolderId === targetId) {
           setCreateParentFolderId(null);
         }
-        if (editingFolderId === targetId) {
-          setEditingFolderId(null);
+        if (panel.mode === "open" && panel.id === targetId) {
+          closePanel();
         }
       } else {
         await library.removeLink(targetId);
-        if (editingLinkId === targetId) {
-          setEditingLinkId(null);
+        linkDraftSnapshots.current.delete(targetId);
+        if (panel.mode === "open" && panel.id === targetId) {
+          closePanel();
         }
       }
       setDeleteState({ open: false, type: null, id: null, name: null });
@@ -337,98 +431,51 @@ export function LinksDashboard({
         />
       </CommandBarPageLayout>
 
-      <LinkCreateDialog
-        open={isCreateLinkOpen}
-        folders={library.folders}
-        defaultFolderId={createParentFolderId}
-        parentFolderName={createParentFolderName}
-        isCreating={isCreatePending}
-        onOpenChange={setIsCreateLinkOpen}
-        onCreate={handleCreateLink}
-      />
-
-      <FolderCreateDialog
-        open={isCreateFolderOpen}
-        folders={library.folders}
-        defaultParentFolderId={createParentFolderId}
-        isCreating={isCreatePending}
-        onOpenChange={setIsCreateFolderOpen}
-        onCreate={handleCreateFolder}
-      />
-
-      <Sheet
-        open={editingLinkId !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingLinkId(null);
-          }
-        }}
+      <E2eeEntityDetailSheet
+        open={panel.mode === "open"}
+        onOpenChange={handleSheetOpenChange}
+        title={sheetTitle}
+        entityId={panel.mode === "open" ? panel.id : null}
       >
-        <SheetContent side="right" className={LINKS_SHEET_CONTENT_CLASS}>
-          <SheetHeader className="shrink-0">
-            <SheetTitle>Link details</SheetTitle>
-          </SheetHeader>
-          {editingLink ? (
-            <div className="min-h-0 flex-1">
-              <LinkEditor
-                key={editingLink.id}
-                link={editingLink}
-                folders={library.folders}
-                embedded
-                onClose={() => setEditingLinkId(null)}
-                onRefresh={library.refresh}
-                onDelete={() =>
-                  setDeleteState({
-                    open: true,
-                    type: "link",
-                    id: editingLink.id,
-                    name: editingLink.name,
-                  })
-                }
-                onSave={(input) => library.updateLink(editingLink.id, input)}
-              />
-            </div>
-          ) : null}
-        </SheetContent>
-      </Sheet>
-
-      <Sheet
-        open={editingFolderId !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingFolderId(null);
-          }
-        }}
-      >
-        <SheetContent side="right" className={LINKS_SHEET_CONTENT_CLASS}>
-          <SheetHeader className="shrink-0">
-            <SheetTitle>Folder details</SheetTitle>
-          </SheetHeader>
-          {editingFolder ? (
-            <div className="min-h-0 flex-1">
-              <FolderEditor
-                key={editingFolder.id}
-                folder={editingFolder}
-                folders={library.folders}
-                embedded
-                onClose={() => setEditingFolderId(null)}
-                onRefresh={library.refresh}
-                onDelete={() =>
-                  setDeleteState({
-                    open: true,
-                    type: "folder",
-                    id: editingFolder.id,
-                    name: editingFolder.name,
-                  })
-                }
-                onSave={(input) =>
-                  library.updateFolder(editingFolder.id, input)
-                }
-              />
-            </div>
-          ) : null}
-        </SheetContent>
-      </Sheet>
+        {panel.mode === "open" && panel.kind === "link" && editingLink ? (
+          <LinkEditor
+            key={editingLink.id}
+            link={editingLink}
+            folders={library.folders}
+            embedded
+            onClose={() => handleSheetOpenChange(false)}
+            onRefresh={library.refresh}
+            onDelete={() =>
+              setDeleteState({
+                open: true,
+                type: "link",
+                id: editingLink.id,
+                name: editingLink.name,
+              })
+            }
+            onSave={(input) => library.updateLink(editingLink.id, input)}
+          />
+        ) : null}
+        {panel.mode === "open" && panel.kind === "folder" && editingFolder ? (
+          <FolderEditor
+            key={editingFolder.id}
+            folder={editingFolder}
+            folders={library.folders}
+            embedded
+            onClose={() => handleSheetOpenChange(false)}
+            onRefresh={library.refresh}
+            onDelete={() =>
+              setDeleteState({
+                open: true,
+                type: "folder",
+                id: editingFolder.id,
+                name: editingFolder.name,
+              })
+            }
+            onSave={(input) => library.updateFolder(editingFolder.id, input)}
+          />
+        ) : null}
+      </E2eeEntityDetailSheet>
 
       <DeleteConfirmationDialog
         open={deleteState.open}

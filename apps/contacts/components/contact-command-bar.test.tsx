@@ -21,9 +21,12 @@ describe("ContactCommandBar", () => {
       />
     );
 
-    const refreshButton = screen.getByRole("button", { name: "Refresh" });
-    expect(refreshButton).toBeDisabled();
-    expect(refreshButton.querySelector("svg")).toHaveClass("animate-spin");
+    const refreshButtons = screen.getAllByRole("button", { name: "Refresh" });
+    expect(refreshButtons.length).toBeGreaterThanOrEqual(1);
+    for (const refreshButton of refreshButtons) {
+      expect(refreshButton).toBeDisabled();
+      expect(refreshButton.querySelector("svg")).toHaveClass("animate-spin");
+    }
   });
 
   it("shows secondary action labels when export/settings are enabled", () => {

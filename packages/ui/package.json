@@ -78,6 +78,8 @@
     "./vercel-analytics": "./src/vercel-analytics.tsx",
     "./root-global-error": "./src/root-global-error.tsx",
     "./e2ee-form-layout": "./src/e2ee-form-layout.ts",
+    "./e2ee-entity-detail-sheet": "./src/e2ee-entity-detail-sheet.tsx",
+    "./use-e2ee-entity-panel": "./src/use-e2ee-entity-panel.ts",
     "./e2ee-app-root-layout": "./src/e2ee-app-root-layout.tsx",
     "./e2ee-app-navbar": "./src/e2ee-app-navbar.tsx",
     "./helvety-public-shell-root-layout": "./src/helvety-public-shell-root-layout.tsx",

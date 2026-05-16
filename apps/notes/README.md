@@ -7,11 +7,12 @@ End-to-end encrypted notes app with category-based organization.
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (shared CSRF/user bootstrap, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable. Dashboard and editor surfaces pin the note command bar with `@helvety/ui/command-bar-page-layout` (body scrolls in shadcn `ScrollArea`).
+- Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (shared CSRF/user bootstrap, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable. The dashboard pins the list command bar with `@helvety/ui/command-bar-page-layout` (body scrolls in shadcn `ScrollArea`); editors inside the detail sheet pin `ItemCommandBar` the same way.
 - Client-side encryption for note title and description
 - Fixed categories (Personal, Work, Other)
 - Client-side search on decrypted title/description
 - Drag-and-drop reorder (disabled while search is active)
+- New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with the full `ItemEditor` (Tiptap, category, task/contact links). **New Note** creates a draft row and opens that sheet immediately; closing without edits removes the draft row.
 - Cross-app linking with tasks and contacts
 - Client-side decrypted export (server-side encrypted fetch)
 

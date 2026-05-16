@@ -12,6 +12,7 @@ import {
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
+import { E2EE_UNSAVED_CHANGES_DIALOG } from "@helvety/ui/e2ee-form-layout";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import {
@@ -65,8 +66,8 @@ interface ContactEditorProps {
 }
 
 /**
- * ContactEditor - Full editor for a single contact.
- * Uses two-column responsive layout for full-page mode and a stacked layout for sheet mode.
+ * Contact editor for a single contact. Used inside the dashboard detail sheet
+ * (`embedded`); supports a legacy full-page layout when `embedded` is false.
  */
 export function ContactEditor({
   contactId,
@@ -535,19 +536,22 @@ export function ContactEditor({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogTitle>
+              {E2EE_UNSAVED_CHANGES_DIALOG.title}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes that will be lost. Are you sure you want
-              to continue?
+              {E2EE_UNSAVED_CHANGES_DIALOG.description}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              {E2EE_UNSAVED_CHANGES_DIALOG.cancelLabel}
+            </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={handleConfirmDiscard}
             >
-              Discard Changes
+              {E2EE_UNSAVED_CHANGES_DIALOG.confirmLabel}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

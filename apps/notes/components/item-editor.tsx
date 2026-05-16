@@ -20,6 +20,7 @@ import {
   CollapsibleTrigger,
 } from "@helvety/ui/collapsible";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
+import { E2EE_UNSAVED_CHANGES_DIALOG } from "@helvety/ui/e2ee-form-layout";
 import { renderIcon } from "@helvety/ui/icon-renderer";
 import { Input } from "@helvety/ui/input";
 import {
@@ -83,7 +84,8 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 const APP_HOME_PATH = "/notes";
 
 /**
- * Item Editor - Full page editor for note title and description.
+ * Note editor for title and description. Used inside the dashboard detail sheet
+ * (`embedded`); supports a legacy full-page layout when `embedded` is false.
  */
 export function ItemEditor({
   itemId,
@@ -527,19 +529,22 @@ export function ItemEditor({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogTitle>
+              {E2EE_UNSAVED_CHANGES_DIALOG.title}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes that will be lost. Are you sure you want
-              to continue?
+              {E2EE_UNSAVED_CHANGES_DIALOG.description}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              {E2EE_UNSAVED_CHANGES_DIALOG.cancelLabel}
+            </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={handleConfirmDiscard}
             >
-              Discard Changes
+              {E2EE_UNSAVED_CHANGES_DIALOG.confirmLabel}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

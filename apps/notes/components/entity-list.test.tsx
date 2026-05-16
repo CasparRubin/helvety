@@ -1,3 +1,4 @@
+import { E2EE_LIST_UNTITLED_LABEL } from "@helvety/shared/e2ee-draft";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -20,6 +21,19 @@ const baseNote = (overrides: Partial<Item>): Item => ({
 });
 
 describe("EntityList", () => {
+  it("shows Untitled for notes with an empty title", () => {
+    render(
+      <EntityList
+        entities={[baseNote({ id: "draft", title: "" })]}
+        isLoading={false}
+        error={null}
+        categories={[]}
+      />
+    );
+
+    expect(screen.getByText(E2EE_LIST_UNTITLED_LABEL)).toBeInTheDocument();
+  });
+
   it("keeps visible rows rendered while a background refresh is active", () => {
     render(
       <EntityList

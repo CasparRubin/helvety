@@ -10,6 +10,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { getE2eeListTitle } from "@helvety/shared/e2ee-draft";
 import { computeReorderUpdates } from "@helvety/shared/entity-list-reorder";
 import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 import {
@@ -315,7 +316,7 @@ export function EntityList({
                     <EntityRow
                       key={entity.id}
                       id={entity.id}
-                      title={entity.title}
+                      title={getE2eeListTitle(entity.title)}
                       description={entity.description}
                       createdAt={entity.created_at}
                       stageColor={
@@ -368,7 +369,7 @@ export function EntityList({
                 <EntityRow
                   key={entity.id}
                   id={entity.id}
-                  title={entity.title}
+                  title={getE2eeListTitle(entity.title)}
                   description={entity.description}
                   createdAt={entity.created_at}
                   isFirst={idx === 0}

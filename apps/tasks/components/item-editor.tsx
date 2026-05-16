@@ -13,6 +13,7 @@ import {
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
+import { E2EE_UNSAVED_CHANGES_DIALOG } from "@helvety/ui/e2ee-form-layout";
 import { Input } from "@helvety/ui/input";
 import {
   parseRichTextContent,
@@ -78,8 +79,8 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 const APP_HOME_PATH = "/tasks";
 
 /**
- * Item Editor - Full page editor for item title, description, start/end dates, and properties.
- * Uses two-column responsive layout for full-page mode and a stacked layout for sheet mode.
+ * Task editor for title, description, dates, and metadata. Used inside the dashboard
+ * detail sheet (`embedded`); supports a legacy full-page layout when `embedded` is false.
  */
 export function ItemEditor({
   itemId,
@@ -455,7 +456,7 @@ export function ItemEditor({
         <div className="container mx-auto px-4 py-8">
           {/* Breadcrumb removed: list opens this sheet (no in-app hierarchy). */}
 
-          {/* Full-page mode: two-column layout. Sheet-embedded mode: always stacked. */}
+          {/* Legacy full-page layout: two columns. Sheet (`embedded`): always stacked. */}
           <div
             className={
               embedded
@@ -551,19 +552,22 @@ export function ItemEditor({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogTitle>
+              {E2EE_UNSAVED_CHANGES_DIALOG.title}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes that will be lost. Are you sure you want
-              to continue?
+              {E2EE_UNSAVED_CHANGES_DIALOG.description}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              {E2EE_UNSAVED_CHANGES_DIALOG.cancelLabel}
+            </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={handleConfirmDiscard}
             >
-              Discard Changes
+              {E2EE_UNSAVED_CHANGES_DIALOG.confirmLabel}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

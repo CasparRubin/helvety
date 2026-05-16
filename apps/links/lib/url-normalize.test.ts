@@ -18,6 +18,14 @@ describe("normalizeBookmarkUrl", () => {
   it("rejects empty input", () => {
     expect(normalizeBookmarkUrl("  ").ok).toBe(false);
   });
+
+  it("accepts draft placeholder URL used on persist-on-open", () => {
+    const result = normalizeBookmarkUrl("https://example.com");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.url).toBe("https://example.com/");
+    }
+  });
 });
 
 describe("resolveLinkDisplayName", () => {

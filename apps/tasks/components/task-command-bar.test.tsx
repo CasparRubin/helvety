@@ -22,9 +22,12 @@ describe("TaskCommandBar", () => {
       />
     );
 
-    const refreshButton = screen.getByRole("button", { name: "Refresh" });
-    expect(refreshButton).toBeDisabled();
-    expect(refreshButton.querySelector("svg")).toHaveClass("animate-spin");
+    const refreshButtons = screen.getAllByRole("button", { name: "Refresh" });
+    expect(refreshButtons.length).toBeGreaterThanOrEqual(1);
+    for (const refreshButton of refreshButtons) {
+      expect(refreshButton).toBeDisabled();
+      expect(refreshButton.querySelector("svg")).toHaveClass("animate-spin");
+    }
   });
 
   it("shows overflow and secondary actions for export/settings", () => {

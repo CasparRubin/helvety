@@ -24,8 +24,11 @@ This package provides:
 
 **E2EE zones (`tasks`, `contacts`, `notes`, `links`):**
 
-- `@helvety/ui/e2ee-app-root-layout` -> `E2eeAppRootLayout`: Each app's `app/layout.tsx` passes **`encryptionProvider`** (the zone's client encryption context component, for example from `@/lib/crypto`), **`renderNavbar`**, **`softwareApplication`** (fields for JSON-LD `SoftwareApplication`), **`organizationLogoUrl`**, and **`children`**. Main is overflow-hidden; dashboards and editors use **`CommandBarPageLayout`** to pin the command bar and scroll via `ScrollArea`.
+- `@helvety/ui/e2ee-app-root-layout` -> `E2eeAppRootLayout`: Each app's `app/layout.tsx` passes **`encryptionProvider`** (the zone's client encryption context component, for example from `@/lib/crypto`), **`renderNavbar`**, **`softwareApplication`** (fields for JSON-LD `SoftwareApplication`), **`organizationLogoUrl`**, and **`children`**. Main is overflow-hidden; dashboards and sheet-embedded editors use **`CommandBarPageLayout`** to pin command bars and scroll via `ScrollArea`.
 - `@helvety/ui/command-bar-page-layout` -> `CommandBarPageLayout`: Pins a command bar outside scroll; scrolls page body with the shared shadcn `ScrollArea`.
+- `@helvety/ui/e2ee-entity-detail-sheet` -> `E2eeEntityDetailSheet`: Wide right-hand sheet shell for E2EE list dashboards (Notes, Tasks, Contacts, Links).
+- `@helvety/ui/use-e2ee-entity-panel` -> `useE2eeEntityPanel`: Sheet open/close state and persist-on-open **`openNewDraft`** for Notes, Tasks, and Contacts.
+- `@helvety/ui/e2ee-form-layout` -> `E2EE_ENTITY_SHEET_CONTENT_CLASS`, `E2EE_UNSAVED_CHANGES_DIALOG`, editor field spacing helpers.
 - `@helvety/ui/e2ee-app-navbar` -> `E2eeAppNavbar`, `E2eeAppNavbarLabels`
 
 **Top bar (all zones that render the shared chrome):**

@@ -7,10 +7,11 @@ End-to-end encrypted, stage-based task management app.
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (shared CSRF/user bootstrap, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable. Dashboard and editor surfaces pin the task command bar with `@helvety/ui/command-bar-page-layout` (body scrolls in shadcn `ScrollArea`).
+- Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (shared CSRF/user bootstrap, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable. The dashboard pins the list command bar with `@helvety/ui/command-bar-page-layout` (body scrolls in shadcn `ScrollArea`); editors inside the detail sheet pin `ItemCommandBar` the same way.
 - Client-side encryption for sensitive task fields
 - Fixed stage-based main list with drag-and-drop reorder
 - Client-side search on decrypted title/description; while search is active, reorder/drag is disabled and an empty-search message is shown when nothing matches
+- New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with the full `ItemEditor` (Tiptap, metadata panel, note/contact links). **New Task** creates a draft row and opens that sheet immediately; closing without edits removes the draft row.
 - Rich task editor with metadata panel
 - Cross-app linking with contacts and notes
 - Client-side decrypted export (server-side encrypted fetch)

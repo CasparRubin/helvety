@@ -11,7 +11,10 @@ import {
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
-import { E2EE_EDITOR_FORM_BODY_CLASS } from "@helvety/ui/e2ee-form-layout";
+import {
+  E2EE_EDITOR_FORM_BODY_CLASS,
+  E2EE_UNSAVED_CHANGES_DIALOG,
+} from "@helvety/ui/e2ee-form-layout";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { LinkFormFields } from "@/components/link-form-fields";
@@ -231,16 +234,22 @@ export function LinkEditor({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {E2EE_UNSAVED_CHANGES_DIALOG.title}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved edits. If you continue, your changes will be
-              lost.
+              {E2EE_UNSAVED_CHANGES_DIALOG.description}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep editing</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDiscard}>
-              Discard
+            <AlertDialogCancel>
+              {E2EE_UNSAVED_CHANGES_DIALOG.cancelLabel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleConfirmDiscard}
+            >
+              {E2EE_UNSAVED_CHANGES_DIALOG.confirmLabel}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
