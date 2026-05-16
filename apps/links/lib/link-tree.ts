@@ -1,6 +1,6 @@
 import type { Link, LinkFolder } from "@/lib/types";
 
-/** Breadcrumb segment for folder navigation. */
+/** Folder name segment for path display (e.g. search results). */
 export interface FolderBreadcrumb {
   id: string;
   name: string;
@@ -24,6 +24,44 @@ function sortByOrder<T extends { sort_order: number; created_at: string }>(
     }
     return b.created_at.localeCompare(a.created_at);
   });
+}
+
+/** All descendant folder ids under `folderId` (not including `folderId`). */
+export function getDescendantFolderIds(
+  folders: LinkFolder[],
+  folderId: string
+): string[] {
+  const ids: string[] = [];
+  const collect = (parentId: string) => {
+    for (const f of folders) {
+      if (f.parent_folder_id === parentId) {
+        ids.push(f.id);
+        collect(f.id);
+      }
+    }
+  };
+  collect(folderId);
+  return ids;
+}
+
+/** Links stored directly in `folderId` (sorted). */
+export function listLinksInFolder(links: Link[], folderId: string): Link[] {
+  return sortByOrder(links.filter((l) => (l.folder_id ?? null) === folderId));
+}
+
+/** Links in `folderId` and every nested subfolder (sorted). */
+export function listLinksInFolderTree(
+  folders: LinkFolder[],
+  links: Link[],
+  folderId: string
+): Link[] {
+  const folderIds = new Set([
+    folderId,
+    ...getDescendantFolderIds(folders, folderId),
+  ]);
+  return sortByOrder(
+    links.filter((l) => l.folder_id != null && folderIds.has(l.folder_id))
+  );
 }
 
 /** Returns folders and links directly under `parentFolderId` (null = root). */
@@ -67,7 +105,7 @@ export function formatFolderPath(
   folderId: string | null
 ): string {
   if (!folderId) {
-    return "Home";
+    return "Root";
   }
   return getBreadcrumbs(folders, folderId)
     .map((c) => c.name)

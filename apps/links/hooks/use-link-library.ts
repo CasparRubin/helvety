@@ -27,8 +27,13 @@ import {
   encryptLinkUpdate,
   useEncryptionContext,
 } from "@/lib/crypto";
-import { normalizeBookmarkUrl } from "@/lib/url-normalize";
+import { canMoveFolderToParent } from "@/lib/link-tree";
+import {
+  normalizeBookmarkUrl,
+  resolveLinkDisplayName,
+} from "@/lib/url-normalize";
 
+import type { TreeDropAction } from "@/lib/link-tree-dnd";
 import type {
   ActionResponse,
   FolderReorderUpdate,
@@ -44,17 +49,12 @@ import type {
 
 const LINKS_BASE_PATH = "/links";
 
-/**
- *
- */
 /** Prefixes API paths with the links app base path for gateway rewrites. */
 export function getLinksApiPath(path: string): string {
   return `${LINKS_BASE_PATH}${path}`;
 }
 
-/**
- *
- */
+/** Loads encrypted folder and link rows from the library API. */
 async function fetchLibrary(): Promise<ActionResponse<LinksDashboardData>> {
   const response = await fetch(getLinksApiPath("/api/library"), {
     method: "GET",
@@ -66,17 +66,13 @@ async function fetchLibrary(): Promise<ActionResponse<LinksDashboardData>> {
   );
 }
 
-/**
- *
- */
+/** Optional SSR-prefetched encrypted rows for the initial decrypt. */
 interface UseLinkLibraryOptions {
   initialEncryptedFolders?: LinkFolderRow[];
   initialEncryptedLinks?: LinkRow[];
 }
 
-/**
- *
- */
+/** Decrypted library state and mutation helpers returned by `useLinkLibrary`. */
 interface UseLinkLibraryReturn {
   folders: LinkFolder[];
   links: Link[];
@@ -90,7 +86,10 @@ interface UseLinkLibraryReturn {
   ) => Promise<{ id: string } | null>;
   updateFolder: (
     id: string,
-    input: Partial<LinkFolderInput> & { parent_folder_id?: string | null }
+    input: Partial<LinkFolderInput> & {
+      parent_folder_id?: string | null;
+      sort_order?: number;
+    }
   ) => Promise<boolean>;
   removeFolder: (id: string) => Promise<boolean>;
   createLink: (
@@ -99,18 +98,16 @@ interface UseLinkLibraryReturn {
   ) => Promise<{ id: string } | null>;
   updateLink: (
     id: string,
-    input: Partial<LinkInput> & { folder_id?: string | null }
+    input: Partial<LinkInput> & {
+      folder_id?: string | null;
+      sort_order?: number;
+    }
   ) => Promise<boolean>;
   removeLink: (id: string) => Promise<boolean>;
-  reorderFolders: (updates: FolderReorderUpdate[]) => Promise<boolean>;
-  reorderLinks: (updates: LinkReorderUpdate[]) => Promise<boolean>;
-  patchFolderLocal: (id: string, input: Partial<LinkFolderInput>) => void;
-  patchLinkLocal: (id: string, input: Partial<LinkInput>) => void;
+  applyTreeDrop: (action: TreeDropAction) => Promise<boolean>;
 }
 
-/**
- *
- */
+/** Client hook for the links library: decrypt, CRUD, refresh, and tree drag-and-drop. */
 export function useLinkLibrary(
   options?: UseLinkLibraryOptions
 ): UseLinkLibraryReturn {
@@ -295,7 +292,10 @@ export function useLinkLibrary(
   const updateFolderFn = useCallback(
     async (
       id: string,
-      input: Partial<LinkFolderInput> & { parent_folder_id?: string | null }
+      input: Partial<LinkFolderInput> & {
+        parent_folder_id?: string | null;
+        sort_order?: number;
+      }
     ): Promise<boolean> => {
       if (!masterKey) {
         triggerHardLogoutOnce(window.location.href, "links-use-library");
@@ -309,6 +309,9 @@ export function useLinkLibrary(
             ...encrypted,
             ...(input.parent_folder_id !== undefined
               ? { parent_folder_id: input.parent_folder_id }
+              : {}),
+            ...(input.sort_order !== undefined
+              ? { sort_order: input.sort_order }
               : {}),
           },
           csrfToken
@@ -332,6 +335,9 @@ export function useLinkLibrary(
             ...(input.name !== undefined ? { name: input.name } : {}),
             ...(input.parent_folder_id !== undefined
               ? { parent_folder_id: input.parent_folder_id }
+              : {}),
+            ...(input.sort_order !== undefined
+              ? { sort_order: input.sort_order }
               : {}),
           })
         );
@@ -382,7 +388,7 @@ export function useLinkLibrary(
       }
       try {
         const payload: LinkInput = {
-          name: input.name,
+          name: resolveLinkDisplayName(input.name, normalized.url),
           url: normalized.url,
         };
         const encrypted = await encryptLinkInput(payload, masterKey, folderId);
@@ -433,7 +439,10 @@ export function useLinkLibrary(
   const updateLinkFn = useCallback(
     async (
       id: string,
-      input: Partial<LinkInput> & { folder_id?: string | null }
+      input: Partial<LinkInput> & {
+        folder_id?: string | null;
+        sort_order?: number;
+      }
     ): Promise<boolean> => {
       if (!masterKey) {
         triggerHardLogoutOnce(window.location.href, "links-use-library");
@@ -449,10 +458,22 @@ export function useLinkLibrary(
         urlUpdate = normalized.url;
       }
       try {
-        const encryptPayload: Partial<LinkInput> = {
-          ...(input.name !== undefined ? { name: input.name } : {}),
-          ...(urlUpdate !== undefined ? { url: urlUpdate } : {}),
-        };
+        const existing = links.find((l) => l.id === id);
+        const finalUrl = urlUpdate ?? existing?.url;
+        const encryptPayload: Partial<LinkInput> = {};
+        if (input.name !== undefined || urlUpdate !== undefined) {
+          if (!finalUrl) {
+            toast.error("URL is required", { duration: TOAST_DURATIONS.ERROR });
+            return false;
+          }
+          encryptPayload.name = resolveLinkDisplayName(
+            input.name ?? "",
+            finalUrl
+          );
+        }
+        if (urlUpdate !== undefined) {
+          encryptPayload.url = urlUpdate;
+        }
         const encrypted = await encryptLinkUpdate(
           id,
           encryptPayload,
@@ -464,6 +485,9 @@ export function useLinkLibrary(
             ...encrypted,
             ...(input.folder_id !== undefined
               ? { folder_id: input.folder_id }
+              : {}),
+            ...(input.sort_order !== undefined
+              ? { sort_order: input.sort_order }
               : {}),
           },
           csrfToken
@@ -489,6 +513,9 @@ export function useLinkLibrary(
             ...(input.folder_id !== undefined
               ? { folder_id: input.folder_id }
               : {}),
+            ...(input.sort_order !== undefined
+              ? { sort_order: input.sort_order }
+              : {}),
           })
         );
         return true;
@@ -499,7 +526,7 @@ export function useLinkLibrary(
         return false;
       }
     },
-    [csrfToken, masterKey]
+    [csrfToken, links, masterKey]
   );
 
   const removeLinkFn = useCallback(
@@ -582,18 +609,74 @@ export function useLinkLibrary(
     [csrfToken]
   );
 
-  const patchFolderLocal = useCallback(
-    (id: string, input: Partial<LinkFolderInput>) => {
-      setFolders((prev) => patchEntityInList(prev, id, input));
+  const applyTreeDropFn = useCallback(
+    async (action: TreeDropAction): Promise<boolean> => {
+      switch (action.type) {
+        case "reorder-folders":
+          return reorderFoldersFn(action.updates);
+        case "reorder-links":
+          return reorderLinksFn(action.updates);
+        case "move-folder": {
+          const folder = folders.find((f) => f.id === action.folderId);
+          if (!folder) {
+            return false;
+          }
+          if (
+            !canMoveFolderToParent(
+              folders,
+              action.folderId,
+              action.targetParentId
+            )
+          ) {
+            toast.error("Cannot move a folder into itself or a subfolder", {
+              duration: TOAST_DURATIONS.ERROR,
+            });
+            return false;
+          }
+          const parentChanged =
+            (folder.parent_folder_id ?? null) !== action.targetParentId;
+          if (parentChanged) {
+            const ok = await updateFolderFn(action.folderId, {
+              name: folder.name,
+              parent_folder_id: action.targetParentId,
+            });
+            if (!ok) {
+              return false;
+            }
+          }
+          return reorderFoldersFn(action.updates);
+        }
+        case "move-link": {
+          const link = links.find((l) => l.id === action.linkId);
+          if (!link) {
+            return false;
+          }
+          const folderChanged =
+            (link.folder_id ?? null) !== action.targetFolderId;
+          if (folderChanged) {
+            const ok = await updateLinkFn(action.linkId, {
+              name: link.name,
+              url: link.url,
+              folder_id: action.targetFolderId,
+            });
+            if (!ok) {
+              return false;
+            }
+          }
+          return reorderLinksFn(action.updates);
+        }
+        default:
+          return false;
+      }
     },
-    []
-  );
-
-  const patchLinkLocal = useCallback(
-    (id: string, input: Partial<LinkInput>) => {
-      setLinks((prev) => patchEntityInList(prev, id, input));
-    },
-    []
+    [
+      folders,
+      links,
+      reorderFoldersFn,
+      reorderLinksFn,
+      updateFolderFn,
+      updateLinkFn,
+    ]
   );
 
   return {
@@ -609,9 +692,6 @@ export function useLinkLibrary(
     createLink: createLinkFn,
     updateLink: updateLinkFn,
     removeLink: removeLinkFn,
-    reorderFolders: reorderFoldersFn,
-    reorderLinks: reorderLinksFn,
-    patchFolderLocal,
-    patchLinkLocal,
+    applyTreeDrop: applyTreeDropFn,
   };
 }

@@ -548,7 +548,7 @@ export default function PrivacyPage() {
             structural metadata includes record identifiers, parent/folder
             relationships, sort order, and timestamps. Deleting a folder removes
             its subfolders and links. Per-account technical limits on folder and
-            link counts (currently 250 each) apply for platform reliability.
+            link counts (currently 2,000 each) apply for platform reliability.
             Business/account quotas are not applied.
           </li>
         </ul>

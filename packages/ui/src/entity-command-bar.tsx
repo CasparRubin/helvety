@@ -24,10 +24,17 @@ import {
 } from "./dropdown-menu";
 import { Separator } from "./separator";
 
+import type { LucideIcon } from "lucide-react";
+
 /** Props for the shared entity command bar. */
 export interface EntityCommandBarProps {
   createLabel: string;
   onCreateClick: () => void;
+  /** Optional second create action (e.g. Links “New folder”): inline on md+, mobile overflow menu. */
+  secondaryCreateLabel?: string;
+  onSecondaryCreateClick?: () => void;
+  /** Icon for the secondary create action (defaults to plus). */
+  secondaryCreateIcon?: LucideIcon;
   onBack?: () => void;
   onRefresh?: () => void;
   isRefreshing?: boolean;
@@ -48,6 +55,9 @@ export interface EntityCommandBarProps {
 export function EntityCommandBar({
   createLabel,
   onCreateClick,
+  secondaryCreateLabel,
+  onSecondaryCreateClick,
+  secondaryCreateIcon = PlusIcon,
   onBack,
   onRefresh,
   isRefreshing,
@@ -59,6 +69,8 @@ export function EntityCommandBar({
   onExport,
   isExporting,
 }: EntityCommandBarProps): React.JSX.Element {
+  const SecondaryIcon = secondaryCreateIcon;
+
   return (
     <CommandBar>
       {onBack && (
@@ -77,23 +89,51 @@ export function EntityCommandBar({
         <PlusIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
         <span className="sr-only min-[400px]:not-sr-only">{createLabel}</span>
       </Button>
-
-      {onRefresh && (
+      {onSecondaryCreateClick && secondaryCreateLabel ? (
         <Button
           variant="outline"
           size="sm"
-          onClick={onRefresh}
-          disabled={isRefreshing}
+          onClick={onSecondaryCreateClick}
+          aria-label={secondaryCreateLabel}
           className="hidden md:inline-flex"
         >
-          <RefreshCwIcon
-            className={cn(
-              "mr-1.5 size-4 shrink-0",
-              isRefreshing && "animate-spin"
-            )}
-          />
-          <span>Refresh</span>
+          <SecondaryIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+          <span className="sr-only min-[400px]:not-sr-only">
+            {secondaryCreateLabel}
+          </span>
         </Button>
+      ) : null}
+
+      {onRefresh && (
+        <>
+          <Button
+            variant="outline"
+            size="icon-sm"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            aria-label="Refresh"
+            className="md:hidden"
+          >
+            <RefreshCwIcon
+              className={cn("size-4", isRefreshing && "animate-spin")}
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="hidden md:inline-flex"
+          >
+            <RefreshCwIcon
+              className={cn(
+                "mr-1.5 size-4 shrink-0",
+                isRefreshing && "animate-spin"
+              )}
+            />
+            <span>Refresh</span>
+          </Button>
+        </>
       )}
 
       <CommandBarSpacer />
@@ -156,6 +196,12 @@ export function EntityCommandBar({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          {onSecondaryCreateClick && secondaryCreateLabel ? (
+            <DropdownMenuItem onClick={onSecondaryCreateClick}>
+              <SecondaryIcon className="mr-2 size-4" />
+              <span>{secondaryCreateLabel}</span>
+            </DropdownMenuItem>
+          ) : null}
           {onRefresh && (
             <DropdownMenuItem onClick={onRefresh} disabled={isRefreshing}>
               <RefreshCwIcon className="mr-2 size-4" />

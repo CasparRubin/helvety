@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeBookmarkUrl } from "./url-normalize";
+import { normalizeBookmarkUrl, resolveLinkDisplayName } from "./url-normalize";
 
 describe("normalizeBookmarkUrl", () => {
   it("adds https when scheme missing", () => {
@@ -17,5 +17,19 @@ describe("normalizeBookmarkUrl", () => {
 
   it("rejects empty input", () => {
     expect(normalizeBookmarkUrl("  ").ok).toBe(false);
+  });
+});
+
+describe("resolveLinkDisplayName", () => {
+  it("prefers a non-empty name", () => {
+    expect(resolveLinkDisplayName("My bookmark", "https://example.com")).toBe(
+      "My bookmark"
+    );
+  });
+
+  it("derives hostname when name is empty", () => {
+    expect(resolveLinkDisplayName("", "https://www.example.com/path")).toBe(
+      "example.com"
+    );
   });
 });

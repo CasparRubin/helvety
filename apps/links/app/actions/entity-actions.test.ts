@@ -26,9 +26,14 @@ vi.mock("next/cache", () => ({
   revalidatePath: mocks.revalidatePath,
 }));
 
-import { getAllLinkDataForExport, reorderFolders } from "./entity-actions";
+import {
+  getAllLinkDataForExport,
+  reorderFolders,
+  reorderLinks,
+} from "./entity-actions";
 
 const FOLDER_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+const LINK_ID = "b2c3d4e5-f6a7-8901-bcde-f12345678901";
 
 describe("links entity-actions", () => {
   beforeEach(() => {
@@ -88,6 +93,122 @@ describe("links entity-actions", () => {
     expect(result).toEqual({ success: true });
     expect(lastUpdatePayload).toMatchObject({
       sort_order: 0,
+      parent_folder_id: null,
+    });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/links");
+  });
+
+  it("updates sort_order only when parent_folder_id is omitted", async () => {
+    let lastUpdatePayload: Record<string, unknown> | null = null;
+
+    const from = vi.fn();
+    from.mockImplementationOnce(() => ({
+      select: () => ({
+        eq: () => ({
+          in: () =>
+            Promise.resolve({
+              data: [{ id: FOLDER_ID, parent_folder_id: null }],
+              error: null,
+            }),
+        }),
+      }),
+    }));
+    from.mockImplementationOnce(() => ({
+      select: () => ({
+        eq: () => ({
+          in: () =>
+            Promise.resolve({
+              data: [{ id: FOLDER_ID }],
+              error: null,
+            }),
+        }),
+      }),
+    }));
+    from.mockImplementation(() => ({
+      update: (obj: Record<string, unknown>) => {
+        lastUpdatePayload = obj;
+        return {
+          eq: () => ({
+            eq: () => Promise.resolve({ error: null }),
+          }),
+        };
+      },
+    }));
+
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: { from },
+      },
+    });
+
+    const result = await reorderFolders(
+      [{ id: FOLDER_ID, sort_order: 2 }],
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(lastUpdatePayload).toEqual({
+      sort_order: 2,
+      updated_at: expect.any(String),
+    });
+  });
+
+  it("includes folder_id in link reorder updates when provided", async () => {
+    let lastUpdatePayload: Record<string, unknown> | null = null;
+
+    const from = vi.fn();
+    from.mockImplementationOnce(() => ({
+      select: () => ({
+        eq: () => ({
+          in: () =>
+            Promise.resolve({
+              data: [{ id: LINK_ID, folder_id: null }],
+              error: null,
+            }),
+        }),
+      }),
+    }));
+    from.mockImplementationOnce(() => ({
+      select: () => ({
+        eq: () => ({
+          in: () =>
+            Promise.resolve({
+              data: [{ id: LINK_ID }],
+              error: null,
+            }),
+        }),
+      }),
+    }));
+    from.mockImplementation(() => ({
+      update: (obj: Record<string, unknown>) => {
+        lastUpdatePayload = obj;
+        return {
+          eq: () => ({
+            eq: () => Promise.resolve({ error: null }),
+          }),
+        };
+      },
+    }));
+
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: { from },
+      },
+    });
+
+    const result = await reorderLinks(
+      [{ id: LINK_ID, sort_order: 0, folder_id: FOLDER_ID }],
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(lastUpdatePayload).toMatchObject({
+      sort_order: 0,
+      folder_id: FOLDER_ID,
     });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/links");
   });

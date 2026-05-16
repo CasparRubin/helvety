@@ -33,7 +33,7 @@ describe("legal pages enumerate E2EE products", () => {
     expect(source).toContain("Helvety Links encrypted fields");
     expect(source).toContain("folder name");
     expect(source).toContain("link name and URL");
-    expect(source).toContain("250 each");
+    expect(source).toContain("2,000 each");
   });
 
   it("privacy does not list only three E2EE apps in shared disclosure sections", () => {

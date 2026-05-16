@@ -32,3 +32,21 @@ export function normalizeBookmarkUrl(raw: string): NormalizeUrlResult {
 
   return { ok: true, url: parsed.href };
 }
+
+/**
+ * Uses the provided name when non-empty; otherwise derives a label from the URL host.
+ */
+export function resolveLinkDisplayName(
+  rawName: string,
+  normalizedUrl: string
+): string {
+  const trimmed = rawName.trim();
+  if (trimmed) {
+    return trimmed;
+  }
+  try {
+    return new URL(normalizedUrl).hostname.replace(/^www\./i, "");
+  } catch {
+    return normalizedUrl;
+  }
+}
