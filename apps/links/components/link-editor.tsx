@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
+import { E2EE_EDITOR_FORM_BODY_CLASS } from "@helvety/ui/e2ee-form-layout";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { LinkFormFields } from "@/components/link-form-fields";
@@ -206,7 +207,7 @@ export function LinkEditor({
           />
         }
       >
-        <div className="container mx-auto px-4 py-8">
+        <div className={E2EE_EDITOR_FORM_BODY_CLASS}>
           <LinkFormFields
             url={url}
             name={name}

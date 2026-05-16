@@ -36,6 +36,8 @@ export const metadata = createHelvetyProductMetadata({
     "tasks",
     "contacts",
     "notes",
+    "links",
+    "encrypted bookmarks",
     "privacy",
     "Swiss",
     "catalog",

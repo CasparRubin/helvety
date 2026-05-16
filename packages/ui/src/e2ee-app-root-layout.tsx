@@ -45,7 +45,7 @@ export type E2eeAppRootLayoutProps = Readonly<{
 }>;
 
 /**
- * Shared root shell for Contacts, Notes, and Tasks: nonce, per-request CSRF +
+ * Shared root shell for Contacts, Notes, Tasks, and Links: nonce, per-request CSRF +
  * user bootstrap (`getCachedCSRFToken`, `getCachedUser`), JSON-LD, theme and
  * tooltip shell, app `encryptionProvider`, `EncryptionGateApp` when authenticated.
  *

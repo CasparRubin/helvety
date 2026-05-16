@@ -1037,7 +1037,7 @@ const helvetyLinks: SaaSProduct = {
   category: cHelvetyLinks.category,
   description: {
     intro:
-      "Helvety Links stores bookmarks with nested folders. Link names and URLs are encrypted on your device before they sync.",
+      "Helvety Links stores bookmarks with nested folders. Link names and URLs are encrypted on your device before storage.",
     sections: [
       {
         heading: "Pricing",
@@ -1049,8 +1049,9 @@ const helvetyLinks: SaaSProduct = {
         kind: "bullets",
         items: [
           "All folder as the library root; nested folders and links live inside it.",
-          "Nested folders without a fixed depth limit (per-account folder and link counts are capped for reliability).",
-          "Open links in your browser with one click.",
+          "Nested folders without a fixed depth limit (currently 2,000 folders and 2,000 links per account for reliability).",
+          "Drag-and-drop reorder and reparenting (disabled while search is active).",
+          "Open a link in your browser with one click, or open every link in a folder and its subfolders.",
           "Client-side search across decrypted names and URLs.",
         ],
       },
@@ -1067,6 +1068,7 @@ const helvetyLinks: SaaSProduct = {
   features: [
     "End-to-end encryption for bookmark names and URLs",
     "Nested folders without a fixed depth limit",
+    "Drag-and-drop reorder and reparenting",
     "Client-side export of decrypted library",
     "Dark and light mode support",
   ],

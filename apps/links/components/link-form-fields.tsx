@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  E2EE_EDITOR_FORM_FIELDS_STACK_CLASS,
+  E2EE_FORM_FIELD_CLASS,
+} from "@helvety/ui/e2ee-form-layout";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { NativeSelect } from "@helvety/ui/native-select";
@@ -11,8 +15,6 @@ import type { LinkFolder } from "@/lib/types";
 /** Matches contacts/tasks/notes right-hand detail sheets. */
 export const LINKS_SHEET_CONTENT_CLASS =
   "flex w-full flex-col overflow-hidden sm:max-w-[95vw] 2xl:max-w-[1800px]";
-
-const LINKS_FORM_FIELD_CLASS = "grid gap-2";
 
 /**
  * Single label + control group (`grid gap-2`).
@@ -27,7 +29,7 @@ export function LinksFormField({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <div className={LINKS_FORM_FIELD_CLASS}>
+    <div className={E2EE_FORM_FIELD_CLASS}>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
     </div>
@@ -47,6 +49,7 @@ export function LinkFormFields({
   nameInputId = "link-name",
   folderSelectId = "link-folder",
   autoFocusUrl = false,
+  fieldsStackClassName = E2EE_EDITOR_FORM_FIELDS_STACK_CLASS,
 }: {
   url: string;
   name: string;
@@ -59,9 +62,11 @@ export function LinkFormFields({
   nameInputId?: string;
   folderSelectId?: string;
   autoFocusUrl?: boolean;
+  /** Use {@link E2EE_CREATE_DIALOG_FIELDS_STACK_CLASS} in create dialogs. */
+  fieldsStackClassName?: string;
 }): React.JSX.Element {
   return (
-    <>
+    <div className={fieldsStackClassName}>
       <LinksFormField label="URL" htmlFor={urlInputId}>
         <Input
           id={urlInputId}
@@ -98,6 +103,6 @@ export function LinkFormFields({
             ))}
         </NativeSelect>
       </LinksFormField>
-    </>
+    </div>
   );
 }

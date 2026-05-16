@@ -6,6 +6,8 @@
 - Virtual **All** folder is the only top-level row; user folders and unfiled links live inside it (not stored as a separate database row)
 - Finder-style nested folder tree on one page (expand/collapse; no URL folder navigation)
 - Link rows open the URL in a new tab; pencil opens link/folder editors in right sheets
+- Dashboard command bar: primary New link, secondary New folder
+- Folder actions: open links in a folder, or in a folder and all nested subfolders (on All, open every bookmark in the library)
 - Create link/folder via dialogs; edit with pinned save bar, refresh, and unsaved-change detection (same pattern as other Helvety E2EE apps)
 - Drag-and-drop reorder and reparenting (disabled during search)
 - Client-side search on decrypted names and URLs

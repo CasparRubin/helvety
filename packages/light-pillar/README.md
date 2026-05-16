@@ -17,7 +17,7 @@ import { HelvetyShellWithLightPillarBackdrop } from "@helvety/light-pillar";
 
 ## Reveal sequence
 
-1. Shell children render immediately on `bg-background` (navbar, main, cards) on every route and viewport.
+1. Shell children render immediately on `bg-background` (navbar, main, opaque cards) on every route and viewport. Controls placed directly over the pillar on md+ (e.g. Auth login stepper, Store section nav) use frosted surfaces for contrast—see the matrix below.
 2. **md+ only:** After two animation frames (`waitForShellContentPainted`), the WebGL chunk loads inside a fixed host at `opacity-0` (behind content, `z-0`).
 3. **md+ only:** When the pillar reports ready (`onReady`), the fixed host fades to `opacity-100` over **700ms** `ease-out`.
 4. **Below md** (`<768px`, Tailwind `md:` / `@helvety/ui/use-is-mobile`): no WebGL; static `bg-background` via `max-md:block` (SSR-safe) and no Three.js load.
@@ -27,15 +27,16 @@ A **local black underlay** sits under the WebGL host while the canvas initialize
 
 ## Cross-app backdrop matrix
 
-|                             | Auth / Store (Light Pillar)                                                          | Web gateway (Hyperspeed hero)                                         |
-| --------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| Scope                       | Wrapper on all routes; WebGL on **md+** only (`HelvetyShellWithLightPillarBackdrop`) | `/` hero only (Hyperspeed at all widths)                              |
-| Reveal                      | Fixed host `opacity-0` → `opacity-100` after shell paint + `onReady`                 | Black **veil** fades out over opaque WebGL (no viewport veil over UI) |
-| Content-first               | Double rAF (`waitForShellContentPainted`) before WebGL mount (md+ only)              | Mounts with hero                                                      |
-| Compact viewport (`<768px`) | No WebGL; `bg-background` fallback block                                             | N/A (Hyperspeed stays on `/` at all sizes)                            |
-| Reduced motion              | No WebGL; `bg-background` fallback block                                             | `motion-reduce:hidden` host + `bg-background` section                 |
-| Route loading               | `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`)               | Same                                                                  |
-| Accent color                | `HELVETY_ACCENT_RED` from `@helvety/brand`                                           | `HELVETY_ACCENT_RED_RGB` in hero car colors                           |
+|                             | Auth / Store (Light Pillar)                                                                                                          | Web gateway (Hyperspeed hero)                                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| Scope                       | Wrapper on all routes; WebGL on **md+** only (`HelvetyShellWithLightPillarBackdrop`)                                                 | `/` hero only (Hyperspeed at all widths)                              |
+| Reveal                      | Fixed host `opacity-0` → `opacity-100` after shell paint + `onReady`                                                                 | Black **veil** fades out over opaque WebGL (no viewport veil over UI) |
+| Content-first               | Double rAF (`waitForShellContentPainted`) before WebGL mount (md+ only)                                                              | Mounts with hero                                                      |
+| Compact viewport (`<768px`) | No WebGL; `bg-background` fallback block                                                                                             | N/A (Hyperspeed stays on `/` at all sizes)                            |
+| Reduced motion              | No WebGL; `bg-background` fallback block                                                                                             | `motion-reduce:hidden` host + `bg-background` section                 |
+| Route loading               | `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`)                                                               | Same                                                                  |
+| Accent color                | `HELVETY_ACCENT_RED` from `@helvety/brand`                                                                                           | `HELVETY_ACCENT_RED_RGB` in hero car colors                           |
+| Controls over pillar (md+)  | Auth: login `AuthStepper` frosted panel (`apps/auth/components/encryption-stepper.tsx`); Store: `CommandBar` `variant="translucent"` | N/A (hero copy sits over Hyperspeed, not Light Pillar)                |
 
 Shared WebGL plumbing (`scheduleWebglBackdropReady`, black underlay classes) lives in this package root export; `createHelvetyWebglDynamic` is client-only at `@helvety/light-pillar/webgl-dynamic` (used by web [`hero-hyperspeed-backdrop.tsx`](../../apps/web/components/hero-hyperspeed-backdrop.tsx) and `HelvetyLightPillarBackdrop`).
 

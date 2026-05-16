@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@helvety/ui/dialog";
+import { E2EE_CREATE_DIALOG_FIELDS_CLASS } from "@helvety/ui/e2ee-form-layout";
 import { Input } from "@helvety/ui/input";
 import { NativeSelect } from "@helvety/ui/native-select";
 import { Loader2Icon } from "lucide-react";
@@ -72,7 +73,7 @@ export function FolderCreateDialog({
               encrypted on your device.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className={E2EE_CREATE_DIALOG_FIELDS_CLASS}>
             <LinksFormField label="Name" htmlFor="new-folder-name">
               <Input
                 id="new-folder-name"

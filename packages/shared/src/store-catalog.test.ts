@@ -64,6 +64,8 @@ describe("store-catalog", () => {
     expect(card.name).toBe("Helvety Links");
     expect(card.runsOn).toBe("Browser");
     expect(card.releaseDate).toBe("2026-05-16");
+    expect(card.shortDescription).toMatch(/before storage/i);
+    expect(card.shortDescription).not.toMatch(/before they sync/i);
   });
 
   it("store llms.txt lists the Helvety Links product page", () => {

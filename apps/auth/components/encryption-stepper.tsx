@@ -51,7 +51,13 @@ interface AuthStepperProps {
 }
 
 /**
- * Stepper component for the authentication flow.
+ * Progress stepper for the login flow (`AuthStepper`).
+ *
+ * Rendered above the login card on `/login`, so on md+ it sits over the Light Pillar
+ * backdrop. Uses a frosted `bg-card` strip so circles and connectors stay readable
+ * against the red pillar (Store uses the same pattern via translucent `CommandBar`).
+ *
+ * File name `encryption-stepper` is historical; setup UI lives in `encryption-setup.tsx`.
  */
 export function AuthStepper({
   mode,
@@ -66,68 +72,78 @@ export function AuthStepper({
   return (
     <div className={cn("mx-auto mb-6 w-full max-w-md", className)}>
       <div
-        className="grid"
-        style={{ gridTemplateColumns: `repeat(${steps.length}, 1fr)` }}
+        className={cn(
+          "rounded-xl px-3 py-4",
+          "bg-card/75 supports-[backdrop-filter]:bg-card/55 backdrop-blur-sm",
+          "ring-border/60 shadow-sm ring-1"
+        )}
+        data-testid="auth-stepper-backdrop"
       >
-        {steps.map((step, index) => {
-          const isComplete = index < currentIndex;
-          const isCurrent = index === currentIndex;
-          const isLast = index === steps.length - 1;
+        <div
+          className="grid"
+          style={{ gridTemplateColumns: `repeat(${steps.length}, 1fr)` }}
+        >
+          {steps.map((step, index) => {
+            const isComplete = index < currentIndex;
+            const isCurrent = index === currentIndex;
+            const isLast = index === steps.length - 1;
 
-          return (
-            <div
-              key={`${mode}-${step.id}`}
-              className="flex flex-col items-center"
-            >
-              {/* Step circle with connector line */}
-              <div className="relative flex w-full items-center justify-center">
-                {/* Left connector - stops at circle edge */}
-                {index > 0 && (
+            return (
+              <div
+                key={`${mode}-${step.id}`}
+                className="flex flex-col items-center"
+              >
+                {/* Step circle with connector line */}
+                <div className="relative flex w-full items-center justify-center">
+                  {/* Left connector - stops at circle edge */}
+                  {index > 0 && (
+                    <div
+                      className={cn(
+                        "absolute left-0 h-[2px] w-[calc(50%-24px)]",
+                        index <= currentIndex ? "bg-primary" : "bg-border"
+                      )}
+                    />
+                  )}
+                  {/* Right connector - starts at circle edge */}
+                  {!isLast && (
+                    <div
+                      className={cn(
+                        "absolute left-[calc(50%+24px)] h-[2px] w-[calc(50%-24px)]",
+                        isComplete ? "bg-primary" : "bg-border"
+                      )}
+                    />
+                  )}
+                  {/* Circle */}
                   <div
                     className={cn(
-                      "absolute left-0 h-0.5 w-[calc(50%-24px)]",
-                      index <= currentIndex ? "bg-primary" : "bg-muted"
+                      "relative z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-colors",
+                      isComplete &&
+                        "bg-primary text-primary-foreground ring-card shadow-sm ring-2",
+                      isCurrent &&
+                        "bg-card text-primary border-primary ring-card border-2 shadow-sm ring-2",
+                      !isComplete &&
+                        !isCurrent &&
+                        "bg-card text-muted-foreground ring-border shadow-sm ring-1"
                     )}
-                  />
-                )}
-                {/* Right connector - starts at circle edge */}
-                {!isLast && (
-                  <div
-                    className={cn(
-                      "absolute left-[calc(50%+24px)] h-0.5 w-[calc(50%-24px)]",
-                      isComplete ? "bg-primary" : "bg-muted"
-                    )}
-                  />
-                )}
-                {/* Circle */}
-                <div
+                  >
+                    {isComplete ? <Check className="h-5 w-5" /> : index + 1}
+                  </div>
+                </div>
+                {/* Label */}
+                <span
                   className={cn(
-                    "relative z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-colors",
-                    isComplete && "bg-primary text-primary-foreground",
-                    isCurrent &&
-                      "bg-primary/20 text-primary border-primary border-2",
-                    !isComplete &&
-                      !isCurrent &&
-                      "bg-muted text-muted-foreground"
+                    "mt-2 text-center text-xs",
+                    isCurrent
+                      ? "text-primary font-medium"
+                      : "text-muted-foreground"
                   )}
                 >
-                  {isComplete ? <Check className="h-5 w-5" /> : index + 1}
-                </div>
+                  {step.label}
+                </span>
               </div>
-              {/* Label */}
-              <span
-                className={cn(
-                  "mt-2 text-center text-xs",
-                  isCurrent
-                    ? "text-primary font-medium"
-                    : "text-muted-foreground"
-                )}
-              >
-                {step.label}
-              </span>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

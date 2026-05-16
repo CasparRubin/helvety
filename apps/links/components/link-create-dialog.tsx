@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@helvety/ui/dialog";
+import { E2EE_CREATE_DIALOG_FIELDS_STACK_CLASS } from "@helvety/ui/e2ee-form-layout";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -80,7 +81,7 @@ export function LinkCreateDialog({
                 : "Add a bookmark to your library. Name and URL are encrypted on your device."}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="py-4">
             <LinkFormFields
               url={url}
               name={name}
@@ -93,6 +94,7 @@ export function LinkCreateDialog({
               nameInputId="new-link-name"
               folderSelectId="new-link-folder"
               autoFocusUrl
+              fieldsStackClassName={E2EE_CREATE_DIALOG_FIELDS_STACK_CLASS}
             />
           </div>
           <DialogFooter>

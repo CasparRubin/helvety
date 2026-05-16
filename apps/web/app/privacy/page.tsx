@@ -686,10 +686,13 @@ export default function PrivacyPage() {
           <li>Product access and download metadata</li>
           <li>
             Non-encrypted structural metadata from Helvety Tasks, Helvety
-            Contacts, Helvety Notes, and Helvety Links (for example record
-            identifiers, timestamps, sort order, task priority,
-            stage/label/category references, and relationship/link metadata
-            where linking is used)
+            Contacts, Helvety Notes, and Helvety Links. Depending on the app,
+            this may include record identifiers, timestamps, and display
+            preferences such as sort order; for Helvety Tasks, priority levels
+            and stage/label references; for Helvety Contacts and Helvety Notes,
+            immutable built-in category references and, where cross-app linking
+            is enabled, relationship metadata between entities; for Helvety
+            Links, folder parent/child relationships
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">

@@ -15,7 +15,7 @@ End-to-end encrypted bookmarks with nested folders.
 - Folder actions: open links in a folder, or in a folder and all nested subfolders (on **All**, open every bookmark in the library)
 - Drag-and-drop reorder and reparenting (disabled while search is active)
 - Command bar: primary “New link”, secondary “New folder” (inline on `md+`, overflow menu on small screens)
-- Create flows use dialogs (same pattern as Tasks, Contacts, and Notes); edit flows use wide right sheets with `EditorCommandBar` (save, refresh, unsaved-change detection, delete in overflow)
+- Create flows use dialogs (same pattern as Tasks, Contacts, and Notes); edit flows use wide right sheets with `LinksEditorCommandBar` (wraps shared `EditorCommandBar`: save, refresh, unsaved-change detection, delete in overflow)
 - Client-side search on decrypted names and URLs; while search is active, the tree flattens to a matching list and drag-and-drop is disabled
 - Client-side decrypted export (server-side encrypted fetch)
 

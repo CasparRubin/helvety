@@ -54,6 +54,11 @@ describe("app-product-descriptions", () => {
     }
   });
 
+  it("Links SEO copy uses storage wording for encryption", () => {
+    expect(LINKS_APP_DESCRIPTION).toMatch(/before storage/i);
+    expect(LINKS_APP_DESCRIPTION).not.toMatch(/before they sync/i);
+  });
+
   it("exported descriptions contain no em-dash", () => {
     for (const [label, text] of DESCRIPTIONS) {
       assertNoEmDashInCustomerCopy(label, text);

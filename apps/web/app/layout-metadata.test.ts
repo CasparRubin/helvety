@@ -54,6 +54,13 @@ describe("web root layout metadata", () => {
     assertLicenseFreeSeoKeywords("web metadata.keywords", metadata.keywords);
     expect(WEB_SITE_DESCRIPTION).toMatch(/Software products/i);
     expect(WEB_SITE_DESCRIPTION).toMatch(/Private, simple, clean/i);
+    expect(metadata.keywords).toEqual(
+      expect.arrayContaining([
+        "encrypted notes",
+        "encrypted bookmarks",
+        "links",
+      ])
+    );
   });
 
   it("uses the shared license-free default document title", () => {

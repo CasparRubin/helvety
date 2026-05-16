@@ -41,5 +41,8 @@ describe("store root layout metadata", () => {
     assertLicenseFreeSeoKeywords("store metadata.keywords", metadata.keywords);
     assertSwissOriginInSeoCopy("STORE_DESCRIPTION", STORE_DESCRIPTION);
     expect(STORE_DESCRIPTION).toMatch(/Browse free Helvety apps/i);
+    expect(metadata.keywords).toEqual(
+      expect.arrayContaining(["links", "encrypted bookmarks", "notes"])
+    );
   });
 });

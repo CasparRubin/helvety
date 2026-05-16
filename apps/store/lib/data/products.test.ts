@@ -92,9 +92,12 @@ describe("store product catalog", () => {
     expect(product.image).toBe(productArtwork.artwork9);
     expect(product.artist).toBe("Anny Meisser Vonzun");
     expect(product.links?.github).toContain("apps/links");
+    expect(product.description.intro).toMatch(/before storage/i);
+    expect(product.description.intro).not.toMatch(/before they sync/i);
     expect(product.features).toContain(
       "End-to-end encryption for bookmark names and URLs"
     );
+    expect(product.features).toContain("Drag-and-drop reorder and reparenting");
     expect(product.features).not.toContain(
       "Drag and drop reorder within a folder"
     );
@@ -107,7 +110,13 @@ describe("store product catalog", () => {
     expect(organization?.kind).toBe("bullets");
     if (organization?.kind === "bullets") {
       expect(organization.items[0]).toContain("All folder as the library root");
+      expect(organization.items.join(" ")).toMatch(/2,000/);
+      expect(organization.items.join(" ")).toMatch(/drag-and-drop/i);
+      expect(organization.items.join(" ")).toMatch(
+        /open every link in a folder/i
+      );
     }
+    expect(product.description.intro).not.toMatch(/Unlimited nested/i);
   });
 
   it("stores structured About copy for every product", () => {

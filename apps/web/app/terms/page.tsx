@@ -310,13 +310,14 @@ export default function TermsPage() {
           encryption keys on your device. The encryption keys are not
           transmitted to or stored on our servers. If you lose access to your
           encryption passkey, encrypted content will become permanently
-          inaccessible. Certain non-encrypted structural metadata (such as
-          record identifiers, timestamps, priority levels, display preferences
-          (e.g., sort orders), and entity relationships) is stored in plaintext
-          to enable application functionality; see our Privacy Policy for
-          field-level details. Other Helvety services (helvety.com, Helvety
-          Auth, Helvety PDF, Helvety Image Upscaler, Helvety Store) do not use
-          end-to-end encryption.
+          inaccessible. Certain non-encrypted structural metadata is stored in
+          plaintext to enable application functionality; the specific fields
+          depend on the product (for example, sort order and folder parent/child
+          relationships in Helvety Links, or priority levels and stage/label
+          references in Helvety Tasks). See our Privacy Policy for field-level
+          details. Other Helvety services (helvety.com, Helvety Auth, Helvety
+          PDF, Helvety Image Upscaler, Helvety Store) do not use end-to-end
+          encryption.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Age Requirement:</strong> You must
@@ -821,9 +822,13 @@ export default function TermsPage() {
           <li>Product access and download audit metadata</li>
           <li>
             Non-encrypted structural metadata from Helvety Tasks, Helvety
-            Contacts, Helvety Notes, and Helvety Links (priority levels, display
-            preferences such as sort orders, entity relationships, and immutable
-            built-in taxonomy references)
+            Contacts, Helvety Notes, and Helvety Links. Depending on the app,
+            this may include record identifiers, timestamps, and display
+            preferences such as sort order; for Helvety Tasks, priority levels
+            and stage/label references; for Helvety Contacts and Helvety Notes,
+            immutable built-in category references and, where cross-app linking
+            is enabled, relationship metadata between entities; for Helvety
+            Links, folder parent/child relationships
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">

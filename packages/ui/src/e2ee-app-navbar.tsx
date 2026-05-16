@@ -8,7 +8,7 @@ import { HelvetyShellNavbar } from "./helvety-shell-navbar";
 
 import type { User } from "@supabase/supabase-js";
 
-/** App-specific navbar copy (Contacts / Notes / Tasks). */
+/** App-specific navbar copy (Contacts / Notes / Tasks / Links). */
 export type E2eeAppNavbarLabels = {
   currentApp: string;
   titleText: string;
@@ -29,7 +29,7 @@ export type E2eeAppNavbarProps = {
 };
 
 /**
- * Shared navigation bar for Contacts, Notes, and Tasks (E2EE zones).
+ * Shared navigation bar for Contacts, Notes, Tasks, and Links (E2EE zones).
  * Composes `HelvetyShellNavbar`, wiring `useEncryptionContext` into the
  * `encryption` prop (function of navbar auth snapshot).
  */

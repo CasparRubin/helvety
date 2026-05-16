@@ -164,7 +164,7 @@ function buildMainBlock(
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional
  * **`bodyClassName`** so the document canvas matches the active theme before app content paints.
  *
- * E2EE apps (`tasks`, `contacts`, `notes`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
+ * E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
  */
 export async function HelvetyPublicShellRootLayout({
   children,

@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@helvety/ui/alert-dialog";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
+import { E2EE_EDITOR_FORM_BODY_STACK_CLASS } from "@helvety/ui/e2ee-form-layout";
 import { Input } from "@helvety/ui/input";
 import { NativeSelect } from "@helvety/ui/native-select";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -225,7 +226,7 @@ export function FolderEditor({
           />
         }
       >
-        <div className="container mx-auto flex flex-col gap-6 px-4 py-8">
+        <div className={E2EE_EDITOR_FORM_BODY_STACK_CLASS}>
           <LinksFormField label="Name" htmlFor="edit-folder-name">
             <Input
               id="edit-folder-name"

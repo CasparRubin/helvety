@@ -50,35 +50,44 @@ describe("legal pages enumerate E2EE products", () => {
   });
 });
 
-/** Extracts the Helvety Links product definition from store products source. */
-function helvetyLinksProductBlock(source: string): string {
-  const start = source.indexOf("const helvetyLinks: SaaSProduct");
-  expect(start).toBeGreaterThanOrEqual(0);
-  const end = source.indexOf("const powerAutomateEditorVersionEnforcer", start);
-  return end > start ? source.slice(start, end) : source.slice(start);
-}
+/** Metadata types that apply only to Tasks, Contacts, or Notes—not Helvety Links. */
+const TASKS_ONLY_METADATA_PHRASES = [
+  "priority levels, display preferences (e.g., sort orders), and entity relationships",
+  "(priority levels, display preferences such as sort orders, entity relationships, and immutable built-in taxonomy references)",
+  "task priority,\n            stage/label/category references, and relationship/link metadata\n            where linking is used",
+] as const;
 
-describe("store Helvety Links copy", () => {
-  it("mentions the All library root in store organization copy", () => {
+describe("E2EE metadata disclosures qualify fields by product", () => {
+  it.each([
+    ["terms", "apps/web/app/terms/page.tsx"],
+    ["privacy", "apps/web/app/privacy/page.tsx"],
+  ] as const)(
+    "%s does not attribute Tasks-only metadata to all E2EE apps",
+    (_label, rel) => {
+      const source = readFileSync(join(repoRoot, rel), "utf8");
+      expect(source).toContain("Depending on the app");
+      expect(source).toMatch(
+        /for Helvety\s+Links,\s+folder parent\/child relationships/
+      );
+      for (const phrase of TASKS_ONLY_METADATA_PHRASES) {
+        expect(
+          source,
+          `${rel} must not blanket-list: ${phrase.slice(0, 40)}…`
+        ).not.toContain(phrase);
+      }
+    }
+  );
+
+  it("terms Encryption Setup qualifies metadata by product", () => {
     const source = readFileSync(
-      join(repoRoot, "apps/store/lib/data/products.ts"),
+      join(repoRoot, "apps/web/app/terms/page.tsx"),
       "utf8"
     );
-    expect(helvetyLinksProductBlock(source)).toContain(
-      "All folder as the library root"
+    expect(source).toMatch(
+      /parent\/child\s+relationships in Helvety Links, or priority levels/
     );
-  });
-
-  it("does not claim unlimited folders or drag-and-drop reorder", () => {
-    const source = readFileSync(
-      join(repoRoot, "apps/store/lib/data/products.ts"),
-      "utf8"
+    expect(source).not.toContain(
+      "priority levels, display preferences (e.g., sort orders), and entity relationships"
     );
-    const linksBlock = helvetyLinksProductBlock(source);
-    expect(linksBlock).not.toMatch(/Unlimited nested/i);
-    expect(linksBlock).not.toContain(
-      "Reorder links and folders within the same parent folder"
-    );
-    expect(linksBlock).not.toContain("Drag and drop reorder");
   });
 });
