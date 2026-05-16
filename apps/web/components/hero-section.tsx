@@ -37,8 +37,8 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
  *
  * - **Text:** {@link ./hero-text}: Shuffle eyebrow (5s loop), static red Switzerland, Shiny Text tagline;
  *   static/muted fallbacks when `useReducedMotion()` is true (wired to `MotionConfig reducedMotion="user"`).
- * - **Backdrop:** {@link HeroHyperspeedBackdrop}: black base, **black veil** fades out after
- *   {@link Hyperspeed} `onReady`; WebGL stays opaque underneath.
+ * - **Backdrop:** {@link HeroHyperspeedBackdrop}: black base, local **black veil** (700ms) lifts after
+ *   {@link Hyperspeed} `onReady`; WebGL stays opaque underneath. Not a shell-wide veil over navbar/UI.
  * - **Block entrance:** Framer `fadeInUp` on the copy + CTA column (respects reduced motion via `MotionConfig`).
  *
  * Hyperspeed host markup is identical on SSR and first client paint (`motion-reduce:*` for visuals;

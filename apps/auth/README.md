@@ -41,8 +41,10 @@ Trusted-device shortcut:
 
 Same shared package as Store: [`@helvety/light-pillar`](../packages/light-pillar/README.md). Auth wires `HelvetyShellWithLightPillarBackdrop` in `app/layout.tsx` (inside `CSRFProvider` and `EncryptionProvider`).
 
-- **Reveal:** Login cards and navbar paint on `bg-background` first; WebGL loads after two animation frames; when the pillar is ready, the fixed backdrop fades in over **700ms** `ease-out` (no full-screen black flash over the UI).
-- **Reduced motion:** WebGL host hidden; `bg-background` fallback only.
+- **Reveal (md+):** Login cards and navbar paint on `bg-background` first; on viewports **≥768px**, WebGL loads after two animation frames and the pillar fades in over **700ms** `ease-out` (no full-screen black flash over the UI).
+- **Route loading:** Root [`app/loading.tsx`](app/loading.tsx) re-exports `HelvetyShellRouteLoading` so transitions keep the themed shell (same as Store and the gateway).
+- **Compact viewport:** Below **768px** (`md` / `useIsMobile`), WebGL is not mounted; static `bg-background` only (stacked/mobile layouts).
+- **Reduced motion:** WebGL not mounted at any width; `bg-background` fallback only.
 
 ## Security Model
 

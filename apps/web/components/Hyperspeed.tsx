@@ -798,6 +798,7 @@ class App {
   interactionBoostActive = false;
   private readonly onReady?: () => void;
   private readyFired = false;
+  private rafId: number | null = null;
 
   constructor(
     container: HTMLElement,
@@ -1248,6 +1249,11 @@ class App {
     if (this.disposed) return;
     this.disposed = true;
 
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+
     if (this.scene) {
       this.scene.traverse((object) => {
         const obj = object as unknown as THREE.Mesh;
@@ -1320,7 +1326,7 @@ class App {
         this.composer.setSize(w, h);
         this.hasValidSize = true;
       } else {
-        requestAnimationFrame(this.tick);
+        this.rafId = requestAnimationFrame(this.tick);
         return;
       }
     }
@@ -1347,7 +1353,7 @@ class App {
       }
     }
 
-    requestAnimationFrame(this.tick);
+    this.rafId = requestAnimationFrame(this.tick);
   }
 }
 

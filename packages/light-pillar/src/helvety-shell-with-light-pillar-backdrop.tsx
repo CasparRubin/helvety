@@ -1,30 +1,62 @@
 "use client";
 
 import { cn } from "@helvety/shared/utils";
+import { useIsMobile } from "@helvety/ui/use-is-mobile";
 import { useCallback, useEffect, useState } from "react";
 
 import { HelvetyLightPillarBackdrop } from "./helvety-light-pillar-backdrop";
-import { LIGHT_PILLAR_REVEAL_TRANSITION_CLASS } from "./light-pillar-reveal";
 import { waitForShellContentPainted } from "./wait-for-shell-content-painted";
+import { WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS } from "./webgl-backdrop";
 
 import type { ReactNode } from "react";
 
+/** Reads `prefers-reduced-motion: reduce` on the client; false during SSR. */
+function readPrefersReducedMotion(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Subscribes to `prefers-reduced-motion` changes after mount. */
+function usePrefersReducedMotion(): boolean {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
+    readPrefersReducedMotion
+  );
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setPrefersReducedMotion(mql.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  return prefersReducedMotion;
+}
+
 /**
- * Wraps a public app shell with a fixed Light Pillar backdrop on all routes.
- * Shell content paints first on `bg-background`; WebGL loads after double rAF, then
- * the backdrop fades in when the pillar is ready (`opacity-0` → `opacity-100`, 700ms ease-out).
- * `prefers-reduced-motion: reduce`: no WebGL, static `bg-background` fallback only.
+ * Wraps a public app shell on all routes. Shell content always paints on `bg-background`.
+ * On **md+** viewports (≥768px, `useIsMobile`), WebGL loads after double rAF and the pillar
+ * fades in when ready (`opacity-0` → `opacity-100`, 700ms ease-out). Below **md** or when
+ * `prefers-reduced-motion: reduce` is set, WebGL is not mounted; a static `bg-background`
+ * layer is shown instead (`max-md:block` for SSR-safe mobile, plus JS/CSS for reduced motion).
  */
 export function HelvetyShellWithLightPillarBackdrop({
   children,
 }: {
   children: ReactNode;
 }) {
+  const isMobile = useIsMobile();
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const skipWebglBackdrop = prefersReducedMotion || isMobile;
+
   const [shellPainted, setShellPainted] = useState(false);
   const [pillarReady, setPillarReady] = useState(false);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (skipWebglBackdrop) {
+      setShellPainted(false);
+      setPillarReady(false);
       return;
     }
 
@@ -38,7 +70,7 @@ export function HelvetyShellWithLightPillarBackdrop({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [skipWebglBackdrop]);
 
   const handlePillarReady = useCallback(() => {
     setPillarReady(true);
@@ -54,7 +86,7 @@ export function HelvetyShellWithLightPillarBackdrop({
           className={cn(
             "pointer-events-none fixed inset-0 z-0 motion-reduce:hidden",
             "opacity-0",
-            LIGHT_PILLAR_REVEAL_TRANSITION_CLASS,
+            WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS,
             revealed && "opacity-100"
           )}
           data-testid="helvety-shell-light-pillar-fixed-host"
@@ -62,9 +94,15 @@ export function HelvetyShellWithLightPillarBackdrop({
           <HelvetyLightPillarBackdrop onReady={handlePillarReady} />
         </div>
       ) : null}
+      {/* Static fallback: compact viewports (max-md) and reduced motion (md:block + motion-reduce:block). */}
       <div
         aria-hidden
-        className="bg-background absolute inset-0 z-0 hidden motion-reduce:block"
+        className={cn(
+          "bg-background absolute inset-0 z-0",
+          "max-md:block",
+          prefersReducedMotion ? "md:block" : "md:hidden",
+          "motion-reduce:block"
+        )}
         data-testid="helvety-shell-light-pillar-reduce-fallback"
       />
       <div

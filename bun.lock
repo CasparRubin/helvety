@@ -285,6 +285,7 @@
       "dependencies": {
         "@gsap/react": "^2.1.2",
         "@helvety/brand": "workspace:*",
+        "@helvety/light-pillar": "workspace:*",
         "@helvety/shared": "workspace:*",
         "@helvety/ui": "workspace:*",
         "@supabase/supabase-js": "^2.105.4",
@@ -362,7 +363,9 @@
       "name": "@helvety/light-pillar",
       "version": "0.1.0",
       "dependencies": {
+        "@helvety/brand": "workspace:*",
         "@helvety/shared": "workspace:*",
+        "@helvety/ui": "workspace:*",
         "three": "^0.184.0",
       },
       "devDependencies": {

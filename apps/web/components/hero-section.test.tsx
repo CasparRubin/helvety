@@ -92,5 +92,7 @@ describe("HeroSection", () => {
     expect(html).toContain('data-testid="hero-hyperspeed-loading"');
     expect(html).toContain("bg-black");
     expect(html).toContain("transition-opacity");
+    expect(html).toContain("duration-700");
+    expect(html).toContain("ease-out");
   });
 });

@@ -1,3 +1,5 @@
+import { HELVETY_ACCENT_RED_RGB } from "@helvety/brand";
+
 import { hyperspeedDefaultPreset } from "@/components/hyperspeed-default-preset";
 
 import type Hyperspeed from "@/components/Hyperspeed";
@@ -27,7 +29,7 @@ export const HERO_HYPERSPEED_EFFECT_OPTIONS = {
     ...base.colors,
     shoulderLines: 0xffffff,
     brokenLines: 0xffffff,
-    leftCars: [0xff102a, 0xe31b2b, 0xff3344],
+    leftCars: [HELVETY_ACCENT_RED_RGB, 0xe31b2b, 0xff3344],
     rightCars: [0xf5f5f5, 0xffffff, 0xffe8e8],
     sticks: 0xffffff,
   },

@@ -60,8 +60,8 @@ export const metadata = createHelvetyProductMetadata({
  * Root layout: ThemeProvider wraps only the Navbar (next-themes injects a script; keep route content outside).
  * Pinned StoreNav (`scrollAreaMainPrefix`), scrollable main (`ScrollArea`), and footer follow.
  * Navbar-only ThemeProvider is intentional to avoid theme flash on catalog pages.
- * {@link HelvetyShellWithLightPillarBackdrop} adds a fixed Light Pillar backdrop on all routes
- * (content paints first, then WebGL fades in; see `@helvety/light-pillar`).
+ * {@link HelvetyShellWithLightPillarBackdrop} wraps all routes (Light Pillar WebGL on md+;
+ * static `bg-background` below md or with reduced motion; see `@helvety/light-pillar`).
  * Does not use shell overflow overrides (unlike gateway Hyperspeed).
  */
 export default async function RootLayout({

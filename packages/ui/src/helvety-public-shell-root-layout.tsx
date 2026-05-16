@@ -149,7 +149,7 @@ function buildMainBlock(
  * `image-upscaler`): CSP nonce, JSON-LD, theme (see {@link HelvetyPublicShellThemeProviderScope}),
  * auth token handler, session recovery, `TooltipProvider`, optional
  * {@link wrapInsideTooltipProvider} (e.g. Auth: CSRF, encryption, and `@helvety/light-pillar`;
- * Store: `CSRFProvider` and the same Light Pillar backdrop),
+ * Store: `CSRFProvider` and the same shell backdrop wrapper),
  * navbar + main + footer, toaster, Vercel analytics.
  *
  * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
@@ -157,8 +157,9 @@ function buildMainBlock(
  * so it stays visible while catalog content scrolls. Optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
  * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
  * content can extend horizontally (gateway `apps/web`: full-bleed Hyperspeed hero). Store keeps
- * default overflow and mounts Light Pillar in a fixed layer via `@helvety/light-pillar`
- * (`apps/store`, `apps/auth`). Other public apps keep the defaults.
+ * default overflow and mounts `@helvety/light-pillar` in a fixed layer (`apps/store`,
+ * `apps/auth`: WebGL pillar on md+, static `bg-background` below md or with reduced motion).
+ * Other public apps keep the defaults.
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional
  * **`bodyClassName`** so the document canvas matches the active theme before app content paints.

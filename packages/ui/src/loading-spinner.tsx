@@ -1,9 +1,9 @@
 import { Loader2 } from "lucide-react";
 
 /**
- * Shared loading spinner used as the root loading boundary across Helvety web
- * app packages in this monorepo. Shown during route transitions while the
- * server component renders.
+ * Centered spinner for nested route segments and tool apps. Public shells (`web`,
+ * `auth`, `store`) use {@link ./helvety-shell-route-loading} at the root `app/loading.tsx`
+ * boundary so the full viewport stays on `bg-background` during transitions.
  */
 export function LoadingSpinner() {
   return (

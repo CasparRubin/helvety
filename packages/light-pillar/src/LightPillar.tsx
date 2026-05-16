@@ -366,6 +366,9 @@ const LightPillar: React.FC<LightPillarProps> = ({
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
       if (interactive) {
         container.removeEventListener("mousemove", handleMouseMove);
       }

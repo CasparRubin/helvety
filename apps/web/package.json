@@ -30,6 +30,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@helvety/brand": "workspace:*",
+    "@helvety/light-pillar": "workspace:*",
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
     "@supabase/supabase-js": "^2.105.4",

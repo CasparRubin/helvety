@@ -54,6 +54,7 @@
     "./list-search-field": "./src/list-search-field.tsx",
     "./list-states": "./src/list-states.tsx",
     "./loading-spinner": "./src/loading-spinner.tsx",
+    "./helvety-shell-route-loading": "./src/helvety-shell-route-loading.tsx",
     "./navbar-brand": "./src/navbar-brand.tsx",
     "./popover": "./src/popover.tsx",
     "./native-select": "./src/native-select.tsx",

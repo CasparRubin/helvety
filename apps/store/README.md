@@ -7,7 +7,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar (catalog routes avoid a full-tree theme script); `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (frosted `CommandBar` `variant="translucent"` over the shell backdrop; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` then [`HelvetyShellWithLightPillarBackdrop`](../../packages/light-pillar) from `@helvety/light-pillar` (content paints first, then Helvety red/white Light Pillar fades in; `prefers-reduced-motion: reduce` uses `bg-background` only); shared session bootstrap helpers feed CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar (catalog routes avoid a full-tree theme script); `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (frosted `CommandBar` `variant="translucent"` over the shell backdrop; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` then [`HelvetyShellWithLightPillarBackdrop`](../../packages/light-pillar) from `@helvety/light-pillar` (content paints first; Helvety red/white Light Pillar on **md+**; below **md** or `prefers-reduced-motion: reduce` uses static `bg-background` only); shared session bootstrap helpers feed CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
 - Public product catalog at `/store/products`
 - Public package download endpoints (no login required)
 - Optional authenticated account page at `/store/account`
@@ -87,10 +87,12 @@ Copy `env.template` to `.env.local`.
 
 Shared package [`@helvety/light-pillar`](../../packages/light-pillar/README.md) (also used by Auth). Store wires `HelvetyShellWithLightPillarBackdrop` in `app/layout.tsx`.
 
-- **Reveal:** Shell content paints on `bg-background` first; WebGL loads after two animation frames; when the pillar is ready, the fixed backdrop fades in over **700ms** `ease-out` (no full-screen black flash over the UI).
-- **Preset:** `HELVETY_LIGHT_PILLAR_OPTIONS` (Helvety red/white; React Bits template tuning otherwise). Refresh vendored shader via `@react-bits` in [`components.json`](components.json); copy into `packages/light-pillar`.
-- **Reduced motion:** WebGL host hidden; `bg-background` fallback only.
-- **Section nav:** [`store-nav.tsx`](components/store-nav.tsx) uses `CommandBar` `variant="translucent"` over the pillar.
+- **Reveal (md+):** Shell content paints on `bg-background` first; on viewports **≥768px**, WebGL loads after two animation frames and the pillar fades in over **700ms** `ease-out` (no full-screen black flash over the UI).
+- **Route loading:** Root [`app/loading.tsx`](app/loading.tsx) re-exports `HelvetyShellRouteLoading` so transitions keep the themed shell (nested segment loaders still use `LoadingSpinner` only).
+- **Preset:** `HELVETY_LIGHT_PILLAR_OPTIONS` (Helvety red/white via `HELVETY_ACCENT_RED` from `@helvety/brand`; React Bits template tuning otherwise). Refresh vendored shader via `@react-bits` in [`components.json`](components.json); copy into `packages/light-pillar`.
+- **Compact viewport:** Below **768px** (`md` / `useIsMobile`), WebGL is not mounted; static `bg-background` only (stacked/mobile layouts).
+- **Reduced motion:** WebGL not mounted at any width; `bg-background` fallback only.
+- **Section nav:** [`store-nav.tsx`](components/store-nav.tsx) uses `CommandBar` `variant="translucent"` over the shell backdrop (frosted bar over the WebGL pillar on md+, static background below md).
 - Catalog cards stay opaque (`bg-card/95`); tune `intensity` in the preset if needed.
 
 ## Development and Testing

@@ -1,1 +1,1 @@
-export { LoadingSpinner as default } from "@helvety/ui/loading-spinner";
+export { HelvetyShellRouteLoading as default } from "@helvety/ui/helvety-shell-route-loading";

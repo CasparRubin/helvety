@@ -1,3 +1,4 @@
+import { HELVETY_ACCENT_RED } from "@helvety/brand";
 import { describe, expect, it } from "vitest";
 
 import { HELVETY_LIGHT_PILLAR_OPTIONS } from "./helvety-light-pillar-preset";
@@ -11,7 +12,7 @@ const REACT_BITS_TEMPLATE_COLORS = {
 describe("Helvety Light Pillar preset", () => {
   it("uses Helvety red and white instead of the React Bits template colors", () => {
     expect(HELVETY_LIGHT_PILLAR_OPTIONS.topColor).toBe("#ffffff");
-    expect(HELVETY_LIGHT_PILLAR_OPTIONS.bottomColor).toBe("#ff102a");
+    expect(HELVETY_LIGHT_PILLAR_OPTIONS.bottomColor).toBe(HELVETY_ACCENT_RED);
     expect(HELVETY_LIGHT_PILLAR_OPTIONS.topColor).not.toBe(
       REACT_BITS_TEMPLATE_COLORS.topColor
     );

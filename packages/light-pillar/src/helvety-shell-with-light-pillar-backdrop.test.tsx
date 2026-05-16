@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const backdropMocks = vi.hoisted(() => ({
   deferReady: false,
   fireReady: () => {},
+  isMobile: false,
 }));
 
 beforeEach(() => {
@@ -24,8 +25,13 @@ beforeEach(() => {
 
 afterEach(() => {
   backdropMocks.deferReady = false;
+  backdropMocks.isMobile = false;
   vi.unstubAllGlobals();
 });
+
+vi.mock("@helvety/ui/use-is-mobile", () => ({
+  useIsMobile: () => backdropMocks.isMobile,
+}));
 
 vi.mock("./helvety-light-pillar-backdrop", () => ({
   HelvetyLightPillarBackdrop: ({ onReady }: { onReady?: () => void }) => {
@@ -46,122 +52,159 @@ vi.mock("./wait-for-shell-content-painted", () => ({
 }));
 
 import { HelvetyShellWithLightPillarBackdrop } from "./helvety-shell-with-light-pillar-backdrop";
-import { LIGHT_PILLAR_REVEAL_TRANSITION_CLASS } from "./light-pillar-reveal";
 import { waitForShellContentPainted } from "./wait-for-shell-content-painted";
+import { WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS } from "./webgl-backdrop";
+
+/** Renders the shell wrapper with default child content for assertions. */
+function renderShell() {
+  return render(
+    <HelvetyShellWithLightPillarBackdrop>
+      <p>Shell content</p>
+    </HelvetyShellWithLightPillarBackdrop>
+  );
+}
 
 describe("HelvetyShellWithLightPillarBackdrop", () => {
-  it("renders content immediately and defers backdrop until shell painted", async () => {
-    render(
-      <HelvetyShellWithLightPillarBackdrop>
-        <p>Shell content</p>
-      </HelvetyShellWithLightPillarBackdrop>
-    );
+  describe("desktop viewport (WebGL enabled)", () => {
+    it("renders content immediately and defers backdrop until shell painted", async () => {
+      renderShell();
 
-    expect(screen.getByText("Shell content")).toBeInTheDocument();
-    expect(waitForShellContentPainted).toHaveBeenCalled();
-    expect(
-      screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
-    ).toBeNull();
-
-    await waitFor(() => {
+      expect(screen.getByText("Shell content")).toBeInTheDocument();
+      expect(waitForShellContentPainted).toHaveBeenCalled();
       expect(
+        screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
+      ).toBeNull();
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("helvety-shell-light-pillar-fixed-host")
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("reveals the fixed host with a clean opacity transition after pillar onReady", async () => {
+      renderShell();
+
+      const fixedHost = await waitFor(() =>
         screen.getByTestId("helvety-shell-light-pillar-fixed-host")
-      ).toBeInTheDocument();
+      );
+
+      for (const token of WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS.split(/\s+/)) {
+        expect(fixedHost).toHaveClass(token);
+      }
+
+      await waitFor(() => {
+        expect(fixedHost).toHaveClass("opacity-100");
+      });
+    });
+
+    it("keeps fixed host at opacity-0 until pillar onReady", async () => {
+      backdropMocks.deferReady = true;
+      renderShell();
+
+      const fixedHost = await waitFor(() =>
+        screen.getByTestId("helvety-shell-light-pillar-fixed-host")
+      );
+
+      expect(fixedHost).toHaveClass("opacity-0");
+      expect(fixedHost).not.toHaveClass("opacity-100");
+
+      backdropMocks.fireReady();
+
+      await waitFor(() => {
+        expect(fixedHost).toHaveClass("opacity-100");
+      });
+    });
+
+    it("pins shell content above backdrop and hides static fallback on md+", async () => {
+      renderShell();
+
+      const staticFallback = screen.getByTestId(
+        "helvety-shell-light-pillar-reduce-fallback"
+      );
+      expect(staticFallback).toHaveClass(
+        "bg-background",
+        "max-md:block",
+        "md:hidden",
+        "motion-reduce:block"
+      );
+      expect(staticFallback).not.toHaveClass("md:block");
+
+      const fixedHost = await waitFor(() =>
+        screen.getByTestId("helvety-shell-light-pillar-fixed-host")
+      );
+      expect(fixedHost).toHaveClass("motion-reduce:hidden");
+
+      const content = screen.getByTestId("helvety-shell-light-pillar-content");
+      expect(content).toHaveClass("relative", "z-10");
+      expect(content).toContainElement(screen.getByText("Shell content"));
+    });
+
+    it("unmounts WebGL when viewport becomes compact", async () => {
+      const view = renderShell();
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("helvety-shell-light-pillar-fixed-host")
+        ).toBeInTheDocument();
+      });
+
+      backdropMocks.isMobile = true;
+      view.rerender(
+        <HelvetyShellWithLightPillarBackdrop>
+          <p>Shell content</p>
+        </HelvetyShellWithLightPillarBackdrop>
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
+        ).toBeNull();
+      });
     });
   });
 
-  it("reveals the fixed host with a clean opacity transition after pillar onReady", async () => {
-    render(
-      <HelvetyShellWithLightPillarBackdrop>
-        <p>Shell content</p>
-      </HelvetyShellWithLightPillarBackdrop>
-    );
+  describe("skip WebGL (static bg-background fallback)", () => {
+    it("skips mounting WebGL when prefers-reduced-motion", () => {
+      vi.mocked(waitForShellContentPainted).mockClear();
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn((query: string) => ({
+          matches: query.includes("prefers-reduced-motion"),
+          media: query,
+          onchange: null,
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        }))
+      );
 
-    const fixedHost = await waitFor(() =>
-      screen.getByTestId("helvety-shell-light-pillar-fixed-host")
-    );
+      renderShell();
 
-    for (const token of LIGHT_PILLAR_REVEAL_TRANSITION_CLASS.split(/\s+/)) {
-      expect(fixedHost).toHaveClass(token);
-    }
-
-    await waitFor(() => {
-      expect(fixedHost).toHaveClass("opacity-100");
+      expect(waitForShellContentPainted).not.toHaveBeenCalled();
+      expect(
+        screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
+      ).toBeNull();
+      expect(
+        screen.getByTestId("helvety-shell-light-pillar-reduce-fallback")
+      ).toHaveClass("bg-background", "max-md:block", "md:block");
     });
-  });
 
-  it("keeps fixed host at opacity-0 until pillar onReady", async () => {
-    backdropMocks.deferReady = true;
+    it("skips mounting WebGL on compact viewports", () => {
+      backdropMocks.isMobile = true;
+      vi.mocked(waitForShellContentPainted).mockClear();
 
-    render(
-      <HelvetyShellWithLightPillarBackdrop>
-        <p>Shell content</p>
-      </HelvetyShellWithLightPillarBackdrop>
-    );
+      renderShell();
 
-    const fixedHost = await waitFor(() =>
-      screen.getByTestId("helvety-shell-light-pillar-fixed-host")
-    );
-
-    expect(fixedHost).toHaveClass("opacity-0");
-    expect(fixedHost).not.toHaveClass("opacity-100");
-
-    backdropMocks.fireReady();
-
-    await waitFor(() => {
-      expect(fixedHost).toHaveClass("opacity-100");
+      expect(waitForShellContentPainted).not.toHaveBeenCalled();
+      expect(
+        screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
+      ).toBeNull();
+      expect(
+        screen.getByTestId("helvety-shell-light-pillar-reduce-fallback")
+      ).toHaveClass("bg-background", "max-md:block", "md:hidden");
     });
-  });
-
-  it("skips mounting WebGL when prefers-reduced-motion", () => {
-    vi.stubGlobal(
-      "matchMedia",
-      vi.fn((query: string) => ({
-        matches: query.includes("prefers-reduced-motion"),
-        media: query,
-        onchange: null,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      }))
-    );
-
-    render(
-      <HelvetyShellWithLightPillarBackdrop>
-        <p>Shell content</p>
-      </HelvetyShellWithLightPillarBackdrop>
-    );
-
-    expect(
-      screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
-    ).toBeNull();
-    expect(
-      screen.getByTestId("helvety-shell-light-pillar-reduce-fallback")
-    ).toHaveClass("motion-reduce:block");
-  });
-
-  it("pins shell content above backdrop and hides WebGL host under reduce motion", async () => {
-    render(
-      <HelvetyShellWithLightPillarBackdrop>
-        <p>Shell content</p>
-      </HelvetyShellWithLightPillarBackdrop>
-    );
-
-    const reduceFallback = screen.getByTestId(
-      "helvety-shell-light-pillar-reduce-fallback"
-    );
-    expect(reduceFallback).toHaveClass("bg-background", "hidden");
-    expect(reduceFallback).toHaveClass("motion-reduce:block");
-
-    const fixedHost = await waitFor(() =>
-      screen.getByTestId("helvety-shell-light-pillar-fixed-host")
-    );
-    expect(fixedHost).toHaveClass("motion-reduce:hidden");
-
-    const content = screen.getByTestId("helvety-shell-light-pillar-content");
-    expect(content).toHaveClass("relative", "z-10");
-    expect(content).toContainElement(screen.getByText("Shell content"));
   });
 });

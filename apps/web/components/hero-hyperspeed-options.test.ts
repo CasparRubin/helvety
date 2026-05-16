@@ -1,3 +1,4 @@
+import { HELVETY_ACCENT_RED_RGB } from "@helvety/brand";
 import { describe, expect, it } from "vitest";
 
 import { HERO_HYPERSPEED_EFFECT_OPTIONS } from "./hero-hyperspeed-options";
@@ -46,7 +47,11 @@ describe("Hyperspeed effect options", () => {
     expect(colors.shoulderLines).toBe(0xffffff);
     expect(colors.brokenLines).toBe(0xffffff);
     expect(colors.sticks).toBe(0xffffff);
-    expect(colors.leftCars).toEqual([0xff102a, 0xe31b2b, 0xff3344]);
+    expect(colors.leftCars).toEqual([
+      HELVETY_ACCENT_RED_RGB,
+      0xe31b2b,
+      0xff3344,
+    ]);
     expect(colors.rightCars).toEqual([0xf5f5f5, 0xffffff, 0xffe8e8]);
   });
 });
