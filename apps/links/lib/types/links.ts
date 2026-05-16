@@ -44,52 +44,40 @@ export interface Link {
   updated_at: string;
 }
 
-/**
- *
- */
+/** Input for creating or updating a folder (`null` parent = inside All). */
 export interface LinkFolderInput {
   name: string;
   parent_folder_id?: string | null;
 }
 
-/**
- *
- */
+/** Input for creating or updating a link (`null` folder = inside All). */
 export interface LinkInput {
   name: string;
   url: string;
   folder_id?: string | null;
 }
 
-/**
- *
- */
+/** Batch folder reorder/move payload. */
 export interface FolderReorderUpdate {
   id: string;
   sort_order: number;
   parent_folder_id?: string | null;
 }
 
-/**
- *
- */
+/** Batch link reorder/move payload. */
 export interface LinkReorderUpdate {
   id: string;
   sort_order: number;
   folder_id?: string | null;
 }
 
-/**
- *
- */
+/** Decrypted export bundle (encrypted rows as stored server-side). */
 export interface EncryptedLinksExport {
   folders: LinkFolderRow[];
   links: LinkRow[];
 }
 
-/**
- *
- */
+/** Library payload returned by `/api/library`. */
 export interface LinksDashboardData {
   folders: LinkFolderRow[];
   links: LinkRow[];

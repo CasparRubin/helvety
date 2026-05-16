@@ -1,9 +1,10 @@
 "use client";
 
-import { cn } from "@helvety/shared/utils";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { NativeSelect } from "@helvety/ui/native-select";
+
+import { ALL_FOLDER_ID, isAllFolderId } from "@/lib/all-folder";
 
 import type { LinkFolder } from "@/lib/types";
 
@@ -11,33 +12,7 @@ import type { LinkFolder } from "@/lib/types";
 export const LINKS_SHEET_CONTENT_CLASS =
   "flex w-full flex-col overflow-hidden sm:max-w-[95vw] 2xl:max-w-[1800px]";
 
-const LINKS_SHEET_BODY_CLASS = "min-h-0 flex-1 overflow-y-auto";
-
-const LINKS_SHEET_FORM_CLASS =
-  "container mx-auto flex flex-col gap-6 px-4 py-8";
-
 const LINKS_FORM_FIELD_CLASS = "grid gap-2";
-
-/** Primary/cancel actions; mirrors `DialogFooter` in @helvety/ui. */
-export const LINKS_SHEET_FOOTER_ACTIONS_CLASS =
-  "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end";
-
-/**
- * Scrollable sheet body region with consistent page padding.
- */
-export function LinksSheetBody({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}): React.JSX.Element {
-  return (
-    <div className={LINKS_SHEET_BODY_CLASS}>
-      <div className={cn(LINKS_SHEET_FORM_CLASS, className)}>{children}</div>
-    </div>
-  );
-}
 
 /**
  * Single label + control group (`grid gap-2`).
@@ -59,9 +34,7 @@ export function LinksFormField({
   );
 }
 
-/**
- * URL, name, and folder fields shared by create/edit link sheets.
- */
+/** URL, name, and folder fields shared by create/edit link forms (folder select includes All). */
 export function LinkFormFields({
   url,
   name,
@@ -115,12 +88,14 @@ export function LinkFormFields({
           value={folderId}
           onChange={(e) => onFolderIdChange(e.target.value)}
         >
-          <option value="">Root</option>
-          {folders.map((folder) => (
-            <option key={folder.id} value={folder.id}>
-              {folder.name}
-            </option>
-          ))}
+          <option value={ALL_FOLDER_ID}>All</option>
+          {folders
+            .filter((folder) => !isAllFolderId(folder.id))
+            .map((folder) => (
+              <option key={folder.id} value={folder.id}>
+                {folder.name}
+              </option>
+            ))}
         </NativeSelect>
       </LinksFormField>
     </>

@@ -3,8 +3,10 @@
 > Encrypted bookmarks in nested folders you control. Names and URLs are encrypted on your device before storage. Engineered, designed and made in Switzerland.
 
 ## Product behavior
+- Virtual **All** folder is the only top-level row; user folders and unfiled links live inside it (not stored as a separate database row)
 - Finder-style nested folder tree on one page (expand/collapse; no URL folder navigation)
-- Link rows open the URL in a new tab; pencil opens edit sheets
+- Link rows open the URL in a new tab; pencil opens link/folder editors in right sheets
+- Create link/folder via dialogs; edit with pinned save bar, refresh, and unsaved-change detection (same pattern as other Helvety E2EE apps)
 - Drag-and-drop reorder and reparenting (disabled during search)
 - Client-side search on decrypted names and URLs
 - Per-account caps: 2,000 folders and 2,000 links (technical limits for reliability)

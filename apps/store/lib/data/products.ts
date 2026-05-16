@@ -1048,6 +1048,7 @@ const helvetyLinks: SaaSProduct = {
         heading: "Organization",
         kind: "bullets",
         items: [
+          "All folder as the library root; nested folders and links live inside it.",
           "Nested folders without a fixed depth limit (per-account folder and link counts are capped for reliability).",
           "Open links in your browser with one click.",
           "Client-side search across decrypted names and URLs.",

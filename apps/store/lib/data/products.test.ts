@@ -101,6 +101,13 @@ describe("store product catalog", () => {
     expect(product.features).not.toContain(
       "Reorder links and folders within the same parent folder"
     );
+    const organization = product.description.sections?.find(
+      (section) => section.heading === "Organization"
+    );
+    expect(organization?.kind).toBe("bullets");
+    if (organization?.kind === "bullets") {
+      expect(organization.items[0]).toContain("All folder as the library root");
+    }
   });
 
   it("stores structured About copy for every product", () => {

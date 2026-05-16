@@ -37,6 +37,11 @@ import {
 import { Fragment, useCallback, useMemo, useState } from "react";
 
 import {
+  ALL_FOLDER_ID,
+  isAllFolderId,
+  toDisplayFolderId,
+} from "@/lib/all-folder";
+import {
   getChildren,
   listLinksInFolder,
   listLinksInFolderTree,
@@ -152,7 +157,7 @@ export function LinksTreeList({
       }
 
       const link = links.find((l) => l.id === parsed.id);
-      setDropTargetFolderId(link?.folder_id ?? null);
+      setDropTargetFolderId(toDisplayFolderId(link?.folder_id ?? null));
     },
     [links]
   );
@@ -187,16 +192,14 @@ export function LinksTreeList({
           action.type === "move-folder"
             ? action.targetParentId
             : action.targetFolderId;
-        if (targetFolderId) {
-          onExpandFolder(targetFolderId);
-        }
+        onExpandFolder(targetFolderId ?? ALL_FOLDER_ID);
       }
     },
     [folders, links, onExpandFolder, onTreeDrop, sortableDisabled]
   );
 
-  const root = getChildren(folders, links, null);
-  const isEmpty = root.folders.length === 0 && root.links.length === 0;
+  const underAll = getChildren(folders, links, ALL_FOLDER_ID);
+  const isEmpty = underAll.folders.length === 0 && underAll.links.length === 0;
 
   if (isEmpty) {
     return (
@@ -302,6 +305,7 @@ function TreeLevel({
   return (
     <>
       {childFolders.map((folder) => {
+        const isAllFolder = isAllFolderId(folder.id);
         const expanded = expandedFolderIds.has(folder.id);
         const paddingLeft = treeRowPaddingLeft(depth);
         const dragId = toTreeDragId("folder", folder.id);
@@ -321,11 +325,12 @@ function TreeLevel({
               paddingLeft={paddingLeft}
               expanded={expanded}
               isDropTarget={isDropTarget}
-              sortableDisabled={sortableDisabled}
+              sortableDisabled={sortableDisabled || isAllFolder}
+              isSystemFolder={isAllFolder}
               directLinkCount={directLinkCount}
               treeLinkCount={treeLinkCount}
               onToggle={() => onToggleFolder(folder.id)}
-              onEdit={() => onEditFolder(folder.id)}
+              onEdit={isAllFolder ? undefined : () => onEditFolder(folder.id)}
               onOpenDirectLinks={() =>
                 openLinksInNewTabs(listLinksInFolder(links, folder.id))
               }
@@ -367,7 +372,7 @@ function TreeLevel({
   );
 }
 
-/** Droppable root target for reparenting items to the library root. */
+/** Droppable wrapper so items can be dropped into the All folder. */
 function RootDropZone({
   children,
   disabled,
@@ -394,9 +399,6 @@ function RootDropZone({
   );
 }
 
-/**
- *
- */
 /** Icon-only row action that does not trigger row click handlers. */
 function RowIconButton({
   label,
@@ -437,13 +439,15 @@ function FolderRowActions({
   onOpenDirectLinks,
   onOpenAllLinks,
   onEdit,
+  showEdit = true,
 }: {
   folderName: string;
   directLinkCount: number;
   treeLinkCount: number;
   onOpenDirectLinks: () => void;
   onOpenAllLinks: () => void;
-  onEdit: () => void;
+  onEdit?: () => void;
+  showEdit?: boolean;
 }): React.JSX.Element {
   const openDirectLabel = `Open ${directLinkCount} link${directLinkCount === 1 ? "" : "s"} in ${folderName}`;
   const openTreeLabel = `Open ${treeLinkCount} link${treeLinkCount === 1 ? "" : "s"} in ${folderName} and subfolders`;
@@ -465,9 +469,11 @@ function FolderRowActions({
         >
           <FolderTree className="size-4" />
         </RowIconButton>
-        <RowIconButton label={`Edit folder ${folderName}`} onClick={onEdit}>
-          <Pencil className="size-4" />
-        </RowIconButton>
+        {showEdit && onEdit ? (
+          <RowIconButton label={`Edit folder ${folderName}`} onClick={onEdit}>
+            <Pencil className="size-4" />
+          </RowIconButton>
+        ) : null}
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -497,10 +503,12 @@ function FolderRowActions({
             <FolderTree className="mr-2 size-4" />
             <span>Open all in tree</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={onEdit}>
-            <Pencil className="mr-2 size-4" />
-            <span>Edit folder</span>
-          </DropdownMenuItem>
+          {showEdit && onEdit ? (
+            <DropdownMenuItem onClick={onEdit}>
+              <Pencil className="mr-2 size-4" />
+              <span>Edit folder</span>
+            </DropdownMenuItem>
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
     </>
@@ -517,6 +525,7 @@ function FolderTreeRow({
   expanded,
   isDropTarget,
   sortableDisabled,
+  isSystemFolder = false,
   directLinkCount,
   treeLinkCount,
   onToggle,
@@ -530,10 +539,11 @@ function FolderTreeRow({
   expanded: boolean;
   isDropTarget: boolean;
   sortableDisabled: boolean;
+  isSystemFolder?: boolean;
   directLinkCount: number;
   treeLinkCount: number;
   onToggle: () => void;
-  onEdit: () => void;
+  onEdit?: () => void;
   onOpenDirectLinks: () => void;
   onOpenAllLinks: () => void;
 }): React.JSX.Element {
@@ -625,6 +635,7 @@ function FolderTreeRow({
         onOpenDirectLinks={onOpenDirectLinks}
         onOpenAllLinks={onOpenAllLinks}
         onEdit={onEdit}
+        showEdit={!isSystemFolder}
       />
     </li>
   );

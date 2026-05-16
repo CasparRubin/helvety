@@ -1,5 +1,6 @@
 import { computeReorderUpdates } from "@helvety/shared/entity-list-reorder";
 
+import { ALL_FOLDER_ID, isAllFolderId } from "@/lib/all-folder";
 import { canMoveFolderToParent, getChildren } from "@/lib/link-tree";
 
 import type { Link, LinkFolder } from "@/lib/types";
@@ -12,9 +13,11 @@ export function toTreeDragId(kind: TreeItemKind, id: string): string {
   return `${kind}:${id}`;
 }
 
-/** Droppable target id for moving items into a folder (or root). */
+/** Droppable target id for moving items into a folder or into All. */
 export function toFolderDropId(folderId: string | null): string {
-  return folderId ? `drop:folder:${folderId}` : "drop:folder:root";
+  const targetId =
+    folderId === null || isAllFolderId(folderId) ? ALL_FOLDER_ID : folderId;
+  return `drop:folder:${targetId}`;
 }
 
 /** Parses a sortable drag id into folder or link kind + entity id. */
@@ -28,14 +31,12 @@ export function parseTreeDragId(
   return { kind: match[1] as TreeItemKind, id: match[2]! };
 }
 
-/**
- *
- */
+/** Parses a folder drop-zone id into the target folder (or All). */
 export function parseFolderDropId(
   dropId: string
 ): { kind: "folder-drop"; folderId: string | null } | null {
   if (dropId === "drop:folder:root") {
-    return { kind: "folder-drop", folderId: null };
+    return { kind: "folder-drop", folderId: ALL_FOLDER_ID };
   }
   const match = /^drop:folder:(.+)$/.exec(dropId);
   if (!match) {
@@ -94,6 +95,9 @@ export function resolveTreeDropAction(
   }
 
   if (active.kind === "folder" && over.kind === "folder") {
+    if (isAllFolderId(over.id)) {
+      return resolveIntoFolderDrop(folders, links, active, ALL_FOLDER_ID);
+    }
     return resolveFolderOverFolder(folders, active.id, over.id);
   }
 
@@ -130,21 +134,23 @@ function resolveIntoFolderDrop(
   active: { kind: TreeItemKind; id: string },
   targetFolderId: string | null
 ): TreeDropAction | null {
+  const storageTargetId = isAllFolderId(targetFolderId) ? null : targetFolderId;
+
   if (active.kind === "folder") {
-    if (active.id === targetFolderId) {
+    if (active.id === targetFolderId || isAllFolderId(active.id)) {
       return null;
     }
     if (!canMoveFolderToParent(folders, active.id, targetFolderId)) {
       return null;
     }
-    return buildFolderMove(folders, active.id, targetFolderId, null);
+    return buildFolderMove(folders, active.id, storageTargetId, null);
   }
 
   const link = links.find((l) => l.id === active.id);
   if (!link) {
     return null;
   }
-  return buildLinkMove(links, active.id, targetFolderId, null);
+  return buildLinkMove(links, active.id, storageTargetId, null);
 }
 
 /**

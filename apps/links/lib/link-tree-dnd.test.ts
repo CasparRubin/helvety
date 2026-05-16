@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { ALL_FOLDER_ID } from "./all-folder";
 import {
   listVisibleTreeDragIds,
   parseFolderDropId,
@@ -58,10 +59,14 @@ describe("link-tree-dnd ids", () => {
     expect(parseTreeDragId("invalid")).toBeNull();
   });
 
-  it("round-trips folder drop targets including root", () => {
+  it("round-trips folder drop targets including All", () => {
     expect(parseFolderDropId(toFolderDropId(null))).toEqual({
       kind: "folder-drop",
-      folderId: null,
+      folderId: ALL_FOLDER_ID,
+    });
+    expect(parseFolderDropId(toFolderDropId(ALL_FOLDER_ID))).toEqual({
+      kind: "folder-drop",
+      folderId: ALL_FOLDER_ID,
     });
     expect(parseFolderDropId(toFolderDropId("folder-b"))).toEqual({
       kind: "folder-drop",
@@ -73,23 +78,24 @@ describe("link-tree-dnd ids", () => {
 
 describe("listVisibleTreeDragIds", () => {
   it("lists depth-first ids when ancestor folders are expanded", () => {
-    const expanded = new Set(["folder-a"]);
+    const expanded = new Set([ALL_FOLDER_ID, "folder-a"]);
     expect(listVisibleTreeDragIds(folders, links, expanded)).toEqual([
+      toTreeDragId("folder", ALL_FOLDER_ID),
       toTreeDragId("folder", "folder-a"),
       toTreeDragId("folder", "folder-b"),
       toTreeDragId("link", "link-1"),
     ]);
   });
 
-  it("hides nested items when a folder is collapsed", () => {
+  it("hides nested items when All is collapsed", () => {
     expect(listVisibleTreeDragIds(folders, links, new Set())).toEqual([
-      toTreeDragId("folder", "folder-a"),
+      toTreeDragId("folder", ALL_FOLDER_ID),
     ]);
   });
 });
 
 describe("resolveTreeDropAction", () => {
-  it("moves a root link into a folder via drop target", () => {
+  it("moves a link from All into a folder via drop target", () => {
     const libraryLinks: Link[] = [
       ...links,
       {
@@ -116,7 +122,7 @@ describe("resolveTreeDropAction", () => {
     }
   });
 
-  it("moves a link to root via root drop target", () => {
+  it("moves a link to All via All drop target", () => {
     const action = resolveTreeDropAction(
       folders,
       links,
@@ -129,7 +135,7 @@ describe("resolveTreeDropAction", () => {
     }
   });
 
-  it("reorders folders within the same parent", () => {
+  it("reorders folders within All (null parent in storage)", () => {
     const siblings: LinkFolder[] = [
       {
         id: "f1",
@@ -242,22 +248,22 @@ describe("resolveTreeDropAction", () => {
     }
   });
 
-  it("moves a link when dropped on a folder row", () => {
+  it("moves a link from All onto a folder row", () => {
     const action = resolveTreeDropAction(
       folders,
       [
         {
-          id: "link-root",
+          id: "link-in-all",
           user_id: "u",
           folder_id: null,
-          name: "Root",
-          url: "https://root.example",
+          name: "In All",
+          url: "https://in-all.example",
           sort_order: 0,
           created_at: "1",
           updated_at: "1",
         },
       ],
-      toTreeDragId("link", "link-root"),
+      toTreeDragId("link", "link-in-all"),
       toTreeDragId("folder", "folder-a")
     );
     expect(action?.type).toBe("move-link");
@@ -266,7 +272,32 @@ describe("resolveTreeDropAction", () => {
     }
   });
 
-  it("rejects moving a root folder onto a link in a nested folder", () => {
+  it("moves a nested folder into All via the All folder row", () => {
+    const action = resolveTreeDropAction(
+      folders,
+      links,
+      toTreeDragId("folder", "folder-b"),
+      toTreeDragId("folder", ALL_FOLDER_ID)
+    );
+    expect(action?.type).toBe("move-folder");
+    if (action?.type === "move-folder") {
+      expect(action.targetParentId).toBeNull();
+      expect(action.folderId).toBe("folder-b");
+    }
+  });
+
+  it("rejects moving the virtual All folder", () => {
+    expect(
+      resolveTreeDropAction(
+        folders,
+        links,
+        toTreeDragId("folder", ALL_FOLDER_ID),
+        toFolderDropId("folder-a")
+      )
+    ).toBeNull();
+  });
+
+  it("rejects moving a top-level folder onto a link in a nested folder", () => {
     const action = resolveTreeDropAction(
       folders,
       links,

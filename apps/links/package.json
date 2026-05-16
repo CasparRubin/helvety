@@ -1,7 +1,7 @@
 {
   "name": "@helvety/links",
   "version": "1.0.0",
-  "description": "Encrypted bookmarks with nested folders and optional local search. Swiss-built.",
+  "description": "Encrypted bookmarks in nested folders under an All library root, with client-side search. Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/links",
   "repository": {

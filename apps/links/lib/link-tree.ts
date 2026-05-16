@@ -1,3 +1,11 @@
+import {
+  ALL_FOLDER_ID,
+  ALL_FOLDER_NAME,
+  createAllFolder,
+  isAllFolderId,
+  resolveAllFolderUserId,
+} from "@/lib/all-folder";
+
 import type { Link, LinkFolder } from "@/lib/types";
 
 /** Folder name segment for path display (e.g. search results). */
@@ -6,15 +14,13 @@ export interface FolderBreadcrumb {
   name: string;
 }
 
-/** Children at a folder level (null parent = root). */
+/** Children at a folder level (`null` = only All; `ALL_FOLDER_ID` = inside All). */
 export interface FolderChildren {
   folders: LinkFolder[];
   links: Link[];
 }
 
-/**
- *
- */
+/** Sorts tree items by `sort_order`, then `created_at` descending. */
 function sortByOrder<T extends { sort_order: number; created_at: string }>(
   items: T[]
 ): T[] {
@@ -31,6 +37,17 @@ export function getDescendantFolderIds(
   folders: LinkFolder[],
   folderId: string
 ): string[] {
+  if (isAllFolderId(folderId)) {
+    const topLevel = folders
+      .filter((f) => (f.parent_folder_id ?? null) === null)
+      .map((f) => f.id);
+    const ids: string[] = [...topLevel];
+    for (const id of topLevel) {
+      ids.push(...getDescendantFolderIds(folders, id));
+    }
+    return ids;
+  }
+
   const ids: string[] = [];
   const collect = (parentId: string) => {
     for (const f of folders) {
@@ -46,6 +63,9 @@ export function getDescendantFolderIds(
 
 /** Links stored directly in `folderId` (sorted). */
 export function listLinksInFolder(links: Link[], folderId: string): Link[] {
+  if (isAllFolderId(folderId)) {
+    return sortByOrder(links.filter((l) => (l.folder_id ?? null) === null));
+  }
   return sortByOrder(links.filter((l) => (l.folder_id ?? null) === folderId));
 }
 
@@ -55,6 +75,10 @@ export function listLinksInFolderTree(
   links: Link[],
   folderId: string
 ): Link[] {
+  if (isAllFolderId(folderId)) {
+    return sortByOrder(links);
+  }
+
   const folderIds = new Set([
     folderId,
     ...getDescendantFolderIds(folders, folderId),
@@ -64,17 +88,29 @@ export function listLinksInFolderTree(
   );
 }
 
-/** Returns folders and links directly under `parentFolderId` (null = root). */
+/**
+ * Returns folders and links for a tree parent.
+ * `null` = only the virtual All folder; `ALL_FOLDER_ID` = library top level.
+ */
 export function getChildren(
   folders: LinkFolder[],
   links: Link[],
   parentFolderId: string | null
 ): FolderChildren {
+  if (parentFolderId === null) {
+    return {
+      folders: [createAllFolder(resolveAllFolderUserId(folders, links))],
+      links: [],
+    };
+  }
+
+  const storageParentId = isAllFolderId(parentFolderId) ? null : parentFolderId;
+
   const childFolders = folders.filter(
-    (f) => (f.parent_folder_id ?? null) === parentFolderId
+    (f) => (f.parent_folder_id ?? null) === storageParentId
   );
   const childLinks = links.filter(
-    (l) => (l.folder_id ?? null) === parentFolderId
+    (l) => (l.folder_id ?? null) === storageParentId
   );
   return {
     folders: sortByOrder(childFolders),
@@ -82,11 +118,15 @@ export function getChildren(
   };
 }
 
-/** Ancestor chain from root to `folderId` (inclusive). */
+/** Ancestor chain from All to `folderId` (inclusive). */
 export function getBreadcrumbs(
   folders: LinkFolder[],
   folderId: string
 ): FolderBreadcrumb[] {
+  if (isAllFolderId(folderId)) {
+    return [{ id: ALL_FOLDER_ID, name: ALL_FOLDER_NAME }];
+  }
+
   const byId = new Map(folders.map((f) => [f.id, f]));
   const crumbs: FolderBreadcrumb[] = [];
   let current = byId.get(folderId);
@@ -96,6 +136,7 @@ export function getBreadcrumbs(
       ? byId.get(current.parent_folder_id)
       : undefined;
   }
+  crumbs.unshift({ id: ALL_FOLDER_ID, name: ALL_FOLDER_NAME });
   return crumbs;
 }
 
@@ -104,8 +145,8 @@ export function formatFolderPath(
   folders: LinkFolder[],
   folderId: string | null
 ): string {
-  if (!folderId) {
-    return "Root";
+  if (folderId === null || isAllFolderId(folderId)) {
+    return ALL_FOLDER_NAME;
   }
   return getBreadcrumbs(folders, folderId)
     .map((c) => c.name)
@@ -121,21 +162,18 @@ export function canMoveFolderToParent(
   folderId: string,
   targetParentId: string | null
 ): boolean {
-  if (targetParentId === null) {
-    return true;
-  }
-  if (targetParentId === folderId) {
+  if (isAllFolderId(folderId)) {
     return false;
   }
-  const descendants = new Set<string>();
-  const collect = (parentId: string) => {
-    for (const f of folders) {
-      if (f.parent_folder_id === parentId) {
-        descendants.add(f.id);
-        collect(f.id);
-      }
-    }
-  };
-  collect(folderId);
-  return !descendants.has(targetParentId);
+
+  const storageTarget = isAllFolderId(targetParentId) ? null : targetParentId;
+
+  if (storageTarget === null) {
+    return true;
+  }
+  if (storageTarget === folderId) {
+    return false;
+  }
+  const descendants = new Set(getDescendantFolderIds(folders, folderId));
+  return !descendants.has(storageTarget);
 }

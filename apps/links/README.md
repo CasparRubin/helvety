@@ -9,11 +9,13 @@ End-to-end encrypted bookmarks with nested folders.
 
 - Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (shared CSRF/user bootstrap, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable. The dashboard pins the links command bar with `@helvety/ui/command-bar-page-layout` (body scrolls in shadcn `ScrollArea`).
 - Client-side encryption for folder names and link names/URLs
+- Virtual **All** folder as the only top-level tree row (cannot be deleted or renamed); user folders and unfiled links live inside All (`parent_folder_id` / `folder_id` `null` in the database)
 - Finder-style nested folder tree on one page (expand/collapse; no URL-based folder navigation)
-- Row interactions: link row opens the URL in a new tab; folder row toggles expansion; pencil opens create/edit sheets
-- Folder actions: open all links in a folder, or in a folder and its subfolders
+- Row interactions: link row opens the URL in a new tab; folder row toggles expansion; pencil opens link/folder editors
+- Folder actions: open links in a folder, or in a folder and all nested subfolders (on **All**, open every bookmark in the library)
 - Drag-and-drop reorder and reparenting (disabled while search is active)
 - Command bar: primary “New link”, secondary “New folder” (inline on `md+`, overflow menu on small screens)
+- Create flows use dialogs (same pattern as Tasks, Contacts, and Notes); edit flows use wide right sheets with `EditorCommandBar` (save, refresh, unsaved-change detection, delete in overflow)
 - Client-side search on decrypted names and URLs; while search is active, the tree flattens to a matching list and drag-and-drop is disabled
 - Client-side decrypted export (server-side encrypted fetch)
 
@@ -30,7 +32,7 @@ Plaintext structural fields:
 - `parent_folder_id`, `folder_id`, `sort_order`
 - `created_at`, `updated_at`
 
-Per-account caps use `ACTION_LIMITS.MAX_DASHBOARD_ROWS` (2000 folders and 2000 links; see `@helvety/shared/constants`).
+`parent_folder_id` / `folder_id` of `null` means “inside **All**” in the UI (not a separate database row). Per-account caps use `ACTION_LIMITS.MAX_DASHBOARD_ROWS` (2,000 folders and 2,000 links; see `@helvety/shared/constants`).
 
 ## Security Model
 

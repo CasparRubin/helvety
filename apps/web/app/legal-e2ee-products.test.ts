@@ -50,13 +50,31 @@ describe("legal pages enumerate E2EE products", () => {
   });
 });
 
+/** Extracts the Helvety Links product definition from store products source. */
+function helvetyLinksProductBlock(source: string): string {
+  const start = source.indexOf("const helvetyLinks: SaaSProduct");
+  expect(start).toBeGreaterThanOrEqual(0);
+  const end = source.indexOf("const powerAutomateEditorVersionEnforcer", start);
+  return end > start ? source.slice(start, end) : source.slice(start);
+}
+
 describe("store Helvety Links copy", () => {
+  it("mentions the All library root in store organization copy", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/store/lib/data/products.ts"),
+      "utf8"
+    );
+    expect(helvetyLinksProductBlock(source)).toContain(
+      "All folder as the library root"
+    );
+  });
+
   it("does not claim unlimited folders or drag-and-drop reorder", () => {
     const source = readFileSync(
       join(repoRoot, "apps/store/lib/data/products.ts"),
       "utf8"
     );
-    const linksBlock = source.slice(source.indexOf('slug: "helvety-links"'));
+    const linksBlock = helvetyLinksProductBlock(source);
     expect(linksBlock).not.toMatch(/Unlimited nested/i);
     expect(linksBlock).not.toContain(
       "Reorder links and folders within the same parent folder"
