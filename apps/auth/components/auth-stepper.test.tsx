@@ -6,7 +6,7 @@ import {
   getAuthStepperStepCount,
   type AuthStep,
   type AuthStepperMode,
-} from "./encryption-stepper";
+} from "./auth-stepper";
 
 /** Renders `AuthStepper` to static HTML for markup assertions. */
 function renderAuthStepper(props: {
@@ -16,7 +16,7 @@ function renderAuthStepper(props: {
   return renderToStaticMarkup(<AuthStepper {...props} />);
 }
 
-describe("encryption-stepper", () => {
+describe("auth-stepper", () => {
   describe("getAuthStepperStepCount", () => {
     it.each([
       ["four_before_otp", 4],

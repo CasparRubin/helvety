@@ -27,16 +27,16 @@ A **local black underlay** sits under the WebGL host while the canvas initialize
 
 ## Cross-app backdrop matrix
 
-|                             | Auth / Store (Light Pillar)                                                                                                                     | Web gateway (Hyperspeed hero)                                         |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Scope                       | Wrapper on all routes; WebGL on **md+** only (`HelvetyShellWithLightPillarBackdrop`)                                                            | `/` hero only (Hyperspeed at all widths)                              |
-| Reveal                      | Fixed host `opacity-0` → `opacity-100` after shell paint + `onReady`                                                                            | Black **veil** fades out over opaque WebGL (no viewport veil over UI) |
-| Content-first               | Double rAF (`waitForShellContentPainted`) before WebGL mount (md+ only)                                                                         | Mounts with hero                                                      |
-| Compact viewport (`<768px`) | No WebGL; `bg-background` fallback block                                                                                                        | N/A (Hyperspeed stays on `/` at all sizes)                            |
-| Reduced motion              | No WebGL; `bg-background` fallback block                                                                                                        | `motion-reduce:hidden` host + `bg-background` section                 |
-| Route loading               | `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`)                                                                          | Same                                                                  |
-| Accent color                | `HELVETY_ACCENT_RED` from `@helvety/brand`                                                                                                      | `HELVETY_ACCENT_RED_RGB` in hero car colors                           |
-| Controls over pillar (md+)  | Auth: login `AuthStepper` opaque `bg-card` (`apps/auth/components/encryption-stepper.tsx`); Store: `CommandBar` `variant="solid"` on `StoreNav` | N/A (hero copy sits over Hyperspeed, not Light Pillar)                |
+|                             | Auth / Store (Light Pillar)                                                                                                               | Web gateway (Hyperspeed hero)                                         |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Scope                       | Wrapper on all routes; WebGL on **md+** only (`HelvetyShellWithLightPillarBackdrop`)                                                      | `/` hero only (Hyperspeed at all widths)                              |
+| Reveal                      | Fixed host `opacity-0` → `opacity-100` after shell paint + `onReady`                                                                      | Black **veil** fades out over opaque WebGL (no viewport veil over UI) |
+| Content-first               | Double rAF (`waitForShellContentPainted`) before WebGL mount (md+ only)                                                                   | Mounts with hero                                                      |
+| Compact viewport (`<768px`) | No WebGL; `bg-background` fallback block                                                                                                  | N/A (Hyperspeed stays on `/` at all sizes)                            |
+| Reduced motion              | No WebGL; `bg-background` fallback block                                                                                                  | `motion-reduce:hidden` host + `bg-background` section                 |
+| Route loading               | `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`)                                                                    | Same                                                                  |
+| Accent color                | `HELVETY_ACCENT_RED` from `@helvety/brand`                                                                                                | `HELVETY_ACCENT_RED_RGB` in hero car colors                           |
+| Controls over pillar (md+)  | Auth: login `AuthStepper` opaque `bg-card` (`apps/auth/components/auth-stepper.tsx`); Store: `CommandBar` `variant="solid"` on `StoreNav` | N/A (hero copy sits over Hyperspeed, not Light Pillar)                |
 
 Shared WebGL plumbing (`scheduleWebglBackdropReady`, black underlay classes) lives in this package root export; `createHelvetyWebglDynamic` is client-only at `@helvety/light-pillar/webgl-dynamic` (used by web [`hero-hyperspeed-backdrop.tsx`](../../apps/web/components/hero-hyperspeed-backdrop.tsx) and `HelvetyLightPillarBackdrop`).
 
@@ -56,7 +56,6 @@ Shared WebGL plumbing (`scheduleWebglBackdropReady`, black underlay classes) liv
 | `WEBGL_BACKDROP_VEIL_REVEAL_TRANSITION_CLASS` | Same transition for hero veil lift                                                       |
 | `createHelvetyWebglDynamic`                   | Client-only (`@helvety/light-pillar/webgl-dynamic`): `next/dynamic` + black loading slot |
 | `scheduleWebglBackdropReady`                  | Post-`onReady` rAF before reveal                                                         |
-| `LIGHT_PILLAR_REVEAL_TRANSITION_CLASS`        | Deprecated alias of `WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS`                             |
 
 Low-level `LightPillar` is available at `@helvety/light-pillar/light-pillar` if needed.
 

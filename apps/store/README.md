@@ -41,7 +41,9 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
      to the literal you pass, and the helper throws at startup if the catalog
      declares a different `type` for that id (no `as` casts needed).
    - Spread the `c<Name>` object into the `Product` literal and fill in the
-     long-copy fields (`description`, `features`, `pricing`, `links`,
+     long-copy fields (`description`, `features`, `pricing` (tier metadata and
+     free-tier flags only; the Store does not render price amounts in the UI),
+     `links`,
      `metadata.releaseDate: c<Name>.releaseDate`, `image: productArtwork.*`,
      `artist` for the “Art by …” badge on cards and product heroes).
    - For new hero art: add `public/artwork_<n>.webp`, register it in

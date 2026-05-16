@@ -6,6 +6,7 @@ import {
 } from "@helvety/shared/e2ee-dashboard-search";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
 import { E2eeEntityDetailSheet } from "@helvety/ui/e2ee-entity-detail-sheet";
+import { EntityCommandBar } from "@helvety/ui/entity-command-bar";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
@@ -23,7 +24,6 @@ import {
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
 import { ItemEditor } from "@/components/item-editor";
-import { NoteCommandBar } from "@/components/note-command-bar";
 import { useDataExport } from "@/hooks/use-data-export";
 import { useItems } from "@/hooks/use-items";
 import { DEFAULT_NOTE_CATEGORIES } from "@/lib/config/default-note-categories";
@@ -187,7 +187,7 @@ export function FlatNotesDashboard({
     <>
       <CommandBarPageLayout
         commandBar={
-          <NoteCommandBar
+          <EntityCommandBar
             onCreateClick={handleCreateClick}
             createLabel="New Note"
             onRefresh={handleRefresh}

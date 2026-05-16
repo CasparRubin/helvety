@@ -8,6 +8,7 @@ import {
 import { logger } from "@helvety/shared/logger";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
 import { E2eeEntityDetailSheet } from "@helvety/ui/e2ee-entity-detail-sheet";
+import { EntityCommandBar } from "@helvety/ui/entity-command-bar";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import { useE2eeEntityPanel } from "@helvety/ui/use-e2ee-entity-panel";
@@ -22,7 +23,6 @@ import {
 } from "react";
 import { toast } from "sonner";
 
-import { ContactCommandBar } from "@/components/contact-command-bar";
 import { ContactEditor } from "@/components/contact-editor";
 import { ContactList } from "@/components/contact-list";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
@@ -215,8 +215,9 @@ export function ContactsDashboard({
     <>
       <CommandBarPageLayout
         commandBar={
-          <ContactCommandBar
+          <EntityCommandBar
             onCreateClick={handleCreateClick}
+            createLabel="New Contact"
             onRefresh={handleRefresh}
             isRefreshing={isRefreshing || isRefreshPending}
             onExport={isUnlocked && masterKey ? handleExportData : undefined}

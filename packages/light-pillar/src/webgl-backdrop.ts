@@ -11,10 +11,6 @@ export const WEBGL_BACKDROP_VEIL_REVEAL_MS = 700;
 export const WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS =
   "transition-opacity duration-700 ease-out motion-reduce:transition-none";
 
-/** @deprecated Use {@link WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS} */
-export const LIGHT_PILLAR_REVEAL_TRANSITION_CLASS =
-  WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS;
-
 /** Tailwind class for hero veil fade (same duration as host reveal). */
 export const WEBGL_BACKDROP_VEIL_REVEAL_TRANSITION_CLASS =
   WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS;

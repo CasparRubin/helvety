@@ -42,7 +42,7 @@ Trusted-device shortcut:
 Same shared package as Store: [`@helvety/light-pillar`](../packages/light-pillar/README.md). Auth wires `HelvetyShellWithLightPillarBackdrop` in `app/layout.tsx` (inside `CSRFProvider` and `EncryptionProvider`).
 
 - **Reveal (md+):** Navbar and login **form cards** paint on `bg-background` first; on viewports **≥768px**, WebGL loads after two animation frames and the pillar fades in behind shell content over **700ms** `ease-out` (no full-screen black flash over the UI).
-- **Login stepper:** [`components/encryption-stepper.tsx`](components/encryption-stepper.tsx) (`AuthStepper`) sits **above** the login card on [`app/login/page.tsx`](app/login/page.tsx), so on md+ it overlays the pillar. It uses an opaque `bg-card` strip (same surface as the login form card) so progress circles and connectors stay readable against the red glow.
+- **Login stepper:** [`components/auth-stepper.tsx`](components/auth-stepper.tsx) (`AuthStepper`) sits **above** the login card on [`app/login/page.tsx`](app/login/page.tsx), so on md+ it overlays the pillar. It uses an opaque `bg-card` strip (same surface as the login form card) so progress circles and connectors stay readable against the red glow.
 - **Route loading:** Root [`app/loading.tsx`](app/loading.tsx) re-exports `HelvetyShellRouteLoading` so transitions keep the themed shell (same as Store and the gateway).
 - **Compact viewport:** Below **768px** (`md` / `useIsMobile`), WebGL is not mounted; static `bg-background` only (stacked/mobile layouts).
 - **Reduced motion:** WebGL not mounted at any width; `bg-background` fallback only.
@@ -88,7 +88,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`), and login stepper opaque backdrop over Light Pillar (`components/encryption-stepper.test.tsx`).
+Notable tests include login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`), and login stepper opaque backdrop over Light Pillar (`components/auth-stepper.test.tsx`).
 Passkey action tests also cover malformed payload handling, account mismatch protection, and transport sanitization behavior.
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
 `components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots.

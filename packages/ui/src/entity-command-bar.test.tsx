@@ -4,6 +4,26 @@ import { describe, expect, it, vi } from "vitest";
 import { EntityCommandBar } from "./entity-command-bar";
 
 describe("EntityCommandBar", () => {
+  it("keeps primary actions accessible with compact icon-first labels", () => {
+    render(<EntityCommandBar onCreateClick={vi.fn()} createLabel="New Note" />);
+
+    expect(
+      screen.getByRole("button", { name: "New Note" })
+    ).toBeInTheDocument();
+  });
+
+  it("shows a back action when onBack is provided", () => {
+    render(
+      <EntityCommandBar
+        onCreateClick={vi.fn()}
+        createLabel="New Item"
+        onBack={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole("button", { name: "Back" })).toBeInTheDocument();
+  });
+
   it("disables all refresh controls and shows spinners while refreshing", () => {
     render(
       <EntityCommandBar
@@ -20,5 +40,41 @@ describe("EntityCommandBar", () => {
       expect(button).toBeDisabled();
       expect(button.querySelector("svg")).toHaveClass("animate-spin");
     }
+  });
+
+  it("shows overflow and secondary actions for export/settings", () => {
+    render(
+      <EntityCommandBar
+        onCreateClick={vi.fn()}
+        createLabel="New Item"
+        onExport={vi.fn()}
+        onSettings={vi.fn()}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Export Data" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Settings" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "More actions" })
+    ).toBeInTheDocument();
+  });
+
+  it("shows a secondary create action on desktop when configured", () => {
+    render(
+      <EntityCommandBar
+        onCreateClick={vi.fn()}
+        createLabel="New link"
+        secondaryCreateLabel="New folder"
+        onSecondaryCreateClick={vi.fn()}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "New folder" })
+    ).toBeInTheDocument();
   });
 });

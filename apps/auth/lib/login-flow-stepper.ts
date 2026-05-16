@@ -1,7 +1,4 @@
-import type {
-  AuthStep,
-  AuthStepperMode,
-} from "@/components/encryption-stepper";
+import type { AuthStep, AuthStepperMode } from "@/components/auth-stepper";
 
 /** URL / UI step for the login page (matches `useLoginFlow` state). */
 export type LoginStep =

@@ -50,10 +50,7 @@ import {
   resolveLoginStepperMode,
 } from "@/lib/login-flow-stepper";
 
-import type {
-  AuthStep,
-  AuthStepperMode,
-} from "@/components/encryption-stepper";
+import type { AuthStep, AuthStepperMode } from "@/components/auth-stepper";
 import type { LoginStep, PostOtpPasskeyPath } from "@/lib/login-flow-stepper";
 
 /** Duration (in seconds) before the user can resend an OTP code. */

@@ -6,7 +6,7 @@ import {
   type LoginStep,
 } from "./login-flow-stepper";
 
-import type { AuthStep } from "@/components/encryption-stepper";
+import type { AuthStep } from "@/components/auth-stepper";
 
 describe("login-flow-stepper", () => {
   describe("resolveLoginCurrentAuthStep", () => {

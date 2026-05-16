@@ -57,7 +57,7 @@ interface AuthStepperProps {
  * backdrop. Uses an opaque `bg-card` strip so circles and connectors stay readable
  * against the red pillar (same surface as the login form card).
  *
- * File name `encryption-stepper` is historical; setup UI lives in `encryption-setup.tsx`.
+ * Passkey setup UI lives in `encryption-setup.tsx`.
  */
 export function AuthStepper({
   mode,

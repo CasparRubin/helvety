@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
-  LIGHT_PILLAR_REVEAL_TRANSITION_CLASS,
   scheduleWebglBackdropReady,
   WEBGL_BACKDROP_BLACK_UNDERLAY_CLASS,
   WEBGL_BACKDROP_HOST_REVEAL_MS,
@@ -25,9 +24,6 @@ describe("webgl-backdrop", () => {
     expect(WEBGL_BACKDROP_HOST_REVEAL_MS).toBe(700);
     expect(WEBGL_BACKDROP_VEIL_REVEAL_MS).toBe(700);
     expect(WEBGL_BACKDROP_VEIL_REVEAL_TRANSITION_CLASS).toBe(
-      WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS
-    );
-    expect(LIGHT_PILLAR_REVEAL_TRANSITION_CLASS).toBe(
       WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS
     );
   });

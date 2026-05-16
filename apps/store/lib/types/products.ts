@@ -21,7 +21,7 @@ export type ProductType = "saas" | "software" | "physical";
  * Billing interval for pricing
  * - one-time: Single free-access descriptor for current model
  */
-export type BillingInterval = "one-time";
+type BillingInterval = "one-time";
 
 /**
  * Product category for filtering and organization
@@ -45,7 +45,7 @@ export type ProductStatus = "available" | "coming-soon" | "discontinued";
 /**
  * A single pricing tier for a product
  */
-export interface PricingTier {
+interface PricingTier {
   /** Unique identifier for this tier */
   id: string;
   /** Display name (e.g., "Free", "Pro", "Enterprise") */
@@ -67,9 +67,10 @@ export interface PricingTier {
 }
 
 /**
- * Pricing configuration for a product
+ * Pricing configuration for a product (catalog metadata; Store UI does not
+ * format or display tier prices—use tiers for free-tier flags and copy only).
  */
-export interface ProductPricing {
+interface ProductPricing {
   /** Available pricing tiers */
   tiers: PricingTier[];
   /** Whether the product has a free tier */

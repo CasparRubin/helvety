@@ -65,7 +65,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Coverage focuses on stable primitives and key shared UX surfaces (`CommandBar`, `CommandBarPageLayout`, `HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionTooltipContent`, `HelvetyPublicShellRootLayout`, and `E2eeAppRootLayout`). Shell backdrop behavior is tested in `@helvety/light-pillar`. Vitest and related devDependency specifiers are normalized across workspaces from the repo root (`bun run deps:drift`, `bun run test:hygiene`); see the root [`README.md`](../../README.md) › **Testing Consistency**.
+Coverage focuses on stable primitives and key shared UX surfaces (`CommandBar`, `CommandBarPageLayout`, `EntityCommandBar`, `HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionTooltipContent`, `HelvetyPublicShellRootLayout`, and `E2eeAppRootLayout`). Shell backdrop behavior is tested in `@helvety/light-pillar`. Vitest and related devDependency specifiers are normalized across workspaces from the repo root (`bun run deps:drift`, `bun run test:hygiene`); see the root [`README.md`](../../README.md) › **Testing Consistency**.
 
 ## Related
 

@@ -10,8 +10,8 @@ import {
 import { Loader2 } from "lucide-react";
 import { Suspense } from "react";
 
+import { AuthStepper } from "@/components/auth-stepper";
 import { EncryptionSetup } from "@/components/encryption-setup";
-import { AuthStepper } from "@/components/encryption-stepper";
 import { EmailStep } from "@/components/login/email-step";
 import { PasskeySignInStep } from "@/components/login/passkey-signin-step";
 import { VerifyCodeStep } from "@/components/login/verify-code-step";
