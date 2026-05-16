@@ -54,8 +54,8 @@ interface AuthStepperProps {
  * Progress stepper for the login flow (`AuthStepper`).
  *
  * Rendered above the login card on `/login`, so on md+ it sits over the Light Pillar
- * backdrop. Uses a frosted `bg-card` strip so circles and connectors stay readable
- * against the red pillar (Store uses the same pattern via translucent `CommandBar`).
+ * backdrop. Uses an opaque `bg-card` strip so circles and connectors stay readable
+ * against the red pillar (same surface as the login form card).
  *
  * File name `encryption-stepper` is historical; setup UI lives in `encryption-setup.tsx`.
  */
@@ -74,8 +74,7 @@ export function AuthStepper({
       <div
         className={cn(
           "rounded-xl px-3 py-4",
-          "bg-card/75 supports-[backdrop-filter]:bg-card/55 backdrop-blur-sm",
-          "ring-border/60 shadow-sm ring-1"
+          "bg-card ring-border/60 shadow-sm ring-1"
         )}
         data-testid="auth-stepper-backdrop"
       >

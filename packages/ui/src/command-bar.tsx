@@ -10,9 +10,9 @@ import * as React from "react";
  * prefix slot or {@link CommandBarPageLayout}); layout owns pinning via
  * `shrink-0`, not CSS sticky.
  *
- * **`variant`**: `solid` (default) or `translucent`. Translucent uses a frosted
- * toolbar surface (lighter than main navbar `bg-surface-chrome/*`) for section
- * nav over full-bleed backgrounds (Store shell Light Pillar).
+ * **`variant`**: `solid` (default; opaque `bg-surface-toolbar`) or `translucent`
+ * (frosted `bg-surface-toolbar/65` with backdrop blur for optional full-bleed
+ * backgrounds). Store section nav uses `solid` over the Light Pillar shell.
  */
 export function CommandBar({
   children,

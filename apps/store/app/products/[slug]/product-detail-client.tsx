@@ -87,7 +87,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
         <div className="min-w-0 space-y-10">
           <section
             id="about"
-            className="bg-surface-panel/40 ring-foreground/5 rounded-2xl p-6 ring-1 sm:p-8"
+            className="bg-surface-panel ring-foreground/5 rounded-2xl border p-6 shadow-sm sm:p-8"
           >
             <h2 className="mb-4 text-xl font-semibold tracking-tight">About</h2>
             <div className="max-w-none space-y-6">
@@ -118,7 +118,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           </section>
 
           {installationSteps && (
-            <section className="bg-surface-panel/40 ring-foreground/5 rounded-2xl p-6 ring-1 sm:p-8">
+            <section className="bg-surface-panel ring-foreground/5 rounded-2xl border p-6 shadow-sm sm:p-8">
               <h2 className="mb-4 text-xl font-semibold tracking-tight">
                 Installation
               </h2>

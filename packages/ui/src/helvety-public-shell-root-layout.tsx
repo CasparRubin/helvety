@@ -153,7 +153,7 @@ function buildMainBlock(
  * navbar + main + footer, toaster, Vercel analytics.
  *
  * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
- * section nav, translucent `CommandBar` on Store) renders **above** the main `ScrollArea`
+ * section nav, solid `CommandBar` on Store) renders **above** the main `ScrollArea`
  * so it stays visible while catalog content scrolls. Optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
  * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
  * content can extend horizontally (gateway `apps/web`: full-bleed Hyperspeed hero). Store keeps

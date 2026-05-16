@@ -7,7 +7,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar (catalog routes avoid a full-tree theme script); `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (frosted `CommandBar` `variant="translucent"` over the shell backdrop; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` then [`HelvetyShellWithLightPillarBackdrop`](../../packages/light-pillar) from `@helvety/light-pillar` (content paints first; Helvety red/white Light Pillar on **md+**; below **md** or `prefers-reduced-motion: reduce` uses static `bg-background` only); shared session bootstrap helpers feed CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar (catalog routes avoid a full-tree theme script); `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"` over the shell backdrop; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` then [`HelvetyShellWithLightPillarBackdrop`](../../packages/light-pillar) from `@helvety/light-pillar` (content paints first; Helvety red/white Light Pillar on **md+**; below **md** or `prefers-reduced-motion: reduce` uses static `bg-background` only); shared session bootstrap helpers feed CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
 - Public product catalog at `/store/products`
 - Public package download endpoints (no login required)
 - Optional authenticated account page at `/store/account`
@@ -97,7 +97,8 @@ Shared package [`@helvety/light-pillar`](../../packages/light-pillar/README.md) 
 - **Preset:** `HELVETY_LIGHT_PILLAR_OPTIONS` (Helvety red/white via `HELVETY_ACCENT_RED` from `@helvety/brand`; React Bits template tuning otherwise). Refresh vendored shader via `@react-bits` in [`components.json`](components.json); copy into `packages/light-pillar`.
 - **Compact viewport:** Below **768px** (`md` / `useIsMobile`), WebGL is not mounted; static `bg-background` only (stacked/mobile layouts).
 - **Reduced motion:** WebGL not mounted at any width; `bg-background` fallback only.
-- **Section nav:** [`store-nav.tsx`](components/store-nav.tsx) uses `CommandBar` `variant="translucent"` over the shell backdrop (frosted bar over the WebGL pillar on md+, static background below md).
+- **Section nav:** [`store-nav.tsx`](components/store-nav.tsx) uses `CommandBar` `variant="solid"` (opaque toolbar over the WebGL pillar on md+, static background below md).
+- **Product detail:** About and Installation panels use opaque `bg-surface-panel` (same as the Access sidebar) so long-form copy stays readable over the pillar.
 - Catalog cards stay opaque (`bg-card/95`); tune `intensity` in the preset if needed.
 
 ## Development and Testing
@@ -110,6 +111,8 @@ bun run test
 bun run test:watch
 bun run test:coverage
 ```
+
+Notable tests include solid section nav over the shell backdrop (`components/store-nav.test.tsx`) and opaque product-detail About/Installation panels (`app/products/[slug]/product-detail-client.test.tsx`).
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

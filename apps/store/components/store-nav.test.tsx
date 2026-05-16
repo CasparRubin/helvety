@@ -12,12 +12,15 @@ vi.mock("@helvety/ui/use-navbar-auth-state", () => ({
 import { StoreNav } from "./store-nav";
 
 describe("StoreNav", () => {
-  it("uses translucent CommandBar so section nav sits over the shell backdrop", () => {
+  it("uses solid CommandBar for readable section nav over the shell backdrop", () => {
     render(<StoreNav />);
 
     const nav = screen.getByRole("navigation");
-    expect(nav).toHaveClass("backdrop-blur");
-    expect(nav).toHaveClass("bg-surface-toolbar/65");
-    expect(nav).not.toHaveClass("bg-surface-toolbar");
+    expect(nav).toHaveClass("bg-surface-toolbar");
+    expect(nav.className).not.toMatch(/bg-surface-toolbar\//);
+    expect(nav).not.toHaveClass("backdrop-blur");
+    expect(nav.className).not.toContain(
+      "supports-[backdrop-filter]:bg-surface-toolbar/40"
+    );
   });
 });

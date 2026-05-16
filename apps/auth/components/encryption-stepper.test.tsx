@@ -28,16 +28,18 @@ describe("encryption-stepper", () => {
   });
 
   describe("AuthStepper", () => {
-    it("uses frosted backdrop for contrast over Light Pillar", () => {
+    it("uses opaque card backdrop for contrast over Light Pillar", () => {
       const html = renderAuthStepper({
         mode: "four_before_otp",
         currentStep: "email",
       });
 
       expect(html).toContain('data-testid="auth-stepper-backdrop"');
-      expect(html).toContain("backdrop-blur-sm");
-      expect(html).toContain("bg-card/75");
-      expect(html).toContain("supports-[backdrop-filter]:bg-card/55");
+      expect(html).toContain("bg-card ring-border/60");
+      expect(html).not.toContain("backdrop-blur-sm");
+      expect(html).not.toContain("bg-card/55");
+      expect(html).not.toContain("bg-card/75");
+      expect(html).not.toContain("supports-[backdrop-filter]:bg-card/55");
     });
 
     it("does not use pre-contrast low-visibility styles", () => {
