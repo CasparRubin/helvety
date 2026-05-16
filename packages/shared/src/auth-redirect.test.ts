@@ -66,6 +66,12 @@ describe("getLoginUrl", () => {
     expect(url).toContain(
       "redirect_uri=https%3A%2F%2Fhelvety.com%2Ftasks%3Fview%3Dboard"
     );
+    const linksUrl = getLoginUrl(
+      "https://helvety-links.vercel.app/links?folder=abc"
+    );
+    expect(linksUrl).toContain(
+      "redirect_uri=https%3A%2F%2Fhelvety.com%2Flinks%3Ffolder%3Dabc"
+    );
   });
 });
 
@@ -97,5 +103,9 @@ describe("getLogoutUrl", () => {
   it("canonicalizes trusted direct app domains for logout redirects", () => {
     const url = getLogoutUrl("https://helvety-notes.vercel.app/notes");
     expect(url).toContain("redirect_uri=https%3A%2F%2Fhelvety.com%2Fnotes");
+    const linksUrl = getLogoutUrl("https://helvety-links.vercel.app/links");
+    expect(linksUrl).toContain(
+      "redirect_uri=https%3A%2F%2Fhelvety.com%2Flinks"
+    );
   });
 });

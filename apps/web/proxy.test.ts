@@ -12,7 +12,7 @@ describe("web gateway proxy matcher", () => {
   it("excludes other zones from the marketing proxy", () => {
     const pattern = config.matcher[0]!;
     expect(pattern).toContain(
-      "auth|store|pdf|image-upscaler|tasks|contacts|notes"
+      "auth|store|pdf|image-upscaler|tasks|contacts|notes|links"
     );
   });
 

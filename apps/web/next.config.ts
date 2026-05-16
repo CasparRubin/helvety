@@ -89,6 +89,7 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
       const tasksUrl = getAppUrl("TASKS_URL", DEV_PORTS.tasks);
       const contactsUrl = getAppUrl("CONTACTS_URL", DEV_PORTS.contacts);
       const notesUrl = getAppUrl("NOTES_URL", DEV_PORTS.notes);
+      const linksUrl = getAppUrl("LINKS_URL", DEV_PORTS.links);
       const storeUrl = getAppUrl("STORE_URL", DEV_PORTS.store);
       const pdfUrl = getAppUrl("PDF_URL", DEV_PORTS.pdf);
       const imageUpscalerUrl = getAppUrl(
@@ -128,6 +129,13 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
               { type: "header", key: "referer", value: ".*/notes(?:/.*)?$" },
             ],
             destination: `${notesUrl}${analyticsScriptSource}`,
+          },
+          {
+            source: analyticsScriptSource,
+            has: [
+              { type: "header", key: "referer", value: ".*/links(?:/.*)?$" },
+            ],
+            destination: `${linksUrl}${analyticsScriptSource}`,
           },
           {
             source: analyticsScriptSource,
@@ -204,6 +212,18 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
           {
             source: "/notes-static/:path*",
             destination: `${notesUrl}/notes-static/:path*`,
+          },
+          {
+            source: "/links",
+            destination: `${linksUrl}/links`,
+          },
+          {
+            source: "/links/:path*",
+            destination: `${linksUrl}/links/:path*`,
+          },
+          {
+            source: "/links-static/:path*",
+            destination: `${linksUrl}/links-static/:path*`,
           },
           {
             source: "/store",

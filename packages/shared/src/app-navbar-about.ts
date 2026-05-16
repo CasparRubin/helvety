@@ -14,7 +14,7 @@ import {
 /** Shown at the end of E2EE product About dialogs. */
 export const HELVETY_NAVBAR_SWISS_CLOSING = HELVETY_SWISS_ORIGIN_SEO;
 
-/** E2EE apps: encryption badge tooltip body (Tasks, Contacts, Notes). */
+/** E2EE apps: encryption badge tooltip body (Tasks, Contacts, Notes, Links). */
 export const E2EE_NAVBAR_ENCRYPTION_TOOLTIP =
   "Sensitive content fields are encrypted on your device before storage. Some structural metadata (such as timestamps, relationships, and display preferences) remains plaintext to support app functionality." as const;
 
@@ -32,6 +32,8 @@ export const TASKS_NAVBAR_ABOUT = `Stage-based tasks with drag-and-drop flow. Ti
 export const CONTACTS_NAVBAR_ABOUT = `Encrypted contacts with fast lookup and Personal, Work, and Other groups. Names, numbers, and notes are encrypted on your device before storage. ${HELVETY_NAVBAR_SWISS_CLOSING}`;
 
 export const NOTES_NAVBAR_ABOUT = `Encrypted notes with titles and rich text in Personal, Work, and Other groups. Note content is encrypted on your device before storage. ${HELVETY_NAVBAR_SWISS_CLOSING}`;
+
+export const LINKS_NAVBAR_ABOUT = `Encrypted bookmarks organized in nested folders you control. Link names and URLs are encrypted on your device before storage. ${HELVETY_NAVBAR_SWISS_CLOSING}`;
 
 /** Navbar About copy for Helvety PDF (optional limit line override). */
 export function pdfNavbarAbout(

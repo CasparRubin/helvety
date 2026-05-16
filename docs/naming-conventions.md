@@ -61,7 +61,7 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 
 | Topic                   | Standard                                                                                                                                                                                          |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product names           | `Helvety Tasks`, `Helvety Contacts`, … (title case; full name on first mention in a block)                                                                                                        |
+| Product names           | `Helvety Tasks`, `Helvety Contacts`, `Helvety Notes`, `Helvety Links`, … (title case; full name on first mention in a block)                                                                      |
 | Encryption (E2EE apps)  | Prefer **encrypted on your device before storage** in short UI; reserve **end-to-end encrypted** for legal/privacy and detailed dialogs                                                           |
 | Encryption (non-E2EE)   | State **browser-local** / **not sent to Helvety**; never imply E2EE for PDF, Image Upscaler, Store, gateway                                                                                       |
 | Company values          | **Private, simple, clean.** (`HELVETY_COMPANY_VALUES_TAGLINE`); lead gateway SEO with this where it fits                                                                                          |

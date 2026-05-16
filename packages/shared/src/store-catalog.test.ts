@@ -35,7 +35,7 @@ describe("store-catalog", () => {
 
   it("sorts newest release first with expected endpoints", () => {
     const sorted = getStoreCatalogNewestFirst();
-    expect(sorted[0]?.id).toBe("helvety-image-upscaler");
+    expect(sorted[0]?.id).toBe("helvety-links");
     expect(sorted[sorted.length - 1]?.id).toBe("helvety-pdf");
   });
 
@@ -57,6 +57,21 @@ describe("store-catalog", () => {
     const b = { id: "helvety-spo-explorer", releaseDate: "2025-10-05" };
     expect(compareStoreCatalogEntriesNewestFirst(a, b)).toBeGreaterThan(0);
     expect(compareStoreCatalogEntriesNewestFirst(b, a)).toBeLessThan(0);
+  });
+
+  it("includes Helvety Links in the catalog with SaaS metadata", () => {
+    const card = requireStoreProductCard("helvety-links");
+    expect(card.name).toBe("Helvety Links");
+    expect(card.runsOn).toBe("Browser");
+    expect(card.releaseDate).toBe("2026-05-16");
+  });
+
+  it("store llms.txt lists the Helvety Links product page", () => {
+    const text = readFileSync(
+      join(repoRoot, "apps/store/public/llms.txt"),
+      "utf8"
+    );
+    expect(text).toContain("https://helvety.com/store/products/helvety-links");
   });
 
   it("Power Automate card and llms.txt use canonical store short description", () => {

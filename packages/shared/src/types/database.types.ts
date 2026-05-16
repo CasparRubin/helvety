@@ -98,6 +98,69 @@ export type Database = {
         };
         Relationships: [];
       };
+      link_folders: {
+        Row: {
+          created_at: string;
+          encrypted_name: string;
+          id: string;
+          parent_folder_id: string | null;
+          sort_order: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          encrypted_name: string;
+          id?: string;
+          parent_folder_id?: string | null;
+          sort_order?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          encrypted_name?: string;
+          id?: string;
+          parent_folder_id?: string | null;
+          sort_order?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      links: {
+        Row: {
+          created_at: string;
+          encrypted_name: string;
+          encrypted_url: string;
+          folder_id: string | null;
+          id: string;
+          sort_order: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          encrypted_name: string;
+          encrypted_url: string;
+          folder_id?: string | null;
+          id?: string;
+          sort_order?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          encrypted_name?: string;
+          encrypted_url?: string;
+          folder_id?: string | null;
+          id?: string;
+          sort_order?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       items: {
         Row: {
           created_at: string;

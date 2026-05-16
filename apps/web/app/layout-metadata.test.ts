@@ -44,7 +44,9 @@ describe("web root layout metadata", () => {
   });
 
   it("describes encrypted apps in SEO copy", () => {
-    expect(WEB_SITE_DESCRIPTION).toMatch(/encrypted task and contact apps/i);
+    expect(WEB_SITE_DESCRIPTION).toMatch(
+      /encrypted task, contact, note, and link apps/i
+    );
   });
 
   it("uses license-free company SEO copy and keywords", () => {

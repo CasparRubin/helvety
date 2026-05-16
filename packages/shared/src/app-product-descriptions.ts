@@ -5,7 +5,7 @@ import {
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
 export const WEB_SITE_DESCRIPTION =
-  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task and contact apps, lightweight browser utilities, extensions, and desktop tools.";
+  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task, contact, note, and link apps, lightweight browser utilities, extensions, and desktop tools.";
 
 /** Shared auth SEO / social copy. */
 export const AUTH_DESCRIPTION = `Passwordless entry for Helvety apps: OTP, passkeys, and session recovery where your platform allows. ${HELVETY_SWISS_ORIGIN_SEO}`;
@@ -24,6 +24,9 @@ export const NOTES_APP_DESCRIPTION = `Encrypted notes with titles and rich text 
 
 /** Shared tasks SEO / social copy. */
 export const TASKS_APP_DESCRIPTION = `Stage-based tasks encrypted before they leave your browser. ${HELVETY_SWISS_ORIGIN_SEO}`;
+
+/** Shared links SEO / social copy. */
+export const LINKS_APP_DESCRIPTION = `Encrypted bookmarks with nested folders. Names and URLs are encrypted on your device before storage. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Store products listing metadata. */
 export const STORE_PRODUCTS_PAGE_DESCRIPTION = `Browse free Helvety products and apps. ${HELVETY_SWISS_ORIGIN_SEO}`;

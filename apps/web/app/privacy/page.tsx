@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="April 28, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="May 16, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -229,8 +229,8 @@ export default function PrivacyPage() {
           <li>
             Encryption passkey parameters (PRF salt values for deriving
             encryption keys, plus key-check values used to verify derived-key
-            correctness, for Helvety Tasks, Helvety Contacts, and Helvety Notes
-            which use end-to-end encryption)
+            correctness, for Helvety Tasks, Helvety Contacts, Helvety Notes, and
+            Helvety Links which use end-to-end encryption)
           </li>
           <li>
             Location-attestation metadata (confirmation that you are not located
@@ -368,8 +368,9 @@ export default function PrivacyPage() {
 
         <h3 className="mb-3 text-lg font-medium">2.7 Encryption Data</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Helvety Tasks, Helvety Contacts, and Helvety Notes use end-to-end
-          encryption to protect your data. For these services, we store:
+          Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety Links use
+          end-to-end encryption to protect your data. For these services, we
+          store:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -538,6 +539,18 @@ export default function PrivacyPage() {
             stored to enable cross-app linking. Business/account quotas are not
             applied.
           </li>
+          <li>
+            <strong className="text-foreground">
+              Helvety Links (helvety.com/links):
+            </strong>{" "}
+            Bookmark names and URLs are end-to-end encrypted client-side before
+            storage. Folder names are encrypted as well. Non-encrypted
+            structural metadata includes record identifiers, parent/folder
+            relationships, sort order, and timestamps. Deleting a folder removes
+            its subfolders and links. Per-account technical limits on folder and
+            link counts (currently 250 each) apply for platform reliability.
+            Business/account quotas are not applied.
+          </li>
         </ul>
         <p className="text-muted-foreground mt-4 text-sm">
           <strong className="text-foreground">
@@ -673,9 +686,10 @@ export default function PrivacyPage() {
           <li>Product access and download metadata</li>
           <li>
             Non-encrypted structural metadata from Helvety Tasks, Helvety
-            Contacts, and Helvety Notes (for example record identifiers,
-            timestamps, sort order, task priority, stage/label/category
-            references, and relationship/link metadata where linking is used)
+            Contacts, Helvety Notes, and Helvety Links (for example record
+            identifiers, timestamps, sort order, task priority,
+            stage/label/category references, and relationship/link metadata
+            where linking is used)
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -964,8 +978,8 @@ export default function PrivacyPage() {
           <strong className="text-foreground">Self-Service Data Export:</strong>{" "}
           You can export your personal data from your account settings. The
           export includes your profile information in JSON format. For Helvety
-          Tasks, Helvety Contacts, and Helvety Notes (end-to-end encrypted
-          data), you can initiate an export from within the app while
+          Tasks, Helvety Contacts, Helvety Notes, and Helvety Links (end-to-end
+          encrypted data), you can initiate an export from within the app while
           authenticated with your passkey; the data is decrypted client-side and
           exported locally. Server-side exports of encrypted data are available
           only in encrypted form.
@@ -1236,11 +1250,11 @@ export default function PrivacyPage() {
 
         <h3 className="mb-3 text-lg font-medium">10.2 End-to-End Encryption</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Helvety Tasks, Helvety Contacts, and Helvety Notes implement
-          end-to-end encryption to protect your content. Other Helvety services
-          (helvety.com, Helvety Auth, Helvety PDF, Helvety Image Upscaler,
-          Helvety Store) do not use end-to-end encryption. For Helvety Tasks,
-          Helvety Contacts, and Helvety Notes:
+          Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety Links
+          implement end-to-end encryption to protect your content. Other Helvety
+          services (helvety.com, Helvety Auth, Helvety PDF, Helvety Image
+          Upscaler, Helvety Store) do not use end-to-end encryption. For Helvety
+          Tasks, Helvety Contacts, Helvety Notes, and Helvety Links:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -1308,7 +1322,22 @@ export default function PrivacyPage() {
             Non-encrypted structural metadata:
           </strong>{" "}
           record identifiers, timestamps, display preferences (sort order), and
-          relationship metadata used for cross-app linking.
+          immutable built-in taxonomy references (category IDs). When linking
+          notes with tasks and contacts, additional non-encrypted relationship
+          metadata (link identifiers, linked entity identifiers/types, and
+          timestamps) is stored to enable cross-app linking where that feature
+          is enabled.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          <strong className="text-foreground">
+            Helvety Links encrypted fields:
+          </strong>{" "}
+          folder name; link name and URL.{" "}
+          <strong className="text-foreground">
+            Non-encrypted structural metadata:
+          </strong>{" "}
+          record identifiers, timestamps, display preferences (sort order), and
+          folder parent/child relationships.
         </p>
         <p className="text-muted-foreground text-sm">
           This approach is designed to help protect your encrypted content in

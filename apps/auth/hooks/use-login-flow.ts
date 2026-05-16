@@ -654,7 +654,7 @@ export function useLoginFlow(): LoginFlowState {
 
         // If PRF output was received, derive and cache the master encryption key.
         // This enables instant encryption unlock in E2EE apps
-        // (tasks, contacts, notes)
+        // (tasks, contacts, notes, links)
         // without requiring a separate passkey touch.
         //
         // Security: The cached PRF salt may belong to a different user than the

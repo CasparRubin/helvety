@@ -16,6 +16,7 @@
 - [Helvety Contacts](https://helvety.com/contacts)
 - [Helvety Notes](https://helvety.com/notes)
 - [Helvety Tasks](https://helvety.com/tasks)
+- [Helvety Links](https://helvety.com/links)
 
 ## Licensing
 All Helvety products with published source are released under AGPL-3.0 or later (including browser extensions, SharePoint solutions, and desktop tools distributed outside this repository).

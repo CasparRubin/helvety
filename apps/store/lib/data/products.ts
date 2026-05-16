@@ -947,7 +947,7 @@ const helvetyNotes: SaaSProduct = {
       {
         heading: "Pricing",
         kind: "paragraph",
-        body: "Same free stance as the rest of the Helvety productivity trio, with no metering on categories, linking, or editors.",
+        body: "Same free stance as the other Helvety productivity apps, with no metering on categories, linking, or editors.",
       },
       {
         heading: "Organization philosophy",
@@ -1024,6 +1024,89 @@ const helvetyNotes: SaaSProduct = {
 };
 
 // =============================================================================
+// HELVETY LINKS
+// =============================================================================
+
+const cHelvetyLinks = cardCore("helvety-links", "saas");
+const helvetyLinks: SaaSProduct = {
+  id: cHelvetyLinks.id,
+  slug: cHelvetyLinks.slug,
+  name: cHelvetyLinks.name,
+  shortDescription: cHelvetyLinks.shortDescription,
+  type: cHelvetyLinks.type,
+  category: cHelvetyLinks.category,
+  description: {
+    intro:
+      "Helvety Links stores bookmarks with nested folders. Link names and URLs are encrypted on your device before they sync.",
+    sections: [
+      {
+        heading: "Pricing",
+        kind: "paragraph",
+        body: "Free to use with the same passkey encryption model as other Helvety productivity apps.",
+      },
+      {
+        heading: "Organization",
+        kind: "bullets",
+        items: [
+          "Nested folders without a fixed depth limit (per-account folder and link counts are capped for reliability).",
+          "Open links in your browser with one click.",
+          "Client-side search across decrypted names and URLs.",
+        ],
+      },
+      {
+        heading: "Data protection",
+        kind: "paragraph",
+        body: "Helvety does not hold keys that could read your encrypted bookmarks.",
+      },
+    ],
+  },
+  status: "available",
+  image: productArtwork.artwork5,
+  artist: "Rudolf Koller",
+  features: [
+    "End-to-end encryption for bookmark names and URLs",
+    "Nested folders without a fixed depth limit",
+    "Client-side export of decrypted library",
+    "Dark and light mode support",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    hasYearlyPricing: false,
+    tiers: [
+      {
+        id: "helvety-links-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "All features included",
+          "End-to-end encryption",
+          "No business/account quotas",
+          "Free to use",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.com/links",
+    github: "https://github.com/CasparRubin/helvety/tree/main/apps/links",
+  },
+  saas: {
+    appUrl: "https://helvety.com/links",
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: ["Privacy-conscious professionals", "Bookmark power users"],
+    platforms: ["Web"],
+    keywords: ["bookmarks", "links", "encrypted", "e2e", "privacy", "folders"],
+    featured: true,
+    releaseDate: cHelvetyLinks.releaseDate,
+  },
+};
+
+// =============================================================================
 // ALL PRODUCTS
 // =============================================================================
 
@@ -1037,6 +1120,7 @@ const products: Product[] = [
   helvetyTasks,
   helvetyContacts,
   helvetyNotes,
+  helvetyLinks,
   powerAutomateEditorVersionEnforcer,
   helvetyScreenTools,
   helvetyImageUpscaler,

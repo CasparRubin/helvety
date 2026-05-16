@@ -43,9 +43,9 @@ describe("store product catalog", () => {
     );
   });
 
-  it("default sort is newest release first (Image Upscaler last shipped)", () => {
+  it("default sort is newest release first (Links newest; PDF oldest)", () => {
     const ids = getAllProducts().map((p) => p.id);
-    expect(ids[0]).toBe("helvety-image-upscaler");
+    expect(ids[0]).toBe("helvety-links");
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
   });
 
@@ -62,6 +62,30 @@ describe("store product catalog", () => {
     );
     expect(getProductBySlug("helvety-image-upscaler")?.slug).toBe(
       "helvety-image-upscaler"
+    );
+    expect(getProductBySlug("helvety-links")?.name).toBe("Helvety Links");
+    expect(getProductBySlug("helvety-links")?.links?.website).toBe(
+      "https://helvety.com/links"
+    );
+  });
+
+  it("Helvety Links is a SaaS listing with store artwork and monorepo source", () => {
+    const product = getProductBySlug("helvety-links");
+    expect(product).toBeDefined();
+    if (!product) {
+      return;
+    }
+    expect(product.type).toBe("saas");
+    expect(product.image).toBeDefined();
+    expect(product.links?.github).toContain("apps/links");
+    expect(product.features).toContain(
+      "End-to-end encryption for bookmark names and URLs"
+    );
+    expect(product.features).not.toContain(
+      "Drag and drop reorder within a folder"
+    );
+    expect(product.features).not.toContain(
+      "Reorder links and folders within the same parent folder"
     );
   });
 

@@ -126,6 +126,41 @@
         "vitest": "^4.1.6",
       },
     },
+    "apps/links": {
+      "name": "@helvety/links",
+      "version": "1.0.0",
+      "dependencies": {
+        "@helvety/brand": "workspace:*",
+        "@helvety/shared": "workspace:*",
+        "@helvety/ui": "workspace:*",
+        "@supabase/supabase-js": "^2.105.4",
+        "lucide-react": "^0.577.0",
+        "next": "^16.2.6",
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6",
+        "server-only": "^0.0.1",
+        "sonner": "^2.0.7",
+        "zod": "^4.4.3",
+      },
+      "devDependencies": {
+        "@helvety/config": "workspace:*",
+        "@tailwindcss/postcss": "^4.3.0",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@types/node": "^24.12.2",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "babel-plugin-react-compiler": "^1.0.0",
+        "eslint": "^9.39.4",
+        "jsdom": "29.1.1",
+        "prettier": "^3.8.3",
+        "prettier-plugin-tailwindcss": "^0.8.0",
+        "shadcn": "^3.8.5",
+        "tailwindcss": "^4.3.0",
+        "typescript": "^5",
+        "vitest": "^4.1.6",
+      },
+    },
     "apps/notes": {
       "name": "@helvety/notes",
       "version": "3.2.0",
@@ -695,6 +730,8 @@
     "@helvety/image-upscaler": ["@helvety/image-upscaler@workspace:apps/image-upscaler"],
 
     "@helvety/light-pillar": ["@helvety/light-pillar@workspace:packages/light-pillar"],
+
+    "@helvety/links": ["@helvety/links@workspace:apps/links"],
 
     "@helvety/notes": ["@helvety/notes@workspace:apps/notes"],
 

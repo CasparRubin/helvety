@@ -33,6 +33,10 @@ const NAVBAR_WIRING = [
     symbol: "NOTES_NAVBAR_ABOUT",
   },
   {
+    rel: "apps/links/components/navbar.tsx",
+    symbol: "LINKS_NAVBAR_ABOUT",
+  },
+  {
     rel: "apps/pdf/components/navbar.tsx",
     symbol: "pdfNavbarAbout",
   },
@@ -58,6 +62,7 @@ describe("app navbar wiring", () => {
       "apps/tasks/components/navbar.tsx",
       "apps/contacts/components/navbar.tsx",
       "apps/notes/components/navbar.tsx",
+      "apps/links/components/navbar.tsx",
     ] as const) {
       const source = readFileSync(join(repoRoot, rel), "utf8");
       expect(source).toContain("E2EE_NAVBAR_ENCRYPTION_TOOLTIP");

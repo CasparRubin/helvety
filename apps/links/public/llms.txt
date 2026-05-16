@@ -1,0 +1,26 @@
+# Helvety Links
+
+> Encrypted bookmarks in nested folders you control. Names and URLs are encrypted on your device before storage. Engineered, designed and made in Switzerland.
+
+## Canonical URL
+- [Links App](https://helvety.com/links): Auth-required bookmarks route
+
+## Crawling And Indexing
+- Links routes are intended not to be indexed.
+- These routes are not intended as crawl targets and are protected by noindex metadata and authentication controls.
+
+## Related Helvety Apps
+- [Helvety](https://helvety.com)
+- [Helvety Store](https://helvety.com/store)
+- [Helvety PDF](https://helvety.com/pdf)
+- [Helvety Image Upscaler](https://helvety.com/image-upscaler)
+- [Helvety Auth](https://helvety.com/auth)
+- [Helvety Contacts](https://helvety.com/contacts)
+- [Helvety Notes](https://helvety.com/notes)
+- [Helvety Tasks](https://helvety.com/tasks)
+
+## Licensing
+All Helvety products with published source are released under AGPL-3.0 or later (including browser extensions, SharePoint solutions, and desktop tools distributed outside this repository).
+
+## Source
+- [GitHub - helvety.com monorepo](https://github.com/CasparRubin/helvety): Web applications and shared packages (AGPL-3.0)

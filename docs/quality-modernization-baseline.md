@@ -31,6 +31,6 @@
 4. **Domain hardening**
    - Reduce unsafe assertions in auth/store/shared sensitive paths.
 5. **E2EE convergence**
-   - Keep tasks/notes/contacts behavior aligned through shared patterns.
+   - Keep tasks/notes/contacts/links behavior aligned through shared patterns.
 6. **Verification/guardrails**
    - Lint/type-check/tests stay green and drift checks catch regressions.

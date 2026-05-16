@@ -78,6 +78,7 @@ describe("web gateway rewrites", () => {
     const tasksOrigin = `http://localhost:${DEV_PORTS.tasks}`;
     const contactsOrigin = `http://localhost:${DEV_PORTS.contacts}`;
     const notesOrigin = `http://localhost:${DEV_PORTS.notes}`;
+    const linksOrigin = `http://localhost:${DEV_PORTS.links}`;
     const storeOrigin = `http://localhost:${DEV_PORTS.store}`;
     const pdfOrigin = `http://localhost:${DEV_PORTS.pdf}`;
     const imageUpscalerOrigin = `http://localhost:${DEV_PORTS.imageUpscaler}`;
@@ -114,6 +115,17 @@ describe("web gateway rewrites", () => {
               type: "header",
               key: "referer",
               value: ".*/notes(?:/.*)?$",
+            },
+          ],
+        },
+        {
+          source: "/:analyticsId([a-z0-9]+)/script.js",
+          destination: `${linksOrigin}/:analyticsId([a-z0-9]+)/script.js`,
+          has: [
+            {
+              type: "header",
+              key: "referer",
+              value: ".*/links(?:/.*)?$",
             },
           ],
         },
@@ -186,6 +198,23 @@ describe("web gateway rewrites", () => {
     );
   });
 
+  it("forwards links routes and links static assets to the links zone", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const linksOrigin = `http://localhost:${DEV_PORTS.links}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        { source: "/links", destination: `${linksOrigin}/links` },
+        { source: "/links/:path*", destination: `${linksOrigin}/links/:path*` },
+        {
+          source: "/links-static/:path*",
+          destination: `${linksOrigin}/links-static/:path*`,
+        },
+      ])
+    );
+  });
+
   it("uses localhost rewrite targets in production when gateway env vars are unset and not on Vercel", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL", "");
@@ -193,6 +222,7 @@ describe("web gateway rewrites", () => {
     vi.stubEnv("TASKS_URL", "");
     vi.stubEnv("CONTACTS_URL", "");
     vi.stubEnv("NOTES_URL", "");
+    vi.stubEnv("LINKS_URL", "");
     vi.stubEnv("STORE_URL", "");
     vi.stubEnv("PDF_URL", "");
 

@@ -32,7 +32,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="April 28, 2026"
+        lastReviewed="May 16, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -119,8 +119,8 @@ export default function ImpressumPage() {
         <p className="text-muted-foreground mb-3 text-sm">
           Helvety by Rubin designs and ships software products and web
           applications across Microsoft 365 integrations, browser utilities,
-          desktop tooling, and encrypted Tasks, Contacts, and Notes. The listed
-          products are currently offered free of charge. Where source
+          desktop tooling, and encrypted Tasks, Contacts, Notes, and Links. The
+          listed products are currently offered free of charge. Where source
           repositories are published, source is released under the GNU Affero
           General Public License version 3 or later (AGPL-3.0), including
           browser extensions, SharePoint solutions, and desktop tools outside
@@ -162,6 +162,10 @@ export default function ImpressumPage() {
           <li>
             <strong className="text-foreground">Helvety Notes</strong>:
             encrypted notes grouped by Personal, Work, and Other.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety Links</strong>:
+            encrypted bookmarks organized in nested folders.
           </li>
         </ul>
       </LegalSection>

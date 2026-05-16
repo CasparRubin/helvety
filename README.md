@@ -9,10 +9,10 @@ Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 - Other Helvety products (browser extensions, SPFx controls, WinUI tools, and similar) are **distributed separately** from their own repositories; where source is published for those products, it is **AGPL-3.0-licensed**. The [Helvety Store](https://helvety.com/store) lists installers and deep links across the full product line.
 - Public gateway and tools: `web`, `store`, `pdf`, `image-upscaler`
 - Centralized account: `auth` (not an E2EE vault app; hosts shared sign-in)
-- Client-encrypted apps (E2EE): `tasks`, `contacts`, `notes`
+- Client-encrypted apps (E2EE): `tasks`, `contacts`, `notes`, `links`
 - Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/brand`, `@helvety/light-pillar` (Store/Auth shell backdrop)
 
-Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`) use `@helvety/ui/e2ee-app-root-layout`. **Store** and **Auth** wrap the public shell in `@helvety/light-pillar` (`HelvetyShellWithLightPillarBackdrop`: shell UI paints first; Light Pillar WebGL on **md+**, static `bg-background` below **md** or with reduced motion; see [`packages/light-pillar`](packages/light-pillar/README.md)). Command bars (store section nav, list toolbars, PDF/image toolbars, E2EE dashboards/editors) stay pinned outside scroll via shell slots (`scrollAreaMainPrefix`, `overflow-main` flex columns, or `CommandBarPageLayout` + shadcn `ScrollArea`). Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF and user state inside `E2eeAppRootLayout` through the same shared helper layer.
+Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `@helvety/ui/e2ee-app-root-layout`. **Store** and **Auth** wrap the public shell in `@helvety/light-pillar` (`HelvetyShellWithLightPillarBackdrop`: shell UI paints first; Light Pillar WebGL on **md+**, static `bg-background` below **md** or with reduced motion; see [`packages/light-pillar`](packages/light-pillar/README.md)). Command bars (store section nav, list toolbars, PDF/image toolbars, E2EE dashboards/editors) stay pinned outside scroll via shell slots (`scrollAreaMainPrefix`, `overflow-main` flex columns, or `CommandBarPageLayout` + shadcn `ScrollArea`). Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF and user state inside `E2eeAppRootLayout` through the same shared helper layer.
 
 ## Applications
 
@@ -26,6 +26,7 @@ Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf
 | [`apps/tasks`](apps/tasks/)                   | <https://helvety.com/tasks>          | E2EE task management                                                                                                   |
 | [`apps/contacts`](apps/contacts/)             | <https://helvety.com/contacts>       | E2EE contact management                                                                                                |
 | [`apps/notes`](apps/notes/)                   | <https://helvety.com/notes>          | E2EE notes                                                                                                             |
+| [`apps/links`](apps/links/)                   | <https://helvety.com/links>          | E2EE bookmarks with nested folders                                                                                     |
 
 ## Shared Packages
 
@@ -61,6 +62,7 @@ cp apps/image-upscaler/env.template apps/image-upscaler/.env.local
 cp apps/tasks/env.template apps/tasks/.env.local
 cp apps/contacts/env.template apps/contacts/.env.local
 cp apps/notes/env.template apps/notes/.env.local
+cp apps/links/env.template apps/links/.env.local
 ```
 
 ## Common Commands
@@ -116,7 +118,7 @@ All quality gates run locally. There is no GitHub Actions or other remote CI in 
 
 - App URL and cookie domain logic are derived from `NODE_ENV` via shared config.
 - `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` can override the server-action trusted-origin allowlist as a comma-separated list; on Vercel, defaults are derived automatically from deployment/runtime URLs plus `https://helvety.com`.
-- `apps/web` additionally requires `AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, and `NOTES_URL` when `VERCEL=1` so multi-zone rewrites can resolve trusted internal origins.
+- `apps/web` additionally requires `AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, and `LINKS_URL` when `VERCEL=1` so multi-zone rewrites can resolve trusted internal origins.
 - App READMEs document per-app env templates; shared runtime/security defaults are documented in this root README and `packages/config`.
 
 ## Supabase Workflow (Remote-First)
@@ -135,7 +137,7 @@ SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
 
 - `proxy.ts` is lightweight request setup (CSP headers, optional CSRF bootstrap, and Supabase cookie refresh), not the primary auth boundary. Zone apps inline the same `config.matcher` pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal; CI guardrails keep parity) so common static files (including PDF.js and ONNX worker assets: `.mjs`, `.wasm`, `.json`) skip that chain. The `apps/web` gateway uses a custom matcher with the same static extension exclusions plus zone path skips.
 - Primary auth/authz enforcement lives in Server Components, Server Actions, and route handlers.
-- E2EE apps (`tasks`, `contacts`, `notes`) enforce server-side page guards and passkey-based unlock flows.
+- E2EE apps (`tasks`, `contacts`, `notes`, `links`) enforce server-side page guards and passkey-based unlock flows.
 
 ## Project Structure
 

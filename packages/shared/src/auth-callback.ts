@@ -37,7 +37,7 @@ function isAllowedEmailOtpType(
   value: string,
   allowed: ReadonlySet<EmailOtpType>
 ): value is EmailOtpType {
-  return allowed.has(value as EmailOtpType);
+  return allowed.has(value);
 }
 
 /** Optional overrides for callback behavior per app surface. */

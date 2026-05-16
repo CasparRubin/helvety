@@ -174,6 +174,8 @@ const appBoundaryRules = {
             "@helvety/contacts/*",
             "@helvety/image-upscaler",
             "@helvety/image-upscaler/*",
+            "@helvety/links",
+            "@helvety/links/*",
             "@helvety/notes",
             "@helvety/notes/*",
             "@helvety/pdf",

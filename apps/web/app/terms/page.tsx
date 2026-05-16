@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="April 28, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="May 16, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -303,19 +303,20 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Encryption Setup:</strong> Once
-          you authenticate into Helvety Tasks, Helvety Contacts, or Helvety
-          Notes, you must configure an encryption passkey so those apps can
-          protect your content with end-to-end encryption. This uses the
-          WebAuthn PRF (Pseudo-Random Function) extension to derive encryption
-          keys on your device. The encryption keys are not transmitted to or
-          stored on our servers. If you lose access to your encryption passkey,
-          encrypted content will become permanently inaccessible. Certain
-          non-encrypted structural metadata (such as record identifiers,
-          timestamps, priority levels, display preferences (e.g., sort orders),
-          and entity relationships) is stored in plaintext to enable application
-          functionality; see our Privacy Policy for field-level details. Other
-          Helvety services (helvety.com, Helvety Auth, Helvety PDF, Helvety
-          Image Upscaler, Helvety Store) do not use end-to-end encryption.
+          you authenticate into Helvety Tasks, Helvety Contacts, Helvety Notes,
+          or Helvety Links, you must configure an encryption passkey so those
+          apps can protect your content with end-to-end encryption. This uses
+          the WebAuthn PRF (Pseudo-Random Function) extension to derive
+          encryption keys on your device. The encryption keys are not
+          transmitted to or stored on our servers. If you lose access to your
+          encryption passkey, encrypted content will become permanently
+          inaccessible. Certain non-encrypted structural metadata (such as
+          record identifiers, timestamps, priority levels, display preferences
+          (e.g., sort orders), and entity relationships) is stored in plaintext
+          to enable application functionality; see our Privacy Policy for
+          field-level details. Other Helvety services (helvety.com, Helvety
+          Auth, Helvety PDF, Helvety Image Upscaler, Helvety Store) do not use
+          end-to-end encryption.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Age Requirement:</strong> You must
@@ -675,9 +676,9 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           For end-to-end encrypted content in Helvety Tasks, Helvety Contacts,
-          and Helvety Notes, our systems are designed to prevent routine access
-          to plaintext content. This license applies to encrypted data as stored
-          on our infrastructure.
+          Helvety Notes, and Helvety Links, our systems are designed to prevent
+          routine access to plaintext content. This license applies to encrypted
+          data as stored on our infrastructure.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">7.3 Your Responsibilities</h3>
@@ -718,9 +719,9 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           For end-to-end encrypted content in Helvety Tasks, Helvety Contacts,
-          and Helvety Notes, we generally cannot review plaintext content. In
-          those cases, enforcement may rely on metadata, user reports, and valid
-          legal orders.
+          Helvety Notes, and Helvety Links, we generally cannot review plaintext
+          content. In those cases, enforcement may rely on metadata, user
+          reports, and valid legal orders.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           We may immediately suspend or terminate accounts and delete all
@@ -760,8 +761,8 @@ export default function TermsPage() {
 
         <h3 className="mb-3 text-lg font-medium">7.6 Encrypted User Content</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Helvety Tasks, Helvety Contacts, and Helvety Notes implement
-          end-to-end encryption. For these services:
+          Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety Links
+          implement end-to-end encryption. For these services:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -820,9 +821,9 @@ export default function TermsPage() {
           <li>Product access and download audit metadata</li>
           <li>
             Non-encrypted structural metadata from Helvety Tasks, Helvety
-            Contacts, and Helvety Notes (priority levels, display preferences
-            such as sort orders, entity relationships, and immutable built-in
-            taxonomy references)
+            Contacts, Helvety Notes, and Helvety Links (priority levels, display
+            preferences such as sort orders, entity relationships, and immutable
+            built-in taxonomy references)
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -949,9 +950,9 @@ export default function TermsPage() {
           Helvety apps.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          No business/account quotas are applied to Tasks, Contacts, and Notes.
-          Technical and security safeguards may still apply to protect platform
-          reliability, availability, and abuse prevention.
+          No business/account quotas are applied to Tasks, Contacts, Notes, and
+          Links. Technical and security safeguards may still apply to protect
+          platform reliability, availability, and abuse prevention.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           You remain responsible for lawful use of the Services and for
@@ -983,7 +984,7 @@ export default function TermsPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Helvety Tasks, Helvety Contacts, and Helvety Notes
+              Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety Links
             </strong>{" "}
             gate every session behind authenticated access plus passkey-backed
             controls.

@@ -14,7 +14,7 @@ const buildScopedAdmin = (from: ReturnType<typeof vi.fn>): ScopedAdmin =>
 
 describe("ACCOUNT_DELETION_VERIFICATION_CHECKS", () => {
   it("matches the post-delete verification surface (update count if tables change)", () => {
-    expect(ACCOUNT_DELETION_VERIFICATION_CHECKS).toHaveLength(7);
+    expect(ACCOUNT_DELETION_VERIFICATION_CHECKS).toHaveLength(9);
     const tables = new Set(
       ACCOUNT_DELETION_VERIFICATION_CHECKS.map((c) => c.table)
     );
@@ -22,6 +22,8 @@ describe("ACCOUNT_DELETION_VERIFICATION_CHECKS", () => {
       "contacts",
       "entity_links",
       "items",
+      "link_folders",
+      "links",
       "notes",
       "user_auth_credentials",
       "user_passkey_params",

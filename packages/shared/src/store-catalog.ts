@@ -47,6 +47,7 @@ export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
   "helvety-image-upscaler": 8,
   "helvety-screen-tools": 7,
   "helvety-power-automate-editor-version-enforcer": 6,
+  "helvety-links": 6,
   "helvety-notes": 5,
   "helvety-contacts": 4,
   "helvety-tasks": 3,
@@ -115,6 +116,19 @@ export const STORE_PRODUCT_CARDS = [
     shortDescription:
       "Encrypted notes with titles and rich text. Group by Personal, Work, or Other, with links to tasks or contacts when you use those apps.",
     releaseDate: "2026-01-20",
+    type: "saas",
+    category: "productivity",
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-links",
+    slug: "helvety-links",
+    name: "Helvety Links",
+    shortDescription:
+      "Encrypted bookmarks in nested folders you control. Names and URLs stay encrypted on your device before storage.",
+    releaseDate: "2026-05-16",
     type: "saas",
     category: "productivity",
     runsOn: "Browser",

@@ -12,6 +12,8 @@ type ScopedTable =
   | "contacts"
   | "entity_links"
   | "items"
+  | "link_folders"
+  | "links"
   | "notes"
   | "user_auth_credentials"
   | "user_passkey_params"
@@ -21,6 +23,8 @@ const USER_SCOPE_COLUMNS: Record<ScopedTable, "user_id" | "id"> = {
   contacts: "user_id",
   entity_links: "user_id",
   items: "user_id",
+  link_folders: "user_id",
+  links: "user_id",
   notes: "user_id",
   user_auth_credentials: "user_id",
   user_passkey_params: "user_id",

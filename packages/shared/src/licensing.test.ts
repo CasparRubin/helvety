@@ -68,6 +68,7 @@ describe("workspace package manifests", () => {
     "apps/tasks/package.json",
     "apps/contacts/package.json",
     "apps/notes/package.json",
+    "apps/links/package.json",
     "packages/shared/package.json",
     "packages/ui/package.json",
     "packages/config/package.json",

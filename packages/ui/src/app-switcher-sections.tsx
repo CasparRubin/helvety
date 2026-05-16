@@ -6,6 +6,7 @@ import {
   ImageUp,
   ListTodo,
   Monitor,
+  Link2,
   NotebookPen,
   Puzzle,
   Store,
@@ -45,6 +46,7 @@ export const appSwitcherSections: AppSwitcherSection[] = [
       { name: "Tasks", href: urls.tasks, icon: ListTodo },
       { name: "Contacts", href: urls.contacts, icon: Users },
       { name: "Notes", href: urls.notes, icon: NotebookPen },
+      { name: "Links", href: urls.links, icon: Link2 },
     ],
   },
   {

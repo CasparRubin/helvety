@@ -5,6 +5,7 @@ import {
   CONTACTS_NAVBAR_ABOUT,
   E2EE_NAVBAR_ENCRYPTION_TOOLTIP,
   HELVETY_NAVBAR_SWISS_CLOSING,
+  LINKS_NAVBAR_ABOUT,
   NOTES_NAVBAR_ABOUT,
   STORE_NAVBAR_ABOUT,
   TASKS_NAVBAR_ABOUT,
@@ -21,6 +22,7 @@ describe("app-navbar-about", () => {
     ["auth", AUTH_NAVBAR_ABOUT],
     ["tasks", TASKS_NAVBAR_ABOUT],
     ["contacts", CONTACTS_NAVBAR_ABOUT],
+    ["links", LINKS_NAVBAR_ABOUT],
     ["notes", NOTES_NAVBAR_ABOUT],
     ["pdf", pdfNavbarAbout()],
     ["image-upscaler", imageUpscalerNavbarAbout()],
@@ -35,6 +37,7 @@ describe("app-navbar-about", () => {
     for (const text of [
       TASKS_NAVBAR_ABOUT,
       CONTACTS_NAVBAR_ABOUT,
+      LINKS_NAVBAR_ABOUT,
       NOTES_NAVBAR_ABOUT,
     ]) {
       expect(text).toMatch(/encrypted on your device before storage/i);

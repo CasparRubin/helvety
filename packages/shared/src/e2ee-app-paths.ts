@@ -2,12 +2,12 @@
  * Path prefixes for apps that use EncryptionGate and require a browser passkey
  * unlock (master key) before the UI can load - not just a Supabase session.
  *
- * Keep in sync with apps using `EncryptionGateApp` (notes, tasks, contacts).
+ * Keep in sync with apps using `EncryptionGateApp` (contacts, links, notes, tasks).
  * Server pages for those apps should call `requireE2eeAppPageAuth` from
  * `@helvety/shared/e2ee-page-auth` so new routes keep an explicit `requireAuth`.
  */
 
-const E2EE_PATH_PREFIXES = ["/notes", "/tasks", "/contacts"] as const;
+const E2EE_PATH_PREFIXES = ["/notes", "/tasks", "/contacts", "/links"] as const;
 
 /**
  * Returns true when `uri` points at an E2EE app route where browser unlock

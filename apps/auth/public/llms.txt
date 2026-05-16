@@ -1,6 +1,6 @@
 # Helvety Auth
 
-> Passwordless Helvety Auth for OTP and passkey flows across Tasks, Contacts, and Notes. Engineered, designed and made in Switzerland.
+> Passwordless Helvety Auth for OTP and passkey flows across Tasks, Contacts, Notes, and Links. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Sign In](https://helvety.com/auth/login): Primary sign-in page
@@ -16,6 +16,7 @@
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler)
 - [Helvety Contacts](https://helvety.com/contacts)
 - [Helvety Notes](https://helvety.com/notes)
+- [Helvety Links](https://helvety.com/links)
 - [Helvety Tasks](https://helvety.com/tasks)
 
 ## Licensing

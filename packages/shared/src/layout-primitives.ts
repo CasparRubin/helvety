@@ -17,6 +17,7 @@ export const HELVETY_SAME_AS_URLS = [
   urls.auth,
   urls.contacts,
   urls.notes,
+  urls.links,
   urls.pdf,
   urls.store,
   urls.tasks,

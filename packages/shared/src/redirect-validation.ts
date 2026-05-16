@@ -27,6 +27,7 @@ const DIRECT_APP_REDIRECT_HOSTS = new Set([
   "helvety-tasks.vercel.app",
   "helvety-contacts.vercel.app",
   "helvety-notes.vercel.app",
+  "helvety-links.vercel.app",
 ]);
 
 /**

@@ -11,7 +11,7 @@ const actions = {
 };
 
 /**
- * App-level EncryptionGate for tasks, contacts, and notes (E2EE paths). Same
+ * App-level EncryptionGate for tasks, contacts, notes, and links (E2EE paths). Same
  * behavior as `EncryptionGate`; unlock still happens in `/auth` when needed.
  */
 export function EncryptionGateApp({

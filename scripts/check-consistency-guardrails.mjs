@@ -38,6 +38,7 @@ async function listTsxFiles(directory) {
 
 const filesToCheck = [
   "apps/contacts/app/actions/batch-actions.ts",
+  "apps/links/app/actions/batch-actions.ts",
   "apps/notes/app/actions/batch-actions.ts",
   "apps/tasks/app/actions/batch-actions.ts",
   "apps/auth/lib/login-email-bootstrap.ts",
@@ -46,6 +47,7 @@ const filesToCheck = [
   "apps/store/app/actions/download-actions.ts",
   "apps/store/app/actions/account-actions.ts",
   "apps/tasks/app/actions/entity-actions.ts",
+  "apps/links/app/actions/entity-actions.ts",
   "apps/notes/app/actions/entity-actions.ts",
   "apps/contacts/app/actions/contact-actions.ts",
   "apps/web/app/privacy/page.tsx",
@@ -184,6 +186,7 @@ async function main() {
     "apps/auth/app/page.tsx",
     "apps/contacts/app/page.tsx",
     "apps/image-upscaler/app/page.tsx",
+    "apps/links/app/page.tsx",
     "apps/notes/app/page.tsx",
     "apps/pdf/app/page.tsx",
     "apps/store/app/page.tsx",
@@ -208,6 +211,7 @@ async function main() {
     "apps/auth/proxy.ts",
     "apps/contacts/proxy.ts",
     "apps/image-upscaler/proxy.ts",
+    "apps/links/proxy.ts",
     "apps/notes/proxy.ts",
     "apps/pdf/proxy.ts",
     "apps/store/proxy.ts",
@@ -292,6 +296,7 @@ async function main() {
   const envModules = [
     "apps/auth/lib/env.ts",
     "apps/contacts/lib/env.ts",
+    "apps/links/lib/env.ts",
     "apps/notes/lib/env.ts",
     "apps/store/lib/env.ts",
     "apps/tasks/lib/env.ts",

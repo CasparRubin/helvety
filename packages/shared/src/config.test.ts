@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { getLocalAppHref } from "./config";
+import { DEV_PORTS, getLocalAppHref, urls } from "./config";
+
+describe("urls and DEV_PORTS", () => {
+  it("exposes the links zone on the gateway and dev port 3009", () => {
+    expect(urls.links).toMatch(/\/links$/);
+    expect(DEV_PORTS.links).toBe(3009);
+  });
+});
 
 describe("getLocalAppHref (gateway path helper: not for cross-zone Link inside basePath apps)", () => {
   it("returns local paths unchanged", () => {
@@ -23,6 +30,7 @@ describe("getLocalAppHref (gateway path helper: not for cross-zone Link inside b
   it("converts localhost gateway URLs to root-relative paths", () => {
     expect(getLocalAppHref("http://localhost:3001/store")).toBe("/store");
     expect(getLocalAppHref("http://127.0.0.1:3001/notes")).toBe("/notes");
+    expect(getLocalAppHref("http://127.0.0.1:3001/links")).toBe("/links");
   });
 
   it("keeps external absolute URLs unchanged", () => {

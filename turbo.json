@@ -12,6 +12,7 @@
         "TASKS_URL",
         "CONTACTS_URL",
         "NOTES_URL",
+        "LINKS_URL",
         "STORE_URL",
         "PDF_URL",
         "IMAGE_UPSCALER_URL",

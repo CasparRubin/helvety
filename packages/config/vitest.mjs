@@ -29,6 +29,8 @@ export function createVitestConfig(rootDir) {
       setupFiles: [path.resolve(rootDir, "vitest.setup.ts")],
       include: ["**/*.{test,spec}.{ts,tsx}"],
       exclude: ["node_modules", ".next"],
+      // Command-bar and layout tests can exceed 5s under full turbo parallel runs.
+      testTimeout: 10_000,
       // Kept intentionally permissive for now to avoid broad breakages while
       // test quality is being uplifted workspace-by-workspace.
       passWithNoTests: true,

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { requiresE2eeBrowserUnlock } from "./e2ee-app-paths";
 
 describe("requiresE2eeBrowserUnlock", () => {
-  it("returns true for notes, tasks, contacts roots and subpaths", () => {
+  it("returns true for notes, tasks, contacts, and links roots and subpaths", () => {
     expect(requiresE2eeBrowserUnlock("https://helvety.com/notes")).toBe(true);
     expect(requiresE2eeBrowserUnlock("https://helvety.com/notes/")).toBe(true);
     expect(
@@ -17,6 +17,10 @@ describe("requiresE2eeBrowserUnlock", () => {
       true
     );
     expect(requiresE2eeBrowserUnlock("http://localhost:3001/notes")).toBe(true);
+    expect(requiresE2eeBrowserUnlock("https://helvety.com/links")).toBe(true);
+    expect(
+      requiresE2eeBrowserUnlock("https://helvety.com/links?folder=abc")
+    ).toBe(true);
   });
 
   it("returns false for non-E2EE paths", () => {

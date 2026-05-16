@@ -2,7 +2,7 @@ import { urls } from "@helvety/shared/config";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-import { getAllProducts } from "@/lib/data/products";
+import { getAllProducts, getProductBySlug } from "@/lib/data/products";
 
 import ProductDetailPage, { generateMetadata } from "./page";
 
@@ -38,8 +38,8 @@ function getMetadataImageUrl(
 
 describe("store product SEO", () => {
   it("returns indexable canonical metadata for a valid product", async () => {
-    const product = getAllProducts()[0];
-    if (!product) throw new Error("Expected seeded products");
+    const product = getProductBySlug("helvety-links");
+    if (!product) throw new Error("Expected Helvety Links product");
 
     const metadata = await generateMetadata({
       params: Promise.resolve({ slug: product.slug }),

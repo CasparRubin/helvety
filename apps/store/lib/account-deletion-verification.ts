@@ -8,6 +8,8 @@ export const ACCOUNT_DELETION_VERIFICATION_CHECKS = [
   { table: "contacts", column: "user_id" },
   { table: "entity_links", column: "user_id" },
   { table: "notes", column: "user_id" },
+  { table: "link_folders", column: "user_id" },
+  { table: "links", column: "user_id" },
   { table: "user_profiles", column: "id" },
 ] as const;
 
