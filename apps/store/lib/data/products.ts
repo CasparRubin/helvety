@@ -1061,8 +1061,8 @@ const helvetyLinks: SaaSProduct = {
     ],
   },
   status: "available",
-  image: productArtwork.artwork5,
-  artist: "Rudolf Koller",
+  image: productArtwork.artwork9,
+  artist: "Anny Meisser Vonzun",
   features: [
     "End-to-end encryption for bookmark names and URLs",
     "Nested folders without a fixed depth limit",

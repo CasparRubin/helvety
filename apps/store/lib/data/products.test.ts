@@ -18,6 +18,7 @@ import { describe, expect, it } from "vitest";
 
 import { isSoftwareProduct } from "../types/products";
 
+import { productArtwork } from "./product-artwork";
 import { getAllProducts, getProductBySlug } from "./products";
 
 describe("store product catalog", () => {
@@ -69,6 +70,18 @@ describe("store product catalog", () => {
     );
   });
 
+  it("every listing has store artwork and an artist credit", () => {
+    for (const product of getAllProducts()) {
+      expect(product.image, product.id).toBeDefined();
+      expect(product.artist?.trim().length, product.id).toBeGreaterThan(0);
+    }
+  });
+
+  it("assigns each artwork asset to exactly one product", () => {
+    const images = getAllProducts().map((product) => product.image);
+    expect(new Set(images).size).toBe(images.length);
+  });
+
   it("Helvety Links is a SaaS listing with store artwork and monorepo source", () => {
     const product = getProductBySlug("helvety-links");
     expect(product).toBeDefined();
@@ -76,7 +89,8 @@ describe("store product catalog", () => {
       return;
     }
     expect(product.type).toBe("saas");
-    expect(product.image).toBeDefined();
+    expect(product.image).toBe(productArtwork.artwork9);
+    expect(product.artist).toBe("Anny Meisser Vonzun");
     expect(product.links?.github).toContain("apps/links");
     expect(product.features).toContain(
       "End-to-end encryption for bookmark names and URLs"

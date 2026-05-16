@@ -42,7 +42,12 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
      declares a different `type` for that id (no `as` casts needed).
    - Spread the `c<Name>` object into the `Product` literal and fill in the
      long-copy fields (`description`, `features`, `pricing`, `links`,
-     `metadata.releaseDate: c<Name>.releaseDate`, `image: productArtwork.*`).
+     `metadata.releaseDate: c<Name>.releaseDate`, `image: productArtwork.*`,
+     `artist` for the “Art by …” badge on cards and product heroes).
+   - For new hero art: add `public/artwork_<n>.webp`, register it in
+     `lib/data/product-artwork.ts`, and pick an unused `productArtwork.artwork<n>`
+     (each asset should map to one product; tests enforce registry parity and
+     unique assignments).
    - Write `description.intro` and sections in plain language; it must **not**
      repeat the catalog `shortDescription` opening (see
      [`docs/naming-conventions.md`](../../docs/naming-conventions.md) › Customer-facing product copy).
