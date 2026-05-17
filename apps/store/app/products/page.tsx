@@ -2,6 +2,7 @@ import { STORE_PRODUCTS_PAGE_DESCRIPTION } from "@helvety/shared/app-product-des
 import { urls } from "@helvety/shared/config";
 
 import { ProductsCatalog } from "@/components/products/products-catalog";
+import { getCachedAllProducts } from "@/lib/data/product-catalog-cache";
 
 import type { Metadata } from "next";
 
@@ -15,13 +16,16 @@ export const metadata: Metadata = {
 
 /**
  * Products catalog page.
- * No auth required - users can browse products without logging in.
- * Some product actions (for example account pages) still require authentication.
+ * Server-renders the static catalog via {@link getCachedAllProducts} → {@link ProductsCatalog}
+ * `initialProducts` so the grid is in HTML even if client JS fails.
+ * No auth required to browse; some actions (for example account) still require authentication.
  */
 export default function ProductsPage() {
+  const products = getCachedAllProducts();
+
   return (
     <section>
-      <ProductsCatalog />
+      <ProductsCatalog initialProducts={products} />
     </section>
   );
 }

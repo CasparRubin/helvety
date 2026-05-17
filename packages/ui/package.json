@@ -65,6 +65,7 @@
     "./theme-provider": "./src/theme-provider.tsx",
     "./tooltip": "./src/tooltip.tsx",
     "./use-is-mobile": "./src/use-is-mobile.ts",
+    "./use-html-dark-theme": "./src/use-html-dark-theme.ts",
     "./theme-switcher": "./src/theme-switcher.tsx",
     "./entity-command-bar": "./src/entity-command-bar.tsx",
     "./entity-dashboard-shell": "./src/entity-dashboard-shell.tsx",

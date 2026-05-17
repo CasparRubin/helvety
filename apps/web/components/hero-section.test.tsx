@@ -1,10 +1,16 @@
 import { getLocalAppHref, urls } from "@helvety/shared/config";
+import { render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HeroSection } from "./hero-section";
 
 import type { ComponentProps, ReactNode } from "react";
+
+const heroMocks = vi.hoisted(() => ({
+  isDark: false,
+  prefersReducedMotion: false,
+}));
 
 vi.mock("next/link", () => ({
   default: ({
@@ -21,11 +27,21 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("@helvety/ui/use-html-dark-theme", () => ({
+  useHtmlDarkTheme: () => heroMocks.isDark,
+}));
+
+vi.mock("@/components/hero-hyperspeed-backdrop", () => ({
+  HeroHyperspeedBackdrop: () => (
+    <div data-testid="hero-hyperspeed-backdrop-mock" />
+  ),
+}));
+
 vi.mock("framer-motion", () => ({
   LazyMotion: ({ children }: { children: ReactNode }) => <>{children}</>,
   MotionConfig: ({ children }: { children: ReactNode }) => <>{children}</>,
   domAnimation: {},
-  useReducedMotion: () => false,
+  useReducedMotion: () => heroMocks.prefersReducedMotion,
   m: {
     div: ({ children, ...props }: ComponentProps<"div">) => (
       <div {...props}>{children}</div>
@@ -47,6 +63,11 @@ vi.mock("@/components/hero-text", () => ({
 }));
 
 describe("HeroSection", () => {
+  beforeEach(() => {
+    heroMocks.isDark = false;
+    heroMocks.prefersReducedMotion = false;
+  });
+
   it("renders hero copy slots, headline, tagline, and store CTA", () => {
     const html = renderToStaticMarkup(<HeroSection />);
 
@@ -62,37 +83,52 @@ describe("HeroSection", () => {
     expect(html).not.toContain("helvety-identifier");
   });
 
-  it("SSR: hyperspeed host, motion-safe/motion-reduce hooks, and hero layout shell", () => {
+  it("SSR light: no hyperspeed host; themed background and layout shell", () => {
+    heroMocks.isDark = false;
     const html = renderToStaticMarkup(<HeroSection />);
 
-    expect(html).toContain('data-testid="hero-hyperspeed-host"');
-    expect(html).toContain('aria-hidden="true"');
-    expect(html).toContain("hero-hyperspeed-bleed");
-    expect(html).toContain("motion-reduce:hidden");
+    expect(html).not.toContain('data-testid="hero-hyperspeed-host"');
+    expect(html).toContain("bg-background");
     expect(html).toContain("motion-reduce:bg-background");
-    expect(html).toContain("motion-safe:[text-shadow:");
-    expect(html).toContain("w-[100svw]");
-    expect(html).toContain("cursor-grab");
-    expect(html).toContain("active:cursor-grabbing");
+    expect(html).toContain("dark:motion-safe:[text-shadow:");
     expect(html).toContain("isolate");
     expect(html).toContain("overflow-visible");
     expect(html).toContain("pointer-events-none");
     expect(html).toContain("pointer-events-auto");
-    expect(html).not.toContain("cursor-zoom-in");
-    expect(html).not.toContain("cursor-zoom-out");
-    expect(html).not.toContain("hero-tagline-glow");
     expect(html).toContain("text-[#FF0000]");
-    expect(html).not.toContain("w-full max-w-xs sm:w-auto");
     expect(html).toContain("flex-1");
     expect(html).toContain("min-h-[max(100%,calc(100svh-4rem-12.5rem))]");
-    expect(html).toContain("flex-col justify-center");
     expect(html).toContain("max-w-3xl");
-    /* HeroHyperspeedBackdrop: black underlay, veil (`transition-opacity`), chunk loading slot. */
-    expect(html).toContain('data-testid="hero-hyperspeed-veil"');
-    expect(html).toContain('data-testid="hero-hyperspeed-loading"');
-    expect(html).toContain("bg-black");
-    expect(html).toContain("transition-opacity");
-    expect(html).toContain("duration-700");
-    expect(html).toContain("ease-out");
+  });
+
+  it("light mode: does not mount hyperspeed host", () => {
+    heroMocks.isDark = false;
+    heroMocks.prefersReducedMotion = false;
+    render(<HeroSection />);
+
+    expect(
+      screen.queryByTestId("hero-hyperspeed-host")
+    ).not.toBeInTheDocument();
+  });
+
+  it("dark mode: mounts hyperspeed host behind copy", () => {
+    heroMocks.isDark = true;
+    heroMocks.prefersReducedMotion = false;
+    render(<HeroSection />);
+
+    expect(screen.getByTestId("hero-hyperspeed-host")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("hero-hyperspeed-backdrop-mock")
+    ).toBeInTheDocument();
+  });
+
+  it("reduced motion: skips hyperspeed even in dark mode", () => {
+    heroMocks.isDark = true;
+    heroMocks.prefersReducedMotion = true;
+    render(<HeroSection />);
+
+    expect(
+      screen.queryByTestId("hero-hyperspeed-host")
+    ).not.toBeInTheDocument();
   });
 });

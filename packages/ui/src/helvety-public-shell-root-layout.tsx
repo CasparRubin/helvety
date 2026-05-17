@@ -158,7 +158,7 @@ function buildMainBlock(
  * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
  * content can extend horizontally (gateway `apps/web`: full-bleed Hyperspeed hero). Store keeps
  * default overflow and mounts `@helvety/light-pillar` in a fixed layer (`apps/store`,
- * `apps/auth`: WebGL pillar on md+, static `bg-background` below md or with reduced motion).
+ * `apps/auth`: WebGL pillar on md+ dark only; static `bg-background` in light mode, below md, or reduced motion).
  * Other public apps keep the defaults.
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional

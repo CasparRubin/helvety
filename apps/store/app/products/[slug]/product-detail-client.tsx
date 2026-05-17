@@ -2,7 +2,8 @@
 
 /**
  * Product detail client component
- * Displays full product information with free download/app actions
+ * Displays full product information with free download/app actions.
+ * Package downloads use a click-only button (no `<a href>` to the download API) to avoid prefetch.
  */
 
 import { Button } from "@helvety/ui/button";
@@ -147,11 +148,15 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
               </p>
               <div className="flex flex-col gap-2">
                 {showDownload && packageDownloadUrl && downloadFormat && (
-                  <Button className="w-full" asChild>
-                    <a href={packageDownloadUrl}>
-                      <Download className="size-4 shrink-0" />
-                      Download .{downloadFormat}
-                    </a>
+                  <Button
+                    type="button"
+                    className="w-full"
+                    onClick={() => {
+                      window.location.assign(packageDownloadUrl);
+                    }}
+                  >
+                    <Download className="size-4 shrink-0" />
+                    Download .{downloadFormat}
                   </Button>
                 )}
                 {showAppLink && appUrl && (

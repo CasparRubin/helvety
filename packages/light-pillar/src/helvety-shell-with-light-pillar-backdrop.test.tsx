@@ -5,6 +5,7 @@ const backdropMocks = vi.hoisted(() => ({
   deferReady: false,
   fireReady: () => {},
   isMobile: false,
+  isDark: true,
 }));
 
 beforeEach(() => {
@@ -26,11 +27,16 @@ beforeEach(() => {
 afterEach(() => {
   backdropMocks.deferReady = false;
   backdropMocks.isMobile = false;
+  backdropMocks.isDark = true;
   vi.unstubAllGlobals();
 });
 
 vi.mock("@helvety/ui/use-is-mobile", () => ({
   useIsMobile: () => backdropMocks.isMobile,
+}));
+
+vi.mock("@helvety/ui/use-html-dark-theme", () => ({
+  useHtmlDarkTheme: () => backdropMocks.isDark,
 }));
 
 vi.mock("./helvety-light-pillar-backdrop", () => ({
@@ -65,7 +71,7 @@ function renderShell() {
 }
 
 describe("HelvetyShellWithLightPillarBackdrop", () => {
-  describe("desktop viewport (WebGL enabled)", () => {
+  describe("desktop dark viewport (WebGL enabled)", () => {
     it("renders content immediately and defers backdrop until shell painted", async () => {
       renderShell();
 
@@ -204,7 +210,71 @@ describe("HelvetyShellWithLightPillarBackdrop", () => {
       ).toBeNull();
       expect(
         screen.getByTestId("helvety-shell-light-pillar-reduce-fallback")
-      ).toHaveClass("bg-background", "max-md:block", "md:hidden");
+      ).toHaveClass("bg-background", "max-md:block", "md:block");
+    });
+
+    it("skips mounting WebGL in light mode on desktop", () => {
+      backdropMocks.isDark = false;
+      vi.mocked(waitForShellContentPainted).mockClear();
+
+      renderShell();
+
+      expect(waitForShellContentPainted).not.toHaveBeenCalled();
+      expect(
+        screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
+      ).toBeNull();
+      expect(
+        screen.getByTestId("helvety-shell-light-pillar-reduce-fallback")
+      ).toHaveClass("bg-background", "md:block");
+    });
+
+    it("unmounts WebGL when theme switches to light", async () => {
+      const view = renderShell();
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("helvety-shell-light-pillar-fixed-host")
+        ).toBeInTheDocument();
+      });
+
+      backdropMocks.isDark = false;
+      view.rerender(
+        <HelvetyShellWithLightPillarBackdrop>
+          <p>Shell content</p>
+        </HelvetyShellWithLightPillarBackdrop>
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
+        ).toBeNull();
+      });
+    });
+
+    it("mounts WebGL when theme switches from light to dark on desktop", async () => {
+      backdropMocks.isDark = false;
+      const view = render(
+        <HelvetyShellWithLightPillarBackdrop>
+          <p>Shell content</p>
+        </HelvetyShellWithLightPillarBackdrop>
+      );
+
+      expect(
+        screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
+      ).toBeNull();
+
+      backdropMocks.isDark = true;
+      view.rerender(
+        <HelvetyShellWithLightPillarBackdrop>
+          <p>Shell content</p>
+        </HelvetyShellWithLightPillarBackdrop>
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("helvety-shell-light-pillar-fixed-host")
+        ).toBeInTheDocument();
+      });
     });
   });
 });

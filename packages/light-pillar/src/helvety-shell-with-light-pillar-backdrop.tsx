@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@helvety/shared/utils";
+import { useHtmlDarkTheme } from "@helvety/ui/use-html-dark-theme";
 import { useIsMobile } from "@helvety/ui/use-is-mobile";
 import { useCallback, useEffect, useState } from "react";
 
@@ -36,10 +37,10 @@ function usePrefersReducedMotion(): boolean {
 
 /**
  * Wraps a public app shell on all routes. Shell content always paints on `bg-background`.
- * On **md+** viewports (≥768px, `useIsMobile`), WebGL loads after double rAF and the pillar
- * fades in when ready (`opacity-0` → `opacity-100`, 700ms ease-out). Below **md** or when
- * `prefers-reduced-motion: reduce` is set, WebGL is not mounted; a static `bg-background`
- * layer is shown instead (`max-md:block` for SSR-safe mobile, plus JS/CSS for reduced motion).
+ * On **md+** viewports (≥768px, `useIsMobile`) in **dark** mode, WebGL loads after double rAF
+ * and the pillar fades in when ready (`opacity-0` → `opacity-100`, 700ms ease-out). Below **md**,
+ * in **light** mode, or when `prefers-reduced-motion: reduce` is set, WebGL is not mounted; a
+ * static `bg-background` layer is shown instead (`max-md:block` for SSR-safe mobile, plus JS/CSS).
  */
 export function HelvetyShellWithLightPillarBackdrop({
   children,
@@ -47,8 +48,9 @@ export function HelvetyShellWithLightPillarBackdrop({
   children: ReactNode;
 }) {
   const isMobile = useIsMobile();
+  const isDark = useHtmlDarkTheme();
   const prefersReducedMotion = usePrefersReducedMotion();
-  const skipWebglBackdrop = prefersReducedMotion || isMobile;
+  const skipWebglBackdrop = prefersReducedMotion || isMobile || !isDark;
 
   const [shellPainted, setShellPainted] = useState(false);
   const [pillarReady, setPillarReady] = useState(false);
@@ -94,13 +96,13 @@ export function HelvetyShellWithLightPillarBackdrop({
           <HelvetyLightPillarBackdrop onReady={handlePillarReady} />
         </div>
       ) : null}
-      {/* Static fallback: compact viewports (max-md) and reduced motion (md:block + motion-reduce:block). */}
+      {/* Static fallback: compact viewports, light mode, and reduced motion. */}
       <div
         aria-hidden
         className={cn(
           "bg-background absolute inset-0 z-0",
           "max-md:block",
-          prefersReducedMotion ? "md:block" : "md:hidden",
+          skipWebglBackdrop ? "md:block" : "md:hidden",
           "motion-reduce:block"
         )}
         data-testid="helvety-shell-light-pillar-reduce-fallback"

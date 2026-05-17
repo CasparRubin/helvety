@@ -22,6 +22,7 @@ const HeroHyperspeed = createHelvetyWebglDynamic(
  * WebGL stays at full opacity underneath so transparent canvas / bloom never flashes
  * the page background (fading the canvas layer in caused white flashes with `alpha: true`).
  * Shared helpers: `@helvety/light-pillar` (underlay, reveal); `@helvety/light-pillar/webgl-dynamic` (dynamic import).
+ * Parent {@link HeroSection} mounts this only in dark mode (not light / reduced motion).
  */
 export function HeroHyperspeedBackdrop() {
   const [veilHidden, setVeilHidden] = useState(false);

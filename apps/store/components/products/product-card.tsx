@@ -68,8 +68,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
         {/* Inner layer: solid content panel */}
         <div className="bg-card/95 relative mx-3 mt-auto mb-3 flex flex-col rounded-lg shadow-sm backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-1">
-          {/* Description: hidden at rest, revealed on hover */}
-          <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-hover:grid-rows-[1fr]">
+          {/* Description: always on touch; expand on hover for pointer devices */}
+          <div
+            className={cn(
+              "grid transition-[grid-template-rows] duration-300 ease-out",
+              "max-md:grid-rows-[1fr]",
+              "grid-rows-[0fr] [@media(hover:hover)]:group-hover:grid-rows-[1fr]"
+            )}
+          >
             <div className="overflow-hidden">
               <p className="text-muted-foreground line-clamp-4 px-5 pt-4 text-sm leading-relaxed">
                 {product.shortDescription}

@@ -11,6 +11,7 @@
  */
 
 import { cn } from "@helvety/shared/utils";
+import { useHtmlDarkTheme } from "@helvety/ui/use-html-dark-theme";
 import { useReducedMotion } from "framer-motion";
 
 import ShinyText from "@/components/ShinyText";
@@ -20,9 +21,13 @@ const TAGLINE = "private · simple · clean";
 
 const TAGLINE_CLASS = "text-base tracking-[0.08em] md:text-lg";
 
-/** Shiny Text base and shine (lighter / whiter over Hyperspeed). */
-const TAGLINE_SHINY_COLOR = "rgba(255, 255, 255, 0.82)";
-const TAGLINE_SHINE_COLOR = "#ffffff";
+/** Shiny Text on the Hyperspeed road (dark mode). */
+const TAGLINE_SHINY_COLOR_DARK = "rgba(255, 255, 255, 0.82)";
+const TAGLINE_SHINE_COLOR_DARK = "#ffffff";
+
+/** Shiny Text on light `bg-background`. */
+const TAGLINE_SHINY_COLOR_LIGHT = "hsl(var(--foreground) / 0.72)";
+const TAGLINE_SHINE_COLOR_LIGHT = "hsl(var(--foreground))";
 
 /** Seconds between Shuffle replays on the hero eyebrow (GSAP `loopDelay`). */
 const HERO_SOFTWARE_PRODUCTS_SHUFFLE_LOOP_DELAY_S = 5;
@@ -51,17 +56,23 @@ export function HeroSwitzerland() {
 /** Tagline: React Bits Shiny Text (https://reactbits.dev/text-animations/shiny-text) */
 export function HeroTagline() {
   const reducedMotion = useReducedMotion();
+  const isDark = useHtmlDarkTheme();
 
   if (reducedMotion) {
     return <p className={cn(TAGLINE_CLASS, "text-foreground/85")}>{TAGLINE}</p>;
   }
 
+  const color = isDark ? TAGLINE_SHINY_COLOR_DARK : TAGLINE_SHINY_COLOR_LIGHT;
+  const shineColor = isDark
+    ? TAGLINE_SHINE_COLOR_DARK
+    : TAGLINE_SHINE_COLOR_LIGHT;
+
   return (
     <p className={TAGLINE_CLASS}>
       <ShinyText
         text={TAGLINE}
-        color={TAGLINE_SHINY_COLOR}
-        shineColor={TAGLINE_SHINE_COLOR}
+        color={color}
+        shineColor={shineColor}
         speed={2.4}
       />
     </p>

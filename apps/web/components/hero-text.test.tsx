@@ -9,12 +9,17 @@ import {
 
 const mocks = vi.hoisted(() => ({
   useReducedMotion: vi.fn(() => false),
+  isDark: true,
   Shuffle: vi.fn(({ text }: { text: string }) => (
     <p data-testid="shuffle">{text}</p>
   )),
   ShinyText: vi.fn(({ text }: { text: string }) => (
     <span data-testid="shiny">{text}</span>
   )),
+}));
+
+vi.mock("@helvety/ui/use-html-dark-theme", () => ({
+  useHtmlDarkTheme: () => mocks.isDark,
 }));
 
 vi.mock("framer-motion", () => ({
@@ -33,6 +38,7 @@ describe("hero-text", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.useReducedMotion.mockReturnValue(false);
+    mocks.isDark = true;
   });
 
   describe("animated motion", () => {
@@ -71,7 +77,8 @@ describe("hero-text", () => {
       );
     });
 
-    it("passes lighter Shiny Text preset inside a semantic tagline paragraph", () => {
+    it("passes lighter Shiny Text preset inside a semantic tagline paragraph (dark)", () => {
+      mocks.isDark = true;
       const html = renderToStaticMarkup(<HeroTagline />);
 
       expect(html).toContain('class="text-base tracking-[0.08em] md:text-lg"');
@@ -81,6 +88,19 @@ describe("hero-text", () => {
           color: "rgba(255, 255, 255, 0.82)",
           shineColor: "#ffffff",
           speed: 2.4,
+        }),
+        undefined
+      );
+    });
+
+    it("uses foreground-based Shiny Text colors in light mode", () => {
+      mocks.isDark = false;
+      renderToStaticMarkup(<HeroTagline />);
+
+      expect(mocks.ShinyText).toHaveBeenCalledWith(
+        expect.objectContaining({
+          color: "hsl(var(--foreground) / 0.72)",
+          shineColor: "hsl(var(--foreground))",
         }),
         undefined
       );

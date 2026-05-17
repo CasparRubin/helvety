@@ -48,8 +48,8 @@ export const metadata = createHelvetyProductMetadata({
  * Root layout: fixed header (`Navbar`), `ScrollArea` main with shared container
  * gutters, fixed footer (contact + legal links).
  *
- * Full-bleed Hyperspeed on `/` paints wider than the content column (`100svw`,
- * centered on the hero; WebGL mounts client-side only). The shell passes `shellColumnClassName`,
+ * Full-bleed Hyperspeed on `/` (dark mode only) paints wider than the content column (`100svw`,
+ * centered on the hero; WebGL mounts client-side when `html.dark`). The shell passes `shellColumnClassName`,
  * `scrollAreaRootClassName`, `scrollAreaViewportClassName`, and `bodyClassName`
  * so Radix scroll clipping and the `h-svh` column do not crop the full-bleed backdrop; see
  * `@helvety/ui` README for these optional `HelvetyPublicShellRootLayout` props.

@@ -53,9 +53,9 @@ interface AuthStepperProps {
 /**
  * Progress stepper for the login flow (`AuthStepper`).
  *
- * Rendered above the login card on `/login`, so on md+ it sits over the Light Pillar
- * backdrop. Uses an opaque `bg-card` strip so circles and connectors stay readable
- * against the red pillar (same surface as the login form card).
+ * Rendered above the login card on `/login`, overlaying the Light Pillar on md+ dark
+ * (plain `bg-background` in light mode). Opaque `bg-card` strip keeps circles readable
+ * against the red glow or light background (same surface as the login form card).
  *
  * Passkey setup UI lives in `encryption-setup.tsx`.
  */

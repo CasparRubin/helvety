@@ -1,20 +1,28 @@
 "use client";
 
 /**
- * Products catalog component
- * Displays all available products with filtering options
+ * Products catalog component (client filter shell).
+ * Receives the static product list from the server page (`initialProducts`).
  */
 
-import { useState, useMemo, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
-import { getAllProducts, getFilteredProducts } from "@/lib/data/products";
+import { getFilteredProducts } from "@/lib/data/products";
 
 import { type FilterType } from "./product-filters";
 import { ProductFilters } from "./product-filters";
 import { ProductGrid } from "./product-grid";
 
+import type { Product } from "@/lib/types/products";
+
+/** Props for {@link ProductsCatalog}. */
+interface ProductsCatalogProps {
+  /** Server-provided catalog rows (static data; resilient if client bundle fails). */
+  initialProducts: Product[];
+}
+
 /** Renders the product catalog with filter bar and responsive grid. */
-export function ProductsCatalog() {
+export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
   const [filter, setFilter] = useState<FilterType>("all");
   const [isPending, startTransition] = useTransition();
 
@@ -24,28 +32,24 @@ export function ProductsCatalog() {
     });
   };
 
-  const allProducts = getAllProducts();
-
-  // Calculate counts for each filter in a single pass
   const counts = useMemo(() => {
     let software = 0;
     let physical = 0;
     let saas = 0;
-    for (const p of allProducts) {
+    for (const p of initialProducts) {
       if (p.type === "software") software++;
       else if (p.type === "physical") physical++;
       else if (p.type === "saas") saas++;
     }
-    return { all: allProducts.length, software, physical, saas };
-  }, [allProducts]);
+    return { all: initialProducts.length, software, physical, saas };
+  }, [initialProducts]);
 
-  // Filter products based on selected filter
   const filteredProducts = useMemo(() => {
     if (filter === "all") {
-      return allProducts;
+      return initialProducts;
     }
     return getFilteredProducts({ type: filter });
-  }, [filter, allProducts]);
+  }, [filter, initialProducts]);
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -31,6 +31,33 @@ vi.mock("next/image", () => ({
 import { ProductDetailClient } from "./product-detail-client";
 
 describe("ProductDetailClient", () => {
+  it("uses a click-only download button without a prefetchable package href", () => {
+    const assign = vi.fn();
+    vi.stubGlobal("location", { assign });
+
+    render(<ProductDetailClient slug="helvety-spo-explorer" />);
+
+    const download = screen.getByRole("button", { name: /Download \.sppkg/i });
+    expect(download).not.toHaveAttribute("href");
+    expect(document.querySelector('a[href*="/api/packages/"]')).toBeNull();
+
+    download.click();
+    expect(assign).toHaveBeenCalledWith(
+      "/store/api/packages/spo-explorer/download"
+    );
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not render a package download control for SaaS products", () => {
+    render(<ProductDetailClient slug="helvety-pdf" />);
+
+    expect(
+      screen.queryByRole("button", { name: /Download \./i })
+    ).not.toBeInTheDocument();
+    expect(document.querySelector('a[href*="/api/packages/"]')).toBeNull();
+  });
+
   it("uses opaque surface panels for About and Installation over the shell backdrop", () => {
     render(
       <ProductDetailClient slug="helvety-power-automate-editor-version-enforcer" />
