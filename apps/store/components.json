@@ -20,7 +20,5 @@
   },
   "menuColor": "default",
   "menuAccent": "bold",
-  "registries": {
-    "@react-bits": "https://reactbits.dev/r/{name}.json"
-  }
+  "registries": {}
 }

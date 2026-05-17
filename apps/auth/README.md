@@ -7,7 +7,7 @@ Centralized passwordless authentication for Helvety web apps on helvety.com (thi
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`wrapInsideTooltipProvider` wraps the shell in `CSRFProvider`, `EncryptionProvider`, and `HelvetyShellWithLightPillarBackdrop` from `@helvety/light-pillar`), loads CSRF and user via `getCachedCSRFToken` / `getCachedUser` from `@helvety/shared/cached-server` (same data as `bootstrapE2eeLayoutSession()`), and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider`), loads CSRF and user via `getCachedCSRFToken` / `getCachedUser` from `@helvety/shared/cached-server` (same data as `bootstrapE2eeLayoutSession()`), and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
 - Metadata / OG / JSON-LD use `AUTH_DESCRIPTION` in [`app/layout.tsx`](./app/layout.tsx); PWA [`public/manifest.json`](./public/manifest.json) matches the shorter `AUTH_PWA_MANIFEST_DESCRIPTION`. Root `bun run consistency:install-manifest-metadata` fails if those diverge.
 - Email OTP + passkey authentication (WebAuthn)
 - Account-bound returning-user passkey sign-in
@@ -36,16 +36,6 @@ Trusted-device shortcut:
 - Manual logout clears the trust cookie for this device.
 
 `/auth/callback` remains for compatibility callback paths (`magiclink`, `signup`, `recovery`, `invite`, `email_change`) and PKCE/OAuth-style code exchange via the shared callback handler. Primary typed email OTP code verification happens in auth actions; passkey sign-in establishes session server-side.
-
-## Shell backdrop (Light Pillar)
-
-Same shared package as Store: [`@helvety/light-pillar`](../packages/light-pillar/README.md). Auth wires `HelvetyShellWithLightPillarBackdrop` in `app/layout.tsx` (inside `CSRFProvider` and `EncryptionProvider`).
-
-- **Reveal (md+):** Navbar and login **form cards** paint on `bg-background` first; on viewports **≥768px**, WebGL loads after two animation frames and the pillar fades in behind shell content over **700ms** `ease-out` (white/red or black/red). Theme toggle remounts the pillar and re-runs the host reveal. Below **md**, static `bg-background` only.
-- **Login stepper:** [`components/auth-stepper.tsx`](components/auth-stepper.tsx) (`AuthStepper`) sits **above** the login card on [`app/login/page.tsx`](app/login/page.tsx), overlaying the pillar on **md+**. Opaque `bg-card` strip keeps progress readable against the pillar.
-- **Route loading:** Root [`app/loading.tsx`](app/loading.tsx) re-exports `HelvetyShellRouteLoading` so transitions keep the themed shell (same as Store and the gateway).
-- **Compact viewport:** Below **768px** (`md` / `useIsMobile`), WebGL is not mounted; static `bg-background` only (stacked/mobile layouts).
-- **Reduced motion:** WebGL not mounted at any width; `bg-background` fallback only.
 
 ## Security Model
 
@@ -92,7 +82,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`), and login stepper opaque backdrop over Light Pillar (`components/auth-stepper.test.tsx`).
+Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`), and login stepper opaque backdrop (`components/auth-stepper.test.tsx`).
 Passkey action tests also cover malformed payload handling, account mismatch protection, and transport sanitization behavior.
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
 `components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots.

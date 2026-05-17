@@ -3,7 +3,7 @@
 import {
   scheduleWebglBackdropReady,
   WEBGL_BACKDROP_UNDERLAY_CLASS,
-  WEBGL_BACKDROP_VEIL_REVEAL_TRANSITION_CLASS,
+  WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS,
 } from "@helvety/light-pillar";
 import { createHelvetyWebglDynamic } from "@helvety/light-pillar/webgl-dynamic";
 import { cn } from "@helvety/shared/utils";
@@ -56,7 +56,7 @@ export function HeroHyperspeedBackdrop() {
           className={cn(
             "bg-background absolute inset-0 z-[2]",
             "pointer-events-none",
-            WEBGL_BACKDROP_VEIL_REVEAL_TRANSITION_CLASS,
+            WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS,
             veilHidden ? "opacity-0" : "opacity-100"
           )}
         />

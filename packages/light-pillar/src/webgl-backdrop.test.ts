@@ -2,11 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   scheduleWebglBackdropReady,
-  WEBGL_BACKDROP_UNDERLAY_CLASS,
-  WEBGL_BACKDROP_HOST_REVEAL_MS,
   WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS,
-  WEBGL_BACKDROP_VEIL_REVEAL_MS,
-  WEBGL_BACKDROP_VEIL_REVEAL_TRANSITION_CLASS,
+  WEBGL_BACKDROP_UNDERLAY_CLASS,
 } from "./webgl-backdrop";
 
 describe("webgl-backdrop", () => {
@@ -20,11 +17,6 @@ describe("webgl-backdrop", () => {
     );
     expect(WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS).toBe(
       "transition-opacity duration-700 ease-out motion-reduce:transition-none"
-    );
-    expect(WEBGL_BACKDROP_HOST_REVEAL_MS).toBe(700);
-    expect(WEBGL_BACKDROP_VEIL_REVEAL_MS).toBe(700);
-    expect(WEBGL_BACKDROP_VEIL_REVEAL_TRANSITION_CLASS).toBe(
-      WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS
     );
   });
 

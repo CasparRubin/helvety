@@ -6,26 +6,22 @@ import { describe, expect, it } from "vitest";
 
 const layoutPath = join(dirname(fileURLToPath(import.meta.url)), "layout.tsx");
 
-describe("auth root layout shell backdrop", () => {
-  it("imports HelvetyShellWithLightPillarBackdrop inside EncryptionProvider", () => {
+describe("auth root layout shell providers", () => {
+  it("wraps shell in CSRF and Encryption without a WebGL backdrop", () => {
     const src = readFileSync(layoutPath, "utf8");
-    expect(src).toContain(
-      'import { HelvetyShellWithLightPillarBackdrop } from "@helvety/light-pillar"'
-    );
-    expect(src).toContain("<HelvetyShellWithLightPillarBackdrop>");
-    expect(src).toContain("<EncryptionProvider>");
+
+    expect(src).not.toContain("@helvety/light-pillar");
+    expect(src).not.toContain("HelvetyShellWithLightPillarBackdrop");
     expect(src).toContain("<CSRFProvider csrfToken={csrfToken}>");
+    expect(src).toContain("<EncryptionProvider>{shell}</EncryptionProvider>");
     expect(src).toContain("wrapInsideTooltipProvider");
 
     const csrfOpen = src.indexOf("<CSRFProvider");
     const encryptionOpen = src.indexOf("<EncryptionProvider>");
-    const shellOpen = src.indexOf("<HelvetyShellWithLightPillarBackdrop>");
     const encryptionClose = src.lastIndexOf("</EncryptionProvider>");
     const csrfClose = src.lastIndexOf("</CSRFProvider>");
 
     expect(encryptionOpen).toBeGreaterThan(csrfOpen);
-    expect(shellOpen).toBeGreaterThan(encryptionOpen);
-    expect(shellOpen).toBeLessThan(encryptionClose);
     expect(encryptionClose).toBeLessThan(csrfClose);
   });
 });

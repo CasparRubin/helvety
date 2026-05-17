@@ -7,7 +7,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar (catalog routes avoid a full-tree theme script); `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"` over the shell backdrop; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` then [`HelvetyShellWithLightPillarBackdrop`](../../packages/light-pillar) from `@helvety/light-pillar` (content paints first; Helvety Light Pillar on **md+** light or dark (white/red or black/red); below **md** or `prefers-reduced-motion: reduce` uses static `bg-background` only); `bootstrapE2eeLayoutSession()` from `@helvety/shared/layout-session-bootstrap` feeds CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar (catalog routes avoid a full-tree theme script); `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"`; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider`; `bootstrapE2eeLayoutSession()` from `@helvety/shared/layout-session-bootstrap` feeds CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
 - Public product catalog at `/store/products`
 - Public package download endpoints (no login required)
 - Optional authenticated account page at `/store/account`
@@ -97,20 +97,6 @@ Optional CI/monorepo variables are documented as comments in [`env.template`](./
 - Account actions enforce authz in pages/server actions/route handlers.
 - Public download endpoints use explicit abuse protections and rate limiting.
 
-## Shell backdrop (Light Pillar)
-
-Shared package [`@helvety/light-pillar`](../../packages/light-pillar/README.md) (also used by Auth). Store wires `HelvetyShellWithLightPillarBackdrop` in `app/layout.tsx`.
-
-- **Reveal (md+):** Shell content paints on `bg-background` first; on viewports **≥768px**, WebGL loads after two animation frames and the pillar fades in over **700ms** `ease-out` (white/red or black/red; semantic underlay inside the WebGL host only). Theme toggle remounts the pillar and re-runs the host reveal. Below **md**, static `bg-background` only.
-- **Route loading:** Root [`app/loading.tsx`](app/loading.tsx) re-exports `HelvetyShellRouteLoading` so transitions keep the themed shell (nested segment loaders still use `LoadingSpinner` only).
-- **Preset:** `getHelvetyLightPillarOptions(isDark)` (dark = white + red, light = black + red via `@helvety/brand`). Refresh vendored shader via `@react-bits` in [`components.json`](components.json); copy into `packages/light-pillar`.
-- **Compact viewport:** Below **768px** (`md` / `useIsMobile`), WebGL is not mounted; static `bg-background` only (stacked/mobile layouts).
-- **Reduced motion:** WebGL not mounted at any width; `bg-background` fallback only.
-- **Section nav:** [`store-nav.tsx`](components/store-nav.tsx) uses `CommandBar` `variant="solid"` (opaque toolbar over the pillar on md+; plain `bg-background` below md).
-- **Product detail:** About and Installation panels use opaque `bg-surface-panel` (same as the Access sidebar) so long-form copy stays readable over the pillar or light background.
-- **Catalog:** [`app/products/page.tsx`](app/products/page.tsx) mounts client-only [`ProductsCatalog`](components/products/products-catalog.tsx) (`getAllProducts()` in the client bundle; the server page does not import `products.ts`). Product cards use `prefetch={false}` so detail routes are not prefetched from the grid. Cards use opaque `bg-card`; `shortDescription` is always visible on touch/small viewports (not hover-only).
-- **Downloads:** Software package CTAs use a **click-only** `button` (`window.location.assign`) to `/store/api/packages/{id}/download` so browsers do not prefetch the redirect/attachment URL from an `<a href>`.
-
 ## Development and Testing
 
 Run from `apps/store`:
@@ -122,7 +108,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include solid section nav over the shell backdrop (`components/store-nav.test.tsx`), client-only catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), touch-visible card copy and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), and opaque product-detail panels.
+Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), client-only catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), touch-visible card copy and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), and opaque product-detail panels.
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

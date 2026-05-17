@@ -1,6 +1,5 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import { HelvetyShellWithLightPillarBackdrop } from "@helvety/light-pillar";
 import {
   AUTH_DESCRIPTION,
   AUTH_PWA_MANIFEST_DESCRIPTION,
@@ -42,8 +41,6 @@ export const metadata = createHelvetyProductMetadata({
 
 /**
  * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer (contact + legal links).
- * {@link HelvetyShellWithLightPillarBackdrop} wraps all routes (Light Pillar WebGL on md+ light or dark;
- * static `bg-background` below md or with reduced motion; see `@helvety/light-pillar`).
  */
 export default async function RootLayout({
   children,
@@ -79,11 +76,7 @@ export default async function RootLayout({
     mainVariant: "scroll-area",
     wrapInsideTooltipProvider: (shell) => (
       <CSRFProvider csrfToken={csrfToken}>
-        <EncryptionProvider>
-          <HelvetyShellWithLightPillarBackdrop>
-            {shell}
-          </HelvetyShellWithLightPillarBackdrop>
-        </EncryptionProvider>
+        <EncryptionProvider>{shell}</EncryptionProvider>
       </CSRFProvider>
     ),
   });

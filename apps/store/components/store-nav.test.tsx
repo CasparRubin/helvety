@@ -12,7 +12,7 @@ vi.mock("@helvety/ui/use-navbar-auth-state", () => ({
 import { StoreNav } from "./store-nav";
 
 describe("StoreNav", () => {
-  it("uses solid CommandBar for readable section nav over the shell backdrop", () => {
+  it("uses solid CommandBar for readable section nav", () => {
     render(<StoreNav />);
 
     const nav = screen.getByRole("navigation");

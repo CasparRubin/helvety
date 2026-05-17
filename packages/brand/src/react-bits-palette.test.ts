@@ -6,20 +6,15 @@ import {
   getHelvetyCanvasIslandRgb,
   getHelvetyCanvasRoadRgb,
   getReactBitsHeadlightRgb,
-  getReactBitsPrimaryColor,
   getReactBitsPrimaryRgb,
   HELVETY_CANVAS_BACKGROUND_DARK,
   HELVETY_CANVAS_BACKGROUND_LIGHT,
-  REACT_BITS_PRIMARY_DARK,
-  REACT_BITS_PRIMARY_LIGHT,
   REACT_BITS_PRIMARY_RGB_DARK,
   REACT_BITS_PRIMARY_RGB_LIGHT,
 } from "./react-bits-palette";
 
 describe("react-bits-palette", () => {
   it("uses white primary in dark mode and black in light mode", () => {
-    expect(getReactBitsPrimaryColor(true)).toBe(REACT_BITS_PRIMARY_DARK);
-    expect(getReactBitsPrimaryColor(false)).toBe(REACT_BITS_PRIMARY_LIGHT);
     expect(getReactBitsPrimaryRgb(true)).toBe(REACT_BITS_PRIMARY_RGB_DARK);
     expect(getReactBitsPrimaryRgb(false)).toBe(REACT_BITS_PRIMARY_RGB_LIGHT);
   });

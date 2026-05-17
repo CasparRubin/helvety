@@ -3,8 +3,7 @@
 /**
  * Store section navigation: pinned below the navbar via
  * `scrollAreaMainPrefix` on `HelvetyPublicShellRootLayout` (outside main scroll).
- * Uses `CommandBar` `variant="solid"` for an opaque toolbar over the shell
- * backdrop (Light Pillar on md+ light or dark; plain `bg-background` below md).
+ * Uses `CommandBar` `variant="solid"` for an opaque section toolbar.
  * Main navbar chrome stays opaque on `HelvetyShellNavbar`.
  * Desktop: horizontal flex row of link-buttons.
  * Mobile: dropdown showing the active link as trigger.

@@ -28,7 +28,7 @@ describe("auth-stepper", () => {
   });
 
   describe("AuthStepper", () => {
-    it("uses opaque card backdrop for contrast over Light Pillar", () => {
+    it("uses opaque card backdrop for readable progress circles", () => {
       const html = renderAuthStepper({
         mode: "four_before_otp",
         currentStep: "email",

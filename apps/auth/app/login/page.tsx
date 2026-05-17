@@ -73,7 +73,6 @@ function LoginContent() {
   return (
     <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
       <div className="flex w-full max-w-md flex-col items-center space-y-6">
-        {/* Stepper is outside the Card so it overlays the pillar on md+; opaque bg-card strip in AuthStepper. */}
         <AuthStepper
           mode={flow.stepperMode}
           currentStep={flow.currentAuthStep}

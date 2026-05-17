@@ -1,6 +1,5 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import { HelvetyShellWithLightPillarBackdrop } from "@helvety/light-pillar";
 import { STORE_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
 import { bootstrapE2eeLayoutSession } from "@helvety/shared/layout-session-bootstrap";
@@ -58,8 +57,6 @@ export const metadata = createHelvetyProductMetadata({
  * Root layout: ThemeProvider wraps only the Navbar (next-themes injects a script; keep route content outside).
  * Pinned StoreNav (`scrollAreaMainPrefix`), scrollable main (`ScrollArea`), and footer follow.
  * Navbar-only ThemeProvider is intentional to avoid theme flash on catalog pages.
- * {@link HelvetyShellWithLightPillarBackdrop} wraps all routes (Light Pillar WebGL on md+ light or dark;
- * static `bg-background` below md or with reduced motion; see `@helvety/light-pillar`).
  * Does not use shell overflow overrides (unlike gateway Hyperspeed).
  * Session bootstrap: `bootstrapE2eeLayoutSession()` (CSRF + user for `CSRFProvider` and nav).
  */
@@ -89,11 +86,7 @@ export default async function RootLayout({
     scrollAreaMainPrefix: <StoreNav initialUser={initialUser} />,
     scrollAreaMainClassName: "min-w-0",
     wrapInsideTooltipProvider: (shell) => (
-      <CSRFProvider csrfToken={csrfToken}>
-        <HelvetyShellWithLightPillarBackdrop>
-          {shell}
-        </HelvetyShellWithLightPillarBackdrop>
-      </CSRFProvider>
+      <CSRFProvider csrfToken={csrfToken}>{shell}</CSRFProvider>
     ),
   });
 }

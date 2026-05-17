@@ -3,28 +3,16 @@
  * Scene canvas backgrounds match {@link sharedViewport} theme-color meta.
  */
 
-/** Primary animation color in dark mode (lane lines, pillar top, headlights). */
-export const REACT_BITS_PRIMARY_DARK = "#ffffff";
-
-/** Primary animation color in light mode (white → black swap). */
-export const REACT_BITS_PRIMARY_LIGHT = "#000000";
-
-/** 24-bit primary for Three.js (`0xffffff` / `0x000000`). */
+/** 24-bit primary for Three.js Hyperspeed lane lines (`0xffffff` / `0x000000`). */
 export const REACT_BITS_PRIMARY_RGB_DARK = 0xffffff;
 
 export const REACT_BITS_PRIMARY_RGB_LIGHT = 0x000000;
 
-/** Hyperspeed / shell clear color — light `theme-color` (`prefers-color-scheme: light`). */
+/** Hyperspeed clear color — light `theme-color` (`prefers-color-scheme: light`). */
 export const HELVETY_CANVAS_BACKGROUND_LIGHT = 0xfaf8f7;
 
-/** Hyperspeed / shell clear color — dark `theme-color` (`prefers-color-scheme: dark`). */
+/** Hyperspeed clear color — dark `theme-color` (`prefers-color-scheme: dark`). */
 export const HELVETY_CANVAS_BACKGROUND_DARK = 0x1c1816;
-
-/** CSS hex for light canvas (matches `HELVETY_CANVAS_BACKGROUND_LIGHT`). */
-export const HELVETY_CANVAS_BACKGROUND_LIGHT_HEX = "#faf8f7";
-
-/** CSS hex for dark canvas (matches `HELVETY_CANVAS_BACKGROUND_DARK`). */
-export const HELVETY_CANVAS_BACKGROUND_DARK_HEX = "#1c1816";
 
 /**
  * Hyperspeed road in light mode — warm asphalt, clearly recessed vs
@@ -50,11 +38,6 @@ export const REACT_BITS_HEADLIGHT_RGB_LIGHT = [
 export const REACT_BITS_HEADLIGHT_RGB_DARK = [
   0xf5f5f5, 0xffffff, 0xffe8e8,
 ] as const;
-
-/** Primary as CSS hex for Light Pillar (`#ffffff` / `#000000`). */
-export function getReactBitsPrimaryColor(isDark: boolean): string {
-  return isDark ? REACT_BITS_PRIMARY_DARK : REACT_BITS_PRIMARY_LIGHT;
-}
 
 /** Primary as 24-bit RGB for Three.js Hyperspeed colors. */
 export function getReactBitsPrimaryRgb(isDark: boolean): number {

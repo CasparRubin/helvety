@@ -12,7 +12,7 @@ import * as React from "react";
  *
  * **`variant`**: `solid` (default; opaque `bg-surface-toolbar`) or `translucent`
  * (frosted `bg-surface-toolbar/65` with backdrop blur for optional full-bleed
- * backgrounds). Store section nav uses `solid` over the Light Pillar shell (md+ light or dark).
+ * backgrounds). Store section nav uses `solid` for an opaque toolbar.
  */
 export function CommandBar({
   children,

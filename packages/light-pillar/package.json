@@ -2,7 +2,7 @@
   "name": "@helvety/light-pillar",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared React Bits Light Pillar shell backdrop for Helvety public apps (Store, Auth)",
+  "description": "Shared WebGL backdrop utilities for the Helvety marketing hero (Hyperspeed)",
   "author": "Helvety",
   "license": "AGPL-3.0-or-later",
   "homepage": "https://helvety.com",
@@ -25,15 +25,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./preset": "./src/helvety-light-pillar-preset.ts",
-    "./light-pillar": "./src/LightPillar.tsx",
     "./webgl-dynamic": "./src/create-helvety-webgl-dynamic.tsx"
-  },
-  "dependencies": {
-    "@helvety/brand": "workspace:*",
-    "@helvety/shared": "workspace:*",
-    "@helvety/ui": "workspace:*",
-    "three": "^0.184.0"
   },
   "peerDependencies": {
     "next": "^16.2.6",
@@ -46,7 +38,6 @@
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/three": "0.184.1",
     "eslint": "^10.4.0",
     "jsdom": "29.1.1",
     "next": "^16.2.6",

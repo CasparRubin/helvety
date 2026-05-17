@@ -1,4 +1,4 @@
-import * as lightPillar from "@helvety/light-pillar";
+import * as webglBackdrop from "@helvety/light-pillar";
 import { render, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -31,7 +31,7 @@ describe("HeroHyperspeedBackdrop", () => {
   });
 
   it("defers veil lift through scheduleWebglBackdropReady", async () => {
-    const scheduleSpy = vi.spyOn(lightPillar, "scheduleWebglBackdropReady");
+    const scheduleSpy = vi.spyOn(webglBackdrop, "scheduleWebglBackdropReady");
 
     const { container } = render(<HeroHyperspeedBackdrop />);
 
@@ -59,7 +59,7 @@ describe("HeroHyperspeedBackdrop", () => {
     );
     expect(veil).toHaveClass("bg-background");
 
-    for (const token of lightPillar.WEBGL_BACKDROP_VEIL_REVEAL_TRANSITION_CLASS.split(
+    for (const token of webglBackdrop.WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS.split(
       /\s+/
     )) {
       expect(veil).toHaveClass(token);
@@ -81,7 +81,7 @@ describe("HeroHyperspeedBackdrop", () => {
     const underlay = host?.previousElementSibling;
 
     expect(underlay).toHaveClass("bg-background");
-    for (const token of lightPillar.WEBGL_BACKDROP_UNDERLAY_CLASS.split(
+    for (const token of webglBackdrop.WEBGL_BACKDROP_UNDERLAY_CLASS.split(
       /\s+/
     )) {
       expect(underlay).toHaveClass(token);

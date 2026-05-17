@@ -64,7 +64,7 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
    *
    * When {@link themeProviderScope} is `"navbar-only"` (Store): wraps **auth handler +
    * session recovery + column + toaster** so outer wrappers (e.g. `CSRFProvider` and
-   * `HelvetyShellWithLightPillarBackdrop` in `wrapInsideTooltipProvider`) wrap the same subtree as the store layout.
+   * `CSRFProvider` in `wrapInsideTooltipProvider`) wrap the same subtree as the store layout.
    */
   wrapInsideTooltipProvider?: (shell: ReactNode) => ReactNode;
   /**
@@ -152,17 +152,14 @@ function buildMainBlock(
  * Shared root shell for **public** Helvety apps (`web`, `auth`, `store`, `pdf`,
  * `image-upscaler`): CSP nonce, JSON-LD, theme (see {@link HelvetyPublicShellThemeProviderScope}),
  * auth token handler, session recovery, `TooltipProvider`, optional
- * {@link wrapInsideTooltipProvider} (e.g. Auth: CSRF, encryption, and `@helvety/light-pillar`;
- * Store: `CSRFProvider` and the same shell backdrop wrapper),
+ * {@link wrapInsideTooltipProvider} (e.g. Auth: CSRF and encryption; Store: `CSRFProvider`),
  * navbar + main + footer, toaster, and optional `HelvetyVercelAnalytics` (Speed Insights on the gateway).
  *
  * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
  * section nav, solid `CommandBar` on Store) renders **above** the main `ScrollArea`
  * so it stays visible while catalog content scrolls. Optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
  * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
- * content can extend horizontally (gateway `apps/web`: full-bleed Hyperspeed hero). Store keeps
- * default overflow and mounts `@helvety/light-pillar` in a fixed layer (`apps/store`,
- * `apps/auth`: WebGL pillar on md+ (light or dark); static `bg-background` below md or with reduced motion).
+ * content can extend horizontally (gateway `apps/web`: full-bleed Hyperspeed hero).
  * Other public apps keep the defaults.
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional

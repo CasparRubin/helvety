@@ -73,7 +73,7 @@ describe("ProductDetailClient", () => {
     expect(github).toHaveAttribute("target", "_blank");
   });
 
-  it("uses opaque surface panels for About and Installation over the shell backdrop", () => {
+  it("uses opaque surface panels for About and Installation", () => {
     render(
       <ProductDetailClient slug="helvety-power-automate-editor-version-enforcer" />
     );
