@@ -12,7 +12,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 - Public package download endpoints (no login required)
 - Optional authenticated account page at `/store/account`
 - Product-detail pages with statically imported artwork
-- Product listing, detail, and sitemap routes load catalog data through `lib/data/product-catalog-cache.ts` (`React.cache()` wrappers around `products.ts` for per-request dedupe within RSC)
+- Product listing loads the grid client-only (`next/dynamic` with `ssr: false` on `/products`); detail SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only (no server import of `products.ts`); sitemap still uses `lib/data/product-catalog-cache.ts` at build time
 
 ## Package Download Behavior
 

@@ -1,12 +1,10 @@
 import { urls } from "@helvety/shared/config";
 import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
+import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { JsonLdScript } from "@helvety/ui/json-ld-script";
-
-import { getCachedProductBySlug } from "@/lib/data/product-catalog-cache";
 
 import { ProductDetailClient } from "./product-detail-client";
 
-import type { Product } from "@/lib/types/products";
 import type { Metadata } from "next";
 
 /** Props for the product detail page */
@@ -15,27 +13,17 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-/** Resolves a product image source to an absolute URL for SEO metadata. */
-function getAbsoluteProductImageUrl(product: Product): string | undefined {
-  const imageSrc =
-    typeof product.image === "string" ? product.image : product.image?.src;
-  if (!imageSrc?.startsWith("/")) {
-    return undefined;
-  }
-  return `${urls.home}${imageSrc}`;
-}
-
 /**
  * Generate dynamic SEO metadata for each product page.
- * Falls back to a generic title when the product slug is not found.
+ * Uses {@link findStoreProductCardBySlug} only (no `products.ts` import on the server).
  */
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getCachedProductBySlug(slug);
+  const card = findStoreProductCardBySlug(slug);
 
-  if (!product) {
+  if (!card) {
     return {
       title: "Product Not Found",
       description: "The requested product could not be found.",
@@ -53,62 +41,45 @@ export async function generateMetadata({
     };
   }
 
-  const screenshot = product.media?.screenshots?.[0];
-  const ogImageUrl = screenshot?.src ?? getAbsoluteProductImageUrl(product);
-  const ogImageAlt = screenshot?.alt ?? product.name;
-
   return {
-    title: product.name,
-    description: product.shortDescription,
-    keywords: product.metadata?.keywords,
+    title: card.name,
+    description: card.shortDescription,
     alternates: {
-      canonical: `${urls.store}/products/${product.slug}`,
+      canonical: `${urls.store}/products/${card.slug}`,
     },
     openGraph: {
-      title: `${product.name} | Helvety Store`,
-      description: product.shortDescription,
-      url: `${urls.store}/products/${product.slug}`,
-      ...(ogImageUrl && {
-        images: [{ url: ogImageUrl, alt: ogImageAlt }],
-      }),
+      title: `${card.name} | Helvety Store`,
+      description: card.shortDescription,
+      url: `${urls.store}/products/${card.slug}`,
     },
     twitter: {
-      card: "summary_large_image",
-      title: `${product.name} | Helvety Store`,
-      description: product.shortDescription,
-      ...(ogImageUrl && {
-        images: [{ url: ogImageUrl, alt: ogImageAlt }],
-      }),
+      card: "summary",
+      title: `${card.name} | Helvety Store`,
+      description: card.shortDescription,
     },
   };
 }
 
 /**
  * Product detail page for viewing a specific product.
- * No auth required - users can browse products without logging in.
+ * Server passes only `slug`; full product rows load in {@link ProductDetailClient}.
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const [{ slug }, nonce] = await Promise.all([params, getRequestCspNonce()]);
 
-  const product = getCachedProductBySlug(slug);
+  const card = findStoreProductCardBySlug(slug);
 
-  const jsonLdImage =
-    product?.media?.screenshots?.[0]?.src ??
-    (product ? getAbsoluteProductImageUrl(product) : undefined);
-
-  // Build Product JSON-LD structured data for search engines
-  const productJsonLd = product
+  const productJsonLd = card
     ? {
         "@context": "https://schema.org",
         "@type": "Product",
-        name: product.name,
-        description: product.shortDescription,
-        url: `${urls.store}/products/${product.slug}`,
+        name: card.name,
+        description: card.shortDescription,
+        url: `${urls.store}/products/${card.slug}`,
         brand: {
           "@type": "Organization",
           name: "Helvety",
         },
-        ...(jsonLdImage && { image: jsonLdImage }),
       }
     : null;
 

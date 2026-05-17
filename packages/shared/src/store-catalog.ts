@@ -203,6 +203,13 @@ export function requireStoreProductCard(id: string): StoreProductCard {
   return card;
 }
 
+/** Lookup card fields by public product slug (undefined when unknown). */
+export function findStoreProductCardBySlug(
+  slug: string
+): StoreProductCardEntry | undefined {
+  return STORE_PRODUCT_CARDS.find((card) => card.slug === slug);
+}
+
 /** Newest `releaseDate` first; ties use {@link PRODUCT_RELEASE_TIE_PRIORITY}. */
 export function compareStoreCatalogEntriesNewestFirst(
   a: Pick<StoreProductCard, "id" | "releaseDate">,

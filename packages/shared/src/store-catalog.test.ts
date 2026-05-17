@@ -10,6 +10,7 @@ import {
   PRODUCT_RELEASE_TIE_PRIORITY,
   STORE_PRODUCT_CARDS,
   compareStoreCatalogEntriesNewestFirst,
+  findStoreProductCardBySlug,
   getStoreCatalogNewestFirst,
   requireStoreProductCard,
 } from "./store-catalog";
@@ -37,6 +38,13 @@ describe("store-catalog", () => {
     const sorted = getStoreCatalogNewestFirst();
     expect(sorted[0]?.id).toBe("helvety-links");
     expect(sorted[sorted.length - 1]?.id).toBe("helvety-pdf");
+  });
+
+  it("finds cards by public slug", () => {
+    expect(findStoreProductCardBySlug("helvety-links")?.id).toBe(
+      "helvety-links"
+    );
+    expect(findStoreProductCardBySlug("not-a-product")).toBeUndefined();
   });
 
   it("includes a non-empty runs-on label on every card", () => {

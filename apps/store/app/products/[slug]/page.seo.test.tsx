@@ -1,8 +1,11 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { urls } from "@helvety/shared/config";
+import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-
-import { getAllProducts, getProductBySlug } from "@/lib/data/products";
 
 import ProductDetailPage, { generateMetadata } from "./page";
 
@@ -16,42 +19,31 @@ vi.mock("./product-detail-client", () => ({
   ),
 }));
 
-/** Normalizes Next metadata image variants to a URL string for assertions. */
-function getMetadataImageUrl(
-  image: string | URL | { url?: string | URL } | undefined
-): string | undefined {
-  if (!image) {
-    return undefined;
-  }
-  if (typeof image === "string") {
-    return image;
-  }
-  if (image instanceof URL) {
-    return image.toString();
-  }
-  const value = image.url;
-  if (!value) {
-    return undefined;
-  }
-  return typeof value === "string" ? value : value.toString();
-}
+const pagePath = join(dirname(fileURLToPath(import.meta.url)), "page.tsx");
 
 describe("store product SEO", () => {
+  it("does not import products.ts on the server page module", () => {
+    const src = readFileSync(pagePath, "utf8");
+    expect(src).toContain("findStoreProductCardBySlug");
+    expect(src).not.toContain("@/lib/data/products");
+    expect(src).not.toContain("product-catalog-cache");
+  });
+
   it("returns indexable canonical metadata for a valid product", async () => {
-    const product = getProductBySlug("helvety-links");
-    if (!product) throw new Error("Expected Helvety Links product");
+    const card = findStoreProductCardBySlug("helvety-links");
+    if (!card) throw new Error("Expected Helvety Links product card");
 
     const metadata = await generateMetadata({
-      params: Promise.resolve({ slug: product.slug }),
+      params: Promise.resolve({ slug: card.slug }),
     });
 
     expect(metadata.alternates?.canonical).toBe(
-      `${urls.store}/products/${product.slug}`
+      `${urls.store}/products/${card.slug}`
     );
     expect(metadata.robots).toBeUndefined();
-    expect(metadata.openGraph?.url).toBe(
-      `${urls.store}/products/${product.slug}`
-    );
+    expect(metadata.openGraph?.url).toBe(`${urls.store}/products/${card.slug}`);
+    expect(metadata.title).toBe(card.name);
+    expect(metadata.description).toBe(card.shortDescription);
   });
 
   it("returns explicit noindex metadata for unknown products", async () => {
@@ -67,62 +59,17 @@ describe("store product SEO", () => {
   });
 
   it("renders product JSON-LD for valid products", async () => {
-    const product = getAllProducts()[0];
-    if (!product) throw new Error("Expected seeded products");
+    const card = findStoreProductCardBySlug("helvety-pdf");
+    if (!card) throw new Error("Expected Helvety PDF product card");
 
     const element = await ProductDetailPage({
-      params: Promise.resolve({ slug: product.slug }),
+      params: Promise.resolve({ slug: card.slug }),
     });
     const html = renderToStaticMarkup(element);
 
     expect(html).toContain('type="application/ld+json"');
     expect(html).toContain('"@type":"Product"');
-    expect(html).toContain(`"url":"${urls.store}/products/${product.slug}"`);
-    expect(html).toContain(product.slug);
-  });
-
-  it("uses a stable absolute image URL in metadata for products without screenshots", async () => {
-    const productWithoutScreenshot = getAllProducts().find(
-      (product) => !product.media?.screenshots?.length
-    );
-    if (!productWithoutScreenshot) {
-      throw new Error("Expected at least one product without screenshots");
-    }
-
-    const metadata = await generateMetadata({
-      params: Promise.resolve({ slug: productWithoutScreenshot.slug }),
-    });
-
-    const ogImages = metadata.openGraph?.images;
-    const twitterImages = metadata.twitter?.images;
-    const ogImage = Array.isArray(ogImages) ? ogImages[0] : ogImages;
-    const twitterImage = Array.isArray(twitterImages)
-      ? twitterImages[0]
-      : twitterImages;
-
-    const ogImageUrl = getMetadataImageUrl(ogImage);
-    const twitterImageUrl = getMetadataImageUrl(twitterImage);
-
-    expect(ogImageUrl).toBeTruthy();
-    expect(twitterImageUrl).toBeTruthy();
-    expect(ogImageUrl).toContain(urls.home);
-    expect(twitterImageUrl).toContain(urls.home);
-  });
-
-  it("includes an image URL in JSON-LD for products without screenshots", async () => {
-    const productWithoutScreenshot = getAllProducts().find(
-      (product) => !product.media?.screenshots?.length
-    );
-    if (!productWithoutScreenshot) {
-      throw new Error("Expected at least one product without screenshots");
-    }
-
-    const element = await ProductDetailPage({
-      params: Promise.resolve({ slug: productWithoutScreenshot.slug }),
-    });
-    const html = renderToStaticMarkup(element);
-
-    expect(html).toContain('"image":"');
-    expect(html).toContain(urls.home);
+    expect(html).toContain(`"url":"${urls.store}/products/${card.slug}"`);
+    expect(html).toContain(card.name);
   });
 });
