@@ -3,6 +3,7 @@
 import "server-only";
 
 import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
+import { getAuthUser } from "@helvety/shared/auth-retry";
 import { logger } from "@helvety/shared/logger";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
@@ -21,10 +22,7 @@ export async function getOwnPasskeyStatus(): Promise<
 > {
   try {
     const supabase = await createServerClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+    const { user, error: userError } = await getAuthUser(supabase);
     if (userError || !user) {
       return { success: false, error: buildAuthRequiredError() };
     }

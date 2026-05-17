@@ -35,7 +35,8 @@ describe("download-security", () => {
 
   it("allows only trusted supabase signed package download urls", () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://abc123.supabase.co";
-    process.env.SUPABASE_URL = "https://abc123.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_testkey1234567890";
 
     expect(
       isAllowedDownloadUrl(
@@ -54,5 +55,23 @@ describe("download-security", () => {
         "https://malicious.example/storage/v1/object/sign/packages/test.sppkg"
       )
     ).toBe(false);
+  });
+
+  it("does not trust SUPABASE_URL when it differs from NEXT_PUBLIC_SUPABASE_URL", () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://abc123.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_testkey1234567890";
+    process.env.SUPABASE_URL = "https://evil.example";
+
+    expect(
+      isAllowedDownloadUrl(
+        "https://evil.example/storage/v1/object/sign/packages/test.sppkg"
+      )
+    ).toBe(false);
+    expect(
+      isAllowedDownloadUrl(
+        "https://abc123.supabase.co/storage/v1/object/sign/packages/test.sppkg"
+      )
+    ).toBe(true);
   });
 });

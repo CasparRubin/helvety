@@ -34,7 +34,10 @@
     "shadcn",
     "tailwindcss"
   ],
-  "ignore": ["apps/pdf/public/pdf.worker.min.mjs"],
+  "ignore": [
+    "apps/pdf/public/pdf.worker.min.mjs",
+    "apps/pdf/lib/empty-canvas-stub.mjs"
+  ],
   "ignoreIssues": {
     "packages/shared/src/types/database.types.ts": [
       "exports",

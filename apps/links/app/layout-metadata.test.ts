@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import {
   assertLicenseFreeSeoCopy,
   assertNoEmDashInCustomerCopy,
@@ -47,5 +50,14 @@ describe("links root layout metadata", () => {
       "LINKS_APP_DESCRIPTION",
       LINKS_APP_DESCRIPTION
     );
+  });
+
+  it("keeps PWA manifest description aligned with layout metadata", () => {
+    const manifestPath = resolve(process.cwd(), "public/manifest.json");
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      description?: string;
+    };
+
+    expect(manifest.description).toBe(LINKS_APP_DESCRIPTION);
   });
 });

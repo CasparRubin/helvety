@@ -29,8 +29,8 @@ describe("csrf", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.cookieState.value = undefined;
-    process.env.SUPABASE_SECRET_KEY =
-      "test_supabase_secret_key_for_csrf_signing_1234567890";
+    process.env.HELVETY_COOKIE_SIGNING_SECRET =
+      "test_cookie_signing_secret_for_csrf_tests_1234567890";
   });
 
   it("generates a signed cookie and validates matching token", async () => {

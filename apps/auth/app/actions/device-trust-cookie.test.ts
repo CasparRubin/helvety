@@ -43,6 +43,7 @@ describe("device-trust-cookie", () => {
       SUPABASE_SECRET_KEY: "x".repeat(60),
       UPSTASH_REDIS_REST_URL: "https://example.upstash.io",
       UPSTASH_REDIS_REST_TOKEN: "token",
+      HELVETY_COOKIE_SIGNING_SECRET: "cookie_signing_secret_".padEnd(40, "s"),
       DEVICE_TRUST_COOKIE_SECRET: "dev_secret_".padEnd(40, "s"),
     });
   });

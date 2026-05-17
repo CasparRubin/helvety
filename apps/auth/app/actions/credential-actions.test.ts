@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   createScopedAdminQuery: vi.fn(),
   createServerClient: vi.fn(),
+  getAuthUser: vi.fn(),
   logUnexpectedError: vi.fn(),
 }));
 
@@ -16,6 +17,10 @@ vi.mock("@helvety/shared/logger", () => ({
 
 vi.mock("@helvety/shared/supabase/admin", () => ({
   createScopedAdminQuery: mocks.createScopedAdminQuery,
+}));
+
+vi.mock("@helvety/shared/auth-retry", () => ({
+  getAuthUser: mocks.getAuthUser,
 }));
 
 vi.mock("@helvety/shared/supabase/server", () => ({
@@ -36,24 +41,17 @@ describe("credential-actions", () => {
         }),
       })),
     });
-    mocks.createServerClient.mockResolvedValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: "user-1" } },
-          error: null,
-        }),
-      },
+    mocks.createServerClient.mockResolvedValue({});
+    mocks.getAuthUser.mockResolvedValue({
+      user: { id: "user-1" },
+      error: null,
     });
   });
 
-  it("returns not authenticated when getUser has no user", async () => {
-    mocks.createServerClient.mockResolvedValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: null },
-          error: null,
-        }),
-      },
+  it("returns not authenticated when getAuthUser has no user", async () => {
+    mocks.getAuthUser.mockResolvedValue({
+      user: null,
+      error: null,
     });
 
     const result = await getOwnPasskeyStatus();

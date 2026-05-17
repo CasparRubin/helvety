@@ -45,35 +45,32 @@ const PRF_SALT_LENGTH = 32; // PRF salt length in bytes
 
 const StoredChallengeSchema = z.object({
   challenge: z.string().min(1),
-  userId: z.string().uuid().optional(),
-  expectedUserId: z.string().uuid().optional(),
-  expectedEmail: z.string().email().optional(),
+  userId: z.uuid().optional(),
+  expectedUserId: z.uuid().optional(),
+  expectedEmail: z.email().optional(),
   timestamp: z.number().int().nonnegative(),
-  redirectUri: z.string().url().optional(),
+  redirectUri: z.url().optional(),
   prfSalt: z.string().min(1).optional(),
 });
 
 export const NormalizedEmailSchema = z
   .string()
   .trim()
-  .email()
+  .pipe(z.email())
   .transform((value) => value.toLowerCase());
 
-export const OriginUrlSchema = z
-  .string()
-  .url()
-  .refine((value) => {
-    try {
-      const parsed = new URL(value);
-      if (parsed.protocol === "https:") return true;
-      return (
-        parsed.protocol === "http:" &&
-        (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1")
-      );
-    } catch {
-      return false;
-    }
-  }, "Invalid origin URL");
+export const OriginUrlSchema = z.url().refine((value) => {
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol === "https:") return true;
+    return (
+      parsed.protocol === "http:" &&
+      (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1")
+    );
+  } catch {
+    return false;
+  }
+}, "Invalid origin URL");
 
 /** Config for a single rate-limit guard check. */
 type AuthActionRateLimitOptions = {

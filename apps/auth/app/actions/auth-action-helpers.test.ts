@@ -68,8 +68,8 @@ describe("auth-action-helpers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.cookieState.value = undefined;
-    process.env.SUPABASE_SECRET_KEY =
-      "test_supabase_secret_key_for_cookie_signing_1234567890";
+    process.env.HELVETY_COOKIE_SIGNING_SECRET =
+      "test_cookie_signing_secret_for_challenge_cookies_1234567890";
     mocks.requireCSRFToken.mockResolvedValue(undefined);
     mocks.headers.mockResolvedValue(new Headers());
     mocks.getTrustedClientIp.mockReturnValue("203.0.113.1");
@@ -130,6 +130,17 @@ describe("auth-action-helpers", () => {
         error: "Too many requests. Wait 19 seconds, then try again.",
       },
     });
+  });
+
+  it("rejects challenge cookies when HELVETY_COOKIE_SIGNING_SECRET is missing", async () => {
+    delete process.env.HELVETY_COOKIE_SIGNING_SECRET;
+
+    await expect(
+      storeChallenge({
+        challenge: "ch",
+        userId: "550e8400-e29b-41d4-a716-446655440000",
+      })
+    ).rejects.toThrow(/HELVETY_COOKIE_SIGNING_SECRET/i);
   });
 
   it("stores, reads, and clears challenge cookies", async () => {

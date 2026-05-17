@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import {
   AUTH_PWA_MANIFEST_DESCRIPTION,
   CONTACTS_APP_DESCRIPTION,
+  LINKS_APP_DESCRIPTION,
   NOTES_APP_DESCRIPTION,
   STORE_DESCRIPTION,
   TASKS_APP_DESCRIPTION,
@@ -33,6 +34,7 @@ const manifestChecks = [
   { app: "contacts", expected: () => CONTACTS_APP_DESCRIPTION },
   { app: "notes", expected: () => NOTES_APP_DESCRIPTION },
   { app: "tasks", expected: () => TASKS_APP_DESCRIPTION },
+  { app: "links", expected: () => LINKS_APP_DESCRIPTION },
   { app: "pdf", expected: () => PDF_PWA_MANIFEST_DESCRIPTION },
   {
     app: "image-upscaler",

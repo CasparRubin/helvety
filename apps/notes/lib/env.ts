@@ -1,14 +1,13 @@
 import "server-only";
 
 import {
-  serverEnvSchema,
-  upstashEnvSchema,
+  serverUpstashMergedSchema,
   validateServerUpstashEnv,
 } from "@helvety/shared/env-validation";
 
 import type { z } from "zod";
 
-const notesEnvSchema = serverEnvSchema.merge(upstashEnvSchema);
+const notesEnvSchema = serverUpstashMergedSchema;
 
 let validated: z.infer<typeof notesEnvSchema> | null = null;
 
@@ -16,7 +15,7 @@ let validated: z.infer<typeof notesEnvSchema> | null = null;
  * Validates server-only Supabase + Upstash env on first call, then caches.
  *
  * With `SKIP_ENV_VALIDATION=1` off Vercel: uses CI placeholders only when any
- * of the three values are missing; otherwise validates `process.env` with Zod.
+ * required server env values are missing; otherwise validates `process.env` with Zod.
  * See repository root `README.md` → Automation (`ci:release`).
  */
 export function getValidatedNotesEnv(): z.infer<typeof notesEnvSchema> {

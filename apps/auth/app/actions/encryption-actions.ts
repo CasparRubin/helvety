@@ -4,6 +4,7 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
+import { getAuthUser } from "@helvety/shared/auth-retry";
 import { requireCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
@@ -122,10 +123,7 @@ export async function saveKeyCheckValue(
 
     const supabase = await createServerClient();
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+    const { user, error: userError } = await getAuthUser(supabase);
     if (userError || !user) {
       return { success: false, error: buildAuthRequiredError() };
     }

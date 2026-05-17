@@ -1,6 +1,4 @@
 import { requireAuth } from "@helvety/shared/auth-guard";
-import { LoadingSpinner } from "@helvety/ui/loading-spinner";
-import { Suspense } from "react";
 
 import { AccountClient } from "./account-client";
 
@@ -23,14 +21,12 @@ export default async function AccountPage() {
   const user = await requireAuth("/store/account");
 
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <AccountClient
-        initialUser={{
-          id: user.id,
-          email: user.email ?? "",
-          createdAt: user.created_at,
-        }}
-      />
-    </Suspense>
+    <AccountClient
+      initialUser={{
+        id: user.id,
+        email: user.email ?? "",
+        createdAt: user.created_at,
+      }}
+    />
   );
 }

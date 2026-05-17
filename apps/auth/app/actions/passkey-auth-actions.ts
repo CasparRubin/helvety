@@ -14,6 +14,7 @@ import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
 import {
   createAdminClient,
   createScopedAdminQuery,
+  lookupCredentialByCredentialId,
 } from "@helvety/shared/supabase/admin";
 import { createServerClient } from "@helvety/shared/supabase/server";
 import {
@@ -375,15 +376,10 @@ export async function verifyPasskeyAuthentication(
       const rpId = getRpId(safeOrigin);
       const expectedOrigins = getExpectedOrigins(rpId);
 
-      // Use admin client to look up the credential (before authentication)
-      const adminClient = createAdminClient();
+      const { data: credentialData, error: credError } =
+        await lookupCredentialByCredentialId(credentialId);
 
-      // Find the credential by ID
-      const { data: credentialData, error: credError } = await adminClient
-        .from("user_auth_credentials")
-        .select("*")
-        .eq("credential_id", credentialId)
-        .single();
+      const adminClient = createAdminClient();
 
       if (credError || !credentialData) {
         logger.logUnexpectedError("Credential not found", credError);

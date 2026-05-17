@@ -54,7 +54,9 @@ This package centralizes:
 ### Supabase SSR
 
 - Refresh auth session cookies early when `sb-*` cookies are present.
-- Use trusted user reads (`getUser`) for security-sensitive checks. Do not use `auth.getSession()` for authorization (`bun run consistency:supabase-auth`).
+- CSRF cookie signing uses `HELVETY_COOKIE_SIGNING_SECRET` only (not `SUPABASE_SECRET_KEY`). Required on apps whose proxy profile sets `includeCsrf: true`: `e2ee-app`, `auth-gateway`, `store-gateway`, and `public-tool`. The gateway (`public-marketing`) does not bootstrap CSRF cookies.
+- Use trusted user reads for security-sensitive checks: call `supabase.auth.getUser()` directly or via `@helvety/shared/auth-retry` (`getAuthUser`, single-shot, fail-closed). Do not use `auth.getSession()` for authorization (`bun run consistency:supabase-auth`).
+- `lookupCredentialByCredentialId` in `packages/shared/src/supabase/admin.ts` centralizes passkey credential lookup by WebAuthn credential id (used by auth passkey sign-in).
 - `createAdminClient()` is for system flows only; approved call sites are listed in `packages/shared/src/supabase/admin.ts`. Prefer `createScopedAdminQuery(userId)` for user-owned tables.
 - `@helvety/shared/cached-server` exposes per-request cached helpers such as `getCachedUser` and `getCachedCSRFToken` (built with React `cache`) so root layouts and navbars can share one Supabase `getUser` / CSRF read per request without duplicate round-trips.
 - `@helvety/shared/layout-session-bootstrap` exports `bootstrapPublicLayoutUser()` (wraps `getCachedUser` with logging and null fallback) for public shells such as `apps/web` that want a single call site in `app/layout.tsx`.

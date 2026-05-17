@@ -122,9 +122,20 @@ export const upstashEnvSchema = z.object({
     .min(1, "UPSTASH_REDIS_REST_TOKEN is required"),
 });
 
-/** Merged schema for server-only + Upstash (used by app `lib/env` modules). */
-export const serverUpstashMergedSchema =
-  serverEnvSchema.merge(upstashEnvSchema);
+/** CSRF / proxy cookie signing (separate from SUPABASE_SECRET_KEY). */
+export const cookieSigningEnvSchema = z.object({
+  HELVETY_COOKIE_SIGNING_SECRET: z
+    .string()
+    .min(
+      32,
+      "HELVETY_COOKIE_SIGNING_SECRET must be at least 32 characters (used to sign CSRF cookies in proxy)"
+    ),
+});
+
+/** Merged schema for server-only + Upstash + cookie signing (used by app `lib/env` modules). */
+export const serverUpstashMergedSchema = serverEnvSchema
+  .merge(upstashEnvSchema)
+  .merge(cookieSigningEnvSchema);
 
 /**
  * When `SKIP_ENV_VALIDATION=1` and not on Vercel (`VERCEL=1`), apps may use
@@ -139,17 +150,20 @@ export function isCiBuildPlaceholderEnvEnabled(): boolean {
   return process.env.SKIP_ENV_VALIDATION === "1" && process.env.VERCEL !== "1";
 }
 
-/** Raw server + Upstash triple read from `process.env` (trimmed, may be empty). */
+/** Raw server + Upstash + cookie signing read from `process.env` (trimmed, may be empty). */
 export function readServerUpstashEnvFromProcess(): {
   SUPABASE_SECRET_KEY: string;
   UPSTASH_REDIS_REST_URL: string;
   UPSTASH_REDIS_REST_TOKEN: string;
+  HELVETY_COOKIE_SIGNING_SECRET: string;
 } {
   return {
     SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY?.trim() ?? "",
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL?.trim() ?? "",
     UPSTASH_REDIS_REST_TOKEN:
       process.env.UPSTASH_REDIS_REST_TOKEN?.trim() ?? "",
+    HELVETY_COOKIE_SIGNING_SECRET:
+      process.env.HELVETY_COOKIE_SIGNING_SECRET?.trim() ?? "",
   };
 }
 
@@ -157,15 +171,21 @@ export function readServerUpstashEnvFromProcess(): {
  * True when server-only Supabase secret and Upstash credentials are all set.
  * Used with {@link isCiBuildPlaceholderEnvEnabled} in each app `lib/env.ts` so
  * local `ci:release` can use {@link getCiPlaceholderServerUpstashEnv} for
- * missing secrets while still validating real `.env` when the triple is present.
+ * missing secrets while still validating real `.env` when the full server env set is present.
  */
 export function hasRealServerUpstashEnv(): boolean {
   const r = readServerUpstashEnvFromProcess();
   return Boolean(
     r.SUPABASE_SECRET_KEY &&
     r.UPSTASH_REDIS_REST_URL &&
-    r.UPSTASH_REDIS_REST_TOKEN
+    r.UPSTASH_REDIS_REST_TOKEN &&
+    r.HELVETY_COOKIE_SIGNING_SECRET
   );
+}
+
+/** True when HELVETY_COOKIE_SIGNING_SECRET is set (public-tool apps without Upstash). */
+export function hasRealCookieSigningEnv(): boolean {
+  return Boolean(process.env.HELVETY_COOKIE_SIGNING_SECRET?.trim());
 }
 
 const CI_PLACEHOLDER_PUBLIC = {
@@ -191,6 +211,8 @@ export function getCiPlaceholderServerUpstashEnv(): z.infer<
     UPSTASH_REDIS_REST_URL: "https://ci-build-placeholder.upstash.io",
     UPSTASH_REDIS_REST_TOKEN:
       "ci_build_placeholder_upstash_token_not_for_production_use_",
+    HELVETY_COOKIE_SIGNING_SECRET:
+      "ci_build_placeholder_cookie_signing_secret_not_for_production_use_!!",
   };
   const result = serverUpstashMergedSchema.safeParse(raw);
   if (!result.success) {
@@ -232,6 +254,37 @@ export function validateServerUpstashEnv<
         };
 
   const result = schema.safeParse(rawBase);
+  if (!result.success) {
+    const errors = result.error.issues
+      .map((issue) => `  - ${issue.path.join(".")}: ${issue.message}`)
+      .join("\n");
+    throw new Error(
+      `[${appName}] Invalid environment variables:\n${errors}\n\nSee ${envTemplatePath} for required values.`
+    );
+  }
+
+  return result.data;
+}
+
+/** Validates cookie signing env for public-tool apps (PDF, image-upscaler). */
+export function validateCookieSigningEnv(options: {
+  appName: string;
+  envTemplatePath: string;
+}): z.infer<typeof cookieSigningEnvSchema> {
+  const { appName, envTemplatePath } = options;
+
+  const raw =
+    isCiBuildPlaceholderEnvEnabled() && !hasRealCookieSigningEnv()
+      ? {
+          HELVETY_COOKIE_SIGNING_SECRET:
+            "ci_build_placeholder_cookie_signing_secret_not_for_production_use_!!",
+        }
+      : {
+          HELVETY_COOKIE_SIGNING_SECRET:
+            process.env.HELVETY_COOKIE_SIGNING_SECRET?.trim() ?? "",
+        };
+
+  const result = cookieSigningEnvSchema.safeParse(raw);
   if (!result.success) {
     const errors = result.error.issues
       .map((issue) => `  - ${issue.path.join(".")}: ${issue.message}`)

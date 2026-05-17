@@ -41,7 +41,6 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
     "radix-ui",
     "sonner",
     "framer-motion",
-    "motion",
     "gsap",
     "@gsap/react",
     "three",

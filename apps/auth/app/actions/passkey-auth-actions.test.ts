@@ -114,6 +114,7 @@ vi.mock("@helvety/shared/supabase/admin", () => ({
   createScopedAdminQuery: vi.fn(() => ({
     from: mocks.adminFrom,
   })),
+  lookupCredentialByCredentialId: vi.fn(() => mocks.credentialSingle()),
 }));
 
 vi.mock("@helvety/shared/supabase/server", () => ({
@@ -141,7 +142,7 @@ vi.mock("./auth-action-helpers", () => ({
   getExpectedOrigins: mocks.getExpectedOrigins,
   getRpId: mocks.getRpId,
   getStoredChallenge: mocks.getStoredChallenge,
-  OriginUrlSchema: z.string().url(),
+  OriginUrlSchema: z.url(),
   runAuthActionGuards: mocks.runAuthActionGuards,
   runRateLimitGuard: mocks.runRateLimitGuard,
   storeChallenge: mocks.storeChallenge,

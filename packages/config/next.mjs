@@ -85,6 +85,7 @@ export function createHelvetyNextConfig({
     experimental: experimentalOverrides = {},
     serverActions: explicitServerActionsOverrides = {},
     optimizePackageImports: explicitOptimizePackageImports,
+    turbopack: turbopackOverrides = {},
     ...restOverrides
   } = overrides;
 
@@ -112,6 +113,7 @@ export function createHelvetyNextConfig({
     headers: createSecurityHeaders({ appName }),
     turbopack: {
       root: path.resolve("../.."),
+      ...turbopackOverrides,
     },
     reactCompiler: true,
     // Next.js currently documents both options under experimental config.

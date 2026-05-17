@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   checkRateLimit: vi.fn(),
   createServerClient: vi.fn(),
   fetchUserPasskeyParamsForUser: vi.fn(),
+  getAuthUser: vi.fn(),
   logUnexpectedError: vi.fn(),
   requireCSRFToken: vi.fn(),
 }));
@@ -22,6 +23,10 @@ vi.mock("@helvety/shared/logger", () => ({
   logger: {
     logUnexpectedError: mocks.logUnexpectedError,
   },
+}));
+
+vi.mock("@helvety/shared/auth-retry", () => ({
+  getAuthUser: mocks.getAuthUser,
 }));
 
 vi.mock("@helvety/shared/supabase/server", () => ({
@@ -66,13 +71,11 @@ describe("encryption-actions", () => {
     const eq = vi.fn().mockResolvedValue({ error: null });
     const update = vi.fn(() => ({ eq }));
     mocks.createServerClient.mockResolvedValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: "user-1" } },
-          error: null,
-        }),
-      },
       from: vi.fn(() => ({ update })),
+    });
+    mocks.getAuthUser.mockResolvedValue({
+      user: { id: "user-1" },
+      error: null,
     });
   });
 
@@ -137,15 +140,10 @@ describe("encryption-actions", () => {
     });
   });
 
-  it("rejects saveKeyCheckValue when session has no user", async () => {
-    mocks.createServerClient.mockResolvedValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: null },
-          error: null,
-        }),
-      },
-      from: vi.fn(),
+  it("rejects saveKeyCheckValue when getAuthUser has no user", async () => {
+    mocks.getAuthUser.mockResolvedValue({
+      user: null,
+      error: null,
     });
     await expect(saveKeyCheckValue("token", "kcv")).resolves.toEqual({
       success: false,

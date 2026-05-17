@@ -102,5 +102,54 @@ describe("env-validation", () => {
     expect(env.SUPABASE_SECRET_KEY.length).toBeGreaterThanOrEqual(40);
     expect(env.UPSTASH_REDIS_REST_URL).toMatch(/^https:\/\//);
     expect(env.UPSTASH_REDIS_REST_TOKEN.length).toBeGreaterThan(0);
+    expect(env.HELVETY_COOKIE_SIGNING_SECRET.length).toBeGreaterThanOrEqual(32);
+  });
+
+  it("detects real cookie signing env independently of Supabase secret", async () => {
+    delete process.env.HELVETY_COOKIE_SIGNING_SECRET;
+    process.env.SUPABASE_SECRET_KEY = "x".repeat(60);
+
+    const { hasRealCookieSigningEnv } = await import("./env-validation");
+    expect(hasRealCookieSigningEnv()).toBe(false);
+
+    vi.resetModules();
+    process.env.HELVETY_COOKIE_SIGNING_SECRET =
+      "real_cookie_signing_secret_for_tests_1234567890";
+
+    const { hasRealCookieSigningEnv: hasSigning } =
+      await import("./env-validation");
+    expect(hasSigning()).toBe(true);
+  });
+
+  it("validateCookieSigningEnv uses CI placeholder when signing secret is unset", async () => {
+    vi.stubEnv("SKIP_ENV_VALIDATION", "1");
+    vi.stubEnv("VERCEL", "");
+    delete process.env.HELVETY_COOKIE_SIGNING_SECRET;
+
+    const { validateCookieSigningEnv } = await import("./env-validation");
+
+    const env = validateCookieSigningEnv({
+      appName: "pdf",
+      envTemplatePath: "apps/pdf/env.template",
+    });
+    expect(env.HELVETY_COOKIE_SIGNING_SECRET).toMatch(
+      /^ci_build_placeholder_cookie_signing/
+    );
+  });
+
+  it("validateCookieSigningEnv rejects short signing secrets in production-like runs", async () => {
+    vi.stubEnv("SKIP_ENV_VALIDATION", "");
+    vi.stubEnv("VERCEL", "");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("HELVETY_COOKIE_SIGNING_SECRET", "too-short");
+
+    const { validateCookieSigningEnv } = await import("./env-validation");
+
+    expect(() =>
+      validateCookieSigningEnv({
+        appName: "pdf",
+        envTemplatePath: "apps/pdf/env.template",
+      })
+    ).toThrow(/Invalid environment variables/i);
   });
 });

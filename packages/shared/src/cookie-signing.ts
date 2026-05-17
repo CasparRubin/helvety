@@ -55,13 +55,10 @@ function constantTimeEquals(a: Uint8Array, b: Uint8Array): boolean {
 
 /** Reads the server-side secret used for cookie signing. */
 function getSigningSecret(): string {
-  const secret =
-    process.env.HELVETY_COOKIE_SIGNING_SECRET?.trim() ??
-    process.env.SUPABASE_SECRET_KEY?.trim() ??
-    "";
+  const secret = process.env.HELVETY_COOKIE_SIGNING_SECRET?.trim() ?? "";
   if (!secret) {
     throw new Error(
-      "Missing cookie signing secret. Set HELVETY_COOKIE_SIGNING_SECRET (or SUPABASE_SECRET_KEY)."
+      "Missing cookie signing secret. Set HELVETY_COOKIE_SIGNING_SECRET."
     );
   }
   return secret;

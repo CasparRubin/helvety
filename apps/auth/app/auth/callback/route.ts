@@ -1,4 +1,5 @@
 import { createAuthCallbackHandler } from "@helvety/shared/auth-callback";
+import { getAuthUser } from "@helvety/shared/auth-retry";
 import { urls } from "@helvety/shared/config";
 
 import { checkUserPasskeyStatus } from "@/app/actions/auth-action-helpers";
@@ -39,9 +40,7 @@ async function buildPostAuthRedirect(
   safeRedirectUri: string | null,
   supabase: SupabaseClient
 ): Promise<string> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getAuthUser(supabase);
 
   if (!user) {
     return buildErrorRedirect(authBase, "auth_failed", safeRedirectUri);

@@ -120,6 +120,8 @@ All quality gates run locally. There is no GitHub Actions or other remote CI in 
 - `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` can override the server-action trusted-origin allowlist as a comma-separated list; on Vercel, defaults are derived automatically from deployment/runtime URLs plus `https://helvety.com`.
 - `apps/web` additionally requires `AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, and `LINKS_URL` when `VERCEL=1` so multi-zone rewrites can resolve trusted internal origins.
 - App READMEs document per-app env templates; shared runtime/security defaults are documented in this root README and `packages/config`.
+- `HELVETY_COOKIE_SIGNING_SECRET` (min 32 characters; generate with `openssl rand -base64 48`) is required on every zone whose proxy profile enables CSRF (`e2ee-app`, `auth-gateway`, `store-gateway`, `public-tool`). It is **not** interchangeable with `SUPABASE_SECRET_KEY`. The gateway (`apps/web`, `public-marketing` profile) does not bootstrap CSRF cookies and does not need this variable.
+- `SUPABASE_SECRET_KEY` is server-only and used for privileged Supabase admin/storage operations (for example signed package downloads in Store). Public download redirect allowlisting uses the project origin from `NEXT_PUBLIC_SUPABASE_URL` only.
 
 ## Supabase Workflow (Remote-First)
 
@@ -136,7 +138,8 @@ SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
 ## Security Posture (High Level)
 
 - `proxy.ts` is lightweight request setup (CSP headers, optional CSRF bootstrap, and Supabase cookie refresh), not the primary auth boundary. Zone apps inline the same `config.matcher` pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal; CI guardrails keep parity) so common static files (including PDF.js and ONNX worker assets: `.mjs`, `.wasm`, `.json`) skip that chain. The `apps/web` gateway uses a custom matcher with the same static extension exclusions plus zone path skips.
-- Primary auth/authz enforcement lives in Server Components, Server Actions, and route handlers.
+- Primary auth/authz enforcement lives in Server Components, Server Actions, and route handlers. Use `supabase.auth.getUser()` (via `@helvety/shared/auth-retry` `getAuthUser` where shared) for authorization decisions; never `auth.getSession()` (`bun run consistency:supabase-auth`).
+- CSRF-enabled zones sign proxy cookies with `HELVETY_COOKIE_SIGNING_SECRET` only (`packages/shared/src/cookie-signing.ts`).
 - E2EE apps (`tasks`, `contacts`, `notes`, `links`) enforce server-side page guards and passkey-based unlock flows.
 
 ## Project Structure

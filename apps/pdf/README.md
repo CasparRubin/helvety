@@ -22,6 +22,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 - No app-enforced page-count cap
 - Performance depends on device/browser memory
 - Capability-driven processing pipeline with fallback (`gpu-worker` -> `worker` -> `main-thread`)
+- PDF.js SSR uses a Turbopack `resolveAlias` stub for Node `canvas` (see `next.config.ts` and `lib/empty-canvas-stub.mjs`); processing remains client-side
 
 ## Crawl and Indexing
 
@@ -39,10 +40,11 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 
 Copy `env.template` to `.env.local`.
 
-| Variable                               | Required | Server-only | Description              |
-| -------------------------------------- | -------- | ----------- | ------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL     |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key |
+| Variable                               | Required | Server-only | Description                                                           |
+| -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                  |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                              |
+| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy (min 32 chars; not `SUPABASE_SECRET_KEY`) |
 
 ## Development and Testing
 

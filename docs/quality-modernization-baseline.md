@@ -14,7 +14,8 @@
   - shared ESLint/TS policy entrypoints
 - `@helvety/shared`
   - `createAppProxy`, `createProfiledSecurityProxy`, and `SECURITY_PROXY_MATCHER` (canonical `proxy.ts` zone matcher pattern; apps inline the literal per Next.js)
-  - auth redirect/callback behavior; **proxy refreshes sessions only — authorization uses `getUser()` in Server Components/actions, never `getSession()`** (`bun run consistency:supabase-auth`)
+  - auth redirect/callback behavior; **proxy refreshes sessions only — authorization uses `getUser()` in Server Components/actions (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()`** (`bun run consistency:supabase-auth`)
+  - `HELVETY_COOKIE_SIGNING_SECRET` for CSRF/proxy cookie signing (separate from `SUPABASE_SECRET_KEY`)
   - server env validation and Supabase client factories
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
@@ -34,6 +35,11 @@
    - Tasks/notes/contacts use `useE2eeEntityPanelWithUrl`; links keeps discriminated link/folder panel state with `useLinksPanelUrlSync` and the same `E2eeEntityDetailSheet` shell.
 6. **Verification/guardrails** — ongoing
    - Lint/type-check/tests must stay green; `consistency:supabase-auth` and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
+
+## Multi-zone static assets (`assetPrefix`)
+
+- **Use `assetPrefix` + gateway `*-static` rewrites** when a zone ships a large client bundle under a dedicated path prefix (auth, tasks, contacts, notes, links). The web gateway forwards `/auth-static`, `/tasks-static`, etc. to each deployment.
+- **Omit `assetPrefix`** for lighter zones (store, pdf, image-upscaler) that rely on default `/_next/static` under their `basePath`. Add `assetPrefix` only after measuring broken static assets or cache issues in production—not preemptively.
 
 ## Completed modernization (2026-05)
 

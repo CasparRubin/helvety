@@ -46,6 +46,7 @@
     "./csrf": "./src/csrf.ts",
     "./cached-server": "./src/cached-server.ts",
     "./auth-guard": "./src/auth-guard.ts",
+    "./auth-retry": "./src/auth-retry.ts",
     "./auth-redirect": "./src/auth-redirect.ts",
     "./auth-errors": "./src/auth-errors.ts",
     "./auth-logger": "./src/auth-logger.ts",

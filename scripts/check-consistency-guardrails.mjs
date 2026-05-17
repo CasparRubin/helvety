@@ -293,7 +293,7 @@ async function main() {
     );
   }
 
-  const envModules = [
+  const serverUpstashEnvModules = [
     "apps/auth/lib/env.ts",
     "apps/contacts/lib/env.ts",
     "apps/links/lib/env.ts",
@@ -301,16 +301,73 @@ async function main() {
     "apps/store/lib/env.ts",
     "apps/tasks/lib/env.ts",
   ];
-  const envModuleContents = await Promise.all(
-    envModules.map(async (relativePath) => ({
+  const serverUpstashEnvContents = await Promise.all(
+    serverUpstashEnvModules.map(async (relativePath) => ({
       relativePath,
       content: await readFile(resolve(rootDir, relativePath), "utf8"),
     }))
   );
-  for (const file of envModuleContents) {
+  for (const file of serverUpstashEnvContents) {
     if (!/validateServerUpstashEnv\(/.test(file.content)) {
       throw new Error(
         `${file.relativePath} must validate env via validateServerUpstashEnv from @helvety/shared/env-validation.`
+      );
+    }
+    if (
+      !/serverUpstashMergedSchema|cookieSigningEnvSchema/.test(file.content)
+    ) {
+      throw new Error(
+        `${file.relativePath} must include HELVETY_COOKIE_SIGNING_SECRET in its env schema (serverUpstashMergedSchema or cookieSigningEnvSchema).`
+      );
+    }
+  }
+
+  const cookieSigningEnvModules = [
+    "apps/pdf/lib/env.ts",
+    "apps/image-upscaler/lib/env.ts",
+  ];
+  const cookieSigningEnvContents = await Promise.all(
+    cookieSigningEnvModules.map(async (relativePath) => ({
+      relativePath,
+      content: await readFile(resolve(rootDir, relativePath), "utf8"),
+    }))
+  );
+  for (const file of cookieSigningEnvContents) {
+    if (!/validateCookieSigningEnv\(/.test(file.content)) {
+      throw new Error(
+        `${file.relativePath} must validate env via validateCookieSigningEnv from @helvety/shared/env-validation.`
+      );
+    }
+  }
+
+  const csrfEnvTemplateApps = [
+    "auth",
+    "store",
+    "tasks",
+    "contacts",
+    "notes",
+    "links",
+    "pdf",
+    "image-upscaler",
+  ];
+  for (const app of csrfEnvTemplateApps) {
+    const templatePath = `apps/${app}/env.template`;
+    const templateContent = await readFile(
+      resolve(rootDir, templatePath),
+      "utf8"
+    );
+    if (!/HELVETY_COOKIE_SIGNING_SECRET=/.test(templateContent)) {
+      throw new Error(
+        `${templatePath} must document HELVETY_COOKIE_SIGNING_SECRET (required for CSRF proxy bootstrap).`
+      );
+    }
+    if (
+      /SUPABASE_SECRET_KEY.*cookie signing|cookie signing.*SUPABASE_SECRET_KEY/i.test(
+        templateContent
+      )
+    ) {
+      throw new Error(
+        `${templatePath} must not suggest SUPABASE_SECRET_KEY as a substitute for HELVETY_COOKIE_SIGNING_SECRET.`
       );
     }
   }

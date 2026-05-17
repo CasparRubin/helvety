@@ -86,7 +86,7 @@ let adminClient: SupabaseClient<DatabaseSchema> | null = null;
  * Approved `createAdminClient()` call sites (grep-backed; update when adding new uses):
  *
  * - `apps/auth/app/actions/otp-actions.ts` — OTP verify / session bootstrap
- * - `apps/auth/app/actions/passkey-auth-actions.ts` — passkey sign-in admin flows
+ * - `apps/auth/app/actions/passkey-auth-actions.ts` — passkey sign-in (via `lookupCredentialByCredentialId`)
  * - `apps/auth/app/actions/user-lookup.ts` — credential lookup by id/email
  * - `apps/store/app/actions/download-actions.ts` — signed download URLs
  * - `apps/store/lib/packages/resolve-version.ts` — package version resolution
@@ -126,6 +126,19 @@ export function createAdminClient(): SupabaseClient<DatabaseSchema> {
   );
 
   return adminClient;
+}
+
+/**
+ * Pre-auth passkey sign-in: load a credential row by WebAuthn credential id.
+ * No user context exists yet; cannot use `createScopedAdminQuery`.
+ */
+export async function lookupCredentialByCredentialId(credentialId: string) {
+  const admin = createAdminClient();
+  return admin
+    .from("user_auth_credentials")
+    .select("*")
+    .eq("credential_id", credentialId)
+    .single();
 }
 
 /**

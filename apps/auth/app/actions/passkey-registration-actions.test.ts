@@ -53,7 +53,7 @@ vi.mock("./auth-action-helpers", () => ({
   getExpectedOrigins: mocks.getExpectedOrigins,
   getRpId: mocks.getRpId,
   getStoredChallenge: mocks.getStoredChallenge,
-  OriginUrlSchema: z.string().url(),
+  OriginUrlSchema: z.url(),
   storeChallenge: mocks.storeChallenge,
 }));
 

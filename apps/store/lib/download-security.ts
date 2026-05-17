@@ -1,3 +1,4 @@
+import { getSupabaseUrl } from "@helvety/shared/env-validation";
 import { z } from "zod";
 
 /** Public download package ids (`/store/api/packages/{id}/download`): lowercase alphanumeric with hyphens. */
@@ -20,24 +21,20 @@ export function buildPublicDownloadRateLimitKey(clientIp: string): string {
   return `public-download:ip:${clientIp}`;
 }
 
-/** Ensures public download redirects only target trusted Supabase storage origins. */
+/**
+ * Ensures public download redirects only target trusted Supabase storage origins.
+ * Allowlist uses `NEXT_PUBLIC_SUPABASE_URL` through `getSupabaseUrl()` — not `SUPABASE_URL`.
+ */
 export function isAllowedDownloadUrl(rawUrl: string): boolean {
   try {
     const parsed = new URL(rawUrl);
     if (parsed.protocol !== "https:") return false;
 
     const allowedOrigins = new Set<string>();
-    const envCandidates = [
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_URL,
-    ];
-    for (const candidate of envCandidates) {
-      if (!candidate) continue;
-      try {
-        allowedOrigins.add(new URL(candidate).origin);
-      } catch {
-        // Ignore malformed env values; runtime validation handles these separately.
-      }
+    try {
+      allowedOrigins.add(new URL(getSupabaseUrl()).origin);
+    } catch {
+      // Ignore when public Supabase URL is unset; non-production may allow below.
     }
 
     if (allowedOrigins.size === 0) {
