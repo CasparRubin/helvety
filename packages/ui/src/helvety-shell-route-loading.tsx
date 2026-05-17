@@ -2,8 +2,8 @@ import { LoadingSpinner } from "./loading-spinner";
 
 /**
  * Root loading UI for public Helvety shells: full-viewport themed backdrop so route
- * transitions do not flash the browser default white behind the shell (especially
- * on auth/store shells (Light Pillar on md+ dark; static bg in light mode, below md, or reduced motion).
+ * transitions do not flash the browser default canvas behind the shell (auth/store:
+ * Light Pillar on md+ light or dark; static `bg-background` below md or with reduced motion).
  */
 export function HelvetyShellRouteLoading() {
   return (

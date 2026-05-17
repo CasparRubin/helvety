@@ -3,6 +3,14 @@ import { render, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const themeMocks = vi.hoisted(() => ({
+  isDark: true,
+}));
+
+vi.mock("@helvety/ui/use-html-dark-theme", () => ({
+  useHtmlDarkTheme: () => themeMocks.isDark,
+}));
+
 vi.mock("next/dynamic", () => ({
   __esModule: true,
   default: () =>
@@ -19,6 +27,7 @@ import { HeroHyperspeedBackdrop } from "./hero-hyperspeed-backdrop";
 describe("HeroHyperspeedBackdrop", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    themeMocks.isDark = true;
   });
 
   it("defers veil lift through scheduleWebglBackdropReady", async () => {
@@ -42,17 +51,13 @@ describe("HeroHyperspeedBackdrop", () => {
     });
   });
 
-  it("lifts black veil after onReady with shared 700ms transition", async () => {
+  it("lifts bg-background veil after onReady with shared 700ms transition", async () => {
     const { container } = render(<HeroHyperspeedBackdrop />);
-
-    expect(
-      container.querySelector('[data-testid="stub-hyperspeed"]')
-    ).not.toBeNull();
 
     const veil = container.querySelector(
       '[data-testid="hero-hyperspeed-veil"]'
     );
-    expect(veil).not.toBeNull();
+    expect(veil).toHaveClass("bg-background");
 
     for (const token of lightPillar.WEBGL_BACKDROP_VEIL_REVEAL_TRANSITION_CLASS.split(
       /\s+/
@@ -68,18 +73,37 @@ describe("HeroHyperspeedBackdrop", () => {
     );
   });
 
-  it("uses the shared black underlay class on the base layer", () => {
+  it("uses the shared semantic underlay class on the base layer", () => {
     const { container } = render(<HeroHyperspeedBackdrop />);
     const host = container.querySelector(
       '[data-testid="hero-hyperspeed-veil"]'
     )?.parentElement;
     const underlay = host?.previousElementSibling;
 
-    expect(underlay).toHaveClass("bg-black");
-    for (const token of lightPillar.WEBGL_BACKDROP_BLACK_UNDERLAY_CLASS.split(
+    expect(underlay).toHaveClass("bg-background");
+    for (const token of lightPillar.WEBGL_BACKDROP_UNDERLAY_CLASS.split(
       /\s+/
     )) {
       expect(underlay).toHaveClass(token);
     }
+  });
+
+  it("resets veil when theme switches", async () => {
+    const { container, rerender } = render(<HeroHyperspeedBackdrop />);
+
+    await waitFor(() => {
+      const veil = container.querySelector(
+        '[data-testid="hero-hyperspeed-veil"]'
+      );
+      expect(veil).toHaveClass("opacity-0");
+    });
+
+    themeMocks.isDark = false;
+    rerender(<HeroHyperspeedBackdrop />);
+
+    const veil = container.querySelector(
+      '[data-testid="hero-hyperspeed-veil"]'
+    );
+    expect(veil).toHaveClass("opacity-100");
   });
 });

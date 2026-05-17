@@ -1,5 +1,5 @@
-/** Black underlay while WebGL initializes (and in the dynamic `loading` slot). */
-export const WEBGL_BACKDROP_BLACK_UNDERLAY_CLASS = "absolute inset-0 bg-black";
+/** Semantic underlay while WebGL initializes (and in the dynamic `loading` slot). */
+export const WEBGL_BACKDROP_UNDERLAY_CLASS = "absolute inset-0 bg-background";
 
 /** Opacity fade duration (ms) on the fixed shell backdrop host. */
 export const WEBGL_BACKDROP_HOST_REVEAL_MS = 700;

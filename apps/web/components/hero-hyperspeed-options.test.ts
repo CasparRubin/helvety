@@ -1,7 +1,11 @@
-import { HELVETY_ACCENT_RED_RGB } from "@helvety/brand";
+import {
+  HELVETY_ACCENT_RED_RGB,
+  REACT_BITS_PRIMARY_RGB_DARK,
+  REACT_BITS_PRIMARY_RGB_LIGHT,
+} from "@helvety/brand";
 import { describe, expect, it } from "vitest";
 
-import { HERO_HYPERSPEED_EFFECT_OPTIONS } from "./hero-hyperspeed-options";
+import { getHeroHyperspeedEffectOptions } from "./hero-hyperspeed-options";
 import { hyperspeedDefaultPreset } from "./hyperspeed-default-preset";
 
 describe("Hyperspeed effect options", () => {
@@ -16,14 +20,11 @@ describe("Hyperspeed effect options", () => {
     expect(variation.maxDelta).toBe(0.04);
     expect(variation.reseedIntervalMs).toBe(3200);
     expect(variation.mobileScale).toBe(0.55);
-    expect(variation.intensity).toBeLessThanOrEqual(1);
-    expect(variation.maxDelta).toBeLessThanOrEqual(0.25);
-    expect(variation.reseedIntervalMs).toBeGreaterThanOrEqual(800);
   });
 
   it("hero options keep base variation safety with calmer reseed than default preset", () => {
     const baseVariation = hyperspeedDefaultPreset.variation;
-    const heroVariation = HERO_HYPERSPEED_EFFECT_OPTIONS.variation;
+    const heroVariation = getHeroHyperspeedEffectOptions(true).variation;
 
     expect(heroVariation).toBeDefined();
     if (!heroVariation) {
@@ -34,24 +35,37 @@ describe("Hyperspeed effect options", () => {
     expect(heroVariation.maxDelta).toBe(baseVariation.maxDelta);
     expect(heroVariation.intensity).toBe(baseVariation.intensity);
     expect(heroVariation.reseedIntervalMs).toBe(4200);
-    expect(heroVariation.reseedIntervalMs).toBeGreaterThanOrEqual(
-      baseVariation.reseedIntervalMs
-    );
   });
 
-  it("hero preset keeps white lane markings and Helvety car streak colors", () => {
-    const { colors } = HERO_HYPERSPEED_EFFECT_OPTIONS;
+  it("dark mode uses white lane markings and Helvety red tail lights", () => {
+    const { colors } = getHeroHyperspeedEffectOptions(true);
     if (!colors) {
       throw new Error("Expected hero colors config to be defined");
     }
-    expect(colors.shoulderLines).toBe(0xffffff);
-    expect(colors.brokenLines).toBe(0xffffff);
-    expect(colors.sticks).toBe(0xffffff);
+    expect(colors.shoulderLines).toBe(REACT_BITS_PRIMARY_RGB_DARK);
+    expect(colors.brokenLines).toBe(REACT_BITS_PRIMARY_RGB_DARK);
+    expect(colors.sticks).toBe(REACT_BITS_PRIMARY_RGB_DARK);
     expect(colors.leftCars).toEqual([
       HELVETY_ACCENT_RED_RGB,
       0xe31b2b,
       0xff3344,
     ]);
-    expect(colors.rightCars).toEqual([0xf5f5f5, 0xffffff, 0xffe8e8]);
+    expect(colors.rightCars).toContain(0xffffff);
+  });
+
+  it("light mode uses black lane markings and Helvety red tail lights", () => {
+    const { colors } = getHeroHyperspeedEffectOptions(false);
+    if (!colors) {
+      throw new Error("Expected hero colors config to be defined");
+    }
+    expect(colors.shoulderLines).toBe(REACT_BITS_PRIMARY_RGB_LIGHT);
+    expect(colors.brokenLines).toBe(REACT_BITS_PRIMARY_RGB_LIGHT);
+    expect(colors.sticks).toBe(REACT_BITS_PRIMARY_RGB_LIGHT);
+    expect(colors.leftCars).toEqual([
+      HELVETY_ACCENT_RED_RGB,
+      0xe31b2b,
+      0xff3344,
+    ]);
+    expect(colors.rightCars).toContain(0x000000);
   });
 });

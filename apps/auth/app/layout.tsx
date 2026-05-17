@@ -42,8 +42,8 @@ export const metadata = createHelvetyProductMetadata({
 
 /**
  * Root layout: fixed header (Navbar), ScrollArea main with shared container gutters, fixed footer (contact + legal links).
- * {@link HelvetyShellWithLightPillarBackdrop} wraps all routes (Light Pillar WebGL on md+ dark only;
- * static `bg-background` in light mode, below md, or with reduced motion; see `@helvety/light-pillar`).
+ * {@link HelvetyShellWithLightPillarBackdrop} wraps all routes (Light Pillar WebGL on md+ light or dark;
+ * static `bg-background` below md or with reduced motion; see `@helvety/light-pillar`).
  */
 export default async function RootLayout({
   children,

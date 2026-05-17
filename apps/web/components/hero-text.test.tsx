@@ -93,14 +93,14 @@ describe("hero-text", () => {
       );
     });
 
-    it("uses foreground-based Shiny Text colors in light mode", () => {
+    it("uses black Shiny Text colors in light mode", () => {
       mocks.isDark = false;
       renderToStaticMarkup(<HeroTagline />);
 
       expect(mocks.ShinyText).toHaveBeenCalledWith(
         expect.objectContaining({
-          color: "hsl(var(--foreground) / 0.72)",
-          shineColor: "hsl(var(--foreground))",
+          color: "rgba(0, 0, 0, 0.82)",
+          shineColor: "#000000",
         }),
         undefined
       );

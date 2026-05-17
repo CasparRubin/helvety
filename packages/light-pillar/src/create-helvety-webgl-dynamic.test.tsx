@@ -20,7 +20,7 @@ vi.mock("next/dynamic", () => ({
 }));
 
 import { createHelvetyWebglDynamic } from "./create-helvety-webgl-dynamic";
-import { WEBGL_BACKDROP_BLACK_UNDERLAY_CLASS } from "./webgl-backdrop";
+import { WEBGL_BACKDROP_UNDERLAY_CLASS } from "./webgl-backdrop";
 
 describe("createHelvetyWebglDynamic", () => {
   afterEach(() => {
@@ -28,7 +28,7 @@ describe("createHelvetyWebglDynamic", () => {
     dynamicMock.lastOptions = undefined;
   });
 
-  it("disables SSR and renders a black loading slot", () => {
+  it("disables SSR and renders a bg-background loading slot", () => {
     createHelvetyWebglDynamic(
       () => Promise.resolve({ default: () => <div /> }),
       "test-webgl-loading"
@@ -41,9 +41,9 @@ describe("createHelvetyWebglDynamic", () => {
 
     const { getByTestId } = render(Loading!());
     const slot = getByTestId("test-webgl-loading");
-    expect(slot).toHaveClass("bg-black");
+    expect(slot).toHaveClass("bg-background");
     expect(slot).toHaveAttribute("aria-hidden", "true");
-    for (const token of WEBGL_BACKDROP_BLACK_UNDERLAY_CLASS.split(/\s+/)) {
+    for (const token of WEBGL_BACKDROP_UNDERLAY_CLASS.split(/\s+/)) {
       expect(slot).toHaveClass(token);
     }
   });

@@ -5,7 +5,7 @@
  *
  * - **Shuffle**: eyebrow (`Software products`), replays every 5s; `respectReducedMotion` handles reduced motion internally.
  * - **Switzerland**: static Helvety red (`#FF0000`).
- * - **Shiny Text**: tagline; muted static paragraph when `useReducedMotion()` is true.
+ * - **Shiny Text**: tagline (white/red or black/red shine per theme); muted static paragraph when `useReducedMotion()` is true.
  *
  * Upstream: https://reactbits.dev/text-animations. Refresh via `bunx shadcn add @react-bits/…` (see `apps/web` README).
  */
@@ -25,9 +25,9 @@ const TAGLINE_CLASS = "text-base tracking-[0.08em] md:text-lg";
 const TAGLINE_SHINY_COLOR_DARK = "rgba(255, 255, 255, 0.82)";
 const TAGLINE_SHINE_COLOR_DARK = "#ffffff";
 
-/** Shiny Text on light `bg-background`. */
-const TAGLINE_SHINY_COLOR_LIGHT = "hsl(var(--foreground) / 0.72)";
-const TAGLINE_SHINE_COLOR_LIGHT = "hsl(var(--foreground))";
+/** Shiny Text on the Hyperspeed road (light mode: black + red pair). */
+const TAGLINE_SHINY_COLOR_LIGHT = "rgba(0, 0, 0, 0.82)";
+const TAGLINE_SHINE_COLOR_LIGHT = "#000000";
 
 /** Seconds between Shuffle replays on the hero eyebrow (GSAP `loopDelay`). */
 const HERO_SOFTWARE_PRODUCTS_SHUFFLE_LOOP_DELAY_S = 5;

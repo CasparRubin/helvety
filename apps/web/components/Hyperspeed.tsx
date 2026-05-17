@@ -7,7 +7,7 @@
  *
  * Hero: opaque clear (`setClearColor(colors.background, 1)`) + solid `scene.background` so
  * alpha canvas / bloom never shows page chrome before paint; pairs with veil in
- * {@link ./hero-hyperspeed-backdrop.tsx}. See {@link ./Hyperspeed.css} for `#lights` black base.
+ * {@link ./hero-hyperspeed-backdrop.tsx}. See {@link ./Hyperspeed.css} for `#lights` semantic base (`var(--background)`).
  */
 /* eslint-disable */
 
@@ -831,7 +831,7 @@ class App {
     });
     this.renderer.setSize(initW, initH, false);
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    /* Opaque black clears: alpha canvas + null scene bg otherwise composites page (white). */
+    /* Opaque theme clears: alpha canvas + null scene bg otherwise composites page chrome. */
     this.renderer.setClearColor(options.colors.background, 1);
     this.composer = new EffectComposer(this.renderer);
     container.appendChild(this.renderer.domElement);

@@ -1,4 +1,11 @@
-import { HELVETY_ACCENT_RED_RGB } from "@helvety/brand";
+import {
+  getHelvetyCanvasBackgroundRgb,
+  getHelvetyCanvasIslandRgb,
+  getHelvetyCanvasRoadRgb,
+  getReactBitsHeadlightRgb,
+  getReactBitsPrimaryRgb,
+  HELVETY_ACCENT_RED_RGB,
+} from "@helvety/brand";
 
 import { hyperspeedDefaultPreset } from "@/components/hyperspeed-default-preset";
 
@@ -13,24 +20,32 @@ export type HyperspeedEffectOptions = NonNullable<
 const base = hyperspeedDefaultPreset;
 
 /**
- * Hero backdrop: default turbulent scene with lane markings **white** and Helvety-style
- * **red** tail lights vs **bright / white** “headlight” streaks; side sticks read as white glow.
- * Matches default variation rails; **longer** reseed interval so the road shape changes
- * less often on the landing hero.
+ * Hero backdrop: default turbulent scene with brand pair
+ * dark = white + red, light = black + red (white → black swap on lane lines and headlights).
  */
-export const HERO_HYPERSPEED_EFFECT_OPTIONS = {
-  ...base,
-  variation: {
-    ...base.variation,
-    intensity: 0.26,
-    reseedIntervalMs: 4200,
-  },
-  colors: {
-    ...base.colors,
-    shoulderLines: 0xffffff,
-    brokenLines: 0xffffff,
-    leftCars: [HELVETY_ACCENT_RED_RGB, 0xe31b2b, 0xff3344],
-    rightCars: [0xf5f5f5, 0xffffff, 0xffe8e8],
-    sticks: 0xffffff,
-  },
-} as unknown as HyperspeedEffectOptions;
+export function getHeroHyperspeedEffectOptions(
+  isDark: boolean
+): HyperspeedEffectOptions {
+  const primary = getReactBitsPrimaryRgb(isDark);
+  const headlight = getReactBitsHeadlightRgb(isDark);
+
+  return {
+    ...base,
+    variation: {
+      ...base.variation,
+      intensity: 0.26,
+      reseedIntervalMs: 4200,
+    },
+    colors: {
+      ...base.colors,
+      background: getHelvetyCanvasBackgroundRgb(isDark),
+      roadColor: getHelvetyCanvasRoadRgb(isDark),
+      islandColor: getHelvetyCanvasIslandRgb(isDark),
+      shoulderLines: primary,
+      brokenLines: primary,
+      sticks: primary,
+      leftCars: [HELVETY_ACCENT_RED_RGB, 0xe31b2b, 0xff3344],
+      rightCars: [...headlight],
+    },
+  } as unknown as HyperspeedEffectOptions;
+}

@@ -1,8 +1,16 @@
+import { HELVETY_ACCENT_RED } from "@helvety/brand";
 import { render, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-
 const lightPillarRenderSpy = vi.fn();
+
+const themeMocks = vi.hoisted(() => ({
+  isDark: true,
+}));
+
+vi.mock("@helvety/ui/use-html-dark-theme", () => ({
+  useHtmlDarkTheme: () => themeMocks.isDark,
+}));
 
 vi.mock("next/dynamic", () => ({
   __esModule: true,
@@ -10,6 +18,8 @@ vi.mock("next/dynamic", () => ({
     function SyncLightPillarStub(props: {
       onReady?: () => void;
       className?: string;
+      topColor?: string;
+      bottomColor?: string;
     }) {
       lightPillarRenderSpy(props);
       const { onReady } = props;
@@ -21,13 +31,14 @@ vi.mock("next/dynamic", () => ({
 }));
 
 import { HelvetyLightPillarBackdrop } from "./helvety-light-pillar-backdrop";
-import { HELVETY_LIGHT_PILLAR_OPTIONS } from "./helvety-light-pillar-preset";
+import { getHelvetyLightPillarOptions } from "./helvety-light-pillar-preset";
 import * as webglBackdrop from "./webgl-backdrop";
 
 describe("HelvetyLightPillarBackdrop", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     lightPillarRenderSpy.mockClear();
+    themeMocks.isDark = true;
   });
 
   it("defers parent onReady through scheduleWebglBackdropReady", async () => {
@@ -68,31 +79,42 @@ describe("HelvetyLightPillarBackdrop", () => {
     );
   });
 
-  it("paints the shared black underlay behind the WebGL host", () => {
+  it("paints the shared semantic underlay behind the WebGL host", () => {
     const { container } = render(<HelvetyLightPillarBackdrop />);
-    const blackBase = container.querySelector(
+    const underlay = container.querySelector(
       '[data-testid="helvety-light-pillar-host"]'
     )?.previousElementSibling;
 
-    expect(blackBase).toHaveClass("bg-black");
-    for (const token of webglBackdrop.WEBGL_BACKDROP_BLACK_UNDERLAY_CLASS.split(
+    expect(underlay).toHaveClass("bg-background");
+    for (const token of webglBackdrop.WEBGL_BACKDROP_UNDERLAY_CLASS.split(
       /\s+/
     )) {
-      expect(blackBase).toHaveClass(token);
+      expect(underlay).toHaveClass(token);
     }
   });
 
-  it("passes Helvety preset options to LightPillar", () => {
+  it("passes white + red preset in dark mode", () => {
+    themeMocks.isDark = true;
     render(<HelvetyLightPillarBackdrop />);
 
     expect(lightPillarRenderSpy).toHaveBeenCalled();
     const props = lightPillarRenderSpy.mock.calls.at(-1)?.[0];
     expect(props).toEqual(
       expect.objectContaining({
-        ...HELVETY_LIGHT_PILLAR_OPTIONS,
+        ...getHelvetyLightPillarOptions(true),
         className: "h-full w-full",
       })
     );
-    expect(props?.onReady).toEqual(expect.any(Function));
+    expect(props?.topColor).toBe("#ffffff");
+    expect(props?.bottomColor).toBe(HELVETY_ACCENT_RED);
+  });
+
+  it("passes black + red preset in light mode", () => {
+    themeMocks.isDark = false;
+    render(<HelvetyLightPillarBackdrop />);
+
+    const props = lightPillarRenderSpy.mock.calls.at(-1)?.[0];
+    expect(props?.topColor).toBe("#000000");
+    expect(props?.bottomColor).toBe(HELVETY_ACCENT_RED);
   });
 });

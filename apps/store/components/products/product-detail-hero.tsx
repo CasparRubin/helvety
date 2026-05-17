@@ -41,7 +41,7 @@ export function ProductDetailHero({ product }: { product: Product }) {
         <div className="pointer-events-none absolute inset-0 grid grid-rows-[3fr_2fr] sm:grid-rows-[2fr_1fr]">
           <div className="min-h-0" aria-hidden />
           <div className="pointer-events-auto flex min-h-0 flex-col justify-end p-4 sm:p-5 md:p-8">
-            <div className="bg-card/93 border-border/80 rounded-xl border p-5 shadow-lg backdrop-blur-md md:p-6">
+            <div className="bg-card border-border/80 rounded-xl border p-5 shadow-lg md:p-6">
               <div className="flex flex-wrap items-center gap-2">
                 <h1
                   id="product-detail-title"

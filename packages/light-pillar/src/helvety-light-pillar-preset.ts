@@ -1,19 +1,12 @@
-import { HELVETY_ACCENT_RED } from "@helvety/brand";
+import { getReactBitsPrimaryColor, HELVETY_ACCENT_RED } from "@helvety/brand";
 
 import type LightPillar from "./LightPillar";
 import type { ComponentProps } from "react";
 
 /** Props shape accepted by {@link LightPillar} for the Helvety shell preset. */
-type HelvetyLightPillarOptions = ComponentProps<typeof LightPillar>;
+export type HelvetyLightPillarOptions = ComponentProps<typeof LightPillar>;
 
-/**
- * Helvety shell preset: React Bits Light Pillar template tuning with Helvety colors only.
- * White top, saturated red base ({@link HELVETY_ACCENT_RED}, same vivid red as web Hyperspeed tail lights).
- * Does not set `mixBlendMode` or `quality` (component defaults: `screen`, `high`).
- */
-export const HELVETY_LIGHT_PILLAR_OPTIONS = {
-  topColor: "#ffffff",
-  bottomColor: HELVETY_ACCENT_RED,
+const HELVETY_LIGHT_PILLAR_TUNING = {
   intensity: 1,
   rotationSpeed: 0.3,
   interactive: false,
@@ -22,4 +15,24 @@ export const HELVETY_LIGHT_PILLAR_OPTIONS = {
   pillarHeight: 0.2,
   noiseIntensity: 0.5,
   pillarRotation: 25,
-} satisfies HelvetyLightPillarOptions;
+} as const satisfies Omit<
+  HelvetyLightPillarOptions,
+  "topColor" | "bottomColor"
+>;
+
+/**
+ * Helvety shell preset: React Bits Light Pillar with brand pair
+ * dark = white + red, light = black + red.
+ * `mixBlendMode` is `screen` in dark and `multiply` in light; `quality` uses the component default (`high`).
+ */
+export function getHelvetyLightPillarOptions(
+  isDark: boolean
+): HelvetyLightPillarOptions {
+  return {
+    ...HELVETY_LIGHT_PILLAR_TUNING,
+    topColor: getReactBitsPrimaryColor(isDark),
+    bottomColor: HELVETY_ACCENT_RED,
+    // `screen` on dark; `multiply` keeps black/red readable on cream `bg-background`.
+    mixBlendMode: isDark ? "screen" : "multiply",
+  };
+}

@@ -3,7 +3,7 @@
 import { cn } from "@helvety/shared/utils";
 import { useHtmlDarkTheme } from "@helvety/ui/use-html-dark-theme";
 import { useIsMobile } from "@helvety/ui/use-is-mobile";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
 import { HelvetyLightPillarBackdrop } from "./helvety-light-pillar-backdrop";
 import { waitForShellContentPainted } from "./wait-for-shell-content-painted";
@@ -37,10 +37,10 @@ function usePrefersReducedMotion(): boolean {
 
 /**
  * Wraps a public app shell on all routes. Shell content always paints on `bg-background`.
- * On **md+** viewports (≥768px, `useIsMobile`) in **dark** mode, WebGL loads after double rAF
- * and the pillar fades in when ready (`opacity-0` → `opacity-100`, 700ms ease-out). Below **md**,
- * in **light** mode, or when `prefers-reduced-motion: reduce` is set, WebGL is not mounted; a
- * static `bg-background` layer is shown instead (`max-md:block` for SSR-safe mobile, plus JS/CSS).
+ * On **md+** viewports (≥768px, `useIsMobile`) in **light or dark** mode, WebGL loads after double rAF
+ * and the pillar fades in when ready (`opacity-0` → `opacity-100`, 700ms ease-out). Theme toggle remounts
+ * the backdrop and re-runs that reveal. Below **md** or when `prefers-reduced-motion: reduce` is set,
+ * WebGL is not mounted; a static `bg-background` layer is shown instead (`max-md:block` for SSR-safe mobile, plus JS/CSS).
  */
 export function HelvetyShellWithLightPillarBackdrop({
   children,
@@ -50,10 +50,19 @@ export function HelvetyShellWithLightPillarBackdrop({
   const isMobile = useIsMobile();
   const isDark = useHtmlDarkTheme();
   const prefersReducedMotion = usePrefersReducedMotion();
-  const skipWebglBackdrop = prefersReducedMotion || isMobile || !isDark;
+  const skipWebglBackdrop = prefersReducedMotion || isMobile;
 
   const [shellPainted, setShellPainted] = useState(false);
   const [pillarReady, setPillarReady] = useState(false);
+
+  /** Re-run the 700ms host reveal when theme changes (not on first paint). */
+  useLayoutEffect(() => {
+    if (skipWebglBackdrop || !shellPainted) {
+      return;
+    }
+    setPillarReady(false);
+    // Only `isDark` — omit `shellPainted` so first paint is not reset after `onReady`.
+  }, [isDark]);
 
   useEffect(() => {
     if (skipWebglBackdrop) {
@@ -93,10 +102,13 @@ export function HelvetyShellWithLightPillarBackdrop({
           )}
           data-testid="helvety-shell-light-pillar-fixed-host"
         >
-          <HelvetyLightPillarBackdrop onReady={handlePillarReady} />
+          <HelvetyLightPillarBackdrop
+            key={isDark ? "dark" : "light"}
+            onReady={handlePillarReady}
+          />
         </div>
       ) : null}
-      {/* Static fallback: compact viewports, light mode, and reduced motion. */}
+      {/* Static fallback: compact viewports and reduced motion. */}
       <div
         aria-hidden
         className={cn(

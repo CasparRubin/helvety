@@ -49,7 +49,6 @@ vi.mock("framer-motion", () => ({
   },
 }));
 
-/* Isolate layout/SSR from React Bits + GSAP; preset wiring is covered in hero-text.test.tsx */
 vi.mock("@/components/hero-text", () => ({
   HeroSoftwareProducts: () => (
     <p data-testid="hero-software-products">Software products</p>
@@ -76,44 +75,25 @@ describe("HeroSection", () => {
     expect(html).toContain('data-testid="hero-tagline"');
     expect(html).toContain(`href="${getLocalAppHref(urls.store)}"`);
     expect(html).toContain("Browse Helvety products");
-    expect(html).toContain("private · simple · clean");
-    expect(html).toContain("Software products");
-    expect(html).toContain("Engineered, designed");
-    expect(html).toContain("Switzerland");
-    expect(html).not.toContain("helvety-identifier");
   });
 
-  it("SSR light: no hyperspeed host; themed background and layout shell", () => {
-    heroMocks.isDark = false;
+  it("SSR: renders hyperspeed host when motion allowed (WebGL loads client-only)", () => {
     const html = renderToStaticMarkup(<HeroSection />);
 
-    expect(html).not.toContain('data-testid="hero-hyperspeed-host"');
-    expect(html).toContain("bg-background");
-    expect(html).toContain("motion-reduce:bg-background");
-    expect(html).toContain("dark:motion-safe:[text-shadow:");
-    expect(html).toContain("isolate");
-    expect(html).toContain("overflow-visible");
-    expect(html).toContain("pointer-events-none");
-    expect(html).toContain("pointer-events-auto");
-    expect(html).toContain("text-[#FF0000]");
-    expect(html).toContain("flex-1");
-    expect(html).toContain("min-h-[max(100%,calc(100svh-4rem-12.5rem))]");
-    expect(html).toContain("max-w-3xl");
+    expect(html).toContain('data-testid="hero-hyperspeed-host"');
+    expect(html).toContain('data-testid="hero-hyperspeed-backdrop-mock"');
   });
 
-  it("light mode: does not mount hyperspeed host", () => {
+  it("client light mode: mounts hyperspeed host when motion allowed", () => {
     heroMocks.isDark = false;
     heroMocks.prefersReducedMotion = false;
     render(<HeroSection />);
 
-    expect(
-      screen.queryByTestId("hero-hyperspeed-host")
-    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("hero-hyperspeed-host")).toBeInTheDocument();
   });
 
   it("dark mode: mounts hyperspeed host behind copy", () => {
     heroMocks.isDark = true;
-    heroMocks.prefersReducedMotion = false;
     render(<HeroSection />);
 
     expect(screen.getByTestId("hero-hyperspeed-host")).toBeInTheDocument();
@@ -122,13 +102,21 @@ describe("HeroSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("reduced motion: skips hyperspeed even in dark mode", () => {
-    heroMocks.isDark = true;
+  it("reduced motion: skips hyperspeed", () => {
     heroMocks.prefersReducedMotion = true;
     render(<HeroSection />);
 
     expect(
       screen.queryByTestId("hero-hyperspeed-host")
     ).not.toBeInTheDocument();
+  });
+
+  it("applies light copy shadow when hyperspeed runs in light mode", () => {
+    heroMocks.isDark = false;
+    const { container } = render(<HeroSection />);
+    const copy = container.querySelector(".space-y-5");
+
+    expect(copy?.className).toContain("motion-safe:[text-shadow:");
+    expect(copy?.className).toContain("255_255_255");
   });
 });

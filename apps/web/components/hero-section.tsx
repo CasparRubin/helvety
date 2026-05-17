@@ -29,9 +29,13 @@ const fadeInUp = {
   transition: { duration: 0.5 },
 };
 
-/** Text shadow on hero copy over the Hyperspeed road (dark mode only). */
+/** Text shadow on hero copy over the Hyperspeed road (dark mode). */
 const COPY_SHADOW_DARK_MOTION_SAFE =
-  "dark:motion-safe:[text-shadow:0_2px_12px_rgb(0_0_0/0.9),0_0_48px_rgb(0_0_0/0.55)]";
+  "motion-safe:[text-shadow:0_2px_12px_rgb(0_0_0/0.9),0_0_48px_rgb(0_0_0/0.55)]";
+
+/** Text shadow on hero copy over the Hyperspeed road (light mode). */
+const COPY_SHADOW_LIGHT_MOTION_SAFE =
+  "motion-safe:[text-shadow:0_1px_8px_rgb(255_255_255/0.9),0_0_24px_rgb(250_248_247/0.8)]";
 
 /**
  * Fill `#main-content` when flex allocates more than the svh estimate, and keep a viewport
@@ -40,20 +44,19 @@ const COPY_SHADOW_DARK_MOTION_SAFE =
 const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
 /**
- * Landing hero (`/`): React Bits Hyperspeed fullscreen behind copy + Store CTA (dark mode only).
+ * Landing hero (`/`): React Bits Hyperspeed fullscreen behind copy + Store CTA (light and dark).
  *
  * - **Text:** {@link ./hero-text}: Shuffle eyebrow (5s loop), static red Switzerland, Shiny Text tagline;
  *   static/muted fallbacks when `useReducedMotion()` is true (wired to `MotionConfig reducedMotion="user"`).
- * - **Backdrop:** {@link HeroHyperspeedBackdrop}: black base, local **black veil** (700ms) lifts after
- *   {@link Hyperspeed} `onReady`; WebGL stays opaque underneath. Not mounted in light mode.
+ * - **Backdrop:** {@link HeroHyperspeedBackdrop}: semantic base, local **veil** (700ms) lifts after
+ *   {@link Hyperspeed} `onReady`; WebGL stays opaque underneath. Theme toggle resets the veil and remounts Hyperspeed.
+ *   Skipped when reduced motion is preferred.
  * - **Block entrance:** Framer `fadeInUp` on the copy + CTA column (respects reduced motion via `MotionConfig`).
- *
- * Store CTA uses {@link getLocalAppHref} because this route runs on **`apps/web`** (no Next **`basePath`**).
  */
 export function HeroSection() {
   const isDark = useHtmlDarkTheme();
   const prefersReducedMotion = useReducedMotion();
-  const showHyperspeed = isDark && !prefersReducedMotion;
+  const showHyperspeed = !prefersReducedMotion;
 
   return (
     <LazyMotion features={domAnimation}>
@@ -82,7 +85,15 @@ export function HeroSection() {
             animate="animate"
             className="pointer-events-none relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center gap-10 px-4 text-center md:px-6"
           >
-            <div className={cn("space-y-5", COPY_SHADOW_DARK_MOTION_SAFE)}>
+            <div
+              className={cn(
+                "space-y-5",
+                showHyperspeed &&
+                  (isDark
+                    ? COPY_SHADOW_DARK_MOTION_SAFE
+                    : COPY_SHADOW_LIGHT_MOTION_SAFE)
+              )}
+            >
               <HeroSoftwareProducts />
               <h1 className="text-foreground text-4xl font-semibold tracking-tight text-balance md:text-5xl lg:text-[2.75rem] lg:leading-[1.1]">
                 Engineered, designed &amp; made in <HeroSwitzerland />

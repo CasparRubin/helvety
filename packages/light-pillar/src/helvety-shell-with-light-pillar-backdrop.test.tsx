@@ -71,7 +71,7 @@ function renderShell() {
 }
 
 describe("HelvetyShellWithLightPillarBackdrop", () => {
-  describe("desktop dark viewport (WebGL enabled)", () => {
+  describe("desktop viewport (WebGL enabled, light or dark)", () => {
     it("renders content immediately and defers backdrop until shell painted", async () => {
       renderShell();
 
@@ -213,30 +213,29 @@ describe("HelvetyShellWithLightPillarBackdrop", () => {
       ).toHaveClass("bg-background", "max-md:block", "md:block");
     });
 
-    it("skips mounting WebGL in light mode on desktop", () => {
+    it("mounts WebGL in light mode on desktop", async () => {
       backdropMocks.isDark = false;
-      vi.mocked(waitForShellContentPainted).mockClear();
-
       renderShell();
 
-      expect(waitForShellContentPainted).not.toHaveBeenCalled();
-      expect(
-        screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
-      ).toBeNull();
-      expect(
-        screen.getByTestId("helvety-shell-light-pillar-reduce-fallback")
-      ).toHaveClass("bg-background", "md:block");
+      await waitFor(() => {
+        expect(waitForShellContentPainted).toHaveBeenCalled();
+        expect(
+          screen.getByTestId("helvety-shell-light-pillar-fixed-host")
+        ).toBeInTheDocument();
+      });
     });
 
-    it("unmounts WebGL when theme switches to light", async () => {
+    it("keeps WebGL host mounted and re-reveals when theme switches to light", async () => {
       const view = renderShell();
 
+      const fixedHost = await waitFor(() =>
+        screen.getByTestId("helvety-shell-light-pillar-fixed-host")
+      );
       await waitFor(() => {
-        expect(
-          screen.getByTestId("helvety-shell-light-pillar-fixed-host")
-        ).toBeInTheDocument();
+        expect(fixedHost).toHaveClass("opacity-100");
       });
 
+      backdropMocks.deferReady = true;
       backdropMocks.isDark = false;
       view.rerender(
         <HelvetyShellWithLightPillarBackdrop>
@@ -244,36 +243,15 @@ describe("HelvetyShellWithLightPillarBackdrop", () => {
         </HelvetyShellWithLightPillarBackdrop>
       );
 
-      await waitFor(() => {
-        expect(
-          screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
-        ).toBeNull();
-      });
-    });
-
-    it("mounts WebGL when theme switches from light to dark on desktop", async () => {
-      backdropMocks.isDark = false;
-      const view = render(
-        <HelvetyShellWithLightPillarBackdrop>
-          <p>Shell content</p>
-        </HelvetyShellWithLightPillarBackdrop>
+      const hostAfterToggle = await waitFor(() =>
+        screen.getByTestId("helvety-shell-light-pillar-fixed-host")
       );
+      expect(hostAfterToggle).toHaveClass("opacity-0");
 
-      expect(
-        screen.queryByTestId("helvety-shell-light-pillar-fixed-host")
-      ).toBeNull();
-
-      backdropMocks.isDark = true;
-      view.rerender(
-        <HelvetyShellWithLightPillarBackdrop>
-          <p>Shell content</p>
-        </HelvetyShellWithLightPillarBackdrop>
-      );
+      backdropMocks.fireReady();
 
       await waitFor(() => {
-        expect(
-          screen.getByTestId("helvety-shell-light-pillar-fixed-host")
-        ).toBeInTheDocument();
+        expect(hostAfterToggle).toHaveClass("opacity-100");
       });
     });
   });

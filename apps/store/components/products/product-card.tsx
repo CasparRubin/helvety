@@ -67,7 +67,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         </div>
 
         {/* Inner layer: solid content panel */}
-        <div className="bg-card/95 relative mx-3 mt-auto mb-3 flex flex-col rounded-lg shadow-sm backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-1">
+        <div className="bg-card relative mx-3 mt-auto mb-3 flex flex-col rounded-lg shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
           {/* Description: always on touch; expand on hover for pointer devices */}
           <div
             className={cn(

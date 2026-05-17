@@ -1,7 +1,7 @@
 import { HELVETY_ACCENT_RED } from "@helvety/brand";
 import { describe, expect, it } from "vitest";
 
-import { HELVETY_LIGHT_PILLAR_OPTIONS } from "./helvety-light-pillar-preset";
+import { getHelvetyLightPillarOptions } from "./helvety-light-pillar-preset";
 
 /** React Bits default colors in {@link ./LightPillar.tsx} (purple/pink demo). */
 const REACT_BITS_TEMPLATE_COLORS = {
@@ -10,19 +10,21 @@ const REACT_BITS_TEMPLATE_COLORS = {
 } as const;
 
 describe("Helvety Light Pillar preset", () => {
-  it("uses Helvety red and white instead of the React Bits template colors", () => {
-    expect(HELVETY_LIGHT_PILLAR_OPTIONS.topColor).toBe("#ffffff");
-    expect(HELVETY_LIGHT_PILLAR_OPTIONS.bottomColor).toBe(HELVETY_ACCENT_RED);
-    expect(HELVETY_LIGHT_PILLAR_OPTIONS.topColor).not.toBe(
-      REACT_BITS_TEMPLATE_COLORS.topColor
-    );
-    expect(HELVETY_LIGHT_PILLAR_OPTIONS.bottomColor).not.toBe(
-      REACT_BITS_TEMPLATE_COLORS.bottomColor
-    );
+  it("uses white + red in dark mode and black + red in light mode", () => {
+    const dark = getHelvetyLightPillarOptions(true);
+    const light = getHelvetyLightPillarOptions(false);
+
+    expect(dark.topColor).toBe("#ffffff");
+    expect(dark.bottomColor).toBe(HELVETY_ACCENT_RED);
+    expect(light.topColor).toBe("#000000");
+    expect(light.bottomColor).toBe(HELVETY_ACCENT_RED);
+
+    expect(dark.topColor).not.toBe(REACT_BITS_TEMPLATE_COLORS.topColor);
+    expect(dark.bottomColor).not.toBe(REACT_BITS_TEMPLATE_COLORS.bottomColor);
   });
 
   it("matches the React Bits template tuning (colors aside)", () => {
-    expect(HELVETY_LIGHT_PILLAR_OPTIONS).toMatchObject({
+    expect(getHelvetyLightPillarOptions(true)).toMatchObject({
       intensity: 1,
       rotationSpeed: 0.3,
       interactive: false,
@@ -34,8 +36,9 @@ describe("Helvety Light Pillar preset", () => {
     });
   });
 
-  it("leaves mixBlendMode and quality at LightPillar defaults (screen, high)", () => {
-    expect(HELVETY_LIGHT_PILLAR_OPTIONS).not.toHaveProperty("mixBlendMode");
-    expect(HELVETY_LIGHT_PILLAR_OPTIONS).not.toHaveProperty("quality");
+  it("uses screen blend in dark and multiply in light; quality stays default", () => {
+    expect(getHelvetyLightPillarOptions(true).mixBlendMode).toBe("screen");
+    expect(getHelvetyLightPillarOptions(false).mixBlendMode).toBe("multiply");
+    expect(getHelvetyLightPillarOptions(true)).not.toHaveProperty("quality");
   });
 });

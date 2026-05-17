@@ -41,8 +41,8 @@ Trusted-device shortcut:
 
 Same shared package as Store: [`@helvety/light-pillar`](../packages/light-pillar/README.md). Auth wires `HelvetyShellWithLightPillarBackdrop` in `app/layout.tsx` (inside `CSRFProvider` and `EncryptionProvider`).
 
-- **Reveal (md+ dark):** Navbar and login **form cards** paint on `bg-background` first; on viewports **≥768px** in **dark mode**, WebGL loads after two animation frames and the pillar fades in behind shell content over **700ms** `ease-out`. **Light mode** uses static `bg-background` at all widths.
-- **Login stepper:** [`components/auth-stepper.tsx`](components/auth-stepper.tsx) (`AuthStepper`) sits **above** the login card on [`app/login/page.tsx`](app/login/page.tsx), overlaying the pillar on **md+ dark** (plain background in light mode). Opaque `bg-card` strip keeps progress readable against the red glow or light `bg-background`.
+- **Reveal (md+):** Navbar and login **form cards** paint on `bg-background` first; on viewports **≥768px**, WebGL loads after two animation frames and the pillar fades in behind shell content over **700ms** `ease-out` (white/red or black/red). Theme toggle remounts the pillar and re-runs the host reveal. Below **md**, static `bg-background` only.
+- **Login stepper:** [`components/auth-stepper.tsx`](components/auth-stepper.tsx) (`AuthStepper`) sits **above** the login card on [`app/login/page.tsx`](app/login/page.tsx), overlaying the pillar on **md+**. Opaque `bg-card` strip keeps progress readable against the pillar.
 - **Route loading:** Root [`app/loading.tsx`](app/loading.tsx) re-exports `HelvetyShellRouteLoading` so transitions keep the themed shell (same as Store and the gateway).
 - **Compact viewport:** Below **768px** (`md` / `useIsMobile`), WebGL is not mounted; static `bg-background` only (stacked/mobile layouts).
 - **Reduced motion:** WebGL not mounted at any width; `bg-background` fallback only.

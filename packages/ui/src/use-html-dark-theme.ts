@@ -25,7 +25,7 @@ function subscribeHtmlDarkTheme(onStoreChange: () => void): () => void {
 
 /**
  * True when the resolved theme is dark (`html.dark`).
- * Works outside `ThemeProvider` (e.g. Store shell backdrop wrapper).
+ * Works outside `ThemeProvider` (e.g. Store navbar-only scope) for theme-aware WebGL presets.
  */
 export function useHtmlDarkTheme(): boolean {
   return React.useSyncExternalStore(

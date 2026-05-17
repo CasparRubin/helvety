@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   scheduleWebglBackdropReady,
-  WEBGL_BACKDROP_BLACK_UNDERLAY_CLASS,
+  WEBGL_BACKDROP_UNDERLAY_CLASS,
   WEBGL_BACKDROP_HOST_REVEAL_MS,
   WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS,
   WEBGL_BACKDROP_VEIL_REVEAL_MS,
@@ -15,8 +15,8 @@ describe("webgl-backdrop", () => {
   });
 
   it("exports shared underlay and transition classes", () => {
-    expect(WEBGL_BACKDROP_BLACK_UNDERLAY_CLASS).toBe(
-      "absolute inset-0 bg-black"
+    expect(WEBGL_BACKDROP_UNDERLAY_CLASS).toBe(
+      "absolute inset-0 bg-background"
     );
     expect(WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS).toBe(
       "transition-opacity duration-700 ease-out motion-reduce:transition-none"

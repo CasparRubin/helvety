@@ -1,7 +1,8 @@
 /**
  * React Bits Light Pillar (`LightPillar-TS-CSS`). Upstream: https://reactbits.dev/backgrounds/light-pillar
- * Helvety preset in {@link ./helvety-light-pillar-preset.ts}; shell reveal in
- * {@link ./helvety-shell-with-light-pillar-backdrop.tsx}. Defaults: `mixBlendMode` `screen`, `quality` `high`.
+ * Helvety preset in {@link ./helvety-light-pillar-preset.ts} (white/red or black/red);
+ * shell reveal in {@link ./helvety-shell-with-light-pillar-backdrop.tsx}.
+ * Component default `mixBlendMode` is `screen`; preset overrides (`screen` dark, `multiply` light).
  */
 /* eslint-disable jsdoc/require-jsdoc, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unused-vars */
 import React, { useRef, useEffect, useState } from "react";
@@ -22,7 +23,7 @@ interface LightPillarProps {
   mixBlendMode?: React.CSSProperties["mixBlendMode"];
   pillarRotation?: number;
   quality?: "low" | "medium" | "high";
-  /** Fires once after the first composited WebGL frame (for loading veils). */
+  /** Fires once after the first composited WebGL frame (shell host reveal / callbacks). */
   onReady?: () => void;
 }
 

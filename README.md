@@ -12,7 +12,7 @@ Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 - Client-encrypted apps (E2EE): `tasks`, `contacts`, `notes`, `links`
 - Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/brand`, `@helvety/light-pillar` (Store/Auth shell backdrop)
 
-Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `@helvety/ui/e2ee-app-root-layout`. **Store** and **Auth** wrap the public shell in `@helvety/light-pillar` (`HelvetyShellWithLightPillarBackdrop`: shell UI paints first; Light Pillar WebGL on **md+ dark** only; static `bg-background` in **light mode**, below **md**, or with reduced motion; see [`packages/light-pillar`](packages/light-pillar/README.md)). Command bars (store section nav, list toolbars, PDF/image toolbars, E2EE dashboards/editors) stay pinned outside scroll via shell slots (`scrollAreaMainPrefix`, `overflow-main` flex columns, or `CommandBarPageLayout` + shadcn `ScrollArea`). Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF and user state inside `E2eeAppRootLayout` through the same shared helper layer.
+Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `@helvety/ui/e2ee-app-root-layout`. **Store** and **Auth** wrap the public shell in `@helvety/light-pillar` (`HelvetyShellWithLightPillarBackdrop`: shell UI paints first; Light Pillar WebGL on **md+** light or dark; static `bg-background` below **md** or with reduced motion; see [`packages/light-pillar`](packages/light-pillar/README.md)). Command bars (store section nav, list toolbars, PDF/image toolbars, E2EE dashboards/editors) stay pinned outside scroll via shell slots (`scrollAreaMainPrefix`, `overflow-main` flex columns, or `CommandBarPageLayout` + shadcn `ScrollArea`). Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF and user state inside `E2eeAppRootLayout` through the same shared helper layer.
 
 ## Applications
 
@@ -30,13 +30,13 @@ Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf
 
 ## Shared Packages
 
-| Package                                           | Purpose                                                                                                                                                            |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [`packages/brand`](packages/brand/)               | Shared brand assets                                                                                                                                                |
-| [`packages/config`](packages/config/)             | Shared TypeScript, ESLint, Vitest, PostCSS, Next config                                                                                                            |
-| [`packages/shared`](packages/shared/)             | Security, auth, rate-limit, and Supabase helpers, plus shared constants, SEO metadata factory, user-facing error copy, and dashboard prefetch utilities            |
-| [`packages/ui`](packages/ui/)                     | Shared UI components and app-shell primitives                                                                                                                      |
-| [`packages/light-pillar`](packages/light-pillar/) | Shared React Bits Light Pillar shell backdrop for Store and Auth (md+ dark only; static `bg-background` in light mode, below md, or with `prefers-reduced-motion`) |
+| Package                                           | Purpose                                                                                                                                                 |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`packages/brand`](packages/brand/)               | Shared brand assets                                                                                                                                     |
+| [`packages/config`](packages/config/)             | Shared TypeScript, ESLint, Vitest, PostCSS, Next config                                                                                                 |
+| [`packages/shared`](packages/shared/)             | Security, auth, rate-limit, and Supabase helpers, plus shared constants, SEO metadata factory, user-facing error copy, and dashboard prefetch utilities |
+| [`packages/ui`](packages/ui/)                     | Shared UI components and app-shell primitives                                                                                                           |
+| [`packages/light-pillar`](packages/light-pillar/) | Shared React Bits Light Pillar shell backdrop for Store and Auth (md+ light or dark; static `bg-background` below md or with `prefers-reduced-motion`)  |
 
 ## Prerequisites
 
