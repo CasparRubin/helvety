@@ -7,12 +7,12 @@ import { describe, expect, it } from "vitest";
 const pagePath = join(dirname(fileURLToPath(import.meta.url)), "page.tsx");
 
 describe("products page", () => {
-  it("server-renders the catalog from getCachedAllProducts", () => {
+  it("does not import catalog data on the server (client-only grid)", () => {
     const src = readFileSync(pagePath, "utf8");
 
-    expect(src).toContain("getCachedAllProducts");
-    expect(src).toContain("toCatalogProducts");
-    expect(src).toContain("<ProductsCatalog initialProducts={products} />");
-    expect(src).not.toContain("<ProductsCatalog />");
+    expect(src).toContain("<ProductsCatalog />");
+    expect(src).not.toContain("getCachedAllProducts");
+    expect(src).not.toContain("toCatalogProducts");
+    expect(src).not.toContain("initialProducts");
   });
 });

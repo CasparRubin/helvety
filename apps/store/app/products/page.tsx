@@ -2,8 +2,6 @@ import { STORE_PRODUCTS_PAGE_DESCRIPTION } from "@helvety/shared/app-product-des
 import { urls } from "@helvety/shared/config";
 
 import { ProductsCatalog } from "@/components/products/products-catalog";
-import { toCatalogProducts } from "@/lib/data/catalog-product";
-import { getCachedAllProducts } from "@/lib/data/product-catalog-cache";
 
 import type { Metadata } from "next";
 
@@ -17,16 +15,14 @@ export const metadata: Metadata = {
 
 /**
  * Products catalog page.
- * Server-renders the catalog via {@link getCachedAllProducts} → {@link toCatalogProducts}
- * → {@link ProductsCatalog} `initialProducts` (serializable card fields only).
+ * Catalog data loads in the client (`ProductsCatalog` → `getAllProducts`) so the
+ * server page does not import the static products module (keeps Vercel RSC reliable).
  * No auth required to browse; some actions (for example account) still require authentication.
  */
 export default function ProductsPage() {
-  const products = toCatalogProducts(getCachedAllProducts());
-
   return (
     <section>
-      <ProductsCatalog initialProducts={products} />
+      <ProductsCatalog />
     </section>
   );
 }

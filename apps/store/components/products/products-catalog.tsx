@@ -2,31 +2,19 @@
 
 /**
  * Products catalog component (client filter shell).
- * Receives serializable card rows from the server page (`initialProducts` from `lib/data/catalog-product.ts`).
+ * Loads static product data via `getAllProducts()` in the client bundle only.
  */
 
 import { useMemo, useState, useTransition } from "react";
 
-import {
-  catalogProductToCardProduct,
-  type CatalogProduct,
-} from "@/lib/data/catalog-product";
-import { getFilteredProducts } from "@/lib/data/products";
+import { getAllProducts, getFilteredProducts } from "@/lib/data/products";
 
 import { type FilterType } from "./product-filters";
 import { ProductFilters } from "./product-filters";
 import { ProductGrid } from "./product-grid";
 
-import type { Product } from "@/lib/types/products";
-
-/** Props for {@link ProductsCatalog}. */
-interface ProductsCatalogProps {
-  /** Server-provided catalog rows (serializable card fields; resilient if client JS fails). */
-  initialProducts: CatalogProduct[];
-}
-
 /** Renders the product catalog with filter bar and responsive grid. */
-export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
+export function ProductsCatalog() {
   const [filter, setFilter] = useState<FilterType>("all");
   const [isPending, startTransition] = useTransition();
 
@@ -36,24 +24,26 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
     });
   };
 
+  const allProducts = useMemo(() => getAllProducts(), []);
+
   const counts = useMemo(() => {
     let software = 0;
     let physical = 0;
     let saas = 0;
-    for (const p of initialProducts) {
+    for (const p of allProducts) {
       if (p.type === "software") software++;
       else if (p.type === "physical") physical++;
       else if (p.type === "saas") saas++;
     }
-    return { all: initialProducts.length, software, physical, saas };
-  }, [initialProducts]);
+    return { all: allProducts.length, software, physical, saas };
+  }, [allProducts]);
 
-  const filteredProducts = useMemo((): Product[] => {
+  const filteredProducts = useMemo(() => {
     if (filter === "all") {
-      return initialProducts.map(catalogProductToCardProduct);
+      return allProducts;
     }
     return getFilteredProducts({ type: filter });
-  }, [filter, initialProducts]);
+  }, [filter, allProducts]);
 
   return (
     <div className="container mx-auto px-4 py-8">

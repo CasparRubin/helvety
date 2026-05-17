@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ProductsCatalog } from "./products-catalog";
 
-import type { CatalogProduct } from "@/lib/data/catalog-product";
+import type { Product } from "@/lib/types/products";
 
 vi.mock("next/image", () => ({
   default: (props: { alt?: string }) => (
@@ -21,49 +21,50 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-/** Builds a minimal catalog row for component tests. */
-function catalogProduct(
-  overrides: Pick<
-    CatalogProduct,
-    "id" | "slug" | "name" | "type" | "shortDescription"
-  >
-): CatalogProduct {
-  return {
-    ...overrides,
-    status: "available",
-    category: "utilities",
-  };
-}
-
-const initialProducts: CatalogProduct[] = [
-  catalogProduct({
+const mockProducts: Product[] = [
+  {
     id: "helvety-pdf",
     slug: "helvety-pdf",
     name: "Helvety PDF",
     type: "saas",
     shortDescription: "PDF in the browser",
-  }),
-  catalogProduct({
+    status: "available",
+    category: "utilities",
+    description: { intro: "Intro" },
+    features: [],
+    pricing: { tiers: [], hasFreeTier: true, hasYearlyPricing: false },
+  },
+  {
     id: "helvety-spo-explorer",
     slug: "helvety-spo-explorer",
     name: "Helvety SPO Explorer",
     type: "software",
     shortDescription: "SharePoint header extension",
-  }),
+    status: "available",
+    category: "utilities",
+    description: { intro: "Intro" },
+    features: [],
+    pricing: { tiers: [], hasFreeTier: true, hasYearlyPricing: false },
+  },
 ];
 
+vi.mock("@/lib/data/products", () => ({
+  getAllProducts: vi.fn(() => mockProducts),
+  getFilteredProducts: vi.fn(({ type }: { type: string }) =>
+    mockProducts.filter((p) => p.type === type)
+  ),
+}));
+
 describe("ProductsCatalog", () => {
-  it("renders all initial products without calling client catalog loaders", () => {
-    render(<ProductsCatalog initialProducts={initialProducts} />);
+  it("renders all products from getAllProducts", () => {
+    render(<ProductsCatalog />);
 
     expect(screen.getByText("Helvety PDF")).toBeInTheDocument();
     expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
-    expect(screen.getByText("PDF in the browser")).toBeInTheDocument();
-    expect(screen.getByText("SharePoint header extension")).toBeInTheDocument();
   });
 
-  it("filters products by type from the server-provided list", () => {
-    render(<ProductsCatalog initialProducts={initialProducts} />);
+  it("filters products by type", () => {
+    render(<ProductsCatalog />);
 
     fireEvent.click(screen.getByRole("button", { name: /Software/i }));
 
