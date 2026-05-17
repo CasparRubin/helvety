@@ -104,7 +104,7 @@ Shared package [`@helvety/light-pillar`](../../packages/light-pillar/README.md) 
 - **Reduced motion:** WebGL not mounted at any width; `bg-background` fallback only.
 - **Section nav:** [`store-nav.tsx`](components/store-nav.tsx) uses `CommandBar` `variant="solid"` (opaque toolbar over the pillar on md+; plain `bg-background` below md).
 - **Product detail:** About and Installation panels use opaque `bg-surface-panel` (same as the Access sidebar) so long-form copy stays readable over the pillar or light background.
-- **Catalog:** [`app/products/page.tsx`](app/products/page.tsx) server-renders the grid via `getCachedAllProducts()` → `ProductsCatalog` `initialProducts` (static data; resilient if client JS fails). Cards use opaque `bg-card`; `shortDescription` is always visible on touch/small viewports (not hover-only).
+- **Catalog:** [`app/products/page.tsx`](app/products/page.tsx) server-renders the grid via `getCachedAllProducts()` → [`toCatalogProducts`](lib/data/catalog-product.ts) → `ProductsCatalog` `initialProducts` (serializable card fields only; resilient if client JS fails). Product cards link with `prefetch={false}` so detail routes are not prefetched from the grid. Cards use opaque `bg-card`; `shortDescription` is always visible on touch/small viewports (not hover-only).
 - **Downloads:** Software package CTAs use a **click-only** `button` (`window.location.assign`) to `/store/api/packages/{id}/download` so browsers do not prefetch the redirect/attachment URL from an `<a href>`.
 
 ## Development and Testing
@@ -118,7 +118,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include solid section nav over the shell backdrop (`components/store-nav.test.tsx`), server-fed catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), touch-visible card copy (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), and opaque product-detail panels.
+Notable tests include solid section nav over the shell backdrop (`components/store-nav.test.tsx`), server-fed catalog (`lib/data/catalog-product.test.ts`, `components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), touch-visible card copy and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), and opaque product-detail panels.
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

@@ -29,6 +29,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
   return (
     <Link
       href={productHref}
+      prefetch={false}
       className="block h-full"
       aria-label={`View ${product.name} details`}
     >

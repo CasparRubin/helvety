@@ -75,6 +75,7 @@ interface HyperspeedOptions {
   carFloorSeparation: [number, number];
   colors: Colors;
   variation?: VariationOptions;
+  bloom?: BloomOptions;
 }
 
 interface VariationOptions {
@@ -83,6 +84,11 @@ interface VariationOptions {
   reseedIntervalMs: number;
   mobileScale: number;
   maxDelta: number;
+}
+
+/** Postprocessing bloom tuning (hero passes theme-specific thresholds). */
+interface BloomOptions {
+  luminanceThreshold?: number;
 }
 
 interface HyperspeedProps {
@@ -1039,10 +1045,11 @@ class App {
     if (!gl?.getContextAttributes?.()) return false;
 
     this.renderPass = new RenderPass(this.scene, this.camera);
+    const bloomThreshold = this.options.bloom?.luminanceThreshold ?? 0.2;
     this.bloomPass = new EffectPass(
       this.camera,
       new BloomEffect({
-        luminanceThreshold: 0.2,
+        luminanceThreshold: bloomThreshold,
         luminanceSmoothing: 0,
         resolutionScale: 1,
       })

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ProductsCatalog } from "./products-catalog";
 
-import type { Product } from "@/lib/types/products";
+import type { CatalogProduct } from "@/lib/data/catalog-product";
 
 vi.mock("next/image", () => ({
   default: (props: { alt?: string }) => (
@@ -23,19 +23,19 @@ vi.mock("next/link", () => ({
 
 /** Builds a minimal catalog row for component tests. */
 function catalogProduct(
-  overrides: Pick<Product, "id" | "slug" | "name" | "type" | "shortDescription">
-): Product {
+  overrides: Pick<
+    CatalogProduct,
+    "id" | "slug" | "name" | "type" | "shortDescription"
+  >
+): CatalogProduct {
   return {
     ...overrides,
     status: "available",
     category: "utilities",
-    description: { intro: "Intro" },
-    features: [],
-    pricing: { tiers: [], hasFreeTier: true, hasYearlyPricing: false },
   };
 }
 
-const initialProducts: Product[] = [
+const initialProducts: CatalogProduct[] = [
   catalogProduct({
     id: "helvety-pdf",
     slug: "helvety-pdf",

@@ -26,14 +26,17 @@ export const HELVETY_CANVAS_BACKGROUND_LIGHT_HEX = "#faf8f7";
 /** CSS hex for dark canvas (matches `HELVETY_CANVAS_BACKGROUND_DARK`). */
 export const HELVETY_CANVAS_BACKGROUND_DARK_HEX = "#1c1816";
 
-/** Slightly darker than light canvas for Hyperspeed road surface. */
-export const HELVETY_CANVAS_ROAD_LIGHT = 0xf0eeec;
+/**
+ * Hyperspeed road in light mode — warm asphalt, clearly recessed vs
+ * {@link HELVETY_CANVAS_BACKGROUND_LIGHT} (was ~4% contrast; too flat to read as a street).
+ */
+export const HELVETY_CANVAS_ROAD_LIGHT = 0xcbc5be;
 
 /** Slightly lighter than dark canvas for Hyperspeed road surface. */
 export const HELVETY_CANVAS_ROAD_DARK = 0x080808;
 
-/** Island divider between lanes (light scene). */
-export const HELVETY_CANVAS_ISLAND_LIGHT = 0xe8e6e4;
+/** Island divider between lanes (light scene; darker than road, same as dark-mode hierarchy). */
+export const HELVETY_CANVAS_ISLAND_LIGHT = 0xb5aea6;
 
 /** Island divider between lanes (dark scene). */
 export const HELVETY_CANVAS_ISLAND_DARK = 0x0a0a0a;

@@ -49,6 +49,20 @@ describe("react-bits-palette", () => {
     );
   });
 
+  it("light-mode road and island are visibly darker than the canvas (Hyperspeed street)", () => {
+    const bg = getHelvetyCanvasBackgroundRgb(false);
+    const road = getHelvetyCanvasRoadRgb(false);
+    const island = getHelvetyCanvasIslandRgb(false);
+
+    const channelDelta = (a: number, b: number) =>
+      Math.abs(((a >> 16) & 0xff) - ((b >> 16) & 0xff)) +
+      Math.abs(((a >> 8) & 0xff) - ((b >> 8) & 0xff)) +
+      Math.abs((a & 0xff) - (b & 0xff));
+
+    expect(channelDelta(bg, road)).toBeGreaterThanOrEqual(48);
+    expect(channelDelta(road, island)).toBeGreaterThanOrEqual(24);
+  });
+
   it("swaps headlight streaks white to black on light mode", () => {
     expect(getReactBitsHeadlightRgb(true)).toContain(0xffffff);
     expect(getReactBitsHeadlightRgb(false)).toContain(0x000000);

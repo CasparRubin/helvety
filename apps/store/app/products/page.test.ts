@@ -11,6 +11,7 @@ describe("products page", () => {
     const src = readFileSync(pagePath, "utf8");
 
     expect(src).toContain("getCachedAllProducts");
+    expect(src).toContain("toCatalogProducts");
     expect(src).toContain("<ProductsCatalog initialProducts={products} />");
     expect(src).not.toContain("<ProductsCatalog />");
   });

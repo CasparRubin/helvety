@@ -36,6 +36,10 @@ export function getHeroHyperspeedEffectOptions(
       intensity: 0.26,
       reseedIntervalMs: 4200,
     },
+    /* Light: lower threshold so red taillights / sticks bloom on the darker asphalt. */
+    bloom: {
+      luminanceThreshold: isDark ? 0.2 : 0.1,
+    },
     colors: {
       ...base.colors,
       background: getHelvetyCanvasBackgroundRgb(isDark),

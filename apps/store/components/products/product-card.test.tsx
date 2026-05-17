@@ -13,10 +13,16 @@ vi.mock("next/link", () => ({
   default: ({
     children,
     href,
+    prefetch,
   }: {
     children: React.ReactNode;
     href: string;
-  }) => <a href={href}>{children}</a>,
+    prefetch?: boolean;
+  }) => (
+    <a href={href} data-prefetch={prefetch === false ? "false" : undefined}>
+      {children}
+    </a>
+  ),
 }));
 
 const product = {
@@ -46,12 +52,11 @@ describe("ProductCard", () => {
     );
   });
 
-  it("links to the product detail route", () => {
+  it("links to the product detail route without prefetching the detail page", () => {
     render(<ProductCard product={product} />);
 
-    expect(screen.getByRole("link", { name: /Helvety PDF/i })).toHaveAttribute(
-      "href",
-      "/products/helvety-pdf"
-    );
+    const link = screen.getByRole("link", { name: /Helvety PDF/i });
+    expect(link).toHaveAttribute("href", "/products/helvety-pdf");
+    expect(link).toHaveAttribute("data-prefetch", "false");
   });
 });

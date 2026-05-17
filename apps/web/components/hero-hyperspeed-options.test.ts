@@ -68,4 +68,13 @@ describe("Hyperspeed effect options", () => {
     ]);
     expect(colors.rightCars).toContain(0x000000);
   });
+
+  it("light mode uses a lower bloom threshold so motion glow reads on asphalt", () => {
+    const dark = getHeroHyperspeedEffectOptions(true);
+    const light = getHeroHyperspeedEffectOptions(false);
+    expect(dark.bloom?.luminanceThreshold).toBe(0.2);
+    expect(light.bloom?.luminanceThreshold).toBeLessThan(
+      dark.bloom?.luminanceThreshold ?? 1
+    );
+  });
 });
