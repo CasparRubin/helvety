@@ -1,6 +1,8 @@
 import { createHelvetyNextConfig } from "@helvety/config/next";
 import { DEV_PORTS } from "@helvety/shared/config";
 
+import { zoneAnalyticsReferer } from "./lib/zone-analytics-referer";
+
 import type { NextConfig } from "next";
 
 const DEFAULT_ALLOWED_PRODUCTION_HOST_SUFFIXES = [
@@ -101,51 +103,81 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
         beforeFiles: [
           {
             // Vercel Analytics script path (e.g. /75d1cebe0bf9989d/script.js)
-            // uses a root-relative URL, so route by referring app basePath.
+            // uses a root-relative URL, so route by referer (zone path + optional ?query / #hash).
             source: analyticsScriptSource,
             has: [
-              { type: "header", key: "referer", value: ".*/auth(?:/.*)?$" },
+              {
+                type: "header",
+                key: "referer",
+                value: zoneAnalyticsReferer("auth"),
+              },
             ],
             destination: `${authUrl}${analyticsScriptSource}`,
           },
           {
             source: analyticsScriptSource,
             has: [
-              { type: "header", key: "referer", value: ".*/tasks(?:/.*)?$" },
+              {
+                type: "header",
+                key: "referer",
+                value: zoneAnalyticsReferer("tasks"),
+              },
             ],
             destination: `${tasksUrl}${analyticsScriptSource}`,
           },
           {
             source: analyticsScriptSource,
             has: [
-              { type: "header", key: "referer", value: ".*/contacts(?:/.*)?$" },
+              {
+                type: "header",
+                key: "referer",
+                value: zoneAnalyticsReferer("contacts"),
+              },
             ],
             destination: `${contactsUrl}${analyticsScriptSource}`,
           },
           {
             source: analyticsScriptSource,
             has: [
-              { type: "header", key: "referer", value: ".*/notes(?:/.*)?$" },
+              {
+                type: "header",
+                key: "referer",
+                value: zoneAnalyticsReferer("notes"),
+              },
             ],
             destination: `${notesUrl}${analyticsScriptSource}`,
           },
           {
             source: analyticsScriptSource,
             has: [
-              { type: "header", key: "referer", value: ".*/links(?:/.*)?$" },
+              {
+                type: "header",
+                key: "referer",
+                value: zoneAnalyticsReferer("links"),
+              },
             ],
             destination: `${linksUrl}${analyticsScriptSource}`,
           },
           {
             source: analyticsScriptSource,
             has: [
-              { type: "header", key: "referer", value: ".*/store(?:/.*)?$" },
+              {
+                type: "header",
+                key: "referer",
+                value: zoneAnalyticsReferer("store"),
+              },
             ],
             destination: `${storeUrl}${analyticsScriptSource}`,
           },
           {
             source: analyticsScriptSource,
-            has: [{ type: "header", key: "referer", value: ".*/pdf(?:/.*)?$" }],
+            has: [
+              {
+                type: "header",
+                key: "referer",
+                value: zoneAnalyticsReferer("pdf"),
+              },
+            ],
             destination: `${pdfUrl}${analyticsScriptSource}`,
           },
           {
@@ -154,7 +186,7 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
               {
                 type: "header",
                 key: "referer",
-                value: ".*/image-upscaler(?:/.*)?$",
+                value: zoneAnalyticsReferer("image-upscaler"),
               },
             ],
             destination: `${imageUpscalerUrl}${analyticsScriptSource}`,

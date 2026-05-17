@@ -63,6 +63,31 @@ describe("useE2eeEntityPanelWithUrl", () => {
     expect(result.current.entityId).toBe(ENTITY_ID);
   });
 
+  it("closePanel does not touch the URL when the panel is already closed", () => {
+    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("item"));
+
+    act(() => {
+      result.current.closePanel();
+    });
+    act(() => {
+      result.current.closePanel();
+    });
+
+    expect(result.current.isOpen).toBe(false);
+    expect(navigationMocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("openEntity does not rewrite the URL when already open with the same id", () => {
+    navigationMocks.searchParams = new URLSearchParams(`item=${ENTITY_ID}`);
+    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("item"));
+
+    act(() => {
+      result.current.openEntity(ENTITY_ID);
+    });
+
+    expect(navigationMocks.replace).not.toHaveBeenCalled();
+  });
+
   it("writes the canonical param and drops legacy keys when opening", () => {
     navigationMocks.searchParams = new URLSearchParams(`item=${ENTITY_ID}`);
     const { result } = renderHook(() =>

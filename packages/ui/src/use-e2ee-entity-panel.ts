@@ -21,7 +21,8 @@ export interface UseE2eeEntityPanelResult {
 
 /**
  * Shared sheet panel state for E2EE list dashboards (panel state only).
- * For `?param=` deep links, use {@link useE2eeEntityPanelWithUrl} instead.
+ * For `?param=` deep links, use {@link useE2eeEntityPanelWithUrl} and
+ * {@link useSyncE2eeEntityPanelFromUrl} instead.
  * Pair with {@link E2eeEntityDetailSheet} and per-app draft snapshot cleanup on close.
  */
 export function useE2eeEntityPanel(
@@ -35,11 +36,21 @@ export function useE2eeEntityPanel(
   const [isOpeningDraft, startOpenDraftTransition] = useTransition();
 
   const openEntity = useCallback((id: string) => {
-    setPanel({ mode: "open", entityId: id });
+    setPanel((current) => {
+      if (current.mode === "open" && current.entityId === id) {
+        return current;
+      }
+      return { mode: "open", entityId: id };
+    });
   }, []);
 
   const closePanel = useCallback(() => {
-    setPanel({ mode: "closed" });
+    setPanel((current) => {
+      if (current.mode === "closed") {
+        return current;
+      }
+      return { mode: "closed" };
+    });
   }, []);
 
   const openNewDraft = useCallback(

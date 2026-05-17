@@ -1,6 +1,7 @@
 import { DEV_PORTS } from "@helvety/shared/config";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { zoneAnalyticsReferer } from "./lib/zone-analytics-referer";
 import nextConfig from "./next.config";
 
 /** Shape of individual rewrite entries used in assertions. */
@@ -64,7 +65,7 @@ describe("web gateway rewrites", () => {
             {
               type: "header",
               key: "referer",
-              value: ".*/auth(?:/.*)?$",
+              value: zoneAnalyticsReferer("auth"),
             },
           ],
         },
@@ -92,7 +93,7 @@ describe("web gateway rewrites", () => {
             {
               type: "header",
               key: "referer",
-              value: ".*/tasks(?:/.*)?$",
+              value: zoneAnalyticsReferer("tasks"),
             },
           ],
         },
@@ -103,7 +104,7 @@ describe("web gateway rewrites", () => {
             {
               type: "header",
               key: "referer",
-              value: ".*/contacts(?:/.*)?$",
+              value: zoneAnalyticsReferer("contacts"),
             },
           ],
         },
@@ -114,7 +115,7 @@ describe("web gateway rewrites", () => {
             {
               type: "header",
               key: "referer",
-              value: ".*/notes(?:/.*)?$",
+              value: zoneAnalyticsReferer("notes"),
             },
           ],
         },
@@ -125,7 +126,7 @@ describe("web gateway rewrites", () => {
             {
               type: "header",
               key: "referer",
-              value: ".*/links(?:/.*)?$",
+              value: zoneAnalyticsReferer("links"),
             },
           ],
         },
@@ -136,7 +137,7 @@ describe("web gateway rewrites", () => {
             {
               type: "header",
               key: "referer",
-              value: ".*/store(?:/.*)?$",
+              value: zoneAnalyticsReferer("store"),
             },
           ],
         },
@@ -147,7 +148,7 @@ describe("web gateway rewrites", () => {
             {
               type: "header",
               key: "referer",
-              value: ".*/pdf(?:/.*)?$",
+              value: zoneAnalyticsReferer("pdf"),
             },
           ],
         },
@@ -158,7 +159,7 @@ describe("web gateway rewrites", () => {
             {
               type: "header",
               key: "referer",
-              value: ".*/image-upscaler(?:/.*)?$",
+              value: zoneAnalyticsReferer("image-upscaler"),
             },
           ],
         },

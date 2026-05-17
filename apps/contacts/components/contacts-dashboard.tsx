@@ -12,15 +12,8 @@ import { EntityCommandBar } from "@helvety/ui/entity-command-bar";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
-import { useSearchParams } from "next/navigation";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
+import { useSyncE2eeEntityPanelFromUrl } from "@helvety/ui/use-sync-e2ee-entity-panel-from-url";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { ContactEditor } from "@/components/contact-editor";
@@ -52,7 +45,6 @@ interface ContactsDashboardProps {
 export function ContactsDashboard({
   initialEncryptedContacts,
 }: ContactsDashboardProps = {}) {
-  const searchParams = useSearchParams();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const {
     contacts,
@@ -128,21 +120,20 @@ export function ContactsDashboard({
     [cleanupDraftIfUnchanged, entityId, openEntity]
   );
 
-  const entityIdRef = useRef(entityId);
-  entityIdRef.current = entityId;
+  const onBeforeEntityChange = useCallback(
+    (previousId: string) => {
+      cleanupDraftIfUnchanged(previousId);
+    },
+    [cleanupDraftIfUnchanged]
+  );
 
-  useEffect(() => {
-    const id = searchParams.get("contact");
-    if (id) {
-      handleSelectEntity(id);
-      return;
-    }
-    const currentId = entityIdRef.current;
-    if (currentId) {
-      cleanupDraftIfUnchanged(currentId);
-    }
-    closePanel();
-  }, [searchParams, handleSelectEntity, cleanupDraftIfUnchanged, closePanel]);
+  useSyncE2eeEntityPanelFromUrl({
+    paramKey: "contact",
+    entityId,
+    openEntity,
+    closePanel,
+    onBeforeEntityChange,
+  });
 
   const handleSheetOpenChange = useCallback(
     (open: boolean) => {

@@ -43,4 +43,22 @@ describe("useE2eeEntityPanel", () => {
     });
     expect(result.current.isOpen).toBe(false);
   });
+
+  it("openEntity is a no-op when already open with the same id", () => {
+    const { result } = renderHook(() => useE2eeEntityPanel("same-id"));
+    const panelBefore = result.current.panel;
+    act(() => {
+      result.current.openEntity("same-id");
+    });
+    expect(result.current.panel).toBe(panelBefore);
+  });
+
+  it("closePanel is a no-op when already closed", () => {
+    const { result } = renderHook(() => useE2eeEntityPanel());
+    const panelBefore = result.current.panel;
+    act(() => {
+      result.current.closePanel();
+    });
+    expect(result.current.panel).toBe(panelBefore);
+  });
 });

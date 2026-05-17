@@ -20,7 +20,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 
 - Default title and description come from `HELVETY_WEB_DEFAULT_TITLE` and `WEB_SITE_DESCRIPTION` in [`app/layout.tsx`](app/layout.tsx); [`public/manifest.json`](public/manifest.json) and [`public/llms.txt`](public/llms.txt) stay aligned (tagline is company/product copy; AGPL details live under `## Licensing` in `llms.txt` only).
 - Sub-app forwarding is defined in `next.config.ts`.
-- Vercel Analytics `/<id>/script.js` requests are forwarded by referer path to the correct zone origin.
+- Vercel Analytics `/<id>/script.js` requests are forwarded by referer path to the correct zone origin ([`lib/zone-analytics-referer.ts`](lib/zone-analytics-referer.ts); pattern allows `?query` and `#hash` after the zone path so deep links like `/links?link=` still load analytics).
 - Direct-domain sub-app roots are expected to redirect to their base path.
 - `apps/web` is indexable and serves:
   - `/robots.txt`

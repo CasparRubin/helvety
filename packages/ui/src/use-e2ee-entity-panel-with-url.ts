@@ -82,8 +82,9 @@ function readEntityIdFromUrl(
 
 /**
  * {@link useE2eeEntityPanel} plus shallow URL updates on open/close (`?param=`).
- * Pair with a `useEffect` on `useSearchParams` in the dashboard so back/forward
- * and cross-app deep links can open or close the sheet when the query changes.
+ * Pair with {@link useSyncE2eeEntityPanelFromUrl} in the dashboard so back/forward
+ * and cross-app deep links open or close the sheet when the query changes.
+ * Wrap the dashboard page in `<Suspense>` (required for `useSearchParams`).
  */
 export function useE2eeEntityPanelWithUrl(
   paramKey: string,

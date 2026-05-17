@@ -28,11 +28,11 @@
 2. **App router/fetch** — done (store catalog)
    - Store static catalog uses per-request `React.cache()` via `apps/store/lib/data/product-catalog-cache.ts` (not the Next.js `'use cache'` directive; dedupes metadata + page reads within one RSC render).
 3. **Hook correctness** — done
-   - `useE2eeEntityPanelWithUrl` (tasks, notes, contacts) and links `useLinksPanelUrlSync` (`?link=` / `?folder=`) for shareable E2EE detail-sheet deep links.
+   - Tasks/notes/contacts: `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl` (guarded URL→sheet sync; no dashboard `useEffect` on `useSearchParams`). Links: `useLinksPanelUrlSync` (`?link=` / `?folder=`). E2EE `app/page.tsx` files wrap dashboards in `<Suspense>`.
 4. **Domain hardening** — done
    - Shared export/reorder helpers in `@helvety/shared/entity-action-primitives`.
 5. **E2EE convergence** — done (URL-synced sheets)
-   - Tasks/notes/contacts use `useE2eeEntityPanelWithUrl`; links keeps discriminated link/folder panel state with `useLinksPanelUrlSync` and the same `E2eeEntityDetailSheet` shell.
+   - Tasks/notes/contacts: `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl`; cross-link editor panels use `dynamic(..., { ssr: false })`. Links: discriminated link/folder panel state with `useLinksPanelUrlSync` and the same `E2eeEntityDetailSheet` shell.
 6. **Verification/guardrails** — ongoing
    - Lint/type-check/tests must stay green; `consistency:env-templates`, `consistency:supabase-auth`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
 
@@ -47,7 +47,8 @@
 - Entity action export/reorder primitives
 - E2EE URL sync (tasks, notes, contacts, links)
 - EncryptionGate redirect intent derivation (fewer effects)
-- Hyperspeed React 19 ref-callback mount/dispose
+- Hyperspeed React 19 ref-callback mount/dispose; animation timing via `THREE.Timer` (not deprecated `THREE.Clock`)
+- Gateway Vercel Analytics `/<id>/script.js` referer routing allows query/hash after zone paths (`apps/web/lib/zone-analytics-referer.ts`)
 - Store product catalog caching
 - Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift`)
 - UI majors: lucide-react v1 (`icon-renderer` aliases), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep

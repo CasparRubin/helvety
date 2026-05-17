@@ -53,6 +53,7 @@ const ContactLinksPanel = dynamic(
   () =>
     import("@/components/contact-links-panel").then((m) => m.ContactLinksPanel),
   {
+    ssr: false,
     loading: () => (
       <div className="flex items-center justify-center py-4">
         <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
@@ -64,6 +65,7 @@ const ContactLinksPanel = dynamic(
 const NoteLinksPanel = dynamic(
   () => import("@/components/note-links-panel").then((m) => m.NoteLinksPanel),
   {
+    ssr: false,
     loading: () => (
       <div className="flex items-center justify-center py-4">
         <Loader2Icon className="text-muted-foreground size-5 animate-spin" />

@@ -775,7 +775,7 @@ class App {
   scene: THREE.Scene;
   renderPass!: RenderPass;
   bloomPass!: EffectPass;
-  clock: THREE.Clock;
+  timer: THREE.Timer;
   disposed: boolean;
   road: Road;
   leftCarLights: CarLights;
@@ -868,7 +868,8 @@ class App {
       fogFar: { value: fog.far },
     };
 
-    this.clock = new THREE.Clock();
+    this.timer = new THREE.Timer();
+    this.timer.connect(document);
     this.disposed = false;
 
     this.road = new Road(this, options);
@@ -1113,7 +1114,7 @@ class App {
       this.onDocumentVisibilityChange
     );
 
-    this.tick();
+    this.rafId = requestAnimationFrame(this.tick);
   }
 
   attachGlobalInteractRelease(): void {
@@ -1320,7 +1321,7 @@ class App {
     this.composer.setSize(width, height, updateStyles);
   }
 
-  tick() {
+  tick(time: number) {
     if (this.disposed) return;
 
     if (!this.hasValidSize) {
@@ -1347,7 +1348,8 @@ class App {
     }
 
     if (this.hasValidSize) {
-      const delta = this.clock.getDelta();
+      this.timer.update(time);
+      const delta = this.timer.getDelta();
       this.render(delta);
       this.update(delta);
       if (!this.readyFired) {

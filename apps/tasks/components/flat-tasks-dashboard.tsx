@@ -11,15 +11,8 @@ import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
 import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
-import { useSearchParams } from "next/navigation";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
+import { useSyncE2eeEntityPanelFromUrl } from "@helvety/ui/use-sync-e2ee-entity-panel-from-url";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
@@ -47,7 +40,6 @@ interface FlatTasksDashboardProps {
 export function FlatTasksDashboard({
   initialEncryptedItems,
 }: FlatTasksDashboardProps): React.JSX.Element {
-  const searchParams = useSearchParams();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const {
     items,
@@ -128,21 +120,20 @@ export function FlatTasksDashboard({
     [cleanupDraftIfUnchanged, entityId, openEntity]
   );
 
-  const entityIdRef = useRef(entityId);
-  entityIdRef.current = entityId;
+  const onBeforeEntityChange = useCallback(
+    (previousId: string) => {
+      cleanupDraftIfUnchanged(previousId);
+    },
+    [cleanupDraftIfUnchanged]
+  );
 
-  useEffect(() => {
-    const id = searchParams.get("item");
-    if (id) {
-      handleSelectEntity(id);
-      return;
-    }
-    const currentId = entityIdRef.current;
-    if (currentId) {
-      cleanupDraftIfUnchanged(currentId);
-    }
-    closePanel();
-  }, [searchParams, handleSelectEntity, cleanupDraftIfUnchanged, closePanel]);
+  useSyncE2eeEntityPanelFromUrl({
+    paramKey: "item",
+    entityId,
+    openEntity,
+    closePanel,
+    onBeforeEntityChange,
+  });
 
   const handleSheetOpenChange = useCallback(
     (open: boolean) => {

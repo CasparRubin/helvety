@@ -11,7 +11,7 @@ End-to-end encrypted bookmarks with nested folders.
 - Client-side encryption for folder names and link names/URLs
 - Virtual **All** folder as the only top-level tree row (cannot be deleted or renamed); user folders and unfiled links live inside All (`parent_folder_id` / `folder_id` `null` in the database)
 - Finder-style nested folder tree on one page (expand/collapse state is client-side; tree rows are not routed by URL)
-- Shareable deep links open the detail sheet via `?link=<uuid>` or `?folder=<uuid>` (`useLinksPanelUrlSync`); they do not drive tree expand/collapse
+- Shareable deep links open the detail sheet via `?link=<uuid>` or `?folder=<uuid>` (`useLinksPanelUrlSync` with guarded `panelRef` URL sync in the dashboard); they do not drive tree expand/collapse. `app/page.tsx` wraps the dashboard in `<Suspense>` (required for `useSearchParams`).
 - Row interactions: link row opens the URL in a new tab; folder row toggles expansion; pencil opens link/folder editors
 - Folder actions: open links in a folder, or in a folder and all nested subfolders (on **All**, open every bookmark in the library)
 - Drag-and-drop reorder and reparenting (disabled while search is active)

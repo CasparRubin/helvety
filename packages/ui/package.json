@@ -82,6 +82,7 @@
     "./e2ee-entity-detail-sheet": "./src/e2ee-entity-detail-sheet.tsx",
     "./use-e2ee-entity-panel": "./src/use-e2ee-entity-panel.ts",
     "./use-e2ee-entity-panel-with-url": "./src/use-e2ee-entity-panel-with-url.ts",
+    "./use-sync-e2ee-entity-panel-from-url": "./src/use-sync-e2ee-entity-panel-from-url.ts",
     "./e2ee-app-root-layout": "./src/e2ee-app-root-layout.tsx",
     "./e2ee-app-navbar": "./src/e2ee-app-navbar.tsx",
     "./helvety-public-shell-root-layout": "./src/helvety-public-shell-root-layout.tsx",

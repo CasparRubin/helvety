@@ -13,7 +13,7 @@ End-to-end encrypted notes app with category-based organization.
 - Client-side search on decrypted title/description
 - Drag-and-drop reorder (disabled while search is active)
 - New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with the full `ItemEditor` (Tiptap, category, task/contact links). **New Note** creates a draft row and opens that sheet immediately; closing without edits removes the draft row.
-- Shareable deep links open a note in the detail sheet via `?note=<uuid>` (legacy `?item=` is still read for older links).
+- Shareable deep links open a note in the detail sheet via `?note=<uuid>` (legacy `?item=` is still read for older links). URL↔sheet sync uses `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl` from `@helvety/ui`; `app/page.tsx` wraps the dashboard in `<Suspense>` (required for `useSearchParams`).
 - Cross-app linking with tasks and contacts
 - Client-side decrypted export (server-side encrypted fetch)
 

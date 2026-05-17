@@ -28,8 +28,9 @@ This package provides:
 - `@helvety/ui/e2ee-app-root-layout` -> `E2eeAppRootLayout`: Each app's `app/layout.tsx` passes **`encryptionProvider`** (the zone's client encryption context component, for example from `@/lib/crypto`), **`renderNavbar`**, **`softwareApplication`** (fields for JSON-LD `SoftwareApplication`), **`organizationLogoUrl`**, and **`children`**. Main is overflow-hidden; dashboards and sheet-embedded editors use **`CommandBarPageLayout`** to pin command bars and scroll via `ScrollArea`.
 - `@helvety/ui/command-bar-page-layout` -> `CommandBarPageLayout`: Pins a command bar outside scroll; scrolls page body with the shared shadcn `ScrollArea`.
 - `@helvety/ui/e2ee-entity-detail-sheet` -> `E2eeEntityDetailSheet`: Wide right-hand sheet shell for E2EE list dashboards (Notes, Tasks, Contacts, Links).
-- `@helvety/ui/use-e2ee-entity-panel` -> `useE2eeEntityPanel`: Sheet open/close state and persist-on-open **`openNewDraft`** (panel state only; no URL sync).
-- `@helvety/ui/use-e2ee-entity-panel-with-url` -> `useE2eeEntityPanelWithUrl`, `useE2eeEntityUrlSync`: Tasks (`?item=`), Notes (`?note=`; reads legacy `?item=`), and Contacts (`?contact=`). Writes the active entity id on open/close; pair each dashboard with a `useEffect` on `useSearchParams` so back/forward and cross-app deep links reopen the sheet.
+- `@helvety/ui/use-e2ee-entity-panel` -> `useE2eeEntityPanel`: Sheet open/close state and persist-on-open **`openNewDraft`** (panel state only; no URL sync). `openEntity` / `closePanel` no-op when state is unchanged.
+- `@helvety/ui/use-e2ee-entity-panel-with-url` -> `useE2eeEntityPanelWithUrl`, `useE2eeEntityUrlSync`: Tasks (`?item=`), Notes (`?note=`; reads legacy `?item=`), and Contacts (`?contact=`). Writes the active entity id on open/close.
+- `@helvety/ui/use-sync-e2ee-entity-panel-from-url` -> `useSyncE2eeEntityPanelFromUrl`: **Required** with `useE2eeEntityPanelWithUrl` on tasks/notes/contacts dashboards so back/forward and `?param=` deep links sync the sheet without redundant updates (guards against React max-update-depth loops). Links uses `useLinksPanelUrlSync` instead (dual `?link=` / `?folder=`).
 - `@helvety/ui/e2ee-form-layout` -> `E2EE_ENTITY_SHEET_CONTENT_CLASS`, `E2EE_UNSAVED_CHANGES_DIALOG`, editor field spacing helpers.
 - `@helvety/ui/e2ee-app-navbar` -> `E2eeAppNavbar`, `E2eeAppNavbarLabels`
 
@@ -67,7 +68,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Coverage focuses on stable primitives and key shared UX surfaces (`CommandBar`, `CommandBarPageLayout`, `EntityCommandBar`, `Calendar`, `getLucideIcon` / `renderIcon`, `HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionGate`, `EncryptionTooltipContent`, `useE2eeEntityPanel`, `useE2eeEntityPanelWithUrl`, `HelvetyPublicShellRootLayout`, and `E2eeAppRootLayout`). Shell backdrop behavior is tested in `@helvety/light-pillar`. Vitest and related devDependency specifiers are normalized across workspaces from the repo root (`bun run deps:drift`, `bun run test:hygiene`); see the root [`README.md`](../../README.md) › **Testing Consistency**.
+Coverage focuses on stable primitives and key shared UX surfaces (`CommandBar`, `CommandBarPageLayout`, `EntityCommandBar`, `Calendar`, `getLucideIcon` / `renderIcon`, `HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionGate`, `EncryptionTooltipContent`, `useE2eeEntityPanel`, `useE2eeEntityPanelWithUrl`, `useSyncE2eeEntityPanelFromUrl`, `e2ee-dashboard-wiring` structural guards, `HelvetyPublicShellRootLayout`, and `E2eeAppRootLayout`). Shell backdrop behavior is tested in `@helvety/light-pillar`. Vitest and related devDependency specifiers are normalized across workspaces from the repo root (`bun run deps:drift`, `bun run test:hygiene`); see the root [`README.md`](../../README.md) › **Testing Consistency**.
 
 ## Related
 

@@ -11,15 +11,8 @@ import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
 import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
-import { useSearchParams } from "next/navigation";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
+import { useSyncE2eeEntityPanelFromUrl } from "@helvety/ui/use-sync-e2ee-entity-panel-from-url";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
@@ -37,6 +30,9 @@ import { useEncryptionContext } from "@/lib/crypto";
 import type { NoteDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ItemRow } from "@/lib/types";
 
+/** Legacy `?item=` deep links; reads only (writes use `note`). */
+const NOTE_LEGACY_URL_PARAM_KEYS = ["item"];
+
 /** Props for the main `/notes` dashboard (category-grouped list + sheet editor). */
 interface FlatNotesDashboardProps {
   initialEncryptedItems?: ItemRow[];
@@ -47,7 +43,6 @@ export function FlatNotesDashboard({
   initialEncryptedItems,
 }: FlatNotesDashboardProps): React.JSX.Element {
   const defaultCategoryId = DEFAULT_NOTE_CATEGORIES[0]?.id ?? "";
-  const searchParams = useSearchParams();
   const { isUnlocked, masterKey } = useEncryptionContext();
   const {
     items,
@@ -63,7 +58,9 @@ export function FlatNotesDashboard({
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
   const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
-    useE2eeEntityPanelWithUrl("note", { legacyParamKeys: ["item"] });
+    useE2eeEntityPanelWithUrl("note", {
+      legacyParamKeys: NOTE_LEGACY_URL_PARAM_KEYS,
+    });
 
   const draftSnapshots = useRef<Map<string, NoteDraftSnapshot>>(new Map());
 
@@ -127,21 +124,21 @@ export function FlatNotesDashboard({
     [cleanupDraftIfUnchanged, entityId, openEntity]
   );
 
-  const entityIdRef = useRef(entityId);
-  entityIdRef.current = entityId;
+  const onBeforeEntityChange = useCallback(
+    (previousId: string) => {
+      cleanupDraftIfUnchanged(previousId);
+    },
+    [cleanupDraftIfUnchanged]
+  );
 
-  useEffect(() => {
-    const id = searchParams.get("note") ?? searchParams.get("item");
-    if (id) {
-      handleSelectEntity(id);
-      return;
-    }
-    const currentId = entityIdRef.current;
-    if (currentId) {
-      cleanupDraftIfUnchanged(currentId);
-    }
-    closePanel();
-  }, [searchParams, handleSelectEntity, cleanupDraftIfUnchanged, closePanel]);
+  useSyncE2eeEntityPanelFromUrl({
+    paramKey: "note",
+    legacyParamKeys: NOTE_LEGACY_URL_PARAM_KEYS,
+    entityId,
+    openEntity,
+    closePanel,
+    onBeforeEntityChange,
+  });
 
   const handleSheetOpenChange = useCallback(
     (open: boolean) => {

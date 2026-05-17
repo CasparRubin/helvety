@@ -2,7 +2,9 @@ import { shouldForceHardLogout } from "@helvety/shared/auth-errors";
 import { getLogoutUrl } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import { requireE2eeAppPageAuth } from "@helvety/shared/e2ee-page-auth";
+import { ListLoadingState } from "@helvety/ui/list-states";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { getLinksDashboardData } from "@/app/actions/batch-actions";
 import { LinksDashboard } from "@/components/links-dashboard";
@@ -36,5 +38,9 @@ async function PrefetchedDashboard(): Promise<React.JSX.Element> {
 export default async function Page(): Promise<React.JSX.Element> {
   await requireE2eeAppPageAuth("/links");
 
-  return <PrefetchedDashboard />;
+  return (
+    <Suspense fallback={<ListLoadingState message="Loading links…" />}>
+      <PrefetchedDashboard />
+    </Suspense>
+  );
 }

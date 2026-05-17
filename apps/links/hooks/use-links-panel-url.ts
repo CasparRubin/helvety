@@ -10,7 +10,8 @@ export type LinksPanelState =
 
 /**
  * URL read/write helpers for the links detail sheet (`?link=` / `?folder=`).
- * Pair with dashboard state/effects so back/forward and external links reopen the sheet.
+ * Pair with a guarded `useEffect` on `searchParams` in the dashboard (see `links-dashboard.tsx`)
+ * so back/forward and external links reopen the sheet only when URL state differs.
  */
 export function useLinksPanelUrlSync() {
   const router = useRouter();
