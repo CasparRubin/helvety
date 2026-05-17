@@ -8,7 +8,7 @@
 
 import { Button } from "@helvety/ui/button";
 import { Separator } from "@helvety/ui/separator";
-import { ArrowLeft, Check, Download, ExternalLink, Github } from "lucide-react";
+import { ArrowLeft, Check, Code2, Download, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -174,7 +174,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Github className="size-4 shrink-0" />
+                      <Code2 className="size-4 shrink-0" />
                       View source code on GitHub
                     </a>
                   </Button>

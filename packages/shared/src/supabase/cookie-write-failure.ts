@@ -9,7 +9,11 @@ type CookieWriteFailureInput = {
   context: string;
 };
 
-/** Handles cookie write failures with dev-fail and production telemetry. */
+/**
+ * Handles cookie write failures when RSC (or similar) calls `cookies().set` for Supabase auth.
+ * Development throws to surface missing proxy refresh; production logs structured telemetry.
+ * Not invoked when `x-helvety-auth-refreshed` caused `setAll` to no-op upstream.
+ */
 export function handleSupabaseCookieWriteFailure({
   error,
   cookieCount,

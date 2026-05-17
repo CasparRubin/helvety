@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  AUTH_REFRESHED_HEADER_NAME,
   refreshSupabaseAuthSession,
   requestMayHaveSupabaseAuthCookie,
 } from "./refresh-auth-session-in-proxy";
@@ -51,6 +52,43 @@ describe("refreshSupabaseAuthSession", () => {
     expect(response.cookies.get("sb-example-auth-token")?.value).toBe(
       "updated"
     );
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
+  });
+
+  it("preserves redirect responses and refreshed cookies", async () => {
+    createServerClientMock.mockImplementation((_url, _key, options) => ({
+      auth: {
+        getUser: async () => {
+          options.cookies.setAll([
+            {
+              name: "sb-example-auth-token",
+              value: "updated",
+              options: { path: "/", httpOnly: true },
+            },
+          ]);
+          return { data: { user: null }, error: null };
+        },
+      },
+    }));
+
+    const request = new NextRequest("https://helvety.com/", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    const redirectResponse = NextResponse.redirect(
+      new URL("/store", request.url)
+    );
+
+    const response = await refreshSupabaseAuthSession(
+      request,
+      redirectResponse
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("https://helvety.com/store");
+    expect(response.cookies.get("sb-example-auth-token")?.value).toBe(
+      "updated"
+    );
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
   });
 
   it("returns the original response when auth refresh fails", async () => {
@@ -67,6 +105,26 @@ describe("refreshSupabaseAuthSession", () => {
 
     const response = await refreshSupabaseAuthSession(request, baseResponse);
     expect(response).toBe(baseResponse);
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
+  });
+
+  it("sets the auth-refreshed header only after a successful getUser()", async () => {
+    createServerClientMock.mockImplementation(() => ({
+      auth: {
+        getUser: async () => ({ data: { user: null }, error: null }),
+      },
+    }));
+
+    const request = new NextRequest("https://helvety.com/tasks", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    const baseResponse = NextResponse.next({ request });
+
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
+
+    await refreshSupabaseAuthSession(request, baseResponse);
+
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
   });
 });
 

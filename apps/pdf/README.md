@@ -7,7 +7,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`) for shared metadata and shell chrome; shared layout-session bootstrap supplies an optional SSR session snapshot to the navbar (login still not required for tools). `PdfCommandBar` is pinned as a flex sibling above the scrollable workspace (not inside page scroll).
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`) for shared metadata and shell chrome; `bootstrapPublicLayoutUser()` supplies an optional SSR session snapshot to the navbar (login still not required for tools). `PdfCommandBar` is pinned as a flex sibling above the scrollable workspace (not inside page scroll).
 - User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) feeds metadata / JSON-LD (`PDF_APP_DESCRIPTION`) and PWA [`public/manifest.json`](./public/manifest.json) (`PDF_PWA_MANIFEST_DESCRIPTION`; verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
 - Local browser processing for supported operations
 - PDF and image input support
@@ -40,11 +40,15 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 
 Copy `env.template` to `.env.local`.
 
+This app does not use `SUPABASE_SECRET_KEY` or Upstash (no server admin client or distributed rate limiting).
+
 | Variable                               | Required | Server-only | Description                                                                                      |
 | -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                             |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                                                         |
 | `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
+
+Optional CI/monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model.
 
 ## Development and Testing
 

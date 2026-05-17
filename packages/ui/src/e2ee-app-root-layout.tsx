@@ -46,8 +46,8 @@ export type E2eeAppRootLayoutProps = Readonly<{
 
 /**
  * Shared root shell for Contacts, Notes, Tasks, and Links: nonce, per-request CSRF +
- * user bootstrap (`getCachedCSRFToken`, `getCachedUser`), JSON-LD, theme and
- * tooltip shell, app `encryptionProvider`, `EncryptionGateApp` when authenticated.
+ * user bootstrap via `bootstrapE2eeLayoutSession()`, JSON-LD, theme and tooltip shell,
+ * app `encryptionProvider`, `EncryptionGateApp` when authenticated.
  *
  * Main does not scroll at the layout level; list/editor pages pin the command bar
  * with {@link CommandBarPageLayout} and scroll body content via `ScrollArea`.

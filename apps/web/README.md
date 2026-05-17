@@ -53,6 +53,8 @@ Copy `env.template` to `.env.local`.
 
 Local development falls back to localhost targets; production uses trusted internal hosts.
 
+Optional CI/monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model.
+
 ## Development and Testing
 
 Run from `apps/web`:
@@ -66,7 +68,7 @@ bun run test:coverage
 
 ### React Bits (hero)
 
-Text animations and Hyperspeed are vendored under [`components/`](components/) via the `@react-bits` registry in [`components.json`](components.json). Presets live in [`hero-text.tsx`](components/hero-text.tsx); tests in [`hero-text.test.tsx`](components/hero-text.test.tsx).
+Text animations and Hyperspeed are vendored under [`components/`](components/) via the `@react-bits` registry in [`components.json`](components.json). Presets live in [`hero-text.tsx`](components/hero-text.tsx); tests in [`hero-text.test.tsx`](components/hero-text.test.tsx). Vendored motion components import **`framer-motion`** (not `motion/react`); Vitest mocks `framer-motion` in hero tests.
 
 Refresh text components from `apps/web`:
 

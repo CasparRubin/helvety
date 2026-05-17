@@ -4,8 +4,9 @@
  * shared action limits, etc.) and enforces root `app/page.tsx` default export name
  * `Page` per `docs/naming-conventions.md`.
  *
- * Sibling repo checks live under root `consistency:*` scripts (manifest vs SEO blurbs,
- * proxy readme sync, toolchain docs, lifecycle package.json scripts, test hygiene).
+ * Sibling repo checks live under root `consistency:*` scripts (env template keys,
+ * manifest vs SEO blurbs, proxy readme sync, toolchain docs, lifecycle package.json
+ * scripts, test hygiene).
  *
  * Zone `proxy.ts` files must inline the same `config.matcher` string as
  * `SECURITY_PROXY_MATCHER` in `packages/shared/src/proxy.ts` (Next.js requires a

@@ -2,12 +2,8 @@ import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { HelvetyShellWithLightPillarBackdrop } from "@helvety/light-pillar";
 import { STORE_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
-import {
-  getCachedCSRFToken,
-  getCachedUser,
-} from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { logger } from "@helvety/shared/logger";
+import { bootstrapE2eeLayoutSession } from "@helvety/shared/layout-session-bootstrap";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
@@ -65,23 +61,14 @@ export const metadata = createHelvetyProductMetadata({
  * {@link HelvetyShellWithLightPillarBackdrop} wraps all routes (Light Pillar WebGL on md+ light or dark;
  * static `bg-background` below md or with reduced motion; see `@helvety/light-pillar`).
  * Does not use shell overflow overrides (unlike gateway Hyperspeed).
+ * Session bootstrap: `bootstrapE2eeLayoutSession()` (CSRF + user for `CSRFProvider` and nav).
  */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  let csrfToken = "";
-  let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
-
-  try {
-    [csrfToken, initialUser] = await Promise.all([
-      getCachedCSRFToken().then((t) => t ?? ""),
-      getCachedUser(),
-    ]);
-  } catch (error) {
-    logger.logUnexpectedError("Layout initialization failed", error);
-  }
+  const { csrfToken, initialUser } = await bootstrapE2eeLayoutSession();
 
   return HelvetyPublicShellRootLayout({
     children,

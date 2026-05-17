@@ -21,6 +21,11 @@ Reason: both are app-specific UX wrappers around shared primitives (`@helvety/ui
 If a wrapper becomes shared across apps, migrate it into `packages/ui/src` and expose it via `@helvety/ui/*`.
 If a new app-local wrapper is needed, add it deliberately with a short rationale and update this policy in the same PR.
 
+## Calendar and icon primitives
+
+- **`@helvety/ui/calendar`** wraps **react-day-picker v10** (shadcn-style `classNames`, including `month_grid`). App date pickers (`contacts` `date-picker`, `tasks` `date-time-picker`) compose this export; do not pin day-picker v9 APIs or class keys.
+- **Kebab-case icon names** in E2EE seed data (categories, stages, labels) resolve through **`@helvety/ui/icon-renderer`** (`getLucideIcon`, `renderIcon`). **lucide-react v1** removed brand icons; keep user data on supported names and add **aliases** in `packages/ui/src/icon-renderer.tsx` when legacy stored names must keep working (for example `pocket` → `BookmarkIcon`).
+
 ## Styling And Composition Rules
 
 - Prefer semantic variants/tokens (`primary`, `secondary`, `destructive`, `muted`) over hardcoded palette classes.

@@ -6,7 +6,9 @@ import { logger } from "./logger";
 import type { User } from "@supabase/supabase-js";
 
 /**
- * Loads `getCachedUser` for public-shell layouts; logs and returns null on failure.
+ * Loads `getCachedUser` for public-shell layouts that only need a navbar user snapshot
+ * (no CSRF). Used by `apps/web`, `apps/pdf`, and `apps/image-upscaler`. Logs and returns
+ * null on failure.
  */
 export async function bootstrapPublicLayoutUser(): Promise<User | null> {
   try {
@@ -18,7 +20,9 @@ export async function bootstrapPublicLayoutUser(): Promise<User | null> {
 }
 
 /**
- * Loads CSRF token + session user for E2EE app shells; logs and returns empty CSRF / null user on failure.
+ * Loads CSRF token + session user in parallel for layouts that wrap content in `CSRFProvider`.
+ * Used by `apps/store` and `@helvety/ui/e2ee-app-root-layout` (tasks, contacts, notes, links).
+ * Logs and returns empty CSRF / null user on failure.
  */
 export async function bootstrapE2eeLayoutSession(): Promise<{
   csrfToken: string;

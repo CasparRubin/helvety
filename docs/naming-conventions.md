@@ -94,6 +94,12 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 - **Package name**: `@helvety/<short-name>` in `package.json`.
 - **Public export subpaths** (e.g. `@helvety/ui`): **kebab-case** matching the file stem (`./command-bar` → `command-bar.tsx`).
 
+## Lucide icon names (E2EE seed data)
+
+- Category, stage, and label configs store **kebab-case** icon strings (for example `check-circle`, `flask-conical`). They resolve at runtime via `@helvety/ui/icon-renderer` (`getLucideIcon`).
+- **lucide-react v1** removed brand icons. Prefer supported Lucide names in new seed data; add aliases in `packages/ui/src/icon-renderer.tsx` when legacy stored names must keep working.
+- Navbar chrome and the app switcher import Lucide components directly; do not assume every surface uses `icon-renderer`.
+
 ## Imports
 
 - Follow `@helvety/config` ESLint `import-x/order`: builtins → external → internal (`@/**`) → parent/sibling, blank lines between groups, alphabetical.

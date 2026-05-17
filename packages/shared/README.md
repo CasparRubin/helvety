@@ -17,6 +17,7 @@ This package centralizes:
 - Dashboard list prefetch helpers via `@helvety/shared/dashboard-prefetch` (row-cap detection plus over-cap messages: generic items string vs contacts-specific copy; see module exports)
 - Card-level Helvety Store catalog via `@helvety/shared/store-catalog` (`STORE_PRODUCT_CARDS`, `StoreProductId` literal-id union, plus typed sort/lookup/badge-label helpers) as the single source of truth for Store card fields (name, blurb, type, category, runs-on, free / open-source flags, release date); see `apps/store/README.md` › "Adding a New Product" for the end-to-end add-a-product flow
 - Customer-facing copy guardrails via `@helvety/shared/customer-copy-guardrails` (user-facing path list; em-dash rule; SEO license-free checks in `seo-customer-copy.test.ts` and `store-copy-guardrails.test.ts`; enforced by `consistency:customer-copy`, `consistency:install-manifest-metadata`, and Vitest)
+- Per-app `env.template` keys validated by root `consistency:env-templates` (`scripts/env-template-expectations.mjs`; Vitest in `env-template-consistency.test.ts`)
 - Navbar About blurbs via `@helvety/shared/app-navbar-about` (per-app product copy; Swiss closing uses `HELVETY_SWISS_ORIGIN_SEO`)
 
 ## Core Contracts
@@ -53,13 +54,16 @@ This package centralizes:
 
 ### Supabase SSR
 
-- Refresh auth session cookies early when `sb-*` cookies are present.
+- Refresh auth session cookies early when `sb-*` cookies are present (`refreshSupabaseAuthSession` in `createSecurityProxy`, and on `createAppProxy` root → `basePath` redirects when session cookies are present).
+- After a successful proxy refresh, the proxy sets `x-helvety-auth-refreshed: 1` on the request and forwards it to Server Components. `createServerComponentClient` then **no-ops** `setAll` in layouts so RSC does not attempt disallowed cookie writes; development still throws if the header is absent and a write is blocked (guardrail for missing proxy refresh).
 - CSRF cookie signing uses `HELVETY_COOKIE_SIGNING_SECRET` only (not `SUPABASE_SECRET_KEY`). Required on apps whose proxy profile sets `includeCsrf: true`: `e2ee-app`, `auth-gateway`, `store-gateway`, and `public-tool`. The proxy re-issues the signed `csrf_token` cookie when it is missing or fails validation (for example after secret rotation); layouts read the current token via `getCachedCSRFToken` (cookie, then `x-csrf-bootstrap-token`). The gateway (`public-marketing`) does not bootstrap CSRF cookies.
 - Use trusted user reads for security-sensitive checks: call `supabase.auth.getUser()` directly or via `@helvety/shared/auth-retry` (`getAuthUser`, single-shot, fail-closed). Do not use `auth.getSession()` for authorization (`bun run consistency:supabase-auth`).
 - `lookupCredentialByCredentialId` in `packages/shared/src/supabase/admin.ts` centralizes passkey credential lookup by WebAuthn credential id (used by auth passkey sign-in).
 - `createAdminClient()` is for system flows only; approved call sites are listed in `packages/shared/src/supabase/admin.ts`. Prefer `createScopedAdminQuery(userId)` for user-owned tables.
 - `@helvety/shared/cached-server` exposes per-request cached helpers such as `getCachedUser` and `getCachedCSRFToken` (built with React `cache`) so root layouts and navbars can share one Supabase `getUser` / CSRF read per request without duplicate round-trips.
-- `@helvety/shared/layout-session-bootstrap` exports `bootstrapPublicLayoutUser()` (wraps `getCachedUser` with logging and null fallback) for public shells such as `apps/web` that want a single call site in `app/layout.tsx`.
+- `@helvety/shared/layout-session-bootstrap`:
+  - `bootstrapPublicLayoutUser()` — user only (e.g. `apps/web`, `apps/pdf`, `apps/image-upscaler`).
+  - `bootstrapE2eeLayoutSession()` — CSRF + user in parallel (e.g. `apps/store` layout, `@helvety/ui/e2ee-app-root-layout` for tasks/contacts/notes/links). Both helpers log and return safe fallbacks on failure.
 
 ### Logging and Errors
 

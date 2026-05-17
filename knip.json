@@ -25,7 +25,8 @@
     "packages/config": {
       "entry": ["*.{ts,tsx,js,jsx,mjs,cjs}"],
       "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
-      "ignoreBinaries": ["vitest"]
+      "ignoreBinaries": ["vitest"],
+      "ignoreDependencies": ["eslint-plugin-react"]
     }
   },
   "ignoreDependencies": [

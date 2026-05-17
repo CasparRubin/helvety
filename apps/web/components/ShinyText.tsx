@@ -7,12 +7,10 @@ import {
   useMotionValue,
   useAnimationFrame,
   useTransform,
-} from "motion/react";
+} from "framer-motion";
 import React, { useState, useCallback, useEffect, useRef } from "react";
 
-/**
- *
- */
+/** Props for the React Bits Shiny Text hero animation. */
 interface ShinyTextProps {
   text: string;
   disabled?: boolean;

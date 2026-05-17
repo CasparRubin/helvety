@@ -373,7 +373,7 @@ function getValidatedEnv(): Env {
     const errorMessage =
       `Invalid environment variables:\n${errors}\n\n` +
       "Please check your .env.local file and ensure all required variables are set.\n" +
-      "See env.template for an example.\n\n" +
+      "See your app's env.template (for example apps/web/env.template) for required keys.\n\n" +
       "Security Note: NEXT_PUBLIC_ variables are exposed to the client. " +
       "Only use safe, public keys (anon/publishable keys) in these variables. " +
       "Do not use Supabase secret keys (legacy service_role keys) or other sensitive credentials.";

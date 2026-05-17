@@ -8,7 +8,7 @@ export interface DefaultCategory {
   id: string;
   name: string;
   color: string;
-  /** Lucide icon name used in category headers and selectors. */
+  /** Kebab-case Lucide name; resolved by `@helvety/ui/icon-renderer` (`getLucideIcon`). */
   icon: string;
   sort_order: number;
   default_rows_shown: number;

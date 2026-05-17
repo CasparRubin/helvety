@@ -100,7 +100,7 @@ describe("proxy shared abstractions", () => {
     expect(childResult).toBeNull();
   });
 
-  it("createAppProxy applies root redirect before security proxy", async () => {
+  it("createAppProxy redirects root to basePath without calling security proxy (auth refresh covered separately)", async () => {
     const securityProxy = vi.fn(async () =>
       NextResponse.redirect("https://helvety.com/security")
     );

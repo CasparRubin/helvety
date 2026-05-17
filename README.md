@@ -12,7 +12,7 @@ Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 - Client-encrypted apps (E2EE): `tasks`, `contacts`, `notes`, `links`
 - Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/brand`, `@helvety/light-pillar` (Store/Auth shell backdrop)
 
-Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `@helvety/ui/e2ee-app-root-layout`. **Store** and **Auth** wrap the public shell in `@helvety/light-pillar` (`HelvetyShellWithLightPillarBackdrop`: shell UI paints first; Light Pillar WebGL on **md+** light or dark; static `bg-background` below **md** or with reduced motion; see [`packages/light-pillar`](packages/light-pillar/README.md)). Command bars (store section nav, list toolbars, PDF/image toolbars, E2EE dashboards/editors) stay pinned outside scroll via shell slots (`scrollAreaMainPrefix`, `overflow-main` flex columns, or `CommandBarPageLayout` + shadcn `ScrollArea`). Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. Public layouts bootstrap SSR user state via `@helvety/shared/layout-session-bootstrap`; E2EE layouts bootstrap CSRF and user state inside `E2eeAppRootLayout` through the same shared helper layer.
+Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `@helvety/ui/e2ee-app-root-layout`. **Store** and **Auth** wrap the public shell in `@helvety/light-pillar` (`HelvetyShellWithLightPillarBackdrop`: shell UI paints first; Light Pillar WebGL on **md+** light or dark; static `bg-background` below **md** or with reduced motion; see [`packages/light-pillar`](packages/light-pillar/README.md)). Command bars (store section nav, list toolbars, PDF/image toolbars, E2EE dashboards/editors) stay pinned outside scroll via shell slots (`scrollAreaMainPrefix`, `overflow-main` flex columns, or `CommandBarPageLayout` + shadcn `ScrollArea`). Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. SSR session bootstrap uses `@helvety/shared/layout-session-bootstrap`: `bootstrapPublicLayoutUser()` for user-only public zones (web, pdf, image-upscaler); `bootstrapE2eeLayoutSession()` for CSRF + user (store layout, E2EE apps via `E2eeAppRootLayout`; auth loads the same cached helpers inline in its layout).
 
 ## Applications
 
@@ -40,7 +40,7 @@ Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf
 
 ## Prerequisites
 
-- [Bun](https://bun.sh/) `1.3.13`
+- [Bun](https://bun.sh/) `1.3.14`
 - [Node.js](https://nodejs.org/) `24.x`
 
 ## Getting Started
@@ -95,7 +95,7 @@ bun run format
 ## Monorepo Conventions
 
 - ESLint boundary rules enforce that apps do not import code directly from other apps; shared logic must live in workspace packages.
-- **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). Company SEO uses **Private, simple, clean** and **Engineered, designed and made in Switzerland**; AGPL belongs on legal pages, Store product About copy, and `llms.txt` licensing sections, not in site titles or metadata descriptions. Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and root `consistency:*` scripts such as `consistency:guardrails`, `consistency:supabase-auth`, `consistency:license`, `consistency:customer-copy`, and `consistency:install-manifest-metadata`; see `package.json` for the full list.
+- **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). Company SEO uses **Private, simple, clean** and **Engineered, designed and made in Switzerland**; AGPL belongs on legal pages, Store product About copy, and `llms.txt` licensing sections, not in site titles or metadata descriptions. Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and root `consistency:*` scripts such as `consistency:env-templates`, `consistency:guardrails`, `consistency:supabase-auth`, `consistency:license`, `consistency:customer-copy`, and `consistency:install-manifest-metadata`; see `package.json` for the full list.
 - **UI/shadcn integration boundaries** (shared-vs-local primitive ownership, allowed app-local wrappers, and guardrail expectations): [`docs/ui-shadcn-integration-policy.md`](docs/ui-shadcn-integration-policy.md).
 - Workspace layout, per-app entry points, and CI/release expectations are described in this file and in each app or package `README.md` (for example [`packages/ui/README.md`](packages/ui/README.md) for shared UI shells).
 
@@ -103,8 +103,8 @@ bun run format
 
 All quality gates run locally. There is no GitHub Actions or other remote CI in this repo; deployment is handled by Vercel from the pushed commit.
 
-- `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:guardrails`, `consistency:supabase-auth`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `test:hygiene`, `deps:unused` (Knip: unused files, dependencies, exports, types), `format:check`, `lint`, `type-check`, `test`.
-  - `consistency:toolchain-docs` keeps the Bun version called out in this README aligned with root `packageManager`, and keeps the Next.js documentation deep link in [`docs/naming-conventions.md`](docs/naming-conventions.md) aligned with the caret minimum in [`apps/web/package.json`](apps/web/package.json) `dependencies.next`.
+- `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:env-templates`, `consistency:guardrails`, `consistency:supabase-auth`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `test:hygiene`, `deps:unused` (Knip: unused files, dependencies, exports, types), `format:check`, `lint`, `type-check`, `test`.
+  - `consistency:toolchain-docs` keeps the Bun version called out in this README aligned with root `packageManager`, keeps the Next.js documentation deep link in [`docs/naming-conventions.md`](docs/naming-conventions.md) aligned with the caret minimum in [`apps/web/package.json`](apps/web/package.json) `dependencies.next`, and keeps this README's documented `ci:check` step order aligned with `package.json`.
 - `bun run ci:release` (run before `git push` / before Vercel deploys) - `ci:check` plus `build`.
 - Placeholder env mode (`SKIP_ENV_VALIDATION=1` off Vercel) is available for local build smoke tests, but `ci:release` runs with normal env validation.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.
@@ -116,12 +116,17 @@ All quality gates run locally. There is no GitHub Actions or other remote CI in 
 
 ## Environment Model
 
-- App URL and cookie domain logic are derived from `NODE_ENV` via shared config.
-- `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` can override the server-action trusted-origin allowlist as a comma-separated list; on Vercel, defaults are derived automatically from deployment/runtime URLs plus `https://helvety.com`.
-- `apps/web` additionally requires `AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, and `LINKS_URL` when `VERCEL=1` so multi-zone rewrites can resolve trusted internal origins.
-- App READMEs document per-app env templates; shared runtime/security defaults are documented in this root README and `packages/config`.
+- Copy each app's `env.template` to `.env.local` before running that app (see setup commands above). `bun run consistency:env-templates` (in `ci:check`) keeps every template aligned with startup validation in `lib/env.ts` and gateway config in `apps/web/next.config.ts`.
+- App URL and cookie domain logic are derived from `NODE_ENV` via shared config (`packages/shared/src/config.ts`).
+- **Per-app tiers** (see each `apps/*/env.template` and app README):
+  - **Full stack** (`auth`, `notes`, `tasks`, `contacts`, `links`, `store`): public Supabase keys, `SUPABASE_SECRET_KEY`, Upstash Redis, `HELVETY_COOKIE_SIGNING_SECRET`.
+  - **Auth only** adds `DEVICE_TRUST_COOKIE_SECRET` (separate from CSRF signing; min 32 characters).
+  - **Public tools** (`pdf`, `image-upscaler`): public Supabase keys and `HELVETY_COOKIE_SIGNING_SECRET` only (no server admin client or Upstash rate limiting).
+  - **Gateway** (`web`): public Supabase keys plus internal rewrite URLs (`AUTH_URL`, `STORE_URL`, …) when `VERCEL=1`.
+- **Optional** (commented in every `env.template`; not required for normal local dev): `SKIP_ENV_VALIDATION=1` (local build smoke tests only, off Vercel; `ci:release` uses real validation), and `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` (comma-separated Server Actions origin override; on Vercel, defaults come from deployment URLs plus `https://helvety.com`).
+- `apps/web` requires `AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, and `LINKS_URL` when `VERCEL=1` so multi-zone rewrites can resolve trusted internal origins. Local dev falls back to localhost ports.
 - `HELVETY_COOKIE_SIGNING_SECRET` (min 32 characters; generate with `openssl rand -base64 48`) is required on every zone whose proxy profile enables CSRF (`e2ee-app`, `auth-gateway`, `store-gateway`, `public-tool`). It is **not** interchangeable with `SUPABASE_SECRET_KEY`. The gateway (`apps/web`, `public-marketing` profile) does not bootstrap CSRF cookies and does not need this variable.
-- `SUPABASE_SECRET_KEY` is server-only and used for privileged Supabase admin/storage operations (for example signed package downloads in Store). Public download redirect allowlisting uses the project origin from `NEXT_PUBLIC_SUPABASE_URL` only.
+- `SUPABASE_SECRET_KEY` is server-only and used for privileged Supabase admin/storage operations (for example signed package downloads in Store). Public download redirect allowlisting uses the project origin from `NEXT_PUBLIC_SUPABASE_URL` only. Store also requires `NEXT_PUBLIC_SUPABASE_URL` on Vercel builds for Next.js image `remotePatterns`.
 
 ## Supabase Workflow (Remote-First)
 
@@ -137,7 +142,7 @@ SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
 
 ## Security Posture (High Level)
 
-- `proxy.ts` is lightweight request setup (CSP headers, CSRF bootstrap/re-issue when needed, and Supabase cookie refresh), not the primary auth boundary. Zone apps inline the same `config.matcher` pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal; CI guardrails keep parity) so common static files (including PDF.js and ONNX worker assets: `.mjs`, `.wasm`, `.json`) skip that chain. The `apps/web` gateway uses a custom matcher with the same static extension exclusions plus zone path skips.
+- `proxy.ts` is lightweight request setup (CSP headers, CSRF bootstrap/re-issue when needed, and Supabase cookie refresh), not the primary auth boundary. Zone `createAppProxy` helpers refresh sessions on root → `basePath` redirects when `sb-*` auth cookies are present; `createSecurityProxy` refreshes on normal document requests and sets `x-helvety-auth-refreshed` so layouts do not retry cookie writes in RSC. Zone apps inline the same `config.matcher` pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal; CI guardrails keep parity) so common static files (including PDF.js and ONNX worker assets: `.mjs`, `.wasm`, `.json`) skip that chain. The `apps/web` gateway uses a custom matcher with the same static extension exclusions plus zone path skips.
 - Primary auth/authz enforcement lives in Server Components, Server Actions, and route handlers. Use `supabase.auth.getUser()` (via `@helvety/shared/auth-retry` `getAuthUser` where shared) for authorization decisions; never `auth.getSession()` (`bun run consistency:supabase-auth`).
 - CSRF-enabled zones sign proxy cookies with `HELVETY_COOKIE_SIGNING_SECRET` only (`packages/shared/src/cookie-signing.ts`). The proxy re-issues invalid or stale `csrf_token` cookies (not only when the cookie is absent); rotate the signing secret in Vercel rather than reusing `SUPABASE_SECRET_KEY`.
 - E2EE apps (`tasks`, `contacts`, `notes`, `links`) enforce server-side page guards and passkey-based unlock flows.

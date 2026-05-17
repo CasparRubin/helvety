@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_DOMAIN } from "./config";
 import { signCookiePayload, verifySignedCookiePayload } from "./cookie-signing";
 import {
+  AUTH_REFRESHED_HEADER_NAME,
   refreshSupabaseAuthSession,
   requestMayHaveSupabaseAuthCookie,
 } from "./supabase/refresh-auth-session-in-proxy";
@@ -152,7 +153,13 @@ export function redirectRootToBasePath(
   return NextResponse.redirect(new URL(basePath, request.url));
 }
 
-/** Build a proxy with root → basePath redirect (when set) plus shared security proxy. */
+/**
+ * Build a proxy with root → basePath redirect (when set) plus shared security proxy.
+ *
+ * When `defaultBasePath` is set and the request pathname is `/`, redirects to the
+ * zone base path. If `sb-*` auth cookies are present, runs `refreshSupabaseAuthSession`
+ * on that redirect response so session refresh is not skipped before the security proxy.
+ */
 export function createAppProxy(options: {
   securityProxy: (request: NextRequest) => Promise<NextResponse>;
   defaultBasePath?: string;
@@ -163,6 +170,9 @@ export function createAppProxy(options: {
     if (defaultBasePath) {
       const rootRedirect = redirectRootToBasePath(request, defaultBasePath);
       if (rootRedirect) {
+        if (requestMayHaveSupabaseAuthCookie(request)) {
+          return refreshSupabaseAuthSession(request, rootRedirect);
+        }
         return rootRedirect;
       }
     }
@@ -177,9 +187,10 @@ export function createAppProxy(options: {
  * DESIGN: CSP, CSRF, and headers, plus **Supabase auth cookie refresh** on the
  * same response. CSRF bootstrap runs when the cookie is missing or fails
  * signature/format checks under the current `HELVETY_COOKIE_SIGNING_SECRET`
- * (not merely when a cookie name is present). Server Components cannot persist refreshed session cookies
- * (`createServerComponentClient` swallows `setAll` in RSC); the proxy runs early
- * enough to call `getUser()` and write `Set-Cookie` per @supabase/ssr guidance.
+ * (not merely when a cookie name is present). Server Components must not persist refreshed
+ * session cookies: the proxy calls `getUser()` early, sets `x-helvety-auth-refreshed`, and
+ * `createServerComponentClient` no-ops `setAll` when that header is present (dev throws if
+ * the proxy did not refresh and RSC still attempts a write).
  * Still no application DB or business logic in the proxy-only Supabase Auth HTTP.
  *
  * Config must be exported separately in each app (Next.js requires static config).
@@ -244,6 +255,16 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
 
     if (requestMayHaveSupabaseAuthCookie(request)) {
       response = await refreshSupabaseAuthSession(request, response);
+      if (request.headers.get(AUTH_REFRESHED_HEADER_NAME) === "1") {
+        requestHeaders.set(AUTH_REFRESHED_HEADER_NAME, "1");
+        const priorCookies = response.cookies.getAll();
+        response = NextResponse.next({
+          request: { headers: requestHeaders },
+        });
+        for (const cookie of priorCookies) {
+          response.cookies.set(cookie);
+        }
+      }
     }
 
     if (shouldBootstrapCsrf && signedBootstrapCsrfToken) {

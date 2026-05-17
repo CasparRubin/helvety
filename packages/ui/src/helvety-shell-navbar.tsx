@@ -7,7 +7,7 @@ import {
 import { urls } from "@helvety/shared/config";
 import {
   CircleUser as UserIcon,
-  Github,
+  Code2,
   Info,
   LogIn,
   LogOut,
@@ -364,7 +364,7 @@ export function HelvetyShellNavbar({
                   aria-label="View source code on GitHub"
                 >
                   <Button variant="ghost" size="icon" className="h-9 w-9">
-                    <Github className="size-4" />
+                    <Code2 className="size-4" />
                   </Button>
                 </a>
               </TooltipTrigger>
@@ -460,7 +460,7 @@ export function HelvetyShellNavbar({
                     rel="noopener noreferrer"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Github className="size-4" />
+                    <Code2 className="size-4" />
                     GitHub
                   </a>
                 </Button>

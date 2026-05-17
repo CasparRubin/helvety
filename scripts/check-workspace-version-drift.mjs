@@ -7,8 +7,8 @@ const REQUIRED_VERSION_BY_DEP = new Map([
   ["next", "^16.2.6"],
   ["react", "^19.2.6"],
   ["react-dom", "^19.2.6"],
-  ["typescript", "^5"],
-  ["eslint", "^9.39.4"],
+  ["typescript", "^6"],
+  ["eslint", "^10.4.0"],
   ["vitest", "^4.1.6"],
   ["@vitest/coverage-v8", "^4.1.6"],
   ["@testing-library/jest-dom", "^6.9.1"],
@@ -19,7 +19,19 @@ const REQUIRED_VERSION_BY_DEP = new Map([
   ["@simplewebauthn/server", "^13.3.0"],
   ["@simplewebauthn/browser", "^13.3.0"],
   ["zod", "^4.4.3"],
+  ["prettier", "^3.8.3"],
   ["prettier-plugin-tailwindcss", "^0.8.0"],
+  ["tailwindcss", "^4.3.0"],
+  ["@tailwindcss/postcss", "^4.3.0"],
+  ["shadcn", "^4.7.0"],
+  ["babel-plugin-react-compiler", "^1.0.0"],
+  ["@types/node", "^24.12.4"],
+  ["lucide-react", "^1.16.0"],
+  ["sonner", "^2.0.7"],
+  ["@tiptap/pm", "^3.23.4"],
+  ["@tiptap/react", "^3.23.4"],
+  ["@types/three", "0.184.1"],
+  ["react-day-picker", "^10.0.1"],
 ]);
 
 /**
@@ -51,7 +63,8 @@ async function readManifest(manifestPath) {
 function getDependencyVersion(manifest, dependencyName) {
   return (
     manifest.dependencies?.[dependencyName] ??
-    manifest.devDependencies?.[dependencyName]
+    manifest.devDependencies?.[dependencyName] ??
+    manifest.peerDependencies?.[dependencyName]
   );
 }
 

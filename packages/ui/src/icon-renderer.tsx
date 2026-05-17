@@ -69,7 +69,6 @@ import {
   PinIcon,
   PlayIcon,
   PlusIcon,
-  PocketIcon,
   PowerIcon,
   PrinterIcon,
   RadioIcon,
@@ -212,7 +211,8 @@ const ICON_MAP: Record<string, LucideIconComponent> = {
   pin: PinIcon,
   play: PlayIcon,
   plus: PlusIcon,
-  pocket: PocketIcon,
+  // lucide-react v1 removed brand icons; keep stored E2EE icon names working.
+  pocket: BookmarkIcon,
   power: PowerIcon,
   printer: PrinterIcon,
   radio: RadioIcon,

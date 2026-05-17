@@ -2,6 +2,7 @@
  * Keeps documented toolchain versions aligned with manifests:
  * - Root `packageManager` (Bun) ↔ README prerequisites
  * - `apps/web` `next` semver ↔ Next.js doc deep link in `docs/naming-conventions.md`
+ * - Root `ci:check` script order ↔ README Automation bullet
  */
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -52,6 +53,40 @@ async function main() {
   if (!naming.includes(expectedSubpath)) {
     throw new Error(
       `${namingPath} must link to Next.js docs at \`${expectedSubpath}\` to match apps/web next (${nextSpec}).`
+    );
+  }
+
+  const ciCheckScript = rootPackage.scripts?.["ci:check"];
+  if (typeof ciCheckScript !== "string") {
+    throw new Error('Root package.json must define a "ci:check" script.');
+  }
+
+  const ciCheckFromPackage = [
+    ...ciCheckScript.matchAll(/consistency:[\w-]+/g),
+  ].map((match) => match[0]);
+
+  const ciCheckLine = readme
+    .split("\n")
+    .find(
+      (line) =>
+        line.includes("`bun run ci:check`") && line.includes("in order:")
+    );
+
+  if (!ciCheckLine) {
+    throw new Error(
+      "README.md Automation must document ci:check step order (bun run ci:check ... in order: ...)."
+    );
+  }
+
+  const ciCheckFromReadme = [
+    ...ciCheckLine.matchAll(/`consistency:[^`]+`/g),
+  ].map((match) => match[0].slice(1, -1));
+
+  if (ciCheckFromPackage.join("|") !== ciCheckFromReadme.join("|")) {
+    throw new Error(
+      `README.md ci:check consistency steps are out of sync with package.json.\n` +
+        `  package.json: ${ciCheckFromPackage.join(", ")}\n` +
+        `  README.md:    ${ciCheckFromReadme.join(", ")}`
     );
   }
 

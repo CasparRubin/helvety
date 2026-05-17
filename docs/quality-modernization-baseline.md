@@ -14,9 +14,9 @@
   - shared ESLint/TS policy entrypoints
 - `@helvety/shared`
   - `createAppProxy`, `createProfiledSecurityProxy`, and `SECURITY_PROXY_MATCHER` (canonical `proxy.ts` zone matcher pattern; apps inline the literal per Next.js)
-  - auth redirect/callback behavior; **proxy refreshes sessions only — authorization uses `getUser()` in Server Components/actions (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()`** (`bun run consistency:supabase-auth`)
+  - auth redirect/callback behavior; **proxy refreshes sessions only** (`refreshSupabaseAuthSession`, including on `createAppProxy` root redirects when `sb-*` cookies are present) and sets `x-helvety-auth-refreshed` for RSC clients — **authorization uses `getUser()` in Server Components/actions** (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()` (`bun run consistency:supabase-auth`)
   - `HELVETY_COOKIE_SIGNING_SECRET` for CSRF/proxy cookie signing (separate from `SUPABASE_SECRET_KEY`; proxy re-issues invalid/stale `csrf_token` cookies)
-  - server env validation and Supabase client factories
+  - server env validation and Supabase client factories; per-app `env.template` parity (`consistency:env-templates`)
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
   - shared navigation/session UX behavior
@@ -34,7 +34,7 @@
 5. **E2EE convergence** — done (URL-synced sheets)
    - Tasks/notes/contacts use `useE2eeEntityPanelWithUrl`; links keeps discriminated link/folder panel state with `useLinksPanelUrlSync` and the same `E2eeEntityDetailSheet` shell.
 6. **Verification/guardrails** — ongoing
-   - Lint/type-check/tests must stay green; `consistency:supabase-auth` and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
+   - Lint/type-check/tests must stay green; `consistency:env-templates`, `consistency:supabase-auth`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
 
 ## Multi-zone static assets (`assetPrefix`)
 
@@ -49,3 +49,5 @@
 - EncryptionGate redirect intent derivation (fewer effects)
 - Hyperspeed React 19 ref-callback mount/dispose
 - Store product catalog caching
+- Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift`)
+- UI majors: lucide-react v1 (`icon-renderer` aliases), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep

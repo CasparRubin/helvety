@@ -83,7 +83,7 @@ export interface Stage {
   user_id: string;
   name: string;
   color: string | null;
-  /** Lucide icon name (e.g., "circle", "check-circle") */
+  /** Kebab-case Lucide name for `@helvety/ui/icon-renderer` (e.g. "circle", "check-circle"). */
   icon: string;
   sort_order: number;
   /** Number of rows to show by default (0 = collapsed) */
@@ -102,7 +102,7 @@ export interface Label {
   user_id: string;
   name: string;
   color: string | null;
-  /** Lucide icon name (e.g., "circle", "bug") */
+  /** Kebab-case Lucide name for `@helvety/ui/icon-renderer` (e.g. "circle", "bug"). */
   icon: string;
   sort_order: number;
   created_at: string;

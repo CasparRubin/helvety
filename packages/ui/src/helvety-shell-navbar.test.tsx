@@ -90,6 +90,18 @@ describe("HelvetyShellNavbar", () => {
     expect(home).not.toHaveAttribute("target");
   });
 
+  it("links to the Helvety GitHub repository with an accessible label", () => {
+    renderShell();
+    const github = screen.getByRole("link", {
+      name: "View source code on GitHub",
+    });
+    expect(github).toHaveAttribute(
+      "href",
+      "https://github.com/CasparRubin/helvety"
+    );
+    expect(github).toHaveAttribute("target", "_blank");
+  });
+
   it("renders profile menu trigger when authenticated", () => {
     vi.mocked(useNavbarAuthState).mockReturnValue({
       user: { id: "u1", email: "dev@example.com" },

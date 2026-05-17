@@ -58,6 +58,21 @@ describe("ProductDetailClient", () => {
     expect(document.querySelector('a[href*="/api/packages/"]')).toBeNull();
   });
 
+  it("renders a GitHub source link when the product lists a repository URL", () => {
+    render(
+      <ProductDetailClient slug="helvety-power-automate-editor-version-enforcer" />
+    );
+
+    const github = screen.getByRole("link", {
+      name: /View source code on GitHub/i,
+    });
+    expect(github).toHaveAttribute(
+      "href",
+      "https://github.com/CasparRubin/power-automate-editor-version-enforcer"
+    );
+    expect(github).toHaveAttribute("target", "_blank");
+  });
+
   it("uses opaque surface panels for About and Installation over the shell backdrop", () => {
     render(
       <ProductDetailClient slug="helvety-power-automate-editor-version-enforcer" />

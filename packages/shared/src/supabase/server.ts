@@ -20,6 +20,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * - This client relies on currently configured Row Level Security (RLS) policies
  * - Server-side code can perform additional authorization checks before operations
  * - Use this for server components and server actions that need database access
+ * - Session cookie refresh belongs in `proxy.ts` (or route handlers/actions); layouts rely on
+ *   `x-helvety-auth-refreshed` from the proxy to avoid RSC cookie writes
  * - Do not use a Supabase secret key (legacy service_role) in this client; it is highly privileged and can bypass RLS where object privileges allow
  *
  * @returns Promise that resolves to a Supabase client instance
