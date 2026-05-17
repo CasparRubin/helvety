@@ -5,16 +5,11 @@ import { Grip } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import { AccessibleSheetHeader } from "./accessible-sheet-header";
 import { appSwitcherSections } from "./app-switcher-sections";
 import { Button } from "./button";
 import { ScrollArea } from "./scroll-area";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "./sheet";
+import { Sheet, SheetContent } from "./sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 /** Props for the AppSwitcher component. */
@@ -53,12 +48,11 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
       </Tooltip>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="flex flex-col">
-          <SheetHeader className="shrink-0">
-            <SheetTitle>Helvety apps and tools</SheetTitle>
-            <SheetDescription className="sr-only">
-              Navigate between helvety.com web apps and related store links.
-            </SheetDescription>
-          </SheetHeader>
+          <AccessibleSheetHeader
+            className="shrink-0"
+            title="Helvety apps and tools"
+            description="Navigate between helvety.com web apps and related store links."
+          />
           <ScrollArea className="mt-6 min-h-0 flex-1">
             <div className="space-y-5 px-1 pb-6">
               {appSwitcherSections.map((section) => (

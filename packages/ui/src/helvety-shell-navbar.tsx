@@ -21,6 +21,7 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useState, type ReactNode } from "react";
 
+import { AccessibleSheetHeader } from "./accessible-sheet-header";
 import { Button } from "./button";
 import {
   Dialog,
@@ -40,14 +41,7 @@ import {
   PopoverTrigger,
 } from "./popover";
 import { Separator } from "./separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "./sheet";
+import { Sheet, SheetContent, SheetTrigger } from "./sheet";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import { useNavbarAuthState } from "./use-navbar-auth-state";
@@ -384,12 +378,10 @@ export function HelvetyShellNavbar({
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-                <SheetDescription className="sr-only">
-                  {navigationMenuDescription}
-                </SheetDescription>
-              </SheetHeader>
+              <AccessibleSheetHeader
+                title="Menu"
+                description={navigationMenuDescription}
+              />
               <nav className="mt-6 flex flex-col gap-2 px-4">
                 {encryptionBadge && (
                   <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">

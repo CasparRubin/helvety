@@ -49,6 +49,9 @@
 - EncryptionGate redirect intent derivation (fewer effects)
 - Hyperspeed React 19 ref-callback mount/dispose; animation timing via `THREE.Timer` (not deprecated `THREE.Clock`)
 - Gateway Vercel Analytics `/<id>/script.js` referer routing allows query/hash after zone paths (`apps/web/lib/zone-analytics-referer.ts`)
+- **Vercel Web Analytics (ops):** enable on all nine Vercel projects (`web`, `auth`, `store`, `pdf`, `image-upscaler`, `tasks`, `contacts`, `notes`, `links`) and redeploy each so `/<id>/script.js` is served from that deployment; the gateway only proxies by Referer. Set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false` locally to skip `HelvetyVercelAnalytics` in shared layouts when not using the gateway proxy.
+- **CSS chunking:** all apps inherit `experimental.cssChunking: "strict"` from `@helvety/config/next` (`packages/config/next.test.mjs`).
+- **Sheet/Dialog a11y:** use `AccessibleSheetHeader` or an explicit `*Description` on every Radix sheet/dialog (`packages/ui`).
 - Store product catalog caching
 - Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift`)
 - UI majors: lucide-react v1 (`icon-renderer` aliases), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep

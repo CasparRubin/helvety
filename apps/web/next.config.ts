@@ -102,8 +102,9 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
       return {
         beforeFiles: [
           {
-            // Vercel Analytics script path (e.g. /75d1cebe0bf9989d/script.js)
-            // uses a root-relative URL, so route by referer (zone path + optional ?query / #hash).
+            // Vercel Analytics script (e.g. /75d1cebe0bf9989d/script.js) is root-relative on helvety.com,
+            // so proxy to the zone origin by Referer (zone path + optional ?query / #hash). The target
+            // deployment must have Web Analytics enabled for that script to exist.
             source: analyticsScriptSource,
             has: [
               {

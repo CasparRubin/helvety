@@ -45,7 +45,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
           src={product.image ?? PRODUCT_IMAGE_FALLBACK}
           alt=""
           fill
-          loading="lazy"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
         />

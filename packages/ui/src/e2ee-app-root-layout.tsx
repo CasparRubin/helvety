@@ -16,7 +16,7 @@ import { SkipToContent } from "./skip-to-content";
 import { Toaster } from "./sonner";
 import { ThemeProvider } from "./theme-provider";
 import { TooltipProvider } from "./tooltip";
-import { VercelAnalytics } from "./vercel-analytics";
+import { HelvetyVercelAnalytics } from "./vercel-analytics";
 
 import type { User } from "@supabase/supabase-js";
 import type { ComponentType, ReactNode } from "react";
@@ -47,7 +47,8 @@ export type E2eeAppRootLayoutProps = Readonly<{
 /**
  * Shared root shell for Contacts, Notes, Tasks, and Links: nonce, per-request CSRF +
  * user bootstrap via `bootstrapE2eeLayoutSession()`, JSON-LD, theme and tooltip shell,
- * app `encryptionProvider`, `EncryptionGateApp` when authenticated.
+ * app `encryptionProvider`, `EncryptionGateApp` when authenticated, and optional
+ * `HelvetyVercelAnalytics` (`NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false` to skip).
  *
  * Main does not scroll at the layout level; list/editor pages pin the command bar
  * with {@link CommandBarPageLayout} and scroll body content via `ScrollArea`.
@@ -115,7 +116,7 @@ export async function E2eeAppRootLayout({
             </CSRFProvider>
           </TooltipProvider>
         </ThemeProvider>
-        <VercelAnalytics />
+        <HelvetyVercelAnalytics />
       </body>
     </html>
   );

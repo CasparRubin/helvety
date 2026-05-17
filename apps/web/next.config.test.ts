@@ -28,6 +28,18 @@ function getBeforeFiles(
   return rewritesResult.beforeFiles;
 }
 
+const ANALYTICS_SCRIPT_SOURCE = "/:analyticsId([a-z0-9]+)/script.js";
+
+const PROXIED_ANALYTICS_ZONES = [
+  ["tasks", DEV_PORTS.tasks],
+  ["contacts", DEV_PORTS.contacts],
+  ["notes", DEV_PORTS.notes],
+  ["links", DEV_PORTS.links],
+  ["store", DEV_PORTS.store],
+  ["pdf", DEV_PORTS.pdf],
+  ["image-upscaler", DEV_PORTS.imageUpscaler],
+] as const;
+
 describe("web gateway rewrites", () => {
   beforeEach(() => {
     vi.stubEnv("NODE_ENV", "development");
@@ -73,99 +85,30 @@ describe("web gateway rewrites", () => {
     );
   });
 
-  it("routes analytics script requests to every zone origin by referer path", async () => {
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-    const tasksOrigin = `http://localhost:${DEV_PORTS.tasks}`;
-    const contactsOrigin = `http://localhost:${DEV_PORTS.contacts}`;
-    const notesOrigin = `http://localhost:${DEV_PORTS.notes}`;
-    const linksOrigin = `http://localhost:${DEV_PORTS.links}`;
-    const storeOrigin = `http://localhost:${DEV_PORTS.store}`;
-    const pdfOrigin = `http://localhost:${DEV_PORTS.pdf}`;
-    const imageUpscalerOrigin = `http://localhost:${DEV_PORTS.imageUpscaler}`;
+  it.each(PROXIED_ANALYTICS_ZONES)(
+    "forwards analytics script to %s zone by referer path",
+    async (zone, devPort) => {
+      const rewritesResult = await nextConfig.rewrites?.();
+      const beforeFiles = getBeforeFiles(rewritesResult);
+      const zoneOrigin = `http://localhost:${devPort}`;
 
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        {
-          source: "/:analyticsId([a-z0-9]+)/script.js",
-          destination: `${tasksOrigin}/:analyticsId([a-z0-9]+)/script.js`,
-          has: [
-            {
-              type: "header",
-              key: "referer",
-              value: zoneAnalyticsReferer("tasks"),
-            },
-          ],
-        },
-        {
-          source: "/:analyticsId([a-z0-9]+)/script.js",
-          destination: `${contactsOrigin}/:analyticsId([a-z0-9]+)/script.js`,
-          has: [
-            {
-              type: "header",
-              key: "referer",
-              value: zoneAnalyticsReferer("contacts"),
-            },
-          ],
-        },
-        {
-          source: "/:analyticsId([a-z0-9]+)/script.js",
-          destination: `${notesOrigin}/:analyticsId([a-z0-9]+)/script.js`,
-          has: [
-            {
-              type: "header",
-              key: "referer",
-              value: zoneAnalyticsReferer("notes"),
-            },
-          ],
-        },
-        {
-          source: "/:analyticsId([a-z0-9]+)/script.js",
-          destination: `${linksOrigin}/:analyticsId([a-z0-9]+)/script.js`,
-          has: [
-            {
-              type: "header",
-              key: "referer",
-              value: zoneAnalyticsReferer("links"),
-            },
-          ],
-        },
-        {
-          source: "/:analyticsId([a-z0-9]+)/script.js",
-          destination: `${storeOrigin}/:analyticsId([a-z0-9]+)/script.js`,
-          has: [
-            {
-              type: "header",
-              key: "referer",
-              value: zoneAnalyticsReferer("store"),
-            },
-          ],
-        },
-        {
-          source: "/:analyticsId([a-z0-9]+)/script.js",
-          destination: `${pdfOrigin}/:analyticsId([a-z0-9]+)/script.js`,
-          has: [
-            {
-              type: "header",
-              key: "referer",
-              value: zoneAnalyticsReferer("pdf"),
-            },
-          ],
-        },
-        {
-          source: "/:analyticsId([a-z0-9]+)/script.js",
-          destination: `${imageUpscalerOrigin}/:analyticsId([a-z0-9]+)/script.js`,
-          has: [
-            {
-              type: "header",
-              key: "referer",
-              value: zoneAnalyticsReferer("image-upscaler"),
-            },
-          ],
-        },
-      ])
-    );
-  });
+      expect(beforeFiles).toEqual(
+        expect.arrayContaining([
+          {
+            source: ANALYTICS_SCRIPT_SOURCE,
+            destination: `${zoneOrigin}${ANALYTICS_SCRIPT_SOURCE}`,
+            has: [
+              {
+                type: "header",
+                key: "referer",
+                value: zoneAnalyticsReferer(zone),
+              },
+            ],
+          },
+        ])
+      );
+    }
+  );
 
   it("keeps localhost auth routing in development even when AUTH_URL is set", async () => {
     vi.stubEnv("AUTH_URL", "https://helvety-auth.vercel.app");

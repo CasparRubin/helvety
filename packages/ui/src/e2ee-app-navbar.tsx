@@ -16,7 +16,7 @@ export type E2eeAppNavbarLabels = {
   encryptionTooltipBody: string;
   /** About dialog body. */
   aboutDescription: string;
-  /** SheetDescription for the mobile menu. */
+  /** Screen-reader description for the mobile menu sheet (`AccessibleSheetHeader`). */
   navigationMenuDescription: string;
 };
 

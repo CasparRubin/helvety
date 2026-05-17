@@ -16,6 +16,29 @@ function countSsrFalse(source: string): number {
   return (source.match(/ssr:\s*false/g) ?? []).length;
 }
 
+describe("E2EE entity detail sheet shell", () => {
+  const sheetShellSrc = readFileSync(
+    join(repoRoot, "packages/ui/src/e2ee-entity-detail-sheet.tsx"),
+    "utf8"
+  );
+
+  it("includes AccessibleSheetHeader with default and custom description support", () => {
+    expect(sheetShellSrc).toContain("AccessibleSheetHeader");
+    expect(sheetShellSrc).toContain("description ?? `Edit ${title}`");
+  });
+
+  it.each([
+    ["notes", "components/flat-notes-dashboard.tsx"],
+    ["tasks", "components/flat-tasks-dashboard.tsx"],
+    ["contacts", "components/contacts-dashboard.tsx"],
+    ["links", "components/links-dashboard.tsx"],
+  ] as const)("apps/%s uses E2eeEntityDetailSheet", (app, dashboardPath) => {
+    const src = readAppFile(app, dashboardPath);
+    expect(src).toContain("E2eeEntityDetailSheet");
+    expect(src).not.toMatch(/<SheetContent[^>]*side="right"/);
+  });
+});
+
 describe("E2EE dashboard URL sync wiring", () => {
   it.each([
     ["notes", "components/flat-notes-dashboard.tsx"],

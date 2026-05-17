@@ -119,6 +119,8 @@ export function createHelvetyNextConfig({
     // Next.js currently documents both options under experimental config.
     experimental: {
       ...restExperimentalOverrides,
+      // May reduce unused CSS preload warnings while loading shells or encryption gates are active.
+      cssChunking: "strict",
       optimizePackageImports: mergedOptimizePackageImports,
       ...(mergedAllowedOrigins
         ? {

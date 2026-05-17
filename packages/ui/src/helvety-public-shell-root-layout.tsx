@@ -16,8 +16,8 @@ import { Toaster } from "./sonner";
 import { ThemeProvider } from "./theme-provider";
 import { TooltipProvider } from "./tooltip";
 import {
-  VercelAnalytics,
-  VercelAnalyticsWithSpeedInsights,
+  HelvetyVercelAnalytics,
+  HelvetyVercelAnalyticsWithSpeedInsights,
 } from "./vercel-analytics";
 
 import type { JsonLdScriptProps } from "./json-ld-script";
@@ -26,7 +26,11 @@ import type { ReactNode } from "react";
 /** Main content region: scrollable column (web) vs overflow-hidden main (PDF-style tools). */
 export type HelvetyPublicShellMainVariant = "scroll-area" | "overflow-main";
 
-/** Vercel analytics mount: default Analytics only, or Analytics + Speed Insights (gateway). */
+/**
+ * Analytics mount via {@link HelvetyVercelAnalytics} (default) or
+ * {@link HelvetyVercelAnalyticsWithSpeedInsights} on the gateway. Honours
+ * `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false`.
+ */
 export type HelvetyPublicShellAnalyticsVariant =
   | "default"
   | "with-speed-insights";
@@ -150,7 +154,7 @@ function buildMainBlock(
  * auth token handler, session recovery, `TooltipProvider`, optional
  * {@link wrapInsideTooltipProvider} (e.g. Auth: CSRF, encryption, and `@helvety/light-pillar`;
  * Store: `CSRFProvider` and the same shell backdrop wrapper),
- * navbar + main + footer, toaster, Vercel analytics.
+ * navbar + main + footer, toaster, and optional `HelvetyVercelAnalytics` (Speed Insights on the gateway).
  *
  * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
  * section nav, solid `CommandBar` on Store) renders **above** the main `ScrollArea`
@@ -238,9 +242,9 @@ export async function HelvetyPublicShellRootLayout({
 
   const analyticsBlock =
     analytics === "with-speed-insights" ? (
-      <VercelAnalyticsWithSpeedInsights />
+      <HelvetyVercelAnalyticsWithSpeedInsights />
     ) : (
-      <VercelAnalytics />
+      <HelvetyVercelAnalytics />
     );
 
   if (themeProviderScope === "navbar-only") {

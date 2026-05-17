@@ -46,6 +46,36 @@ import { E2eeAppRootLayout } from "./e2ee-app-root-layout";
 import type { ReactNode } from "react";
 
 describe("E2eeAppRootLayout", () => {
+  it("omits analytics mount when NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS is false", async () => {
+    vi.stubEnv("NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS", "false");
+    vi.resetModules();
+
+    const { E2eeAppRootLayout: Layout } =
+      await import("./e2ee-app-root-layout");
+
+    const tree = await Layout({
+      children: <p>Page</p>,
+      organizationLogoUrl: "https://example.com/logo.png",
+      softwareApplication: {
+        name: "Helvety Tasks",
+        url: "https://example.com/tasks",
+        description: "Tasks",
+        applicationCategory: "ProductivityApplication",
+      },
+      encryptionProvider: ({ children }: { children: ReactNode }) => (
+        <>{children}</>
+      ),
+      renderNavbar: () => <nav>Nav</nav>,
+    });
+
+    const html = renderToStaticMarkup(tree);
+    expect(html).toContain("Page");
+    expect(html).not.toContain('data-testid="vercel-analytics-stub"');
+
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
   it("renders overflow-hidden main without a layout-level ScrollArea", async () => {
     const tree = await E2eeAppRootLayout({
       children: <p data-testid="page">Dashboard</p>,
