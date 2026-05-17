@@ -2,7 +2,7 @@ import { buildCsp } from "@helvety/config/next-headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { COOKIE_DOMAIN } from "./config";
-import { signCookiePayload } from "./cookie-signing";
+import { signCookiePayload, verifySignedCookiePayload } from "./cookie-signing";
 import {
   refreshSupabaseAuthSession,
   requestMayHaveSupabaseAuthCookie,
@@ -42,7 +42,7 @@ export type CreateSecurityProxyOptions = {
   buildCspOptions?: BuildCspOptions;
   /** Whether to set x-helvety-url header (default: true). Public marketing profile disables this. */
   includeHelvetyUrl?: boolean;
-  /** Whether to generate CSRF token cookie (default: true). Public marketing profile disables this. */
+  /** Whether to bootstrap/re-issue signed CSRF cookies (default: true). Public marketing profile disables this. */
   includeCsrf?: boolean;
 };
 
@@ -61,6 +61,18 @@ function toHex(bytes: Uint8Array): string {
     hex += HEX_CHARACTERS[byte & 0x0f] ?? "";
   }
   return hex;
+}
+
+/** True when the request carries a CSRF cookie signed with the current secret. */
+async function hasValidSignedCsrfCookie(
+  cookieValue: string | undefined
+): Promise<boolean> {
+  if (!cookieValue) {
+    return false;
+  }
+
+  const unsignedToken = await verifySignedCookiePayload(cookieValue);
+  return unsignedToken !== null && /^[0-9a-f]{64}$/i.test(unsignedToken);
 }
 
 /** Encode bytes as base64 using web platform APIs. */
@@ -163,7 +175,9 @@ export function createAppProxy(options: {
  * Creates a lightweight proxy function for Next.js proxy.ts.
  *
  * DESIGN: CSP, CSRF, and headers, plus **Supabase auth cookie refresh** on the
- * same response. Server Components cannot persist refreshed session cookies
+ * same response. CSRF bootstrap runs when the cookie is missing or fails
+ * signature/format checks under the current `HELVETY_COOKIE_SIGNING_SECRET`
+ * (not merely when a cookie name is present). Server Components cannot persist refreshed session cookies
  * (`createServerComponentClient` swallows `setAll` in RSC); the proxy runs early
  * enough to call `getUser()` and write `Set-Cookie` per @supabase/ssr guidance.
  * Still no application DB or business logic in the proxy-only Supabase Auth HTTP.
@@ -200,8 +214,10 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
     const nonce = toBase64(getRandomBytes(CSP_NONCE_LENGTH));
     const csp = buildCsp({ nonce, ...buildCspOptions });
     const requestHeaders = new Headers(request.headers);
+    const existingCsrfCookie = request.cookies.get(CSRF_COOKIE_NAME)?.value;
+    // Re-issue when absent, tampered, or signed with a previous secret.
     const shouldBootstrapCsrf =
-      includeCsrf && !request.cookies.get(CSRF_COOKIE_NAME)?.value;
+      includeCsrf && !(await hasValidSignedCsrfCookie(existingCsrfCookie));
     let bootstrapCsrfToken: string | null = null;
     let signedBootstrapCsrfToken: string | null = null;
 

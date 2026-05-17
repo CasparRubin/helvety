@@ -14,10 +14,13 @@ import { signCookiePayload, verifySignedCookiePayload } from "./cookie-signing";
  * Uses a signed double-submit cookie pattern with timing-safe comparison.
  *
  * Token lifecycle:
- * 1. The CSRF cookie is typically generated in proxy.ts on each request (if missing).
- *    cookies().set() is not allowed in Server Components or layouts and will throw at runtime.
- * 2. The layout reads the token from cached server helpers and passes it to the
- *    CSRFProvider for client components.
+ * 1. The proxy bootstraps a signed CSRF cookie when none is present or the existing
+ *    cookie fails signature/format checks (for example after rotating
+ *    `HELVETY_COOKIE_SIGNING_SECRET`). It also forwards the plaintext token on
+ *    `x-csrf-bootstrap-token` for the current request. `cookies().set()` is not
+ *    allowed in Server Components or layouts and will throw at runtime.
+ * 2. Layouts read the token via `getCachedCSRFToken` (validated cookie first, then
+ *    the bootstrap header) and pass it to `CSRFProvider` for client components.
  * 3. Server Actions validate the token with validateCSRFToken() /
  *    requireCSRFToken().
  *
@@ -36,8 +39,8 @@ const CSRF_TOKEN_LENGTH = 32;
  * Server Actions, Route Handlers, and the proxy (proxy.ts). Do NOT call
  * this from Server Components or layouts -- it will throw at runtime.
  *
- * In practice, CSRF token generation is usually handled by proxy.ts. This
- * function is kept for use in Server Actions or Route Handlers when needed.
+ * In practice, CSRF token generation is usually handled by the proxy bootstrap.
+ * This function is kept for post-auth rotation in Server Actions or Route Handlers.
  *
  * @returns The generated CSRF token
  */

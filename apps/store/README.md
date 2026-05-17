@@ -78,18 +78,18 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
 
 Copy `env.template` to `.env.local`.
 
-| Variable                               | Required | Server-only | Description                                                           |
-| -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                  |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                              |
-| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Trusted server-side Supabase key                                      |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL                                                |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token                                              |
-| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy (min 32 chars; not `SUPABASE_SECRET_KEY`) |
+| Variable                               | Required | Server-only | Description                                                                                      |
+| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                             |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                                                         |
+| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Trusted server-side Supabase key                                                                 |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL                                                                           |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token                                                                         |
+| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
 
 ## Security Model
 
-- `proxy.ts` performs request bootstrap (CSP/CSRF/session refresh), not full auth enforcement. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
+- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, session refresh), not full auth enforcement. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Account actions enforce authz in pages/server actions/route handlers.
 - Public download endpoints use explicit abuse protections and rate limiting.
 

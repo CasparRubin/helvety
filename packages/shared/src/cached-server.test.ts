@@ -59,6 +59,14 @@ describe("getCachedCSRFToken", () => {
     await expect(getCSRFToken()).resolves.toBe("bootstrap-token");
   });
 
+  it("falls back to bootstrap header when the CSRF cookie fails validation", async () => {
+    mocks.cookieValue = "stale-or-tampered-signed-cookie";
+    mocks.parsedCookieToken = null;
+    mocks.headerValue = "bootstrap-token";
+
+    await expect(getCSRFToken()).resolves.toBe("bootstrap-token");
+  });
+
   it("returns null when neither cookie nor bootstrap header is present", async () => {
     await expect(getCSRFToken()).resolves.toBeNull();
   });

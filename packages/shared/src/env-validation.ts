@@ -128,7 +128,7 @@ export const cookieSigningEnvSchema = z.object({
     .string()
     .min(
       32,
-      "HELVETY_COOKIE_SIGNING_SECRET must be at least 32 characters (used to sign CSRF cookies in proxy)"
+      "HELVETY_COOKIE_SIGNING_SECRET must be at least 32 characters (signs CSRF cookies in the proxy; re-issues invalid/stale cookies)"
     ),
 });
 

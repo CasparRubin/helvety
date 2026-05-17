@@ -358,7 +358,7 @@ async function main() {
     );
     if (!/HELVETY_COOKIE_SIGNING_SECRET=/.test(templateContent)) {
       throw new Error(
-        `${templatePath} must document HELVETY_COOKIE_SIGNING_SECRET (required for CSRF proxy bootstrap).`
+        `${templatePath} must document HELVETY_COOKIE_SIGNING_SECRET (required for CSRF proxy bootstrap/re-issue).`
       );
     }
     if (

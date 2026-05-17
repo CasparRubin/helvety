@@ -64,6 +64,14 @@ function getSigningSecret(): string {
   return secret;
 }
 
+/**
+ * Clears the memoized HMAC signing key.
+ * Used in tests and after rotating `HELVETY_COOKIE_SIGNING_SECRET` in long-lived workers.
+ */
+export function resetCookieSigningKeyCache(): void {
+  cachedSigningKeyPromise = null;
+}
+
 /** Imports and memoizes the HMAC signing key. */
 async function getSigningKey(): Promise<CryptoKey> {
   if (!cachedSigningKeyPromise) {

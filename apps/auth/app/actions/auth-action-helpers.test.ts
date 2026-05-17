@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { resetCookieSigningKeyCache } from "@helvety/shared/cookie-signing";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
   const cookieState = { value: undefined as string | undefined };
@@ -65,6 +66,10 @@ import {
 } from "./auth-action-helpers";
 
 describe("auth-action-helpers", () => {
+  afterEach(() => {
+    resetCookieSigningKeyCache();
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.cookieState.value = undefined;

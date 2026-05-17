@@ -1,11 +1,16 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { signCookiePayload, verifySignedCookiePayload } from "./cookie-signing";
+import {
+  resetCookieSigningKeyCache,
+  signCookiePayload,
+  verifySignedCookiePayload,
+} from "./cookie-signing";
 
 const ORIGINAL_ENV = { ...process.env };
 
 afterEach(() => {
   process.env = { ...ORIGINAL_ENV };
+  resetCookieSigningKeyCache();
 });
 
 describe("cookie-signing", () => {
@@ -31,5 +36,18 @@ describe("cookie-signing", () => {
     await expect(verifySignedCookiePayload(`${signed}tampered`)).resolves.toBe(
       null
     );
+  });
+
+  it("rejects payloads signed with a previous secret after cache reset", async () => {
+    process.env.HELVETY_COOKIE_SIGNING_SECRET =
+      "previous_cookie_signing_secret_for_unit_tests_1";
+    const signed = await signCookiePayload("rotate-me");
+
+    process.env.HELVETY_COOKIE_SIGNING_SECRET =
+      "test_cookie_signing_secret_for_unit_tests_1234567890";
+    resetCookieSigningKeyCache();
+
+    await expect(verifySignedCookiePayload(signed)).resolves.toBeNull();
+    await expect(signCookiePayload("rotate-me")).resolves.not.toBe(signed);
   });
 });

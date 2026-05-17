@@ -39,6 +39,10 @@ export const getCachedUser = cache(async (): Promise<User | null> => {
  * Per-request cached CSRF token reader.
  * Deduplicates cookie reads when the layout and child page both
  * need the token within a single render pass.
+ *
+ * Reads the signed `csrf_token` cookie when valid; otherwise falls back to the
+ * proxy's `x-csrf-bootstrap-token` header for the same request (for example when
+ * the browser still holds a cookie signed with a previous secret).
  */
 export const getCSRFToken = async (): Promise<string | null> => {
   const [cookieStore, headersList] = await Promise.all([cookies(), headers()]);

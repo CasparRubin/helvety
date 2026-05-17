@@ -44,7 +44,7 @@ This package centralizes:
 - Shared editor draft helper:
   - `hooks/use-rich-text-draft-state` for saved/baseline/dirty-state tracking across rich-text editors
 - E2EE list and draft cleanup helpers via `@helvety/shared/e2ee-draft` (`getE2eeListTitle`, `isDraftSnapshotUnchanged` for pristine-draft deletion on sheet close)
-- `proxy` is request bootstrap only (CSP/CSRF/session refresh), not the primary authorization boundary. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal (Next.js requirement); `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
+- `proxy` is request bootstrap only (CSP, CSRF cookie bootstrap/re-issue, session refresh), not the primary authorization boundary. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal (Next.js requirement); `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
 
 ### Cross-app URLs (`config.ts`)
 
@@ -54,7 +54,7 @@ This package centralizes:
 ### Supabase SSR
 
 - Refresh auth session cookies early when `sb-*` cookies are present.
-- CSRF cookie signing uses `HELVETY_COOKIE_SIGNING_SECRET` only (not `SUPABASE_SECRET_KEY`). Required on apps whose proxy profile sets `includeCsrf: true`: `e2ee-app`, `auth-gateway`, `store-gateway`, and `public-tool`. The gateway (`public-marketing`) does not bootstrap CSRF cookies.
+- CSRF cookie signing uses `HELVETY_COOKIE_SIGNING_SECRET` only (not `SUPABASE_SECRET_KEY`). Required on apps whose proxy profile sets `includeCsrf: true`: `e2ee-app`, `auth-gateway`, `store-gateway`, and `public-tool`. The proxy re-issues the signed `csrf_token` cookie when it is missing or fails validation (for example after secret rotation); layouts read the current token via `getCachedCSRFToken` (cookie, then `x-csrf-bootstrap-token`). The gateway (`public-marketing`) does not bootstrap CSRF cookies.
 - Use trusted user reads for security-sensitive checks: call `supabase.auth.getUser()` directly or via `@helvety/shared/auth-retry` (`getAuthUser`, single-shot, fail-closed). Do not use `auth.getSession()` for authorization (`bun run consistency:supabase-auth`).
 - `lookupCredentialByCredentialId` in `packages/shared/src/supabase/admin.ts` centralizes passkey credential lookup by WebAuthn credential id (used by auth passkey sign-in).
 - `createAdminClient()` is for system flows only; approved call sites are listed in `packages/shared/src/supabase/admin.ts`. Prefer `createScopedAdminQuery(userId)` for user-owned tables.

@@ -15,7 +15,7 @@
 - `@helvety/shared`
   - `createAppProxy`, `createProfiledSecurityProxy`, and `SECURITY_PROXY_MATCHER` (canonical `proxy.ts` zone matcher pattern; apps inline the literal per Next.js)
   - auth redirect/callback behavior; **proxy refreshes sessions only — authorization uses `getUser()` in Server Components/actions (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()`** (`bun run consistency:supabase-auth`)
-  - `HELVETY_COOKIE_SIGNING_SECRET` for CSRF/proxy cookie signing (separate from `SUPABASE_SECRET_KEY`)
+  - `HELVETY_COOKIE_SIGNING_SECRET` for CSRF/proxy cookie signing (separate from `SUPABASE_SECRET_KEY`; proxy re-issues invalid/stale `csrf_token` cookies)
   - server env validation and Supabase client factories
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
