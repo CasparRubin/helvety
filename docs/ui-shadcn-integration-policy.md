@@ -6,6 +6,7 @@ This policy defines where UI primitives live and how apps should consume them.
 
 - Shared primitives and cross-app compositions live in `packages/ui/src`.
 - App code should import shared primitives from `@helvety/ui/*`.
+- **New shadcn CLI adds** should target `packages/ui/components.json` first, then re-export from `@helvety/ui/*`. App `components.json` files stay aligned for local aliases; `consistency:guardrails` enforces `rsc: true`, `tsx: true`, and a `registries` object on every app UI surface.
 - App-local `@/components/ui/*` is reserved for feature-specific wrappers that are not reusable across multiple apps.
 
 ## Allowed App-Local UI Wrappers

@@ -187,7 +187,7 @@ function getUpstashLimiter(
       redis: redisClient,
       limiter: Ratelimit.slidingWindow(maxRequests, duration),
       prefix: `ratelimit:${normalizeKeyPart(prefix)}`,
-      analytics: false,
+      analytics: process.env.NODE_ENV === "production",
     });
 
     rateLimiters.set(key, limiter);

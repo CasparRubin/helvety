@@ -2,17 +2,26 @@ import { describe, expect, it, vi } from "vitest";
 
 const loggerMocks = vi.hoisted(() => ({
   logUnexpectedError: vi.fn(),
+  warn: vi.fn(),
+  info: vi.fn(),
 }));
 
 vi.mock("./logger", () => ({
   logger: {
     logUnexpectedError: loggerMocks.logUnexpectedError,
+    warn: loggerMocks.warn,
+    info: loggerMocks.info,
   },
 }));
 
 import { ACTION_LIMITS } from "./constants";
 import {
+  areExportTablesWithinCap,
+  EXPORT_TOO_LARGE_MESSAGE,
+  fetchOwnedEncryptedExport,
   isExportWithinCap,
+  logEncryptedExportRequested,
+  mapReorderOwnedEntitiesFailure,
   reorderOwnedEntities,
   runChunkedReorderUpdates,
   validateOwnedReorderScope,
@@ -150,6 +159,101 @@ describe("entity-action-primitives", () => {
     expect(isExportWithinCap(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)).toBe(
       false
     );
+    expect(
+      areExportTablesWithinCap([1, ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE])
+    ).toBe(true);
+    expect(
+      areExportTablesWithinCap([ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1, 0])
+    ).toBe(false);
+  });
+
+  it("fetchOwnedEncryptedExport returns rows within cap", async () => {
+    const from = vi.fn(() => ({
+      select: () => ({
+        eq: () => ({
+          order: () => ({
+            limit: () =>
+              Promise.resolve({
+                data: [{ id: "row-1" }],
+                error: null,
+              }),
+          }),
+        }),
+      }),
+    }));
+    const supabase = buildReorderSupabase(from);
+
+    const result = await fetchOwnedEncryptedExport<{ id: string }>({
+      supabase,
+      userId: "user-1",
+      tableName: "items",
+      logScope: "export scope",
+      loadErrorMessage: "load failed",
+    });
+
+    expect(result).toEqual({ success: true, rows: [{ id: "row-1" }] });
+    expect(from).toHaveBeenCalledWith("items");
+  });
+
+  it("fetchOwnedEncryptedExport rejects exports over the row cap", async () => {
+    const overCap = Array.from(
+      { length: ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1 },
+      (_, index) => ({ id: String(index) })
+    );
+    const from = vi.fn(() => ({
+      select: () => ({
+        eq: () => ({
+          order: () => ({
+            limit: () => Promise.resolve({ data: overCap, error: null }),
+          }),
+        }),
+      }),
+    }));
+    const supabase = buildReorderSupabase(from);
+
+    const result = await fetchOwnedEncryptedExport<{ id: string }>({
+      supabase,
+      userId: "user-1",
+      tableName: "notes",
+      logScope: "export scope",
+      loadErrorMessage: "load failed",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: EXPORT_TOO_LARGE_MESSAGE,
+    });
+    expect(loggerMocks.warn).toHaveBeenCalled();
+  });
+
+  it("logEncryptedExportRequested records structured export metadata", () => {
+    logEncryptedExportRequested("tasks", "user-1");
+    expect(loggerMocks.info).toHaveBeenCalledWith("Data export requested", {
+      source: "tasks",
+      userId: "user-1",
+    });
+  });
+
+  it("maps reorder failures with and without causes", () => {
+    expect(
+      mapReorderOwnedEntitiesFailure("item", { success: true }, "scope")
+    ).toBeNull();
+    expect(
+      mapReorderOwnedEntitiesFailure(
+        "item",
+        { success: false, error: "invalid scope" },
+        "scope"
+      )
+    ).toEqual({ success: false, error: "invalid scope" });
+    const cause = new Error("db");
+    expect(
+      mapReorderOwnedEntitiesFailure(
+        "item",
+        { success: false, error: "failed", cause },
+        "scope"
+      )
+    ).toEqual({ success: false, error: "Failed to reorder items" });
+    expect(loggerMocks.logUnexpectedError).toHaveBeenCalledWith("scope", cause);
   });
 
   it("reorders owned entities and applies update payloads", async () => {

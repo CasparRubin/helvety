@@ -5,10 +5,11 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import {
-  isExportWithinCap,
+  fetchOwnedEncryptedExport,
+  logEncryptedExportRequested,
+  mapReorderOwnedEntitiesFailure,
   reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
-import { logger } from "@helvety/shared/logger";
 import {
   parseActionInput,
   unexpectedActionError,
@@ -115,15 +116,13 @@ export async function reorderEntities(
         return updateObj;
       },
     });
-    if (!reorderResult.success) {
-      if (reorderResult.cause === undefined) {
-        return { success: false, error: reorderResult.error };
-      }
-      logger.logUnexpectedError(
-        `Error reordering ${entityType}`,
-        reorderResult.cause
-      );
-      return { success: false, error: `Failed to reorder ${entityType}s` };
+    const reorderFailure = mapReorderOwnedEntitiesFailure(
+      entityType,
+      reorderResult,
+      `Error reordering ${entityType}`
+    );
+    if (reorderFailure) {
+      return reorderFailure;
     }
 
     revalidateItemRoutes();
@@ -159,42 +158,23 @@ export async function getAllNoteDataForExport(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    // Fetch bounded data to prevent oversized in-memory exports.
-    const { data: items, error: itemsError } = await supabase
-      .from(NOTES_ITEMS_TABLE)
-      .select("*")
-      .eq("user_id", user.id)
-      .order("sort_order")
-      .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)
-      .overrideTypes<ItemRow[], { merge: false }>();
-
-    if (itemsError) {
-      logger.logUnexpectedError(
-        "Error fetching note data for export",
-        itemsError
-      );
-      return { success: false, error: "Failed to load note data" };
+    const exportResult = await fetchOwnedEncryptedExport<ItemRow>({
+      supabase,
+      userId: user.id,
+      tableName: NOTES_ITEMS_TABLE,
+      logScope: "Error fetching note data for export",
+      loadErrorMessage: "Failed to load note data",
+    });
+    if (!exportResult.success) {
+      return { success: false, error: exportResult.error };
     }
 
-    if (!isExportWithinCap(items?.length ?? 0)) {
-      logger.warn("Export exceeds maximum row cap", {
-        userId: user.id,
-        items: items?.length ?? 0,
-        cap: ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE,
-      });
-      return {
-        success: false,
-        error:
-          "Export too large for a single request. Please reduce dataset size and retry.",
-      };
-    }
-
-    logger.info("Data export requested", { source: "notes" });
+    logEncryptedExportRequested("notes", user.id);
 
     return {
       success: true,
       data: {
-        items: items ?? [],
+        items: exportResult.rows,
       },
     };
   } catch (error) {

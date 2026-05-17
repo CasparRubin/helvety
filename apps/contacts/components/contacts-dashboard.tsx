@@ -11,7 +11,7 @@ import { E2eeEntityDetailSheet } from "@helvety/ui/e2ee-entity-detail-sheet";
 import { EntityCommandBar } from "@helvety/ui/entity-command-bar";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
-import { useE2eeEntityPanel } from "@helvety/ui/use-e2ee-entity-panel";
+import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
 import { useSearchParams } from "next/navigation";
 import {
   useCallback,
@@ -66,9 +66,8 @@ export function ContactsDashboard({
     patchLocal,
   } = useContacts({ initialEncryptedData: initialEncryptedContacts });
 
-  const initialEntityId = searchParams.get("contact");
   const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
-    useE2eeEntityPanel(initialEntityId);
+    useE2eeEntityPanelWithUrl("contact");
 
   const draftSnapshots = useRef<Map<string, ContactDraftSnapshot>>(new Map());
 

@@ -35,7 +35,8 @@ This package centralizes:
 - Action modules can compose:
   - `server-action-primitives` (`parseActionInput`, `unexpectedActionError` for consistent validation and catch-all responses)
   - `entity-action-primitives`
-    - includes `reorderOwnedEntities(...)` for scoped reorder mutations
+    - includes `reorderOwnedEntities(...)` and `mapReorderOwnedEntitiesFailure(...)` for scoped reorder mutations
+    - includes `fetchOwnedEncryptedExport(...)`, `isExportWithinCap` / `areExportTablesWithinCap`, and `logEncryptedExportRequested(...)` for capped encrypted exports (used by Tasks, Notes, and Links entity actions)
     - includes `assignDefinedField(...)` for concise, consistent partial-update payload construction
   - `entity-link-action-primitives`
   - `entity-list-reorder`
@@ -53,7 +54,8 @@ This package centralizes:
 ### Supabase SSR
 
 - Refresh auth session cookies early when `sb-*` cookies are present.
-- Use trusted user reads (`getUser`) for security-sensitive checks.
+- Use trusted user reads (`getUser`) for security-sensitive checks. Do not use `auth.getSession()` for authorization (`bun run consistency:supabase-auth`).
+- `createAdminClient()` is for system flows only; approved call sites are listed in `packages/shared/src/supabase/admin.ts`. Prefer `createScopedAdminQuery(userId)` for user-owned tables.
 - `@helvety/shared/cached-server` exposes per-request cached helpers such as `getCachedUser` and `getCachedCSRFToken` (built with React `cache`) so root layouts and navbars can share one Supabase `getUser` / CSRF read per request without duplicate round-trips.
 - `@helvety/shared/layout-session-bootstrap` exports `bootstrapPublicLayoutUser()` (wraps `getCachedUser` with logging and null fallback) for public shells such as `apps/web` that want a single call site in `app/layout.tsx`.
 

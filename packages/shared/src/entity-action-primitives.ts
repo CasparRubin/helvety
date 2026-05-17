@@ -12,9 +12,18 @@ interface ReorderUpdateLike {
 }
 
 /** Result type for combined reorder scope validation + updates. */
-type ReorderOperationResult =
+export type ReorderOperationResult =
   | { success: true }
   | { success: false; error: string; cause?: unknown };
+
+/** User-facing message when an export exceeds {@link ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE}. */
+export const EXPORT_TOO_LARGE_MESSAGE =
+  "Export too large for a single request. Please reduce dataset size and retry.";
+
+/** Result of fetching encrypted rows for export. */
+export type OwnedEncryptedExportResult<T> =
+  | { success: true; rows: T[] }
+  | { success: false; error: string };
 
 /**
  * Ensures every provided ID belongs to the authenticated user.
@@ -89,6 +98,82 @@ export async function runChunkedReorderUpdates<T extends ReorderUpdateLike>({
  */
 export function isExportWithinCap(rowCount: number): boolean {
   return rowCount <= ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE;
+}
+
+/** True when every table row count is within the export cap. */
+export function areExportTablesWithinCap(rowCounts: number[]): boolean {
+  return rowCounts.every(isExportWithinCap);
+}
+
+/**
+ * Maps {@link reorderOwnedEntities} failures to action responses.
+ * Returns `null` when the reorder succeeded.
+ */
+export function mapReorderOwnedEntitiesFailure(
+  entityType: string,
+  reorderResult: ReorderOperationResult,
+  logScope: string
+): { success: false; error: string } | null {
+  if (reorderResult.success) {
+    return null;
+  }
+  if (reorderResult.cause === undefined) {
+    return { success: false, error: reorderResult.error };
+  }
+  logger.logUnexpectedError(logScope, reorderResult.cause);
+  return { success: false, error: `Failed to reorder ${entityType}s` };
+}
+
+/**
+ * Fetches user-owned encrypted rows for export with cap enforcement.
+ */
+export async function fetchOwnedEncryptedExport<T>({
+  supabase,
+  userId,
+  tableName,
+  orderColumn = "sort_order",
+  logScope,
+  loadErrorMessage,
+}: {
+  supabase: SupabaseClient;
+  userId: string;
+  tableName: string;
+  orderColumn?: string;
+  logScope: string;
+  loadErrorMessage: string;
+}): Promise<OwnedEncryptedExportResult<T>> {
+  const { data, error } = await supabase
+    .from(tableName)
+    .select("*")
+    .eq("user_id", userId)
+    .order(orderColumn)
+    .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1);
+
+  if (error) {
+    logger.logUnexpectedError(logScope, error);
+    return { success: false, error: loadErrorMessage };
+  }
+
+  const rows = (data ?? []) as T[];
+  if (!isExportWithinCap(rows.length)) {
+    logger.warn("Export exceeds maximum row cap", {
+      userId,
+      table: tableName,
+      rows: rows.length,
+      cap: ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE,
+    });
+    return { success: false, error: EXPORT_TOO_LARGE_MESSAGE };
+  }
+
+  return { success: true, rows };
+}
+
+/** Structured log when a user requests an encrypted data export. */
+export function logEncryptedExportRequested(
+  source: string,
+  userId: string
+): void {
+  logger.info("Data export requested", { source, userId });
 }
 
 /**

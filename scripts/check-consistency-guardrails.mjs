@@ -330,6 +330,8 @@ async function main() {
 
   const requiredShadcnConfig = {
     style: "radix-vega",
+    rsc: true,
+    tsx: true,
     iconLibrary: "lucide",
     aliases: {
       components: "@/components",
@@ -355,6 +357,15 @@ async function main() {
       throw new Error(
         `${file.relativePath} must use iconLibrary "${requiredShadcnConfig.iconLibrary}".`
       );
+    }
+    if (parsed.rsc !== requiredShadcnConfig.rsc) {
+      throw new Error(`${file.relativePath} must set rsc: true.`);
+    }
+    if (parsed.tsx !== requiredShadcnConfig.tsx) {
+      throw new Error(`${file.relativePath} must set tsx: true.`);
+    }
+    if (typeof parsed.registries !== "object" || parsed.registries === null) {
+      throw new Error(`${file.relativePath} must declare a registries object.`);
     }
     if (
       parsed.tailwind?.css !== requiredShadcnConfig.tailwind.css ||

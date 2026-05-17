@@ -14,7 +14,7 @@
   - shared ESLint/TS policy entrypoints
 - `@helvety/shared`
   - `createAppProxy`, `createProfiledSecurityProxy`, and `SECURITY_PROXY_MATCHER` (canonical `proxy.ts` zone matcher pattern; apps inline the literal per Next.js)
-  - auth redirect/callback behavior
+  - auth redirect/callback behavior; **proxy refreshes sessions only — authorization uses `getUser()` in Server Components/actions, never `getSession()`** (`bun run consistency:supabase-auth`)
   - server env validation and Supabase client factories
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
@@ -22,15 +22,24 @@
 
 ## Phase Success Criteria
 
-1. **Config/shared foundation**
-   - Shared config and proxy/env contracts become the single source of truth.
-2. **App router/fetch**
-   - Remove avoidable dynamic signals and keep route semantics stable.
-3. **Hook correctness**
-   - URL state and timer lifecycle behavior stay in sync and leak-free.
-4. **Domain hardening**
-   - Reduce unsafe assertions in auth/store/shared sensitive paths.
-5. **E2EE convergence**
-   - Keep tasks/notes/contacts/links behavior aligned through shared patterns.
-6. **Verification/guardrails**
-   - Lint/type-check/tests stay green and drift checks catch regressions.
+1. **Config/shared foundation** — done
+   - `consistency:supabase-auth` bans `auth.getSession()` for authorization; admin client call sites documented in `packages/shared/src/supabase/admin.ts`; Upstash rate-limit analytics enabled in production.
+2. **App router/fetch** — done (store catalog)
+   - Store static catalog uses per-request `React.cache()` via `apps/store/lib/data/product-catalog-cache.ts` (not the Next.js `'use cache'` directive; dedupes metadata + page reads within one RSC render).
+3. **Hook correctness** — done
+   - `useE2eeEntityPanelWithUrl` (tasks, notes, contacts) and links `useLinksPanelUrlSync` (`?link=` / `?folder=`) for shareable E2EE detail-sheet deep links.
+4. **Domain hardening** — done
+   - Shared export/reorder helpers in `@helvety/shared/entity-action-primitives`.
+5. **E2EE convergence** — done (URL-synced sheets)
+   - Tasks/notes/contacts use `useE2eeEntityPanelWithUrl`; links keeps discriminated link/folder panel state with `useLinksPanelUrlSync` and the same `E2eeEntityDetailSheet` shell.
+6. **Verification/guardrails** — ongoing
+   - Lint/type-check/tests must stay green; `consistency:supabase-auth` and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
+
+## Completed modernization (2026-05)
+
+- Foundation guardrails and Supabase auth patterns
+- Entity action export/reorder primitives
+- E2EE URL sync (tasks, notes, contacts, links)
+- EncryptionGate redirect intent derivation (fewer effects)
+- Hyperspeed React 19 ref-callback mount/dispose
+- Store product catalog caching

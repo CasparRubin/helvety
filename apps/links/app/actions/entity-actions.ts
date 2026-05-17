@@ -5,7 +5,10 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import {
-  isExportWithinCap,
+  areExportTablesWithinCap,
+  EXPORT_TOO_LARGE_MESSAGE,
+  logEncryptedExportRequested,
+  mapReorderOwnedEntitiesFailure,
   reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
@@ -185,15 +188,13 @@ export async function reorderFolders(
       }),
     });
 
-    if (!reorderResult.success) {
-      if (reorderResult.cause === undefined) {
-        return { success: false, error: reorderResult.error };
-      }
-      logger.logUnexpectedError(
-        "Error reordering folders",
-        reorderResult.cause
-      );
-      return { success: false, error: "Failed to reorder folders" };
+    const reorderFailure = mapReorderOwnedEntitiesFailure(
+      "folder",
+      reorderResult,
+      "Error reordering folders"
+    );
+    if (reorderFailure) {
+      return { success: false, error: reorderFailure.error };
     }
 
     revalidateLinksRoutes();
@@ -258,12 +259,13 @@ export async function reorderLinks(
       }),
     });
 
-    if (!reorderResult.success) {
-      if (reorderResult.cause === undefined) {
-        return { success: false, error: reorderResult.error };
-      }
-      logger.logUnexpectedError("Error reordering links", reorderResult.cause);
-      return { success: false, error: "Failed to reorder links" };
+    const reorderFailure = mapReorderOwnedEntitiesFailure(
+      "link",
+      reorderResult,
+      "Error reordering links"
+    );
+    if (reorderFailure) {
+      return { success: false, error: reorderFailure.error };
     }
 
     revalidateLinksRoutes();
@@ -313,17 +315,18 @@ export async function getAllLinkDataForExport(): Promise<
     }
 
     if (
-      !isExportWithinCap(foldersResult.data?.length ?? 0) ||
-      !isExportWithinCap(linksResult.data?.length ?? 0)
+      !areExportTablesWithinCap([
+        foldersResult.data?.length ?? 0,
+        linksResult.data?.length ?? 0,
+      ])
     ) {
       return {
         success: false,
-        error:
-          "Export too large for a single request. Please reduce dataset size and retry.",
+        error: EXPORT_TOO_LARGE_MESSAGE,
       };
     }
 
-    logger.info("Data export requested", { source: "links" });
+    logEncryptedExportRequested("links", user.id);
 
     return {
       success: true,

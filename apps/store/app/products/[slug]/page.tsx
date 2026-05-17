@@ -2,7 +2,7 @@ import { urls } from "@helvety/shared/config";
 import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import { JsonLdScript } from "@helvety/ui/json-ld-script";
 
-import { getProductBySlug } from "@/lib/data/products";
+import { getCachedProductBySlug } from "@/lib/data/product-catalog-cache";
 
 import { ProductDetailClient } from "./product-detail-client";
 
@@ -33,7 +33,7 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = getCachedProductBySlug(slug);
 
   if (!product) {
     return {
@@ -90,7 +90,7 @@ export async function generateMetadata({
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const [{ slug }, nonce] = await Promise.all([params, getRequestCspNonce()]);
 
-  const product = getProductBySlug(slug);
+  const product = getCachedProductBySlug(slug);
 
   const jsonLdImage =
     product?.media?.screenshots?.[0]?.src ??

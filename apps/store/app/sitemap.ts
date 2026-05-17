@@ -1,6 +1,6 @@
 import { urls } from "@helvety/shared/config";
 
-import { getAllProducts } from "@/lib/data/products";
+import { getCachedAllProducts } from "@/lib/data/product-catalog-cache";
 
 import type { MetadataRoute } from "next";
 
@@ -15,7 +15,7 @@ const lastModified = new Date();
 
 /** Generates the sitemap for public store pages. */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const products = getAllProducts();
+  const products = getCachedAllProducts();
 
   const productEntries: MetadataRoute.Sitemap = products.map((product) => ({
     url: `${urls.store}/products/${product.slug}`,

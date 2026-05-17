@@ -20,7 +20,8 @@ export interface UseE2eeEntityPanelResult {
 }
 
 /**
- * Shared sheet panel state for Notes, Tasks, and Contacts dashboards.
+ * Shared sheet panel state for E2EE list dashboards (panel state only).
+ * For `?param=` deep links, use {@link useE2eeEntityPanelWithUrl} instead.
  * Pair with {@link E2eeEntityDetailSheet} and per-app draft snapshot cleanup on close.
  */
 export function useE2eeEntityPanel(

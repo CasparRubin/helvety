@@ -62,14 +62,16 @@ export function EncryptionGate({
 
   const alreadyUnlocked = isUnlocked && unlockedForUserId === userId;
 
-  const [redirectIntent, setRedirectIntent] = useState<RedirectIntent>(
-    alreadyUnlocked ? "none" : "unknown"
-  );
+  const [redirectIntent, setRedirectIntent] =
+    useState<RedirectIntent>("unknown");
   const redirectingRef = useRef(false);
 
-  useEffect(() => {
-    setRedirectIntent(alreadyUnlocked ? "none" : "unknown");
-  }, [alreadyUnlocked, userId]);
+  /** When locked, treat stale `"none"` from a prior unlock as unknown until checks finish. */
+  const resolvedRedirectIntent: RedirectIntent = alreadyUnlocked
+    ? "none"
+    : redirectIntent === "none"
+      ? "unknown"
+      : redirectIntent;
 
   useEffect(() => {
     if (alreadyUnlocked || redirectingRef.current) {
@@ -169,19 +171,23 @@ export function EncryptionGate({
   const status: EncryptionStatus = useMemo(() => {
     const contextIntent = classifyActionAuthError(contextError);
     if (alreadyUnlocked) return "unlocked";
-    if (contextLoading || redirectIntent === "unknown") return "loading";
-    if (redirectIntent === "logout" || contextIntent === "hard_logout") {
+    if (contextLoading || resolvedRedirectIntent === "unknown")
+      return "loading";
+    if (
+      resolvedRedirectIntent === "logout" ||
+      contextIntent === "hard_logout"
+    ) {
       return "needs_logout";
     }
     if (
-      redirectIntent === "login" ||
+      resolvedRedirectIntent === "login" ||
       contextIntent === "login" ||
       contextError
     ) {
       return "needs_login";
     }
     return "needs_login";
-  }, [alreadyUnlocked, contextError, contextLoading, redirectIntent]);
+  }, [alreadyUnlocked, contextError, contextLoading, resolvedRedirectIntent]);
 
   useEffect(() => {
     if (redirectingRef.current) return;

@@ -19,7 +19,7 @@ import {
   SMAAEffect,
   SMAAPreset,
 } from "postprocessing";
-import { FC, useEffect, useRef } from "react";
+import { FC, useCallback, useRef } from "react";
 import * as THREE from "three";
 
 import { hyperspeedDefaultPreset } from "./hyperspeed-default-preset";
@@ -1363,49 +1363,46 @@ const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {}, onReady }) => {
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
 
-  useEffect(() => {
-    if (appRef.current) {
-      appRef.current.dispose();
-      appRef.current = null;
-    }
-
-    const container = hyperspeed.current;
-    if (!container) return;
-
-    /* Hero hides the bleed layer with `motion-reduce:hidden`; skip GPU work too. */
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
-
-    const options: HyperspeedOptions = {
-      ...defaultOptions,
-      ...effectOptions,
-      colors: { ...defaultOptions.colors, ...effectOptions.colors },
-      variation: {
-        ...defaultVariationOptions,
-        ...defaultOptions.variation,
-        ...effectOptions.variation,
-      },
-    };
-
-    const myApp = new App(container, options, {
-      onReady: () => onReadyRef.current?.(),
-    });
-    appRef.current = myApp;
-    void Promise.resolve().then(() => {
-      if (myApp.disposed || appRef.current !== myApp) return;
-      myApp.init();
-    });
-
-    return () => {
+  const mountHyperspeed = useCallback(
+    (container: HTMLDivElement | null) => {
       if (appRef.current) {
         appRef.current.dispose();
         appRef.current = null;
       }
-    };
-  }, [effectOptions]);
+      hyperspeed.current = container;
+      if (!container) {
+        return;
+      }
 
-  return <div id="lights" ref={hyperspeed}></div>;
+      /* Hero hides the bleed layer with `motion-reduce:hidden`; skip GPU work too. */
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+
+      const options: HyperspeedOptions = {
+        ...defaultOptions,
+        ...effectOptions,
+        colors: { ...defaultOptions.colors, ...effectOptions.colors },
+        variation: {
+          ...defaultVariationOptions,
+          ...defaultOptions.variation,
+          ...effectOptions.variation,
+        },
+      };
+
+      const myApp = new App(container, options, {
+        onReady: () => onReadyRef.current?.(),
+      });
+      appRef.current = myApp;
+      void Promise.resolve().then(() => {
+        if (myApp.disposed || appRef.current !== myApp) return;
+        myApp.init();
+      });
+    },
+    [effectOptions]
+  );
+
+  return <div id="lights" ref={mountHyperspeed}></div>;
 };
 
 export default Hyperspeed;

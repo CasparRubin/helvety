@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EncryptionGate } from "./encryption-gate";
@@ -16,18 +16,25 @@ const mocks = vi.hoisted(() => ({
   })),
 }));
 
+const encryptionContext = vi.hoisted(() => ({
+  isUnlocked: false,
+  isLoading: false,
+  unlockedForUserId: null as string | null,
+  error: null as string | null,
+}));
+
 vi.mock("@helvety/shared/auth-errors", () => ({
   classifyActionAuthError: mocks.classifyActionAuthError,
 }));
 
 vi.mock("@helvety/shared/crypto/encryption-context", () => ({
   useEncryptionContext: () => ({
-    isUnlocked: false,
-    isLoading: false,
+    isUnlocked: encryptionContext.isUnlocked,
+    isLoading: encryptionContext.isLoading,
     checkEncryptionState: mocks.checkEncryptionState,
     lockEncryption: mocks.lockEncryption,
-    unlockedForUserId: null,
-    error: null,
+    unlockedForUserId: encryptionContext.unlockedForUserId,
+    error: encryptionContext.error,
   }),
 }));
 
@@ -52,6 +59,10 @@ vi.mock("./auth-navigation", () => ({
 describe("EncryptionGate", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    encryptionContext.isUnlocked = false;
+    encryptionContext.isLoading = false;
+    encryptionContext.unlockedForUserId = null;
+    encryptionContext.error = null;
     mocks.checkEncryptionState.mockResolvedValue(undefined);
     mocks.classifyActionAuthError.mockImplementation((error: string | null) =>
       error === "hard" ? "hard_logout" : "login"
@@ -81,6 +92,24 @@ describe("EncryptionGate", () => {
       expect(mocks.redirectToLoginOnce).toHaveBeenCalled();
     });
     expect(mocks.triggerHardLogoutOnce).not.toHaveBeenCalled();
+  });
+
+  it("renders children immediately when encryption is already unlocked", () => {
+    encryptionContext.isUnlocked = true;
+    encryptionContext.unlockedForUserId = "user-1";
+
+    render(
+      <EncryptionGate
+        userId="user-1"
+        actions={{ getEncryptionParams: mocks.getEncryptionParams }}
+      >
+        <div>secure-content</div>
+      </EncryptionGate>
+    );
+
+    expect(screen.getByText("secure-content")).toBeInTheDocument();
+    expect(mocks.getEncryptionParams).not.toHaveBeenCalled();
+    expect(mocks.redirectToLoginOnce).not.toHaveBeenCalled();
   });
 
   it("triggers hard logout when auth error is terminal", async () => {

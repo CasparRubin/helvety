@@ -12,6 +12,7 @@ End-to-end encrypted contact management app.
 - Fixed-category main list (`Personal`, `Work`, `Other`) with drag-and-drop reorder
 - Client-side search on decrypted fields (name/email/description/notes); while search is active, reorder/drag is disabled and an empty-search message is shown when nothing matches
 - New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with the full `ContactEditor` (all fields, Tiptap notes, task/note links). **New Contact** creates a draft row and opens that sheet immediately; closing without edits removes the draft row.
+- Shareable deep links open a contact in the detail sheet via `?contact=<uuid>` (for example from Tasks or Notes cross-links).
 - Rich contact editor with linked tasks/notes
 - Client-side decrypted export (server-side encrypted fetch)
 

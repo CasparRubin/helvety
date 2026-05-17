@@ -10,7 +10,7 @@ import { EntityCommandBar } from "@helvety/ui/entity-command-bar";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
-import { useE2eeEntityPanel } from "@helvety/ui/use-e2ee-entity-panel";
+import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
 import { useSearchParams } from "next/navigation";
 import {
   useCallback,
@@ -63,9 +63,8 @@ export function FlatTasksDashboard({
   const { stages } = useStages(DEFAULT_STAGE_CONFIGS.item.id);
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
-  const initialEntityId = searchParams.get("item");
   const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
-    useE2eeEntityPanel(initialEntityId);
+    useE2eeEntityPanelWithUrl("item");
 
   const draftSnapshots = useRef<Map<string, TaskDraftSnapshot>>(new Map());
 

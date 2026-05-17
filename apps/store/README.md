@@ -12,6 +12,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 - Public package download endpoints (no login required)
 - Optional authenticated account page at `/store/account`
 - Product-detail pages with statically imported artwork
+- Product listing, detail, and sitemap routes load catalog data through `lib/data/product-catalog-cache.ts` (`React.cache()` wrappers around `products.ts` for per-request dedupe within RSC)
 
 ## Package Download Behavior
 

@@ -15,7 +15,15 @@ import {
   ListLoadingState,
 } from "@helvety/ui/list-states";
 import { Pencil } from "lucide-react";
-import { useCallback, useMemo, useRef, useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { FolderEditor } from "@/components/folder-editor";
@@ -24,6 +32,10 @@ import { LinksCommandBar } from "@/components/links-command-bar";
 import { LinksTreeList } from "@/components/links-tree-list";
 import { useDataExport } from "@/hooks/use-data-export";
 import { useLinkLibrary } from "@/hooks/use-link-library";
+import {
+  useLinksPanelUrlSync,
+  type LinksPanelState,
+} from "@/hooks/use-links-panel-url";
 import {
   ALL_FOLDER_ID,
   isAllFolderId,
@@ -48,11 +60,6 @@ import type {
 } from "@/lib/config/draft-defaults";
 import type { Link, LinkFolderRow, LinkRow } from "@/lib/types";
 
-/** Right-hand sheet panel state for links and folders. */
-type LinksPanelState =
-  | { mode: "closed" }
-  | { mode: "open"; kind: "link" | "folder"; id: string };
-
 /** Props for the links dashboard page client. */
 interface LinksDashboardProps {
   initialEncryptedFolders?: LinkFolderRow[];
@@ -70,6 +77,8 @@ export function LinksDashboard({
     initialEncryptedLinks,
   });
   const { isExporting, handleExportData } = useDataExport(masterKey);
+  const searchParams = useSearchParams();
+  const { readPanelFromUrl, writePanelToUrl } = useLinksPanelUrlSync();
 
   const [expandedFolderIds, setExpandedFolderIds] = useState<Set<string>>(
     () => new Set([ALL_FOLDER_ID])
@@ -79,7 +88,7 @@ export function LinksDashboard({
   >(null);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [panel, setPanel] = useState<LinksPanelState>({ mode: "closed" });
+  const [panel, setPanel] = useState<LinksPanelState>(() => readPanelFromUrl());
   const linkDraftSnapshots = useRef<Map<string, LinkDraftSnapshot>>(new Map());
   const folderDraftSnapshots = useRef<Map<string, FolderDraftSnapshot>>(
     new Map()
@@ -97,8 +106,10 @@ export function LinksDashboard({
   const [isDeletePending, startDeleteTransition] = useTransition();
 
   const closePanel = useCallback(() => {
-    setPanel({ mode: "closed" });
-  }, []);
+    const next: LinksPanelState = { mode: "closed" };
+    setPanel(next);
+    writePanelToUrl(next);
+  }, [writePanelToUrl]);
 
   const cleanupDraftIfUnchanged = useCallback(
     (state: Extract<LinksPanelState, { mode: "open" }>) => {
@@ -133,9 +144,34 @@ export function LinksDashboard({
         }
       }
       setPanel(next);
+      writePanelToUrl(next);
     },
-    [cleanupDraftIfUnchanged, panel]
+    [cleanupDraftIfUnchanged, panel, writePanelToUrl]
   );
+
+  const panelRef = useRef(panel);
+  panelRef.current = panel;
+
+  useEffect(() => {
+    const fromUrl = readPanelFromUrl();
+    if (fromUrl.mode === "open") {
+      if (
+        panelRef.current.mode !== "open" ||
+        panelRef.current.id !== fromUrl.id ||
+        panelRef.current.kind !== fromUrl.kind
+      ) {
+        if (panelRef.current.mode === "open") {
+          cleanupDraftIfUnchanged(panelRef.current);
+        }
+        setPanel(fromUrl);
+      }
+      return;
+    }
+    if (panelRef.current.mode === "open") {
+      cleanupDraftIfUnchanged(panelRef.current);
+      setPanel({ mode: "closed" });
+    }
+  }, [searchParams, readPanelFromUrl, cleanupDraftIfUnchanged]);
 
   const handleSheetOpenChange = useCallback(
     (open: boolean) => {

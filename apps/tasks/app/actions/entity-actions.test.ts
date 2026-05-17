@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   authenticateAndRateLimit: vi.fn(),
-  logUnexpectedError: vi.fn(),
   revalidatePath: vi.fn(),
 }));
 
@@ -10,12 +9,14 @@ vi.mock("@helvety/shared/action-helpers", () => ({
   authenticateAndRateLimit: mocks.authenticateAndRateLimit,
 }));
 
+const loggerMocks = vi.hoisted(() => ({
+  logUnexpectedError: vi.fn(),
+  warn: vi.fn(),
+  info: vi.fn(),
+}));
+
 vi.mock("@helvety/shared/logger", () => ({
-  logger: {
-    logUnexpectedError: mocks.logUnexpectedError,
-    warn: vi.fn(),
-    info: vi.fn(),
-  },
+  logger: loggerMocks,
 }));
 
 vi.mock("next/server", () => ({
@@ -33,6 +34,34 @@ const TASK_ID = "550e8400-e29b-41d4-a716-446655440000";
 describe("tasks entity-actions getAllTaskDataForExport", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("returns exported items and logs the export request", async () => {
+    const items = [{ id: TASK_ID, title: "encrypted" }];
+    const from = vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            limit: vi.fn(() => Promise.resolve({ data: items, error: null })),
+          })),
+        })),
+      })),
+    }));
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: { from },
+      },
+    });
+
+    const result = await getAllTaskDataForExport();
+
+    expect(result).toEqual({ success: true, data: { items } });
+    expect(loggerMocks.info).toHaveBeenCalledWith("Data export requested", {
+      source: "tasks",
+      userId: "user-1",
+    });
   });
 
   it("uses EXPORT readRateLimitConfig for getAllTaskDataForExport", async () => {

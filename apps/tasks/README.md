@@ -12,6 +12,7 @@ End-to-end encrypted, stage-based task management app.
 - Fixed stage-based main list with drag-and-drop reorder
 - Client-side search on decrypted title/description; while search is active, reorder/drag is disabled and an empty-search message is shown when nothing matches
 - New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with the full `ItemEditor` (Tiptap, metadata panel, note/contact links). **New Task** creates a draft row and opens that sheet immediately; closing without edits removes the draft row.
+- Shareable deep links open a task in the detail sheet via `?item=<uuid>` (for example from Notes or Contacts cross-links).
 - Rich task editor with metadata panel
 - Cross-app linking with contacts and notes
 - Client-side decrypted export (server-side encrypted fetch)

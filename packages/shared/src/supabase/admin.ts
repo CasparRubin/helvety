@@ -83,6 +83,19 @@ function getSupabaseSecretKey(): string {
 let adminClient: SupabaseClient<DatabaseSchema> | null = null;
 
 /**
+ * Approved `createAdminClient()` call sites (grep-backed; update when adding new uses):
+ *
+ * - `apps/auth/app/actions/otp-actions.ts` — OTP verify / session bootstrap
+ * - `apps/auth/app/actions/passkey-auth-actions.ts` — passkey sign-in admin flows
+ * - `apps/auth/app/actions/user-lookup.ts` — credential lookup by id/email
+ * - `apps/store/app/actions/download-actions.ts` — signed download URLs
+ * - `apps/store/lib/packages/resolve-version.ts` — package version resolution
+ *
+ * Prefer `createScopedAdminQuery(userId)` for user-owned table reads/writes.
+ * Use raw `createAdminClient()` only when there is no user context (system flows).
+ */
+
+/**
  * Creates or returns the existing Supabase admin client instance.
  * Uses a singleton pattern for efficiency.
  *

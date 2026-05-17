@@ -10,7 +10,8 @@ End-to-end encrypted bookmarks with nested folders.
 - Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (shared CSRF/user bootstrap, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable. The dashboard pins [`LinksCommandBar`](components/links-command-bar.tsx) (wraps `@helvety/ui/entity-command-bar` for New link / New folder) via `@helvety/ui/command-bar-page-layout` (body scrolls in shadcn `ScrollArea`).
 - Client-side encryption for folder names and link names/URLs
 - Virtual **All** folder as the only top-level tree row (cannot be deleted or renamed); user folders and unfiled links live inside All (`parent_folder_id` / `folder_id` `null` in the database)
-- Finder-style nested folder tree on one page (expand/collapse; no URL-based folder navigation)
+- Finder-style nested folder tree on one page (expand/collapse state is client-side; tree rows are not routed by URL)
+- Shareable deep links open the detail sheet via `?link=<uuid>` or `?folder=<uuid>` (`useLinksPanelUrlSync`); they do not drive tree expand/collapse
 - Row interactions: link row opens the URL in a new tab; folder row toggles expansion; pencil opens link/folder editors
 - Folder actions: open links in a folder, or in a folder and all nested subfolders (on **All**, open every bookmark in the library)
 - Drag-and-drop reorder and reparenting (disabled while search is active)
