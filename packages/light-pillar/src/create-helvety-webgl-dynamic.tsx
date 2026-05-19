@@ -8,7 +8,8 @@ import type { ComponentType } from "react";
 
 /**
  * `next/dynamic` wrapper with SSR off and a `bg-background` loading slot while the chunk loads.
- * On the gateway hero, the parent reveal wrapper stays at `opacity-0` until WebGL `onReady`.
+ * On the gateway hero, the parent reveal wrapper stays at `opacity-0` until WebGL `onReady`
+ * and a stable `html.dark` (see `hero-hyperspeed-backdrop.tsx`).
  * Client-only: import from `@helvety/light-pillar/webgl-dynamic`, not the package root.
  */
 export function createHelvetyWebglDynamic<P extends object>(

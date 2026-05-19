@@ -54,9 +54,9 @@ export const metadata = createHelvetyProductMetadata({
 });
 
 /**
- * Root layout: ThemeProvider wraps only the Navbar (next-themes injects a script; keep route content outside).
+ * Root layout: blocking `HelvetyThemeInitScript` in `<head>`; ThemeProvider wraps only the Navbar.
  * Pinned StoreNav (`scrollAreaMainPrefix`), scrollable main (`ScrollArea`), and footer follow.
- * Navbar-only ThemeProvider is intentional to avoid theme flash on catalog pages.
+ * Navbar-only ThemeProvider keeps next-themes off catalog routes; head script sets `html.dark` before body paint.
  * Does not use shell overflow overrides (unlike gateway Hyperspeed).
  * Session bootstrap: `bootstrapE2eeLayoutSession()` (CSRF + user for `CSRFProvider` and nav).
  */

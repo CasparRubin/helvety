@@ -1,7 +1,7 @@
 /**
  * Shared layout primitives for app shells.
  * Keeps common font/provider/schema settings in one place, including
- * {@link getHelvetyThemeInitScript} for blocking theme init before first paint.
+ * {@link getHelvetyThemeInitScript} for blocking theme init in `<head>` before body paint.
  */
 
 import { urls } from "./config";
@@ -18,9 +18,9 @@ export const DEFAULT_THEME_PROVIDER_PROPS = {
 };
 
 /**
- * Blocking inline script for `<body>` (before paint) so `html.dark` matches
- * `localStorage` / system preference. Mirrors `next-themes` class strategy used
- * with {@link DEFAULT_THEME_PROVIDER_PROPS}.
+ * Blocking inline script body for app shells (`<head>`) so `html.dark` is set before
+ * `<body>` / `bg-background` paint. Mirrors `next-themes` class strategy used with
+ * {@link DEFAULT_THEME_PROVIDER_PROPS}.
  */
 export function getHelvetyThemeInitScript(): string {
   const storageKey = HELVETY_THEME_STORAGE_KEY;

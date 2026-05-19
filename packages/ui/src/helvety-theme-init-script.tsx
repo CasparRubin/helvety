@@ -6,8 +6,8 @@ export type HelvetyThemeInitScriptProps = Readonly<{
 }>;
 
 /**
- * Blocking theme init script for app shells. Place immediately after
- * {@link SkipToContent} so `html.dark` is correct before the first paint.
+ * Blocking theme init script for app shells. Render in `<head>` so `html.dark`
+ * and semantic tokens are correct before `<body>` / `bg-background` paint.
  */
 export function HelvetyThemeInitScript({
   nonce,

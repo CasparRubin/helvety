@@ -1,8 +1,9 @@
 import { LoadingSpinner } from "./loading-spinner";
 
 /**
- * Root loading UI for public Helvety shells: full-viewport themed backdrop so route
- * transitions do not flash the browser default canvas behind the shell.
+ * Root loading UI for public Helvety shells: full-viewport `bg-background` so in-zone
+ * client navigations do not flash the browser default behind the shell (cross-zone
+ * loads rely on `<head>` theme init in `HelvetyPublicShellRootLayout`).
  */
 export function HelvetyShellRouteLoading() {
   return (

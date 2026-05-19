@@ -42,6 +42,10 @@ vi.mock("./encryption-gate-app", () => ({
 }));
 
 import { E2eeAppRootLayout } from "./e2ee-app-root-layout";
+import {
+  expectThemeScriptBeforeSkipLink,
+  expectThemeScriptInHead,
+} from "./helvety-theme-init-script.test-helpers";
 
 import type { ReactNode } from "react";
 
@@ -100,5 +104,7 @@ describe("E2eeAppRootLayout", () => {
     expect(html).not.toContain('data-slot="scroll-area"');
     expect(html).toContain('nonce="test-nonce"');
     expect(html).toContain("localStorage.getItem");
+    expectThemeScriptInHead(html);
+    expectThemeScriptBeforeSkipLink(html);
   });
 });

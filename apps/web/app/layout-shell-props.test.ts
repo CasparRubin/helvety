@@ -22,4 +22,10 @@ describe("web root layout shell props", () => {
     const src = readFileSync(layoutPath, "utf8");
     expect(src).toContain('bodyClassName: "overflow-x-clip"');
   });
+
+  it("documents head theme init for correct tokens before body paint", () => {
+    const src = readFileSync(layoutPath, "utf8");
+    expect(src).toContain("HelvetyThemeInitScript");
+    expect(src).toContain("in `<head>`");
+  });
 });

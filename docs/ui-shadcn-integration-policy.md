@@ -24,7 +24,7 @@ If a new app-local wrapper is needed, add it deliberately with a short rationale
 ## Gateway React Bits vendor folder (`apps/web`)
 
 - Third-party React Bits sources (**Hyperspeed**, **Shuffle**, **ShinyText**) live in `apps/web/components/vendor/`, not the shared `packages/ui` package.
-- Hero composition (`hero-text.tsx`, `hero-hyperspeed-backdrop.tsx`, presets) stays alongside other gateway components under `apps/web/components/`. The backdrop keeps Hyperspeed at `opacity-0` until the first composited WebGL frame, then fades in (700ms); do not reintroduce a lifting “veil” over a visible canvas.
+- Hero composition (`hero-text.tsx`, `hero-hyperspeed-backdrop.tsx`, presets) stays alongside other gateway components under `apps/web/components/`. The backdrop keeps Hyperspeed at `opacity-0` until the first composited WebGL frame with a matching `html.dark`, then fades in (700ms); it hides before cross-zone links and `pagehide`. Do not reintroduce a lifting “veil” over a visible canvas. Public shells inject blocking theme init in `<head>` (not after `SkipToContent`).
 - After `shadcn add @react-bits/...` from `apps/web`, reconcile Helvety tweaks and keep motion files under `components/vendor/` with imports updated in `hero-text.tsx`.
 - Prefer the `**/components/vendor/**` ESLint override in `@helvety/config` over file-level `eslint-disable` in vendored files.
 

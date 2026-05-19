@@ -56,7 +56,7 @@ export const metadata = createHelvetyProductMetadata({
  *
  * `app/loading.tsx` re-exports `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`)
  * so pending navigations keep a full-viewport `bg-background` shell. The public shell injects
- * blocking `HelvetyThemeInitScript` after `SkipToContent` so theme tokens are correct before paint.
+ * blocking `HelvetyThemeInitScript` in `<head>` so theme tokens are correct before body paint.
  * `HelvetyPublicShellRootLayout` merges `bg-background text-foreground` on `<body>` with
  * `bodyClassName` below.
  *

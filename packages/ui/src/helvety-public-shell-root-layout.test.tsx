@@ -35,6 +35,10 @@ vi.mock("./auth-token-handler", () => ({
 }));
 
 import { HelvetyPublicShellRootLayout } from "./helvety-public-shell-root-layout";
+import {
+  expectThemeScriptBeforeSkipLink,
+  expectThemeScriptInHead,
+} from "./helvety-theme-init-script.test-helpers";
 
 describe("HelvetyPublicShellRootLayout", () => {
   it("renders overflow-main variant with navbar and main landmark", async () => {
@@ -61,6 +65,7 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain("text-foreground");
     expect(html).toContain('nonce="test-nonce"');
     expect(html).toContain("localStorage.getItem");
+    expectThemeScriptInHead(html);
   });
 
   it("renders scroll-area variant with main content", async () => {
@@ -80,10 +85,8 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain("text-foreground");
     expect(html).toContain('nonce="test-nonce"');
     expect(html).toContain("localStorage.getItem");
-    const skipIndex = html.indexOf("Skip to main content");
-    const scriptIndex = html.indexOf("localStorage.getItem");
-    expect(skipIndex).toBeGreaterThan(-1);
-    expect(scriptIndex).toBeGreaterThan(skipIndex);
+    expectThemeScriptInHead(html);
+    expectThemeScriptBeforeSkipLink(html);
   });
 
   it("scroll-area variant without prefix wraps only main content in ScrollArea", async () => {
@@ -133,6 +136,8 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain("Catalog");
     expect(html).toContain("bg-background");
     expect(html).toContain("text-foreground");
-    expect(html).not.toContain("localStorage.getItem");
+    expect(html).toContain("localStorage.getItem");
+    expectThemeScriptInHead(html);
+    expectThemeScriptBeforeSkipLink(html);
   });
 });

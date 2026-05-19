@@ -16,3 +16,9 @@
   height: 100%;
   background-color: var(--background);
 }
+
+/* Chunk-load / dispose gaps: match dark WebGL clear when html.dark is set. */
+.dark #lights,
+.dark #lights canvas {
+  background-color: #1c1816;
+}

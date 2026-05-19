@@ -119,4 +119,13 @@ describe("HeroSection", () => {
     expect(copy?.className).toContain("motion-safe:[text-shadow:");
     expect(copy?.className).toContain("255_255_255");
   });
+
+  it("applies dark copy shadow when hyperspeed runs in dark mode", () => {
+    heroMocks.isDark = true;
+    const { container } = render(<HeroSection />);
+    const copy = container.querySelector(".space-y-5");
+
+    expect(copy?.className).toContain("motion-safe:[text-shadow:");
+    expect(copy?.className).toContain("0_0_0");
+  });
 });

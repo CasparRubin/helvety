@@ -48,7 +48,7 @@ export type E2eeAppRootLayoutProps = Readonly<{
 /**
  * Shared root shell for Contacts, Notes, Tasks, and Links: nonce, per-request CSRF +
  * user bootstrap via `bootstrapE2eeLayoutSession()`, JSON-LD, blocking
- * {@link HelvetyThemeInitScript} (after {@link SkipToContent}), `ThemeProvider`, tooltip shell,
+ * {@link HelvetyThemeInitScript} in `<head>`, `ThemeProvider`, tooltip shell,
  * app `encryptionProvider`, `EncryptionGateApp` when authenticated, and optional
  * `HelvetyVercelAnalytics` (`NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false` to skip).
  *
@@ -84,9 +84,11 @@ export async function E2eeAppRootLayout({
 
   return (
     <html lang="en" className={publicSans.variable} suppressHydrationWarning>
+      <head>
+        <HelvetyThemeInitScript nonce={nonce} />
+      </head>
       <body className="antialiased">
         <SkipToContent />
-        <HelvetyThemeInitScript nonce={nonce} />
         <JsonLdScript nonce={nonce} json={ldJson} />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
           <AuthTokenHandler />

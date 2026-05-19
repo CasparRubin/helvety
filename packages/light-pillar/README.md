@@ -2,7 +2,7 @@
 
 Shared WebGL backdrop utilities for the Helvety marketing homepage hero.
 
-Used by `apps/web` only: React Bits **Hyperspeed** via [`hero-hyperspeed-backdrop.tsx`](../../apps/web/components/hero-hyperspeed-backdrop.tsx). That component owns the **reveal wrapper** (`opacity-0` until `onReady`, then 700ms fade-in); this package supplies shared classes and timing helpers only. Auth and Store use plain semantic `bg-background` from `HelvetyPublicShellRootLayout`.
+Used by `apps/web` only: React Bits **Hyperspeed** via [`hero-hyperspeed-backdrop.tsx`](../../apps/web/components/hero-hyperspeed-backdrop.tsx). That component owns the **reveal wrapper** (`opacity-0` until `onReady` with a stable `html.dark`, then 700ms fade-in) and hides before cross-zone navigation / `pagehide`; this package supplies shared classes and timing helpers only. Other public apps use semantic `bg-background` from `HelvetyPublicShellRootLayout` (blocking theme init in `<head>` on all scopes, including Store).
 
 ## Usage
 

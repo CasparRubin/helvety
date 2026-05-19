@@ -1,15 +1,23 @@
 import * as webglBackdrop from "@helvety/light-pillar";
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { useEffect } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const themeMocks = vi.hoisted(() => ({
   isDark: true,
+  readDark: true,
 }));
 
 vi.mock("@helvety/ui/use-html-dark-theme", () => ({
   useHtmlDarkTheme: () => themeMocks.isDark,
+  readHtmlDarkTheme: () => themeMocks.readDark,
 }));
 
 vi.mock("next/dynamic", () => ({
@@ -23,12 +31,16 @@ vi.mock("next/dynamic", () => ({
     },
 }));
 
+import * as heroHyperspeedOptions from "@/components/hero-hyperspeed-options";
+
 import { HeroHyperspeedBackdrop } from "./hero-hyperspeed-backdrop";
 
 describe("HeroHyperspeedBackdrop", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     themeMocks.isDark = true;
+    themeMocks.readDark = true;
+    document.documentElement.classList.remove("dark");
   });
 
   it("SSR omits WebGL until client hydration", () => {
@@ -103,6 +115,7 @@ describe("HeroHyperspeedBackdrop", () => {
     });
 
     themeMocks.isDark = false;
+    themeMocks.readDark = false;
     rerender(<HeroHyperspeedBackdrop />);
 
     const reveal = screen.getByTestId("hero-hyperspeed-reveal");
@@ -121,5 +134,154 @@ describe("HeroHyperspeedBackdrop", () => {
     await waitFor(() => {
       expect(screen.getByTestId("stub-hyperspeed")).toBeInTheDocument();
     });
+  });
+
+  it("does not reveal when DOM theme disagrees with hook on ready", async () => {
+    const scheduleSpy = vi.spyOn(webglBackdrop, "scheduleWebglBackdropReady");
+    themeMocks.isDark = true;
+    themeMocks.readDark = false;
+
+    render(<HeroHyperspeedBackdrop />);
+
+    await waitFor(() => {
+      expect(scheduleSpy).toHaveBeenCalled();
+    });
+
+    scheduleSpy.mock.calls.at(-1)?.[0]();
+
+    const reveal = screen.getByTestId("hero-hyperspeed-reveal");
+    expect(reveal).toHaveClass("opacity-0");
+    expect(reveal).toHaveClass("pointer-events-none");
+  });
+
+  it("prefers dark effect options when html.dark is set before hook resolves", async () => {
+    const optionsSpy = vi.spyOn(
+      heroHyperspeedOptions,
+      "getHeroHyperspeedEffectOptions"
+    );
+    themeMocks.isDark = false;
+    themeMocks.readDark = false;
+    document.documentElement.classList.add("dark");
+
+    render(<HeroHyperspeedBackdrop />);
+
+    await waitFor(() => {
+      expect(optionsSpy).toHaveBeenCalledWith(true);
+    });
+  });
+
+  it("hides reveal on visibilitychange to hidden", async () => {
+    render(<HeroHyperspeedBackdrop />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+        "opacity-100"
+      );
+    });
+
+    act(() => {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        value: "hidden",
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+
+    expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+      "opacity-0"
+    );
+  });
+
+  it("hides reveal on pagehide", async () => {
+    render(<HeroHyperspeedBackdrop />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+        "opacity-100"
+      );
+    });
+
+    act(() => {
+      fireEvent(window, new Event("pagehide"));
+    });
+
+    expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+      "opacity-0"
+    );
+  });
+
+  it("resets reveal on bfcache pageshow", async () => {
+    render(<HeroHyperspeedBackdrop />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+        "opacity-100"
+      );
+    });
+
+    act(() => {
+      fireEvent(
+        window,
+        new PageTransitionEvent("pageshow", { persisted: true })
+      );
+    });
+
+    expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+      "opacity-0"
+    );
+  });
+
+  it("hides reveal on cross-zone link pointerdown", async () => {
+    render(
+      <>
+        <HeroHyperspeedBackdrop />
+        <a href="/store" data-testid="store-link">
+          Store
+        </a>
+      </>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+        "opacity-100"
+      );
+    });
+
+    act(() => {
+      fireEvent.pointerDown(screen.getByTestId("store-link"), {
+        bubbles: true,
+      });
+    });
+
+    expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+      "opacity-0"
+    );
+  });
+
+  it("keeps reveal visible on in-gateway link pointerdown", async () => {
+    render(
+      <>
+        <HeroHyperspeedBackdrop />
+        <a href="/privacy" data-testid="privacy-link">
+          Privacy
+        </a>
+      </>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+        "opacity-100"
+      );
+    });
+
+    act(() => {
+      fireEvent.pointerDown(screen.getByTestId("privacy-link"), {
+        bubbles: true,
+      });
+    });
+
+    expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+      "opacity-100"
+    );
   });
 });

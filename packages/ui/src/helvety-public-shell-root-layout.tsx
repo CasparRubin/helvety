@@ -38,7 +38,7 @@ export type HelvetyPublicShellAnalyticsVariant =
 
 /**
  * Where `ThemeProvider` wraps the tree: full app (default) or navbar only
- * (Store catalog - avoids theme flash on route content).
+ * (Store catalog; head script still sets `html.dark` before body paint).
  */
 export type HelvetyPublicShellThemeProviderScope = "full" | "navbar-only";
 
@@ -64,8 +64,8 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
    * only (Auth: CSRF + encryption around that fragment; auth/session stay outside).
    *
    * When {@link themeProviderScope} is `"navbar-only"` (Store): wraps **auth handler +
-   * session recovery + column + toaster** so outer wrappers (e.g. `CSRFProvider` and
-   * `CSRFProvider` in `wrapInsideTooltipProvider`) wrap the same subtree as the store layout.
+   * session recovery + column + toaster** so outer wrappers (e.g. `CSRFProvider` in
+   * {@link wrapInsideTooltipProvider}) wrap the same subtree as the store layout.
    */
   wrapInsideTooltipProvider?: (shell: ReactNode) => ReactNode;
   /**
@@ -151,8 +151,8 @@ function buildMainBlock(
 
 /**
  * Shared root shell for **public** Helvety apps (`web`, `auth`, `store`, `pdf`,
- * `image-upscaler`): CSP nonce, JSON-LD, blocking {@link HelvetyThemeInitScript} on
- * {@link HelvetyPublicShellThemeProviderScope} `"full"` (after {@link SkipToContent}),
+ * `image-upscaler`): CSP nonce, JSON-LD, blocking {@link HelvetyThemeInitScript} in
+ * `<head>` (all {@link HelvetyPublicShellThemeProviderScope} values, including Store),
  * theme via `ThemeProvider` (see {@link HelvetyPublicShellThemeProviderScope}), auth token
  * handler, session recovery, `TooltipProvider`, optional
  * {@link wrapInsideTooltipProvider} (e.g. Auth: CSRF and encryption; Store: `CSRFProvider`),
@@ -166,9 +166,8 @@ function buildMainBlock(
  * Other public apps keep the defaults.
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional
- * **`bodyClassName`**. On **`themeProviderScope: "full"`**, {@link HelvetyThemeInitScript} runs
- * immediately after {@link SkipToContent} so `html.dark` and semantic tokens match storage/system
- * before the first paint (gateway Hyperspeed relies on this).
+ * **`bodyClassName`**. {@link HelvetyThemeInitScript} in `<head>` applies `html.dark` before body
+ * paint so semantic tokens match storage/system (gateway Hyperspeed and Store catalog).
  *
  * E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
  */
@@ -271,6 +270,9 @@ export async function HelvetyPublicShellRootLayout({
           : {})}
         suppressHydrationWarning
       >
+        <head>
+          <HelvetyThemeInitScript nonce={nonce} />
+        </head>
         <body
           className={cn(
             "bg-background text-foreground font-sans antialiased",
@@ -299,6 +301,9 @@ export async function HelvetyPublicShellRootLayout({
         : {})}
       suppressHydrationWarning
     >
+      <head>
+        <HelvetyThemeInitScript nonce={nonce} />
+      </head>
       <body
         className={cn(
           "bg-background text-foreground font-sans antialiased",
@@ -306,7 +311,6 @@ export async function HelvetyPublicShellRootLayout({
         )}
       >
         <SkipToContent />
-        <HelvetyThemeInitScript nonce={nonce} />
         <JsonLdScript nonce={nonce} json={ldJson} />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
           <AuthTokenHandler />
