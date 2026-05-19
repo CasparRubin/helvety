@@ -7,7 +7,7 @@ Centralized passwordless authentication for Helvety web apps on helvety.com (thi
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider`), loads CSRF and user via `getCachedCSRFToken` / `getCachedUser` from `@helvety/shared/cached-server` (same data as `bootstrapE2eeLayoutSession()`), and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
+- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (blocking `HelvetyThemeInitScript` in `<head>`; `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider`), loads CSRF and user via `getCachedCSRFToken` / `getCachedUser` from `@helvety/shared/cached-server` (same data as `bootstrapE2eeLayoutSession()`), and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
 - Metadata / OG / JSON-LD use `AUTH_DESCRIPTION` in [`app/layout.tsx`](./app/layout.tsx); PWA [`public/manifest.json`](./public/manifest.json) matches the shorter `AUTH_PWA_MANIFEST_DESCRIPTION`. Root `bun run consistency:install-manifest-metadata` fails if those diverge.
 - Email OTP + passkey authentication (WebAuthn)
 - Account-bound returning-user passkey sign-in

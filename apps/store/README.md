@@ -63,7 +63,7 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
    - Run `bun run test --filter=@helvety/shared` (copy guardrails) and
      `bun run consistency:install-manifest-metadata`
 4. **(Optional) Add a switcher entry** in
-   [`packages/ui/src/app-switcher-sections.tsx`](../ui/src/app-switcher-sections.tsx) if the product should appear in the helvety.com app switcher (left sheet in the shared navbar). Keep `links[].icon` aligned with product identity (same Lucide icons as store product UI where applicable).
+   [`packages/ui/src/app-switcher-sections.tsx`](../../packages/ui/src/app-switcher-sections.tsx) if the product should appear in the helvety.com app switcher (left sheet in the shared navbar). Keep `links[].icon` aligned with product identity (same Lucide icons as store product UI where applicable).
 5. **Run pre-deployment validations** from the repo root:
    `bun run ci:release` (full guardrails, Knip, format, lint, type-check, test, and build).
 
