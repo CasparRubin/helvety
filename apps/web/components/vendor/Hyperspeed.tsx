@@ -7,10 +7,8 @@
  *
  * Hero: opaque clear (`setClearColor(colors.background, 1)`) + solid `scene.background` so
  * alpha canvas / bloom never shows page chrome before paint; pairs with veil in
- * {@link ./hero-hyperspeed-backdrop.tsx}. See {@link ./Hyperspeed.css} for `#lights` semantic base (`var(--background)`).
+ * {@link ../hero-hyperspeed-backdrop.tsx}. See {@link ./Hyperspeed.css} for `#lights` semantic base (`var(--background)`).
  */
-/* eslint-disable */
-
 import {
   BloomEffect,
   EffectComposer,
@@ -22,12 +20,21 @@ import {
 import { FC, useCallback, useRef } from "react";
 import * as THREE from "three";
 
-import { hyperspeedDefaultPreset } from "./hyperspeed-default-preset";
+import { hyperspeedDefaultPreset } from "../hyperspeed-default-preset";
 
 import "./Hyperspeed.css";
 
+type UniformValue =
+  | number
+  | boolean
+  | THREE.Vector2
+  | THREE.Vector3
+  | THREE.Vector4
+  | THREE.Color
+  | null;
+
 interface Distortion {
-  uniforms: Record<string, { value: any }>;
+  uniforms: Record<string, { value: UniformValue }>;
   getDistortion: string;
   getJS?: (progress: number, time: number) => THREE.Vector3;
 }

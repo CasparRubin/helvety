@@ -15,7 +15,7 @@ import {
 import { createHelvetyWebglDynamic } from "@helvety/light-pillar/webgl-dynamic";
 
 const HeroHyperspeed = createHelvetyWebglDynamic(
-  () => import("@/components/Hyperspeed"),
+  () => import("@/components/vendor/Hyperspeed"),
   "hero-hyperspeed-loading"
 );
 ```

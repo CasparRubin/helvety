@@ -1,11 +1,12 @@
 "use client";
 
-import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { safeDecryptDisplayField } from "@helvety/shared/crypto";
-import { triggerE2eeHookAuthErrorNavigation } from "@helvety/ui/auth-navigation";
+import {
+  reportE2eeActionFailure,
+  reportE2eeHookError,
+} from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import {
   getContactNoteLinks,
@@ -142,22 +143,14 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
         return;
       }
       if (!result.success) {
-        if (
-          triggerE2eeHookAuthErrorNavigation(
-            "contacts-use-note-links",
-            result.error,
-            {
-              redirectUri: routeAtStart,
-              expectedRoute: routeAtStart,
-              requestStartedAt,
-            }
-          )
-        ) {
-          return;
-        }
-        const msg = result.error ?? "Failed to load note links";
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeActionFailure(result.error, {
+          source: "contacts-use-note-links",
+          fallback: "Failed to load note links",
+          setError,
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        });
         setNotes([]);
         return;
       }
@@ -177,19 +170,14 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       ) {
         return;
       }
-      const msg =
-        err instanceof Error ? err.message : "Failed to load note links";
-      if (
-        triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", msg, {
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        })
-      ) {
-        return;
-      }
-      setError(msg);
-      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+      reportE2eeHookError(err, {
+        source: "contacts-use-note-links",
+        fallback: "Failed to load note links",
+        setError,
+        redirectUri: routeAtStart,
+        expectedRoute: routeAtStart,
+        requestStartedAt,
+      });
       setNotes([]);
     } finally {
       if (mountedRef.current && requestId === latestRefreshRequestRef.current) {
@@ -219,21 +207,12 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
         return;
       }
       if (!result.success) {
-        if (
-          triggerE2eeHookAuthErrorNavigation(
-            "contacts-use-note-links",
-            result.error,
-            {
-              redirectUri: routeAtStart,
-              expectedRoute: routeAtStart,
-              requestStartedAt,
-            }
-          )
-        ) {
-          return;
-        }
-        toast.error(result.error ?? "Failed to load notes", {
-          duration: TOAST_DURATIONS.ERROR,
+        reportE2eeActionFailure(result.error, {
+          source: "contacts-use-note-links",
+          fallback: "Failed to load notes",
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
         });
         return;
       }
@@ -254,18 +233,13 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       ) {
         return;
       }
-      const message =
-        err instanceof Error ? err.message : "Failed to load notes";
-      if (
-        triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", message, {
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        })
-      ) {
-        return;
-      }
-      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+      reportE2eeHookError(err, {
+        source: "contacts-use-note-links",
+        fallback: "Failed to load notes",
+        redirectUri: routeAtStart,
+        expectedRoute: routeAtStart,
+        requestStartedAt,
+      });
     } finally {
       if (
         mountedRef.current &&
@@ -281,28 +255,19 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       try {
         const result = await linkNoteEntity(noteId, contactId, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "contacts-use-note-links",
-              result.error
-            )
-          )
-            return false;
-          toast.error(result.error ?? "Failed to link note", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-note-links",
+            fallback: "Failed to link note",
           });
           return false;
         }
         await refresh();
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to link note";
-        if (
-          triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", message)
-        )
-          return false;
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "contacts-use-note-links",
+          fallback: "Failed to link note",
+        });
         return false;
       }
     },
@@ -314,28 +279,19 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       try {
         const result = await unlinkNoteEntity(linkId, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "contacts-use-note-links",
-              result.error
-            )
-          )
-            return false;
-          toast.error(result.error ?? "Failed to unlink note", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-note-links",
+            fallback: "Failed to unlink note",
           });
           return false;
         }
         setNotes((prev) => prev.filter((note) => note.link_id !== linkId));
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to unlink note";
-        if (
-          triggerE2eeHookAuthErrorNavigation("contacts-use-note-links", message)
-        )
-          return false;
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "contacts-use-note-links",
+          fallback: "Failed to unlink note",
+        });
         return false;
       }
     },

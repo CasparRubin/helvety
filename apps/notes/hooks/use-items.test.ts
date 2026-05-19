@@ -1,12 +1,55 @@
-import { describe, expect, it } from "vitest";
+import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
+import { renderHook } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import { getNotesApiPath } from "./use-items";
+import { getNotesApiPath, useItems } from "./use-items";
+
+vi.mock("@helvety/ui/hooks/use-encrypted-sortable-items", () => ({
+  useEncryptedSortableItems: vi.fn(() => ({
+    items: [],
+    isLoading: false,
+    isRefreshing: false,
+    error: null,
+    refresh: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    remove: vi.fn(),
+    reorder: vi.fn(),
+    patchLocal: vi.fn(),
+  })),
+}));
+
+vi.mock("@/lib/crypto", () => ({
+  useEncryptionContext: () => ({
+    masterKey: {} as CryptoKey,
+    isUnlocked: true,
+  }),
+  decryptItemRows: vi.fn(),
+  decryptItemRow: vi.fn(),
+  encryptItemInput: vi.fn(),
+  encryptItemUpdate: vi.fn(),
+}));
 
 describe("getNotesApiPath", () => {
   it("prefixes note API routes with the notes base path", () => {
     expect(getNotesApiPath("/api/items")).toBe("/notes/api/items");
     expect(getNotesApiPath("/api/items/abc-123")).toBe(
       "/notes/api/items/abc-123"
+    );
+  });
+});
+
+describe("useItems", () => {
+  it("delegates list behavior to the shared encrypted sortable hook", () => {
+    renderHook(() => useItems());
+
+    expect(vi.mocked(useEncryptedSortableItems)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        navigationSource: "notes-use-items",
+        perfMeasureName: "notes:list-refresh-duration",
+        loadFailureMessage: "Failed to load notes",
+        reorderEntities: expect.any(Function),
+      })
     );
   });
 });

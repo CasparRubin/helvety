@@ -2,6 +2,8 @@
 
 import { classifyActionAuthError } from "@helvety/shared/auth-errors";
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { toast } from "sonner";
 
 import { forceHardLogout } from "./hard-logout";
 
@@ -211,7 +213,9 @@ export function handleAuthErrorNavigation(
 }
 
 /**
- * Client hooks (E2EE lists, entity links) use the same redirect defaults as
+ * Low-level auth redirect helper for hook errors. Prefer
+ * {@link reportE2eeHookError} and {@link reportE2eeActionFailure} in E2EE hooks
+ * (they add toast/state handling). Uses the same redirect defaults as
  * `handleAuthErrorNavigation` with a stable `source` for telemetry.
  */
 export function triggerE2eeHookAuthErrorNavigation(
@@ -231,4 +235,68 @@ export function triggerE2eeHookAuthErrorNavigation(
       requestStartedAt: options?.requestStartedAt,
     }
   );
+}
+
+/** Normalizes unknown hook errors to a user-visible message. */
+export function getE2eeHookErrorMessage(
+  err: unknown,
+  fallback: string
+): string {
+  return err instanceof Error ? err.message : fallback;
+}
+
+/** Shared options for E2EE hook error reporting helpers. */
+export interface ReportE2eeHookErrorOptions {
+  source: NavigationSource;
+  fallback: string;
+  setError?: (error: string | null) => void;
+  expectedRoute?: string;
+  requestStartedAt?: number;
+  redirectUri?: string;
+}
+
+/**
+ * Handles E2EE hook catch blocks: auth redirect when applicable, otherwise
+ * optional state + toast. Returns true when auth navigation consumed the error.
+ */
+export function reportE2eeHookError(
+  err: unknown,
+  options: ReportE2eeHookErrorOptions
+): boolean {
+  const message = getE2eeHookErrorMessage(err, options.fallback);
+  if (
+    triggerE2eeHookAuthErrorNavigation(options.source, message, {
+      expectedRoute: options.expectedRoute,
+      requestStartedAt: options.requestStartedAt,
+      redirectUri: options.redirectUri,
+    })
+  ) {
+    return true;
+  }
+  options.setError?.(message);
+  toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+  return false;
+}
+
+/**
+ * Handles failed E2EE server-action responses in client hooks.
+ * Returns true when auth navigation consumed the error.
+ */
+export function reportE2eeActionFailure(
+  error: string | null | undefined,
+  options: ReportE2eeHookErrorOptions
+): boolean {
+  const message = error ?? options.fallback;
+  if (
+    triggerE2eeHookAuthErrorNavigation(options.source, message, {
+      expectedRoute: options.expectedRoute,
+      requestStartedAt: options.requestStartedAt,
+      redirectUri: options.redirectUri,
+    })
+  ) {
+    return true;
+  }
+  options.setError?.(message);
+  toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+  return false;
 }

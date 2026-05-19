@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 import type { UpscaleModelId } from "@/lib/models";
 
 interface UpscaleRequest {

@@ -302,9 +302,33 @@ export function createEslintConfig(rootDir) {
         "**/pdf-processing.worker.ts",
         "**/image-upscaler-command-bar.test.tsx",
         "**/upscale-pipeline.test.ts",
+        "**/onnx-inference.ts",
+        "**/upscale-pipeline.ts",
+        "**/upscale.worker.ts",
+        "**/upscale-worker-client.ts",
+        "**/upscale-worker-types.ts",
+        "**/canvas-export-limits.ts",
+        "**/helvety-image-upscaler.tsx",
       ],
       rules: {
         "jsdoc/require-jsdoc": "off",
+      },
+    },
+    // Vendored React Bits / WebGL (apps/web/components/vendor): upstream style, not Helvety conventions.
+    {
+      files: ["**/components/vendor/**"],
+      rules: {
+        "jsdoc/require-jsdoc": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/naming-convention": "off",
+        "@typescript-eslint/consistent-type-imports": "off",
+        "@typescript-eslint/no-unnecessary-type-assertion": "off",
+        "@typescript-eslint/prefer-optional-chain": "off",
+        "@typescript-eslint/prefer-nullish-coalescing": "off",
+        "@typescript-eslint/no-floating-promises": "off",
+        "prefer-template": "off",
+        "import-x/order": "off",
+        "import-x/no-duplicates": "off",
       },
     },
     globalIgnores([

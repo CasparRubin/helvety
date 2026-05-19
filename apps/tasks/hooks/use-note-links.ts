@@ -1,11 +1,12 @@
 "use client";
 
-import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { safeDecryptDisplayField } from "@helvety/shared/crypto";
-import { triggerE2eeHookAuthErrorNavigation } from "@helvety/ui/auth-navigation";
+import {
+  reportE2eeActionFailure,
+  reportE2eeHookError,
+} from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import {
   getNotes,
@@ -129,21 +130,17 @@ export function useNoteLinks(
           return;
         }
         if (
-          triggerE2eeHookAuthErrorNavigation(
-            "tasks-use-note-links",
-            notesResult.error,
-            {
-              redirectUri: routeAtStart,
-              expectedRoute: routeAtStart,
-              requestStartedAt,
-            }
-          )
+          reportE2eeActionFailure(notesResult.error, {
+            source: "tasks-use-note-links",
+            fallback: "Failed to load notes",
+            setError,
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
         ) {
           return;
         }
-        const msg = notesResult.error ?? "Failed to load notes";
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;
       }
 
@@ -155,21 +152,17 @@ export function useNoteLinks(
           return;
         }
         if (
-          triggerE2eeHookAuthErrorNavigation(
-            "tasks-use-note-links",
-            linksResult.error,
-            {
-              redirectUri: routeAtStart,
-              expectedRoute: routeAtStart,
-              requestStartedAt,
-            }
-          )
+          reportE2eeActionFailure(linksResult.error, {
+            source: "tasks-use-note-links",
+            fallback: "Failed to load linked notes",
+            setError,
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
         ) {
           return;
         }
-        const msg = linksResult.error ?? "Failed to load linked notes";
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;
       }
 
@@ -195,19 +188,14 @@ export function useNoteLinks(
       ) {
         return;
       }
-      const msg =
-        err instanceof Error ? err.message : "Failed to load note data";
-      if (
-        triggerE2eeHookAuthErrorNavigation("tasks-use-note-links", msg, {
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        })
-      ) {
-        return;
-      }
-      setError(msg);
-      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+      reportE2eeHookError(err, {
+        source: "tasks-use-note-links",
+        fallback: "Failed to load note data",
+        setError,
+        redirectUri: routeAtStart,
+        expectedRoute: routeAtStart,
+        requestStartedAt,
+      });
       setAllNotes([]);
       setLinks([]);
     } finally {
@@ -225,16 +213,9 @@ export function useNoteLinks(
       try {
         const result = await linkNote(itemId, noteId, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "tasks-use-note-links",
-              result.error
-            )
-          ) {
-            return false;
-          }
-          toast.error(result.error ?? "Failed to link note", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "tasks-use-note-links",
+            fallback: "Failed to link note",
           });
           return false;
         }
@@ -251,14 +232,10 @@ export function useNoteLinks(
 
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to link note";
-        if (
-          triggerE2eeHookAuthErrorNavigation("tasks-use-note-links", message)
-        ) {
-          return false;
-        }
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "tasks-use-note-links",
+          fallback: "Failed to link note",
+        });
         return false;
       }
     },
@@ -273,16 +250,9 @@ export function useNoteLinks(
       try {
         const result = await unlinkNote(linkId, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "tasks-use-note-links",
-              result.error
-            )
-          ) {
-            return false;
-          }
-          toast.error(result.error ?? "Failed to unlink note", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "tasks-use-note-links",
+            fallback: "Failed to unlink note",
           });
           return false;
         }
@@ -292,14 +262,10 @@ export function useNoteLinks(
 
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to unlink note";
-        if (
-          triggerE2eeHookAuthErrorNavigation("tasks-use-note-links", message)
-        ) {
-          return false;
-        }
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "tasks-use-note-links",
+          fallback: "Failed to unlink note",
+        });
         return false;
       }
     },

@@ -34,6 +34,9 @@ This package provides:
 - `@helvety/ui/use-sync-e2ee-entity-panel-from-url` -> `useSyncE2eeEntityPanelFromUrl`: **Required** with `useE2eeEntityPanelWithUrl` on tasks/notes/contacts dashboards so back/forward and `?param=` deep links sync the sheet without redundant updates (guards against React max-update-depth loops). Links uses `useLinksPanelUrlSync` instead (dual `?link=` / `?folder=`).
 - `@helvety/ui/e2ee-form-layout` -> `E2EE_ENTITY_SHEET_CONTENT_CLASS`, `E2EE_UNSAVED_CHANGES_DIALOG`, editor field spacing helpers.
 - `@helvety/ui/e2ee-app-navbar` -> `E2eeAppNavbar`, `E2eeAppNavbarLabels`
+- `@helvety/ui/hooks/use-encrypted-sortable-items` -> `useEncryptedSortableItems`: Shared encrypted list CRUD/reorder hook; tasks and notes `useItems` are thin wrappers that inject crypto and server actions.
+- `@helvety/ui/e2ee-item-editor-shell` -> `E2eeRichTextItemEditorShell`, `useE2eeRichTextItemEditorSave`: Shared rich-text editor shell (title, Tiptap body, unsaved-changes dialog). Tasks/notes still ship app-local `ItemEditor` until migrated.
+- `@helvety/ui/auth-navigation` -> `reportE2eeHookError`, `reportE2eeActionFailure`, `getE2eeHookErrorMessage`: E2EE client hooks should use these instead of hand-rolled `toast.error` + `triggerE2eeHookAuthErrorNavigation`.
 
 **Top bar (all zones that render the shared chrome):**
 
@@ -70,7 +73,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Coverage focuses on stable primitives and key shared UX surfaces (`CommandBar`, `CommandBarPageLayout`, `EntityCommandBar`, `Calendar`, `getLucideIcon` / `renderIcon`, `HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionGate`, `EncryptionTooltipContent`, `AccessibleSheetHeader`, `E2eeEntityDetailSheet`, `HelvetyVercelAnalytics`, `useE2eeEntityPanel`, `useE2eeEntityPanelWithUrl`, `useSyncE2eeEntityPanelFromUrl`, `e2ee-dashboard-wiring` / `helvety-layout-analytics-wiring` structural guards, `HelvetyPublicShellRootLayout`, and `E2eeAppRootLayout`). WebGL hero utilities are tested in `@helvety/light-pillar`. Vitest and related devDependency specifiers are normalized across workspaces from the repo root (`bun run deps:drift`, `bun run test:hygiene`); see the root [`README.md`](../../README.md) › **Testing Consistency**.
+Coverage focuses on stable primitives and key shared UX surfaces (`CommandBar`, `CommandBarPageLayout`, `EntityCommandBar`, `Calendar`, `getLucideIcon` / `renderIcon`, `HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionGate`, `EncryptionTooltipContent`, `AccessibleSheetHeader`, `E2eeEntityDetailSheet`, `HelvetyVercelAnalytics`, `useE2eeEntityPanel`, `useE2eeEntityPanelWithUrl`, `useSyncE2eeEntityPanelFromUrl`, `useEncryptedSortableItems`, `reportE2eeHookError` / `reportE2eeActionFailure`, `e2ee-dashboard-wiring` / `helvety-layout-analytics-wiring` structural guards, `HelvetyPublicShellRootLayout`, and `E2eeAppRootLayout`). WebGL hero utilities are tested in `@helvety/light-pillar`; gateway Hyperspeed/vendor tests live in `apps/web`. Vitest and related devDependency specifiers are normalized across workspaces from the repo root (`bun run deps:drift`, `bun run test:hygiene`); see the root [`README.md`](../../README.md) › **Testing Consistency**.
 
 ## Related
 

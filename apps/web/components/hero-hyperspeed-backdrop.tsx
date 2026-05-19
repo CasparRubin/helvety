@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { getHeroHyperspeedEffectOptions } from "@/components/hero-hyperspeed-options";
 
 const HeroHyperspeed = createHelvetyWebglDynamic(
-  () => import("@/components/Hyperspeed"),
+  () => import("@/components/vendor/Hyperspeed"),
   "hero-hyperspeed-loading"
 );
 

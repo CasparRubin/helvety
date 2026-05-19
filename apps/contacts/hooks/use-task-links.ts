@@ -1,10 +1,11 @@
 "use client";
 
-import { TOAST_DURATIONS } from "@helvety/shared/constants";
-import { triggerE2eeHookAuthErrorNavigation } from "@helvety/ui/auth-navigation";
+import {
+  reportE2eeActionFailure,
+  reportE2eeHookError,
+} from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import {
   getContactTaskLinks,
@@ -116,22 +117,14 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
         return;
       }
       if (!result.success) {
-        if (
-          triggerE2eeHookAuthErrorNavigation(
-            "contacts-use-task-links",
-            result.error,
-            {
-              redirectUri: routeAtStart,
-              expectedRoute: routeAtStart,
-              requestStartedAt,
-            }
-          )
-        ) {
-          return;
-        }
-        const msg = result.error ?? "Failed to load task links";
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeActionFailure(result.error, {
+          source: "contacts-use-task-links",
+          fallback: "Failed to load task links",
+          setError,
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
+        });
         setItems([]);
         return;
       }
@@ -151,19 +144,14 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       ) {
         return;
       }
-      const msg =
-        err instanceof Error ? err.message : "Failed to load task links";
-      if (
-        triggerE2eeHookAuthErrorNavigation("contacts-use-task-links", msg, {
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        })
-      ) {
-        return;
-      }
-      setError(msg);
-      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+      reportE2eeHookError(err, {
+        source: "contacts-use-task-links",
+        fallback: "Failed to load task links",
+        setError,
+        redirectUri: routeAtStart,
+        expectedRoute: routeAtStart,
+        requestStartedAt,
+      });
       setItems([]);
     } finally {
       if (mountedRef.current && requestId === latestRefreshRequestRef.current) {
@@ -193,21 +181,12 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
         return;
       }
       if (!result.success) {
-        if (
-          triggerE2eeHookAuthErrorNavigation(
-            "contacts-use-task-links",
-            result.error,
-            {
-              redirectUri: routeAtStart,
-              expectedRoute: routeAtStart,
-              requestStartedAt,
-            }
-          )
-        ) {
-          return;
-        }
-        toast.error(result.error ?? "Failed to load tasks", {
-          duration: TOAST_DURATIONS.ERROR,
+        reportE2eeActionFailure(result.error, {
+          source: "contacts-use-task-links",
+          fallback: "Failed to load tasks",
+          redirectUri: routeAtStart,
+          expectedRoute: routeAtStart,
+          requestStartedAt,
         });
         return;
       }
@@ -228,18 +207,13 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       ) {
         return;
       }
-      const message =
-        err instanceof Error ? err.message : "Failed to load tasks";
-      if (
-        triggerE2eeHookAuthErrorNavigation("contacts-use-task-links", message, {
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        })
-      ) {
-        return;
-      }
-      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+      reportE2eeHookError(err, {
+        source: "contacts-use-task-links",
+        fallback: "Failed to load tasks",
+        redirectUri: routeAtStart,
+        expectedRoute: routeAtStart,
+        requestStartedAt,
+      });
     } finally {
       if (
         mountedRef.current &&
@@ -255,28 +229,19 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       try {
         const result = await linkTaskEntity(itemId, contactId, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "contacts-use-task-links",
-              result.error
-            )
-          )
-            return false;
-          toast.error(result.error ?? "Failed to link task", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-task-links",
+            fallback: "Failed to link task",
           });
           return false;
         }
         await refresh();
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to link task";
-        if (
-          triggerE2eeHookAuthErrorNavigation("contacts-use-task-links", message)
-        )
-          return false;
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "contacts-use-task-links",
+          fallback: "Failed to link task",
+        });
         return false;
       }
     },
@@ -288,28 +253,19 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       try {
         const result = await unlinkTaskEntity(linkId, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "contacts-use-task-links",
-              result.error
-            )
-          )
-            return false;
-          toast.error(result.error ?? "Failed to unlink task", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-task-links",
+            fallback: "Failed to unlink task",
           });
           return false;
         }
         setItems((prev) => prev.filter((item) => item.link_id !== linkId));
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to unlink task";
-        if (
-          triggerE2eeHookAuthErrorNavigation("contacts-use-task-links", message)
-        )
-          return false;
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "contacts-use-task-links",
+          fallback: "Failed to unlink task",
+        });
         return false;
       }
     },

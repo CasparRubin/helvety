@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 import canvasSize from "canvas-size";
 
 export interface CanvasExportLimits {

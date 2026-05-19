@@ -1,5 +1,3 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
 vi.mock("@helvety/shared/auth-errors", () => ({
   classifyActionAuthError: vi.fn().mockReturnValue("none"),
 }));
@@ -15,8 +13,19 @@ vi.mock("./hard-logout", () => ({
   forceHardLogout: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("sonner", () => ({
+  toast: { error: vi.fn() },
+}));
+
+import { classifyActionAuthError } from "@helvety/shared/auth-errors";
+import { toast } from "sonner";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import {
+  getE2eeHookErrorMessage,
   redirectToLoginOnce,
+  reportE2eeActionFailure,
+  reportE2eeHookError,
   resetGlobalRedirectLockForTests,
   triggerHardLogoutOnce,
 } from "./auth-navigation";
@@ -103,5 +112,62 @@ describe("global redirect lock", () => {
     expect(window.location.replace).toHaveBeenCalledWith(
       expect.stringContaining("force_login=1")
     );
+  });
+});
+
+describe("E2EE hook error helpers", () => {
+  beforeEach(() => {
+    resetGlobalRedirectLockForTests();
+    vi.mocked(classifyActionAuthError).mockReturnValue("none");
+    vi.mocked(toast.error).mockClear();
+  });
+
+  it("getE2eeHookErrorMessage prefers Error.message", () => {
+    expect(getE2eeHookErrorMessage(new Error("boom"), "fallback")).toBe("boom");
+    expect(getE2eeHookErrorMessage("plain", "fallback")).toBe("fallback");
+  });
+
+  it("reportE2eeHookError toasts when auth navigation does not apply", () => {
+    const setError = vi.fn();
+    const consumed = reportE2eeHookError(new Error("load failed"), {
+      source: "tasks-use-items",
+      fallback: "Failed to load",
+      setError,
+    });
+
+    expect(consumed).toBe(false);
+    expect(setError).toHaveBeenCalledWith("load failed");
+    expect(toast.error).toHaveBeenCalledWith("load failed", {
+      duration: expect.any(Number),
+    });
+  });
+
+  it("reportE2eeHookError skips toast when login redirect is triggered", () => {
+    vi.mocked(classifyActionAuthError).mockReturnValue("login");
+    const setError = vi.fn();
+
+    const consumed = reportE2eeHookError(new Error("session expired"), {
+      source: "notes-use-items",
+      fallback: "Failed",
+      setError,
+    });
+
+    expect(consumed).toBe(true);
+    expect(setError).not.toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(window.location.replace).toHaveBeenCalledTimes(1);
+    vi.mocked(classifyActionAuthError).mockReturnValue("none");
+  });
+
+  it("reportE2eeActionFailure uses fallback when error is empty", () => {
+    const consumed = reportE2eeActionFailure(null, {
+      source: "contacts-use-contacts",
+      fallback: "Failed to save",
+    });
+
+    expect(consumed).toBe(false);
+    expect(toast.error).toHaveBeenCalledWith("Failed to save", {
+      duration: expect.any(Number),
+    });
   });
 });

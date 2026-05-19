@@ -21,6 +21,13 @@ Reason: both are app-specific UX wrappers around shared primitives (`@helvety/ui
 If a wrapper becomes shared across apps, migrate it into `packages/ui/src` and expose it via `@helvety/ui/*`.
 If a new app-local wrapper is needed, add it deliberately with a short rationale and update this policy in the same PR.
 
+## Gateway React Bits vendor folder (`apps/web`)
+
+- Third-party React Bits sources (**Hyperspeed**, **Shuffle**, **ShinyText**) live in `apps/web/components/vendor/`, not the shared `packages/ui` package.
+- Hero composition (`hero-text.tsx`, `hero-hyperspeed-backdrop.tsx`, presets) stays alongside other gateway components under `apps/web/components/`.
+- After `shadcn add @react-bits/...` from `apps/web`, reconcile Helvety tweaks and keep motion files under `components/vendor/` with imports updated in `hero-text.tsx`.
+- Prefer the `**/components/vendor/**` ESLint override in `@helvety/config` over file-level `eslint-disable` in vendored files.
+
 ## Calendar and icon primitives
 
 - **`@helvety/ui/calendar`** wraps **react-day-picker v10** (shadcn-style `classNames`, including `month_grid`). App date pickers (`contacts` `date-picker`, `tasks` `date-time-picker`) compose this export; do not pin day-picker v9 APIs or class keys.

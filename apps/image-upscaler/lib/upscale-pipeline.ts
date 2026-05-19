@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable jsdoc/require-jsdoc */
 
 import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 

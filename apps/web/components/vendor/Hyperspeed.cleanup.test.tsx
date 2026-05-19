@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const domElement = document.createElement("canvas");
 
-/* eslint-disable jsdoc/require-jsdoc -- Vitest module mocks */
 vi.mock("postprocessing", () => {
   class MockEffectComposer {
     addPass = vi.fn();
@@ -40,8 +39,6 @@ vi.mock("three", async (importOriginal) => {
   }
   return Object.assign({}, actual, { WebGLRenderer: MockWebGLRenderer });
 });
-/* eslint-enable jsdoc/require-jsdoc */
-
 import Hyperspeed from "./Hyperspeed";
 
 describe("Hyperspeed cleanup", () => {

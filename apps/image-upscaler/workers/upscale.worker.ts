@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 import * as ort from "onnxruntime-web";
 
 import { getModelById } from "@/lib/models";

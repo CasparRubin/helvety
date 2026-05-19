@@ -4,7 +4,8 @@ import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { patchEntityInList } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
 import {
-  triggerE2eeHookAuthErrorNavigation,
+  reportE2eeActionFailure,
+  reportE2eeHookError,
   triggerHardLogoutOnce,
 } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
@@ -164,37 +165,29 @@ export function useLinkLibrary(
           return;
         }
         if (
-          triggerE2eeHookAuthErrorNavigation(
-            "links-use-library",
-            result.error,
-            {
-              redirectUri: routeAtStart,
-              expectedRoute: routeAtStart,
-              requestStartedAt,
-            }
-          )
+          reportE2eeActionFailure(result.error, {
+            source: "links-use-library",
+            fallback: "Failed to load library",
+            setError,
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to load library";
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         return;
       }
       await applyDecrypted(result.data);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to load library";
-      if (
-        triggerE2eeHookAuthErrorNavigation("links-use-library", msg, {
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        })
-      ) {
-        return;
-      }
-      setError(msg);
-      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+      reportE2eeHookError(err, {
+        source: "links-use-library",
+        fallback: "Failed to load library",
+        setError,
+        redirectUri: routeAtStart,
+        expectedRoute: routeAtStart,
+        requestStartedAt,
+      });
     } finally {
       if (refreshToken === latestRefreshTokenRef.current) {
         setIsLoading(false);
@@ -248,16 +241,9 @@ export function useLinkLibrary(
         );
         const result = await createFolder(encrypted, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "links-use-library",
-              result.error
-            )
-          ) {
-            return null;
-          }
-          toast.error(result.error ?? "Failed to create folder", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "links-use-library",
+            fallback: "Failed to create folder",
           });
           return null;
         }
@@ -317,16 +303,9 @@ export function useLinkLibrary(
           csrfToken
         );
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "links-use-library",
-              result.error
-            )
-          ) {
-            return false;
-          }
-          toast.error(result.error ?? "Failed to update folder", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "links-use-library",
+            fallback: "Failed to update folder",
           });
           return false;
         }
@@ -356,13 +335,9 @@ export function useLinkLibrary(
     async (id: string): Promise<boolean> => {
       const result = await deleteFolder(id, csrfToken);
       if (!result.success) {
-        if (
-          triggerE2eeHookAuthErrorNavigation("links-use-library", result.error)
-        ) {
-          return false;
-        }
-        toast.error(result.error ?? "Failed to delete folder", {
-          duration: TOAST_DURATIONS.ERROR,
+        reportE2eeActionFailure(result.error, {
+          source: "links-use-library",
+          fallback: "Failed to delete folder",
         });
         return false;
       }
@@ -394,16 +369,9 @@ export function useLinkLibrary(
         const encrypted = await encryptLinkInput(payload, masterKey, folderId);
         const result = await createLink(encrypted, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "links-use-library",
-              result.error
-            )
-          ) {
-            return null;
-          }
-          toast.error(result.error ?? "Failed to create link", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "links-use-library",
+            fallback: "Failed to create link",
           });
           return null;
         }
@@ -493,16 +461,9 @@ export function useLinkLibrary(
           csrfToken
         );
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "links-use-library",
-              result.error
-            )
-          ) {
-            return false;
-          }
-          toast.error(result.error ?? "Failed to update link", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "links-use-library",
+            fallback: "Failed to update link",
           });
           return false;
         }
@@ -533,13 +494,9 @@ export function useLinkLibrary(
     async (id: string): Promise<boolean> => {
       const result = await deleteLink(id, csrfToken);
       if (!result.success) {
-        if (
-          triggerE2eeHookAuthErrorNavigation("links-use-library", result.error)
-        ) {
-          return false;
-        }
-        toast.error(result.error ?? "Failed to delete link", {
-          duration: TOAST_DURATIONS.ERROR,
+        reportE2eeActionFailure(result.error, {
+          source: "links-use-library",
+          fallback: "Failed to delete link",
         });
         return false;
       }

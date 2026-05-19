@@ -14,8 +14,8 @@ import { cn } from "@helvety/shared/utils";
 import { useHtmlDarkTheme } from "@helvety/ui/use-html-dark-theme";
 import { useReducedMotion } from "framer-motion";
 
-import ShinyText from "@/components/ShinyText";
-import Shuffle from "@/components/Shuffle";
+import ShinyText from "@/components/vendor/ShinyText";
+import Shuffle from "@/components/vendor/Shuffle";
 
 const TAGLINE = "private · simple · clean";
 

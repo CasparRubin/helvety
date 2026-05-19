@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable jsdoc/require-jsdoc */
 
 import type { UpscaleModelId } from "@/lib/models";
 import type { WorkerRequest, WorkerResponse } from "@/lib/upscale-worker-types";

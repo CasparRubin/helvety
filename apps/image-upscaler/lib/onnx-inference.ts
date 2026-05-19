@@ -18,8 +18,6 @@
  * Designed to run inside a DedicatedWorker.
  */
 
-/* eslint-disable jsdoc/require-jsdoc */
-
 import * as ort from "onnxruntime-web";
 
 import {

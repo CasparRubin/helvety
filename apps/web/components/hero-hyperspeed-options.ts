@@ -9,7 +9,7 @@ import {
 
 import { hyperspeedDefaultPreset } from "@/components/hyperspeed-default-preset";
 
-import type Hyperspeed from "@/components/Hyperspeed";
+import type Hyperspeed from "@/components/vendor/Hyperspeed";
 import type { ComponentProps } from "react";
 
 /** `effectOptions` shape accepted by default Hyperspeed export. */

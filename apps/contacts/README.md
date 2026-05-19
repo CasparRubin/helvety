@@ -14,6 +14,7 @@ End-to-end encrypted contact management app.
 - New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with the full `ContactEditor` (all fields, Tiptap notes, task/note links). **New Contact** creates a draft row and opens that sheet immediately; closing without edits removes the draft row.
 - Shareable deep links open a contact in the detail sheet via `?contact=<uuid>` (for example from Tasks or Notes cross-links). URL↔sheet sync uses `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl` from `@helvety/ui`; `app/page.tsx` wraps the dashboard in `<Suspense>` (required for `useSearchParams`).
 - Rich contact editor with linked tasks/notes
+- Contact list hooks report auth and action failures via `reportE2eeHookError` / `reportE2eeActionFailure` from `@helvety/ui/auth-navigation`
 - Client-side decrypted export (server-side encrypted fetch)
 
 ## E2EE Data Model

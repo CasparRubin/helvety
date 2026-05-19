@@ -1,7 +1,6 @@
 "use client";
 
 /* React Bits Shuffle: https://reactbits.dev/text-animations/shuffle */
-/* eslint-disable -- vendored upstream; refresh via `bunx shadcn add @react-bits/Shuffle-TS-TW` */
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";

@@ -26,11 +26,11 @@ vi.mock("framer-motion", () => ({
   useReducedMotion: () => mocks.useReducedMotion(),
 }));
 
-vi.mock("@/components/ShinyText", () => ({
+vi.mock("@/components/vendor/ShinyText", () => ({
   default: mocks.ShinyText,
 }));
 
-vi.mock("@/components/Shuffle", () => ({
+vi.mock("@/components/vendor/Shuffle", () => ({
   default: mocks.Shuffle,
 }));
 

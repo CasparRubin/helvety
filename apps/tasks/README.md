@@ -15,6 +15,7 @@ End-to-end encrypted, stage-based task management app.
 - Shareable deep links open a task in the detail sheet via `?item=<uuid>` (for example from Notes or Contacts cross-links). URL↔sheet sync uses `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl` from `@helvety/ui`; `app/page.tsx` wraps the dashboard in `<Suspense>` (required for `useSearchParams`).
 - Rich task editor with metadata panel
 - Cross-app linking with contacts and notes
+- List CRUD/reorder: `hooks/use-items.ts` wraps `@helvety/ui/hooks/use-encrypted-sortable-items` with task crypto and server actions; hook errors use `reportE2eeHookError` / `reportE2eeActionFailure` from `@helvety/ui/auth-navigation`
 - Client-side decrypted export (server-side encrypted fetch)
 
 ## E2EE Data Model

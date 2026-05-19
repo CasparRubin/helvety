@@ -7,7 +7,8 @@ import {
 } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
 import {
-  triggerE2eeHookAuthErrorNavigation,
+  reportE2eeActionFailure,
+  reportE2eeHookError,
   triggerHardLogoutOnce,
 } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
@@ -141,24 +142,20 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
           return;
         }
         if (
-          triggerE2eeHookAuthErrorNavigation(
-            "contacts-use-contacts",
-            result.error,
-            {
-              redirectUri: routeAtStart,
-              expectedRoute: routeAtStart,
-              requestStartedAt,
-            }
-          )
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-contacts",
+            fallback: "Failed to load contacts",
+            setError,
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to load contacts";
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
         }
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         if (!hasExistingContacts) {
           setContacts([]);
         }
@@ -177,22 +174,17 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         `${perfLabel}:end`
       );
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to load contacts";
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
-      if (
-        triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", msg, {
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        })
-      ) {
-        return;
-      }
-      setError(msg);
-      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+      reportE2eeHookError(err, {
+        source: "contacts-use-contacts",
+        fallback: "Failed to load contacts",
+        setError,
+        redirectUri: routeAtStart,
+        expectedRoute: routeAtStart,
+        requestStartedAt,
+      });
       if (!hasExistingContacts) {
         setContacts([]);
       }
@@ -217,16 +209,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         const encrypted = await encryptContactInput(input, masterKey);
         const result = await createContact(encrypted, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "contacts-use-contacts",
-              result.error
-            )
-          ) {
-            return null;
-          }
-          toast.error(result.error ?? "Failed to create contact", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-contacts",
+            fallback: "Failed to create contact",
           });
           return null;
         }
@@ -257,14 +242,10 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
         return result.data;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to create contact";
-        if (
-          triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", message)
-        ) {
-          return null;
-        }
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "contacts-use-contacts",
+          fallback: "Failed to create contact",
+        });
         return null;
       }
     },
@@ -291,16 +272,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
           csrfToken
         );
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "contacts-use-contacts",
-              result.error
-            )
-          ) {
-            return false;
-          }
-          toast.error(result.error ?? "Failed to update contact", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-contacts",
+            fallback: "Failed to update contact",
           });
           return false;
         }
@@ -310,14 +284,10 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to update contact";
-        if (
-          triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", message)
-        ) {
-          return false;
-        }
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "contacts-use-contacts",
+          fallback: "Failed to update contact",
+        });
         return false;
       }
     },
@@ -337,31 +307,26 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
         const result = await deleteContact(id, csrfToken);
         if (!result.success) {
           if (
-            triggerE2eeHookAuthErrorNavigation(
-              "contacts-use-contacts",
-              result.error
-            )
+            !reportE2eeActionFailure(result.error, {
+              source: "contacts-use-contacts",
+              fallback: "Failed to delete contact",
+            })
           ) {
-            return false;
+            setContacts(prevContacts);
           }
-          setContacts(prevContacts);
-          toast.error(result.error ?? "Failed to delete contact", {
-            duration: TOAST_DURATIONS.ERROR,
-          });
           return false;
         }
 
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to delete contact";
         if (
-          triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", message)
+          !reportE2eeHookError(err, {
+            source: "contacts-use-contacts",
+            fallback: "Failed to delete contact",
+          })
         ) {
-          return false;
+          setContacts(prevContacts);
         }
-        setContacts(prevContacts);
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
     },
@@ -397,16 +362,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       try {
         const result = await reorderContacts(updates, csrfToken);
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "contacts-use-contacts",
-              result.error
-            )
-          ) {
-            return false;
-          }
-          toast.error(result.error ?? "Failed to reorder contacts", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-contacts",
+            fallback: "Failed to reorder contacts",
           });
           await refresh();
           return false;
@@ -414,14 +372,10 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
 
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to reorder contacts";
-        if (
-          triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", message)
-        ) {
-          return false;
-        }
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "contacts-use-contacts",
+          fallback: "Failed to reorder contacts",
+        });
         await refresh();
         return false;
       }
@@ -440,15 +394,11 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       decryptContactRows(options.initialEncryptedData, masterKey)
         .then((decrypted) => setContacts(decrypted))
         .catch((err) => {
-          const msg =
-            err instanceof Error ? err.message : "Failed to decrypt contacts";
-          if (
-            triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", msg)
-          ) {
-            return;
-          }
-          setError(msg);
-          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+          reportE2eeHookError(err, {
+            source: "contacts-use-contacts",
+            fallback: "Failed to decrypt contacts",
+            setError,
+          });
         })
         .finally(() => setIsLoading(false));
       return;
@@ -537,24 +487,20 @@ export function useContact(
           return;
         }
         if (
-          triggerE2eeHookAuthErrorNavigation(
-            "contacts-use-contacts",
-            result.error,
-            {
-              redirectUri: routeAtStart,
-              expectedRoute: routeAtStart,
-              requestStartedAt,
-            }
-          )
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-contacts",
+            fallback: "Failed to load contact",
+            setError,
+            redirectUri: routeAtStart,
+            expectedRoute: routeAtStart,
+            requestStartedAt,
+          })
         ) {
           return;
         }
-        const msg = result.error ?? "Failed to load contact";
         if (refreshToken !== latestRefreshTokenRef.current) {
           return;
         }
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
         setContact(null);
         return;
       }
@@ -565,21 +511,17 @@ export function useContact(
       }
       setContact(decrypted);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to load contact";
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
-      if (
-        triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", message, {
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        })
-      ) {
-        return;
-      }
-      setError(message);
+      reportE2eeHookError(err, {
+        source: "contacts-use-contacts",
+        fallback: "Failed to load contact",
+        setError,
+        redirectUri: routeAtStart,
+        expectedRoute: routeAtStart,
+        requestStartedAt,
+      });
       setContact(null);
     } finally {
       if (refreshToken === latestRefreshTokenRef.current) {
@@ -608,16 +550,9 @@ export function useContact(
           csrfToken
         );
         if (!result.success) {
-          if (
-            triggerE2eeHookAuthErrorNavigation(
-              "contacts-use-contacts",
-              result.error
-            )
-          ) {
-            return false;
-          }
-          toast.error(result.error ?? "Failed to update contact", {
-            duration: TOAST_DURATIONS.ERROR,
+          reportE2eeActionFailure(result.error, {
+            source: "contacts-use-contacts",
+            fallback: "Failed to update contact",
           });
           return false;
         }
@@ -627,14 +562,10 @@ export function useContact(
 
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to update contact";
-        if (
-          triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", message)
-        ) {
-          return false;
-        }
-        toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+        reportE2eeHookError(err, {
+          source: "contacts-use-contacts",
+          fallback: "Failed to update contact",
+        });
         return false;
       }
     },
@@ -655,16 +586,9 @@ export function useContact(
     try {
       const result = await deleteContact(id, csrfToken);
       if (!result.success) {
-        if (
-          triggerE2eeHookAuthErrorNavigation(
-            "contacts-use-contacts",
-            result.error
-          )
-        ) {
-          return false;
-        }
-        toast.error(result.error ?? "Failed to delete contact", {
-          duration: TOAST_DURATIONS.ERROR,
+        reportE2eeActionFailure(result.error, {
+          source: "contacts-use-contacts",
+          fallback: "Failed to delete contact",
         });
         return false;
       }
@@ -672,14 +596,10 @@ export function useContact(
       setContact(null);
       return true;
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to delete contact";
-      if (
-        triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", message)
-      ) {
-        return false;
-      }
-      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+      reportE2eeHookError(err, {
+        source: "contacts-use-contacts",
+        fallback: "Failed to delete contact",
+      });
       return false;
     }
   }, [id, csrfToken]);
@@ -703,15 +623,11 @@ export function useContact(
       decryptContactRow(options.initialEncryptedData, masterKey)
         .then((decrypted) => setContact(decrypted))
         .catch((err) => {
-          const msg =
-            err instanceof Error ? err.message : "Failed to decrypt contact";
-          if (
-            triggerE2eeHookAuthErrorNavigation("contacts-use-contacts", msg)
-          ) {
-            return;
-          }
-          setError(msg);
-          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+          reportE2eeHookError(err, {
+            source: "contacts-use-contacts",
+            fallback: "Failed to decrypt contact",
+            setError,
+          });
         })
         .finally(() => setIsLoading(false));
       return;
