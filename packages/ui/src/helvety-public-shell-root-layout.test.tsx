@@ -59,6 +59,8 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain("Body");
     expect(html).toContain("bg-background");
     expect(html).toContain("text-foreground");
+    expect(html).toContain('nonce="test-nonce"');
+    expect(html).toContain("localStorage.getItem");
   });
 
   it("renders scroll-area variant with main content", async () => {
@@ -76,6 +78,12 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain("In scroll");
     expect(html).toContain("bg-background");
     expect(html).toContain("text-foreground");
+    expect(html).toContain('nonce="test-nonce"');
+    expect(html).toContain("localStorage.getItem");
+    const skipIndex = html.indexOf("Skip to main content");
+    const scriptIndex = html.indexOf("localStorage.getItem");
+    expect(skipIndex).toBeGreaterThan(-1);
+    expect(scriptIndex).toBeGreaterThan(skipIndex);
   });
 
   it("scroll-area variant without prefix wraps only main content in ScrollArea", async () => {
@@ -125,5 +133,6 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain("Catalog");
     expect(html).toContain("bg-background");
     expect(html).toContain("text-foreground");
+    expect(html).not.toContain("localStorage.getItem");
   });
 });

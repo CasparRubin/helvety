@@ -48,8 +48,8 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
  *
  * - **Text:** {@link ./hero-text}: Shuffle eyebrow (5s loop), static red Switzerland, Shiny Text tagline;
  *   static/muted fallbacks when `useReducedMotion()` is true (wired to `MotionConfig reducedMotion="user"`).
- * - **Backdrop:** {@link HeroHyperspeedBackdrop}: semantic base, local **veil** (700ms) lifts after
- *   {@link Hyperspeed} `onReady`; WebGL stays opaque underneath. Theme toggle resets the veil and remounts Hyperspeed.
+ * - **Backdrop:** {@link HeroHyperspeedBackdrop}: entire layer hidden until {@link Hyperspeed}
+ *   `onReady`, then fades in over 700ms; theme toggle hides, remounts, and fades in again.
  *   Skipped when reduced motion is preferred.
  * - **Block entrance:** Framer `fadeInUp` on the copy + CTA column (respects reduced motion via `MotionConfig`).
  */

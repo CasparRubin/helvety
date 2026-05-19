@@ -6,8 +6,8 @@
  * kept vendor-wide.
  *
  * Hero: opaque clear (`setClearColor(colors.background, 1)`) + solid `scene.background` so
- * alpha canvas / bloom never shows page chrome before paint; pairs with veil in
- * {@link ../hero-hyperspeed-backdrop.tsx}. See {@link ./Hyperspeed.css} for `#lights` semantic base (`var(--background)`).
+ * alpha canvas / bloom never shows page chrome before paint; pairs with the reveal
+ * wrapper in {@link ../hero-hyperspeed-backdrop.tsx}. See {@link ./Hyperspeed.css} for `#lights` semantic base (`var(--background)`).
  */
 import {
   BloomEffect,

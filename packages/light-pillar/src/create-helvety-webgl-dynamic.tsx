@@ -7,7 +7,8 @@ import { WEBGL_BACKDROP_UNDERLAY_CLASS } from "./webgl-backdrop";
 import type { ComponentType } from "react";
 
 /**
- * `next/dynamic` wrapper with SSR off and a `bg-background` loading slot (no transparent flash).
+ * `next/dynamic` wrapper with SSR off and a `bg-background` loading slot while the chunk loads.
+ * On the gateway hero, the parent reveal wrapper stays at `opacity-0` until WebGL `onReady`.
  * Client-only: import from `@helvety/light-pillar/webgl-dynamic`, not the package root.
  */
 export function createHelvetyWebglDynamic<P extends object>(

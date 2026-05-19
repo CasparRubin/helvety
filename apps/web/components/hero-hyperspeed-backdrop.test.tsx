@@ -1,6 +1,7 @@
 import * as webglBackdrop from "@helvety/light-pillar";
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const themeMocks = vi.hoisted(() => ({
@@ -30,15 +31,23 @@ describe("HeroHyperspeedBackdrop", () => {
     themeMocks.isDark = true;
   });
 
-  it("defers veil lift through scheduleWebglBackdropReady", async () => {
+  it("SSR omits WebGL until client hydration", () => {
+    const html = renderToStaticMarkup(<HeroHyperspeedBackdrop />);
+
+    expect(html).toContain('data-testid="hero-hyperspeed-reveal"');
+    expect(html).toContain("opacity-0");
+    expect(html).not.toContain('data-testid="stub-hyperspeed"');
+    expect(html).not.toContain('data-testid="hero-hyperspeed-loading"');
+  });
+
+  it("defers backdrop fade-in through scheduleWebglBackdropReady", async () => {
     const scheduleSpy = vi.spyOn(webglBackdrop, "scheduleWebglBackdropReady");
 
-    const { container } = render(<HeroHyperspeedBackdrop />);
+    render(<HeroHyperspeedBackdrop />);
 
-    const veil = container.querySelector(
-      '[data-testid="hero-hyperspeed-veil"]'
-    );
-    expect(veil).toHaveClass("opacity-100");
+    const reveal = screen.getByTestId("hero-hyperspeed-reveal");
+    expect(reveal).toHaveClass("opacity-0");
+    expect(reveal).toHaveClass("pointer-events-none");
 
     await waitFor(() => {
       expect(scheduleSpy).toHaveBeenCalledTimes(1);
@@ -47,40 +56,36 @@ describe("HeroHyperspeedBackdrop", () => {
     scheduleSpy.mock.calls[0]?.[0]();
 
     await waitFor(() => {
-      expect(veil).toHaveClass("opacity-0");
+      expect(reveal).toHaveClass("opacity-100");
     });
+    expect(reveal).not.toHaveClass("pointer-events-none");
   });
 
-  it("lifts bg-background veil after onReady with shared 700ms transition", async () => {
-    const { container } = render(<HeroHyperspeedBackdrop />);
+  it("fades in reveal wrapper after onReady with shared 700ms transition", async () => {
+    render(<HeroHyperspeedBackdrop />);
 
-    const veil = container.querySelector(
-      '[data-testid="hero-hyperspeed-veil"]'
-    );
-    expect(veil).toHaveClass("bg-background");
+    const reveal = screen.getByTestId("hero-hyperspeed-reveal");
 
     for (const token of webglBackdrop.WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS.split(
       /\s+/
     )) {
-      expect(veil).toHaveClass(token);
+      expect(reveal).toHaveClass(token);
     }
 
     await waitFor(
       () => {
-        expect(veil).toHaveClass("opacity-0");
+        expect(reveal).toHaveClass("opacity-100");
       },
       { timeout: 3000 }
     );
   });
 
   it("uses the shared semantic underlay class on the base layer", () => {
-    const { container } = render(<HeroHyperspeedBackdrop />);
-    const host = container.querySelector(
-      '[data-testid="hero-hyperspeed-veil"]'
-    )?.parentElement;
-    const underlay = host?.previousElementSibling;
+    render(<HeroHyperspeedBackdrop />);
+    const reveal = screen.getByTestId("hero-hyperspeed-reveal");
+    const underlay = reveal.firstElementChild;
 
-    expect(underlay).toHaveClass("bg-background");
+    expect(underlay).toBeTruthy();
     for (const token of webglBackdrop.WEBGL_BACKDROP_UNDERLAY_CLASS.split(
       /\s+/
     )) {
@@ -88,22 +93,33 @@ describe("HeroHyperspeedBackdrop", () => {
     }
   });
 
-  it("resets veil when theme switches", async () => {
-    const { container, rerender } = render(<HeroHyperspeedBackdrop />);
+  it("resets reveal when theme switches then fades in again", async () => {
+    const { rerender } = render(<HeroHyperspeedBackdrop />);
 
     await waitFor(() => {
-      const veil = container.querySelector(
-        '[data-testid="hero-hyperspeed-veil"]'
+      expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+        "opacity-100"
       );
-      expect(veil).toHaveClass("opacity-0");
     });
 
     themeMocks.isDark = false;
     rerender(<HeroHyperspeedBackdrop />);
 
-    const veil = container.querySelector(
-      '[data-testid="hero-hyperspeed-veil"]'
-    );
-    expect(veil).toHaveClass("opacity-100");
+    const reveal = screen.getByTestId("hero-hyperspeed-reveal");
+    expect(reveal).toHaveClass("opacity-0");
+    expect(reveal).toHaveClass("pointer-events-none");
+
+    await waitFor(() => {
+      expect(reveal).toHaveClass("opacity-100");
+    });
+    expect(reveal).not.toHaveClass("pointer-events-none");
+  });
+
+  it("mounts WebGL after client hydration", async () => {
+    render(<HeroHyperspeedBackdrop />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("stub-hyperspeed")).toBeInTheDocument();
+    });
   });
 });

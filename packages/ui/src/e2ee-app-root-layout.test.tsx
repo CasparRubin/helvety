@@ -98,5 +98,7 @@ describe("E2eeAppRootLayout", () => {
     expect(html).toContain('id="main-content"');
     expect(html).toContain("overflow-hidden");
     expect(html).not.toContain('data-slot="scroll-area"');
+    expect(html).toContain('nonce="test-nonce"');
+    expect(html).toContain("localStorage.getItem");
   });
 });

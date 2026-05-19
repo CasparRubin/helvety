@@ -55,9 +55,10 @@ export const metadata = createHelvetyProductMetadata({
  * `@helvety/ui` README for these optional `HelvetyPublicShellRootLayout` props.
  *
  * `app/loading.tsx` re-exports `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`)
- * so pending navigations keep a full-viewport `bg-background` shell. `HelvetyPublicShellRootLayout`
- * merges `bg-background text-foreground` on `<body>`
- * with `bodyClassName` below.
+ * so pending navigations keep a full-viewport `bg-background` shell. The public shell injects
+ * blocking `HelvetyThemeInitScript` after `SkipToContent` so theme tokens are correct before paint.
+ * `HelvetyPublicShellRootLayout` merges `bg-background text-foreground` on `<body>` with
+ * `bodyClassName` below.
  *
  * Public marketing/legal pages plus metadata routes (robots, sitemap, CSP
  * reporting). CSP nonce flows from request headers. The navbar gets an SSR

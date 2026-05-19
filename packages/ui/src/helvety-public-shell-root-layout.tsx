@@ -8,6 +8,7 @@ import { cn } from "@helvety/shared/utils";
 
 import { AuthTokenHandler } from "./auth-token-handler";
 import { Footer } from "./footer";
+import { HelvetyThemeInitScript } from "./helvety-theme-init-script";
 import { JsonLdScript } from "./json-ld-script";
 import { ScrollArea } from "./scroll-area";
 import { SessionRecovery } from "./session-recovery";
@@ -150,8 +151,10 @@ function buildMainBlock(
 
 /**
  * Shared root shell for **public** Helvety apps (`web`, `auth`, `store`, `pdf`,
- * `image-upscaler`): CSP nonce, JSON-LD, theme (see {@link HelvetyPublicShellThemeProviderScope}),
- * auth token handler, session recovery, `TooltipProvider`, optional
+ * `image-upscaler`): CSP nonce, JSON-LD, blocking {@link HelvetyThemeInitScript} on
+ * {@link HelvetyPublicShellThemeProviderScope} `"full"` (after {@link SkipToContent}),
+ * theme via `ThemeProvider` (see {@link HelvetyPublicShellThemeProviderScope}), auth token
+ * handler, session recovery, `TooltipProvider`, optional
  * {@link wrapInsideTooltipProvider} (e.g. Auth: CSRF and encryption; Store: `CSRFProvider`),
  * navbar + main + footer, toaster, and optional `HelvetyVercelAnalytics` (Speed Insights on the gateway).
  *
@@ -163,7 +166,9 @@ function buildMainBlock(
  * Other public apps keep the defaults.
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional
- * **`bodyClassName`** so the document canvas matches the active theme before app content paints.
+ * **`bodyClassName`**. On **`themeProviderScope: "full"`**, {@link HelvetyThemeInitScript} runs
+ * immediately after {@link SkipToContent} so `html.dark` and semantic tokens match storage/system
+ * before the first paint (gateway Hyperspeed relies on this).
  *
  * E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
  */
@@ -301,6 +306,7 @@ export async function HelvetyPublicShellRootLayout({
         )}
       >
         <SkipToContent />
+        <HelvetyThemeInitScript nonce={nonce} />
         <JsonLdScript nonce={nonce} json={ldJson} />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
           <AuthTokenHandler />
