@@ -59,7 +59,7 @@
     "shadcn": "^4.7.0",
     "tailwindcss": "^4.3.0",
     "typescript": "^6",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.7"
   },
   "overrides": {
     "pdfjs-dist": "^5.7.284",
