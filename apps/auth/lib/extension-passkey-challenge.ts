@@ -14,6 +14,9 @@ const ExtensionChallengePayloadSchema = z.object({
   timestamp: z.number().int().nonnegative(),
 });
 
+/**
+ *
+ */
 export type ExtensionChallengePayload = z.infer<
   typeof ExtensionChallengePayloadSchema
 >;

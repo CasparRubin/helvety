@@ -36,9 +36,7 @@ export function getExpectedOrigins(
     rpId === "localhost"
       ? [
           ...Object.values(DEV_PORTS).map((port) => `http://localhost:${port}`),
-          ...Object.values(DEV_PORTS).map(
-            (port) => `http://127.0.0.1:${port}`
-          ),
+          ...Object.values(DEV_PORTS).map((port) => `http://127.0.0.1:${port}`),
         ]
       : [`https://${DOMAIN}`];
 

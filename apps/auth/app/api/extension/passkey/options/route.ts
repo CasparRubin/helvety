@@ -7,9 +7,8 @@ import { authenticateBearerRequest } from "@/lib/extension-bearer-auth";
 import {
   ExtensionPasskeyOptionsBodySchema,
   generateExtensionPasskeyOptions,
+  type ExtensionPasskeyOptionsPayload,
 } from "@/lib/extension-passkey";
-
-import type { ExtensionPasskeyOptionsPayload } from "@/lib/extension-passkey";
 
 import type { ActionResponse } from "@helvety/shared/types/entities";
 

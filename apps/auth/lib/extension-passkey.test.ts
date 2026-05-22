@@ -97,6 +97,9 @@ const ORIGIN = "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
 const CHALLENGE = "server-challenge-value";
 const CLIENT_IP = "203.0.113.10";
 
+/**
+ *
+ */
 function clientDataJSONForChallenge(challenge: string): string {
   return Buffer.from(
     JSON.stringify({ type: "webauthn.get", challenge, origin: ORIGIN }),
@@ -107,13 +110,11 @@ function clientDataJSONForChallenge(challenge: string): string {
 describe("extension-passkey", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.HELVETY_COOKIE_SIGNING_SECRET = "test-signing-secret-32chars-min";
+    process.env.HELVETY_COOKIE_SIGNING_SECRET =
+      "test-signing-secret-32chars-min";
 
     mocks.getRpId.mockReturnValue("helvety.com");
-    mocks.getExpectedOrigins.mockReturnValue([
-      "https://helvety.com",
-      ORIGIN,
-    ]);
+    mocks.getExpectedOrigins.mockReturnValue(["https://helvety.com", ORIGIN]);
     mocks.resetRateLimit.mockResolvedValue(undefined);
     mocks.generateAuthenticationOptions.mockResolvedValue({
       challenge: CHALLENGE,
@@ -254,7 +255,10 @@ describe("extension-passkey", () => {
 
     expect(result).toEqual({ success: true, data: { userId: USER_ID } });
     expect(challengeFromClientDataJSON(clientDataJSON)).toBe(CHALLENGE);
-    expect(mocks.getExpectedOrigins).toHaveBeenCalledWith("helvety.com", ORIGIN);
+    expect(mocks.getExpectedOrigins).toHaveBeenCalledWith(
+      "helvety.com",
+      ORIGIN
+    );
     expect(mocks.verifyAuthenticationResponse).toHaveBeenCalledWith(
       expect.objectContaining({
         expectedChallenge: CHALLENGE,

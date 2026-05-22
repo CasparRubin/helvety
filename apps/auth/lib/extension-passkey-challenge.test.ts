@@ -12,7 +12,8 @@ const ORIGIN = "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
 
 describe("extension-passkey-challenge", () => {
   beforeEach(() => {
-    process.env.HELVETY_COOKIE_SIGNING_SECRET = "test-signing-secret-32chars-min";
+    process.env.HELVETY_COOKIE_SIGNING_SECRET =
+      "test-signing-secret-32chars-min";
   });
 
   afterEach(() => {

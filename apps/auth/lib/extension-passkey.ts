@@ -2,11 +2,12 @@ import "server-only";
 
 import { AUTH_REASONS, logAuthEvent } from "@helvety/shared/auth-logger";
 import { logger } from "@helvety/shared/logger";
-import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
+import { checkRateLimit } from "@helvety/shared/rate-limit";
 import {
   createScopedAdminQuery,
   lookupCredentialByCredentialId,
 } from "@helvety/shared/supabase/admin";
+import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 import {
   generateAuthenticationOptions as generateAuthOptions,
   verifyAuthenticationResponse,
@@ -20,9 +21,11 @@ import {
   verifyExtensionChallengeEnvelope,
 } from "@/lib/extension-passkey-challenge";
 import { RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
-import { checkRateLimit } from "@helvety/shared/rate-limit";
 
-import type { ActionResponse, UserAuthCredential } from "@helvety/shared/types/entities";
+import type {
+  ActionResponse,
+  UserAuthCredential,
+} from "@helvety/shared/types/entities";
 import type {
   AuthenticationResponseJSON,
   AuthenticatorTransportFuture,
@@ -94,6 +97,9 @@ const authenticatorTransportValues = new Set<AuthenticatorTransportFuture>([
   "usb",
 ]);
 
+/**
+ *
+ */
 function toAuthenticatorTransports(
   transports: string[] | null | undefined
 ): AuthenticatorTransportFuture[] {
@@ -105,12 +111,18 @@ function toAuthenticatorTransports(
   );
 }
 
+/**
+ *
+ */
 async function checkPasskeyRateLimit(
   key: string,
   clientIP: string | null
 ): Promise<{ success: false; error: string } | null> {
   if (!clientIP) {
-    return { success: false, error: "Unable to process request. Please try again." };
+    return {
+      success: false,
+      error: "Unable to process request. Please try again.",
+    };
   }
   const rate = await checkRateLimit(
     key,
@@ -182,11 +194,7 @@ export async function generateExtensionPasskeyOptions(input: {
 
     const optionsWithHints: PublicKeyCredentialRequestOptionsJSON = {
       ...authOpts,
-      hints: (isMobile ? ["client-device"] : ["hybrid"]) as (
-        | "hybrid"
-        | "security-key"
-        | "client-device"
-      )[],
+      hints: isMobile ? ["client-device"] : ["hybrid"],
     };
 
     if (input.clientIP) {
@@ -248,7 +256,10 @@ export async function verifyExtensionPasskey(input: {
     if (!storedChallenge) {
       logAuthEvent("passkey_auth_failed", {
         userId: input.userId,
-        metadata: { reason: AUTH_REASONS.challengeExpired, channel: "extension" },
+        metadata: {
+          reason: AUTH_REASONS.challengeExpired,
+          channel: "extension",
+        },
         ip: input.clientIP ?? undefined,
       });
       return {
@@ -272,7 +283,10 @@ export async function verifyExtensionPasskey(input: {
     if (challengeFromAssertion !== storedChallenge.challenge) {
       logAuthEvent("passkey_auth_failed", {
         userId: input.userId,
-        metadata: { reason: AUTH_REASONS.verificationFailed, channel: "extension" },
+        metadata: {
+          reason: AUTH_REASONS.verificationFailed,
+          channel: "extension",
+        },
         ip: input.clientIP ?? undefined,
       });
       return {
@@ -289,7 +303,10 @@ export async function verifyExtensionPasskey(input: {
     if (credError || !credentialData) {
       logAuthEvent("passkey_auth_failed", {
         userId: input.userId,
-        metadata: { reason: AUTH_REASONS.credentialNotFound, channel: "extension" },
+        metadata: {
+          reason: AUTH_REASONS.credentialNotFound,
+          channel: "extension",
+        },
         ip: input.clientIP ?? undefined,
       });
       return {
@@ -301,7 +318,10 @@ export async function verifyExtensionPasskey(input: {
     if (credentialData.user_id !== input.userId) {
       logAuthEvent("passkey_auth_failed", {
         userId: credentialData.user_id,
-        metadata: { reason: AUTH_REASONS.credentialOwnerMismatch, channel: "extension" },
+        metadata: {
+          reason: AUTH_REASONS.credentialOwnerMismatch,
+          channel: "extension",
+        },
         ip: input.clientIP ?? undefined,
       });
       return { success: false, error: "PASSKEY_ACCOUNT_MISMATCH" };
@@ -347,7 +367,10 @@ export async function verifyExtensionPasskey(input: {
     if (!verification.verified) {
       logAuthEvent("passkey_auth_failed", {
         userId: input.userId,
-        metadata: { reason: AUTH_REASONS.verificationFailed, channel: "extension" },
+        metadata: {
+          reason: AUTH_REASONS.verificationFailed,
+          channel: "extension",
+        },
         ip: input.clientIP ?? undefined,
       });
       return {
@@ -407,7 +430,4 @@ export async function verifyExtensionPasskey(input: {
   }
 }
 
-export {
-  ExtensionPasskeyOptionsBodySchema,
-  ExtensionPasskeyVerifyBodySchema,
-};
+export { ExtensionPasskeyOptionsBodySchema, ExtensionPasskeyVerifyBodySchema };

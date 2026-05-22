@@ -51,10 +51,10 @@ Trusted-device shortcut:
 
 Bearer-authenticated JSON routes for the Helvety browser extension (separate from CSRF cookie server actions):
 
-| Route | Purpose |
-| ----- | ------- |
-| `POST /api/extension/passkey/options` | WebAuthn request options + signed `challengeEnvelope` (3 min TTL, `HELVETY_COOKIE_SIGNING_SECRET`) |
-| `POST /api/extension/passkey/verify` | Verify assertion; bind challenge via envelope + `clientDataJSON`; update counter; **does not** create a Supabase session |
+| Route                                 | Purpose                                                                                                                  |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `POST /api/extension/passkey/options` | WebAuthn request options + signed `challengeEnvelope` (3 min TTL, `HELVETY_COOKIE_SIGNING_SECRET`)                       |
+| `POST /api/extension/passkey/verify`  | Verify assertion; bind challenge via envelope + `clientDataJSON`; update counter; **does not** create a Supabase session |
 
 Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` when the client sends that origin ([`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
 
