@@ -85,6 +85,9 @@ describe("store download-actions", () => {
     expect(
       await getPackageDownloadUrl("power-automate-force-v3-false")
     ).toEqual({ success: false, error: "Package not found" });
+    expect(
+      await getPackageDownloadUrl("power-automate-editor-version-enforcer")
+    ).toEqual({ success: false, error: "Package not found" });
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
 
@@ -108,7 +111,7 @@ describe("store download-actions", () => {
     );
   });
 
-  it("creates a signed URL for the Power Automate extension zip package", async () => {
+  it("creates a signed URL for the Power Platform Configurator zip package", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue({
       version: "2.8.0",
       storagePath:
@@ -148,7 +151,7 @@ describe("store download-actions", () => {
     );
   });
 
-  it("falls back to configured zip path when resolver returns null for Power Automate package", async () => {
+  it("falls back to configured zip path when resolver returns null for Power Platform Configurator package", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue(null);
 
     const result = await getPackageDownloadUrl(

@@ -12,7 +12,7 @@ describe("store next.config", () => {
     vi.unstubAllEnvs();
   });
 
-  it("permanently redirects legacy Power Automate URLs to the canonical slug and package id", async () => {
+  it("permanently redirects legacy product URLs to the canonical slug and package id", async () => {
     const redirects = await nextConfig.redirects?.();
     expect(Array.isArray(redirects)).toBe(true);
     expect(redirects).toEqual(
