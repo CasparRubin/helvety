@@ -2,14 +2,13 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 
-import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 
 const NOT_AUTHENTICATED = "Not authenticated";
 
-/** Supabase client authenticated via `Authorization: Bearer` (extension OTP session). */
+/** Authenticated extension user from Bearer JWT validation. */
 export type BearerAuthContext = {
   user: User;
-  supabase: SupabaseClient;
 };
 
 /**
@@ -59,5 +58,5 @@ export async function authenticateBearerRequest(
     return { ok: false, error: NOT_AUTHENTICATED };
   }
 
-  return { ok: true, ctx: { user, supabase } };
+  return { ok: true, ctx: { user } };
 }

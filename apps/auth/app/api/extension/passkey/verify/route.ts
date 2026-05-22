@@ -55,6 +55,7 @@ export async function POST(
       userId: auth.ctx.user.id,
       origin: parsed.data.origin,
       credential: parsed.data.credential,
+      challengeEnvelope: parsed.data.challengeEnvelope,
       clientIP,
     });
 

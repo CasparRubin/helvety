@@ -27,4 +27,17 @@ describe("auth-rp-config", () => {
   it("returns production root origin for domain rpId", () => {
     expect(getExpectedOrigins("helvety.com")).toEqual(["https://helvety.com"]);
   });
+
+  it("adds chrome-extension origin when clientOrigin is an extension URL", () => {
+    const extensionOrigin =
+      "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
+    expect(getExpectedOrigins("helvety.com", extensionOrigin)).toEqual([
+      "https://helvety.com",
+      extensionOrigin,
+    ]);
+  });
+
+  it("does not add chrome-extension origin when clientOrigin is omitted", () => {
+    expect(getExpectedOrigins("helvety.com")).toEqual(["https://helvety.com"]);
+  });
 });

@@ -14,6 +14,11 @@ import {
 import { z } from "zod";
 
 import { getRpId, getExpectedOrigins } from "@/app/actions/auth-rp-config";
+import {
+  challengeFromClientDataJSON,
+  createExtensionChallengeEnvelope,
+  verifyExtensionChallengeEnvelope,
+} from "@/lib/extension-passkey-challenge";
 import { RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 import { checkRateLimit } from "@helvety/shared/rate-limit";
 
@@ -71,7 +76,14 @@ const ExtensionPasskeyCredentialSchema = z.object({
 const ExtensionPasskeyVerifyBodySchema = z.object({
   origin: ExtensionOriginSchema,
   credential: ExtensionPasskeyCredentialSchema,
+  challengeEnvelope: z.string().min(1),
 });
+
+/** Options + signed challenge for extension unlock (Bearer session). */
+export type ExtensionPasskeyOptionsPayload = {
+  options: PublicKeyCredentialRequestOptionsJSON;
+  challengeEnvelope: string;
+};
 
 const authenticatorTransportValues = new Set<AuthenticatorTransportFuture>([
   "ble",
@@ -91,17 +103,6 @@ function toAuthenticatorTransports(
         transport as AuthenticatorTransportFuture
       )
   );
-}
-
-/** Reads the WebAuthn challenge from base64url `clientDataJSON`. */
-export function challengeFromClientDataJSON(clientDataJSON: string): string {
-  const parsed = JSON.parse(
-    Buffer.from(clientDataJSON, "base64url").toString("utf8")
-  ) as { challenge?: unknown };
-  if (typeof parsed.challenge !== "string" || !parsed.challenge) {
-    throw new Error("MISSING_CHALLENGE");
-  }
-  return parsed.challenge;
 }
 
 async function checkPasskeyRateLimit(
@@ -140,7 +141,7 @@ export async function generateExtensionPasskeyOptions(input: {
   origin: string;
   isMobile?: boolean;
   clientIP: string | null;
-}): Promise<ActionResponse<PublicKeyCredentialRequestOptionsJSON>> {
+}): Promise<ActionResponse<ExtensionPasskeyOptionsPayload>> {
   const rateLimited = await checkPasskeyRateLimit(
     `passkey_auth:ip:${input.clientIP ?? "unknown"}`,
     input.clientIP
@@ -192,13 +193,22 @@ export async function generateExtensionPasskeyOptions(input: {
       await resetRateLimit(`passkey_auth:ip:${input.clientIP}`);
     }
 
+    const challengeEnvelope = await createExtensionChallengeEnvelope({
+      challenge: authOpts.challenge,
+      expectedUserId: input.userId,
+      origin: safeOrigin,
+    });
+
     logAuthEvent("passkey_auth_started", {
       userId: input.userId,
       ip: input.clientIP ?? undefined,
       metadata: { channel: "extension" },
     });
 
-    return { success: true, data: optionsWithHints };
+    return {
+      success: true,
+      data: { options: optionsWithHints, challengeEnvelope },
+    };
   } catch (error) {
     logger.logUnexpectedError("Extension passkey options failed", error);
     return {
@@ -216,6 +226,7 @@ export async function verifyExtensionPasskey(input: {
   userId: string;
   origin: string;
   credential: z.infer<typeof ExtensionPasskeyCredentialSchema>;
+  challengeEnvelope: string;
   clientIP: string | null;
 }): Promise<ActionResponse<{ userId: string }>> {
   const rateLimited = await checkPasskeyRateLimit(
@@ -230,9 +241,25 @@ export async function verifyExtensionPasskey(input: {
   const credentialId = input.credential.id;
 
   try {
-    let expectedChallenge: string;
+    const storedChallenge = await verifyExtensionChallengeEnvelope(
+      input.challengeEnvelope,
+      { userId: input.userId, origin: safeOrigin }
+    );
+    if (!storedChallenge) {
+      logAuthEvent("passkey_auth_failed", {
+        userId: input.userId,
+        metadata: { reason: AUTH_REASONS.challengeExpired, channel: "extension" },
+        ip: input.clientIP ?? undefined,
+      });
+      return {
+        success: false,
+        error: "Passkey authentication failed. Please try again.",
+      };
+    }
+
+    let challengeFromAssertion: string;
     try {
-      expectedChallenge = challengeFromClientDataJSON(
+      challengeFromAssertion = challengeFromClientDataJSON(
         input.credential.response.clientDataJSON
       );
     } catch {
@@ -241,6 +268,20 @@ export async function verifyExtensionPasskey(input: {
         error: "Invalid passkey authentication payload",
       };
     }
+
+    if (challengeFromAssertion !== storedChallenge.challenge) {
+      logAuthEvent("passkey_auth_failed", {
+        userId: input.userId,
+        metadata: { reason: AUTH_REASONS.verificationFailed, channel: "extension" },
+        ip: input.clientIP ?? undefined,
+      });
+      return {
+        success: false,
+        error: "Invalid passkey authentication payload",
+      };
+    }
+
+    const expectedChallenge = storedChallenge.challenge;
 
     const { data: credentialData, error: credError } =
       await lookupCredentialByCredentialId(credentialId);

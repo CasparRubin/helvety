@@ -9,8 +9,9 @@ import {
   generateExtensionPasskeyOptions,
 } from "@/lib/extension-passkey";
 
+import type { ExtensionPasskeyOptionsPayload } from "@/lib/extension-passkey";
+
 import type { ActionResponse } from "@helvety/shared/types/entities";
-import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/server";
 
 export const runtime = "nodejs";
 
@@ -19,7 +20,7 @@ const NO_STORE_HEADERS = { "cache-control": "no-store, max-age=0" };
 /** POST /api/extension/passkey/options — Bearer JSON for Chromium extension unlock. */
 export async function POST(
   request: Request
-): Promise<NextResponse<ActionResponse<PublicKeyCredentialRequestOptionsJSON>>> {
+): Promise<NextResponse<ActionResponse<ExtensionPasskeyOptionsPayload>>> {
   try {
     const auth = await authenticateBearerRequest(request);
     if (!auth.ok) {
