@@ -1,6 +1,6 @@
 /**
  * Canonical customer-facing copy for **Power Platform Configurator**.
- * Keep in sync with `power-platform-configurator/public/manifest.json`
+ * Keep in sync with `power-platform-configurator-browser-extension-chromium/public/manifest.json`
  * `description` (verbatim {@link POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}).
  */
 

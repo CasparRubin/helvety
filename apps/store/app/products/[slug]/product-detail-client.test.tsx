@@ -68,7 +68,7 @@ describe("ProductDetailClient", () => {
     });
     expect(github).toHaveAttribute(
       "href",
-      "https://github.com/CasparRubin/power-platform-configurator"
+      "https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium"
     );
     expect(github).toHaveAttribute("target", "_blank");
   });

@@ -231,7 +231,7 @@ describe("store product catalog", () => {
       "helvety-power-platform-configurator"
     );
     expect(product?.links?.github).toBe(
-      "https://github.com/CasparRubin/power-platform-configurator"
+      "https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium"
     );
   });
 

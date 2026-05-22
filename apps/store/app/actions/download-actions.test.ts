@@ -110,7 +110,7 @@ describe("store download-actions", () => {
 
   it("creates a signed URL for the Power Automate extension zip package", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue({
-      version: "2.4.0",
+      version: "2.8.0",
       storagePath:
         "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
     });
@@ -126,7 +126,7 @@ describe("store download-actions", () => {
     expect(result.data).toEqual({
       downloadUrl: "https://download.example/signed",
       filename: "power-platform-configurator.zip",
-      version: "2.4.0",
+      version: "2.8.0",
     });
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
       "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
@@ -162,7 +162,7 @@ describe("store download-actions", () => {
     expect(result.data).toEqual({
       downloadUrl: "https://download.example/signed",
       filename: "power-platform-configurator.zip",
-      version: "2.4.0",
+      version: "2.8.0",
     });
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
       "browserExtensions/power-platform-configurator/power-platform-configurator.zip",

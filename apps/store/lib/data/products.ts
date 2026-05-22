@@ -330,7 +330,7 @@ const powerPlatformConfigurator: SoftwareProduct = {
   },
   links: {
     github:
-      "https://github.com/CasparRubin/power-platform-configurator",
+      "https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium",
   },
   software: {
     fileFormat: "zip",
