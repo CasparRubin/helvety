@@ -5,7 +5,10 @@
  *
  * Store About copy uses {@link HELVETY_FREE_AGPL_FEATURE} from `@helvety/shared/licensing`
  * per Helvety product-line policy. The license on the shipped ZIP follows the extension
- * repository `LICENSE` file (see GitHub link on the Store listing).
+ * repository `LICENSE` file (see GitHub link on the Store listing). Extension toolbar and
+ * popup branding use `ppconfigurator_*` PNGs in the extension repo (`public/icons/`, popup
+ * header via `ExtensionMark`); the Helvety identifier appears only in the popup About
+ * **Developer** section.
  */
 
 /** Verbatim manifest `description` (Edge/Chrome installed-extensions blurb). */

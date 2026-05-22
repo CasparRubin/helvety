@@ -32,6 +32,6 @@ describe("store package config", () => {
 
   it("keeps fallback version aligned with the shipped extension manifest", () => {
     const info = getPackageInfo("power-platform-configurator");
-    expect(info?.version).toBe("2.8.2");
+    expect(info?.version).toBe("2.8.3");
   });
 });
