@@ -53,7 +53,7 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 | **About intro**        | `apps/store/lib/data/products.ts` → `description.intro`                   | Who it is for and what changes day to day. Must **not** duplicate the card opening (tests enforce separation).                                           |
 | **About sections**     | `products.ts` → `description.sections`                                    | Install steps, limits, privacy, optional “how it works”. Plain language; jargon only when needed.                                                        |
 | **App SEO / PWA**      | `app/layout.tsx`, `lib/product-copy.ts`, `public/manifest.json`           | Metadata and install prompt; align verbs and claims with the Store card where they describe the same product.                                            |
-| **Extension manifest** | External repo + `power-platform-configurator-copy.ts` `PUBLIC_SUMMARY` | Shortest installed-extension blurb only; not the Store About body.                                                                                       |
+| **Extension manifest** | [`power-platform-configurator-browser-extension-chromium`](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium) + `power-platform-configurator-copy.ts` `PUBLIC_SUMMARY` | Shortest installed-extension blurb only; not the Store About body.                                                                                       |
 
 **Style:** easy to scan, human tone. **No em-dashes (U+2014)** in user-facing copy; use commas, periods, or parentheses instead. Enforced by `bun run consistency:customer-copy` and Vitest (`assertNoEmDashInCustomerCopy`).
 

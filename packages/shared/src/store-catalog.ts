@@ -2,7 +2,8 @@
  * Card-level Helvety Store catalog fields for @helvety/store product cards.
  * Full Product rows (images, pricing, long copy) stay in the Store app.
  * Power Platform Configurator card blurbs are composed from
- * `./power-platform-configurator-copy` so they stay aligned with the extension manifest summary.
+ * `./power-platform-configurator-copy` so they stay aligned with the Chromium extension manifest
+ * (`CasparRubin/power-platform-configurator-browser-extension-chromium`).
  */
 
 import { POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION } from "./power-platform-configurator-copy";

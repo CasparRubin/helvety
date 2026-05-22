@@ -73,7 +73,7 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
       remotePatterns: getStoreImageRemotePatterns(),
     },
     async redirects() {
-      // Legacy Helvety Store URLs for Power Platform Configurator (slug + package download id renames).
+      // Legacy Store URLs (old slugs/package ids) redirect to Power Platform Configurator.
       return [
         {
           source: "/products/helvety-power-automate-force-v3-false",
