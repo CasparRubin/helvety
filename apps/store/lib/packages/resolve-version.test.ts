@@ -144,7 +144,7 @@ describe("resolveLatestPackageVersion", () => {
       }
     );
     expect(result).toEqual({
-      version: "2.8.1",
+      version: "2.8.2",
       storagePath:
         "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
     });
