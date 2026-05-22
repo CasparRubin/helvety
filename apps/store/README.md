@@ -8,7 +8,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 ## Key Features
 
 - Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` with blocking `HelvetyThemeInitScript` in `<head>` and `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar; `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"`; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider`; `bootstrapE2eeLayoutSession()` from `@helvety/shared/layout-session-bootstrap` feeds CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
-- Public product catalog at `/store/products`
+- Public product catalog at `/store/products` with product cards that overlay badges on artwork: per-type tinted labels (sky / violet / amber) and a frosted “Art by …” artist credit ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
 - Public package download endpoints (no login required)
 - Optional authenticated account page at `/store/account`
 - Product-detail pages with statically imported artwork
@@ -47,7 +47,9 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
      free-tier flags only; the Store does not render price amounts in the UI),
      `links`,
      `metadata.releaseDate: c<Name>.releaseDate`, `image: productArtwork.*`,
-     `artist` for the “Art by …” badge on cards and product heroes).
+     `artist` for the “Art by …” badge on cards and product heroes; badge
+     styling lives in [`components/products/product-badge.tsx`](components/products/product-badge.tsx)
+     (tinted type labels, frosted artist surface for readability over artwork).
    - For new hero art: add `public/artwork_<n>.webp`, register it in
      `lib/data/product-artwork.ts`, and pick an unused `productArtwork.artwork<n>`
      (each asset should map to one product; tests enforce registry parity and
@@ -109,7 +111,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), client-only catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), touch-visible card copy and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), and opaque product-detail panels.
+Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), client-only catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), and opaque product-detail panels.
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

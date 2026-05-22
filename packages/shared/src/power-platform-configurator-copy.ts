@@ -16,7 +16,8 @@ export const POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY =
   "Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime." as const;
 
 /** Chrome Web Store / Edge Add-ons manifest `description` maximum length. */
-export const POWER_PLATFORM_CONFIGURATOR_MANIFEST_DESCRIPTION_MAX_LENGTH = 132 as const;
+export const POWER_PLATFORM_CONFIGURATOR_MANIFEST_DESCRIPTION_MAX_LENGTH =
+  132 as const;
 
 /**
  * Appended on store cards / llms after {@link POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}

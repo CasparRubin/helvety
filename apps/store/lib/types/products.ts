@@ -165,7 +165,7 @@ export interface Product {
   status: ProductStatus;
   /** Product image URL */
   image?: string | StaticImageData;
-  /** Artist name for the product artwork */
+  /** Artwork credit; rendered as a frosted “Art by …” badge on cards and detail heroes */
   artist?: string;
   /** Hero/banner image URL */
   heroImage?: string | StaticImageData;

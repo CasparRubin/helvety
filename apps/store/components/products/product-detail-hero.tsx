@@ -1,7 +1,8 @@
 "use client";
 
 /**
- * Product detail hero: full-bleed artwork with title and summary in the lower third only.
+ * Product detail hero: full-bleed artwork with title, badges, and summary in the lower third.
+ * Type and artist badges reuse {@link ./product-badge} (same styling as catalog cards).
  */
 
 import Image from "next/image";

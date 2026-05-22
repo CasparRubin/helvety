@@ -10,7 +10,9 @@ import {
 
 describe("power-platform-configurator-copy", () => {
   it("keeps manifest public summary within store description length limit", () => {
-    expect(POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY.length).toBeLessThanOrEqual(
+    expect(
+      POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY.length
+    ).toBeLessThanOrEqual(
       POWER_PLATFORM_CONFIGURATOR_MANIFEST_DESCRIPTION_MAX_LENGTH
     );
   });

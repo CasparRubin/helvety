@@ -1,6 +1,8 @@
 /**
  * Card-level Helvety Store catalog fields for @helvety/store product cards.
- * Full Product rows (images, pricing, long copy) stay in the Store app.
+ * Full Product rows (images, pricing, long copy, artwork, artist credit) stay in
+ * the Store app; badge UI (type colors, “Art by …” surface) is in
+ * `apps/store/components/products/product-badge.tsx`.
  * Power Platform Configurator card blurbs are composed from
  * `./power-platform-configurator-copy` so they stay aligned with the Chromium extension manifest
  * (`CasparRubin/power-platform-configurator-browser-extension-chromium`).

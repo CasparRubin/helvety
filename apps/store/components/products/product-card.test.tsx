@@ -59,4 +59,24 @@ describe("ProductCard", () => {
     expect(link).toHaveAttribute("href", "/products/helvety-pdf");
     expect(link).toHaveAttribute("data-prefetch", "false");
   });
+
+  it("renders type and artist badges with readable surfaces over the artwork", () => {
+    render(
+      <ProductCard
+        product={{
+          ...product,
+          artist: "Alexandre Calame",
+        }}
+      />
+    );
+
+    const typeBadge = screen.getByText("Web App");
+    expect(typeBadge).toHaveAttribute("data-slot", "badge");
+    expect(typeBadge).toHaveClass("bg-sky-500/15");
+
+    const artistBadge = screen.getByText("Art by Alexandre Calame");
+    expect(artistBadge).toHaveAttribute("data-slot", "badge");
+    expect(artistBadge).toHaveClass("bg-card/90");
+    expect(artistBadge).toHaveClass("backdrop-blur-sm");
+  });
 });
