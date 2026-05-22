@@ -10,6 +10,7 @@ import {
   POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
   POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
 } from "@helvety/shared/power-platform-configurator-copy";
+import { RETIRED_HELVETY_EXTENSION_NAME_PATTERNS } from "@helvety/shared/retired-power-platform-extension-naming";
 import {
   STORE_PRODUCT_CARDS,
   requireStoreProductCard,
@@ -51,9 +52,9 @@ describe("store product catalog", () => {
   });
 
   it("resolves known product slugs", () => {
-    expect(
-      getProductBySlug("helvety-power-platform-configurator")?.name
-    ).toBe("Power Platform Configurator");
+    expect(getProductBySlug("helvety-power-platform-configurator")?.name).toBe(
+      "Power Platform Configurator"
+    );
     expect(getProductBySlug("helvety-spo-explorer")?.slug).toBe(
       "helvety-spo-explorer"
     );
@@ -152,6 +153,35 @@ describe("store product catalog", () => {
     }
   });
 
+  it("store product copy does not use retired Power Automate extension product names", () => {
+    const violations: string[] = [];
+    for (const product of getAllProducts()) {
+      const blob = [
+        product.name,
+        product.shortDescription,
+        product.description.intro,
+        ...product.features,
+        ...(product.metadata?.keywords ?? []),
+        ...(product.description.sections ?? []).flatMap((section) =>
+          section.kind === "paragraph" ? [section.body] : section.items
+        ),
+        ...(isSoftwareProduct(product)
+          ? (product.software.installationSteps ?? []).flatMap((step) => [
+              step.title,
+              step.description,
+            ])
+          : []),
+      ].join("\n");
+
+      for (const { label, re } of RETIRED_HELVETY_EXTENSION_NAME_PATTERNS) {
+        if (re.test(blob)) {
+          violations.push(`${product.id}: ${label}`);
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
   it("store customer copy contains no em-dashes", () => {
     for (const product of getAllProducts()) {
       const strings: string[] = [
@@ -204,9 +234,7 @@ describe("store product catalog", () => {
   });
 
   it("Power Platform Configurator listing uses canonical store card copy", () => {
-    const product = getProductBySlug(
-      "helvety-power-platform-configurator"
-    );
+    const product = getProductBySlug("helvety-power-platform-configurator");
     expect(product).toBeDefined();
     if (!product) {
       return;
@@ -227,15 +255,13 @@ describe("store product catalog", () => {
   });
 
   it("Power Platform Configurator store listing points GitHub link at canonical extension repo", () => {
-    const product = getProductBySlug(
-      "helvety-power-platform-configurator"
-    );
+    const product = getProductBySlug("helvety-power-platform-configurator");
     expect(product?.links?.github).toBe(
       "https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium"
     );
   });
 
-  it("open-source software listings use shared AGPL feature constants", () => {
+  it("open-source software listings use shared AGPL feature constants (Store About copy)", () => {
     for (const slug of [
       "helvety-spo-explorer",
       "helvety-power-platform-configurator",
@@ -263,8 +289,7 @@ describe("store product catalog", () => {
       .map((s) => s.body);
     expect(spoSectionBodies.join("\n")).toContain(HELVETY_FREE_AGPL_INLINE);
     expect(
-      getProductBySlug("helvety-power-platform-configurator")
-        ?.features
+      getProductBySlug("helvety-power-platform-configurator")?.features
     ).toContain(HELVETY_FREE_AGPL_FEATURE);
     expect(getProductBySlug("helvety-screen-tools")?.features).toContain(
       HELVETY_FREE_AGPL_FEATURE
@@ -272,9 +297,7 @@ describe("store product catalog", () => {
   });
 
   it("Power Platform Configurator publicPackageId matches downloadable package config key", () => {
-    const product = getProductBySlug(
-      "helvety-power-platform-configurator"
-    );
+    const product = getProductBySlug("helvety-power-platform-configurator");
     expect(product).toBeDefined();
     if (!product || !isSoftwareProduct(product)) {
       throw new Error("Expected Power Platform Configurator software product");

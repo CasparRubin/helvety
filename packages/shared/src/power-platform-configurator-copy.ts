@@ -2,6 +2,10 @@
  * Canonical customer-facing copy for **Power Platform Configurator**.
  * Keep in sync with `power-platform-configurator-browser-extension-chromium/public/manifest.json`
  * `description` (verbatim {@link POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}).
+ *
+ * Store About copy uses {@link HELVETY_FREE_AGPL_FEATURE} from `@helvety/shared/licensing`
+ * per Helvety product-line policy. The license on the shipped ZIP follows the extension
+ * repository `LICENSE` file (see GitHub link on the Store listing).
  */
 
 /** Verbatim manifest `description` (Edge/Chrome installed-extensions blurb). */

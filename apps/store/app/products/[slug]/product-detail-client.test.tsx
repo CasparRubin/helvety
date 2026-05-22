@@ -59,9 +59,7 @@ describe("ProductDetailClient", () => {
   });
 
   it("renders a GitHub source link when the product lists a repository URL", () => {
-    render(
-      <ProductDetailClient slug="helvety-power-platform-configurator" />
-    );
+    render(<ProductDetailClient slug="helvety-power-platform-configurator" />);
 
     const github = screen.getByRole("link", {
       name: /View source code on GitHub/i,
@@ -74,9 +72,7 @@ describe("ProductDetailClient", () => {
   });
 
   it("uses opaque surface panels for About and Installation", () => {
-    render(
-      <ProductDetailClient slug="helvety-power-platform-configurator" />
-    );
+    render(<ProductDetailClient slug="helvety-power-platform-configurator" />);
 
     const about = document.getElementById("about");
     expect(about).toBeInTheDocument();

@@ -47,12 +47,12 @@ This document is the source of truth for how we name and format code across `app
 
 Layered copy avoids repeating the same paragraph on a product page and across surfaces:
 
-| Layer                  | Source                                                                    | Purpose                                                                                                                                                  |
-| ---------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Store catalog card** | `packages/shared/src/store-catalog.ts` → `shortDescription`               | One or two plain sentences: what it is and the main benefit. Shown on Store listing cards, the product detail hero, and OG when the Store owns the page. |
-| **About intro**        | `apps/store/lib/data/products.ts` → `description.intro`                   | Who it is for and what changes day to day. Must **not** duplicate the card opening (tests enforce separation).                                           |
-| **About sections**     | `products.ts` → `description.sections`                                    | Install steps, limits, privacy, optional “how it works”. Plain language; jargon only when needed.                                                        |
-| **App SEO / PWA**      | `app/layout.tsx`, `lib/product-copy.ts`, `public/manifest.json`           | Metadata and install prompt; align verbs and claims with the Store card where they describe the same product.                                            |
+| Layer                  | Source                                                                                                                                                                                                     | Purpose                                                                                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Store catalog card** | `packages/shared/src/store-catalog.ts` → `shortDescription`                                                                                                                                                | One or two plain sentences: what it is and the main benefit. Shown on Store listing cards, the product detail hero, and OG when the Store owns the page. |
+| **About intro**        | `apps/store/lib/data/products.ts` → `description.intro`                                                                                                                                                    | Who it is for and what changes day to day. Must **not** duplicate the card opening (tests enforce separation).                                           |
+| **About sections**     | `products.ts` → `description.sections`                                                                                                                                                                     | Install steps, limits, privacy, optional “how it works”. Plain language; jargon only when needed.                                                        |
+| **App SEO / PWA**      | `app/layout.tsx`, `lib/product-copy.ts`, `public/manifest.json`                                                                                                                                            | Metadata and install prompt; align verbs and claims with the Store card where they describe the same product.                                            |
 | **Extension manifest** | [`power-platform-configurator-browser-extension-chromium`](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium) + `power-platform-configurator-copy.ts` `PUBLIC_SUMMARY` | Shortest installed-extension blurb only; not the Store About body.                                                                                       |
 
 **Style:** easy to scan, human tone. **No em-dashes (U+2014)** in user-facing copy; use commas, periods, or parentheses instead. Enforced by `bun run consistency:customer-copy` and Vitest (`assertNoEmDashInCustomerCopy`).
@@ -72,6 +72,19 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 | Navbar About            | `@helvety/shared/app-navbar-about` (`*_NAVBAR_ABOUT`, `E2EE_NAVBAR_ENCRYPTION_TOOLTIP`); global About dialog in `HelvetyShellNavbar` adds attribution only (no license paragraph)                 |
 
 **Sync order when product behavior or claims change:** `store-catalog.ts` → `products.ts` → app metadata / manifests → `llms.txt` → app `README.md` intros → legal pages if claims shift (see `docs/legal-change-guardrails.md`).
+
+### Retired Power Platform Configurator slugs (redirect-only)
+
+Three legacy browser-extension listings were merged into **Power Platform Configurator** (`helvety-power-platform-configurator`, package id `power-platform-configurator`). Retired store slugs and package ids (`helvety-power-automate-force-v3-false`, `helvety-power-automate-editor-preference`, `helvety-power-automate-editor-version-enforcer`, and matching `power-automate-*` download paths) must **not** appear in customer-facing copy, catalog data, or legal text. They may appear only in:
+
+- [`apps/store/next.config.ts`](../apps/store/next.config.ts) and [`apps/store/next.config.test.ts`](../apps/store/next.config.test.ts) (308 redirects to the canonical listing)
+- [`apps/store/app/actions/download-actions.test.ts`](../apps/store/app/actions/download-actions.test.ts) (asserts server actions reject legacy package ids)
+- [`apps/store/README.md`](../apps/store/README.md) (ops documentation of redirect paths)
+- [`packages/shared/src/retired-power-platform-extension-naming.ts`](../packages/shared/src/retired-power-platform-extension-naming.ts) (canonical forbidden-pattern registry for tests)
+- [`apps/store/lib/packages/config.test.ts`](../apps/store/lib/packages/config.test.ts) (negative assertions for removed package ids)
+- [`docs/naming-conventions.md`](naming-conventions.md) (this section; lists retired slugs for contributors)
+
+**Microsoft “Power Automate”** in descriptions, keywords, and host names refers to the vendor product the extension configures, not the old Helvety product title. **`bun run consistency:project-naming`** ([`scripts/verify-project-naming.mjs`](../scripts/verify-project-naming.mjs)) enforces the retired Helvety slugs/titles repo-wide with the allowlist above.
 
 **Regression tests:** `@helvety/shared/customer-copy-guardrails` lists user-facing copy paths; `customer-copy-em-dash.test.ts`, `store-copy-guardrails.test.ts`, `seo-customer-copy.test.ts`, and per-app `layout-metadata.test.ts` files use **`assertNoEmDashInCustomerCopy`**, **`assertLicenseFreeSeoCopy`**, and **`assertSwissOriginInSeoCopy`** from `@helvety/shared/test-utils/customer-copy-test-helpers`. **`bun run consistency:customer-copy`** scans user-facing files and app UI `.tsx` for U+2014 em-dashes; **`bun run consistency:install-manifest-metadata`** keeps PWA `manifest.json` descriptions aligned with shared SEO constants.
 

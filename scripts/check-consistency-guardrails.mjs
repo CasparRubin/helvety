@@ -5,8 +5,8 @@
  * `Page` per `docs/naming-conventions.md`.
  *
  * Sibling repo checks live under root `consistency:*` scripts (env template keys,
- * manifest vs SEO blurbs, proxy readme sync, toolchain docs, lifecycle package.json
- * scripts, test hygiene).
+ * manifest vs SEO blurbs, proxy readme sync, toolchain docs, retired extension
+ * product naming, lifecycle package.json scripts, test hygiene).
  *
  * Zone `proxy.ts` files must inline the same `config.matcher` string as
  * `SECURITY_PROXY_MATCHER` in `packages/shared/src/proxy.ts` (Next.js requires a

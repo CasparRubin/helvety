@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { CUSTOMER_COPY_EM_DASH } from "@helvety/shared/customer-copy-guardrails";
 import { POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX } from "@helvety/shared/power-platform-configurator-copy";
+import { RETIRED_HELVETY_EXTENSION_NAME_PATTERNS } from "@helvety/shared/retired-power-platform-extension-naming";
 import { describe, expect, it } from "vitest";
 
 /** `apps/web/app/` */
@@ -32,9 +33,7 @@ describe("Power Platform Configurator legal copy (extension Survey tab parity)",
     expect(POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX).toContain(
       "Survey tab"
     );
-    expect(POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX).toContain(
-      "v3survey"
-    );
+    expect(POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX).toContain("v3survey");
   });
 
   it("impressum renders canonical public summary and store card suffix", () => {
@@ -45,5 +44,13 @@ describe("Power Platform Configurator legal copy (extension Survey tab parity)",
     expect(impressum).toContain(officialTitle);
     expectLegalPageUsesCanonicalPowerPlatformConfiguratorCopy(impressum);
     expect(impressum).toContain("Edge/Chrome");
+  });
+
+  it("terms page uses the canonical product title and not retired extension names", () => {
+    const terms = readFileSync(join(appDir, "terms", "page.tsx"), "utf8");
+    expect(terms).toContain(officialTitle);
+    for (const { label, re } of RETIRED_HELVETY_EXTENSION_NAME_PATTERNS) {
+      expect(re.test(terms), `terms must not contain ${label}`).toBe(false);
+    }
   });
 });

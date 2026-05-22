@@ -17,8 +17,7 @@ describe("download-security", () => {
   it("validates package ids with strict lowercase format", () => {
     expect(packageIdSchema.safeParse("spo-explorer").success).toBe(true);
     expect(
-      packageIdSchema.safeParse("power-platform-configurator")
-        .success
+      packageIdSchema.safeParse("power-platform-configurator").success
     ).toBe(true);
     expect(packageIdSchema.safeParse("UPPERCASE").success).toBe(false);
     expect(packageIdSchema.safeParse("bad_id").success).toBe(false);

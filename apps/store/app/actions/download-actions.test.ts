@@ -113,14 +113,12 @@ describe("store download-actions", () => {
 
   it("creates a signed URL for the Power Platform Configurator zip package", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue({
-      version: "2.8.0",
+      version: "2.8.1",
       storagePath:
         "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
     });
 
-    const result = await getPackageDownloadUrl(
-      "power-platform-configurator"
-    );
+    const result = await getPackageDownloadUrl("power-platform-configurator");
 
     expect(result.success).toBe(true);
     if (!result.success) {
@@ -129,7 +127,7 @@ describe("store download-actions", () => {
     expect(result.data).toEqual({
       downloadUrl: "https://download.example/signed",
       filename: "power-platform-configurator.zip",
-      version: "2.8.0",
+      version: "2.8.1",
     });
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
       "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
@@ -154,9 +152,7 @@ describe("store download-actions", () => {
   it("falls back to configured zip path when resolver returns null for Power Platform Configurator package", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue(null);
 
-    const result = await getPackageDownloadUrl(
-      "power-platform-configurator"
-    );
+    const result = await getPackageDownloadUrl("power-platform-configurator");
 
     expect(result.success).toBe(true);
     if (!result.success) {
@@ -165,7 +161,7 @@ describe("store download-actions", () => {
     expect(result.data).toEqual({
       downloadUrl: "https://download.example/signed",
       filename: "power-platform-configurator.zip",
-      version: "2.8.0",
+      version: "2.8.1",
     });
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
       "browserExtensions/power-platform-configurator/power-platform-configurator.zip",

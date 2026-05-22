@@ -71,6 +71,7 @@
     "./user-facing-errors": "./src/user-facing-errors.ts",
     "./seo": "./src/seo.ts",
     "./power-platform-configurator-copy": "./src/power-platform-configurator-copy.ts",
+    "./retired-power-platform-extension-naming": "./src/retired-power-platform-extension-naming.ts",
     "./store-catalog": "./src/store-catalog.ts",
     "./customer-copy-guardrails": "./src/customer-copy-guardrails.ts",
     "./supabase/client": "./src/supabase/client.ts",

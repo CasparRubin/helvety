@@ -101,7 +101,8 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
           permanent: true,
         },
         {
-          source: "/api/packages/power-automate-editor-version-enforcer/download",
+          source:
+            "/api/packages/power-automate-editor-version-enforcer/download",
           destination: "/api/packages/power-platform-configurator/download",
           permanent: true,
         },

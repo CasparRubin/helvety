@@ -60,6 +60,7 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
    - App `layout.tsx` / `lib/product-copy.ts` metadata and `public/manifest.json` (SEO describes the product; do not add AGPL to metadata or manifest `description`)
    - `public/llms.txt` for that app or Store/web crawler files (`>` tagline = product/company summary; license text under `## Licensing` only)
    - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
+   - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and run `bun run consistency:project-naming` (retired `power-automate-*` slugs must not appear outside redirect allowlist paths; see [`docs/naming-conventions.md`](../../docs/naming-conventions.md))
    - Run `bun run test --filter=@helvety/shared` (copy guardrails) and
      `bun run consistency:install-manifest-metadata`
 4. **(Optional) Add a switcher entry** in

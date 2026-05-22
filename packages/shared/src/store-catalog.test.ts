@@ -85,9 +85,7 @@ describe("store-catalog", () => {
   });
 
   it("Power Platform Configurator card and llms.txt use canonical store short description", () => {
-    const card = requireStoreProductCard(
-      "helvety-power-platform-configurator"
-    );
+    const card = requireStoreProductCard("helvety-power-platform-configurator");
     expect(card.name).toBe("Power Platform Configurator");
     expect(card.shortDescription).toBe(
       POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION
