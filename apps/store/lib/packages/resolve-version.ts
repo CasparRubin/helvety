@@ -39,7 +39,7 @@ interface ResolvedPackageVersion {
  * Resolve the latest package file from Supabase Storage for a package.
  * Lists the package folder and picks the newest file matching `storageFileSuffix` by timestamp.
  *
- * @param packageId - Public download package id (keys in `lib/packages/config.ts`, e.g. `spo-explorer`, `power-automate-editor-version-enforcer`).
+ * @param packageId - Public download package id (keys in `lib/packages/config.ts`, e.g. `spo-explorer`, `power-platform-configurator`).
  * @returns Resolved version/path or null when package/listing/file lookup fails
  */
 export async function resolveLatestPackageVersion(

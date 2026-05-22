@@ -70,7 +70,7 @@
     "./server-action-primitives": "./src/server-action-primitives.ts",
     "./user-facing-errors": "./src/user-facing-errors.ts",
     "./seo": "./src/seo.ts",
-    "./power-automate-editor-enforcer-copy": "./src/power-automate-editor-enforcer-copy.ts",
+    "./power-platform-configurator-copy": "./src/power-platform-configurator-copy.ts",
     "./store-catalog": "./src/store-catalog.ts",
     "./customer-copy-guardrails": "./src/customer-copy-guardrails.ts",
     "./supabase/client": "./src/supabase/client.ts",

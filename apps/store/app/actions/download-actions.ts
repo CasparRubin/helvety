@@ -33,7 +33,7 @@ import type { PackageDownloadInfo } from "@/lib/types/store";
  * Get a signed download URL for a package
  * Public packages can be downloaded without login.
  *
- * @param packageId - Public download package id configured in `lib/packages/config.ts` (e.g. `spo-explorer`, `power-automate-editor-version-enforcer`). Legacy ids are rejected here; HTTP redirects for old paths are defined in `next.config.ts`.
+ * @param packageId - Public download package id configured in `lib/packages/config.ts` (e.g. `spo-explorer`, `power-platform-configurator`). Legacy ids are rejected here; HTTP redirects for old paths are defined in `next.config.ts`.
  * @returns Signed download URL with metadata
  */
 export async function getPackageDownloadUrl(

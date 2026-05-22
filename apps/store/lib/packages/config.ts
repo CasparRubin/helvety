@@ -40,14 +40,13 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     productName: "Helvety SPO Explorer",
     isPublic: true,
   },
-  "power-automate-editor-version-enforcer": {
+  "power-platform-configurator": {
     version: "2.4.0",
-    filename: "power-automate-editor-version-enforcer.zip",
-    storageFolderPath:
-      "browserExtensions/power-automate-editor-version-enforcer",
+    filename: "power-platform-configurator.zip",
+    storageFolderPath: "browserExtensions/power-platform-configurator",
     storageFileSuffix: ".zip",
-    productId: "helvety-power-automate-editor-version-enforcer",
-    productName: "Power Automate Editor Version Enforcer",
+    productId: "helvety-power-platform-configurator",
+    productName: "Power Platform Configurator",
     isPublic: true,
   },
 } as const;

@@ -117,12 +117,12 @@ describe("resolveLatestPackageVersion", () => {
           created_at: "2026-04-01T10:00:00.000Z",
         },
         {
-          name: "power-automate-editor-version-enforcer-old.zip",
+          name: "power-platform-configurator-old.zip",
           id: "x1",
           created_at: "2026-04-02T10:00:00.000Z",
         },
         {
-          name: "power-automate-editor-version-enforcer.zip",
+          name: "power-platform-configurator.zip",
           id: "x2",
           created_at: "2026-04-04T10:00:00.000Z",
           updated_at: "2026-04-04T10:00:00.000Z",
@@ -133,11 +133,11 @@ describe("resolveLatestPackageVersion", () => {
     });
 
     const result = await resolveLatestPackageVersion(
-      "power-automate-editor-version-enforcer"
+      "power-platform-configurator"
     );
 
     expect(mocks.list).toHaveBeenCalledWith(
-      "browserExtensions/power-automate-editor-version-enforcer",
+      "browserExtensions/power-platform-configurator",
       {
         limit: 500,
         sortBy: { column: "name", order: "asc" },
@@ -146,7 +146,7 @@ describe("resolveLatestPackageVersion", () => {
     expect(result).toEqual({
       version: "2.4.0",
       storagePath:
-        "browserExtensions/power-automate-editor-version-enforcer/power-automate-editor-version-enforcer.zip",
+        "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
     });
   });
 });

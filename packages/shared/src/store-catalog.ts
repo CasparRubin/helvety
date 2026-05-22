@@ -1,11 +1,11 @@
 /**
  * Card-level Helvety Store catalog fields for @helvety/store product cards.
  * Full Product rows (images, pricing, long copy) stay in the Store app.
- * Power Automate Editor Version Enforcer card blurbs are composed from
- * `./power-automate-editor-enforcer-copy` so they stay aligned with the extension manifest summary.
+ * Power Platform Configurator card blurbs are composed from
+ * `./power-platform-configurator-copy` so they stay aligned with the extension manifest summary.
  */
 
-import { POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION } from "./power-automate-editor-enforcer-copy";
+import { POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION } from "./power-platform-configurator-copy";
 
 /** Mirrors {@link ProductType} in apps/store without importing Next-specific types. */
 export type StoreProductType = "saas" | "software" | "physical";
@@ -46,7 +46,7 @@ export interface StoreProductCard {
 export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
   "helvety-image-upscaler": 8,
   "helvety-screen-tools": 7,
-  "helvety-power-automate-editor-version-enforcer": 6,
+  "helvety-power-platform-configurator": 6,
   "helvety-links": 6,
   "helvety-notes": 5,
   "helvety-contacts": 4,
@@ -136,10 +136,10 @@ export const STORE_PRODUCT_CARDS = [
     isOpenSource: true,
   },
   {
-    id: "helvety-power-automate-editor-version-enforcer",
-    slug: "helvety-power-automate-editor-version-enforcer",
-    name: "Power Automate Editor Version Enforcer",
-    shortDescription: POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
+    id: "helvety-power-platform-configurator",
+    slug: "helvety-power-platform-configurator",
+    name: "Power Platform Configurator",
+    shortDescription: POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
     releaseDate: "2026-04-03",
     type: "software",
     category: "integrations",

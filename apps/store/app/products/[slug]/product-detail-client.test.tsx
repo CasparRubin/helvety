@@ -60,7 +60,7 @@ describe("ProductDetailClient", () => {
 
   it("renders a GitHub source link when the product lists a repository URL", () => {
     render(
-      <ProductDetailClient slug="helvety-power-automate-editor-version-enforcer" />
+      <ProductDetailClient slug="helvety-power-platform-configurator" />
     );
 
     const github = screen.getByRole("link", {
@@ -68,14 +68,14 @@ describe("ProductDetailClient", () => {
     });
     expect(github).toHaveAttribute(
       "href",
-      "https://github.com/CasparRubin/power-automate-editor-version-enforcer"
+      "https://github.com/CasparRubin/power-platform-configurator"
     );
     expect(github).toHaveAttribute("target", "_blank");
   });
 
   it("uses opaque surface panels for About and Installation", () => {
     render(
-      <ProductDetailClient slug="helvety-power-automate-editor-version-enforcer" />
+      <ProductDetailClient slug="helvety-power-platform-configurator" />
     );
 
     const about = document.getElementById("about");

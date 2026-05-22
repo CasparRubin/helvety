@@ -18,9 +18,9 @@ Product catalog and package-download app for Helvety products: specs and artifac
 
 - Download files are served from Supabase Storage bucket `packages`.
 - `spfx/helvety-spo-explorer`: newest `.sppkg` by timestamp/name.
-- `browserExtensions/power-automate-editor-version-enforcer`: newest `.zip` by timestamp/name (Power Automate Editor Version Enforcer). Permanent redirects in [`next.config.ts`](next.config.ts) keep old bookmarks working (paths below are relative to the Store `basePath` `/store`):
-  - `/products/helvety-power-automate-force-v3-false` and `/products/helvety-power-automate-editor-preference` → `/products/helvety-power-automate-editor-version-enforcer`
-  - `/api/packages/power-automate-editor-preference/download` and `/api/packages/power-automate-force-v3-false/download` → `/api/packages/power-automate-editor-version-enforcer/download`
+- `browserExtensions/power-platform-configurator`: newest `.zip` by timestamp/name (Power Platform Configurator). Permanent redirects in [`next.config.ts`](next.config.ts) keep old bookmarks working (paths below are relative to the Store `basePath` `/store`):
+  - `/products/helvety-power-automate-force-v3-false`, `/products/helvety-power-automate-editor-preference`, and `/products/helvety-power-automate-editor-version-enforcer` → `/products/helvety-power-platform-configurator`
+  - `/api/packages/power-automate-editor-preference/download`, `/api/packages/power-automate-force-v3-false/download`, and `/api/packages/power-automate-editor-version-enforcer/download` → `/api/packages/power-platform-configurator/download`
 - If listing fails, resolver falls back to configured filename path.
 - Download URL generation and public download endpoint throttling both use centralized helpers in `lib/download-security.ts` (`buildDownloadUrlRateLimitKey`, `buildPublicDownloadRateLimitKey`) to keep key naming and validation rules consistent.
 - Public download redirects are allowlisted to the Supabase project origin from `NEXT_PUBLIC_SUPABASE_URL` (via `getSupabaseUrl()`); a separate `SUPABASE_URL` env var is not used for this check.

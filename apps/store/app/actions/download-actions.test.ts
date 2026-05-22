@@ -112,11 +112,11 @@ describe("store download-actions", () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue({
       version: "2.4.0",
       storagePath:
-        "browserExtensions/power-automate-editor-version-enforcer/power-automate-editor-version-enforcer.zip",
+        "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
     });
 
     const result = await getPackageDownloadUrl(
-      "power-automate-editor-version-enforcer"
+      "power-platform-configurator"
     );
 
     expect(result.success).toBe(true);
@@ -125,13 +125,13 @@ describe("store download-actions", () => {
     }
     expect(result.data).toEqual({
       downloadUrl: "https://download.example/signed",
-      filename: "power-automate-editor-version-enforcer.zip",
+      filename: "power-platform-configurator.zip",
       version: "2.4.0",
     });
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
-      "browserExtensions/power-automate-editor-version-enforcer/power-automate-editor-version-enforcer.zip",
+      "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
       60,
-      { download: "power-automate-editor-version-enforcer.zip" }
+      { download: "power-platform-configurator.zip" }
     );
   });
 
@@ -152,7 +152,7 @@ describe("store download-actions", () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue(null);
 
     const result = await getPackageDownloadUrl(
-      "power-automate-editor-version-enforcer"
+      "power-platform-configurator"
     );
 
     expect(result.success).toBe(true);
@@ -161,13 +161,13 @@ describe("store download-actions", () => {
     }
     expect(result.data).toEqual({
       downloadUrl: "https://download.example/signed",
-      filename: "power-automate-editor-version-enforcer.zip",
+      filename: "power-platform-configurator.zip",
       version: "2.4.0",
     });
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
-      "browserExtensions/power-automate-editor-version-enforcer/power-automate-editor-version-enforcer.zip",
+      "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
       60,
-      { download: "power-automate-editor-version-enforcer.zip" }
+      { download: "power-platform-configurator.zip" }
     );
   });
 

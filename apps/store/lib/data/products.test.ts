@@ -7,9 +7,9 @@ import {
   HELVETY_FREE_AGPL_INLINE,
 } from "@helvety/shared/licensing";
 import {
-  POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
-  POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
-} from "@helvety/shared/power-automate-editor-enforcer-copy";
+  POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
+  POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
+} from "@helvety/shared/power-platform-configurator-copy";
 import {
   STORE_PRODUCT_CARDS,
   requireStoreProductCard,
@@ -52,8 +52,8 @@ describe("store product catalog", () => {
 
   it("resolves known product slugs", () => {
     expect(
-      getProductBySlug("helvety-power-automate-editor-version-enforcer")?.name
-    ).toBe("Power Automate Editor Version Enforcer");
+      getProductBySlug("helvety-power-platform-configurator")?.name
+    ).toBe("Power Platform Configurator");
     expect(getProductBySlug("helvety-spo-explorer")?.slug).toBe(
       "helvety-spo-explorer"
     );
@@ -203,42 +203,42 @@ describe("store product catalog", () => {
     }
   });
 
-  it("Power Automate listing uses canonical store card copy", () => {
+  it("Power Platform Configurator listing uses canonical store card copy", () => {
     const product = getProductBySlug(
-      "helvety-power-automate-editor-version-enforcer"
+      "helvety-power-platform-configurator"
     );
     expect(product).toBeDefined();
     if (!product) {
       return;
     }
 
-    expect(product.name).toBe("Power Automate Editor Version Enforcer");
+    expect(product.name).toBe("Power Platform Configurator");
     expect(isSoftwareProduct(product)).toBe(true);
     if (!isSoftwareProduct(product)) {
       return;
     }
 
     expect(product.shortDescription).toBe(
-      POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION
+      POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION
     );
     expect(product.description.intro).not.toContain(
-      POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY
+      POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY
     );
   });
 
-  it("Power Automate store listing points GitHub link at canonical extension repo", () => {
+  it("Power Platform Configurator store listing points GitHub link at canonical extension repo", () => {
     const product = getProductBySlug(
-      "helvety-power-automate-editor-version-enforcer"
+      "helvety-power-platform-configurator"
     );
     expect(product?.links?.github).toBe(
-      "https://github.com/CasparRubin/power-automate-editor-version-enforcer"
+      "https://github.com/CasparRubin/power-platform-configurator"
     );
   });
 
   it("open-source software listings use shared AGPL feature constants", () => {
     for (const slug of [
       "helvety-spo-explorer",
-      "helvety-power-automate-editor-version-enforcer",
+      "helvety-power-platform-configurator",
       "helvety-screen-tools",
     ] as const) {
       const product = getProductBySlug(slug);
@@ -263,7 +263,7 @@ describe("store product catalog", () => {
       .map((s) => s.body);
     expect(spoSectionBodies.join("\n")).toContain(HELVETY_FREE_AGPL_INLINE);
     expect(
-      getProductBySlug("helvety-power-automate-editor-version-enforcer")
+      getProductBySlug("helvety-power-platform-configurator")
         ?.features
     ).toContain(HELVETY_FREE_AGPL_FEATURE);
     expect(getProductBySlug("helvety-screen-tools")?.features).toContain(
@@ -271,16 +271,16 @@ describe("store product catalog", () => {
     );
   });
 
-  it("Power Automate publicPackageId matches downloadable package config key", () => {
+  it("Power Platform Configurator publicPackageId matches downloadable package config key", () => {
     const product = getProductBySlug(
-      "helvety-power-automate-editor-version-enforcer"
+      "helvety-power-platform-configurator"
     );
     expect(product).toBeDefined();
     if (!product || !isSoftwareProduct(product)) {
-      throw new Error("Expected Power Automate software product");
+      throw new Error("Expected Power Platform Configurator software product");
     }
     expect(product.software.publicPackageId).toBe(
-      "power-automate-editor-version-enforcer"
+      "power-platform-configurator"
     );
   });
 });

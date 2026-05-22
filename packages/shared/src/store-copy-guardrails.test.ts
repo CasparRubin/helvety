@@ -14,10 +14,10 @@ import {
   HELVETY_SOURCE_LICENSE_MARKETING,
 } from "./licensing";
 import {
-  POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
-  POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX,
-  POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
-} from "./power-automate-editor-enforcer-copy";
+  POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
+  POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX,
+  POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
+} from "./power-platform-configurator-copy";
 import { STORE_PRODUCT_CARDS } from "./store-catalog";
 import { assertLicenseFreeSeoCopy } from "./test-utils/customer-copy-test-helpers";
 
@@ -37,13 +37,13 @@ describe("store copy guardrails", () => {
     }
   });
 
-  it("Power Automate shared copy contains no em-dashes", () => {
+  it("Power Platform Configurator shared copy contains no em-dashes", () => {
     for (const [label, text] of [
-      ["PUBLIC_SUMMARY", POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY],
-      ["STORE_CARD_SUFFIX", POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX],
+      ["PUBLIC_SUMMARY", POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY],
+      ["STORE_CARD_SUFFIX", POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX],
       [
         "STORE_SHORT_DESCRIPTION",
-        POWER_AUTOMATE_EDITOR_ENFORCER_STORE_SHORT_DESCRIPTION,
+        POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
       ],
     ] as const) {
       assertNoEmDash(label, text);

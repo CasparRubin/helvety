@@ -1,0 +1,38 @@
+/**
+ * Canonical customer-facing copy for **Power Platform Configurator**.
+ * Keep in sync with `power-platform-configurator/public/manifest.json`
+ * `description` (verbatim {@link POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}).
+ */
+
+/** Verbatim manifest `description` (Edge/Chrome installed-extensions blurb). */
+export const POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY =
+  "Configure Microsoft Power Automate Cloud Flows: choose Classic or New Designer (v3=false or v3=true), and optionally hide the Microsoft survey prompt asking why you made your selection." as const;
+
+/**
+ * Appended on store cards / llms after {@link POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}
+ * so Survey-tab **Hide** / **Show** and **Paused** stay explicit (see `store-catalog.test.ts`).
+ */
+export const POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX =
+  "Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed." as const;
+
+/** Full `StoreProductCard.shortDescription` for this product. */
+export const POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION =
+  `${POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} ${POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}` as const;
+
+/**
+ * Fragments for `toContain` against `apps/web` legal TSX (line breaks prevent
+ * matching {@link POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION} as one string).
+ * Every entry must appear in {@link POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION}.
+ */
+export const POWER_PLATFORM_CONFIGURATOR_LEGAL_PAGE_MARKERS = [
+  "Configure Microsoft Power Automate Cloud Flows",
+  "choose Classic or New Designer",
+  "hide the Microsoft survey prompt asking why you",
+  "made your selection",
+  "Survey tab: optional",
+  "v3survey",
+  "Hide (default)",
+  "sets false on rewrites",
+  "Show only normalizes when already present",
+  "Paused: no URL rewrites while the extension stays installed",
+] as const;

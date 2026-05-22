@@ -1,8 +1,8 @@
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import {
-  POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
-  POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX,
-} from "@helvety/shared/power-automate-editor-enforcer-copy";
+  POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
+  POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX,
+} from "@helvety/shared/power-platform-configurator-copy";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -134,10 +134,10 @@ export default function ImpressumPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Power Automate Editor Version Enforcer
+              Power Platform Configurator
             </strong>
-            : {POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY} Edge/Chrome
-            extension. {POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX}
+            : {POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} Edge/Chrome
+            extension. {POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}
           </li>
           <li>
             <strong className="text-foreground">Helvety PDF</strong>: in-browser

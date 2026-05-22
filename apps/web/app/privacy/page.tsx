@@ -1,8 +1,8 @@
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import {
-  POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY,
-  POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX,
-} from "@helvety/shared/power-automate-editor-enforcer-copy";
+  POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
+  POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX,
+} from "@helvety/shared/power-platform-configurator-copy";
 
 import "@/app/legal.css";
 import {
@@ -308,10 +308,10 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Power Automate Editor Version Enforcer:
+              Power Platform Configurator:
             </strong>{" "}
-            {POWER_AUTOMATE_EDITOR_ENFORCER_PUBLIC_SUMMARY}{" "}
-            {POWER_AUTOMATE_EDITOR_ENFORCER_STORE_CARD_SUFFIX} Enforcement
+            {POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}{" "}
+            {POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX} Enforcement
             preferences sync where the browser allows it; popup appearance
             settings stay locally on the device.
           </li>

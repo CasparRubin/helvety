@@ -253,19 +253,19 @@ const helvetyExplorer: SoftwareProduct = {
 };
 
 /**
- * Power Automate Editor Version Enforcer (store blurb from shared copy module)
+ * Power Platform Configurator (store blurb from shared copy module)
  */
-const cPowerAutomate = cardCore(
-  "helvety-power-automate-editor-version-enforcer",
+const cPowerPlatformConfigurator = cardCore(
+  "helvety-power-platform-configurator",
   "software"
 );
-const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
-  id: cPowerAutomate.id,
-  slug: cPowerAutomate.slug,
-  name: cPowerAutomate.name,
-  shortDescription: cPowerAutomate.shortDescription,
-  type: cPowerAutomate.type,
-  category: cPowerAutomate.category,
+const powerPlatformConfigurator: SoftwareProduct = {
+  id: cPowerPlatformConfigurator.id,
+  slug: cPowerPlatformConfigurator.slug,
+  name: cPowerPlatformConfigurator.name,
+  shortDescription: cPowerPlatformConfigurator.shortDescription,
+  type: cPowerPlatformConfigurator.type,
+  category: cPowerPlatformConfigurator.category,
   image: productArtwork.artwork6,
   artist: "Rudolf Koller",
   description: {
@@ -314,7 +314,7 @@ const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
     hasYearlyPricing: false,
     tiers: [
       {
-        id: "helvety-power-automate-editor-version-enforcer-free",
+        id: "helvety-power-platform-configurator-free",
         name: "Free",
         price: 0,
         currency: "CHF",
@@ -330,11 +330,11 @@ const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
   },
   links: {
     github:
-      "https://github.com/CasparRubin/power-automate-editor-version-enforcer",
+      "https://github.com/CasparRubin/power-platform-configurator",
   },
   software: {
     fileFormat: "zip",
-    publicPackageId: "power-automate-editor-version-enforcer",
+    publicPackageId: "power-platform-configurator",
     requirements: [
       "Microsoft Edge or Google Chrome",
       "Access to https://make.powerautomate.com/",
@@ -345,7 +345,7 @@ const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
       {
         title: "Download the ZIP",
         description:
-          "Use the Download button on this page to save power-automate-editor-version-enforcer.zip to your computer.",
+          "Use the Download button on this page to save power-platform-configurator.zip to your computer.",
       },
       {
         title: "Extract the archive",
@@ -393,7 +393,7 @@ const powerAutomateEditorVersionEnforcer: SoftwareProduct = {
       "microsoft 365",
     ],
     featured: true,
-    releaseDate: cPowerAutomate.releaseDate,
+    releaseDate: cPowerPlatformConfigurator.releaseDate,
   },
 };
 
@@ -1124,7 +1124,7 @@ const products: Product[] = [
   helvetyContacts,
   helvetyNotes,
   helvetyLinks,
-  powerAutomateEditorVersionEnforcer,
+  powerPlatformConfigurator,
   helvetyScreenTools,
   helvetyImageUpscaler,
 ];

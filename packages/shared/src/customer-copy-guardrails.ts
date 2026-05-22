@@ -61,7 +61,7 @@ export const CUSTOMER_COPY_USER_FACING_RELATIVE_PATHS = [
   "packages/shared/src/app-navbar-about.ts",
   "packages/shared/src/licensing.ts",
   "packages/shared/src/user-facing-errors.ts",
-  "packages/shared/src/power-automate-editor-enforcer-copy.ts",
+  "packages/shared/src/power-platform-configurator-copy.ts",
   "apps/store/lib/data/products.ts",
   "apps/pdf/lib/product-copy.ts",
   "apps/image-upscaler/lib/product-copy.ts",

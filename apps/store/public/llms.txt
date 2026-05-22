@@ -16,7 +16,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - [Helvety Contacts](https://helvety.com/store/products/helvety-contacts)
 - [Helvety Notes](https://helvety.com/store/products/helvety-notes)
 - [Helvety Links](https://helvety.com/store/products/helvety-links)
-- [Power Automate Editor Version Enforcer](https://helvety.com/store/products/helvety-power-automate-editor-version-enforcer): Enforce the classic or new designer in Microsoft Power Automate Cloud Flows, and optionally hide the Microsoft survey prompt asking why you made your selection. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed.
+- [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Configure Microsoft Power Automate Cloud Flows: choose Classic or New Designer (v3=false or v3=true), and optionally hide the Microsoft survey prompt asking why you made your selection. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed.
 
 ## Crawling and Indexing
 - Public catalog and product pages are intended to be crawlable and indexable.

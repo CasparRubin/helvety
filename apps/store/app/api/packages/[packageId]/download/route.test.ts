@@ -86,7 +86,7 @@ describe("GET /api/packages/[packageId]/download", () => {
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
   });
 
-  it("redirects for power-automate-editor-version-enforcer package id", async () => {
+  it("redirects for power-platform-configurator package id", async () => {
     mocks.getPackageDownloadUrl.mockResolvedValue({
       success: true,
       data: { downloadUrl: "https://download.example/extension.zip" },
@@ -94,13 +94,13 @@ describe("GET /api/packages/[packageId]/download", () => {
 
     const response = await GET(new Request("https://helvety.com") as never, {
       params: Promise.resolve({
-        packageId: "power-automate-editor-version-enforcer",
+        packageId: "power-platform-configurator",
       }),
     });
 
     expect(response.status).toBe(307);
     expect(mocks.getPackageDownloadUrl).toHaveBeenCalledWith(
-      "power-automate-editor-version-enforcer"
+      "power-platform-configurator"
     );
     expect(response.headers.get("location")).toBe(
       "https://download.example/extension.zip"

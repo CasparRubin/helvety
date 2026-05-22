@@ -73,30 +73,36 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
       remotePatterns: getStoreImageRemotePatterns(),
     },
     async redirects() {
-      // Legacy Helvety Store URLs for Power Automate Editor Version Enforcer (slug + package download id renames).
+      // Legacy Helvety Store URLs for Power Platform Configurator (slug + package download id renames).
       return [
         {
           source: "/products/helvety-power-automate-force-v3-false",
-          destination:
-            "/products/helvety-power-automate-editor-version-enforcer",
+          destination: "/products/helvety-power-platform-configurator",
           permanent: true,
         },
         {
           source: "/products/helvety-power-automate-editor-preference",
-          destination:
-            "/products/helvety-power-automate-editor-version-enforcer",
+          destination: "/products/helvety-power-platform-configurator",
+          permanent: true,
+        },
+        {
+          source: "/products/helvety-power-automate-editor-version-enforcer",
+          destination: "/products/helvety-power-platform-configurator",
           permanent: true,
         },
         {
           source: "/api/packages/power-automate-editor-preference/download",
-          destination:
-            "/api/packages/power-automate-editor-version-enforcer/download",
+          destination: "/api/packages/power-platform-configurator/download",
           permanent: true,
         },
         {
           source: "/api/packages/power-automate-force-v3-false/download",
-          destination:
-            "/api/packages/power-automate-editor-version-enforcer/download",
+          destination: "/api/packages/power-platform-configurator/download",
+          permanent: true,
+        },
+        {
+          source: "/api/packages/power-automate-editor-version-enforcer/download",
+          destination: "/api/packages/power-platform-configurator/download",
           permanent: true,
         },
       ];
