@@ -47,6 +47,17 @@ Trusted-device shortcut:
 - Passkey presence checks for `user_auth_credentials` use trusted server-side reads (`createScopedAdminQuery`, `lookupCredentialByCredentialId`), not public client reads.
 - Passkey transport values from stored credentials and client payloads are sanitized to supported WebAuthn transport enums before verification/option generation.
 
+## Chromium extension passkey API
+
+Bearer-authenticated JSON routes for the Helvety browser extension (separate from CSRF cookie server actions):
+
+| Route | Purpose |
+| ----- | ------- |
+| `POST /api/extension/passkey/options` | WebAuthn request options + signed `challengeEnvelope` (3 min TTL, `HELVETY_COOKIE_SIGNING_SECRET`) |
+| `POST /api/extension/passkey/verify` | Verify assertion; bind challenge via envelope + `clientDataJSON`; update counter; **does not** create a Supabase session |
+
+Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` when the client sends that origin ([`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
+
 ## Crawl and Indexing
 
 - `apps/auth` is intentionally non-indexable.
@@ -84,6 +95,7 @@ bun run test:coverage
 
 Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`), and login stepper opaque backdrop (`components/auth-stepper.test.tsx`).
 Passkey action tests also cover malformed payload handling, account mismatch protection, and transport sanitization behavior.
+Extension passkey routes and challenge envelopes are covered in `lib/extension-passkey.test.ts` and `lib/extension-passkey-challenge.test.ts`.
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
 `components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots.
 
