@@ -1,0 +1,55 @@
+{
+  "name": "@helvety/extension-chrome",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared Chromium extension popup chrome: theme boot, shell layout, header, scroll utilities",
+  "author": "Helvety",
+  "license": "AGPL-3.0-or-later",
+  "homepage": "https://helvety.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CasparRubin/helvety.git",
+    "directory": "packages/extension-chrome"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "exports": {
+    "./theme-boot": "./src/theme-boot.ts",
+    "./theme-preference": "./src/theme-preference.ts",
+    "./use-popup-theme": "./src/use-popup-theme.ts",
+    "./popup-shell": "./src/popup-shell.ts",
+    "./popup-header": "./src/popup-header.tsx",
+    "./helvety-mark": "./src/helvety-mark.tsx",
+    "./extension-version": "./src/extension-version.ts",
+    "./popup.css": "./popup.css",
+    "./extension-tokens.css": "./extension-tokens.css"
+  },
+  "dependencies": {
+    "@helvety/brand": "workspace:*",
+    "@helvety/shared": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.2.6"
+  },
+  "devDependencies": {
+    "@helvety/config": "workspace:*",
+    "@types/chrome": "^0.0.328",
+    "@types/react": "^19",
+    "eslint": "^10.4.0",
+    "jsdom": "29.1.1",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "react": "^19.2.6",
+    "typescript": "^6",
+    "vitest": "^4.1.7"
+  }
+}

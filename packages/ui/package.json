@@ -57,6 +57,8 @@
     "./helvety-shell-route-loading": "./src/helvety-shell-route-loading.tsx",
     "./navbar-brand": "./src/navbar-brand.tsx",
     "./popover": "./src/popover.tsx",
+    "./radio-group": "./src/radio-group.tsx",
+    "./tabs": "./src/tabs.tsx",
     "./native-select": "./src/native-select.tsx",
     "./scroll-area": "./src/scroll-area.tsx",
     "./separator": "./src/separator.tsx",
