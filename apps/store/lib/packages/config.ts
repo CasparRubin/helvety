@@ -41,7 +41,7 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     isPublic: true,
   },
   "power-platform-configurator": {
-    version: "2.8.3",
+    version: "2.8.4",
     filename: "power-platform-configurator.zip",
     storageFolderPath: "browserExtensions/power-platform-configurator",
     storageFileSuffix: ".zip",

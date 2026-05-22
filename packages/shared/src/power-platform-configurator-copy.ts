@@ -11,9 +11,12 @@
  * **Developer** section.
  */
 
-/** Verbatim manifest `description` (Edge/Chrome installed-extensions blurb). */
+/** Verbatim manifest `description` (Edge/Chrome installed-extensions blurb; max 132 chars). */
 export const POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY =
-  "Configure Microsoft Power Automate Cloud Flows: choose Classic or New Designer (v3=false or v3=true), and optionally hide the Microsoft survey prompt asking why you made your selection." as const;
+  "Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime." as const;
+
+/** Chrome Web Store / Edge Add-ons manifest `description` maximum length. */
+export const POWER_PLATFORM_CONFIGURATOR_MANIFEST_DESCRIPTION_MAX_LENGTH = 132 as const;
 
 /**
  * Appended on store cards / llms after {@link POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}
@@ -32,10 +35,10 @@ export const POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION =
  * Every entry must appear in {@link POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION}.
  */
 export const POWER_PLATFORM_CONFIGURATOR_LEGAL_PAGE_MARKERS = [
-  "Configure Microsoft Power Automate Cloud Flows",
-  "choose Classic or New Designer",
-  "hide the Microsoft survey prompt asking why you",
-  "made your selection",
+  "Configure Power Automate cloud flows",
+  "Classic or New Designer",
+  "Hide the survey prompt",
+  "Pause anytime",
   "Survey tab: optional",
   "v3survey",
   "Hide (default)",
