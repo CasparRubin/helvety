@@ -24,14 +24,31 @@ export function getRpId(origin: string): string {
 
 /**
  * Get expected origins for passkey verification.
+ *
+ * @param clientOrigin - When set (e.g. `chrome-extension://<id>`), include it so
+ *   extension unlock ceremonies verify against the caller origin.
  */
-export function getExpectedOrigins(rpId: string): string[] {
-  if (rpId === "localhost") {
-    return [
-      ...Object.values(DEV_PORTS).map((port) => `http://localhost:${port}`),
-      ...Object.values(DEV_PORTS).map((port) => `http://127.0.0.1:${port}`),
-    ];
+export function getExpectedOrigins(
+  rpId: string,
+  clientOrigin?: string
+): string[] {
+  const origins =
+    rpId === "localhost"
+      ? [
+          ...Object.values(DEV_PORTS).map((port) => `http://localhost:${port}`),
+          ...Object.values(DEV_PORTS).map(
+            (port) => `http://127.0.0.1:${port}`
+          ),
+        ]
+      : [`https://${DOMAIN}`];
+
+  if (
+    clientOrigin &&
+    clientOrigin.startsWith("chrome-extension://") &&
+    !origins.includes(clientOrigin)
+  ) {
+    return [...origins, clientOrigin];
   }
 
-  return [`https://${DOMAIN}`];
+  return origins;
 }

@@ -1,0 +1,372 @@
+import "server-only";
+
+import { AUTH_REASONS, logAuthEvent } from "@helvety/shared/auth-logger";
+import { logger } from "@helvety/shared/logger";
+import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
+import {
+  createScopedAdminQuery,
+  lookupCredentialByCredentialId,
+} from "@helvety/shared/supabase/admin";
+import {
+  generateAuthenticationOptions as generateAuthOptions,
+  verifyAuthenticationResponse,
+} from "@simplewebauthn/server";
+import { z } from "zod";
+
+import { getRpId, getExpectedOrigins } from "@/app/actions/auth-rp-config";
+import { RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@helvety/shared/rate-limit";
+
+import type { ActionResponse, UserAuthCredential } from "@helvety/shared/types/entities";
+import type {
+  AuthenticationResponseJSON,
+  AuthenticatorTransportFuture,
+  GenerateAuthenticationOptionsOpts,
+  PublicKeyCredentialRequestOptionsJSON,
+  VerifyAuthenticationResponseOpts,
+} from "@simplewebauthn/server";
+
+const ExtensionOriginSchema = z
+  .string()
+  .min(1)
+  .refine((value) => {
+    if (value.startsWith("chrome-extension://")) {
+      try {
+        const parsed = new URL(value);
+        return parsed.protocol === "chrome-extension:" && Boolean(parsed.host);
+      } catch {
+        return false;
+      }
+    }
+    try {
+      const parsed = new URL(value);
+      if (parsed.protocol === "https:") return true;
+      return (
+        parsed.protocol === "http:" &&
+        (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1")
+      );
+    } catch {
+      return false;
+    }
+  }, "Invalid origin URL");
+
+const ExtensionPasskeyOptionsBodySchema = z.object({
+  origin: ExtensionOriginSchema,
+  isMobile: z.boolean().optional(),
+  expectedUserId: z.string().uuid(),
+});
+
+const ExtensionPasskeyCredentialSchema = z.object({
+  id: z.string().min(1),
+  rawId: z.string().min(1),
+  type: z.literal("public-key"),
+  response: z.object({
+    clientDataJSON: z.string().min(1),
+    authenticatorData: z.string().min(1),
+    signature: z.string().min(1),
+    userHandle: z.string().nullable().optional(),
+  }),
+});
+
+const ExtensionPasskeyVerifyBodySchema = z.object({
+  origin: ExtensionOriginSchema,
+  credential: ExtensionPasskeyCredentialSchema,
+});
+
+const authenticatorTransportValues = new Set<AuthenticatorTransportFuture>([
+  "ble",
+  "hybrid",
+  "internal",
+  "nfc",
+  "smart-card",
+  "usb",
+]);
+
+function toAuthenticatorTransports(
+  transports: string[] | null | undefined
+): AuthenticatorTransportFuture[] {
+  return (transports ?? []).filter(
+    (transport): transport is AuthenticatorTransportFuture =>
+      authenticatorTransportValues.has(
+        transport as AuthenticatorTransportFuture
+      )
+  );
+}
+
+/** Reads the WebAuthn challenge from base64url `clientDataJSON`. */
+export function challengeFromClientDataJSON(clientDataJSON: string): string {
+  const parsed = JSON.parse(
+    Buffer.from(clientDataJSON, "base64url").toString("utf8")
+  ) as { challenge?: unknown };
+  if (typeof parsed.challenge !== "string" || !parsed.challenge) {
+    throw new Error("MISSING_CHALLENGE");
+  }
+  return parsed.challenge;
+}
+
+async function checkPasskeyRateLimit(
+  key: string,
+  clientIP: string | null
+): Promise<{ success: false; error: string } | null> {
+  if (!clientIP) {
+    return { success: false, error: "Unable to process request. Please try again." };
+  }
+  const rate = await checkRateLimit(
+    key,
+    RATE_LIMITS.PASSKEY.maxRequests,
+    RATE_LIMITS.PASSKEY.windowMs
+  );
+  if (!rate.allowed) {
+    const retryAfter = rate.retryAfter ?? 60;
+    logAuthEvent("rate_limit_exceeded", {
+      metadata: { action: key, retryAfter },
+      ip: clientIP,
+    });
+    return {
+      success: false,
+      error: buildRateLimitedUserMessage(retryAfter),
+    };
+  }
+  return null;
+}
+
+/**
+ * WebAuthn authentication options for the Chromium extension (Bearer session).
+ * Returns flat `PublicKeyCredentialRequestOptionsJSON` including `challenge` for
+ * `startAuthentication` — no httpOnly challenge cookie.
+ */
+export async function generateExtensionPasskeyOptions(input: {
+  userId: string;
+  origin: string;
+  isMobile?: boolean;
+  clientIP: string | null;
+}): Promise<ActionResponse<PublicKeyCredentialRequestOptionsJSON>> {
+  const rateLimited = await checkPasskeyRateLimit(
+    `passkey_auth:ip:${input.clientIP ?? "unknown"}`,
+    input.clientIP
+  );
+  if (rateLimited) return rateLimited;
+
+  const isMobile = input.isMobile === true;
+  const safeOrigin = input.origin;
+  const rpId = getRpId(safeOrigin);
+
+  try {
+    const scopedAdmin = createScopedAdminQuery(input.userId);
+    const { data: credentials, error: credentialsError } = await scopedAdmin
+      .from("user_auth_credentials")
+      .select("credential_id, transports");
+
+    if (credentialsError || !credentials || credentials.length === 0) {
+      return {
+        success: false,
+        error: "No passkey is registered for this account.",
+      };
+    }
+
+    const allowCredentials: GenerateAuthenticationOptionsOpts["allowCredentials"] =
+      credentials.map(
+        (item: { credential_id: string; transports: string[] | null }) => ({
+          id: item.credential_id,
+          transports: toAuthenticatorTransports(item.transports),
+        })
+      );
+
+    const authOpts = await generateAuthOptions({
+      rpID: rpId,
+      userVerification: "required",
+      timeout: 60_000,
+      allowCredentials,
+    });
+
+    const optionsWithHints: PublicKeyCredentialRequestOptionsJSON = {
+      ...authOpts,
+      hints: (isMobile ? ["client-device"] : ["hybrid"]) as (
+        | "hybrid"
+        | "security-key"
+        | "client-device"
+      )[],
+    };
+
+    if (input.clientIP) {
+      await resetRateLimit(`passkey_auth:ip:${input.clientIP}`);
+    }
+
+    logAuthEvent("passkey_auth_started", {
+      userId: input.userId,
+      ip: input.clientIP ?? undefined,
+      metadata: { channel: "extension" },
+    });
+
+    return { success: true, data: optionsWithHints };
+  } catch (error) {
+    logger.logUnexpectedError("Extension passkey options failed", error);
+    return {
+      success: false,
+      error: "Unable to start passkey authentication. Please try again.",
+    };
+  }
+}
+
+/**
+ * Verifies a passkey assertion from the extension. Does not create a Supabase
+ * cookie session — the extension already holds the OTP JWT.
+ */
+export async function verifyExtensionPasskey(input: {
+  userId: string;
+  origin: string;
+  credential: z.infer<typeof ExtensionPasskeyCredentialSchema>;
+  clientIP: string | null;
+}): Promise<ActionResponse<{ userId: string }>> {
+  const rateLimited = await checkPasskeyRateLimit(
+    `passkey_verify:ip:${input.clientIP ?? "unknown"}`,
+    input.clientIP
+  );
+  if (rateLimited) return rateLimited;
+
+  const safeOrigin = input.origin;
+  const rpId = getRpId(safeOrigin);
+  const expectedOrigins = getExpectedOrigins(rpId, safeOrigin);
+  const credentialId = input.credential.id;
+
+  try {
+    let expectedChallenge: string;
+    try {
+      expectedChallenge = challengeFromClientDataJSON(
+        input.credential.response.clientDataJSON
+      );
+    } catch {
+      return {
+        success: false,
+        error: "Invalid passkey authentication payload",
+      };
+    }
+
+    const { data: credentialData, error: credError } =
+      await lookupCredentialByCredentialId(credentialId);
+
+    if (credError || !credentialData) {
+      logAuthEvent("passkey_auth_failed", {
+        userId: input.userId,
+        metadata: { reason: AUTH_REASONS.credentialNotFound, channel: "extension" },
+        ip: input.clientIP ?? undefined,
+      });
+      return {
+        success: false,
+        error: "Passkey authentication failed. Please try again.",
+      };
+    }
+
+    if (credentialData.user_id !== input.userId) {
+      logAuthEvent("passkey_auth_failed", {
+        userId: credentialData.user_id,
+        metadata: { reason: AUTH_REASONS.credentialOwnerMismatch, channel: "extension" },
+        ip: input.clientIP ?? undefined,
+      });
+      return { success: false, error: "PASSKEY_ACCOUNT_MISMATCH" };
+    }
+
+    const credential: UserAuthCredential = {
+      ...credentialData,
+      backed_up: credentialData.backed_up ?? false,
+      transports: credentialData.transports ?? [],
+    };
+
+    const publicKeyUint8 = new Uint8Array(
+      Buffer.from(credential.public_key, "base64url")
+    );
+
+    const typedResponse: AuthenticationResponseJSON = {
+      id: input.credential.id,
+      rawId: input.credential.rawId,
+      type: input.credential.type,
+      response: {
+        ...input.credential.response,
+        userHandle: input.credential.response.userHandle ?? undefined,
+      },
+      clientExtensionResults: {},
+    };
+
+    const opts: VerifyAuthenticationResponseOpts = {
+      response: typedResponse,
+      expectedChallenge,
+      expectedOrigin: expectedOrigins,
+      expectedRPID: rpId,
+      credential: {
+        id: credential.credential_id,
+        publicKey: publicKeyUint8,
+        counter: credential.counter,
+        transports: toAuthenticatorTransports(credential.transports),
+      },
+      requireUserVerification: true,
+    };
+
+    const verification = await verifyAuthenticationResponse(opts);
+
+    if (!verification.verified) {
+      logAuthEvent("passkey_auth_failed", {
+        userId: input.userId,
+        metadata: { reason: AUTH_REASONS.verificationFailed, channel: "extension" },
+        ip: input.clientIP ?? undefined,
+      });
+      return {
+        success: false,
+        error: "Passkey authentication failed. Please try again.",
+      };
+    }
+
+    const scopedAdmin = createScopedAdminQuery(credential.user_id);
+    const { data: updatedCredential, error: updateError } = await scopedAdmin
+      .from("user_auth_credentials")
+      .update({
+        counter: verification.authenticationInfo.newCounter,
+        last_used_at: new Date().toISOString(),
+      })
+      .eq("credential_id", credentialId)
+      .eq("counter", credential.counter)
+      .select("credential_id")
+      .maybeSingle();
+
+    if (updateError || !updatedCredential) {
+      logger.logUnexpectedError(
+        "Extension passkey counter update failed",
+        updateError
+      );
+      return {
+        success: false,
+        error: "Passkey authentication failed. Please try again.",
+      };
+    }
+
+    if (input.clientIP) {
+      await Promise.all([
+        resetRateLimit(`passkey_auth:ip:${input.clientIP}`),
+        resetRateLimit(`passkey_verify:ip:${input.clientIP}`),
+      ]);
+    }
+
+    logAuthEvent("passkey_auth_success", {
+      userId: credential.user_id,
+      ip: input.clientIP ?? undefined,
+      metadata: { channel: "extension" },
+    });
+
+    return { success: true, data: { userId: credential.user_id } };
+  } catch (error) {
+    logger.logUnexpectedError("Extension passkey verify failed", error);
+    logAuthEvent("passkey_auth_failed", {
+      userId: input.userId,
+      metadata: { reason: AUTH_REASONS.unexpectedError, channel: "extension" },
+      ip: input.clientIP ?? undefined,
+    });
+    return {
+      success: false,
+      error: "Passkey authentication failed. Please try again.",
+    };
+  }
+}
+
+export {
+  ExtensionPasskeyOptionsBodySchema,
+  ExtensionPasskeyVerifyBodySchema,
+};
