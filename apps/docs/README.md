@@ -58,7 +58,7 @@ This app is a **separate Vercel project** from the gateway (`helvety-web`). In t
 
 | Setting | Value |
 | ------- | ----- |
-| **Root Directory** | `apps/docs` |
+| **Root Directory** | `apps/docs` (not `docs` — that folder is repo documentation only) |
 | **Framework Preset** | Next.js |
 | **Install Command** | (default, or `cd ../.. && bun install` via [`vercel.json`](./vercel.json)) |
 | **Build Command** | (default `bun run build` / `next build` — do **not** use repo-root `turbo run build` alone) |
