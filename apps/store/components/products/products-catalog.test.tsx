@@ -32,7 +32,7 @@ const mockProducts: Product[] = [
     category: "utilities",
     description: { intro: "Intro" },
     features: [],
-    pricing: { tiers: [], hasFreeTier: true, hasYearlyPricing: false },
+    pricing: { tiers: [], hasFreeTier: true },
   },
   {
     id: "helvety-spo-explorer",
@@ -44,7 +44,7 @@ const mockProducts: Product[] = [
     category: "utilities",
     description: { intro: "Intro" },
     features: [],
-    pricing: { tiers: [], hasFreeTier: true, hasYearlyPricing: false },
+    pricing: { tiers: [], hasFreeTier: true },
   },
 ];
 

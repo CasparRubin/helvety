@@ -15,7 +15,6 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
     "@dnd-kit/core",
     "@dnd-kit/sortable",
     "@dnd-kit/utilities",
-    "@tiptap/react",
   ],
 });
 

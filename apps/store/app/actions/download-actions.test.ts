@@ -78,7 +78,7 @@ describe("store download-actions", () => {
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
 
-  it("returns not found for legacy package ids removed from config (redirects handle HTTP)", async () => {
+  it("returns not found for legacy package ids removed from config", async () => {
     expect(
       await getPackageDownloadUrl("power-automate-editor-preference")
     ).toEqual({ success: false, error: "Package not found" });

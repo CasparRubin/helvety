@@ -18,12 +18,10 @@ Product catalog and package-download app for Helvety products: specs and artifac
 
 - Download files are served from Supabase Storage bucket `packages`.
 - `spfx/helvety-spo-explorer`: newest `.sppkg` by timestamp/name.
-- `browserExtensions/power-platform-configurator`: upload **`power-platform-configurator.zip`** here (Supabase bucket `packages`). The resolver picks the newest `.zip` by timestamp/name. Permanent redirects in [`next.config.ts`](next.config.ts) keep old bookmarks working (paths below are relative to the Store `basePath` `/store`):
-  - `/products/helvety-power-automate-force-v3-false`, `/products/helvety-power-automate-editor-preference`, and `/products/helvety-power-automate-editor-version-enforcer` → `/products/helvety-power-platform-configurator`
-  - `/api/packages/power-automate-editor-preference/download`, `/api/packages/power-automate-force-v3-false/download`, and `/api/packages/power-automate-editor-version-enforcer/download` → `/api/packages/power-platform-configurator/download`
+- `browserExtensions/power-platform-configurator`: upload **`power-platform-configurator.zip`** here (Supabase bucket `packages`). The resolver picks the newest `.zip` by timestamp/name. Retired `power-automate-*` product slugs and package ids are not served (server actions and the public download route return not-found).
 - If listing fails, resolver falls back to configured filename path.
 - Download URL generation and public download endpoint throttling both use centralized helpers in `lib/download-security.ts` (`buildDownloadUrlRateLimitKey`, `buildPublicDownloadRateLimitKey`) to keep key naming and validation rules consistent.
-- Public download redirects are allowlisted to the Supabase project origin from `NEXT_PUBLIC_SUPABASE_URL` (via `getSupabaseUrl()`); a separate `SUPABASE_URL` env var is not used for this check.
+- The public download route may respond with an HTTP redirect to a signed Supabase Storage URL. Redirect targets are restricted to the project origin from `NEXT_PUBLIC_SUPABASE_URL` (via `getSupabaseUrl()`); a separate `SUPABASE_URL` env var is not used for this check. This is unrelated to Next.js route redirects (retired product/package URLs are not rewritten; they return not-found).
 - Download URL generation is IP-rate-limited and fails closed when trusted client IP is unavailable in production.
 
 ## Adding a New Product
@@ -62,7 +60,7 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
    - App `layout.tsx` / `lib/product-copy.ts` metadata and `public/manifest.json` (SEO describes the product; do not add AGPL to metadata or manifest `description`)
    - `public/llms.txt` for that app or Store/web crawler files (`>` tagline = product/company summary; license text under `## Licensing` only)
    - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
-   - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and run `bun run consistency:project-naming` (retired `power-automate-*` slugs must not appear outside redirect allowlist paths; see [`docs/naming-conventions.md`](../../docs/naming-conventions.md))
+   - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and run `bun run consistency:project-naming` (retired `power-automate-*` slugs must not appear outside the allowlisted negative-test paths; see [`docs/naming-conventions.md`](../../docs/naming-conventions.md))
    - Run `bun run test --filter=@helvety/shared` (copy guardrails) and
      `bun run consistency:install-manifest-metadata`
 4. **(Optional) Add a switcher entry** in

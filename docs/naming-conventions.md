@@ -77,13 +77,11 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 
 **Helvety Docs theme (maintainers):** when changing shared palette tokens, update `packages/ui/globals.css`, then `apps/docs/lib/docx-editor-theme-tokens.ts` and `apps/docs/styles/docx-editor-helvety-bridge.css`, and run `bun test apps/docs/lib/docx-editor-theme.test.ts`. Keep `apps/docs/README.md` and `apps/docs/public/llms.txt` in sync if user-visible theme behavior changes.
 
-### Retired Power Platform Configurator slugs (redirect-only)
+### Retired Power Platform Configurator slugs (forbidden in copy)
 
-Three legacy browser-extension listings were merged into **Power Platform Configurator** (`helvety-power-platform-configurator`, package id `power-platform-configurator`). Retired store slugs and package ids (`helvety-power-automate-force-v3-false`, `helvety-power-automate-editor-preference`, `helvety-power-automate-editor-version-enforcer`, and matching `power-automate-*` download paths) must **not** appear in customer-facing copy, catalog data, or legal text. They may appear only in:
+Three legacy browser-extension listings were merged into **Power Platform Configurator** (`helvety-power-platform-configurator`, package id `power-platform-configurator`). Retired store slugs and package ids (`helvety-power-automate-force-v3-false`, `helvety-power-automate-editor-preference`, `helvety-power-automate-editor-version-enforcer`, and matching `power-automate-*` download paths) must **not** appear in customer-facing copy, catalog data, or legal text. Legacy package ids are rejected server-side (404). They may appear only in:
 
-- [`apps/store/next.config.ts`](../apps/store/next.config.ts) and [`apps/store/next.config.test.ts`](../apps/store/next.config.test.ts) (308 redirects to the canonical listing)
 - [`apps/store/app/actions/download-actions.test.ts`](../apps/store/app/actions/download-actions.test.ts) (asserts server actions reject legacy package ids)
-- [`apps/store/README.md`](../apps/store/README.md) (ops documentation of redirect paths)
 - [`packages/shared/src/retired-power-platform-extension-naming.ts`](../packages/shared/src/retired-power-platform-extension-naming.ts) (canonical forbidden-pattern registry for tests)
 - [`apps/store/lib/packages/config.test.ts`](../apps/store/lib/packages/config.test.ts) (negative assertions for removed package ids)
 - [`docs/naming-conventions.md`](naming-conventions.md) (this section; lists retired slugs for contributors)

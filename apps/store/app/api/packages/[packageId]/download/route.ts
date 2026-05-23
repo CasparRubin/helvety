@@ -17,7 +17,7 @@ export const runtime = "nodejs";
 
 /**
  * Public GET handler for `/store/api/packages/{packageId}/download`.
- * `packageId` must match a key in `lib/packages/config.ts`. Legacy package ids hit Next redirects before this route.
+ * `packageId` must match a key in `lib/packages/config.ts`. Legacy package ids are rejected with not-found.
  */
 export async function GET(
   request: NextRequest,

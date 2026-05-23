@@ -62,7 +62,7 @@
     },
     "apps/docs": {
       "name": "@helvety/docs",
-      "version": "1.0.0",
+      "version": "3.2.0",
       "dependencies": {
         "@eigenpal/docx-editor-react": "^1.0.2",
         "@helvety/brand": "workspace:*",
@@ -139,8 +139,6 @@
         "@helvety/shared": "workspace:*",
         "@helvety/ui": "workspace:*",
         "@supabase/supabase-js": "^2.106.0",
-        "@tiptap/pm": "^3.23.5",
-        "@tiptap/react": "^3.23.5",
         "lucide-react": "^1.16.0",
         "next": "^16.2.6",
         "react": "^19.2.6",
@@ -209,8 +207,6 @@
         "@helvety/shared": "workspace:*",
         "@helvety/ui": "workspace:*",
         "@supabase/supabase-js": "^2.106.0",
-        "@tiptap/pm": "^3.23.5",
-        "@tiptap/react": "^3.23.5",
         "date-fns": "^4.2.1",
         "lucide-react": "^1.16.0",
         "next": "^16.2.6",

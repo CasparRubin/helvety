@@ -254,7 +254,6 @@ export function ContactsDashboard({
             key={entityId}
             contactId={entityId}
             initialContact={selectedContact ?? undefined}
-            embedded
             onClose={() => handleSheetOpenChange(false)}
             onLocalPatch={(id, input) => patchLocal(id, input)}
           />

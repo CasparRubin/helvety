@@ -96,21 +96,20 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
     expect(openEntity).not.toHaveBeenCalled();
   });
 
-  it("reads legacy param keys", () => {
-    setSearchParams("item=legacy-id");
+  it("ignores a different query param key", () => {
+    setSearchParams("item=other-id");
     const openEntity = vi.fn();
 
     renderHook(() =>
       useSyncE2eeEntityPanelFromUrl({
         paramKey: "note",
-        legacyParamKeys: ["item"],
         entityId: null,
         openEntity,
         closePanel: vi.fn(),
       })
     );
 
-    expect(openEntity).toHaveBeenCalledWith("legacy-id");
+    expect(openEntity).not.toHaveBeenCalled();
   });
 
   it("calls onBeforeEntityChange when switching to a different URL entity", () => {
@@ -131,28 +130,6 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
 
     expect(onBeforeEntityChange).toHaveBeenCalledWith("old-id");
     expect(openEntity).toHaveBeenCalledWith("new-id");
-    expect(closePanel).not.toHaveBeenCalled();
-  });
-
-  it("does not re-run close when legacyParamKeys is a new array with the same contents", () => {
-    setSearchParams("");
-    const closePanel = vi.fn();
-
-    const { rerender } = renderHook(
-      ({ legacyParamKeys }: { legacyParamKeys: string[] }) =>
-        useSyncE2eeEntityPanelFromUrl({
-          paramKey: "note",
-          legacyParamKeys,
-          entityId: null,
-          openEntity: vi.fn(),
-          closePanel,
-        }),
-      { initialProps: { legacyParamKeys: ["item"] } }
-    );
-
-    expect(closePanel).not.toHaveBeenCalled();
-
-    rerender({ legacyParamKeys: ["item"] });
     expect(closePanel).not.toHaveBeenCalled();
   });
 

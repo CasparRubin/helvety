@@ -223,7 +223,6 @@ export function FlatTasksDashboard({
             key={entityId}
             itemId={entityId}
             initialItem={selectedItem ?? undefined}
-            embedded
             onClose={() => handleSheetOpenChange(false)}
             onLocalPatch={(id, input) => patchLocal(id, input)}
           />

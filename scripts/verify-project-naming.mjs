@@ -20,14 +20,11 @@ const skipDirNames = new Set([
   "coverage",
 ]);
 
-/** Paths that may contain legacy slugs only for redirects or negative tests. */
+/** Paths that may contain retired slugs only for negative tests or contributor docs. */
 const allowlistPaths = new Set([
   "scripts/verify-project-naming.mjs",
   "docs/naming-conventions.md",
   "packages/shared/src/retired-power-platform-extension-naming.ts",
-  "apps/store/next.config.ts",
-  "apps/store/next.config.test.ts",
-  "apps/store/README.md",
   "apps/store/app/actions/download-actions.test.ts",
   "apps/store/lib/packages/config.test.ts",
 ]);

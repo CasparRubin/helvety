@@ -29,7 +29,7 @@ This app uses Next.js `basePath: /docs`. Path rules differ by API:
 
 Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `basePath` again and the browser lands on `/docs/docs` (404). CI guards this in [`lib/docs-zone-routing.test.ts`](./lib/docs-zone-routing.test.ts).
 
-**`?doc=` is not an auto-open deep link** (unlike E2EE apps’ `?item=` / `?note=` sheet links). Landing with `?doc=<uuid>` strips the query and leaves a blank editor; only explicit sidebar open or save sets `?doc=` while you work.
+**`?doc=` is not an auto-open deep link** (unlike Tasks `?item=`, Notes `?note=`, or Contacts `?contact=` sheet links). Landing with `?doc=<uuid>` strips the query and leaves a blank editor; only explicit sidebar open or save sets `?doc=` while you work.
 
 ## Limits
 

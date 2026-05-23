@@ -45,9 +45,8 @@ function EditorLoadingSpinner() {
 /** Save status for the editor shell. */
 export type E2eeItemEditorSaveStatus = "idle" | "saving" | "saved" | "error";
 
-/** Shared rich-text item editor shell for tasks and notes. */
+/** Shared rich-text item editor shell for tasks and notes (detail sheet only). */
 export interface E2eeRichTextItemEditorShellProps {
-  embedded?: boolean;
   title: string;
   description: string | null;
   isLoading: boolean;
@@ -82,7 +81,6 @@ export interface E2eeRichTextItemEditorShellProps {
  * Shared editor shell: title, Tiptap body, unsaved-changes dialog, and layout slots.
  */
 export function E2eeRichTextItemEditorShell({
-  embedded = false,
   title,
   description,
   isLoading,
@@ -236,7 +234,7 @@ export function E2eeRichTextItemEditorShell({
     hasUnsavedChanges,
     saveStatus,
     onDelete: () => onDeleteRequested?.(),
-    showBack: !embedded,
+    showBack: false,
   });
 
   if (isLoading && !hasInitialized) {
@@ -247,14 +245,9 @@ export function E2eeRichTextItemEditorShell({
     );
   }
 
-  const pageLayoutClassName = embedded ? "min-h-0 flex-1" : undefined;
-
   if (error || !hasItem) {
     return (
-      <CommandBarPageLayout
-        className={pageLayoutClassName}
-        commandBar={commandBar}
-      >
+      <CommandBarPageLayout className="min-h-0 flex-1" commandBar={commandBar}>
         <EditorErrorPanel
           message={error ? loadErrorMessage : notFoundMessage}
           onRetry={handleRefresh}
@@ -265,36 +258,17 @@ export function E2eeRichTextItemEditorShell({
 
   return (
     <>
-      <CommandBarPageLayout
-        className={pageLayoutClassName}
-        commandBar={commandBar}
-      >
+      <CommandBarPageLayout className="min-h-0 flex-1" commandBar={commandBar}>
         <div className="container mx-auto px-4 py-8">
-          <div
-            className={
-              embedded
-                ? "flex flex-col gap-6"
-                : "flex flex-col-reverse gap-6 md:flex-row md:gap-8"
-            }
-          >
+          <div className="flex flex-col gap-6">
             <div className="min-w-0 flex-1">
               <div className="mb-6">
-                {embedded ? (
-                  <Input
-                    id="item-title"
-                    value={title}
-                    onChange={handleTitleInputChange}
-                    placeholder={titlePlaceholder}
-                  />
-                ) : (
-                  <input
-                    id="item-title"
-                    value={title}
-                    onChange={handleTitleInputChange}
-                    placeholder={titlePlaceholder}
-                    className="placeholder:text-muted-foreground w-full bg-transparent py-4 text-2xl leading-tight font-bold outline-none md:text-4xl"
-                  />
-                )}
+                <Input
+                  id="item-title"
+                  value={title}
+                  onChange={handleTitleInputChange}
+                  placeholder={titlePlaceholder}
+                />
               </div>
               <div className="mb-6">
                 <TiptapEditor
@@ -304,12 +278,9 @@ export function E2eeRichTextItemEditorShell({
                   placeholder="Add a description... Use the toolbar above for formatting."
                 />
               </div>
-              {!embedded && renderLinks ? (
-                <EditorLinksSection>{renderLinks}</EditorLinksSection>
-              ) : null}
             </div>
             {renderMetadata}
-            {embedded && renderLinks ? (
+            {renderLinks ? (
               <EditorLinksSection>{renderLinks}</EditorLinksSection>
             ) : null}
           </div>
@@ -375,11 +346,7 @@ function EditorLinksSection({ children }: { children: ReactNode }) {
   return <div className="mb-6 space-y-6">{children}</div>;
 }
 
-/**
- * Optional save adapter when adopting {@link E2eeRichTextItemEditorShell}.
- * Tasks and notes still use app-local `ItemEditor` components today; this shell
- * is the shared target for a future migration.
- */
+/** Adapts shell save to encrypted item `update` (title + serialized description). */
 export function useE2eeRichTextItemEditorSave({
   update,
 }: {

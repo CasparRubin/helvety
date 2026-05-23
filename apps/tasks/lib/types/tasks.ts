@@ -108,10 +108,7 @@ export interface Label {
   created_at: string;
 }
 
-/**
- * Decrypted Contact (client-side only).
- * Note: the notes content is NOT decrypted. Only a `has_notes` flag is exposed.
- */
+/** Decrypted Contact (client-side only) for task link pickers. */
 export interface Contact {
   id: string;
   user_id: string;
@@ -122,8 +119,6 @@ export interface Contact {
   phone: string | null;
   /** ISO date string, e.g. "2000-01-15" */
   birthday: string | null;
-  /** Whether the contact has notes content (flag only, content not decrypted) */
-  has_notes: boolean;
   sort_order: number;
   created_at: string;
   updated_at: string;

@@ -35,7 +35,7 @@ const product = {
   category: "utilities",
   description: { intro: "Intro" },
   features: [],
-  pricing: { tiers: [], hasFreeTier: true, hasYearlyPricing: false },
+  pricing: { tiers: [], hasFreeTier: true },
 } as Product;
 
 describe("ProductCard", () => {

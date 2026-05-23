@@ -7,7 +7,7 @@ const repoRoot = join(import.meta.dirname, "..", "..", "..");
 const scriptPath = join(repoRoot, "scripts", "verify-project-naming.mjs");
 
 describe("verify-project-naming script", () => {
-  it("passes on the monorepo (redirect allowlist enforced)", () => {
+  it("passes on the monorepo (forbidden retired names enforced)", () => {
     const output = execFileSync(process.execPath, [scriptPath], {
       cwd: repoRoot,
       encoding: "utf8",

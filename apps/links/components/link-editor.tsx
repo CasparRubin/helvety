@@ -30,7 +30,6 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 interface LinkEditorProps {
   link: Link;
   folders: LinkFolder[];
-  embedded?: boolean;
   onClose?: () => void;
   onSave: (input: {
     name: string;
@@ -47,7 +46,6 @@ interface LinkEditorProps {
 export function LinkEditor({
   link,
   folders,
-  embedded = false,
   onClose,
   onSave,
   onDelete,
@@ -194,11 +192,11 @@ export function LinkEditor({
   return (
     <>
       <CommandBarPageLayout
-        className={embedded ? "min-h-0 flex-1" : undefined}
+        className="min-h-0 flex-1"
         commandBar={
           <LinksEditorCommandBar
             onBack={handleBack}
-            showBack={!embedded}
+            showBack={false}
             onRefresh={handleRefresh}
             isRefreshing={isRefreshing}
             onSave={() => void handleSave()}

@@ -75,8 +75,6 @@ interface ProductPricing {
   tiers: PricingTier[];
   /** Whether the product has a free tier */
   hasFreeTier: boolean;
-  /** Reserved for compatibility with previous pricing model */
-  hasYearlyPricing: boolean;
 }
 
 // =============================================================================

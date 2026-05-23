@@ -1037,30 +1037,6 @@ SELECT json_build_object(
     )
   ),
 
-  -- Backward-compatibility alias for older tooling.
-  -- Prefer using the `auth` key above for new integrations.
-  'auth_info', json_build_object(
-    'deprecated_alias', true,
-    'auth_schema_exists', EXISTS (
-      SELECT 1 FROM pg_namespace WHERE nspname = 'auth'
-    ),
-    'tables', (
-      SELECT COALESCE(json_agg(
-        json_build_object(
-          'table_name', c.relname,
-          'rls_enabled', c.relrowsecurity,
-          'rls_forced', c.relforcerowsecurity,
-          'estimated_row_count', c.reltuples::bigint,
-          'total_size', pg_size_pretty(pg_total_relation_size(c.oid))
-        )
-        ORDER BY c.relname
-      ), '[]'::json)
-      FROM pg_class c
-      JOIN pg_namespace n ON c.relnamespace = n.oid
-      WHERE n.nspname = 'auth' AND c.relkind = 'r'
-    )
-  ),
-
   -- ==========================================================================
   -- REALTIME - Publications and realtime configuration
   -- ==========================================================================

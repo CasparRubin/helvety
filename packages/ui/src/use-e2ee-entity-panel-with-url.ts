@@ -8,20 +8,10 @@ import {
   type UseE2eeEntityPanelResult,
 } from "./use-e2ee-entity-panel";
 
-/** Options for {@link useE2eeEntityPanelWithUrl}. */
-export interface UseE2eeEntityPanelWithUrlOptions {
-  /** Additional query keys read for deep links (writes use `paramKey` only). */
-  legacyParamKeys?: string[];
-}
-
 /**
  * Writes the active entity id to the URL query string (shallow replace).
  */
-export function useE2eeEntityUrlSync(
-  paramKey: string,
-  options: UseE2eeEntityPanelWithUrlOptions = {}
-) {
-  const { legacyParamKeys = [] } = options;
+export function useE2eeEntityUrlSync(paramKey: string) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -29,55 +19,26 @@ export function useE2eeEntityUrlSync(
   const setEntityIdInUrl = useCallback(
     (id: string | null) => {
       const params = new URLSearchParams(searchParams.toString());
-      const current = readEntityIdFromUrl(
-        searchParams,
-        paramKey,
-        legacyParamKeys
-      );
+      const current = searchParams.get(paramKey);
       if (id) {
         if (current === id && params.get(paramKey) === id) {
           return;
-        }
-        for (const key of legacyParamKeys) {
-          params.delete(key);
         }
         params.set(paramKey, id);
       } else if (!current) {
         return;
       } else {
         params.delete(paramKey);
-        for (const key of legacyParamKeys) {
-          params.delete(key);
-        }
       }
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, {
         scroll: false,
       });
     },
-    [legacyParamKeys, paramKey, pathname, router, searchParams]
+    [paramKey, pathname, router, searchParams]
   );
 
   return { setEntityIdInUrl };
-}
-
-/** Reads the active entity id from the URL, including optional legacy query keys. */
-function readEntityIdFromUrl(
-  searchParams: ReturnType<typeof useSearchParams>,
-  paramKey: string,
-  legacyParamKeys: string[]
-): string | null {
-  const primary = searchParams.get(paramKey);
-  if (primary) {
-    return primary;
-  }
-  for (const key of legacyParamKeys) {
-    const value = searchParams.get(key);
-    if (value) {
-      return value;
-    }
-  }
-  return null;
 }
 
 /**
@@ -87,18 +48,12 @@ function readEntityIdFromUrl(
  * Wrap the dashboard page in `<Suspense>` (required for `useSearchParams`).
  */
 export function useE2eeEntityPanelWithUrl(
-  paramKey: string,
-  options: UseE2eeEntityPanelWithUrlOptions = {}
+  paramKey: string
 ): UseE2eeEntityPanelResult {
-  const { legacyParamKeys = [] } = options;
   const searchParams = useSearchParams();
-  const initialEntityId = readEntityIdFromUrl(
-    searchParams,
-    paramKey,
-    legacyParamKeys
-  );
+  const initialEntityId = searchParams.get(paramKey);
   const panel = useE2eeEntityPanel(initialEntityId);
-  const { setEntityIdInUrl } = useE2eeEntityUrlSync(paramKey, options);
+  const { setEntityIdInUrl } = useE2eeEntityUrlSync(paramKey);
 
   const openEntity = useCallback(
     (id: string) => {

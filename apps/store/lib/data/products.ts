@@ -123,7 +123,6 @@ const helvetyExplorer: SoftwareProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-spo-explorer-free",
@@ -311,7 +310,6 @@ const powerPlatformConfigurator: SoftwareProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-power-platform-configurator-free",
@@ -448,7 +446,6 @@ const helvetyScreenTools: SoftwareProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-screen-tools-free",
@@ -573,7 +570,6 @@ const helvetyPdf: SaaSProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-pdf-free",
@@ -672,7 +668,6 @@ const helvetyImageUpscaler: SaaSProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-image-upscaler-free",
@@ -778,7 +773,6 @@ const helvetyTasks: SaaSProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-tasks-free",
@@ -879,7 +873,6 @@ const helvetyContacts: SaaSProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-contacts-free",
@@ -978,7 +971,6 @@ const helvetyNotes: SaaSProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-notes-free",
@@ -1074,7 +1066,6 @@ const helvetyLinks: SaaSProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-links-free",
@@ -1161,7 +1152,6 @@ const helvetyDocs: SaaSProduct = {
   ],
   pricing: {
     hasFreeTier: true,
-    hasYearlyPricing: false,
     tiers: [
       {
         id: "helvety-docs-free",

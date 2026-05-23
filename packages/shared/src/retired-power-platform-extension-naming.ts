@@ -2,8 +2,8 @@
  * Retired Helvety browser-extension product slugs and display titles.
  * Merged into **Power Platform Configurator**; must not appear in customer-facing copy.
  *
- * HTTP redirects and negative download tests may still reference these strings;
- * see `docs/naming-conventions.md` and `scripts/verify-project-naming.mjs`.
+ * Negative download tests may still reference these strings; see
+ * `docs/naming-conventions.md` and `scripts/verify-project-naming.mjs`.
  */
 
 /** One forbidden retired slug or display title plus its detection regex. */
@@ -49,14 +49,11 @@ export const RETIRED_HELVETY_EXTENSION_NAME_PATTERNS: readonly RetiredExtensionN
     },
   ] as const;
 
-/** Repo-relative paths allowed to mention retired slugs (redirects/tests/docs only). */
+/** Repo-relative paths allowed to mention retired slugs (negative tests/docs only). */
 export const RETIRED_EXTENSION_NAME_ALLOWLIST_PATHS = [
   "scripts/verify-project-naming.mjs",
   "docs/naming-conventions.md",
   "packages/shared/src/retired-power-platform-extension-naming.ts",
-  "apps/store/next.config.ts",
-  "apps/store/next.config.test.ts",
-  "apps/store/README.md",
   "apps/store/app/actions/download-actions.test.ts",
   "apps/store/lib/packages/config.test.ts",
 ] as const;

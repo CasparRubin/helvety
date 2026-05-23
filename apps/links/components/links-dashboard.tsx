@@ -478,7 +478,6 @@ export function LinksDashboard({
             key={editingLink.id}
             link={editingLink}
             folders={library.folders}
-            embedded
             onClose={() => handleSheetOpenChange(false)}
             onRefresh={library.refresh}
             onDelete={() =>
@@ -497,7 +496,6 @@ export function LinksDashboard({
             key={editingFolder.id}
             folder={editingFolder}
             folders={library.folders}
-            embedded
             onClose={() => handleSheetOpenChange(false)}
             onRefresh={library.refresh}
             onDelete={() =>

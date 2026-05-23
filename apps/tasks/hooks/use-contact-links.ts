@@ -76,8 +76,6 @@ async function decryptContactPickerRows(
         email,
         phone: null,
         birthday: null,
-        // The compact task link UI no longer renders the notes indicator.
-        has_notes: false,
         sort_order: row.sort_order,
         created_at: row.created_at,
         updated_at: row.updated_at,

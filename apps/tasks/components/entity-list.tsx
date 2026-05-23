@@ -52,12 +52,8 @@ interface EntityListProps {
   onRetry?: () => void;
   /** Available stages for the current view */
   stages: Stage[];
-  /** Callback when an entity row is clicked (fallback when entityHref not provided) */
+  /** Callback when an entity row is clicked */
   onEntityClick?: (entity: AnyEntity) => void;
-  /** URL for entity navigation - use Link instead of imperative router.push callbacks where possible */
-  entityHref?: (entity: AnyEntity) => string;
-  /** Callback used to prefetch an entity route on hover/focus */
-  onEntityPrefetch?: (entity: AnyEntity) => void;
   /** Callback to delete an entity (receives id and title for confirmation dialog) */
   onEntityDelete?: (id: string, title: string) => void;
   /** Callback for batch reorder (drag-and-drop) */
@@ -78,8 +74,6 @@ export function EntityList({
   onRetry,
   stages,
   onEntityClick,
-  entityHref,
-  onEntityPrefetch,
   onEntityDelete,
   onReorder,
   emptySearchMessage,
@@ -324,9 +318,7 @@ export function EntityList({
                       }
                       isFirst={isFirstStage}
                       isLast={isLastStage}
-                      href={entityHref?.(entity)}
                       onClick={() => onEntityClick?.(entity)}
-                      onPrefetch={() => onEntityPrefetch?.(entity)}
                       onDelete={
                         onEntityDelete
                           ? () => onEntityDelete(entity.id, entity.title)
@@ -374,9 +366,7 @@ export function EntityList({
                   createdAt={entity.created_at}
                   isFirst={idx === 0}
                   isLast={idx === sortedEntities.length - 1}
-                  href={entityHref?.(entity)}
                   onClick={() => onEntityClick?.(entity)}
-                  onPrefetch={() => onEntityPrefetch?.(entity)}
                   onDelete={
                     onEntityDelete
                       ? () => onEntityDelete(entity.id, entity.title)

@@ -11,7 +11,7 @@ function readAppFile(app: string, relativePath: string): string {
   return readFileSync(join(repoRoot, "apps", app, relativePath), "utf8");
 }
 
-/** Counts `ssr: false` occurrences (Tiptap + cross-link panels on notes/tasks editors). */
+/** Counts `ssr: false` occurrences (client-only dynamic imports in a source file). */
 function countSsrFalse(source: string): number {
   return (source.match(/ssr:\s*false/g) ?? []).length;
 }
@@ -86,18 +86,29 @@ describe("E2EE hook documentation", () => {
 });
 
 describe("E2EE editor dynamic import SSR", () => {
-  it("notes item-editor client-only loads Tiptap and cross-link panels", () => {
+  it("notes item-editor composes the shared shell and client-only link panels", () => {
     const src = readAppFile("notes", "components/item-editor.tsx");
-    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(3);
+    expect(src).toContain("E2eeRichTextItemEditorShell");
+    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(2);
     expect(src).toContain("ContactLinksPanel");
     expect(src).toContain("TaskLinksPanel");
   });
 
-  it("tasks item-editor client-only loads Tiptap and cross-link panels", () => {
+  it("tasks item-editor composes the shared shell and client-only link panels", () => {
     const src = readAppFile("tasks", "components/item-editor.tsx");
-    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(3);
+    expect(src).toContain("E2eeRichTextItemEditorShell");
+    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(2);
     expect(src).toContain("ContactLinksPanel");
     expect(src).toContain("NoteLinksPanel");
+  });
+
+  it("e2ee-item-editor-shell client-only loads Tiptap", () => {
+    const src = readFileSync(
+      join(repoRoot, "packages/ui/src/e2ee-item-editor-shell.tsx"),
+      "utf8"
+    );
+    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(1);
+    expect(src).toContain("TiptapEditor");
   });
 
   it("contacts contact-editor client-only loads Tiptap only", () => {

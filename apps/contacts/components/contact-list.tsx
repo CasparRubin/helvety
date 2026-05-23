@@ -39,12 +39,8 @@ interface ContactListProps {
   error: string | null;
   /** Callback to retry after error */
   onRetry?: () => void;
-  /** Callback when a contact row is clicked (fallback when contactHref not provided) */
+  /** Callback when a contact row is clicked */
   onContactClick?: (contact: Contact) => void;
-  /** URL for contact navigation - use Link instead of imperative router.push callbacks where possible */
-  contactHref?: (contact: Contact) => string;
-  /** Callback used to prefetch a contact route on hover/focus */
-  onContactPrefetch?: (contact: Contact) => void;
   /** Callback to delete a contact */
   onContactDelete?: (id: string, name: string) => void;
   /** Callback for batch reorder (drag-and-drop) */
@@ -74,8 +70,6 @@ export function ContactList({
   error,
   onRetry,
   onContactClick,
-  contactHref,
-  onContactPrefetch,
   onContactDelete,
   onReorder,
   emptySearchMessage,
@@ -308,9 +302,7 @@ export function ContactList({
                       categoryColor={category.color}
                       isFirst={isFirstCategory}
                       isLast={isLastCategory}
-                      href={contactHref?.(contact)}
                       onClick={() => onContactClick?.(contact)}
-                      onPrefetch={() => onContactPrefetch?.(contact)}
                       onDelete={
                         onContactDelete
                           ? () =>
@@ -363,9 +355,7 @@ export function ContactList({
                   createdAt={contact.created_at}
                   isFirst={idx === 0}
                   isLast={idx === sortedContactsFlat.length - 1}
-                  href={contactHref?.(contact)}
                   onClick={() => onContactClick?.(contact)}
-                  onPrefetch={() => onContactPrefetch?.(contact)}
                   onDelete={
                     onContactDelete
                       ? () =>

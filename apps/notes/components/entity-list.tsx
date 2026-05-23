@@ -40,8 +40,6 @@ interface EntityListProps {
   onRetry?: () => void;
   categories: DefaultNoteCategory[];
   onEntityClick?: (entity: AnyEntity) => void;
-  entityHref?: (entity: AnyEntity) => string;
-  onEntityPrefetch?: (entity: AnyEntity) => void;
   onEntityDelete?: (id: string, title: string) => void;
   onReorder?: (updates: ReorderUpdate[]) => Promise<boolean>;
   /** Shown when the list is empty because of an active client-side search. */
@@ -58,8 +56,6 @@ export function EntityList({
   onRetry,
   categories,
   onEntityClick,
-  entityHref,
-  onEntityPrefetch,
   onEntityDelete,
   onReorder,
   emptySearchMessage,
@@ -281,9 +277,7 @@ export function EntityList({
                       categoryColor={category.color}
                       isFirst={isFirstCategory}
                       isLast={isLastCategory}
-                      href={entityHref?.(entity)}
                       onClick={() => onEntityClick?.(entity)}
-                      onPrefetch={() => onEntityPrefetch?.(entity)}
                       onDelete={
                         onEntityDelete
                           ? () => onEntityDelete(entity.id, entity.title)
@@ -329,9 +323,7 @@ export function EntityList({
                   createdAt={entity.created_at}
                   isFirst={idx === 0}
                   isLast={idx === sortedEntitiesFlat.length - 1}
-                  href={entityHref?.(entity)}
                   onClick={() => onEntityClick?.(entity)}
-                  onPrefetch={() => onEntityPrefetch?.(entity)}
                   onDelete={
                     onEntityDelete
                       ? () => onEntityDelete(entity.id, entity.title)

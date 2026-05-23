@@ -30,9 +30,6 @@ import { useEncryptionContext } from "@/lib/crypto";
 import type { NoteDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ItemRow } from "@/lib/types";
 
-/** Legacy `?item=` deep links; reads only (writes use `note`). */
-const NOTE_LEGACY_URL_PARAM_KEYS = ["item"];
-
 /** Props for the main `/notes` dashboard (category-grouped list + sheet editor). */
 interface FlatNotesDashboardProps {
   initialEncryptedItems?: ItemRow[];
@@ -58,9 +55,7 @@ export function FlatNotesDashboard({
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
   const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
-    useE2eeEntityPanelWithUrl("note", {
-      legacyParamKeys: NOTE_LEGACY_URL_PARAM_KEYS,
-    });
+    useE2eeEntityPanelWithUrl("note");
 
   const draftSnapshots = useRef<Map<string, NoteDraftSnapshot>>(new Map());
 
@@ -133,7 +128,6 @@ export function FlatNotesDashboard({
 
   useSyncE2eeEntityPanelFromUrl({
     paramKey: "note",
-    legacyParamKeys: NOTE_LEGACY_URL_PARAM_KEYS,
     entityId,
     openEntity,
     closePanel,
@@ -234,7 +228,6 @@ export function FlatNotesDashboard({
             key={entityId}
             itemId={entityId}
             initialItem={selectedItem ?? undefined}
-            embedded
             onClose={() => handleSheetOpenChange(false)}
             onLocalPatch={(id, input) => patchLocal(id, input)}
           />

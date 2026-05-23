@@ -30,12 +30,12 @@ This package provides:
 - `@helvety/ui/accessible-sheet-header` -> `AccessibleSheetHeader`: `SheetTitle` plus `sr-only` `SheetDescription` for Radix sheet a11y (used by app switcher, mobile menu, and E2EE entity sheets).
 - `@helvety/ui/e2ee-entity-detail-sheet` -> `E2eeEntityDetailSheet`: Wide right-hand sheet shell for E2EE list dashboards (Notes, Tasks, Contacts, Links). Every `Dialog`/`Sheet` must include a `*Description` (use `AccessibleSheetHeader` or `sr-only` `SheetDescription`/`DialogDescription`).
 - `@helvety/ui/use-e2ee-entity-panel` -> `useE2eeEntityPanel`: Sheet open/close state and persist-on-open **`openNewDraft`** (panel state only; no URL sync). `openEntity` / `closePanel` no-op when state is unchanged.
-- `@helvety/ui/use-e2ee-entity-panel-with-url` -> `useE2eeEntityPanelWithUrl`, `useE2eeEntityUrlSync`: Tasks (`?item=`), Notes (`?note=`; reads legacy `?item=`), and Contacts (`?contact=`). Writes the active entity id on open/close.
+- `@helvety/ui/use-e2ee-entity-panel-with-url` -> `useE2eeEntityPanelWithUrl`, `useE2eeEntityUrlSync`: Tasks (`?item=`), Notes (`?note=`), and Contacts (`?contact=`). Writes the active entity id on open/close.
 - `@helvety/ui/use-sync-e2ee-entity-panel-from-url` -> `useSyncE2eeEntityPanelFromUrl`: **Required** with `useE2eeEntityPanelWithUrl` on tasks/notes/contacts dashboards so back/forward and `?param=` deep links sync the sheet without redundant updates (guards against React max-update-depth loops). Links uses `useLinksPanelUrlSync` instead (dual `?link=` / `?folder=`).
 - `@helvety/ui/e2ee-form-layout` -> `E2EE_ENTITY_SHEET_CONTENT_CLASS`, `E2EE_UNSAVED_CHANGES_DIALOG`, editor field spacing helpers.
 - `@helvety/ui/e2ee-app-navbar` -> `E2eeAppNavbar`, `E2eeAppNavbarLabels`
 - `@helvety/ui/hooks/use-encrypted-sortable-items` -> `useEncryptedSortableItems`: Shared encrypted list CRUD/reorder hook; tasks and notes `useItems` are thin wrappers that inject crypto and server actions.
-- `@helvety/ui/e2ee-item-editor-shell` -> `E2eeRichTextItemEditorShell`, `useE2eeRichTextItemEditorSave`: Shared rich-text editor shell (title, Tiptap body, unsaved-changes dialog). Tasks/notes still ship app-local `ItemEditor` until migrated.
+- `@helvety/ui/e2ee-item-editor-shell` -> `E2eeRichTextItemEditorShell`, `useE2eeRichTextItemEditorSave`: Shared rich-text editor shell (title, Tiptap body, unsaved-changes dialog). Tasks and notes `ItemEditor` components compose this shell with app-specific metadata and link panels.
 - `@helvety/ui/auth-navigation` -> `reportE2eeHookError`, `reportE2eeActionFailure`, `getE2eeHookErrorMessage`: E2EE client hooks should use these instead of hand-rolled `toast.error` + `triggerE2eeHookAuthErrorNavigation`.
 
 **Top bar (all zones that render the shared chrome):**

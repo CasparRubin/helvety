@@ -53,14 +53,20 @@ describe("useE2eeEntityPanelWithUrl", () => {
     });
   });
 
-  it("reads legacy query keys on initial open", () => {
-    navigationMocks.searchParams = new URLSearchParams(`item=${ENTITY_ID}`);
-    const { result } = renderHook(() =>
-      useE2eeEntityPanelWithUrl("note", { legacyParamKeys: ["item"] })
-    );
+  it("opens from the canonical query key on initial load", () => {
+    navigationMocks.searchParams = new URLSearchParams(`note=${ENTITY_ID}`);
+    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("note"));
 
     expect(result.current.isOpen).toBe(true);
     expect(result.current.entityId).toBe(ENTITY_ID);
+  });
+
+  it("does not open from a different query param on initial load", () => {
+    navigationMocks.searchParams = new URLSearchParams(`item=${ENTITY_ID}`);
+    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("note"));
+
+    expect(result.current.isOpen).toBe(false);
+    expect(result.current.entityId).toBeNull();
   });
 
   it("closePanel does not touch the URL when the panel is already closed", () => {
@@ -88,11 +94,8 @@ describe("useE2eeEntityPanelWithUrl", () => {
     expect(navigationMocks.replace).not.toHaveBeenCalled();
   });
 
-  it("writes the canonical param and drops legacy keys when opening", () => {
-    navigationMocks.searchParams = new URLSearchParams(`item=${ENTITY_ID}`);
-    const { result } = renderHook(() =>
-      useE2eeEntityPanelWithUrl("note", { legacyParamKeys: ["item"] })
-    );
+  it("writes the canonical param when opening from a blank URL", () => {
+    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("note"));
 
     act(() => {
       result.current.openEntity(ENTITY_ID);

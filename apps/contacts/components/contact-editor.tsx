@@ -60,20 +60,15 @@ interface ContactEditorProps {
   initialContact?: Contact;
   /** Server-prefetched encrypted contact to skip initial round-trip */
   initialEncryptedContact?: ContactRow;
-  embedded?: boolean;
   onClose?: () => void;
   onLocalPatch?: (id: string, input: { category_id?: string }) => void;
 }
 
-/**
- * Contact editor for a single contact. Used inside the dashboard detail sheet
- * (`embedded`); supports a legacy full-page layout when `embedded` is false.
- */
+/** Contact editor for a single contact inside the dashboard detail sheet. */
 export function ContactEditor({
   contactId,
   initialContact,
   initialEncryptedContact,
-  embedded = false,
   onClose,
   onLocalPatch,
 }: ContactEditorProps) {
@@ -356,17 +351,15 @@ export function ContactEditor({
     );
   }
 
-  const pageLayoutClassName = embedded ? "min-h-0 flex-1" : undefined;
-
   // Error state - friendly UI with retry (toast already shown by hooks)
   if (error || !contact) {
     return (
       <CommandBarPageLayout
-        className={pageLayoutClassName}
+        className="min-h-0 flex-1"
         commandBar={
           <ContactEditorCommandBar
             onBack={handleBack}
-            showBack={!embedded}
+            showBack={false}
             onRefresh={handleRefresh}
             isRefreshing={isRefreshing}
           />
@@ -391,11 +384,11 @@ export function ContactEditor({
   return (
     <>
       <CommandBarPageLayout
-        className={pageLayoutClassName}
+        className="min-h-0 flex-1"
         commandBar={
           <ContactEditorCommandBar
             onBack={handleBack}
-            showBack={!embedded}
+            showBack={false}
             onRefresh={handleRefresh}
             isRefreshing={isRefreshing}
             onSave={handleSave}
@@ -407,13 +400,7 @@ export function ContactEditor({
         }
       >
         <div className="container mx-auto px-4 py-8">
-          <div
-            className={
-              embedded
-                ? "flex flex-col gap-6"
-                : "flex flex-col-reverse gap-6 md:flex-row md:gap-8"
-            }
-          >
+          <div className="flex flex-col gap-6">
             {/* Left column: Form fields + Notes editor */}
             <div className="min-w-0 flex-1 space-y-6">
               {/* Name fields */}
@@ -497,16 +484,8 @@ export function ContactEditor({
                   <div className="border-border/40 bg-background dark:bg-input/30 min-h-[200px] rounded-md border" />
                 )}
               </div>
-
-              {!embedded && (
-                <div className="space-y-6">
-                  <TaskLinksPanel contactId={contactId} />
-                  <NoteLinksPanel contactId={contactId} />
-                </div>
-              )}
             </div>
 
-            {/* Right column: Action panel */}
             <ContactActionPanel
               contact={contact}
               categories={DEFAULT_CATEGORIES}
@@ -514,15 +493,13 @@ export function ContactEditor({
                 void handleCategoryChange(categoryId);
               }}
               isSavingCategory={isSavingCategory}
-              stacked={embedded}
+              stacked
             />
 
-            {embedded && (
-              <div className="space-y-6">
-                <TaskLinksPanel contactId={contactId} />
-                <NoteLinksPanel contactId={contactId} />
-              </div>
-            )}
+            <div className="space-y-6">
+              <TaskLinksPanel contactId={contactId} />
+              <NoteLinksPanel contactId={contactId} />
+            </div>
           </div>
         </div>
       </CommandBarPageLayout>
