@@ -48,4 +48,11 @@ describe("app-navbar-about", () => {
       expect(text).toContain(HELVETY_NAVBAR_SWISS_CLOSING);
     }
   });
+
+  it("Docs about copy describes optional vault, not full-app encryption", () => {
+    expect(docsNavbarAbout()).toMatch(/without signing in/i);
+    expect(docsNavbarAbout()).toMatch(/optional vault/i);
+    expect(DOCS_NAVBAR_ENCRYPTION_TOOLTIP).toMatch(/without signing in/i);
+    expect(DOCS_NAVBAR_ENCRYPTION_TOOLTIP).toMatch(/vault/i);
+  });
 });

@@ -1,7 +1,7 @@
 {
   "name": "Helvety Docs",
   "short_name": "Helvety Docs",
-  "description": "Edit Word documents in your browser; optional vault save stays encrypted on your device (up to 20MB per file). Engineered, designed and made in Switzerland.",
+  "description": "Edit Word documents in your browser. Local editing needs no account; optional vault save encrypts titles and .docx files on your device (up to 20MB per file). Engineered, designed and made in Switzerland.",
   "start_url": "/docs",
   "display": "standalone",
   "background_color": "#faf8f7",

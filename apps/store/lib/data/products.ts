@@ -1149,8 +1149,8 @@ const helvetyDocs: SaaSProduct = {
     ],
   },
   status: "available",
-  image: productArtwork.artwork10,
-  artist: "Rudolf Koller",
+  image: productArtwork.artwork11,
+  artist: "Clara von Rappard",
   features: [
     "Local .docx editing without an account",
     "Optional vault save with client-side encryption",

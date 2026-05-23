@@ -148,6 +148,7 @@ SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
 - Primary auth/authz enforcement lives in Server Components, Server Actions, and route handlers. Use `supabase.auth.getUser()` (via `@helvety/shared/auth-retry` `getAuthUser` where shared) for authorization decisions; never `auth.getSession()` (`bun run consistency:supabase-auth`).
 - CSRF-enabled zones sign proxy cookies with `HELVETY_COOKIE_SIGNING_SECRET` only (`packages/shared/src/cookie-signing.ts`). The proxy re-issues invalid or stale `csrf_token` cookies (not only when the cookie is absent); rotate the signing secret in Vercel rather than reusing `SUPABASE_SECRET_KEY`.
 - E2EE apps (`tasks`, `contacts`, `notes`, `links`) enforce server-side page guards and passkey-based unlock flows.
+- **Helvety Docs** (`docs`) is hybrid: the main `.docx` editor is public (no login); optional vault save uses the same passkey-derived encryption pattern only when you sign in, unlock, and choose to save.
 
 ## Project Structure
 

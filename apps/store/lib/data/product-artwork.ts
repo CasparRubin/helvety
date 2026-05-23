@@ -1,5 +1,6 @@
 import artwork1 from "../../public/artwork_1.webp";
 import artwork10 from "../../public/artwork_10.webp";
+import artwork11 from "../../public/artwork_11.webp";
 import artwork2 from "../../public/artwork_2.webp";
 import artwork3 from "../../public/artwork_3.webp";
 import artwork4 from "../../public/artwork_4.webp";
@@ -21,4 +22,5 @@ export const productArtwork = {
   artwork8,
   artwork9,
   artwork10,
+  artwork11,
 } as const;

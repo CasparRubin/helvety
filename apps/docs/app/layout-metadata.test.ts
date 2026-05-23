@@ -45,4 +45,10 @@ describe("docs root layout metadata", () => {
   it("SEO copy contains no em-dash", () => {
     assertNoEmDashInCustomerCopy("DOCS_APP_DESCRIPTION", DOCS_APP_DESCRIPTION);
   });
+
+  it("metadata keywords describe optional vault, not full-app encryption", () => {
+    const keywords = metadata.keywords ?? [];
+    expect(keywords).toContain("optional vault save");
+    expect(keywords).not.toContain("encrypted documents");
+  });
 });

@@ -24,7 +24,7 @@ export const metadata = createHelvetyProductMetadata({
     "docx editor",
     "Word editor",
     "browser docx",
-    "encrypted documents",
+    "optional vault save",
     "privacy",
     "client-side",
     "free docx tool",

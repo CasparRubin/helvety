@@ -94,8 +94,8 @@ describe("store product catalog", () => {
       return;
     }
     expect(product.type).toBe("saas");
-    expect(product.image).toBe(productArtwork.artwork10);
-    expect(product.artist).toBe("Rudolf Koller");
+    expect(product.image).toBe(productArtwork.artwork11);
+    expect(product.artist).toBe("Clara von Rappard");
     expect(product.links?.github).toContain("apps/docs");
     expect(product.description.intro).toMatch(/vault save/i);
     expect(product.features).toContain(
