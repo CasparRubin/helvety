@@ -64,6 +64,13 @@ describe("store copy guardrails", () => {
     }
   });
 
+  it("every llms.txt documents crawling intent for agents and search", () => {
+    for (const rel of CUSTOMER_COPY_LLMS_RELATIVE_PATHS) {
+      const text = readFileSync(join(repoRoot, rel), "utf8");
+      expect(text, rel).toMatch(/## Crawling And Indexing/i);
+    }
+  });
+
   it("every llms.txt documents AGPL licensing for products with published source", () => {
     for (const rel of CUSTOMER_COPY_LLMS_RELATIVE_PATHS) {
       const text = readFileSync(join(repoRoot, rel), "utf8");

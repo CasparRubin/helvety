@@ -12,6 +12,18 @@
 - Public pages are intended to be indexable by search and AI crawlers.
 - Private app routes are not intended as search index targets and use noindex and auth-gated controls.
 
+## Agent And Crawler Guides
+Per-zone `llms.txt` summaries (linked from each app's sitemap when indexable):
+- [Helvety Store](https://helvety.com/store/llms.txt)
+- [Helvety PDF](https://helvety.com/pdf/llms.txt)
+- [Helvety Docs](https://helvety.com/docs/llms.txt)
+- [Helvety Image Upscaler](https://helvety.com/image-upscaler/llms.txt)
+- [Helvety Auth](https://helvety.com/auth/llms.txt)
+- [Helvety Contacts](https://helvety.com/contacts/llms.txt)
+- [Helvety Notes](https://helvety.com/notes/llms.txt)
+- [Helvety Links](https://helvety.com/links/llms.txt)
+- [Helvety Tasks](https://helvety.com/tasks/llms.txt)
+
 ## Cookies And Telemetry
 - Helvety web zones use essential and authentication cookies, browser storage for preferences, and privacy-focused Vercel Analytics on all ten Next.js apps (Speed Insights on the main site). Full disclosure: [Privacy Policy §9](https://helvety.com/privacy#cookies).
 

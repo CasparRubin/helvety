@@ -8,10 +8,13 @@
 
 ## Shared Contracts To Preserve
 
+- `@helvety/dev-deps`
+  - canonical `eslint`, `typescript`, `vitest`, `prettier`, testing-library, Tailwind PostCSS, and related devDependency versions
+  - consumed via `"@helvety/dev-deps": "workspace:*"` in app/package manifests (enforced by `bun run deps:drift`)
 - `@helvety/config`
   - `createHelvetyNextConfig`
   - `createSecurityHeaders`
-  - shared ESLint/TS policy entrypoints
+  - shared ESLint/TypeScript/Vitest/PostCSS **config** entrypoints (not pinned toolchain versions; those live in `@helvety/dev-deps`)
 - `@helvety/shared`
   - `createAppProxy`, `createProfiledSecurityProxy`, and `SECURITY_PROXY_MATCHER` (canonical `proxy.ts` zone matcher pattern; apps inline the literal per Next.js)
   - auth redirect/callback behavior; **proxy refreshes sessions only** (`refreshSupabaseAuthSession`, including on `createAppProxy` root redirects when `sb-*` cookies are present) and sets `x-helvety-auth-refreshed` for RSC clients — **authorization uses `getUser()` in Server Components/actions** (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()` (`bun run consistency:supabase-auth`)

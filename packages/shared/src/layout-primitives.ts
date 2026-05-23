@@ -4,6 +4,7 @@
  * {@link getHelvetyThemeInitScript} for blocking theme init in `<head>` before body paint.
  */
 
+import { WEB_SITE_DESCRIPTION } from "./app-product-descriptions";
 import { urls } from "./config";
 
 /** `next-themes` default `storageKey`; keep in sync with `ThemeProvider`. */
@@ -71,8 +72,8 @@ export function createHelvetyOrganizationSchema(logoUrl: string) {
     name: "Helvety",
     url: urls.home,
     logo: logoUrl,
-    description:
-      "Software products, web apps, browser extensions, and integrations engineered, designed, and made in Switzerland.",
+    description: WEB_SITE_DESCRIPTION,
+    inLanguage: "en",
     sameAs: HELVETY_SAME_AS_URLS,
   };
 }

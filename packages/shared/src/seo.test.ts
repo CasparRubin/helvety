@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { HELVETY_WEB_DEFAULT_TITLE } from "./licensing";
 import {
+  AI_DISCOVERY_USER_AGENTS,
   createAppRobots,
   createAppSitemap,
   createHelvetyProductMetadata,
@@ -12,6 +13,8 @@ import {
 
 /** Minimal robots rule shape used by helper assertions. */
 type RobotsRule = {
+  userAgent?: string | string[];
+  allow?: string | string[];
   disallow?: string | string[];
 };
 
@@ -34,6 +37,14 @@ function getDisallowedPaths(rules: RobotsRule | RobotsRule[]): string[] {
       })
     ),
   ];
+}
+
+/** Returns robots rules whose `userAgent` matches `agent`. */
+function getRulesForAgent(
+  rules: RobotsRule | RobotsRule[] | undefined,
+  agent: string
+): RobotsRule[] {
+  return toRuleList(rules).filter((rule) => rule.userAgent === agent);
 }
 
 describe("seo helpers", () => {
@@ -118,6 +129,46 @@ describe("seo helpers", () => {
     expect(robots.host).toBe("https://helvety.com");
   });
 
+  it("allows major AI crawlers on public robots alongside *", () => {
+    const robots = createOpenRobots("/sitemap-index.xml")();
+    const ruleList = toRuleList(robots.rules);
+
+    expect(ruleList.map((rule) => rule.userAgent)).toEqual(
+      expect.arrayContaining(["*", ...AI_DISCOVERY_USER_AGENTS])
+    );
+
+    for (const agent of AI_DISCOVERY_USER_AGENTS) {
+      const [rule] = getRulesForAgent(robots.rules, agent);
+      expect(rule?.allow).toBe("/");
+      expect(rule?.disallow).toBeUndefined();
+    }
+  });
+
+  it("applies the same disallow paths to AI crawlers on partial-public app robots", () => {
+    const robots = createAppRobots(
+      ["/account", "/api"],
+      "/store/sitemap.xml"
+    )();
+    const [gptRule] = getRulesForAgent(robots.rules, "GPTBot");
+
+    expect(gptRule?.allow).toBe("/");
+    expect(getDisallowedPaths(gptRule ? [gptRule] : [])).toEqual([
+      "/account",
+      "/api",
+    ]);
+  });
+
+  it("disallows major AI crawlers on private app robots", () => {
+    const robots = createPrivateAppRobots()();
+
+    for (const agent of ["*", ...AI_DISCOVERY_USER_AGENTS]) {
+      const disallowedPaths = getDisallowedPaths(
+        getRulesForAgent(robots.rules, agent)
+      );
+      expect(disallowedPaths, agent).toEqual(["/"]);
+    }
+  });
+
   it("returns an empty sitemap for private apps", () => {
     const sitemapEntries = createPrivateAppSitemap()();
     expect(sitemapEntries).toEqual([]);
@@ -193,6 +244,13 @@ describe("createHelvetyProductMetadata", () => {
     });
     expect(m.openGraph?.title).toBe(HELVETY_WEB_DEFAULT_TITLE);
     expect(m.twitter?.title).toBe(HELVETY_WEB_DEFAULT_TITLE);
+  });
+
+  it("uses summary_large_image Twitter cards and applicationName for PWA-style branding", () => {
+    const m = createHelvetyProductMetadata({ ...baseParams, indexing: "all" });
+    expect(m.twitter).toMatchObject({ card: "summary_large_image" });
+    expect(m.applicationName).toBe("Helvety PDF");
+    expect(m.referrer).toBe("origin-when-cross-origin");
   });
 
   it("omits manifest and category when not passed", () => {

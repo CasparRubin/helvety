@@ -67,8 +67,19 @@ async function fileExists(filePath) {
   }
 }
 
+async function readDevDepsToolchainVersions() {
+  const devDepsPath = resolve(rootDir, "packages/dev-deps/package.json");
+  const content = await readFile(devDepsPath, "utf8");
+  const pkg = JSON.parse(content);
+  return {
+    ...(pkg.dependencies ?? {}),
+    ...(pkg.devDependencies ?? {}),
+  };
+}
+
 async function main() {
   const packageJsonFiles = await listWorkspacePackageJsonFiles();
+  const devDepsToolchain = await readDevDepsToolchainVersions();
   const issues = [];
 
   const vitestVersions = new Map();
@@ -88,7 +99,11 @@ async function main() {
       ...(pkg.peerDependencies ?? {}),
     };
 
-    const vitestVersion = allDeps.vitest;
+    const usesDevDepsBundle =
+      pkg.devDependencies?.["@helvety/dev-deps"] === "workspace:*";
+    const vitestVersion =
+      allDeps.vitest ??
+      (usesDevDepsBundle ? devDepsToolchain.vitest : undefined);
     if (vitestVersion) {
       vitestVersions.set(relativePackageJsonPath, vitestVersion);
       const major = extractMajor(vitestVersion);
@@ -99,12 +114,20 @@ async function main() {
       }
     }
 
-    const jestDomVersion = allDeps["@testing-library/jest-dom"];
+    const jestDomVersion =
+      allDeps["@testing-library/jest-dom"] ??
+      (usesDevDepsBundle
+        ? devDepsToolchain["@testing-library/jest-dom"]
+        : undefined);
     if (jestDomVersion) {
       jestDomVersions.set(relativePackageJsonPath, jestDomVersion);
     }
 
-    const testingLibraryReactVersion = allDeps["@testing-library/react"];
+    const testingLibraryReactVersion =
+      allDeps["@testing-library/react"] ??
+      (usesDevDepsBundle
+        ? devDepsToolchain["@testing-library/react"]
+        : undefined);
     if (testingLibraryReactVersion) {
       testingLibraryReactVersions.set(
         relativePackageJsonPath,
@@ -112,7 +135,8 @@ async function main() {
       );
     }
 
-    const jsdomVersion = allDeps.jsdom;
+    const jsdomVersion =
+      allDeps.jsdom ?? (usesDevDepsBundle ? devDepsToolchain.jsdom : undefined);
     if (jsdomVersion) {
       jsdomVersions.set(relativePackageJsonPath, jsdomVersion);
       const major = extractMajor(jsdomVersion);

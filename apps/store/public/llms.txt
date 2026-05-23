@@ -19,7 +19,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - [Helvety Links](https://helvety.com/store/products/helvety-links)
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed.
 
-## Crawling and Indexing
+## Crawling And Indexing
 - Public catalog and product pages are intended to be crawlable and indexable.
 - Account routes are intended not to be indexed and are protected by authentication and noindex metadata.
 

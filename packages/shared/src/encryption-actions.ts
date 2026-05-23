@@ -17,16 +17,31 @@ import type {
   UserPasskeyParams,
 } from "@helvety/shared/types/entities";
 
+/** Rate limit thresholds for passkey param reads. */
+type RateLimitThresholds = {
+  maxRequests: number;
+  windowMs: number;
+};
+
+/** Options for {@link getPasskeyParamsWithOptions} (auth vs E2EE rate-limit prefixes). */
+export type GetPasskeyParamsOptions = {
+  rateLimitPrefix: string;
+  readRateLimitConfig?: RateLimitThresholds;
+  fetchLogContext: string;
+  loadErrorMessage: string;
+};
+
 /**
- * Get user's passkey encryption params from the database
- * Returns null if user hasn't set up passkey encryption yet
+ * Load passkey encryption params for the authenticated user.
+ * Shared by the auth zone and E2EE apps (different rate-limit prefixes).
  */
-export async function getPasskeyParams(): Promise<
-  ActionResponse<UserPasskeyParams | null>
-> {
+export async function getPasskeyParamsWithOptions(
+  options: GetPasskeyParamsOptions
+): Promise<ActionResponse<UserPasskeyParams | null>> {
   try {
     const auth = await authenticateAndRateLimit({
-      rateLimitPrefix: "encryption",
+      rateLimitPrefix: options.rateLimitPrefix,
+      readRateLimitConfig: options.readRateLimitConfig,
     });
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
@@ -34,19 +49,36 @@ export async function getPasskeyParams(): Promise<
     const row = await fetchUserPasskeyParamsForUser(
       supabase,
       user.id,
-      "Error getting passkey params"
+      options.fetchLogContext
     );
     if (!row.ok) {
       return {
         success: false,
-        error: "Failed to load passkey encryption settings",
+        error: options.loadErrorMessage,
       };
     }
 
     return { success: true, data: row.params };
   } catch (error) {
-    return unexpectedActionError("Unexpected error in getPasskeyParams", error);
+    return unexpectedActionError(
+      `Unexpected error in getPasskeyParams (${options.rateLimitPrefix})`,
+      error
+    );
   }
+}
+
+/**
+ * Get user's passkey encryption params from the database
+ * Returns null if user hasn't set up passkey encryption yet
+ */
+export async function getPasskeyParams(): Promise<
+  ActionResponse<UserPasskeyParams | null>
+> {
+  return getPasskeyParamsWithOptions({
+    rateLimitPrefix: "encryption",
+    fetchLogContext: "Error getting passkey params",
+    loadErrorMessage: "Failed to load passkey encryption settings",
+  });
 }
 
 /**

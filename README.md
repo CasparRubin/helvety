@@ -10,7 +10,7 @@ Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 - Public gateway and tools: `web`, `store`, `pdf`, `docs`, `image-upscaler` (`docs` also offers optional encrypted vault save when signed in)
 - Centralized account: `auth` (not an E2EE vault app; hosts shared sign-in)
 - Client-encrypted apps (E2EE): `tasks`, `contacts`, `notes`, `links`
-- Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/brand`, `@helvety/light-pillar` (web hero WebGL utilities)
+- Shared packages: `@helvety/shared`, `@helvety/ui`, `@helvety/config`, `@helvety/dev-deps` (toolchain versions), `@helvety/brand`, `@helvety/light-pillar` (web hero WebGL utilities), `@helvety/extension-chrome` (external Chromium extension repos)
 
 Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf`, `docs`, `image-upscaler`) use `@helvety/ui/helvety-public-shell-root-layout`, while E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `@helvety/ui/e2ee-app-root-layout`. **Helvety Docs** (`docs`) is a hybrid within that public shell: it uses the public shell layout plus `bootstrapE2eeLayoutSession()` / `EncryptionProvider` for optional vault save, but the main editor route stays public (no full-app `EncryptionGate`). Public and E2EE shells inject blocking `HelvetyThemeInitScript` in `<head>` (script body from `@helvety/shared/layout-primitives`, rendered by `@helvety/ui`) so `html.dark` and `bg-background` match storage/system before body paint; Store uses `themeProviderScope: "navbar-only"` for `ThemeProvider` placement only. The gateway homepage uses `@helvety/light-pillar` plus [`HeroHyperspeedBackdrop`](apps/web/components/hero-hyperspeed-backdrop.tsx) for Hyperspeed (hidden until WebGL `onReady`, then fades in; hides before cross-zone navigation; see [`packages/light-pillar`](packages/light-pillar/README.md)). Command bars (store section nav, list toolbars, PDF/image/docs toolbars, E2EE dashboards/editors) stay pinned outside scroll via shell slots (`scrollAreaMainPrefix`, `overflow-main` flex columns, or `CommandBarPageLayout` + shadcn `ScrollArea`). Each app builds product `metadata` with `@helvety/shared/seo` (`createHelvetyProductMetadata`) in `app/layout.tsx`. SSR session bootstrap uses `@helvety/shared/layout-session-bootstrap` and `@helvety/shared/cached-server`: `bootstrapPublicLayoutUser()` on the gateway (`web`) only; pdf and image-upscaler call `getCachedUser()` inline with the same log-on-failure behavior; `bootstrapE2eeLayoutSession()` for CSRF + user (store and **docs** layouts, E2EE apps via `E2eeAppRootLayout`; auth loads `getCachedCSRFToken` / `getCachedUser` inline in its layout).
 
@@ -31,13 +31,15 @@ Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf
 
 ## Shared Packages
 
-| Package                                           | Purpose                                                                                                                                                 |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`packages/brand`](packages/brand/)               | Shared brand assets                                                                                                                                     |
-| [`packages/config`](packages/config/)             | Shared TypeScript, ESLint, Vitest, PostCSS, Next config                                                                                                 |
-| [`packages/shared`](packages/shared/)             | Security, auth, rate-limit, and Supabase helpers, plus shared constants, SEO metadata factory, user-facing error copy, and dashboard prefetch utilities |
-| [`packages/ui`](packages/ui/)                     | Shared UI components and app-shell primitives                                                                                                           |
-| [`packages/light-pillar`](packages/light-pillar/) | Shared WebGL backdrop utilities for the marketing homepage Hyperspeed hero                                                                              |
+| Package                                                   | Purpose                                                                                                                                                     |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`packages/brand`](packages/brand/)                       | Shared brand assets                                                                                                                                         |
+| [`packages/config`](packages/config/)                     | Shared ESLint, TypeScript, Vitest, PostCSS, and Next.js **configuration** entrypoints (not pinned toolchain versions)                                       |
+| [`packages/dev-deps`](packages/dev-deps/)                 | Canonical **toolchain dependency versions** (`eslint`, `typescript`, `vitest`, `prettier`, testing libraries, Tailwind PostCSS); consumed via `workspace:*` |
+| [`packages/shared`](packages/shared/)                     | Security, auth, rate-limit, and Supabase helpers, plus shared constants, SEO metadata factory, user-facing error copy, and dashboard prefetch utilities     |
+| [`packages/ui`](packages/ui/)                             | Shared UI components and app-shell primitives                                                                                                               |
+| [`packages/light-pillar`](packages/light-pillar/)         | Shared WebGL backdrop utilities for the marketing homepage Hyperspeed hero                                                                                  |
+| [`packages/extension-chrome`](packages/extension-chrome/) | Shared Chromium extension popup chrome (consumed by external extension repos, not by Next.js zones in this monorepo)                                        |
 
 ## Prerequisites
 
@@ -92,7 +94,7 @@ bun run format
 - Use explicit `cleanup()` in workspace `vitest.setup.ts` files that use `@testing-library/react`.
 - Prefer typed fixture builders in tests (`buildXxx(...)`) over repeated `as unknown as` casting so test inputs evolve with production types.
 - Apps that bootstrap session state from `app/layout.tsx` should mock the relevant `@helvety/shared/*` helpers in `app/layout-metadata.test.ts` so metadata tests stay hermetic (see existing `web`, `store`, `auth`, and E2EE app tests).
-- Vitest and related testing dependency specifiers are kept in lockstep across workspaces by [`scripts/check-workspace-version-drift.mjs`](scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`) and [`scripts/check-test-hygiene.mjs`](scripts/check-test-hygiene.mjs) (`bun run test:hygiene`). Store listing counts in tests follow `STORE_PRODUCT_CARDS.length` and assert the tie-break map matches every card id; see [`packages/shared/src/store-catalog.test.ts`](packages/shared/src/store-catalog.test.ts) and [`apps/store/README.md`](apps/store/README.md) › **Adding a New Product**.
+- Shared toolchain versions (`eslint`, `typescript`, `vitest`, `prettier`, testing libraries, Tailwind PostCSS, and related packages) live in [`packages/dev-deps`](packages/dev-deps). Apps and packages declare `"@helvety/dev-deps": "workspace:*"` instead of duplicating those entries. Runtime dependency specifiers are kept in lockstep by [`scripts/check-workspace-version-drift.mjs`](scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`) and [`scripts/check-test-hygiene.mjs`](scripts/check-test-hygiene.mjs) (`bun run test:hygiene`). Store listing counts in tests follow `STORE_PRODUCT_CARDS.length` and assert the tie-break map matches every card id; see [`packages/shared/src/store-catalog.test.ts`](packages/shared/src/store-catalog.test.ts) and [`apps/store/README.md`](apps/store/README.md) › **Adding a New Product**.
 
 ## Monorepo Conventions
 
@@ -112,7 +114,8 @@ All quality gates run locally. There is no GitHub Actions or other remote CI in 
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.
 - Additional manual dependency/security checks:
   - `bun run deps:security` (security floors + `bun audit`)
-  - `bun run deps:drift` (workspace version drift)
+  - `bun run deps:drift` (workspace version drift; toolchain via `@helvety/dev-deps`)
+  - `bun outdated` then `bun update` before releases (manual; no Renovate/Dependabot)
   - `bun run deadcode:sweep` (lighter Knip + lint + type-check without the full `ci:check` suite; `deps:unused` already runs inside `ci:check`)
   - `bun run deps:check` / `bun run knip:exports` / `bun run deps:unused` (also available individually)
 

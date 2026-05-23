@@ -1,19 +1,42 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { urls } from "@helvety/shared/config";
+import { AI_DISCOVERY_USER_AGENTS } from "@helvety/shared/seo";
 import { describe, expect, it } from "vitest";
 
 import robots from "./robots";
 import sitemap from "./sitemap";
 
+const gatewayLlmsPath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../public/llms.txt"
+);
+
 describe("web SEO routes", () => {
   it("returns crawlable robots output with sitemap index", () => {
     const robotsOutput = robots();
+    const rules = Array.isArray(robotsOutput.rules)
+      ? robotsOutput.rules
+      : [robotsOutput.rules];
 
-    expect(robotsOutput.rules).toEqual({
-      userAgent: "*",
+    expect(rules.map((rule) => rule.userAgent)).toEqual(
+      expect.arrayContaining(["*", ...AI_DISCOVERY_USER_AGENTS])
+    );
+    expect(rules.find((rule) => rule.userAgent === "*")).toMatchObject({
       allow: "/",
     });
     expect(robotsOutput.sitemap).toBe(`${urls.home}/sitemap-index.xml`);
     expect(robotsOutput.host).toBe(urls.home);
+  });
+
+  it("gateway llms.txt links per-zone agent guides", () => {
+    const text = readFileSync(gatewayLlmsPath, "utf8");
+    expect(text).toContain("## Agent And Crawler Guides");
+    expect(text).toContain(`${urls.store}/llms.txt`);
+    expect(text).toContain(`${urls.pdf}/llms.txt`);
+    expect(text).toContain(`${urls.tasks}/llms.txt`);
   });
 
   it("returns canonical public sitemap entries", () => {

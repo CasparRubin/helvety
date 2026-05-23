@@ -12,7 +12,7 @@ This package centralizes:
 - Logging and error-handling helpers
 - Canonical **user-visible** error strings and rate-limit copy via `@helvety/shared/user-facing-errors` (`GENERIC_USER_ERROR`, `buildRateLimitedUserMessage`) - safe to import from client components (no `server-only`)
 - Shared constants, schemas, and utility functions
-- Next.js product metadata via `@helvety/shared/seo` (`createHelvetyProductMetadata` plus sitemap/robots factories) and shared SEO blurbs in `@helvety/shared/app-product-descriptions` (`WEB_SITE_DESCRIPTION`, per-app `*_DESCRIPTION`, PWA variants)
+- Next.js product metadata via `@helvety/shared/seo` (`createHelvetyProductMetadata`, `AI_DISCOVERY_USER_AGENTS`, plus sitemap/robots factories with explicit AI-crawler rules on public vs private zones) and shared SEO blurbs in `@helvety/shared/app-product-descriptions` (`WEB_SITE_DESCRIPTION`, per-app `*_DESCRIPTION`, PWA variants)
 - Company and licensing copy constants in `@helvety/shared/licensing` (`HELVETY_COMPANY_VALUES_TAGLINE`, `HELVETY_SWISS_ORIGIN_SEO`, `HELVETY_WEB_DEFAULT_TITLE`, plus AGPL helpers for Store/legal/`llms.txt` licensing sections only)
 - Dashboard list prefetch helpers via `@helvety/shared/dashboard-prefetch` (row-cap detection plus over-cap messages: generic items string vs contacts-specific copy; see module exports)
 - Card-level Helvety Store catalog via `@helvety/shared/store-catalog` (`STORE_PRODUCT_CARDS`, `StoreProductId` literal-id union, plus typed sort/lookup helpers) as the single source of truth for Store card fields (name, blurb, type, category, runs-on, free / open-source flags, release date); UI badges (type colors, artist credit) are styled in `apps/store/components/products/product-badge.tsx`; see `apps/store/README.md` › "Adding a New Product" for the end-to-end add-a-product flow
@@ -28,7 +28,9 @@ This package centralizes:
 - Shared action and export limits: `packages/shared/src/constants.ts`
 - Auth next-step resolver (app-owned): `apps/auth/lib/auth-step.ts`
 - Shared auth callback flow factory: `packages/shared/src/auth-callback.ts`
-- Lint/TypeScript workspace baseline: `packages/config/eslint.mjs` and `packages/config/tsconfig.base.json`
+- Toolchain config entrypoints: `packages/config/eslint.mjs`, `packages/config/tsconfig.base.json`, `packages/config/vitest.mjs` (pinned versions in [`packages/dev-deps`](../dev-deps/))
+- E2EE server page guard and path helpers: `@helvety/shared/e2ee-page-auth` (`requireE2eeAppPageAuth`, `requiresE2eeBrowserUnlock`, `E2EE_APP_PAGE_PATHS`)
+- Passkey encryption params for E2EE apps: `@helvety/shared/encryption-actions` (`getEncryptionParams`, `getPasskeyParams`, `getPasskeyParamsWithOptions`); the auth zone wraps `getPasskeyParamsWithOptions` with auth-specific rate limits
 
 ### Auth and Server Actions
 

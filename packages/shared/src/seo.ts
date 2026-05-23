@@ -3,6 +3,10 @@
  * generation, path sanitization, and {@link createHelvetyProductMetadata} for
  * consistent Next.js `Metadata` (Open Graph, Twitter, robots presets) across
  * the gateway and product routes in this monorepo.
+ *
+ * Public zones use explicit allow rules for major AI crawlers (in addition to
+ * `*`) so agentic systems can discover `llms.txt` and indexable routes without
+ * guessing. Private E2EE zones disallow those same user agents alongside `*`.
  */
 
 import { urls } from "./config";
@@ -14,6 +18,52 @@ const GOOGLE_BOT_SNIPPET = {
   "max-image-preview": "large" as const,
   "max-snippet": -1,
 };
+
+/** Major AI / answer-engine crawlers; explicit robots rules aid agentic discovery. */
+export const AI_DISCOVERY_USER_AGENTS = [
+  "GPTBot",
+  "ChatGPT-User",
+  "Google-Extended",
+  "ClaudeBot",
+  "anthropic-ai",
+  "PerplexityBot",
+  "Applebot-Extended",
+] as const;
+
+/** Single Next.js `MetadataRoute.Robots` rule entry (user agent + allow/disallow). */
+type RobotsRule = {
+  userAgent: string | string[];
+  allow?: string | string[];
+  disallow?: string | string[];
+  crawlDelay?: number;
+};
+
+/** Public crawl rules: `*` plus {@link AI_DISCOVERY_USER_AGENTS} with the same allow/disallow. */
+function buildPublicCrawlerRules(disallowedPaths: string[] = []): RobotsRule[] {
+  const disallow = disallowedPaths.length > 0 ? disallowedPaths : undefined;
+  const base = {
+    allow: "/" as const,
+    ...(disallow !== undefined ? { disallow } : {}),
+  };
+  return [
+    { userAgent: "*", ...base },
+    ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
+      userAgent,
+      ...base,
+    })),
+  ];
+}
+
+/** Private zone crawl rules: block `*` and AI crawlers from the app root. */
+function buildPrivateCrawlerRules(): RobotsRule[] {
+  return [
+    { userAgent: "*", disallow: "/" },
+    ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
+      userAgent,
+      disallow: "/",
+    })),
+  ];
+}
 
 /** Input for {@link createHelvetyProductMetadata}. */
 export type CreateHelvetyProductMetadataParams = Readonly<{
@@ -73,6 +123,8 @@ export function createHelvetyProductMetadata(
     title: params.title,
     description: params.description,
     keywords: [...params.keywords],
+    applicationName: params.siteName,
+    referrer: "origin-when-cross-origin",
     authors: [{ name: "Helvety" }],
     creator: "Helvety",
     publisher: "Helvety",
@@ -92,7 +144,7 @@ export function createHelvetyProductMetadata(
       images: [ogImage],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: socialTitle,
       description: params.description,
       images: [twitterImage],
@@ -204,11 +256,7 @@ export function createAppRobots(
 
   return function robots(): MetadataRoute.Robots {
     return {
-      rules: {
-        userAgent: "*",
-        allow: "/",
-        disallow: sanitizedDisallowedPaths,
-      },
+      rules: buildPublicCrawlerRules(sanitizedDisallowedPaths),
       sitemap: `${DOMAIN}${sitemapPath}`,
       host: DOMAIN,
     };
@@ -226,10 +274,7 @@ export function createOpenRobots(
 ): () => MetadataRoute.Robots {
   return function robots(): MetadataRoute.Robots {
     return {
-      rules: {
-        userAgent: "*",
-        allow: "/",
-      },
+      rules: buildPublicCrawlerRules(),
       sitemap: `${DOMAIN}${sitemapPath}`,
       host: DOMAIN,
     };
@@ -252,10 +297,7 @@ export function createPrivateAppRobots(
 
   return function robots(): MetadataRoute.Robots {
     return {
-      rules: {
-        userAgent: "*",
-        disallow: "/",
-      },
+      rules: buildPrivateCrawlerRules(),
       ...(includeSitemap && sitemapPath
         ? { sitemap: `${DOMAIN}${sitemapPath}` }
         : {}),

@@ -6,7 +6,6 @@ import type { User } from "@supabase/supabase-js";
 
 /**
  * Canonical entry paths for apps that use `EncryptionGateApp` in their layout.
- * Keep in sync with `requiresE2eeBrowserUnlock` in `./e2ee-app-paths`.
  */
 export const E2EE_APP_PAGE_PATHS = [
   "/contacts",
@@ -14,6 +13,21 @@ export const E2EE_APP_PAGE_PATHS = [
   "/notes",
   "/tasks",
 ] as const;
+
+/**
+ * Returns true when `uri` points at an E2EE app route where browser unlock
+ * (master-key availability) is required after authentication.
+ */
+export function requiresE2eeBrowserUnlock(uri: string): boolean {
+  try {
+    const pathname = new URL(uri).pathname.replace(/\/$/, "") || "/";
+    return E2EE_APP_PAGE_PATHS.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    );
+  } catch {
+    return false;
+  }
+}
 
 /** Public path argument accepted by `requireE2eeAppPageAuth`. */
 export type E2eeAppPagePath = (typeof E2EE_APP_PAGE_PATHS)[number];

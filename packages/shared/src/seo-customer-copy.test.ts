@@ -17,6 +17,7 @@ import {
   CUSTOMER_COPY_LLMS_RELATIVE_PATHS,
   CUSTOMER_COPY_MANIFEST_RELATIVE_PATHS,
 } from "./customer-copy-guardrails";
+import { createHelvetyOrganizationSchema } from "./layout-primitives";
 import {
   HELVETY_COMPANY_VALUES_TAGLINE,
   HELVETY_SWISS_ORIGIN_SEO,
@@ -72,6 +73,12 @@ describe("seo customer copy guardrails", () => {
     expect(WEB_SITE_DESCRIPTION).toMatch(/Software products/i);
     assertSwissOriginInSeoCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
     expect(WEB_SITE_DESCRIPTION).toMatch(/Private, simple, clean/i);
+  });
+
+  it("Organization JSON-LD uses the gateway SEO description", () => {
+    const org = createHelvetyOrganizationSchema("https://helvety.com/icon.png");
+    expect(org.description).toBe(WEB_SITE_DESCRIPTION);
+    expect(org.inLanguage).toBe("en");
   });
 
   it("PWA manifest descriptions avoid license marketing", () => {

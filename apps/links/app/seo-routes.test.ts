@@ -1,3 +1,4 @@
+import { AI_DISCOVERY_USER_AGENTS } from "@helvety/shared/seo";
 import { describe, expect, it } from "vitest";
 
 import robots from "./robots";
@@ -6,11 +7,16 @@ import sitemap from "./sitemap";
 describe("links SEO routes", () => {
   it("returns noindex robots rules", () => {
     const robotsOutput = robots();
+    const rules = Array.isArray(robotsOutput.rules)
+      ? robotsOutput.rules
+      : [robotsOutput.rules];
 
-    expect(robotsOutput.rules).toEqual({
-      userAgent: "*",
-      disallow: "/",
-    });
+    expect(rules.map((rule) => rule.userAgent)).toEqual(
+      expect.arrayContaining(["*", ...AI_DISCOVERY_USER_AGENTS])
+    );
+    for (const rule of rules) {
+      expect(rule.disallow).toBe("/");
+    }
     expect(robotsOutput.sitemap).toBeUndefined();
   });
 

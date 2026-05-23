@@ -3,38 +3,72 @@
   "workspaces": {
     ".": {
       "entry": ["scripts/**/*.{mjs,js}"],
-      "project": ["scripts/**/*.{mjs,js}"],
-      "ignoreDependencies": ["onnxruntime-web"]
+      "project": ["scripts/**/*.{mjs,js}"]
+    },
+    "packages/dev-deps": {
+      "entry": [],
+      "project": [],
+      "ignoreDependencies": [
+        "@tailwindcss/postcss",
+        "@testing-library/jest-dom",
+        "@testing-library/react",
+        "@types/node",
+        "@types/react",
+        "@types/react-dom",
+        "@vitest/coverage-v8",
+        "babel-plugin-react-compiler",
+        "eslint",
+        "jsdom",
+        "prettier",
+        "prettier-plugin-tailwindcss",
+        "shadcn",
+        "tailwindcss",
+        "typescript",
+        "vitest"
+      ]
     },
     "apps/*": {
       "entry": [
         "app/**/*.{ts,tsx,js,jsx,mjs,cjs}",
         "{instrumentation,proxy}.{ts,tsx,js,mjs,cjs}",
         "next.config.{ts,js,mjs,cjs}",
-        "vitest.config.{ts,js,mjs,cjs}"
+        "eslint.config.mjs",
+        "vitest.config.{ts,js,mjs,cjs}",
+        "vitest.setup.ts",
+        "**/*.{test,spec}.{ts,tsx}"
       ],
-      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"]
+      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
+      "ignoreDependencies": ["@helvety/dev-deps"]
     },
     "packages/*": {
       "entry": [
         "src/**/*.{ts,tsx,js,jsx,mjs,cjs}",
-        "*.{ts,tsx,js,jsx,mjs,cjs}"
+        "*.{ts,tsx,js,jsx,mjs,cjs}",
+        "eslint.config.mjs",
+        "vitest.config.{ts,js,mjs,cjs}",
+        "**/*.{test,spec}.{ts,tsx}"
       ],
-      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"]
+      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
+      "ignoreDependencies": ["@helvety/dev-deps"]
     },
     "packages/config": {
       "entry": ["*.{ts,tsx,js,jsx,mjs,cjs}"],
       "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
-      "ignoreBinaries": ["vitest"],
-      "ignoreDependencies": ["eslint-plugin-react"]
+      "ignoreDependencies": ["eslint-plugin-react", "@helvety/dev-deps"]
+    },
+    "packages/extension-chrome": {
+      "entry": [
+        "src/**/*.{ts,tsx,js,jsx,mjs,cjs}",
+        "*.{ts,tsx,js,jsx,mjs,cjs}",
+        "eslint.config.mjs",
+        "vitest.config.{ts,js,mjs,cjs}",
+        "**/*.{test,spec}.{ts,tsx}"
+      ],
+      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
+      "ignoreDependencies": ["@helvety/dev-deps", "@types/chrome"]
     }
   },
-  "ignoreDependencies": [
-    "@tailwindcss/postcss",
-    "prettier-plugin-tailwindcss",
-    "shadcn",
-    "tailwindcss"
-  ],
+  "ignoreDependencies": ["@helvety/dev-deps"],
   "ignore": [
     "apps/pdf/public/pdf.worker.min.mjs",
     "apps/pdf/lib/empty-canvas-stub.mjs"

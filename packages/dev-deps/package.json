@@ -1,0 +1,35 @@
+{
+  "name": "@helvety/dev-deps",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared development toolchain dependencies for Helvety workspaces (eslint, typescript, vitest, prettier, testing, Tailwind PostCSS).",
+  "author": "Helvety",
+  "license": "AGPL-3.0-or-later",
+  "homepage": "https://helvety.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CasparRubin/helvety.git",
+    "directory": "packages/dev-deps"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^24.12.4",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.7",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint": "^10.4.0",
+    "jsdom": "29.1.1",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "shadcn": "^4.7.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6",
+    "vitest": "^4.1.7"
+  }
+}

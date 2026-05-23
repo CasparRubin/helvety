@@ -113,6 +113,15 @@ describe("encryption-actions", () => {
     });
   });
 
+  it("uses auth-encryption rate limits for getPasskeyParams", async () => {
+    await getPasskeyParams();
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      rateLimitPrefix: "auth-encryption",
+      readRateLimitConfig: { maxRequests: 5, windowMs: 300_000 },
+    });
+  });
+
   it("rejects saveKeyCheckValue when CSRF check fails", async () => {
     mocks.requireCSRFToken.mockRejectedValueOnce(new Error("csrf"));
     await expect(saveKeyCheckValue("token", "kcv")).resolves.toEqual({

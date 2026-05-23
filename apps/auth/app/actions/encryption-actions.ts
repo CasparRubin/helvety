@@ -6,6 +6,7 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
 import { getAuthUser } from "@helvety/shared/auth-retry";
 import { requireCSRFToken } from "@helvety/shared/csrf";
+import { getPasskeyParamsWithOptions } from "@helvety/shared/encryption-actions";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { createServerClient } from "@helvety/shared/supabase/server";
@@ -23,9 +24,11 @@ import type {
 // ENCRYPTION (PRF PARAMS)
 // =============================================================================
 //
-// Read helpers (`hasEncryptionSetup`, `getPasskeyParams`) use
-// `authenticateAndRateLimit` with `readRateLimitConfig: CREDENTIAL_READ` (no
-// CSRF). Mutations (`saveKeyCheckValue`) keep CSRF plus `ENCRYPTION` limits.
+// Read helpers: `hasEncryptionSetup` uses `authenticateAndRateLimit` here with
+// `CREDENTIAL_READ` (no CSRF). `getPasskeyParams` delegates to
+// `@helvety/shared/encryption-actions` `getPasskeyParamsWithOptions` with the
+// same auth rate-limit prefix. Mutations (`saveKeyCheckValue`) keep CSRF plus
+// `ENCRYPTION` limits in this module.
 
 /**
  * Check if user has encryption (PRF params) set up.
@@ -67,30 +70,12 @@ export async function hasEncryptionSetup(): Promise<ActionResponse<boolean>> {
 export async function getPasskeyParams(): Promise<
   ActionResponse<UserPasskeyParams | null>
 > {
-  try {
-    const auth = await authenticateAndRateLimit({
-      rateLimitPrefix: "auth-encryption",
-      readRateLimitConfig: RATE_LIMITS.CREDENTIAL_READ,
-    });
-    if (!auth.ok) {
-      return auth.response;
-    }
-    const { user, supabase } = auth.ctx;
-
-    const row = await fetchUserPasskeyParamsForUser(
-      supabase,
-      user.id,
-      "Error getting PRF params"
-    );
-    if (!row.ok) {
-      return { success: false, error: "Failed to load encryption params" };
-    }
-
-    return { success: true, data: row.params };
-  } catch (error) {
-    logger.logUnexpectedError("Error in getPasskeyParams", error);
-    return { success: false, error: "Failed to load encryption params" };
-  }
+  return getPasskeyParamsWithOptions({
+    rateLimitPrefix: "auth-encryption",
+    readRateLimitConfig: RATE_LIMITS.CREDENTIAL_READ,
+    fetchLogContext: "Error getting PRF params",
+    loadErrorMessage: "Failed to load encryption params",
+  });
 }
 
 /**
