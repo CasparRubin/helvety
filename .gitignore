@@ -67,3 +67,4 @@ package-lock.json
 
 # Auto-generated version files
 **/lib/config/version.ts
+.vercel

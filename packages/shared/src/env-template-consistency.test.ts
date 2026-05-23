@@ -8,6 +8,8 @@ import {
   EXPECTED_KEYS_BY_APP,
   parseTemplateKeys,
   validateEnvTemplates,
+  validateTurboGatewayBuildEnv,
+  WEB_GATEWAY_KEYS,
 } from "../../../scripts/env-template-expectations.mjs";
 
 const testDir =
@@ -22,6 +24,21 @@ describe("env.template consistency", () => {
     expect(errors).toEqual([]);
   });
 
+  it("matches validateTurboGatewayBuildEnv guardrail", async () => {
+    const errors = await validateTurboGatewayBuildEnv(repoRoot);
+    expect(errors).toEqual([]);
+  });
+
+  it("WEB_GATEWAY_KEYS matches turbo.json build env gateway URLs", async () => {
+    const turbo = JSON.parse(
+      await readFile(resolve(repoRoot, "turbo.json"), "utf8")
+    ) as { tasks?: { build?: { env?: string[] } } };
+    const buildEnv = turbo.tasks?.build?.env ?? [];
+    expect([...WEB_GATEWAY_KEYS].sort()).toEqual(
+      WEB_GATEWAY_KEYS.filter((key) => buildEnv.includes(key)).sort()
+    );
+  });
+
   it("documents DEVICE_TRUST_COOKIE_SECRET only on auth", () => {
     for (const [app, keys] of Object.entries(EXPECTED_KEYS_BY_APP)) {
       const hasDeviceTrust = keys.includes("DEVICE_TRUST_COOKIE_SECRET");
@@ -30,23 +47,13 @@ describe("env.template consistency", () => {
   });
 
   it("documents gateway rewrite URLs only on web", () => {
-    const gatewayKeys = [
-      "AUTH_URL",
-      "STORE_URL",
-      "PDF_URL",
-      "DOCS_URL",
-      "IMAGE_UPSCALER_URL",
-      "TASKS_URL",
-      "CONTACTS_URL",
-      "NOTES_URL",
-      "LINKS_URL",
-    ] as const;
-
     for (const [app, keys] of Object.entries(EXPECTED_KEYS_BY_APP)) {
-      const gatewayCount = gatewayKeys.filter((key) =>
+      const gatewayCount = WEB_GATEWAY_KEYS.filter((key) =>
         keys.includes(key)
       ).length;
-      expect(gatewayCount).toBe(app === "web" ? gatewayKeys.length : 0);
+      expect(gatewayCount).toBe(
+        app === "web" ? WEB_GATEWAY_KEYS.length : 0
+      );
     }
   });
 

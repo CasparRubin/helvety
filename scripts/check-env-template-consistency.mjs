@@ -5,19 +5,23 @@
 import {
   EXPECTED_KEYS_BY_APP,
   validateEnvTemplates,
+  validateTurboGatewayBuildEnv,
 } from "./env-template-expectations.mjs";
 
 const rootDir = process.cwd();
 
 async function main() {
-  const errors = await validateEnvTemplates(rootDir);
+  const errors = [
+    ...(await validateEnvTemplates(rootDir)),
+    ...(await validateTurboGatewayBuildEnv(rootDir)),
+  ];
 
   if (errors.length > 0) {
     throw new Error(errors.join("\n"));
   }
 
   console.log(
-    `Env template consistency checks passed (${Object.keys(EXPECTED_KEYS_BY_APP).length} apps).`
+    `Env template consistency checks passed (${Object.keys(EXPECTED_KEYS_BY_APP).length} apps, turbo gateway env).`
   );
 }
 

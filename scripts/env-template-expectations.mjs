@@ -19,16 +19,17 @@ export const COOKIE_SIGNING_KEYS = ["HELVETY_COOKIE_SIGNING_SECRET"];
 
 export const AUTH_EXTRA_KEYS = ["DEVICE_TRUST_COOKIE_SECRET"];
 
+/** Gateway zone URLs required in apps/web env.template and turbo build env (Vercel). */
 export const WEB_GATEWAY_KEYS = [
   "AUTH_URL",
   "STORE_URL",
   "PDF_URL",
+  "DOCS_URL",
   "IMAGE_UPSCALER_URL",
   "TASKS_URL",
   "CONTACTS_URL",
   "NOTES_URL",
   "LINKS_URL",
-  "DOCS_URL",
 ];
 
 /** @type {Record<string, string[]>} */
@@ -107,4 +108,34 @@ export async function validateEnvTemplates(rootDir) {
   }
 
   return errors;
+}
+
+/**
+ * Ensures turbo.json exposes gateway rewrite env vars to @helvety/web builds on Vercel.
+ * Without these keys in `tasks.build.env`, Turbo strips them and next.config throws.
+ *
+ * @param {string} rootDir
+ * @returns {Promise<string[]>}
+ */
+export async function validateTurboGatewayBuildEnv(rootDir) {
+  const { readFile } = await import("node:fs/promises");
+  const { resolve } = await import("node:path");
+  const turboPath = resolve(rootDir, "turbo.json");
+  const content = await readFile(turboPath, "utf8");
+  const turbo = JSON.parse(content);
+  const buildEnv = turbo?.tasks?.build?.env;
+
+  if (!Array.isArray(buildEnv)) {
+    return ["turbo.json is missing tasks.build.env array."];
+  }
+
+  const buildEnvSet = new Set(buildEnv);
+  const missing = WEB_GATEWAY_KEYS.filter((key) => !buildEnvSet.has(key));
+  if (missing.length === 0) {
+    return [];
+  }
+
+  return [
+    `turbo.json tasks.build.env must include gateway rewrite keys (add to match apps/web env.template): ${missing.join(", ")}`,
+  ];
 }
